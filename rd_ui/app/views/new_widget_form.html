@@ -1,0 +1,28 @@
+<div class="modal fade" id="add_query_dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" ng-disabled="saveInProgress" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Add Widget</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="text" class="form-control" placeholder="Query Id" ng-model="queryId">
+                </p>
+
+                <p>
+                    <select class="form-control" ng-model="widgetType" ng-options="c.value as c.name for c in widgetTypes"></select>
+                </p>
+                <p>
+                    <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-disabled="saveInProgress" ng-click="saveWidget()">Add to Dashboard</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

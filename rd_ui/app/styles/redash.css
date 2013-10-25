@@ -1,0 +1,109 @@
+body {
+    padding-top: 70px;
+}
+
+a.navbar-brand {
+    font-style: italic;
+}
+
+.graph {
+    height: 300px;
+}
+
+.avatar {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.edit-in-place span {
+  cursor: pointer;
+}
+
+.edit-in-place input {
+  display: none;
+}
+
+.edit-in-place.active span {
+  display: none;
+}
+
+.edit-in-place.active input {
+  display: inline-block;
+}
+
+.delete-button {
+    float: none !important;
+}
+
+.list-group-item.active button {
+    color: white;
+}
+
+/* angular-growl */
+.growl {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    float: right;
+    width: 250px;
+}
+
+.growl-item.ng-enter,
+.growl-item.ng-leave {
+    -webkit-transition:0.5s linear all;
+    -moz-transition:0.5s linear all;
+    -o-transition:0.5s linear all;
+    transition:0.5s linear all;
+}
+
+.growl-item.ng-enter,
+.growl-item.ng-leave.ng-leave-active {
+    opacity:0;
+}
+.growl-item.ng-leave,
+.growl-item.ng-enter.ng-enter-active {
+    opacity:1;
+
+}
+
+/* Gridster */
+
+.gridster ul {
+    list-style-type: none;
+}
+
+li.widget {
+    /*background-color:grey;*/
+    border-width: 1px;
+    border-style: solid;
+    border-color: grey;
+    opacity: 0.7;
+}
+
+li.widget:hover {
+    opacity: 1.0 !important;
+
+    -webkit-transition: opacity .6s;
+    -moz-transition: opacity .6s;
+    -o-transition: opacity .6s;
+    -ms-transition: opacity .6s;
+    transition: opacity .6s;
+}
+
+.gridster .preview-holder {
+    border: none!important;
+    border-radius: 0!important;
+    background: rgba(0,0,0,0.5) !important;
+}
+
+/* CodeMirror */
+.CodeMirror {
+    border: 1px solid #eee;
+    height: auto;
+    min-height: 300px;
+    margin-bottom: 10px;
+}
+.CodeMirror-scroll {
+    overflow-y: hidden;
+    overflow-x: auto;
+}

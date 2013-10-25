@@ -1,0 +1,31 @@
+<div class="container">
+    <rd-tabs tabs-collection='tabs' selected-tab='selectedTab'></rd-tabs>
+    <table class="table table-bordered table-hover table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Runtime</th>
+                <th>Created at</th>
+                <th>Update Schedule</th>
+                <th>Created By</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="query in queries | filter:filterQueries">
+                <td><a ng-href="/queries/{{query.id}}">{{query.name}}</a></td>
+                <td>{{query.runtime | durationHumanize}}</td>
+                <td>
+                    <span am-time-ago="query.created_at" ng-show="query.created_at > 0"></span>
+                    <span ng-show="query.created_at == undefined">Never</span>
+                </td>
+                <td>
+                    <span ng-show="query.ttl > -1">Every {{query.ttl | durationHumanize}}</span>
+                    <span ng-show="query.ttl == -1">Manual</span>
+                </td>
+                <td>{{query.user}}</td>
+            </tr>
+        </tbody>
+
+    </table>
+
+</div>

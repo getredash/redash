@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" ng-app="redash" ng-controller='MainCtrl'> <!--<![endif]-->
+<head>
+    <title ng-bind="'redash: ' + pageTitle"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/bower_components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="/bower_components/gridster/dist/jquery.gridster.css">
+    <link rel="stylesheet" href="/bower_components/pivottable/examples/pivot.css">
+    <link rel="stylesheet" href="/bower_components/cornelius/src/cornelius.css">
+    <!-- build:css(.tmp) /styles/main.css -->
+    <link rel="stylesheet" href="/styles/redash.css">
+    <!-- endbuild -->
+</head>
+<body>
+<div growl></div>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse"
+                data-target=".navbar-ex1-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/"><strong>redash</strong></a>
+    </div>
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav">
+            <li class="active" ng-show="pageTitle"><a ng-bind="pageTitle"></a></li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="dashboard in dashboards">
+                        <a ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Queries <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/queries/new">New Query</a></li>
+                    <li><a href="/queries">Queries</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <p class="navbar-text avatar">
+                <img ng-src="{{!currentUser.gravatar_url}}" class="img-circle" alt="{{!currentUser.name}}" width="40" height="40"/>
+            </p>
+        </ul>
+    </div>
+
+    </div>
+</nav>
+
+<edit-dashboard-form dashboard="newDashboard" id="new_dashboard_dialog"></edit-dashboard-form>
+<div ng-view></div>
+
+<script src="/bower_components/jquery/jquery.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
+<!-- build:js /scripts/plugins.js -->
+<script src="/bower_components/jquery-ui/ui/jquery-ui.js"></script>
+<script src="/bower_components/bootstrap/js/collapse.js"></script>
+<script src="/bower_components/bootstrap/js/modal.js"></script>
+<script src="/bower_components/angular-resource/angular-resource.js"></script>
+<script src="/bower_components/underscore/underscore.js"></script>
+<script src="/bower_components/moment/moment.js"></script>
+<script src="/bower_components/angular-moment/angular-moment.js"></script>
+<script src="/bower_components/codemirror/lib/codemirror.js"></script>
+<script src="/bower_components/codemirror/addon/edit/matchbrackets.js"></script>
+<script src="/bower_components/codemirror/addon/edit/closebrackets.js"></script>
+<script src="/bower_components/codemirror/mode/sql/sql.js"></script>
+<script src="/bower_components/codemirror/mode/javascript/javascript.js"></script>
+<script src="/bower_components/angular-ui-codemirror/ui-codemirror.js"></script>
+<script src="/bower_components/highcharts/highcharts.js"></script>
+<script src="/bower_components/highcharts/modules/exporting.js"></script>
+<script src="/scripts/ng-highchart.js"></script>
+<script src="/scripts/smart-table.js"></script>
+<script src="/scripts/ui-bootstrap-tpls-0.5.0.min.js"></script>
+<script src="/bower_components/gridster/dist/jquery.gridster.js"></script>
+<script src="/bower_components/angular-growl/build/angular-growl.js"></script>
+<script src="/bower_components/pivottable/examples/pivot.js"></script>
+<script src="/bower_components/cornelius/src/cornelius.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) /scripts/scripts.js -->
+<script src="/scripts/app.js"></script>
+<script src="/scripts/controllers.js"></script>
+<script src="/scripts/admin_controllers.js"></script>
+<script src="/scripts/directives.js"></script>
+<script src="/scripts/services.js"></script>
+<script src="/scripts/filters.js"></script>
+<script src="/scripts/services/notifications.js"></script>
+<script src="/scripts/services/dashboards.js"></script>
+<script src="/scripts/query_fiddle/renderers.js"></script>
+<!-- endbuild -->
+
+<script>
+    var currentUser = {% raw user %};
+</script>
+
+</body>
+</html>

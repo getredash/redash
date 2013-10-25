@@ -1,0 +1,33 @@
+<div class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" ng-disabled="saveInProgress" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Edit: {{dashboard.name}}</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="dashboard.name">
+                </p>
+
+                <p ng-show="layout!='null'">
+                    <div class="gridster">
+                        <ul>
+                            <li ng-repeat="widget in layout" data-row="{{widget.row}}" data-col="{{widget.col}}"
+                                data-sizey="{{widget.ySize}}" data-sizex="{{widget.xSize}}" data-widget-id="{{widget.id}}"
+                                class="widget panel panel-default">
+                                <div class="panel-heading">{{widget.name}}</div>
+                            </li>
+                        </ul>
+                    </div>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-disabled="saveInProgress" ng-click="saveDashboard()">Save</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>

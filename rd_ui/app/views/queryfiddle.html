@@ -1,0 +1,61 @@
+<div class="container">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <span class="glyphicon glyphicon-pencil"></span> <edit-in-place value="query.name"></edit-in-place>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <textarea ui-codemirror="editorOptions" ng-model="query.query"></textarea>
+
+
+
+                <div>
+                    <a class="btn btn-default" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Download Data Set
+                    </a>
+                    <button type="button" class="btn btn-default center-x" ng-click="formatQuery()"><span class="glyphicon glyphicon-ok"></span> Format SQL</button>
+
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default" ng-click="duplicateQuery()">Duplicate</button>
+                        <button type="button" class="btn btn-default" ng-disabled="currentUser.name != query.user" ng-click="saveQuery()">Save</button>
+                        <button type="button" class="btn btn-primary" ng-disabled="queryExecuting" ng-click="executeQuery()">Execute</button>
+                    </div>
+                </div>
+
+            </div>
+            <div class="panel-footer">
+                <span ng-show="queryResult.getRuntime()>=0">Query runtime: {{queryResult.getRuntime() | durationHumanize}} | </span>
+                <span ng-show="queryResult.query_result.retrieved_at">Last update time: <span am-time-ago="queryResult.query_result.retrieved_at"></span> | </span>
+                <span ng-show="queryResult.getStatus() == 'done'">Rows: {{queryResult.getData().length}} | </span>
+                Created by: {{query.user}}
+                <div class="pull-right">Refresh query: <select ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select><br></div>
+            </div>
+        </div>
+
+        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">Executing query... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer></div>
+        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">Query in queue... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer></div>
+        <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
+    </div>
+
+    <div class="row" ng-show="queryResult.getStatus() == 'done'">
+        <rd-tabs tabs-collection='tabs' selected-tab='selectedTab'></rd-tabs>
+
+        <div ng-show="selectedTab.key == 'chart'" class="col-lg-12">
+            <chart-renderer query-result="queryResult"></chart-renderer>
+        </div>
+
+        <div class="col-lg-12" ng-show="selectedTab.key == 'table'">
+            <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+        </div>
+
+        <div class="col-lg-12" ng-show="selectedTab.key == 'pivot'">
+            <pivot-table-renderer query-result="queryResult"></pivot-table-renderer>
+        </div>
+
+        <div class="col-lg-12" ng-show="selectedTab.key == 'cohort'">
+            <cohort-renderer query-result="queryResult"></cohort-renderer>
+        </div>
+    </div>
+</div>

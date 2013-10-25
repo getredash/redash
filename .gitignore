@@ -1,0 +1,3 @@
+.idea
+*.pyc
+rd_service/settings.py
