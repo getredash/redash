@@ -1,3 +1,8 @@
+"""
+CLI to start the workers.
+
+TODO: move API server startup here.
+"""
 import argparse
 import logging
 import urlparse

@@ -1,3 +1,6 @@
+"""
+Data manager. Used to manage and coordinate execution of queries.
+"""
 import collections
 from contextlib import contextmanager
 import json
@@ -6,7 +9,6 @@ import psycopg2
 import psycopg2.pool
 import qr
 import redis
-import time
 import query_runner
 import worker
 from utils import gen_query_hash

@@ -1,3 +1,11 @@
+"""
+QueryRunner is the function that the workers use, to execute queries. This is the Redshift
+(PostgreSQL in fact) version, but easily we can write another to support additional databases
+(MySQL and others).
+
+Because the worker just pass the query, this can be used with any data store that has some sort of
+query language (for example: HiveQL).
+"""
 import json
 import psycopg2
 import sys

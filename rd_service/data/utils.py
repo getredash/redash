@@ -11,12 +11,21 @@ COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
 
 def gen_query_hash(sql):
+    """Returns hash of the given query after stripping all comments, line breaks and multiple
+    spaces, and lower casing all text.
+
+    TODO: possible issue - the following queries will get the same id:
+        1. SELECT 1 FROM table WHERE column='Value';
+        2. SELECT 1 FROM table where column='value';
+    """
     sql = COMMENTS_REGEX.sub("", sql)
     sql = "".join(sql.split()).lower()
     return hashlib.md5(sql).hexdigest()
 
 
 class JSONEncoder(json.JSONEncoder):
+    """Custom JSON encoding class, to handle Decimal and datetime.date instances.
+    """
     def default(self, o):
         if isinstance(o, decimal.Decimal):
             return float(o)
@@ -32,7 +41,6 @@ class UnicodeWriter:
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
     """
-
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
         self.queue = cStringIO.StringIO()

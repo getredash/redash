@@ -1,3 +1,6 @@
+"""
+Django ORM based models to describe the data model of redash.
+"""
 import json
 from django.db import models
 from django.template.defaultfilters import slugify

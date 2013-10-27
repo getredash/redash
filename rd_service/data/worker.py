@@ -1,3 +1,6 @@
+"""
+Worker implementation to execute incoming queries.
+"""
 import json
 import logging
 import threading
@@ -42,7 +45,6 @@ class Job(object):
             self.query_time = query_time
             self.updated_at = updated_at
             self.status = status
-
 
     def to_dict(self):
         return {
