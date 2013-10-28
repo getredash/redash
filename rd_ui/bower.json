@@ -21,5 +21,9 @@
   "devDependencies": {
     "angular-mocks": "~1.0.7",
     "angular-scenario": "~1.0.7"
+  },
+  "resolutions": {
+    "angular": "1.0.8",
+    "jquery": "~1.9.1"
   }
 }
