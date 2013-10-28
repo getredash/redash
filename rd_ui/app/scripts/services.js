@@ -10,11 +10,8 @@
 
                 _.each(this.query_result.data.rows, function (row) {
                     _.each(row, function (v, k) {
-                        if (_.isString(v)) {
-                            var date = moment(v);
-                            if (date.isValid()) {
-                                row[k] = date;
-                            }
+                        if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
+                            row[k] = moment(v);
                         }
                     });
                 });
