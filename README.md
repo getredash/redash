@@ -36,7 +36,28 @@ TBD.
 
 ## Roadmap
 
-TBD.
+We plan to release new minor version every 2-3 weeks. Of course, if we get additional help from contributors it will help speed things up.
+
+Below you can see the "big" features of the next 3 releases (for full list, click on the link):
+
+### [v0.2](https://github.com/EverythingMe/redash/issues?milestone=1&state=open)
+
+- Ability to generate multiple visualizations for a single query (dataset) in a more flexible way than today. Also easier extensbility points to add additional visualizations.
+- Dashboard filters: ability to filter/slice the data you see in a single dashboard using filters (date or selectors).
+- UI Improvements (better notifications & flows, improved queries page) 
+- Comments on queries.
+
+### [v0.3](https://github.com/EverythingMe/redash/issues?milestone=2&state=open)
+
+- Support for API access using API keys, instead of Google Login.
+- Multiple databases support (including other database type than PostgreSQL).
+- Scheduled reports by email.
+
+### [v0.4](https://github.com/EverythingMe/redash/issues?milestone=3&state=open)
+
+- Query versioning. 
+- More "realtime" UI (using websockets).
+- More visualizations.
 
 ## Reporting Bugs and Contributing Code
 
