@@ -45,4 +45,4 @@ TBD.
 
 ## License
 
-See LICENSE file.
+See [LICENSE](https://github.com/EverythingMe/redash/blob/master/LICENSE) file.
