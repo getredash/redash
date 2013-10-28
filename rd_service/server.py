@@ -1,5 +1,5 @@
 """
-Tornado based API implementation for redash.
+Tornado based API implementation for re:dash.
 
 Also at the moment the Tornado server is used to serve the static assets (and the Angular.js app),
 but this is only due to configuration issues and temporary.
@@ -318,7 +318,7 @@ if __name__ == '__main__':
     data_manager = data.Manager(redis_connection, settings.INTERNAL_DB_CONNECTION_STRING,
                                       settings.MAX_CONNECTIONS)
 
-    logging.info("redash web server stating on port: %d...", tornado.options.options.port)
+    logging.info("re:dash web server stating on port: %d...", tornado.options.options.port)
     logging.info("UI assets path: %s...", static_path)
 
     application = get_application(static_path, tornado.options.options.debug,

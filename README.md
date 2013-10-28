@@ -1,8 +1,8 @@
-# [_redash_](https://github.com/everythingme/redash)
+# [_re:dash_](https://github.com/everythingme/re:dash)
 
-**_redash_** was developed at everything.me as an alternative to the standard BI tools available today, that will better fit our  culture and usage patterns.
+**_re:dash_** was developed at everything.me as an alternative to the standard BI tools available today, that will better fit our  culture and usage patterns.
 
-**_redash_** consists of two parts:
+**_re:dash_** consists of two parts:
 
 1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the data set and the query that generated it. This way everyone can peer review not only the resulting data set but also the process that generated it. Also it's possible to fork it and generate new data sets and reach new insights. 
 2. **Dashboards/Visualizations**: once you have a data set, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently it supports bar charts, pivot table and cohorts.
@@ -36,8 +36,8 @@ TBD.
 
 ## Reporting Bugs and Contributing Code
 
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/everythingme/redash/issues/new).
-* Want to help us build **_redash_**? Fork the project and make a pull request. We need all the help we can get!
+* Want to report a bug or request a feature? Please open [an issue](https://github.com/everythingme/re:dash/issues/new).
+* Want to help us build **_re:dash_**? Fork the project and make a pull request. We need all the help we can get!
 
 ## License
 

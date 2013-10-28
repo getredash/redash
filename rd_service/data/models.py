@@ -1,5 +1,5 @@
 """
-Django ORM based models to describe the data model of redash.
+Django ORM based models to describe the data model of re:dash.
 """
 import json
 from django.db import models

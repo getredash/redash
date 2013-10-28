@@ -13,7 +13,7 @@ INTERNAL_DB_CONNECTION_STRING = "dbname=postgres"
 # access
 GOOGLE_APPS_DOMAIN = ""
 # Email addresses of specific users not from the above set Google Apps Domain, that you want to
-# allow access to redash
+# allow access to re:dash
 ALLOWED_USERS = []
 # Email addresses of admin users
 ADMINS = []
