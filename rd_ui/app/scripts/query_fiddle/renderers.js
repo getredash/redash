@@ -151,7 +151,7 @@ renderers.directive('gridRenderer', function () {
                             var exampleData = gridData[0][col];
                             if (angular.isNumber(exampleData)) {
                                 columnDefinition['formatFunction'] = 'number';
-                                columnDefinition['formatParameter'] = 3;
+                                columnDefinition['formatParameter'] = 2;
                             } else if (moment.isMoment(exampleData)) {
                                 columnDefinition['formatFunction'] = function(value) {
                                     return value.format("DD/MM/YY HH:mm");
