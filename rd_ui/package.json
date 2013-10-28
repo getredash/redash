@@ -1,6 +1,6 @@
 {
   "name": "rd-ui",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "grunt-karma": "~0.6.1"
   },
