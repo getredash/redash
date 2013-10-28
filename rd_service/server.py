@@ -298,7 +298,7 @@ def get_application(static_path, is_debug, redis_connection, data_manager):
                                    static_path=static_path,
                                    debug=is_debug,
                                    login_url="/login",
-                                   cookie_secret="1f7146d871a6a23263089419cc443813",
+                                   cookie_secret=settings.COOKIE_SECRET,
                                    redis_connection=redis_connection,
                                    data_manager=data_manager)
 
