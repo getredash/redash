@@ -104,7 +104,7 @@ renderers.directive('gridRenderer', function () {
         },
         templateUrl: "/views/grid_renderer.html",
         replace: false,
-        controller: ['$scope', '$filter', function ($scope, $filter) {
+        controller: ['$scope', function ($scope) {
             $scope.gridColumns = [];
             $scope.gridData = [];
             $scope.gridConfig = {
@@ -123,30 +123,43 @@ renderers.directive('gridRenderer', function () {
                     $scope.gridData = [];
                     $scope.filters = [];
                 } else {
-                    $scope.gridColumns = _.map($scope.queryResult.getColumnCleanNames(), function (col, i) {
 
-                        return {
-                            'label': $scope.queryResult.getColumnFriendlyNames()[i],
-                            'map': col
-                        }
-                    });
 
                     $scope.filters = $scope.queryResult.getFilters();
 
                     var gridData = _.map($scope.queryResult.getData(), function (row) {
                         var newRow = {};
                         _.each(row, function (val, key) {
-                            // TODO: hack to detect date fields
+                            // TODO: hack to detect date fields, needed only for backward compatability
                             if (val > 1000 * 1000 * 1000 * 100) {
-                                newRow[$scope.queryResult.getColumnCleanName(key)] = moment(val).format("DD/MM/YY HH:mm");
-                            } else if (angular.isNumber(val)) {
-                                newRow[$scope.queryResult.getColumnCleanName(key)] = $filter('number')(val, 2);
+                                newRow[$scope.queryResult.getColumnCleanName(key)] = moment(val);
                             } else {
                                 newRow[$scope.queryResult.getColumnCleanName(key)] = val;
                             }
 
                         })
                         return newRow;
+                    });
+
+                    $scope.gridColumns = _.map($scope.queryResult.getColumnCleanNames(), function (col, i) {
+                        var columnDefinition = {
+                            'label': $scope.queryResult.getColumnFriendlyNames()[i],
+                            'map': col
+                        };
+
+                        if (gridData.length > 0) {
+                            var exampleData = gridData[0][col];
+                            if (angular.isNumber(exampleData)) {
+                                columnDefinition['formatFunction'] = 'number';
+                                columnDefinition['formatParameter'] = 3;
+                            } else if (moment.isMoment(exampleData)) {
+                                columnDefinition['formatFunction'] = function(value) {
+                                    return value.format("DD/MM/YY HH:mm");
+                                }
+                            }
+                        }
+
+                        return columnDefinition;
                     });
 
                     $scope.gridData = _.clone(gridData);
