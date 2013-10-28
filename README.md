@@ -40,7 +40,7 @@ TBD.
 
 ## Reporting Bugs and Contributing Code
 
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/everythingme/re:dash/issues/new).
+* Want to report a bug or request a feature? Please open [an issue](https://github.com/everythingme/redash/issues/new).
 * Want to help us build **_re:dash_**? Fork the project and make a pull request. We need all the help we can get!
 
 ## License
