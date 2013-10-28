@@ -1,11 +1,15 @@
 # [_re:dash_](https://github.com/everythingme/re:dash)
 
-**_re:dash_** was developed at everything.me as an alternative to the standard BI tools available today, that will better fit our  culture and usage patterns.
+**_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
+
+Prior to **_re:dash_**, we tried to use tranditional BI suites and discovered a set of bloated, technically challenged and slow tools/flows. What we were looking for was a more hacker'ish way to look at data, so we built one.
+
+**_re:dash_** was built to allow fast and easy access to billions of records, that we process and collect using Amazon Redshift ("petabyte scale data warehouse" that "speaks" PostgreSQL).
 
 **_re:dash_** consists of two parts:
 
-1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the data set and the query that generated it. This way everyone can peer review not only the resulting data set but also the process that generated it. Also it's possible to fork it and generate new data sets and reach new insights. 
-2. **Dashboards/Visualizations**: once you have a data set, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently it supports bar charts, pivot table and cohorts.
+1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the dataset and the query that generated it. This way everyone can peer review not only the resulting dataset but also the process that generated it. Also it's possible to fork it and generate new datasets and reach new insights. 
+2. **Dashboards/Visualizations**: once you have a dataset, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently it supports bar charts, pivot table and cohorts.
 
 This is the first release, which is more than usable but still has its rough edges and way to go to fulfill its full potential. The Query Editor part is quite solid, but the visualizations need more work to enrich them and to make them more user friendly.
 
@@ -13,7 +17,7 @@ This is the first release, which is more than usable but still has its rough edg
 
 * [AngularJS](http://angularjs.org/)
 * [Tornado](tornadoweb.org)
-* [PostgreSQL](http://www.postgresql.org/)
+* [PostgreSQL](http://www.postgresql.org/) / [AWS Redshift](http://aws.amazon.com/redshift/)
 * [Redis](http://redis.io)
 
 PostgreSQL is used both as the operatinal database for the system, but also as the data store that is being queried. To be exact, we built this system to use on top of Amazon's Redshift, which supports the PG driver. But it's quite simple to add support for other datastores, and we do plan to do so.
@@ -41,4 +45,4 @@ TBD.
 
 ## License
 
-TBD.
+See LICENSE file.
