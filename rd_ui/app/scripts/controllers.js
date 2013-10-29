@@ -33,11 +33,7 @@
         $scope.$parent.pageTitle = "Query Fiddle";
 
         $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
-                       {'key': 'pivot', 'name': 'Pivot Table'}];
-
-        if (currentUser.is_admin) {
-            $scope.tabs.push({'key': 'cohort', 'name': 'Cohort'});
-        }
+                       {'key': 'pivot', 'name': 'Pivot Table'}, {'key': 'cohort', 'name': 'Cohort'}];
 
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
