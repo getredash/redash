@@ -107,3 +107,23 @@ li.widget:hover {
     overflow-y: hidden;
     overflow-x: auto;
 }
+
+/* Because of ng-repeat we add span between the .dropdown-menu element and the li element, so we had
+to add those CSS styles here. */
+
+.dropdown-menu > span > li > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.428571429;
+  color: #333333;
+  white-space: nowrap;
+}
+
+.dropdown-menu > span > li > a:hover,
+.dropdown-menu > span > li > a:focus {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #428bca;
+}

@@ -1,7 +1,8 @@
 <div class="container">
-    <div class="list-group">
+    <h2>Dashboards</h2>
+    <div class="list-group" ng-repeat="(name, dashboards) in groupedDashboards">
         <div class="list-group-item active">
-            Dashboards
+            {{name}}
             <button type="button" class="btn btn-sm btn-link" data-toggle="modal" href="#new_dashboard_dialog" tooltip="New Dashboard"><span class="glyphicon glyphicon-plus-sign"></span></button>
         </div>
         <div class="list-group-item" ng-repeat="dashboard in dashboards" >

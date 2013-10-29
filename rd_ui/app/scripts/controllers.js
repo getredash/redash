@@ -184,7 +184,22 @@
     }
 
     var MainCtrl = function ($scope, Dashboard, notifications) {
-        $scope.dashboards = Dashboard.query();
+        $scope.dashboards = [];
+        $scope.reloadDashboards = function() {
+            Dashboard.query(function (dashboards) {
+                $scope.dashboards = _.sortBy(dashboards, "name");
+                $scope.groupedDashboards = _.groupBy($scope.dashboards, function(d) {
+                    parts = d.name.split(":");
+                    if (parts.length == 1) {
+                        return "Other";
+                    }
+                    return parts[0];
+                });
+            });
+        }
+
+        $scope.reloadDashboards();
+
         $scope.currentUser = currentUser;
         $scope.newDashboard = {
             'name': null,
@@ -203,7 +218,7 @@
         $scope.archiveDashboard = function(dashboard) {
             if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
                 dashboard.$delete(function() {
-                    $scope.$parent.dashboards = Dashboard.query();
+                    $scope.$parent.reloadDashboards();
                 });
             }
         }
