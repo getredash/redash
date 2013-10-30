@@ -1,3 +1,4 @@
 .idea
 *.pyc
 rd_service/settings.py
+rd_ui/dist
