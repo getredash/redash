@@ -24,7 +24,7 @@ class Job(object):
                  wait_time=None, query_time=None,
                  updated_at=None, status=None, error=None, query_result_id=None):
         self.data_manager = data_manager
-        self.query = query
+        self.query = query.decode('utf-8')
         self.priority = priority
         self.query_hash = gen_query_hash(self.query)
         self.query_result_id = query_result_id
