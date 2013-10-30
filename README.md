@@ -16,7 +16,7 @@ This is the first release, which is more than usable but still has its rough edg
 ## Technology
 
 * [AngularJS](http://angularjs.org/)
-* [Tornado](tornadoweb.org)
+* [Tornado](http://tornadoweb.org)
 * [PostgreSQL](http://www.postgresql.org/) / [AWS Redshift](http://aws.amazon.com/redshift/)
 * [Redis](http://redis.io)
 
