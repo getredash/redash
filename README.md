@@ -38,9 +38,41 @@ HighCharts is really great, but it's not free for commercial use. Please refer t
 
 It's very likely that in the future we will switch to [D3.js](http://d3js.org/) instead.
 
-## How to install
+## Getting Started
 
-TBD.
+1. Clone the repo:
+```bash
+git clone git@github.com:EverythingMe/redash.git
+```
+2. Create settings file from the example one (& update relevant settings):
+```bash
+cp rd_service/settings_example.py rd_service/settings.py
+```
+> It's highly recommended that the user you use to connect to the data database (the one you query) is read-only.
+
+3. Install `npm` packages (mainly: Bower & Grunt):
+```bash
+cd rd_ui
+npm install
+```
+4. Install `bower` packages:
+```bash
+bower install
+```
+5. Build the UI:
+```bash
+grunt build
+```
+6. Start the API server:
+```bash
+cd ../rd_service
+python server.py
+```
+7. Start the workers:
+```bash
+python cli.py worker
+```
+8. Open `http://localhost:8888/` and query away.
 
 ## Roadmap
 
