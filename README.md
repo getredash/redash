@@ -16,6 +16,7 @@ This is the first release, which is more than usable but still has its rough edg
 ## Demo
 
 You can try out the demo instance: http://rd-demo.herokuapp.com/ (login with any Google account).
+
 Due to Heroku dev plan limits, it has a small database of flights (see schema [here](http://rd-demo.herokuapp.com/dashboard/schema)). Also due to another Heroku limitation, it is running with the regular user, hence you can DELETE or INSERT data/tables. Please be nice and don't do this.
 
 ## Technology
