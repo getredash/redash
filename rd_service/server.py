@@ -205,7 +205,7 @@ class QueriesHandler(BaseHandler):
             query = data.models.Query(**query_def)
             query.save()
 
-        self.write_json(query.to_dict())
+        self.write_json(query.to_dict(with_result=False))
 
     def get(self, id=None):
         if id:
