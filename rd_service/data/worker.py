@@ -24,7 +24,7 @@ class Job(object):
                  wait_time=None, query_time=None,
                  updated_at=None, status=None, error=None, query_result_id=None):
         self.data_manager = data_manager
-        self.query = query.decode('utf-8')
+        self.query = query
         self.priority = priority
         self.query_hash = gen_query_hash(self.query)
         self.query_result_id = query_result_id
@@ -111,7 +111,7 @@ class Job(object):
         job_dict = cls._load(data_manager, job_id)
         job = None
         if job_dict:
-            job = Job(data_manager, job_id=job_dict['id'], query=job_dict['query'],
+            job = Job(data_manager, job_id=job_dict['id'], query=job_dict['query'].decode('utf-8'),
                       priority=int(job_dict['priority']), updated_at=float(job_dict['updated_at']),
                       status=int(job_dict['status']), wait_time=float(job_dict['wait_time']),
                       query_time=float(job_dict['query_time']), error=job_dict['error'],
