@@ -20,7 +20,7 @@ def gen_query_hash(sql):
     """
     sql = COMMENTS_REGEX.sub("", sql)
     sql = "".join(sql.split()).lower()
-    return hashlib.md5(sql).hexdigest()
+    return hashlib.md5(sql.encode('utf-8')).hexdigest()
 
 
 class JSONEncoder(json.JSONEncoder):
