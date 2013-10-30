@@ -1,4 +1,4 @@
-# [_re:dash_](https://github.com/everythingme/re:dash)
+# [_re:dash_](https://github.com/everythingme/redash)
 
 **_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
 
