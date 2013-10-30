@@ -248,9 +248,9 @@
             }
 
             var queryResult = null;
-            if (this.latest_query_data && ttl > 0) {
+            if (this.latest_query_data && ttl != 0) {
                 queryResult = new QueryResult({'query_result': this.latest_query_data});
-            } else if (this.latest_query_data_id && ttl > 0) {
+            } else if (this.latest_query_data_id && ttl != 0) {
                 queryResult = QueryResult.getById(this.latest_query_data_id);
             } else {
                 queryResult = QueryResult.get(this.query, ttl);
