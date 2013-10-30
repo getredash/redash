@@ -52,6 +52,7 @@
             if (!oldId) {
                 oldId = $scope.query.id;
             }
+            delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
                 if (duplicate) {
                     growl.addInfoMessage("Query duplicated.", {ttl: 2000});
