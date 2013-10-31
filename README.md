@@ -63,6 +63,10 @@ bower install
 ```bash
 grunt build
 ```
+6. Install PIP packages:
+```bash
+pip install -r requirements.txt
+```
 6. Start the API server:
 ```bash
 cd ../rd_service
