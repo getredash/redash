@@ -48,8 +48,8 @@ git clone git@github.com:EverythingMe/redash.git
 ```bash
 cp rd_service/settings_example.py rd_service/settings.py
 ```
-> It's highly recommended that the user you use to connect to the data database (the one you query) is read-only.
-
+It's highly recommended that the user you use to connect to the data database (the one you query) is read-only.
+3. Create the operational databases from rd_service/data/tables.sql
 3. Install `npm` packages (mainly: Bower & Grunt):
 ```bash
 cd rd_ui
@@ -65,7 +65,7 @@ grunt build
 ```
 6. Install PIP packages:
 ```bash
-pip install -r requirements.txt
+pip install -r ../rd_service/requirements.txt
 ```
 6. Start the API server:
 ```bash
