@@ -5,7 +5,7 @@
     "grunt-karma": "~0.6.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
+    "grunt": "git+https://github.com/gruntjs/grunt.git",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-coffee": "~0.7.0",
@@ -28,7 +28,9 @@
     "connect-livereload": "~0.2.0",
     "grunt-google-cdn": "~0.2.0",
     "grunt-ngmin": "~0.0.2",
-    "time-grunt": "~0.1.0"
+    "time-grunt": "~0.1.0",
+    "bower": "~1.2.7",
+    "grunt-cli": "~0.1.9"
   },
   "engines": {
     "node": ">=0.8.0"
