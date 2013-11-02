@@ -5,7 +5,7 @@
     "grunt-karma": "~0.6.1"
   },
   "devDependencies": {
-    "grunt": "git+https://github.com/gruntjs/grunt.git",
+    "grunt": "git+https://github.com/gruntjs/grunt.git#08a3af5",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-coffee": "~0.7.0",
