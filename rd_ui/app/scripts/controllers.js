@@ -74,6 +74,7 @@
         $scope.duplicateQuery = function () {
             var oldId = $scope.query.id;
             $scope.query.id = null;
+            $scope.query.parent_id = oldId;
             $scope.query.ttl = -1;
 
             $scope.saveQuery(true, oldId);

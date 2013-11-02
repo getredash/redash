@@ -17,7 +17,8 @@ CREATE TABLE "queries" (
     "query_hash" varchar(32) NOT NULL,
     "ttl" integer NOT NULL,
     "user" varchar(360) NOT NULL,
-    "created_at" timestamp with time zone NOT NULL
+    "created_at" timestamp with time zone NOT NULL,
+    "parent_id" integer REFERENCES "queries" ("id") DEFERRABLE INITIALLY DEFERRED
 )
 ;
 CREATE TABLE "dashboards" (

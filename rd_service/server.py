@@ -199,6 +199,7 @@ class QueriesHandler(BaseHandler):
             query = data.models.Query(**query_def)
             fields = query_def.keys()
             fields.remove('id')
+            fields.remove('parent_id')
             query.save(update_fields=fields)
         else:
             query_def['user'] = self.current_user
