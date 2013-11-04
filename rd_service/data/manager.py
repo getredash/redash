@@ -30,7 +30,7 @@ class Manager(object):
         self.workers = []
         self.db_connection_pool = psycopg2.pool.ThreadedConnectionPool(1, db_max_connections,
                                                                        db_connection_string)
-        self.queue = qr.PriorityQueue("jobs")
+        self.queue = qr.PriorityQueue("jobs", **self.redis_connection.connection_pool.connection_kwargs)
         self.max_retries = 5
 
     # TODO: Use our Django Models
