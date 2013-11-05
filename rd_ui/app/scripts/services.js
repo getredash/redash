@@ -87,21 +87,20 @@
             _.each(this.getData(), function (row) {
                 var point = {};
                 var seriesName = undefined;
-                var yName = "";
-                var xName = "";
+                var xValue = 0;
+                var yValues = {};
 
-
-                _.map(row, function (value, definition) {
+                _.each(row, function (value, definition) {
                     var type = definition.split("::")[1];
                     var name = definition.split("::")[0];
 
                     if (type == 'x') {
-                        xName = name;
+                        xValue = value;
                         point[type] = value;
                     }
 
                     if (type == 'y') {
-                        yName = name;
+                        yValues[name] = value;
                         point[type] = value;
                     }
 
@@ -110,19 +109,26 @@
                     }
                 });
 
-                if (seriesName === undefined) {
-                    seriesName = yName;
-                }
-
-                if (series[seriesName] == undefined) {
-                    series[seriesName] = {
-                        name: seriesName,
-                        type: 'column',
-                        data: []
+                var addPointToSeries = function(seriesName, point) {
+                    if (series[seriesName] == undefined) {
+                        series[seriesName] = {
+                            name: seriesName,
+                            type: 'column',
+                            data: []
+                        }
                     }
+
+                    series[seriesName]['data'].push(point);
                 }
 
-                series[seriesName]['data'].push(point);
+                if (seriesName === undefined) {
+                    _.each(yValues, function(yValue, seriesName) {
+                        addPointToSeries(seriesName, {'x': xValue, 'y': yValue});
+                    });
+                } else {
+                    addPointToSeries(seriesName, point);
+                }
+
             });
 
             return _.values(series);
