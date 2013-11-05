@@ -86,9 +86,10 @@
 
             _.each(this.getData(), function (row) {
                 var point = {};
-                var seriesName = "";
+                var seriesName = undefined;
                 var yName = "";
                 var xName = "";
+
 
                 _.map(row, function (value, definition) {
                     var type = definition.split("::")[1];
@@ -105,11 +106,11 @@
                     }
 
                     if (type == 'series') {
-                        seriesName = value;
+                        seriesName = value.toString();
                     }
                 });
 
-                if (seriesName == "") {
+                if (seriesName === undefined) {
                     seriesName = yName;
                 }
 
