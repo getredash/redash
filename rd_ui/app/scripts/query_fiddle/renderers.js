@@ -4,7 +4,24 @@ var defaultChartOptions = {
         "text": null
     },
     "tooltip": {
-        valueDecimals: 2
+        valueDecimals: 2,
+        formatter: function () {
+            var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
+                pointsCount = this.points.length;
+
+
+            $.each(this.points, function (i, point) {
+                s += '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
+                    Highcharts.numberFormat(point.y);
+
+                if (pointsCount > 1 && point.percentage) {
+                    s += " (" + Highcharts.numberFormat(point.percentage) + "%)";
+                }
+            });
+
+            return s;
+        },
+        shared: true
     },
     xAxis: {
         type: 'datetime'
