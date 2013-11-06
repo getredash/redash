@@ -128,7 +128,10 @@
                 } else {
                     addPointToSeries(seriesName, point);
                 }
+            });
 
+            _.each(series, function(series) {
+                series.data = _.sortBy(series.data, 'x');
             });
 
             return _.values(series);
