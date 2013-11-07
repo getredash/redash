@@ -35,9 +35,9 @@
                   Duplicated from: <a ng-href="/queries/{{query.parent_id}}">{{query.parent_name}}</a>
                 </div>
 
-                <div ng-show="query.forked.length">
+                <div ng-show="query.forks.length">
                   Duplicated to:
-                  <span ng-repeat="fork in query.forked">
+                  <span ng-repeat="fork in query.forks">
                     <a ng-href="/queries/{{fork.id}}">{{fork.name}}</a> |
                   </span>
                 </div>

@@ -43,13 +43,13 @@ class Query(models.Model):
     ttl = models.IntegerField()
     user = models.CharField(max_length=360)
     created_at = models.DateTimeField(auto_now_add=True)
-    parent = models.ForeignKey('self', related_name='forked')
+    parent = models.ForeignKey('self', related_name='forks')
 
     class Meta:
         app_label = 'redash'
         db_table = 'queries'
 
-    def to_dict(self, with_result=True, with_forked=True):
+    def to_dict(self, with_result=True, with_forks=True):
         d = {
             'id': self.id,
             'latest_query_data_id': self.latest_query_data_id,
@@ -69,8 +69,8 @@ class Query(models.Model):
         if self.parent_id:
             d['parent_name'] = self.parent.name
 
-        if with_forked:
-            d['forked'] = [{'id': q.id, 'name': q.name} for q in self.forked.all()]
+        if with_forks:
+            d['forks'] = [{'id': q.id, 'name': q.name} for q in self.forks.all()]
 
         return d
 
