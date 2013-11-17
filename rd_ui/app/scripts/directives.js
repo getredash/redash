@@ -112,7 +112,7 @@ directives.directive('newWidgetForm', ['$http', function($http) {
         templateUrl: '/views/new_widget_form.html',
         replace: true,
         link: function($scope, element, attrs) {
-            $scope.widgetTypes = [{name: 'Chart', value: 'chart'}, {name: 'Table', value: 'grid'}];
+            $scope.widgetTypes = [{name: 'Chart', value: 'chart'}, {name: 'Table', value: 'grid'}, {name: 'Cohort', value: 'cohort'}];
             $scope.widgetSizes = [{name: 'Regular Size', value: 1}, {name: 'Double Size', value: 2}];
 
             var reset = function() {
