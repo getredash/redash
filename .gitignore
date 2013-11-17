@@ -2,3 +2,4 @@
 *.pyc
 rd_service/settings.py
 rd_ui/dist
+.DS_Store
