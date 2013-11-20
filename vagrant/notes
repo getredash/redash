@@ -1,5 +1,0 @@
-Download:
-https://github.com/EverythingMe/redash/releases/download/v0.1.35/redash.35.tar.gz
---> /opt/redash
-deploy postgresql db, sql file.
-edit / replace settings file.
