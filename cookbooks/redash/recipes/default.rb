@@ -3,6 +3,9 @@
 # Recipe:: default
 #
 
+#Workaround for endocind errors with remote_file:
+Encoding.default_external = Encoding::ASCII_8BIT
+
 include_recipe "postgresql::client"
 include_recipe "python"
 include_recipe "runit"
@@ -18,23 +21,8 @@ user node['redash']['user'] do
   system true
 end
 
-
-#Ark fails due to errors in remote_file not telling rest-client to expect binary..
-#solution: use an older rest-client..
-chef_gem "rest-client__p" do
-  action       :purge
-  package_name "rest-client"
-end
-chef_gem "rest-client__i" do
-  action       :install
-  package_name "rest-client"
-  version      "1.5.0"
-end
-
-ark "bla" do
-  #url     "http://github.com/EverythingMe/redash/releases/download/v0.1.35/redash.35.tar.gz"
-  #url     "http://www.xmlcan.ca/~timor/redash.35.tar.gz"
-  url     "http://www.xmlcan.ca/~timor/bla.tar.gz"
+ark "redash" do
+  url     "http://github.com/EverythingMe/redash/releases/download/v0.1.35/redash.35.tar.gz"
   action  :put
   path    node["redash"]["install_path"]
   
