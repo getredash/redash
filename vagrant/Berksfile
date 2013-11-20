@@ -1,0 +1,2 @@
+cookbook 'redash', path: '../cookbooks/redash'
+cookbook 'apt'
