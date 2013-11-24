@@ -105,7 +105,7 @@
                     }
 
                     if (type == 'series') {
-                        seriesName = value.toString();
+                        seriesName = value ? value.toString() : "null";
                     }
                 });
 
