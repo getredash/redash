@@ -2,35 +2,45 @@
 # vi: set ft=ruby :
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
-VAGRANTFILE_API_VERSION = "2"
+VAGRANTFILE_API_VERSION = '2'
 
 
 # TODO: should be result of encryption of readable password
-__pg_password = "securepass"
+POSTGRES_PASSWORD = 'securepass'
+
+# After starting the vagrant machine, the application is accessible via the URL
+# http://localhost:9999
+HOST_PORT_TO_FORWARD_TO_REDASH = 9999
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.box     = "ubuntu-precise-cloudimg-amd64"
-  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box"
-
+  config.vm.box     = 'ubuntu-precise-cloudimg-amd64'
+  config.vm.box_url = 'http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box'
+  
+  if config.respond_to? :cache
+    config.cache.auto_detect  = true
+  end
+  
   config.berkshelf.enabled    = true
   config.omnibus.chef_version = :latest
 
-  config.vm.network "forwarded_port", guest: 8888, host: 9999
+  config.vm.network 'forwarded_port', guest: 8888, host: HOST_PORT_TO_FORWARD_TO_REDASH
   
   
   config.vm.provision :chef_solo do |chef|
      # run apt-get update before anything else (specifically postgresql)..
-     chef.add_recipe "apt"
-     chef.add_recipe "postgresql"
-     chef.add_recipe "redash::redash_pg_schema"
-     chef.add_recipe "redash::redash"
-
+     chef.add_recipe 'apt'
+     chef.add_recipe 'postgresql'
+     chef.add_recipe 'redash::redash_pg_schema'
+     chef.add_recipe 'redash::redash'
+     # chef.log_level  = :debug
      chef.json = {
-       "apt"        => { "compiletime" => true },
-       "postgresql" => { "password"    => { "postgres" => __pg_password } },
-       "redash"     => { "db"          => { "host"     => "localhost",
-                                            "user"     => "postgres",
-                                            "password" => __pg_password } }
+       'apt'        => { 'compiletime' => true },
+       'postgresql' => { 'password'    => {'postgres' => POSTGRES_PASSWORD } },
+       'redash'     => { 'db'          => {'host'     => 'localhost',
+                                           'user'     => 'postgres',
+                                           'password' => POSTGRES_PASSWORD },
+                         'allow'       => {'google_app_domain' => 'gmail.com',
+                                           'admins'            => ['joe@egmail.com','jack@gmail.com']}}
      }
    end
 end
