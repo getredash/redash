@@ -29,7 +29,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :chef_solo do |chef|
      # run apt-get update before anything else (specifically postgresql)..
      chef.add_recipe 'apt'
-     chef.add_recipe 'postgresql'
+     chef.add_recipe 'postgresql::client'
+     chef.add_recipe 'postgresql::server'
      chef.add_recipe 'redash::redash_pg_schema'
      chef.add_recipe 'redash::redash'
      # chef.log_level  = :debug
