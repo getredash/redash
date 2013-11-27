@@ -4,9 +4,9 @@
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
 
-
-# TODO: should be result of encryption of readable password
-POSTGRES_PASSWORD = 'securepass'
+require "digest/md5"
+POSTGRES_PASSWORD     = 'securepass'
+postgres_password_md5 = Digest::MD5.hexdigest(POSTGRES_PASSWORD)
 
 # After starting the vagrant machine, the application is accessible via the URL
 # http://localhost:9999
@@ -36,7 +36,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
      # chef.log_level  = :debug
      chef.json = {
        'apt'        => { 'compiletime' => true },
-       'postgresql' => { 'password'    => {'postgres' => POSTGRES_PASSWORD } },
+       'postgresql' => { 'password'    => {'postgres' => postgres_password_md5 } },
        'redash'     => { 'db'          => {'host'     => 'localhost',
                                            'user'     => 'postgres',
                                            'password' => POSTGRES_PASSWORD },
