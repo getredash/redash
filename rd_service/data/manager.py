@@ -147,7 +147,7 @@ class Manager(object):
         pg_connection_pool = psycopg2.pool.ThreadedConnectionPool(1, max_connections, connection_string)
         runner = query_runner.redshift(pg_connection_pool)
 
-        self.workers = [worker.Worker(self, runner) for i in range(workers_count)]
+        self.workers = [worker.Worker(self, runner) for _ in range(workers_count)]
         for w in self.workers:
             w.start()
 
