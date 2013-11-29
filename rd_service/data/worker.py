@@ -3,6 +3,7 @@ Worker implementation to execute incoming queries.
 """
 import json
 import logging
+import os
 import threading
 import uuid
 import datetime
@@ -135,10 +136,20 @@ class Worker(threading.Thread):
             job_id = self.manager.queue.pop()
             if job_id:
                 logging.info("[%s] Processing %s", self.name, job_id)
-                self._process(job_id)
-                logging.info("[%s] Finished Processing %s", self.name, job_id)
+
+                self._fork_and_process(job_id)
             else:
                 time.sleep(self.sleep_time)
+
+    def _fork_and_process(self, job_id):
+        child_pid = os.fork()
+        if child_pid == 0:
+            self._process(job_id)
+        else:
+            logging.info("[%s] Waiting for pid: %d", self.name, child_pid)
+            _, status = os.waitpid(child_pid, 0)
+            logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
+                         self.name, job_id, child_pid, status)
 
     def _process(self, job_id):
         job = Job.load(self.manager, job_id)
