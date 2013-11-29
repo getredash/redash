@@ -139,13 +139,11 @@ class Manager(object):
 
         return data
 
-    def start_workers(self, workers_count, connection_string, max_connections):
+    def start_workers(self, workers_count, connection_string):
         if self.workers:
             return self.workers
 
-        # TODO: who closes the connection pool?
-        pg_connection_pool = psycopg2.pool.ThreadedConnectionPool(1, max_connections, connection_string)
-        runner = query_runner.redshift(pg_connection_pool)
+        runner = query_runner.redshift(connection_string)
 
         self.workers = [worker.Worker(self, runner) for _ in range(workers_count)]
         for w in self.workers:

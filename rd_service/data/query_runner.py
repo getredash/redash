@@ -12,12 +12,12 @@ import sys
 from .utils import JSONEncoder
 
 
-def redshift(connection_pool):
+def redshift(connection_string):
     def column_friendly_name(column_name):
         return column_name
 
     def query_runner(query):
-        connection = connection_pool.getconn()
+        connection = psycopg2.connect(connection_string)
         cursor = connection.cursor()
 
         try:
@@ -41,10 +41,9 @@ def redshift(connection_pool):
 
         except Exception as e:
             connection.rollback()
-            connection_pool.putconn(connection)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
-
-        connection_pool.putconn(connection)
+        finally:
+            connection.close()
 
         return json_data, error
 

@@ -14,8 +14,7 @@ import data
 
 def start_workers(data_manager):
     try:
-        data_manager.start_workers(settings.WORKERS_COUNT, settings.CONNECTION_STRING,
-                                   settings.MAX_CONNECTIONS)
+        data_manager.start_workers(settings.WORKERS_COUNT, settings.CONNECTION_STRING)
         logging.info("Workers started.")
 
         while True:
