@@ -34,8 +34,14 @@
             </div>
         </div>
 
-        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">Executing query... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer></div>
-        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">Query in queue... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer></div>
+        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
+            Executing query... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+            <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+        </div>
+        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
+            Query in queue... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+            <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+        </div>
         <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
     </div>
 

@@ -253,7 +253,7 @@ class JobsHandler(BaseHandler):
     def delete(self, job_id):
         job = data.Job.load(self.data_manager, job_id)
         job.cancel()
-        
+
 
 class CsvQueryResultsHandler(BaseHandler):
     def get(self, query_result_id):
