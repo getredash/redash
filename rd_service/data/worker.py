@@ -150,6 +150,13 @@ class Worker(threading.Thread):
         else:
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
             _, status = os.waitpid(self.child_pid, 0)
+            if status > 0:
+                job = Job.load(self.manager, job_id)
+                if not job.is_finished():
+                    logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
+                                 self.name, job_id)
+                    job.done(None, "Interrupted/Cancelled while running.")
+
             logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
                          self.name, job_id, self.child_pid, status)
 
