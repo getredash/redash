@@ -8,6 +8,7 @@ import threading
 import uuid
 import datetime
 import time
+import signal
 from utils import gen_query_hash
 
 
@@ -66,6 +67,17 @@ class Job(object):
     @staticmethod
     def _redis_key(job_id):
         return 'job:%s' % job_id
+
+    def cancel(self):
+        # TODO: Race condition:
+        # it's possible that it will be picked up by worker while processing the cancel order
+        if self.is_finished():
+            return
+
+        if self.status == self.PROCESSING:
+            os.kill(self.process_id, signal.SIGINT)
+        else:
+            self.done(None, "Interrupted/Cancelled while running.")
 
     def save(self, pipe=None):
         if not pipe:
