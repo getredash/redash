@@ -31,7 +31,10 @@ class Job(object):
         self.priority = priority
         self.query_hash = gen_query_hash(self.query)
         self.query_result_id = query_result_id
-        self.process_id = process_id
+        if process_id == 'None':
+            self.process_id = None
+        else:
+            self.process_id = int(process_id)
 
         if job_id is None:
             self.id = str(uuid.uuid1())
@@ -133,7 +136,7 @@ class Job(object):
                       status=int(job_dict['status']), wait_time=float(job_dict['wait_time']),
                       query_time=float(job_dict['query_time']), error=job_dict['error'],
                       query_result_id=job_dict['query_result_id'],
-                      process_id=int(job_dict['process_id']))
+                      process_id=job_dict['process_id'])
 
         return job
 
