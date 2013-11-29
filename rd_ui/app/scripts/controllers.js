@@ -154,7 +154,14 @@
         $scope.executeQuery = function() {
             $scope.queryResult = $scope.query.getQueryResult(0);
             $scope.lockButton(true);
+            $scope.cancelling = false;
         }
+
+        $scope.cancelExecution = function() {
+            $scope.cancelling = true;
+            $scope.queryResult.cancelExecution();
+        }
+
     }
 
     var QueriesCtrl = function($scope, $http, $location, Query) {

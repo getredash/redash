@@ -51,6 +51,10 @@
             return id;
         }
 
+        QueryResult.prototype.cancelExecution = function() {
+            Job.delete({id: this.job.id});
+        }
+
         QueryResult.prototype.getStatus = function() {
             return this.status || statuses[this.job.status];
         }
