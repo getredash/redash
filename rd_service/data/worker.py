@@ -127,6 +127,7 @@ class Worker(threading.Thread):
         self.continue_working = True
         self.query_runner = query_runner
         self.sleep_time = sleep_time
+        self.child_pid = None
 
         super(Worker, self).__init__(name="Worker-%s" % uuid.uuid1())
 
@@ -136,20 +137,21 @@ class Worker(threading.Thread):
             job_id = self.manager.queue.pop()
             if job_id:
                 logging.info("[%s] Processing %s", self.name, job_id)
-
                 self._fork_and_process(job_id)
+                if self.child_pid == 0:
+                    return
             else:
                 time.sleep(self.sleep_time)
 
     def _fork_and_process(self, job_id):
-        child_pid = os.fork()
-        if child_pid == 0:
+        self.child_pid = os.fork()
+        if self.child_pid == 0:
             self._process(job_id)
         else:
-            logging.info("[%s] Waiting for pid: %d", self.name, child_pid)
-            _, status = os.waitpid(child_pid, 0)
+            logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
+            _, status = os.waitpid(self.child_pid, 0)
             logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
-                         self.name, job_id, child_pid, status)
+                         self.name, job_id, self.child_pid, status)
 
     def _process(self, job_id):
         job = Job.load(self.manager, job_id)
