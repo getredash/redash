@@ -23,12 +23,14 @@ class Job(object):
     def __init__(self, data_manager, query, priority,
                  job_id=None,
                  wait_time=None, query_time=None,
-                 updated_at=None, status=None, error=None, query_result_id=None):
+                 updated_at=None, status=None, error=None, query_result_id=None,
+                 process_id=0):
         self.data_manager = data_manager
         self.query = query
         self.priority = priority
         self.query_hash = gen_query_hash(self.query)
         self.query_result_id = query_result_id
+        self.process_id = process_id
 
         if job_id is None:
             self.id = str(uuid.uuid1())
@@ -57,7 +59,8 @@ class Job(object):
             'updated_at': self.updated_at,
             'status': self.status,
             'error': self.error,
-            'query_result_id': self.query_result_id
+            'query_result_id': self.query_result_id,
+            'process_id': self.process_id
         }
 
     @staticmethod
@@ -79,8 +82,9 @@ class Job(object):
         pipe.publish(self._redis_key(self.id), json.dumps(self.to_dict()))
         pipe.execute()
 
-    def processing(self):
+    def processing(self, process_id):
         self.status = self.PROCESSING
+        self.process_id = process_id
         self.wait_time = time.time() - self.updated_at
         self.updated_at = time.time()
         self.save()
@@ -116,7 +120,8 @@ class Job(object):
                       priority=int(job_dict['priority']), updated_at=float(job_dict['updated_at']),
                       status=int(job_dict['status']), wait_time=float(job_dict['wait_time']),
                       query_time=float(job_dict['query_time']), error=job_dict['error'],
-                      query_result_id=job_dict['query_result_id'])
+                      query_result_id=job_dict['query_result_id'],
+                      process_id=int(job_dict['process_id']))
 
         return job
 
@@ -166,7 +171,7 @@ class Worker(threading.Thread):
             logging.warning("[%s][%s] tried to process finished job.", self.name, job)
             return
 
-        job.processing()
+        job.processing(os.getpid())
 
         logging.info("[%s][%s] running query...", self.name, job.id)
         start_time = time.time()
