@@ -21,8 +21,9 @@ def start_workers(data_manager):
         while True:
             try:
                 data_manager.refresh_queries()
-            except Exception:
-                logging.error("Something went wrong with refreshing queries...");
+            except Exception as e:
+                logging.error("Something went wrong with refreshing queries...")
+                logging.exception(e)
             time.sleep(60)
     except KeyboardInterrupt:
         logging.warning("Exiting; waiting for threads")
@@ -32,6 +33,7 @@ def start_workers(data_manager):
 if __name__ == '__main__':
     channel = logging.StreamHandler()
     logging.getLogger().addHandler(channel)
+    # TODO: take logging level from configuration
     logging.getLogger().setLevel("DEBUG")
 
     parser = argparse.ArgumentParser()
