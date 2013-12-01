@@ -194,11 +194,15 @@ class QueriesHandler(BaseHandler):
             query_def['created_at'] = dateutil.parser.parse(query_def['created_at'])
 
         query_def.pop('latest_query_data', None)
+        query_def.pop('forks', None)
+        query_def.pop('parent_name', None)
 
         if id:
             query = data.models.Query(**query_def)
             fields = query_def.keys()
+            # The following are only set on creation, make sure they don't change by mistake.            
             fields.remove('id')
+            fields.remove('parent_id')
             query.save(update_fields=fields)
         else:
             query_def['user'] = self.current_user
