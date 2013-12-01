@@ -78,7 +78,7 @@ class Job(object):
             return
 
         if self.status == self.PROCESSING:
-            os.kill(self.process_id, signal.SIGKILL)
+            os.kill(self.process_id, signal.SIGINT)
         else:
             self.done(None, "Interrupted/Cancelled while running.")
 
