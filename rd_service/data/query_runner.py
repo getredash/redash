@@ -9,6 +9,8 @@ query language (for example: HiveQL).
 import json
 import psycopg2
 import sys
+import signal
+import select
 from .utils import JSONEncoder
 
 
@@ -16,12 +18,27 @@ def redshift(connection_string):
     def column_friendly_name(column_name):
         return column_name
 
+    def wait(conn):
+        while 1:
+            state = conn.poll()
+            if state == psycopg2.extensions.POLL_OK:
+                break
+            elif state == psycopg2.extensions.POLL_WRITE:
+                select.select([], [conn.fileno()], [])
+            elif state == psycopg2.extensions.POLL_READ:
+                select.select([conn.fileno()], [], [])
+            else:
+                raise psycopg2.OperationalError("poll() returned %s" % state)
+
     def query_runner(query):
-        connection = psycopg2.connect(connection_string)
+        connection = psycopg2.connect(connection_string, async=True)
+        wait(connection)
+
         cursor = connection.cursor()
 
         try:
             cursor.execute(query)
+            wait(connection)
 
             column_names = [col.name for col in cursor.description]
 
@@ -35,12 +52,13 @@ def redshift(connection_string):
             error = None
             cursor.close()
         except psycopg2.DatabaseError as e:
-            connection.rollback()
             json_data = None
             error = e.message
-
+        except KeyboardInterrupt:
+            connection.cancel()
+            error = "Query cancelled by user."
+            json_data = None
         except Exception as e:
-            connection.rollback()
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             connection.close()
