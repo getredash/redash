@@ -14,6 +14,11 @@ import data
 
 def start_workers(data_manager):
     try:
+        old_workers = data_manager.redis_connection.smembers('workers')
+        data_manager.redis_connection.delete('workers')
+
+        logging.info("Cleaning old workers: %s", old_workers)
+
         data_manager.start_workers(settings.WORKERS_COUNT, settings.CONNECTION_STRING)
         logging.info("Workers started.")
 
@@ -32,8 +37,7 @@ def start_workers(data_manager):
 if __name__ == '__main__':
     channel = logging.StreamHandler()
     logging.getLogger().addHandler(channel)
-    # TODO: take logging level from configuration
-    logging.getLogger().setLevel("DEBUG")
+    logging.getLogger().setLevel(settings.LOG_LEVEL)
 
     parser = argparse.ArgumentParser()
     parser.add_argument("command")
