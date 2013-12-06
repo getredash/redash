@@ -148,20 +148,43 @@ class Worker(threading.Thread):
         self.query_runner = query_runner
         self.sleep_time = sleep_time
         self.child_pid = None
+        self.worker_id = uuid.uuid1()
+        self.status = {
+            'jobs_count': 0,
+            'cancelled_jobs_count': 0,
+            'done_jobs_count': 0,
+            'updated_at': time.time(),
+            'started_at': time.time()
+        }
+        self._save_status()
+        self.manager.redis_connection.sadd('workers', self._key)
 
-        super(Worker, self).__init__(name="Worker-%s" % uuid.uuid1())
+        super(Worker, self).__init__(name="Worker-%s" % self.worker_id)
 
     def run(self):
         logging.info("[%s] started.", self.name)
         while self.continue_working:
             job_id = self.manager.queue.pop()
             if job_id:
+                self._update_status('jobs_count')
                 logging.info("[%s] Processing %s", self.name, job_id)
                 self._fork_and_process(job_id)
                 if self.child_pid == 0:
                     return
             else:
                 time.sleep(self.sleep_time)
+
+    def _update_status(self, counter):
+        self.status['updated_at'] = time.time()
+        self.status[counter] += 1
+        self._save_status()
+
+    @property
+    def _key(self):
+        return 'worker:%s' % self.worker_id
+
+    def _save_status(self):
+        self.manager.redis_connection.hmset(self._key, self.status)
 
     def _fork_and_process(self, job_id):
         self.child_pid = os.fork()
@@ -171,8 +194,10 @@ class Worker(threading.Thread):
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
             _, status = os.waitpid(self.child_pid, 0)
             if status > 0:
+                self._update_status('done_jobs_count')
                 job = Job.load(self.manager, job_id)
                 if not job.is_finished():
+                    self._update_status('cancelled_jobs_count')
                     logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
                                  self.name, job_id)
                     job.done(None, "Interrupted/Cancelled while running.")

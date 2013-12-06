@@ -9,6 +9,7 @@ import psycopg2
 import psycopg2.pool
 import qr
 import redis
+import time
 import query_runner
 import worker
 from utils import gen_query_hash
@@ -32,6 +33,12 @@ class Manager(object):
                                                                        db_connection_string)
         self.queue = qr.PriorityQueue("jobs", **self.redis_connection.connection_pool.connection_kwargs)
         self.max_retries = 5
+        self.status = {
+            'last_refresh_at': 0,
+            'started_at': time.time()
+        }
+
+        self._save_status()
 
     # TODO: Use our Django Models
     def get_query_result_by_id(self, query_result_id):
@@ -95,6 +102,8 @@ class Manager(object):
         return job
 
     def refresh_queries(self):
+        logging.info("Refreshing queries...")
+
         sql = """SELECT queries.query, queries.ttl, retrieved_at
         FROM (SELECT query, min(ttl) as ttl FROM queries  WHERE ttl > 0 GROUP by query) queries
         JOIN (SELECT query, max(retrieved_at) as retrieved_at
@@ -103,9 +112,14 @@ class Manager(object):
         WHERE queries.ttl > 0
           AND query_results.retrieved_at + ttl * interval '1 second' < now() at time zone 'utc';"""
 
+        self.status['last_refresh_at'] = time.time()
+        self._save_status()
+
         queries = self.run_query(sql)
         for query, ttl, retrieved_at in queries:
             self.add_job(query, worker.Job.LOW_PRIORITY)
+
+        logging.info("Done refreshing queries... %d" % len(queries))
 
     def store_query_result(self, query, data, run_time, retrieved_at):
         query_result_id = None
@@ -169,3 +183,6 @@ class Manager(object):
             connection.commit()
         finally:
             self.db_connection_pool.putconn(connection)
+
+    def _save_status(self):
+        self.redis_connection.hmset('manager:status', self.status)

@@ -9,7 +9,6 @@ query language (for example: HiveQL).
 import json
 import psycopg2
 import sys
-import signal
 import select
 from .utils import JSONEncoder
 
