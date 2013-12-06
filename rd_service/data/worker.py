@@ -193,8 +193,8 @@ class Worker(threading.Thread):
         else:
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
             _, status = os.waitpid(self.child_pid, 0)
+            self._update_status('done_jobs_count')
             if status > 0:
-                self._update_status('done_jobs_count')
                 job = Job.load(self.manager, job_id)
                 if not job.is_finished():
                     self._update_status('cancelled_jobs_count')
