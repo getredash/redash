@@ -112,22 +112,11 @@ class StatusHandler(BaseHandler):
         status['dashboards_count'] = data.models.Dashboard.objects.count()
         status['widgets_count'] = data.models.Widget.objects.count()
 
-        workers = [self.redis_connection.hgetall(w)
-                   for w in self.redis_connection.smembers('workers')]
-
-        status['workers'] = []
-        for worker in workers:
-            w = {}
-            w['uptime'] = "%.0f seconds" % (time.time() - float(worker['started_at']))
-            w['last_updated_at'] = datetime.datetime.fromtimestamp(float(worker['updated_at'])).strftime('%Y-%m-%d %H:%M:%S')
-            w['jobs_received'] = worker['jobs_count']
-            w['jobs_done'] = worker['done_jobs_count']
-            status['workers'].append(w)
+        status['workers'] = [self.redis_connection.hgetall(w)
+                             for w in self.redis_connection.smembers('workers')]
 
         manager_status = self.redis_connection.hgetall('manager:status')
-        status['manager'] = {}
-        status['manager']['uptime'] = "%.0f seconds" % (time.time() - float(manager_status['started_at']))
-        status['manager']['last_refresh_at'] = datetime.datetime.fromtimestamp(float(manager_status['last_refresh_at'])).strftime('%Y-%m-%d %H:%M:%S')
+        status['manager'] = manager_status
         status['manager']['queue_size'] = self.redis_connection.zcard('jobs')
 
         self.write_json(status)

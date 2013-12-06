@@ -12,18 +12,38 @@
             </ul>
             <ul class="list-group col-lg-4">
                 <li class="list-group-item active">Manager</li>
-                <li class="list-group-item" ng-repeat="(name, value) in manager">
-                    <span class="badge">{{value}}</span>
-                    {{name | toHuman}}
+                <li class="list-group-item">
+                    <span class="badge" am-time-ago="manager.last_refresh_at*1000.0"></span>
+                    Last Refresh
+                </li>
+                <li class="list-group-item">
+                    <span class="badge" am-time-ago="manager.started_at*1000.0"></span>
+                    Started
+                </li>
+                <li class="list-group-item">
+                    <span class="badge">{{manager.queue_size}}</span>
+                    Queue Size
                 </li>
             </ul>
             <ul class="list-group col-lg-4">
                 <div ng-repeat="worker in workers">
                     <li class="list-group-item active">Worker {{$index+1}}</li>
-                    <li class="list-group-item" ng-repeat="(name, value) in worker">
-                        <span class="badge">{{value}}</span>
-                        {{name | toHuman}}
-                    </li>
+                    <li class="list-group-item">
+                    <span class="badge" am-time-ago="worker.updated_at*1000.0"></span>
+                    Updated
+                </li>
+                <li class="list-group-item">
+                    <span class="badge" am-time-ago="worker.started_at*1000.0"></span>
+                    Started
+                </li>
+                <li class="list-group-item">
+                    <span class="badge">{{worker.jobs_count}}</span>
+                    Jobs Received
+                </li>
+                <li class="list-group-item">
+                    <span class="badge">{{worker.done_jobs_count}}</span>
+                    Jobs Done
+                </li>
                 </div>
             </ul>
         </div>
