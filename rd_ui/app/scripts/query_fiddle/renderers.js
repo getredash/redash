@@ -106,9 +106,6 @@ renderers.directive('chartRenderer', function () {
                     _.each($scope.queryResult.getChartData(), function (s) {
                         $scope.chartSeries.push(_.extend(s, {'stacking': stacking}));
                     });
-
-                    // TODO: move this to the parent controller
-                    // notifications.showNotification("RedDash", $scope.query.name + " updated.");
                 }
             });
         }]
