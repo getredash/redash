@@ -37,13 +37,23 @@ angular.module('highchart', [])
                         if (!length || length == 0) {
                             scope.chart.showLoading();
                         } else {
-
                             while(scope.chart.series.length > 0) {
                                 scope.chart.series[0].remove(true);
                             }
 
-                            scope.chart.counters.color = 0;
+                            if (_.some(scope.series[0].data, function(p) { return angular.isString(p.x) })) {
+                                scope.chart.xAxis[0].update({type: 'category'});
+                                _.each(scope.series, function(s) {
+                                    _.each(s.data, function(p) {
+                                        p.name = p.x;
+                                        delete p.x;
+                                    })
+                                })
+                            } else {
+                                scope.chart.xAxis[0].update({type: 'datetime'});
+                            }
 
+                            scope.chart.counters.color = 0;
 
                             _.each(scope.series, function(s) {
                                 scope.chart.addSeries(s);

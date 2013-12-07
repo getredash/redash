@@ -6,18 +6,25 @@ var defaultChartOptions = {
     "tooltip": {
         valueDecimals: 2,
         formatter: function () {
-            var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
-                pointsCount = this.points.length;
+            if (moment.isMoment(this.x)) {
+                var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
+                    pointsCount = this.points.length;
 
+                $.each(this.points, function (i, point) {
+                    s += '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
+                        Highcharts.numberFormat(point.y);
 
-            $.each(this.points, function (i, point) {
-                s += '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
-                    Highcharts.numberFormat(point.y);
-
-                if (pointsCount > 1 && point.percentage) {
-                    s += " (" + Highcharts.numberFormat(point.percentage) + "%)";
-                }
-            });
+                    if (pointsCount > 1 && point.percentage) {
+                        s += " (" + Highcharts.numberFormat(point.percentage) + "%)";
+                    }
+                });
+            } else {
+                var s = "<b>" + this.points[0].key + "</b>";
+                $.each(this.points, function (i, point) {
+                    s+= '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
+                        Highcharts.numberFormat(point.y);
+                });
+            }
 
             return s;
         },
@@ -86,11 +93,7 @@ renderers.directive('chartRenderer', function () {
             $scope.chartOptions = defaultChartOptions;
 
             $scope.$watch('queryResult && queryResult.getData()', function (data) {
-                if (!data) {
-                    return;
-                }
-
-                if ($scope.queryResult.getData() == null) {
+                if (!data || $scope.queryResult.getData() == null) {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);
                 } else {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);
