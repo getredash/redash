@@ -29,7 +29,7 @@
         $scope.updateTime = '';
     }
 
-    var QueryFiddleCtrl = function ($scope, $routeParams, $http, $location, growl, Query) {
+    var QueryFiddleCtrl = function ($scope, $routeParams, $http, $location, growl, notifications, Query) {
         $scope.$parent.pageTitle = "Query Fiddle";
 
         $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
@@ -134,6 +134,9 @@
                     Query.save({'id': $scope.query.id, 'latest_query_data_id': $scope.queryResult.getId()})
                 }
                 $scope.query.latest_query_data_id = $scope.queryResult.getId();
+
+                notifications.showNotification("re:dash", $scope.query.name + " updated.");
+
                 $scope.lockButton(false);
             }
         });
@@ -236,7 +239,7 @@
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Query', QueryFiddleCtrl])
+        .controller('QueryFiddleCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();
