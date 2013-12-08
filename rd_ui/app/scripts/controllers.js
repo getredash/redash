@@ -167,31 +167,109 @@
 
     }
 
-    var QueriesCtrl = function($scope, $http, $location, Query) {
+    var QueriesCtrl = function($scope, $http, $location, $filter, Query) {
         $scope.$parent.pageTitle = "All Queries";
 
-        $scope.queries = Query.query();
+        var dateFormatter = function (value) {
+            if (!value) return "-";
+            return value.format("DD/MM/YY HH:mm");
+        }
+
+        var filterQueries = function() {
+            $scope.queries = _.filter($scope.allQueries, function(query) {
+                if (!$scope.selectedTab) {
+                    return false;
+                }
+
+                if ($scope.selectedTab.key == 'my') {
+                    return query.user == currentUser.name && query.name != 'New Query';
+                } else if ($scope.selectedTab.key == 'drafts') {
+                    return query.user == currentUser.name && query.name == 'New Query';
+                }
+
+                return query.name != 'New Query';
+            });
+        }
+
+        $scope.gridConfig = {
+            isPaginationEnabled: true,
+            itemsByPage: 50,
+            maxSize: 8,
+            isGlobalSearchActivated: true
+        }
+
+        $scope.allQueries = [];
+        $scope.queries = [];
+        Query.query(function(queries) {
+            $scope.allQueries = _.map(queries, function(query) {
+                query.created_at = moment(query.created_at);
+                query.last_retrieved_at = moment(query.last_retrieved_at);
+                return query;
+            });
+
+            filterQueries();
+        });
+
+        $scope.gridColumns = [
+            {
+                "label": "Name",
+                "map": "name",
+                "cellTemplateUrl": "/views/queries_query_name_cell.html"
+            },
+            {
+                'label': 'Created By',
+                'map': 'user'
+            },
+            {
+                'label': 'Created At',
+                'map': 'created_at',
+                'formatFunction': dateFormatter
+            },
+            {
+                'label': 'Runtime (avg)',
+                'map': 'avg_runtime',
+                'formatFunction': 'number',
+                'formatParameter': 2
+            },
+            {
+                'label': 'Runtime (min)',
+                'map': 'min_runtime',
+                'formatFunction': 'number',
+                'formatParameter': 2
+            },
+            {
+                'label': 'Runtime (max)',
+                'map': 'max_runtime',
+                'formatFunction': 'number',
+                'formatParameter': 2
+            },
+            {
+                'label': 'Last Executed At',
+                'map': 'last_retrieved_at',
+                'formatFunction': dateFormatter
+            },
+            {
+                'label': 'Times Executed',
+                'map': 'times_retrieved'
+            },
+            {
+                'label': 'Update Schedule',
+                'map': 'ttl',
+                'formatFunction': function(value) {
+                    return $filter('refreshRateHumanize')(value);
+                }
+            }
+//            id: 672,
+        ]
         $scope.tabs = [{"name": "My Queries", "key": "my"}, {"key": "all", "name": "All Queries"}, {"key": "drafts", "name": "Drafts"}];
 
         $scope.$watch('selectedTab', function(tab) {
             if (tab) {
                 $scope.$parent.pageTitle =  tab.name;
             }
+
+            filterQueries();
         })
-
-        $scope.filterQueries = function(query) {
-            if (!$scope.selectedTab) {
-                return false;
-            }
-
-            if ($scope.selectedTab.key == 'my') {
-                return query.user == currentUser.name && query.name != 'New Query';
-            } else if ($scope.selectedTab.key == 'drafts') {
-                return query.user == currentUser.name && query.name == 'New Query';
-            }
-
-            return query.name != 'New Query';
-        }
     }
 
     var MainCtrl = function ($scope, Dashboard, notifications) {
@@ -238,7 +316,7 @@
     angular.module('redash.controllers', [])
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', 'Query', WidgetCtrl])
-        .controller('QueriesCtrl', ['$scope', '$http', '$location', 'Query', QueriesCtrl])
+        .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
         .controller('QueryFiddleCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
