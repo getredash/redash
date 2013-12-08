@@ -169,6 +169,15 @@
 
     var QueriesCtrl = function($scope, $http, $location, $filter, Query) {
         $scope.$parent.pageTitle = "All Queries";
+        $scope.gridConfig = {
+            isPaginationEnabled: true,
+            itemsByPage: 50,
+            maxSize: 8,
+            isGlobalSearchActivated: true
+        }
+
+        $scope.allQueries = [];
+        $scope.queries = [];
 
         var dateFormatter = function (value) {
             if (!value) return "-";
@@ -191,15 +200,6 @@
             });
         }
 
-        $scope.gridConfig = {
-            isPaginationEnabled: true,
-            itemsByPage: 50,
-            maxSize: 8,
-            isGlobalSearchActivated: true
-        }
-
-        $scope.allQueries = [];
-        $scope.queries = [];
         Query.query(function(queries) {
             $scope.allQueries = _.map(queries, function(query) {
                 query.created_at = moment(query.created_at);
@@ -228,20 +228,23 @@
             {
                 'label': 'Runtime (avg)',
                 'map': 'avg_runtime',
-                'formatFunction': 'number',
-                'formatParameter': 2
+                'formatFunction': function(value) {
+                    return $filter('durationHumanize')(value);
+                }
             },
             {
                 'label': 'Runtime (min)',
                 'map': 'min_runtime',
-                'formatFunction': 'number',
-                'formatParameter': 2
+                'formatFunction': function(value) {
+                    return $filter('durationHumanize')(value);
+                }
             },
             {
                 'label': 'Runtime (max)',
                 'map': 'max_runtime',
-                'formatFunction': 'number',
-                'formatParameter': 2
+                'formatFunction': function(value) {
+                    return $filter('durationHumanize')(value);
+                }
             },
             {
                 'label': 'Last Executed At',
