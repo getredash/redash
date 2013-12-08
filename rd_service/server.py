@@ -223,7 +223,7 @@ class QueriesHandler(BaseHandler):
             else:
                 self.send_error(404)
         else:
-            self.write_json([q.to_dict(with_result=False) for q in data.models.Query.objects.all()])
+            self.write_json([q.to_dict(with_result=False, with_stats=True) for q in data.models.Query.all_queries()])
 
 
 class QueryResultsHandler(BaseHandler):
