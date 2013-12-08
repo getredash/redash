@@ -48,7 +48,7 @@ class Query(models.Model):
         app_label = 'redash'
         db_table = 'queries'
 
-    def to_dict(self, with_result=True):
+    def to_dict(self, with_result=True, with_stats=False):
         d = {
             'id': self.id,
             'latest_query_data_id': self.latest_query_data_id,
@@ -61,10 +61,34 @@ class Query(models.Model):
             'created_at': self.created_at,
         }
 
+        if with_stats:
+            d['avg_runtime'] = self.avg_runtime
+            d['min_runtime'] = self.min_runtime
+            d['max_runtime'] = self.max_runtime
+            d['last_retrieved_at'] = self.last_retrieved_at
+            d['times_retrieved'] = self.times_retrieved
+
         if with_result and self.latest_query_data_id:
             d['latest_query_data'] = self.latest_query_data.to_dict()
 
         return d
+
+    @classmethod
+    def all_queries(cls):
+        query = """SELECT queries.*, query_stats.*
+FROM queries
+LEFT OUTER JOIN
+  (SELECT qu.query_hash,
+          count(0) AS "times_retrieved",
+          avg(runtime) AS "avg_runtime",
+          min(runtime) AS "min_runtime",
+          max(runtime) AS "max_runtime",
+          max(retrieved_at) AS "last_retrieved_at"
+   FROM queries qu
+   JOIN query_results qr ON qu.query_hash=qr.query_hash
+   GROUP BY qu.query_hash) query_stats ON query_stats.query_hash = queries.query_hash
+        """
+        return cls.objects.raw(query)
 
     def save(self, *args, **kwargs):
         self.query_hash = utils.gen_query_hash(self.query)
