@@ -98,7 +98,7 @@
         })
 
         $scope.refreshOptions.push({value: 24*3600, name: 'Every 24h'});
-
+        $scope.refreshOptions.push({value: 7*24*3600, name: 'Once a week'});
 
         $scope.$watch('queryResult && queryResult.getError()', function (newError, oldError) {
             if (newError == undefined) {
