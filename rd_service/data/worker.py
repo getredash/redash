@@ -9,6 +9,7 @@ import uuid
 import datetime
 import time
 import signal
+import setproctitle
 from utils import gen_query_hash
 
 
@@ -161,6 +162,15 @@ class Worker(threading.Thread):
 
         super(Worker, self).__init__(name="Worker-%s" % self.worker_id)
 
+    def set_title(self, title=None):
+        base_title = "redash worker:%s" % self.worker_id
+        if title:
+            full_title = "%s - %s" % (base_title, title)
+        else:
+            full_title = base_title
+
+        setproctitle.setproctitle(full_title)
+
     def run(self):
         logging.info("[%s] started.", self.name)
         while self.continue_working:
@@ -189,6 +199,7 @@ class Worker(threading.Thread):
     def _fork_and_process(self, job_id):
         self.child_pid = os.fork()
         if self.child_pid == 0:
+            self.set_title("processing %s" % job_id)
             self._process(job_id)
         else:
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
@@ -215,6 +226,7 @@ class Worker(threading.Thread):
 
         logging.info("[%s][%s] running query...", self.name, job.id)
         start_time = time.time()
+        self.set_title("running query %s" % job_id)
         data, error = self.query_runner(job.query)
         run_time = time.time() - start_time
         logging.info("[%s][%s] query finished... data length=%s, error=%s",
@@ -224,7 +236,9 @@ class Worker(threading.Thread):
         # while we already marked the job as done
         query_result_id = None
         if not error:
+            self.set_title("storing results %s" % job_id)
             query_result_id = self.manager.store_query_result(job.query, data, run_time,
                                                               datetime.datetime.utcnow())
 
+        self.set_title("marking job as done %s" % job_id)
         job.done(query_result_id, error)
