@@ -156,7 +156,9 @@ class Manager(object):
 
         runner = query_runner.redshift(connection_string)
 
-        self.workers = [worker.Worker(self, runner) for _ in range(workers_count)]
+        redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
+        self.workers = [worker.Worker(self, redis_connection_params, runner)
+                        for _ in range(workers_count)]
         for w in self.workers:
             w.start()
 

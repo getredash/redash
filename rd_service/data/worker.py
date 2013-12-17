@@ -10,6 +10,7 @@ import datetime
 import time
 import signal
 import setproctitle
+import redis
 from utils import gen_query_hash
 
 
@@ -22,12 +23,12 @@ class Job(object):
     DONE = 3
     FAILED = 4
 
-    def __init__(self, data_manager, query, priority,
+    def __init__(self, redis_connection, query, priority,
                  job_id=None,
                  wait_time=None, query_time=None,
                  updated_at=None, status=None, error=None, query_result_id=None,
                  process_id=0):
-        self.data_manager = data_manager
+        self.redis_connection = redis_connection
         self.query = query
         self.priority = priority
         self.query_hash = gen_query_hash(self.query)
@@ -85,7 +86,7 @@ class Job(object):
 
     def save(self, pipe=None):
         if not pipe:
-            pipe = self.data_manager.redis_connection.pipeline()
+            pipe = self.redis_connection.pipeline()
 
         if self.new_job:
             pipe.set('query_hash_job:%s' % self.query_hash, self.id)
@@ -124,15 +125,15 @@ class Job(object):
         return "<Job:%s,priority:%d,status:%d>" % (self.id, self.priority, self.status)
 
     @classmethod
-    def _load(cls, data_manager, job_id):
-        return data_manager.redis_connection.hgetall(cls._redis_key(job_id))
+    def _load(cls, redis_connection, job_id):
+        return redis_connection.hgetall(cls._redis_key(job_id))
 
     @classmethod
-    def load(cls, data_manager, job_id):
-        job_dict = cls._load(data_manager, job_id)
+    def load(cls, redis_connection, job_id):
+        job_dict = cls._load(redis_connection, job_id)
         job = None
         if job_dict:
-            job = Job(data_manager, job_id=job_dict['id'], query=job_dict['query'].decode('utf-8'),
+            job = Job(redis_connection, job_id=job_dict['id'], query=job_dict['query'].decode('utf-8'),
                       priority=int(job_dict['priority']), updated_at=float(job_dict['updated_at']),
                       status=int(job_dict['status']), wait_time=float(job_dict['wait_time']),
                       query_time=float(job_dict['query_time']), error=job_dict['error'],
@@ -143,8 +144,9 @@ class Job(object):
 
 
 class Worker(threading.Thread):
-    def __init__(self, manager, query_runner, sleep_time=0.1):
+    def __init__(self, manager, redis_connection_params, query_runner, sleep_time=0.1):
         self.manager = manager
+        self.redis_connection_params = redis_connection_params
         self.continue_working = True
         self.query_runner = query_runner
         self.sleep_time = sleep_time
@@ -206,7 +208,7 @@ class Worker(threading.Thread):
             _, status = os.waitpid(self.child_pid, 0)
             self._update_status('done_jobs_count')
             if status > 0:
-                job = Job.load(self.manager, job_id)
+                job = Job.load(self.manager.redis_connection, job_id)
                 if not job.is_finished():
                     self._update_status('cancelled_jobs_count')
                     logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
@@ -217,7 +219,8 @@ class Worker(threading.Thread):
                          self.name, job_id, self.child_pid, status)
 
     def _process(self, job_id):
-        job = Job.load(self.manager, job_id)
+        redis_connection = redis.StrictRedis(**self.redis_connection_params)
+        job = Job.load(redis_connection, job_id)
         if job.is_finished():
             logging.warning("[%s][%s] tried to process finished job.", self.name, job)
             return
