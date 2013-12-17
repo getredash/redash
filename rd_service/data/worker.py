@@ -146,7 +146,9 @@ class Job(object):
 class Worker(threading.Thread):
     def __init__(self, manager, redis_connection_params, query_runner, sleep_time=0.1):
         self.manager = manager
-        self.redis_connection_params = redis_connection_params
+
+        self.redis_connection_params = {k: v for k, v in redis_connection_params.iteritems()
+                                        if k in ('host', 'db', 'password', 'port')}
         self.continue_working = True
         self.query_runner = query_runner
         self.sleep_time = sleep_time

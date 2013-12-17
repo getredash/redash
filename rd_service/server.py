@@ -253,13 +253,13 @@ class JobsHandler(BaseHandler):
     def get(self, job_id=None):
         if job_id:
             # TODO: if finished, include the query result
-            job = data.Job.load(self.data_manager.redis_connectino, job_id)
+            job = data.Job.load(self.data_manager.redis_connection, job_id)
             self.write({'job': job.to_dict()})
         else:
             raise NotImplemented
 
     def delete(self, job_id):
-        job = data.Job.load(self.data_manager.redis_connectino, job_id)
+        job = data.Job.load(self.data_manager.redis_connection, job_id)
         job.cancel()
 
 
