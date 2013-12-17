@@ -225,12 +225,17 @@ class Worker(threading.Thread):
             logging.warning("[%s][%s] tried to process finished job.", self.name, job)
             return
 
-        job.processing(os.getpid())
+        pid = os.getpid()
+        job.processing(pid)
 
         logging.info("[%s][%s] running query...", self.name, job.id)
         start_time = time.time()
         self.set_title("running query %s" % job_id)
-        data, error = self.query_runner(job.query)
+
+        annotated_query = "/* Pid: %s, Job Id: %s, Query hash: %s, Priority: %s */ %s" % \
+                          (pid, job.id, job.query_hash, job.priority, job.query)
+
+        data, error = self.query_runner(annotated_query)
         run_time = time.time() - start_time
         logging.info("[%s][%s] query finished... data length=%s, error=%s",
                      self.name, job.id, data and len(data), error)
