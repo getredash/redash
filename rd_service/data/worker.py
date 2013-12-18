@@ -237,6 +237,7 @@ class Worker(threading.Thread):
         annotated_query = "/* Pid: %s, Job Id: %s, Query hash: %s, Priority: %s */ %s" % \
                           (pid, job.id, job.query_hash, job.priority, job.query)
 
+        # TODO: here's the part that needs to be forked, not all of the worker process...
         data, error = self.query_runner(annotated_query)
         run_time = time.time() - start_time
         logging.info("[%s][%s] query finished... data length=%s, error=%s",
