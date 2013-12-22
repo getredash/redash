@@ -3,6 +3,11 @@ CLI to start the workers.
 
 TODO: move API server startup here.
 """
+import atfork
+atfork.monkeypatch_os_fork_functions()
+import atfork.stdlib_fixer
+atfork.stdlib_fixer.fix_logging_module()
+
 import argparse
 import logging
 import urlparse
