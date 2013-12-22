@@ -46,7 +46,7 @@ angular.module('highchart', [])
 
                                 // We need to make sure that for each category, each series has a value.
                                 var categories = _.union.apply(this, _.map(scope.series, function(s) { return _.pluck(s.data,'x')}));
-
+                                
                                 _.each(scope.series, function(s) {
                                     // TODO: move this logic to Query#getChartData
                                     var yValues = _.groupBy(s.data, 'x');
@@ -54,9 +54,10 @@ angular.module('highchart', [])
                                     var newData = _.sortBy(_.map(categories, function(category) {
                                         return {
                                             name: category,
-                                            y: yValues[category][0].y
+                                            y: yValues[category] && yValues[category][0].y
                                         }
-                                    }), 'y');
+                                    }), 'name');
+
                                     s.data = newData;
                                 });
                             } else {
