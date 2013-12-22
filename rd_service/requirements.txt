@@ -7,3 +7,4 @@ django-db-pool==0.0.10
 qr==0.6.0
 python-dateutil==2.1
 setproctitle==1.1.7
+atfork==0.1.2
