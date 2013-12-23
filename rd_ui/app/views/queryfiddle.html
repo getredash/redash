@@ -3,13 +3,11 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <span class="glyphicon glyphicon-pencil"></span> <edit-in-place value="query.name"></edit-in-place>
+                    <span class="glyphicon glyphicon-pencil"></span> <edit-in-place ignore-blanks='true' value="query.name"></edit-in-place>
                 </h3>
             </div>
             <div class="panel-body">
                 <textarea ui-codemirror="editorOptions" ng-model="query.query"></textarea>
-
-
 
                 <div>
                     <a class="btn btn-default" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
