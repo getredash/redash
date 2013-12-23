@@ -287,6 +287,8 @@
                     }
                     return parts[0];
                 });
+                $scope.otherDashboards = $scope.groupedDashboards['Other'] || [];
+                delete $scope.groupedDashboards['Other'];
             });
         }
 
@@ -305,7 +307,6 @@
 
     var IndexCtrl = function($scope, Dashboard) {
         $scope.$parent.pageTitle = "Home";
-
 
         $scope.archiveDashboard = function(dashboard) {
             if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
