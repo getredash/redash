@@ -38,12 +38,19 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <span ng-repeat="(name, group) in groupedDashboards">
-                        <li role="presentation" class="dropdown-header" ng-bind="name"></li>
-                        <li ng-repeat="dashboard in group" role="presentation">
-                            <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                        <li class="dropdown-submenu">
+                          <a href="#" ng-bind="name"></a>
+                          <ul class="dropdown-menu">
+                            <li ng-repeat="dashboard in group" role="presentation">
+                                <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                            </li>
+                          </ul>
                         </li>
-                        <li class="divider"></li>
                     </span>
+                    <li ng-repeat="dashboard in otherDashboards">
+                        <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                    </li>
+                    <li class="divider"></li>
                     <li><a data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</a></li>
                 </ul>
             </li>
