@@ -158,7 +158,10 @@ directives.directive('newWidgetForm', ['$http', function($http) {
 directives.directive('editInPlace', function () {
     return {
         restrict: 'E',
-        scope: { value: '=' },
+        scope: {
+            value: '=',
+            ignoreBlanks: '='
+        },
         template: '<span ng-click="edit()" ng-bind="value"></span><input ng-model="value"></input>',
         link: function ($scope, element, attrs) {
             // Let's get a reference to the input element, as we'll want to reference it.
@@ -172,6 +175,10 @@ directives.directive('editInPlace', function () {
 
             // ng-click handler to activate edit-in-place
             $scope.edit = function () {
+                if ($scope.ignoreBlanks) {
+                    $scope.oldValue = $scope.value;
+                }
+
                 $scope.editing = true;
 
                 // We control display through a class on the directive itself. See the CSS.
@@ -184,6 +191,9 @@ directives.directive('editInPlace', function () {
             };
 
             $(inputElement).blur(function() {
+                if ($scope.ignoreBlanks && _.isEmpty($scope.value)) {
+                    $scope.value = $scope.oldValue;
+                }
                 $scope.editing = false;
                 element.removeClass('active');
             })

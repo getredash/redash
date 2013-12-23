@@ -262,7 +262,6 @@
                     return $filter('refreshRateHumanize')(value);
                 }
             }
-//            id: 672,
         ]
         $scope.tabs = [{"name": "My Queries", "key": "my"}, {"key": "all", "name": "All Queries"}, {"key": "drafts", "name": "Drafts"}];
 
