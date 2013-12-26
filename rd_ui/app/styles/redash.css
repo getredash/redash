@@ -2,6 +2,13 @@ body {
     padding-top: 70px;
 }
 
+a.page-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 400px;
+}
+
 a.navbar-brand {
     font-style: italic;
 }
