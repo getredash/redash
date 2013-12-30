@@ -17,7 +17,9 @@
 
                     <div class="btn-group pull-right">
                         <button type="button" class="btn btn-default" ng-click="duplicateQuery()">Duplicate</button>
-                        <button type="button" class="btn btn-default" ng-disabled="currentUser.name != query.user" ng-click="saveQuery()">Save</button>
+                        <button type="button" class="btn btn-default" ng-disabled="currentUser.name != query.user" ng-click="saveQuery()">Save
+                            <span ng-show="query.query != pristineQuery">&#42;</span>
+                        </button>
                         <button type="button" class="btn btn-primary" ng-disabled="queryExecuting" ng-click="executeQuery()">Execute</button>
                     </div>
                 </div>
