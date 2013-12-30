@@ -29,7 +29,23 @@
         $scope.updateTime = '';
     }
 
-    var QueryFiddleCtrl = function ($scope, $routeParams, $http, $location, growl, notifications, Query) {
+    var QueryFiddleCtrl = function ($scope, $window, $routeParams, $http, $location, growl, notifications, Query) {
+        var leavingPageText = "You will lose your changes if you leave";
+        var pristineQuery = null;
+
+        $window.onbeforeunload = function(){
+            if ($scope.queryChanged) {
+                return leavingPageText;
+            }
+        }
+
+        $scope.$on('$locationChangeStart', function(event, next, current) {
+            if($scope.queryChanged &&
+                !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
+                event.preventDefault();
+            }
+        });
+
         $scope.$parent.pageTitle = "Query Fiddle";
 
         $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
@@ -54,7 +70,8 @@
             }
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
-                $scope.pristineQuery = q.query;
+                pristineQuery = q.query;
+                $scope.queryChanged = false;
 
                 if (duplicate) {
                     growl.addInfoMessage("Query duplicated.", {ttl: 2000});
@@ -147,7 +164,7 @@
 
         if ($routeParams.queryId != undefined) {
             $scope.query = Query.get({id: $routeParams.queryId}, function(q) {
-                $scope.pristineQuery = q.query;
+                pristineQuery = q.query;
                 $scope.queryResult = $scope.query.getQueryResult();
             });
         } else {
@@ -157,6 +174,11 @@
 
         $scope.$watch('query.name', function() {
             $scope.$parent.pageTitle = $scope.query.name;
+        });
+        $scope.$watch('query.query', function(q) {
+            if (q) {
+                $scope.queryChanged = (q != pristineQuery);
+            }
         });
 
         $scope.executeQuery = function() {
@@ -325,7 +347,7 @@
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
+        .controller('QueryFiddleCtrl', ['$scope', '$window', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();
