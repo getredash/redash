@@ -68,6 +68,8 @@
                         $location.path($location.path().replace(oldId, q.id)).replace();
                     }
                 }
+            }, function(httpResponse) {
+                growl.addErrorMessage("Query could not be saved");
             });
         };
 
