@@ -54,6 +54,8 @@
             }
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
+                $scope.pristineQuery = q.query;
+
                 if (duplicate) {
                     growl.addInfoMessage("Query duplicated.", {ttl: 2000});
                 } else{
@@ -144,7 +146,8 @@
         });
 
         if ($routeParams.queryId != undefined) {
-            $scope.query = Query.get({id: $routeParams.queryId}, function() {
+            $scope.query = Query.get({id: $routeParams.queryId}, function(q) {
+                $scope.pristineQuery = q.query;
                 $scope.queryResult = $scope.query.getQueryResult();
             });
         } else {
