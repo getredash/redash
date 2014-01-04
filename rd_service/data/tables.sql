@@ -15,6 +15,7 @@ CREATE TABLE "queries" (
     "description" varchar(4096),
     "query" text NOT NULL,
     "query_hash" varchar(32) NOT NULL,
+    "api_key" varchar(40),
     "ttl" integer NOT NULL,
     "user" varchar(360) NOT NULL,
     "created_at" timestamp with time zone NOT NULL
