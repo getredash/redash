@@ -139,7 +139,7 @@
             if ($scope.queryResult.getId() == null) {
                 $scope.dataUri = "";
             } else {
-                $scope.dataUri = '/api/query_results/' + $scope.queryResult.getId() + '.csv';
+                $scope.dataUri = '/api/queries/' + $scope.query.id + '/results/' + $scope.queryResult.getId() + '.csv';
                 $scope.dataFilename = $scope.query.name.replace(" ", "_") + moment($scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") + ".csv";
             }
         });
