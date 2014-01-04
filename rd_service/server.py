@@ -252,8 +252,13 @@ class QueryResultsHandler(BaseAuthenticatedHandler):
 
 
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):
-    def get(self, query_result_id):
-        query_result = self.data_manager.get_query_result_by_id(query_result_id)
+    def get(self, query_id, result_id=None):
+        if not result_id:
+            query = data.models.Query.objects.get(pk=query_id)
+            if query:
+                result_id = query.latest_query_data_id
+
+        query_result = result_id and self.data_manager.get_query_result_by_id(result_id)
         if query_result:
             self.set_header("Content-Type", "text/csv; charset=UTF-8")
             s = cStringIO.StringIO()
@@ -291,10 +296,10 @@ class JobsHandler(BaseAuthenticatedHandler):
 def get_application(static_path, is_debug, redis_connection, data_manager):
     return tornado.web.Application([(r"/", MainHandler),
                                     (r"/ping", PingHandler),
+                                    (r"/api/queries/([0-9]*)/results(?:/([0-9]*))?.csv", CsvQueryResultsHandler),
                                     (r"/api/queries/format", QueryFormatHandler),
                                     (r"/api/queries(?:/([0-9]*))?", QueriesHandler),
                                     (r"/api/query_results(?:/([0-9]*))?", QueryResultsHandler),
-                                    (r"/api/query_results/(.*?).csv", CsvQueryResultsHandler),
                                     (r"/api/jobs/(.*)", JobsHandler),
                                     (r"/api/widgets(?:/([0-9]*))?", WidgetsHandler),
                                     (r"/api/dashboards(?:/(.*))?", DashboardHandler),
