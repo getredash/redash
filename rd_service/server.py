@@ -44,15 +44,17 @@ class BaseHandler(tornado.web.RequestHandler):
         user = self.get_secure_cookie("user")
         return user
 
-    @tornado.web.authenticated
-    def prepare(self):
-        pass
-
     def write_json(self, response, encode=True):
         if encode:
             response = json.dumps(response, cls=utils.JSONEncoder)
         self.set_header("Content-Type", "application/json; charset=UTF-8")
         self.write(response)
+
+
+class BaseAuthenticatedHandler(BaseHandler):
+    @tornado.web.authenticated
+    def prepare(self):
+        pass
 
 
 class PingHandler(tornado.web.RequestHandler):
@@ -79,7 +81,7 @@ class GoogleLoginHandler(tornado.web.RequestHandler,
             self.authenticate_redirect()
 
 
-class MainHandler(BaseHandler):
+class MainHandler(BaseAuthenticatedHandler):
     def get(self, *args):
         email_md5 = hashlib.md5(self.current_user.lower()).hexdigest()
         gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
@@ -93,7 +95,7 @@ class MainHandler(BaseHandler):
         self.render("index.html", user=json.dumps(user))
 
 
-class QueryFormatHandler(BaseHandler):
+class QueryFormatHandler(BaseAuthenticatedHandler):
     def post(self):
         arguments = json.loads(self.request.body)
         query = arguments.get("query", "")
@@ -101,7 +103,7 @@ class QueryFormatHandler(BaseHandler):
         self.write(sqlparse.format(query, reindent=True, keyword_case='upper'))
 
 
-class StatusHandler(BaseHandler):
+class StatusHandler(BaseAuthenticatedHandler):
     def get(self):
         status = {}
         info = self.redis_connection.info()
@@ -122,7 +124,7 @@ class StatusHandler(BaseHandler):
         self.write_json(status)
 
 
-class WidgetsHandler(BaseHandler):
+class WidgetsHandler(BaseAuthenticatedHandler):
     def post(self, widget_id=None):
         widget_properties = json.loads(self.request.body)
         widget_properties['options'] = json.dumps(widget_properties['options'])
@@ -162,7 +164,7 @@ class WidgetsHandler(BaseHandler):
         widget.delete()
 
 
-class DashboardHandler(BaseHandler):
+class DashboardHandler(BaseAuthenticatedHandler):
     def get(self, dashboard_slug=None):
         if dashboard_slug:
             dashboard = data.models.Dashboard.objects.prefetch_related('widgets__query__latest_query_data').get(slug=dashboard_slug)
@@ -195,7 +197,7 @@ class DashboardHandler(BaseHandler):
         dashboard.save()
 
 
-class QueriesHandler(BaseHandler):
+class QueriesHandler(BaseAuthenticatedHandler):
     def post(self, id=None):
         query_def = json.loads(self.request.body)
         if 'created_at' in query_def:
@@ -226,7 +228,7 @@ class QueriesHandler(BaseHandler):
             self.write_json([q.to_dict(with_result=False, with_stats=True) for q in data.models.Query.all_queries()])
 
 
-class QueryResultsHandler(BaseHandler):
+class QueryResultsHandler(BaseAuthenticatedHandler):
     def get(self, query_result_id):
         query_result = self.data_manager.get_query_result_by_id(query_result_id)
         if query_result:
@@ -249,21 +251,7 @@ class QueryResultsHandler(BaseHandler):
             self.write({'job': job.to_dict()})
 
 
-class JobsHandler(BaseHandler):
-    def get(self, job_id=None):
-        if job_id:
-            # TODO: if finished, include the query result
-            job = data.Job.load(self.data_manager.redis_connection, job_id)
-            self.write({'job': job.to_dict()})
-        else:
-            raise NotImplemented
-
-    def delete(self, job_id):
-        job = data.Job.load(self.data_manager.redis_connection, job_id)
-        job.cancel()
-
-
-class CsvQueryResultsHandler(BaseHandler):
+class CsvQueryResultsHandler(BaseAuthenticatedHandler):
     def get(self, query_result_id):
         query_result = self.data_manager.get_query_result_by_id(query_result_id)
         if query_result:
@@ -284,6 +272,20 @@ class CsvQueryResultsHandler(BaseHandler):
             self.write(s.getvalue())
         else:
             self.send_error(404)
+
+
+class JobsHandler(BaseAuthenticatedHandler):
+    def get(self, job_id=None):
+        if job_id:
+            # TODO: if finished, include the query result
+            job = data.Job.load(self.data_manager.redis_connection, job_id)
+            self.write({'job': job.to_dict()})
+        else:
+            raise NotImplemented
+
+    def delete(self, job_id):
+        job = data.Job.load(self.data_manager.redis_connection, job_id)
+        job.cancel()
 
 
 def get_application(static_path, is_debug, redis_connection, data_manager):
