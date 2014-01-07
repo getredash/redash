@@ -11,11 +11,12 @@ angular.module('redash', [
     'angularMoment',
     'ui.bootstrap',
     'smartTable.table',
-    'ngResource'
+    'ngResource',
+    'ngRoute'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
-        $compileProvider.urlSanitizationWhitelist(/^\s*(https?|http|data):/);
+        $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
         $locationProvider.html5Mode(true);
         growlProvider.globalTimeToLive(2000);
 

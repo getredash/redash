@@ -316,7 +316,7 @@
             }
 
             filterQueries();
-        })
+        });
     }
 
     var MainCtrl = function ($scope, Dashboard, notifications) {
