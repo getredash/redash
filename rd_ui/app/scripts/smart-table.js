@@ -15,7 +15,7 @@
         sortPredicate: '',
         formatFunction: '',
         formatParameter: '',
-        filterPredicate: '',
+        filterPredicate: undefined,
         cellTemplateUrl: '',
         headerClass: '',
         cellClass: ''
@@ -184,7 +184,7 @@
                 replace: false,
                 link: function (scope, element, attr, ctrl) {
 
-                    scope.searchValue = '';
+                    scope.searchValue = undefined;
 
                     scope.$watch('searchValue', function (value) {
                         //todo perf improvement only filter on blur ?
@@ -464,14 +464,13 @@
              * @param column
              */
             this.search = function (input, column) {
-
                 //update column and global predicate
                 if (column && scope.columns.indexOf(column) !== -1) {
                     predicate.$ = '';
                     column.filterPredicate = input;
                 } else {
                     for (var j = 0, l = scope.columns.length; j < l; j++) {
-                        scope.columns[j].filterPredicate = '';
+                        scope.columns[j].filterPredicate = undefined;
                     }
                     predicate.$ = input;
                 }
