@@ -17,7 +17,8 @@
     "angular-growl": "0.3.1",
     "pivottable": "git@github.com:arikfr/pivottable.git#master",
     "cornelius": "git@github.com:restorando/cornelius.git",
-    "gridster": "0.2.0"
+    "gridster": "0.2.0",
+    "mousetrap": "~1.4.6"
   },
   "devDependencies": {
     "angular-mocks": "~1.0.7",
