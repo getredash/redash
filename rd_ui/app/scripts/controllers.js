@@ -40,6 +40,10 @@
         }
 
         $scope.$on('$locationChangeStart', function(event, next, current) {
+            if (next.split("#")[0] == current.split("#")[0]) {
+                return;
+            }
+
             if($scope.queryChanged &&
                 !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
                 event.preventDefault();
