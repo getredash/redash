@@ -39,6 +39,11 @@
             }
         }
 
+        Mousetrap.bindGlobal("meta+s", function(e) {
+            e.preventDefault();
+            $scope.saveQuery();
+        });
+
         $scope.$on('$locationChangeStart', function(event, next, current) {
             if (next.split("#")[0] == current.split("#")[0]) {
                 return;
@@ -48,6 +53,8 @@
                 !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
                 event.preventDefault();
             }
+
+            Mousetrap.unbind("meta+s");
         });
 
         $scope.$parent.pageTitle = "Query Fiddle";
