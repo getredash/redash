@@ -92,7 +92,7 @@ class MainHandler(BaseAuthenticatedHandler):
             'name': self.current_user
         }
 
-        self.render("index.html", user=json.dumps(user))
+        self.render("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
 
 
 class QueryFormatHandler(BaseAuthenticatedHandler):
