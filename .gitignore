@@ -7,3 +7,4 @@ rd_ui/dist
 # Vagrant related
 .vagrant
 Berksfile.lock
+rd_service/dump.rdb

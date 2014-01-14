@@ -23,19 +23,26 @@ a.navbar-brand {
 }
 
 .edit-in-place span {
-  cursor: pointer;
+    cursor: pointer;
 }
 
-.edit-in-place input {
-  display: none;
+.edit-in-place input,
+.edit-in-place textarea {
+    display: none;
+}
+
+.edit-in-place textarea {
+    height: 80px;
+    width: 250px;
 }
 
 .edit-in-place.active span {
-  display: none;
+    display: none;
 }
 
-.edit-in-place.active input {
-  display: inline-block;
+.edit-in-place.active input,
+.edit-in-place.active textarea {
+    display: inline-block;
 }
 
 .delete-button {
