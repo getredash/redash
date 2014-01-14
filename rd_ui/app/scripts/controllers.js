@@ -41,7 +41,10 @@
 
         Mousetrap.bindGlobal("meta+s", function(e) {
             e.preventDefault();
-            $scope.saveQuery();
+
+            if (currentUser.canEdit($scope.query)) {
+                $scope.saveQuery();
+            }
         });
 
         $scope.$on('$locationChangeStart', function(event, next, current) {
