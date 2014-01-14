@@ -162,10 +162,16 @@ directives.directive('editInPlace', function () {
             value: '=',
             ignoreBlanks: '='
         },
-        template: '<span ng-click="edit()" ng-bind="value"></span><input ng-model="value"></input>',
+        template: function(tElement, tAttrs) {
+            var elType = tAttrs.editor || 'input';
+            var placeholder = tAttrs.placeholder || 'Click to edit';
+            return '<span ng-click="edit()" ng-bind="value"></span>' +
+                   '<span ng-click="edit()" ng-show="!value">' + placeholder + '</span>' +
+                   '<{elType} ng-model="value"></{elType}>'.replace('{elType}', elType);
+        },
         link: function ($scope, element, attrs) {
             // Let's get a reference to the input element, as we'll want to reference it.
-            var inputElement = angular.element(element.children()[1]);
+            var inputElement = angular.element(element.children()[2]);
 
             // This directive should have a set class so we can style it.
             element.addClass('edit-in-place');
