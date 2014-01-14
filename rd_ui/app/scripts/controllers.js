@@ -55,9 +55,9 @@
             if($scope.queryChanged &&
                 !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
                 event.preventDefault();
+            } else {
+                Mousetrap.unbind("meta+s");
             }
-
-            Mousetrap.unbind("meta+s");
         });
 
         $scope.$parent.pageTitle = "Query Fiddle";
