@@ -3,7 +3,20 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <span class="glyphicon glyphicon-pencil"></span> <edit-in-place ignore-blanks='true' value="query.name"></edit-in-place>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p>
+                                <edit-in-place ignore-blanks='true' value="query.name"></edit-in-place>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p>
+                                <edit-in-place class="text-muted" editor="textarea" placeholder="No description" ignore-blanks='true' value="query.description"></edit-in-place>
+                            </p>
+                        </div>
+                    </div>
                 </h3>
             </div>
             <div class="panel-body">
