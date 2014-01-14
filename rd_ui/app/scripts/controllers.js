@@ -34,7 +34,7 @@
         var pristineQuery = null;
 
         $window.onbeforeunload = function(){
-            if ($scope.queryChanged) {
+            if (currentUser.canEdit($scope.query) && $scope.queryChanged) {
                 return leavingPageText;
             }
         }
@@ -49,6 +49,10 @@
 
         $scope.$on('$locationChangeStart', function(event, next, current) {
             if (next.split("#")[0] == current.split("#")[0]) {
+                return;
+            }
+
+            if (!currentUser.canEdit($scope.query)) {
                 return;
             }
 
