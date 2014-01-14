@@ -121,7 +121,7 @@
     var currentUser = {% raw user %};
 
     currentUser.canEdit = function(object) {
-        return object.user.indexOf(currentUser.name) != -1;
+        return object.user && (object.user.indexOf(currentUser.name) != -1);
     }
 
     {% raw analytics %}
