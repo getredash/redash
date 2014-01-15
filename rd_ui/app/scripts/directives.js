@@ -167,7 +167,7 @@ directives.directive('editInPlace', function () {
             var placeholder = tAttrs.placeholder || 'Click to edit';
             return '<span ng-click="edit()" ng-bind="value"></span>' +
                    '<span ng-click="edit()" ng-show="!value">' + placeholder + '</span>' +
-                   '<{elType} ng-model="value"></{elType}>'.replace('{elType}', elType);
+                   '<{elType} ng-model="value" class="form-control" rows="2"></{elType}>'.replace('{elType}', elType);
         },
         link: function ($scope, element, attrs) {
             // Let's get a reference to the input element, as we'll want to reference it.
