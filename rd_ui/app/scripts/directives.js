@@ -166,8 +166,8 @@ directives.directive('editInPlace', function () {
         template: function(tElement, tAttrs) {
             var elType = tAttrs.editor || 'input';
             var placeholder = tAttrs.placeholder || 'Click to edit';
-            return '<span ng-click="editable && edit()" ng-bind="value"></span>' +
-                   '<span ng-click="editable && edit()" ng-show="!value">' + placeholder + '</span>' +
+            return '<span ng-click="editable && edit()" ng-bind="value || placeholder"></span>' +
+                   '<span ng-click="editable && edit()" ng-show="!value && editable">' + placeholder + '</span>' +
                    '<{elType} ng-model="value" class="form-control" rows="2"></{elType}>'.replace('{elType}', elType);
         },
         link: function ($scope, element, attrs) {
