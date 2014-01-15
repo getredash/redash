@@ -22,12 +22,12 @@ a.navbar-brand {
     margin-bottom: 5px;
 }
 
-.edit-in-place span {
+.edit-in-place.editable span {
     cursor: pointer;
 }
 
-.edit-in-place span:hover {
-    background: yellow;
+.edit-in-place.editable span:hover {
+    background: #FCFCA2;
 }
 
 .edit-in-place input,
