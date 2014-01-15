@@ -4,17 +4,11 @@
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <p>
-                        <edit-in-place editable="currentUser.canEdit(query)" ignore-blanks='true'
-                                       value="query.name"
-                                       ng-class="{editable: currentUser.canEdit(query)}"></edit-in-place>
-                    </p>
+                     <edit-in-place editable="currentUser.canEdit(query)" ignore-blanks='true' value="query.name"></edit-in-place>
+                 </p>
                 </h3>
                 <p>
-                    <edit-in-place editable="currentUser.canEdit(query)" editor="textarea"
-                                   placeholder="No description" ignore-blanks='false'
-                                   value="query.description"
-                                   ng-class="{editable: currentUser.canEdit(query)}"
-                                   class="text-muted"></edit-in-place>
+                    <edit-in-place editable="currentUser.canEdit(query)" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description" class="text-muted"></edit-in-place>
                 </p>
             </div>
             <div class="panel-body">
