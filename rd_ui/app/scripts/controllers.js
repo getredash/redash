@@ -5,7 +5,7 @@
         });
     };
 
-    var WidgetCtrl = function ($scope, $http, Query) {
+    var WidgetCtrl = function ($scope, $http, $location, Query) {
         $scope.deleteWidget = function() {
             if (!confirm('Are you sure you want to remove "' + $scope.widget.query.name + '" from the dashboard?')) {
                 return;
@@ -18,6 +18,10 @@
                     })
                 });
             });
+        };
+
+        $scope.open = function(query) {
+            $location.path('/queries/' + query.id);
         }
 
         $scope.query = new Query($scope.widget.query);
@@ -363,7 +367,7 @@
 
     angular.module('redash.controllers', [])
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
-        .controller('WidgetCtrl', ['$scope', '$http', 'Query', WidgetCtrl])
+        .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
         .controller('QueryFiddleCtrl', ['$scope', '$window', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])

@@ -3,21 +3,19 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <p>
-                                <edit-in-place ignore-blanks='true' value="query.name"></edit-in-place>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <p>
-                                <edit-in-place class="text-muted" editor="textarea" placeholder="No description" ignore-blanks='true' value="query.description"></edit-in-place>
-                            </p>
-                        </div>
-                    </div>
+                    <p>
+                        <edit-in-place editable="currentUser.canEdit(query)" ignore-blanks='true'
+                                       value="query.name"
+                                       ng-class="{editable: currentUser.canEdit(query)}"></edit-in-place>
+                    </p>
                 </h3>
+                <p>
+                    <edit-in-place editable="currentUser.canEdit(query)" editor="textarea"
+                                   placeholder="No description" ignore-blanks='false'
+                                   value="query.description"
+                                   ng-class="{editable: currentUser.canEdit(query)}"
+                                   class="text-muted"></edit-in-place>
+                </p>
             </div>
             <div class="panel-body">
                 <textarea ui-codemirror="editorOptions" ng-model="query.query"></textarea>
