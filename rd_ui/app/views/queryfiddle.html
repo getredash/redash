@@ -4,17 +4,17 @@
             <div class="panel-heading">
                 <h3 class="panel-title">
                     <div class="row">
-                        <div class="col-lg-6">
-                            <p>
-                                <edit-in-place ignore-blanks='true' value="query.name"></edit-in-place>
-                            </p>
+                        <div class="col-lg-12">
+                           <p>
+                               <edit-in-place ignore-blanks='true' value="query.name" ng-show="currentUser.canEdit(query)"></edit-in-place>
+                               <span ng-show="!currentUser.canEdit(query)" ng-bind="query.name"></span>
+                           </p>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-lg-6">
-                            <p>
-                                <edit-in-place class="text-muted" editor="textarea" placeholder="No description" ignore-blanks='true' value="query.description"></edit-in-place>
-                            </p>
+                        <div class="col-lg-12">
+                            <edit-in-place class="text-muted" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description" ng-show="currentUser.canEdit(query)"></edit-in-place>
+                            <span class="text-muted" ng-show="!currentUser.canEdit(query) && query.description" ng-bind="query.description"></span>
                         </div>
                     </div>
                 </h3>
