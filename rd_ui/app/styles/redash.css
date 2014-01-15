@@ -22,18 +22,17 @@ a.navbar-brand {
     margin-bottom: 5px;
 }
 
-.edit-in-place span {
+.edit-in-place.editable span {
     cursor: pointer;
+}
+
+.edit-in-place.editable span:hover {
+    background: #FCFCA2;
 }
 
 .edit-in-place input,
 .edit-in-place textarea {
     display: none;
-}
-
-.edit-in-place textarea {
-    height: 80px;
-    width: 250px;
 }
 
 .edit-in-place.active span {
@@ -51,6 +50,10 @@ a.navbar-brand {
 
 .list-group-item.active button {
     color: white;
+}
+
+.panel-heading > p:last-child {
+    margin-bottom: 0px;
 }
 
 /* angular-growl */
