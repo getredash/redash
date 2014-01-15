@@ -26,14 +26,13 @@ a.navbar-brand {
     cursor: pointer;
 }
 
+.edit-in-place span:hover {
+    background: yellow;
+}
+
 .edit-in-place input,
 .edit-in-place textarea {
     display: none;
-}
-
-.edit-in-place textarea {
-    height: 80px;
-    width: 250px;
 }
 
 .edit-in-place.active span {
