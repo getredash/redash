@@ -39,7 +39,11 @@
                           tooltip="next update {{nextUpdateTime}} (query runtime: {{queryResult.getRuntime() | durationHumanize}})"
                           tooltip-placement="bottom">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
 
-                    <button type="button" class="btn btn-default btn-xs pull-right" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
+                    <span class="pull-right">
+                        <a class="btn btn-default btn-xs" ng-href="/queries/{{query.id}}"><span class="glyphicon glyphicon-link"></span></a>
+                        <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
+                    </span>
+
                 </div>
             </div>
         </div>
