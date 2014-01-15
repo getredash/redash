@@ -52,6 +52,10 @@ a.navbar-brand {
     color: white;
 }
 
+.panel-heading > p:last-child {
+    margin-bottom: 0px;
+}
+
 /* angular-growl */
 .growl {
     position: fixed;
