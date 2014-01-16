@@ -34,10 +34,13 @@
     }
 
     var QueryFiddleCtrl = function ($scope, $window, $routeParams, $http, $location, growl, notifications, Query) {
+        var pristineHash = null;
+        $scope.dirty = undefined;
+
         var leavingPageText = "You will lose your changes if you leave";
 
         $window.onbeforeunload = function(){
-            if (currentUser.canEdit($scope.query) && $scope.queryForm.$dirty) {
+            if (currentUser.canEdit($scope.query) && $scope.dirty) {
                 return leavingPageText;
             }
         }
@@ -59,7 +62,7 @@
                 return;
             }
 
-            if($scope.queryForm.$dirty &&
+            if($scope.dirty &&
                 !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
                 event.preventDefault();
             } else {
@@ -91,7 +94,8 @@
             }
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
-                $scope.queryForm.$setPristine();
+                pristineHash = q.getHash();
+                $scope.dirty = false;
 
                 if (duplicate) {
                     growl.addInfoMessage("Query duplicated.", {ttl: 2000});
@@ -184,7 +188,8 @@
 
         if ($routeParams.queryId != undefined) {
             $scope.query = Query.get({id: $routeParams.queryId}, function(q) {
-                $scope.queryForm.$setPristine();
+                pristineHash = q.getHash();
+                $scope.dirty = false;
                 $scope.queryResult = $scope.query.getQueryResult();
             });
         } else {
@@ -194,6 +199,12 @@
 
         $scope.$watch('query.name', function() {
             $scope.$parent.pageTitle = $scope.query.name;
+        });
+
+        $scope.$watch(function() {
+            return $scope.query.getHash();
+        }, function(newHash) {
+            $scope.dirty = (newHash !== pristineHash);
         });
 
         $scope.executeQuery = function() {
