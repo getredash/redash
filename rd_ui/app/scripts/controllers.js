@@ -35,10 +35,9 @@
 
     var QueryFiddleCtrl = function ($scope, $window, $routeParams, $http, $location, growl, notifications, Query) {
         var leavingPageText = "You will lose your changes if you leave";
-        var pristineQuery = null;
 
         $window.onbeforeunload = function(){
-            if (currentUser.canEdit($scope.query) && $scope.queryChanged) {
+            if (currentUser.canEdit($scope.query) && $scope.queryForm.$dirty) {
                 return leavingPageText;
             }
         }
@@ -60,7 +59,7 @@
                 return;
             }
 
-            if($scope.queryChanged &&
+            if($scope.queryForm.$dirty &&
                 !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
                 event.preventDefault();
             } else {
@@ -92,8 +91,7 @@
             }
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
-                pristineQuery = q.query;
-                $scope.queryChanged = false;
+                $scope.queryForm.$setPristine();
 
                 if (duplicate) {
                     growl.addInfoMessage("Query duplicated.", {ttl: 2000});
@@ -186,7 +184,7 @@
 
         if ($routeParams.queryId != undefined) {
             $scope.query = Query.get({id: $routeParams.queryId}, function(q) {
-                pristineQuery = q.query;
+                $scope.queryForm.$setPristine();
                 $scope.queryResult = $scope.query.getQueryResult();
             });
         } else {
@@ -196,11 +194,6 @@
 
         $scope.$watch('query.name', function() {
             $scope.$parent.pageTitle = $scope.query.name;
-        });
-        $scope.$watch('query.query', function(q) {
-            if (q) {
-                $scope.queryChanged = (q != pristineQuery);
-            }
         });
 
         $scope.executeQuery = function() {
