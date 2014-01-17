@@ -1,7 +1,5 @@
 """
-CLI to start the workers.
-
-TODO: move API server startup here.
+CLI to manage redash.
 """
 import atfork
 atfork.monkeypatch_os_fork_functions()
@@ -10,11 +8,8 @@ atfork.stdlib_fixer.fix_logging_module()
 
 import argparse
 import logging
-import urlparse
-import redis
 import time
-import settings
-import data
+from redash import settings, data, redis_connection, data_manager
 
 
 def start_workers(data_manager):
@@ -47,10 +42,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("command")
     args = parser.parse_args()
-
-    url = urlparse.urlparse(settings.REDIS_URL)
-    redis_connection = redis.StrictRedis(host=url.hostname, port=url.port, db=0, password=url.password)
-    data_manager = data.Manager(redis_connection, settings.INTERNAL_DB_CONNECTION_STRING, settings.MAX_CONNECTIONS)
 
     if args.command == "worker":
         start_workers(data_manager)
