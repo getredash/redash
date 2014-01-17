@@ -1,17 +1,8 @@
 """
 Flask-restful based API implementation for re:dash.
 
-Also at the moment the Flask server is used to serve the static assets (and the Angular.js app),
+Currently the Flask server is used to serve the static assets (and the Angular.js app),
 but this is only due to configuration issues and temporary.
-
-Usage:
-    python api.py [--port=8888] [--debug] [--static=..]
-
-    port - port to listen to
-    debug - enable debug mode (extensive logging, restart on code change)
-    static - static assets path
-
-If static option isn't specified it will be taken from settings.py.
 """
 import csv
 import hashlib

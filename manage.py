@@ -9,10 +9,10 @@ atfork.stdlib_fixer.fix_logging_module()
 import argparse
 import logging
 import time
-from redash import settings, data, redis_connection, data_manager
+from redash import settings, app, data_manager
 
 
-def start_workers(data_manager):
+def start_workers():
     try:
         old_workers = data_manager.redis_connection.smembers('workers')
         data_manager.redis_connection.delete('workers')
@@ -34,17 +34,32 @@ def start_workers(data_manager):
         data_manager.stop_workers()
 
 
+def start_server(port, debug):
+    app.run(debug=debug, port=port)
+
 if __name__ == '__main__':
     channel = logging.StreamHandler()
     logging.getLogger().addHandler(channel)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("command")
+    subparsers = parser.add_subparsers(title='command', dest='command')
+
+    subparsers.add_parser('worker', help='start query execution workers')
+    server_parser = subparsers.add_parser('server', help='start api server')
+    server_parser.add_arguemnt('--debug',
+                               action='store_true',
+                               help='start in debug mode (code reload)')
+    server_parser.add_arguemnt('--port',
+                               default=8888,
+                               help='port to bind to')
+
     args = parser.parse_args()
 
     if args.command == "worker":
-        start_workers(data_manager)
+        start_workers()
+    elif args.command == 'server':
+        start_server(args.port, args.debug)
     else:
         print "Unknown command"
 
