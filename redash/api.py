@@ -17,46 +17,19 @@ import csv
 import hashlib
 import json
 import numbers
-import urlparse
 import cStringIO
 import datetime
 import dateutil
 
-from flask import Flask, g, render_template, send_from_directory, make_response, request, jsonify
-from flask_googleauth import GoogleFederated
-from flask.ext.restful import Api, Resource, abort
+from flask import g, render_template, send_from_directory, make_response, request, jsonify
+from flask.ext.restful import Resource, abort
 
-import redis
 import sqlparse
 import settings
 from data import utils
 import data
 
-app = Flask(__name__,
-            template_folder=settings.STATIC_ASSETS_PATH,
-            static_folder=settings.STATIC_ASSETS_PATH,
-            static_path='/static')
-
-api = Api(app)
-
-@api.representation('application/json')
-def json_representation(data, code, headers=None):
-    resp = make_response(json.dumps(data, cls=utils.JSONEncoder), code)
-    resp.headers.extend(headers or {})
-    return resp
-
-
-# TODO: move this out
-url = urlparse.urlparse(settings.REDIS_URL)
-redis_connection = redis.StrictRedis(host=url.hostname, port=url.port, db=0, password=url.password)
-data_manager = data.Manager(redis_connection, settings.INTERNAL_DB_CONNECTION_STRING, settings.MAX_CONNECTIONS)
-
-auth = GoogleFederated(settings.GOOGLE_APPS_DOMAIN, app)
-from werkzeug.contrib.fixers import ProxyFix
-app.wsgi_app = ProxyFix(app.wsgi_app)
-app.secret_key = settings.COOKIE_SECRET
-auth.force_auth_on_every_request = True
-
+from redash import app, auth, api, redis_connection, data_manager
 
 @app.route('/ping', methods=['GET'])
 def ping():
