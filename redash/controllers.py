@@ -22,6 +22,7 @@ from redash import data
 
 from redash import app, auth, api, redis_connection, data_manager
 
+
 @app.route('/ping', methods=['GET'])
 def ping():
     return 'PONG.'

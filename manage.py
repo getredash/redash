@@ -47,10 +47,10 @@ if __name__ == '__main__':
 
     subparsers.add_parser('worker', help='start query execution workers')
     server_parser = subparsers.add_parser('server', help='start api server')
-    server_parser.add_arguemnt('--debug',
+    server_parser.add_argument('--debug',
                                action='store_true',
                                help='start in debug mode (code reload)')
-    server_parser.add_arguemnt('--port',
+    server_parser.add_argument('--port',
                                default=8888,
                                help='port to bind to')
 
