@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 CLI to manage redash.
 """
