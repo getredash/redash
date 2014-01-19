@@ -10,7 +10,7 @@ import json
 import numbers
 import cStringIO
 import datetime
-import dateutil
+import dateutil.parser
 
 from flask import g, render_template, send_from_directory, make_response, request, jsonify
 from flask.ext.restful import Resource, abort

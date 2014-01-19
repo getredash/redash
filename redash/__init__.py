@@ -1,22 +1,11 @@
 import json
 import urlparse
 from flask import Flask, make_response
-from flask.ext.googleauth import GoogleFederated
 from flask.ext.restful import Api
-from werkzeug.contrib.fixers import ProxyFix
 import redis
 from redash import settings
 from redash.data import utils
-
-
-def setup_authentication(app):
-    auth = GoogleFederated(settings.GOOGLE_APPS_DOMAIN, app)
-    app.wsgi_app = ProxyFix(app.wsgi_app)
-    app.secret_key = settings.COOKIE_SECRET
-    auth.force_auth_on_every_request = True
-
-    return auth
-
+from redash.authentication import setup_authentication
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
