@@ -1,6 +1,9 @@
 import functools
+import hashlib
+import hmac
 from flask import request, make_response
 from flask.ext.googleauth import GoogleFederated
+import time
 from werkzeug.contrib.fixers import ProxyFix
 import werkzeug.wrappers
 from redash import data, settings
@@ -10,27 +13,23 @@ class HMACAuthentication(object):
     def __init__(self, auth):
         self.auth = auth
 
-        #user = super(CsvQueryResultsHandler, self).get_current_user()
-        #if not user:
-        #    api_key = self.get_argument("api_key", None)
-        #    query = data.models.Query.objects.get(pk=self.path_args[0])
-        #
-        #    if query.api_key and query.api_key == api_key:
-        #        user = "API-Key=%s" % api_key
-        #
-        #return user
-
     def required(self, fn):
         wrapped_fn = self.auth.required(fn)
 
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
-            api_key = request.args.get('api_key')
+            signature = request.args.get('signature')
+            expires = int(request.args.get('expires') or 0)
             query_id = request.view_args.get('query_id', None)
 
-            if api_key and query_id:
+            if signature and query_id and time.time() < expires:
                 query = data.models.Query.objects.get(pk=query_id)
-                if query.api_key and query.api_key == api_key:
+                h = hmac.new(str(query.api_key), msg=request.path, digestmod=hashlib.sha1)
+                h.update(str(expires))
+
+                print h.hexdigest()
+
+                if query.api_key and signature == h.hexdigest():
                     return fn(*args, **kwargs)
 
             # Work around for flask-restful testing only for flask.wrappers.Resource instead of
