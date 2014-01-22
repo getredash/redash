@@ -30,7 +30,7 @@
                 </div>
 
                 <div ng-switch on="widget.type" class="panel-body">
-                    <chart-renderer ng-switch-when="chart" query-result="queryResult" stacking="widget.options.stacking"></chart-renderer>
+                    <chart-renderer ng-switch-when="chart" query-result="queryResult" stacking="widget.options.stacking" type="widget.options.chart_type"></chart-renderer>
                     <grid-renderer ng-switch-when="grid" query-result="queryResult"></grid-renderer>
                     <cohort-renderer ng-switch-when="cohort" query-result="queryResult"></cohort-renderer>
                 </div>
