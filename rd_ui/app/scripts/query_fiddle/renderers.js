@@ -84,9 +84,7 @@ renderers.directive('chartRenderer', function () {
         restrict: 'E',
         scope: {
             queryResult: '=',
-            stacking: '&',
-            options: '=?',
-            type: '&'
+            options: '=?'
         },
         template: "<chart options='chartOptions' series='chartSeries' class='graph'></chart>",
         replace: false,
@@ -100,14 +98,8 @@ renderers.directive('chartRenderer', function () {
                 } else {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-                    var stacking = null;
-                    if ($scope.stacking() === undefined) {
-                        stacking = 'normal';
-                    }
-
-                    var chart_type = $scope.type() || 'column';
                     _.each($scope.queryResult.getChartData(), function (s) {
-                        $scope.chartSeries.push(_.extend(s, {'stacking': stacking, 'type': chart_type}, $scope.options));
+                        $scope.chartSeries.push(_.extend(s, {'stacking': 'normal'}, $scope.options));
                     });
                 }
             });
