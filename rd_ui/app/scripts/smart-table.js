@@ -113,8 +113,10 @@
 
                     //if item are added or removed into the data model from outside the grid
                     scope.$watch('dataCollection', function (oldValue, newValue) {
-                        if (oldValue !== newValue) {
-                            ctrl.sortBy();//it will trigger the refresh... some hack ?
+                        // evme:
+                        // reset sorting when data updates (executing query again)
+                        if (newValue) {
+                            ctrl.resetSort();
                         }
                     });
 
@@ -494,6 +496,12 @@
                 output = sortDataRow(arrayUtility.filter(array, filterAlgo, predicate), lastColumnSort);
                 scope.numberOfPages = calculateNumberOfPages(output);
                 return scope.isPaginationEnabled ? arrayUtility.fromTo(output, (scope.currentPage - 1) * scope.itemsByPage, scope.itemsByPage) : output;
+            };
+
+            this.resetSort = function() {
+                lastColumnSort = null;
+                predicate = {};
+                this.sortBy();
             };
 
             /*////////////
