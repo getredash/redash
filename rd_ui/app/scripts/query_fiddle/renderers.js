@@ -123,7 +123,7 @@ renderers.directive('gridRenderer', function () {
                 isPaginationEnabled: true,
                 itemsByPage: $scope.itemsPerPage || 15,
                 maxSize: 8
-            }
+            };
 
             $scope.$watch('queryResult && queryResult.getData()', function (data) {
                 if (!data) {
