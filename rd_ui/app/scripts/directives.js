@@ -33,35 +33,52 @@ directives.directive('editDashboardForm', ['$http', '$location', '$timeout', 'Da
         templateUrl: '/views/edit_dashboard.html',
         replace: true,
         link: function($scope, element, attrs) {
-            $scope.$watch('dashboard.widgets', function() {
-                if ($scope.dashboard.widgets) {
-                    $scope.layout = [];
-                    _.each($scope.dashboard.widgets, function(row, rowIndex) {
-                        _.each(row, function(widget, colIndex) {
-                            $scope.layout.push({
-                                id: widget.id,
-                                col: colIndex+1,
-                                row: rowIndex+1,
-                                ySize: 1,
-                                xSize: widget.width,
-                                name: widget.query.name
-                            })
-                        })
-                    });
-
-                    $timeout(function () {
-                        $(".gridster ul").gridster({
-                            widget_margins: [5, 5],
-                            widget_base_dimensions: [260, 100],
-                            min_cols: 2,
-                            max_cols: 2,
-                            serialize_params: function ($w, wgd) {
-                                return { col: wgd.col, row: wgd.row, id: $w.data('widget-id') }
-                            }
-                        });
-                    });
+            var gridster = element.find(".gridster ul").gridster({
+                widget_margins: [5, 5],
+                widget_base_dimensions: [260, 100],
+                min_cols: 2,
+                max_cols: 2,
+                serialize_params: function($w, wgd) {
+                    return {
+                        col: wgd.col,
+                        row: wgd.row,
+                        id: $w.data('widget-id')
+                    }
                 }
-            });
+            }).data('gridster');
+
+            var gsItemTemplate = '<li data-widget-id="{id}" class="widget panel panel-default gs-w">' +
+                             '<div class="panel-heading">{name}' +
+                             '</div></li>';
+
+            $scope.$watch('dashboard.widgets', function(widgets) {
+                $timeout(function () {
+                    gridster.remove_all_widgets();
+
+                    if (widgets && widgets.length) {
+                        var layout = [];
+
+                        _.each(widgets, function(row, rowIndex) {
+                            _.each(row, function(widget, colIndex) {
+                                layout.push({
+                                    id: widget.id,
+                                    col: colIndex+1,
+                                    row: rowIndex+1,
+                                    ySize: 1,
+                                    xSize: widget.width,
+                                    name: widget.query.name
+                                });
+                            });
+                        });
+
+                        _.each(layout, function(item) {
+                            var el = gsItemTemplate.replace('{id}', item.id).replace('{name}', item.name);
+                            gridster.add_widget(el, item.xSize, item.ySize, item.col, item.row);
+
+                        });
+                    }
+                });
+            }, true);
 
             $scope.saveDashboard = function() {
                 $scope.saveInProgress = true;
