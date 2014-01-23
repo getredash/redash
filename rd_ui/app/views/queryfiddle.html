@@ -1,55 +1,53 @@
 <div class="container">
     <div class="row">
-        <form name="queryForm">
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">
-                        <p>
-                         <edit-in-place editable="currentUser.canEdit(query)" ignore-blanks='true' value="query.name"></edit-in-place>
-                     </p>
-                    </h3>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
                     <p>
-                        <edit-in-place editable="currentUser.canEdit(query)" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description" class="text-muted"></edit-in-place>
-                    </p>
-                </div>
-                <div class="panel-body">
-                    <textarea ui-codemirror="editorOptions" ng-model="query.query"></textarea>
+                     <edit-in-place editable="currentUser.canEdit(query)" ignore-blanks='true' value="query.name"></edit-in-place>
+                 </p>
+                </h3>
+                <p>
+                    <edit-in-place editable="currentUser.canEdit(query)" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description" class="text-muted"></edit-in-place>
+                </p>
+            </div>
+            <div class="panel-body">
+                <textarea ui-codemirror="editorOptions" ng-model="query.query"></textarea>
 
-                    <div>
-                        <a class="btn btn-default" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
-                            <span class="glyphicon glyphicon-floppy-disk"></span> Download Data Set
-                        </a>
-                        <button type="button" class="btn btn-default center-x" ng-click="formatQuery()"><span class="glyphicon glyphicon-ok"></span> Format SQL</button>
+                <div>
+                    <a class="btn btn-default" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
+                        <span class="glyphicon glyphicon-floppy-disk"></span> Download Data Set
+                    </a>
+                    <button type="button" class="btn btn-default center-x" ng-click="formatQuery()"><span class="glyphicon glyphicon-ok"></span> Format SQL</button>
 
-                        <div class="btn-group pull-right">
-                            <button type="button" class="btn btn-default" ng-click="duplicateQuery()">Duplicate</button>
-                            <button type="button" class="btn btn-default" ng-disabled="!currentUser.canEdit(query)" ng-click="saveQuery()">Save
-                                <span ng-show="queryForm.$dirty">&#42;</span>
-                            </button>
-                            <button type="button" class="btn btn-primary" ng-disabled="queryExecuting" ng-click="executeQuery()">Execute</button>
-                        </div>
+                    <div class="btn-group pull-right">
+                        <button type="button" class="btn btn-default" ng-click="duplicateQuery()">Duplicate</button>
+                        <button type="button" class="btn btn-default" ng-disabled="!currentUser.canEdit(query)" ng-click="saveQuery()">Save
+                            <span ng-show="dirty">&#42;</span>
+                        </button>
+                        <button type="button" class="btn btn-primary" ng-disabled="queryExecuting" ng-click="executeQuery()">Execute</button>
                     </div>
-
                 </div>
-                <div class="panel-footer">
-                    <span ng-show="queryResult.getRuntime()>=0">Query runtime: {{queryResult.getRuntime() | durationHumanize}} | </span>
-                    <span ng-show="queryResult.query_result.retrieved_at">Last update time: <span am-time-ago="queryResult.query_result.retrieved_at"></span> | </span>
-                    <span ng-show="queryResult.getStatus() == 'done'">Rows: {{queryResult.getData().length}} | </span>
-                    Created by: {{query.user}}
-                    <div class="pull-right">Refresh query: <select ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select><br></div>
-                </div>
-            </div>
 
-            <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
-                Executing query... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
             </div>
-            <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
-                Query in queue... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+            <div class="panel-footer">
+                <span ng-show="queryResult.getRuntime()>=0">Query runtime: {{queryResult.getRuntime() | durationHumanize}} | </span>
+                <span ng-show="queryResult.query_result.retrieved_at">Last update time: <span am-time-ago="queryResult.query_result.retrieved_at"></span> | </span>
+                <span ng-show="queryResult.getStatus() == 'done'">Rows: {{queryResult.getData().length}} | </span>
+                Created by: {{query.user}}
+                <div class="pull-right">Refresh query: <select ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select><br></div>
             </div>
-            <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
-        </form>
+        </div>
+
+        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
+            Executing query... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+            <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+        </div>
+        <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
+            Query in queue... <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+            <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+        </div>
+        <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
     </div>
 
     <div class="row" ng-show="queryResult.getStatus() == 'done'">
