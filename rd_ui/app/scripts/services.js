@@ -275,6 +275,10 @@
             return queryResult;
         }
 
+        Query.prototype.getHash = function() {
+            return [this.name, this.description, this.query].join('!#');
+        }
+
         return Query;
     }
 
