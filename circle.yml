@@ -5,6 +5,7 @@ machine:
 dependencies:
   pre:
     - make deps
+    - pip install requests
 test:
   post:
     - make pack 
