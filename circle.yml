@@ -4,7 +4,7 @@ machine:
       0.10.22
   python:
     version:
-      2.7
+      2.7.3
 dependencies:
   pre:
     - make deps
