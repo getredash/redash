@@ -1,6 +1,7 @@
 NAME=redash
 VERSION=0.1
-FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).$(CIRCLE_BUILD_NUM).tar.gz
+FULL_VERSION=$(VERSION).$(CIRCLE_BUILD_NUM)
+FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(FULL_VERSION).tar.gz
 
 deps:
 	cd rd_ui && npm install
@@ -10,3 +11,6 @@ deps:
 
 pack:
 	tar -zcv -f $(FILENAME) --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="rd_ui/node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
+
+upload:
+	python bin/upload_version.py $(FULL_VERSION) $(FILENAME)

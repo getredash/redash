@@ -8,3 +8,8 @@ dependencies:
 test:
   post:
     - make pack 
+deployment:
+  github:
+    branch: master
+    commands:
+      - make upload
