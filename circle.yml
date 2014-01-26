@@ -1,0 +1,10 @@
+machine:
+  node:
+    version:
+      0.10.22
+dependencies:
+  pre:
+    - make deps
+test:
+  post:
+    - make pack 
