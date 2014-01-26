@@ -1,5 +1,6 @@
 NAME=redash
-FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME)."$(CIRCLE_BUILD_NUM)".tar.gz
+VERSION=0.1
+FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).$(CIRCLE_BUILD_NUM).tar.gz
 
 deps:
 	cd rd_ui && npm install
