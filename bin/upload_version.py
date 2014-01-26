@@ -5,9 +5,8 @@ import json
 import requests
 
 if __name__ == '__main__':
-  # create release
   version = sys.argv[1]
-  filename = sys.argv[2]
+  filename = sys.argv[2].split('/')[-1]
   github_token = os.environ['GITHUB_TOKEN']
   auth = (github_token, 'x-oauth-basic')
   commit_sha = os.environ['CIRCLE_SHA1']
