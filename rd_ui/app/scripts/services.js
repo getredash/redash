@@ -273,11 +273,17 @@
             }
 
             return queryResult;
-        }
+        };
 
         Query.prototype.getHash = function() {
             return [this.name, this.description, this.query].join('!#');
-        }
+        };
+
+        Query.prototype.getVisualizations = function() {
+            // TODO
+            // not implemented
+            return [];
+        };
 
         return Query;
     }

@@ -7,15 +7,59 @@
             </div>
             <div class="modal-body">
                 <p>
-                    <input type="text" class="form-control" placeholder="Query Id" ng-model="queryId">
+                    <form class="form-inline" role="form" ng-submit="loadVisualizations()">
+                      <div class="form-group">
+                        <input type="number" class="form-control" placeholder="Query Id" ng-model="queryId">
+                      </div>
+                      <button type="submit" class="btn btn-primary" ng-disabled="!queryId">
+                        Load
+                        </button>
+                    </form>
                 </p>
 
-                <p>
-                    <select class="form-control" ng-model="widgetType" ng-options="c.value as c.name for c in widgetTypes"></select>
-                </p>
-                <p>
-                    <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
-                </p>
+                <div ng-show="visReady">
+                  <div class="form-group">
+                      <label for="">Choose Visualation</label>
+                      <div class="panel-group">
+                        <!-- Existing visualizations panel -->
+                        <div class="panel panel-default" ng-show="existing.length">
+                          <div class="panel-heading">
+                            <a ng-click="toggleView('existing')" href="#">
+                              Existing
+                            </a>
+                          </div>
+                          <div class="panel-collapse collapse" ng-class="{in: currentView=='existing'}">
+                            <div class="panel-body">
+                                <ul>
+                                    <li ng-repeat="item in existing">
+                                        {{item.name}} <span class="label label-info">{{item.type}}</span>
+                                    </li>
+                                </ul>
+                          </div>
+                          </div>
+                        </div>
+
+                        <!-- add new visualizations panel -->
+                        <div class="panel panel-default">
+                          <div class="panel-heading">
+                            <a ng-click="toggleView('addNew')" href="#">
+                              Add New
+                            </a>
+                          </div>
+                          <div class="panel-collapse collapse" ng-class="{in: currentView=='addNew'}">
+                            <div class="panel-body">
+                              <add-visulatization-form></add-visulatization-form>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="">Widget Size</label>
+                      <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
+                  </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>

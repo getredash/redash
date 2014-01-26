@@ -56,6 +56,10 @@ a.navbar-brand {
     margin-bottom: 0px;
 }
 
+.panel-heading > a {
+    color: inherit;
+}
+
 /* angular-growl */
 .growl {
     position: fixed;
