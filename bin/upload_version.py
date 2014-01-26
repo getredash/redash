@@ -6,7 +6,8 @@ import requests
 
 if __name__ == '__main__':
   version = sys.argv[1]
-  filename = sys.argv[2].split('/')[-1]
+  filepath = sys.argv[2]
+  filename = filepath.split('/')[-1]
   github_token = os.environ['GITHUB_TOKEN']
   auth = (github_token, 'x-oauth-basic')
   commit_sha = os.environ['CIRCLE_SHA1']
@@ -24,7 +25,7 @@ if __name__ == '__main__':
   upload_url = response.json()['upload_url']
   upload_url = upload_url.replace('{?name}', '')
 
-  with open(filename) as file_content:
+  with open(filepath) as file_content:
     headers = {'Content-Type': 'application/gzip'}
     response = requests.post(upload_url, file_content, params={'name': filename}, auth=auth, headers=headers, verify=False)
 
