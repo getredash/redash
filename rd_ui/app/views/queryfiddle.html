@@ -68,5 +68,16 @@
         <div class="col-lg-12" ng-show="selectedTab.key == 'cohort'">
             <cohort-renderer query-result="queryResult"></cohort-renderer>
         </div>
+
+        <div class="col-lg-12" ng-show="selectedTab.key == 'add'">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h3 class="panel-title">Add New Visualization</h3>
+              </div>
+              <div class="panel-body">
+                <add-visulatization-form></add-visulatization-form>
+              </div>
+            </div>
+        </div>
     </div>
 </div>

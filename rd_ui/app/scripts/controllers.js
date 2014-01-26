@@ -73,7 +73,8 @@
         $scope.$parent.pageTitle = "Query Fiddle";
 
         $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
-                       {'key': 'pivot', 'name': 'Pivot Table'}, {'key': 'cohort', 'name': 'Cohort'}];
+                       {'key': 'pivot', 'name': 'Pivot Table'}, {'key': 'cohort', 'name': 'Cohort'},
+                       {'key': 'add', 'name': 'Add Visualization'}];
 
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
