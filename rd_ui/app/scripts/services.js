@@ -253,7 +253,7 @@
         }
 
         return QueryResult;
-    }
+    };
 
     var Query = function ($resource, QueryResult) {
         var Query = $resource('/api/queries/:id', {id: '@id'});
@@ -286,10 +286,16 @@
         };
 
         return Query;
-    }
+    };
+
+    var Visualization = function($resource) {
+        var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
+        return Visualization;
+    };
 
     angular.module('redash.services', [])
         .factory('QueryResult', ['$resource', '$timeout', QueryResult])
         .factory('Query', ['$resource', 'QueryResult', Query])
+        .factory('Visualization', ['$resource', 'Visualization', Visualization])
 
 })();
