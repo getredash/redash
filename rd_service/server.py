@@ -167,7 +167,7 @@ class WidgetsHandler(BaseAuthenticatedHandler):
 class DashboardHandler(BaseAuthenticatedHandler):
     def get(self, dashboard_slug=None):
         if dashboard_slug:
-            dashboard = data.models.Dashboard.objects.prefetch_related('widgets__query__latest_query_data').get(slug=dashboard_slug)
+            dashboard = data.models.Dashboard.objects.prefetch_related('widgets__visualization__query__latest_query_data').get(slug=dashboard_slug)
             self.write_json(dashboard.to_dict(with_widgets=True))
         else:
             dashboards = [d.to_dict() for d in
@@ -251,6 +251,14 @@ class QueryResultsHandler(BaseAuthenticatedHandler):
             self.write({'job': job.to_dict()})
 
 
+class VisualizationHandler(BaseAuthenticatedHandler):
+    def get(self, id):
+        pass
+
+    def post(self, id=None):
+        pass
+
+
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):
     def get_current_user(self):
         user = super(CsvQueryResultsHandler, self).get_current_user()
@@ -312,6 +320,7 @@ def get_application(static_path, is_debug, redis_connection, data_manager):
                                     (r"/api/queries(?:/([0-9]*))?", QueriesHandler),
                                     (r"/api/query_results(?:/([0-9]*))?", QueryResultsHandler),
                                     (r"/api/jobs/(.*)", JobsHandler),
+                                    (r"/api/visualizations(?:/([0-9]*))?", VisualizationHandler),
                                     (r"/api/widgets(?:/([0-9]*))?", WidgetsHandler),
                                     (r"/api/dashboards(?:/(.*))?", DashboardHandler),
                                     (r"/admin/(.*)", MainHandler),

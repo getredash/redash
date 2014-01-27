@@ -148,10 +148,36 @@ class Dashboard(models.Model):
         return u"%s=%s" % (self.id, self.name)
 
 
+class Visualization(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=100)
+    query = models.ForeignKey(Query, related_name='visualizations')
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=4096)
+    options = models.TextField()
+
+    class Meta:
+        app_label = 'redash'
+        db_table = 'visualizations'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'query': self.query.to_dict(),
+            'type': self.type,
+            'name': self.name,
+            'description': self.description,
+            'options': json.loads(self.options),
+        }
+
+    def __unicode__(self):
+        return u"%s=>%s" % (self.id, self.query_id)
+
+
 class Widget(models.Model):
     id = models.AutoField(primary_key=True)
-    query = models.ForeignKey(Query)
     type = models.CharField(max_length=100)
+    visualization = models.ForeignKey(Visualization, related_name='widgets')
     width = models.IntegerField()
     options = models.TextField()
     dashboard = models.ForeignKey(Dashboard, related_name='widgets')
@@ -163,10 +189,10 @@ class Widget(models.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'query': self.query.to_dict(),
             'type': self.type,
             'width': self.width,
             'options': json.loads(self.options),
+            'visualization_id': self.visualization_id,
             'dashboard_id': self.dashboard_id
         }
 
