@@ -28,31 +28,34 @@
         }
     }]);
 
-    directives.directive('addVisulatizationForm', [function() {
+    directives.directive('addVisulatizationForm', ['Visualization', function(Visualization) {
         return {
             restrict: 'E',
             templateUrl: '/views/add_visualization.html',
             replace: true,
-            scope: {},
+            scope: {
+                queryId: "="
+            },
             link: function(scope) {
-                scope.visTypes = [
-                    {type: 'pivot', name: 'Pivot Table'},
-                    {type: 'cohort', name: 'Cohort'}
-                ];
+                scope.visTypes = _.map(Visualization.prototype.TYPES, function (type) {
+                    return {type: type, name: Visualization.prototype.NAMES[type]};
+                });
 
                 scope.vis = {
-                    type: 'pivot',
-                    name: null,
-                    config: null
+                    'query_id': scope.queryId,
+                    'type': Visualization.prototype.TYPES.PIVOT,
+                    'name': '',
+                    'description': '',
+                    'options': null
                 };
 
                 scope.typeChanged = function() {
                     console.log('evme', 'typeChanged');
-                    scope.vis.config = {};
+                    scope.vis.options = {};
                 };
 
-                scope.submit = function() {
-                    alert('Not implemented');
+                scope.createVis = function() {
+                    Visualization.save(scope.vis);
                 };
             }
         }

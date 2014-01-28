@@ -256,7 +256,22 @@ class VisualizationHandler(BaseAuthenticatedHandler):
         pass
 
     def post(self, id=None):
-        pass
+        kwargs = json.loads(self.request.body)
+
+        if id:
+            vis = data.models.Visualization(**kwargs)
+            fields = kwargs.keys()
+            fields.remove('id')
+            vis.save(update_fields=fields)
+        else:
+            query_id = kwargs.pop('query_id', None)
+            query = data.models.Query.objects.get(pk=query_id) if query_id else None
+            kwargs['query'] = query
+
+            vis = data.models.Visualization(**kwargs)
+            vis.save()
+
+        self.write_json(vis.to_dict(with_result=False))
 
 
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):
