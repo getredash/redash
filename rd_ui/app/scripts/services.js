@@ -289,13 +289,28 @@
     };
 
     var Visualization = function($resource) {
+        var PIVOT = 'PIVOT';
+        var COHORT = 'COHORT';
+
         var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
+
+        Visualization.prototype = {
+            TYPES: {
+                'PIVOT': PIVOT,
+                'COHORT': COHORT
+            },
+            NAMES: {
+                'PIVOT': 'Pivot Table',
+                'COHORT': 'Cohort'
+            }
+        };
+
         return Visualization;
     };
 
     angular.module('redash.services', [])
         .factory('QueryResult', ['$resource', '$timeout', QueryResult])
         .factory('Query', ['$resource', 'QueryResult', Query])
-        .factory('Visualization', ['$resource', 'Visualization', Visualization])
+        .factory('Visualization', ['$resource', Visualization])
 
 })();
