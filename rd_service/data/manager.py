@@ -9,7 +9,6 @@ import psycopg2
 import qr
 import redis
 import time
-import query_runner
 import worker
 import settings
 from utils import gen_query_hash
@@ -156,8 +155,10 @@ class Manager(object):
             return self.workers
         
         if settings.CONNECTION_ADAPTER == "mysql":
-            runner = query_runner.mysql(connection_string)
+            import query_runner_mysql            
+            runner = query_runner_mysql.mysql(connection_string)
         else:
+            import query_runner            
             runner = query_runner.redshift(connection_string)
 
         self.workers = [worker.Worker(self, runner) for _ in range(workers_count)]
