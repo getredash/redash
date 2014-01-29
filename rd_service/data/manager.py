@@ -11,6 +11,7 @@ import redis
 import time
 import query_runner
 import worker
+import settings
 from utils import gen_query_hash
 
 
@@ -153,8 +154,11 @@ class Manager(object):
     def start_workers(self, workers_count, connection_string):
         if self.workers:
             return self.workers
-
-        runner = query_runner.redshift(connection_string)
+        
+        if settings.CONNECTION_ADAPTER == "mysql":
+            runner = query_runner.mysql(connection_string)
+        else:
+            runner = query_runner.redshift(connection_string)
 
         self.workers = [worker.Worker(self, runner) for _ in range(workers_count)]
         for w in self.workers:
