@@ -51,7 +51,8 @@ class Query(models.Model):
         app_label = 'redash'
         db_table = 'queries'
 
-    def to_dict(self, with_result=True, with_stats=False):
+    def to_dict(self, with_result=True, with_stats=False,
+                with_visualizations=False):
         d = {
             'id': self.id,
             'latest_query_data_id': self.latest_query_data_id,
@@ -74,6 +75,10 @@ class Query(models.Model):
 
         if with_result and self.latest_query_data_id:
             d['latest_query_data'] = self.latest_query_data.to_dict()
+
+        if with_visualizations:
+            d['visualizations'] = [vis.to_dict(with_query=False)
+                                   for vis in self.visualizations.all()]
 
         return d
 
@@ -160,15 +165,19 @@ class Visualization(models.Model):
         app_label = 'redash'
         db_table = 'visualizations'
 
-    def to_dict(self):
-        return {
+    def to_dict(self, with_query=True):
+        d = {
             'id': self.id,
-            'query': self.query.to_dict(),
             'type': self.type,
             'name': self.name,
             'description': self.description,
             'options': json.loads(self.options),
         }
+
+        if with_query:
+            d['query'] = self.query.to_dict()
+
+        return d
 
     def __unicode__(self):
         return u"%s=>%s" % (self.id, self.query_id)

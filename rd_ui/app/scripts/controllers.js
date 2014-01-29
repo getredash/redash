@@ -72,9 +72,11 @@
 
         $scope.$parent.pageTitle = "Query Fiddle";
 
-        $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
-                       {'key': 'pivot', 'name': 'Pivot Table'}, {'key': 'cohort', 'name': 'Cohort'},
-                       {'key': 'add', 'name': 'Add Visualization'}];
+        // more tabs added when query loads
+        $scope.tabs = [{'key': 'table', 'name': 'Table'},
+                       {'key': 'pivot', 'name': 'Pivot Table'},
+                       {'key': 'add', 'name': 'New Visualization'}];
+
 
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
@@ -192,6 +194,11 @@
                 pristineHash = q.getHash();
                 $scope.dirty = false;
                 $scope.queryResult = $scope.query.getQueryResult();
+
+                _.each(q.visualizations, function(vis) {
+                    $scope.tabs.splice(-1, 0, {'key': 'vis' + vis.id, 'name': vis.name});
+                });
+
             });
         } else {
             $scope.query = new Query({query: "", name: "New Query", ttl: -1, user: currentUser.name});

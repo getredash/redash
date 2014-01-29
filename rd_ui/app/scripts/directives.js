@@ -28,25 +28,26 @@
         }
     }]);
 
-    directives.directive('addVisulatizationForm', ['Visualization', function(Visualization) {
+    directives.directive('addVisulatizationForm', ['Visualization', 'growl', function(Visualization, growl) {
         return {
             restrict: 'E',
             templateUrl: '/views/add_visualization.html',
             replace: true,
             scope: {
-                queryId: "="
+                query: "="
             },
             link: function(scope) {
-                scope.visTypes = _.map(Visualization.prototype.TYPES, function (type) {
+                scope.visTypes = Visualization.prototype.TYPES;
+                scope.visOptions = _.map(Visualization.prototype.TYPES, function (type) {
                     return {type: type, name: Visualization.prototype.NAMES[type]};
                 });
 
                 scope.vis = {
-                    'query_id': scope.queryId,
-                    'type': Visualization.prototype.TYPES.PIVOT,
-                    'name': '',
-                    'description': '',
-                    'options': null
+                    'query_id': scope.query.id,
+                    'type': scope.visTypes.CHART,
+                    'name': scope.query.name,
+                    'description': scope.query.description,
+                    'options': {}
                 };
 
                 scope.typeChanged = function() {
@@ -55,7 +56,11 @@
                 };
 
                 scope.createVis = function() {
-                    Visualization.save(scope.vis);
+                    Visualization.save(scope.vis, function success(result) {
+                        scope.vis = result;
+                    }, function error() {
+                        growl.addErrorMessage("Visualization could not be saved");
+                    });
                 };
             }
         }

@@ -263,6 +263,7 @@
                 ttl = this.ttl;
             }
 
+
             var queryResult = null;
             if (this.latest_query_data && ttl != 0) {
                 queryResult = new QueryResult({'query_result': this.latest_query_data});
@@ -289,18 +290,18 @@
     };
 
     var Visualization = function($resource) {
-        var PIVOT = 'PIVOT';
+        var CHART = 'CHART';
         var COHORT = 'COHORT';
 
         var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
 
         Visualization.prototype = {
             TYPES: {
-                'PIVOT': PIVOT,
+                'CHART': CHART,
                 'COHORT': COHORT
             },
             NAMES: {
-                'PIVOT': 'Pivot Table',
+                'CHART': 'Chart',
                 'COHORT': 'Cohort'
             }
         };
