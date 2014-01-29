@@ -204,6 +204,7 @@ class QueriesHandler(BaseAuthenticatedHandler):
             query_def['created_at'] = dateutil.parser.parse(query_def['created_at'])
 
         query_def.pop('latest_query_data', None)
+        query_def.pop('visualizations', None)
 
         if id:
             query = data.models.Query(**query_def)
@@ -221,7 +222,7 @@ class QueriesHandler(BaseAuthenticatedHandler):
         if id:
             q = data.models.Query.objects.get(pk=id)
             if q:
-                self.write_json(q.to_dict())
+                self.write_json(q.to_dict(with_visualizations=True))
             else:
                 self.send_error(404)
         else:
@@ -257,6 +258,7 @@ class VisualizationHandler(BaseAuthenticatedHandler):
 
     def post(self, id=None):
         kwargs = json.loads(self.request.body)
+        kwargs['options'] = json.dumps(kwargs['options'])
 
         if id:
             vis = data.models.Visualization(**kwargs)
@@ -264,14 +266,10 @@ class VisualizationHandler(BaseAuthenticatedHandler):
             fields.remove('id')
             vis.save(update_fields=fields)
         else:
-            query_id = kwargs.pop('query_id', None)
-            query = data.models.Query.objects.get(pk=query_id) if query_id else None
-            kwargs['query'] = query
-
             vis = data.models.Visualization(**kwargs)
             vis.save()
 
-        self.write_json(vis.to_dict(with_result=False))
+        self.write_json(vis.to_dict())
 
 
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):

@@ -1,34 +1,34 @@
 <form role="form" name="visForm" ng-submit="createVis()">
   <div class="form-group">
     <label class="control-label">Name</label>
-    <input type="text" class="form-control" ng-model="vis.name">
+    <input type="text" class="form-control" ng-model="vis.name" placeholder="{{query.name}}">
   </div>
 
   <div class="form-group">
     <label class="control-label">Description</label>
-    <textarea class="form-control" ng-model="vis.description"></textarea>
+    <textarea class="form-control" ng-model="vis.description" placeholder="{{query.description}}"></textarea>
   </div>
 
   <div class="form-group">
     <label class="control-label">Type</label>
-    <select required ng-model="vis.type" ng-options="vis.type as vis.name for vis in visTypes" class="form-control" ng-change="typeChanged()"></select>
+    <select required ng-model="vis.type" ng-options="vis.type as vis.name for vis in visOptions" class="form-control" ng-change="typeChanged()"></select>
   </div>
 
   <div class="form-group">
     <label class="control-label">Options</label>
 
-    <!-- pivot options -->
-    <div ng-show="vis.type === 'pivot'">
+    <!-- chart options -->
+    <div ng-show="vis.type == visTypes.CHART">
       <p>
-        <input type="text" class="form-control" placeholder="pivot options 1" ng-model="vis.options.prop1">
+        <input type="text" class="form-control" placeholder="chart options 1" ng-model="vis.options.prop1">
       </p>
       <p>
-        <input type="text" class="form-control" placeholder="pivot options 2" ng-model="vis.options.prop2">
+        <input type="text" class="form-control" placeholder="chart options 2" ng-model="vis.options.prop2">
       </p>
     </div>
 
     <!-- cohort options -->
-    <div ng-show="vis.type === 'cohort'">
+    <div ng-show="vis.type == visTypes.COHORT">
       <p>
         <input type="text" class="form-control" placeholder="cohort options 1" ng-model="vis.options.prop1">
       </p>
@@ -40,7 +40,7 @@
   </div>
 
   <div class="form-group">
-    <button type="submit" class="btn btn-primary">Add</button>
+    <button type="submit" class="btn btn-primary">Save</button>
   </div>
 
   <div class="form-group">
