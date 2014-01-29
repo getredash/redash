@@ -41,12 +41,8 @@ def mysql(connection_string):
             num_fields = len(cursor.description)
             column_names = [i[0] for i in cursor.description]
             
-            for c in data:
-                logging.debug(c)
-
             rows = [dict(zip(column_names, row)) for row in data]
 
-            
             columns = [{'name': col_name,
                         'friendly_name': column_friendly_name(col_name),
                         'type': None} for col_name in column_names]
