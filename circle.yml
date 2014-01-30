@@ -1,0 +1,19 @@
+machine:
+  node:
+    version:
+      0.10.22
+  python:
+    version:
+      2.7.3
+dependencies:
+  pre:
+    - make deps
+    - pip install requests
+test:
+  post:
+    - make pack 
+deployment:
+  github:
+    branch: master
+    commands:
+      - make upload

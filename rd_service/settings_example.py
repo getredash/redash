@@ -27,6 +27,7 @@ WORKERS_COUNT = 2
 MAX_CONNECTIONS = 3
 COOKIE_SECRET = "c292a0a3aa32397cdb050e233733900f"
 LOG_LEVEL = "INFO"
+ANALYTICS = ""
 
 # Configuration of the operational database for the Django models
 django.conf.settings.configure(DATABASES = { 'default': {

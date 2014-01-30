@@ -4,8 +4,11 @@ var durationHumanize = function (duration) {
         humanized = "-";
     } else if (duration < 60) {
         humanized = Math.round(duration) + "s";
+    } else if (duration > 3600*24) {
+        var days = Math.round(parseFloat(duration) / 60.0 / 60.0 / 24.0);
+        humanized = days + "days";
     } else if (duration >= 3600) {
-        var hours = Math.round(parseFloat(duration) / 60.0 / 60.0)
+        var hours = Math.round(parseFloat(duration) / 60.0 / 60.0);
         humanized = hours + "h";
     } else {
         var minutes = Math.round(parseFloat(duration) / 60.0);

@@ -21,23 +21,29 @@
 
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h3 class="panel-title" ng-mouseenter="inFocus = true"
-                        ng-mouseleave="inFocus = false">
-                        <button type="button" class="close delete-button" aria-hidden="true" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" tooltip="Remove Widget">&times;</button>
-                        <a ng-href="/queries/{{query.id}}">{{query.name}}</a>
-                        <span class="glyphicon glyphicon-pencil" ng-show="inFocus"></span>
-
-                        <span class="label label-default pull-right"
-                              am-time-ago="queryResult.getUpdatedAt()"
-                              tooltip="next update {{nextUpdateTime}} (query runtime: {{queryResult.getRuntime() | durationHumanize}})"
-                              tooltip-placement="bottom"></span>
+                    <h3 class="panel-title" style="cursor: pointer;" ng-click="open(query)">
+                        <p>
+                            <span ng-bind="query.name"></span>
+                        </p>
+                        <div class="text-muted" ng-bind="query.description"></div>
                     </h3>
                 </div>
 
                 <div ng-switch on="widget.type" class="panel-body">
-                    <chart-renderer ng-switch-when="chart" query-result="queryResult" stacking="widget.options.stacking"></chart-renderer>
+                    <chart-renderer ng-switch-when="chart" query-result="queryResult" options="widget.options"></chart-renderer>
                     <grid-renderer ng-switch-when="grid" query-result="queryResult"></grid-renderer>
                     <cohort-renderer ng-switch-when="cohort" query-result="queryResult"></cohort-renderer>
+                </div>
+                <div class="panel-footer">
+                    <span class="label label-default"
+                          tooltip="next update {{nextUpdateTime}} (query runtime: {{queryResult.getRuntime() | durationHumanize}})"
+                          tooltip-placement="bottom">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
+
+                    <span class="pull-right">
+                        <a class="btn btn-default btn-xs" ng-href="/queries/{{query.id}}"><span class="glyphicon glyphicon-link"></span></a>
+                        <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
+                    </span>
+
                 </div>
             </div>
         </div>

@@ -84,7 +84,7 @@ renderers.directive('chartRenderer', function () {
         restrict: 'E',
         scope: {
             queryResult: '=',
-            stacking: '&'
+            options: '=?'
         },
         template: "<chart options='chartOptions' series='chartSeries' class='graph'></chart>",
         replace: false,
@@ -98,13 +98,8 @@ renderers.directive('chartRenderer', function () {
                 } else {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-                    var stacking = null;
-                    if ($scope.stacking() === undefined) {
-                        stacking = 'normal';
-                    }
-
                     _.each($scope.queryResult.getChartData(), function (s) {
-                        $scope.chartSeries.push(_.extend(s, {'stacking': stacking}));
+                        $scope.chartSeries.push(_.extend(s, {'stacking': 'normal'}, $scope.options));
                     });
                 }
             });
@@ -128,7 +123,7 @@ renderers.directive('gridRenderer', function () {
                 isPaginationEnabled: true,
                 itemsByPage: $scope.itemsPerPage || 15,
                 maxSize: 8
-            }
+            };
 
             $scope.$watch('queryResult && queryResult.getData()', function (data) {
                 if (!data) {
