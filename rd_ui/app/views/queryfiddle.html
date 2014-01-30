@@ -3,13 +3,16 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    <span class="glyphicon glyphicon-pencil"></span> <edit-in-place value="query.name"></edit-in-place>
+                    <p>
+                     <edit-in-place editable="currentUser.canEdit(query)" ignore-blanks='true' value="query.name"></edit-in-place>
+                 </p>
                 </h3>
+                <p>
+                    <edit-in-place editable="currentUser.canEdit(query)" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description" class="text-muted"></edit-in-place>
+                </p>
             </div>
             <div class="panel-body">
                 <textarea ui-codemirror="editorOptions" ng-model="query.query"></textarea>
-
-
 
                 <div>
                     <a class="btn btn-default" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
@@ -19,7 +22,9 @@
 
                     <div class="btn-group pull-right">
                         <button type="button" class="btn btn-default" ng-click="duplicateQuery()">Duplicate</button>
-                        <button type="button" class="btn btn-default" ng-disabled="currentUser.name != query.user" ng-click="saveQuery()">Save</button>
+                        <button type="button" class="btn btn-default" ng-disabled="!currentUser.canEdit(query)" ng-click="saveQuery()">Save
+                            <span ng-show="dirty">&#42;</span>
+                        </button>
                         <button type="button" class="btn btn-primary" ng-disabled="queryExecuting" ng-click="executeQuery()">Execute</button>
                     </div>
                 </div>

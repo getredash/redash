@@ -15,7 +15,7 @@
         sortPredicate: '',
         formatFunction: '',
         formatParameter: '',
-        filterPredicate: '',
+        filterPredicate: undefined,
         cellTemplateUrl: '',
         headerClass: '',
         cellClass: ''
@@ -113,8 +113,10 @@
 
                     //if item are added or removed into the data model from outside the grid
                     scope.$watch('dataCollection', function (oldValue, newValue) {
-                        if (oldValue !== newValue) {
-                            ctrl.sortBy();//it will trigger the refresh... some hack ?
+                        // evme:
+                        // reset sorting when data updates (executing query again)
+                        if (newValue) {
+                            ctrl.resetSort();
                         }
                     });
 
@@ -184,7 +186,7 @@
                 replace: false,
                 link: function (scope, element, attr, ctrl) {
 
-                    scope.searchValue = '';
+                    scope.searchValue = undefined;
 
                     scope.$watch('searchValue', function (value) {
                         //todo perf improvement only filter on blur ?
@@ -464,14 +466,13 @@
              * @param column
              */
             this.search = function (input, column) {
-
                 //update column and global predicate
                 if (column && scope.columns.indexOf(column) !== -1) {
                     predicate.$ = '';
                     column.filterPredicate = input;
                 } else {
                     for (var j = 0, l = scope.columns.length; j < l; j++) {
-                        scope.columns[j].filterPredicate = '';
+                        scope.columns[j].filterPredicate = undefined;
                     }
                     predicate.$ = input;
                 }
@@ -495,6 +496,12 @@
                 output = sortDataRow(arrayUtility.filter(array, filterAlgo, predicate), lastColumnSort);
                 scope.numberOfPages = calculateNumberOfPages(output);
                 return scope.isPaginationEnabled ? arrayUtility.fromTo(output, (scope.currentPage - 1) * scope.itemsByPage, scope.itemsByPage) : output;
+            };
+
+            this.resetSort = function() {
+                lastColumnSort = null;
+                predicate = {};
+                this.sortBy();
             };
 
             /*////////////

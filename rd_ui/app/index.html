@@ -33,17 +33,24 @@
     </div>
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <li class="active" ng-show="pageTitle"><a ng-bind="pageTitle"></a></li>
+            <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <span ng-repeat="(name, group) in groupedDashboards">
-                        <li role="presentation" class="dropdown-header" ng-bind="name"></li>
-                        <li ng-repeat="dashboard in group" role="presentation">
-                            <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                        <li class="dropdown-submenu">
+                          <a href="#" ng-bind="name"></a>
+                          <ul class="dropdown-menu">
+                            <li ng-repeat="dashboard in group" role="presentation">
+                                <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                            </li>
+                          </ul>
                         </li>
-                        <li class="divider"></li>
                     </span>
+                    <li ng-repeat="dashboard in otherDashboards">
+                        <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                    </li>
+                    <li class="divider"></li>
                     <li><a data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</a></li>
                 </ul>
             </li>
@@ -76,6 +83,7 @@
 <script src="/bower_components/bootstrap/js/collapse.js"></script>
 <script src="/bower_components/bootstrap/js/modal.js"></script>
 <script src="/bower_components/angular-resource/angular-resource.js"></script>
+<script src="/bower_components/angular-route/angular-route.js"></script>
 <script src="/bower_components/underscore/underscore.js"></script>
 <script src="/bower_components/moment/moment.js"></script>
 <script src="/bower_components/angular-moment/angular-moment.js"></script>
@@ -94,6 +102,8 @@
 <script src="/bower_components/angular-growl/build/angular-growl.js"></script>
 <script src="/bower_components/pivottable/examples/pivot.js"></script>
 <script src="/bower_components/cornelius/src/cornelius.js"></script>
+<script src="/bower_components/mousetrap/mousetrap.js"></script>
+<script src="/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) /scripts/scripts.js -->
@@ -110,6 +120,12 @@
 
 <script>
     var currentUser = {% raw user %};
+
+    currentUser.canEdit = function(object) {
+        return object.user && (object.user.indexOf(currentUser.name) != -1);
+    };
+
+    {% raw analytics %}
 </script>
 
 </body>

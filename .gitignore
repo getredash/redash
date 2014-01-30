@@ -2,3 +2,9 @@
 *.pyc
 rd_service/settings.py
 rd_ui/dist
+.DS_Store
+
+# Vagrant related
+.vagrant
+Berksfile.lock
+rd_service/dump.rdb

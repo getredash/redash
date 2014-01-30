@@ -1,7 +1,9 @@
 """
 Django ORM based models to describe the data model of re:dash.
 """
+import hashlib
 import json
+import time
 from django.db import models
 from django.template.defaultfilters import slugify
 import utils
@@ -40,6 +42,7 @@ class Query(models.Model):
     description = models.CharField(max_length=4096)
     query = models.TextField()
     query_hash = models.CharField(max_length=32)
+    api_key = models.CharField(max_length=40)
     ttl = models.IntegerField()
     user = models.CharField(max_length=360)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -58,6 +61,7 @@ class Query(models.Model):
             'query_hash': self.query_hash,
             'ttl': self.ttl,
             'user': self.user,
+            'api_key': self.api_key,
             'created_at': self.created_at,
         }
 
@@ -92,7 +96,13 @@ LEFT OUTER JOIN
 
     def save(self, *args, **kwargs):
         self.query_hash = utils.gen_query_hash(self.query)
+        self._set_api_key()
         super(Query, self).save(*args, **kwargs)
+
+    def _set_api_key(self):
+        if not self.api_key:
+            self.api_key = hashlib.sha1(
+                u''.join([str(time.time()), self.query, self.user, self.name])).hexdigest()
 
     def __unicode__(self):
         return unicode(self.id)

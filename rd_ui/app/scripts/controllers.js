@@ -5,7 +5,7 @@
         });
     };
 
-    var WidgetCtrl = function ($scope, $http, Query) {
+    var WidgetCtrl = function ($scope, $http, $location, Query) {
         $scope.deleteWidget = function() {
             if (!confirm('Are you sure you want to remove "' + $scope.widget.query.name + '" from the dashboard?')) {
                 return;
@@ -18,6 +18,10 @@
                     })
                 });
             });
+        };
+
+        $scope.open = function(query) {
+            $location.path('/queries/' + query.id);
         }
 
         $scope.query = new Query($scope.widget.query);
@@ -29,7 +33,43 @@
         $scope.updateTime = '';
     }
 
-    var QueryFiddleCtrl = function ($scope, $routeParams, $http, $location, growl, notifications, Query) {
+    var QueryFiddleCtrl = function ($scope, $window, $routeParams, $http, $location, growl, notifications, Query) {
+        var pristineHash = null;
+        $scope.dirty = undefined;
+
+        var leavingPageText = "You will lose your changes if you leave";
+
+        $window.onbeforeunload = function(){
+            if (currentUser.canEdit($scope.query) && $scope.dirty) {
+                return leavingPageText;
+            }
+        }
+
+        Mousetrap.bindGlobal("meta+s", function(e) {
+            e.preventDefault();
+
+            if (currentUser.canEdit($scope.query)) {
+                $scope.saveQuery();
+            }
+        });
+
+        $scope.$on('$locationChangeStart', function(event, next, current) {
+            if (next.split("#")[0] == current.split("#")[0]) {
+                return;
+            }
+
+            if (!currentUser.canEdit($scope.query)) {
+                return;
+            }
+
+            if($scope.dirty &&
+                !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
+                event.preventDefault();
+            } else {
+                Mousetrap.unbind("meta+s");
+            }
+        });
+
         $scope.$parent.pageTitle = "Query Fiddle";
 
         $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
@@ -54,6 +94,9 @@
             }
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
+                pristineHash = q.getHash();
+                $scope.dirty = false;
+
                 if (duplicate) {
                     growl.addInfoMessage("Query duplicated.", {ttl: 2000});
                 } else{
@@ -68,6 +111,8 @@
                         $location.path($location.path().replace(oldId, q.id)).replace();
                     }
                 }
+            }, function(httpResponse) {
+                growl.addErrorMessage("Query could not be saved");
             });
         };
 
@@ -98,7 +143,7 @@
         })
 
         $scope.refreshOptions.push({value: 24*3600, name: 'Every 24h'});
-
+        $scope.refreshOptions.push({value: 7*24*3600, name: 'Once a week'});
 
         $scope.$watch('queryResult && queryResult.getError()', function (newError, oldError) {
             if (newError == undefined) {
@@ -118,7 +163,7 @@
             if ($scope.queryResult.getId() == null) {
                 $scope.dataUri = "";
             } else {
-                $scope.dataUri = '/api/query_results/' + $scope.queryResult.getId() + '.csv';
+                $scope.dataUri = '/api/queries/' + $scope.query.id + '/results/' + $scope.queryResult.getId() + '.csv';
                 $scope.dataFilename = $scope.query.name.replace(" ", "_") + moment($scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") + ".csv";
             }
         });
@@ -142,7 +187,9 @@
         });
 
         if ($routeParams.queryId != undefined) {
-            $scope.query = Query.get({id: $routeParams.queryId}, function() {
+            $scope.query = Query.get({id: $routeParams.queryId}, function(q) {
+                pristineHash = q.getHash();
+                $scope.dirty = false;
                 $scope.queryResult = $scope.query.getQueryResult();
             });
         } else {
@@ -152,6 +199,12 @@
 
         $scope.$watch('query.name', function() {
             $scope.$parent.pageTitle = $scope.query.name;
+        });
+
+        $scope.$watch(function() {
+            return $scope.query.getHash();
+        }, function(newHash) {
+            $scope.dirty = (newHash !== pristineHash);
         });
 
         $scope.executeQuery = function() {
@@ -262,7 +315,6 @@
                     return $filter('refreshRateHumanize')(value);
                 }
             }
-//            id: 672,
         ]
         $scope.tabs = [{"name": "My Queries", "key": "my"}, {"key": "all", "name": "All Queries"}, {"key": "drafts", "name": "Drafts"}];
 
@@ -272,7 +324,7 @@
             }
 
             filterQueries();
-        })
+        });
     }
 
     var MainCtrl = function ($scope, Dashboard, notifications) {
@@ -280,13 +332,15 @@
         $scope.reloadDashboards = function() {
             Dashboard.query(function (dashboards) {
                 $scope.dashboards = _.sortBy(dashboards, "name");
-                $scope.groupedDashboards = _.groupBy($scope.dashboards, function(d) {
+                $scope.allDashboards = _.groupBy($scope.dashboards, function(d) {
                     parts = d.name.split(":");
                     if (parts.length == 1) {
                         return "Other";
                     }
                     return parts[0];
                 });
+                $scope.otherDashboards = $scope.allDashboards['Other'] || [];
+                $scope.groupedDashboards = _.omit($scope.allDashboards, 'Other');
             });
         }
 
@@ -306,7 +360,6 @@
     var IndexCtrl = function($scope, Dashboard) {
         $scope.$parent.pageTitle = "Home";
 
-
         $scope.archiveDashboard = function(dashboard) {
             if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
                 dashboard.$delete(function() {
@@ -318,9 +371,9 @@
 
     angular.module('redash.controllers', [])
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
-        .controller('WidgetCtrl', ['$scope', '$http', 'Query', WidgetCtrl])
+        .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
+        .controller('QueryFiddleCtrl', ['$scope', '$window', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();

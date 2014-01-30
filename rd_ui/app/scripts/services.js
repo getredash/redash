@@ -155,13 +155,15 @@
             var parts = column.split('::');
             var name = parts[1];
             if (parts[0] != '') {
-                name = parts[0].replace(/ /g, '_').replace(/\?/g,'');
+                // TODO: it's probably time to generalize this.
+                // see also getColumnFriendlyName
+                name = parts[0].replace(/%/g, '__pct').replace(/ /g, '_').replace(/\?/g,'');
             }
             return name;
         }
 
         QueryResult.prototype.getColumnFriendlyName = function (column) {
-            return this.getColumnCleanName(column).replace(/_/g, ' ').replace(/(?:^|\s)\S/g, function (a) {
+            return this.getColumnCleanName(column).replace('__pct', '%').replace(/_/g, ' ').replace(/(?:^|\s)\S/g, function (a) {
                 return a.toUpperCase();
             });
         }
@@ -271,6 +273,10 @@
             }
 
             return queryResult;
+        }
+
+        Query.prototype.getHash = function() {
+            return [this.name, this.description, this.query].join('!#');
         }
 
         return Query;

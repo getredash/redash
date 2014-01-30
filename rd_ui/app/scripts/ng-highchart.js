@@ -43,12 +43,23 @@ angular.module('highchart', [])
 
                             if (_.some(scope.series[0].data, function(p) { return angular.isString(p.x) })) {
                                 scope.chart.xAxis[0].update({type: 'category'});
+
+                                // We need to make sure that for each category, each series has a value.
+                                var categories = _.union.apply(this, _.map(scope.series, function(s) { return _.pluck(s.data,'x')}));
+
                                 _.each(scope.series, function(s) {
-                                    _.each(s.data, function(p) {
-                                        p.name = p.x;
-                                        delete p.x;
-                                    })
-                                })
+                                    // TODO: move this logic to Query#getChartData
+                                    var yValues = _.groupBy(s.data, 'x');
+
+                                    var newData = _.sortBy(_.map(categories, function(category) {
+                                        return {
+                                            name: category,
+                                            y: yValues[category] && yValues[category][0].y
+                                        }
+                                    }), 'name');
+
+                                    s.data = newData;
+                                });
                             } else {
                                 scope.chart.xAxis[0].update({type: 'datetime'});
                             }
