@@ -3,6 +3,23 @@
 
     var directives = angular.module('redash.directives', []);
 
+    directives.directive('rdTab', ['$location', function($location) {
+        return {
+            restrict: 'E',
+            scope: {
+                'id': '@',
+                'name': '@'
+            },
+            template: '<li ng-class="{active: id==selectedTab}"><a href="#{{id}}">{{name}}</a></li>',
+            replace: true,
+            link: function(scope) {
+                scope.$watch(function(){return scope.$parent.selectedTab}, function(tab) {
+                    scope.selectedTab = tab;
+                });
+            }
+        }
+    }]);
+
     directives.directive('rdTabs', ['$location', '$rootScope', function($location, $rootScope) {
         return {
             restrict: 'E',
@@ -28,36 +45,56 @@
         }
     }]);
 
-    directives.directive('addVisulatizationForm', ['Visualization', 'growl', function(Visualization, growl) {
+    directives.directive('editVisulatizationForm', ['Visualization', 'growl', function(Visualization, growl) {
         return {
             restrict: 'E',
-            templateUrl: '/views/add_visualization.html',
+            templateUrl: '/views/edit_visualization.html',
             replace: true,
             scope: {
-                query: "="
+                query: '=',
+                vis: '=?'
             },
-            link: function(scope) {
+            link: function(scope, element, attrs) {
                 scope.visTypes = Visualization.prototype.TYPES;
                 scope.visOptions = _.map(Visualization.prototype.TYPES, function (type) {
                     return {type: type, name: Visualization.prototype.NAMES[type]};
                 });
 
-                scope.vis = {
-                    'query_id': scope.query.id,
-                    'type': scope.visTypes.CHART,
-                    'name': scope.query.name,
-                    'description': scope.query.description,
-                    'options': {}
-                };
+                if (!scope.vis) {
+                    // create new visualization
+                    // wait for query to load to populate with defaults
+                    var unwatch = scope.$watch('query', function(q) {
+                        if (q.id) {
+                            unwatch();
+                            scope.vis = {
+                                'query_id': q.id,
+                                'type': scope.visTypes.CHART,
+                                'name': q.name,
+                                'description': q.description,
+                                'options': {}
+                            };
+                        }
+                    }, true);
+                }
 
                 scope.typeChanged = function() {
                     console.log('evme', 'typeChanged');
                     scope.vis.options = {};
                 };
 
-                scope.createVis = function() {
+                scope.submit = function() {
                     Visualization.save(scope.vis, function success(result) {
+                        growl.addSuccessMessage("Visualization saved");
+
                         scope.vis = result;
+
+                        var visIds = _.pluck(scope.query.visualizations, 'id');
+                        var index = visIds.indexOf(result.id);
+                        if (index > -1) {
+                            scope.query.visualizations[index] = result;
+                        } else {
+                            scope.query.visualizations.push(result);
+                        }
                     }, function error() {
                         growl.addErrorMessage("Visualization could not be saved");
                     });

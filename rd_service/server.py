@@ -269,7 +269,7 @@ class VisualizationHandler(BaseAuthenticatedHandler):
             vis = data.models.Visualization(**kwargs)
             vis.save()
 
-        self.write_json(vis.to_dict())
+        self.write_json(vis.to_dict(with_query=False))
 
 
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):
