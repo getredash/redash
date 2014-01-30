@@ -8,7 +8,6 @@ query language (for example: HiveQL).
 """
 import logging
 import json
-import psycopg2
 import MySQLdb
 import sys
 import select
