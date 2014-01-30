@@ -33,11 +33,13 @@
         $scope.updateTime = '';
     }
 
-    var QueryFiddleCtrl = function ($scope, $window, $routeParams, $http, $location, growl, notifications, Query) {
+    var QueryFiddleCtrl = function ($scope, $window, $location, $routeParams, $http, $location, growl, notifications, Query) {
+        var DEFAULT_TAB = 'table';
         var pristineHash = null;
-        $scope.dirty = undefined;
-
         var leavingPageText = "You will lose your changes if you leave";
+
+        $scope.dirty = undefined;
+        $scope.newVisualization = undefined;
 
         $window.onbeforeunload = function(){
             if (currentUser.canEdit($scope.query) && $scope.dirty) {
@@ -72,11 +74,9 @@
 
         $scope.$parent.pageTitle = "Query Fiddle";
 
-        // more tabs added when query loads
-        $scope.tabs = [{'key': 'table', 'name': 'Table'},
-                       {'key': 'pivot', 'name': 'Pivot Table'},
-                       {'key': 'add', 'name': 'New Visualization'}];
-
+        $scope.$watch(function() {return $location.hash()}, function(hash) {
+            $scope.selectedTab = hash || DEFAULT_TAB;
+        });
 
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
@@ -194,11 +194,6 @@
                 pristineHash = q.getHash();
                 $scope.dirty = false;
                 $scope.queryResult = $scope.query.getQueryResult();
-
-                _.each(q.visualizations, function(vis) {
-                    $scope.tabs.splice(-1, 0, {'key': 'vis' + vis.id, 'name': vis.name});
-                });
-
             });
         } else {
             $scope.query = new Query({query: "", name: "New Query", ttl: -1, user: currentUser.name});
@@ -381,7 +376,7 @@
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$window', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
+        .controller('QueryFiddleCtrl', ['$scope', '$window', '$location', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();
