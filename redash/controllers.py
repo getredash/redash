@@ -238,18 +238,6 @@ class QueryResultAPI(BaseResource):
 
 
 class CsvQueryResultsAPI(BaseResource):
-    # TODO: bring this functionality:
-    #def get_current_user(self):
-    #    user = super(CsvQueryResultsHandler, self).get_current_user()
-    #    if not user:
-    #        api_key = self.get_argument("api_key", None)
-    #        query = data.models.Query.objects.get(pk=self.path_args[0])
-    #
-    #        if query.api_key and query.api_key == api_key:
-    #            user = "API-Key=%s" % api_key
-    #
-    #    return user
-
     def get(self, query_id, query_result_id=None):
         if not query_result_id:
             query = data.models.Query.objects.get(pk=query_id)
