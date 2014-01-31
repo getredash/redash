@@ -38,6 +38,7 @@ def start_workers():
 def start_server(port, debug):
     app.run(debug=debug, port=port)
 
+
 if __name__ == '__main__':
     channel = logging.StreamHandler()
     logging.getLogger().addHandler(channel)
@@ -61,6 +62,3 @@ if __name__ == '__main__':
         start_workers()
     elif args.command == 'server':
         start_server(args.port, args.debug)
-    else:
-        print "Unknown command"
-
