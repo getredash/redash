@@ -27,8 +27,6 @@ class HMACAuthentication(object):
                 h = hmac.new(str(query.api_key), msg=request.path, digestmod=hashlib.sha1)
                 h.update(str(expires))
 
-                print h.hexdigest()
-
                 if query.api_key and signature == h.hexdigest():
                     return fn(*args, **kwargs)
 
@@ -41,6 +39,7 @@ class HMACAuthentication(object):
             return resp
 
         return decorated
+
 
 def setup_authentication(app):
     openid_auth = GoogleFederated(settings.GOOGLE_APPS_DOMAIN, app)
