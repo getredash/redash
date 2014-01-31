@@ -45,6 +45,5 @@ def setup_authentication(app):
     openid_auth = GoogleFederated(settings.GOOGLE_APPS_DOMAIN, app)
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.secret_key = settings.COOKIE_SECRET
-    openid_auth.force_auth_on_every_request = True
 
     return HMACAuthentication(openid_auth)
