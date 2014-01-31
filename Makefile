@@ -14,3 +14,6 @@ pack:
 
 upload:
 	python bin/upload_version.py $(FULL_VERSION) $(FILENAME)
+
+test:
+	nosetests --with-coverage --cover-package=redash tests/*.py
