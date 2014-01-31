@@ -1,5 +1,6 @@
 .idea
 *.pyc
+.coverage
 redash/settings.py
 rd_ui/dist
 .DS_Store
