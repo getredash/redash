@@ -21,6 +21,7 @@ from redash.data import utils
 from redash import data
 
 from redash import app, auth, api, redis_connection, data_manager
+from redash import models
 
 
 @app.route('/ping', methods=['GET'])
@@ -30,6 +31,7 @@ def ping():
 
 @app.route('/admin/<anything>')
 @app.route('/dashboard/<anything>')
+@app.route('/queries')
 @app.route('/queries/<anything>')
 @app.route('/')
 @auth.required
@@ -53,10 +55,10 @@ def status_api():
     info = redis_connection.info()
     status['redis_used_memory'] = info['used_memory_human']
 
-    status['queries_count'] = data.models.Query.objects.count()
-    status['query_results_count'] = data.models.QueryResult.objects.count()
-    status['dashboards_count'] = data.models.Dashboard.objects.count()
-    status['widgets_count'] = data.models.Widget.objects.count()
+    status['queries_count'] = models.Query.select().count()
+    status['query_results_count'] = models.QueryResult.select().count()
+    status['dashboards_count'] = models.Dashboard.select().count()
+    status['widgets_count'] = models.Widget.select().count()
 
     status['workers'] = [redis_connection.hgetall(w)
                          for w in redis_connection.smembers('workers')]
@@ -88,27 +90,28 @@ class BaseResource(Resource):
 class DashboardListAPI(BaseResource):
     def get(self):
         dashboards = [d.to_dict() for d in
-                      data.models.Dashboard.objects.filter(is_archived=False)]
+                      models.Dashboard.select().where(models.Dashboard.is_archived==False)]
 
         return dashboards
 
     def post(self):
         dashboard_properties = json.loads(self.request.body)
-        dashboard = data.models.Dashboard(name=dashboard_properties['name'],
-                                          user=self.current_user,
-                                          layout='[]')
+        dashboard = models.Dashboard(name=dashboard_properties['name'],
+                                     user=self.current_user,
+                                     layout='[]')
         dashboard.save()
         return dashboard.to_dict()
 
 
 class DashboardAPI(BaseResource):
     def get(self, dashboard_slug=None):
-        dashboard = data.models.Dashboard.objects.prefetch_related('widgets__query__latest_query_data').get(slug=dashboard_slug)
+        # TODO: prefetching?
+        dashboard = models.Dashboard.get_by_slug(dashboard_slug)
         return dashboard.to_dict(with_widgets=True)
 
     def post(self, dashboard_id):
         dashboard_properties = request.json
-        dashboard = data.models.Dashboard.objects.get(pk=dashboard_id)
+        dashboard = models.Dashboard.get(models.Dashboard.id == dashboard_id)
         dashboard.layout = dashboard_properties['layout']
         dashboard.name = dashboard_properties['name']
         dashboard.save()
@@ -116,7 +119,7 @@ class DashboardAPI(BaseResource):
         return dashboard.to_dict(with_widgets=True)
 
     def delete(self, dashboard_slug):
-        dashboard = data.models.Dashboard.objects.get(slug=dashboard_slug)
+        dashboard = models.Dashboard.get_by_slug(dashboard_slug)
         dashboard.is_archived = True
         dashboard.save()
 
@@ -128,7 +131,7 @@ class WidgetListAPI(BaseResource):
     def post(self):
         widget_properties = request.json
         widget_properties['options'] = json.dumps(widget_properties['options'])
-        widget = data.models.Widget(**widget_properties)
+        widget = models.Widget(**widget_properties)
         widget.save()
 
         layout = json.loads(widget.dashboard.layout)
@@ -137,7 +140,7 @@ class WidgetListAPI(BaseResource):
         if len(layout) == 0 or widget.width == 2:
             layout.append([widget.id])
         elif len(layout[-1]) == 1:
-            neighbour_widget = data.models.Widget.objects.get(pk=layout[-1][0])
+            neighbour_widget = models.Widget.get(models.Widget.id == layout[-1][0])
             if neighbour_widget.width == 1:
                 layout[-1].append(widget.id)
                 new_row = False
@@ -154,7 +157,7 @@ class WidgetListAPI(BaseResource):
 
 class WidgetAPI(BaseResource):
     def delete(self, widget_id):
-        widget = data.models.Widget.objects.get(pk=widget_id)
+        widget = models.Widget.get(models.Widget.id == widget_id)
         # TODO: reposition existing ones
         layout = json.loads(widget.dashboard.layout)
         layout = map(lambda row: filter(lambda w: w != widget_id, row), layout)
@@ -177,13 +180,13 @@ class QueryListAPI(BaseResource):
         query_def.pop('latest_query_data', None)
 
         query_def['user'] = self.current_user
-        query = data.models.Query(**query_def)
+        query = models.Query(**query_def)
         query.save()
 
         return query.to_dict(with_result=False)
 
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in data.models.Query.all_queries()]
+        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
 
 
 class QueryAPI(BaseResource):
@@ -194,15 +197,16 @@ class QueryAPI(BaseResource):
 
         query_def.pop('latest_query_data', None)
 
-        query = data.models.Query(**query_def)
+        query = models.Query(**query_def)
         fields = query_def.keys()
         fields.remove('id')
-        query.save(update_fields=fields)
+        # model.save(only=model.dirty_fields)
+        query.save(only=fields)
 
         return query.to_dict(with_result=False)
 
     def get(self, query_id):
-        q = data.models.Query.objects.get(pk=query_id)
+        q = models.Query.get(models.Query.id == query_id)
         if q:
             return q.to_dict()
         else:
@@ -240,7 +244,7 @@ class QueryResultAPI(BaseResource):
 class CsvQueryResultsAPI(BaseResource):
     def get(self, query_id, query_result_id=None):
         if not query_result_id:
-            query = data.models.Query.objects.get(pk=query_id)
+            query = models.Query.get(models.Query.id == query_id)
             if query:
                 query_result_id = query.latest_query_data_id
 
