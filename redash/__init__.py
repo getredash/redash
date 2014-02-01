@@ -5,8 +5,7 @@ from flask.ext.restful import Api
 from flask_peewee.db import Database
 
 import redis
-from redash import settings
-from redash.data import utils
+from redash import settings, utils
 
 
 app = Flask(__name__,
@@ -18,10 +17,8 @@ app = Flask(__name__,
 api = Api(app)
 
 # configure our database
-app.config['DATABASE'] = {
-    'name': 'postgres',
-    'engine': 'peewee.PostgresqlDatabase',
-}
+settings.DATABASE_CONFIG.update({'threadlocals': True})
+app.config['DATABASE'] = settings.DATABASE_CONFIG
 db = Database(app)
 
 from redash.authentication import setup_authentication
@@ -36,6 +33,8 @@ def json_representation(data, code, headers=None):
 
 redis_url = urlparse.urlparse(settings.REDIS_URL)
 redis_connection = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=0, password=redis_url.password)
-data_manager = data.Manager(redis_connection, settings.INTERNAL_DB_CONNECTION_STRING, settings.MAX_CONNECTIONS)
+
+from redash import data
+data_manager = data.Manager(redis_connection, db)
 
 from redash import controllers

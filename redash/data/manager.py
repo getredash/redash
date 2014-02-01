@@ -1,18 +1,17 @@
 """
 Data manager. Used to manage and coordinate execution of queries.
 """
-import collections
 from contextlib import contextmanager
+import collections
 import json
+import time
 import logging
 import psycopg2
 import qr
 import redis
-import time
-import worker
-import settings
-from utils import gen_query_hash
-
+from redash import settings
+from redash.data import worker
+from redash.utils import gen_query_hash
 
 class QueryResult(collections.namedtuple('QueryData', 'id query data runtime retrieved_at query_hash')):
     def to_dict(self, parse_data=False):
@@ -25,10 +24,10 @@ class QueryResult(collections.namedtuple('QueryData', 'id query data runtime ret
 
 
 class Manager(object):
-    def __init__(self, redis_connection, db_connection_string, db_max_connections):
+    def __init__(self, redis_connection, db):
         self.redis_connection = redis_connection
+        self.db = db
         self.workers = []
-        self.db_connection_string = db_connection_string
         self.queue = qr.PriorityQueue("jobs", **self.redis_connection.connection_pool.connection_kwargs)
         self.max_retries = 5
         self.status = {
@@ -176,17 +175,18 @@ class Manager(object):
 
     @contextmanager
     def db_transaction(self):
-        connection = psycopg2.connect(self.db_connection_string)
-        cursor = connection.cursor()
+        self.db.connect_db()
+
+        cursor = self.db.database.get_cursor()
         try:
             yield cursor
         except:
-            connection.rollback()
+            self.db.database.rollback()
             raise
         else:
-            connection.commit()
+            self.db.database.commit()
         finally:
-            connection.close()
+            self.db.close_db(None)
 
     def _save_status(self):
         self.redis_connection.hmset('manager:status', self.status)

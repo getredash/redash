@@ -16,8 +16,7 @@ from flask import g, render_template, send_from_directory, make_response, reques
 from flask.ext.restful import Resource, abort
 
 import sqlparse
-from redash import settings
-from redash.data import utils
+from redash import settings, utils
 from redash import data
 
 from redash import app, auth, api, redis_connection, data_manager
