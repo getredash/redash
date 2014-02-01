@@ -120,6 +120,7 @@ class Dashboard(db.Model):
     user = peewee.CharField(max_length=360)
     layout = peewee.TextField()
     is_archived = peewee.BooleanField(default=False, index=True)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'dashboards'
@@ -163,6 +164,7 @@ class Widget(db.Model):
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'widgets'
