@@ -181,3 +181,18 @@ class Widget(db.Model):
 
     def __unicode__(self):
         return u"%s=>%s" % (self.id, self.dashboard_id)
+
+
+def create_db(create_tables, drop_tables):
+    all_models = (QueryResult, Query, Dashboard, Widget)
+
+    db.connect_db()
+
+    for model in all_models:
+        if drop_tables and model.table_exists():
+            model.drop_table()
+
+        if create_tables:
+            model.create_table()
+
+    db.close_db(None)

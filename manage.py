@@ -39,6 +39,12 @@ def start_server(port, debug):
     app.run(debug=debug, port=port)
 
 
+def create_db(create_tables, drop_tables):
+    from redash.models import create_db
+
+    create_db(create_tables, drop_tables)
+
+
 if __name__ == '__main__':
     channel = logging.StreamHandler()
     logging.getLogger().addHandler(channel)
@@ -55,10 +61,19 @@ if __name__ == '__main__':
     server_parser.add_argument('--port',
                                default=8888,
                                help='port to bind to')
+    db_parser = subparsers.add_parser('db', help='database operations')
+    db_parser.add_argument('--create-tables',
+                           action='store_true',
+                           help='Create all tables')
+    db_parser.add_argument('--drop-tables',
+                           action='store_true',
+                           help='Drop all tables')
 
     args = parser.parse_args()
 
     if args.command == "worker":
         start_workers()
+    elif args.command == 'db':
+        create_db(args.create_tables, args.drop_tables)
     elif args.command == 'server':
         start_server(args.port, args.debug)
