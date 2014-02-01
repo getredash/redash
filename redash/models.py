@@ -3,9 +3,8 @@ import hashlib
 import time
 import datetime
 from flask.ext.peewee.utils import slugify
-from redash.data import utils
 import peewee
-from redash import db
+from redash import db, utils
 
 
 #class User(db.Model):

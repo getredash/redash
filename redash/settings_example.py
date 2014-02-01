@@ -9,8 +9,11 @@ CONNECTION_ADAPTER = "mysql"
 # -- example mysql CONNECTION_STRING = "Server=;User=;Pwd=;Database="
 # -- example pg    CONNECTION_STRING = "user= password= host= port=5439 dbname="
 CONNECTION_STRING = "user= password= host= port=5439 dbname="
-# Connection string for the operational databases (where we store the queries, results, etc)
-INTERNAL_DB_CONNECTION_STRING = "dbname=postgres"
+# Connection settings for re:dash's own database (where we store the queries, results, etc)
+DATABASE_CONFIG = {
+    'name': 'postgres',
+    'engine': 'peewee.PostgresqlDatabase',
+}
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
 GOOGLE_APPS_DOMAIN = ""

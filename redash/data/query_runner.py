@@ -8,10 +8,12 @@ query language (for example: HiveQL).
 """
 import logging
 import json
-import psycopg2
 import sys
 import select
-from .utils import JSONEncoder
+
+import psycopg2
+
+from redash.utils import JSONEncoder
 
 def redshift(connection_string):
     def column_friendly_name(column_name):
