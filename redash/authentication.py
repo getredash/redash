@@ -6,7 +6,7 @@ from flask.ext.googleauth import GoogleFederated
 import time
 from werkzeug.contrib.fixers import ProxyFix
 import werkzeug.wrappers
-from redash import data, settings
+from redash import models, settings
 
 
 class HMACAuthentication(object):
@@ -23,7 +23,7 @@ class HMACAuthentication(object):
             query_id = request.view_args.get('query_id', None)
 
             if signature and query_id and time.time() < expires:
-                query = data.models.Query.objects.get(pk=query_id)
+                query = models.Query.get(models.Query.id == query_id)
                 h = hmac.new(str(query.api_key), msg=request.path, digestmod=hashlib.sha1)
                 h.update(str(expires))
 

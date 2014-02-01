@@ -2,19 +2,30 @@ import json
 import urlparse
 from flask import Flask, make_response
 from flask.ext.restful import Api
+from flask_peewee.db import Database
+
 import redis
 from redash import settings
 from redash.data import utils
-from redash.authentication import setup_authentication
+
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
             static_folder=settings.STATIC_ASSETS_PATH,
             static_path='/static')
 
-auth = setup_authentication(app)
+
 api = Api(app)
 
+# configure our database
+app.config['DATABASE'] = {
+    'name': 'postgres',
+    'engine': 'peewee.PostgresqlDatabase',
+}
+db = Database(app)
+
+from redash.authentication import setup_authentication
+auth = setup_authentication(app)
 
 @api.representation('application/json')
 def json_representation(data, code, headers=None):
