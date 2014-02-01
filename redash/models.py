@@ -18,7 +18,7 @@ from redash import db, utils
 
 class QueryResult(db.Model):
     id = peewee.PrimaryKeyField()
-    query_hash = peewee.CharField(max_length=32)
+    query_hash = peewee.CharField(max_length=32, index=True)
     query = peewee.TextField()
     data = peewee.TextField()
     runtime = peewee.FloatField()
@@ -44,7 +44,6 @@ class QueryResult(db.Model):
 class Query(db.Model):
     id = peewee.PrimaryKeyField()
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
-    #latest_query_data_id = peewee.IntegerField()
     name = peewee.CharField(max_length=255)
     description = peewee.CharField(max_length=4096)
     query = peewee.TextField()
@@ -163,7 +162,7 @@ class Widget(db.Model):
     type = peewee.CharField(max_length=100)
     width = peewee.IntegerField()
     options = peewee.TextField()
-    dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets')
+    dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
 
     class Meta:
         db_table = 'widgets'
