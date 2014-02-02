@@ -90,8 +90,13 @@ renderers.directive('chartRenderer', function () {
         replace: false,
         controller: ['$scope', function ($scope) {
             $scope.chartSeries = [];
-            $scope.chartOptions = defaultChartOptions;
+            $scope.chartOptions = $.extend(true, {}, defaultChartOptions);
 
+            $scope.$watch('options', function(newOptions) {
+                if (newOptions) {
+                    $.extend(true, $scope.chartOptions, newOptions);
+                }
+            });
             $scope.$watch('queryResult && queryResult.getData()', function (data) {
                 if (!data || $scope.queryResult.getData() == null) {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);

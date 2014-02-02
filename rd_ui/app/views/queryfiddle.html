@@ -75,8 +75,8 @@
                         <edit-visulatization-form vis="vis" query="query"></edit-visulatization-form>
                     </div>
                     <div class="col-lg-6" ng-switch="vis.type">
-                        <chart-renderer query-result="queryResult" ng-switch-when="CHART"></chart-renderer>
-                        <cohort-renderer query-result="queryResult" ng-switch-when="COHORT"></cohort-renderer>
+                        <chart-renderer options="vis.options" query-result="queryResult" ng-switch-when="CHART"></chart-renderer>
+                        <cohort-renderer options="vis.options" query-result="queryResult" ng-switch-when="COHORT"></cohort-renderer>
                     </div>
                 </p>
             </div>
@@ -89,8 +89,8 @@
                         <edit-visulatization-form vis="newVisualization" query="query"></edit-visulatization-form>
                     </div>
                     <div class="col-lg-6" ng-switch="newVisualization.type">
-                        <chart-renderer query-result="queryResult" ng-switch-when="CHART"></chart-renderer>
-                        <cohort-renderer query-result="queryResult" ng-switch-when="COHORT"></cohort-renderer>
+                        <chart-renderer options="newVisualization.options" query-result="queryResult" ng-switch-when="CHART"></chart-renderer>
+                        <cohort-renderer options="newVisualization.options" query-result="queryResult" ng-switch-when="COHORT"></cohort-renderer>
                     </div>
                 </p>
             </div>

@@ -203,6 +203,7 @@ to add those CSS styles here. */
     cursor: pointer;
     color: #A09797;
     padding: 0 3px 1px 4px;
+    font-size: 11px;
 }
 .rd-tab .remove:hover {
     color: white;
