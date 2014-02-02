@@ -16,7 +16,44 @@ from .utils import JSONEncoder
 def mysql(connection_string):
     if connection_string.endswith(';'):
         connection_string = connection_string[0:-1]
-    
+        
+    def column_type_to_standard(mysql_type_id):
+        # Dates
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.DATE):
+            return "datetime"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.DATETIME):
+            return "datetime"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.TIMESTAMP):
+            return "datetime"
+            
+        # Floating point numbers
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.DECIMAL):
+            return "float"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.DOUBLE):
+            return "float"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.FLOAT):
+            return "float"
+            
+        # Integers
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.LONG):
+            return "integer"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.LONGLONG):
+            return "integer"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.SHORT):
+            return "integer"
+
+        if (mysql_type_id == MySQLdb.constants.FIELD_TYPE.TINY):
+            return "integer"
+
+        # default is string
+        return "string"
+        
     def query_runner(query):
         connections_params = [entry.split('=')[1] for entry in connection_string.split(';')]
         connection = MySQLdb.connect(*connections_params)
@@ -31,12 +68,12 @@ def mysql(connection_string):
             
             num_fields = len(cursor.description)
             column_names = [i[0] for i in cursor.description]
-            
+
             rows = [dict(zip(column_names, row)) for row in data]
 
-            columns = [{'name': col_name,
-                        'friendly_name': col_name,
-                        'type': None} for col_name in column_names]
+            columns = [{'name': col[0],
+                        'friendly_name': col[0],
+                        'type': column_type_to_standard(col[1])} for col in cursor.description]
             
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
