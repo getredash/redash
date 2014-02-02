@@ -54,8 +54,10 @@
         <ul class="nav nav-tabs">
             <rd-tab id="table" name="Table"></rd-tab>
             <rd-tab id="pivot" name="Pivot Table"></rd-tab>
-            <rd-tab id="{{vis.id}}" name="{{vis.name}}" ng-repeat="vis in query.visualizations"></rd-tab>
-            <rd-tab id="add" name="&plus;New"></rd-tab>
+            <rd-tab id="{{vis.id}}" name="{{vis.name}}" ng-repeat="vis in query.visualizations">
+                <span class="remove" ng-click="deleteVisualization($event, vis)"> &times;</span>
+            </rd-tab>
+            <rd-tab id="add" name="&plus;New" removeable="true"></rd-tab>
         </ul>
 
         <div class="col-lg-12" ng-show="selectedTab == 'table'">

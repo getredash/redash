@@ -33,7 +33,7 @@
         $scope.updateTime = '';
     }
 
-    var QueryFiddleCtrl = function ($scope, $window, $location, $routeParams, $http, $location, growl, notifications, Query) {
+    var QueryFiddleCtrl = function ($scope, $window, $location, $routeParams, $http, $location, growl, notifications, Query, Visualization) {
         var DEFAULT_TAB = 'table';
         var pristineHash = null;
         var leavingPageText = "You will lose your changes if you leave";
@@ -214,13 +214,26 @@
             $scope.queryResult = $scope.query.getQueryResult(0);
             $scope.lockButton(true);
             $scope.cancelling = false;
-        }
+        };
 
         $scope.cancelExecution = function() {
             $scope.cancelling = true;
             $scope.queryResult.cancelExecution();
-        }
+        };
 
+        $scope.deleteVisualization = function($e, vis) {
+            $e.preventDefault();
+            if (confirm('Are you sure you want to delete ' + vis.name + ' ?')) {
+                Visualization.delete(vis);
+                if ($scope.selectedTab == vis.id) {
+                    $scope.selectedTab = DEFAULT_TAB;
+                }
+                $scope.query.visualizations =
+                    $scope.query.visualizations.filter(function(v) {
+                        return vis.id !== v.id;
+                    });
+            }
+        };
     }
 
     var QueriesCtrl = function($scope, $http, $location, $filter, Query) {
@@ -376,7 +389,7 @@
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$window', '$location', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
+        .controller('QueryFiddleCtrl', ['$scope', '$window', '$location', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', 'Visualization', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();

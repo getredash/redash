@@ -198,3 +198,14 @@ to add those CSS styles here. */
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
 }
+
+.rd-tab .remove {
+    cursor: pointer;
+    color: #A09797;
+    padding: 0 3px 1px 4px;
+}
+.rd-tab .remove:hover {
+    color: white;
+    background-color: #FF8080;
+    border-radius: 50%;
+}

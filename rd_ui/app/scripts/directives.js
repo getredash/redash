@@ -10,7 +10,8 @@
                 'id': '@',
                 'name': '@'
             },
-            template: '<li ng-class="{active: id==selectedTab}"><a href="#{{id}}">{{name}}</a></li>',
+            transclude: true,
+            template: '<li class="rd-tab" ng-class="{active: id==selectedTab}"><a href="#{{id}}">{{name}}<span ng-transclude></span></a></li>',
             replace: true,
             link: function(scope) {
                 scope.$watch(function(){return scope.$parent.selectedTab}, function(tab) {
