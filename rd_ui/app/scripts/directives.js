@@ -61,6 +61,15 @@
                     return {type: type, name: Visualization.prototype.NAMES[type]};
                 });
 
+                function getEditableOptions() {
+                    return {
+                        title: {
+                            text: "New Chart"
+                        }
+                    };
+                }
+
+
                 if (!scope.vis) {
                     // create new visualization
                     // wait for query to load to populate with defaults
@@ -72,15 +81,14 @@
                                 'type': scope.visTypes.CHART,
                                 'name': q.name,
                                 'description': q.description,
-                                'options': {}
+                                'options': getEditableOptions()
                             };
                         }
                     }, true);
                 }
 
                 scope.typeChanged = function() {
-                    console.log('evme', 'typeChanged');
-                    scope.vis.options = {};
+                    scope.vis.options = getEditableOptions();
                 };
 
                 scope.submit = function() {
@@ -320,6 +328,25 @@
                     $scope.editing = false;
                     element.removeClass('active');
                 })
+            }
+        };
+    });
+
+    // http://stackoverflow.com/a/17904092/1559840
+    directives.directive('jsonText', function() {
+        return {
+            restrict: 'A',
+            require: 'ngModel',
+            link: function(scope, element, attr, ngModel) {
+              function into(input) {
+                return JSON.parse(input);
+              }
+              function out(data) {
+                return JSON.stringify(data, undefined, 2);
+              }
+              ngModel.$parsers.push(into);
+              ngModel.$formatters.push(out);
+
             }
         };
     });

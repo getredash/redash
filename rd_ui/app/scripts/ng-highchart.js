@@ -22,60 +22,72 @@ angular.module('highchart', [])
                     }
                 };
 
-                var deepCopy = true;
-                var newSettings = {};
-                $.extend(deepCopy, newSettings, chartsDefaults, scope.options);
+                // Update when options change
+                scope.$watch('options', function(newOptions) {
+                    initChart(newOptions);
+                }, true);
 
-                // Making sure that the DOM is ready before creating the chart element, so it gets proper width.
-                $timeout(function(){
+                //Update when charts data changes
+                scope.$watch(function () {
+                    return (scope.series && scope.series.length) || 0;
+                }, function (length) {
+                    if (!length || length == 0) {
+                        scope.chart.showLoading();
+                    } else {
+                        drawChart();
+                    };
+                }, true);
+
+                function initChart(options) {
+                    if (scope.chart) {
+                       scope.chart.destroy();
+                    }
+
+                    var deepCopy = true;
+                    var newSettings = {};
+                    $.extend(deepCopy, newSettings, chartsDefaults, options);
+
                     scope.chart = new Highcharts.Chart(newSettings);
+                    drawChart();
+                }
 
-                    //Update when charts data changes
-                    scope.$watch(function () {
-                        return (scope.series && scope.series.length) || 0;
-                    }, function (length) {
-                        if (!length || length == 0) {
-                            scope.chart.showLoading();
-                        } else {
-                            while(scope.chart.series.length > 0) {
-                                scope.chart.series[0].remove(true);
-                            }
+                function drawChart() {
+                    while(scope.chart.series.length > 0) {
+                        scope.chart.series[0].remove(true);
+                    }
 
-                            if (_.some(scope.series[0].data, function(p) { return angular.isString(p.x) })) {
-                                scope.chart.xAxis[0].update({type: 'category'});
+                    if (_.some(scope.series[0].data, function(p) { return angular.isString(p.x) })) {
+                        scope.chart.xAxis[0].update({type: 'category'});
 
-                                // We need to make sure that for each category, each series has a value.
-                                var categories = _.union.apply(this, _.map(scope.series, function(s) { return _.pluck(s.data,'x')}));
+                        // We need to make sure that for each category, each series has a value.
+                        var categories = _.union.apply(this, _.map(scope.series, function(s) { return _.pluck(s.data,'x')}));
 
-                                _.each(scope.series, function(s) {
-                                    // TODO: move this logic to Query#getChartData
-                                    var yValues = _.groupBy(s.data, 'x');
+                        _.each(scope.series, function(s) {
+                            // TODO: move this logic to Query#getChartData
+                            var yValues = _.groupBy(s.data, 'x');
 
-                                    var newData = _.sortBy(_.map(categories, function(category) {
-                                        return {
-                                            name: category,
-                                            y: yValues[category] && yValues[category][0].y
-                                        }
-                                    }), 'name');
+                            var newData = _.sortBy(_.map(categories, function(category) {
+                                return {
+                                    name: category,
+                                    y: yValues[category] && yValues[category][0].y
+                                }
+                            }), 'name');
 
-                                    s.data = newData;
-                                });
-                            } else {
-                                scope.chart.xAxis[0].update({type: 'datetime'});
-                            }
+                            s.data = newData;
+                        });
+                    } else {
+                        scope.chart.xAxis[0].update({type: 'datetime'});
+                    }
 
-                            scope.chart.counters.color = 0;
+                    scope.chart.counters.color = 0;
 
-                            _.each(scope.series, function(s) {
-                                scope.chart.addSeries(s);
-                            })
+                    _.each(scope.series, function(s) {
+                        scope.chart.addSeries(s);
+                    })
 
-                            scope.chart.redraw();
-                            scope.chart.hideLoading();
-                        };
-                    }, true);
-                });
-
+                    scope.chart.redraw();
+                    scope.chart.hideLoading();
+                }
 
             }
         };

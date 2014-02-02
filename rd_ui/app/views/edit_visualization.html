@@ -17,25 +17,7 @@
   <div class="form-group">
     <label class="control-label">Options</label>
 
-    <!-- chart options -->
-    <div ng-show="vis.type == visTypes.CHART">
-      <p>
-        <input type="text" class="form-control" placeholder="chart options 1" ng-model="vis.options.prop1">
-      </p>
-      <p>
-        <input type="text" class="form-control" placeholder="chart options 2" ng-model="vis.options.prop2">
-      </p>
-    </div>
-
-    <!-- cohort options -->
-    <div ng-show="vis.type == visTypes.COHORT">
-      <p>
-        <input type="text" class="form-control" placeholder="cohort options 1" ng-model="vis.options.prop1">
-      </p>
-      <p>
-        <input type="text" class="form-control" placeholder="cohort options 2" ng-model="vis.options.prop2">
-      </p>
-    </div>
+  <textarea json-text class="form-control" rows="5" ng-model="vis.options"></textarea>
 
   </div>
 
