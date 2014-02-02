@@ -271,6 +271,10 @@ class VisualizationHandler(BaseAuthenticatedHandler):
 
         self.write_json(vis.to_dict(with_query=False))
 
+    def delete(self, id):
+        vis = data.models.Visualization.objects.get(pk=id)
+        vis.delete()
+
 
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):
     def get_current_user(self):
