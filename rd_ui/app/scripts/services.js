@@ -290,19 +290,16 @@
     };
 
     var Visualization = function($resource) {
-        var CHART = 'CHART';
-        var COHORT = 'COHORT';
-
         var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
 
         Visualization.prototype = {
             TYPES: {
-                'CHART': CHART,
-                'COHORT': COHORT
+                'CHART': 'CHART',
+                'COHORT': 'COHORT'
             },
-            NAMES: {
-                'CHART': 'Chart',
-                'COHORT': 'Cohort'
+            SERIES_TYPES: {
+                'LINE': 'line',
+                'BAR': 'bar'
             }
         };
 
