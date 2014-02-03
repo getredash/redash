@@ -2,6 +2,10 @@ body {
     padding-top: 70px;
 }
 
+a.link {
+    cursor: pointer;
+}
+
 a.page-title {
     overflow: hidden;
     text-overflow: ellipsis;

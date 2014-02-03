@@ -1,83 +1,4 @@
 var renderers = angular.module('redash.renderers', []);
-var defaultChartOptions = {
-    "title": {
-        "text": null
-    },
-    "tooltip": {
-        valueDecimals: 2,
-        formatter: function () {
-            if (moment.isMoment(this.x)) {
-                var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
-                    pointsCount = this.points.length;
-
-                $.each(this.points, function (i, point) {
-                    s += '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
-                        Highcharts.numberFormat(point.y);
-
-                    if (pointsCount > 1 && point.percentage) {
-                        s += " (" + Highcharts.numberFormat(point.percentage) + "%)";
-                    }
-                });
-            } else {
-                var s = "<b>" + this.points[0].key + "</b>";
-                $.each(this.points, function (i, point) {
-                    s+= '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
-                        Highcharts.numberFormat(point.y);
-                });
-            }
-
-            return s;
-        },
-        shared: true
-    },
-    xAxis: {
-        type: 'datetime'
-    },
-    yAxis: {
-        title: {
-            text: null
-        }
-    },
-    exporting: {
-        chartOptions: {
-            title: {
-                text: this.description
-            }
-        },
-        buttons: {
-            contextButton: {
-                menuItems: [
-                    {
-                        text: 'Toggle % Stacking',
-                        onclick: function () {
-                            var newStacking = "normal";
-                            if (this.series[0].options.stacking == "normal") {
-                                newStacking = "percent";
-                            }
-
-                            _.each(this.series, function (series) {
-                                series.update({stacking: newStacking}, true);
-                            });
-                        }
-                    }
-                ]
-            }
-        }
-    },
-    credits: {
-        enabled: false
-    },
-    plotOptions: {
-        "column": {
-            "stacking": "normal",
-            "pointPadding": 0,
-            "borderWidth": 1,
-            "groupPadding": 0,
-            "shadow": false
-        }
-    },
-    "series": []
-};
 
 renderers.directive('chartRenderer', function () {
     return {
@@ -90,11 +11,11 @@ renderers.directive('chartRenderer', function () {
         replace: false,
         controller: ['$scope', function ($scope) {
             $scope.chartSeries = [];
-            $scope.chartOptions = $.extend(true, {}, defaultChartOptions);
+            $scope.chartOptions = {};
 
-            $scope.$watch('options', function(newOptions) {
-                if (newOptions) {
-                    $.extend(true, $scope.chartOptions, newOptions);
+            $scope.$watch('options', function(chartOptions) {
+                if (chartOptions) {
+                    $scope.chartOptions = chartOptions;
                 }
             });
             $scope.$watch('queryResult && queryResult.getData()', function (data) {
@@ -104,7 +25,7 @@ renderers.directive('chartRenderer', function () {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
                     _.each($scope.queryResult.getChartData(), function (s) {
-                        $scope.chartSeries.push(_.extend(s, {'stacking': 'normal'}, $scope.options));
+                        $scope.chartSeries.push(_.extend(s, {'stacking': 'normal'}));
                     });
                 }
             });

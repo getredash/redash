@@ -56,19 +56,15 @@
                 vis: '=?'
             },
             link: function(scope, element, attrs) {
-                scope.visTypes = Visualization.prototype.TYPES;
-                scope.visOptions = _.map(Visualization.prototype.TYPES, function (type) {
-                    return {type: type, name: Visualization.prototype.NAMES[type]};
-                });
-
-                function getEditableOptions() {
-                    return {
-                        title: {
-                            text: "New Chart"
-                        }
-                    };
-                }
-
+                scope.advancedMode = false;
+                scope.visTypes = {
+                    'Chart': Visualization.prototype.TYPES.CHART,
+                    'Cohort': Visualization.prototype.TYPES.COHORT
+                };
+                scope.seriesTypes = {
+                    'Line': Visualization.prototype.SERIES_TYPES.LINE,
+                    'Bar': Visualization.prototype.SERIES_TYPES.BAR
+                };
 
                 if (!scope.vis) {
                     // create new visualization
@@ -78,17 +74,35 @@
                             unwatch();
                             scope.vis = {
                                 'query_id': q.id,
-                                'type': scope.visTypes.CHART,
+                                'type': Visualization.prototype.TYPES.CHART,
                                 'name': q.name,
                                 'description': q.description,
-                                'options': getEditableOptions()
+                                'options': newOptions()
                             };
                         }
                     }, true);
                 }
 
+                function newOptions(chartType) {
+                    if (chartType === Visualization.prototype.TYPES.COHORT) {
+                        // empty config at the moment
+                        return {};
+                    }
+
+                    // Chart
+                    return {
+                        'series': {
+                            'type': Visualization.prototype.SERIES_TYPES.LINE
+                        }
+                    };
+                }
+
+                scope.toggleAdvancedMode = function() {
+                    scope.advancedMode = !scope.advancedMode;
+                };
+
                 scope.typeChanged = function() {
-                    scope.vis.options = getEditableOptions();
+                    scope.vis.options = newOptions();
                 };
 
                 scope.submit = function() {
