@@ -1,5 +1,21 @@
 var renderers = angular.module('redash.renderers', []);
 
+renderers.directive('visualizationRenderer', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            visualization: '=',
+            queryResult: '='
+        },
+        template: '<div ng-switch on="visualization.type">' +
+                    '<chart-renderer ng-switch-when="CHART" options="visualization.options" query-result="queryResult"></chart-renderer>' +
+                    '<grid-renderer ng-switch-when="GRID" options="visualization.options" query-result="queryResult"></grid-renderer>' +
+                    '<cohort-renderer ng-switch-when="COHORT" options="visualization.options" query-result="queryResult"></cohort-renderer>' +
+                   '</div>',
+        replace: false
+    }
+});
+
 renderers.directive('chartRenderer', function () {
     return {
         restrict: 'E',

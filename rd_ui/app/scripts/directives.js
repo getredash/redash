@@ -70,7 +70,7 @@
                     // create new visualization
                     // wait for query to load to populate with defaults
                     var unwatch = scope.$watch('query', function(q) {
-                        if (q.id) {
+                        if (q && q.id) {
                             unwatch();
                             scope.vis = {
                                 'query_id': q.id,
@@ -168,7 +168,7 @@
                                         row: rowIndex+1,
                                         ySize: 1,
                                         xSize: widget.width,
-                                        name: widget.query.name
+                                        name: widget.visualization.name
                                     });
                                 });
                             });
@@ -230,14 +230,14 @@
             templateUrl: '/views/new_widget_form.html',
             replace: true,
             link: function($scope, element, attrs) {
-                $scope.visReady = false;
-                $scope.currentView = 'existing';
                 $scope.widgetSizes = [{name: 'Regular', value: 1}, {name: 'Double', value: 2}];
 
                 var reset = function() {
                     $scope.saveInProgress = false;
                     $scope.widgetSize = 1;
                     $scope.queryId = null;
+                    $scope.selectedVis = null;
+
                 }
 
                 reset();
@@ -247,18 +247,18 @@
                 };
 
                 $scope.loadVisualizations = function() {
+                    if (!$scope.queryId) {
+                        return;
+                    }
+
                     Query.get({
                         id: $scope.queryId
                     }, function(query) {
                         if (query) {
-                            // TODO
-                            $scope.visReady = true;
-                            var visualizations = query.getVisualizations();
-                            $scope.existing = visualizations = [
-                                {'name': 'vis1', 'type': 'Cohort'},
-                                {'name': 'vis2', 'type': 'Pivot Table'}
-                            ];
-                            $scope.currentView = (visualizations.length) ? 'existing' : 'addNew';
+                            $scope.query = query;
+                            if(query.visualizations.length) {
+                                $scope.selectedVis = query.visualizations[0];
+                            }
                         }
                     });
                 };
@@ -267,7 +267,7 @@
                     $scope.saveInProgress = true;
 
                     var widget = {
-                        'query_id': $scope.queryId,
+                        'visualization_id': $scope.selectedVis.id,
                         'dashboard_id': $scope.dashboard.id,
                         'options': {},
                         'width': $scope.widgetSize
