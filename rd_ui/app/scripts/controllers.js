@@ -7,7 +7,7 @@
 
     var WidgetCtrl = function ($scope, $http, $location, Query) {
         $scope.deleteWidget = function() {
-            if (!confirm('Are you sure you want to remove "' + $scope.widget.query.name + '" from the dashboard?')) {
+            if (!confirm('Are you sure you want to remove "' + $scope.widget.visualization.name + '" from the dashboard?')) {
                 return;
             }
 
@@ -24,7 +24,7 @@
             $location.path('/queries/' + query.id);
         }
 
-        $scope.query = new Query($scope.widget.query);
+        $scope.query = new Query($scope.widget.visualization.query);
         $scope.queryResult = $scope.query.getQueryResult();
 
         $scope.updateTime = (new Date($scope.queryResult.getUpdatedAt())).toISOString();

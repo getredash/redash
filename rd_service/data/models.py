@@ -201,7 +201,7 @@ class Widget(models.Model):
             'type': self.type,
             'width': self.width,
             'options': json.loads(self.options),
-            'visualization_id': self.visualization_id,
+            'visualization': self.visualization.to_dict(),
             'dashboard_id': self.dashboard_id
         }
 
