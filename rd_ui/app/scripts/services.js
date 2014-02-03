@@ -289,11 +289,13 @@
         Visualization.prototype = {
             TYPES: {
                 'CHART': 'CHART',
-                'COHORT': 'COHORT'
+                'COHORT': 'COHORT',
+                'GRID': 'GRID'
             },
             SERIES_TYPES: {
                 'LINE': 'line',
-                'BAR': 'bar'
+                'BAR': 'bar',
+                'AREA': 'area'
             }
         };
 

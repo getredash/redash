@@ -59,11 +59,13 @@
                 scope.advancedMode = false;
                 scope.visTypes = {
                     'Chart': Visualization.prototype.TYPES.CHART,
-                    'Cohort': Visualization.prototype.TYPES.COHORT
+                    'Cohort': Visualization.prototype.TYPES.COHORT,
+                    'Table': Visualization.prototype.TYPES.GRID
                 };
                 scope.seriesTypes = {
                     'Line': Visualization.prototype.SERIES_TYPES.LINE,
-                    'Bar': Visualization.prototype.SERIES_TYPES.BAR
+                    'Bar': Visualization.prototype.SERIES_TYPES.BAR,
+                    'Area': Visualization.prototype.SERIES_TYPES.AREA
                 };
 
                 if (!scope.vis) {
