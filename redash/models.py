@@ -148,9 +148,14 @@ class Dashboard(db.Model):
         return cls.get(cls.slug==slug)
 
     def save(self, *args, **kwargs):
-        # TODO: make sure slug is unique
         if not self.slug:
             self.slug = slugify(self.name)
+
+            tries = 1
+            while self.select().where(Dashboard.slug == self.slug).first() is not None:
+                self.slug = slugify(self.name) + "_{0}".format(tries)
+                tries += 1
+
         super(Dashboard, self).save(*args, **kwargs)
 
     def __unicode__(self):
@@ -190,7 +195,9 @@ def create_db(create_tables, drop_tables):
 
     for model in all_models:
         if drop_tables and model.table_exists():
-            model.drop_table()
+            # TODO: submit PR to peewee to allow passing cascade option to drop_table.
+            db.database.execute_sql('DROP TABLE %s CASCADE' % model._meta.db_table)
+            #model.drop_table()
 
         if create_tables:
             model.create_table()
