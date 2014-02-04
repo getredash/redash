@@ -21,6 +21,11 @@ You can try out the demo instance: http://rd-demo.herokuapp.com/ (login with any
 
 Due to Heroku dev plan limits, it has a small database of flights (see schema [here](http://rd-demo.herokuapp.com/dashboard/schema)). Also due to another Heroku limitation, it is running with the regular user, hence you can DELETE or INSERT data/tables. Please be nice and don't do this.
 
+## Getting help
+
+* [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): -- the best place to get updates about new releases or ask general questions.
+* #redash IRC channel on [Freenode](http://www.freenode.net/).
+
 ## Technology
 
 * [AngularJS](http://angularjs.org/)
