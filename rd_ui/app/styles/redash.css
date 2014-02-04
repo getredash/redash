@@ -194,3 +194,9 @@ to add those CSS styles here. */
     -moz-border-radius: 6px 0 6px 6px;
     border-radius: 6px 0 6px 6px;
 }
+
+/* Charts */
+.chart-tab span {
+    display:block;
+    padding:10px;
+}
