@@ -29,7 +29,16 @@ angular.module('highchart', [])
                 // Making sure that the DOM is ready before creating the chart element, so it gets proper width.
                 $timeout(function(){
                     scope.chart = new Highcharts.Chart(newSettings);
-
+                    
+                    //Update chart type when type changes
+                    scope.$on('chart-type-changed', function(event, type){
+                        _.each(scope.chart.series, function(s){
+                            s.update({
+                                'type': type
+                            });
+                        });
+                    });
+                    
                     //Update when charts data changes
                     scope.$watch(function () {
                         return (scope.series && scope.series.length) || 0;

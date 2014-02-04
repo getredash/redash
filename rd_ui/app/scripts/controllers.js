@@ -74,7 +74,18 @@
 
         $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
                        {'key': 'pivot', 'name': 'Pivot Table'}, {'key': 'cohort', 'name': 'Cohort'}];
-
+        
+        $scope.chartType = 'line';
+        $scope.chartTypes = [
+          {value: 'line', name: 'Line'},
+          {value: 'bar', name: 'Bar'},
+          {value: 'scatter', name: 'Scattered Plot'}
+        ];
+        
+        $scope.updateChartType = function() {
+            $scope.$broadcast('chart-type-changed', $scope.chartType);
+        };
+        
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
         };
