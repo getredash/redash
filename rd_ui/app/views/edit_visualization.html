@@ -1,0 +1,31 @@
+<form role="form" name="visForm" ng-submit="submit()">
+  <div class="form-group">
+    <label class="control-label">Name</label>
+    <input type="text" class="form-control" ng-model="vis.name" placeholder="{{query.name}}">
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Description</label>
+    <textarea class="form-control" ng-model="vis.description" placeholder="{{query.description}}"></textarea>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Visualization Type</label>
+    <select required ng-model="vis.type" ng-options="value as key for (key, value) in visTypes" class="form-control" ng-change="typeChanged()"></select>
+  </div>
+
+  <div class="form-group" ng-show="vis.type == visTypes.Chart">
+    <label class="control-label">Chart Type</label>
+    <select required ng-model="vis.options.series.type" ng-options="value as key for (key, value) in seriesTypes" class="form-control"></select>
+  </div>
+
+  <div class="form-group">
+    <a class="link" ng-click="toggleAdvancedMode()">Advanced</a>
+    <textarea json-text class="form-control" rows="5" ng-model="vis.options" ng-show="advancedMode"></textarea>
+  </div>
+
+  <div class="form-group">
+    <button type="submit" class="btn btn-primary">Save</button>
+  </div>
+
+</form>

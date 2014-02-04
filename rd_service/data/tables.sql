@@ -30,12 +30,21 @@ CREATE TABLE "dashboards" (
     "is_archived" boolean NOT NULL
 )
 ;
+CREATE TABLE "visualizations" (
+    "id" serial NOT NULL PRIMARY KEY,
+    "type" varchar(100) NOT NULL,
+    "query_id" integer NOT NULL REFERENCES "queries" ("id") DEFERRABLE INITIALLY DEFERRED,
+    "name" varchar(255) NOT NULL,
+    "description" varchar(4096),
+    "options" text NOT NULL
+)
+;
 CREATE TABLE "widgets" (
     "id" serial NOT NULL PRIMARY KEY,
-    "query_id" integer NOT NULL REFERENCES "queries" ("id") DEFERRABLE INITIALLY DEFERRED,
     "type" varchar(100) NOT NULL,
     "width" integer NOT NULL,
     "options" text NOT NULL,
+    "visualization_id" integer NOT NULL REFERENCES "visualizations" ("id") DEFERRABLE INITIALLY DEFERRED,
     "dashboard_id" integer NOT NULL REFERENCES "dashboards" ("id") DEFERRABLE INITIALLY DEFERRED
 )
 ;

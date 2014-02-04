@@ -8,7 +8,7 @@
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
                         class="glyphicon glyphicon-cog"></span></button>
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                        href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-import"></span>
+                        href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
                 </button>
             </span>
     </h2>
@@ -29,11 +29,8 @@
                     </h3>
                 </div>
 
-                <div ng-switch on="widget.type" class="panel-body">
-                    <chart-renderer ng-switch-when="chart" query-result="queryResult" options="widget.options"></chart-renderer>
-                    <grid-renderer ng-switch-when="grid" query-result="queryResult"></grid-renderer>
-                    <cohort-renderer ng-switch-when="cohort" query-result="queryResult"></cohort-renderer>
-                </div>
+                <visualization-renderer visualization="widget.visualization" query-result="queryResult"></visualization-renderer class="panel-body">
+
                 <div class="panel-footer">
                     <span class="label label-default"
                           tooltip="next update {{nextUpdateTime}} (query runtime: {{queryResult.getRuntime() | durationHumanize}})"
