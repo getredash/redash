@@ -157,7 +157,7 @@ class Visualization(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=100)
     query = models.ForeignKey(Query, related_name='visualizations')
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255)
     description = models.CharField(max_length=4096)
     options = models.TextField()
 
