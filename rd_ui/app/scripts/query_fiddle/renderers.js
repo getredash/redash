@@ -1,9 +1,9 @@
 var renderers = angular.module('redash.renderers', []);
 var defaultChartOptions = {
-    "title": {
-        "text": null
+    title: {
+        text: null
     },
-    "tooltip": {
+    tooltip: {
         valueDecimals: 2,
         formatter: function () {
             if (moment.isMoment(this.x)) {
@@ -68,12 +68,39 @@ var defaultChartOptions = {
         enabled: false
     },
     plotOptions: {
-        "column": {
-            "stacking": "normal",
-            "pointPadding": 0,
-            "borderWidth": 1,
-            "groupPadding": 0,
-            "shadow": false
+        column: {
+            stacking: "normal",
+            pointPadding: 0,
+            borderWidth: 1,
+            groupPadding: 0,
+            shadow: false
+        },
+        line: {
+            dataLabels: {
+                enabled: true
+            }
+        },
+        scatter: {
+            marker: {
+                radius: 5,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineColor: 'rgb(100,100,100)'
+                    }
+                }
+            },
+            states: {
+                hover: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<b>{series.name}</b><br>',
+                pointFormat: '{point.x} cm, {point.y} kg'
+            }
         }
     },
     "series": []
@@ -98,6 +125,11 @@ renderers.directive('chartRenderer', function () {
                 } else {
                     $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
+                    var stacking = null;
+                    if ($scope.stacking() === undefined) {
+                        stacking = 'normal';
+                    }
+                    
                     _.each($scope.queryResult.getChartData(), function (s) {
                         $scope.chartSeries.push(_.extend(s, {'stacking': 'normal'}, $scope.options));
                     });
