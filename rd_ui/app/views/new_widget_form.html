@@ -7,15 +7,34 @@
             </div>
             <div class="modal-body">
                 <p>
-                    <input type="text" class="form-control" placeholder="Query Id" ng-model="queryId">
+                    <form class="form-inline" role="form" ng-submit="loadVisualizations()">
+                      <div class="form-group">
+                        <input class="form-control" placeholder="Query Id" ng-model="queryId">
+                      </div>
+                      <button type="submit" class="btn btn-primary" ng-disabled="!queryId">
+                        <span class="glyphicon glyphicon-refresh"></span> Load
+                      </button>
+                    </form>
                 </p>
 
-                <p>
-                    <select class="form-control" ng-model="widgetType" ng-options="c.value as c.name for c in widgetTypes"></select>
-                </p>
-                <p>
-                    <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
-                </p>
+                <div ng-show="query">
+                  <div class="form-group">
+                      <label for="">Choose Visualation</label>
+                      <select ng-model="selectedVis" ng-options="vis as vis.name group by vis.type for vis in query.visualizations" class="form-control"></select>
+                  </div>
+
+                  <div class="form-group">
+                    <a ng-click="toggleView('addNew')" class="link">&plus; Add New</a>
+                    <div class="well" ng-show="currentView=='addNew'">
+                      <edit-visulatization-form query="query"></edit-visulatization-form>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                      <label for="">Widget Size</label>
+                      <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
+                  </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>

@@ -51,22 +51,47 @@
     </div>
 
     <div class="row" ng-show="queryResult.getStatus() == 'done'">
-        <rd-tabs tabs-collection='tabs' selected-tab='selectedTab'></rd-tabs>
+        <ul class="nav nav-tabs">
+            <rd-tab id="table" name="Table"></rd-tab>
+            <rd-tab id="pivot" name="Pivot Table"></rd-tab>
+            <rd-tab id="{{vis.id}}" name="{{vis.name}}" ng-repeat="vis in query.visualizations">
+                <span class="remove" ng-click="deleteVisualization($event, vis)"> &times;</span>
+            </rd-tab>
+            <rd-tab id="add" name="&plus;New" removeable="true"></rd-tab>
+        </ul>
 
-        <div ng-show="selectedTab.key == 'chart'" class="col-lg-12">
-            <chart-renderer query-result="queryResult"></chart-renderer>
-        </div>
-
-        <div class="col-lg-12" ng-show="selectedTab.key == 'table'">
+        <div class="col-lg-12" ng-show="selectedTab == 'table'">
             <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
         </div>
 
-        <div class="col-lg-12" ng-show="selectedTab.key == 'pivot'">
+        <div class="col-lg-12" ng-show="selectedTab == 'pivot'">
             <pivot-table-renderer query-result="queryResult"></pivot-table-renderer>
         </div>
 
-        <div class="col-lg-12" ng-show="selectedTab.key == 'cohort'">
-            <cohort-renderer query-result="queryResult"></cohort-renderer>
+        <div class="col-lg-12" ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+            <div class="row">
+                <p>
+                    <div class="col-lg-6">
+                        <edit-visulatization-form vis="vis" query="query"></edit-visulatization-form>
+                    </div>
+                    <div class="col-lg-6">
+                        <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                    </div>
+                </p>
+            </div>
+        </div>
+
+        <div class="col-lg-12" ng-show="selectedTab == 'add'">
+            <div class="row">
+                <p>
+                    <div class="col-lg-6">
+                        <edit-visulatization-form vis="newVisualization" query="query"></edit-visulatization-form>
+                    </div>
+                    <div class="col-lg-6">
+                        <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
+                    </div>
+                </p>
+            </div>
         </div>
     </div>
 </div>

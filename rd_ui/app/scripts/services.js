@@ -253,7 +253,7 @@
         }
 
         return QueryResult;
-    }
+    };
 
     var Query = function ($resource, QueryResult) {
         var Query = $resource('/api/queries/:id', {id: '@id'});
@@ -262,6 +262,7 @@
             if (ttl == undefined) {
                 ttl = this.ttl;
             }
+
 
             var queryResult = null;
             if (this.latest_query_data && ttl != 0) {
@@ -273,17 +274,37 @@
             }
 
             return queryResult;
-        }
+        };
 
         Query.prototype.getHash = function() {
             return [this.name, this.description, this.query].join('!#');
-        }
+        };
 
         return Query;
-    }
+    };
+
+    var Visualization = function($resource) {
+        var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
+
+        Visualization.prototype = {
+            TYPES: {
+                'CHART': 'CHART',
+                'COHORT': 'COHORT',
+                'GRID': 'GRID'
+            },
+            SERIES_TYPES: {
+                'LINE': 'line',
+                'BAR': 'bar',
+                'AREA': 'area'
+            }
+        };
+
+        return Visualization;
+    };
 
     angular.module('redash.services', [])
         .factory('QueryResult', ['$resource', '$timeout', QueryResult])
         .factory('Query', ['$resource', 'QueryResult', Query])
+        .factory('Visualization', ['$resource', Visualization])
 
 })();

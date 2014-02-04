@@ -7,7 +7,7 @@
 
     var WidgetCtrl = function ($scope, $http, $location, Query) {
         $scope.deleteWidget = function() {
-            if (!confirm('Are you sure you want to remove "' + $scope.widget.query.name + '" from the dashboard?')) {
+            if (!confirm('Are you sure you want to remove "' + $scope.widget.visualization.name + '" from the dashboard?')) {
                 return;
             }
 
@@ -24,7 +24,7 @@
             $location.path('/queries/' + query.id);
         }
 
-        $scope.query = new Query($scope.widget.query);
+        $scope.query = new Query($scope.widget.visualization.query);
         $scope.queryResult = $scope.query.getQueryResult();
 
         $scope.updateTime = (new Date($scope.queryResult.getUpdatedAt())).toISOString();
@@ -33,11 +33,13 @@
         $scope.updateTime = '';
     }
 
-    var QueryFiddleCtrl = function ($scope, $window, $routeParams, $http, $location, growl, notifications, Query) {
+    var QueryFiddleCtrl = function ($scope, $window, $location, $routeParams, $http, $location, growl, notifications, Query, Visualization) {
+        var DEFAULT_TAB = 'table';
         var pristineHash = null;
-        $scope.dirty = undefined;
-
         var leavingPageText = "You will lose your changes if you leave";
+
+        $scope.dirty = undefined;
+        $scope.newVisualization = undefined;
 
         $window.onbeforeunload = function(){
             if (currentUser.canEdit($scope.query) && $scope.dirty) {
@@ -72,8 +74,9 @@
 
         $scope.$parent.pageTitle = "Query Fiddle";
 
-        $scope.tabs = [{'key': 'table', 'name': 'Table'}, {'key': 'chart', 'name': 'Chart'},
-                       {'key': 'pivot', 'name': 'Pivot Table'}, {'key': 'cohort', 'name': 'Cohort'}];
+        $scope.$watch(function() {return $location.hash()}, function(hash) {
+            $scope.selectedTab = hash || DEFAULT_TAB;
+        });
 
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
@@ -211,13 +214,26 @@
             $scope.queryResult = $scope.query.getQueryResult(0);
             $scope.lockButton(true);
             $scope.cancelling = false;
-        }
+        };
 
         $scope.cancelExecution = function() {
             $scope.cancelling = true;
             $scope.queryResult.cancelExecution();
-        }
+        };
 
+        $scope.deleteVisualization = function($e, vis) {
+            $e.preventDefault();
+            if (confirm('Are you sure you want to delete ' + vis.name + ' ?')) {
+                Visualization.delete(vis);
+                if ($scope.selectedTab == vis.id) {
+                    $scope.selectedTab = DEFAULT_TAB;
+                }
+                $scope.query.visualizations =
+                    $scope.query.visualizations.filter(function(v) {
+                        return vis.id !== v.id;
+                    });
+            }
+        };
     }
 
     var QueriesCtrl = function($scope, $http, $location, $filter, Query) {
@@ -373,7 +389,7 @@
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$window', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', QueryFiddleCtrl])
+        .controller('QueryFiddleCtrl', ['$scope', '$window', '$location', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', 'Visualization', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();

@@ -167,7 +167,7 @@ class WidgetsHandler(BaseAuthenticatedHandler):
 class DashboardHandler(BaseAuthenticatedHandler):
     def get(self, dashboard_slug=None):
         if dashboard_slug:
-            dashboard = data.models.Dashboard.objects.prefetch_related('widgets__query__latest_query_data').get(slug=dashboard_slug)
+            dashboard = data.models.Dashboard.objects.prefetch_related('widgets__visualization__query__latest_query_data').get(slug=dashboard_slug)
             self.write_json(dashboard.to_dict(with_widgets=True))
         else:
             dashboards = [d.to_dict() for d in
@@ -204,6 +204,7 @@ class QueriesHandler(BaseAuthenticatedHandler):
             query_def['created_at'] = dateutil.parser.parse(query_def['created_at'])
 
         query_def.pop('latest_query_data', None)
+        query_def.pop('visualizations', None)
 
         if id:
             query = data.models.Query(**query_def)
@@ -221,7 +222,7 @@ class QueriesHandler(BaseAuthenticatedHandler):
         if id:
             q = data.models.Query.objects.get(pk=id)
             if q:
-                self.write_json(q.to_dict())
+                self.write_json(q.to_dict(with_visualizations=True))
             else:
                 self.send_error(404)
         else:
@@ -249,6 +250,30 @@ class QueryResultsHandler(BaseAuthenticatedHandler):
         else:
             job = self.data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY)
             self.write({'job': job.to_dict()})
+
+
+class VisualizationHandler(BaseAuthenticatedHandler):
+    def get(self, id):
+        pass
+
+    def post(self, id=None):
+        kwargs = json.loads(self.request.body)
+        kwargs['options'] = json.dumps(kwargs['options'])
+
+        if id:
+            vis = data.models.Visualization(**kwargs)
+            fields = kwargs.keys()
+            fields.remove('id')
+            vis.save(update_fields=fields)
+        else:
+            vis = data.models.Visualization(**kwargs)
+            vis.save()
+
+        self.write_json(vis.to_dict(with_query=False))
+
+    def delete(self, id):
+        vis = data.models.Visualization.objects.get(pk=id)
+        vis.delete()
 
 
 class CsvQueryResultsHandler(BaseAuthenticatedHandler):
@@ -312,6 +337,7 @@ def get_application(static_path, is_debug, redis_connection, data_manager):
                                     (r"/api/queries(?:/([0-9]*))?", QueriesHandler),
                                     (r"/api/query_results(?:/([0-9]*))?", QueryResultsHandler),
                                     (r"/api/jobs/(.*)", JobsHandler),
+                                    (r"/api/visualizations(?:/([0-9]*))?", VisualizationHandler),
                                     (r"/api/widgets(?:/([0-9]*))?", WidgetsHandler),
                                     (r"/api/dashboards(?:/(.*))?", DashboardHandler),
                                     (r"/admin/(.*)", MainHandler),

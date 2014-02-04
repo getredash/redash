@@ -51,7 +51,8 @@ class Query(models.Model):
         app_label = 'redash'
         db_table = 'queries'
 
-    def to_dict(self, with_result=True, with_stats=False):
+    def to_dict(self, with_result=True, with_stats=False,
+                with_visualizations=False):
         d = {
             'id': self.id,
             'latest_query_data_id': self.latest_query_data_id,
@@ -74,6 +75,10 @@ class Query(models.Model):
 
         if with_result and self.latest_query_data_id:
             d['latest_query_data'] = self.latest_query_data.to_dict()
+
+        if with_visualizations:
+            d['visualizations'] = [vis.to_dict(with_query=False)
+                                   for vis in self.visualizations.all()]
 
         return d
 
@@ -148,10 +153,41 @@ class Dashboard(models.Model):
         return u"%s=%s" % (self.id, self.name)
 
 
+class Visualization(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.CharField(max_length=100)
+    query = models.ForeignKey(Query, related_name='visualizations')
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=4096)
+    options = models.TextField()
+
+    class Meta:
+        app_label = 'redash'
+        db_table = 'visualizations'
+
+    def to_dict(self, with_query=True):
+        d = {
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'description': self.description,
+            'options': json.loads(self.options),
+        }
+
+        if with_query:
+            d['query'] = self.query.to_dict()
+
+        return d
+
+    def __unicode__(self):
+        return u"%s=>%s" % (self.id, self.query_id)
+
+
 class Widget(models.Model):
     id = models.AutoField(primary_key=True)
-    query = models.ForeignKey(Query)
     type = models.CharField(max_length=100)
+    query = models.ForeignKey(Query, related_name='widgets')
+    visualization = models.ForeignKey(Visualization, related_name='widgets')
     width = models.IntegerField()
     options = models.TextField()
     dashboard = models.ForeignKey(Dashboard, related_name='widgets')
@@ -163,10 +199,10 @@ class Widget(models.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'query': self.query.to_dict(),
             'type': self.type,
             'width': self.width,
             'options': json.loads(self.options),
+            'visualization': self.visualization.to_dict(),
             'dashboard_id': self.dashboard_id
         }
 
