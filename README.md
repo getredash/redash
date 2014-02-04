@@ -23,7 +23,7 @@ Due to Heroku dev plan limits, it has a small database of flights (see schema [h
 
 ## Getting help
 
-* [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): -- the best place to get updates about new releases or ask general questions.
+* [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): the best place to get updates about new releases or ask general questions.
 * #redash IRC channel on [Freenode](http://www.freenode.net/).
 
 ## Technology
