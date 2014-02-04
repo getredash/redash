@@ -186,6 +186,7 @@ class Visualization(models.Model):
 class Widget(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.CharField(max_length=100)
+    query = models.ForeignKey(Query, related_name='widgets')
     visualization = models.ForeignKey(Visualization, related_name='widgets')
     width = models.IntegerField()
     options = models.TextField()
