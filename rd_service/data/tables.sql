@@ -34,7 +34,7 @@ CREATE TABLE "visualizations" (
     "id" serial NOT NULL PRIMARY KEY,
     "type" varchar(100) NOT NULL,
     "query_id" integer NOT NULL REFERENCES "queries" ("id") DEFERRABLE INITIALLY DEFERRED,
-    "name" varchar(100) NOT NULL,
+    "name" varchar(255) NOT NULL,
     "description" varchar(4096),
     "options" text NOT NULL
 )
