@@ -238,34 +238,7 @@ class QueryResultsHandler(BaseAuthenticatedHandler):
 
     def post(self, _):
         params = json.loads(self.request.body)
-        
-        group = [group for group in settings.GROUPS if self.current_user in settings.GROUPS[group]]
-        if len(group) == 0:
-            group = settings.DEFAULT_GROUP
-        else:
-            group = group[0]
-        
-        permissions = settings.PERMISSIONS[group]
-        
-        if '*' not in permissions:
-            if params['query'].lower().find('select') == -1:
-                logging.error("You can only run SELECT queries")
-                self.write({'job': {
-                    'error': "You can only run SELECT statements",
-                }})
-                return
-            
-            res = sqlparse.parse(params['query'])
-            tokens = res[0].tokens
-            tableName = [tokens[cons[0] + 2].to_unicode().lower() for cons in enumerate(tokens) if cons[1].to_unicode() == 'from'][0]
-            
-            if tableName not in permissions:
-                logging.error("Permission denied for user %s in table %s" % (self.current_user, tableName))
-                self.write({'job': {
-                    'error': "You don't have permission to access this table",
-                }})
-                return
-            
+
         if params['ttl'] == 0:
             query_result = None
         else:

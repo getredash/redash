@@ -24,12 +24,6 @@ COOKIE_SECRET = "c292a0a3aa32397cdb050e233733900f"
 LOG_LEVEL = "INFO"
 ANALYTICS = ""
 
-GROUPS = {
-}
-
-PERMISSIONS = {
-}
-
 # Configuration of the operational database for the Django models
 django.conf.settings.configure(DATABASES = { 'default': {
         'ENGINE': 'dbpool.db.backends.postgresql_psycopg2',
