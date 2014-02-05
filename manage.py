@@ -20,7 +20,7 @@ def start_workers():
 
         logging.info("Cleaning old workers: %s", old_workers)
 
-        data_manager.start_workers(settings.WORKERS_COUNT, settings.CONNECTION_STRING)
+        data_manager.start_workers(settings.WORKERS_COUNT, settings.CONNECTION_ADAPTER, settings.CONNECTION_STRING)
         logging.info("Workers started.")
 
         while True:

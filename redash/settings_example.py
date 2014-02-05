@@ -4,7 +4,7 @@ Example settings module. You should make your own copy as settings.py and enter 
 REDIS_URL = "redis://localhost:6379"
 
 # Either "pg" or "mysql"
-CONNECTION_ADAPTER = "mysql"
+CONNECTION_ADAPTER = "pg"
 # Connection string for the database that is used to run queries against
 # -- example mysql CONNECTION_STRING = "Server=;User=;Pwd=;Database="
 # -- example pg    CONNECTION_STRING = "user= password= host= port=5439 dbname="
