@@ -104,7 +104,7 @@ class DashboardListAPI(BaseResource):
 
 class DashboardAPI(BaseResource):
     def get(self, dashboard_slug=None):
-        # TODO: prefetching of widgets and queries?
+        # TODO: prefetching of widgets, visualizations and query results?
         try:
             dashboard = models.Dashboard.get_by_slug(dashboard_slug)
         except models.Dashboard.DoesNotExist:
@@ -182,6 +182,7 @@ class QueryListAPI(BaseResource):
             query_def['created_at'] = dateutil.parser.parse(query_def['created_at'])
 
         query_def.pop('latest_query_data', None)
+        query_def.pop('visualizations', None)
 
         query_def['user'] = self.current_user
         query = models.Query(**query_def)
@@ -212,12 +213,43 @@ class QueryAPI(BaseResource):
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
         if q:
-            return q.to_dict()
+            return q.to_dict(with_visualizations=True)
         else:
             abort(404, message="Query not found.")
 
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
+
+
+class VisualizationListAPI(BaseResource):
+    def post(self):
+        kwargs = request.get_json(force=True)
+        kwargs['options'] = json.dumps(kwargs['options'])
+
+        vis = data.models.Visualization(**kwargs)
+        vis.save()
+
+        return vis.to_dict(with_query=False)
+
+
+class VisualizationAPI(BaseResource):
+    def post(self, visualization_id):
+        kwargs = request.get_json(force=True)
+        kwargs['options'] = json.dumps(kwargs['options'])
+
+        vis = models.Visualization(**kwargs)
+        fields = kwargs.keys()
+        fields.remove('id')
+        vis.save(only=fields)
+
+        return vis.to_dict(with_query=False)
+
+    def delete(self, visualization_id):
+        vis = models.Visualization.get(models.Visualization.id == visualization_id)
+        vis.delete()
+
+api.add_resource(VisualizationListAPI, '/api/visualizations', endpoint='visualizations')
+api.add_resource(VisualizationAPI, '/api/visualizations/<visualization_id>', endpoint='visualization')
 
 
 class QueryResultListAPI(BaseResource):
