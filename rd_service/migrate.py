@@ -19,6 +19,8 @@ from data.models import *
 if __name__ == '__main__':
     print 'migrating Widgets -> Visualizations ...'
 
+    default_options = {"series": {"type": "bar"}}
+
     for query in Query.objects.filter(name__icontains="cohort"):
         vis = Visualization(query=query, name=query.name,
                             description=query.description,
@@ -39,7 +41,7 @@ if __name__ == '__main__':
 
         else:
             options = json.loads(widget.options)
-            vis_options = {"series": options} if options else {}
+            vis_options = {"series": options} if options else default_options
             vis_options = json.dumps(vis_options)
 
             vis = Visualization(query=query, name=query.name,
