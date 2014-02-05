@@ -1,6 +1,5 @@
 import json
-import settings
-from data.models import *
+from redash import models
 
 # first run:
 
