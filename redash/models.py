@@ -56,7 +56,7 @@ class Query(db.Model):
     class Meta:
         db_table = 'queries'
 
-    def to_dict(self, with_result=True, with_stats=False):
+    def to_dict(self, with_result=True, with_stats=False, with_visualizations=False):
         d = {
             'id': self.id,
             'latest_query_data_id': self._data['latest_query_data'],
@@ -76,6 +76,10 @@ class Query(db.Model):
             d['max_runtime'] = self.max_runtime
             d['last_retrieved_at'] = self.last_retrieved_at
             d['times_retrieved'] = self.times_retrieved
+
+        if with_visualizations:
+            d['visualizations'] = [vis.to_dict(with_query=False)
+                                   for vis in self.visualizations]
 
         if with_result and self._data['latest_query_data']:
             d['latest_query_data'] = self.latest_query_data.to_dict()
@@ -162,9 +166,38 @@ class Dashboard(db.Model):
         return u"%s=%s" % (self.id, self.name)
 
 
+class Visualization(db.Model):
+    id = peewee.PrimaryKeyField()
+    type = peewee.CharField(max_length=100)
+    query = peewee.ForeignKeyField(Query, related_name='visualizations')
+    name = peewee.CharField(max_length=255)
+    description = peewee.CharField(max_length=4096)
+    options = peewee.TextField()
+
+    class Meta:
+        db_table = 'visualizations'
+
+    def to_dict(self, with_query=True):
+        d = {
+            'id': self.id,
+            'type': self.type,
+            'name': self.name,
+            'description': self.description,
+            'options': json.loads(self.options),
+        }
+
+        if with_query:
+            d['query'] = self.query.to_dict()
+
+        return d
+
+    def __unicode__(self):
+        return u"%s=>%s" % (self.id, self.query_id)
+
+
 class Widget(db.Model):
     id = peewee.PrimaryKeyField()
-    query = peewee.ForeignKeyField(Query)
+    visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
     type = peewee.CharField(max_length=100)
     width = peewee.IntegerField()
     options = peewee.TextField()
@@ -177,10 +210,10 @@ class Widget(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'query': self.query.to_dict(),
             'type': self.type,
             'width': self.width,
             'options': json.loads(self.options),
+            'visualization': self.visualization.to_dict(),
             'dashboard_id': self._data['dashboard']
         }
 
@@ -189,7 +222,7 @@ class Widget(db.Model):
 
 
 def create_db(create_tables, drop_tables):
-    all_models = (QueryResult, Query, Dashboard, Widget)
+    all_models = (QueryResult, Query, Dashboard, Visualization, Widget)
 
     db.connect_db()
 
