@@ -10,8 +10,7 @@ import logging
 import json
 import MySQLdb
 import sys
-import select
-from .utils import JSONEncoder
+from redash.utils import JSONEncoder
 
 def mysql(connection_string):
     if connection_string.endswith(';'):
