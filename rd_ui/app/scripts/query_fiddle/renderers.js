@@ -142,13 +142,7 @@ renderers.directive('gridRenderer', function () {
                     var gridData = _.map($scope.queryResult.getData(), function (row) {
                         var newRow = {};
                         _.each(row, function (val, key) {
-                            // TODO: hack to detect date fields, needed only for backward compatability
-                            if (val > 1000 * 1000 * 1000 * 100) {
-                                newRow[$scope.queryResult.getColumnCleanName(key)] = moment(val);
-                            } else {
-                                newRow[$scope.queryResult.getColumnCleanName(key)] = val;
-                            }
-
+                            newRow[$scope.queryResult.getColumnCleanName(key)] = val;
                         })
                         return newRow;
                     });
