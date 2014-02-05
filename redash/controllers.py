@@ -94,7 +94,7 @@ class DashboardListAPI(BaseResource):
         return dashboards
 
     def post(self):
-        dashboard_properties = json.loads(self.request.body)
+        dashboard_properties = request.get_json(force=True)
         dashboard = models.Dashboard(name=dashboard_properties['name'],
                                      user=self.current_user,
                                      layout='[]')
@@ -104,13 +104,18 @@ class DashboardListAPI(BaseResource):
 
 class DashboardAPI(BaseResource):
     def get(self, dashboard_slug=None):
-        # TODO: prefetching?
-        dashboard = models.Dashboard.get_by_slug(dashboard_slug)
+        # TODO: prefetching of widgets and queries?
+        try:
+            dashboard = models.Dashboard.get_by_slug(dashboard_slug)
+        except models.Dashboard.DoesNotExist:
+            abort(404)
+
         return dashboard.to_dict(with_widgets=True)
 
-    def post(self, dashboard_id):
-        dashboard_properties = request.json
-        dashboard = models.Dashboard.get(models.Dashboard.id == dashboard_id)
+    def post(self, dashboard_slug):
+        # TODO: either convert all requests to use slugs or ids
+        dashboard_properties = request.get_json(force=True)
+        dashboard = models.Dashboard.get(models.Dashboard.id == dashboard_slug)
         dashboard.layout = dashboard_properties['layout']
         dashboard.name = dashboard_properties['name']
         dashboard.save()
@@ -128,7 +133,7 @@ api.add_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='das
 
 class WidgetListAPI(BaseResource):
     def post(self):
-        widget_properties = request.json
+        widget_properties = request.get_json(force=True)
         widget_properties['options'] = json.dumps(widget_properties['options'])
         widget = models.Widget(**widget_properties)
         widget.save()
