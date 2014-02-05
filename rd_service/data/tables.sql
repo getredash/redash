@@ -44,6 +44,7 @@ CREATE TABLE "widgets" (
     "type" varchar(100) NOT NULL,
     "width" integer NOT NULL,
     "options" text NOT NULL,
+    "query_id" integer,
     "visualization_id" integer NOT NULL REFERENCES "visualizations" ("id") DEFERRABLE INITIALLY DEFERRED,
     "dashboard_id" integer NOT NULL REFERENCES "dashboards" ("id") DEFERRABLE INITIALLY DEFERRED
 )
