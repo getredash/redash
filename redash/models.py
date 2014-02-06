@@ -16,6 +16,12 @@ from redash import db, utils
 #        return '<User %r, %r>' % (self.name, self.email)
 
 
+class BaseModel(db.Model):
+    @classmethod
+    def get_by_id(cls, model_id):
+        return cls.get(cls.id == model_id)
+
+
 class QueryResult(db.Model):
     id = peewee.PrimaryKeyField()
     query_hash = peewee.CharField(max_length=32, index=True)
@@ -41,7 +47,7 @@ class QueryResult(db.Model):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
 
-class Query(db.Model):
+class Query(BaseModel):
     id = peewee.PrimaryKeyField()
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
@@ -59,7 +65,7 @@ class Query(db.Model):
     def to_dict(self, with_result=True, with_stats=False, with_visualizations=False):
         d = {
             'id': self.id,
-            'latest_query_data_id': self._data['latest_query_data'],
+            'latest_query_data_id': self._data.get('latest_query_data', None),
             'name': self.name,
             'description': self.description,
             'query': self.query,
@@ -81,7 +87,7 @@ class Query(db.Model):
             d['visualizations'] = [vis.to_dict(with_query=False)
                                    for vis in self.visualizations]
 
-        if with_result and self._data['latest_query_data']:
+        if with_result and self.latest_query_data:
             d['latest_query_data'] = self.latest_query_data.to_dict()
 
         return d
@@ -198,7 +204,7 @@ class Visualization(db.Model):
 class Widget(db.Model):
     id = peewee.PrimaryKeyField()
     visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
-    type = peewee.CharField(max_length=100)
+    #type = peewee.CharField(max_length=100)
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
@@ -210,7 +216,6 @@ class Widget(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'type': self.type,
             'width': self.width,
             'options': json.loads(self.options),
             'visualization': self.visualization.to_dict(),
@@ -220,10 +225,10 @@ class Widget(db.Model):
     def __unicode__(self):
         return u"%s=>%s" % (self.id, self.dashboard_id)
 
+all_models = (QueryResult, Query, Dashboard, Visualization, Widget)
+
 
 def create_db(create_tables, drop_tables):
-    all_models = (QueryResult, Query, Dashboard, Visualization, Widget)
-
     db.connect_db()
 
     for model in all_models:

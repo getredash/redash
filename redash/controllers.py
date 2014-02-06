@@ -135,6 +135,9 @@ class WidgetListAPI(BaseResource):
     def post(self):
         widget_properties = request.get_json(force=True)
         widget_properties['options'] = json.dumps(widget_properties['options'])
+        widget_properties.pop('id', None)
+        widget_properties['dashboard'] = widget_properties.pop('dashboard_id')
+        widget_properties['visualization'] = widget_properties.pop('visualization_id')
         widget = models.Widget(**widget_properties)
         widget.save()
 
@@ -169,7 +172,7 @@ class WidgetAPI(BaseResource):
         widget.dashboard.layout = json.dumps(layout)
         widget.dashboard.save()
 
-        widget.delete()
+        widget.delete_instance()
 
 api.add_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
 api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
@@ -177,10 +180,7 @@ api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
 
 class QueryListAPI(BaseResource):
     def post(self):
-        query_def = request.json
-        if 'created_at' in query_def:
-            query_def['created_at'] = dateutil.parser.parse(query_def['created_at'])
-
+        query_def = request.get_json(force=True)
         query_def.pop('latest_query_data', None)
         query_def.pop('visualizations', None)
 
@@ -196,17 +196,15 @@ class QueryListAPI(BaseResource):
 
 class QueryAPI(BaseResource):
     def post(self, query_id):
-        query_def = request.json
-        if 'created_at' in query_def:
-            query_def['created_at'] = dateutil.parser.parse(query_def['created_at'])
-
+        query_def = request.get_json(force=True)
+        query_def.pop('created_at', None)
         query_def.pop('latest_query_data', None)
+        query_def.pop('id', None)
 
-        query = models.Query(**query_def)
-        fields = query_def.keys()
-        fields.remove('id')
-        # model.save(only=model.dirty_fields)
-        query.save(only=fields)
+        update = models.Query.update(**query_def).where(models.Query.id == query_id)
+        update.execute()
+
+        query = models.Query.get_by_id(query_id)
 
         return query.to_dict(with_result=False)
 
@@ -246,7 +244,7 @@ class VisualizationAPI(BaseResource):
 
     def delete(self, visualization_id):
         vis = models.Visualization.get(models.Visualization.id == visualization_id)
-        vis.delete()
+        vis.delete_instance()
 
 api.add_resource(VisualizationListAPI, '/api/visualizations', endpoint='visualizations')
 api.add_resource(VisualizationAPI, '/api/visualizations/<visualization_id>', endpoint='visualization')
