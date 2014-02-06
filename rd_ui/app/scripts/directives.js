@@ -59,8 +59,7 @@
                 scope.advancedMode = false;
                 scope.visTypes = {
                     'Chart': Visualization.prototype.TYPES.CHART,
-                    'Cohort': Visualization.prototype.TYPES.COHORT,
-                    'Table': Visualization.prototype.TYPES.GRID
+                    'Cohort': Visualization.prototype.TYPES.COHORT
                 };
                 scope.seriesTypes = {
                     'Line': Visualization.prototype.SERIES_TYPES.LINE,
@@ -77,7 +76,7 @@
                             scope.vis = {
                                 'query_id': q.id,
                                 'type': Visualization.prototype.TYPES.CHART,
-                                'name': q.name,
+                                'name': '',
                                 'description': q.description,
                                 'options': newOptions()
                             };
@@ -98,6 +97,14 @@
                         }
                     };
                 }
+
+                scope.$watch('vis.type', function(type) {
+                    // if not edited by user, set name to match type
+                    if (type && scope.vis && !scope.visForm.name.$dirty) {
+                        // poor man's titlecase
+                        scope.vis.name = scope.vis.type[0] + scope.vis.type.slice(1).toLowerCase();
+                    }
+                });
 
                 scope.toggleAdvancedMode = function() {
                     scope.advancedMode = !scope.advancedMode;
@@ -243,10 +250,6 @@
                 }
 
                 reset();
-
-                $scope.toggleView = function(viewName) {
-                    $scope.currentView = ($scope.currentView == viewName) ? '' : viewName;
-                };
 
                 $scope.loadVisualizations = function() {
                     if (!$scope.queryId) {
