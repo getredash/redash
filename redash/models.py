@@ -172,7 +172,7 @@ class Dashboard(db.Model):
         return u"%s=%s" % (self.id, self.name)
 
 
-class Visualization(db.Model):
+class Visualization(BaseModel):
     id = peewee.PrimaryKeyField()
     type = peewee.CharField(max_length=100)
     query = peewee.ForeignKeyField(Query, related_name='visualizations')

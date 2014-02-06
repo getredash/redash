@@ -217,6 +217,42 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(len(rv.json), 10)
 
 
+class VisualizationAPITest(BaseTestCase):
+    def test_create_visualization(self):
+        query = query_factory.create()
+        data = {
+            'query_id': query.id,
+            'name': 'Chart',
+            'description':'',
+            'options': {},
+            'type': 'CHART'
+        }
+
+        with app.test_client() as c, authenticated_user(c):
+            rv = json_request(c.post, '/api/visualizations', data=data)
+
+            self.assertEquals(rv.status_code, 200)
+            data.pop('query_id')
+            self.assertDictContainsSubset(data, rv.json)
+
+    def test_delete_visualization(self):
+        visualization = visualization_factory.create()
+        with app.test_client() as c, authenticated_user(c):
+            rv = json_request(c.delete, '/api/visualizations/{0}'.format(visualization.id))
+
+            self.assertEquals(rv.status_code, 200)
+            self.assertEquals(models.Visualization.select().count(), 0)
+
+    def test_update_visualization(self):
+        visualization = visualization_factory.create()
+
+        with app.test_client() as c, authenticated_user(c):
+            rv = json_request(c.post, '/api/visualizations/{0}'.format(visualization.id),
+                              data={'name': 'After Update'})
+
+            self.assertEquals(rv.status_code, 200)
+            self.assertEquals(rv.json['name'], 'After Update')
+
 
 class QueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):

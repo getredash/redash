@@ -1,3 +1,4 @@
+import datetime
 import redash.models
 
 
@@ -34,6 +35,13 @@ query_factory = ModelFactory(redash.models.Query,
                              query='SELECT 1',
                              ttl=-1,
                              user='test@everything.me')
+
+query_result_factory = ModelFactory(redash.models.QueryResult,
+                                    data='{}',
+                                    runtime=1,
+                                    retrieved_at=datetime.datetime.now(),
+                                    query=query_factory.create,
+                                    query_hash='')
 
 visualization_factory = ModelFactory(redash.models.Visualization,
                                      type='CHART',
