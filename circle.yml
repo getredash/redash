@@ -8,8 +8,14 @@ machine:
 dependencies:
   pre:
     - make deps
-    - pip install requests
+    - pip install requests coverage nose
+    - pip install -r requirements.txt
+  cache_directories:
+    - rd_ui/node_modules/
+    - rd_ui/app/bower_components/
 test:
+  override:
+    - make test
   post:
     - make pack 
 deployment:
