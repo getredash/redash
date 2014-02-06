@@ -10,6 +10,7 @@ dependencies:
     - make deps
     - pip install requests coverage nose
     - pip install -r requirements.txt
+    - cp redash/settings_example.py redash/settings.py
   cache_directories:
     - rd_ui/node_modules/
     - rd_ui/app/bower_components/
@@ -17,6 +18,7 @@ test:
   override:
     - make test
   post:
+    - rm redash/settings.py
     - make pack 
 deployment:
   github:

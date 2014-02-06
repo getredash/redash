@@ -11,7 +11,7 @@ CONNECTION_ADAPTER = "pg"
 CONNECTION_STRING = "user= password= host= port=5439 dbname="
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
 DATABASE_CONFIG = {
-    'name': 'postgres',
+    'name': 'circle_test',
     'engine': 'peewee.PostgresqlDatabase',
 }
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
