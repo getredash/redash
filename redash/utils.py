@@ -36,6 +36,10 @@ class JSONEncoder(json.JSONEncoder):
         super(JSONEncoder, self).default(o)
 
 
+def json_dumps(data):
+    return json.dumps(data, cls=JSONEncoder)
+
+
 class UnicodeWriter:
     """
     A CSV writer which will write rows to CSV file "f",
