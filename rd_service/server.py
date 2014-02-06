@@ -215,6 +215,7 @@ class QueriesHandler(BaseAuthenticatedHandler):
             query_def['user'] = self.current_user
             query = data.models.Query(**query_def)
             query.save()
+            query.create_default_visualizations()
 
         self.write_json(query.to_dict(with_result=False))
 
