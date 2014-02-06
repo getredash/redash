@@ -153,12 +153,12 @@ class Manager(object):
     def start_workers(self, workers_count, connection_string):
         if self.workers:
             return self.workers
-        
-        if settings.CONNECTION_ADAPTER == "mysql":
-            import query_runner_mysql            
+
+        if getattr(settings, 'CONNECTION_ADAPTER', None) == "mysql":
+            import query_runner_mysql
             runner = query_runner_mysql.mysql(connection_string)
         else:
-            import query_runner            
+            import query_runner
             runner = query_runner.redshift(connection_string)
 
         redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
