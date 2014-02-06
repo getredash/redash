@@ -188,6 +188,8 @@ class QueryListAPI(BaseResource):
         query = models.Query(**query_def)
         query.save()
 
+        query.create_default_visualizations()
+
         return query.to_dict(with_result=False)
 
     def get(self):

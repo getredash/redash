@@ -196,6 +196,9 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertIsNotNone(rv.json['api_key'])
             self.assertIsNotNone(rv.json['query_hash'])
 
+            query = models.Query.get_by_id(rv.json['id'])
+            self.assertEquals(len(list(query.visualizations)), 1)
+
     def test_get_query(self):
         query = query_factory.create()
 
