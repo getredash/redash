@@ -51,6 +51,12 @@ class Query(models.Model):
         app_label = 'redash'
         db_table = 'queries'
 
+    def create_default_visualizations(self):
+        table_visualization = Visualization(query=self, name="Table",
+                                            description=self.description,
+                                            type="TABLE", options="{}")
+        table_visualization.save()
+
     def to_dict(self, with_result=True, with_stats=False,
                 with_visualizations=False):
         d = {
