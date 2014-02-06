@@ -24,13 +24,6 @@
                   </div>
 
                   <div class="form-group">
-                    <a ng-click="toggleView('addNew')" class="link">&plus; Add New</a>
-                    <div class="well" ng-show="currentView=='addNew'">
-                      <edit-visulatization-form query="query"></edit-visulatization-form>
-                    </div>
-                  </div>
-
-                  <div class="form-group">
                       <label for="">Widget Size</label>
                       <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
                   </div>

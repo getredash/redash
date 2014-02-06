@@ -290,7 +290,7 @@
             TYPES: {
                 'CHART': 'CHART',
                 'COHORT': 'COHORT',
-                'GRID': 'GRID'
+                'TABLE': 'TABLE'
             },
             SERIES_TYPES: {
                 'LINE': 'line',
