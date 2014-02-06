@@ -223,8 +223,9 @@ class VisualizationListAPI(BaseResource):
     def post(self):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
+        kwargs['query'] = kwargs.pop('query_id')
 
-        vis = data.models.Visualization(**kwargs)
+        vis = models.Visualization(**kwargs)
         vis.save()
 
         return vis.to_dict(with_query=False)
@@ -233,12 +234,14 @@ class VisualizationListAPI(BaseResource):
 class VisualizationAPI(BaseResource):
     def post(self, visualization_id):
         kwargs = request.get_json(force=True)
-        kwargs['options'] = json.dumps(kwargs['options'])
+        if 'options' in kwargs:
+            kwargs['options'] = json.dumps(kwargs['options'])
+        kwargs.pop('id', None)
 
-        vis = models.Visualization(**kwargs)
-        fields = kwargs.keys()
-        fields.remove('id')
-        vis.save(only=fields)
+        update = models.Visualization.update(**kwargs).where(models.Visualization.id == visualization_id)
+        update.execute()
+
+        vis = models.Visualization.get_by_id(visualization_id)
 
         return vis.to_dict(with_query=False)
 
@@ -280,7 +283,7 @@ class CsvQueryResultsAPI(BaseResource):
         if not query_result_id:
             query = models.Query.get(models.Query.id == query_id)
             if query:
-                query_result_id = query.latest_query_data_id
+                query_result_id = query._data['latest_query_data']
 
         query_result = query_result_id and data_manager.get_query_result_by_id(query_result_id)
         if query_result:
