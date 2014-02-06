@@ -1,4 +1,4 @@
-![Build Status](https://circleci.com/gh/everythingme/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040 "Build Status")
+![Build Status](https://circleci.com/gh/everythingme/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040 "Build Status") [![Coverage Status](https://coveralls.io/repos/EverythingMe/redash/badge.png?branch=refactor_flask)](https://coveralls.io/r/EverythingMe/redash?branch=refactor_flask)
 # [_re:dash_](https://github.com/everythingme/redash)
 
 **_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
