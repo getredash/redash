@@ -4,7 +4,7 @@ import redash.models
 
 # TODO: this isn't pretty... :-)
 settings.DATABASE_CONFIG = {
-    'name': 'rd_test',
+    'name': 'circle_test',
     'engine': 'peewee.PostgresqlDatabase',
     'threadlocals': True
 }
