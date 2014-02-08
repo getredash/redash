@@ -204,7 +204,7 @@ class Visualization(BaseModel):
         return d
 
     def __unicode__(self):
-        return u"%s=>%s" % (self.id, self.query_id)
+        return u"%s %s" % (self.id, self.type)
 
 
 class Widget(db.Model):
@@ -229,7 +229,7 @@ class Widget(db.Model):
         }
 
     def __unicode__(self):
-        return u"%s=>%s" % (self.id, self.dashboard_id)
+        return u"%s" % self.id
 
 all_models = (QueryResult, Query, Dashboard, Visualization, Widget)
 
