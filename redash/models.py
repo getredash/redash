@@ -210,7 +210,7 @@ class Visualization(BaseModel):
 class Widget(db.Model):
     id = peewee.PrimaryKeyField()
     visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
-    #type = peewee.CharField(max_length=100)
+    type = peewee.CharField(max_length=100, null=True) # unused; kept for backward compatability
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
