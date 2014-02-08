@@ -145,7 +145,9 @@ class Dashboard(db.Model):
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widgets = {w.id: w.to_dict() for w in self.widgets}
+            widgets = Widget.select(Widget, Visualization, Query, QueryResult).\
+                where(Widget.dashboard == self.id).join(Visualization).join(Query).join(QueryResult)
+            widgets = {w.id: w.to_dict() for w in widgets}
             widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
             widgets_layout = None

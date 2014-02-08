@@ -104,7 +104,6 @@ class DashboardListAPI(BaseResource):
 
 class DashboardAPI(BaseResource):
     def get(self, dashboard_slug=None):
-        # TODO: prefetching of widgets, visualizations and query results?
         try:
             dashboard = models.Dashboard.get_by_slug(dashboard_slug)
         except models.Dashboard.DoesNotExist:
