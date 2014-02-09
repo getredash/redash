@@ -1,6 +1,6 @@
 NAME=redash
-VERSION=0.2
-FULL_VERSION=$(VERSION).$(CIRCLE_BUILD_NUM)
+VERSION=`python ./manage.py version`
+FULL_VERSION=$(VERSION)+b$(CIRCLE_BUILD_NUM)
 FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(FULL_VERSION).tar.gz
 
 deps:
@@ -14,3 +14,6 @@ pack:
 
 upload:
 	python bin/upload_version.py $(FULL_VERSION) $(FILENAME)
+
+test:
+	nosetests --with-coverage --cover-package=redash tests/*.py

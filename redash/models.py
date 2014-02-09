@@ -1,24 +1,36 @@
-"""
-Django ORM based models to describe the data model of re:dash.
-"""
-import hashlib
 import json
+import hashlib
 import time
-from django.db import models
-from django.template.defaultfilters import slugify
-import utils
+import datetime
+from flask.ext.peewee.utils import slugify
+import peewee
+from redash import db, utils
 
 
-class QueryResult(models.Model):
-    id = models.AutoField(primary_key=True)
-    query_hash = models.CharField(max_length=32)
-    query = models.TextField()
-    data = models.TextField()
-    runtime = models.FloatField()
-    retrieved_at = models.DateTimeField()
+#class User(db.Model):
+#    id = db.Column(db.Integer, primary_key=True)
+#    name = db.Column(db.String(320))
+#    email = db.Column(db.String(160), unique=True)
+#
+#    def __repr__(self):
+#        return '<User %r, %r>' % (self.name, self.email)
+
+
+class BaseModel(db.Model):
+    @classmethod
+    def get_by_id(cls, model_id):
+        return cls.get(cls.id == model_id)
+
+
+class QueryResult(db.Model):
+    id = peewee.PrimaryKeyField()
+    query_hash = peewee.CharField(max_length=32, index=True)
+    query = peewee.TextField()
+    data = peewee.TextField()
+    runtime = peewee.FloatField()
+    retrieved_at = peewee.DateTimeField()
 
     class Meta:
-        app_label = 'redash'
         db_table = 'query_results'
 
     def to_dict(self):
@@ -35,20 +47,19 @@ class QueryResult(models.Model):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
 
-class Query(models.Model):
-    id = models.AutoField(primary_key=True)
-    latest_query_data = models.ForeignKey(QueryResult)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=4096)
-    query = models.TextField()
-    query_hash = models.CharField(max_length=32)
-    api_key = models.CharField(max_length=40)
-    ttl = models.IntegerField()
-    user = models.CharField(max_length=360)
-    created_at = models.DateTimeField(auto_now_add=True)
+class Query(BaseModel):
+    id = peewee.PrimaryKeyField()
+    latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
+    name = peewee.CharField(max_length=255)
+    description = peewee.CharField(max_length=4096)
+    query = peewee.TextField()
+    query_hash = peewee.CharField(max_length=32)
+    api_key = peewee.CharField(max_length=40)
+    ttl = peewee.IntegerField()
+    user = peewee.CharField(max_length=360)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
-        app_label = 'redash'
         db_table = 'queries'
 
     def create_default_visualizations(self):
@@ -57,11 +68,10 @@ class Query(models.Model):
                                             type="TABLE", options="{}")
         table_visualization.save()
 
-    def to_dict(self, with_result=True, with_stats=False,
-                with_visualizations=False):
+    def to_dict(self, with_result=True, with_stats=False, with_visualizations=False):
         d = {
             'id': self.id,
-            'latest_query_data_id': self.latest_query_data_id,
+            'latest_query_data_id': self._data.get('latest_query_data', None),
             'name': self.name,
             'description': self.description,
             'query': self.query,
@@ -79,12 +89,12 @@ class Query(models.Model):
             d['last_retrieved_at'] = self.last_retrieved_at
             d['times_retrieved'] = self.times_retrieved
 
-        if with_result and self.latest_query_data_id:
-            d['latest_query_data'] = self.latest_query_data.to_dict()
-
         if with_visualizations:
             d['visualizations'] = [vis.to_dict(with_query=False)
-                                   for vis in self.visualizations.all()]
+                                   for vis in self.visualizations]
+
+        if with_result and self.latest_query_data:
+            d['latest_query_data'] = self.latest_query_data.to_dict()
 
         return d
 
@@ -103,7 +113,7 @@ LEFT OUTER JOIN
    JOIN query_results qr ON qu.query_hash=qr.query_hash
    GROUP BY qu.query_hash) query_stats ON query_stats.query_hash = queries.query_hash
         """
-        return cls.objects.raw(query)
+        return cls.raw(query)
 
     def save(self, *args, **kwargs):
         self.query_hash = utils.gen_query_hash(self.query)
@@ -119,23 +129,25 @@ LEFT OUTER JOIN
         return unicode(self.id)
 
 
-class Dashboard(models.Model):
-    id = models.AutoField(primary_key=True)
-    slug = models.CharField(max_length=140)
-    name = models.CharField(max_length=100)
-    user = models.CharField(max_length=360)
-    layout = models.TextField()
-    is_archived = models.BooleanField(default=False)
+class Dashboard(db.Model):
+    id = peewee.PrimaryKeyField()
+    slug = peewee.CharField(max_length=140, index=True)
+    name = peewee.CharField(max_length=100)
+    user = peewee.CharField(max_length=360)
+    layout = peewee.TextField()
+    is_archived = peewee.BooleanField(default=False, index=True)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
-        app_label = 'redash'
         db_table = 'dashboards'
 
     def to_dict(self, with_widgets=False):
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widgets = {w.id: w.to_dict() for w in self.widgets.all()}
+            widgets = Widget.select(Widget, Visualization, Query, QueryResult).\
+                where(Widget.dashboard == self.id).join(Visualization).join(Query).join(QueryResult)
+            widgets = {w.id: w.to_dict() for w in widgets}
             widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
             widgets_layout = None
@@ -149,26 +161,34 @@ class Dashboard(models.Model):
             'widgets': widgets_layout
         }
 
+    @classmethod
+    def get_by_slug(cls, slug):
+        return cls.get(cls.slug==slug)
+
     def save(self, *args, **kwargs):
-        # TODO: make sure slug is unique
         if not self.slug:
             self.slug = slugify(self.name)
+
+            tries = 1
+            while self.select().where(Dashboard.slug == self.slug).first() is not None:
+                self.slug = slugify(self.name) + "_{0}".format(tries)
+                tries += 1
+
         super(Dashboard, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return u"%s=%s" % (self.id, self.name)
 
 
-class Visualization(models.Model):
-    id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=100)
-    query = models.ForeignKey(Query, related_name='visualizations')
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=4096)
-    options = models.TextField()
+class Visualization(BaseModel):
+    id = peewee.PrimaryKeyField()
+    type = peewee.CharField(max_length=100)
+    query = peewee.ForeignKeyField(Query, related_name='visualizations')
+    name = peewee.CharField(max_length=255)
+    description = peewee.CharField(max_length=4096)
+    options = peewee.TextField()
 
     class Meta:
-        app_label = 'redash'
         db_table = 'visualizations'
 
     def to_dict(self, with_query=True):
@@ -186,31 +206,50 @@ class Visualization(models.Model):
         return d
 
     def __unicode__(self):
-        return u"%s=>%s" % (self.id, self.query_id)
+        return u"%s %s" % (self.id, self.type)
 
 
-class Widget(models.Model):
-    id = models.AutoField(primary_key=True)
-    type = models.CharField(max_length=100)
-    query = models.ForeignKey(Query, related_name='widgets')
-    visualization = models.ForeignKey(Visualization, related_name='widgets')
-    width = models.IntegerField()
-    options = models.TextField()
-    dashboard = models.ForeignKey(Dashboard, related_name='widgets')
+class Widget(db.Model):
+    id = peewee.PrimaryKeyField()
+    visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
+
+    width = peewee.IntegerField()
+    options = peewee.TextField()
+    dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    # unused; kept for backward compatability:
+    type = peewee.CharField(max_length=100, null=True)
+    query_id = peewee.IntegerField(null=True)
 
     class Meta:
-        app_label = 'redash'
         db_table = 'widgets'
 
     def to_dict(self):
         return {
             'id': self.id,
-            'type': self.type,
             'width': self.width,
             'options': json.loads(self.options),
             'visualization': self.visualization.to_dict(),
-            'dashboard_id': self.dashboard_id
+            'dashboard_id': self._data['dashboard']
         }
 
     def __unicode__(self):
-        return u"%s=>%s" % (self.id, self.dashboard_id)
+        return u"%s" % self.id
+
+all_models = (QueryResult, Query, Dashboard, Visualization, Widget)
+
+
+def create_db(create_tables, drop_tables):
+    db.connect_db()
+
+    for model in all_models:
+        if drop_tables and model.table_exists():
+            # TODO: submit PR to peewee to allow passing cascade option to drop_table.
+            db.database.execute_sql('DROP TABLE %s CASCADE' % model._meta.db_table)
+            #model.drop_table()
+
+        if create_tables:
+            model.create_table()
+
+    db.close_db(None)

@@ -31,6 +31,7 @@
         </button>
         <a class="navbar-brand" href="/"><strong>re:dash</strong></a>
     </div>
+    {% raw %}
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
@@ -42,13 +43,13 @@
                           <a href="#" ng-bind="name"></a>
                           <ul class="dropdown-menu">
                             <li ng-repeat="dashboard in group" role="presentation">
-                                <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                                <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                             </li>
                           </ul>
                         </li>
                     </span>
                     <li ng-repeat="dashboard in otherDashboards">
-                        <a role="menu-item" ng-href="/dashboard/{{!dashboard.slug}}" ng-bind="dashboard.name"></a>
+                        <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                     </li>
                     <li class="divider"></li>
                     <li><a data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</a></li>
@@ -64,10 +65,11 @@
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <p class="navbar-text avatar">
-                <img ng-src="{{!currentUser.gravatar_url}}" class="img-circle" alt="{{!currentUser.name}}" width="40" height="40"/>
+                <img ng-src="{{currentUser.gravatar_url}}" class="img-circle" alt="{{currentUser.name}}" width="40" height="40"/>
             </p>
         </ul>
     </div>
+    {% endraw %}
 
     </div>
 </nav>
@@ -119,13 +121,13 @@
 <!-- endbuild -->
 
 <script>
-    var currentUser = {% raw user %};
+    var currentUser = {{ user|safe }};
 
     currentUser.canEdit = function(object) {
         return object.user && (object.user.indexOf(currentUser.name) != -1);
     };
 
-    {% raw analytics %}
+    {{ analytics|safe }}
 </script>
 
 </body>

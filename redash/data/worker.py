@@ -11,7 +11,7 @@ import time
 import signal
 import setproctitle
 import redis
-from utils import gen_query_hash
+from redash.utils import gen_query_hash
 
 
 class Job(object):
