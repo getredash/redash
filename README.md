@@ -30,8 +30,8 @@ Due to Heroku dev plan limits, it has a small database of flights (see schema [h
 
 ## Technology
 
+* Python
 * [AngularJS](http://angularjs.org/)
-* [Tornado](http://tornadoweb.org)
 * [PostgreSQL](http://www.postgresql.org/) / [AWS Redshift](http://aws.amazon.com/redshift/)
 * [Redis](http://redis.io)
 
@@ -47,62 +47,33 @@ It's very likely that in the future we will switch to [D3.js](http://d3js.org/) 
 
 ## Getting Started
 
-1. Clone the repo:
-```bash
-git clone git@github.com:EverythingMe/redash.git
-```
-2. Create settings file from the example one (& update relevant settings):
-```bash
-cp rd_service/settings_example.py rd_service/settings.py
-```
-It's highly recommended that the user you use to connect to the data database (the one you query) is read-only.
-3. Create the operational databases from rd_service/data/tables.sql
-3. Install `npm` packages (mainly: Bower & Grunt):
-```bash
-cd rd_ui
-npm install
-```
-4. Install `bower` packages:
-```bash
-bower install
-```
-5. Build the UI:
-```bash
-grunt build
-```
-6. Install PIP packages:
-```bash
-pip install -r ../rd_service/requirements.txt
-```
-6. Start the API server:
-```bash
-cd ../rd_service
-python server.py
-```
-7. Start the workers:
-```bash
-python cli.py worker
-```
+1. Download the [latest release](https://github.com/everythingme/redash/releases).
+2. Make sure you have `Python` v2.7, `pip`, PostgreSQL and Redis installed.
+3. Install Python requirements: `pip install -r requirements.txt`.
+4. Make a copy of the examples settings file: `cp redash/settings_example.py redash/settings.py` and edit the relevant settings.
+5. Create database: `./manage.py db --create-tables`.
+6. Start the web server: `./manage.py server`.
+7. Start the worker: `./manage.py worker`.
 8. Open `http://localhost:8888/` and query away.
 
-## Roadmap
+**Need help setting re:dash or one of the dependencies up?** Ping @arikfr on the IRC #redash channel or send a message to the [mailing list](https://groups.google.com/forum/#!forum/redash-users), and he will gladly help.
 
-We plan to release new minor version every 2-3 weeks. Of course, if we get additional help from contributors it will help speed things up.
+## Roadmap
 
 Below you can see the "big" features of the next 3 releases (for full list, click on the link):
 
 ### [v0.2](https://github.com/EverythingMe/redash/issues?milestone=1&state=open)
 
 - Ability to generate multiple visualizations for a single query (dataset) in a more flexible way than today. Also easier extensbility points to add additional visualizations.
-- Dashboard filters: ability to filter/slice the data you see in a single dashboard using filters (date or selectors).
-- UI Improvements (better notifications & flows, improved queries page) 
-- Comments on queries.
+- Support for API access using API keys, instead of Google Login.
+- UI Improvements (better notifications & flows, improved queries page)
 
 ### [v0.3](https://github.com/EverythingMe/redash/issues?milestone=2&state=open)
 
-- Support for API access using API keys, instead of Google Login.
+- Dashboard filters: ability to filter/slice the data you see in a single dashboard using filters (date or selectors).
 - Multiple databases support (including other database type than PostgreSQL).
 - Scheduled reports by email.
+- Comments on queries.
 
 ### [v0.4](https://github.com/EverythingMe/redash/issues?milestone=3&state=open)
 
