@@ -177,7 +177,7 @@
                                         row: rowIndex+1,
                                         ySize: 1,
                                         xSize: widget.width,
-                                        name: widget.visualization.name
+                                        name: widget.visualization.query.name
                                     });
                                 });
                             });

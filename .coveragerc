@@ -1,0 +1,5 @@
+[report]
+omit =
+    */settings.py
+    */python?.?/*
+    */site-packages/nose/*
