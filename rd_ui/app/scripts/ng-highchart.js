@@ -19,7 +19,7 @@
                 if (!this.points) {
                     this.points = [this.point];
                 };
-                
+
                 if (moment.isMoment(this.x)) {
                     var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
                         pointsCount = this.points.length;
@@ -214,8 +214,24 @@
                         _.each(scope.series, function (s) {
                             // here we override the series with the visualization config
                             var _s = $.extend(true, {}, s, chartOptions['series']);
+
+                            if (_s.type == 'area') {
+                                _.each(_s.data, function (p) {
+                                    // This is an insane hack: somewhere deep in HighChart's code,
+                                    // when you stack areas, it tries to convert the string representation
+                                    // of point's x into a number. With the default implementation of toString
+                                    // it fails....
+
+                                    if (moment.isMoment(p.x)) {
+                                        p.x.toString = function () {
+                                            return String(this.toDate().getTime());
+                                        };
+                                    }
+                                });
+                            };
+
                             scope.chart.addSeries(_s);
-                        })
+                        });
 
                         scope.chart.redraw();
                         scope.chart.hideLoading();
