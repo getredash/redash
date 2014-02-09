@@ -64,7 +64,7 @@ class Query(BaseModel):
 
     def create_default_visualizations(self):
         table_visualization = Visualization(query=self, name="Table",
-                                            description=self.description,
+                                            description='',
                                             type="TABLE", options="{}")
         table_visualization.save()
 
