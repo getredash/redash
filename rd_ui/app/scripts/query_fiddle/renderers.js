@@ -8,6 +8,7 @@ renderers.directive('visualizationRenderer', function() {
             queryResult: '='
         },
         template: '<div ng-switch on="visualization.type">' +
+                    '<grid-renderer ng-switch-when="TABLE" options="visualization.options" query-result="queryResult"></grid-renderer>' +
                     '<chart-renderer ng-switch-when="CHART" options="visualization.options" query-result="queryResult"></chart-renderer>' +
                     '<cohort-renderer ng-switch-when="COHORT" options="visualization.options" query-result="queryResult"></cohort-renderer>' +
                    '</div>',
