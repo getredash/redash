@@ -10,7 +10,7 @@ atfork.stdlib_fixer.fix_logging_module()
 import argparse
 import logging
 import time
-from redash import settings, app, data_manager
+from redash import settings, app, data_manager, __version__
 
 
 def start_workers():
@@ -53,6 +53,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(title='command', dest='command')
 
+    subparsers.add_parser('version', help='display version')
     subparsers.add_parser('worker', help='start query execution workers')
     server_parser = subparsers.add_parser('server', help='start api server')
     server_parser.add_argument('--debug',
@@ -71,7 +72,9 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if args.command == "worker":
+    if args.command == 'version':
+        print __version__
+    elif args.command == "worker":
         start_workers()
     elif args.command == 'db':
         create_db(args.create_tables, args.drop_tables)
