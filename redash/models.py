@@ -212,11 +212,15 @@ class Visualization(BaseModel):
 class Widget(db.Model):
     id = peewee.PrimaryKeyField()
     visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
-    type = peewee.CharField(max_length=100, null=True) # unused; kept for backward compatability
+
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    # unused; kept for backward compatability:
+    type = peewee.CharField(max_length=100, null=True)
+    query_id = peewee.IntegerField(null=True)
 
     class Meta:
         db_table = 'widgets'
