@@ -15,7 +15,8 @@ if __name__ == '__main__':
   params = json.dumps({
     'tag_name': 'v{0}'.format(version),
     'name': 're:dash v{0}'.format(version),
-    'target_commitish': commit_sha
+    'target_commitish': commit_sha,
+    'prerelease': True
   })
 
   response = requests.post('https://api.github.com/repos/everythingme/redash/releases',
