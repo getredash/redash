@@ -77,7 +77,7 @@
                                 'query_id': q.id,
                                 'type': Visualization.prototype.TYPES.CHART,
                                 'name': '',
-                                'description': q.description,
+                                'description': q.description || '',
                                 'options': newOptions()
                             };
                         }
