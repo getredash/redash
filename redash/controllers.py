@@ -179,8 +179,9 @@ api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
 class QueryListAPI(BaseResource):
     def post(self):
         query_def = request.get_json(force=True)
-        query_def.pop('latest_query_data', None)
-        query_def.pop('visualizations', None)
+        # id, created_at, api_key
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
+            query_def.pop(field, None)
 
         query_def['user'] = self.current_user
         query = models.Query(**query_def)
@@ -197,9 +198,11 @@ class QueryListAPI(BaseResource):
 class QueryAPI(BaseResource):
     def post(self, query_id):
         query_def = request.get_json(force=True)
-        query_def.pop('created_at', None)
-        query_def.pop('latest_query_data', None)
-        query_def.pop('id', None)
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
+            query_def.pop(field, None)
+
+        if 'latest_query_data_id' in query_def:
+            query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
         update = models.Query.update(**query_def).where(models.Query.id == query_id)
         update.execute()
