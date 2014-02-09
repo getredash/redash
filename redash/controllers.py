@@ -10,7 +10,6 @@ import json
 import numbers
 import cStringIO
 import datetime
-import dateutil.parser
 
 from flask import g, render_template, send_from_directory, make_response, request, jsonify
 from flask.ext.restful import Resource, abort
@@ -71,8 +70,8 @@ def status_api():
 
 @app.route('/api/queries/format', methods=['POST'])
 @auth.required
-def format_sql_query(self):
-    arguments = json.loads(self.request.body)
+def format_sql_query():
+    arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
     return sqlparse.format(query, reindent=True, keyword_case='upper')
