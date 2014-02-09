@@ -185,7 +185,7 @@ class Visualization(BaseModel):
     type = peewee.CharField(max_length=100)
     query = peewee.ForeignKeyField(Query, related_name='visualizations')
     name = peewee.CharField(max_length=255)
-    description = peewee.CharField(max_length=4096)
+    description = peewee.CharField(max_length=4096, null=True)
     options = peewee.TextField()
 
     class Meta:
