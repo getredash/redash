@@ -13,6 +13,37 @@
                 text: null
             }
         },
+        tooltip: {
+            valueDecimals: 2,
+            formatter: function () {
+                if (!this.points) {
+                    this.points = [this.point];
+                };
+                
+                if (moment.isMoment(this.x)) {
+                    var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
+                        pointsCount = this.points.length;
+
+                    $.each(this.points, function (i, point) {
+                        s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
+                            Highcharts.numberFormat(point.y);
+
+                        if (pointsCount > 1 && point.percentage) {
+                            s += " (" + Highcharts.numberFormat(point.percentage) + "%)";
+                        }
+                    });
+                } else {
+                    var s = "<b>" + this.points[0].key + "</b>";
+                    $.each(this.points, function (i, point) {
+                        s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
+                            Highcharts.numberFormat(point.y);
+                    });
+                }
+
+                return s;
+            },
+            shared: true
+        },
         exporting: {
             chartOptions: {
                 title: {
@@ -43,43 +74,34 @@
             enabled: false
         },
         plotOptions: {
+            area: {
+                marker: {
+                    enabled: false,
+                    symbol: 'circle',
+                    radius: 2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            },
             column: {
                 stacking: "normal",
                 pointPadding: 0,
                 borderWidth: 1,
                 groupPadding: 0,
-                shadow: false,
-                tooltip: {
-                    valueDecimals: 2,
-                    formatter: function () {
-                        if (moment.isMoment(this.x)) {
-                            var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
-                                pointsCount = this.points.length;
-
-                            $.each(this.points, function (i, point) {
-                                s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
-                                    Highcharts.numberFormat(point.y);
-
-                                if (pointsCount > 1 && point.percentage) {
-                                    s += " (" + Highcharts.numberFormat(point.percentage) + "%)";
-                                }
-                            });
-                        } else {
-                            var s = "<b>" + this.points[0].key + "</b>";
-                            $.each(this.points, function (i, point) {
-                                s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
-                                    Highcharts.numberFormat(point.y);
-                            });
-                        }
-
-                        return s;
-                    },
-                    shared: true
-                }
+                shadow: false
             },
             line: {
-                dataLabels: {
-                    enabled: true
+                marker: {
+                    radius: 3,
+                },
+                lineWidth: 1,
+                states: {
+                    hover: {
+                        lineWidth: 2
+                    }
                 }
             },
             scatter: {
@@ -92,12 +114,9 @@
                         }
                     }
                 },
-                states: {
-                    hover: {
-                        marker: {
-                            enabled: false
-                        }
-                    }
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.x}, {point.y}'
                 }
             }
         },
