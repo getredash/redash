@@ -9,6 +9,16 @@ import werkzeug.wrappers
 from redash import models, settings
 
 
+def sign(key, path, expires):
+    if not key:
+        return None
+
+    h = hmac.new(str(key), msg=path, digestmod=hashlib.sha1)
+    h.update(str(expires))
+
+    return h.hexdigest()
+
+
 class HMACAuthentication(object):
     def __init__(self, auth):
         self.auth = auth
@@ -19,15 +29,15 @@ class HMACAuthentication(object):
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
             signature = request.args.get('signature')
-            expires = int(request.args.get('expires') or 0)
+            expires = float(request.args.get('expires') or 0)
             query_id = request.view_args.get('query_id', None)
 
-            if signature and query_id and time.time() < expires:
+            # TODO: 3600 should be a setting
+            if signature and query_id and time.time() < expires <= time.time() + 3600:
                 query = models.Query.get(models.Query.id == query_id)
-                h = hmac.new(str(query.api_key), msg=request.path, digestmod=hashlib.sha1)
-                h.update(str(expires))
+                calculated_signature = sign(query.api_key, request.path, expires)
 
-                if query.api_key and signature == h.hexdigest():
+                if query.api_key and signature == calculated_signature:
                     return fn(*args, **kwargs)
 
             # Work around for flask-restful testing only for flask.wrappers.Resource instead of

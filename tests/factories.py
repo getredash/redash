@@ -37,7 +37,7 @@ query_factory = ModelFactory(redash.models.Query,
                              user='test@everything.me')
 
 query_result_factory = ModelFactory(redash.models.QueryResult,
-                                    data='{}',
+                                    data='{"columns":{}, "rows":[]}',
                                     runtime=1,
                                     retrieved_at=datetime.datetime.now(),
                                     query=query_factory.create,
