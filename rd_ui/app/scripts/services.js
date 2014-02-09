@@ -294,7 +294,7 @@
             },
             SERIES_TYPES: {
                 'LINE': 'line',
-                'BAR': 'bar',
+                'COLUMN': 'column',
                 'AREA': 'area'
             }
         };

@@ -63,7 +63,7 @@
                 };
                 scope.seriesTypes = {
                     'Line': Visualization.prototype.SERIES_TYPES.LINE,
-                    'Bar': Visualization.prototype.SERIES_TYPES.BAR,
+                    'Column': Visualization.prototype.SERIES_TYPES.BAR,
                     'Area': Visualization.prototype.SERIES_TYPES.AREA
                 };
 
