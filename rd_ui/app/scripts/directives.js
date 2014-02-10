@@ -62,9 +62,9 @@
                     'Cohort': Visualization.prototype.TYPES.COHORT
                 };
                 scope.seriesTypes = {
-                    'Line': Visualization.prototype.SERIES_TYPES.LINE,
-                    'Column': Visualization.prototype.SERIES_TYPES.COLUMN,
-                    'Area': Visualization.prototype.SERIES_TYPES.AREA,
+                    'Line': 'line',
+                    'Column': 'column',
+                    'Area': 'area',
                     'Scatter': 'scatter'
                 };
 
@@ -94,7 +94,7 @@
                     // Chart
                     return {
                         'series': {
-                            'type': Visualization.prototype.SERIES_TYPES.LINE
+                            'type': scope.seriesTypes[0]
                         }
                     };
                 }
