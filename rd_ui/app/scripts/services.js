@@ -291,11 +291,6 @@
                 'CHART': 'CHART',
                 'COHORT': 'COHORT',
                 'TABLE': 'TABLE'
-            },
-            SERIES_TYPES: {
-                'LINE': 'line',
-                'BAR': 'bar',
-                'AREA': 'area'
             }
         };
 

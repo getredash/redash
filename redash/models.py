@@ -64,7 +64,7 @@ class Query(BaseModel):
 
     def create_default_visualizations(self):
         table_visualization = Visualization(query=self, name="Table",
-                                            description=self.description,
+                                            description='',
                                             type="TABLE", options="{}")
         table_visualization.save()
 
@@ -185,7 +185,7 @@ class Visualization(BaseModel):
     type = peewee.CharField(max_length=100)
     query = peewee.ForeignKeyField(Query, related_name='visualizations')
     name = peewee.CharField(max_length=255)
-    description = peewee.CharField(max_length=4096)
+    description = peewee.CharField(max_length=4096, null=True)
     options = peewee.TextField()
 
     class Meta:
