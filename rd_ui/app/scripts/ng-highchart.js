@@ -1,19 +1,31 @@
-(function(){
+(function () {
     'use strict';
 
     var defaultOptions = {
         title: {
             "text": null
         },
+        xAxis: {
+            type: 'datetime'
+        },
+        yAxis: {
+            title: {
+                text: null
+            }
+        },
         tooltip: {
             valueDecimals: 2,
             formatter: function () {
+                if (!this.points) {
+                    this.points = [this.point];
+                };
+
                 if (moment.isMoment(this.x)) {
                     var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
                         pointsCount = this.points.length;
 
                     $.each(this.points, function (i, point) {
-                        s += '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
+                        s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
                             Highcharts.numberFormat(point.y);
 
                         if (pointsCount > 1 && point.percentage) {
@@ -23,7 +35,7 @@
                 } else {
                     var s = "<b>" + this.points[0].key + "</b>";
                     $.each(this.points, function (i, point) {
-                        s+= '<br/><span style="color:'+point.series.color+'">' + point.series.name + '</span>: ' +
+                        s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
                             Highcharts.numberFormat(point.y);
                     });
                 }
@@ -31,14 +43,6 @@
                 return s;
             },
             shared: true
-        },
-        xAxis: {
-            type: 'datetime'
-        },
-        yAxis: {
-            title: {
-                text: null
-            }
         },
         exporting: {
             chartOptions: {
@@ -70,12 +74,50 @@
             enabled: false
         },
         plotOptions: {
-            "column": {
-                "stacking": "normal",
-                "pointPadding": 0,
-                "borderWidth": 1,
-                "groupPadding": 0,
-                "shadow": false
+            area: {
+                marker: {
+                    enabled: false,
+                    symbol: 'circle',
+                    radius: 2,
+                    states: {
+                        hover: {
+                            enabled: true
+                        }
+                    }
+                }
+            },
+            column: {
+                stacking: "normal",
+                pointPadding: 0,
+                borderWidth: 1,
+                groupPadding: 0,
+                shadow: false
+            },
+            line: {
+                marker: {
+                    radius: 3,
+                },
+                lineWidth: 1,
+                states: {
+                    hover: {
+                        lineWidth: 2
+                    }
+                }
+            },
+            scatter: {
+                marker: {
+                    radius: 5,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            lineColor: 'rgb(100,100,100)'
+                        }
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br>',
+                    pointFormat: '{point.x}, {point.y}'
+                }
             }
         },
         series: []
@@ -105,26 +147,34 @@
 
                     var chartOptions = $.extend(true, {}, defaultOptions, chartsDefaults);
 
-                    // Update when options change
-                    scope.$watch('options', function(newOptions) {
-                        initChart(newOptions);
-                    }, true);
+                    // $timeout makes sure that this function invoked after the DOM ready. When draw/init
+                    // invoked after the DOM is ready, we see first an empty HighCharts objects and later
+                    // they get filled up. Which gives the feeling that the charts loading faster (otherwise
+                    // we stare at an empty screen until the HighCharts object is ready).
+                    $timeout(function(){
+                        // Update when options change
+                        scope.$watch('options', function (newOptions) {
+                            initChart(newOptions);
+                        }, true);
 
-                    //Update when charts data changes
-                    scope.$watch(function () {
-                        return (scope.series && scope.series.length) || 0;
-                    }, function (length) {
-                        if (!length || length == 0) {
-                            scope.chart.showLoading();
-                        } else {
-                            drawChart();
-                        };
-                    }, true);
+                        //Update when charts data changes
+                        scope.$watch(function () {
+                            // TODO: this might be an issue in case the series change, but they stay
+                            // with the same length
+                            return (scope.series && scope.series.length) || 0;
+                        }, function (length) {
+                            if (!length || length == 0) {
+                                scope.chart.showLoading();
+                            } else {
+                                drawChart();
+                            };
+                        }, true);
+                    });
 
                     function initChart(options) {
                         if (scope.chart) {
-                           scope.chart.destroy();
-                        }
+                            scope.chart.destroy();
+                        };
 
                         $.extend(true, chartOptions, options);
 
@@ -133,23 +183,25 @@
                     }
 
                     function drawChart() {
-                        while(scope.chart.series.length > 0) {
-                            scope.chart.series[0].remove(true);
-                        }
+                        while (scope.chart.series.length > 0) {
+                            scope.chart.series[0].remove(false);
+                        };
 
-                        // todo series.type
-
-                        if (_.some(scope.series[0].data, function(p) { return angular.isString(p.x) })) {
+                        if (_.some(scope.series[0].data, function (p) {
+                            return angular.isString(p.x)
+                        })) {
                             scope.chart.xAxis[0].update({type: 'category'});
 
                             // We need to make sure that for each category, each series has a value.
-                            var categories = _.union.apply(this, _.map(scope.series, function(s) { return _.pluck(s.data,'x')}));
+                            var categories = _.union.apply(this, _.map(scope.series, function (s) {
+                                return _.pluck(s.data, 'x')
+                            }));
 
-                            _.each(scope.series, function(s) {
+                            _.each(scope.series, function (s) {
                                 // TODO: move this logic to Query#getChartData
                                 var yValues = _.groupBy(s.data, 'x');
 
-                                var newData = _.sortBy(_.map(categories, function(category) {
+                                var newData = _.sortBy(_.map(categories, function (category) {
                                     return {
                                         name: category,
                                         y: yValues[category] && yValues[category][0].y
@@ -164,11 +216,27 @@
 
                         scope.chart.counters.color = 0;
 
-                        _.each(scope.series, function(s) {
+                        _.each(scope.series, function (s) {
                             // here we override the series with the visualization config
-                            var _s = $.extend(true, {}, s, chartOptions['series']);
-                            scope.chart.addSeries(_s);
-                        })
+                            s = _.extend(s, chartOptions['series']);
+
+                            if (s.type == 'area') {
+                                _.each(s.data, function (p) {
+                                    // This is an insane hack: somewhere deep in HighChart's code,
+                                    // when you stack areas, it tries to convert the string representation
+                                    // of point's x into a number. With the default implementation of toString
+                                    // it fails....
+
+                                    if (moment.isMoment(p.x)) {
+                                        p.x.toString = function () {
+                                            return String(this.toDate().getTime());
+                                        };
+                                    }
+                                });
+                            };
+
+                            scope.chart.addSeries(s, false);
+                        });
 
                         scope.chart.redraw();
                         scope.chart.hideLoading();

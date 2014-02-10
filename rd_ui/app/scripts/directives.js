@@ -62,9 +62,10 @@
                     'Cohort': Visualization.prototype.TYPES.COHORT
                 };
                 scope.seriesTypes = {
-                    'Line': Visualization.prototype.SERIES_TYPES.LINE,
-                    'Bar': Visualization.prototype.SERIES_TYPES.BAR,
-                    'Area': Visualization.prototype.SERIES_TYPES.AREA
+                    'Line': 'line',
+                    'Column': 'column',
+                    'Area': 'area',
+                    'Scatter': 'scatter'
                 };
 
                 if (!scope.vis) {
@@ -77,7 +78,7 @@
                                 'query_id': q.id,
                                 'type': Visualization.prototype.TYPES.CHART,
                                 'name': '',
-                                'description': q.description,
+                                'description': q.description || '',
                                 'options': newOptions()
                             };
                         }
@@ -93,7 +94,7 @@
                     // Chart
                     return {
                         'series': {
-                            'type': Visualization.prototype.SERIES_TYPES.LINE
+                            'type': scope.seriesTypes[0]
                         }
                     };
                 }

@@ -65,4 +65,8 @@ def drop_tables():
 manager.add_command("database", database_manager)
 
 if __name__ == '__main__':
+    channel = logging.StreamHandler()
+    logging.getLogger().addHandler(channel)
+    logging.getLogger().setLevel(settings.LOG_LEVEL)
+
     manager.run()

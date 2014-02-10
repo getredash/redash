@@ -112,6 +112,9 @@
                     } else {
                         // TODO: replace this with a safer method
                         $location.path($location.path().replace(oldId, q.id)).replace();
+
+                        // Reset visualizations tab to table after duplicating a query:
+                        $location.hash('table');
                     }
                 }
             }, function(httpResponse) {

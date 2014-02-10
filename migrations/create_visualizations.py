@@ -4,7 +4,7 @@ from redash import db
 from redash import models
 
 if __name__ == '__main__':
-    default_options = {"series": {"type": "bar"}}
+    default_options = {"series": {"type": "column"}}
 
     db.connect_db()
 

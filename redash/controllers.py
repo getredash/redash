@@ -209,7 +209,7 @@ class QueryAPI(BaseResource):
 
         query = models.Query.get_by_id(query_id)
 
-        return query.to_dict(with_result=False)
+        return query.to_dict(with_result=False, with_visualizations=True)
 
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
