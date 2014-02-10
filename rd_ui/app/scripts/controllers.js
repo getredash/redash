@@ -20,8 +20,9 @@
             });
         };
 
-        $scope.open = function(query) {
+        $scope.open = function(query, visualization) {
             $location.path('/queries/' + query.id);
+            $location.hash(visualization.id);
         }
 
         $scope.query = new Query($scope.widget.visualization.query);
