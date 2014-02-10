@@ -147,27 +147,34 @@
 
                     var chartOptions = $.extend(true, {}, defaultOptions, chartsDefaults);
 
-                    // Update when options change
-                    scope.$watch('options', function (newOptions) {
-                        initChart(newOptions);
-                    }, true);
+                    // $timeout makes sure that this function invoked after the DOM ready. When draw/init
+                    // invoked after the DOM is ready, we see first an empty HighCharts objects and later
+                    // they get filled up. Which gives the feeling that the charts loading faster (otherwise
+                    // we stare at an empty screen until the HighCharts object is ready).
+                    $timeout(function(){
+                        // Update when options change
+                        scope.$watch('options', function (newOptions) {
+                            initChart(newOptions);
+                        }, true);
 
-                    //Update when charts data changes
-                    scope.$watch(function () {
-                        return (scope.series && scope.series.length) || 0;
-                    }, function (length) {
-                        if (!length || length == 0) {
-                            scope.chart.showLoading();
-                        } else {
-                            drawChart();
-                        }
-                        ;
-                    }, true);
+                        //Update when charts data changes
+                        scope.$watch(function () {
+                            // TODO: this might be an issue in case the series change, but they stay
+                            // with the same length
+                            return (scope.series && scope.series.length) || 0;
+                        }, function (length) {
+                            if (!length || length == 0) {
+                                scope.chart.showLoading();
+                            } else {
+                                drawChart();
+                            };
+                        }, true);
+                    });
 
                     function initChart(options) {
                         if (scope.chart) {
                             scope.chart.destroy();
-                        }
+                        };
 
                         $.extend(true, chartOptions, options);
 
@@ -177,10 +184,8 @@
 
                     function drawChart() {
                         while (scope.chart.series.length > 0) {
-                            scope.chart.series[0].remove(true);
-                        }
-
-                        // todo series.type
+                            scope.chart.series[0].remove(false);
+                        };
 
                         if (_.some(scope.series[0].data, function (p) {
                             return angular.isString(p.x)
@@ -213,10 +218,10 @@
 
                         _.each(scope.series, function (s) {
                             // here we override the series with the visualization config
-                            var _s = $.extend(true, {}, s, chartOptions['series']);
+                            s = _.extend(s, chartOptions['series']);
 
-                            if (_s.type == 'area') {
-                                _.each(_s.data, function (p) {
+                            if (s.type == 'area') {
+                                _.each(s.data, function (p) {
                                     // This is an insane hack: somewhere deep in HighChart's code,
                                     // when you stack areas, it tries to convert the string representation
                                     // of point's x into a number. With the default implementation of toString
@@ -230,7 +235,7 @@
                                 });
                             };
 
-                            scope.chart.addSeries(_s);
+                            scope.chart.addSeries(s, false);
                         });
 
                         scope.chart.redraw();
