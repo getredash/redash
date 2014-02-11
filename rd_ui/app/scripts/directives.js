@@ -65,7 +65,8 @@
                     'Line': 'line',
                     'Column': 'column',
                     'Area': 'area',
-                    'Scatter': 'scatter'
+                    'Scatter': 'scatter',
+                    'Pie': 'pie'
                 };
 
                 if (!scope.vis) {
