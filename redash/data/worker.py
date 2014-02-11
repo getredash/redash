@@ -234,8 +234,11 @@ class Worker(threading.Thread):
         start_time = time.time()
         self.set_title("running query %s" % job_id)
 
-        annotated_query = "/* Pid: %s, Job Id: %s, Query hash: %s, Priority: %s */ %s" % \
-                          (pid, job.id, job.query_hash, job.priority, job.query)
+        if getattr(self.query_runner, 'annotate_query', True):
+            annotated_query = "/* Pid: %s, Job Id: %s, Query hash: %s, Priority: %s */ %s" % \
+                              (pid, job.id, job.query_hash, job.priority, job.query)
+        else:
+            annotated_query = job.query
 
         # TODO: here's the part that needs to be forked, not all of the worker process...
         data, error = self.query_runner(annotated_query)

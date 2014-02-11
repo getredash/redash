@@ -79,24 +79,22 @@
                                 'type': Visualization.prototype.TYPES.CHART,
                                 'name': '',
                                 'description': q.description || '',
-                                'options': newOptions()
+                                'options': newOptions(Visualization.prototype.TYPES.CHART)
                             };
                         }
                     }, true);
                 }
 
                 function newOptions(chartType) {
-                    if (chartType === Visualization.prototype.TYPES.COHORT) {
-                        // empty config at the moment
-                        return {};
+                    if (chartType === Visualization.prototype.TYPES.CHART) {
+                        return {
+                            'series': {
+                                'type': 'column'
+                            }
+                        };
                     }
 
-                    // Chart
-                    return {
-                        'series': {
-                            'type': scope.seriesTypes[0]
-                        }
-                    };
+                    return {};
                 }
 
                 scope.$watch('vis.type', function(type) {
