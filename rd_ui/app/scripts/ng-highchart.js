@@ -33,10 +33,20 @@
                         }
                     });
                 } else {
-                    var s = "<b>" + this.points[0].key + "</b>";
-                    $.each(this.points, function (i, point) {
-                        s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' +
-                            Highcharts.numberFormat(point.y);
+                    var points = this.points;
+                    var name = points[0].key || points[0].name;
+
+                    var s = "<b>" + name + "</b>";
+
+                    $.each(points, function (i, point) {
+                        if (points.length > 1) {
+                            s += '<br/><span style="color:' + point.series.color + '">' + point.series.name + '</span>: ' + Highcharts.numberFormat(point.y);
+                        } else {
+                            s += ": " + Highcharts.numberFormat(point.y);
+                            if (point.percentage < 100) {
+                                s += ' (' +Highcharts.numberFormat(point.percentage) +  '%)';
+                            }
+                        }
                     });
                 }
 
@@ -105,6 +115,16 @@
                             radius: 3
                         }
                     }
+                }
+            },
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    color: '#000000',
+                    connectorColor: '#000000',
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %'
                 }
             },
             scatter: {
