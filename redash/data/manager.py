@@ -153,9 +153,12 @@ class Manager(object):
         if self.workers:
             return self.workers
         
-        if getattr(settings, 'CONNECTION_ADAPTER', None) == "mysql":
+        if connection_type == 'mysql':
             from redash.data import query_runner_mysql
             runner = query_runner_mysql.mysql(connection_string)
+        elif connection_type == 'graphite':
+            from redash.data import query_runner_graphite
+            runner = query_runner_graphite.graphite(connection_string)
         else:
             from redash.data import query_runner
             runner = query_runner.redshift(connection_string)
