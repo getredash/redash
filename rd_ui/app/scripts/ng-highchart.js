@@ -95,12 +95,15 @@
             },
             line: {
                 marker: {
-                    radius: 3,
+                    radius: 1
                 },
-                lineWidth: 1,
+                lineWidth: 2,
                 states: {
                     hover: {
-                        lineWidth: 2
+                        lineWidth: 2,
+                        marker: {
+                            radius: 3
+                        }
                     }
                 }
             },
