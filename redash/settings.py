@@ -19,6 +19,11 @@ def parse_db_url(url):
 
     return connection
 
+
+def fix_assets_path(path):
+    fullpath = os.path.join(os.path.dirname(__file__), path)
+    return fullpath
+
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379")
 
 # "pg", "graphite" or "mysql"
@@ -37,7 +42,7 @@ DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql
 GOOGLE_APPS_DOMAIN = os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", "")
 # Email addresses of admin users (comma separated)
 ADMINS = os.environ.get("REDASH_ADMINS", '').split(',')
-STATIC_ASSETS_PATH = os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/dist/")
+STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/dist/"))
 WORKERS_COUNT = int(os.environ.get("REDASH_WORKERS_COUNT", "2"))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
