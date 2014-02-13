@@ -69,6 +69,14 @@
                     'Pie': 'pie'
                 };
 
+                scope.stackingOptions = {
+                    "None": "none",
+                    "Normal": "normal",
+                    "Percent": "percent"
+                };
+
+                scope.stacking = "none";
+
                 if (!scope.vis) {
                     // create new visualization
                     // wait for query to load to populate with defaults
@@ -90,19 +98,45 @@
                     if (chartType === Visualization.prototype.TYPES.CHART) {
                         return {
                             'series': {
-                                'type': 'column'
+                                'type': 'column',
+                                'stacking': null
                             }
                         };
-                    }
+                    };
 
                     return {};
                 }
+
+                var chartOptionsUnwatch = null;
 
                 scope.$watch('vis.type', function(type) {
                     // if not edited by user, set name to match type
                     if (type && scope.vis && !scope.visForm.name.$dirty) {
                         // poor man's titlecase
                         scope.vis.name = scope.vis.type[0] + scope.vis.type.slice(1).toLowerCase();
+                    }
+
+                    if (type && type == Visualization.prototype.TYPES.CHART) {
+                        if (scope.vis.options.series.stacking === null) {
+                            scope.stacking = "none";
+                        } else if (scope.vis.options.series.stacking === undefined) {
+                            scope.stacking = "normal";
+                        } else {
+                            scope.stacking = scope.vis.options.series.stacking ;
+                        }
+
+                        chartOptionsUnwatch = scope.$watch("stacking", function(stacking) {
+                            if (stacking == "none") {
+                                scope.vis.options.series.stacking = null;
+                            } else {
+                                scope.vis.options.series.stacking = stacking;
+                            }
+                        });
+                    } else {
+                        if (chartOptionsUnwatch) {
+                            chartOptionsUnwatch();
+                            chartOptionsUnwatch = null;
+                        }
                     }
                 });
 
@@ -111,7 +145,7 @@
                 };
 
                 scope.typeChanged = function() {
-                    scope.vis.options = newOptions();
+                    scope.vis.options = newOptions(scope.vis.type);
                 };
 
                 scope.submit = function() {
