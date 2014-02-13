@@ -17,7 +17,6 @@ test:
   override:
     - make test
   post:
-    - rm redash/settings.py
     - make pack 
 deployment:
   github:
