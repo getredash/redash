@@ -185,7 +185,6 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
         user = 'test@everything.me'
         query_data = {
             'name': 'Testing',
-            'description': 'Description',
             'query': 'SELECT 1',
             'ttl': 3600
         }

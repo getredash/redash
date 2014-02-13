@@ -51,7 +51,7 @@ class Query(BaseModel):
     id = peewee.PrimaryKeyField()
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
-    description = peewee.CharField(max_length=4096)
+    description = peewee.CharField(max_length=4096, null=True)
     query = peewee.TextField()
     query_hash = peewee.CharField(max_length=32)
     api_key = peewee.CharField(max_length=40)
