@@ -1,1 +1,1 @@
-web: honcho start -f Honchofile -p $PORT
+web: honcho start -f Procfile.heroku -p $PORT

@@ -1,0 +1,2 @@
+web: ./manage.py runserver -p $PORT --host 0.0.0.0 -d -r
+worker: ./manage.py runworkers
