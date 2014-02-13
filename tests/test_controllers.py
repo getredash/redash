@@ -1,13 +1,16 @@
 from contextlib import contextmanager
 import json
 import time
+from unittest import TestCase
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
     query_result_factory
-from redash import app, models
+from redash import app, models, settings
 from redash.utils import json_dumps
 from redash.authentication import sign
 
+
+settings.GOOGLE_APPS_DOMAIN = "example.com"
 
 @contextmanager
 def authenticated_user(c, user='test@example.com', name='John Test'):
@@ -45,7 +48,42 @@ class AuthenticationTestMixin():
                 self.assertEquals(200, rv.status_code)
 
 
-class PingTest(BaseTestCase):
+class TestAuthentication(TestCase):
+    def test_redirects_for_nonsigned_in_user(self):
+        with app.test_client() as c:
+            rv = c.get("/")
+            self.assertEquals(302, rv.status_code)
+
+    def test_returns_content_when_authenticated_with_correct_domain(self):
+        settings.GOOGLE_APPS_DOMAIN = "example.com"
+        with app.test_client() as c, authenticated_user(c, user="test@example.com"):
+            rv = c.get("/")
+            self.assertEquals(200, rv.status_code)
+
+    def test_redirects_when_authenticated_with_wrong_domain(self):
+        settings.GOOGLE_APPS_DOMAIN = "example.com"
+        with app.test_client() as c, authenticated_user(c, user="test@not-example.com"):
+            rv = c.get("/")
+            self.assertEquals(302, rv.status_code)
+
+    def test_returns_content_when_user_in_allowed_list(self):
+        settings.GOOGLE_APPS_DOMAIN = "example.com"
+        settings.ALLOWED_EXTERNAL_USERS = ["test@not-example.com"]
+
+        with app.test_client() as c, authenticated_user(c, user="test@not-example.com"):
+            rv = c.get("/")
+            self.assertEquals(200, rv.status_code)
+
+    def test_returns_content_when_google_apps_domain_empty(self):
+        settings.GOOGLE_APPS_DOMAIN = ""
+        settings.ALLOWED_EXTERNAL_USERS = []
+
+        with app.test_client() as c, authenticated_user(c, user="test@whatever.com"):
+            rv = c.get("/")
+            self.assertEquals(200, rv.status_code)
+
+
+class PingTest(TestCase):
     def test_ping(self):
         with app.test_client() as c:
             rv = c.get('/ping')
@@ -83,7 +121,7 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.status_code, 404)
 
     def test_create_new_dashboard(self):
-        user_email = 'test@everything.me'
+        user_email = 'test@example.com'
         with app.test_client() as c, authenticated_user(c, user=user_email):
             dashboard_name = 'Test Dashboard'
             rv = json_request(c.post, '/api/dashboards', data={'name': dashboard_name})
@@ -182,7 +220,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.json['name'], 'Testing')
 
     def test_create_query(self):
-        user = 'test@everything.me'
+        user = 'test@example.com'
         query_data = {
             'name': 'Testing',
             'description': 'Description',
