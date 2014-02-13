@@ -69,6 +69,10 @@ class HMACAuthentication(object):
 
 def setup_authentication(app):
     openid_auth = GoogleAuth(app)
+    # If we don't have a list of external users, we can use Google's federated login, which limits
+    # the domain with which you can sign in.
+    if not settings.ALLOWED_EXTERNAL_USERS and settings.GOOGLE_APPS_DOMAIN:
+        openid_auth._OPENID_ENDPOINT = "https://www.google.com/a/%s/o8/ud?be=o8" % settings.GOOGLE_APPS_DOMAIN
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.secret_key = settings.COOKIE_SECRET
 
