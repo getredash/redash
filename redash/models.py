@@ -115,6 +115,14 @@ LEFT OUTER JOIN
         """
         return cls.raw(query)
 
+    @classmethod
+    def update_instance(cls, query_id, **kwargs):
+        if 'query' in kwargs:
+            kwargs['query_hash'] = utils.gen_query_hash(kwargs['query'])
+
+        update = cls.update(**kwargs).where(cls.id == query_id)
+        return update.execute()
+
     def save(self, *args, **kwargs):
         self.query_hash = utils.gen_query_hash(self.query)
         self._set_api_key()
