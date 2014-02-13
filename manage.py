@@ -20,6 +20,7 @@ def version():
     """Displays re:dash version."""
     print __version__
 
+
 @manager.command
 def runworkers():
     """Starts the re:dash query executors/workers."""

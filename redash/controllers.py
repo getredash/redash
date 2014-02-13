@@ -204,9 +204,8 @@ class QueryAPI(BaseResource):
         if 'latest_query_data_id' in query_def:
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
-        update = models.Query.update(**query_def).where(models.Query.id == query_id)
-        update.execute()
-
+        models.Query.update_instance(query_id, **query_def)
+        
         query = models.Query.get_by_id(query_id)
 
         return query.to_dict(with_result=False, with_visualizations=True)
