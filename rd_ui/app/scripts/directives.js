@@ -3,7 +3,7 @@
 
     var directives = angular.module('redash.directives', []);
 
-    directives.directive('rdTab', ['$location', function($location) {
+    directives.directive('rdTab', function() {
         return {
             restrict: 'E',
             scope: {
@@ -19,9 +19,9 @@
                 });
             }
         }
-    }]);
+    });
 
-    directives.directive('rdTabs', ['$location', '$rootScope', function($location, $rootScope) {
+    directives.directive('rdTabs', ['$location', function($location) {
         return {
             restrict: 'E',
             scope: {
