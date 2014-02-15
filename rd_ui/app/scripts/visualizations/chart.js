@@ -3,7 +3,7 @@
 
     chartVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
         var renderTemplate = '<chart-renderer options="visualization.options" query-result="queryResult"></chart-renderer>';
-        var editTemplate = '<chart-editor vis="vis" query="query"></chart-editor>';
+        var editTemplate = '<chart-editor></chart-editor>';
         var defaultOptions = {
             'series': {
                 'type': 'column',
@@ -50,7 +50,6 @@
         return {
             restrict: 'E',
             templateUrl: '/views/visualizations/chart_editor.html',
-            replace: true,
             link: function (scope, element, attrs) {
                 scope.seriesTypes = {
                     'Line': 'line',
