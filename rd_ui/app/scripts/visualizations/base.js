@@ -25,11 +25,11 @@
         };
 
         this.getSwitchTemplate = function(property) {
-            var pattern = /(<[a-zA-Z0-9-]*? )/
+            var pattern = /(<[a-zA-Z0-9-]*?)( |>)/
 
             var mergedTemplates = _.reduce(this.visualizations, function(templates, visualization) {
                 if (visualization[property]) {
-                    var ngSwitch = '$1ng-switch-when="' + visualization.type + '" ';
+                    var ngSwitch = '$1 ng-switch-when="' + visualization.type + '" $2';
                     var template = visualization[property].replace(pattern, ngSwitch);
 
                     return templates + "\n" + template;
@@ -85,6 +85,7 @@
             replace: true,
             scope: {
                 query: '=',
+                queryResult: '=',
                 visualization: '=?'
             },
             link: function (scope, element, attrs) {
