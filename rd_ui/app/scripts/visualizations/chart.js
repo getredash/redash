@@ -1,5 +1,5 @@
 (function () {
-    var chartVisualization = angular.module('redash.visualization.chart', []);
+    var chartVisualization = angular.module('redash.visualization');
 
     chartVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
         var renderTemplate = '<chart-renderer options="visualization.options" query-result="queryResult"></chart-renderer>';

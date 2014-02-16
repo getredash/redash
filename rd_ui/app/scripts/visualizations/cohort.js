@@ -1,5 +1,5 @@
 (function () {
-    var cohortVisualization = angular.module('redash.visualization.cohort', []);
+    var cohortVisualization = angular.module('redash.visualization');
 
     cohortVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
         VisualizationProvider.registerVisualization('COHORT', 'Cohort', '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>', null);
