@@ -1,5 +1,5 @@
 (function () {
-    var tableVisualization = angular.module('redash.visualization.table', []);
+    var tableVisualization = angular.module('redash.visualization');
 
     tableVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
         VisualizationProvider.registerVisualization('TABLE', 'Table', '<grid-renderer options="visualization.options" query-result="queryResult"></grid-renderer>', null, {}, true);
