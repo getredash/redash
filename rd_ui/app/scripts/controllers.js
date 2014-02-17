@@ -1,8 +1,37 @@
 (function () {
-    var DashboardCtrl = function ($scope, $routeParams, $http, Dashboard) {
-        $scope.dashboard = Dashboard.get({slug: $routeParams.dashboardSlug}, function(dashboard) {
-            $scope.$parent.pageTitle = dashboard.name;
-        });
+    var DashboardCtrl = function ($scope, $routeParams, $http, $timeout, Dashboard) {
+        $scope.refreshEnabled = false;
+        $scope.refreshRate = 60;
+
+        var refreshDashboard = function() {
+            $scope.dashboard = Dashboard.get({slug: $routeParams.dashboardSlug}, function(dashboard) {
+                $scope.$parent.pageTitle = dashboard.name;
+            });
+
+            autoRefresh();
+        };
+
+        var autoRefresh = function() {
+            if ($scope.refreshEnabled) {
+                $timeout(refreshDashboard, $scope.refreshRate);
+            };
+        }
+
+        $scope.triggerRefresh = function(){
+            $scope.refreshEnabled = !$scope.refreshEnabled;
+
+            if ($scope.refreshEnabled) {
+                var refreshRate = _.min(_.flatten($scope.dashboard.widgets), function(widget) {
+                    return widget.visualization.query.ttl;
+                }).visualization.query.ttl;
+
+                $scope.refreshRate = _.max([120, refreshRate * 2])*1000;
+
+                autoRefresh();
+            }
+        };
+
+        refreshDashboard();
     };
 
     var WidgetCtrl = function ($scope, $http, $location, Query) {
@@ -390,7 +419,7 @@
     }
 
     angular.module('redash.controllers', [])
-        .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', 'Dashboard', DashboardCtrl])
+        .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
         .controller('QueryFiddleCtrl', ['$scope', '$window', '$location', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', 'Visualization', QueryFiddleCtrl])
