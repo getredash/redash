@@ -172,6 +172,7 @@
 
         $scope.refreshOptions = [
             {value: -1, name: 'No Refresh'},
+            {value: 60, name: 'Every minute'},
         ]
 
         _.each(_.range(1, 13), function(i) {
