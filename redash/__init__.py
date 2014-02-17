@@ -33,7 +33,11 @@ def json_representation(data, code, headers=None):
 
 
 redis_url = urlparse.urlparse(settings.REDIS_URL)
-redis_connection = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=0, password=redis_url.password)
+if redis_url.path:
+    redis_db = redis_url.path[1]
+else:
+    redis_db = 0
+redis_connection = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
 
 from redash import data
 data_manager = data.Manager(redis_connection, db)
