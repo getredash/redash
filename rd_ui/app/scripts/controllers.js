@@ -2,18 +2,29 @@
     var DashboardCtrl = function ($scope, $routeParams, $http, $timeout, Dashboard) {
         $scope.refreshEnabled = false;
         $scope.refreshRate = 60;
-
-        var refreshDashboard = function() {
-            $scope.dashboard = Dashboard.get({slug: $routeParams.dashboardSlug}, function(dashboard) {
-                $scope.$parent.pageTitle = dashboard.name;
-            });
-
-            autoRefresh();
-        };
+        $scope.dashboard = Dashboard.get({slug: $routeParams.dashboardSlug}, function(dashboard) {
+            $scope.$parent.pageTitle = dashboard.name;
+        });
 
         var autoRefresh = function() {
             if ($scope.refreshEnabled) {
-                $timeout(refreshDashboard, $scope.refreshRate);
+                $timeout(function() {
+                    Dashboard.get({slug: $routeParams.dashboardSlug}, function(dashboard) {
+                        var newWidgets = _.groupBy(_.flatten(dashboard.widgets), 'id');
+
+                        _.each($scope.dashboard.widgets, function(row) {
+                            _.each(row, function(widget, i) {
+                                var newWidget = newWidgets[widget.id];
+                                if (newWidget && newWidget[0].visualization.query.latest_query_data_id != widget.visualization.query.latest_query_data_id ) {
+                                    row[i] = newWidget[0];
+                                }
+                            });
+                        });
+
+                        autoRefresh();
+                    });
+
+                }, $scope.refreshRate);
             };
         }
 
@@ -30,8 +41,6 @@
                 autoRefresh();
             }
         };
-
-        refreshDashboard();
     };
 
     var WidgetCtrl = function ($scope, $http, $location, Query) {
