@@ -7,19 +7,20 @@ import peewee
 from redash import db, utils
 
 
-#class User(db.Model):
-#    id = db.Column(db.Integer, primary_key=True)
-#    name = db.Column(db.String(320))
-#    email = db.Column(db.String(160), unique=True)
-#
-#    def __repr__(self):
-#        return '<User %r, %r>' % (self.name, self.email)
-
-
 class BaseModel(db.Model):
     @classmethod
     def get_by_id(cls, model_id):
         return cls.get(cls.id == model_id)
+
+
+class User(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField(max_length=320)
+    email = peewee.CharField(max_length=320, index=True, unique=True)
+    is_admin = peewee.BooleanField(default=False)
+
+    def __unicode__(self):
+        return '<User %r, %r>' % (self.name, self.email)
 
 
 class QueryResult(db.Model):
@@ -56,7 +57,8 @@ class Query(BaseModel):
     query_hash = peewee.CharField(max_length=32)
     api_key = peewee.CharField(max_length=40)
     ttl = peewee.IntegerField()
-    user = peewee.CharField(max_length=360)
+    user_email = peewee.CharField(max_length=360)
+    user = peewee.ForeignKeyField(User)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
@@ -77,7 +79,7 @@ class Query(BaseModel):
             'query': self.query,
             'query_hash': self.query_hash,
             'ttl': self.ttl,
-            'user': self.user,
+            'user': self.user.email,
             'api_key': self.api_key,
             'created_at': self.created_at,
         }
@@ -131,7 +133,7 @@ LEFT OUTER JOIN
     def _set_api_key(self):
         if not self.api_key:
             self.api_key = hashlib.sha1(
-                u''.join([str(time.time()), self.query, self.user, self.name])).hexdigest()
+                u''.join((str(time.time()), self.query, str(self._data['user']), self.name)).encode('utf-8')).hexdigest()
 
     def __unicode__(self):
         return unicode(self.id)
@@ -141,7 +143,8 @@ class Dashboard(db.Model):
     id = peewee.PrimaryKeyField()
     slug = peewee.CharField(max_length=140, index=True)
     name = peewee.CharField(max_length=100)
-    user = peewee.CharField(max_length=360)
+    user_email = peewee.CharField(max_length=360)
+    user = peewee.ForeignKeyField(User)
     layout = peewee.TextField()
     is_archived = peewee.BooleanField(default=False, index=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
@@ -164,7 +167,7 @@ class Dashboard(db.Model):
             'id': self.id,
             'slug': self.slug,
             'name': self.name,
-            'user': self.user,
+            'user': self.user.email,
             'layout': layout,
             'widgets': widgets_layout
         }
@@ -245,7 +248,7 @@ class Widget(db.Model):
     def __unicode__(self):
         return u"%s" % self.id
 
-all_models = (QueryResult, Query, Dashboard, Visualization, Widget)
+all_models = (User, QueryResult, Query, Dashboard, Visualization, Widget)
 
 
 def create_db(create_tables, drop_tables):
