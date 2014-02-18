@@ -2,7 +2,7 @@ import functools
 import hashlib
 import hmac
 from flask import current_app, request, make_response, g, redirect, url_for
-from flask.ext.googleauth import GoogleAuth
+from flask.ext.googleauth import GoogleAuth, login
 import time
 from werkzeug.contrib.fixers import ProxyFix
 from redash import models, settings
@@ -65,6 +65,22 @@ class HMACAuthentication(object):
             return make_response(redirect(url_for("%s.login" % blueprint.name, next=request.url)))
 
         return decorated
+
+
+def create_user(_, user):
+    try:
+        u = models.User.get(models.User.email == user.email)
+        if u.name != user.name:
+            current_app.logger.debug("Updating user name (%r -> %r)", u.name, user.name)
+            u.name = user.name
+            u.save()
+    except models.User.DoesNotExist:
+        current_app.logger.debug("Creating user object (%r)", user.name)
+        u = models.User(name=user.name, email=user.email)
+        u.save()
+
+
+login.connect(create_user)
 
 
 def setup_authentication(app):
