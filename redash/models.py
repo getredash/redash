@@ -19,8 +19,19 @@ class User(BaseModel):
     email = peewee.CharField(max_length=320, index=True, unique=True)
     is_admin = peewee.BooleanField(default=False)
 
+    class Meta:
+        db_table = 'users'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'is_admin': self.is_admin
+        }
+
     def __unicode__(self):
-        return '<User %r, %r>' % (self.name, self.email)
+        return '%r, %r' % (self.name, self.email)
 
 
 class QueryResult(db.Model):
@@ -57,7 +68,7 @@ class Query(BaseModel):
     query_hash = peewee.CharField(max_length=32)
     api_key = peewee.CharField(max_length=40)
     ttl = peewee.IntegerField()
-    user_email = peewee.CharField(max_length=360)
+    user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
@@ -70,7 +81,7 @@ class Query(BaseModel):
                                             type="TABLE", options="{}")
         table_visualization.save()
 
-    def to_dict(self, with_result=True, with_stats=False, with_visualizations=False):
+    def to_dict(self, with_result=True, with_stats=False, with_visualizations=False, with_user=True):
         d = {
             'id': self.id,
             'latest_query_data_id': self._data.get('latest_query_data', None),
@@ -79,10 +90,14 @@ class Query(BaseModel):
             'query': self.query,
             'query_hash': self.query_hash,
             'ttl': self.ttl,
-            'user': self.user.email,
             'api_key': self.api_key,
             'created_at': self.created_at,
         }
+
+        if with_user:
+            d['user'] = self.user.to_dict()
+        else:
+            d['user_id'] = self._data['user']
 
         if with_stats:
             d['avg_runtime'] = self.avg_runtime
@@ -102,20 +117,17 @@ class Query(BaseModel):
 
     @classmethod
     def all_queries(cls):
-        query = """SELECT queries.*, query_stats.*
-FROM queries
-LEFT OUTER JOIN
-  (SELECT qu.query_hash,
-          count(0) AS "times_retrieved",
-          avg(runtime) AS "avg_runtime",
-          min(runtime) AS "min_runtime",
-          max(runtime) AS "max_runtime",
-          max(retrieved_at) AS "last_retrieved_at"
-   FROM queries qu
-   JOIN query_results qr ON qu.query_hash=qr.query_hash
-   GROUP BY qu.query_hash) query_stats ON query_stats.query_hash = queries.query_hash
-        """
-        return cls.raw(query)
+        q = Query.select(Query, User,
+                     peewee.fn.Count(QueryResult.id).alias('times_retrieved'),
+                     peewee.fn.Avg(QueryResult.runtime).alias('avg_runtime'),
+                     peewee.fn.Min(QueryResult.runtime).alias('min_runtime'),
+                     peewee.fn.Max(QueryResult.runtime).alias('max_runtime'),
+                     peewee.fn.Max(QueryResult.retrieved_at).alias('last_retrieved_at'))\
+            .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
+            .switch(Query).join(User)\
+            .group_by(Query.id, User.id)
+
+        return q
 
     @classmethod
     def update_instance(cls, query_id, **kwargs):
@@ -139,11 +151,11 @@ LEFT OUTER JOIN
         return unicode(self.id)
 
 
-class Dashboard(db.Model):
+class Dashboard(BaseModel):
     id = peewee.PrimaryKeyField()
     slug = peewee.CharField(max_length=140, index=True)
     name = peewee.CharField(max_length=100)
-    user_email = peewee.CharField(max_length=360)
+    user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     layout = peewee.TextField()
     is_archived = peewee.BooleanField(default=False, index=True)
@@ -156,8 +168,13 @@ class Dashboard(db.Model):
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widgets = Widget.select(Widget, Visualization, Query, QueryResult).\
-                where(Widget.dashboard == self.id).join(Visualization).join(Query).join(QueryResult)
+            widgets = Widget.select(Widget, Visualization, Query, QueryResult, User)\
+                .where(Widget.dashboard == self.id)\
+                .join(Visualization)\
+                .join(Query)\
+                .join(User)\
+                .switch(Query)\
+                .join(QueryResult)
             widgets = {w.id: w.to_dict() for w in widgets}
             widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
@@ -167,14 +184,14 @@ class Dashboard(db.Model):
             'id': self.id,
             'slug': self.slug,
             'name': self.name,
-            'user': self.user.email,
+            'user_id': self._data['user'],
             'layout': layout,
             'widgets': widgets_layout
         }
 
     @classmethod
     def get_by_slug(cls, slug):
-        return cls.get(cls.slug==slug)
+        return cls.get(cls.slug == slug)
 
     def save(self, *args, **kwargs):
         if not self.slug:

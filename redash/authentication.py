@@ -79,6 +79,9 @@ def create_user(_, user):
         u = models.User(name=user.name, email=user.email)
         u.save()
 
+    user['id'] = u.id
+    user['is_admin'] = u.is_admin
+
 
 login.connect(create_user)
 

@@ -303,9 +303,9 @@
                 }
 
                 if ($scope.selectedTab.key == 'my') {
-                    return query.user == currentUser.name && query.name != 'New Query';
+                    return query.user.id == currentUser.id && query.name != 'New Query';
                 } else if ($scope.selectedTab.key == 'drafts') {
-                    return query.user == currentUser.name && query.name == 'New Query';
+                    return query.user.id == currentUser.id && query.name == 'New Query';
                 }
 
                 return query.name != 'New Query';
@@ -330,7 +330,7 @@
             },
             {
                 'label': 'Created By',
-                'map': 'user'
+                'map': 'user.name'
             },
             {
                 'label': 'Created At',

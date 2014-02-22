@@ -14,7 +14,6 @@ app = Flask(__name__,
             static_folder=settings.STATIC_ASSETS_PATH,
             static_path='/static')
 
-
 api = Api(app)
 
 # configure our database
