@@ -125,13 +125,13 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.status_code, 404)
 
     def test_create_new_dashboard(self):
-        user_email = 'test@example.com'
-        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email=user_email)):
+        user = user_factory.create()
+        with app.test_client() as c, authenticated_user(c, user=user):
             dashboard_name = 'Test Dashboard'
             rv = json_request(c.post, '/api/dashboards', data={'name': dashboard_name})
             self.assertEquals(rv.status_code, 200)
             self.assertEquals(rv.json['name'], 'Test Dashboard')
-            self.assertEquals(rv.json['user'], user_email)
+            self.assertEquals(rv.json['user_id'], user.id)
             self.assertEquals(rv.json['layout'], [])
 
     def test_update_dashboard(self):
@@ -224,19 +224,19 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.json['name'], 'Testing')
 
     def test_create_query(self):
-        user = 'test@example.com'
+        user = user_factory.create()
         query_data = {
             'name': 'Testing',
             'query': 'SELECT 1',
             'ttl': 3600
         }
 
-        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email=user)):
+        with app.test_client() as c, authenticated_user(c, user=user):
             rv = json_request(c.post, '/api/queries', data=query_data)
 
             self.assertEquals(rv.status_code, 200)
             self.assertDictContainsSubset(query_data, rv.json)
-            self.assertEquals(rv.json['user'], user)
+            self.assertEquals(rv.json['user']['id'], user.id)
             self.assertIsNotNone(rv.json['api_key'])
             self.assertIsNotNone(rv.json['query_hash'])
 

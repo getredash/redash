@@ -2,7 +2,7 @@ from unittest import TestCase
 from redash import settings, db, app
 import redash.models
 
-# TODO: this isn't pretty... :-)
+# TODO: this isn't pretty...
 settings.DATABASE_CONFIG = {
     'name': 'circle_test',
     'engine': 'peewee.PostgresqlDatabase',
