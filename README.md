@@ -51,6 +51,10 @@ It's very likely that in the future we will switch to [D3.js](http://d3js.org/) 
 3. Install Python requirements: `pip install -r requirements.txt`.
 4. Make a copy of the examples settings file: `cp redash/settings_example.py redash/settings.py` and edit the relevant settings.
 5. Create database: `./manage.py database create_tables`.
+6. Install the redash_ui dependencies:
+  1. Go to the *rd_ui* folder
+  2. `bower install`
+  3. `npm install`
 6. Start the web server: `./manage.py runserver`.
 7. Start the worker: `./manage.py runworker`.
 8. Open `http://localhost:5000/` and query away.
