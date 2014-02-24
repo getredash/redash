@@ -52,7 +52,7 @@ It's very likely that in the future we will switch to [D3.js](http://d3js.org/) 
 4. Make a copy of the examples settings file: `cp redash/settings_example.py redash/settings.py` and edit the relevant settings.
 5. Create database: `./manage.py database create_tables`.
 6. Start the web server: `./manage.py runserver`.
-7. Start the worker: `./manage.py runworker`.
+7. Start the worker: `./manage.py runworkers`.
 8. Open `http://localhost:5000/` and query away.
 
 **Need help setting re:dash or one of the dependencies up?** Ping @arikfr on the IRC #redash channel or send a message to the [mailing list](https://groups.google.com/forum/#!forum/redash-users), and he will gladly help.
