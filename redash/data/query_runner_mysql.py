@@ -43,7 +43,10 @@ def mysql(connection_string):
             cursor.close()
         except MySQLdb.Error, e:
             json_data = None
-            error = e.message
+            error = e.args[1]
+        except KeyboardInterrupt:
+            error = "Query cancelled by user."
+            json_data = None            
         except Exception as e:
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
