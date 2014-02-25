@@ -39,7 +39,7 @@ CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
 # Connection string for the database that is used to run queries against. Examples:
 # -- mysql:    CONNECTION_STRING = "Server=;User=;Pwd=;Database="
 # -- pg:       CONNECTION_STRING = "user= password= host= port=5439 dbname="
-# -- graphite: CONNECTION_STRING = {'url': 'https://graphite.yourcompany.com', 'auth': ('user', 'password'), 'verify': True}
+# -- graphite: CONNECTION_STRING = {"url": "https://graphite.yourcompany.com", "auth": ["user", "password"], "verify": true}
 CONNECTION_STRING = os.environ.get("REDASH_CONNECTION_STRING", "user= password= host= port=5439 dbname=")
 
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
