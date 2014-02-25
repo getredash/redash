@@ -92,10 +92,15 @@
             })
         }
 
-        $scope.saveQuery = function (duplicate, oldId) {
+        $scope.saveQuery = function (duplicate, oldId, updateUrl) {
             if (!oldId) {
                 oldId = $scope.query.id;
             }
+            
+            if (updateUrl == undefined) {
+                updateUrl = true;
+            }
+            
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
                 pristineHash = q.getHash();
@@ -108,7 +113,7 @@
                 }
 
                 if (oldId != q.id) {
-                    if (oldId == undefined) {
+                    if (oldId == undefined && updateUrl) {
                         $location.path($location.path().replace('new', q.id)).replace();
                     } else {
                         // TODO: replace this with a safer method
