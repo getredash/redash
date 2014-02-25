@@ -210,7 +210,7 @@
                             scope.chart.series[0].remove(false);
                         };
 
-                        if (_.some(scope.series[0].data, function (p) {
+                        if (scope.series.length > 0 && _.some(scope.series[0].data, function (p) {
                             return angular.isString(p.x)
                         })) {
                             scope.chart.xAxis[0].update({type: 'category'});
