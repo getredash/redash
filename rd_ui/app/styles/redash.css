@@ -214,3 +214,7 @@ to add those CSS styles here. */
     background-color: #FF8080;
     border-radius: 50%;
 }
+
+visualization-renderer > div {
+    overflow: scroll;
+}

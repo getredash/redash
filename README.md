@@ -46,14 +46,8 @@ It's very likely that in the future we will switch to [D3.js](http://d3js.org/) 
 
 ## Getting Started
 
-1. Download the [latest release](https://github.com/everythingme/redash/releases).
-2. Make sure you have `Python` v2.7, `pip`, PostgreSQL and Redis installed.
-3. Install Python requirements: `pip install -r requirements.txt`.
-4. Make a copy of the examples settings file: `cp redash/settings_example.py redash/settings.py` and edit the relevant settings.
-5. Create database: `./manage.py database create_tables`.
-6. Start the web server: `./manage.py runserver`.
-7. Start the worker: `./manage.py runworker`.
-8. Open `http://localhost:5000/` and query away.
+* [Setting up re:dash on Heroku in 5 minutes](https://github.com/EverythingMe/redash/wiki/Setting-up-re:dash-on-Heroku-in-5-minutes)
+* [Setting re:dash on your own server (Ubuntu)](https://github.com/EverythingMe/redash/wiki/Setting-re:dash-on-your-own-server-(Ubuntu))
 
 **Need help setting re:dash or one of the dependencies up?** Ping @arikfr on the IRC #redash channel or send a message to the [mailing list](https://groups.google.com/forum/#!forum/redash-users), and he will gladly help.
 
