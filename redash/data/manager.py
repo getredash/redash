@@ -158,7 +158,12 @@ class Manager(object):
             runner = query_runner_mysql.mysql(connection_string)
         elif connection_type == 'graphite':
             from redash.data import query_runner_graphite
-            runner = query_runner_graphite.graphite(connection_string)
+            connection_params = json.loads(connection_string)
+            if connection_params['auth']:
+                connection_params['auth'] = tuple(connection_params['auth'])
+            else:
+                connection_params['auth'] = None
+            runner = query_runner_graphite.graphite(connection_params)
         else:
             from redash.data import query_runner
             runner = query_runner.redshift(connection_string)
