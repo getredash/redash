@@ -83,17 +83,16 @@
                     var unwatch = scope.$watch('query', function(q) {
                         if (q && q.id) {
                             unwatch();
-                            scope.vis = {
-                                'query_id': q.id,
-                                'type': Visualization.prototype.TYPES.CHART,
-                                'name': '',
-                                'description': q.description || '',
-                                'options': newOptions(Visualization.prototype.TYPES.CHART)
-                            };
+                            
+                            if (!scope.vis) {
+                                scope.vis = {
+                                    'query_id': q.id,
+                                };
+                            }
                         }
                     }, true);
                 }
-
+                
                 function newOptions(chartType) {
                     if (chartType === Visualization.prototype.TYPES.CHART) {
                         return {
@@ -110,12 +109,6 @@
                 var chartOptionsUnwatch = null;
 
                 scope.$watch('vis.type', function(type) {
-                    // if not edited by user, set name to match type
-                    if (type && scope.vis && !scope.visForm.name.$dirty) {
-                        // poor man's titlecase
-                        scope.vis.name = scope.vis.type[0] + scope.vis.type.slice(1).toLowerCase();
-                    }
-
                     if (type && type == Visualization.prototype.TYPES.CHART) {
                         if (scope.vis.options.series.stacking === null) {
                             scope.stacking = "none";
@@ -175,7 +168,9 @@
                         growl.addSuccessMessage("Visualization saved");
                         
                         if (updateTabs) {
-                            scope.vis = result;
+                            scope.vis = {
+                                'query_id': scope.query.id
+                            };
                             
                             var visIds = _.pluck(scope.query.visualizations, 'id');
                             var index = visIds.indexOf(result.id);
