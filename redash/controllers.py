@@ -207,7 +207,7 @@ class QueryListAPI(BaseResource):
 class QueryAPI(BaseResource):
     def post(self, query_id):
         query_def = request.get_json(force=True)
-        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
 
         if 'latest_query_data_id' in query_def:

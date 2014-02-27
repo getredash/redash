@@ -239,7 +239,7 @@
                 $scope.queryResult = $scope.query.getQueryResult();
             });
         } else {
-            $scope.query = new Query({query: "", name: "New Query", ttl: -1, user: currentUser.name});
+            $scope.query = new Query({query: "", name: "New Query", ttl: -1, user: currentUser});
             $scope.lockButton(false);
         }
 
