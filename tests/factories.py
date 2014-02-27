@@ -26,15 +26,33 @@ class ModelFactory(object):
         kwargs = self._get_kwargs(override_kwargs)
         return self.model.create(**kwargs)
 
+
+class Sequence(object):
+    def __init__(self, string):
+        self.sequence = 0
+        self.string = string
+
+    def __call__(self):
+        self.sequence += 1
+
+        return self.string.format(self.sequence)
+
+
+user_factory = ModelFactory(redash.models.User,
+                            name='John Doe', email=Sequence('test{}@example.com'),
+                            is_admin=False)
+
+
 dashboard_factory = ModelFactory(redash.models.Dashboard,
-                                 name='test', user='test@everything.me', layout='[]')
+                                 name='test', user=user_factory.create, layout='[]')
+
 
 query_factory = ModelFactory(redash.models.Query,
                              name='New Query',
                              description='',
                              query='SELECT 1',
                              ttl=-1,
-                             user='test@everything.me')
+                             user=user_factory.create)
 
 query_result_factory = ModelFactory(redash.models.QueryResult,
                                     data='{"columns":{}, "rows":[]}',

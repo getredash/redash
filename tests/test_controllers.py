@@ -4,7 +4,7 @@ import time
 from unittest import TestCase
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
-    query_result_factory
+    query_result_factory, user_factory
 from redash import app, models, settings
 from redash.utils import json_dumps
 from redash.authentication import sign
@@ -13,9 +13,13 @@ from redash.authentication import sign
 settings.GOOGLE_APPS_DOMAIN = "example.com"
 
 @contextmanager
-def authenticated_user(c, user='test@example.com', name='John Test'):
+def authenticated_user(c, user=None):
+    if not user:
+        user = user_factory.create()
+
     with c.session_transaction() as sess:
-        sess['openid'] = {'email': user, 'name': name}
+        sess['openid'] = {'email': user.email, 'name': user.name,
+                          'id': user.id, 'is_admin': user.is_admin}
 
     yield
 
@@ -48,7 +52,7 @@ class AuthenticationTestMixin():
                 self.assertEquals(200, rv.status_code)
 
 
-class TestAuthentication(TestCase):
+class TestAuthentication(BaseTestCase):
     def test_redirects_for_nonsigned_in_user(self):
         with app.test_client() as c:
             rv = c.get("/")
@@ -56,13 +60,13 @@ class TestAuthentication(TestCase):
 
     def test_returns_content_when_authenticated_with_correct_domain(self):
         settings.GOOGLE_APPS_DOMAIN = "example.com"
-        with app.test_client() as c, authenticated_user(c, user="test@example.com"):
+        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@example.com")):
             rv = c.get("/")
             self.assertEquals(200, rv.status_code)
 
     def test_redirects_when_authenticated_with_wrong_domain(self):
         settings.GOOGLE_APPS_DOMAIN = "example.com"
-        with app.test_client() as c, authenticated_user(c, user="test@not-example.com"):
+        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@not-example.com")):
             rv = c.get("/")
             self.assertEquals(302, rv.status_code)
 
@@ -70,7 +74,7 @@ class TestAuthentication(TestCase):
         settings.GOOGLE_APPS_DOMAIN = "example.com"
         settings.ALLOWED_EXTERNAL_USERS = ["test@not-example.com"]
 
-        with app.test_client() as c, authenticated_user(c, user="test@not-example.com"):
+        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@not-example.com")):
             rv = c.get("/")
             self.assertEquals(200, rv.status_code)
 
@@ -78,7 +82,7 @@ class TestAuthentication(TestCase):
         settings.GOOGLE_APPS_DOMAIN = ""
         settings.ALLOWED_EXTERNAL_USERS = []
 
-        with app.test_client() as c, authenticated_user(c, user="test@whatever.com"):
+        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@whatever.com")):
             rv = c.get("/")
             self.assertEquals(200, rv.status_code)
 
@@ -121,13 +125,13 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.status_code, 404)
 
     def test_create_new_dashboard(self):
-        user_email = 'test@example.com'
-        with app.test_client() as c, authenticated_user(c, user=user_email):
+        user = user_factory.create()
+        with app.test_client() as c, authenticated_user(c, user=user):
             dashboard_name = 'Test Dashboard'
             rv = json_request(c.post, '/api/dashboards', data={'name': dashboard_name})
             self.assertEquals(rv.status_code, 200)
             self.assertEquals(rv.json['name'], 'Test Dashboard')
-            self.assertEquals(rv.json['user'], user_email)
+            self.assertEquals(rv.json['user_id'], user.id)
             self.assertEquals(rv.json['layout'], [])
 
     def test_update_dashboard(self):
@@ -220,7 +224,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.json['name'], 'Testing')
 
     def test_create_query(self):
-        user = 'test@example.com'
+        user = user_factory.create()
         query_data = {
             'name': 'Testing',
             'query': 'SELECT 1',
@@ -232,7 +236,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
 
             self.assertEquals(rv.status_code, 200)
             self.assertDictContainsSubset(query_data, rv.json)
-            self.assertEquals(rv.json['user'], user)
+            self.assertEquals(rv.json['user']['id'], user.id)
             self.assertIsNotNone(rv.json['api_key'])
             self.assertIsNotNone(rv.json['query_hash'])
 
