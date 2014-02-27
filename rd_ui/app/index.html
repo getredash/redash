@@ -124,7 +124,8 @@
     var currentUser = {{ user|safe }};
 
     currentUser.canEdit = function(object) {
-        return object.user && (object.user.indexOf(currentUser.name) != -1);
+        var user_id = object.user_id || (object.user && object.user.id);
+        return user_id && (user_id == currentUser.id);
     };
 
     {{ analytics|safe }}

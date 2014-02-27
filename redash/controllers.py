@@ -39,8 +39,10 @@ def index(anything=None):
 
     user = {
         'gravatar_url': gravatar_url,
-        'is_admin': g.user['email'] in settings.ADMINS,
-        'name': g.user['email']
+        'is_admin': g.user['is_admin'],
+        'id': g.user['id'],
+        'name': g.user['name'],
+        'email': g.user['email']
     }
 
     return render_template("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
@@ -80,9 +82,16 @@ def format_sql_query():
 class BaseResource(Resource):
     decorators = [auth.required]
 
+    def __init__(self, *args, **kwargs):
+        super(BaseResource, self).__init__(*args, **kwargs)
+        self._user = None
+
     @property
     def current_user(self):
-        return g.user['email']
+        if not self._user:
+            self._user = models.User(id=g.user['id'], email=g.user['email'], name=g.user['name'],
+                                     is_admin=g.user['is_admin'])
+        return self._user
 
 
 class DashboardListAPI(BaseResource):
@@ -111,9 +120,9 @@ class DashboardAPI(BaseResource):
         return dashboard.to_dict(with_widgets=True)
 
     def post(self, dashboard_slug):
-        # TODO: either convert all requests to use slugs or ids
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard.get(models.Dashboard.id == dashboard_slug)
+        # TODO: either convert all requests to use slugs or ids
+        dashboard = models.Dashboard.get_by_id(dashboard_slug)
         dashboard.layout = dashboard_properties['layout']
         dashboard.name = dashboard_properties['name']
         dashboard.save()
@@ -198,7 +207,7 @@ class QueryListAPI(BaseResource):
 class QueryAPI(BaseResource):
     def post(self, query_id):
         query_def = request.get_json(force=True)
-        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
 
         if 'latest_query_data_id' in query_def:
