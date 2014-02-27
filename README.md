@@ -55,12 +55,6 @@ It's very likely that in the future we will switch to [D3.js](http://d3js.org/) 
 
 Below you can see the "big" features of the next 3 releases (for full list, click on the link):
 
-### [v0.2](https://github.com/EverythingMe/redash/issues?milestone=1&state=open)
-
-- Ability to generate multiple visualizations for a single query (dataset) in a more flexible way than today. Also easier extensbility points to add additional visualizations.
-- Support for API access using API keys, instead of Google Login.
-- UI Improvements (better notifications & flows, improved queries page)
-
 ### [v0.3](https://github.com/EverythingMe/redash/issues?milestone=2&state=open)
 
 - Dashboard filters: ability to filter/slice the data you see in a single dashboard using filters (date or selectors).
