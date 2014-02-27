@@ -7,7 +7,7 @@ from flask_peewee.db import Database
 import redis
 from redash import settings, utils
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
