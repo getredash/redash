@@ -13,6 +13,7 @@ import datetime
 
 from flask import g, render_template, send_from_directory, make_response, request, jsonify
 from flask.ext.restful import Resource, abort
+from flask_login import current_user
 
 import sqlparse
 from redash import settings, utils
@@ -34,15 +35,15 @@ def ping():
 @app.route('/')
 @auth.required
 def index(anything=None):
-    email_md5 = hashlib.md5(g.user['email'].lower()).hexdigest()
+    email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
     user = {
         'gravatar_url': gravatar_url,
-        'is_admin': g.user['is_admin'],
-        'id': g.user['id'],
-        'name': g.user['name'],
-        'email': g.user['email']
+        'is_admin': current_user.is_admin,
+        'id': current_user.id,
+        'name': current_user.name,
+        'email': current_user.email
     }
 
     return render_template("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
@@ -86,13 +87,6 @@ class BaseResource(Resource):
         super(BaseResource, self).__init__(*args, **kwargs)
         self._user = None
 
-    @property
-    def current_user(self):
-        if not self._user:
-            self._user = models.User(id=g.user['id'], email=g.user['email'], name=g.user['name'],
-                                     is_admin=g.user['is_admin'])
-        return self._user
-
 
 class DashboardListAPI(BaseResource):
     def get(self):
@@ -104,7 +98,7 @@ class DashboardListAPI(BaseResource):
     def post(self):
         dashboard_properties = request.get_json(force=True)
         dashboard = models.Dashboard(name=dashboard_properties['name'],
-                                     user=self.current_user,
+                                     user=current_user.id,
                                      layout='[]')
         dashboard.save()
         return dashboard.to_dict()
@@ -192,7 +186,7 @@ class QueryListAPI(BaseResource):
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
             query_def.pop(field, None)
 
-        query_def['user'] = self.current_user
+        query_def['user'] = current_user.id
         query = models.Query(**query_def)
         query.save()
 
