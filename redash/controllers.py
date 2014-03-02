@@ -113,6 +113,10 @@ class BaseResource(Resource):
         super(BaseResource, self).__init__(*args, **kwargs)
         self._user = None
 
+    @property
+    def current_user(self):
+        return current_user._get_current_object()
+
 
 class DashboardListAPI(BaseResource):
     def get(self):
@@ -124,7 +128,7 @@ class DashboardListAPI(BaseResource):
     def post(self):
         dashboard_properties = request.get_json(force=True)
         dashboard = models.Dashboard(name=dashboard_properties['name'],
-                                     user=current_user.id,
+                                     user=self.current_user,
                                      layout='[]')
         dashboard.save()
         return dashboard.to_dict()
@@ -212,7 +216,7 @@ class QueryListAPI(BaseResource):
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
             query_def.pop(field, None)
 
-        query_def['user'] = current_user.id
+        query_def['user'] = self.current_user
         query = models.Query(**query_def)
         query.save()
 
