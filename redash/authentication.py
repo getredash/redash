@@ -5,11 +5,12 @@ from flask import current_app, request, make_response, g, redirect, url_for
 from flask.ext.googleauth import GoogleAuth, login
 from flask.ext.login import LoginManager, login_user, current_user
 import time
+import logging
 from werkzeug.contrib.fixers import ProxyFix
 from redash import models, settings
 
 login_manager = LoginManager()
-
+logger = logging.getLogger('authentication')
 
 def sign(key, path, expires):
     if not key:
@@ -69,18 +70,18 @@ def validate_email(email):
     return email in settings.ALLOWED_EXTERNAL_USERS or email.endswith("@%s" % settings.GOOGLE_APPS_DOMAIN)
 
 
-def create_and_login_user(_, openid_user):
+def create_and_login_user(app, openid_user):
     if not validate_email(openid_user.email):
         return
 
     try:
         user = models.User.get(models.User.email == openid_user.email)
         if user.name != openid_user.name:
-            current_app.logger.debug("Updating user name (%r -> %r)", user.name, openid_user.name)
+            logger.debug("Updating user name (%r -> %r)", user.name, openid_user.name)
             user.name = openid_user.name
             user.save()
     except models.User.DoesNotExist:
-        current_app.logger.debug("Creating user object (%r)", user.name)
+        logger.debug("Creating user object (%r)", openid_user.name)
         user = models.User.create(name=openid_user.name, email=openid_user.email)
 
     login_user(user, remember=True)
