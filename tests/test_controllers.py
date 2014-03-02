@@ -57,36 +57,6 @@ class TestAuthentication(BaseTestCase):
             rv = c.get("/")
             self.assertEquals(302, rv.status_code)
 
-    # This scenario can no longer be tested with authenticated_user decorator
-    # def test_returns_content_when_authenticated_with_correct_domain(self):
-    #     settings.GOOGLE_APPS_DOMAIN = "example.com"
-    #     with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@example.com")):
-    #         rv = c.get("/")
-    #         self.assertEquals(200, rv.status_code)
-    #
-
-    # def test_redirects_when_authenticated_with_wrong_domain(self):
-    #     settings.GOOGLE_APPS_DOMAIN = "example.com"
-    #     with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@not-example.com")):
-    #         rv = c.get("/")
-    #         self.assertEquals(302, rv.status_code)
-
-    # def test_returns_content_when_user_in_allowed_list(self):
-    #     settings.GOOGLE_APPS_DOMAIN = "example.com"
-    #     settings.ALLOWED_EXTERNAL_USERS = ["test@not-example.com"]
-    #
-    #     with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@not-example.com")):
-    #         rv = c.get("/")
-    #         self.assertEquals(200, rv.status_code)
-            
-    # def test_returns_content_when_google_apps_domain_empty(self):
-    #     settings.GOOGLE_APPS_DOMAIN = ""
-    #     settings.ALLOWED_EXTERNAL_USERS = []
-    #
-    #     with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@whatever.com")):
-    #         rv = c.get("/")
-    #         self.assertEquals(200, rv.status_code)
-
 
 class PingTest(TestCase):
     def test_ping(self):
