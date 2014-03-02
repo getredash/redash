@@ -23,9 +23,6 @@ def sign(key, path, expires):
 
 
 class HMACAuthentication(object):
-    def __init__(self, auth):
-        self.auth = auth
-
     @staticmethod
     def api_key_authentication():
         signature = request.args.get('signature')
@@ -92,14 +89,15 @@ def load_user(user_id):
 
 
 def setup_authentication(app):
-    openid_auth = GoogleAuth(app, url_prefix="/google_auth")
-    # If we don't have a list of external users, we can use Google's federated login, which limits
-    # the domain with which you can sign in.
-    if not settings.ALLOWED_EXTERNAL_USERS and settings.GOOGLE_APPS_DOMAIN:
-        openid_auth._OPENID_ENDPOINT = "https://www.google.com/a/%s/o8/ud?be=o8" % settings.GOOGLE_APPS_DOMAIN
+    if settings.GOOGLE_OPENID_ENABLED:
+        openid_auth = GoogleAuth(app, url_prefix="/google_auth")
+        # If we don't have a list of external users, we can use Google's federated login, which limits
+        # the domain with which you can sign in.
+        if not settings.ALLOWED_EXTERNAL_USERS and settings.GOOGLE_APPS_DOMAIN:
+            openid_auth._OPENID_ENDPOINT = "https://www.google.com/a/%s/o8/ud?be=o8" % settings.GOOGLE_APPS_DOMAIN
 
     login_manager.init_app(app)
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.secret_key = settings.COOKIE_SECRET
 
-    return HMACAuthentication(openid_auth)
+    return HMACAuthentication()

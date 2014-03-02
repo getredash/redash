@@ -1,3 +1,4 @@
+import json
 import os
 import urlparse
 
@@ -32,6 +33,11 @@ def array_from_string(str):
 
     return array
 
+
+def parse_boolean(str):
+    return json.loads(str.lower())
+
+
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379")
 
 # "pg", "graphite" or "mysql"
@@ -48,6 +54,8 @@ DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
 GOOGLE_APPS_DOMAIN = os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", "")
+GOOGLE_OPENID_ENABLED = parse_boolean(os.environ.get("REDASH_GOOGLE_OPENID_ENABLED", "true"))
+PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "false"))
 # Email addresses of admin users (comma separated)
 ADMINS = array_from_string(os.environ.get("REDASH_ADMINS", ''))
 ALLOWED_EXTERNAL_USERS = array_from_string(os.environ.get("REDASH_ALLOWED_EXTERNAL_USERS", ''))
