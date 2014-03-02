@@ -40,7 +40,7 @@ class User(BaseModel, UserMixin):
         self.password_hash = pwd_context.encrypt(password)
 
     def verify_password(self, password):
-        return pwd_context.verify(password, self.password_hash)
+        return self.password_hash and pwd_context.verify(password, self.password_hash)
 
 
 class QueryResult(db.Model):

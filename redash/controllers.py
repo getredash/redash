@@ -11,9 +11,9 @@ import numbers
 import cStringIO
 import datetime
 
-from flask import g, render_template, send_from_directory, make_response, request, jsonify
+from flask import render_template, send_from_directory, make_response, request, jsonify, redirect
 from flask.ext.restful import Resource, abort
-from flask_login import current_user
+from flask_login import current_user, login_user
 
 import sqlparse
 from redash import settings, utils
@@ -47,6 +47,24 @@ def index(anything=None):
     }
 
     return render_template("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated():
+        return redirect(request.args.get('next') or '/')
+
+    if request.method == 'POST':
+        user = models.User.select().where(models.User.email == request.form['username']).first()
+        if user and user.verify_password(request.form['password']):
+            remember = ('remember' in request.form)
+            login_user(user, remember=remember)
+            return redirect(request.args.get('next') or '/')
+
+    return render_template("login.html",
+                           analytics=settings.ANALYTICS,
+                           next=request.args.get('next'),
+                           username=request.form.get('username', ''))
 
 
 @app.route('/status.json')
@@ -329,7 +347,6 @@ class JobAPI(BaseResource):
 api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
 
 @app.route('/<path:filename>')
-@auth.required
 def send_static(filename):
     return send_from_directory(settings.STATIC_ASSETS_PATH, filename)
 

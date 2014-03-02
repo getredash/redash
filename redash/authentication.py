@@ -55,10 +55,7 @@ class HMACAuthentication(object):
             if self.api_key_authentication():
                 return fn(*args, **kwargs)
 
-            blueprint = current_app.extensions['googleauth'].blueprint
-            # The make_response call is a work around for flask-restful testing only for
-            # flask.wrappers.Resource instead of werkzeug.wrappers.Response
-            return make_response(redirect(url_for("%s.login" % blueprint.name, next=request.url)))
+            return make_response(redirect(url_for("login", next=request.url)))
 
         return decorated
 
@@ -95,7 +92,7 @@ def load_user(user_id):
 
 
 def setup_authentication(app):
-    openid_auth = GoogleAuth(app)
+    openid_auth = GoogleAuth(app, url_prefix="/google_auth")
     # If we don't have a list of external users, we can use Google's federated login, which limits
     # the domain with which you can sign in.
     if not settings.ALLOWED_EXTERNAL_USERS and settings.GOOGLE_APPS_DOMAIN:
