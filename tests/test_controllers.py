@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import json
 import time
 from unittest import TestCase
+from flask.ext.login import current_user
 from mock import patch
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
@@ -409,4 +410,20 @@ class TestLogin(BaseTestCase):
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(login_user_mock.called)
 
-    # brute force protection?
+    # TODO: brute force protection?
+
+
+class TestLogout(BaseTestCase):
+    def test_logout_when_not_loggedin(self):
+        with app.test_client() as c:
+            rv = c.get('/logout')
+            self.assertEquals(rv.status_code, 302)
+            self.assertFalse(current_user.is_authenticated())
+
+    def test_logout_when_loggedin(self):
+        with app.test_client() as c, authenticated_user(c):
+            rv = c.get('/')
+            self.assertTrue(current_user.is_authenticated())
+            rv = c.get('/logout')
+            self.assertEquals(rv.status_code, 302)
+            self.assertFalse(current_user.is_authenticated())
