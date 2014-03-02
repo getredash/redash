@@ -8,7 +8,7 @@ machine:
 dependencies:
   pre:
     - make deps
-    - pip install requests coverage nose
+    - pip install -r dev_requirements.txt
     - pip install -r requirements.txt
   cache_directories:
     - rd_ui/node_modules/
