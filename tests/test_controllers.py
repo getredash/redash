@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import json
 import time
 from unittest import TestCase
+from flask import url_for
 from flask.ext.login import current_user
 from mock import patch
 from tests import BaseTestCase
@@ -337,6 +338,16 @@ class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
 
 
 class TestLogin(BaseTestCase):
+    def setUp(self):
+        settings.PASSWORD_LOGIN_ENABLED = True
+        super(TestLogin, self).setUp()
+
+    def test_redirects_to_google_login_if_password_disabled(self):
+        with app.test_client() as c, patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False):
+            rv = c.get('/login')
+            self.assertEquals(rv.status_code, 302)
+            self.assertTrue(rv.location.endswith(url_for('GoogleAuth.login')))
+
     def test_get_login_form(self):
         with app.test_client() as c:
             rv = c.get('/login')

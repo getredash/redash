@@ -12,7 +12,7 @@ import cStringIO
 import datetime
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
-    session
+    session, url_for
 from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
 
@@ -55,6 +55,10 @@ def login():
     if current_user.is_authenticated():
         return redirect(request.args.get('next') or '/')
 
+    if not settings.PASSWORD_LOGIN_ENABLED:
+        blueprint = app.extensions['googleauth'].blueprint
+        return redirect(url_for("%s.login" % blueprint.name, next=request.args.get('next')))
+
     if request.method == 'POST':
         user = models.User.select().where(models.User.email == request.form['username']).first()
         if user and user.verify_password(request.form['password']):
@@ -65,7 +69,8 @@ def login():
     return render_template("login.html",
                            analytics=settings.ANALYTICS,
                            next=request.args.get('next'),
-                           username=request.form.get('username', ''))
+                           username=request.form.get('username', ''),
+                           show_google_openid=settings.GOOGLE_OPENID_ENABLED)
 
 
 @app.route('/logout')
