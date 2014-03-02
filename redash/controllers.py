@@ -11,9 +11,10 @@ import numbers
 import cStringIO
 import datetime
 
-from flask import render_template, send_from_directory, make_response, request, jsonify, redirect
+from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
+    session
 from flask.ext.restful import Resource, abort
-from flask_login import current_user, login_user
+from flask_login import current_user, login_user, logout_user
 
 import sqlparse
 from redash import settings, utils
@@ -66,6 +67,13 @@ def login():
                            next=request.args.get('next'),
                            username=request.form.get('username', ''))
 
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    session.pop('openid', None)
+
+    return redirect('/login')
 
 @app.route('/status.json')
 @auth.required
