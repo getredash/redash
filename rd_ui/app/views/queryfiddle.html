@@ -34,7 +34,7 @@
                 <span ng-show="queryResult.getRuntime()>=0">Query runtime: {{queryResult.getRuntime() | durationHumanize}} | </span>
                 <span ng-show="queryResult.query_result.retrieved_at">Last update time: <span am-time-ago="queryResult.query_result.retrieved_at"></span> | </span>
                 <span ng-show="queryResult.getStatus() == 'done'">Rows: {{queryResult.getData().length}} | </span>
-                Created by: {{query.user}}
+                Created by: {{query.user.name}}
                 <div class="pull-right">Refresh query: <select ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select><br></div>
             </div>
         </div>
