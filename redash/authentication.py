@@ -76,7 +76,8 @@ def create_and_login_user(app, openid_user):
             user.save()
     except models.User.DoesNotExist:
         logger.debug("Creating user object (%r)", openid_user.name)
-        user = models.User.create(name=openid_user.name, email=openid_user.email)
+        user = models.User.create(name=openid_user.name, email=openid_user.email,
+                                  is_admin=(openid_user.email in settings.ADMINS))
 
     login_user(user, remember=True)
 
