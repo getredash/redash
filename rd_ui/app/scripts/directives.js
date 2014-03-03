@@ -46,7 +46,7 @@
         }
     }]);
 
-    directives.directive('editVisulatizationForm', ['Visualization', 'growl', '$location', function(Visualization, growl, $location) {
+    directives.directive('editVisulatizationForm', ['Visualization', 'growl', function(Visualization, growl) {
         return {
             restrict: 'E',
             templateUrl: '/views/edit_visualization.html',
@@ -142,28 +142,6 @@
                 };
 
                 scope.submit = function() {
-                    if (!scope.query.id) {
-                        scope.$parent.saveQuery(false, null, false);
-                        var unwatch = scope.$watch('query', function(q) {
-                            if (q && q.id) {
-                                unwatch();
-                                scope.vis['query_id'] = q.id;
-                                
-                                scope.saveVisualization(false);
-                                
-                                $location.path($location.path().replace('new', q.id)).replace();
-                            }
-                        }, true);
-                    } else {
-                        scope.saveVisualization();
-                    }
-                };
-                
-                scope.saveVisualization = function(updateTabs) {
-                    if (updateTabs == undefined) {
-                        updateTabs = true;
-                    }
-                    
                     Visualization.save(scope.vis, function success(result) {
                         growl.addSuccessMessage("Visualization saved");
                         

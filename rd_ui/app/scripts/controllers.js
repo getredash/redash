@@ -282,6 +282,13 @@
                     });
             }
         };
+        
+        unbind = $scope.$watch('selectedTab == "add"', function(newPanel) {
+            if (newPanel && $routeParams.queryId == undefined) {
+                unbind();
+                $scope.saveQuery();
+            }
+        });
     }
 
     var QueriesCtrl = function($scope, $http, $location, $filter, Query) {
