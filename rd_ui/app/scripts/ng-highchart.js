@@ -211,7 +211,7 @@
                         };
 
                         if (scope.series.length > 0 && _.some(scope.series[0].data, function (p) {
-                            return angular.isString(p.x) || angular.isDefined(p.name));
+                            return (angular.isString(p.x) || angular.isDefined(p.name));
                         })) {
                             scope.chart.xAxis[0].update({type: 'category'});
 
