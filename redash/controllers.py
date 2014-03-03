@@ -11,8 +11,10 @@ import numbers
 import cStringIO
 import datetime
 
-from flask import g, render_template, send_from_directory, make_response, request, jsonify
+from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
+    session, url_for
 from flask.ext.restful import Resource, abort
+from flask_login import current_user, login_user, logout_user
 
 import sqlparse
 from redash import settings, utils
@@ -34,17 +36,49 @@ def ping():
 @app.route('/')
 @auth.required
 def index(anything=None):
-    email_md5 = hashlib.md5(g.user['email'].lower()).hexdigest()
+    email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
     user = {
         'gravatar_url': gravatar_url,
-        'is_admin': g.user['email'] in settings.ADMINS,
-        'name': g.user['email']
+        'is_admin': current_user.is_admin,
+        'id': current_user.id,
+        'name': current_user.name,
+        'email': current_user.email
     }
 
     return render_template("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated():
+        return redirect(request.args.get('next') or '/')
+
+    if not settings.PASSWORD_LOGIN_ENABLED:
+        blueprint = app.extensions['googleauth'].blueprint
+        return redirect(url_for("%s.login" % blueprint.name, next=request.args.get('next')))
+
+    if request.method == 'POST':
+        user = models.User.select().where(models.User.email == request.form['username']).first()
+        if user and user.verify_password(request.form['password']):
+            remember = ('remember' in request.form)
+            login_user(user, remember=remember)
+            return redirect(request.args.get('next') or '/')
+
+    return render_template("login.html",
+                           analytics=settings.ANALYTICS,
+                           next=request.args.get('next'),
+                           username=request.form.get('username', ''),
+                           show_google_openid=settings.GOOGLE_OPENID_ENABLED)
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    session.pop('openid', None)
+
+    return redirect('/login')
 
 @app.route('/status.json')
 @auth.required
@@ -80,9 +114,13 @@ def format_sql_query():
 class BaseResource(Resource):
     decorators = [auth.required]
 
+    def __init__(self, *args, **kwargs):
+        super(BaseResource, self).__init__(*args, **kwargs)
+        self._user = None
+
     @property
     def current_user(self):
-        return g.user['email']
+        return current_user._get_current_object()
 
 
 class DashboardListAPI(BaseResource):
@@ -111,9 +149,9 @@ class DashboardAPI(BaseResource):
         return dashboard.to_dict(with_widgets=True)
 
     def post(self, dashboard_slug):
-        # TODO: either convert all requests to use slugs or ids
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard.get(models.Dashboard.id == dashboard_slug)
+        # TODO: either convert all requests to use slugs or ids
+        dashboard = models.Dashboard.get_by_id(dashboard_slug)
         dashboard.layout = dashboard_properties['layout']
         dashboard.name = dashboard_properties['name']
         dashboard.save()
@@ -198,7 +236,7 @@ class QueryListAPI(BaseResource):
 class QueryAPI(BaseResource):
     def post(self, query_id):
         query_def = request.get_json(force=True)
-        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
 
         if 'latest_query_data_id' in query_def:
@@ -326,7 +364,6 @@ class JobAPI(BaseResource):
 api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
 
 @app.route('/<path:filename>')
-@auth.required
 def send_static(filename):
     return send_from_directory(settings.STATIC_ASSETS_PATH, filename)
 
