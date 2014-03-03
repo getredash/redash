@@ -99,21 +99,20 @@ class Manager(object):
         return job
 
     def refresh_queries(self):
-        sql = """SELECT queries.query, queries.ttl, retrieved_at
-        FROM (SELECT query, min(ttl) as ttl FROM queries  WHERE ttl > 0 GROUP by query) queries
-        JOIN (SELECT query, max(retrieved_at) as retrieved_at
-        FROM query_results
-        GROUP BY query) query_results on query_results.query=queries.query
-        WHERE queries.ttl > 0
-          AND query_results.retrieved_at + ttl * interval '1 second' < now() at time zone 'utc';"""
+        sql = """SELECT first_value(t1."query") over(partition by t1.query_hash)
+                 FROM "queries" AS t1
+                 INNER JOIN "query_results" AS t2 ON (t1."latest_query_data_id" = t2."id")
+                 WHERE ((t1."ttl" > 0) AND ((t2."retrieved_at" + t1.ttl * interval '1 second') <
+                                           now() at time zone 'utc'));
+        """
 
         self.status['last_refresh_at'] = time.time()
         self._save_status()
 
         logging.info("Refreshing queries...")
         queries = self.run_query(sql)
-        for query, ttl, retrieved_at in queries:
-            self.add_job(query, worker.Job.LOW_PRIORITY)
+        for query in queries:
+            self.add_job(query[0], worker.Job.LOW_PRIORITY)
 
         logging.info("Done refreshing queries... %d" % len(queries))
 
