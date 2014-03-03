@@ -8,7 +8,7 @@ import redis
 from statsd import StatsClient
 from redash import settings, utils
 
-__version__ = '0.3.3'
+__version__ = '0.3.5'
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
