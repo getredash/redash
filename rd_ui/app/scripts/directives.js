@@ -145,6 +145,8 @@
                     Visualization.save(scope.vis, function success(result) {
                         growl.addSuccessMessage("Visualization saved");
                         
+                        scope.vis = result;
+                        
                         var visIds = _.pluck(scope.query.visualizations, 'id');
                         var index = visIds.indexOf(result.id);
                         
