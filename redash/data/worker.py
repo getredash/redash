@@ -11,8 +11,9 @@ import time
 import signal
 import setproctitle
 import redis
+from statsd import StatsClient
 from redash.utils import gen_query_hash
-
+from redash import settings
 
 class Job(object):
     HIGH_PRIORITY = 1
@@ -144,17 +145,20 @@ class Job(object):
 
 
 class Worker(threading.Thread):
-    def __init__(self, manager, redis_connection_params, query_runner, sleep_time=0.1):
+    def __init__(self, worker_id, manager, redis_connection_params, query_runner, sleep_time=0.1):
         self.manager = manager
 
+        self.statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT,
+                                         prefix=settings.STATSD_PREFIX)
         self.redis_connection_params = {k: v for k, v in redis_connection_params.iteritems()
                                         if k in ('host', 'db', 'password', 'port')}
         self.continue_working = True
         self.query_runner = query_runner
         self.sleep_time = sleep_time
         self.child_pid = None
-        self.worker_id = uuid.uuid1()
+        self.worker_id = worker_id
         self.status = {
+            'id': self.worker_id,
             'jobs_count': 0,
             'cancelled_jobs_count': 0,
             'done_jobs_count': 0,
@@ -241,7 +245,9 @@ class Worker(threading.Thread):
             annotated_query = job.query
 
         # TODO: here's the part that needs to be forked, not all of the worker process...
-        data, error = self.query_runner(annotated_query)
+        with self.statsd_client.timer('worker_{}.query_runner.run_time'.format(self.worker_id)):
+            data, error = self.query_runner(annotated_query)
+
         run_time = time.time() - start_time
         logging.info("[%s][%s] query finished... data length=%s, error=%s",
                      self.name, job.id, data and len(data), error)

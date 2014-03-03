@@ -5,6 +5,7 @@ from flask.ext.restful import Api
 from flask_peewee.db import Database
 
 import redis
+from statsd import StatsClient
 from redash import settings, utils
 
 __version__ = '0.3.3'
@@ -36,9 +37,11 @@ if redis_url.path:
     redis_db = redis_url.path[1]
 else:
     redis_db = 0
+
 redis_connection = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
+statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 
 from redash import data
-data_manager = data.Manager(redis_connection, db)
+data_manager = data.Manager(redis_connection, db, statsd_client)
 
 from redash import controllers
