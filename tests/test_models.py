@@ -8,10 +8,10 @@ class DashboardTest(BaseTestCase):
         d1 = dashboard_factory.create()
         self.assertEquals(d1.slug, 'test')
 
-        d2 = dashboard_factory.create()
+        d2 = dashboard_factory.create(user=d1.user)
         self.assertNotEquals(d1.slug, d2.slug)
 
-        d3 = dashboard_factory.create()
+        d3 = dashboard_factory.create(user=d1.user)
         self.assertNotEquals(d1.slug, d3.slug)
         self.assertNotEquals(d2.slug, d3.slug)
 
