@@ -9,7 +9,6 @@ import logging
 import psycopg2
 import qr
 import redis
-from redash import settings
 from redash.data import worker
 from redash.utils import gen_query_hash
 
@@ -24,7 +23,8 @@ class QueryResult(collections.namedtuple('QueryData', 'id query data runtime ret
 
 
 class Manager(object):
-    def __init__(self, redis_connection, db):
+    def __init__(self, redis_connection, db, statsd_client):
+        self.statsd_client = statsd_client
         self.redis_connection = redis_connection
         self.db = db
         self.workers = []
@@ -98,6 +98,20 @@ class Manager(object):
 
         return job
 
+    def report_status(self):
+        workers = [self.redis_connection.hgetall(w)
+                   for w in self.redis_connection.smembers('workers')]
+
+        for w in workers:
+            self.statsd_client.gauge('worker_{}.seconds_since_update'.format(w['id']),
+                                     time.time() - float(w['updated_at']))
+            self.statsd_client.gauge('worker_{}.jobs_received'.format(w['id']), int(w['jobs_count']))
+            self.statsd_client.gauge('worker_{}.jobs_done'.format(w['id']), int(w['done_jobs_count']))
+
+        manager_status = self.redis_connection.hgetall('manager:status')
+        self.statsd_client.gauge('manager.seconds_since_refresh',
+                                 time.time() - float(manager_status['last_refresh_at']))
+
     def refresh_queries(self):
         sql = """SELECT first_value(t1."query") over(partition by t1.query_hash)
                  FROM "queries" AS t1
@@ -111,8 +125,12 @@ class Manager(object):
 
         logging.info("Refreshing queries...")
         queries = self.run_query(sql)
+
         for query in queries:
             self.add_job(query[0], worker.Job.LOW_PRIORITY)
+
+        self.statsd_client.gauge('manager.outdated_queries', len(queries))
+        self.statsd_client.gauge('manager.queue_size', self.redis_connection.zcard('jobs'))
 
         logging.info("Done refreshing queries... %d" % len(queries))
 

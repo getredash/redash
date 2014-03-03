@@ -38,6 +38,7 @@ def runworkers():
         while True:
             try:
                 data_manager.refresh_queries()
+                data_manager.report_status()
             except Exception as e:
                 logging.error("Something went wrong with refreshing queries...")
                 logging.exception(e)
