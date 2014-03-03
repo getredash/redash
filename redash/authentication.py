@@ -64,22 +64,22 @@ def validate_email(email):
     return email in settings.ALLOWED_EXTERNAL_USERS or email.endswith("@%s" % settings.GOOGLE_APPS_DOMAIN)
 
 
-def create_and_login_user(app, openid_user):
-    if not validate_email(openid_user.email):
+def create_and_login_user(app, user):
+    if not validate_email(user.email):
         return
 
     try:
-        user = models.User.get(models.User.email == openid_user.email)
-        if user.name != openid_user.name:
-            logger.debug("Updating user name (%r -> %r)", user.name, openid_user.name)
-            user.name = openid_user.name
-            user.save()
+        user_object = models.User.get(models.User.email == user.email)
+        if user_object.name != user.name:
+            logger.debug("Updating user name (%r -> %r)", user_object.name, user.name)
+            user_object.name = user.name
+            user_object.save()
     except models.User.DoesNotExist:
-        logger.debug("Creating user object (%r)", openid_user.name)
-        user = models.User.create(name=openid_user.name, email=openid_user.email,
-                                  is_admin=(openid_user.email in settings.ADMINS))
+        logger.debug("Creating user object (%r)", user.name)
+        user_object = models.User.create(name=user.name, email=user.email,
+                                  is_admin=(user.email in settings.ADMINS))
 
-    login_user(user, remember=True)
+    login_user(user_object, remember=True)
 
 login.connect(create_and_login_user)
 
