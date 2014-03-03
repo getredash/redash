@@ -10,10 +10,11 @@ atfork.stdlib_fixer.fix_logging_module()
 import logging
 import time
 from redash import settings, app, db, models, data_manager, __version__
-from flask.ext.script import Manager
+from flask.ext.script import Manager, prompt_pass
 
 manager = Manager(app)
 database_manager = Manager(help="Manages the database (create/drop tables).")
+users_manager = Manager(help="Users management commands.")
 
 @manager.command
 def version():
@@ -63,7 +64,34 @@ def drop_tables():
 
     create_db(False, True)
 
+
+@users_manager.option('email', help="User's email")
+@users_manager.option('name', help="User's full name")
+@users_manager.option('--admin', dest='is_admin', default=False, help="set user as admin")
+@users_manager.option('--google', dest='google_auth', default=False, help="user uses Google Auth to login")
+def create(email, name, is_admin=False, google_auth=False):
+    print "Creating user (%s, %s)..." % (email, name)
+    print "Admin: %r" % is_admin
+    print "Login with Google Auth: %r\n" % google_auth
+
+    user = models.User(email=email, name=name, is_admin=is_admin)
+    if not google_auth:
+        password = prompt_pass("Password")
+        user.hash_password(password)
+
+    try:
+        user.save()
+    except Exception, e:
+        print "Failed creating user: %s" % e.message
+
+
+@users_manager.option('email', help="email address of user to delete")
+def delete(email):
+    deleted_count = models.User.delete().where(models.User.email == email).execute()
+    print "Deleted %d users." % deleted_count
+
 manager.add_command("database", database_manager)
+manager.add_command("users", users_manager)
 
 if __name__ == '__main__':
     channel = logging.StreamHandler()
