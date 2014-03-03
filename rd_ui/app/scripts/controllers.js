@@ -130,13 +130,9 @@
             })
         }
 
-        $scope.saveQuery = function (duplicate, oldId, updateUrl) {
+        $scope.saveQuery = function (duplicate, oldId) {
             if (!oldId) {
                 oldId = $scope.query.id;
-            }
-            
-            if (updateUrl == undefined) {
-                updateUrl = true;
             }
             
             delete $scope.query.latest_query_data;
@@ -151,7 +147,7 @@
                 }
 
                 if (oldId != q.id) {
-                    if (oldId == undefined && updateUrl) {
+                    if (oldId == undefined) {
                         $location.path($location.path().replace('new', q.id)).replace();
                     } else {
                         // TODO: replace this with a safer method

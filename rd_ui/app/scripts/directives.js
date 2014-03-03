@@ -76,7 +76,7 @@
                 };
 
                 scope.stacking = "none";
-                
+
                 if (!scope.vis) {
                     // create new visualization
                     // wait for query to load to populate with defaults
@@ -92,7 +92,7 @@
                         }
                     }, true);
                 }
-                
+
                 function newOptions(chartType) {
                     if (chartType === Visualization.prototype.TYPES.CHART) {
                         return {
@@ -145,19 +145,13 @@
                     Visualization.save(scope.vis, function success(result) {
                         growl.addSuccessMessage("Visualization saved");
                         
-                        if (updateTabs) {
-                            scope.vis = {
-                                'query_id': scope.query.id
-                            };
-                            
-                            var visIds = _.pluck(scope.query.visualizations, 'id');
-                            var index = visIds.indexOf(result.id);
-                            
-                            if (index > -1) {
-                                scope.query.visualizations[index] = result;
-                            } else {
-                                scope.query.visualizations.push(result);
-                            }
+                        var visIds = _.pluck(scope.query.visualizations, 'id');
+                        var index = visIds.indexOf(result.id);
+                        
+                        if (index > -1) {
+                            scope.query.visualizations[index] = result;
+                        } else {
+                            scope.query.visualizations.push(result);
                         }
                     }, function error() {
                         growl.addErrorMessage("Visualization could not be saved");
