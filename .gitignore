@@ -10,3 +10,4 @@ rd_ui/dist
 Berksfile.lock
 redash/dump.rdb
 .env
+.ruby-version

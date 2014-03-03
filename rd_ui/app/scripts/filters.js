@@ -47,4 +47,15 @@ angular.module('redash.filters', []).
             }
             return 12;
         }
+    })
+    
+    .filter('capitalize', function () {
+        return function (text) {
+            if (text) {
+                return text[0].toUpperCase() + text.slice(1).toLowerCase();
+            } else {
+                return null;
+            }
+            
+        }
     });
