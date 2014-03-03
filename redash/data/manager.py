@@ -168,8 +168,8 @@ class Manager(object):
             runner = query_runner.redshift(connection_string)
 
         redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
-        self.workers = [worker.Worker(self, redis_connection_params, runner)
-                        for _ in range(workers_count)]
+        self.workers = [worker.Worker(worker_id, self, redis_connection_params, runner)
+                        for worker_id in range(workers_count)]
         for w in self.workers:
             w.start()
 
