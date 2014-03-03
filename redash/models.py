@@ -3,6 +3,8 @@ import hashlib
 import time
 import datetime
 from flask.ext.peewee.utils import slugify
+from flask.ext.login import UserMixin
+from passlib.apps import custom_app_context as pwd_context
 import peewee
 from redash import db, utils
 
@@ -13,10 +15,11 @@ class BaseModel(db.Model):
         return cls.get(cls.id == model_id)
 
 
-class User(BaseModel):
+class User(BaseModel, UserMixin):
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
     email = peewee.CharField(max_length=320, index=True, unique=True)
+    password_hash = peewee.CharField(max_length=128, null=True)
     is_admin = peewee.BooleanField(default=False)
 
     class Meta:
@@ -32,6 +35,12 @@ class User(BaseModel):
 
     def __unicode__(self):
         return '%r, %r' % (self.name, self.email)
+
+    def hash_password(self, password):
+        self.password_hash = pwd_context.encrypt(password)
+
+    def verify_password(self, password):
+        return self.password_hash and pwd_context.verify(password, self.password_hash)
 
 
 class QueryResult(db.Model):

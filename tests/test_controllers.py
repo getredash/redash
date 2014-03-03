@@ -2,6 +2,9 @@ from contextlib import contextmanager
 import json
 import time
 from unittest import TestCase
+from flask import url_for
+from flask.ext.login import current_user
+from mock import patch
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
     query_result_factory, user_factory
@@ -18,8 +21,7 @@ def authenticated_user(c, user=None):
         user = user_factory.create()
 
     with c.session_transaction() as sess:
-        sess['openid'] = {'email': user.email, 'name': user.name,
-                          'id': user.id, 'is_admin': user.is_admin}
+        sess['user_id'] = user.id
 
     yield
 
@@ -57,34 +59,6 @@ class TestAuthentication(BaseTestCase):
         with app.test_client() as c:
             rv = c.get("/")
             self.assertEquals(302, rv.status_code)
-
-    def test_returns_content_when_authenticated_with_correct_domain(self):
-        settings.GOOGLE_APPS_DOMAIN = "example.com"
-        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@example.com")):
-            rv = c.get("/")
-            self.assertEquals(200, rv.status_code)
-
-    def test_redirects_when_authenticated_with_wrong_domain(self):
-        settings.GOOGLE_APPS_DOMAIN = "example.com"
-        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@not-example.com")):
-            rv = c.get("/")
-            self.assertEquals(302, rv.status_code)
-
-    def test_returns_content_when_user_in_allowed_list(self):
-        settings.GOOGLE_APPS_DOMAIN = "example.com"
-        settings.ALLOWED_EXTERNAL_USERS = ["test@not-example.com"]
-
-        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@not-example.com")):
-            rv = c.get("/")
-            self.assertEquals(200, rv.status_code)
-
-    def test_returns_content_when_google_apps_domain_empty(self):
-        settings.GOOGLE_APPS_DOMAIN = ""
-        settings.ALLOWED_EXTERNAL_USERS = []
-
-        with app.test_client() as c, authenticated_user(c, user=user_factory.create(email="test@whatever.com")):
-            rv = c.get("/")
-            self.assertEquals(200, rv.status_code)
 
 
 class PingTest(TestCase):
@@ -362,3 +336,105 @@ class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
             rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id))
             self.assertEquals(rv.status_code, 200)
 
+
+class TestLogin(BaseTestCase):
+    def setUp(self):
+        settings.PASSWORD_LOGIN_ENABLED = True
+        super(TestLogin, self).setUp()
+
+    def test_redirects_to_google_login_if_password_disabled(self):
+        with app.test_client() as c, patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False):
+            rv = c.get('/login')
+            self.assertEquals(rv.status_code, 302)
+            self.assertTrue(rv.location.endswith(url_for('GoogleAuth.login')))
+
+    def test_get_login_form(self):
+        with app.test_client() as c:
+            rv = c.get('/login')
+            self.assertEquals(rv.status_code, 200)
+
+    def test_submit_non_existing_user(self):
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login', data={'username': 'arik', 'password': 'password'})
+            self.assertEquals(rv.status_code, 200)
+            self.assertFalse(login_user_mock.called)
+
+    def test_submit_correct_user_and_password(self):
+        user = user_factory.create()
+        user.hash_password('password')
+        user.save()
+
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login', data={'username': user.email, 'password': 'password'})
+            self.assertEquals(rv.status_code, 302)
+            login_user_mock.assert_called_with(user, remember=False)
+
+    def test_submit_correct_user_and_password_and_remember_me(self):
+        user = user_factory.create()
+        user.hash_password('password')
+        user.save()
+
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login', data={'username': user.email, 'password': 'password', 'remember': True})
+            self.assertEquals(rv.status_code, 302)
+            login_user_mock.assert_called_with(user, remember=True)
+
+    def test_submit_correct_user_and_password_with_next(self):
+        user = user_factory.create()
+        user.hash_password('password')
+        user.save()
+
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login?next=/test',
+                        data={'username': user.email, 'password': 'password'})
+            self.assertEquals(rv.status_code, 302)
+            self.assertEquals(rv.location, 'http://localhost/test')
+            login_user_mock.assert_called_with(user, remember=False)
+
+    def test_submit_incorrect_user(self):
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login', data={'username': 'non-existing', 'password': 'password'})
+            self.assertEquals(rv.status_code, 200)
+            self.assertFalse(login_user_mock.called)
+
+    def test_submit_incorrect_password(self):
+        user = user_factory.create()
+        user.hash_password('password')
+        user.save()
+
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login', data={'username': user.email, 'password': 'badbadpassword'})
+            self.assertEquals(rv.status_code, 200)
+            self.assertFalse(login_user_mock.called)
+
+    def test_submit_incorrect_password(self):
+        user = user_factory.create()
+
+        with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.post('/login', data={'username': user.email, 'password': ''})
+            self.assertEquals(rv.status_code, 200)
+            self.assertFalse(login_user_mock.called)
+
+    def test_user_already_loggedin(self):
+        with app.test_client() as c, authenticated_user(c), patch('redash.controllers.login_user') as login_user_mock:
+            rv = c.get('/login')
+            self.assertEquals(rv.status_code, 302)
+            self.assertFalse(login_user_mock.called)
+
+    # TODO: brute force protection?
+
+
+class TestLogout(BaseTestCase):
+    def test_logout_when_not_loggedin(self):
+        with app.test_client() as c:
+            rv = c.get('/logout')
+            self.assertEquals(rv.status_code, 302)
+            self.assertFalse(current_user.is_authenticated())
+
+    def test_logout_when_loggedin(self):
+        with app.test_client() as c, authenticated_user(c):
+            rv = c.get('/')
+            self.assertTrue(current_user.is_authenticated())
+            rv = c.get('/logout')
+            self.assertEquals(rv.status_code, 302)
+            self.assertFalse(current_user.is_authenticated())
