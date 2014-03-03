@@ -83,7 +83,7 @@
                     var unwatch = scope.$watch('query', function(q) {
                         if (q && q.id) {
                             unwatch();
-                            
+
                             if (!scope.vis) {
                                 scope.vis = {
                                     'query_id': q.id,
@@ -144,12 +144,12 @@
                 scope.submit = function() {
                     Visualization.save(scope.vis, function success(result) {
                         growl.addSuccessMessage("Visualization saved");
-                        
+
                         scope.vis = result;
-                        
+
                         var visIds = _.pluck(scope.query.visualizations, 'id');
                         var index = visIds.indexOf(result.id);
-                        
+
                         if (index > -1) {
                             scope.query.visualizations[index] = result;
                         } else {
