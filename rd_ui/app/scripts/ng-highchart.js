@@ -231,7 +231,7 @@
                                             name: category,
                                             y: yValues[category] && yValues[category][0].y
                                         }
-                                    }), 'name');
+                                    }), 'y').reverse();
 
                                     s.data = newData;
                                 });
