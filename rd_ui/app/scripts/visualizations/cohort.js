@@ -2,7 +2,11 @@
     var cohortVisualization = angular.module('redash.visualization');
 
     cohortVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
-        VisualizationProvider.registerVisualization('COHORT', 'Cohort', '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>', null);
+        VisualizationProvider.registerVisualization({
+            type: 'COHORT',
+            name: 'Cohort',
+            renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>'
+        });
     }]);
 
     cohortVisualization.directive('cohortRenderer', function() {

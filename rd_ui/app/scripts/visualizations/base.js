@@ -2,25 +2,24 @@
     var VisualizationProvider = function() {
         this.visualizations = {};
         this.visualizationTypes = {};
+        var defaultConfig = {
+            defaultOptions: {},
+            skipTypes: false,
+            editorTemplate: null
+        }
 
-        this.registerVisualization = function(type, name, rendererTemplate, editorTemplate, defaultOptions, skipTypes) {
-            var visualization = {
-                rendererTemplate: rendererTemplate,
-                editorTemplate: editorTemplate,
-                type: type,
-                name: name,
-                defaultOptions: defaultOptions || {}
-            };
+        this.registerVisualization = function(config) {
+            var visualization = _.extend({}, defaultConfig, config);
 
             // TODO: this is prone to errors; better refactor.
             if (_.isEmpty(this.visualizations)) {
                 this.defaultVisualization = visualization;
             }
 
-            this.visualizations[type] = visualization;
+            this.visualizations[config.type] = visualization;
 
-            if (!skipTypes) {
-                this.visualizationTypes[name] = type;
+            if (!config.skipTypes) {
+                this.visualizationTypes[config.name] = config.type;
             };
         };
 
@@ -47,7 +46,7 @@
             var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
             Visualization.visualizations = this.visualizations;
             Visualization.visualizationTypes = this.visualizationTypes;
-            Visualization.renderVisualizationsTemplate = this.getSwitchTemplate('rendererTemplate');
+            Visualization.renderVisualizationsTemplate = this.getSwitchTemplate('renderTemplate');
             Visualization.editorTemplate = this.getSwitchTemplate('editorTemplate');
             Visualization.defaultVisualization = this.defaultVisualization;
 

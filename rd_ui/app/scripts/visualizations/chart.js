@@ -10,7 +10,14 @@
                 'stacking': null
             }
         };
-        VisualizationProvider.registerVisualization('CHART', 'Chart', renderTemplate, editTemplate, defaultOptions);
+
+        VisualizationProvider.registerVisualization({
+            type: 'CHART',
+            name: 'Chart',
+            renderTemplate: renderTemplate,
+            editorTemplate: editTemplate,
+            defaultOptions: defaultOptions
+        });
     }]);
 
     chartVisualization.directive('chartRenderer', function () {
