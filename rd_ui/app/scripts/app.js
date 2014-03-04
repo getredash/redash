@@ -35,14 +35,14 @@ angular.module('redash', [
             controller: 'QueryFiddleCtrl',
             reloadOnSearch: false
         });
-        $routeProvider.when('/queries/view/:queryId', {
-            templateUrl: '/views/queryview.html',
-            controller: 'QueryFiddleCtrl',
-            reloadOnSearch: false
-        });
         $routeProvider.when('/queries/:queryId', {
             templateUrl: '/views/queryfiddle.html',
             controller: 'QueryFiddleCtrl',
+            reloadOnSearch: false
+        });
+        $routeProvider.when('/queries/view/:queryId', {
+            templateUrl: '/views/queryview.html',
+            controller: 'QueryViewCtrl',
             reloadOnSearch: false
         });
         $routeProvider.when('/admin/status', {
