@@ -6,6 +6,7 @@ from flask.ext.peewee.utils import slugify
 from flask.ext.login import UserMixin
 from passlib.apps import custom_app_context as pwd_context
 import peewee
+from playhouse.postgres_ext import ArrayField
 from redash import db, utils
 
 
@@ -21,6 +22,7 @@ class User(BaseModel, UserMixin):
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
     is_admin = peewee.BooleanField(default=False)
+    roles = ArrayField(peewee.CharField, default=['editor', 'viewer'])
 
     class Meta:
         db_table = 'users'
