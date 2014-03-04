@@ -28,18 +28,24 @@ def mysql(connection_string):
             
             data = cursor.fetchall()
             
-            num_fields = len(cursor.description)
-            column_names = [i[0] for i in cursor.description]
+            cursor_desc = cursor.description
+            if (cursor_desc != None):
+                num_fields = len(cursor_desc)
+                column_names = [i[0] for i in cursor.description]
             
-            rows = [dict(zip(column_names, row)) for row in data]
+                rows = [dict(zip(column_names, row)) for row in data]
 
-            columns = [{'name': col_name,
-                        'friendly_name': col_name,
-                        'type': None} for col_name in column_names]
+                columns = [{'name': col_name,
+                            'friendly_name': col_name,
+                            'type': None} for col_name in column_names]
             
-            data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
-            error = None
+                data = {'columns': columns, 'rows': rows}
+                json_data = json.dumps(data, cls=JSONEncoder)
+                error = None
+            else:
+                json_data = None
+                error = "No data was returned."
+                
             cursor.close()
         except MySQLdb.Error, e:
             json_data = None
