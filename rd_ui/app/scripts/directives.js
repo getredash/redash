@@ -157,6 +157,7 @@
                     $scope.widgetSize = 1;
                     $scope.queryId = null;
                     $scope.selectedVis = null;
+                    $scope.query = null;
 
                 }
 
