@@ -39,14 +39,10 @@ class HMACAuthentication(object):
 
         return False
 
-    @staticmethod
-    def is_user_logged_in():
-        return current_user.is_authenticated()
-
     def required(self, fn):
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
-            if self.is_user_logged_in():
+            if current_user.is_authenticated():
                 return fn(*args, **kwargs)
 
             if self.api_key_authentication():
