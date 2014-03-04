@@ -3,7 +3,7 @@ import hashlib
 import time
 import datetime
 from flask.ext.peewee.utils import slugify
-from flask.ext.login import UserMixin
+from flask.ext.login import UserMixin, AnonymousUserMixin
 from passlib.apps import custom_app_context as pwd_context
 import peewee
 from playhouse.postgres_ext import ArrayField
@@ -14,6 +14,12 @@ class BaseModel(db.Model):
     @classmethod
     def get_by_id(cls, model_id):
         return cls.get(cls.id == model_id)
+
+
+class AnonymousUser(AnonymousUserMixin):
+    @property
+    def roles(self):
+        return []
 
 
 class User(BaseModel, UserMixin):
