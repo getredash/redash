@@ -33,6 +33,7 @@ def ping():
 @app.route('/dashboard/<anything>')
 @app.route('/queries')
 @app.route('/queries/<anything>')
+@app.route('/queries/view/<anything>')
 @app.route('/')
 @auth.required
 def index(anything=None):
@@ -243,7 +244,7 @@ class QueryAPI(BaseResource):
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
         models.Query.update_instance(query_id, **query_def)
-        
+
         query = models.Query.get_by_id(query_id)
 
         return query.to_dict(with_result=False, with_visualizations=True)
