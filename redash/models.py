@@ -44,6 +44,8 @@ class User(BaseModel, UserMixin):
 
 
 class ActivityLog(BaseModel):
+    QUERY_EXECUTION = 1
+    
     id = peewee.PrimaryKeyField()
     user = peewee.ForeignKeyField(User)
     type = peewee.IntegerField() # 1 for query execution
