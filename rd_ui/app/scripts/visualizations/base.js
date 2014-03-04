@@ -91,6 +91,16 @@
             link: function (scope, element, attrs) {
                 scope.visTypes = Visualization.visualizationTypes;
 
+                scope.newVisualization = function(q) {
+                    return {
+                        'query_id': q.id,
+                        'type': Visualization.defaultVisualization.type,
+                        'name': '',
+                        'description': q.description || '',
+                        'options': Visualization.defaultVisualization.defaultOptions
+                    };
+                }
+
                 if (!scope.visualization) {
                     // create new visualization
                     // wait for query to load to populate with defaults
@@ -98,13 +108,7 @@
                         if (q && q.id) {
                             unwatch();
 
-                            scope.visualization = {
-                                'query_id': q.id,
-                                'type': Visualization.defaultVisualization.type,
-                                'name': '',
-                                'description': q.description || '',
-                                'options': Visualization.defaultVisualization.defaultOptions
-                            };
+                            scope.visualization = scope.newVisualization(q);
                         }
                     }, true);
                 }
@@ -121,7 +125,7 @@
                     Visualization.save(scope.visualization, function success(result) {
                         growl.addSuccessMessage("Visualization saved");
 
-                        scope.visualization = result;
+                        scope.visualization = scope.newVisualization(scope.query);
 
                         var visIds = _.pluck(scope.query.visualizations, 'id');
                         var index = visIds.indexOf(result.id);
