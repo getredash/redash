@@ -45,7 +45,7 @@
 
         this.$get = ['$resource', function($resource) {
             var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
-            Visualization.visualization = this.visualizations;
+            Visualization.visualizations = this.visualizations;
             Visualization.visualizationTypes = this.visualizationTypes;
             Visualization.renderVisualizationsTemplate = this.getSwitchTemplate('rendererTemplate');
             Visualization.editorTemplate = this.getSwitchTemplate('editorTemplate');
@@ -97,6 +97,7 @@
                     var unwatch = scope.$watch('query', function (q) {
                         if (q && q.id) {
                             unwatch();
+
                             scope.visualization = {
                                 'query_id': q.id,
                                 'type': Visualization.defaultVisualization.type,
