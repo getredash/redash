@@ -43,6 +43,29 @@ class User(BaseModel, UserMixin):
         return self.password_hash and pwd_context.verify(password, self.password_hash)
 
 
+class ActivityLog(BaseModel):
+    id = peewee.PrimaryKeyField()
+    user = peewee.ForeignKeyField(User)
+    type = peewee.IntegerField() # 1 for query execution
+    activity = peewee.TextField()
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'activity_log'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user': self.user.to_dict(),
+            'type': self.type,
+            'activity': self.activity,
+            'created_at': self.created_at
+        }
+
+    def __unicode__(self):
+        return unicode(self.id)
+
+
 class QueryResult(db.Model):
     id = peewee.PrimaryKeyField()
     query_hash = peewee.CharField(max_length=32, index=True)
@@ -274,7 +297,7 @@ class Widget(db.Model):
     def __unicode__(self):
         return u"%s" % self.id
 
-all_models = (User, QueryResult, Query, Dashboard, Visualization, Widget)
+all_models = (User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog)
 
 
 def create_db(create_tables, drop_tables):
