@@ -283,23 +283,7 @@
         return Query;
     };
 
-    var Visualization = function($resource) {
-        var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
-
-        Visualization.prototype = {
-            TYPES: {
-                'CHART': 'CHART',
-                'COHORT': 'COHORT',
-                'TABLE': 'TABLE'
-            }
-        };
-
-        return Visualization;
-    };
-
     angular.module('redash.services', [])
         .factory('QueryResult', ['$resource', '$timeout', QueryResult])
         .factory('Query', ['$resource', 'QueryResult', Query])
-        .factory('Visualization', ['$resource', Visualization])
-
 })();

@@ -134,6 +134,7 @@
             if (!oldId) {
                 oldId = $scope.query.id;
             }
+            
             delete $scope.query.latest_query_data;
             $scope.query.$save(function (q) {
                 pristineHash = q.getHash();
@@ -277,6 +278,13 @@
                     });
             }
         };
+        
+        unbind = $scope.$watch('selectedTab == "add"', function(newPanel) {
+            if (newPanel && $routeParams.queryId == undefined) {
+                unbind();
+                $scope.saveQuery();
+            }
+        });
     }
 
     var QueriesCtrl = function($scope, $http, $location, $filter, Query) {

@@ -3,7 +3,7 @@
 
     var directives = angular.module('redash.directives', []);
 
-    directives.directive('rdTab', ['$location', function($location) {
+    directives.directive('rdTab', function() {
         return {
             restrict: 'E',
             scope: {
@@ -19,9 +19,9 @@
                 });
             }
         }
-    }]);
+    });
 
-    directives.directive('rdTabs', ['$location', '$rootScope', function($location, $rootScope) {
+    directives.directive('rdTabs', ['$location', function($location) {
         return {
             restrict: 'E',
             scope: {
@@ -42,129 +42,6 @@
                         $scope.selectTab($scope.tabsCollection[0].key);
                     }
                 });
-            }
-        }
-    }]);
-
-    directives.directive('editVisulatizationForm', ['Visualization', 'growl', function(Visualization, growl) {
-        return {
-            restrict: 'E',
-            templateUrl: '/views/edit_visualization.html',
-            replace: true,
-            scope: {
-                query: '=',
-                vis: '=?'
-            },
-            link: function(scope, element, attrs) {
-                scope.advancedMode = false;
-                scope.visTypes = {
-                    'Chart': Visualization.prototype.TYPES.CHART,
-                    'Cohort': Visualization.prototype.TYPES.COHORT
-                };
-                scope.seriesTypes = {
-                    'Line': 'line',
-                    'Column': 'column',
-                    'Area': 'area',
-                    'Scatter': 'scatter',
-                    'Pie': 'pie'
-                };
-
-                scope.stackingOptions = {
-                    "None": "none",
-                    "Normal": "normal",
-                    "Percent": "percent"
-                };
-
-                scope.stacking = "none";
-
-                if (!scope.vis) {
-                    // create new visualization
-                    // wait for query to load to populate with defaults
-                    var unwatch = scope.$watch('query', function(q) {
-                        if (q && q.id) {
-                            unwatch();
-                            scope.vis = {
-                                'query_id': q.id,
-                                'type': Visualization.prototype.TYPES.CHART,
-                                'name': '',
-                                'description': q.description || '',
-                                'options': newOptions(Visualization.prototype.TYPES.CHART)
-                            };
-                        }
-                    }, true);
-                }
-
-                function newOptions(chartType) {
-                    if (chartType === Visualization.prototype.TYPES.CHART) {
-                        return {
-                            'series': {
-                                'type': 'column',
-                                'stacking': null
-                            }
-                        };
-                    };
-
-                    return {};
-                }
-
-                var chartOptionsUnwatch = null;
-
-                scope.$watch('vis.type', function(type) {
-                    // if not edited by user, set name to match type
-                    if (type && scope.vis && !scope.visForm.name.$dirty) {
-                        // poor man's titlecase
-                        scope.vis.name = scope.vis.type[0] + scope.vis.type.slice(1).toLowerCase();
-                    }
-
-                    if (type && type == Visualization.prototype.TYPES.CHART) {
-                        if (scope.vis.options.series.stacking === null) {
-                            scope.stacking = "none";
-                        } else if (scope.vis.options.series.stacking === undefined) {
-                            scope.stacking = "normal";
-                        } else {
-                            scope.stacking = scope.vis.options.series.stacking ;
-                        }
-
-                        chartOptionsUnwatch = scope.$watch("stacking", function(stacking) {
-                            if (stacking == "none") {
-                                scope.vis.options.series.stacking = null;
-                            } else {
-                                scope.vis.options.series.stacking = stacking;
-                            }
-                        });
-                    } else {
-                        if (chartOptionsUnwatch) {
-                            chartOptionsUnwatch();
-                            chartOptionsUnwatch = null;
-                        }
-                    }
-                });
-
-                scope.toggleAdvancedMode = function() {
-                    scope.advancedMode = !scope.advancedMode;
-                };
-
-                scope.typeChanged = function() {
-                    scope.vis.options = newOptions(scope.vis.type);
-                };
-
-                scope.submit = function() {
-                    Visualization.save(scope.vis, function success(result) {
-                        growl.addSuccessMessage("Visualization saved");
-
-                        scope.vis = result;
-
-                        var visIds = _.pluck(scope.query.visualizations, 'id');
-                        var index = visIds.indexOf(result.id);
-                        if (index > -1) {
-                            scope.query.visualizations[index] = result;
-                        } else {
-                            scope.query.visualizations.push(result);
-                        }
-                    }, function error() {
-                        growl.addErrorMessage("Visualization could not be saved");
-                    });
-                };
             }
         }
     }]);
@@ -280,6 +157,7 @@
                     $scope.widgetSize = 1;
                     $scope.queryId = null;
                     $scope.selectedVis = null;
+                    $scope.query = null;
 
                 }
 
