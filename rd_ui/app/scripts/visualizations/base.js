@@ -1,5 +1,5 @@
 (function () {
-    var Visualization = function() {
+    var VisualizationProvider = function() {
         this.visualizations = {};
         this.visualizationTypes = {};
 
@@ -139,7 +139,7 @@
     };
 
     angular.module('redash.visualization', [])
-        .provider('Visualization', Visualization)
+        .provider('Visualization', VisualizationProvider)
         .directive('visualizationRenderer', ['Visualization', VisualizationRenderer])
         .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
         .directive('editVisulatizationForm', ['Visualization', 'growl', EditVisualizationForm])
