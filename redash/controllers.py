@@ -296,6 +296,12 @@ api.add_resource(VisualizationAPI, '/api/visualizations/<visualization_id>', end
 class QueryResultListAPI(BaseResource):
     def post(self):
         params = request.json
+        
+        models.ActivityLog(
+            user=self.current_user,
+            type=models.ActivityLog.QUERY_EXECUTION,
+            activity=params['query']
+        ).save()
 
         if params['ttl'] == 0:
             query_result = None
