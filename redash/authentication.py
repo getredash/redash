@@ -3,14 +3,17 @@ import hashlib
 import hmac
 from flask import current_app, request, make_response, g, redirect, url_for
 from flask.ext.googleauth import GoogleAuth, login
-from flask.ext.login import LoginManager, login_user, current_user
+from flask.ext.login import LoginManager, login_user, current_user, AnonymousUserMixin
 import time
 import logging
+from flask.ext.restful import abort
 from werkzeug.contrib.fixers import ProxyFix
+from models import AnonymousUser
 from redash import models, settings
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
+
 
 def sign(key, path, expires):
     if not key:
@@ -85,6 +88,29 @@ def load_user(user_id):
     return models.User.select().where(models.User.id == user_id).first()
 
 
+def requires_role(role):
+    return requires_roles((role,))
+
+
+class requires_roles(object):
+    def __init__(self, roles):
+        self.roles = roles
+
+    def __call__(self, fn):
+        @functools.wraps(fn)
+        def decorated(*args, **kwargs):
+            has_roles = reduce(lambda a, b: a and b,
+                               map(lambda role: role in current_user.roles, self.roles),
+                               True)
+
+            if has_roles:
+                return fn(*args, **kwargs)
+            else:
+                abort(403)
+
+        return decorated
+
+
 def setup_authentication(app):
     if settings.GOOGLE_OPENID_ENABLED:
         openid_auth = GoogleAuth(app, url_prefix="/google_auth")
@@ -94,6 +120,7 @@ def setup_authentication(app):
             openid_auth._OPENID_ENDPOINT = "https://www.google.com/a/%s/o8/ud?be=o8" % settings.GOOGLE_APPS_DOMAIN
 
     login_manager.init_app(app)
+    login_manager.anonymous_user = AnonymousUser
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.secret_key = settings.COOKIE_SECRET
 
