@@ -94,7 +94,7 @@
                     return {
                         'query_id': q.id,
                         'type': Visualization.defaultVisualization.type,
-                        'name': '',
+                        'name': Visualization.defaultVisualization.name,
                         'description': q.description || '',
                         'options': Visualization.defaultVisualization.defaultOptions
                     };
