@@ -9,7 +9,6 @@ import logging
 import psycopg2
 import qr
 import redis
-from redash import settings
 from redash.data import worker
 from redash.utils import gen_query_hash
 
@@ -24,7 +23,8 @@ class QueryResult(collections.namedtuple('QueryData', 'id query data runtime ret
 
 
 class Manager(object):
-    def __init__(self, redis_connection, db):
+    def __init__(self, redis_connection, db, statsd_client):
+        self.statsd_client = statsd_client
         self.redis_connection = redis_connection
         self.db = db
         self.workers = []
@@ -98,22 +98,39 @@ class Manager(object):
 
         return job
 
+    def report_status(self):
+        workers = [self.redis_connection.hgetall(w)
+                   for w in self.redis_connection.smembers('workers')]
+
+        for w in workers:
+            self.statsd_client.gauge('worker_{}.seconds_since_update'.format(w['id']),
+                                     time.time() - float(w['updated_at']))
+            self.statsd_client.gauge('worker_{}.jobs_received'.format(w['id']), int(w['jobs_count']))
+            self.statsd_client.gauge('worker_{}.jobs_done'.format(w['id']), int(w['done_jobs_count']))
+
+        manager_status = self.redis_connection.hgetall('manager:status')
+        self.statsd_client.gauge('manager.seconds_since_refresh',
+                                 time.time() - float(manager_status['last_refresh_at']))
+
     def refresh_queries(self):
-        sql = """SELECT queries.query, queries.ttl, retrieved_at
-        FROM (SELECT query, min(ttl) as ttl FROM queries  WHERE ttl > 0 GROUP by query) queries
-        JOIN (SELECT query, max(retrieved_at) as retrieved_at
-        FROM query_results
-        GROUP BY query) query_results on query_results.query=queries.query
-        WHERE queries.ttl > 0
-          AND query_results.retrieved_at + ttl * interval '1 second' < now() at time zone 'utc';"""
+        sql = """SELECT first_value(t1."query") over(partition by t1.query_hash)
+                 FROM "queries" AS t1
+                 INNER JOIN "query_results" AS t2 ON (t1."latest_query_data_id" = t2."id")
+                 WHERE ((t1."ttl" > 0) AND ((t2."retrieved_at" + t1.ttl * interval '1 second') <
+                                           now() at time zone 'utc'));
+        """
 
         self.status['last_refresh_at'] = time.time()
         self._save_status()
 
         logging.info("Refreshing queries...")
         queries = self.run_query(sql)
-        for query, ttl, retrieved_at in queries:
-            self.add_job(query, worker.Job.LOW_PRIORITY)
+
+        for query in queries:
+            self.add_job(query[0], worker.Job.LOW_PRIORITY)
+
+        self.statsd_client.gauge('manager.outdated_queries', len(queries))
+        self.statsd_client.gauge('manager.queue_size', self.redis_connection.zcard('jobs'))
 
         logging.info("Done refreshing queries... %d" % len(queries))
 
@@ -169,8 +186,8 @@ class Manager(object):
             runner = query_runner.redshift(connection_string)
 
         redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
-        self.workers = [worker.Worker(self, redis_connection_params, runner)
-                        for _ in range(workers_count)]
+        self.workers = [worker.Worker(worker_id, self, redis_connection_params, runner)
+                        for worker_id in range(workers_count)]
         for w in self.workers:
             w.start()
 
