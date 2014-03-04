@@ -17,6 +17,7 @@ from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
 
 import sqlparse
+from authentication import requires_role
 from redash import settings, utils
 from redash import data
 
@@ -83,6 +84,7 @@ def logout():
 
 @app.route('/status.json')
 @auth.required
+@requires_role('admin')
 def status_api():
     status = {}
     info = redis_connection.info()
