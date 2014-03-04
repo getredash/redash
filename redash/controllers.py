@@ -299,7 +299,7 @@ class QueryResultListAPI(BaseResource):
         
         models.ActivityLog(
             user=self.current_user,
-            type=1,
+            type=models.ActivityLog.QUERY_EXECUTION,
             activity=params['query']
         ).save()
 
