@@ -1,7 +1,7 @@
 <form role="form" name="visForm" ng-submit="submit()">
   <div class="form-group">
     <label class="control-label">Name</label>
-    <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type}}">
+    <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type | capitalize}}">
   </div>
 
   <div class="form-group">
