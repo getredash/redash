@@ -1,8 +1,4 @@
-import json
-import itertools
-import peewee
-from playhouse.migrate import Migrator
-from redash import db, settings
+from redash import db
 from redash import models
 
 if __name__ == '__main__':
