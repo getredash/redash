@@ -6,8 +6,12 @@
     var pristineHash = null;
     var leavingPageText = "You will lose your changes if you leave";
 
+    $scope.isEditing = false;
     $scope.dirty = undefined;
     $scope.newVisualization = undefined;
+
+    $scope.queryExecuting = false;
+    $scope.queryResultStatus = null;
 
     $window.onbeforeunload = function() {
       if (currentUser.canEdit($scope.query) && $scope.dirty) {
@@ -46,6 +50,10 @@
     }, function(hash) {
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
+
+    $scope.toggleEdit = function (state) {
+      $scope.isEditing = (state !== undefined) ? state : !$scope.isEditing;
+    };
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -164,6 +172,8 @@
     });
 
     $scope.$watch("queryResult && queryResult.getStatus()", function(status) {
+      $scope.queryResultStatus = status;
+
       if (!status) {
         return;
       }
