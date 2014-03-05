@@ -169,7 +169,7 @@ class Manager(object):
     def start_workers(self, workers_count, connection_type, connection_string):
         if self.workers:
             return self.workers
-        
+
         if connection_type == 'mysql':
             from redash.data import query_runner_mysql
             runner = query_runner_mysql.mysql(connection_string)
@@ -181,6 +181,10 @@ class Manager(object):
             else:
                 connection_params['auth'] = None
             runner = query_runner_graphite.graphite(connection_params)
+        elif connection_type == 'bigquery':
+            from redash.data import query_runner_bigquery
+            connection_params = json.loads(connection_string)
+            runner = query_runner_bigquery.bigquery(connection_params)
         else:
             from redash.data import query_runner
             runner = query_runner.redshift(connection_string)
