@@ -3,10 +3,14 @@ import json
 import logging
 import sys
 
-import apiclient.errors
-from apiclient.discovery import build
-from apiclient.errors import HttpError
-from oauth2client.client import SignedJwtAssertionCredentials
+try:
+    import apiclient.errors
+    from apiclient.discovery import build
+    from apiclient.errors import HttpError
+    from oauth2client.client import SignedJwtAssertionCredentials
+except ImportError:
+    print "Missing dependencies. Please install google-api-python-client and oauth2client."
+    print "You can use pip:   pip install google-api-python-client oauth2client"
 
 from redash.utils import JSONEncoder
 
