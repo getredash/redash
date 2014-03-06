@@ -27,3 +27,4 @@ wtf-peewee==0.2.2
 Flask-Script==0.6.6
 honcho==0.5.0
 statsd==2.1.2
+gunicorn==18.0
