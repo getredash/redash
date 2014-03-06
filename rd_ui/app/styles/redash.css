@@ -236,3 +236,13 @@ textarea.rd-form-control {
 visualization-renderer > div {
     overflow: scroll;
 }
+
+/*
+bootstrap's hidden-xs class adds display:block when not hidden
+use this class when you need to keep the original display value
+*/
+@media (max-width: 767px) {
+    .rd-hidden-xs {
+        display: none !important;
+    }
+}
