@@ -14,18 +14,40 @@
                         <span ng-show="!isQueryVisible">View Query</span>
                         <span ng-show="isQueryVisible">Hide Query</span>
                     </button>
-                    <button class="btn btn-default" ng-show="canEdit" ng-click="toggleEdit()">
+                    <button class="btn btn-default rd-hidden-xs" ng-show="canEdit" ng-click="toggleEdit()">
                         <span class="glyphicon glyphicon-edit"></span>
                         <span ng-show="isEditing"> Done</span>
                         <span ng-show="!isEditing"> Edit</span>
                     </button>
-                    <button type="button" class="btn btn-default" ng-click="duplicateQuery()">
+                    <button class="btn btn-default rd-hidden-xs" ng-click="duplicateQuery()">
                         <span class="glyphicon glyphicon-share-alt"></span> Duplicate
                     </button>
-                    <a class="btn btn-primary" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self"><span class="glyphicon glyphicon-cloud-download"></span> Download
+                    <a class="btn btn-primary" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
+                        <span class="glyphicon glyphicon-cloud-download"></span>
+                        <span class="rd-hidden-xs">Download</span>
                     </a>
                 </span>
             </h2>
+
+            <div class="visible-xs">
+                <p>
+                    <em>{{ query.description }}</em>
+                </p>
+                <p>
+                    <span class="text-muted">Last update </span>
+                    <strong am-time-ago="queryResult.query_result.retrieved_at"></strong>
+                    &nbsp;
+                    <span class="text-muted">Created By </span>
+                    <strong>{{query.user.name}}</strong>
+                    &nbsp;
+                    <span class="text-muted">Runtime </span>
+                    <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
+                    <span ng-show="queryExecuting">Running&hellip;</span>
+                    &nbsp;
+                    <span class="text-muted">Rows </span>
+                    <strong>{{queryResult.getData().length}}</strong>
+                </p>
+            </div>
         </div>
     </div>
 
@@ -72,7 +94,7 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-3">
+        <div class="col-lg-3 rd-hidden-xs">
             <p>
                 <em>
                     <edit-in-place editable="isEditing" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
