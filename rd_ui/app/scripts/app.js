@@ -36,11 +36,16 @@ angular.module('redash', [
             reloadOnSearch: false
         });
         $routeProvider.when('/queries/:queryId', {
+            templateUrl: '/views/queryview.html',
+            controller: 'QueryViewCtrl',
+            reloadOnSearch: false
+        });
+        $routeProvider.when('/queries/:queryId/fiddle', {
             templateUrl: '/views/queryfiddle.html',
             controller: 'QueryFiddleCtrl',
             reloadOnSearch: false
         });
-        $routeProvider.when('/queries/view/:queryId', {
+        $routeProvider.when('/queries/:queryId/:resource', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
             reloadOnSearch: false

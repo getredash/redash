@@ -209,7 +209,9 @@
         pristineHash = q.getHash();
         $scope.dirty = false;
         $scope.queryResult = $scope.query.getQueryResult();
+
         $scope.canEdit = currentUser.canEdit(q);
+        $scope.toggleEdit($routeParams.resource === 'source');
       });
     } else {
       $scope.query = new Query({
