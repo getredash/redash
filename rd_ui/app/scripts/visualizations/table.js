@@ -63,7 +63,13 @@
                                     columnDefinition['formatParameter'] = 2;
                                 } else if (moment.isMoment(exampleData)) {
                                     columnDefinition['formatFunction'] = function(value) {
-                                        return value.format("DD/MM/YY HH:mm");
+                                        // TODO: this is very hackish way to determine if we need
+                                        // to show the value as a time or date only. Better solution
+                                        // is to complete #70 and use the information it returns.
+                                        if (value._i.match(/^\d{4}-\d{2}-\d{2}T/)) {
+                                            return value.format("DD/MM/YY HH:mm");
+                                        }
+                                        return value.format("DD/MM/YY");
                                     }
                                 }
                             }
