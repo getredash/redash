@@ -223,7 +223,7 @@
                 var placeholder = tAttrs.placeholder || 'Click to edit';
                 return '<span ng-click="editable && edit()" ng-bind="value" ng-class="{editable: editable}"></span>' +
                        '<span ng-click="editable && edit()" ng-show="editable && !value" ng-class="{editable: editable}">' + placeholder + '</span>' +
-                       '<{elType} ng-model="value" class="form-control" rows="2"></{elType}>'.replace('{elType}', elType);
+                       '<{elType} ng-model="value" class="rd-form-control"></{elType}>'.replace('{elType}', elType);
             },
             link: function ($scope, element, attrs) {
                 // Let's get a reference to the input element, as we'll want to reference it.

@@ -6,8 +6,9 @@
     var pristineHash = null;
     var leavingPageText = "You will lose your changes if you leave";
 
-    $scope.showQuery = false;
+    $scope.canEdit = false;
     $scope.isEditing = false;
+    $scope.showQuery = false;
     $scope.dirty = undefined;
     $scope.newVisualization = undefined;
 
@@ -15,7 +16,7 @@
     $scope.queryResultStatus = null;
 
     $window.onbeforeunload = function() {
-      if (currentUser.canEdit($scope.query) && $scope.dirty) {
+      if ($scope.canEdit && $scope.dirty) {
         return leavingPageText;
       }
     }
@@ -23,7 +24,7 @@
     Mousetrap.bindGlobal("meta+s", function(e) {
       e.preventDefault();
 
-      if (currentUser.canEdit($scope.query)) {
+      if ($scope.canEdit) {
         $scope.saveQuery();
       }
     });
@@ -33,7 +34,7 @@
         return;
       }
 
-      if (!currentUser.canEdit($scope.query)) {
+      if (!$scope.canEdit) {
         return;
       }
 
@@ -206,6 +207,7 @@
         pristineHash = q.getHash();
         $scope.dirty = false;
         $scope.queryResult = $scope.query.getQueryResult();
+        $scope.canEdit = currentUser.canEdit(q);
       });
     } else {
       $scope.query = new Query({
