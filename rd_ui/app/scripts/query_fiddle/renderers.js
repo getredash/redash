@@ -16,7 +16,10 @@ renderers.directive('pivotTableRenderer', function () {
 
                 if ($scope.queryResult.getData() == null) {
                 } else {
-                    $(element).pivotUI($scope.queryResult.getData(), {
+                    // We need to give the pivot table its own copy of the data, because its change
+                    // it which interferes with other visualizations.
+                    var data = $.extend(true, [], $scope.queryResult.getData());
+                    $(element).pivotUI(data, {
                          renderers: $.pivotUtilities.renderers
                     }, true);
                 }
