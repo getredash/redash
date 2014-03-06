@@ -6,14 +6,16 @@
     var pristineHash = null;
     var leavingPageText = "You will lose your changes if you leave";
 
-    $scope.canEdit = false;
-    $scope.isEditing = false;
-    $scope.showQuery = false;
     $scope.dirty = undefined;
-    $scope.newVisualization = undefined;
+    $scope.canEdit = false;
+
+    $scope.isEditing = false;
+    $scope.isQueryVisible = false;
 
     $scope.queryExecuting = false;
     $scope.queryResultStatus = null;
+
+    $scope.newVisualization = undefined;
 
     $window.onbeforeunload = function() {
       if ($scope.canEdit && $scope.dirty) {
@@ -54,11 +56,11 @@
     });
 
     $scope.toggleEdit = function (state) {
-      $scope.isEditing = $scope.showQuery =
+      $scope.isEditing = $scope.isQueryVisible =
         (state !== undefined) ? state : !$scope.isEditing;
     };
-    $scope.toggleShowQuery = function() {
-      $scope.showQuery = !$scope.showQuery;
+    $scope.toggleQueryVisible = function() {
+      $scope.isQueryVisible = !$scope.isQueryVisible;
     };
 
     $scope.lockButton = function(lock) {
