@@ -124,7 +124,7 @@
                     enabled: true,
                     color: '#000000',
                     connectorColor: '#000000',
-                    format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                    format: '<b>{point.name}</b>: {point.y} ({point.percentage:.1f} %)'
                 }
             },
             scatter: {
