@@ -2,15 +2,18 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
-            <h1>
-                <span class="text-muted" ng-show="isEditing">Editing </span>
+            <h2>
                 <edit-in-place editable="isEditing" ignore-blanks='true' value="query.name"></edit-in-place>
+                <span class="label label-warning" ng-show="isEditing">Editing</span>
 
                 <span class="pull-right">
                     <button class="btn btn-success" ng-show="isEditing" ng-click="saveQuery() && toggleEdit(false)">
                         <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
                     </button>
-                    <button class="btn btn-default" ng-show="!canEdit" ng-click="toggleShowQuery()">View Query</button>
+                    <button class="btn btn-default" ng-show="!canEdit" ng-click="toggleQueryVisible()">
+                        <span ng-show="!isQueryVisible">View Query</span>
+                        <span ng-show="isQueryVisible">Hide Query</span>
+                    </button>
                     <button class="btn btn-default" ng-show="canEdit" ng-click="toggleEdit()">
                         <span class="glyphicon glyphicon-edit"></span>
                         <span ng-show="isEditing"> Done</span>
@@ -22,19 +25,14 @@
                     <a class="btn btn-primary" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self"><span class="glyphicon glyphicon-cloud-download"></span> Download
                     </a>
                 </span>
-            </h1>
+            </h2>
         </div>
     </div>
 
     <hr>
 
     <div class="row">
-        <div ng-class="{'col-lg-6': isEditing, 'col-lg-3': !isEditing}">
-            <em>
-                <edit-in-place editable="isEditing" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
-            </em>
-            <hr ng-show="isEditing || query.description">
-
+        <div class="col-lg-12">
             <div ng-show="isEditing">
                 <p>
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
@@ -49,11 +47,37 @@
                 </p>
             </div>
 
-            <p ng-show="showQuery">
-                <textarea ui-codemirror="editorOptions" ui-refresh="showQuery" ng-model="query.query"></textarea>
-                <!-- CodeMirror renders here -->
-            </p>
+            <!-- alerts -->
+            <div ng-show="queryExecuting">
+                <p>
+                    <div class="alert alert-info"
+                        ng-show="queryResultStatus !== 'done' && queryResultStatus !== 'failed'"
+                        ng-switch="queryResultStatus">
+                        <span ng-switch-when="processing">Executing query&hellip;</span>
+                        <span ng-switch-when="waiting">Query in queue&hellip;</span>
+                        <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                        <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+                    </div>
+                    <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
+                </p>
+            </div>
 
+            <!-- code editor -->
+            <p ng-show="isQueryVisible">
+                <textarea ui-codemirror="editorOptions" ui-refresh="isQueryVisible" ng-model="query.query"></textarea>
+            </p>
+            <hr ng-show="isQueryVisible">
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3">
+            <p>
+                <em>
+                    <edit-in-place editable="isEditing" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
+                </em>
+            </p>
             <p>
                 <span class="glyphicon glyphicon-refresh"></span>
                 <span class="text-muted">Last update </span>
@@ -75,22 +99,7 @@
             </p>
         </div>
 
-        <div ng-class="{'col-lg-6': isEditing, 'col-lg-9': !isEditing}">
-            <!-- alerts -->
-            <div ng-show="queryExecuting">
-                <p>
-                    <div class="alert alert-info"
-                        ng-show="queryResultStatus !== 'done' && queryResultStatus !== 'failed'"
-                        ng-switch="queryResultStatus">
-                        <span ng-switch-when="processing">Executing query&hellip;</span>
-                        <span ng-switch-when="waiting">Query in queue&hellip;</span>
-                        <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                        <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
-                    </div>
-                    <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
-                </p>
-            </div>
-
+        <div class="col-lg-9">
             <!-- tabs and data -->
             <div ng-hide="queryExecuting">
                 <div class="row">
