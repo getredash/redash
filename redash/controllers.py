@@ -32,11 +32,11 @@ def ping():
 @app.route('/admin/<anything>')
 @app.route('/dashboard/<anything>')
 @app.route('/queries')
-@app.route('/queries/<anything>')
-@app.route('/queries/view/<anything>')
+@app.route('/queries/<query_id>')
+@app.route('/queries/<query_id>/<anything>')
 @app.route('/')
 @auth.required
-def index(anything=None):
+def index(anything=None, query_id=None):
     email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
