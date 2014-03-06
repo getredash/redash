@@ -277,7 +277,7 @@
         };
 
         Query.prototype.getHash = function() {
-            return [this.name, this.description, this.query].join('!#');
+            return [this.name, this.description, this.query, this.ttl].join('!#');
         };
 
         return Query;
