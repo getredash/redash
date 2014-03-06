@@ -6,6 +6,7 @@
     var pristineHash = null;
     var leavingPageText = "You will lose your changes if you leave";
 
+    $scope.showQuery = false;
     $scope.isEditing = false;
     $scope.dirty = undefined;
     $scope.newVisualization = undefined;
@@ -52,7 +53,11 @@
     });
 
     $scope.toggleEdit = function (state) {
-      $scope.isEditing = (state !== undefined) ? state : !$scope.isEditing;
+      $scope.isEditing = $scope.showQuery =
+        (state !== undefined) ? state : !$scope.isEditing;
+    };
+    $scope.toggleShowQuery = function() {
+      $scope.showQuery = !$scope.showQuery;
     };
 
     $scope.lockButton = function(lock) {
@@ -98,7 +103,7 @@
             $location.path($location.path().replace(oldId, q.id)).replace();
 
             // Reset visualizations tab to table after duplicating a query:
-            $location.hash('table');
+            $location.hash(DEFAULT_TAB);
           }
         }
       }, function(httpResponse) {

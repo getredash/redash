@@ -8,6 +8,7 @@
                     <button class="btn btn-success" ng-show="isEditing" ng-click="saveQuery() && toggleEdit(false)">
                         <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
                     </button>
+                    <button class="btn btn-default" ng-show="!currentUser.canEdit(query)" ng-click="toggleShowQuery()">View Query</button>
                     <button class="btn btn-default" ng-show="currentUser.canEdit(query)" ng-click="toggleEdit()">
                         <span class="glyphicon glyphicon-edit"></span>
                         <span ng-show="isEditing"> Done</span>
@@ -16,8 +17,8 @@
                     <button type="button" class="btn btn-default" ng-click="duplicateQuery()">
                         <span class="glyphicon glyphicon-share-alt"></span> Duplicate
                     </button>
-                    <button class="btn btn-primary" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self"><span class="glyphicon glyphicon-cloud-download"></span> Download
-                    </button>
+                    <a class="btn btn-primary" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self"><span class="glyphicon glyphicon-cloud-download"></span> Download
+                    </a>
                 </span>
             </h1>
         </div>
@@ -27,6 +28,11 @@
 
     <div class="row">
         <div ng-class="{'col-lg-6': isEditing, 'col-lg-3': !isEditing}">
+            <div ng-show="!isEditing && query.description">
+                <em>{{ query.description }}</em>
+                <hr>
+            </div>
+
             <div ng-show="isEditing">
                 <p>
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
@@ -48,17 +54,13 @@
                     </div>
                     <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
                 </p>
-
-                <p>
-                    <textarea ui-codemirror="editorOptions" ui-refresh="isEditing" ng-model="query.query"></textarea>
-                    <!-- CodeMirror renders here -->
-                </p>
             </div>
 
-            <div ng-show="query.description">
-                <em>{{ query.description }}</em>
-                <hr>
-            </div>
+            <p ng-show="showQuery">
+                <textarea ui-codemirror="editorOptions" ui-refresh="showQuery" ng-model="query.query"></textarea>
+                <!-- CodeMirror renders here -->
+            </p>
+
             <p>
                 <span class="glyphicon glyphicon-refresh"></span>
                 <span class="text-muted">Last update </span>
@@ -89,7 +91,7 @@
                         <rd-tab id="{{vis.id}}" name="{{vis.name}}" ng-hide="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
                             <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="currentUser.canEdit(query)"> &times;</span>
                         </rd-tab>
-                        <rd-tab id="add" name="&plus; New" removeable="true" ng-show="currentUser.canEdit(query)"></rd-tab>
+                        <rd-tab id="add" name="&plus; New" removeable="true" ng-show="currentUser.canEdit(query) && isEditing"></rd-tab>
                     </ul>
                 </div>
             </div>
@@ -100,12 +102,12 @@
 
                     <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                         <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                        <edit-visulatization-form visualization="vis" query="query" query-result="queryResult"></edit-visulatization-form>
+                        <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="isEditing"></edit-visulatization-form>
                     </div>
 
                     <div ng-show="selectedTab == 'add'">
                         <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
-                        <edit-visulatization-form visualization="newVisualization" query="query"></edit-visulatization-form>
+                        <edit-visulatization-form visualization="newVisualization" query="query" ng-show="isEditing"></edit-visulatization-form>
                     </div>
                 </div>
             </div>
