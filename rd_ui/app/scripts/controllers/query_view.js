@@ -1,10 +1,11 @@
 (function() {
   'use strict';
 
-  var QueryViewCtrl = function($scope, $window, $routeParams, $http, $location, growl, notifications, Query, Visualization) {
+  var QueryViewCtrl = function($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization) {
     var DEFAULT_TAB = 'table';
     var pristineHash = null;
     var leavingPageText = "You will lose your changes if you leave";
+    var route = $route.current;
 
     $scope.dirty = undefined;
     $scope.canEdit = false;
@@ -202,18 +203,15 @@
       }
     });
 
-    if ($routeParams.queryId != undefined) {
-      $scope.query = Query.get({
-        id: $routeParams.queryId
-      }, function(q) {
-        pristineHash = q.getHash();
-        $scope.dirty = false;
-        $scope.queryResult = $scope.query.getQueryResult();
+    if (route.locals.query) {
+      $scope.query = route.locals.query;
+      pristineHash = $scope.query.getHash();
+      $scope.dirty = false;
+      $scope.queryResult = $scope.query.getQueryResult();
 
-        var isViewSource = $routeParams.resource === 'source'
-        $scope.canEdit = currentUser.canEdit(q) && isViewSource;
-        $scope.toggleEdit(isViewSource);
-      });
+      var isViewSource = route.locals.viewSource === true;
+      $scope.canEdit = currentUser.canEdit($scope.query) && isViewSource;
+      $scope.toggleEdit(isViewSource);
     } else {
       $scope.query = new Query({
         query: "",
@@ -260,7 +258,7 @@
     };
 
     var unbind = $scope.$watch('selectedTab == "add"', function(newPanel) {
-      if (newPanel && $routeParams.queryId == undefined) {
+      if (newPanel && route.params.queryId == undefined) {
         unbind();
         $scope.saveQuery();
       }
@@ -271,7 +269,7 @@
     [
       '$scope',
       '$window',
-      '$routeParams',
+      '$route',
       '$http',
       '$location',
       'growl',
