@@ -4,30 +4,21 @@
         <div class="col-lg-12">
             <h2>
                 <edit-in-place editable="isEditing" ignore-blanks='true' value="query.name"></edit-in-place>
-                <span class="label label-warning" ng-show="isEditing">Editing</span>
 
                 <span class="pull-right">
-                    <button class="btn btn-success" ng-show="isEditing" ng-click="saveQuery() && toggleEdit(false)">
-                        <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
-                    </button>
-                    <button class="btn btn-default" ng-show="!canEdit" ng-click="toggleQueryVisible()">
-                        <span ng-show="!isQueryVisible">View Query</span>
-                        <span ng-show="isQueryVisible">Hide Query</span>
-                    </button>
-                    <button class="btn btn-default rd-hidden-xs" ng-show="canEdit" ng-click="toggleEdit()">
+                    <button class="btn btn-default" ng-click="toggleSource()" ng-class="{active: isSourceVisible}">View Source</button>
+<!--                     <button class="btn btn-default rd-hidden-xs" ng-show="canEdit" ng-click="toggleEdit()">
                         <span class="glyphicon glyphicon-edit"></span>
                         <span ng-show="isEditing"> Done</span>
                         <span ng-show="!isEditing"> Edit</span>
                     </button>
-                    <button class="btn btn-default rd-hidden-xs" ng-click="duplicateQuery()">
-                        <span class="glyphicon glyphicon-share-alt"></span> Duplicate
-                    </button>
-                    <a class="btn btn-primary" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
-                        <span class="glyphicon glyphicon-cloud-download"></span>
-                        <span class="rd-hidden-xs">Download</span>
-                    </a>
+ -->
                 </span>
             </h2>
+            <em>
+                <edit-in-place editable="isEditing" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
+            </em>
+
 
             <div class="visible-xs">
                 <p>
@@ -55,7 +46,7 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <div ng-show="isEditing">
+            <div ng-show="isSourceVisible">
                 <p>
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
@@ -64,7 +55,12 @@
                         <span class="glyphicon glyphicon-indent-left"></span> Format SQL
                     </button>
                     <span class="pull-right">
-                        <select ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select>
+                        <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery() && toggleEdit(false)">
+                            <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
+                        </button>
+                        <button class="btn btn-default btn-xs rd-hidden-xs" ng-show="!canEdit" ng-click="duplicateQuery()">
+                            <span class="glyphicon glyphicon-share-alt"></span> Fork
+                        </button>
                     </span>
                 </p>
             </div>
@@ -85,21 +81,16 @@
             </div>
 
             <!-- code editor -->
-            <p ng-show="isQueryVisible">
-                <textarea ui-codemirror="editorOptions" ui-refresh="isQueryVisible" ng-model="query.query"></textarea>
+            <p ng-show="isSourceVisible">
+                <textarea ui-codemirror="editorOptions" ui-refresh="isSourceVisible" ng-model="query.query"></textarea>
             </p>
-            <hr ng-show="isQueryVisible">
+            <hr ng-show="isSourceVisible">
         </div>
 
     </div>
 
     <div class="row">
         <div class="col-lg-3 rd-hidden-xs">
-            <p>
-                <em>
-                    <edit-in-place editable="isEditing" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
-                </em>
-            </p>
             <p>
                 <span class="glyphicon glyphicon-refresh"></span>
                 <span class="text-muted">Last update </span>
@@ -118,6 +109,17 @@
             <p>
                 <span class="glyphicon glyphicon-align-justify"></span>
                 <span class="text-muted">Rows </span><strong>{{queryResult.getData().length}}</strong>
+            </p>
+
+            <p>
+                <select ng-disabled="!canEdit" ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select>
+            </p>
+
+            <p>
+                <a class="btn btn-primary btn-sm" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
+                    <span class="glyphicon glyphicon-cloud-download"></span>
+                    <span class="rd-hidden-xs">Download Dataset</span>
+                </a>
             </p>
         </div>
 

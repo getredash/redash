@@ -10,7 +10,7 @@
     $scope.canEdit = false;
 
     $scope.isEditing = false;
-    $scope.isQueryVisible = false;
+    $scope.isSourceVisible = false;
 
     $scope.queryExecuting = false;
     $scope.queryResultStatus = null;
@@ -56,11 +56,11 @@
     });
 
     $scope.toggleEdit = function (state) {
-      $scope.isEditing = $scope.isQueryVisible =
+      $scope.isEditing = $scope.isSourceVisible =
         (state !== undefined) ? state : !$scope.isEditing;
     };
-    $scope.toggleQueryVisible = function() {
-      $scope.isQueryVisible = !$scope.isQueryVisible;
+    $scope.toggleSource = function() {
+      $scope.isSourceVisible = !$scope.isSourceVisible;
     };
 
     $scope.lockButton = function(lock) {
@@ -210,8 +210,9 @@
         $scope.dirty = false;
         $scope.queryResult = $scope.query.getQueryResult();
 
-        $scope.canEdit = currentUser.canEdit(q);
-        $scope.toggleEdit($routeParams.resource === 'source');
+        var isViewSource = $routeParams.resource === 'source'
+        $scope.canEdit = currentUser.canEdit(q) && isViewSource;
+        $scope.toggleEdit(isViewSource);
       });
     } else {
       $scope.query = new Query({
