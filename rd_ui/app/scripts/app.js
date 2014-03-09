@@ -17,6 +17,12 @@ angular.module('redash', [
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
+        function getQuery(Query, $route) {
+            return Query.get({
+                'id': $route.current.params.queryId
+            });
+        }
+
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
         $locationProvider.html5Mode(true);
         growlProvider.globalTimeToLive(2000);
@@ -38,17 +44,29 @@ angular.module('redash', [
         $routeProvider.when('/queries/:queryId', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
-            reloadOnSearch: false
+            reloadOnSearch: false,
+            resolve: {
+                'query': getQuery,
+                'viewSource': function isViewSource() {
+                    return false;
+                }
+            }
         });
         $routeProvider.when('/queries/:queryId/fiddle', {
             templateUrl: '/views/queryfiddle.html',
             controller: 'QueryFiddleCtrl',
             reloadOnSearch: false
         });
-        $routeProvider.when('/queries/:queryId/:resource', {
+        $routeProvider.when('/queries/:queryId/src', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
-            reloadOnSearch: false
+            reloadOnSearch: false,
+            resolve: {
+                'query': getQuery,
+                'viewSource': function isViewSource() {
+                    return true;
+                }
+            }
         });
         $routeProvider.when('/admin/status', {
             templateUrl: '/views/admin_status.html',

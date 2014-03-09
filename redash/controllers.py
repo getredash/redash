@@ -32,7 +32,7 @@ def ping():
 @app.route('/admin/<anything>')
 @app.route('/dashboard/<anything>')
 @app.route('/queries')
-@app.route('/queries/<query_id>')
+@app.route('/queries/<query_id>/')
 @app.route('/queries/<query_id>/<anything>')
 @app.route('/')
 @auth.required
