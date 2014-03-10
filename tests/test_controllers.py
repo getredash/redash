@@ -71,7 +71,7 @@ class PingTest(TestCase):
 
 class IndexTest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
-        self.paths = ['/', '/dashboard/example', '/queries/1', '/admin/status']
+        self.paths = ['/', '/dashboard/example', '/queries/1/', '/admin/status']
         super(IndexTest, self).setUp()
 
 
