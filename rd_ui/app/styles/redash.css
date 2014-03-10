@@ -26,6 +26,9 @@ a.navbar-brand {
     margin-bottom: 5px;
 }
 
+.edit-in-place span {
+    white-space: pre;
+}
 .edit-in-place span.editable {
     cursor: pointer;
 }

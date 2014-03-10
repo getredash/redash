@@ -3,14 +3,14 @@
     <div class="row">
         <div class="col-lg-12">
             <h2>
-                <edit-in-place editable="canEdit" ignore-blanks='true' value="query.name"></edit-in-place>
+                <edit-in-place editable="isOwner" done="saveQuery" ignore-blanks='true' value="query.name"></edit-in-place>
 
                 <span class="pull-right">
                     <button ng-click="toggleSource()" class="btn btn-default" ng-class="{active: isSourceVisible}">Source</button>
                 </span>
             </h2>
             <em>
-                <edit-in-place editable="canEdit" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
+                <edit-in-place editable="isOwner" done="saveQuery" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
             </em>
 
 
@@ -106,7 +106,7 @@
             </p>
 
             <p>
-                <select ng-disabled="!canEdit" ng-model="query.ttl" ng-options="c.value as c.name for c in refreshOptions"></select>
+                <select ng-disabled="!isOwner" ng-model="query.ttl" ng-change="saveQuery()" ng-options="c.value as c.name for c in refreshOptions"></select>
             </p>
 
             <p>
