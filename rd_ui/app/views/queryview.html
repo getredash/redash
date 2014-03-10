@@ -3,20 +3,14 @@
     <div class="row">
         <div class="col-lg-12">
             <h2>
-                <edit-in-place editable="isEditing" ignore-blanks='true' value="query.name"></edit-in-place>
+                <edit-in-place editable="canEdit" ignore-blanks='true' value="query.name"></edit-in-place>
 
                 <span class="pull-right">
-                    <button class="btn btn-default" ng-click="toggleSource()" ng-class="{active: isSourceVisible}">View Source</button>
-<!--                     <button class="btn btn-default rd-hidden-xs" ng-show="canEdit" ng-click="toggleEdit()">
-                        <span class="glyphicon glyphicon-edit"></span>
-                        <span ng-show="isEditing"> Done</span>
-                        <span ng-show="!isEditing"> Edit</span>
-                    </button>
- -->
+                    <button ng-click="toggleSource()" class="btn btn-default" ng-class="{active: isSourceVisible}">Source</button>
                 </span>
             </h2>
             <em>
-                <edit-in-place editable="isEditing" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
+                <edit-in-place editable="canEdit" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
             </em>
 
 
@@ -55,7 +49,7 @@
                         <span class="glyphicon glyphicon-indent-left"></span> Format SQL
                     </button>
                     <span class="pull-right">
-                        <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery() && toggleEdit(false)">
+                        <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery()">
                             <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
                         </button>
                         <button class="btn btn-default btn-xs rd-hidden-xs" ng-show="!canEdit" ng-click="duplicateQuery()">
@@ -134,7 +128,7 @@
                             <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-hide="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
                                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
                             </rd-tab>
-                            <rd-tab tab-id="add" name="&plus; New" removeable="true" ng-show="canEdit && isEditing"></rd-tab>
+                            <rd-tab tab-id="add" name="&plus; New" removeable="true" ng-show="canEdit"></rd-tab>
                         </ul>
                     </div>
                 </div>
@@ -145,12 +139,12 @@
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                            <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="isEditing"></edit-visulatization-form>
+                            <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
                         </div>
 
                         <div ng-show="selectedTab == 'add'">
                             <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
-                            <edit-visulatization-form visualization="newVisualization" query="query" ng-show="isEditing"></edit-visulatization-form>
+                            <edit-visulatization-form visualization="newVisualization" query="query" ng-show="canEdit"></edit-visulatization-form>
                         </div>
                     </div>
                 </div>

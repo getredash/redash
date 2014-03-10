@@ -10,8 +10,7 @@
     $scope.dirty = undefined;
     $scope.canEdit = false;
 
-    $scope.isEditing = false;
-    $scope.isSourceVisible = false;
+    $scope.isSourceVisible = route.locals.viewSource;
 
     $scope.queryExecuting = false;
     $scope.queryResultStatus = null;
@@ -55,14 +54,6 @@
     }, function(hash) {
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
-
-    $scope.toggleEdit = function (state) {
-      $scope.isEditing = $scope.isSourceVisible =
-        (state !== undefined) ? state : !$scope.isEditing;
-    };
-    $scope.toggleSource = function() {
-      $scope.isSourceVisible = !$scope.isSourceVisible;
-    };
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -203,16 +194,18 @@
       }
     });
 
+    // view or source pages: controller is instantiated with a query
     if (route.locals.query) {
       $scope.query = route.locals.query;
       pristineHash = $scope.query.getHash();
       $scope.dirty = false;
       $scope.queryResult = $scope.query.getQueryResult();
 
-      var isViewSource = route.locals.viewSource === true;
-      $scope.canEdit = currentUser.canEdit($scope.query) && isViewSource;
-      $scope.toggleEdit(isViewSource);
+      $scope.canEdit =
+        $scope.isSourceVisible && currentUser.canEdit($scope.query);
+
     } else {
+      // new query
       $scope.query = new Query({
         query: "",
         name: "New Query",
@@ -231,6 +224,11 @@
     }, function(newHash) {
       $scope.dirty = (newHash !== pristineHash);
     });
+
+    $scope.toggleSource = function() {
+      var url = $location.url();
+      $location.path($scope.isSourceVisible ? url.replace('src', '') : url + '/src');
+    };
 
     $scope.executeQuery = function() {
       $scope.queryResult = $scope.query.getQueryResult(0);

@@ -17,10 +17,16 @@ angular.module('redash', [
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
-        function getQuery(Query, $route) {
-            return Query.get({
+        function getQuery(Query, $q, $route) {
+            var defer = $q.defer();
+
+            Query.get({
                 'id': $route.current.params.queryId
+            }, function(query) {
+                defer.resolve(query);
             });
+
+            return defer.promise;
         }
 
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
@@ -41,15 +47,14 @@ angular.module('redash', [
             controller: 'QueryFiddleCtrl',
             reloadOnSearch: false
         });
+        // TODO
+        // we should have 2 controllers: queryViewCtrl and queryEditCtrl
         $routeProvider.when('/queries/:queryId', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': getQuery,
-                'viewSource': function isViewSource() {
-                    return false;
-                }
+                'query': getQuery
             }
         });
         $routeProvider.when('/queries/:queryId/fiddle', {
