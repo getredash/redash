@@ -14,7 +14,6 @@
     $scope.isSourceVisible = route.locals.viewSource;
 
     $scope.queryExecuting = false;
-    $scope.queryResultStatus = null;
 
     $scope.newVisualization = undefined;
 
@@ -173,8 +172,6 @@
     });
 
     $scope.$watch("queryResult && queryResult.getStatus()", function(status) {
-      $scope.queryResultStatus = status;
-
       if (!status) {
         return;
       }
