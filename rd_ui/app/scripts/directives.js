@@ -216,7 +216,8 @@
             scope: {
                 value: '=',
                 ignoreBlanks: '=',
-                editable: '='
+                editable: '=',
+                done: '='
             },
             template: function(tElement, tAttrs) {
                 var elType = tAttrs.editor || 'input';
@@ -252,13 +253,27 @@
                     inputElement[0].focus();
                 };
 
-                $(inputElement).blur(function() {
-                    if ($scope.ignoreBlanks && _.isEmpty($scope.value)) {
-                        $scope.value = $scope.oldValue;
+                function save() {
+                    if ($scope.editing) {
+                        if ($scope.ignoreBlanks && _.isEmpty($scope.value)) {
+                            $scope.value = $scope.oldValue;
+                        }
+                        $scope.editing = false;
+                        element.removeClass('active');
+
+                        $scope.done && $scope.done();
                     }
-                    $scope.editing = false;
-                    element.removeClass('active');
-                })
+                }
+
+                $(inputElement).keydown(function(e) {
+                    // 'return' or 'enter' key pressed
+                    // allow 'shift' to break lines
+                    if (e.which === 13 && !e.shiftKey) {
+                        save();
+                    }
+                }).blur(function() {
+                    save();
+                });
             }
         };
     });

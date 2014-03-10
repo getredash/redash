@@ -8,6 +8,7 @@
     var route = $route.current;
 
     $scope.dirty = undefined;
+    $scope.isOwner = false;
     $scope.canEdit = false;
 
     $scope.isSourceVisible = route.locals.viewSource;
@@ -201,8 +202,8 @@
       $scope.dirty = false;
       $scope.queryResult = $scope.query.getQueryResult();
 
-      $scope.canEdit =
-        $scope.isSourceVisible && currentUser.canEdit($scope.query);
+      $scope.isOwner = currentUser.canEdit($scope.query);
+      $scope.canEdit = $scope.isSourceVisible && $scope.isOwner;
 
     } else {
       // new query
