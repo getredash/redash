@@ -13,18 +13,22 @@
 
     $scope.isSourceVisible = route.locals.viewSource;
 
-    $scope.sourceHref = $scope.isSourceVisible ?
-      $location.url().replace('src', '') : $location.path() + '/src#' + $location.hash();
-
     $scope.queryExecuting = false;
 
     $scope.newVisualization = undefined;
+
+    updateSourceHref();
 
     $window.onbeforeunload = function() {
       if ($scope.canEdit && $scope.dirty) {
         return leavingPageText;
       }
     }
+
+    function updateSourceHref() {
+      $scope.sourceHref = $scope.isSourceVisible ?
+        $location.url().replace('src', '') : $location.path() + '/src#' + $location.hash();
+    };
 
     Mousetrap.bindGlobal("meta+s", function(e) {
       e.preventDefault();
@@ -56,6 +60,7 @@
       return $location.hash()
     }, function(hash) {
       $scope.selectedTab = hash || DEFAULT_TAB;
+      updateSourceHref();
     });
 
     $scope.lockButton = function(lock) {
