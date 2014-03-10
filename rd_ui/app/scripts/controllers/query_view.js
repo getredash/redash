@@ -13,6 +13,9 @@
 
     $scope.isSourceVisible = route.locals.viewSource;
 
+    $scope.sourceHref = $scope.isSourceVisible ?
+      $location.url().replace('src', '') : $location.path() + '/src#' + $location.hash();
+
     $scope.queryExecuting = false;
 
     $scope.newVisualization = undefined;
@@ -222,11 +225,6 @@
     }, function(newHash) {
       $scope.dirty = (newHash !== pristineHash);
     });
-
-    $scope.toggleSource = function() {
-      var url = $location.url();
-      $location.path($scope.isSourceVisible ? url.replace('src', '') : url + '/src');
-    };
 
     $scope.executeQuery = function() {
       $scope.queryResult = $scope.query.getQueryResult(0);
