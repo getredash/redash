@@ -1,4 +1,5 @@
 import json
+import os.path
 from tests import BaseTestCase
 from redash import models
 from redash import import_export
@@ -9,7 +10,7 @@ class ImportTest(BaseTestCase):
     def setUp(self):
         super(ImportTest, self).setUp()
 
-        with open('flights.json') as f:
+        with open(os.path.join(os.path.dirname(__file__), 'flights.json')) as f:
             self.dashboard = json.loads(f.read())
             self.user = user_factory.create()
 
