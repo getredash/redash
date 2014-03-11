@@ -68,7 +68,7 @@ class ActivityLog(BaseModel):
         return unicode(self.id)
 
 
-class QueryResult(db.Model):
+class QueryResult(BaseModel):
     id = peewee.PrimaryKeyField()
     query_hash = peewee.CharField(max_length=32, index=True)
     query = peewee.TextField()
@@ -271,7 +271,7 @@ class Visualization(BaseModel):
         return u"%s %s" % (self.id, self.type)
 
 
-class Widget(db.Model):
+class Widget(BaseModel):
     id = peewee.PrimaryKeyField()
     visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
 
