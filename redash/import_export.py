@@ -4,15 +4,18 @@ from flask.ext.script import Manager
 
 
 class Importer(object):
-    def __init__(self, object_mapping={}):
+    def __init__(self, object_mapping=None):
+        if object_mapping is None:
+            object_mapping = {}
         self.object_mapping = object_mapping
 
     def import_query_result(self, query_result):
-        query_result = models.QueryResult.create(data=json.dumps(query_result['data']),
-                                                 query_hash=query_result['query_hash'],
-                                                 retrieved_at=query_result['retrieved_at'],
-                                                 query=query_result['query'],
-                                                 runtime=query_result['runtime'])
+        query_result = self._get_or_create(models.QueryResult, query_result['id'],
+                                           data=json.dumps(query_result['data']),
+                                           query_hash=query_result['query_hash'],
+                                           retrieved_at=query_result['retrieved_at'],
+                                           query=query_result['query'],
+                                           runtime=query_result['runtime'])
 
         return query_result
 
@@ -20,7 +23,7 @@ class Importer(object):
     def import_query(self, user, query):
         query_result = self.import_query_result(query['latest_query_data'])
 
-        new_query = models.Query.create(name=query['name'],
+        new_query = self._get_or_create(models.Query, query['id'], name=query['name'],
                                         user=user,
                                         ttl=-1,
                                         query=query['query'],
@@ -34,24 +37,24 @@ class Importer(object):
     def import_visualization(self, user, visualization):
         query = self.import_query(user, visualization['query'])
 
-        new_visualization = models.Visualization.create(name=visualization['name'],
-                                                        description=visualization['description'],
-                                                        type=visualization['type'],
-                                                        options=json.dumps(visualization['options']),
-                                                        query=query)
+        new_visualization = self._get_or_create(models.Visualization, visualization['id'],
+                                                name=visualization['name'],
+                                                description=visualization['description'],
+                                                type=visualization['type'],
+                                                options=json.dumps(visualization['options']),
+                                                query=query)
         return new_visualization
-
 
     def import_widget(self, dashboard, widget):
         visualization = self.import_visualization(dashboard.user, widget['visualization'])
 
-        new_widget = models.Widget.create(dashboard=dashboard,
-                                          width=widget['width'],
-                                          options=json.dumps(widget['options']),
-                                          visualization=visualization)
+        new_widget = self._get_or_create(models.Widget, widget['id'],
+                                         dashboard=dashboard,
+                                         width=widget['width'],
+                                         options=json.dumps(widget['options']),
+                                         visualization=visualization)
 
         return new_widget
-
 
     def import_dashboard(self, user, dashboard):
         """
@@ -61,10 +64,11 @@ class Importer(object):
         dashboard - dashboard to import (can be result of loading a json output).
         """
 
-        new_dashboard = models.Dashboard.create(name=dashboard['name'],
-                                                slug=dashboard['slug'],
-                                                layout='[]',
-                                                user=user)
+        new_dashboard = self._get_or_create(models.Dashboard, dashboard['id'],
+                                            name=dashboard['name'],
+                                            slug=dashboard['slug'],
+                                            layout='[]',
+                                            user=user)
 
         layout = []
 
@@ -81,13 +85,25 @@ class Importer(object):
 
         return new_dashboard
 
+    def _get_or_create(self, object_type, external_id, **properties):
+        internal_id = self._get_mapping(object_type, external_id)
+        if internal_id:
+            update = object_type.update(**properties).where(object_type.id == internal_id)
+            update.execute()
+            obj = object_type.get_by_id(internal_id)
+        else:
+            obj = object_type.create(**properties)
+            self._update_mapping(object_type, external_id, obj.id)
+
+        return obj
+
     def _get_mapping(self, object_type, external_id):
-        self.object_mapping.setdefault(object_type, {})
-        return self.object_mapping[object_type].get(external_id, None)
+        self.object_mapping.setdefault(object_type.__name__, {})
+        return self.object_mapping[object_type.__name__].get(external_id, None)
 
     def _update_mapping(self, object_type, external_id, internal_id):
-        self.object_mapping.setdefault(object_type, {})
-        self.object_mapping[object_type][external_id] = internal_id
+        self.object_mapping.setdefault(object_type.__name__, {})
+        self.object_mapping[object_type.__name__][external_id] = internal_id
 
 import_manager = Manager(help="import utilities")
 export_manager = Manager(help="export utilities")
