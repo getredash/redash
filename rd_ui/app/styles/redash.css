@@ -27,7 +27,7 @@ a.navbar-brand {
 }
 
 .edit-in-place span {
-    white-space: pre;
+    white-space: pre-line;
 }
 .edit-in-place span.editable {
     cursor: pointer;

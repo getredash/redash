@@ -238,9 +238,7 @@
 
                 // ng-click handler to activate edit-in-place
                 $scope.edit = function () {
-                    if ($scope.ignoreBlanks) {
-                        $scope.oldValue = $scope.value;
-                    }
+                    $scope.oldValue = $scope.value;
 
                     $scope.editing = true;
 
@@ -261,7 +259,9 @@
                         $scope.editing = false;
                         element.removeClass('active');
 
-                        $scope.done && $scope.done();
+                        if ($scope.value !== $scope.oldValue) {
+                            $scope.done && $scope.done();
+                        }
                     }
                 }
 

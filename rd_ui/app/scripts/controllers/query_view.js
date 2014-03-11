@@ -3,7 +3,7 @@
 
   var QueryViewCtrl = function($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization) {
     var DEFAULT_TAB = 'table';
-    var pristineHash = null;
+    var pristineHash = "";
     var leavingPageText = "You will lose your changes if you leave";
     var route = $route.current;
 
@@ -27,7 +27,7 @@
 
     function updateSourceHref() {
       $scope.sourceHref = $scope.isSourceVisible ?
-        $location.url().replace('src', '') : $location.path() + '/src#' + $location.hash();
+        $location.url().replace('source', '') : $location.path() + '/source#' + $location.hash();
     };
 
     Mousetrap.bindGlobal("meta+s", function(e) {
@@ -219,6 +219,7 @@
         user: currentUser
       });
       $scope.lockButton(false);
+      $scope.isOwner = $scope.canEdit = true;
     }
 
     $scope.$watch('query.name', function() {
@@ -248,6 +249,7 @@
         Visualization.delete(vis);
         if ($scope.selectedTab == vis.id) {
           $scope.selectedTab = DEFAULT_TAB;
+          $location.hash($scope.selectedTab);
         }
         $scope.query.visualizations =
           $scope.query.visualizations.filter(function(v) {
