@@ -26,7 +26,9 @@
             <div class="visible-xs">
                 <p>
                     <span class="text-muted">Last update </span>
-                    <strong am-time-ago="queryResult.query_result.retrieved_at"></strong>
+                    <strong>
+                        <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
+                    </strong>
                     &nbsp;
                     <span class="text-muted">Created By </span>
                     <strong>{{query.user.name}}</strong>
@@ -85,7 +87,9 @@
             <p>
                 <span class="glyphicon glyphicon-time"></span>
                 <span class="text-muted">Last update </span>
-                <strong am-time-ago="queryResult.query_result.retrieved_at"></strong>
+                <strong>
+                    <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
+                </strong>
             </p>
             <p>
                 <span class="glyphicon glyphicon-user"></span>

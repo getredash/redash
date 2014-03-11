@@ -326,4 +326,17 @@
             }]
         };
     }]);
+
+    directives.directive('rdTimeAgo', function() {
+        return {
+            restrict: 'E',
+            scope: {
+                value: '='
+            },
+            template: '<span>' +
+                        '<span ng-show="value" am-time-ago="value"></span>' +
+                        '<span ng-hide="value">-</span>' +
+                      '</span>'
+        }
+    });
 })();
