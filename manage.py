@@ -10,7 +10,7 @@ atfork.stdlib_fixer.fix_logging_module()
 import logging
 import time
 from redash import settings, app, db, models, data_manager, __version__
-from redash.import_export import manager as import_export_manager
+from redash.import_export import import_manager
 from flask.ext.script import Manager, prompt_pass
 
 manager = Manager(app)
@@ -94,7 +94,7 @@ def delete(email):
 
 manager.add_command("database", database_manager)
 manager.add_command("users", users_manager)
-manager.add_command("import", import_export_manager)
+manager.add_command("import", import_manager)
 
 if __name__ == '__main__':
     channel = logging.StreamHandler()
