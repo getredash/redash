@@ -270,6 +270,11 @@
                     // allow 'shift' to break lines
                     if (e.which === 13 && !e.shiftKey) {
                         save();
+                    } else if (e.which === 27) {
+                        $scope.value = $scope.oldValue;
+                        $scope.$apply(function() {
+                            $(inputElement[0]).blur();
+                        });
                     }
                 }).blur(function() {
                     save();
