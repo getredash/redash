@@ -26,6 +26,9 @@ a.navbar-brand {
     margin-bottom: 5px;
 }
 
+.edit-in-place span {
+    white-space: pre-line;
+}
 .edit-in-place span.editable {
     cursor: pointer;
 }
@@ -215,6 +218,34 @@ to add those CSS styles here. */
     border-radius: 50%;
 }
 
+/* light version of bootstrap's form-control */
+.rd-form-control {
+    display: block;
+    padding: 6px 12px;
+    line-height: 1.428571429;
+    color: #555555;
+    vertical-align: middle;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+.rd-form-control {
+     width: 100%;
+}
 visualization-renderer > div {
     overflow: scroll;
+}
+
+/*
+bootstrap's hidden-xs class adds display:block when not hidden
+use this class when you need to keep the original display value
+*/
+@media (max-width: 767px) {
+    .rd-hidden-xs {
+        display: none !important;
+    }
 }

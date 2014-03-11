@@ -1,0 +1,170 @@
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-10">
+                    <h2>
+                        <edit-in-place editable="isOwner" done="saveQuery" ignore-blanks='true' value="query.name"></edit-in-place>
+                    </h2>
+                    <p>
+                        <em>
+                            <edit-in-place editable="isOwner" done="saveQuery" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
+                        </em>
+                    </p>
+                </div>
+                <div class="col-lg-2" ng-hide="isNewQuery">
+                    <a ng-href="{{sourceHref}}" ng-click="toggleSource()" class="hidden-xs pull-right">
+                        <span ng-show="isSourceVisible">Hide Source</span>
+                        <span ng-show="!isSourceVisible">View Source</span>
+                    </a>
+                </div>
+            </div>
+
+
+
+            <div class="visible-xs">
+                <p>
+                    <span class="text-muted">Last update </span>
+                    <strong>
+                        <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
+                    </strong>
+                    &nbsp;
+                    <span class="text-muted">Created By </span>
+                    <strong>{{query.user.name}}</strong>
+                    &nbsp;
+                    <span class="text-muted">Runtime </span>
+                    <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
+                    <span ng-show="queryExecuting">Running&hellip;</span>
+                    &nbsp;
+                    <span class="text-muted">Rows </span>
+                    <strong>{{queryResult.getData().length}}</strong>
+                </p>
+                <p>
+                    <a ng-href="{{sourceHref}}" ng-click="toggleSource()">
+                        <span ng-show="isSourceVisible">Hide Source</span>
+                        <span ng-show="!isSourceVisible">View Source</span>
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div ng-show="isSourceVisible">
+                <p>
+                    <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
+                        <span class="glyphicon glyphicon-play"></span> Execute
+                    </button>
+                    <button type="button" class="btn btn-default btn-xs" ng-click="formatQuery()">
+                        <span class="glyphicon glyphicon-indent-left"></span> Format SQL
+                    </button>
+                    <span class="pull-right">
+                        <button class="btn btn-xs btn-default rd-hidden-xs" ng-show="canFork" ng-click="duplicateQuery()">
+                            <span class="glyphicon glyphicon-share-alt"></span> Fork
+                        </button>
+
+                        <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery()">
+                            <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
+                        </button>
+                    </span>
+                </p>
+            </div>
+
+            <!-- code editor -->
+            <p ng-show="isSourceVisible">
+                <textarea ui-codemirror="editorOptions" ui-refresh="isSourceVisible" ng-model="query.query"></textarea>
+            </p>
+            <hr ng-show="isSourceVisible">
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col-lg-3 rd-hidden-xs">
+            <p>
+                <span class="glyphicon glyphicon-time"></span>
+                <span class="text-muted">Last update </span>
+                <strong>
+                    <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
+                </strong>
+            </p>
+            <p>
+                <span class="glyphicon glyphicon-user"></span>
+                <span class="text-muted">Created By </span><strong>{{query.user.name}}</strong>
+            </p>
+            <p>
+                <span class="glyphicon glyphicon-play"></span>
+                <span class="text-muted">Runtime </span>
+                <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
+                <span ng-show="queryExecuting">Running&hellip;</span>
+            </p>
+            <p>
+                <span class="glyphicon glyphicon-align-justify"></span>
+                <span class="text-muted">Rows </span><strong>{{queryResult.getData().length}}</strong>
+            </p>
+            <p>
+                <span class="glyphicon glyphicon-refresh"></span>
+                <span class="text-muted">Refresh Interval</span>
+                <select ng-disabled="!isOwner" ng-model="query.ttl" ng-change="saveQuery()" ng-options="c.value as c.name for c in refreshOptions"></select>
+            </p>
+
+            <hr>
+
+            <p>
+                <a class="btn btn-primary btn-sm" ng-disabled="queryExecuting || !queryResult.getData()" ng-href="{{dataUri}}" download="{{dataFilename}}" target="_self">
+                    <span class="glyphicon glyphicon-cloud-download"></span>
+                    <span class="rd-hidden-xs">Download Dataset</span>
+                </a>
+            </p>
+        </div>
+
+        <div class="col-lg-9">
+            <!-- alerts -->
+            <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
+                Executing query&hellip; <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+            </div>
+            <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
+                Query in queue&hellip; <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
+            </div>
+            <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
+
+            <!-- tabs and data -->
+            <div ng-show="queryResult.getStatus() == 'done'">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <ul class="nav nav-tabs">
+                            <rd-tab tab-id="table" name="Table"></rd-tab>
+                            <rd-tab tab-id="pivot" name="Pivot Table"></rd-tab>
+                            <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-hide="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
+                                <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
+                            </rd-tab>
+                            <rd-tab tab-id="add" name="&plus; New" removeable="true" ng-show="canEdit"></rd-tab>
+                        </ul>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <grid-renderer ng-show="selectedTab == 'table'" query-result="queryResult" items-per-page="50"></grid-renderer>
+                        <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
+
+                        <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+                            <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                            <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
+                        </div>
+
+                        <div ng-show="selectedTab == 'add'">
+                            <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
+                            <edit-visulatization-form visualization="newVisualization" query="query" ng-show="canEdit"></edit-visulatization-form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

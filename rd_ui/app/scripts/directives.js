@@ -7,11 +7,11 @@
         return {
             restrict: 'E',
             scope: {
-                'id': '@',
+                'tabId': '@',
                 'name': '@'
             },
             transclude: true,
-            template: '<li class="rd-tab" ng-class="{active: id==selectedTab}"><a href="#{{id}}">{{name}}<span ng-transclude></span></a></li>',
+            template: '<li class="rd-tab" ng-class="{active: tabId==selectedTab}"><a href="#{{tabId}}">{{name}}<span ng-transclude></span></a></li>',
             replace: true,
             link: function(scope) {
                 scope.$watch(function(){return scope.$parent.selectedTab}, function(tab) {
@@ -216,14 +216,15 @@
             scope: {
                 value: '=',
                 ignoreBlanks: '=',
-                editable: '='
+                editable: '=',
+                done: '='
             },
             template: function(tElement, tAttrs) {
                 var elType = tAttrs.editor || 'input';
                 var placeholder = tAttrs.placeholder || 'Click to edit';
                 return '<span ng-click="editable && edit()" ng-bind="value" ng-class="{editable: editable}"></span>' +
                        '<span ng-click="editable && edit()" ng-show="editable && !value" ng-class="{editable: editable}">' + placeholder + '</span>' +
-                       '<{elType} ng-model="value" class="form-control" rows="2"></{elType}>'.replace('{elType}', elType);
+                       '<{elType} ng-model="value" class="rd-form-control"></{elType}>'.replace('{elType}', elType);
             },
             link: function ($scope, element, attrs) {
                 // Let's get a reference to the input element, as we'll want to reference it.
@@ -237,9 +238,7 @@
 
                 // ng-click handler to activate edit-in-place
                 $scope.edit = function () {
-                    if ($scope.ignoreBlanks) {
-                        $scope.oldValue = $scope.value;
-                    }
+                    $scope.oldValue = $scope.value;
 
                     $scope.editing = true;
 
@@ -252,13 +251,34 @@
                     inputElement[0].focus();
                 };
 
-                $(inputElement).blur(function() {
-                    if ($scope.ignoreBlanks && _.isEmpty($scope.value)) {
-                        $scope.value = $scope.oldValue;
+                function save() {
+                    if ($scope.editing) {
+                        if ($scope.ignoreBlanks && _.isEmpty($scope.value)) {
+                            $scope.value = $scope.oldValue;
+                        }
+                        $scope.editing = false;
+                        element.removeClass('active');
+
+                        if ($scope.value !== $scope.oldValue) {
+                            $scope.done && $scope.done();
+                        }
                     }
-                    $scope.editing = false;
-                    element.removeClass('active');
-                })
+                }
+
+                $(inputElement).keydown(function(e) {
+                    // 'return' or 'enter' key pressed
+                    // allow 'shift' to break lines
+                    if (e.which === 13 && !e.shiftKey) {
+                        save();
+                    } else if (e.which === 27) {
+                        $scope.value = $scope.oldValue;
+                        $scope.$apply(function() {
+                            $(inputElement[0]).blur();
+                        });
+                    }
+                }).blur(function() {
+                    save();
+                });
             }
         };
     });
@@ -311,4 +331,17 @@
             }]
         };
     }]);
+
+    directives.directive('rdTimeAgo', function() {
+        return {
+            restrict: 'E',
+            scope: {
+                value: '='
+            },
+            template: '<span>' +
+                        '<span ng-show="value" am-time-ago="value"></span>' +
+                        '<span ng-hide="value">-</span>' +
+                      '</span>'
+        }
+    });
 })();

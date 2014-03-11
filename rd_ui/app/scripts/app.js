@@ -17,6 +17,18 @@ angular.module('redash', [
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
+        function getQuery(Query, $q, $route) {
+            var defer = $q.defer();
+
+            Query.get({
+                'id': $route.current.params.queryId
+            }, function(query) {
+                defer.resolve(query);
+            });
+
+            return defer.promise;
+        }
+
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
         $locationProvider.html5Mode(true);
         growlProvider.globalTimeToLive(2000);
@@ -31,14 +43,40 @@ angular.module('redash', [
             reloadOnSearch: false
         });
         $routeProvider.when('/queries/new', {
+            templateUrl: '/views/queryview.html',
+            controller: 'QueryViewCtrl',
+            reloadOnSearch: false,
+            resolve: {
+                'viewSource': function isViewSource() {
+                    return true;
+                }
+            }
+        });
+        // TODO
+        // we should have 2 controllers: queryViewCtrl and queryEditCtrl
+        $routeProvider.when('/queries/:queryId', {
+            templateUrl: '/views/queryview.html',
+            controller: 'QueryViewCtrl',
+            reloadOnSearch: false,
+            resolve: {
+                'query': getQuery
+            }
+        });
+        $routeProvider.when('/queries/:queryId/fiddle', {
             templateUrl: '/views/queryfiddle.html',
             controller: 'QueryFiddleCtrl',
             reloadOnSearch: false
         });
-        $routeProvider.when('/queries/:queryId', {
-            templateUrl: '/views/queryfiddle.html',
-            controller: 'QueryFiddleCtrl',
-            reloadOnSearch: false
+        $routeProvider.when('/queries/:queryId/source', {
+            templateUrl: '/views/queryview.html',
+            controller: 'QueryViewCtrl',
+            reloadOnSearch: false,
+            resolve: {
+                'query': getQuery,
+                'viewSource': function isViewSource() {
+                    return true;
+                }
+            }
         });
         $routeProvider.when('/admin/status', {
             templateUrl: '/views/admin_status.html',

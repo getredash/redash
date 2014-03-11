@@ -32,10 +32,11 @@ def ping():
 @app.route('/admin/<anything>')
 @app.route('/dashboard/<anything>')
 @app.route('/queries')
-@app.route('/queries/<anything>')
+@app.route('/queries/<query_id>')
+@app.route('/queries/<query_id>/<anything>')
 @app.route('/')
 @auth.required
-def index(anything=None):
+def index(**kwargs):
     email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
@@ -243,7 +244,7 @@ class QueryAPI(BaseResource):
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
         models.Query.update_instance(query_id, **query_def)
-        
+
         query = models.Query.get_by_id(query_id)
 
         return query.to_dict(with_result=False, with_visualizations=True)
