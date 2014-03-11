@@ -43,9 +43,14 @@ angular.module('redash', [
             reloadOnSearch: false
         });
         $routeProvider.when('/queries/new', {
-            templateUrl: '/views/queryfiddle.html',
-            controller: 'QueryFiddleCtrl',
-            reloadOnSearch: false
+            templateUrl: '/views/queryview.html',
+            controller: 'QueryViewCtrl',
+            reloadOnSearch: false,
+            resolve: {
+                'viewSource': function isViewSource() {
+                    return true;
+                }
+            }
         });
         // TODO
         // we should have 2 controllers: queryViewCtrl and queryEditCtrl
@@ -62,7 +67,7 @@ angular.module('redash', [
             controller: 'QueryFiddleCtrl',
             reloadOnSearch: false
         });
-        $routeProvider.when('/queries/:queryId/src', {
+        $routeProvider.when('/queries/:queryId/source', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
