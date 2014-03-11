@@ -233,7 +233,7 @@ to add those CSS styles here. */
     -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
-textarea.rd-form-control {
+.rd-form-control {
      width: 100%;
 }
 visualization-renderer > div {

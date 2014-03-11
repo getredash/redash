@@ -13,7 +13,7 @@
                         </em>
                     </p>
                 </div>
-                <div class="col-lg-2">
+                <div class="col-lg-2" ng-hide="isNewQuery">
                     <a ng-href="{{sourceHref}}" ng-click="toggleSource()" class="hidden-xs pull-right">
                         <span ng-show="isSourceVisible">Hide Source</span>
                         <span ng-show="!isSourceVisible">View Source</span>
@@ -63,11 +63,12 @@
                         <span class="glyphicon glyphicon-indent-left"></span> Format SQL
                     </button>
                     <span class="pull-right">
+                        <button class="btn btn-info btn-xs rd-hidden-xs" ng-show="canFork" ng-click="duplicateQuery()">
+                            <span class="glyphicon glyphicon-share-alt"></span> Fork
+                        </button>
+
                         <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery()">
                             <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
-                        </button>
-                        <button class="btn btn-success btn-xs rd-hidden-xs" ng-show="!canEdit" ng-click="duplicateQuery()">
-                            <span class="glyphicon glyphicon-share-alt"></span> Fork
                         </button>
                     </span>
                 </p>

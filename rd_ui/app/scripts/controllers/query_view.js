@@ -8,8 +8,10 @@
     var route = $route.current;
 
     $scope.dirty = undefined;
+    $scope.isNewQuery = false;
     $scope.isOwner = false;
     $scope.canEdit = false;
+    $scope.canFork = false;
 
     $scope.isSourceVisible = route.locals.viewSource;
 
@@ -26,8 +28,14 @@
     }
 
     function updateSourceHref() {
-      $scope.sourceHref = $scope.isSourceVisible ?
-        $location.url().replace('source', '') : $location.path() + '/source#' + $location.hash();
+      if ($scope.query && $scope.query.id) {
+        $scope.sourceHref = $scope.isSourceVisible ?
+          $location.url().replace('source', '') : getQuerySourceUrl($scope.query.id);
+      }
+    };
+
+    function getQuerySourceUrl(queryId) {
+      return '/queries/' + queryId + '/source#' + $location.hash();
     };
 
     Mousetrap.bindGlobal("meta+s", function(e) {
@@ -53,8 +61,6 @@
         Mousetrap.unbind("meta+s");
       }
     });
-
-    $scope.$parent.pageTitle = "Query Fiddle";
 
     $scope.$watch(function() {
       return $location.hash()
@@ -89,25 +95,13 @@
         $scope.dirty = false;
 
         if (duplicate) {
-          growl.addInfoMessage("Query duplicated.", {
-            ttl: 2000
-          });
+          growl.addSuccessMessage("Query forked");
         } else {
-          growl.addSuccessMessage("Query saved.", {
-            ttl: 2000
-          });
+          growl.addSuccessMessage("Query saved");
         }
 
         if (oldId != q.id) {
-          if (oldId == undefined) {
-            $location.path($location.path().replace('new', q.id)).replace();
-          } else {
-            // TODO: replace this with a safer method
-            $location.path($location.path().replace(oldId, q.id)).replace();
-
-            // Reset visualizations tab to table after duplicating a query:
-            $location.hash(DEFAULT_TAB);
-          }
+          $location.url(getQuerySourceUrl(q.id)).replace();
         }
       }, function(httpResponse) {
         growl.addErrorMessage("Query could not be saved");
@@ -209,6 +203,7 @@
 
       $scope.isOwner = currentUser.canEdit($scope.query);
       $scope.canEdit = $scope.isSourceVisible && $scope.isOwner;
+      $scope.canFork = true;
 
     } else {
       // new query
@@ -220,6 +215,7 @@
       });
       $scope.lockButton(false);
       $scope.isOwner = $scope.canEdit = true;
+      $scope.isNewQuery = true;
     }
 
     $scope.$watch('query.name', function() {
