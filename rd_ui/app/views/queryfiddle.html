@@ -52,13 +52,13 @@
 
     <div class="row" ng-show="queryResult.getStatus() == 'done'">
         <ul class="nav nav-tabs">
-            <rd-tab id="table" name="Table"></rd-tab>
-            <rd-tab id="pivot" name="Pivot Table"></rd-tab>
+            <rd-tab tab-id="table" name="Table"></rd-tab>
+            <rd-tab tab-id="pivot" name="Pivot Table"></rd-tab>
             <!-- hide the table visualization -->
-            <rd-tab id="{{vis.id}}" name="{{vis.name}}" ng-hide="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
+            <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-hide="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="currentUser.canEdit(query)"> &times;</span>
             </rd-tab>
-            <rd-tab id="add" name="&plus; New" removeable="true" ng-show="currentUser.canEdit(query)"></rd-tab>
+            <rd-tab tab-id="add" name="&plus; New" removeable="true" ng-show="currentUser.canEdit(query)"></rd-tab>
         </ul>
 
         <div class="col-lg-12" ng-show="selectedTab == 'table'">
