@@ -14,7 +14,8 @@ class ImportTest(BaseTestCase):
             self.user = user_factory.create()
 
     def test_imports_dashboard_correctly(self):
-        dashboard = import_export.import_dashboard(self.user, self.dashboard)
+        importer = import_export.Importer()
+        dashboard = importer.import_dashboard(self.user, self.dashboard)
 
         self.assertIsNotNone(dashboard)
         self.assertEqual(dashboard.name, self.dashboard['name'])
