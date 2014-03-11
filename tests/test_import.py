@@ -2,7 +2,7 @@ import json
 from tests import BaseTestCase
 from redash import models
 from redash import import_export
-from factories import user_factory
+from factories import user_factory, dashboard_factory
 
 
 class ImportTest(BaseTestCase):
@@ -37,3 +37,16 @@ class ImportTest(BaseTestCase):
         dashboard = importer.import_dashboard(self.user, self.dashboard)
         self.assertEqual(dashboard.name, self.dashboard['name'])
         self.assertEquals(models.Dashboard.select().count(), 1)
+
+    def test_using_existing_mapping(self):
+        dashboard = dashboard_factory.create()
+        mapping = {
+            'Dashboard': {
+                "1": dashboard.id
+            }
+        }
+
+        importer = import_export.Importer(object_mapping=mapping)
+        imported_dashboard = importer.import_dashboard(self.user, self.dashboard)
+
+        self.assertEqual(imported_dashboard, dashboard)

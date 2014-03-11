@@ -99,21 +99,27 @@ class Importer(object):
 
     def _get_mapping(self, object_type, external_id):
         self.object_mapping.setdefault(object_type.__name__, {})
-        return self.object_mapping[object_type.__name__].get(external_id, None)
+        return self.object_mapping[object_type.__name__].get(str(external_id), None)
 
     def _update_mapping(self, object_type, external_id, internal_id):
         self.object_mapping.setdefault(object_type.__name__, {})
-        self.object_mapping[object_type.__name__][external_id] = internal_id
+        self.object_mapping[object_type.__name__][str(external_id)] = internal_id
 
 import_manager = Manager(help="import utilities")
 export_manager = Manager(help="export utilities")
 
 @import_manager.command
-def dashboard(filename, user_id):
+def dashboard(mapping_filename, dashboard_filename, user_id):
+    with open(mapping_filename) as f:
+        mapping = json.loads(f.read())
+
     user = models.User.get_by_id(user_id)
-    with open(filename) as f:
+    with open(dashboard_filename) as f:
         dashboard = json.loads(f.read())
 
-        importer = Importer()
+        importer = Importer(object_mapping=mapping)
         importer.import_dashboard(user, dashboard)
+
+    with open(mapping_filename, 'w') as f:
+        f.write(json.dumps(importer.object_mapping, indent=2))
 
