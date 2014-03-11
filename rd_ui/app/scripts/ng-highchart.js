@@ -225,12 +225,16 @@
                                     // TODO: move this logic to Query#getChartData
                                     var yValues = _.groupBy(s.data, 'x');
 
-                                    var newData = _.sortBy(_.map(categories, function (category) {
+                                    var newData = _.map(categories, function (category) {
                                         return {
                                             name: category,
                                             y: yValues[category] && yValues[category][0].y
                                         }
-                                    }), 'y').reverse();
+                                    });
+
+                                    if (categories.length == 1) {
+                                        newData = _.sortBy(newData, 'y').reverse();
+                                    };
 
                                     s.data = newData;
                                 });
