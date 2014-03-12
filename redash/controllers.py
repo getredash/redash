@@ -46,7 +46,8 @@ def index(**kwargs):
         'is_admin': current_user.is_admin,
         'id': current_user.id,
         'name': current_user.name,
-        'email': current_user.email
+        'email': current_user.email,
+        'permissions': current_user.permissions
     }
 
     return render_template("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
