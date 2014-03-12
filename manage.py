@@ -69,14 +69,18 @@ def drop_tables():
 
 @users_manager.option('email', help="User's email")
 @users_manager.option('name', help="User's full name")
-@users_manager.option('--admin', dest='is_admin', default=False, help="set user as admin")
-@users_manager.option('--google', dest='google_auth', default=False, help="user uses Google Auth to login")
+@users_manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
+@users_manager.option('--google', dest='google_auth', action="store_true", default=False, help="user uses Google Auth to login")
 def create(email, name, is_admin=False, google_auth=False):
     print "Creating user (%s, %s)..." % (email, name)
     print "Admin: %r" % is_admin
     print "Login with Google Auth: %r\n" % google_auth
 
-    user = models.User(email=email, name=name, is_admin=is_admin)
+    permissions = models.User.DEFAULT_PERMISSIONS
+    if is_admin:
+        permissions += ['admin']
+
+    user = models.User(email=email, name=name, permissions=permissions)
     if not google_auth:
         password = prompt_pass("Password")
         user.hash_password(password)

@@ -3,9 +3,10 @@ import hashlib
 import time
 import datetime
 from flask.ext.peewee.utils import slugify
-from flask.ext.login import UserMixin
+from flask.ext.login import UserMixin, AnonymousUserMixin
 from passlib.apps import custom_app_context as pwd_context
 import peewee
+from playhouse.postgres_ext import ArrayField
 from redash import db, utils
 
 
@@ -15,12 +16,22 @@ class BaseModel(db.Model):
         return cls.get(cls.id == model_id)
 
 
+class AnonymousUser(AnonymousUserMixin):
+    @property
+    def permissions(self):
+        return []
+
+
 class User(BaseModel, UserMixin):
+    DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
+                           'view_source', 'execute_query']
+
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
     is_admin = peewee.BooleanField(default=False)
+    permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
 
     class Meta:
         db_table = 'users'
