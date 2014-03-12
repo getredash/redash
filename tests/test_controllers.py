@@ -339,7 +339,7 @@ class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
 
     def test_returns_200_for_correct_signature(self):
         with app.test_client() as c:
-            expires = time.time()+3600
+            expires = time.time()+1800
             rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id), query_string={'signature': self.signature(expires), 'expires': expires})
             self.assertEquals(rv.status_code, 200)
 
