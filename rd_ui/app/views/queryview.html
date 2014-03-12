@@ -13,7 +13,7 @@
                         </em>
                     </p>
                 </div>
-                <div class="col-lg-2" ng-hide="isNewQuery">
+                <div class="col-lg-2" ng-hide="isNewQuery || !currentUser.hasPermission('view_source')">
                     <a ng-href="{{sourceHref}}" ng-click="toggleSource()" class="hidden-xs pull-right">
                         <span ng-show="isSourceVisible">Hide Source</span>
                         <span ng-show="!isSourceVisible">View Source</span>

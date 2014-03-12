@@ -24,7 +24,7 @@ class AnonymousUser(AnonymousUserMixin):
 
 class User(BaseModel, UserMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
-                           'execute_query']
+                           'view_source', 'execute_query']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
