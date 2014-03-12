@@ -322,7 +322,7 @@ def create_db(create_tables, drop_tables):
             db.database.execute_sql('DROP TABLE %s CASCADE' % model._meta.db_table)
             #model.drop_table()
 
-        if create_tables:
+        if create_tables and not model.table_exists():
             model.create_table()
 
     db.close_db(None)
