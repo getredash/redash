@@ -17,7 +17,7 @@ from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
 
 import sqlparse
-from authentication import requires_role
+from permissions import require_permission
 from redash import settings, utils
 from redash import data
 
@@ -84,7 +84,7 @@ def logout():
 
 @app.route('/status.json')
 @auth.required
-@requires_role('admin')
+@require_permission('admin')
 def status_api():
     status = {}
     info = redis_connection.info()
@@ -133,6 +133,7 @@ class DashboardListAPI(BaseResource):
 
         return dashboards
 
+    @require_permission('create_dashboard')
     def post(self):
         dashboard_properties = request.get_json(force=True)
         dashboard = models.Dashboard(name=dashboard_properties['name'],
@@ -151,6 +152,7 @@ class DashboardAPI(BaseResource):
 
         return dashboard.to_dict(with_widgets=True)
 
+    @require_permission('edit_dashboard')
     def post(self, dashboard_slug):
         dashboard_properties = request.get_json(force=True)
         # TODO: either convert all requests to use slugs or ids
@@ -161,6 +163,7 @@ class DashboardAPI(BaseResource):
 
         return dashboard.to_dict(with_widgets=True)
 
+    @require_permission('edit_dashboard')
     def delete(self, dashboard_slug):
         dashboard = models.Dashboard.get_by_slug(dashboard_slug)
         dashboard.is_archived = True
@@ -171,6 +174,7 @@ api.add_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='das
 
 
 class WidgetListAPI(BaseResource):
+    @require_permission('edit_dashboard')
     def post(self):
         widget_properties = request.get_json(force=True)
         widget_properties['options'] = json.dumps(widget_properties['options'])
@@ -202,6 +206,7 @@ class WidgetListAPI(BaseResource):
 
 
 class WidgetAPI(BaseResource):
+    @require_permission('edit_dashboard')
     def delete(self, widget_id):
         widget = models.Widget.get(models.Widget.id == widget_id)
         # TODO: reposition existing ones
@@ -218,6 +223,7 @@ api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
 
 
 class QueryListAPI(BaseResource):
+    @require_permission('create_query')
     def post(self):
         query_def = request.get_json(force=True)
         # id, created_at, api_key
@@ -237,6 +243,7 @@ class QueryListAPI(BaseResource):
 
 
 class QueryAPI(BaseResource):
+    @require_permission('edit_query')
     def post(self, query_id):
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
@@ -263,6 +270,7 @@ api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
 
 
 class VisualizationListAPI(BaseResource):
+    @require_permission('edit_query')
     def post(self):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
@@ -275,6 +283,7 @@ class VisualizationListAPI(BaseResource):
 
 
 class VisualizationAPI(BaseResource):
+    @require_permission('edit_query')
     def post(self, visualization_id):
         kwargs = request.get_json(force=True)
         if 'options' in kwargs:
@@ -288,6 +297,7 @@ class VisualizationAPI(BaseResource):
 
         return vis.to_dict(with_query=False)
 
+    @require_permission('edit_query')
     def delete(self, visualization_id):
         vis = models.Visualization.get(models.Visualization.id == visualization_id)
         vis.delete_instance()
@@ -297,6 +307,7 @@ api.add_resource(VisualizationAPI, '/api/visualizations/<visualization_id>', end
 
 
 class QueryResultListAPI(BaseResource):
+    @require_permission('execute_query')
     def post(self):
         params = request.json
         
