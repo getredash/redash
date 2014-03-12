@@ -50,7 +50,8 @@ def index(**kwargs):
         'permissions': current_user.permissions
     }
 
-    return render_template("index.html", user=json.dumps(user), analytics=settings.ANALYTICS)
+    return render_template("index.html", user=json.dumps(user), name=settings.NAME,
+                           analytics=settings.ANALYTICS)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -70,6 +71,7 @@ def login():
             return redirect(request.args.get('next') or '/')
 
     return render_template("login.html",
+                           name=settings.NAME,
                            analytics=settings.ANALYTICS,
                            next=request.args.get('next'),
                            username=request.form.get('username', ''),

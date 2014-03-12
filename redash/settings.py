@@ -44,6 +44,8 @@ STATSD_HOST = os.environ.get('REDASH_STATSD_HOST', "127.0.0.1")
 STATSD_PORT = int(os.environ.get('REDASH_STATSD_PORT', "8125"))
 STATSD_PREFIX = os.environ.get('REDASH_STATSD_PREFIX', "redash")
 
+NAME = os.environ.get('REDASH_NAME', 're:dash')
+
 # "pg", "graphite" or "mysql"
 CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
 # Connection string for the database that is used to run queries against. Examples:
