@@ -18,17 +18,20 @@ class BaseModel(db.Model):
 
 class AnonymousUser(AnonymousUserMixin):
     @property
-    def roles(self):
+    def permissions(self):
         return []
 
 
 class User(BaseModel, UserMixin):
+    DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
+                           'execute_query']
+
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
     is_admin = peewee.BooleanField(default=False)
-    roles = ArrayField(peewee.CharField, default=['editor', 'viewer'])
+    permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
 
     class Meta:
         db_table = 'users'
