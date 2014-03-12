@@ -75,10 +75,22 @@ class IndexTest(BaseTestCase, AuthenticationTestMixin):
         super(IndexTest, self).setUp()
 
 
-class StatusTest(BaseTestCase, AuthenticationTestMixin):
-    def setUp(self):
-        self.paths = ['/status.json']
-        super(StatusTest, self).setUp()
+class StatusTest(BaseTestCase):
+    def test_returns_data_for_admin(self):
+        admin = user_factory.create(permissions=['admin'])
+        with app.test_client() as c, authenticated_user(c, user=admin):
+            rv = c.get('/status.json')
+            self.assertEqual(rv.status_code, 200)
+
+    def test_returns_403_for_non_admin(self):
+        with app.test_client() as c, authenticated_user(c):
+            rv = c.get('/status.json')
+            self.assertEqual(rv.status_code, 403)
+
+    def test_redirects_non_authenticated_user(self):
+        with app.test_client() as c:
+            rv = c.get('/status.json')
+            self.assertEqual(rv.status_code, 302)
 
 
 class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
