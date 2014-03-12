@@ -3,7 +3,7 @@
     <div class="list-group" ng-repeat="(name, dashboards) in allDashboards">
         <div class="list-group-item active">
             {{name}}
-            <button type="button" class="btn btn-sm btn-link" data-toggle="modal" href="#new_dashboard_dialog" tooltip="New Dashboard"><span class="glyphicon glyphicon-plus-sign"></span></button>
+            <button ng-show="currentUser.hasPermission('create_dashboard')" type="button" class="btn btn-sm btn-link" data-toggle="modal" href="#new_dashboard_dialog" tooltip="New Dashboard"><span class="glyphicon glyphicon-plus-sign"></span></button>
         </div>
         <div class="list-group-item" ng-repeat="dashboard in dashboards" >
             <button type="button" class="close delete-button" aria-hidden="true" ng-show="dashboard.canEdit()" ng-click="archiveDashboard(dashboard)" tooltip="Delete Dashboard">&times;</button>
@@ -11,7 +11,7 @@
         </div>
     </div>
 
-    <div ng-show="currentUser.is_admin">
+    <div ng-show="currentUser.hasPermission('admin')">
         <div class="list-group">
             <div class="list-group-item active">Admin</div>
             <a href="/admin/status" class="list-group-item">Status</a>

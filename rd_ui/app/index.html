@@ -51,14 +51,14 @@
                     <li ng-repeat="dashboard in otherDashboards">
                         <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                     </li>
-                    <li class="divider"></li>
-                    <li><a data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</a></li>
+                    <li class="divider" ng-show="currentUser.hasPermission('create_dashboard')"></li>
+                    <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
                 </ul>
             </li>
             <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Queries <b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    <li><a href="/queries/new">New Query</a></li>
+                    <li ng-show="currentUser.hasPermission('create_query')"><a href="/queries/new">New Query</a></li>
                     <li><a href="/queries">Queries</a></li>
                 </ul>
             </li>
@@ -134,6 +134,10 @@
         var user_id = object.user_id || (object.user && object.user.id);
         return user_id && (user_id == currentUser.id);
     };
+
+    currentUser.hasPermission = function(permission) {
+        return this.permissions.indexOf(permission) != -1;
+    }
 
     {{ analytics|safe }}
 </script>
