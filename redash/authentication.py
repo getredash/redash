@@ -1,16 +1,21 @@
 import functools
 import hashlib
 import hmac
-from flask import current_app, request, make_response, g, redirect, url_for
-from flask.ext.googleauth import GoogleAuth, login
-from flask.ext.login import LoginManager, login_user, current_user
 import time
 import logging
+
+from flask import request, make_response, redirect, url_for
+from flask.ext.googleauth import GoogleAuth, login
+from flask.ext.login import LoginManager, login_user, current_user
 from werkzeug.contrib.fixers import ProxyFix
+
+from models import AnonymousUser
 from redash import models, settings
+
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
+
 
 def sign(key, path, expires):
     if not key:
@@ -39,14 +44,10 @@ class HMACAuthentication(object):
 
         return False
 
-    @staticmethod
-    def is_user_logged_in():
-        return current_user.is_authenticated()
-
     def required(self, fn):
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
-            if self.is_user_logged_in():
+            if current_user.is_authenticated():
                 return fn(*args, **kwargs)
 
             if self.api_key_authentication():
@@ -98,6 +99,7 @@ def setup_authentication(app):
             openid_auth._OPENID_ENDPOINT = "https://www.google.com/a/%s/o8/ud?be=o8" % settings.GOOGLE_APPS_DOMAIN
 
     login_manager.init_app(app)
+    login_manager.anonymous_user = AnonymousUser
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.secret_key = settings.COOKIE_SECRET
 

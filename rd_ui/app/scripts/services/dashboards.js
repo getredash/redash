@@ -2,7 +2,7 @@
     var Dashboard = function($resource) {
         var resource = $resource('/api/dashboards/:slug', {slug: '@slug'});
         resource.prototype.canEdit = function() {
-            return currentUser.is_admin || currentUser.canEdit(this);
+            return currentUser.hasPermission('admin') || currentUser.canEdit(this);
         }
         return resource;
     }
