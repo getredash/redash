@@ -237,7 +237,7 @@ to add those CSS styles here. */
      width: 100%;
 }
 visualization-renderer > div {
-    overflow: scroll;
+    overflow: auto;
 }
 
 /*
