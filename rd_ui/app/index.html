@@ -64,8 +64,11 @@
             </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <p class="navbar-text avatar">
-                <img ng-src="{{currentUser.gravatar_url}}" class="img-circle" alt="{{currentUser.name}}" width="40" height="40"/>
+            <p class="navbar-text avatar" ng-show="currentUser.id" ng-cloak>
+                <img ng-src="{{currentUser.gravatar_url}}" class="img-circle" alt="{{currentUser.name}}"/>
+                <a target="_self" href="/logout" id="logout" title="Logout">
+                    <span class="glyphicon glyphicon-log-out"></span>
+                </a>
             </p>
         </ul>
     </div>
