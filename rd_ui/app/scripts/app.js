@@ -27,7 +27,7 @@ angular.module('redash', [
             });
 
             return defer.promise;
-        }
+        };
 
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
         $locationProvider.html5Mode(true);
@@ -59,7 +59,7 @@ angular.module('redash', [
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': getQuery
+                'query': ['Query', '$q', '$route', getQuery]
             }
         });
         $routeProvider.when('/queries/:queryId/fiddle', {
@@ -72,7 +72,7 @@ angular.module('redash', [
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': getQuery,
+                'query': ['Query', '$q', '$route', getQuery],
                 'viewSource': function isViewSource() {
                     return true;
                 }
