@@ -16,8 +16,8 @@
     "angular-resource": "1.0.7",
     "angular-growl": "0.3.1",
     "angular-route": "1.2.7",
-    "pivottable": "git@github.com:arikfr/pivottable.git#master",
-    "cornelius": "git@github.com:restorando/cornelius.git",
+    "pivottable": "https://github.com/arikfr/pivottable.git",
+    "cornelius": "https://github.com/restorando/cornelius.git",
     "gridster": "0.2.0",
     "mousetrap": "~1.4.6"
   },
