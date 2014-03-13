@@ -60,9 +60,7 @@
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
                     </button>
-                    <button type="button" class="btn btn-default btn-xs" ng-click="formatQuery()">
-                        <span class="glyphicon glyphicon-indent-left"></span> Format SQL
-                    </button>
+                    <query-formatter query="query" lock="queryExecuting" editor-options="editorOptions"></query-formatter>
                     <span class="pull-right">
                         <button class="btn btn-xs btn-default rd-hidden-xs" ng-show="canFork" ng-click="duplicateQuery()">
                             <span class="glyphicon glyphicon-share-alt"></span> Fork
@@ -77,7 +75,7 @@
 
             <!-- code editor -->
             <p ng-show="isSourceVisible">
-                <textarea ui-codemirror="editorOptions" ui-refresh="isSourceVisible" ng-model="query.query"></textarea>
+                <query-editor query="query"></query-editor>
             </p>
             <hr ng-show="isSourceVisible">
         </div>
@@ -112,13 +110,7 @@
             <p>
                 <span class="glyphicon glyphicon-refresh"></span>
                 <span class="text-muted">Refresh Interval</span>
-                <select ng-disabled="!isOwner" ng-model="query.ttl" ng-change="saveQuery()" ng-options="c.value as c.name for c in refreshOptions"></select>
-            </p>
-
-            <p>
-                <span class="glyphicon glyphicon-hdd"></span>
-                <span class="text-muted">Data Source</span>
-                <select ng-disabled="!isOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
+                <query-refresh-select></query-refresh-select>
             </p>
 
             <hr>
@@ -159,11 +151,7 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <div ng-show="selectedTab == 'table'" >
-                            <filters></filters>
-                            <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                        </div>
-
+                        <grid-renderer ng-show="selectedTab == 'table'" query-result="queryResult" items-per-page="50"></grid-renderer>
                         <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
