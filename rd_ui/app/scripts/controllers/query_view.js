@@ -1,77 +1,23 @@
 (function () {
     'use strict';
 
-    var QueryViewCtrl = function ($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization, DataSource) {
+    function QueryViewCtrl($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization) {
         var DEFAULT_TAB = 'table';
-        var pristineHash = "";
-        var leavingPageText = "You will lose your changes if you leave";
         var route = $route.current;
 
-        $scope.dataSources = DataSource.get(function(dataSources) {
-            $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
-        });
-
-        $scope.dirty = undefined;
-        $scope.isNewQuery = false;
-        $scope.isOwner = false;
-        $scope.canEdit = false;
-        $scope.canFork = false;
-
-        $scope.isSourceVisible = route.locals.viewSource;
-
+        $scope.query = route.locals.query;
+        $scope.queryResult = $scope.query.getQueryResult();
         $scope.queryExecuting = false;
 
-        $scope.newVisualization = undefined;
+        $scope.isOwner = currentUser.canEdit($scope.query);
+        $scope.canEdit = $scope.isSourceVisible && $scope.isOwner;
+        $scope.canFork = true;
 
-        updateSourceHref();
-
-        $window.onbeforeunload = function () {
-            if ($scope.canEdit && $scope.dirty) {
-                return leavingPageText;
-            }
-        }
-
-        function updateSourceHref() {
-            if ($scope.query && $scope.query.id) {
-                $scope.sourceHref = $scope.isSourceVisible ?
-                    $location.url().replace('source', '') : getQuerySourceUrl($scope.query.id);
-            }
-        };
+        $scope.sourceHref = getQuerySourceUrl();
 
         function getQuerySourceUrl(queryId) {
-            return '/queries/' + queryId + '/source#' + $location.hash();
+            return '/queries/' + $scope.query.id + '/source#' + $location.hash();
         };
-
-        Mousetrap.bindGlobal("meta+s", function (e) {
-            e.preventDefault();
-
-            if ($scope.canEdit) {
-                $scope.saveQuery();
-            }
-        });
-
-        $scope.$on('$locationChangeStart', function (event, next, current) {
-            if (next.split("#")[0] == current.split("#")[0]) {
-                return;
-            }
-
-            if (!$scope.canEdit) {
-                return;
-            }
-
-            if ($scope.dirty && !confirm(leavingPageText + "\n\nAre you sure you want to leave this page?")) {
-                event.preventDefault();
-            } else {
-                Mousetrap.unbind("meta+s");
-            }
-        });
-
-        $scope.$watch(function () {
-            return $location.hash()
-        }, function (hash) {
-            $scope.selectedTab = hash || DEFAULT_TAB;
-            updateSourceHref();
-        });
 
         $scope.lockButton = function (lock) {
             $scope.queryExecuting = lock;
@@ -88,31 +34,6 @@
             })
         }
 
-        $scope.saveQuery = function (duplicate, oldId) {
-            if (!oldId) {
-                oldId = $scope.query.id;
-            }
-
-            delete $scope.query.latest_query_data;
-
-            $scope.query.$save(function (q) {
-                pristineHash = q.getHash();
-                $scope.dirty = false;
-
-                if (duplicate) {
-                    growl.addSuccessMessage("Query forked");
-                } else {
-                    growl.addSuccessMessage("Query saved");
-                }
-
-                if (oldId != q.id) {
-                    $location.url(getQuerySourceUrl(q.id)).replace();
-                }
-            }, function (httpResponse) {
-                growl.addErrorMessage("Query could not be saved");
-            });
-        };
-
         $scope.duplicateQuery = function () {
             var oldId = $scope.query.id;
             $scope.query.id = null;
@@ -121,7 +42,17 @@
             $scope.saveQuery(true, oldId);
         };
 
-        // Query Editor:
+        $scope.executeQuery = function () {
+            $scope.queryResult = $scope.query.getQueryResult(0);
+            $scope.lockButton(true);
+            $scope.cancelling = false;
+        };
+
+        $scope.cancelExecution = function () {
+            $scope.cancelling = true;
+            $scope.queryResult.cancelExecution();
+        };
+
         $scope.editorOptions = {
             mode: 'text/x-sql',
             lineWrapping: true,
@@ -204,100 +135,17 @@
             }
         });
 
-        // view or source pages: controller is instantiated with a query
-        if (route.locals.query) {
-            $scope.query = route.locals.query;
-            pristineHash = $scope.query.getHash();
-            $scope.dirty = false;
-            $scope.queryResult = $scope.query.getQueryResult();
-
-            $scope.isOwner = currentUser.canEdit($scope.query);
-            $scope.canEdit = $scope.isSourceVisible && $scope.isOwner;
-            $scope.canFork = true;
-
-        } else {
-            // new query
-            $scope.query = new Query({
-                query: "",
-                name: "New Query",
-                ttl: -1,
-                user: currentUser
-            });
-            $scope.lockButton(false);
-            $scope.isOwner = $scope.canEdit = true;
-            $scope.isNewQuery = true;
-        }
-
         $scope.$watch('query.name', function () {
             $scope.$parent.pageTitle = $scope.query.name;
         });
-
         $scope.$watch(function () {
-            return $scope.query.getHash();
-        }, function (newHash) {
-            $scope.dirty = (newHash !== pristineHash);
-        });
-
-        $scope.updateDataSource = function() {
-            $scope.query.latest_query_data = null;
-            $scope.query.latest_query_data_id = null;
-            Query.save({
-                'id': $scope.query.id,
-                'data_source_id': $scope.query.data_source_id,
-                'latest_query_data_id': null
-            });
-
-            $scope.executeQuery();
-
-        };
-
-        $scope.executeQuery = function () {
-            $scope.queryResult = $scope.query.getQueryResult(0);
-            $scope.lockButton(true);
-            $scope.cancelling = false;
-        };
-
-        $scope.cancelExecution = function () {
-            $scope.cancelling = true;
-            $scope.queryResult.cancelExecution();
-        };
-
-        $scope.deleteVisualization = function ($e, vis) {
-            $e.preventDefault();
-            if (confirm('Are you sure you want to delete ' + vis.name + ' ?')) {
-                Visualization.delete(vis);
-                if ($scope.selectedTab == vis.id) {
-                    $scope.selectedTab = DEFAULT_TAB;
-                    $location.hash($scope.selectedTab);
-                }
-                $scope.query.visualizations =
-                    $scope.query.visualizations.filter(function (v) {
-                        return vis.id !== v.id;
-                    });
-            }
-        };
-
-        var unbind = $scope.$watch('selectedTab == "add"', function (newPanel) {
-            if (newPanel && route.params.queryId == undefined) {
-                unbind();
-                $scope.saveQuery();
-            }
+            return $location.hash()
+        }, function (hash) {
+            $scope.selectedTab = hash || DEFAULT_TAB;
+            $scope.sourceHref = getQuerySourceUrl();
         });
     };
 
-    angular.module('redash.controllers').controller('QueryViewCtrl',
-        [
-            '$scope',
-            '$window',
-            '$route',
-            '$http',
-            '$location',
-            'growl',
-            'notifications',
-            'Query',
-            'Visualization',
-            'DataSource',
-            QueryViewCtrl
-        ]);
-
+    angular.module('redash.controllers')
+    .controller('QueryViewCtrl', ['$scope', '$window', '$route', '$http', '$location', 'growl', 'notifications', 'Query', 'Visualization', QueryViewCtrl]);
 })();
