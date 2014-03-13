@@ -25,6 +25,17 @@ a.navbar-brand {
     margin-top: 5px;
     margin-bottom: 5px;
 }
+.avatar img {
+    width: 40px;
+    height: 40px;
+}
+
+#logout {
+    color: white;
+    position: relative;
+    left: -9px;
+    bottom: -11px;
+}
 
 .edit-in-place span {
     white-space: pre-line;
