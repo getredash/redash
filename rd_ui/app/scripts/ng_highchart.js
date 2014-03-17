@@ -234,8 +234,6 @@
 
                                     s.data = newData;
                                 });
-
-                                console.log(scope.series);
                             }
                         } else {
                             scope.chart.xAxis[0].update({type: 'datetime'});
