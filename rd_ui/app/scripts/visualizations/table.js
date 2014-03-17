@@ -38,17 +38,21 @@
                         $scope.gridData = [];
                         $scope.filters = [];
                     } else {
-
-
                         $scope.filters = $scope.queryResult.getFilters();
 
-                        var gridData = _.map($scope.queryResult.getData(), function (row) {
-                            var newRow = {};
-                            _.each(row, function (val, key) {
-                                newRow[$scope.queryResult.getColumnCleanName(key)] = val;
-                            })
-                            return newRow;
-                        });
+                        var prepareGridData = function(data) {
+                            var gridData = _.map(data, function (row) {
+                                var newRow = {};
+                                _.each(row, function (val, key) {
+                                    newRow[$scope.queryResult.getColumnCleanName(key)] = val;
+                                })
+                                return newRow;
+                            });
+
+                            return gridData;
+                        };
+
+                        $scope.gridData = prepareGridData($scope.queryResult.getData());
 
                         $scope.gridColumns = _.map($scope.queryResult.getColumnCleanNames(), function (col, i) {
                             var columnDefinition = {
@@ -56,8 +60,10 @@
                                 'map': col
                             };
 
-                            if (gridData.length > 0) {
-                                var exampleData = gridData[0][col];
+                            var rawData = $scope.queryResult.getRawData();
+
+                            if (rawData.length > 0) {
+                                var exampleData = rawData[0][col];
                                 if (angular.isNumber(exampleData)) {
                                     columnDefinition['formatFunction'] = 'number';
                                     columnDefinition['formatParameter'] = 2;
@@ -76,20 +82,6 @@
 
                             return columnDefinition;
                         });
-
-                        $scope.gridData = _.clone(gridData);
-
-                        $scope.$watch('filters', function (filters) {
-                            $scope.gridData = _.filter(gridData, function (row) {
-                                return _.reduce(filters, function (memo, filter) {
-                                    if (filter.current == 'All') {
-                                        return memo && true;
-                                    }
-
-                                    return (memo && row[$scope.queryResult.getColumnCleanName(filter.name)] == filter.current);
-                                }, true);
-                            });
-                        }, true);
                     }
                 });
             }]

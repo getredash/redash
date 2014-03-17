@@ -181,17 +181,13 @@
                         }, true);
 
                         //Update when charts data changes
-                        scope.$watch(function () {
-                            // TODO: this might be an issue in case the series change, but they stay
-                            // with the same length
-                            return (scope.series && scope.series.length) || 0;
-                        }, function (length) {
-                            if (!length || length == 0) {
+                        scope.$watchCollection('series', function (series) {
+                            if (!series || series.length == 0) {
                                 scope.chart.showLoading();
                             } else {
                                 drawChart();
                             };
-                        }, true);
+                        });
                     });
 
                     function initChart(options) {

@@ -7,6 +7,8 @@
             angular.extend(this, props);
             if ('query_result' in props) {
                 this.status = "done";
+                this.filters = undefined;
+                this.filterFreeze = undefined;
 
                 _.each(this.query_result.data.rows, function (row) {
                     _.each(row, function (v, k) {
@@ -26,6 +28,8 @@
             this.job = {};
             this.query_result = {};
             this.status = "waiting";
+            this.filters = undefined;
+            this.filterFreeze = undefined;
 
             this.updatedAt = moment();
 
@@ -76,13 +80,49 @@
             return this.query_result.runtime;
         }
 
-        QueryResult.prototype.getData = function() {
+        QueryResult.prototype.getRawData = function() {
             if (!this.query_result.data) {
                 return null;
             }
 
             var data = this.query_result.data.rows;
+
             return data;
+        }
+
+        QueryResult.prototype.getData = function() {
+            if (!this.query_result.data) {
+                return null;
+            }
+
+            var filterValues = function(filters) {
+                if (!filters) {
+                    return null;
+                }
+
+                return _.reduce(filters, function(str, filter) {
+                    return str + filter.current;
+                }, "")
+            }
+
+            var filters = this.getFilters();
+            var filterFreeze = filterValues(filters);
+
+            if (this.filterFreeze != filterFreeze) {
+                this.filterFreeze = filterFreeze;
+
+                if (filters) {
+                    this.filteredData = _.filter(this.query_result.data.rows, function (row) {
+                        return _.reduce(filters, function (memo, filter) {
+                            return (memo && row[filter.name] == filter.current);
+                        }, true);
+                    });
+                } else {
+                    this.filteredData = this.query_result.data.rows;
+                }
+            }
+
+            return this.filteredData;
         }
 
         QueryResult.prototype.getChartData = function () {
@@ -181,6 +221,14 @@
         }
 
         QueryResult.prototype.getFilters = function () {
+            if (!this.filters) {
+                this.prepareFilters();
+            }
+
+            return this.filters;
+        };
+
+        QueryResult.prototype.prepareFilters = function() {
             var filterNames = [];
             _.each(this.getColumns(), function (col) {
                 if (col.split('::')[1] == 'filter') {
@@ -189,7 +237,7 @@
             });
 
             var filterValues = [];
-            _.each(this.getData(), function (row) {
+            _.each(this.getRawData(), function (row) {
                 _.each(filterNames, function (filter, i) {
                     if (filterValues[i] == undefined) {
                         filterValues[i] = [];
@@ -198,7 +246,7 @@
                 })
             });
 
-            var filters = _.map(filterNames, function (filter, i) {
+            this.filters = _.map(filterNames, function (filter, i) {
                 var f = {
                     name: filter,
                     friendlyName: this.getColumnFriendlyName(filter),
@@ -208,9 +256,7 @@
                 f.current = f.values[0];
                 return f;
             }, this);
-
-            return filters;
-        };
+        }
 
         var refreshStatus = function(queryResult, query, ttl) {
             Job.get({'id': queryResult.job.id}, function(response) {
