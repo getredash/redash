@@ -1,17 +1,4 @@
 <div>
-    <div class="btn-group pull-right" ng-repeat="filter in filters">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-            {{filter.friendlyName}}: {{filter.current}}<span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" role="menu">
-            <li ng-repeat="value in filter.values">
-                <a href="#" ng-click="filter.current = value">{{value}}</a>
-            </li>
-            <li class="divider"></li>
-            <li><a href="#" ng-click="filter.current = 'All'">All</a></li>
-        </ul>
-    </div>
-
     <smart-table rows="gridData" columns="gridColumns"
                  config="gridConfig"
                  class="table table-condensed table-hover"></smart-table>

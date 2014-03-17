@@ -77,6 +77,13 @@
         }
     };
 
+    var Filters = function() {
+        return {
+            restrict: 'E',
+            templateUrl: '/views/visualizations/filters.html'
+        }
+    }
+
     var EditVisualizationForm = function(Visualization, growl) {
         return {
             restrict: 'E',
@@ -145,5 +152,6 @@
         .provider('Visualization', VisualizationProvider)
         .directive('visualizationRenderer', ['Visualization', VisualizationRenderer])
         .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
+        .directive('filters', Filters)
         .directive('editVisulatizationForm', ['Visualization', 'growl', EditVisualizationForm])
 })();
