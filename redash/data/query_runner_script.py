@@ -17,10 +17,6 @@ def script(connection_string):
             json_data = None
             error = None
 
-            # Remove the SQL comment that Redash adds
-            if query.find("/*") > -1 and query.find("*/") > -1:
-                query = query[query.find("*/")+3:]
-
             # Poor man's protection against running scripts from output the scripts directory
             if connection_string.find("../") > -1:
                 return None, "Scripts can only be run from the configured scripts directory"
@@ -48,4 +44,5 @@ def script(connection_string):
 
         return json_data, error
 
+    query_runner.annotate_query = False
     return query_runner

@@ -15,10 +15,6 @@ def url(connection_string):
 
             query = query.strip()
 
-            # Remove the SQL comment that Redash adds
-            if query.find("/*") > -1 and query.find("*/") > -1:
-                query = query[query.find("*/")+3:]
-
             if base_url is not None and base_url != "":
                 if query.find("://") > -1:
                     return None, "Accepting only relative URLs to '%s'" % base_url
@@ -45,4 +41,5 @@ def url(connection_string):
 
         return json_data, error
 
+    query_runner.annotate_query = False
     return query_runner
