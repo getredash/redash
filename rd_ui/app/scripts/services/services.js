@@ -8,6 +8,7 @@
             if ('query_result' in props) {
                 this.status = "done";
                 this.filters = undefined;
+                this.filterFreeze = undefined;
 
                 _.each(this.query_result.data.rows, function (row) {
                     _.each(row, function (v, k) {
@@ -28,6 +29,7 @@
             this.query_result = {};
             this.status = "waiting";
             this.filters = undefined;
+            this.filterFreeze = undefined;
 
             this.updatedAt = moment();
 
