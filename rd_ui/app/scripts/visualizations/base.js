@@ -64,8 +64,11 @@
             // TODO: using switch here (and in the options editor) might introduce errors and bad
             // performance wise. It's better to eventually show the correct template based on the
             // visualization type and not make the browser render all of them.
-            template: Visualization.renderVisualizationsTemplate,
-            replace: false
+            template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
+            replace: false,
+            link: function(scope) {
+                scope.filters = scope.queryResult.getFilters();
+            }
         }
     };
 
@@ -76,6 +79,13 @@
             replace: false
         }
     };
+
+    var Filters = function() {
+        return {
+            restrict: 'E',
+            templateUrl: '/views/visualizations/filters.html'
+        }
+    }
 
     var EditVisualizationForm = function(Visualization, growl) {
         return {
@@ -141,9 +151,12 @@
         }
     };
 
+
+
     angular.module('redash.visualization', [])
         .provider('Visualization', VisualizationProvider)
         .directive('visualizationRenderer', ['Visualization', VisualizationRenderer])
         .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
+        .directive('filters', Filters)
         .directive('editVisulatizationForm', ['Visualization', 'growl', EditVisualizationForm])
 })();

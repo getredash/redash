@@ -1,0 +1,12 @@
+<div class="well well-sm" ng-show="filters">
+    <div class="btn-group" ng-repeat="filter in filters">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            {{filter.friendlyName}}: {{filter.current}}<span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu">
+            <li ng-repeat="value in filter.values">
+                <a href="" ng-click="filter.current = value">{{value}}</a>
+            </li>
+        </ul>
+    </div>
+</div>
