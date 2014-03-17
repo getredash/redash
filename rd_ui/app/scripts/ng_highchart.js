@@ -224,7 +224,7 @@
                                     var newData = _.map(categories, function (category) {
                                         return {
                                             name: category,
-                                            y: yValues[category] && yValues[category][0].y
+                                            y: (yValues[category] && yValues[category][0].y) || 0
                                         }
                                     });
 
