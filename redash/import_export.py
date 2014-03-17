@@ -1,3 +1,4 @@
+import contextlib
 import json
 from redash import models
 from flask.ext.script import Manager
@@ -108,18 +109,38 @@ class Importer(object):
 import_manager = Manager(help="import utilities")
 export_manager = Manager(help="export utilities")
 
-@import_manager.command
-def dashboard(mapping_filename, dashboard_filename, user_id):
+
+@contextlib.contextmanager
+def importer_with_mapping_file(mapping_filename):
     with open(mapping_filename) as f:
         mapping = json.loads(f.read())
 
+    importer = Importer(object_mapping=mapping)
+    yield importer
+
+    with open(mapping_filename, 'w') as f:
+        f.write(json.dumps(importer.object_mapping, indent=2))
+
+@import_manager.command
+def query(mapping_filename, query_filename, user_id):
+    user = models.User.get_by_id(user_id)
+    with open(query_filename) as f:
+        query = json.loads(f.read())
+
+    with importer_with_mapping_file(mapping_filename) as importer:
+        imported_query = importer.import_query(user, query)
+
+        print "New query id: {}".format(imported_query.id)
+
+
+@import_manager.command
+def dashboard(mapping_filename, dashboard_filename, user_id):
     user = models.User.get_by_id(user_id)
     with open(dashboard_filename) as f:
         dashboard = json.loads(f.read())
 
-        importer = Importer(object_mapping=mapping)
+    with importer_with_mapping_file(mapping_filename) as importer:
         importer.import_dashboard(user, dashboard)
 
-    with open(mapping_filename, 'w') as f:
-        f.write(json.dumps(importer.object_mapping, indent=2))
+
 
