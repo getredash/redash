@@ -57,6 +57,8 @@ CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
 # -- script: CONNECTION_STRING = "PATH TO ALL SCRIPTS"  (.i.e /home/user/redash_scripts/)
 #    all scripts must be have the executable flag set and reside in the path configured in CONNECTION_STRING.
 #    The output of the scripts must be in the output format defined here: <TODO: Add link to documentation of output format>
+# -- url: CONNECTION_STRING = "base URL" (i.e. http://myserver/somewhere)
+#    If CONNECTION_STRING is set, the query should be a relative URL. If it is not set a full URL can be used
 CONNECTION_STRING = os.environ.get("REDASH_CONNECTION_STRING", "user= password= host= port=5439 dbname=")
 
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
