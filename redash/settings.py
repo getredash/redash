@@ -46,7 +46,7 @@ STATSD_PREFIX = os.environ.get('REDASH_STATSD_PREFIX', "redash")
 
 NAME = os.environ.get('REDASH_NAME', 're:dash')
 
-# "pg", "graphite" or "mysql"
+# "pg", "graphite", "mysql", "bigquery" or "script"
 CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
 # Connection string for the database that is used to run queries against. Examples:
 # -- mysql:    CONNECTION_STRING = "Server=;User=;Pwd=;Database="
@@ -54,6 +54,9 @@ CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
 # -- graphite: CONNECTION_STRING = {"url": "https://graphite.yourcompany.com", "auth": ["user", "password"], "verify": true}
 # -- bigquery: CONNECTION_STRING = {"serviceAccount" : "43242343247-fjdfakljr3r2@developer.gserviceaccount.com", "privateKey" : "/somewhere/23fjkfjdsfj21312-privatekey.p12", "projectId" : "myproject-123" }
 #    to obtain bigquery credentials follow the guidelines at https://developers.google.com/bigquery/authorization#service-accounts
+# -- script: CONNECTION_STRING = "PATH TO ALL SCRIPTS"  (.i.e /home/user/redash_scripts/)
+#    all scripts must be have the executable flag set and reside in the path configured in CONNECTION_STRING.
+#    The output of the scripts must be in the output format defined here: <TODO: Add link to documentation of output format>
 CONNECTION_STRING = os.environ.get("REDASH_CONNECTION_STRING", "user= password= host= port=5439 dbname=")
 
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
