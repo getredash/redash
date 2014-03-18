@@ -6,10 +6,6 @@ from redash import models
 from redash import settings
 
 if __name__ == '__main__':
-    channel = logging.StreamHandler()
-    logging.getLogger().addHandler(channel)
-    logging.getLogger().setLevel(settings.LOG_LEVEL)
-
     db.connect_db()
 
     if not models.DataSource.table_exists():
