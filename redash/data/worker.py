@@ -13,6 +13,7 @@ import setproctitle
 import redis
 from statsd import StatsClient
 from redash.utils import gen_query_hash
+from redash.data.query_runner import get_query_runner
 from redash import settings
 
 
@@ -99,7 +100,10 @@ class Job(RedisObject):
         'updated_at': time.time,
         'status': WAITING,
         'process_id': None,
-        'query_result_id': None
+        'query_result_id': None,
+        'data_source_name': None,
+        'data_source_type': None,
+        'data_source_options': None
     }
 
     conversions = {
@@ -133,7 +137,9 @@ class Job(RedisObject):
             'status': self.status,
             'error': self.error,
             'query_result_id': self.query_result_id,
-            'process_id': self.process_id
+            'process_id': self.process_id,
+            'data_source_name': self.data_source_name,
+            'data_source_type': self.data_source_type
         }
 
     def cancel(self):
@@ -189,15 +195,15 @@ class Job(RedisObject):
 
 
 class Worker(threading.Thread):
-    def __init__(self, worker_id, manager, redis_connection_params, query_runner, sleep_time=0.1):
+    def __init__(self, worker_id, manager, redis_connection_params, sleep_time=0.1):
         self.manager = manager
 
         self.statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT,
                                          prefix=settings.STATSD_PREFIX)
         self.redis_connection_params = {k: v for k, v in redis_connection_params.iteritems()
                                         if k in ('host', 'db', 'password', 'port')}
+
         self.continue_working = True
-        self.query_runner = query_runner
         self.sleep_time = sleep_time
         self.child_pid = None
         self.worker_id = worker_id
@@ -282,15 +288,22 @@ class Worker(threading.Thread):
         start_time = time.time()
         self.set_title("running query %s" % job_id)
 
-        if getattr(self.query_runner, 'annotate_query', True):
+        logging.info("[%s][%s] Loading query runner (%s, %s)...", self.name, job.id,
+                     job.data_source_name, job.data_source_type)
+
+        query_runner = get_query_runner(job.data_source_type, job.data_source_options)
+
+        if getattr(query_runner, 'annotate_query', True):
             annotated_query = "/* Pid: %s, Job Id: %s, Query hash: %s, Priority: %s */ %s" % \
                               (pid, job.id, job.query_hash, job.priority, job.query)
         else:
             annotated_query = job.query
 
         # TODO: here's the part that needs to be forked, not all of the worker process...
-        with self.statsd_client.timer('worker_{}.query_runner.run_time'.format(self.worker_id)):
-            data, error = self.query_runner(annotated_query)
+        with self.statsd_client.timer('worker_{}.query_runner.{}.{}.run_time'.format(self.worker_id,
+                                                                                     job.data_source_type,
+                                                                                     job.data_source_name)):
+            data, error = query_runner(annotated_query)
 
         run_time = time.time() - start_time
         logging.info("[%s][%s] query finished... data length=%s, error=%s",
