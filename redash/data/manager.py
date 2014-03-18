@@ -66,7 +66,7 @@ class Manager(object):
 
         return query_result
 
-    def add_job(self, query, priority):
+    def add_job(self, query, priority, data_source):
         query_hash = gen_query_hash(query)
         logging.info("[Manager][%s] Inserting job with priority=%s", query_hash, priority)
         try_count = 0
@@ -83,7 +83,10 @@ class Manager(object):
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
                     job = worker.Job.load(self.redis_connection, job_id)
                 else:
-                    job = worker.Job(self.redis_connection, query=query, priority=priority)
+                    job = worker.Job(self.redis_connection, query=query, priority=priority,
+                                     data_source_name=data_source.name,
+                                     data_source_type=data_source.type,
+                                     data_source_options=data_source.options)
                     pipe.multi()
                     job.save(pipe)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
@@ -170,34 +173,9 @@ class Manager(object):
         if self.workers:
             return self.workers
 
-        if connection_type == 'mysql':
-            from redash.data import query_runner_mysql
-            runner = query_runner_mysql.mysql(connection_string)
-        elif connection_type == 'graphite':
-            from redash.data import query_runner_graphite
-            connection_params = json.loads(connection_string)
-            if connection_params['auth']:
-                connection_params['auth'] = tuple(connection_params['auth'])
-            else:
-                connection_params['auth'] = None
-            runner = query_runner_graphite.graphite(connection_params)
-        elif connection_type == 'bigquery':
-            from redash.data import query_runner_bigquery
-            connection_params = json.loads(connection_string)
-            runner = query_runner_bigquery.bigquery(connection_params)
-        elif connection_type == 'script':
-            from redash.data import query_runner_script
-            runner = query_runner_script.script(connection_string)
-        elif connection_type == 'url':
-            from redash.data import query_runner_url
-            runner = query_runner_url.url(connection_string)
-        else:
-            from redash.data import query_runner
-            runner = query_runner.redshift(connection_string)
-
         redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
-        self.workers = [worker.Worker(worker_id, self, redis_connection_params, runner)
-                        for worker_id in range(workers_count)]
+        self.workers = [worker.Worker(worker_id, self, redis_connection_params)
+                        for worker_id in xrange(workers_count)]
         for w in self.workers:
             w.start()
 
