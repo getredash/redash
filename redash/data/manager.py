@@ -83,7 +83,7 @@ class Manager(object):
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
                     job = worker.Job.load(self.redis_connection, job_id)
                 else:
-                    job = worker.Job(self.redis_connection, query, priority)
+                    job = worker.Job(self.redis_connection, query=query, priority=priority)
                     pipe.multi()
                     job.save(pipe)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
