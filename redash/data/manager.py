@@ -185,6 +185,12 @@ class Manager(object):
             from redash.data import query_runner_bigquery
             connection_params = json.loads(connection_string)
             runner = query_runner_bigquery.bigquery(connection_params)
+        elif connection_type == 'script':
+            from redash.data import query_runner_script
+            runner = query_runner_script.script(connection_string)
+        elif connection_type == 'url':
+            from redash.data import query_runner_url
+            runner = query_runner_url.url(connection_string)
         else:
             from redash.data import query_runner
             runner = query_runner.redshift(connection_string)
