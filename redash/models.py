@@ -59,7 +59,7 @@ class ActivityLog(BaseModel):
     
     id = peewee.PrimaryKeyField()
     user = peewee.ForeignKeyField(User)
-    type = peewee.IntegerField() # 1 for query execution
+    type = peewee.IntegerField()
     activity = peewee.TextField()
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
@@ -104,8 +104,20 @@ class QueryResult(BaseModel):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
 
+class DataSource(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField()
+    type = peewee.CharField()
+    options = peewee.TextField()
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'data_sources'
+
+
 class Query(BaseModel):
     id = peewee.PrimaryKeyField()
+    data_source = peewee.ForeignKeyField(DataSource)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
     description = peewee.CharField(max_length=4096, null=True)
