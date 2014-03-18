@@ -1,5 +1,6 @@
 import json
 import urlparse
+import logging
 from flask import Flask, make_response
 from flask.ext.restful import Api
 from flask_peewee.db import Database
@@ -9,6 +10,9 @@ from statsd import StatsClient
 from redash import settings, utils
 
 __version__ = '0.3.5'
+
+logging.getLogger().addHandler(logging.StreamHandler())
+logging.getLogger().setLevel(settings.LOG_LEVEL)
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
