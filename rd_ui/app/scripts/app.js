@@ -62,11 +62,6 @@ angular.module('redash', [
                 'query': ['Query', '$q', '$route', getQuery]
             }
         });
-        $routeProvider.when('/queries/:queryId/fiddle', {
-            templateUrl: '/views/queryfiddle.html',
-            controller: 'QueryFiddleCtrl',
-            reloadOnSearch: false
-        });
         $routeProvider.when('/queries/:queryId/source', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
