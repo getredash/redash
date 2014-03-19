@@ -1,5 +1,20 @@
 (function() {
   'use strict'
+
+  function querySourceLink() {
+    return {
+      restrict: 'E',
+      template: '<span ng-show="query.id && canViewSource">\
+                    <a ng-show="!sourceMode"\
+                      ng-href="{{query.id}}/source#{{selectedTab}}">Show Source\
+                    </a>\
+                    <a ng-show="sourceMode"\
+                      ng-href="/queries/{{query.id}}#{{selectedTab}}">Hide Source\
+                    </a>\
+                </span>'
+    }
+  }
+
   function queryEditor() {
     return {
       restrict: 'E',
@@ -58,7 +73,7 @@
     return {
       restrict: 'E',
       template: '<select\
-                  ng-disabled="!isOwner"\
+                  ng-disabled="!isQueryOwner"\
                   ng-model="query.ttl"\
                   ng-change="saveQuery()"\
                   ng-options="c.value as c.name for c in refreshOptions">\
@@ -96,7 +111,8 @@
   }
 
   angular.module('redash.directives')
-  .directive('queryRefreshSelect', queryRefreshSelect)
+  .directive('querySourceLink', querySourceLink)
   .directive('queryEditor', queryEditor)
+  .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryFormatter', ['$http', queryFormatter]);
 })();

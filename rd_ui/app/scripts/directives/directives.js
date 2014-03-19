@@ -3,6 +3,24 @@
 
     var directives = angular.module('redash.directives', []);
 
+    directives.directive('keyboardShortcut', function() {
+        return {
+            restrict: 'E',
+            replace: true,
+            template: '<span>foo</span>',
+            scope: {
+                key: '@',
+                action: '='
+            },
+            link: function($scope) {
+                Mousetrap.bindGlobal($scope.key, function(e) {
+                    e.preventDefault();
+                    $scope.action();
+                });
+            }
+        }
+    });
+
     directives.directive('rdTab', function() {
         return {
             restrict: 'E',
