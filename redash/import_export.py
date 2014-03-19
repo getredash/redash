@@ -13,6 +13,7 @@ class Importer(object):
 
     def import_query_result(self, query_result):
         query_result = self._get_or_create(models.QueryResult, query_result['id'],
+                                           data_source=self.data_source,
                                            data=json.dumps(query_result['data']),
                                            query_hash=query_result['query_hash'],
                                            retrieved_at=query_result['retrieved_at'],
