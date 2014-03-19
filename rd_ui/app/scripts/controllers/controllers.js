@@ -225,7 +225,6 @@
         .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
         .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('QueryFiddleCtrl', ['$scope', '$window', '$location', '$routeParams', '$http', '$location', 'growl', 'notifications', 'Query', 'Visualization', QueryFiddleCtrl])
         .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();
