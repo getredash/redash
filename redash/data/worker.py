@@ -101,6 +101,7 @@ class Job(RedisObject):
         'status': WAITING,
         'process_id': None,
         'query_result_id': None,
+        'data_source_id': None,
         'data_source_name': None,
         'data_source_type': None,
         'data_source_options': None
@@ -314,7 +315,8 @@ class Worker(threading.Thread):
         query_result_id = None
         if not error:
             self.set_title("storing results %s" % job_id)
-            query_result_id = self.manager.store_query_result(job.query, data, run_time,
+            query_result_id = self.manager.store_query_result(job.data_source_id,
+                                                              job.query, data, run_time,
                                                               datetime.datetime.utcnow())
 
         self.set_title("marking job as done %s" % job_id)

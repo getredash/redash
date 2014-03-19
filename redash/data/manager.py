@@ -6,7 +6,6 @@ import collections
 import json
 import time
 import logging
-import psycopg2
 import qr
 import redis
 from redash.data import worker
@@ -55,6 +54,7 @@ class Manager(object):
                     job = worker.Job.load(self.redis_connection, job_id)
                 else:
                     job = worker.Job(self.redis_connection, query=query, priority=priority,
+                                     data_source_id=data_source.id,
                                      data_source_name=data_source.name,
                                      data_source_type=data_source.type,
                                      data_source_options=data_source.options)
@@ -108,7 +108,7 @@ class Manager(object):
 
         logging.info("Done refreshing queries... %d" % len(queries))
 
-    def store_query_result(self, query, data, run_time, retrieved_at):
+    def store_query_result(self, data_source_id, query, data, run_time, retrieved_at):
         query_result_id = None
         query_hash = gen_query_hash(query)
         sql = "INSERT INTO query_results (query_hash, query, data, runtime, retrieved_at) " \
@@ -119,8 +119,8 @@ class Manager(object):
                 query_result_id = cursor.fetchone()[0]
                 logging.info("[Manager][%s] Inserted query data; id=%s", query_hash, query_result_id)
 
-                sql = "UPDATE queries SET latest_query_data_id=%s WHERE query_hash=%s"
-                cursor.execute(sql, (query_result_id, query_hash))
+                sql = "UPDATE queries SET latest_query_data_id=%s WHERE query_hash=%s AND data_source_id=%s"
+                cursor.execute(sql, (query_result_id, query_hash, data_source_id))
 
                 logging.info("[Manager][%s] Updated %s queries.", query_hash, cursor.rowcount)
             else:
