@@ -242,6 +242,7 @@ class QueryListAPI(BaseResource):
             query_def.pop(field, None)
 
         query_def['user'] = self.current_user
+        query_def['data_source'] = query_def.pop('data_source_id')
         query = models.Query(**query_def)
         query.save()
 
