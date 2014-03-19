@@ -43,6 +43,12 @@ user_factory = ModelFactory(redash.models.User,
                             is_admin=False)
 
 
+data_source_factory = ModelFactory(redash.models.DataSource,
+                                   name='Test',
+                                   type='pg',
+                                   options='')
+
+
 dashboard_factory = ModelFactory(redash.models.Dashboard,
                                  name='test', user=user_factory.create, layout='[]')
 
@@ -52,7 +58,8 @@ query_factory = ModelFactory(redash.models.Query,
                              description='',
                              query='SELECT 1',
                              ttl=-1,
-                             user=user_factory.create)
+                             user=user_factory.create,
+                             data_source=data_source_factory.create)
 
 query_result_factory = ModelFactory(redash.models.QueryResult,
                                     data='{"columns":{}, "rows":[]}',
