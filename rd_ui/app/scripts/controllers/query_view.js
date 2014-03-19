@@ -23,16 +23,7 @@
             $scope.queryExecuting = lock;
         };
 
-        $scope.formatQuery = function () {
-            $scope.editorOptions.readOnly = 'nocursor';
 
-            $http.post('/api/queries/format', {
-                'query': $scope.query.query
-            }).success(function (response) {
-                $scope.query.query = response;
-                $scope.editorOptions.readOnly = false;
-            })
-        }
 
         $scope.duplicateQuery = function () {
             var oldId = $scope.query.id;
@@ -52,42 +43,6 @@
             $scope.cancelling = true;
             $scope.queryResult.cancelExecution();
         };
-
-        $scope.editorOptions = {
-            mode: 'text/x-sql',
-            lineWrapping: true,
-            lineNumbers: true,
-            readOnly: false,
-            matchBrackets: true,
-            autoCloseBrackets: true
-        };
-
-        $scope.refreshOptions = [
-            {
-                value: -1,
-                name: 'No Refresh'
-            },
-            {
-                value: 60,
-                name: 'Every minute'
-            },
-        ]
-
-        _.each(_.range(1, 13), function (i) {
-            $scope.refreshOptions.push({
-                value: i * 3600,
-                name: 'Every ' + i + 'h'
-            });
-        })
-
-        $scope.refreshOptions.push({
-            value: 24 * 3600,
-            name: 'Every 24h'
-        });
-        $scope.refreshOptions.push({
-            value: 7 * 24 * 3600,
-            name: 'Once a week'
-        });
 
         $scope.$watch('queryResult && queryResult.getError()', function (newError, oldError) {
             if (newError == undefined) {
