@@ -129,6 +129,14 @@ class BaseResource(Resource):
         return current_user._get_current_object()
 
 
+class DataSourceListAPI(BaseResource):
+    def get(self):
+        data_sources = [ds.to_dict() for ds in models.DataSource.select()]
+        return data_sources
+
+api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
+
+
 class DashboardListAPI(BaseResource):
     def get(self):
         dashboards = [d.to_dict() for d in
@@ -328,7 +336,8 @@ class QueryResultListAPI(BaseResource):
         if query_result:
             return {'query_result': query_result.to_dict(parse_data=True)}
         else:
-            job = data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY)
+            data_source = models.DataSource.get_by_id(params['data_source_id'])
+            job = data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY, data_source)
             return {'job': job.to_dict()}
 
 
