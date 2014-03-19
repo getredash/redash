@@ -79,8 +79,27 @@ class ActivityLog(BaseModel):
         return unicode(self.id)
 
 
+class DataSource(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField()
+    type = peewee.CharField()
+    options = peewee.TextField()
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'data_sources'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type
+        }
+
+
 class QueryResult(BaseModel):
     id = peewee.PrimaryKeyField()
+    data_source = peewee.ForeignKeyField(DataSource)
     query_hash = peewee.CharField(max_length=32, index=True)
     query = peewee.TextField()
     data = peewee.TextField()
@@ -102,24 +121,6 @@ class QueryResult(BaseModel):
 
     def __unicode__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
-
-
-class DataSource(BaseModel):
-    id = peewee.PrimaryKeyField()
-    name = peewee.CharField()
-    type = peewee.CharField()
-    options = peewee.TextField()
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
-
-    class Meta:
-        db_table = 'data_sources'
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'type': self.type
-        }
 
 
 class Query(BaseModel):
