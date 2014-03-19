@@ -331,7 +331,7 @@ class QueryResultListAPI(BaseResource):
         if params['ttl'] == 0:
             query_result = None
         else:
-            query_result = data_manager.get_query_result(params['query'], int(params['ttl']))
+            query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], int(params['ttl']))
 
         if query_result:
             return {'query_result': query_result.to_dict(parse_data=True)}

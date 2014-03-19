@@ -50,22 +50,6 @@ class Manager(object):
 
         return query_result
 
-    def get_query_result(self, query, ttl=0):
-        query_hash = gen_query_hash(query)
-
-        with self.db_transaction() as cursor:
-            sql = "SELECT id, query, data, runtime, retrieved_at, query_hash FROM query_results " \
-                  "WHERE query_hash=%s " \
-                  "AND retrieved_at < now() at time zone 'utc' - interval '%s second'" \
-                  "ORDER BY retrieved_at DESC LIMIT 1"
-            cursor.execute(sql, (query_hash, psycopg2.extensions.AsIs(ttl)))
-            query_result = cursor.fetchone()
-
-        if query_result:
-            query_result = QueryResult(*query_result)
-
-        return query_result
-
     def add_job(self, query, priority, data_source):
         query_hash = gen_query_hash(query)
         logging.info("[Manager][%s] Inserting job with priority=%s", query_hash, priority)

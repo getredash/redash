@@ -115,9 +115,19 @@ class QueryResult(BaseModel):
             'query_hash': self.query_hash,
             'query': self.query,
             'data': json.loads(self.data),
+            'data_source_id': self._data.get('data_source', None),
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
         }
+
+    @classmethod
+    def get_latest(cls, data_source, query, ttl=0):
+        query_hash = utils.gen_query_hash(query)
+
+        query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
+                                   peewee.SQL("retrieved_at > now() at time zone 'utc' - interval '%s second'", ttl)).order_by(cls.retrieved_at.desc())
+
+        return query.first()
 
     def __unicode__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
