@@ -5,12 +5,15 @@
         var pristineHash = "";
         var leavingPageText = "You will lose your changes if you leave";
 
+        // controller inheritance
         $controller('QueryViewCtrl', {$scope: $scope});
+
+        $scope.sourceMode = true;
 
         $scope.dirty = undefined;
         $scope.isNewQuery = false;
 
-        $scope.isSourceVisible = true;
+        $scope.canEdit = currentUser.canEdit($scope.query);
 
         $scope.newVisualization = undefined;
 
