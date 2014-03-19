@@ -114,6 +114,13 @@ class DataSource(BaseModel):
     class Meta:
         db_table = 'data_sources'
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type
+        }
+
 
 class Query(BaseModel):
     id = peewee.PrimaryKeyField()
@@ -149,6 +156,7 @@ class Query(BaseModel):
             'ttl': self.ttl,
             'api_key': self.api_key,
             'created_at': self.created_at,
+            'data_source_id': self._data.get('data_source', None)
         }
 
         if with_user:
