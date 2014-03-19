@@ -112,6 +112,12 @@
                 <select ng-disabled="!isOwner" ng-model="query.ttl" ng-change="saveQuery()" ng-options="c.value as c.name for c in refreshOptions"></select>
             </p>
 
+            <p>
+                <span class="glyphicon glyphicon-hdd"></span>
+                <span class="text-muted">Data Source</span>
+                <select ng-disabled="!isOwner" ng-model="query.data_source_id" ng-options="ds.id as ds.name for ds in dataSources"></select>
+            </p>
+
             <hr>
 
             <p>

@@ -284,10 +284,10 @@
             return queryResult;
         }
 
-        QueryResult.get = function (query, ttl) {
+        QueryResult.get = function (data_source_id, query, ttl) {
             var queryResult = new QueryResult();
 
-            QueryResultResource.post({'query': query, 'ttl': ttl}, function (response) {
+            QueryResultResource.post({'data_source_id': data_source_id, 'query': query, 'ttl': ttl}, function (response) {
                 queryResult.update(response);
 
                 if ('job' in response) {
@@ -301,7 +301,7 @@
         return QueryResult;
     };
 
-    var Query = function ($resource, QueryResult) {
+    var Query = function ($resource, QueryResult, DataSource) {
         var Query = $resource('/api/queries/:id', {id: '@id'});
 
         Query.prototype.getQueryResult = function(ttl) {
@@ -316,7 +316,7 @@
             } else if (this.latest_query_data_id && ttl != 0) {
                 queryResult = QueryResult.getById(this.latest_query_data_id);
             } else {
-                queryResult = QueryResult.get(this.query, ttl);
+                queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
             }
 
             return queryResult;
@@ -329,7 +329,14 @@
         return Query;
     };
 
+    var DataSource = function($resource) {
+        var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}});
+
+        return DataSourceResource;
+    }
+
     angular.module('redash.services', [])
         .factory('QueryResult', ['$resource', '$timeout', QueryResult])
-        .factory('Query', ['$resource', 'QueryResult', Query])
+        .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
+        .factory('DataSource', ['$resource', DataSource]);
 })();
