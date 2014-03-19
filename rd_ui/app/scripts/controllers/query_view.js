@@ -1,11 +1,13 @@
 (function () {
     'use strict';
 
-    var QueryViewCtrl = function ($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization) {
+    var QueryViewCtrl = function ($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization, DataSource) {
         var DEFAULT_TAB = 'table';
         var pristineHash = "";
         var leavingPageText = "You will lose your changes if you leave";
         var route = $route.current;
+
+        $scope.dataSources = DataSource.get();
 
         $scope.dirty = undefined;
         $scope.isNewQuery = false;
@@ -278,6 +280,7 @@
             'notifications',
             'Query',
             'Visualization',
+            'DataSource',
             QueryViewCtrl
         ]);
 
