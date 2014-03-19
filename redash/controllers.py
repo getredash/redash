@@ -237,7 +237,6 @@ class QueryListAPI(BaseResource):
     @require_permission('create_query')
     def post(self):
         query_def = request.get_json(force=True)
-        # id, created_at, api_key
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
             query_def.pop(field, None)
 
