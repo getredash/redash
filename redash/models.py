@@ -330,7 +330,7 @@ class Widget(BaseModel):
     def __unicode__(self):
         return u"%s" % self.id
 
-all_models = (User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog)
+all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog)
 
 
 def create_db(create_tables, drop_tables):
