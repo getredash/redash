@@ -60,7 +60,7 @@
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
                     </button>
-                    <query-formatter query="query" lock="queryExecuting" editor-options="editorOptions"></query-formatter>
+                    <query-formatter query="query" lock="queryExecuting"></query-formatter>
                     <span class="pull-right">
                         <button class="btn btn-xs btn-default rd-hidden-xs" ng-show="canFork" ng-click="duplicateQuery()">
                             <span class="glyphicon glyphicon-share-alt"></span> Fork
@@ -75,7 +75,7 @@
 
             <!-- code editor -->
             <p ng-show="isSourceVisible">
-                <query-editor query="query"></query-editor>
+                <query-editor query="query" lock="queryExecuting"></query-editor>
             </p>
             <hr ng-show="isSourceVisible">
         </div>
