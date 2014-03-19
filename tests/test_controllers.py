@@ -7,7 +7,7 @@ from flask.ext.login import current_user
 from mock import patch
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
-    query_result_factory, user_factory
+    query_result_factory, user_factory, data_source_factory
 from redash import app, models, settings
 from redash.utils import json_dumps
 from redash.authentication import sign
@@ -211,10 +211,12 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
 
     def test_create_query(self):
         user = user_factory.create()
+        data_source = data_source_factory.create()
         query_data = {
             'name': 'Testing',
             'query': 'SELECT 1',
-            'ttl': 3600
+            'ttl': 3600,
+            'data_source_id': data_source.id
         }
 
         with app.test_client() as c, authenticated_user(c, user=user):
