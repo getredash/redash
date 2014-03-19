@@ -3,7 +3,7 @@ import os.path
 from tests import BaseTestCase
 from redash import models
 from redash import import_export
-from factories import user_factory, dashboard_factory
+from factories import user_factory, dashboard_factory, data_source_factory
 
 
 class ImportTest(BaseTestCase):
@@ -15,7 +15,7 @@ class ImportTest(BaseTestCase):
             self.user = user_factory.create()
 
     def test_imports_dashboard_correctly(self):
-        importer = import_export.Importer()
+        importer = import_export.Importer(data_source=data_source_factory.create())
         dashboard = importer.import_dashboard(self.user, self.dashboard)
 
         self.assertIsNotNone(dashboard)
@@ -31,7 +31,7 @@ class ImportTest(BaseTestCase):
         self.assertEqual(models.QueryResult.select().count(), dashboard.widgets.count()-1)
 
     def test_imports_updates_existing_models(self):
-        importer = import_export.Importer()
+        importer = import_export.Importer(data_source=data_source_factory.create())
         importer.import_dashboard(self.user, self.dashboard)
 
         self.dashboard['name'] = 'Testing #2'
@@ -47,7 +47,7 @@ class ImportTest(BaseTestCase):
             }
         }
 
-        importer = import_export.Importer(object_mapping=mapping)
+        importer = import_export.Importer(object_mapping=mapping, data_source=data_source_factory.create())
         imported_dashboard = importer.import_dashboard(self.user, self.dashboard)
 
         self.assertEqual(imported_dashboard, dashboard)
