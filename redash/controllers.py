@@ -343,7 +343,7 @@ class QueryResultListAPI(BaseResource):
 
 class QueryResultAPI(BaseResource):
     def get(self, query_result_id):
-        query_result = data_manager.get_query_result_by_id(query_result_id)
+        query_result = models.QueryResult.get_by_id(query_result_id)
         if query_result:
             return {'query_result': query_result.to_dict(parse_data=True)}
         else:
@@ -357,7 +357,7 @@ class CsvQueryResultsAPI(BaseResource):
             if query:
                 query_result_id = query._data['latest_query_data']
 
-        query_result = query_result_id and data_manager.get_query_result_by_id(query_result_id)
+        query_result = query_result_id and models.QueryResult.get_by_id(query_result_id)
         if query_result:
             s = cStringIO.StringIO()
 

@@ -37,19 +37,6 @@ class Manager(object):
 
         self._save_status()
 
-    # TODO: Use our Django Models
-    def get_query_result_by_id(self, query_result_id):
-        with self.db_transaction() as cursor:
-            sql = "SELECT id, query, data, runtime, retrieved_at, query_hash FROM query_results " \
-                  "WHERE id=%s LIMIT 1"
-            cursor.execute(sql, (query_result_id,))
-            query_result = cursor.fetchone()
-
-        if query_result:
-            query_result = QueryResult(*query_result)
-
-        return query_result
-
     def add_job(self, query, priority, data_source):
         query_hash = gen_query_hash(query)
         logging.info("[Manager][%s] Inserting job with priority=%s", query_hash, priority)
