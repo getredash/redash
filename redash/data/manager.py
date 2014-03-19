@@ -140,7 +140,7 @@ class Manager(object):
 
         return data
 
-    def start_workers(self, workers_count, connection_type, connection_string):
+    def start_workers(self, workers_count):
         if self.workers:
             return self.workers
 
