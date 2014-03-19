@@ -306,12 +306,13 @@ class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
         super(CsvQueryResultAPITest, self).setUp()
         self.paths = []
         self.query_result = query_result_factory.create()
-        self.path = '/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id)
+        self.query = query_factory.create()
+        self.path = '/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id)
 
     # TODO: factor out the HMAC authentication tests
 
     def signature(self, expires):
-        return sign(self.query_result.query.api_key, self.path, expires)
+        return sign(self.query.api_key, self.path, expires)
 
     def test_redirect_when_unauthenticated(self):
         with app.test_client() as c:
@@ -320,34 +321,34 @@ class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
 
     def test_redirect_for_wrong_signature(self):
         with app.test_client() as c:
-            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id), query_string={'signature': 'whatever', 'expires': 0})
+            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id), query_string={'signature': 'whatever', 'expires': 0})
             self.assertEquals(rv.status_code, 302)
 
     def test_redirect_for_correct_signature_and_wrong_expires(self):
         with app.test_client() as c:
-            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id), query_string={'signature': self.signature(0), 'expires': 0})
+            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id), query_string={'signature': self.signature(0), 'expires': 0})
             self.assertEquals(rv.status_code, 302)
 
     def test_redirect_for_correct_signature_and_no_expires(self):
         with app.test_client() as c:
-            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id), query_string={'signature': self.signature(time.time()+3600)})
+            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id), query_string={'signature': self.signature(time.time()+3600)})
             self.assertEquals(rv.status_code, 302)
 
     def test_redirect_for_correct_signature_and_expires_too_long(self):
         with app.test_client() as c:
             expires = time.time()+(10*3600)
-            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id), query_string={'signature': self.signature(expires), 'expires': expires})
+            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id), query_string={'signature': self.signature(expires), 'expires': expires})
             self.assertEquals(rv.status_code, 302)
 
     def test_returns_200_for_correct_signature(self):
         with app.test_client() as c:
             expires = time.time()+1800
-            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id), query_string={'signature': self.signature(expires), 'expires': expires})
+            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id), query_string={'signature': self.signature(expires), 'expires': expires})
             self.assertEquals(rv.status_code, 200)
 
     def test_returns_200_for_authenticated_user(self):
         with app.test_client() as c, authenticated_user(c):
-            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query_result.query.id, self.query_result.id))
+            rv = c.get('/api/queries/{0}/results/{1}.csv'.format(self.query.id, self.query_result.id))
             self.assertEquals(rv.status_code, 200)
 
 

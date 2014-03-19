@@ -1,5 +1,6 @@
 import datetime
 import redash.models
+from redash.utils import gen_query_hash
 
 
 class ModelFactory(object):
@@ -65,8 +66,9 @@ query_result_factory = ModelFactory(redash.models.QueryResult,
                                     data='{"columns":{}, "rows":[]}',
                                     runtime=1,
                                     retrieved_at=datetime.datetime.now(),
-                                    query=query_factory.create,
-                                    query_hash='')
+                                    query="SELECT 1",
+                                    query_hash=gen_query_hash('SELECT 1'),
+                                    data_source=data_source_factory.create)
 
 visualization_factory = ModelFactory(redash.models.Visualization,
                                      type='CHART',
