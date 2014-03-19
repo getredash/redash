@@ -9,6 +9,7 @@
     $scope.queryExecuting = false;
 
     $scope.isQueryOwner = currentUser.id === $scope.query.user.id;
+    $scope.canViewSource = currentUser.hasPermission('view_source');
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
