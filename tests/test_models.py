@@ -35,24 +35,25 @@ class QueryResultTest(BaseTestCase):
 
     def test_get_latest_returns_none_if_not_found(self):
         ds = data_source_factory.create()
-        models.QueryResult.get_latest(ds, "SELECT 1")
+        found_query_result = models.QueryResult.get_latest(ds, "SELECT 1", 60)
+        self.assertIsNone(found_query_result)
 
     def test_get_latest_returns_when_found(self):
         qr = query_result_factory.create()
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query)
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query, 60)
 
         self.assertEqual(qr, found_query_result)
 
     def test_get_latest_works_with_data_source_id(self):
         qr = query_result_factory.create()
-        found_query_result = models.QueryResult.get_latest(qr.data_source.id, qr.query)
+        found_query_result = models.QueryResult.get_latest(qr.data_source.id, qr.query, 60)
 
         self.assertEqual(qr, found_query_result)
 
     def test_get_latest_doesnt_return_query_from_different_data_source(self):
         qr = query_result_factory.create()
         data_source = data_source_factory.create()
-        found_query_result = models.QueryResult.get_latest(data_source, qr.query)
+        found_query_result = models.QueryResult.get_latest(data_source, qr.query, 60)
 
         self.assertIsNone(found_query_result)
 
@@ -77,6 +78,6 @@ class QueryResultTest(BaseTestCase):
         old_qr = query_result_factory.create(retrieved_at=yesterday)
         qr = query_result_factory.create()
 
-        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query)
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query, 60)
 
         self.assertEqual(found_query_result.id, qr.id)
