@@ -1,7 +1,6 @@
 """
 Data manager. Used to manage and coordinate execution of queries.
 """
-from contextlib import contextmanager
 import time
 import logging
 import peewee
