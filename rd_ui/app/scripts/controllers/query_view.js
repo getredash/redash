@@ -7,7 +7,9 @@
         var leavingPageText = "You will lose your changes if you leave";
         var route = $route.current;
 
-        $scope.dataSources = DataSource.get();
+        $scope.dataSources = DataSource.get(function(dataSources) {
+            $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
+        });
 
         $scope.dirty = undefined;
         $scope.isNewQuery = false;
@@ -92,6 +94,7 @@
             }
 
             delete $scope.query.latest_query_data;
+
             $scope.query.$save(function (q) {
                 pristineHash = q.getHash();
                 $scope.dirty = false;
