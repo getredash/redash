@@ -309,7 +309,6 @@
                 ttl = this.ttl;
             }
 
-
             var queryResult = null;
             if (this.latest_query_data && ttl != 0) {
                 queryResult = new QueryResult({'query_result': this.latest_query_data});

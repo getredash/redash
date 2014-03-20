@@ -238,6 +238,19 @@
             $scope.dirty = (newHash !== pristineHash);
         });
 
+        $scope.updateDataSource = function() {
+            $scope.query.latest_query_data = null;
+            $scope.query.latest_query_data_id = null;
+            Query.save({
+                'id': $scope.query.id,
+                'data_source_id': $scope.query.data_source_id,
+                'latest_query_data_id': null
+            });
+
+            $scope.executeQuery();
+
+        };
+
         $scope.executeQuery = function () {
             $scope.queryResult = $scope.query.getQueryResult(0);
             $scope.lockButton(true);
