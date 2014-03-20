@@ -111,10 +111,10 @@ class Manager(object):
     def store_query_result(self, data_source_id, query, data, run_time, retrieved_at):
         query_result_id = None
         query_hash = gen_query_hash(query)
-        sql = "INSERT INTO query_results (query_hash, query, data, runtime, retrieved_at) " \
-              "VALUES (%s, %s, %s, %s, %s) RETURNING id"
+        sql = "INSERT INTO query_results (query_hash, query, data, runtime, data_source_id, retrieved_at) " \
+              "VALUES (%s, %s, %s, %s, %s, %s) RETURNING id"
         with self.db_transaction() as cursor:
-            cursor.execute(sql, (query_hash, query, data, run_time, retrieved_at))
+            cursor.execute(sql, (query_hash, query, data, run_time, data_source_id, retrieved_at))
             if cursor.rowcount == 1:
                 query_result_id = cursor.fetchone()[0]
                 logging.info("[Manager][%s] Inserted query data; id=%s", query_hash, query_result_id)
