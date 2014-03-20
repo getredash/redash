@@ -1,6 +1,7 @@
 """
 Script to test concurrency (multithreading/multiprocess) issues with the workers. Use with caution.
 """
+import json
 import atfork
 atfork.monkeypatch_os_fork_functions()
 import atfork.stdlib_fixer
@@ -47,6 +48,16 @@ if __name__ == '__main__':
             keep_waiting = False
 
     data_manager.stop_workers()
-    print "!!!TODO: verify results"
+
+    qr_count = 0
+    for qr in models.QueryResult.select():
+        number = int(qr.query.split()[1])
+        data_number = json.loads(qr.data)['rows'][0].values()[0]
+
+        if number != data_number:
+            print "Oops? {} != {} ({})".format(number, data_number, qr.id)
+        qr_count += 1
+
+    print "Verified {} query results.".format(qr_count)
 
     print "Done."
