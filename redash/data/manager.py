@@ -2,21 +2,20 @@
 Data manager. Used to manage and coordinate execution of queries.
 """
 from contextlib import contextmanager
-import collections
-import json
 import time
 import logging
+import peewee
 import qr
 import redis
+from redash import models
 from redash.data import worker
 from redash.utils import gen_query_hash
 
 
 class Manager(object):
-    def __init__(self, redis_connection, db, statsd_client):
+    def __init__(self, redis_connection, statsd_client):
         self.statsd_client = statsd_client
         self.redis_connection = redis_connection
-        self.db = db
         self.workers = []
         self.queue = qr.PriorityQueue("jobs", **self.redis_connection.connection_pool.connection_kwargs)
         self.max_retries = 5
@@ -78,58 +77,53 @@ class Manager(object):
                                  time.time() - float(manager_status['last_refresh_at']))
 
     def refresh_queries(self):
-        sql = """SELECT first_value(t1."query") over(partition by t1.query_hash)
-                 FROM "queries" AS t1
-                 INNER JOIN "query_results" AS t2 ON (t1."latest_query_data_id" = t2."id")
-                 WHERE ((t1."ttl" > 0) AND ((t2."retrieved_at" + t1.ttl * interval '1 second') <
-                                           now() at time zone 'utc'));
-        """
+        # TODO: this will only execute scheduled queries that were executed before. I think this is
+        # a reasonable assumption, but worth revisiting.
+        outdated_queries = models.Query.select(peewee.Func('first_value', models.Query.id)\
+            .over(partition_by=[models.Query.query_hash, models.Query.data_source]))\
+            .join(models.QueryResult)\
+            .where(models.Query.ttl > 0,
+                   (models.QueryResult.retrieved_at +
+                    (models.Query.ttl * peewee.SQL("interval '1 second'"))) <
+                   peewee.SQL("(now() at time zone 'utc')"))
+
+        queries = models.Query.select(models.Query, models.DataSource).join(models.DataSource)\
+            .where(models.Query.id << outdated_queries)
 
         self.status['last_refresh_at'] = time.time()
         self._save_status()
 
         logging.info("Refreshing queries...")
-        queries = self.run_query(sql)
 
+        outdated_queries_count = 0
         for query in queries:
-            self.add_job(query[0], worker.Job.LOW_PRIORITY)
+            self.add_job(query.query, worker.Job.LOW_PRIORITY, query.data_source)
+            outdated_queries_count += 1
 
-        self.statsd_client.gauge('manager.outdated_queries', len(queries))
+        self.statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
         self.statsd_client.gauge('manager.queue_size', self.redis_connection.zcard('jobs'))
 
-        logging.info("Done refreshing queries... %d" % len(queries))
+        logging.info("Done refreshing queries... %d" % outdated_queries_count)
 
     def store_query_result(self, data_source_id, query, data, run_time, retrieved_at):
-        query_result_id = None
         query_hash = gen_query_hash(query)
-        sql = "INSERT INTO query_results (query_hash, query, data, runtime, data_source_id, retrieved_at) " \
-              "VALUES (%s, %s, %s, %s, %s, %s) RETURNING id"
-        with self.db_transaction() as cursor:
-            cursor.execute(sql, (query_hash, query, data, run_time, data_source_id, retrieved_at))
-            if cursor.rowcount == 1:
-                query_result_id = cursor.fetchone()[0]
-                logging.info("[Manager][%s] Inserted query data; id=%s", query_hash, query_result_id)
 
-                sql = "UPDATE queries SET latest_query_data_id=%s WHERE query_hash=%s AND data_source_id=%s"
-                cursor.execute(sql, (query_result_id, query_hash, data_source_id))
+        query_result = models.QueryResult.create(query_hash=query_hash,
+                                                 query=query,
+                                                 runtime=run_time,
+                                                 data_source=data_source_id,
+                                                 retrieved_at=retrieved_at,
+                                                 data=data)
 
-                logging.info("[Manager][%s] Updated %s queries.", query_hash, cursor.rowcount)
-            else:
-                logging.error("[Manager][%s] Failed inserting query data.", query_hash)
-        return query_result_id
+        logging.info("[Manager][%s] Inserted query data; id=%s", query_hash, query_result.id)
 
-    def run_query(self, *args):
-        sql = args[0]
-        logging.debug("running query: %s %s", sql, args[1:])
+        updated_count = models.Query.update(latest_query_data=query_result).\
+            where(models.Query.query_hash==query_hash, models.Query.data_source==data_source_id).\
+            execute()
 
-        with self.db_transaction() as cursor:
-            cursor.execute(sql, args[1:])
-            if cursor.description:
-                data = list(cursor)
-            else:
-                data = cursor.rowcount
+        logging.info("[Manager][%s] Updated %s queries.", query_hash, updated_count)
 
-        return data
+        return query_result.id
 
     def start_workers(self, workers_count):
         if self.workers:
@@ -147,21 +141,6 @@ class Manager(object):
         for w in self.workers:
             w.continue_working = False
             w.join()
-
-    @contextmanager
-    def db_transaction(self):
-        self.db.connect_db()
-
-        cursor = self.db.database.get_cursor()
-        try:
-            yield cursor
-        except:
-            self.db.database.rollback()
-            raise
-        else:
-            self.db.database.commit()
-        finally:
-            self.db.close_db(None)
 
     def _save_status(self):
         self.redis_connection.hmset('manager:status', self.status)
