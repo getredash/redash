@@ -125,7 +125,7 @@ class QueryResult(BaseModel):
         query_hash = utils.gen_query_hash(query)
 
         query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
-                                   peewee.SQL("retrieved_at > now() at time zone 'utc' - interval '%s second'", ttl)).order_by(cls.retrieved_at.desc())
+                                   peewee.SQL("retrieved_at + interval '%s second' > now() at time zone 'utc'", ttl)).order_by(cls.retrieved_at.desc())
 
         return query.first()
 
