@@ -263,6 +263,9 @@ class QueryAPI(BaseResource):
         if 'latest_query_data_id' in query_def:
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
+        if 'data_source_id' in query_def:
+            query_def['data_source'] = query_def.pop('data_source_id')
+
         models.Query.update_instance(query_id, **query_def)
 
         query = models.Query.get_by_id(query_id)
@@ -334,7 +337,7 @@ class QueryResultListAPI(BaseResource):
             query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], int(params['ttl']))
 
         if query_result:
-            return {'query_result': query_result.to_dict(parse_data=True)}
+            return {'query_result': query_result.to_dict()}
         else:
             data_source = models.DataSource.get_by_id(params['data_source_id'])
             job = data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY, data_source)
@@ -345,7 +348,7 @@ class QueryResultAPI(BaseResource):
     def get(self, query_result_id):
         query_result = models.QueryResult.get_by_id(query_result_id)
         if query_result:
-            return {'query_result': query_result.to_dict(parse_data=True)}
+            return {'query_result': query_result.to_dict()}
         else:
             abort(404)
 
