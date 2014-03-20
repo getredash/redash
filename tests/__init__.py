@@ -1,3 +1,4 @@
+import logging
 from unittest import TestCase
 from redash import settings, db, app
 import redash.models
@@ -10,6 +11,8 @@ settings.DATABASE_CONFIG = {
 }
 app.config['DATABASE'] = settings.DATABASE_CONFIG
 db.load_database()
+
+logging.getLogger('peewee').setLevel(logging.INFO)
 
 for model in redash.models.all_models:
     model._meta.database = db.database
