@@ -11,15 +11,6 @@ import redis
 from redash.data import worker
 from redash.utils import gen_query_hash
 
-class QueryResult(collections.namedtuple('QueryData', 'id query data runtime retrieved_at query_hash')):
-    def to_dict(self, parse_data=False):
-        d = self._asdict()
-
-        if parse_data and d['data']:
-            d['data'] = json.loads(d['data'])
-
-        return d
-
 
 class Manager(object):
     def __init__(self, redis_connection, db, statsd_client):
