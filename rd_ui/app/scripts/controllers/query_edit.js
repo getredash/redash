@@ -2,10 +2,12 @@
   'use strict';
 
   function QueryEditCtrl($controller, $scope, $route, $location, growl, Query, Visualization) {
-    var isNewQuery = !$route.current.locals.query.id;
-
-    // controller inheritance
+    // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
+
+    var
+    _queryText = $scope.query.query,
+    isNewQuery = !$route.current.locals.query.id;
 
     $scope.sourceMode = true;
     $scope.isDirty = false;
@@ -28,8 +30,8 @@
       }
     };
 
-    $scope.$watch('query.query', function(current, prev) {
-      $scope.isDirty = (current !== prev);
+    $scope.$watch('query.query', function(newQueryText) {
+      $scope.isDirty = (newQueryText !== _queryText);
     });
 
     if (isNewQuery) {
