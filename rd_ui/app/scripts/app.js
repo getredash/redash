@@ -17,15 +17,6 @@ angular.module('redash', [
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
-        function newQuery(Query) {
-            return new Query({
-                query: "",
-                name: "New Query",
-                ttl: -1,
-                user: currentUser
-            });
-        }
-
         function getQuery(Query, $q, $route) {
             var defer = $q.defer();
 
@@ -56,7 +47,9 @@ angular.module('redash', [
             controller: 'QueryEditCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': ['Query', newQuery]
+                'query': ['Query', function newQuery(Query) {
+                    return Query.newQuery();
+                }]
             }
         });
         $routeProvider.when('/queries/:queryId', {

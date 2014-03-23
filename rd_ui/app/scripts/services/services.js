@@ -304,6 +304,15 @@
     var Query = function ($resource, QueryResult, DataSource) {
         var Query = $resource('/api/queries/:id', {id: '@id'});
 
+        Query.newQuery = function() {
+            return new Query({
+                query: "",
+                name: "New Query",
+                ttl: -1,
+                user: currentUser
+            });
+        };
+
         Query.prototype.getQueryResult = function(ttl) {
             if (ttl == undefined) {
                 ttl = this.ttl;
