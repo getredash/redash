@@ -78,6 +78,8 @@ class Manager(object):
     def refresh_queries(self):
         # TODO: this will only execute scheduled queries that were executed before. I think this is
         # a reasonable assumption, but worth revisiting.
+
+        # TODO: move this logic to the model.
         outdated_queries = models.Query.select(peewee.Func('first_value', models.Query.id)\
             .over(partition_by=[models.Query.query_hash, models.Query.data_source]))\
             .join(models.QueryResult)\
@@ -116,6 +118,7 @@ class Manager(object):
 
         logging.info("[Manager][%s] Inserted query data; id=%s", query_hash, query_result.id)
 
+        # TODO: move this logic to the model?
         updated_count = models.Query.update(latest_query_data=query_result).\
             where(models.Query.query_hash==query_hash, models.Query.data_source==data_source_id).\
             execute()
