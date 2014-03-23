@@ -74,6 +74,8 @@
           return;
         }
 
+        $scope.filters = $scope.queryResult.getFilters();
+
         if ($scope.queryResult.getId() == null) {
           $scope.dataUri = "";
         } else {

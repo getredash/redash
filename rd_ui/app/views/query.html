@@ -152,7 +152,11 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <grid-renderer ng-show="selectedTab == 'table'" query-result="queryResult" items-per-page="50"></grid-renderer>
+                        <div ng-show="selectedTab == 'table'" >
+                            <filters></filters>
+                            <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                        </div>
+
                         <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
