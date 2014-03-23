@@ -13,29 +13,6 @@
 
     $scope.newVisualization = undefined;
 
-    $scope.saveQuery = function(duplicate, oldId) {
-      if (!oldId) {
-        oldId = $scope.query.id;
-      }
-
-      delete $scope.query.latest_query_data;
-      $scope.query.$save(function(savedQuery) {
-        $scope.isDirty = false;
-
-        if (duplicate) {
-          growl.addSuccessMessage("Query forked");
-        } else {
-          growl.addSuccessMessage("Query saved");
-        }
-
-        if (oldId != savedQuery.id) {
-          $location.url($location.url().replace(oldId, savedQuery.id)).replace();
-        }
-      }, function(httpResponse) {
-        growl.addErrorMessage("Query could not be saved");
-      });
-    };
-
     $scope.deleteVisualization = function($e, vis) {
       $e.preventDefault();
       if (confirm('Are you sure you want to delete ' + vis.name + ' ?')) {
