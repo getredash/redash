@@ -62,11 +62,6 @@ angular.module('redash', [
                 'query': ['Query', '$q', '$route', getQuery]
             }
         });
-        $routeProvider.when('/queries/:queryId/fiddle', {
-            templateUrl: '/views/queryfiddle.html',
-            controller: 'QueryFiddleCtrl',
-            reloadOnSearch: false
-        });
         $routeProvider.when('/queries/:queryId/source', {
             templateUrl: '/views/queryview.html',
             controller: 'QueryViewCtrl',
@@ -90,9 +85,6 @@ angular.module('redash', [
             redirectTo: '/'
         });
 
-        Highcharts.setOptions({
-            colors: ["#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE",
-                        "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92"]
-        });
+
     }
 ]);

@@ -67,7 +67,11 @@
             template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
             replace: false,
             link: function(scope) {
-                scope.filters = scope.queryResult.getFilters();
+                scope.$watch('queryResult && queryResult.getFilters()', function(filters) {
+                    if (filters) {
+                        scope.filters = filters;
+                    }
+                });
             }
         }
     };

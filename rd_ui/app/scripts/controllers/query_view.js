@@ -1,11 +1,15 @@
 (function () {
     'use strict';
 
-    var QueryViewCtrl = function ($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization) {
+    var QueryViewCtrl = function ($scope, $window, $route, $http, $location, growl, notifications, Query, Visualization, DataSource) {
         var DEFAULT_TAB = 'table';
         var pristineHash = "";
         var leavingPageText = "You will lose your changes if you leave";
         var route = $route.current;
+
+        $scope.dataSources = DataSource.get(function(dataSources) {
+            $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
+        });
 
         $scope.dirty = undefined;
         $scope.isNewQuery = false;
@@ -90,6 +94,7 @@
             }
 
             delete $scope.query.latest_query_data;
+
             $scope.query.$save(function (q) {
                 pristineHash = q.getHash();
                 $scope.dirty = false;
@@ -233,6 +238,19 @@
             $scope.dirty = (newHash !== pristineHash);
         });
 
+        $scope.updateDataSource = function() {
+            $scope.query.latest_query_data = null;
+            $scope.query.latest_query_data_id = null;
+            Query.save({
+                'id': $scope.query.id,
+                'data_source_id': $scope.query.data_source_id,
+                'latest_query_data_id': null
+            });
+
+            $scope.executeQuery();
+
+        };
+
         $scope.executeQuery = function () {
             $scope.queryResult = $scope.query.getQueryResult(0);
             $scope.lockButton(true);
@@ -278,6 +296,7 @@
             'notifications',
             'Query',
             'Visualization',
+            'DataSource',
             QueryViewCtrl
         ]);
 

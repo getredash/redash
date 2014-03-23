@@ -5,13 +5,15 @@ from flask.ext.script import Manager
 
 
 class Importer(object):
-    def __init__(self, object_mapping=None):
+    def __init__(self, object_mapping=None, data_source=None):
         if object_mapping is None:
             object_mapping = {}
         self.object_mapping = object_mapping
+        self.data_source = data_source
 
     def import_query_result(self, query_result):
         query_result = self._get_or_create(models.QueryResult, query_result['id'],
+                                           data_source=self.data_source,
                                            data=json.dumps(query_result['data']),
                                            query_hash=query_result['query_hash'],
                                            retrieved_at=query_result['retrieved_at'],
@@ -30,7 +32,8 @@ class Importer(object):
                                         query=query['query'],
                                         query_hash=query['query_hash'],
                                         description=query['description'],
-                                        latest_query_data=query_result)
+                                        latest_query_data=query_result,
+                                        data_source=self.data_source)
 
         return new_query
 
@@ -115,11 +118,20 @@ def importer_with_mapping_file(mapping_filename):
     with open(mapping_filename) as f:
         mapping = json.loads(f.read())
 
-    importer = Importer(object_mapping=mapping)
+    importer = Importer(object_mapping=mapping, data_source=get_data_source())
     yield importer
 
     with open(mapping_filename, 'w') as f:
         f.write(json.dumps(importer.object_mapping, indent=2))
+
+
+def get_data_source():
+    try:
+        data_source = models.DataSource.get(models.DataSource.name=="Import")
+    except models.DataSource.DoestNotExist:
+        data_source = models.DataSource.create(name="Import", type="import", options='{}')
+
+    return data_source
 
 @import_manager.command
 def query(mapping_filename, query_filename, user_id):

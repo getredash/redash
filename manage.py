@@ -33,7 +33,7 @@ def runworkers():
 
         logging.info("Cleaning old workers: %s", old_workers)
 
-        data_manager.start_workers(settings.WORKERS_COUNT, settings.CONNECTION_ADAPTER, settings.CONNECTION_STRING)
+        data_manager.start_workers(settings.WORKERS_COUNT)
         logging.info("Workers started.")
 
         while True:
@@ -101,8 +101,4 @@ manager.add_command("users", users_manager)
 manager.add_command("import", import_manager)
 
 if __name__ == '__main__':
-    channel = logging.StreamHandler()
-    logging.getLogger().addHandler(channel)
-    logging.getLogger().setLevel(settings.LOG_LEVEL)
-
     manager.run()
