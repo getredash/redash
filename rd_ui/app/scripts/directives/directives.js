@@ -377,7 +377,7 @@
 
                 $scope.$on('$destroy', function () {
                     if (currentTimer) {
-                        cancelInterval(currentTimer);
+                        clearInterval(currentTimer);
                         currentTimer = null;
                     }
                 });
