@@ -321,10 +321,6 @@
             return queryResult;
         };
 
-        Query.prototype.getHash = function() {
-            return this.query;
-        };
-
         return Query;
     };
 
