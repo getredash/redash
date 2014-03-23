@@ -1,5 +1,7 @@
 
 <div class="container">
+
+    <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
     <keyboard-shortcut ng-if="canEdit" key="meta+s" action="saveQuery"></keyboard-shortcut>
 
     <div class="row">
