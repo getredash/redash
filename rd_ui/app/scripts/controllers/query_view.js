@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, $route, $location, notifications, Query) {
+  function QueryViewCtrl($scope, $route, $location, notifications, Query, growl) {
     var DEFAULT_TAB = 'table';
 
     $scope.query = $route.current.locals.query;
@@ -13,6 +13,29 @@
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
+    };
+
+    $scope.saveQuery = function(duplicate, oldId) {
+      if (!oldId) {
+        oldId = $scope.query.id;
+      }
+
+      delete $scope.query.latest_query_data;
+      $scope.query.$save(function(savedQuery) {
+        $scope.isDirty = false;
+
+        if (duplicate) {
+          growl.addSuccessMessage("Query forked");
+        } else {
+          growl.addSuccessMessage("Query saved");
+        }
+
+        if (oldId != savedQuery.id) {
+          $location.url($location.url().replace(oldId, savedQuery.id)).replace();
+        }
+      }, function(httpResponse) {
+        growl.addErrorMessage("Query could not be saved");
+      });
     };
 
     $scope.duplicateQuery = function() {
@@ -100,5 +123,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', '$route', '$location', 'notifications', 'Query', QueryViewCtrl]);
+      ['$scope', '$route', '$location', 'notifications', 'Query', 'growl', QueryViewCtrl]);
 })();
