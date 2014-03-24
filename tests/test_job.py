@@ -1,3 +1,5 @@
+# coding=utf-8
+
 import time
 from unittest import TestCase
 from mock import patch
@@ -86,5 +88,13 @@ class TestJob(TestCase):
         self.assertEquals(now - updated_at, job.query_time)
         self.assertIsNone(job.error)
 
-    def test_done_failed(self):
-        pass
+    def test_unicode_serialization(self):
+        unicode_query = u"יוניקוד"
+        job = Job(redis_connection, query=unicode_query, priority=self.priority)
+
+        self.assertEquals(job.query, unicode_query)
+
+        job.save()
+        loaded_job = Job.load(redis_connection, job.id)
+        self.assertEquals(loaded_job.query, unicode_query)
+
