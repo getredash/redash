@@ -45,10 +45,9 @@
   function queryFormatter($http) {
     return {
       restrict: 'E',
-      scope: {
-        'query': '=',
-        'lock': '='
-      },
+      // don't create new scope to avoid ui-codemirror bug
+      // seehttps://github.com/angular-ui/ui-codemirror/pull/37
+      scope: false,
       template: '<button type="button" class="btn btn-default btn-xs"\
                    ng-click="formatQuery()">\
                     <span class="glyphicon glyphicon-indent-left"></span>\
@@ -56,13 +55,13 @@
                 </button>',
       link: function($scope) {
         $scope.formatQuery = function formatQuery() {
-            $scope.lock = true;
+            $scope.queryExecuting = true;
             $http.post('/api/queries/format', {
                 'query': $scope.query.query
             }).success(function (response) {
                 $scope.query.query = response;
             }).finally(function () {
-              $scope.lock = false;
+              $scope.queryExecuting = false;
             });
         };
       }
