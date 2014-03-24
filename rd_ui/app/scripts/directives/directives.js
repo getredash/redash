@@ -40,27 +40,6 @@
         }
     }]);
 
-    directives.directive('keyboardShortcut', function() {
-        return {
-            restrict: 'E',
-            replace: true,
-            scope: {
-                key: '@',
-                action: '='
-            },
-            link: function($scope) {
-                Mousetrap.bindGlobal($scope.key, function(e) {
-                    e.preventDefault();
-                    $scope.action();
-                });
-
-                $scope.$on('$destroy', function() {
-                    Mousetrap.unbind($scope.key);
-                });
-            }
-        }
-    });
-
     directives.directive('rdTab', function() {
         return {
             restrict: 'E',
