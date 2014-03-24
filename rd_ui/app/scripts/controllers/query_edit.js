@@ -1,19 +1,24 @@
 (function() {
   'use strict';
 
-  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization) {
+  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
 
     var
     _queryText = $scope.query.query,
-    isNewQuery = !$scope.query.id;
+    isNewQuery = !$scope.query.id,
+    shortcuts = {
+      'meta+s': $scope.saveQuery
+    };
 
     $scope.sourceMode = true;
     $scope.isDirty = false;
     $scope.canEdit = currentUser.canEdit($scope.query);
 
     $scope.newVisualization = undefined;
+
+    KeyboardShortcuts.bind(shortcuts);
 
     $scope.deleteVisualization = function($e, vis) {
       $e.preventDefault();
@@ -34,6 +39,10 @@
       $scope.isDirty = (newQueryText !== _queryText);
     });
 
+    $scope.$on('$destroy', function destroy() {
+      KeyboardShortcuts.unbind(shortcuts);
+    });
+
     if (isNewQuery) {
       // save new query when creating a visualization
       var unbind = $scope.$watch('selectedTab == "add"', function(triggerSave) {
@@ -48,6 +57,6 @@
 
   angular.module('redash.controllers').controller('QueryEditCtrl', [
     '$controller', '$scope', '$location', 'growl', 'Query',
-    'Visualization', QueryEditCtrl
+    'Visualization', 'KeyboardShortcuts', QueryEditCtrl
     ]);
 })();
