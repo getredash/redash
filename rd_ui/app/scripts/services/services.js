@@ -182,10 +182,10 @@
         };
 
         QueryResult.prototype.getColumns = function () {
-            if (this.columns == undefined) {
+            if (this.columns == undefined && this.query_result.data) {
                 this.columns = _.map(this.query_result.data.columns, function(v) {
                     return v.name;
-                })
+                });
             }
 
             return this.columns;
