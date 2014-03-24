@@ -19,35 +19,35 @@
       $scope.queryExecuting = lock;
     };
 
-    $scope.saveQuery = function(duplicate, oldId) {
-      if (!oldId) {
-        oldId = $scope.query.id;
+    $scope.saveQuery = function(duplicate) {
+      var
+      successMessage = "Query saved",
+      oldId = $scope.query.id;
+
+      if (duplicate) {
+        successMessage = "Query forked";
+        $scope.query.id = null;
+        $scope.query.ttl = -1;
       }
 
       delete $scope.query.latest_query_data;
+
       $scope.query.$save(function(savedQuery) {
         $scope.isDirty = false;
 
-        if (duplicate) {
-          growl.addSuccessMessage("Query forked");
-        } else {
-          growl.addSuccessMessage("Query saved");
+        if (oldId != savedQuery.id) {
+          // redirect to new/duplicated query page
+          $location.url('/queries/' + savedQuery.id + '/source#' + $location.hash()).replace();
         }
 
-        if (oldId != savedQuery.id) {
-          $location.url($location.url().replace(oldId, savedQuery.id)).replace();
-        }
+        growl.addSuccessMessage(successMessage);
       }, function(httpResponse) {
         growl.addErrorMessage("Query could not be saved");
       });
     };
 
     $scope.duplicateQuery = function() {
-      var oldId = $scope.query.id;
-      $scope.query.id = null;
-      $scope.query.ttl = -1;
-
-      $scope.saveQuery(true, oldId);
+      $scope.saveQuery(true);
     };
 
     $scope.executeQuery = function() {
