@@ -80,6 +80,13 @@ class RedisObject(object):
         return obj
 
 
+def fix_unicode(string):
+    if isinstance(string, unicode):
+        return string
+
+    return string.decode('utf-8')
+
+
 class Job(RedisObject):
     HIGH_PRIORITY = 1
     LOW_PRIORITY = 2
@@ -108,7 +115,7 @@ class Job(RedisObject):
     }
 
     conversions = {
-        'query': lambda query: query.decode('utf-8'),
+        'query': fix_unicode,
         'priority': int,
         'updated_at': float,
         'status': int,
@@ -121,7 +128,7 @@ class Job(RedisObject):
     name = 'job'
 
     def __init__(self, redis_connection, query, priority, **kwargs):
-        kwargs['query'] = query
+        kwargs['query'] = fix_unicode(query)
         kwargs['priority'] = priority
         kwargs['query_hash'] = gen_query_hash(kwargs['query'])
         self.new_job = 'id' not in kwargs
