@@ -1,13 +1,13 @@
 (function() {
   'use strict';
 
-  function QueryEditCtrl($controller, $scope, $route, $location, growl, Query, Visualization) {
+  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
 
     var
     _queryText = $scope.query.query,
-    isNewQuery = !$route.current.locals.query.id;
+    isNewQuery = !$scope.query.id;
 
     $scope.sourceMode = true;
     $scope.isDirty = false;
@@ -36,8 +36,8 @@
 
     if (isNewQuery) {
       // save new query when creating a visualization
-      var unbind = $scope.$watch('selectedTab == "add"', function(newPanel) {
-        if (newPanel && $route.current.params.queryId == undefined) {
+      var unbind = $scope.$watch('selectedTab == "add"', function(triggerSave) {
+        if (triggerSave) {
           unbind();
           $scope.saveQuery();
         }
@@ -47,7 +47,7 @@
   };
 
   angular.module('redash.controllers').controller('QueryEditCtrl', [
-    '$controller', '$scope', '$route', '$location', 'growl', 'Query',
+    '$controller', '$scope', '$location', 'growl', 'Query',
     'Visualization', QueryEditCtrl
     ]);
 })();
