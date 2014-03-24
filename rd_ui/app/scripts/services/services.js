@@ -323,7 +323,7 @@
                 queryResult = new QueryResult({'query_result': this.latest_query_data});
             } else if (this.latest_query_data_id && ttl != 0) {
                 queryResult = QueryResult.getById(this.latest_query_data_id);
-            } else {
+            } else if (this.data_source_id) {
                 queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
             }
 
