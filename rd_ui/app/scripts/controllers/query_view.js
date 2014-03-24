@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, $route, $location, notifications, Query, growl) {
+  function QueryViewCtrl($scope, $route, $location, notifications, growl, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
     $scope.query = $route.current.locals.query;
@@ -10,6 +10,10 @@
 
     $scope.isQueryOwner = currentUser.id === $scope.query.user.id;
     $scope.canViewSource = currentUser.hasPermission('view_source');
+
+    $scope.dataSources = DataSource.get(function(dataSources) {
+      $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
+    });
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -55,6 +59,18 @@
     $scope.cancelExecution = function() {
       $scope.cancelling = true;
       $scope.queryResult.cancelExecution();
+    };
+
+    $scope.updateDataSource = function() {
+        $scope.query.latest_query_data = null;
+        $scope.query.latest_query_data_id = null;
+        Query.save({
+            'id': $scope.query.id,
+            'data_source_id': $scope.query.data_source_id,
+            'latest_query_data_id': null
+        });
+
+        $scope.executeQuery();
     };
 
     $scope.$watch('queryResult && queryResult.getError()',
@@ -125,5 +141,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', '$route', '$location', 'notifications', 'Query', 'growl', QueryViewCtrl]);
+      ['$scope', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
 })();
