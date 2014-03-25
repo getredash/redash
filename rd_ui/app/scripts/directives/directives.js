@@ -3,6 +3,43 @@
 
     var directives = angular.module('redash.directives', []);
 
+    directives.directive('alertUnsavedChanges', ['$window', function($window) {
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: {
+                'isDirty': '='
+            },
+            link: function($scope) {
+                var
+
+                unloadMessage = "You will lose your changes if you leave",
+                confirmMessage = unloadMessage + "\n\nAre you sure you want to leave this page?",
+
+                // store original handler (if any)
+                _onbeforeunload = $window.onbeforeunload;
+
+                $window.onbeforeunload = function() {
+                    return $scope.isDirty ? unloadMessage : null;
+                }
+
+                $scope.$on('$locationChangeStart', function(event, next, current) {
+                  if (next.split("#")[0] == current.split("#")[0]) {
+                    return;
+                  }
+
+                  if ($scope.isDirty && !confirm(confirmMessage)) {
+                    event.preventDefault();
+                  }
+                });
+
+                $scope.$on('$destroy', function() {
+                    $window.onbeforeunload = _onbeforeunload;
+                });
+            }
+        }
+    }]);
+
     directives.directive('rdTab', function() {
         return {
             restrict: 'E',
