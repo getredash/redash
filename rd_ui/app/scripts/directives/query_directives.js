@@ -1,6 +1,26 @@
 (function() {
   'use strict'
 
+  function queryLink() {
+    return {
+      restrict: 'E',
+      scope: {
+        'query': '=?',
+        'visualization': '=?'
+      },
+      template: '<a>{{query.name}}</a>',
+      link: function(scope, element) {
+        scope.query = scope.query || scope.$parent.query;
+
+        var link = '/queries/' + scope.query.id;
+        if (scope.visualization) {
+          link += '#' + scope.visualization.id;
+        }
+        element.find('a').attr('href', link);
+      }
+    }
+  }
+
   function querySourceLink() {
     return {
       restrict: 'E',
@@ -110,6 +130,7 @@
   }
 
   angular.module('redash.directives')
+  .directive('queryLink', queryLink)
   .directive('querySourceLink', querySourceLink)
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)
