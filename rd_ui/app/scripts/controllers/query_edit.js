@@ -9,7 +9,11 @@
     isNewQuery = !$scope.query.id,
     queryText = $scope.query.query,
     shortcuts = {
-      'meta+s': $scope.saveQuery
+      'meta+s': function() {
+          if ($scope.canEdit) {
+            $scope.saveQuery();
+          }
+      }
     };
 
     $scope.sourceMode = true;
