@@ -43,19 +43,17 @@ angular.module('redash', [
             reloadOnSearch: false
         });
         $routeProvider.when('/queries/new', {
-            templateUrl: '/views/queryview.html',
-            controller: 'QueryViewCtrl',
+            templateUrl: '/views/query.html',
+            controller: 'QueryEditCtrl',
             reloadOnSearch: false,
             resolve: {
-                'viewSource': function isViewSource() {
-                    return true;
-                }
+                'query': ['Query', function newQuery(Query) {
+                    return Query.newQuery();
+                }]
             }
         });
-        // TODO
-        // we should have 2 controllers: queryViewCtrl and queryEditCtrl
         $routeProvider.when('/queries/:queryId', {
-            templateUrl: '/views/queryview.html',
+            templateUrl: '/views/query.html',
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
             resolve: {
@@ -63,14 +61,11 @@ angular.module('redash', [
             }
         });
         $routeProvider.when('/queries/:queryId/source', {
-            templateUrl: '/views/queryview.html',
-            controller: 'QueryViewCtrl',
+            templateUrl: '/views/query.html',
+            controller: 'QueryEditCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': ['Query', '$q', '$route', getQuery],
-                'viewSource': function isViewSource() {
-                    return true;
-                }
+                'query': ['Query', '$q', '$route', getQuery]
             }
         });
         $routeProvider.when('/admin/status', {
