@@ -52,6 +52,15 @@ def runworkers():
 def make_shell_context():
     return dict(app=app, db=db, models=models)
 
+@manager.command
+def check_settings():
+    from types import ModuleType
+
+    for name in dir(settings):
+        item = getattr(settings, name)
+        if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
+            print "{} = {}".format(name, item)
+
 @database_manager.command
 def create_tables():
     """Creates the database tables."""
