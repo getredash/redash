@@ -25,8 +25,8 @@
     KeyboardShortcuts.bind(shortcuts);
 
     $scope.onQuerySave = function(savedQuery) {
-      $scope.isDirty = false;
       queryText = savedQuery.query;
+      $scope.isDirty = $scope.query.query !== queryText;
     };
 
     $scope.deleteVisualization = function($e, vis) {
