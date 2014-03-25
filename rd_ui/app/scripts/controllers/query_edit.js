@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
+  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts, Navigation) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
 
@@ -17,6 +17,9 @@
     $scope.newVisualization = undefined;
 
     KeyboardShortcuts.bind(shortcuts);
+    Navigation.addWatch(function dirtyTest() {
+      return $scope.isDirty;
+    });
 
     $scope.deleteVisualization = function($e, vis) {
       $e.preventDefault();
@@ -51,6 +54,6 @@
 
   angular.module('redash.controllers').controller('QueryEditCtrl', [
     '$controller', '$scope', '$location', 'growl', 'Query',
-    'Visualization', 'KeyboardShortcuts', QueryEditCtrl
+    'Visualization', 'KeyboardShortcuts', 'Navigation', QueryEditCtrl
     ]);
 })();
