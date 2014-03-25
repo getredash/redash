@@ -89,6 +89,11 @@
         $scope.executeQuery();
     };
 
+    $scope.setVisualizationTab = function (visualization) {
+      $scope.selectedTab = visualization.id;
+      $location.hash(visualization.id);
+    };
+
     $scope.$watch('query.name', function() {
       $scope.$parent.pageTitle = $scope.query.name;
     });
