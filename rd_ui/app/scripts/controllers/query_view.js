@@ -2,11 +2,7 @@
   'use strict';
 
   function QueryViewCtrl($scope, $route, $location, notifications, growl, Query, DataSource) {
-    var
-    DEFAULT_TAB = 'table',
-    queryText;
-
-    $scope.isDirty = false;
+    var DEFAULT_TAB = 'table';
 
     $scope.query = $route.current.locals.query;
     $scope.queryResult = $scope.query.getQueryResult();
@@ -19,7 +15,7 @@
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
 
-    queryText = $scope.query.query;
+    $scope.onQuerySave = angular.noop;
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -39,8 +35,7 @@
       delete $scope.query.latest_query_data;
 
       $scope.query.$save(function(savedQuery) {
-        queryText = savedQuery.query;
-        $scope.isDirty = false;
+        $scope.onQuerySave(savedQuery);
 
         if (oldId != savedQuery.id) {
           // redirect to new/duplicated query page
@@ -79,10 +74,6 @@
 
         $scope.executeQuery();
     };
-
-    $scope.$watch('query.query', function(newQueryText) {
-      $scope.isDirty = (newQueryText !== queryText);
-    });
 
     $scope.$watch('query.name', function() {
       $scope.$parent.pageTitle = $scope.query.name;

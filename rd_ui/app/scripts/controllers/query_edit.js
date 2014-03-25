@@ -7,12 +7,14 @@
 
     var
     isNewQuery = !$scope.query.id,
+    queryText = $scope.query.query,
     shortcuts = {
       'meta+s': $scope.saveQuery
     };
 
     $scope.sourceMode = true;
     $scope.canEdit = currentUser.canEdit($scope.query);
+    $scope.isDirty = false;
 
     $scope.newVisualization = undefined;
 
@@ -20,6 +22,11 @@
     Navigation.addWatch(function dirtyTest() {
       return $scope.isDirty;
     });
+
+    $scope.onQuerySave = function(savedQuery) {
+      $scope.isDirty = false;
+      queryText = savedQuery.query;
+    };
 
     $scope.deleteVisualization = function($e, vis) {
       $e.preventDefault();
@@ -35,6 +42,10 @@
           });
       }
     };
+
+    $scope.$watch('query.query', function(newQueryText) {
+      $scope.isDirty = (newQueryText !== queryText);
+    });
 
     $scope.$on('$destroy', function destroy() {
       KeyboardShortcuts.unbind(shortcuts);
