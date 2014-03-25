@@ -99,7 +99,8 @@
             scope: {
                 query: '=',
                 queryResult: '=',
-                visualization: '=?'
+                visualization: '=?',
+                onNewSuccess: '=?'
             },
             link: function (scope, element, attrs) {
                 scope.visTypes = Visualization.visualizationTypes;
@@ -145,7 +146,9 @@
                         if (index > -1) {
                             scope.query.visualizations[index] = result;
                         } else {
+                            // new visualization
                             scope.query.visualizations.push(result);
+                            scope.onNewSuccess && scope.onNewSuccess(result);
                         }
                     }, function error() {
                         growl.addErrorMessage("Visualization could not be saved");
