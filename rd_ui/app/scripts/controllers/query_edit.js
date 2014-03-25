@@ -6,14 +6,12 @@
     $controller('QueryViewCtrl', {$scope: $scope});
 
     var
-    _queryText = $scope.query.query,
     isNewQuery = !$scope.query.id,
     shortcuts = {
       'meta+s': $scope.saveQuery
     };
 
     $scope.sourceMode = true;
-    $scope.isDirty = false;
     $scope.canEdit = currentUser.canEdit($scope.query);
 
     $scope.newVisualization = undefined;
@@ -34,10 +32,6 @@
           });
       }
     };
-
-    $scope.$watch('query.query', function(newQueryText) {
-      $scope.isDirty = (newQueryText !== _queryText);
-    });
 
     $scope.$on('$destroy', function destroy() {
       KeyboardShortcuts.unbind(shortcuts);
