@@ -2,7 +2,11 @@
   'use strict';
 
   function QueryViewCtrl($scope, $route, $location, notifications, growl, Query, DataSource) {
-    var DEFAULT_TAB = 'table';
+    var
+    DEFAULT_TAB = 'table',
+    queryText;
+
+    $scope.isDirty = false;
 
     $scope.query = $route.current.locals.query;
     $scope.queryResult = $scope.query.getQueryResult();
@@ -14,6 +18,8 @@
     $scope.dataSources = DataSource.get(function(dataSources) {
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
+
+    queryText = $scope.query.query;
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -33,6 +39,7 @@
       delete $scope.query.latest_query_data;
 
       $scope.query.$save(function(savedQuery) {
+        queryText = savedQuery.query;
         $scope.isDirty = false;
 
         if (oldId != savedQuery.id) {
@@ -72,6 +79,14 @@
 
         $scope.executeQuery();
     };
+
+    $scope.$watch('query.query', function(newQueryText) {
+      $scope.isDirty = (newQueryText !== queryText);
+    });
+
+    $scope.$watch('query.name', function() {
+      $scope.$parent.pageTitle = $scope.query.name;
+    });
 
     $scope.$watch('queryResult && queryResult.getError()',
       function(newError, oldError) {
@@ -126,10 +141,6 @@
 
         $scope.lockButton(false);
       }
-    });
-
-    $scope.$watch('query.name', function() {
-      $scope.$parent.pageTitle = $scope.query.name;
     });
 
     $scope.$watch(function() {
