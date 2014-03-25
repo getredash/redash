@@ -15,8 +15,5 @@ pack:
 upload:
 	python bin/upload_version.py $(FULL_VERSION) $(FILENAME)
 
-migrate:
-	source .env && PYTHONPATH=. python $(MIGRATION)
-
 test:
 	nosetests --with-coverage --cover-package=redash tests/*.py
