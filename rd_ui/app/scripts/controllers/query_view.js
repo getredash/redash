@@ -21,7 +21,7 @@
       $scope.queryExecuting = lock;
     };
 
-    $scope.saveQuery = function(duplicate) {
+    $scope.saveQuery = function(duplicate, data) {
       var
       successMessage = "Query saved",
       oldId = $scope.query.id;
@@ -32,9 +32,15 @@
         $scope.query.ttl = -1;
       }
 
+      if (data) {
+        data.id = $scope.query.id;
+      } else {
+        data = $scope.query;
+      }
+
       delete $scope.query.latest_query_data;
 
-      $scope.query.$save(function(savedQuery) {
+      Query.save(data, function(savedQuery) {
         $scope.onQuerySave(savedQuery);
 
         if (oldId != savedQuery.id) {
@@ -46,6 +52,14 @@
       }, function(httpResponse) {
         growl.addErrorMessage("Query could not be saved");
       });
+    };
+
+    $scope.saveDescription = function() {
+      $scope.saveQuery(false, {'description': $scope.query.description});
+    };
+
+    $scope.saveName = function() {
+      $scope.saveQuery(false, {'name': $scope.query.name});
     };
 
     $scope.duplicateQuery = function() {
@@ -73,6 +87,11 @@
         });
 
         $scope.executeQuery();
+    };
+
+    $scope.setVisualizationTab = function (visualization) {
+      $scope.selectedTab = visualization.id;
+      $location.hash(visualization.id);
     };
 
     $scope.$watch('query.name', function() {

@@ -13,7 +13,7 @@
     "angular-ui-codemirror": "0.0.5",
     "highcharts": "3.0.1",
     "underscore": "1.5.1",
-    "angular-resource": "1.2.7",
+    "angular-resource": "1.2.15",
     "angular-growl": "0.3.1",
     "angular-route": "1.2.7",
     "pivottable": "https://github.com/arikfr/pivottable.git",
@@ -26,6 +26,6 @@
     "angular-scenario": "~1.0.7"
   },
   "resolutions": {
-    "angular": "~1.2.7"
+    "angular": "1.2.7"
   }
 }

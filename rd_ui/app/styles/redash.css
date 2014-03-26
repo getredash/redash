@@ -74,8 +74,13 @@ a.navbar-brand {
     margin-bottom: 0px;
 }
 
-.panel-heading > a {
+.panel-heading > a,
+.panel-heading .query-link {
     color: inherit;
+}
+
+.panel-heading .query-link:hover {
+    text-decoration: none;
 }
 
 /* angular-growl */

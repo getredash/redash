@@ -12,7 +12,7 @@
                         <input class="form-control" placeholder="Query Id" ng-model="queryId">
                       </div>
                       <button type="submit" class="btn btn-primary" ng-disabled="!queryId">
-                        <span class="glyphicon glyphicon-refresh"></span> Load
+                        Load visualizations
                       </button>
                     </form>
                 </p>
@@ -29,7 +29,7 @@
                   </div>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" ng-if="selectedVis">
                 <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" ng-disabled="saveInProgress" ng-click="saveWidget()">Add to Dashboard</button>
             </div>

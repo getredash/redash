@@ -339,8 +339,15 @@
         return DataSourceResource;
     }
 
+    var Widget = function($resource) {
+        var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
+
+        return WidgetResource;
+    }
+
     angular.module('redash.services')
         .factory('QueryResult', ['$resource', '$timeout', QueryResult])
         .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
-        .factory('DataSource', ['$resource', DataSource]);
+        .factory('DataSource', ['$resource', DataSource])
+        .factory('Widget', ['$resource', Widget]);
 })();
