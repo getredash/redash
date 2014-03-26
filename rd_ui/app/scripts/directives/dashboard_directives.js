@@ -105,8 +105,8 @@
     }
   ]);
 
-  directives.directive('newWidgetForm', ['$http', 'Query',
-    function($http, Query) {
+  directives.directive('newWidgetForm', ['Query', 'Widget', 'growl',
+    function(Query, Widget, growl) {
       return {
         restrict: 'E',
         scope: {
@@ -154,14 +154,14 @@
           $scope.saveWidget = function() {
             $scope.saveInProgress = true;
 
-            var widget = {
+            var widget = new Widget({
               'visualization_id': $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
               'options': {},
               'width': $scope.widgetSize
-            }
+            });
 
-            $http.post('/api/widgets', widget).success(function(response) {
+            widget.$save(function success(response) {
               // update dashboard layout
               $scope.dashboard.layout = response['layout'];
               if (response['new_row']) {
@@ -173,7 +173,10 @@
               // close the dialog
               $('#add_query_dialog').modal('hide');
               reset();
-            })
+            }, function error(httpResponse) {
+              $scope.saveInProgress = false;
+              growl.addErrorMessage("Widget can not be added");
+            });
           }
 
         }
