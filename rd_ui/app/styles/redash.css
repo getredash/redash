@@ -74,7 +74,8 @@ a.navbar-brand {
     margin-bottom: 0px;
 }
 
-.panel-heading > a {
+.panel-heading > a,
+.panel-heading .query-link {
     color: inherit;
 }
 
