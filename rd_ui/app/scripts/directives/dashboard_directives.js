@@ -161,7 +161,7 @@
               'width': $scope.widgetSize
             });
 
-            widget.$save(function success(response) {
+            widget.$save().then(function(response) {
               // update dashboard layout
               $scope.dashboard.layout = response['layout'];
               if (response['new_row']) {
@@ -173,9 +173,10 @@
               // close the dialog
               $('#add_query_dialog').modal('hide');
               reset();
-            }, function error(httpResponse) {
-              $scope.saveInProgress = false;
+            }).catch(function() {
               growl.addErrorMessage("Widget can not be added");
+            }).finally(function() {
+              $scope.saveInProgress = false;
             });
           }
 
