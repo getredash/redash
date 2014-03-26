@@ -1,6 +1,29 @@
 (function() {
   'use strict'
 
+  function queryLink() {
+    return {
+      restrict: 'E',
+      scope: {
+        'query': '=',
+        'visualization': '=?'
+      },
+      template: '<a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
+      link: function(scope, element) {
+        scope.link = '/queries/' + scope.query.id;
+        if (scope.visualization) {
+          if (scope.visualization.type === 'TABLE') {
+            // link to hard-coded table tab instead of the (hidden) visualization tab
+            scope.link += '#table';
+          } else {
+            scope.link += '#' + scope.visualization.id;
+          }
+        }
+        // element.find('a').attr('href', link);
+      }
+    }
+  }
+
   function querySourceLink() {
     return {
       restrict: 'E',
@@ -110,6 +133,7 @@
   }
 
   angular.module('redash.directives')
+  .directive('queryLink', queryLink)
   .directive('querySourceLink', querySourceLink)
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)

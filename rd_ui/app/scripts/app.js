@@ -17,16 +17,9 @@ angular.module('redash', [
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
-        function getQuery(Query, $q, $route) {
-            var defer = $q.defer();
-
-            Query.get({
-                'id': $route.current.params.queryId
-            }, function(query) {
-                defer.resolve(query);
-            });
-
-            return defer.promise;
+        function getQuery(Query, $route) {
+            var query = Query.get({'id': $route.current.params.queryId });
+            return query.$promise;
         };
 
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
@@ -57,7 +50,7 @@ angular.module('redash', [
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': ['Query', '$q', '$route', getQuery]
+                'query': ['Query', '$route', getQuery]
             }
         });
         $routeProvider.when('/queries/:queryId/source', {
@@ -65,7 +58,7 @@ angular.module('redash', [
             controller: 'QueryEditCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': ['Query', '$q', '$route', getQuery]
+                'query': ['Query', '$route', getQuery]
             }
         });
         $routeProvider.when('/admin/status', {
