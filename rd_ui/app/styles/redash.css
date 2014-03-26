@@ -79,6 +79,10 @@ a.navbar-brand {
     color: inherit;
 }
 
+.panel-heading .query-link:hover {
+    text-decoration: none;
+}
+
 /* angular-growl */
 .growl {
     position: fixed;
