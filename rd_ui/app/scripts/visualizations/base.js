@@ -102,6 +102,7 @@
                 visualization: '=?'
             },
             link: function (scope, element, attrs) {
+                scope.editRawOptions = currentUser.hasPermission('edit_raw_chart');
                 scope.visTypes = Visualization.visualizationTypes;
 
                 scope.newVisualization = function(q) {

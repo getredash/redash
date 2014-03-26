@@ -11,6 +11,11 @@
 
   <visualization-options-editor></visualization-options-editor>
 
+  <div class="form-group" ng-if="editRawOptions">
+    <label class="control-label">Advanced</label>
+    <textarea json-text ng-model="visualization.options" class="form-control" rows="10"></textarea>
+  </div>
+
   <div class="form-group">
     <button type="submit" class="btn btn-primary">Save</button>
   </div>

@@ -335,6 +335,9 @@
               ngModel.$parsers.push(into);
               ngModel.$formatters.push(out);
 
+              scope.$watch(attr.ngModel, function(newValue) {
+                element[0].value = out(newValue);
+              }, true);
             }
         };
     });
