@@ -8,18 +8,18 @@
         'query': '=',
         'visualization': '=?'
       },
-      template: '<a class="query-link">{{query.name}}</a>',
+      template: '<a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
       link: function(scope, element) {
-        var link = '/queries/' + scope.query.id;
+        scope.link = '/queries/' + scope.query.id;
         if (scope.visualization) {
           if (scope.visualization.type === 'TABLE') {
             // link to hard-coded table tab instead of the (hidden) visualization tab
-            link += '#table';
+            scope.link += '#table';
           } else {
-            link += '#' + scope.visualization.id;
+            scope.link += '#' + scope.visualization.id;
           }
         }
-        element.find('a').attr('href', link);
+        // element.find('a').attr('href', link);
       }
     }
   }
