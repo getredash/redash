@@ -313,6 +313,10 @@
             });
         };
 
+        Query.prototype.getSourceLink = function() {
+            return '/queries/' + this.id + '/source';
+        };
+
         Query.prototype.getQueryResult = function(ttl) {
             if (ttl == undefined) {
                 ttl = this.ttl;
