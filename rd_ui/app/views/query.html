@@ -165,8 +165,11 @@
                         <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+                            <span ng-click="visEdit=!visEdit" class="details-toggle" ng-class="{open: visEdit}">Edit</span>
+                            <edit-visulatization-form ng-if="visEdit" visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
+
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                            <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
+
                         </div>
 
                         <div ng-show="selectedTab == 'add'">
