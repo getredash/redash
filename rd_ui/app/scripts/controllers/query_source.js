@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
+  function QuerySourceCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
 
@@ -93,8 +93,8 @@
 
   };
 
-  angular.module('redash.controllers').controller('QueryEditCtrl', [
+  angular.module('redash.controllers').controller('QuerySourceCtrl', [
     '$controller', '$scope', '$location', 'growl', 'Query',
-    'Visualization', 'KeyboardShortcuts', QueryEditCtrl
+    'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
     ]);
 })();
