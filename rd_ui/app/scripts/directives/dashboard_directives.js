@@ -31,14 +31,14 @@
             '<div class="panel-heading">{name}' +
             '</div></li>';
 
-          $scope.$watch('dashboard.widgets', function(widgets) {
+          $scope.$watch('dashboard.widgets && dashboard.widgets.length', function(widgets_length) {
             $timeout(function() {
               gridster.remove_all_widgets();
 
-              if (widgets && widgets.length) {
+              if ($scope.dashboard.widgets && $scope.dashboard.widgets.length) {
                 var layout = [];
 
-                _.each(widgets, function(row, rowIndex) {
+                _.each($scope.dashboard.widgets, function(row, rowIndex) {
                   _.each(row, function(widget, colIndex) {
                     layout.push({
                       id: widget.id,
@@ -58,7 +58,7 @@
                 });
               }
             });
-          }, true);
+          });
 
           $scope.saveDashboard = function() {
             $scope.saveInProgress = true;
