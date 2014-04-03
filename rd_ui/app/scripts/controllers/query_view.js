@@ -15,55 +15,38 @@
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
 
-    $scope.onQuerySave = angular.noop;
-
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
     };
 
-    $scope.saveQuery = function(duplicate, data) {
-      var
-      successMessage = "Query saved",
-      oldId = $scope.query.id;
-
-      if (duplicate) {
-        successMessage = "Query forked";
-        $scope.query.id = null;
-        $scope.query.ttl = -1;
-      }
-
+    $scope.saveQuery = function(options, data) {
       if (data) {
         data.id = $scope.query.id;
       } else {
         data = $scope.query;
       }
 
+      options = _.extend({}, {
+        successMessage: 'Query saved',
+        errorMessage: 'Query could not be saved'
+      }, options);
+
       delete $scope.query.latest_query_data;
 
-      Query.save(data, function(savedQuery) {
-        $scope.onQuerySave(savedQuery);
-
-        if (oldId != savedQuery.id) {
-          // redirect to new/duplicated query page
-          $location.url('/queries/' + savedQuery.id + '/source#' + $location.hash()).replace();
-        }
-
-        growl.addSuccessMessage(successMessage);
+      return Query.save(data, function() {
+        growl.addSuccessMessage(options.successMessage);
       }, function(httpResponse) {
-        growl.addErrorMessage("Query could not be saved");
-      });
-    };
+        growl.addErrorMessage(options.errorMessage);
+      })
+      .$promise;
+    }
 
     $scope.saveDescription = function() {
-      $scope.saveQuery(false, {'description': $scope.query.description});
+      $scope.saveQuery(undefined, {'description': $scope.query.description});
     };
 
     $scope.saveName = function() {
-      $scope.saveQuery(false, {'name': $scope.query.name});
-    };
-
-    $scope.duplicateQuery = function() {
-      $scope.saveQuery(true);
+      $scope.saveQuery(undefined, {'name': $scope.query.name});
     };
 
     $scope.executeQuery = function() {

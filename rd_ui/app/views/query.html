@@ -166,6 +166,7 @@
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+
                             <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
                         </div>
 

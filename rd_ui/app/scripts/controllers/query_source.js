@@ -1,13 +1,17 @@
 (function() {
   'use strict';
 
-  function QueryEditCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
+  function QuerySourceCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
 
     var
     isNewQuery = !$scope.query.id,
     queryText = $scope.query.query,
+
+    // ref to QueryViewCtrl.saveQuery
+    saveQuery = $scope.saveQuery,
+
     shortcuts = {
       'meta+s': function() {
           if ($scope.canEdit) {
@@ -24,9 +28,34 @@
 
     KeyboardShortcuts.bind(shortcuts);
 
-    $scope.onQuerySave = function(savedQuery) {
-      queryText = savedQuery.query;
-      $scope.isDirty = $scope.query.query !== queryText;
+    // @override
+    $scope.saveQuery = function(options, data) {
+      var savePromise = saveQuery(options, data);
+
+      savePromise.then(function(savedQuery) {
+        queryText = savedQuery.query;
+        $scope.isDirty = $scope.query.query !== queryText;
+
+        if (isNewQuery) {
+          // redirect to new created query (keep hash)
+          $location.path(savedQuery.getSourceLink()).replace();
+        }
+      });
+
+      return savePromise;
+    };
+
+    $scope.duplicateQuery = function() {
+      $scope.query.id = null;
+      $scope.query.ttl = -1;
+
+      $scope.saveQuery({
+        successMessage: 'Query forked',
+        errorMessage: 'Query could not be forked'
+      }).then(function redirect(savedQuery) {
+        // redirect to forked query (clear hash)
+        $location.url(savedQuery.getSourceLink()).replace()
+      });
     };
 
     $scope.deleteVisualization = function($e, vis) {
@@ -64,8 +93,8 @@
 
   };
 
-  angular.module('redash.controllers').controller('QueryEditCtrl', [
+  angular.module('redash.controllers').controller('QuerySourceCtrl', [
     '$controller', '$scope', '$location', 'growl', 'Query',
-    'Visualization', 'KeyboardShortcuts', QueryEditCtrl
+    'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
     ]);
 })();
