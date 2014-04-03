@@ -37,7 +37,7 @@ angular.module('redash', [
         });
         $routeProvider.when('/queries/new', {
             templateUrl: '/views/query.html',
-            controller: 'QueryEditCtrl',
+            controller: 'QuerySourceCtrl',
             reloadOnSearch: false,
             resolve: {
                 'query': ['Query', function newQuery(Query) {
@@ -55,7 +55,7 @@ angular.module('redash', [
         });
         $routeProvider.when('/queries/:queryId/source', {
             templateUrl: '/views/query.html',
-            controller: 'QueryEditCtrl',
+            controller: 'QuerySourceCtrl',
             reloadOnSearch: false,
             resolve: {
                 'query': ['Query', '$route', getQuery]
