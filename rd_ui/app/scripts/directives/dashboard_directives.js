@@ -3,8 +3,8 @@
 
   var directives = angular.module('redash.directives');
 
-  directives.directive('editDashboardForm', ['$http', '$location', '$timeout', 'Dashboard',
-    function($http, $location, $timeout, Dashboard) {
+  directives.directive('editDashboardForm', ['$http', '$location', '$timeout', 'Dashboard', 'Events',
+    function($http, $location, $timeout, Dashboard, Events) {
       return {
         restrict: 'E',
         scope: {
@@ -89,6 +89,7 @@
                 $scope.dashboard = new Dashboard(response);
                 $scope.saveInProgress = false;
                 $(element).modal('hide');
+                $scope.$emit(Events.dashboardchange);
               })
             } else {
               $http.post('/api/dashboards', {

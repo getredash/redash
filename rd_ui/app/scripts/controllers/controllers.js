@@ -106,9 +106,15 @@
         });
     }
 
-    var MainCtrl = function ($scope, Dashboard, notifications) {
+    var MainCtrl = function ($scope, Dashboard, notifications, Events) {
         $scope.dashboards = [];
-        $scope.reloadDashboards = function() {
+        $scope.currentUser = currentUser;
+        $scope.newDashboard = {
+            'name': null,
+            'layout': null
+        }
+
+        function reloadDashboards() {
             Dashboard.query(function (dashboards) {
                 $scope.dashboards = _.sortBy(dashboards, "name");
                 $scope.allDashboards = _.groupBy($scope.dashboards, function(d) {
@@ -123,26 +129,24 @@
             });
         }
 
-        $scope.reloadDashboards();
+        reloadDashboards();
 
-        $scope.currentUser = currentUser;
-        $scope.newDashboard = {
-            'name': null,
-            'layout': null
-        }
+        $scope.$on(Events.dashboardchange, function() {
+            reloadDashboards();
+        });
 
         $(window).click(function () {
             notifications.getPermissions();
         });
     }
 
-    var IndexCtrl = function($scope, Dashboard) {
+    var IndexCtrl = function($scope, Dashboard, Events) {
         $scope.$parent.pageTitle = "Home";
 
         $scope.archiveDashboard = function(dashboard) {
             if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
                 dashboard.$delete(function() {
-                    $scope.$parent.reloadDashboards();
+                    $scope.$emit(Events.dashboardchange);
                 });
             }
         }
@@ -150,6 +154,6 @@
 
     angular.module('redash.controllers', [])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
-        .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
+        .controller('IndexCtrl', ['$scope', 'Dashboard', 'Events', IndexCtrl])
+        .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', 'Events', MainCtrl]);
 })();

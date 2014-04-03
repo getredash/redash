@@ -1,6 +1,12 @@
 (function() {
   'use strict'
 
+  function Events() {
+    return {
+      dashboardchange: 'dashboardchange'
+    }
+  }
+
   function KeyboardShortcuts() {
     this.bind = function bind(keymap) {
       _.forEach(keymap, function(fn, key) {
@@ -20,5 +26,6 @@
   }
 
   angular.module('redash.services', [])
+    .service('Events', [Events])
     .service('KeyboardShortcuts', [KeyboardShortcuts])
 })();
