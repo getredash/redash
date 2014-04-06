@@ -249,6 +249,7 @@ class QueryListAPI(BaseResource):
 
         return query.to_dict(with_result=False)
 
+    @require_permission('view_query')
     def get(self):
         return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
 
@@ -272,6 +273,7 @@ class QueryAPI(BaseResource):
 
         return query.to_dict(with_result=False, with_visualizations=True)
 
+    @require_permission('view_query')
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
         if q:
@@ -345,6 +347,7 @@ class QueryResultListAPI(BaseResource):
 
 
 class QueryResultAPI(BaseResource):
+    @require_permission('view_query')
     def get(self, query_result_id):
         query_result = models.QueryResult.get_by_id(query_result_id)
         if query_result:
@@ -354,6 +357,7 @@ class QueryResultAPI(BaseResource):
 
 
 class CsvQueryResultsAPI(BaseResource):
+    @require_permission('view_query')
     def get(self, query_id, query_result_id=None):
         if not query_result_id:
             query = models.Query.get(models.Query.id == query_id)
