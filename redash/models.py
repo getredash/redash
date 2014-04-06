@@ -22,6 +22,15 @@ class AnonymousUser(AnonymousUserMixin):
         return []
 
 
+class ApiUser(UserMixin):
+    def __init__(self, api_key):
+        self.id = api_key
+
+    @property
+    def permissions(self):
+        return ['view_query']
+
+
 class User(BaseModel, UserMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query']
