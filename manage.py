@@ -80,18 +80,22 @@ def drop_tables():
 @users_manager.option('name', help="User's full name")
 @users_manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
 @users_manager.option('--google', dest='google_auth', action="store_true", default=False, help="user uses Google Auth to login")
-def create(email, name, is_admin=False, google_auth=False):
+@users_manager.option('--password', dest='password', default=None, help="Password for users who don't use Google Auth (leave blank for prompt).")
+@users_manager.option('--permissions', dest='permissions', default=models.User.DEFAULT_PERMISSIONS, help="Comma seperated list of permissions (leave blank for default).")
+def create(email, name, permissions, is_admin=False, google_auth=False, password=None):
     print "Creating user (%s, %s)..." % (email, name)
     print "Admin: %r" % is_admin
     print "Login with Google Auth: %r\n" % google_auth
+    if isinstance(permissions, basestring):
+        permissions = permissions.split(',')
+        permissions.remove('') # in case it was empty string
 
-    permissions = models.User.DEFAULT_PERMISSIONS
     if is_admin:
         permissions += ['admin']
 
     user = models.User(email=email, name=name, permissions=permissions)
     if not google_auth:
-        password = prompt_pass("Password")
+        password = password or prompt_pass("Password")
         user.hash_password(password)
 
     try:
