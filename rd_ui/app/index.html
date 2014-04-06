@@ -55,7 +55,7 @@
                     <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
                 </ul>
             </li>
-            <li class="dropdown">
+            <li class="dropdown" ng-show="currentUser.hasPermission('view_query')">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Queries <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li ng-show="currentUser.hasPermission('create_query')"><a href="/queries/new">New Query</a></li>
