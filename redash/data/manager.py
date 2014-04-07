@@ -6,9 +6,17 @@ import logging
 import peewee
 import qr
 import redis
+import json
 from redash import models
 from redash.data import worker
 from redash.utils import gen_query_hash
+
+
+class JSONPriorityQueue(qr.PriorityQueue):
+    """ Use a JSON serializer to help with cross language support """
+    def __init__(self, key, **kwargs):
+        super(qr.PriorityQueue, self).__init__(key, **kwargs)
+        self.serializer = json
 
 
 class Manager(object):
@@ -16,7 +24,7 @@ class Manager(object):
         self.statsd_client = statsd_client
         self.redis_connection = redis_connection
         self.workers = []
-        self.queue = qr.PriorityQueue("jobs", **self.redis_connection.connection_pool.connection_kwargs)
+        self.queue = JSONPriorityQueue("jobs", **self.redis_connection.connection_pool.connection_kwargs)
         self.max_retries = 5
         self.status = {
             'last_refresh_at': 0,
