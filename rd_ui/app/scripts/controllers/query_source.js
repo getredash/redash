@@ -1,24 +1,25 @@
 (function() {
   'use strict';
 
-  function QuerySourceCtrl($controller, $scope, $location, growl, Query, Visualization, KeyboardShortcuts) {
+  function QuerySourceCtrl($controller, $scope, $location, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
+    // TODO:
+    // This doesn't get inherited. Setting it on this didn't work either (which is weird).
+    // Obviously it shouldn't be repeated, but we got bigger fish to fry.
+    var DEFAULT_TAB = 'table';
 
-    var
-    isNewQuery = !$scope.query.id,
-    queryText = $scope.query.query,
-
-    // ref to QueryViewCtrl.saveQuery
-    saveQuery = $scope.saveQuery,
-
-    shortcuts = {
-      'meta+s': function() {
-          if ($scope.canEdit) {
-            $scope.saveQuery();
+    var isNewQuery = !$scope.query.id,
+        queryText = $scope.query.query,
+        // ref to QueryViewCtrl.saveQuery
+        saveQuery = $scope.saveQuery,
+        shortcuts = {
+          'meta+s': function () {
+            if ($scope.canEdit) {
+              $scope.saveQuery();
+            }
           }
-      }
-    };
+        };
 
     $scope.sourceMode = true;
     $scope.canEdit = currentUser.canEdit($scope.query);
@@ -90,11 +91,10 @@
         }
       });
     }
-
-  };
+  }
 
   angular.module('redash.controllers').controller('QuerySourceCtrl', [
-    '$controller', '$scope', '$location', 'growl', 'Query',
+    '$controller', '$scope', '$location', 'Query',
     'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
     ]);
 })();
