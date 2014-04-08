@@ -226,7 +226,7 @@
                 }
               }
 
-              if (chartOptions['xAxis']['type'] == 'category') {
+              if (chartOptions['xAxis']['type'] == 'category' || chartOptions['series']['type']=='pie') {
                 if (!angular.isDefined(scope.series[0].data[0].name)) {
                   // We need to make sure that for each category, each series has a value.
                   var categories = _.union.apply(this, _.map(scope.series, function (s) {
