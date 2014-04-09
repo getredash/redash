@@ -8,6 +8,7 @@ angular.module('redash', [
     'redash.visualization',
     'ui.codemirror',
     'highchart',
+    'ui.select2',
     'angular-growl',
     'angularMoment',
     'ui.bootstrap',
