@@ -11,8 +11,15 @@ from redash import settings, utils
 
 __version__ = '0.3.5'
 
-logging.getLogger().addHandler(logging.StreamHandler())
-logging.getLogger().setLevel(settings.LOG_LEVEL)
+
+def setup_logging():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')
+    handler.setFormatter(formatter)
+    logging.getLogger().addHandler(handler)
+    logging.getLogger().setLevel(settings.LOG_LEVEL)
+
+setup_logging()
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
