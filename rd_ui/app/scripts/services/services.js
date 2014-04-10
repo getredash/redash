@@ -26,7 +26,8 @@
         "user_id": user.id,
         "action": action,
         "object_type": object_type,
-        "object_id": object_id
+        "object_id": object_id,
+        "timestamp": Date.now()/1000.0
       };
       _.extend(event, additional_properties);
 
