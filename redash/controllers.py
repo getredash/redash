@@ -17,6 +17,7 @@ from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
 
 import sqlparse
+import events
 from permissions import require_permission
 from redash import settings, utils
 from redash import data
@@ -127,6 +128,16 @@ class BaseResource(Resource):
     @property
     def current_user(self):
         return current_user._get_current_object()
+
+
+class EventAPI(BaseResource):
+    def post(self):
+        events_list = request.get_json(force=True)
+        for event in events_list:
+            events.record_event(event)
+
+
+api.add_resource(EventAPI, '/api/events', endpoint='events')
 
 
 class DataSourceListAPI(BaseResource):
