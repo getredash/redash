@@ -20,8 +20,7 @@ def setup_logging():
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
 
-    if settings.EVENTS_LOG_PATH:
-        events.setup_logging(settings.EVENTS_LOG_PATH, settings.EVENTS_CONSOLE_OUTPUT)
+    events.setup_logging(settings.EVENTS_LOG_PATH, settings.EVENTS_CONSOLE_OUTPUT)
 
 setup_logging()
 
