@@ -6,10 +6,11 @@ logger.propagate = False
 
 
 def setup_logging(log_path, console_output=False):
-    fh = logging.FileHandler(log_path)
-    formatter = logging.Formatter('%(message)s')
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
+    if log_path:
+        fh = logging.FileHandler(log_path)
+        formatter = logging.Formatter('%(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
     if console_output:
         handler = logging.StreamHandler()
