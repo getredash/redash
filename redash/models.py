@@ -22,9 +22,18 @@ class AnonymousUser(AnonymousUserMixin):
         return []
 
 
+class ApiUser(UserMixin):
+    def __init__(self, api_key):
+        self.id = api_key
+
+    @property
+    def permissions(self):
+        return ['view_query']
+
+
 class User(BaseModel, UserMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
-                           'view_source', 'execute_query']
+                           'view_query', 'view_source', 'execute_query']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
@@ -59,7 +68,7 @@ class ActivityLog(BaseModel):
     
     id = peewee.PrimaryKeyField()
     user = peewee.ForeignKeyField(User)
-    type = peewee.IntegerField() # 1 for query execution
+    type = peewee.IntegerField()
     activity = peewee.TextField()
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
@@ -79,8 +88,27 @@ class ActivityLog(BaseModel):
         return unicode(self.id)
 
 
+class DataSource(BaseModel):
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField()
+    type = peewee.CharField()
+    options = peewee.TextField()
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'data_sources'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type
+        }
+
+
 class QueryResult(BaseModel):
     id = peewee.PrimaryKeyField()
+    data_source = peewee.ForeignKeyField(DataSource)
     query_hash = peewee.CharField(max_length=32, index=True)
     query = peewee.TextField()
     data = peewee.TextField()
@@ -96,9 +124,19 @@ class QueryResult(BaseModel):
             'query_hash': self.query_hash,
             'query': self.query,
             'data': json.loads(self.data),
+            'data_source_id': self._data.get('data_source', None),
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
         }
+
+    @classmethod
+    def get_latest(cls, data_source, query, ttl=0):
+        query_hash = utils.gen_query_hash(query)
+
+        query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
+                                   peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'", ttl)).order_by(cls.retrieved_at.desc())
+
+        return query.first()
 
     def __unicode__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
@@ -106,6 +144,7 @@ class QueryResult(BaseModel):
 
 class Query(BaseModel):
     id = peewee.PrimaryKeyField()
+    data_source = peewee.ForeignKeyField(DataSource)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
     description = peewee.CharField(max_length=4096, null=True)
@@ -137,6 +176,7 @@ class Query(BaseModel):
             'ttl': self.ttl,
             'api_key': self.api_key,
             'created_at': self.created_at,
+            'data_source_id': self._data.get('data_source', None)
         }
 
         if with_user:
@@ -310,7 +350,7 @@ class Widget(BaseModel):
     def __unicode__(self):
         return u"%s" % self.id
 
-all_models = (User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog)
+all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog)
 
 
 def create_db(create_tables, drop_tables):

@@ -1,27 +1,28 @@
 
 <div class="container">
+
+    <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
+
     <div class="row">
         <div class="col-lg-12">
             <div class="row">
                 <div class="col-lg-10">
                     <h2>
-                        <edit-in-place editable="isOwner" done="saveQuery" ignore-blanks='true' value="query.name"></edit-in-place>
+                        <edit-in-place editable="isQueryOwner" done="saveName" ignore-blanks='true' value="query.name"></edit-in-place>
                     </h2>
                     <p>
                         <em>
-                            <edit-in-place editable="isOwner" done="saveQuery" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
+                            <edit-in-place editable="isQueryOwner" done="saveDescription" editor="textarea" placeholder="No description" ignore-blanks='false' value="query.description"></edit-in-place>
                         </em>
                     </p>
                 </div>
-                <div class="col-lg-2" ng-hide="isNewQuery || !currentUser.hasPermission('view_source')">
-                    <a ng-href="{{sourceHref}}" ng-click="toggleSource()" class="hidden-xs pull-right">
-                        <span ng-show="isSourceVisible">Hide Source</span>
-                        <span ng-show="!isSourceVisible">View Source</span>
-                    </a>
+
+                <div class="col-lg-2">
+                    <div class="rd-hidden-xs pull-right">
+                        <query-source-link></query-source-link>
+                    </div>
                 </div>
             </div>
-
-
 
             <div class="visible-xs">
                 <p>
@@ -31,7 +32,8 @@
                     </strong>
                     &nbsp;
                     <span class="text-muted">Created By </span>
-                    <strong>{{query.user.name}}</strong>
+                    <strong ng-hide="isQueryOwner">{{query.user.name}}</strong>
+                    <strong ng-show="isQueryOwner">You</strong>
                     &nbsp;
                     <span class="text-muted">Runtime </span>
                     <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
@@ -41,10 +43,7 @@
                     <strong>{{queryResult.getData().length}}</strong>
                 </p>
                 <p>
-                    <a ng-href="{{sourceHref}}" ng-click="toggleSource()">
-                        <span ng-show="isSourceVisible">Hide Source</span>
-                        <span ng-show="!isSourceVisible">View Source</span>
-                    </a>
+                    <query-source-link></query-source-link>
                 </p>
             </div>
         </div>
@@ -54,31 +53,31 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <div ng-show="isSourceVisible">
+            <div ng-show="sourceMode">
                 <p>
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
                     </button>
-                    <button type="button" class="btn btn-default btn-xs" ng-click="formatQuery()">
-                        <span class="glyphicon glyphicon-indent-left"></span> Format SQL
-                    </button>
+                    <query-formatter></query-formatter>
                     <span class="pull-right">
-                        <button class="btn btn-xs btn-default rd-hidden-xs" ng-show="canFork" ng-click="duplicateQuery()">
+                        <button class="btn btn-xs btn-default rd-hidden-xs" ng-click="duplicateQuery()">
                             <span class="glyphicon glyphicon-share-alt"></span> Fork
                         </button>
 
                         <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery()">
-                            <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="dirty">&#42;</span>
+                            <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="isDirty">&#42;</span>
                         </button>
                     </span>
                 </p>
             </div>
 
             <!-- code editor -->
-            <p ng-show="isSourceVisible">
-                <textarea ui-codemirror="editorOptions" ui-refresh="isSourceVisible" ng-model="query.query"></textarea>
-            </p>
-            <hr ng-show="isSourceVisible">
+            <div ng-show="sourceMode">
+                <p>
+                    <query-editor query="query" lock="queryExecuting"></query-editor>
+                </p>
+                <hr>
+            </div>
         </div>
 
     </div>
@@ -94,7 +93,9 @@
             </p>
             <p>
                 <span class="glyphicon glyphicon-user"></span>
-                <span class="text-muted">Created By </span><strong>{{query.user.name}}</strong>
+                <span class="text-muted">Created By </span>
+                <strong ng-hide="isQueryOwner">{{query.user.name}}</strong>
+                <strong ng-show="isQueryOwner">You</strong>
             </p>
             <p>
                 <span class="glyphicon glyphicon-play"></span>
@@ -109,7 +110,13 @@
             <p>
                 <span class="glyphicon glyphicon-refresh"></span>
                 <span class="text-muted">Refresh Interval</span>
-                <select ng-disabled="!isOwner" ng-model="query.ttl" ng-change="saveQuery()" ng-options="c.value as c.name for c in refreshOptions"></select>
+                <query-refresh-select></query-refresh-select>
+            </p>
+
+            <p>
+                <span class="glyphicon glyphicon-hdd"></span>
+                <span class="text-muted">Data Source</span>
+                <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
             </p>
 
             <hr>
@@ -141,7 +148,7 @@
                         <ul class="nav nav-tabs">
                             <rd-tab tab-id="table" name="Table"></rd-tab>
                             <rd-tab tab-id="pivot" name="Pivot Table"></rd-tab>
-                            <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-hide="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
+                            <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" ng-repeat="vis in query.visualizations">
                                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
                             </rd-tab>
                             <rd-tab tab-id="add" name="&plus; New" removeable="true" ng-show="canEdit"></rd-tab>
@@ -150,17 +157,22 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <grid-renderer ng-show="selectedTab == 'table'" query-result="queryResult" items-per-page="50"></grid-renderer>
+                        <div ng-show="selectedTab == 'table'" >
+                            <filters></filters>
+                            <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                        </div>
+
                         <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+
                             <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
                         </div>
 
                         <div ng-show="selectedTab == 'add'">
                             <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
-                            <edit-visulatization-form visualization="newVisualization" query="query" ng-show="canEdit"></edit-visulatization-form>
+                            <edit-visulatization-form visualization="newVisualization" query="query" ng-show="canEdit" on-new-success="setVisualizationTab"></edit-visulatization-form>
                         </div>
                     </div>
                 </div>

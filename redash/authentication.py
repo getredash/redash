@@ -40,6 +40,7 @@ class HMACAuthentication(object):
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
+                login_user(models.ApiUser(query.api_key), remember=False)
                 return True
 
         return False
