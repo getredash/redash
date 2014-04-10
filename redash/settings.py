@@ -65,4 +65,6 @@ STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH",
 WORKERS_COUNT = int(os.environ.get("REDASH_WORKERS_COUNT", "2"))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
+EVENTS_LOG_PATH = os.environ.get("REDASH_EVENTS_LOG_PATH", "")
+EVENTS_CONSOLE_OUTPUT = parse_boolean(os.environ.get("REDASH_EVENTS_CONSOLE_OUTPUT", "false"))
 ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")

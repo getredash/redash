@@ -7,6 +7,7 @@ from flask_peewee.db import Database
 
 import redis
 from statsd import StatsClient
+import events
 from redash import settings, utils
 
 __version__ = '0.3.6'
@@ -18,6 +19,9 @@ def setup_logging():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
+
+    if settings.EVENTS_LOG_PATH:
+        events.setup_logging(settings.EVENTS_LOG_PATH, settings.EVENTS_CONSOLE_OUTPUT)
 
 setup_logging()
 
