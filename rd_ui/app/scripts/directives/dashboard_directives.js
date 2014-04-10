@@ -3,8 +3,8 @@
 
   var directives = angular.module('redash.directives');
 
-  directives.directive('editDashboardForm', ['$http', '$location', '$timeout', 'Dashboard',
-    function($http, $location, $timeout, Dashboard) {
+  directives.directive('editDashboardForm', ['Events', '$http', '$location', '$timeout', 'Dashboard',
+    function(Events, $http, $location, $timeout, Dashboard) {
       return {
         restrict: 'E',
         scope: {
@@ -54,7 +54,6 @@
                 _.each(layout, function(item) {
                   var el = gsItemTemplate.replace('{id}', item.id).replace('{name}', item.name);
                   gridster.add_widget(el, item.xSize, item.ySize, item.col, item.row);
-
                 });
               }
             });
@@ -89,14 +88,17 @@
                 $scope.dashboard = new Dashboard(response);
                 $scope.saveInProgress = false;
                 $(element).modal('hide');
-              })
+              });
+              Events.record(currentUser, 'edit', 'dashboard', $scope.dashboard.id);
             } else {
+
               $http.post('/api/dashboards', {
                 'name': $scope.dashboard.name
               }).success(function(response) {
                 $(element).modal('hide');
                 $location.path('/dashboard/' + response.slug).replace();
-              })
+              });
+              Events.record(currentUser, 'create', 'dashboard');
             }
           }
 

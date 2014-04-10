@@ -1,5 +1,7 @@
 (function() {
-  var DashboardCtrl = function($scope, $routeParams, $http, $timeout, Dashboard) {
+  var DashboardCtrl = function($scope, Events, $routeParams, $http, $timeout, Dashboard) {
+    Events.record(currentUser, "view", "dashboard", dashboard.id);
+
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
     $scope.dashboard = Dashboard.get({
@@ -35,6 +37,8 @@
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
+      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
+
       if ($scope.refreshEnabled) {
         var refreshRate = _.min(_.flatten($scope.dashboard.widgets), function(widget) {
           return widget.visualization.query.ttl;
@@ -47,11 +51,13 @@
     };
   };
 
-  var WidgetCtrl = function($scope, $http, $location, Query) {
+  var WidgetCtrl = function($scope, Events, $http, $location, Query) {
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.visualization.name + '" from the dashboard?')) {
         return;
       }
+
+      Events.record(currentUser, "delete", "widget", $scope.widget.id);
 
       $http.delete('/api/widgets/' + $scope.widget.id).success(function() {
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function(row) {
@@ -61,6 +67,8 @@
         });
       });
     };
+
+    // TODO: fire event for query view for each query
 
     $scope.query = new Query($scope.widget.visualization.query);
     $scope.queryResult = $scope.query.getQueryResult();
@@ -72,7 +80,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
+    .controller('WidgetCtrl', ['$scope', 'Events', '$http', '$location', 'Query', WidgetCtrl])
 
 })();

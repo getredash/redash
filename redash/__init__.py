@@ -7,12 +7,22 @@ from flask_peewee.db import Database
 
 import redis
 from statsd import StatsClient
+import events
 from redash import settings, utils
 
-__version__ = '0.3.5'
+__version__ = '0.3.6'
 
-logging.getLogger().addHandler(logging.StreamHandler())
-logging.getLogger().setLevel(settings.LOG_LEVEL)
+
+def setup_logging():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')
+    handler.setFormatter(formatter)
+    logging.getLogger().addHandler(handler)
+    logging.getLogger().setLevel(settings.LOG_LEVEL)
+
+    events.setup_logging(settings.EVENTS_LOG_PATH, settings.EVENTS_CONSOLE_OUTPUT)
+
+setup_logging()
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,

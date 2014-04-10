@@ -1,10 +1,11 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, $route, $location, notifications, growl, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
     $scope.query = $route.current.locals.query;
+    Events.record(currentUser, 'view', 'query', $scope.query.id);
     $scope.queryResult = $scope.query.getQueryResult();
     $scope.queryExecuting = false;
 
@@ -37,15 +38,16 @@
         growl.addSuccessMessage(options.successMessage);
       }, function(httpResponse) {
         growl.addErrorMessage(options.errorMessage);
-      })
-      .$promise;
+      }).$promise;
     }
 
     $scope.saveDescription = function() {
+      Events.record(currentUser, 'edit_description', 'query', $scope.query.id);
       $scope.saveQuery(undefined, {'description': $scope.query.description});
     };
 
     $scope.saveName = function() {
+      Events.record(currentUser, 'edit_name', 'query', $scope.query.id);
       $scope.saveQuery(undefined, {'name': $scope.query.name});
     };
 
@@ -53,23 +55,26 @@
       $scope.queryResult = $scope.query.getQueryResult(0);
       $scope.lockButton(true);
       $scope.cancelling = false;
+      Events.record(currentUser, 'execute', 'query', $scope.query.id);
     };
 
     $scope.cancelExecution = function() {
       $scope.cancelling = true;
       $scope.queryResult.cancelExecution();
+      Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
     };
 
     $scope.updateDataSource = function() {
-        $scope.query.latest_query_data = null;
-        $scope.query.latest_query_data_id = null;
-        Query.save({
-            'id': $scope.query.id,
-            'data_source_id': $scope.query.data_source_id,
-            'latest_query_data_id': null
-        });
+      Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
+      $scope.query.latest_query_data = null;
+      $scope.query.latest_query_data_id = null;
+      Query.save({
+          'id': $scope.query.id,
+          'data_source_id': $scope.query.data_source_id,
+          'latest_query_data_id': null
+      });
 
-        $scope.executeQuery();
+      $scope.executeQuery();
     };
 
     $scope.setVisualizationTab = function (visualization) {
@@ -81,38 +86,36 @@
       $scope.$parent.pageTitle = $scope.query.name;
     });
 
-    $scope.$watch('queryResult && queryResult.getError()',
-      function(newError, oldError) {
-        if (newError == undefined) {
-          return;
-        }
+    $scope.$watch('queryResult && queryResult.getError()', function(newError, oldError) {
+      if (newError == undefined) {
+        return;
+      }
 
-        if (oldError == undefined && newError != undefined) {
-          $scope.lockButton(false);
-        }
-      });
+      if (oldError == undefined && newError != undefined) {
+        $scope.lockButton(false);
+      }
+    });
 
-    $scope.$watch('queryResult && queryResult.getData()',
-      function(data, oldData) {
-        if (!data) {
-          return;
-        }
+    $scope.$watch('queryResult && queryResult.getData()', function(data, oldData) {
+      if (!data) {
+        return;
+      }
 
-        $scope.filters = $scope.queryResult.getFilters();
+      $scope.filters = $scope.queryResult.getFilters();
 
-        if ($scope.queryResult.getId() == null) {
-          $scope.dataUri = "";
-        } else {
-          $scope.dataUri =
-            '/api/queries/' + $scope.query.id + '/results/' +
-            $scope.queryResult.getId() + '.csv';
+      if ($scope.queryResult.getId() == null) {
+        $scope.dataUri = "";
+      } else {
+        $scope.dataUri =
+          '/api/queries/' + $scope.query.id + '/results/' +
+          $scope.queryResult.getId() + '.csv';
 
-          $scope.dataFilename =
-            $scope.query.name.replace(" ", "_") +
-            moment($scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") +
-            ".csv";
-        }
-      });
+        $scope.dataFilename =
+          $scope.query.name.replace(" ", "_") +
+          moment($scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") +
+          ".csv";
+      }
+    });
 
     $scope.$watch("queryResult && queryResult.getStatus()", function(status) {
       if (!status) {
@@ -139,11 +142,14 @@
     $scope.$watch(function() {
       return $location.hash()
     }, function(hash) {
+      if (hash == 'pivot') {
+        Events.record(currentUser, 'pivot', 'query', $scope.query && $scope.query.id);
+      }
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
   };
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
 })();
