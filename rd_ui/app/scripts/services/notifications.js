@@ -1,5 +1,5 @@
 (function () {
-    var notifications = function () {
+    var notifications = function (Events) {
         var notificationService = {};
         var lastNotification = null;
 
@@ -40,6 +40,7 @@
             notification.onclick = function () {
                 window.focus();
                 this.cancel();
+                Events.record(currentUser, 'click', 'notification');
             };
 
             notification.show()
@@ -49,5 +50,5 @@
     }
 
     angular.module('redash.services')
-        .factory('notifications', notifications);
+        .factory('notifications', ['Events', notifications]);
 })();

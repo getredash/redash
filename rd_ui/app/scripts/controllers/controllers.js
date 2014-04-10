@@ -136,11 +136,13 @@
         });
     }
 
-    var IndexCtrl = function($scope, Dashboard) {
+    var IndexCtrl = function($scope, Events, Dashboard) {
+        Events.record(currentUser, "view", "page", "homepage");
         $scope.$parent.pageTitle = "Home";
 
         $scope.archiveDashboard = function(dashboard) {
             if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
+                Events.record(currentUser, "archive", "dashboard", dashboard.id);
                 dashboard.$delete(function() {
                     $scope.$parent.reloadDashboards();
                 });
@@ -150,6 +152,6 @@
 
     angular.module('redash.controllers', [])
         .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-        .controller('IndexCtrl', ['$scope', 'Dashboard', IndexCtrl])
+        .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();
