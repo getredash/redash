@@ -173,6 +173,9 @@ class Job(RedisObject):
 
         super(Job, self).save(pipe)
 
+    def expire(self, expire_time):
+        self.redis_connection.expire(self._redis_key(self.id), expire_time)
+
     def processing(self, process_id):
         self.update(status=self.PROCESSING,
                     process_id=process_id,
@@ -278,6 +281,8 @@ class Worker(threading.Thread):
                     logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
                                  self.name, job_id)
                     job.done(None, "Interrupted/Cancelled while running.")
+
+            job.expire(24 * 3600)
 
             logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
                          self.name, job_id, self.child_pid, status)
