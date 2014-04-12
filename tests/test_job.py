@@ -98,3 +98,14 @@ class TestJob(TestCase):
         loaded_job = Job.load(redis_connection, job.id)
         self.assertEquals(loaded_job.query, unicode_query)
 
+    def test_cancel_job_with_no_process(self):
+        job = Job(redis_connection, query=self.query, priority=self.priority)
+        job.status = Job.PROCESSING
+        job.process_id = 699999
+        job.save()
+
+        job.cancel()
+
+        job = Job.load(redis_connection, job.id)
+
+        self.assertEquals(job.status, Job.FAILED)
