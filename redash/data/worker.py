@@ -157,9 +157,13 @@ class Job(RedisObject):
             return
 
         if self.status == self.PROCESSING:
-            os.kill(self.process_id, signal.SIGINT)
-        else:
-            self.done(None, "Interrupted/Cancelled while running.")
+            try:
+                os.kill(self.process_id, signal.SIGINT)
+            except OSError as e:
+                logging.warning("[%s] Tried to cancel job but os.kill failed (pid=%d, error=%s)",
+                                self.id, self.process_id, e)
+
+        self.done(None, "Interrupted/Cancelled while running.")
 
     def save(self, pipe=None):
         if not pipe:
