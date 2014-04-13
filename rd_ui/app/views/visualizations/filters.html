@@ -1,7 +1,7 @@
 <div class="well well-sm" ng-show="filters">
     <div ng-repeat="filter in filters">
         {{filter.friendlyName}}:
-        <select ui-select2='{width:"50%"}' ng-model="filter.current" ng-multiple="{{filter.multiple}}">
+        <select ui-select2='select2Options' ng-model="filter.current" ng-multiple="{{filter.multiple}}">
             <option ng-repeat="value in filter.values" value="{{value}}">{{value}}</option>
         </select>
     </div>

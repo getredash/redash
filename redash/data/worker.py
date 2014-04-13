@@ -157,9 +157,13 @@ class Job(RedisObject):
             return
 
         if self.status == self.PROCESSING:
-            os.kill(self.process_id, signal.SIGINT)
-        else:
-            self.done(None, "Interrupted/Cancelled while running.")
+            try:
+                os.kill(self.process_id, signal.SIGINT)
+            except OSError as e:
+                logging.warning("[%s] Tried to cancel job but os.kill failed (pid=%d, error=%s)",
+                                self.id, self.process_id, e)
+
+        self.done(None, "Interrupted/Cancelled while running.")
 
     def save(self, pipe=None):
         if not pipe:
@@ -172,6 +176,9 @@ class Job(RedisObject):
             pipe.delete('query_hash_job:%s' % self.query_hash)
 
         super(Job, self).save(pipe)
+
+    def expire(self, expire_time):
+        self.redis_connection.expire(self._redis_key(self.id), expire_time)
 
     def processing(self, process_id):
         self.update(status=self.PROCESSING,
@@ -278,6 +285,8 @@ class Worker(threading.Thread):
                     logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
                                  self.name, job_id)
                     job.done(None, "Interrupted/Cancelled while running.")
+
+            job.expire(24 * 3600)
 
             logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
                          self.name, job_id, self.child_pid, status)
