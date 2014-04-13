@@ -20,8 +20,8 @@ if __name__ == '__main__':
     commit_sha = os.environ['CIRCLE_SHA1']
 
     commit_body = capture_output(["git", "log", "--format=%b", "-n", "1", commit_sha])
-    file_md5_checksum = capture_output(["md5sum", filename]).split()[0]
-    file_sha256_checksum = capture_output(["sha256sum", filename]).split()[0]
+    file_md5_checksum = capture_output(["md5sum", filepath]).split()[0]
+    file_sha256_checksum = capture_output(["sha256sum", filepath]).split()[0]
     version_body = "%s\n\nMD5: %s\nSHA256: %s" % (commit_body, file_md5_checksum, file_sha256_checksum)
 
     params = json.dumps({
