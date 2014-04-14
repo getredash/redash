@@ -36,7 +36,7 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
-            <li class="dropdown">
+            <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <span ng-repeat="(name, group) in groupedDashboards">
@@ -52,7 +52,7 @@
                     <li ng-repeat="dashboard in otherDashboards">
                         <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                     </li>
-                    <li class="divider" ng-show="currentUser.hasPermission('create_dashboard')"></li>
+                    <li class="divider" ng-show="currentUser.hasPermission('create_dashboard') && (groupedDashboards.length > 0 || otherDashboards.length > 0)"></li>
                     <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
                 </ul>
             </li>

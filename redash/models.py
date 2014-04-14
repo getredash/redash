@@ -31,16 +31,39 @@ class ApiUser(UserMixin):
         return ['view_query']
 
 
-class User(BaseModel, UserMixin):
+class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query']
+    
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField(max_length=100)
+    permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
+    tables = ArrayField(peewee.CharField)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
+    class Meta:
+        db_table = 'groups'
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'permissions': self.permissions,
+            'tables': self.tables,
+            'created_at': self.created_at
+        }
+
+    def __unicode__(self):
+        return unicode(self.id)
+
+
+class User(BaseModel, UserMixin):
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
     is_admin = peewee.BooleanField(default=False)
-    permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
+    groups = ArrayField(peewee.CharField, default=['default'])
 
     class Meta:
         db_table = 'users'
@@ -86,7 +109,6 @@ class ActivityLog(BaseModel):
 
     def __unicode__(self):
         return unicode(self.id)
-
 
 class DataSource(BaseModel):
     id = peewee.PrimaryKeyField()
@@ -350,7 +372,7 @@ class Widget(BaseModel):
     def __unicode__(self):
         return u"%s" % self.id
 
-all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog)
+all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group)
 
 
 def create_db(create_tables, drop_tables):

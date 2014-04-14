@@ -10,6 +10,7 @@ import json
 import numbers
 import cStringIO
 import datetime
+import itertools
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for
@@ -47,7 +48,8 @@ def index(**kwargs):
         'id': current_user.id,
         'name': current_user.name,
         'email': current_user.email,
-        'permissions': current_user.permissions
+        'groups': current_user.groups,
+        'permissions': list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
