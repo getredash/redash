@@ -117,7 +117,12 @@
               if (!_.isArray(filter.current)) {
                 filter.current = [filter.current];
               };
-              return (memo && _.some(filter.current, function(v) { return v == row[filter.name] }));
+
+              return (memo && _.some(filter.current, function(v) {
+                // We compare with either the value or the String representation of the value,
+                // because Select2 casts true/false to "true"/"false".
+                return v == row[filter.name] || String(row[filter.name]) == v
+              }));
             }, true);
           });
         } else {
