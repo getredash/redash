@@ -128,7 +128,7 @@ def importer_with_mapping_file(mapping_filename):
 def get_data_source():
     try:
         data_source = models.DataSource.get(models.DataSource.name=="Import")
-    except models.DataSource.DoestNotExist:
+    except models.DataSource.DoesNotExist:
         data_source = models.DataSource.create(name="Import", type="import", options='{}')
 
     return data_source
