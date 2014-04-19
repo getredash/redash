@@ -16,6 +16,7 @@ from flask.ext.script import Manager, prompt_pass
 manager = Manager(app)
 database_manager = Manager(help="Manages the database (create/drop tables).")
 users_manager = Manager(help="Users management commands.")
+data_sources_manager = Manager(help="Data sources management commands.")
 
 @manager.command
 def version():
@@ -109,9 +110,37 @@ def delete(email):
     deleted_count = models.User.delete().where(models.User.email == email).execute()
     print "Deleted %d users." % deleted_count
 
+@data_sources_manager.command
+def import_from_settings(name=None):
+    """Import data source from settings (env variables)."""
+    name = name or "Default"
+    data_source = models.DataSource.create(name=name,
+                                           type=settings.CONNECTION_ADAPTER,
+                                           options=settings.CONNECTION_STRING)
+
+    print "Imported data source from settings (id={}).".format(data_source.id)
+
+
+@data_sources_manager.command
+def list():
+    """List currently configured data sources"""
+    for ds in models.DataSource.select():
+        print "Name: {}\nType: {}\nOptions: {}".format(ds.name, ds.type, ds.options)
+
+@data_sources_manager.command
+def new(name, type, options):
+    """Create new data source"""
+    print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
+    data_source = models.DataSource.create(name=name,
+                                           type=type,
+                                           options=options)
+    print "Id: {}".format(data_source.id)
+
+
 manager.add_command("database", database_manager)
 manager.add_command("users", users_manager)
 manager.add_command("import", import_manager)
+manager.add_command("ds", data_sources_manager)
 
 if __name__ == '__main__':
     manager.run()
