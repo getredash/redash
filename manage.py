@@ -130,6 +130,7 @@ def list():
 @data_sources_manager.command
 def new(name, type, options):
     """Create new data source"""
+    # TODO: validate it's a valid type and in the future, validate the options.
     print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
     data_source = models.DataSource.create(name=name,
                                            type=type,
