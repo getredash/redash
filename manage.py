@@ -2,13 +2,7 @@
 """
 CLI to manage redash.
 """
-import atfork
 import signal
-
-atfork.monkeypatch_os_fork_functions()
-import atfork.stdlib_fixer
-atfork.stdlib_fixer.fix_logging_module()
-
 import logging
 import time
 from redash import settings, app, db, models, data_manager, __version__
