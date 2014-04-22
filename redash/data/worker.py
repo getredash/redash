@@ -297,7 +297,14 @@ class Worker(multiprocessing.Process):
             self._process(job_id)
         else:
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
-            _, status = os.waitpid(self.child_pid, 0)
+
+            try:
+                _, status = os.waitpid(self.child_pid, 0)
+            except OSError:
+                logging.info("[%s] OSError while waiting for child to finish", self.name)
+                # setting status to >0, so the job cleanup is triggered
+                status = 1
+
             self._update_status('done_jobs_count')
 
             job = Job.load(self.manager.redis_connection, job_id)
