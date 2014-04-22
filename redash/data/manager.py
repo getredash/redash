@@ -142,6 +142,7 @@ class Manager(object):
         redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
         self.workers = [worker.Worker(worker_id, self, redis_connection_params)
                         for worker_id in xrange(workers_count)]
+
         for w in self.workers:
             w.start()
 
@@ -149,7 +150,9 @@ class Manager(object):
 
     def stop_workers(self):
         for w in self.workers:
-            w.continue_working = False
+            w.terminate()
+
+        for w in self.workers:
             w.join()
 
     def _save_status(self):
