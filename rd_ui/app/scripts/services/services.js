@@ -20,6 +20,16 @@
   }
 
   function Events($http) {
+    this.events = [];
+
+    this.post = _.debounce(function() {
+      var events = this.events;
+      this.events = [];
+
+      $http.post('/api/events', events);
+
+    }, 1000);
+
     this.record = function (user, action, object_type, object_id, additional_properties) {
 
       var event = {
@@ -30,8 +40,9 @@
         "timestamp": Date.now()/1000.0
       };
       _.extend(event, additional_properties);
+      this.events.push(event);
 
-      $http.post('/api/events', [event]);
+      this.post();
     };
   }
 
