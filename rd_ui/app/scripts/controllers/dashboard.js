@@ -69,6 +69,9 @@
     };
 
     // TODO: fire event for query view for each query
+    Events.record(currentUser, "view", "widget", $scope.widget.id);
+    Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
+    Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
     $scope.query = new Query($scope.widget.visualization.query);
     $scope.queryResult = $scope.query.getQueryResult();
