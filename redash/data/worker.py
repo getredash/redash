@@ -278,13 +278,13 @@ class Worker(threading.Thread):
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
             _, status = os.waitpid(self.child_pid, 0)
             self._update_status('done_jobs_count')
-            if status > 0:
-                job = Job.load(self.manager.redis_connection, job_id)
-                if not job.is_finished():
-                    self._update_status('cancelled_jobs_count')
-                    logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
-                                 self.name, job_id)
-                    job.done(None, "Interrupted/Cancelled while running.")
+
+            job = Job.load(self.manager.redis_connection, job_id)
+            if status > 0 and not job.is_finished():
+                self._update_status('cancelled_jobs_count')
+                logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
+                             self.name, job_id)
+                job.done(None, "Interrupted/Cancelled while running.")
 
             job.expire(24 * 3600)
 
