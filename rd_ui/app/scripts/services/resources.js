@@ -150,8 +150,10 @@
             xValue = value;
             point[type] = value;
           }
-
           if (type == 'y') {
+            if (value == null) {
+              value = 0;
+            }
             yValues[name] = value;
             point[type] = value;
           }
