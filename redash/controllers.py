@@ -328,7 +328,43 @@ class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.json
-
+        parsedQuery = sqlparse.parse(params['query'])
+        
+        if len(parsedQuery) > 1:
+            return {
+                'job': {
+                    'error': 'Please, execute only one statement at a time'
+                }
+            }
+        
+        parsedQuery = parsedQuery[0]
+        
+        if parsedQuery.get_type() != 'SELECT':
+            return {
+                'job': {
+                    'error': 'Only SELECT statements are allowed'
+                }
+            }
+        
+        # Get table identifier
+        parsedQueryTable = [t.value for t in parsedQuery[0].tokens if isinstance(t, sqlparse.sql.Identifier)]
+        
+        # Get list of table identifiers
+        parsedQueryTableList = list(itertools.chain(*[[t.value for t in i.tokens if isinstance(t, sqlparse.sql.Identifier)] for i in parsedQuery[0].tokens if isinstance(i, sqlparse.sql.IdentifierList)]))
+        
+        # Merge the table indentifiers
+        parsedTables = parsedQueryTable + parsedQueryTableList
+        
+        allowedTables = list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))
+        
+        for table in parsedTables:
+            if table not in allowedTables and '*' not in allowedTables:
+                return {
+                    'job': {
+                        'error': 'Access denied for table %s' % (table)
+                    }
+                }
+        
         models.ActivityLog(
             user=self.current_user,
             type=models.ActivityLog.QUERY_EXECUTION,
