@@ -8,7 +8,7 @@ query language (for example: HiveQL).
 import json
 import sys
 import select
-
+import logging
 import psycopg2
 
 from redash.utils import JSONEncoder
@@ -20,15 +20,18 @@ def pg(connection_string):
 
     def wait(conn):
         while 1:
-            state = conn.poll()
-            if state == psycopg2.extensions.POLL_OK:
-                break
-            elif state == psycopg2.extensions.POLL_WRITE:
-                select.select([], [conn.fileno()], [])
-            elif state == psycopg2.extensions.POLL_READ:
-                select.select([conn.fileno()], [], [])
-            else:
-                raise psycopg2.OperationalError("poll() returned %s" % state)
+            try:
+                state = conn.poll()
+                if state == psycopg2.extensions.POLL_OK:
+                    break
+                elif state == psycopg2.extensions.POLL_WRITE:
+                    select.select([], [conn.fileno()], [])
+                elif state == psycopg2.extensions.POLL_READ:
+                    select.select([conn.fileno()], [], [])
+                else:
+                    raise psycopg2.OperationalError("poll() returned %s" % state)
+            except select.error:
+                raise psycopg2.OperationalError("select.error received")
 
     def query_runner(query):
         connection = psycopg2.connect(connection_string, async=True)
@@ -51,6 +54,10 @@ def pg(connection_string):
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()
+        except (select.error, OSError, psycopg2.OperationalError) as e:
+            logging.exception(e)
+            error = "Query interrupted. Please retry."
+            json_data = None
         except psycopg2.DatabaseError as e:
             json_data = None
             error = e.message

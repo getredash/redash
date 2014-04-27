@@ -2,11 +2,7 @@
 """
 CLI to manage redash.
 """
-import atfork
-atfork.monkeypatch_os_fork_functions()
-import atfork.stdlib_fixer
-atfork.stdlib_fixer.fix_logging_module()
-
+import signal
 import logging
 import time
 from redash import settings, app, db, models, data_manager, __version__
@@ -28,26 +24,31 @@ def version():
 def runworkers():
     """Starts the re:dash query executors/workers."""
 
-    try:
-        old_workers = data_manager.redis_connection.smembers('workers')
-        data_manager.redis_connection.delete('workers')
-
-        logging.info("Cleaning old workers: %s", old_workers)
-
-        data_manager.start_workers(settings.WORKERS_COUNT)
-        logging.info("Workers started.")
-
-        while True:
-            try:
-                data_manager.refresh_queries()
-                data_manager.report_status()
-            except Exception as e:
-                logging.error("Something went wrong with refreshing queries...")
-                logging.exception(e)
-            time.sleep(60)
-    except KeyboardInterrupt:
-        logging.warning("Exiting; waiting for threads")
+    def stop_handler(signum, frame):
+        logging.warning("Exiting; waiting for workers")
         data_manager.stop_workers()
+        exit()
+
+    signal.signal(signal.SIGTERM, stop_handler)
+    signal.signal(signal.SIGINT, stop_handler)
+
+    old_workers = data_manager.redis_connection.smembers('workers')
+    data_manager.redis_connection.delete('workers')
+
+    logging.info("Cleaning old workers: %s", old_workers)
+
+    data_manager.start_workers(settings.WORKERS_COUNT)
+    logging.info("Workers started.")
+
+    while True:
+        try:
+            data_manager.refresh_queries()
+            data_manager.report_status()
+        except Exception as e:
+            logging.error("Something went wrong with refreshing queries...")
+            logging.exception(e)
+        time.sleep(60)
+
 
 @manager.shell
 def make_shell_context():
