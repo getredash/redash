@@ -8,7 +8,6 @@ MarkupSafe==0.18
 WTForms==1.0.5
 Werkzeug==0.9.4
 aniso8601==0.82
-atfork==0.1.2
 blinker==1.3
 flask-peewee==0.6.5
 itsdangerous==0.23
