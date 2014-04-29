@@ -182,6 +182,23 @@ class WidgetAPITest(BaseTestCase):
                            [rv4.json['widget']['id']]])
         self.assertEquals(rv4.json['new_row'], True)
 
+    def test_create_text_widget(self):
+        dashboard = dashboard_factory.create()
+
+        data = {
+            'visualization_id': None,
+            'text': 'Sample text.',
+            'dashboard_id': dashboard.id,
+            'options': {},
+            'width': 2
+        }
+
+        with app.test_client() as c, authenticated_user(c):
+            rv = json_request(c.post, '/api/widgets', data=data)
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertEquals(rv.json['widget']['text'], 'Sample text.')
+
     def test_delete_widget(self):
         widget = widget_factory.create()
 

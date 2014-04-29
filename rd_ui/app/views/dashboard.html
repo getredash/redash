@@ -21,7 +21,7 @@
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}"
              ng-controller='WidgetCtrl'>
 
-            <div class="panel panel-default">
+            <div class="panel panel-default" ng-if="type=='visualization'">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <p>
@@ -43,7 +43,16 @@
                         <a class="btn btn-default btn-xs" ng-href="/queries/{{query.id}}#{{widget.visualization.id}}" ng-show="currentUser.hasPermission('view_query')"><span class="glyphicon glyphicon-link"></span></a>
                         <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
                     </span>
+                </div>
+            </div>
 
+            <div class="panel panel-default" ng-if="type=='textbox'" ng-mouseenter="showControls = true" ng-mouseleave="showControls = false">
+                <div class="panel-body">
+                    <p ng-bind-html="widget.text | markdown"></p>
+
+                    <span class="pull-right" ng-show="showControls">
+                        <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
+                    </span>
                 </div>
             </div>
         </div>

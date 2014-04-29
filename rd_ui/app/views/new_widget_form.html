@@ -6,32 +6,51 @@
                 <h4 class="modal-title">Add Widget</h4>
             </div>
             <div class="modal-body">
-                <p>
-                    <form class="form-inline" role="form" ng-submit="loadVisualizations()">
-                      <div class="form-group">
-                        <input class="form-control" placeholder="Query Id" ng-model="queryId">
-                      </div>
-                      <button type="submit" class="btn btn-primary" ng-disabled="!queryId">
-                        Load visualizations
-                      </button>
-                    </form>
+                <p class="btn-group">
+                    <button type="button" class="btn btn-default" ng-class="{active: isVisualization()}" ng-click="setType('visualization')">Visualization</button>
+                    <button type="button" class="btn btn-default" ng-class="{active: isTextBox()}" ng-click="setType('textbox')">Text Box</button>
                 </p>
 
-                <div ng-show="query">
-                  <div class="form-group">
-                      <label for="">Choose Visualation</label>
-                      <select ng-model="selectedVis" ng-options="vis as vis.name group by vis.type for vis in query.visualizations" class="form-control"></select>
-                  </div>
+                <div ng-show="isTextBox()">
+                    <div class="form-group">
+                        <textarea class="form-control" ng-model="text" rows="3"></textarea>
+                    </div>
+                    <div ng-show="text">
+                        <strong>Preview:</strong>
+                        <p ng-bind-html="text | markdown"></p>
+                    </div>
+                </div>
 
-                  <div class="form-group">
-                      <label for="">Widget Size</label>
-                      <select class="form-control" ng-model="widgetSize" ng-options="c.value as c.name for c in widgetSizes"></select>
-                  </div>
+                <div ng-show="isVisualization()">
+                    <p>
+                        <form class="form-inline" role="form" ng-submit="loadVisualizations()">
+                            <div class="form-group">
+                                <input class="form-control" placeholder="Query Id" ng-model="queryId">
+                            </div>
+                            <button type="submit" class="btn btn-primary" ng-disabled="!queryId">
+                                Load visualizations
+                            </button>
+                        </form>
+                    </p>
+
+                    <div ng-show="query">
+                      <div class="form-group">
+                          <label for="">Choose Visualation</label>
+                          <select ng-model="selectedVis" ng-options="vis as vis.name group by vis.type for vis in query.visualizations" class="form-control"></select>
+                      </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="">Widget Size</label>
+                    <select class="form-control" ng-model="widgetSize"
+                            ng-options="c.value as c.name for c in widgetSizes"></select>
                 </div>
             </div>
-            <div class="modal-footer" ng-if="selectedVis">
+
+            <div class="modal-footer">
                 <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" ng-disabled="saveInProgress" ng-click="saveWidget()">Add to Dashboard</button>
+                <button type="button" class="btn btn-primary" ng-disabled="saveInProgress || !(selectedVis || isTextBox())" ng-click="saveWidget()">Add to Dashboard</button>
             </div>
         </div>
         <!-- /.modal-content -->
