@@ -133,8 +133,13 @@ class QueryResult(BaseModel):
     def get_latest(cls, data_source, query, ttl=0):
         query_hash = utils.gen_query_hash(query)
 
-        query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
-                                   peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'", ttl)).order_by(cls.retrieved_at.desc())
+        if ttl == -1:
+            query = cls.select().where(cls.query_hash == query_hash,
+                                       cls.data_source == data_source).order_by(cls.retrieved_at.desc())
+        else:
+            query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
+                                       peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'",
+                                                  ttl)).order_by(cls.retrieved_at.desc())
 
         return query.first()
 
