@@ -133,8 +133,13 @@ class QueryResult(BaseModel):
     def get_latest(cls, data_source, query, ttl=0):
         query_hash = utils.gen_query_hash(query)
 
-        query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
-                                   peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'", ttl)).order_by(cls.retrieved_at.desc())
+        if ttl == -1:
+            query = cls.select().where(cls.query_hash == query_hash,
+                                       cls.data_source == data_source).order_by(cls.retrieved_at.desc())
+        else:
+            query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
+                                       peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'",
+                                                  ttl)).order_by(cls.retrieved_at.desc())
 
         return query.first()
 
@@ -261,7 +266,23 @@ class Dashboard(BaseModel):
                 .switch(Query)\
                 .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)
             widgets = {w.id: w.to_dict() for w in widgets}
-            widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
+
+            # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
+            # updated. This happens for users with old databases that didn't have a foreign key relationship between
+            # visualizations and widgets.
+            # It's temporary until better solution is implemented (we probably should move the position information
+            # to the widget).
+            widgets_layout = []
+            for row in layout:
+                new_row = []
+                for widget_id in row:
+                    widget = widgets.get(widget_id, None)
+                    if widget:
+                        new_row.append(widget)
+
+                widgets_layout.append(new_row)
+
+            # widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
             widgets_layout = None
 
