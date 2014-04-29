@@ -54,7 +54,7 @@
     };
   };
 
-  var WidgetCtrl = function($scope, Events, Widget, $http, $location, Query) {
+  var WidgetCtrl = function($scope, Events, Query) {
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
@@ -89,6 +89,6 @@
 
   angular.module('redash.controllers')
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', 'Events', 'Widget', '$http', '$location', 'Query', WidgetCtrl])
+    .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
 
 })();
