@@ -1,13 +1,16 @@
 (function() {
-  var DashboardCtrl = function($scope, Events, $routeParams, $http, $timeout, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
     Events.record(currentUser, "view", "dashboard", dashboard.id);
 
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
-    $scope.dashboard = Dashboard.get({
-      slug: $routeParams.dashboardSlug
-    }, function(dashboard) {
+    $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
       $scope.$parent.pageTitle = dashboard.name;
+      $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
+        return _.map(row, function (widget) {
+          return new Widget(widget);
+        });
+      });
     });
 
     var autoRefresh = function() {
@@ -51,39 +54,41 @@
     };
   };
 
-  var WidgetCtrl = function($scope, Events, $http, $location, Query) {
+  var WidgetCtrl = function($scope, Events, Widget, $http, $location, Query) {
     $scope.deleteWidget = function() {
-      if (!confirm('Are you sure you want to remove "' + $scope.widget.visualization.name + '" from the dashboard?')) {
+      if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
       }
 
       Events.record(currentUser, "delete", "widget", $scope.widget.id);
 
-      $http.delete('/api/widgets/' + $scope.widget.id).success(function() {
+      $scope.widget.$delete(function() {
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function(row) {
           return _.filter(row, function(widget) {
-            return widget.id != $scope.widget.id;
+            return widget.id != undefined;
           })
         });
       });
     };
 
-    // TODO: fire event for query view for each query
     Events.record(currentUser, "view", "widget", $scope.widget.id);
-    Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
-    Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
-    $scope.query = new Query($scope.widget.visualization.query);
-    $scope.queryResult = $scope.query.getQueryResult();
+    if ($scope.widget.visualization) {
+      Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
+      Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
-    $scope.updateTime = (new Date($scope.queryResult.getUpdatedAt())).toISOString();
-    $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
+      $scope.query = new Query($scope.widget.visualization.query);
+      $scope.queryResult = $scope.query.getQueryResult();
+      $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
 
-    $scope.updateTime = '';
+      $scope.type = 'visualization';
+    } else {
+      $scope.type = 'textbox';
+    }
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', 'Events', '$http', '$location', 'Query', WidgetCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
+    .controller('WidgetCtrl', ['$scope', 'Events', 'Widget', '$http', '$location', 'Query', WidgetCtrl])
 
 })();
