@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QuerySourceCtrl(Events, $controller, $scope, $location, Query, Visualization, KeyboardShortcuts) {
+  function QuerySourceCtrl(Events, growl, $controller, $scope, $location, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
     // TODO:
@@ -67,15 +67,19 @@
       if (confirm('Are you sure you want to delete ' + vis.name + ' ?')) {
         Events.record(currentUser, 'delete', 'visualization', vis.id);
 
-        Visualization.delete(vis);
-        if ($scope.selectedTab == vis.id) {
-          $scope.selectedTab = DEFAULT_TAB;
-          $location.hash($scope.selectedTab);
-        }
-        $scope.query.visualizations =
-          $scope.query.visualizations.filter(function(v) {
-            return vis.id !== v.id;
-          });
+        Visualization.delete(vis, function() {
+          if ($scope.selectedTab == vis.id) {
+            $scope.selectedTab = DEFAULT_TAB;
+            $location.hash($scope.selectedTab);
+          }
+          $scope.query.visualizations =
+            $scope.query.visualizations.filter(function (v) {
+              return vis.id !== v.id;
+            });
+        }, function () {
+          growl.addErrorMessage("Error deleting visualization. Maybe it's used in a dashboard?");
+        });
+
       }
     };
 
@@ -99,7 +103,7 @@
   }
 
   angular.module('redash.controllers').controller('QuerySourceCtrl', [
-    'Events', '$controller', '$scope', '$location', 'Query',
+    'Events', 'growl', '$controller', '$scope', '$location', 'Query',
     'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
     ]);
 })();
