@@ -261,7 +261,23 @@ class Dashboard(BaseModel):
                 .switch(Query)\
                 .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)
             widgets = {w.id: w.to_dict() for w in widgets}
-            widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
+
+            # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
+            # updated. This happens for users with old databases that didn't have a foreign key relationship between
+            # visualizations and widgets.
+            # It's temporary until better solution is implemented (we probably should move the position information
+            # to the widget).
+            widgets_layout = []
+            for row in layout:
+                new_row = []
+                for widget_id in row:
+                    widget = widgets.get(widget_id, None)
+                    if widget:
+                        new_row.append(widget)
+
+                widgets_layout.append(new_row)
+
+            # widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
             widgets_layout = None
 
