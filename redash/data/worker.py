@@ -314,7 +314,7 @@ class Worker(multiprocessing.Process):
                              self.name, job_id)
                 job.done(None, "Interrupted/Cancelled while running.")
 
-            job.expire(24 * 3600)
+            job.expire(settings.JOB_EXPIRY_TIME)
 
             logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
                          self.name, job_id, self.child_pid, status)
