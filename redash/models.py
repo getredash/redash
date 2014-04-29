@@ -255,11 +255,11 @@ class Dashboard(BaseModel):
         if with_widgets:
             widgets = Widget.select(Widget, Visualization, Query, QueryResult, User)\
                 .where(Widget.dashboard == self.id)\
-                .join(Visualization)\
-                .join(Query)\
-                .join(User)\
+                .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
+                .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
+                .join(User, join_type=peewee.JOIN_LEFT_OUTER)\
                 .switch(Query)\
-                .join(QueryResult)
+                .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)
             widgets = {w.id: w.to_dict() for w in widgets}
             widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
@@ -324,8 +324,8 @@ class Visualization(BaseModel):
 
 class Widget(BaseModel):
     id = peewee.PrimaryKeyField()
-    visualization = peewee.ForeignKeyField(Visualization, related_name='widgets')
-
+    visualization = peewee.ForeignKeyField(Visualization, related_name='widgets', null=True)
+    text = peewee.TextField(null=True)
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
@@ -339,13 +339,18 @@ class Widget(BaseModel):
         db_table = 'widgets'
 
     def to_dict(self):
-        return {
+        d = {
             'id': self.id,
             'width': self.width,
             'options': json.loads(self.options),
-            'visualization': self.visualization.to_dict(),
-            'dashboard_id': self._data['dashboard']
+            'dashboard_id': self._data['dashboard'],
+            'text': self.text
         }
+
+        if self.visualization and self.visualization.id:
+            d['visualization'] = self.visualization.to_dict()
+
+        return d
 
     def __unicode__(self):
         return u"%s" % self.id

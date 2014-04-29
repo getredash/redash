@@ -46,7 +46,7 @@
                       row: rowIndex + 1,
                       ySize: 1,
                       xSize: widget.width,
-                      name: widget.visualization.query.name
+                      name: widget.getName()//visualization.query.name
                     });
                   });
                 });
@@ -125,25 +125,37 @@
             value: 2
           }];
 
+          $scope.type = 'visualization';
+
+          $scope.isVisualization = function () {
+            return $scope.type == 'visualization';
+          };
+
+          $scope.isTextBox = function () {
+            return $scope.type == 'textbox';
+          };
+
+          $scope.setType = function (type) {
+            $scope.type = type;
+          };
+
           var reset = function() {
             $scope.saveInProgress = false;
             $scope.widgetSize = 1;
             $scope.queryId = null;
             $scope.selectedVis = null;
             $scope.query = null;
-
-          }
+            $scope.text = "";
+          };
 
           reset();
 
-          $scope.loadVisualizations = function() {
+          $scope.loadVisualizations = function () {
             if (!$scope.queryId) {
               return;
             }
 
-            Query.get({
-              id: $scope.queryId
-            }, function(query) {
+            Query.get({ id: $scope.queryId }, function(query) {
               if (query) {
                 $scope.query = query;
                 if (query.visualizations.length) {
@@ -157,19 +169,21 @@
             $scope.saveInProgress = true;
 
             var widget = new Widget({
-              'visualization_id': $scope.selectedVis.id,
+              'visualization_id': $scope.selectedVis && $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
               'options': {},
-              'width': $scope.widgetSize
+              'width': $scope.widgetSize,
+              'text': $scope.text
             });
 
             widget.$save().then(function(response) {
               // update dashboard layout
               $scope.dashboard.layout = response['layout'];
+              var newWidget = new Widget(response['widget']);
               if (response['new_row']) {
-                $scope.dashboard.widgets.push([response['widget']]);
+                $scope.dashboard.widgets.push([newWidget]);
               } else {
-                $scope.dashboard.widgets[$scope.dashboard.widgets.length - 1].push(response['widget']);
+                $scope.dashboard.widgets[$scope.dashboard.widgets.length - 1].push(newWidget);
               }
 
               // close the dialog
