@@ -48,7 +48,7 @@
 
             <div class="panel panel-default" ng-if="type=='textbox'" ng-mouseenter="showControls = true" ng-mouseleave="showControls = false">
                 <div class="panel-body">
-                    {{widget.text}}
+                    <p ng-bind-html="widget.text | markdown"></p>
 
                     <span class="pull-right" ng-show="showControls">
                         <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
