@@ -363,6 +363,13 @@
   var Widget = function ($resource) {
     var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
 
+    WidgetResource.prototype.getName = function () {
+      if (this.visualization) {
+        return this.visualization.query.name + ' (' + this.visualization.name + ')';
+      }
+      return _.str.truncate(this.text, 20);
+    };
+
     return WidgetResource;
   }
 
