@@ -11,9 +11,14 @@
                     <button type="button" class="btn btn-default" ng-class="{active: isTextBox()}" ng-click="setType('textbox')">Text Box</button>
                 </p>
 
-                <div ng-show="isTextBox()" class="form-group">
-                    <textarea class="form-control" ng-model="text" rows="3"></textarea>
-                    <span class="help-block">Markdown supported.</span>
+                <div ng-show="isTextBox()">
+                    <div class="form-group">
+                        <textarea class="form-control" ng-model="text" rows="3"></textarea>
+                    </div>
+                    <div ng-show="text">
+                        <strong>Preview:</strong>
+                        <p ng-bind-html="text | markdown"></p>
+                    </div>
                 </div>
 
                 <div ng-show="isVisualization()">
