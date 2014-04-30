@@ -12,3 +12,5 @@ redash/dump.rdb
 .env
 .ruby-version
 venv
+Gemfile
+Gemfile.lock

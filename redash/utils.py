@@ -6,9 +6,22 @@ import datetime
 import json
 import re
 import hashlib
+import sqlparse
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
+def extract_table_names(tokens, tables = set()):
+    tokens = [t for t in tokens if t.ttype not in (sqlparse.tokens.Whitespace, sqlparse.tokens.Newline)]
+    
+    for i in range(len(tokens)):
+        if tokens[i].is_group():
+            tables.update(extract_table_names(tokens[i].tokens))
+        else:
+            if tokens[i].ttype == sqlparse.tokens.Keyword \
+            and tokens[i].normalized in ['FROM', 'JOIN', 'LEFT JOIN', 'FULL JOIN', 'RIGHT JOIN', 'CROSS JOIN', 'INNER JOIN', 'OUTER JOIN', 'LEFT OUTER JOIN', 'RIGHT OUTER JOIN', 'FULL OUTER JOIN'] \
+            and isinstance(tokens[i + 1], sqlparse.sql.Identifier):
+                tables.add(tokens[i + 1].value)
+    return tables
 
 def gen_query_hash(sql):
     """Returns hash of the given query after stripping all comments, line breaks and multiple

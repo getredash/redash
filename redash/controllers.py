@@ -339,22 +339,24 @@ class QueryResultListAPI(BaseResource):
         
         parsedQuery = parsedQuery[0]
         
-        if parsedQuery.get_type() != 'SELECT':
+        if len([x for x in parsedQuery.flatten() if x.ttype == sqlparse.tokens.DDL]):
             return {
                 'job': {
                     'error': 'Only SELECT statements are allowed'
                 }
             }
         
+        # Check the type of queries executed
+        for dml in [x for x in parsedQuery.flatten() if x.ttype == sqlparse.tokens.DML]:
+            if dml.normalized != 'SELECT':
+                return {
+                    'job': {
+                        'error': 'Only SELECT statements are allowed'
+                    }
+                }
+        
         # Get table identifier
-        parsedQueryTable = [t.value for t in parsedQuery[0].tokens if isinstance(t, sqlparse.sql.Identifier)]
-        
-        # Get list of table identifiers
-        parsedQueryTableList = list(itertools.chain(*[[t.value for t in i.tokens if isinstance(t, sqlparse.sql.Identifier)] for i in parsedQuery[0].tokens if isinstance(i, sqlparse.sql.IdentifierList)]))
-        
-        # Merge the table indentifiers
-        parsedTables = parsedQueryTable + parsedQueryTableList
-        
+        parsedTables = utils.extract_table_names(parsedQuery.tokens)
         allowedTables = list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))
         
         for table in parsedTables:
