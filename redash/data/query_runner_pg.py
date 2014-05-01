@@ -43,12 +43,26 @@ def pg(connection_string):
             cursor.execute(query)
             wait(connection)
 
-            column_names = [col.name for col in cursor.description]
+            column_names = set()
+            columns = []
+            duplicates_counter = 1
+
+            for column in cursor.description:
+                # TODO: this deduplication needs to be generalized and reused in all query runners.
+                column_name = column.name
+                if column_name in column_names:
+                    column_name = column_name + str(duplicates_counter)
+                    duplicates_counter += 1
+
+                column_names.add(column_name)
+
+                columns.append({
+                    'name': column_name,
+                    'friendly_name': column_friendly_name(column_name),
+                    'type': None
+                })
 
             rows = [dict(zip(column_names, row)) for row in cursor]
-            columns = [{'name': col.name,
-                        'friendly_name': column_friendly_name(col.name),
-                        'type': None} for col in cursor.description]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
