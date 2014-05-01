@@ -11,3 +11,5 @@ Berksfile.lock
 redash/dump.rdb
 .env
 .ruby-version
+venv
+Gemfile*
