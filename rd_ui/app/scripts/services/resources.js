@@ -205,19 +205,35 @@
       return this.columns;
     }
 
-    QueryResult.prototype.getColumnCleanName = function (column) {
+
+    QueryResult.prototype.getColumnNameWithoutType = function (column) {
       var parts = column.split('::');
-      var name = parts[1];
-      if (parts[0] != '') {
-        // TODO: it's probably time to generalize this.
-        // see also getColumnFriendlyName
-        name = parts[0].replace(/%/g, '__pct').replace(/ /g, '_').replace(/\?/g, '');
+      return parts[0];
+    };
+
+    var charConversionMap = {
+      '__pct': /%/g,
+      '_': / /g,
+      '__qm': /\?/g,
+      '__brkt': /[\(\)\[\]]/g,
+      '__dash': /-/g,
+      '__amp': /&/g
+    };
+
+    QueryResult.prototype.getColumnCleanName = function (column) {
+      var name = this.getColumnNameWithoutType(column);
+
+      if (name != '') {
+        _.each(charConversionMap, function(regex, replacement) {
+          name = name.replace(regex, replacement);
+        });
       }
+
       return name;
     }
 
     QueryResult.prototype.getColumnFriendlyName = function (column) {
-      return this.getColumnCleanName(column).replace('__pct', '%').replace(/_/g, ' ').replace(/(?:^|\s)\S/g, function (a) {
+      return this.getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, function (a) {
         return a.toUpperCase();
       });
     }
