@@ -43,7 +43,9 @@ def pg(connection_string):
             cursor.execute(query)
             wait(connection)
 
-            column_names = set()
+            # While set would be more efficient here, it sorts the data which is not what we want, but due to the small
+            # size of the data we can assume it's ok.
+            column_names = []
             columns = []
             duplicates_counter = 1
 
@@ -54,7 +56,7 @@ def pg(connection_string):
                     column_name = column_name + str(duplicates_counter)
                     duplicates_counter += 1
 
-                column_names.add(column_name)
+                column_names.append(column_name)
 
                 columns.append({
                     'name': column_name,
