@@ -1,7 +1,8 @@
 NAME=redash
 VERSION=`python ./manage.py version`
 FULL_VERSION=$(VERSION)+b$(CIRCLE_BUILD_NUM)
-FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(FULL_VERSION).tar.gz
+# VERSION gets evaluated every time it's referenced, therefore we need to use VERSION here instead of FULL_VERSION.
+FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
 deps:
 	cd rd_ui && npm install
@@ -14,7 +15,7 @@ pack:
 	tar -zcv -f $(FILENAME) --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="rd_ui/node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
 
 upload:
-	python bin/upload_version.py $(FULL_VERSION) $(FILENAME)
+	python bin/upload_version.py $(VERSION) $(FILENAME)
 
 test:
 	nosetests --with-coverage --cover-package=redash tests/*.py
