@@ -104,6 +104,7 @@
         query: '=',
         queryResult: '=',
         visualization: '=?',
+        openEditor: '=?',
         onNewSuccess: '=?'
       },
       link: function (scope, element, attrs) {
