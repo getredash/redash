@@ -12,14 +12,19 @@ if __name__ == '__main__':
 
     latest_release = sorted_releases[0]
     asset_url = latest_release['assets'][0]['url']
+    filename = latest_release['assets'][0]['name']
+
+    wget_command = 'wget --header="Accept: application/octet-stream" %s -O %s' % (asset_url, filename)
 
     if '--url-only' in sys.argv:
         print asset_url
+    elif '--wget' in sys.argv:
+        print wget_command
     else:
         print "Latest release: %s" % latest_release['tag_name']
         print latest_release['body']
 
         print "\nTarball URL: %s" % asset_url
-        print 'wget: wget --header="Accept: application/octet-stream" %s' % asset_url
+        print 'wget: %s' % (wget_command)
 
 
