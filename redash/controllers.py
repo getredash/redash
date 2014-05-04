@@ -19,7 +19,7 @@ from flask_login import current_user, login_user, logout_user
 import sqlparse
 import events
 from permissions import require_permission
-from redash import settings, utils
+from redash import settings, utils, __version__
 from redash import data
 
 from redash import app, auth, api, redis_connection, data_manager
@@ -93,7 +93,7 @@ def status_api():
     status = {}
     info = redis_connection.info()
     status['redis_used_memory'] = info['used_memory_human']
-
+    status['version'] = __version__
     status['queries_count'] = models.Query.select().count()
     status['query_results_count'] = models.QueryResult.select().count()
     status['dashboards_count'] = models.Dashboard.select().count()
