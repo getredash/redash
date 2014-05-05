@@ -376,8 +376,16 @@
     return DataSourceResource;
   }
 
-  var Widget = function ($resource) {
+  var Widget = function ($resource, Query) {
     var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
+
+    WidgetResource.prototype.getQuery = function () {
+      if (!this.query && this.visualization) {
+         this.query = new Query(this.visualization.query);
+      }
+
+      return this.query;
+    };
 
     WidgetResource.prototype.getName = function () {
       if (this.visualization) {
@@ -393,5 +401,5 @@
       .factory('QueryResult', ['$resource', '$timeout', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
-      .factory('Widget', ['$resource', Widget]);
+      .factory('Widget', ['$resource', 'Query', Widget]);
 })();
