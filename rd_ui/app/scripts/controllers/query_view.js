@@ -33,6 +33,7 @@
       }, options);
 
       delete $scope.query.latest_query_data;
+      delete $scope.query.queryResult;
 
       return Query.save(data, function() {
         growl.addSuccessMessage(options.successMessage);
