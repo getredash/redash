@@ -357,7 +357,10 @@
 
       var queryResult = null;
       if (this.latest_query_data && ttl != 0) {
-        queryResult = new QueryResult({'query_result': this.latest_query_data});
+        if (!this.queryResult) {
+          this.queryResult = new QueryResult({'query_result': this.latest_query_data});
+        }
+        queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {
         queryResult = QueryResult.getById(this.latest_query_data_id);
       } else if (this.data_source_id) {
