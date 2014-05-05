@@ -77,7 +77,7 @@
       Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
       Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
-      $scope.query = new Query($scope.widget.visualization.query);
+      $scope.query = $scope.widget.getQuery();
       $scope.queryResult = $scope.query.getQueryResult();
       $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
 
