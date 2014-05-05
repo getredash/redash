@@ -13,6 +13,24 @@ import psycopg2
 
 from redash.utils import JSONEncoder
 
+types_map = {
+    20: 'integer',
+    21: 'integer',
+    23: 'integer',
+    700: 'float',
+    1700: 'float',
+    701: 'float',
+    16: 'boolean',
+    1082: 'date',
+    1114: 'datetime',
+    1184: 'datetime',
+    1014: 'string',
+    1015: 'string',
+    1008: 'string',
+    1009: 'string',
+    2951: 'string'
+}
+
 
 def pg(connection_string):
     def column_friendly_name(column_name):
@@ -61,7 +79,7 @@ def pg(connection_string):
                 columns.append({
                     'name': column_name,
                     'friendly_name': column_friendly_name(column_name),
-                    'type': None
+                    'type': types_map.get(column.type_code, None)
                 })
 
             rows = [dict(zip(column_names, row)) for row in cursor]

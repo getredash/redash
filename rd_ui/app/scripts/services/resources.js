@@ -197,14 +197,21 @@
 
     QueryResult.prototype.getColumns = function () {
       if (this.columns == undefined && this.query_result.data) {
-        this.columns = _.map(this.query_result.data.columns, function (v) {
+        this.columns = this.query_result.data.columns;
+      }
+      
+      return this.columns;
+    }
+
+    QueryResult.prototype.getColumnNames = function () {
+      if (this.columnNames == undefined && this.query_result.data) {
+        this.columnNames = _.map(this.query_result.data.columns, function (v) {
           return v.name;
         });
       }
 
-      return this.columns;
+      return this.columnNames;
     }
-
 
     QueryResult.prototype.getColumnNameWithoutType = function (column) {
       var parts = column.split('::');
@@ -239,13 +246,13 @@
     }
 
     QueryResult.prototype.getColumnCleanNames = function () {
-      return _.map(this.getColumns(), function (col) {
+      return _.map(this.getColumnNames(), function (col) {
         return this.getColumnCleanName(col);
       }, this);
     }
 
     QueryResult.prototype.getColumnFriendlyNames = function () {
-      return _.map(this.getColumns(), function (col) {
+      return _.map(this.getColumnNames(), function (col) {
         return this.getColumnFriendlyName(col);
       }, this);
     }
@@ -261,7 +268,7 @@
     QueryResult.prototype.prepareFilters = function () {
       var filters = [];
       var filterTypes = ['filter', 'multi-filter'];
-      _.each(this.getColumns(), function (col) {
+      _.each(this.getColumnNames(), function (col) {
         var type = col.split('::')[1]
         if (_.contains(filterTypes, type)) {
           // filter found
