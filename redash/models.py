@@ -248,6 +248,7 @@ class Dashboard(BaseModel):
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     layout = peewee.TextField()
+    dashboard_filters_enabled = peewee.BooleanField(default=False)
     is_archived = peewee.BooleanField(default=False, index=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
@@ -292,6 +293,7 @@ class Dashboard(BaseModel):
             'name': self.name,
             'user_id': self._data['user'],
             'layout': layout,
+            'dashboard_filters_enabled': self.dashboard_filters_enabled,
             'widgets': widgets_layout
         }
 

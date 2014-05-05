@@ -357,7 +357,10 @@
 
       var queryResult = null;
       if (this.latest_query_data && ttl != 0) {
-        queryResult = new QueryResult({'query_result': this.latest_query_data});
+        if (!this.queryResult) {
+          this.queryResult = new QueryResult({'query_result': this.latest_query_data});
+        }
+        queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {
         queryResult = QueryResult.getById(this.latest_query_data_id);
       } else if (this.data_source_id) {
@@ -376,8 +379,16 @@
     return DataSourceResource;
   }
 
-  var Widget = function ($resource) {
+  var Widget = function ($resource, Query) {
     var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
+
+    WidgetResource.prototype.getQuery = function () {
+      if (!this.query && this.visualization) {
+         this.query = new Query(this.visualization.query);
+      }
+
+      return this.query;
+    };
 
     WidgetResource.prototype.getName = function () {
       if (this.visualization) {
@@ -393,5 +404,5 @@
       .factory('QueryResult', ['$resource', '$timeout', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
-      .factory('Widget', ['$resource', Widget]);
+      .factory('Widget', ['$resource', 'Query', Widget]);
 })();
