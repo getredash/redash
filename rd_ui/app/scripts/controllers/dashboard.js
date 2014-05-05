@@ -6,11 +6,40 @@
     $scope.refreshRate = 60;
     $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
       $scope.$parent.pageTitle = dashboard.name;
+      var filters = {};
+
       $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
         return _.map(row, function (widget) {
-          return new Widget(widget);
+          var w = new Widget(widget);
+
+          if (w.visualization && dashboard.dashboard_filters_enabled) {
+            var queryFilters = w.getQuery().getQueryResult().getFilters();
+            _.each(queryFilters, function (filter) {
+              if (!_.has(filters, filter.name)) {
+                // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
+                filters[filter.name] = filter;
+                filters[filter.name].originFilters = [];
+
+                $scope.$watch(function() { return filter.current }, function (value) {
+                  _.each(filter.originFilters, function(originFilter) {
+                    originFilter.current = value;
+                  })
+                });
+
+              };
+
+              // TODO: merge values.
+              filters[filter.name].originFilters.push(filter);
+            });
+          }
+
+          return w;
         });
       });
+
+      if (dashboard.dashboard_filters_enabled) {
+        $scope.filters = _.values(filters);
+      }
     });
 
     var autoRefresh = function() {
