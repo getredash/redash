@@ -54,30 +54,46 @@
 
             $scope.gridData = prepareGridData($scope.queryResult.getData());
 
+            var columns = $scope.queryResult.getColumns();
             $scope.gridColumns = _.map($scope.queryResult.getColumnCleanNames(), function (col, i) {
               var columnDefinition = {
                 'label': $scope.queryResult.getColumnFriendlyNames()[i],
                 'map': col
               };
 
-              var rawData = $scope.queryResult.getRawData();
+              var columnType = columns[i].type;
 
-              if (rawData.length > 0) {
-                var exampleData = rawData[0][col];
-                if (angular.isNumber(exampleData)) {
-                  columnDefinition['formatFunction'] = 'number';
-                  columnDefinition['formatParameter'] = 2;
-                } else if (moment.isMoment(exampleData)) {
-                  columnDefinition['formatFunction'] = function (value) {
-                    // TODO: this is very hackish way to determine if we need
-                    // to show the value as a time or date only. Better solution
-                    // is to complete #70 and use the information it returns.
-                    if (value._i.match(/^\d{4}-\d{2}-\d{2}T/)) {
-                      return value.format("DD/MM/YY HH:mm");
+              if (!columnType) {
+                var rawData = $scope.queryResult.getRawData();
+
+                if (rawData.length > 0) {
+                  var exampleData = rawData[0][col];
+                  if (angular.isNumber(exampleData)) {
+                    columnType = 'float';
+                  } else if (moment.isMoment(exampleData)) {
+                    if (exampleData._i.match(/^\d{4}-\d{2}-\d{2}T/)) {
+                      columnType = 'datetime';
+                    } else {
+                      columnType = 'date';
                     }
-                    return value.format("DD/MM/YY");
                   }
                 }
+              }
+
+              if (columnType === 'integer') {
+                columnDefinition.formatFunction = 'number';
+                columnDefinition.formatParameter = 0;
+              } else if (columnType === 'float') {
+                columnDefinition.formatFunction = 'number';
+                columnDefinition.formatParameter = 2;
+              } else if (columnType === 'date') {
+                columnDefinition.formatFunction = function (value) {
+                  return value.format("DD/MM/YY");
+                };
+              } else if (columnType === 'datetime') {
+                columnDefinition.formatFunction = function (value) {
+                  return value.format("DD/MM/YY HH:mm");
+                };
               }
 
               return columnDefinition;
