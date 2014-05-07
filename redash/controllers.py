@@ -18,8 +18,9 @@ from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
 
 import sqlparse
+import events
 from permissions import require_permission
-from redash import settings, utils
+from redash import settings, utils, __version__, statsd_client
 from redash import data
 
 from redash import app, auth, api, redis_connection, data_manager
@@ -52,7 +53,12 @@ def index(**kwargs):
         'permissions': list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
     }
 
+    features = {
+        'clientSideMetrics': settings.CLIENT_SIDE_METRICS
+    }
+
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
+                           features=json.dumps(features),
                            analytics=settings.ANALYTICS)
 
 
@@ -94,7 +100,7 @@ def status_api():
     status = {}
     info = redis_connection.info()
     status['redis_used_memory'] = info['used_memory_human']
-
+    status['version'] = __version__
     status['queries_count'] = models.Query.select().count()
     status['query_results_count'] = models.QueryResult.select().count()
     status['dashboards_count'] = models.Dashboard.select().count()
@@ -129,6 +135,32 @@ class BaseResource(Resource):
     @property
     def current_user(self):
         return current_user._get_current_object()
+
+    def dispatch_request(self, *args, **kwargs):
+        with statsd_client.timer('requests.{}.{}'.format(request.endpoint, request.method.lower())):
+            response = super(BaseResource, self).dispatch_request(*args, **kwargs)
+        return response
+
+
+class EventAPI(BaseResource):
+    def post(self):
+        events_list = request.get_json(force=True)
+        for event in events_list:
+            events.record_event(event)
+
+
+api.add_resource(EventAPI, '/api/events', endpoint='events')
+
+
+class MetricsAPI(BaseResource):
+    def post(self):
+        for stat_line in request.data.split():
+            stat, value = stat_line.split(':')
+            statsd_client._send_stat('client.{}'.format(stat), value, 1)
+
+        return "OK."
+
+api.add_resource(MetricsAPI, '/api/metrics/v1/send', endpoint='metrics')
 
 
 class DataSourceListAPI(BaseResource):

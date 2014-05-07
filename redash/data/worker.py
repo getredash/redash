@@ -3,8 +3,8 @@ Worker implementation to execute incoming queries.
 """
 import json
 import logging
+import multiprocessing
 import os
-import threading
 import uuid
 import datetime
 import time
@@ -157,9 +157,13 @@ class Job(RedisObject):
             return
 
         if self.status == self.PROCESSING:
-            os.kill(self.process_id, signal.SIGINT)
-        else:
-            self.done(None, "Interrupted/Cancelled while running.")
+            try:
+                os.kill(self.process_id, signal.SIGINT)
+            except OSError as e:
+                logging.warning("[%s] Tried to cancel job but os.kill failed (pid=%d, error=%s)",
+                                self.id, self.process_id, e)
+
+        self.done(None, "Interrupted/Cancelled while running.")
 
     def save(self, pipe=None):
         if not pipe:
@@ -172,6 +176,9 @@ class Job(RedisObject):
             pipe.delete('query_hash_job:%s' % self.query_hash)
 
         super(Job, self).save(pipe)
+
+    def expire(self, expire_time):
+        self.redis_connection.expire(self._redis_key(self.id), expire_time)
 
     def processing(self, process_id):
         self.update(status=self.PROCESSING,
@@ -202,31 +209,30 @@ class Job(RedisObject):
         return "<Job:%s,priority:%d,status:%d>" % (self.id, self.priority, self.status)
 
 
-class Worker(threading.Thread):
+class Worker(multiprocessing.Process):
     def __init__(self, worker_id, manager, redis_connection_params, sleep_time=0.1):
         self.manager = manager
 
         self.statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT,
                                          prefix=settings.STATSD_PREFIX)
+
         self.redis_connection_params = {k: v for k, v in redis_connection_params.iteritems()
                                         if k in ('host', 'db', 'password', 'port')}
 
+        self.worker_id = None
         self.continue_working = True
         self.sleep_time = sleep_time
         self.child_pid = None
-        self.worker_id = worker_id
+        self.current_job_id = None
         self.status = {
-            'id': self.worker_id,
             'jobs_count': 0,
             'cancelled_jobs_count': 0,
             'done_jobs_count': 0,
             'updated_at': time.time(),
             'started_at': time.time()
         }
-        self._save_status()
-        self.manager.redis_connection.sadd('workers', self._key)
 
-        super(Worker, self).__init__(name="Worker-%s" % self.worker_id)
+        super(Worker, self).__init__(name="Worker")
 
     def set_title(self, title=None):
         base_title = "redash worker:%s" % self.worker_id
@@ -238,7 +244,28 @@ class Worker(threading.Thread):
         setproctitle.setproctitle(full_title)
 
     def run(self):
+        self.worker_id = os.getpid()
+        self.status['id'] = self.worker_id
+        self.name = "Worker:%d" % self.worker_id
+        self.manager.redis_connection.sadd('workers', self._key)
+        self._save_status()
+        self.set_title()
+
         logging.info("[%s] started.", self.name)
+
+        signal.signal(signal.SIGINT, self._stop)
+        signal.signal(signal.SIGTERM, self._stop)
+
+        self._wait_for_jobs()
+
+    def _stop(self, signum, frame):
+        self.continue_working = False
+        if self.current_job_id:
+            job = Job.load(self.manager.redis_connection, self.current_job_id)
+            if job:
+                job.cancel()
+
+    def _wait_for_jobs(self):
         while self.continue_working:
             job_id = self.manager.queue.pop()
             if job_id:
@@ -263,24 +290,37 @@ class Worker(threading.Thread):
         self.manager.redis_connection.hmset(self._key, self.status)
 
     def _fork_and_process(self, job_id):
+        self.current_job_id = job_id
         self.child_pid = os.fork()
         if self.child_pid == 0:
             self.set_title("processing %s" % job_id)
             self._process(job_id)
         else:
             logging.info("[%s] Waiting for pid: %d", self.name, self.child_pid)
-            _, status = os.waitpid(self.child_pid, 0)
+
+            try:
+                _, status = os.waitpid(self.child_pid, 0)
+            except OSError:
+                logging.info("[%s] OSError while waiting for child to finish", self.name)
+                # setting status to >0, so the job cleanup is triggered
+                status = 1
+
             self._update_status('done_jobs_count')
-            if status > 0:
-                job = Job.load(self.manager.redis_connection, job_id)
-                if not job.is_finished():
-                    self._update_status('cancelled_jobs_count')
-                    logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
-                                 self.name, job_id)
-                    job.done(None, "Interrupted/Cancelled while running.")
+
+            job = Job.load(self.manager.redis_connection, job_id)
+            if status > 0 and not job.is_finished():
+                self._update_status('cancelled_jobs_count')
+                logging.info("[%s] process interrupted and job %s hasn't finished; registering interruption in job",
+                             self.name, job_id)
+                job.done(None, "Interrupted/Cancelled while running.")
+
+            job.expire(settings.JOB_EXPIRY_TIME)
 
             logging.info("[%s] Finished Processing %s (pid: %d status: %d)",
                          self.name, job_id, self.child_pid, status)
+
+            self.child_pid = None
+            self.current_job_id = None
 
     def _process(self, job_id):
         redis_connection = redis.StrictRedis(**self.redis_connection_params)

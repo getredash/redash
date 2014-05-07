@@ -8,10 +8,28 @@ query language (for example: HiveQL).
 import json
 import sys
 import select
-
+import logging
 import psycopg2
 
 from redash.utils import JSONEncoder
+
+types_map = {
+    20: 'integer',
+    21: 'integer',
+    23: 'integer',
+    700: 'float',
+    1700: 'float',
+    701: 'float',
+    16: 'boolean',
+    1082: 'date',
+    1114: 'datetime',
+    1184: 'datetime',
+    1014: 'string',
+    1015: 'string',
+    1008: 'string',
+    1009: 'string',
+    2951: 'string'
+}
 
 
 def pg(connection_string):
@@ -20,15 +38,18 @@ def pg(connection_string):
 
     def wait(conn):
         while 1:
-            state = conn.poll()
-            if state == psycopg2.extensions.POLL_OK:
-                break
-            elif state == psycopg2.extensions.POLL_WRITE:
-                select.select([], [conn.fileno()], [])
-            elif state == psycopg2.extensions.POLL_READ:
-                select.select([conn.fileno()], [], [])
-            else:
-                raise psycopg2.OperationalError("poll() returned %s" % state)
+            try:
+                state = conn.poll()
+                if state == psycopg2.extensions.POLL_OK:
+                    break
+                elif state == psycopg2.extensions.POLL_WRITE:
+                    select.select([], [conn.fileno()], [])
+                elif state == psycopg2.extensions.POLL_READ:
+                    select.select([conn.fileno()], [], [])
+                else:
+                    raise psycopg2.OperationalError("poll() returned %s" % state)
+            except select.error:
+                raise psycopg2.OperationalError("select.error received")
 
     def query_runner(query):
         connection = psycopg2.connect(connection_string, async=True)
@@ -40,17 +61,37 @@ def pg(connection_string):
             cursor.execute(query)
             wait(connection)
 
-            column_names = [col.name for col in cursor.description]
+            # While set would be more efficient here, it sorts the data which is not what we want, but due to the small
+            # size of the data we can assume it's ok.
+            column_names = []
+            columns = []
+            duplicates_counter = 1
+
+            for column in cursor.description:
+                # TODO: this deduplication needs to be generalized and reused in all query runners.
+                column_name = column.name
+                if column_name in column_names:
+                    column_name = column_name + str(duplicates_counter)
+                    duplicates_counter += 1
+
+                column_names.append(column_name)
+
+                columns.append({
+                    'name': column_name,
+                    'friendly_name': column_friendly_name(column_name),
+                    'type': types_map.get(column.type_code, None)
+                })
 
             rows = [dict(zip(column_names, row)) for row in cursor]
-            columns = [{'name': col.name,
-                        'friendly_name': column_friendly_name(col.name),
-                        'type': None} for col in cursor.description]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()
+        except (select.error, OSError, psycopg2.OperationalError) as e:
+            logging.exception(e)
+            error = "Query interrupted. Please retry."
+            json_data = None
         except psycopg2.DatabaseError as e:
             json_data = None
             error = e.message

@@ -81,3 +81,13 @@ class QueryResultTest(BaseTestCase):
         found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query, 60)
 
         self.assertEqual(found_query_result.id, qr.id)
+
+    def test_get_latest_returns_the_last_cached_result_for_negative_ttl(self):
+        yesterday = datetime.datetime.now() + datetime.timedelta(days=-100)
+        very_old = query_result_factory.create(retrieved_at=yesterday)
+
+        yesterday = datetime.datetime.now() + datetime.timedelta(days=-1)
+        qr = query_result_factory.create(retrieved_at=yesterday)
+        found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query, -1)
+
+        self.assertEqual(found_query_result.id, qr.id)

@@ -101,6 +101,8 @@
               }
             });
 
+            scope.xAxisType = (scope.visualization.options.xAxis && scope.visualization.options.xAxis.type) || scope.xAxisType;
+
             xAxisUnwatch = scope.$watch("xAxisType", function (xAxisType) {
               scope.visualization.options.xAxis = scope.visualization.options.xAxis || {};
               scope.visualization.options.xAxis.type = xAxisType;

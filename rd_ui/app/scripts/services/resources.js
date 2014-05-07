@@ -117,7 +117,12 @@
               if (!_.isArray(filter.current)) {
                 filter.current = [filter.current];
               };
-              return (memo && _.some(filter.current, function(v) { return v == row[filter.name] }));
+
+              return (memo && _.some(filter.current, function(v) {
+                // We compare with either the value or the String representation of the value,
+                // because Select2 casts true/false to "true"/"false".
+                return v == row[filter.name] || String(row[filter.name]) == v
+              }));
             }, true);
           });
         } else {
@@ -145,8 +150,10 @@
             xValue = value;
             point[type] = value;
           }
-
           if (type == 'y') {
+            if (value == null) {
+              value = 0;
+            }
             yValues[name] = value;
             point[type] = value;
           }
@@ -190,39 +197,62 @@
 
     QueryResult.prototype.getColumns = function () {
       if (this.columns == undefined && this.query_result.data) {
-        this.columns = _.map(this.query_result.data.columns, function (v) {
+        this.columns = this.query_result.data.columns;
+      }
+      
+      return this.columns;
+    }
+
+    QueryResult.prototype.getColumnNames = function () {
+      if (this.columnNames == undefined && this.query_result.data) {
+        this.columnNames = _.map(this.query_result.data.columns, function (v) {
           return v.name;
         });
       }
 
-      return this.columns;
+      return this.columnNames;
     }
 
-    QueryResult.prototype.getColumnCleanName = function (column) {
+    QueryResult.prototype.getColumnNameWithoutType = function (column) {
       var parts = column.split('::');
-      var name = parts[1];
-      if (parts[0] != '') {
-        // TODO: it's probably time to generalize this.
-        // see also getColumnFriendlyName
-        name = parts[0].replace(/%/g, '__pct').replace(/ /g, '_').replace(/\?/g, '');
+      return parts[0];
+    };
+
+    var charConversionMap = {
+      '__pct': /%/g,
+      '_': / /g,
+      '__qm': /\?/g,
+      '__brkt': /[\(\)\[\]]/g,
+      '__dash': /-/g,
+      '__amp': /&/g
+    };
+
+    QueryResult.prototype.getColumnCleanName = function (column) {
+      var name = this.getColumnNameWithoutType(column);
+
+      if (name != '') {
+        _.each(charConversionMap, function(regex, replacement) {
+          name = name.replace(regex, replacement);
+        });
       }
+
       return name;
     }
 
     QueryResult.prototype.getColumnFriendlyName = function (column) {
-      return this.getColumnCleanName(column).replace('__pct', '%').replace(/_/g, ' ').replace(/(?:^|\s)\S/g, function (a) {
+      return this.getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, function (a) {
         return a.toUpperCase();
       });
     }
 
     QueryResult.prototype.getColumnCleanNames = function () {
-      return _.map(this.getColumns(), function (col) {
+      return _.map(this.getColumnNames(), function (col) {
         return this.getColumnCleanName(col);
       }, this);
     }
 
     QueryResult.prototype.getColumnFriendlyNames = function () {
-      return _.map(this.getColumns(), function (col) {
+      return _.map(this.getColumnNames(), function (col) {
         return this.getColumnFriendlyName(col);
       }, this);
     }
@@ -238,7 +268,7 @@
     QueryResult.prototype.prepareFilters = function () {
       var filters = [];
       var filterTypes = ['filter', 'multi-filter'];
-      _.each(this.getColumns(), function (col) {
+      _.each(this.getColumnNames(), function (col) {
         var type = col.split('::')[1]
         if (_.contains(filterTypes, type)) {
           // filter found
@@ -334,7 +364,10 @@
 
       var queryResult = null;
       if (this.latest_query_data && ttl != 0) {
-        queryResult = new QueryResult({'query_result': this.latest_query_data});
+        if (!this.queryResult) {
+          this.queryResult = new QueryResult({'query_result': this.latest_query_data});
+        }
+        queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {
         queryResult = QueryResult.getById(this.latest_query_data_id);
       } else if (this.data_source_id) {
@@ -353,8 +386,23 @@
     return DataSourceResource;
   }
 
-  var Widget = function ($resource) {
+  var Widget = function ($resource, Query) {
     var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
+
+    WidgetResource.prototype.getQuery = function () {
+      if (!this.query && this.visualization) {
+         this.query = new Query(this.visualization.query);
+      }
+
+      return this.query;
+    };
+
+    WidgetResource.prototype.getName = function () {
+      if (this.visualization) {
+        return this.visualization.query.name + ' (' + this.visualization.name + ')';
+      }
+      return _.str.truncate(this.text, 20);
+    };
 
     return WidgetResource;
   }
@@ -363,5 +411,5 @@
       .factory('QueryResult', ['$resource', '$timeout', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
-      .factory('Widget', ['$resource', Widget]);
+      .factory('Widget', ['$resource', 'Query', Widget]);
 })();

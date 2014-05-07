@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
-source .env
-"$@"
+
+# Ideally I would use stdin with source, but in older bash versions this
+# wasn't supported properly.
+TEMP_ENV_FILE=`mktemp /tmp/redash_env.XXXXXX`
+sed 's/^REDASH/export REDASH/' .env > $TEMP_ENV_FILE
+source $TEMP_ENV_FILE
+rm $TEMP_ENV_FILE
+
+exec "$@"

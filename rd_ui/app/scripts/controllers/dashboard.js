@@ -1,11 +1,45 @@
 (function() {
-  var DashboardCtrl = function($scope, $routeParams, $http, $timeout, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
+    Events.record(currentUser, "view", "dashboard", dashboard.id);
+
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
-    $scope.dashboard = Dashboard.get({
-      slug: $routeParams.dashboardSlug
-    }, function(dashboard) {
+    $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
       $scope.$parent.pageTitle = dashboard.name;
+      var filters = {};
+
+      $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
+        return _.map(row, function (widget) {
+          var w = new Widget(widget);
+
+          if (w.visualization && dashboard.dashboard_filters_enabled) {
+            var queryFilters = w.getQuery().getQueryResult().getFilters();
+            _.each(queryFilters, function (filter) {
+              if (!_.has(filters, filter.name)) {
+                // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
+                filters[filter.name] = filter;
+                filters[filter.name].originFilters = [];
+
+                $scope.$watch(function() { return filter.current }, function (value) {
+                  _.each(filter.originFilters, function(originFilter) {
+                    originFilter.current = value;
+                  })
+                });
+
+              };
+
+              // TODO: merge values.
+              filters[filter.name].originFilters.push(filter);
+            });
+          }
+
+          return w;
+        });
+      });
+
+      if (dashboard.dashboard_filters_enabled) {
+        $scope.filters = _.values(filters);
+      }
     });
 
     var autoRefresh = function() {
@@ -35,6 +69,8 @@
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
+      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
+
       if ($scope.refreshEnabled) {
         var refreshRate = _.min(_.flatten($scope.dashboard.widgets), function(widget) {
           return widget.visualization.query.ttl;
@@ -47,32 +83,41 @@
     };
   };
 
-  var WidgetCtrl = function($scope, $http, $location, Query) {
+  var WidgetCtrl = function($scope, Events, Query) {
     $scope.deleteWidget = function() {
-      if (!confirm('Are you sure you want to remove "' + $scope.widget.visualization.name + '" from the dashboard?')) {
+      if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
       }
 
-      $http.delete('/api/widgets/' + $scope.widget.id).success(function() {
+      Events.record(currentUser, "delete", "widget", $scope.widget.id);
+
+      $scope.widget.$delete(function() {
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function(row) {
           return _.filter(row, function(widget) {
-            return widget.id != $scope.widget.id;
+            return widget.id != undefined;
           })
         });
       });
     };
 
-    $scope.query = new Query($scope.widget.visualization.query);
-    $scope.queryResult = $scope.query.getQueryResult();
+    Events.record(currentUser, "view", "widget", $scope.widget.id);
 
-    $scope.updateTime = (new Date($scope.queryResult.getUpdatedAt())).toISOString();
-    $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
+    if ($scope.widget.visualization) {
+      Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
+      Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
-    $scope.updateTime = '';
+      $scope.query = $scope.widget.getQuery();
+      $scope.queryResult = $scope.query.getQueryResult();
+      $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
+
+      $scope.type = 'visualization';
+    } else {
+      $scope.type = 'textbox';
+    }
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', '$http', '$location', 'Query', WidgetCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
+    .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
 
 })();

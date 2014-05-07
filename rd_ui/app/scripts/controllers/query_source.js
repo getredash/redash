@@ -1,13 +1,15 @@
 (function() {
   'use strict';
 
-  function QuerySourceCtrl($controller, $scope, $location, Query, Visualization, KeyboardShortcuts) {
+  function QuerySourceCtrl(Events, growl, $controller, $scope, $location, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
     // TODO:
     // This doesn't get inherited. Setting it on this didn't work either (which is weird).
     // Obviously it shouldn't be repeated, but we got bigger fish to fry.
     var DEFAULT_TAB = 'table';
+
+    Events.record(currentUser, 'view_source', 'query', $scope.query.id);
 
     var isNewQuery = !$scope.query.id,
         queryText = $scope.query.query,
@@ -47,6 +49,7 @@
     };
 
     $scope.duplicateQuery = function() {
+      Events.record(currentUser, 'fork', 'query', $scope.query.id);
       $scope.query.id = null;
       $scope.query.ttl = -1;
 
@@ -62,15 +65,21 @@
     $scope.deleteVisualization = function($e, vis) {
       $e.preventDefault();
       if (confirm('Are you sure you want to delete ' + vis.name + ' ?')) {
-        Visualization.delete(vis);
-        if ($scope.selectedTab == vis.id) {
-          $scope.selectedTab = DEFAULT_TAB;
-          $location.hash($scope.selectedTab);
-        }
-        $scope.query.visualizations =
-          $scope.query.visualizations.filter(function(v) {
-            return vis.id !== v.id;
-          });
+        Events.record(currentUser, 'delete', 'visualization', vis.id);
+
+        Visualization.delete(vis, function() {
+          if ($scope.selectedTab == vis.id) {
+            $scope.selectedTab = DEFAULT_TAB;
+            $location.hash($scope.selectedTab);
+          }
+          $scope.query.visualizations =
+            $scope.query.visualizations.filter(function (v) {
+              return vis.id !== v.id;
+            });
+        }, function () {
+          growl.addErrorMessage("Error deleting visualization. Maybe it's used in a dashboard?");
+        });
+
       }
     };
 
@@ -94,7 +103,7 @@
   }
 
   angular.module('redash.controllers').controller('QuerySourceCtrl', [
-    '$controller', '$scope', '$location', 'Query',
+    'Events', 'growl', '$controller', '$scope', '$location', 'Query',
     'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
     ]);
 })();

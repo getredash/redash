@@ -1,7 +1,7 @@
 <div>
-  <span ng-click="visEdit=!visEdit" class="details-toggle" ng-class="{open: visEdit}">Edit</span>
+  <span ng-click="openEditor=!openEditor" class="details-toggle" ng-class="{open: openEditor}">Edit</span>
 
-  <form ng-if="visEdit" role="form" name="visForm" ng-submit="submit()">
+  <form ng-if="openEditor" role="form" name="visForm" ng-submit="submit()">
     <div class="form-group">
       <label class="control-label">Name</label>
       <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type | capitalize}}">
