@@ -19,7 +19,7 @@ from flask_login import current_user, login_user, logout_user
 import sqlparse
 import events
 from permissions import require_permission
-from redash import settings, utils, __version__
+from redash import settings, utils, __version__, statsd_client
 from redash import data
 
 from redash import app, auth, api, redis_connection, data_manager
@@ -128,6 +128,11 @@ class BaseResource(Resource):
     @property
     def current_user(self):
         return current_user._get_current_object()
+
+    def dispatch_request(self, *args, **kwargs):
+        with statsd_client.timer('requests.{}.{}'.format(request.endpoint, request.method.lower())):
+            response = super(BaseResource, self).dispatch_request(*args, **kwargs)
+        return response
 
 
 class EventAPI(BaseResource):
