@@ -114,6 +114,7 @@
 <script src="/scripts/ng_highchart.js"></script>
 <script src="/scripts/ng_smart_table.js"></script>
 <script src="/scripts/ui-bootstrap-tpls-0.5.0.min.js"></script>
+<script src="/bower_components/bucky/bucky.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) /scripts/scripts.js -->
@@ -139,6 +140,8 @@
 <!-- endbuild -->
 
 <script>
+    // TODO: move currentUser & features to be an Angular service
+    var featureFlags = {{ features|safe }};
     var currentUser = {{ user|safe }};
 
     currentUser.canEdit = function(object) {
