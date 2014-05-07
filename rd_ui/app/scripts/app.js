@@ -17,6 +17,14 @@ angular.module('redash', [
     'ngRoute'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider) {
+      if (featureFlags.clientSideMetrics) {
+        Bucky.setOptions({
+          host: '/api/metrics'
+        });
+
+        Bucky.requests.monitor('ajax_requsts');
+        Bucky.requests.transforms.enable('dashboards', /dashboard\/[\w-]+/ig, '/dashboard');
+      }
 
       function getQuery(Query, $route) {
         var query = Query.get({'id': $route.current.params.queryId });
