@@ -111,6 +111,13 @@
   }
 
   var MainCtrl = function ($scope, Dashboard, notifications) {
+    if (featureFlags.clientSideMetrics) {
+      $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
+        // This will be called once per actual page load.
+        Bucky.sendPagePerformance();
+      });
+    }
+
 
     $scope.dashboards = [];
     $scope.reloadDashboards = function () {

@@ -51,7 +51,12 @@ def index(**kwargs):
         'permissions': current_user.permissions
     }
 
+    features = {
+        'clientSideMetrics': settings.CLIENT_SIDE_METRICS
+    }
+
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
+                           features=json.dumps(features),
                            analytics=settings.ANALYTICS)
 
 
@@ -143,6 +148,17 @@ class EventAPI(BaseResource):
 
 
 api.add_resource(EventAPI, '/api/events', endpoint='events')
+
+
+class MetricsAPI(BaseResource):
+    def post(self):
+        for stat_line in request.data.split():
+            stat, value = stat_line.split(':')
+            statsd_client._send_stat('client.{}'.format(stat), value, 1)
+
+        return "OK."
+
+api.add_resource(MetricsAPI, '/api/metrics/v1/send', endpoint='metrics')
 
 
 class DataSourceListAPI(BaseResource):
