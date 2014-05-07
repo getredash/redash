@@ -20,6 +20,9 @@
             if ($scope.canEdit) {
               $scope.saveQuery();
             }
+          },
+          'meta+enter': function () {
+            $scope.executeQuery();
           }
         };
 
