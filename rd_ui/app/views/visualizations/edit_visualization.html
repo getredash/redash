@@ -1,18 +1,27 @@
-<form role="form" name="visForm" ng-submit="submit()">
-  <div class="form-group">
-    <label class="control-label">Name</label>
-    <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type | capitalize}}">
-  </div>
+<div>
+  <span ng-click="visEdit=!visEdit" class="details-toggle" ng-class="{open: visEdit}">Edit</span>
 
-  <div class="form-group">
-    <label class="control-label">Visualization Type</label>
-    <select required ng-model="visualization.type" ng-options="value as key for (key, value) in visTypes" class="form-control" ng-change="typeChanged()"></select>
-  </div>
+  <form ng-if="visEdit" role="form" name="visForm" ng-submit="submit()">
+    <div class="form-group">
+      <label class="control-label">Name</label>
+      <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type | capitalize}}">
+    </div>
 
-  <visualization-options-editor></visualization-options-editor>
+    <div class="form-group">
+      <label class="control-label">Visualization Type</label>
+      <select required ng-model="visualization.type" ng-options="value as key for (key, value) in visTypes" class="form-control" ng-change="typeChanged()"></select>
+    </div>
 
-  <div class="form-group">
-    <button type="submit" class="btn btn-primary">Save</button>
-  </div>
+    <visualization-options-editor></visualization-options-editor>
 
-</form>
+    <div class="form-group" ng-if="editRawOptions">
+      <label class="control-label">Advanced</label>
+      <textarea json-text ng-model="visualization.options" class="form-control" rows="10"></textarea>
+    </div>
+
+    <div class="form-group">
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+
+  </form>
+</div>

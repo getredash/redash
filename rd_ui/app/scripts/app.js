@@ -8,6 +8,7 @@ angular.module('redash', [
     'redash.visualization',
     'ui.codemirror',
     'highchart',
+    'ui.select2',
     'angular-growl',
     'angularMoment',
     'ui.bootstrap',
@@ -17,16 +18,9 @@ angular.module('redash', [
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function($routeProvider, $locationProvider, $compileProvider, growlProvider) {
 
-        function getQuery(Query, $q, $route) {
-            var defer = $q.defer();
-
-            Query.get({
-                'id': $route.current.params.queryId
-            }, function(query) {
-                defer.resolve(query);
-            });
-
-            return defer.promise;
+        function getQuery(Query, $route) {
+            var query = Query.get({'id': $route.current.params.queryId });
+            return query.$promise;
         };
 
         $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
@@ -43,39 +37,29 @@ angular.module('redash', [
             reloadOnSearch: false
         });
         $routeProvider.when('/queries/new', {
-            templateUrl: '/views/queryview.html',
-            controller: 'QueryViewCtrl',
+            templateUrl: '/views/query.html',
+            controller: 'QuerySourceCtrl',
             reloadOnSearch: false,
             resolve: {
-                'viewSource': function isViewSource() {
-                    return true;
-                }
+                'query': ['Query', function newQuery(Query) {
+                    return Query.newQuery();
+                }]
             }
         });
-        // TODO
-        // we should have 2 controllers: queryViewCtrl and queryEditCtrl
         $routeProvider.when('/queries/:queryId', {
-            templateUrl: '/views/queryview.html',
+            templateUrl: '/views/query.html',
             controller: 'QueryViewCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': ['Query', '$q', '$route', getQuery]
+                'query': ['Query', '$route', getQuery]
             }
-        });
-        $routeProvider.when('/queries/:queryId/fiddle', {
-            templateUrl: '/views/queryfiddle.html',
-            controller: 'QueryFiddleCtrl',
-            reloadOnSearch: false
         });
         $routeProvider.when('/queries/:queryId/source', {
-            templateUrl: '/views/queryview.html',
-            controller: 'QueryViewCtrl',
+            templateUrl: '/views/query.html',
+            controller: 'QuerySourceCtrl',
             reloadOnSearch: false,
             resolve: {
-                'query': ['Query', '$q', '$route', getQuery],
-                'viewSource': function isViewSource() {
-                    return true;
-                }
+                'query': ['Query', '$route', getQuery]
             }
         });
         $routeProvider.when('/admin/status', {
@@ -90,9 +74,6 @@ angular.module('redash', [
             redirectTo: '/'
         });
 
-        Highcharts.setOptions({
-            colors: ["#4572A7", "#AA4643", "#89A54E", "#80699B", "#3D96AE",
-                        "#DB843D", "#92A8CD", "#A47D7C", "#B5CA92"]
-        });
+
     }
 ]);

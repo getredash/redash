@@ -12,7 +12,7 @@ atfork==0.1.2
 blinker==1.3
 flask-peewee==0.6.5
 itsdangerous==0.23
-peewee==2.2.0
+peewee==2.2.2
 psycopg2==2.5.1
 python-dateutil==2.1
 pytz==2013.9

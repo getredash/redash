@@ -37,6 +37,18 @@ a.navbar-brand {
     bottom: -11px;
 }
 
+.details-toggle {
+    cursor: pointer;
+}
+.details-toggle::before {
+    content: '▸';
+    margin-right: 5px;
+}
+.details-toggle.open::before {
+    content: '▾';
+    margin-right: 5px;
+}
+
 .edit-in-place span {
     white-space: pre-line;
 }
@@ -74,8 +86,13 @@ a.navbar-brand {
     margin-bottom: 0px;
 }
 
-.panel-heading > a {
+.panel-heading > a,
+.panel-heading .query-link {
     color: inherit;
+}
+
+.panel-heading .query-link:hover {
+    text-decoration: none;
 }
 
 /* angular-growl */

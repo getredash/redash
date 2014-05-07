@@ -64,8 +64,15 @@
             // TODO: using switch here (and in the options editor) might introduce errors and bad
             // performance wise. It's better to eventually show the correct template based on the
             // visualization type and not make the browser render all of them.
-            template: Visualization.renderVisualizationsTemplate,
-            replace: false
+            template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
+            replace: false,
+            link: function(scope) {
+                scope.$watch('queryResult && queryResult.getFilters()', function(filters) {
+                    if (filters) {
+                        scope.filters = filters;
+                    }
+                });
+            }
         }
     };
 
@@ -77,6 +84,13 @@
         }
     };
 
+    var Filters = function() {
+        return {
+            restrict: 'E',
+            templateUrl: '/views/visualizations/filters.html'
+        }
+    }
+
     var EditVisualizationForm = function(Visualization, growl) {
         return {
             restrict: 'E',
@@ -85,9 +99,11 @@
             scope: {
                 query: '=',
                 queryResult: '=',
-                visualization: '=?'
+                visualization: '=?',
+                onNewSuccess: '=?'
             },
             link: function (scope, element, attrs) {
+                scope.editRawOptions = currentUser.hasPermission('edit_raw_chart');
                 scope.visTypes = Visualization.visualizationTypes;
 
                 scope.newVisualization = function(q) {
@@ -131,7 +147,9 @@
                         if (index > -1) {
                             scope.query.visualizations[index] = result;
                         } else {
+                            // new visualization
                             scope.query.visualizations.push(result);
+                            scope.onNewSuccess && scope.onNewSuccess(result);
                         }
                     }, function error() {
                         growl.addErrorMessage("Visualization could not be saved");
@@ -141,9 +159,12 @@
         }
     };
 
+
+
     angular.module('redash.visualization', [])
         .provider('Visualization', VisualizationProvider)
         .directive('visualizationRenderer', ['Visualization', VisualizationRenderer])
         .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
+        .directive('filters', Filters)
         .directive('editVisulatizationForm', ['Visualization', 'growl', EditVisualizationForm])
 })();

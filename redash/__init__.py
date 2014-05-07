@@ -1,5 +1,6 @@
 import json
 import urlparse
+import logging
 from flask import Flask, make_response
 from flask.ext.restful import Api
 from flask_peewee.db import Database
@@ -9,6 +10,9 @@ from statsd import StatsClient
 from redash import settings, utils
 
 __version__ = '0.3.5'
+
+logging.getLogger().addHandler(logging.StreamHandler())
+logging.getLogger().setLevel(settings.LOG_LEVEL)
 
 app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
@@ -42,6 +46,6 @@ redis_connection = redis.StrictRedis(host=redis_url.hostname, port=redis_url.por
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 
 from redash import data
-data_manager = data.Manager(redis_connection, db, statsd_client)
+data_manager = data.Manager(redis_connection, statsd_client)
 
 from redash import controllers

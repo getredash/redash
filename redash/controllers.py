@@ -10,6 +10,7 @@ import json
 import numbers
 import cStringIO
 import datetime
+import itertools
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for
@@ -47,7 +48,8 @@ def index(**kwargs):
         'id': current_user.id,
         'name': current_user.name,
         'email': current_user.email,
-        'permissions': current_user.permissions
+        'groups': current_user.groups,
+        'permissions': list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
@@ -127,6 +129,14 @@ class BaseResource(Resource):
     @property
     def current_user(self):
         return current_user._get_current_object()
+
+
+class DataSourceListAPI(BaseResource):
+    def get(self):
+        data_sources = [ds.to_dict() for ds in models.DataSource.select()]
+        return data_sources
+
+api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
 
 
 class DashboardListAPI(BaseResource):
@@ -229,11 +239,11 @@ class QueryListAPI(BaseResource):
     @require_permission('create_query')
     def post(self):
         query_def = request.get_json(force=True)
-        # id, created_at, api_key
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
             query_def.pop(field, None)
 
         query_def['user'] = self.current_user
+        query_def['data_source'] = query_def.pop('data_source_id')
         query = models.Query(**query_def)
         query.save()
 
@@ -241,6 +251,7 @@ class QueryListAPI(BaseResource):
 
         return query.to_dict(with_result=False)
 
+    @require_permission('view_query')
     def get(self):
         return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
 
@@ -255,12 +266,16 @@ class QueryAPI(BaseResource):
         if 'latest_query_data_id' in query_def:
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
+        if 'data_source_id' in query_def:
+            query_def['data_source'] = query_def.pop('data_source_id')
+
         models.Query.update_instance(query_id, **query_def)
 
         query = models.Query.get_by_id(query_id)
 
         return query.to_dict(with_result=False, with_visualizations=True)
 
+    @require_permission('view_query')
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
         if q:
@@ -313,6 +328,44 @@ class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.json
+        parsedQuery = sqlparse.parse(params['query'])
+        
+        if len(parsedQuery) > 1:
+            return {
+                'job': {
+                    'error': 'Please, execute only one statement at a time'
+                }
+            }
+        
+        parsedQuery = parsedQuery[0]
+        
+        if len([x for x in parsedQuery.flatten() if x.ttype == sqlparse.tokens.DDL]):
+            return {
+                'job': {
+                    'error': 'Only SELECT statements are allowed'
+                }
+            }
+        
+        # Check the type of queries executed
+        for dml in [x for x in parsedQuery.flatten() if x.ttype == sqlparse.tokens.DML]:
+            if dml.normalized != 'SELECT':
+                return {
+                    'job': {
+                        'error': 'Only SELECT statements are allowed'
+                    }
+                }
+        
+        # Get table identifier
+        parsedTables = utils.extract_table_names(parsedQuery.tokens)
+        allowedTables = list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))
+        
+        for table in parsedTables:
+            if table not in allowedTables and '*' not in allowedTables:
+                return {
+                    'job': {
+                        'error': 'Access denied for table %s' % (table)
+                    }
+                }
         
         models.ActivityLog(
             user=self.current_user,
@@ -323,32 +376,35 @@ class QueryResultListAPI(BaseResource):
         if params['ttl'] == 0:
             query_result = None
         else:
-            query_result = data_manager.get_query_result(params['query'], int(params['ttl']))
+            query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], int(params['ttl']))
 
         if query_result:
-            return {'query_result': query_result.to_dict(parse_data=True)}
+            return {'query_result': query_result.to_dict()}
         else:
-            job = data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY)
+            data_source = models.DataSource.get_by_id(params['data_source_id'])
+            job = data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY, data_source)
             return {'job': job.to_dict()}
 
 
 class QueryResultAPI(BaseResource):
+    @require_permission('view_query')
     def get(self, query_result_id):
-        query_result = data_manager.get_query_result_by_id(query_result_id)
+        query_result = models.QueryResult.get_by_id(query_result_id)
         if query_result:
-            return {'query_result': query_result.to_dict(parse_data=True)}
+            return {'query_result': query_result.to_dict()}
         else:
             abort(404)
 
 
 class CsvQueryResultsAPI(BaseResource):
+    @require_permission('view_query')
     def get(self, query_id, query_result_id=None):
         if not query_result_id:
             query = models.Query.get(models.Query.id == query_id)
             if query:
                 query_result_id = query._data['latest_query_data']
 
-        query_result = query_result_id and data_manager.get_query_result_by_id(query_result_id)
+        query_result = query_result_id and models.QueryResult.get_by_id(query_result_id)
         if query_result:
             s = cStringIO.StringIO()
 

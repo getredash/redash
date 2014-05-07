@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="/bower_components/gridster/dist/jquery.gridster.css">
     <link rel="stylesheet" href="/bower_components/pivottable/examples/pivot.css">
     <link rel="stylesheet" href="/bower_components/cornelius/src/cornelius.css">
+    <link rel="stylesheet" href="/bower_components/select2/select2.css">
     <link rel="stylesheet" href="/styles/redash.css">
     <!-- endbuild -->
 </head>
@@ -35,7 +36,7 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
-            <li class="dropdown">
+            <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <span ng-repeat="(name, group) in groupedDashboards">
@@ -51,11 +52,11 @@
                     <li ng-repeat="dashboard in otherDashboards">
                         <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                     </li>
-                    <li class="divider" ng-show="currentUser.hasPermission('create_dashboard')"></li>
+                    <li class="divider" ng-show="currentUser.hasPermission('create_dashboard') && (groupedDashboards.length > 0 || otherDashboards.length > 0)"></li>
                     <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
                 </ul>
             </li>
-            <li class="dropdown">
+            <li class="dropdown" ng-show="currentUser.hasPermission('view_query')">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Queries <b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li ng-show="currentUser.hasPermission('create_query')"><a href="/queries/new">New Query</a></li>
@@ -106,6 +107,8 @@
 <script src="/bower_components/cornelius/src/cornelius.js"></script>
 <script src="/bower_components/mousetrap/mousetrap.js"></script>
 <script src="/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js"></script>
+<script src="/bower_components/select2/select2.js"></script>
+<script src="/bower_components/angular-ui-select2/src/select2.js"></script>
 
 <script src="/scripts/ng_highchart.js"></script>
 <script src="/scripts/ng_smart_table.js"></script>
@@ -116,17 +119,22 @@
 <!-- build:js({.tmp,app}) /scripts/scripts.js -->
 <script src="/scripts/app.js"></script>
 <script src="/scripts/services/services.js"></script>
+<script src="/scripts/services/resources.js"></script>
 <script src="/scripts/services/notifications.js"></script>
 <script src="/scripts/services/dashboards.js"></script>
 <script src="/scripts/controllers/controllers.js"></script>
+<script src="/scripts/controllers/dashboard.js"></script>
 <script src="/scripts/controllers/admin_controllers.js"></script>
 <script src="/scripts/controllers/query_view.js"></script>
+<script src="/scripts/controllers/query_source.js"></script>
 <script src="/scripts/visualizations/base.js"></script>
 <script src="/scripts/visualizations/chart.js"></script>
 <script src="/scripts/visualizations/cohort.js"></script>
 <script src="/scripts/visualizations/table.js"></script>
 <script src="/scripts/visualizations/pivot.js"></script>
-<script src="/scripts/directives.js"></script>
+<script src="/scripts/directives/directives.js"></script>
+<script src="/scripts/directives/query_directives.js"></script>
+<script src="/scripts/directives/dashboard_directives.js"></script>
 <script src="/scripts/filters.js"></script>
 <!-- endbuild -->
 
