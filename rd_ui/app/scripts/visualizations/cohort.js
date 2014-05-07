@@ -22,21 +22,25 @@
                     if (!data) {
                         return;
                     }
-
+                    
                     if ($scope.queryResult.getData() == null) {
 
                     } else {
                         var sortedData = _.sortBy($scope.queryResult.getData(), "date");
                         var grouped = _.groupBy(sortedData, "date");
+                        var maxColumns = _.reduce(grouped, function(memo, data){ 
+                            return (data.length > memo)? data.length : memo;
+                        }, 0);
                         var data = _.map(grouped, function(values, date) {
                            var row = [values[0].total];
                             _.each(values, function(value) { row.push(value.value); });
+                            _.each(_.range(values.length, maxColumns), function() { row.push(null); });
                             return row;
                         });
 
                         var initialDate = moment(sortedData[0].date).toDate(),
                             container = angular.element(element)[0];
-
+                        
                         Cornelius.draw({
                             initialDate: initialDate,
                             container: container,
