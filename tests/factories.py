@@ -38,8 +38,16 @@ class Sequence(object):
 
         return self.string.format(self.sequence)
 
-group_factory = ModelFactory(redash.models.Group,
+default_group_factory = ModelFactory(redash.models.Group,
                             name='default', permissions=redash.models.Group.DEFAULT_PERMISSIONS,
+                            tables='{*}')
+
+api_group_factory = ModelFactory(redash.models.Group,
+                            name='api', permissions=['view_query'],
+                            tables='{*}')
+
+admin_group_factory = ModelFactory(redash.models.Group,
+                            name='admin', permissions=['admin'],
                             tables='{*}')
 
 
