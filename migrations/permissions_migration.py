@@ -13,6 +13,7 @@ if __name__ == '__main__':
     
     with db.database.transaction():
         models.Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
+        models.Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
         models.Group.insert(name='default', permissions=models.Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
         
         migrator.drop_column(models.User, 'permissions')

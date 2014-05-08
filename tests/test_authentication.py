@@ -36,7 +36,7 @@ class TestCreateAndLoginUser(BaseTestCase):
     def test_creates_vaild_new_user(self):
         openid_user = ObjectDict({'email': 'test@example.com', 'name': 'Test User'})
 
-        with patch.multiple(settings, GOOGLE_APPS_DOMAIN='example.com', ADMINS=['admin@example.com']), \
+        with patch.multiple(settings, GOOGLE_APPS_DOMAIN='example.com'), \
              patch('redash.authentication.login_user') as login_user_mock:
 
             create_and_login_user(None, openid_user)
@@ -45,18 +45,6 @@ class TestCreateAndLoginUser(BaseTestCase):
             user = models.User.get(models.User.email == openid_user.email)
 
             self.assertFalse(user.is_admin)
-
-    def test_creates_vaild_new_user_and_sets_is_admin(self):
-        openid_user = ObjectDict({'email': 'admin@example.com', 'name': 'Test User'})
-
-        with patch.multiple(settings, GOOGLE_APPS_DOMAIN='example.com', ADMINS=['admin@example.com']), \
-             patch('redash.authentication.login_user') as login_user_mock:
-
-            create_and_login_user(None, openid_user)
-
-            self.assertTrue(login_user_mock.called)
-            user = models.User.get(models.User.email == openid_user.email)
-            self.assertTrue(user.is_admin)
 
     def test_ignores_invliad_user(self):
         user = ObjectDict({'email': 'test@whatever.com'})

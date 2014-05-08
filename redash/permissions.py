@@ -12,7 +12,10 @@ class require_permissions(object):
     def __call__(self, fn):
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
-            permissions = list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
+            if len(current_user.groups) > 0:
+                permissions = list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
+            else:
+                permissions = []
             
             has_permissions = reduce(lambda a, b: a and b,
                                       map(lambda permission: permission in permissions,

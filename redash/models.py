@@ -18,17 +18,16 @@ class BaseModel(db.Model):
 
 class AnonymousUser(AnonymousUserMixin):
     @property
-    def permissions(self):
+    def groups(self):
         return []
-
 
 class ApiUser(UserMixin):
     def __init__(self, api_key):
         self.id = api_key
 
     @property
-    def permissions(self):
-        return ['view_query']
+    def groups(self):
+        return ['api']
 
 
 class Group(BaseModel):
