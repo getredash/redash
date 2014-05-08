@@ -22,7 +22,7 @@
                     if (!data) {
                         return;
                     }
-                    
+
                     if ($scope.queryResult.getData() == null) {
 
                     } else {
@@ -40,7 +40,7 @@
 
                         var initialDate = moment(sortedData[0].date).toDate(),
                             container = angular.element(element)[0];
-                        
+
                         Cornelius.draw({
                             initialDate: initialDate,
                             container: container,
