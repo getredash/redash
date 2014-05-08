@@ -78,9 +78,7 @@ def create_and_login_user(app, user):
             user_object.save()
     except models.User.DoesNotExist:
         logger.debug("Creating user object (%r)", user.name)
-        user_object = models.User.create(name=user.name, email=user.email,
-                                  is_admin=(user.email in settings.ADMINS), 
-                                  groups = ['admin', 'default'] if (user.email in settings.ADMINS) else ['default'])
+        user_object = models.User.create(name=user.name, email=user.email, is_admin=False, groups = ['default'])
 
     login_user(user_object, remember=True)
 
