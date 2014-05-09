@@ -44,7 +44,7 @@ group_factory = ModelFactory(redash.models.Group,
 
 user_factory = ModelFactory(redash.models.User,
                             name='John Doe', email=Sequence('test{}@example.com'),
-                            is_admin=False, groups=['default'])
+                            groups=['default'])
 
 
 data_source_factory = ModelFactory(redash.models.DataSource,

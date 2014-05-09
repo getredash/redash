@@ -44,8 +44,6 @@ class TestCreateAndLoginUser(BaseTestCase):
             self.assertTrue(login_user_mock.called)
             user = models.User.get(models.User.email == openid_user.email)
 
-            self.assertFalse(user.is_admin)
-
     def test_ignores_invliad_user(self):
         user = ObjectDict({'email': 'test@whatever.com'})
 
