@@ -317,12 +317,18 @@ class QueryAPI(BaseResource):
     
     @require_permission('delete_query')
     def delete(self, query_id):
-        query = models.Query.get_by_id(query_id)
-        
-        if query.user_id == self.current_user.id:
-            print 'Own query'
+        q = models.Query.get(models.Query.id == query_id)
+        if q:
+            if q.user.id == self.current_user.id:
+                abort(404, message="Own query.")
+            else:
+                self.delete_others_query(query_id)
         else:
-            print 'Other\'s query'
+            abort(404, message="Query not found.")
+    
+    @require_permission('delete_other_query')
+    def delete_others_query(self, query_id):
+        abort(404, message="Other's query")
 
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
