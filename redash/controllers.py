@@ -388,15 +388,9 @@ class QueryResultListAPI(BaseResource):
                     }
                 }
         
-        # Get table identifier
-        parsedTables = utils.extract_table_names(parsedQuery.tokens)
-        allowedTables = list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))
-        
-        logging.info('Parsed tables - %s', parsedTables)
-        logging.info('allowed tables - %s', allowedTables)
-        
         for table in parsedTables:
             if table not in allowedTables and '*' not in allowedTables:
+                logging.warning('Permission denied for user %s to table %s', self.current_user.name, table)
                 return {
                     'job': {
                         'error': 'Access denied for table %s' % (table)
