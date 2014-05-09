@@ -61,7 +61,6 @@ class User(BaseModel, UserMixin):
     name = peewee.CharField(max_length=320)
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
-    is_admin = peewee.BooleanField(default=False)
     groups = ArrayField(peewee.CharField, default=['default'])
 
     class Meta:
@@ -71,8 +70,7 @@ class User(BaseModel, UserMixin):
         return {
             'id': self.id,
             'name': self.name,
-            'email': self.email,
-            'is_admin': self.is_admin
+            'email': self.email
         }
 
     def __unicode__(self):

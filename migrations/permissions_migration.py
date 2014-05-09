@@ -21,5 +21,6 @@ if __name__ == '__main__':
         
         models.User.update(groups=['admin', 'default']).where(models.User.is_admin == True).execute()
         models.User.update(groups=['default']).where(models.User.is_admin == False).execute()
+        migrator.drop_column(models.User, 'is_admin')
 
     db.close_db(None)

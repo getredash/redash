@@ -80,7 +80,7 @@ class StatusTest(BaseTestCase):
     def test_returns_data_for_admin(self):
         group_factory.create(name='admin', permissions=['admin'], tables='{*}')
         group_factory.create()
-        admin = user_factory.create(groups=['admin','default'], is_admin=True)
+        admin = user_factory.create(groups=['admin','default'])
         with app.test_client() as c, authenticated_user(c, user=admin):
             rv = c.get('/status.json')
             self.assertEqual(rv.status_code, 200)

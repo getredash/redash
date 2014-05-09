@@ -46,7 +46,6 @@ def index(**kwargs):
 
     user = {
         'gravatar_url': gravatar_url,
-        'is_admin': current_user.is_admin,
         'id': current_user.id,
         'name': current_user.name,
         'email': current_user.email,
