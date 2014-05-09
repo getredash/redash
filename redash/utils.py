@@ -10,7 +10,8 @@ import sqlparse
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
-def extract_table_names(tokens, tables = set()):
+def extract_table_names(tokens):
+    tables = set()
     tokens = [t for t in tokens if t.ttype not in (sqlparse.tokens.Whitespace, sqlparse.tokens.Newline)]
     
     for i in range(len(tokens)):

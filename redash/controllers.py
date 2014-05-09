@@ -26,6 +26,7 @@ from redash import data
 from redash import app, auth, api, redis_connection, data_manager
 from redash import models
 
+import logging
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -390,6 +391,9 @@ class QueryResultListAPI(BaseResource):
         # Get table identifier
         parsedTables = utils.extract_table_names(parsedQuery.tokens)
         allowedTables = list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))
+        
+        logging.info('Parsed tables - %s', parsedTables)
+        logging.info('allowed tables - %s', allowedTables)
         
         for table in parsedTables:
             if table not in allowedTables and '*' not in allowedTables:
