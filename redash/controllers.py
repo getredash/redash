@@ -388,8 +388,8 @@ class QueryResultListAPI(BaseResource):
                 }
         
         # Get table identifier
-        parsedTables = utils.extract_table_names(parsedQuery.tokens)
-        allowedTables = list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))
+        parsedTables = [t.lower() for t in utils.extract_table_names(parsedQuery.tokens)]
+        allowedTables = [t.lower() for t in list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))]
         
         for table in parsedTables:
             if table not in allowedTables and '*' not in allowedTables:
