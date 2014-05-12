@@ -21,6 +21,7 @@
     "gridster": "0.2.0",
     "mousetrap": "~1.4.6",
     "angular-ui-select2": "~0.0.5",
+    "jquery-ui": "~1.10.4",
     "underscore.string": "~2.3.3",
     "marked": "~0.3.2",
     "bucky": "~0.2.6"
