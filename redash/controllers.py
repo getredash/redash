@@ -285,12 +285,15 @@ class QueryListAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
+        return [q.to_dict(with_result=False, with_stats=True) for q in 
+                models.Query.all_queries().where(models.Query.is_archived==False)]
 
 
 class QueryAPI(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
+        query = models.Query.get_by_id(query_id)
+        
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
@@ -310,7 +313,7 @@ class QueryAPI(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
-        if q:
+        if q and q.is_archived == False:
             return q.to_dict(with_visualizations=True)
         else:
             abort(404, message="Query not found.")
@@ -320,7 +323,12 @@ class QueryAPI(BaseResource):
         q = models.Query.get(models.Query.id == query_id)
         if q:
             if q.user.id == self.current_user.id:
-                abort(404, message="Own query.")
+                q.is_archived = True
+                q.save()
+                
+                # Delete widgets using this query
+                vis_ids = [v.id for v in q.visualizations]
+                models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
             else:
                 self.delete_others_query(query_id)
         else:
@@ -328,7 +336,13 @@ class QueryAPI(BaseResource):
     
     @require_permission('delete_other_query')
     def delete_others_query(self, query_id):
-        abort(404, message="Other's query")
+        q = models.Query.get(models.Query.id == query_id)
+        q.is_archived = True
+        q.save()
+        
+        # Delete widgets using this query
+        vis_ids = [v.id for v in q.visualizations]
+        models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
 
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
@@ -340,7 +354,7 @@ class VisualizationListAPI(BaseResource):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
         kwargs['query'] = kwargs.pop('query_id')
-
+        
         vis = models.Visualization(**kwargs)
         vis.save()
 
@@ -354,7 +368,7 @@ class VisualizationAPI(BaseResource):
         if 'options' in kwargs:
             kwargs['options'] = json.dumps(kwargs['options'])
         kwargs.pop('id', None)
-
+        
         update = models.Visualization.update(**kwargs).where(models.Visualization.id == visualization_id)
         update.execute()
 

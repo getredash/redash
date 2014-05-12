@@ -127,6 +127,29 @@
                     <span class="rd-hidden-xs">Download Dataset</span>
                 </a>
             </p>
+            <p ng-show="query.id != undefined && (isQueryOwner || currentUser.hasPermission('delete_other_query'))">
+                <a class="btn btn-danger btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#delete-confirmation-modal">
+                    <span class="glyphicon glyphicon-remove"></span>
+                    <span class="rd-hidden-xs">Delete query</span>
+                </a>
+                
+                <div class="modal fade" id="delete-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModal" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title">Query deletion</h4>
+                      </div>
+                      <div class="modal-body">
+                        Are you sure you want to delete the query?
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary" ng-click="deleteQuery()">Yes, delete!</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </p>
         </div>
 
         <div class="col-lg-9">
