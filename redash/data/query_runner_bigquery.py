@@ -33,6 +33,14 @@ def bigquery(connection_string):
 
         return build("bigquery", "v2", http=http)
 
+    def get_query_results(jobs, project_id, job_id, start_index):
+        query_reply = jobs.getQueryResults(projectId=project_id, jobId=job_id, startIndex=start_index).execute()
+        logging.debug('query_reply %s', query_reply)
+        if query_reply['jobComplete'] != True:
+            return get_query_results(jobs, project_id, job_id, start_index)
+
+        return query_reply
+
     def query_runner(query):
         bigquery_service = get_bigquery_service()
 
@@ -52,7 +60,7 @@ def bigquery(connection_string):
         try:
             insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
             current_row = 0
-            query_reply = jobs.getQueryResults(projectId=project_id, jobId=insert_response['jobReference']['jobId'], startIndex=current_row).execute()
+            query_reply = get_query_results(jobs, project_id=project_id, job_id=insert_response['jobReference']['jobId'], start_index=current_row)
 
             rows = []
             field_names = []
