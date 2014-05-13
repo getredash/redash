@@ -15,12 +15,14 @@ if __name__ == '__main__':
         models.Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
         models.Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
         models.Group.insert(name='default', permissions=models.Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
-        
-        migrator.drop_column(models.User, 'permissions')
+
         migrator.add_column(models.User, models.User.groups, 'groups')
         
         models.User.update(groups=['admin', 'default']).where(models.User.is_admin == True).execute()
+        models.User.update(groups=['admin', 'default']).where(peewee.SQL("'admin' = any(permissions)")).execute()
         models.User.update(groups=['default']).where(models.User.is_admin == False).execute()
+
+        migrator.drop_column(models.User, 'permissions')
         migrator.drop_column(models.User, 'is_admin')
 
     db.close_db(None)
