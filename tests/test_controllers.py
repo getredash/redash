@@ -7,7 +7,7 @@ from flask.ext.login import current_user
 from mock import patch
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
-    query_result_factory, user_factory, data_source_factory
+    query_result_factory, user_factory, data_source_factory, group_factory
 from redash import app, models, settings
 from redash.utils import json_dumps
 from redash.authentication import sign
@@ -18,6 +18,7 @@ settings.GOOGLE_APPS_DOMAIN = "example.com"
 @contextmanager
 def authenticated_user(c, user=None):
     if not user:
+        group_factory.create()
         user = user_factory.create()
 
     with c.session_transaction() as sess:
@@ -77,7 +78,9 @@ class IndexTest(BaseTestCase, AuthenticationTestMixin):
 
 class StatusTest(BaseTestCase):
     def test_returns_data_for_admin(self):
-        admin = user_factory.create(permissions=['admin'])
+        group_factory.create(name='admin', permissions=['admin'], tables='{*}')
+        group_factory.create()
+        admin = user_factory.create(groups=['admin','default'])
         with app.test_client() as c, authenticated_user(c, user=admin):
             rv = c.get('/status.json')
             self.assertEqual(rv.status_code, 200)
@@ -111,6 +114,7 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.status_code, 404)
 
     def test_create_new_dashboard(self):
+        group_factory.create()
         user = user_factory.create()
         with app.test_client() as c, authenticated_user(c, user=user):
             dashboard_name = 'Test Dashboard'
@@ -227,6 +231,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             self.assertEquals(rv.json['name'], 'Testing')
 
     def test_create_query(self):
+        group_factory.create()
         user = user_factory.create()
         data_source = data_source_factory.create()
         query_data = {
@@ -321,6 +326,8 @@ class JobAPITest(BaseTestCase, AuthenticationTestMixin):
 class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
         super(CsvQueryResultAPITest, self).setUp()
+        group_factory.create(name='api', permissions=['view_query'], tables='{*}')
+        
         self.paths = []
         self.query_result = query_result_factory.create()
         self.query = query_factory.create()
@@ -392,6 +399,7 @@ class TestLogin(BaseTestCase):
             self.assertFalse(login_user_mock.called)
 
     def test_submit_correct_user_and_password(self):
+        group_factory.create()
         user = user_factory.create()
         user.hash_password('password')
         user.save()
@@ -402,6 +410,7 @@ class TestLogin(BaseTestCase):
             login_user_mock.assert_called_with(user, remember=False)
 
     def test_submit_correct_user_and_password_and_remember_me(self):
+        group_factory.create()
         user = user_factory.create()
         user.hash_password('password')
         user.save()
@@ -412,6 +421,7 @@ class TestLogin(BaseTestCase):
             login_user_mock.assert_called_with(user, remember=True)
 
     def test_submit_correct_user_and_password_with_next(self):
+        group_factory.create()
         user = user_factory.create()
         user.hash_password('password')
         user.save()
@@ -430,6 +440,7 @@ class TestLogin(BaseTestCase):
             self.assertFalse(login_user_mock.called)
 
     def test_submit_incorrect_password(self):
+        group_factory.create()
         user = user_factory.create()
         user.hash_password('password')
         user.save()
@@ -440,6 +451,7 @@ class TestLogin(BaseTestCase):
             self.assertFalse(login_user_mock.called)
 
     def test_submit_incorrect_password(self):
+        group_factory.create()
         user = user_factory.create()
 
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
