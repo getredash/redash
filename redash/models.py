@@ -4,6 +4,7 @@ import time
 import datetime
 from flask.ext.peewee.utils import slugify
 from flask.ext.login import UserMixin, AnonymousUserMixin
+import itertools
 from passlib.apps import custom_app_context as pwd_context
 import peewee
 from playhouse.postgres_ext import ArrayField
@@ -72,6 +73,25 @@ class User(BaseModel, UserMixin):
             'name': self.name,
             'email': self.email
         }
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self._allowed_tables = None
+
+    @property
+    def permissions(self):
+        # TODO: this should be cached.
+        return list(itertools.chain(*[g.permissions for g in
+                                      Group.select().where(Group.name << self.groups)]))
+
+    @property
+    def allowed_tables(self):
+        # TODO: cache this as weel
+        if self._allowed_tables is None:
+            self._allowed_tables = set([t.lower() for t in itertools.chain(*[g.tables for g in
+                                        Group.select().where(Group.name << self.groups)])])
+
+        return self._allowed_tables
 
     def __unicode__(self):
         return '%r, %r' % (self.name, self.email)

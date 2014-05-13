@@ -50,7 +50,7 @@ def index(**kwargs):
         'name': current_user.name,
         'email': current_user.email,
         'groups': current_user.groups,
-        'permissions': list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
+        'permissions': current_user.permissions
     }
 
     features = {
