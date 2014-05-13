@@ -1,6 +1,4 @@
 import functools
-import itertools
-import models
 from flask.ext.login import current_user
 from flask.ext.restful import abort
 
@@ -12,13 +10,8 @@ class require_permissions(object):
     def __call__(self, fn):
         @functools.wraps(fn)
         def decorated(*args, **kwargs):
-            if len(current_user.groups) > 0:
-                permissions = list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
-            else:
-                permissions = []
-            
             has_permissions = reduce(lambda a, b: a and b,
-                                      map(lambda permission: permission in permissions,
+                                      map(lambda permission: permission in current_user.permissions,
                                           self.permissions),
                                       True)
 

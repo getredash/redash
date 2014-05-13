@@ -19,16 +19,17 @@ class BaseModel(db.Model):
 
 class AnonymousUser(AnonymousUserMixin):
     @property
-    def groups(self):
+    def permissions(self):
         return []
+
 
 class ApiUser(UserMixin):
     def __init__(self, api_key):
         self.id = api_key
 
     @property
-    def groups(self):
-        return ['api']
+    def permissions(self):
+        return ['view_query']
 
 
 class Group(BaseModel):
@@ -419,10 +420,11 @@ class Widget(BaseModel):
 
 all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group)
 
+
 def init_db():
     Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
-    Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
     Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
+
 
 def create_db(create_tables, drop_tables):
     db.connect_db()
