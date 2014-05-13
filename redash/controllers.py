@@ -25,6 +25,7 @@ from redash import data
 from redash import app, auth, api, redis_connection, data_manager
 from redash import models
 
+import logging
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -44,10 +45,10 @@ def index(**kwargs):
 
     user = {
         'gravatar_url': gravatar_url,
-        'is_admin': current_user.is_admin,
         'id': current_user.id,
         'name': current_user.name,
         'email': current_user.email,
+        'groups': current_user.groups,
         'permissions': current_user.permissions
     }
 
@@ -359,6 +360,24 @@ class QueryResultListAPI(BaseResource):
     def post(self):
         params = request.json
 
+        if settings.FEATURE_TABLES_PERMISSIONS:
+            metadata = utils.SQLMetaData(params['query'])
+
+            if metadata.has_non_select_dml_statements or metadata.has_ddl_statements:
+                return {
+                    'job': {
+                        'error': 'Only SELECT statements are allowed'
+                    }
+                }
+
+            if len(metadata.used_tables - current_user.allowed_tables) > 0 and '*' not in current_user.allowed_tables:
+                logging.warning('Permission denied for user %s to table %s', self.current_user.name, metadata.used_tables)
+                return {
+                    'job': {
+                        'error': 'Access denied for table(s): %s' % (metadata.used_tables)
+                    }
+                }
+        
         models.ActivityLog(
             user=self.current_user,
             type=models.ActivityLog.QUERY_EXECUTION,

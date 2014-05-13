@@ -41,7 +41,7 @@ class Sequence(object):
 
 user_factory = ModelFactory(redash.models.User,
                             name='John Doe', email=Sequence('test{}@example.com'),
-                            is_admin=False)
+                            groups=['default'])
 
 
 data_source_factory = ModelFactory(redash.models.DataSource,

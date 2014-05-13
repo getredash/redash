@@ -77,7 +77,7 @@ class IndexTest(BaseTestCase, AuthenticationTestMixin):
 
 class StatusTest(BaseTestCase):
     def test_returns_data_for_admin(self):
-        admin = user_factory.create(permissions=['admin'])
+        admin = user_factory.create(groups=['admin', 'default'])
         with app.test_client() as c, authenticated_user(c, user=admin):
             rv = c.get('/status.json')
             self.assertEqual(rv.status_code, 200)
@@ -321,6 +321,7 @@ class JobAPITest(BaseTestCase, AuthenticationTestMixin):
 class CsvQueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
         super(CsvQueryResultAPITest, self).setUp()
+
         self.paths = []
         self.query_result = query_result_factory.create()
         self.query = query_factory.create()
@@ -392,6 +393,7 @@ class TestLogin(BaseTestCase):
             self.assertFalse(login_user_mock.called)
 
     def test_submit_correct_user_and_password(self):
+
         user = user_factory.create()
         user.hash_password('password')
         user.save()

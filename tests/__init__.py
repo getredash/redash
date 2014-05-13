@@ -21,6 +21,7 @@ for model in redash.models.all_models:
 class BaseTestCase(TestCase):
     def setUp(self):
         redash.models.create_db(True, True)
+        redash.models.init_db()
 
     def tearDown(self):
         db.close_db(None)
