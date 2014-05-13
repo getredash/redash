@@ -10,7 +10,6 @@ import json
 import numbers
 import cStringIO
 import datetime
-import itertools
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for
