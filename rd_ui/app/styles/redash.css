@@ -269,7 +269,7 @@ visualization-renderer > div {
 }
 
 heatmap-renderer {
-  height: 400px;
+  height: 300px;
   display:block;
 }
 
