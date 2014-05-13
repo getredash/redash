@@ -15,7 +15,9 @@ var durationHumanize = function (duration) {
     humanized = minutes + "m";
   }
   return humanized;
-}
+};
+
+var urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
 
 angular.module('redash.filters', []).
   filter('durationHumanize', function () {
@@ -60,8 +62,14 @@ angular.module('redash.filters', []).
     }
   })
 
-  .filter('markdown', ['$sce', function($sce) {
-    return function(text) {
+  .filter('linkify', function () {
+    return function (text) {
+      return text.replace(urlPattern, "$1<a href='$2' target='_blank'>$2</a>");
+    };
+  })
+
+  .filter('markdown', ['$sce', function ($sce) {
+    return function (text) {
       return $sce.trustAsHtml(marked(text));
     }
   }]);
