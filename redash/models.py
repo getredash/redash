@@ -399,6 +399,10 @@ class Widget(BaseModel):
 
 all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group)
 
+def init_db():
+    Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
+    Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
+    Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
 
 def create_db(create_tables, drop_tables):
     db.connect_db()
@@ -411,10 +415,5 @@ def create_db(create_tables, drop_tables):
 
         if create_tables and not model.table_exists():
             model.create_table()
-
-    
-    Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
-    Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
-    Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
 
     db.close_db(None)

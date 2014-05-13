@@ -66,9 +66,10 @@ def check_settings():
 @database_manager.command
 def create_tables():
     """Creates the database tables."""
-    from redash.models import create_db
+    from redash.models import create_db, init_db
 
     create_db(True, False)
+    init_db()
 
 @database_manager.command
 def drop_tables():
