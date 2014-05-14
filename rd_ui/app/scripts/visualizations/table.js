@@ -19,7 +19,7 @@
       },
       templateUrl: "/views/grid_renderer.html",
       replace: false,
-      controller: ['$scope', function ($scope) {
+      controller: ['$scope', '$filter', function ($scope, $filter) {
         $scope.gridColumns = [];
         $scope.gridData = [];
         $scope.gridConfig = {
@@ -94,6 +94,13 @@
                 columnDefinition.formatFunction = function (value) {
                   return value.format("DD/MM/YY HH:mm");
                 };
+              } else {
+                columnDefinition.formatFunction = function (value) {
+                  if (angular.isString(value)) {
+                    value = $filter('linkify')(value);
+                  }
+                  return value;
+                }
               }
 
               return columnDefinition;

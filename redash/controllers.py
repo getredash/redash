@@ -10,7 +10,6 @@ import json
 import numbers
 import cStringIO
 import datetime
-import itertools
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for
@@ -50,7 +49,7 @@ def index(**kwargs):
         'name': current_user.name,
         'email': current_user.email,
         'groups': current_user.groups,
-        'permissions': list(itertools.chain(*[g.permissions for g in models.Group.select().where(models.Group.name << current_user.groups)]))
+        'permissions': current_user.permissions
     }
 
     features = {
@@ -360,43 +359,22 @@ class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.json
-        parsedQuery = sqlparse.parse(params['query'])
-        
-        if len(parsedQuery) > 1:
-            return {
-                'job': {
-                    'error': 'Please, execute only one statement at a time'
-                }
-            }
-        
-        parsedQuery = parsedQuery[0]
-        
-        if len([x for x in parsedQuery.flatten() if x.ttype == sqlparse.tokens.DDL]):
-            return {
-                'job': {
-                    'error': 'Only SELECT statements are allowed'
-                }
-            }
-        
-        # Check the type of queries executed
-        for dml in [x for x in parsedQuery.flatten() if x.ttype == sqlparse.tokens.DML]:
-            if dml.normalized != 'SELECT':
+
+        if settings.FEATURE_TABLES_PERMISSIONS:
+            metadata = utils.SQLMetaData(params['query'])
+
+            if metadata.has_non_select_dml_statements or metadata.has_ddl_statements:
                 return {
                     'job': {
                         'error': 'Only SELECT statements are allowed'
                     }
                 }
-        
-        # Get table identifier
-        parsedTables = [t.lower() for t in utils.extract_table_names(parsedQuery.tokens)]
-        allowedTables = [t.lower() for t in list(set(itertools.chain(*[g.tables for g in models.Group.select().where(models.Group.name << self.current_user.groups)])))]
-        
-        for table in parsedTables:
-            if table not in allowedTables and '*' not in allowedTables:
-                logging.warning('Permission denied for user %s to table %s', self.current_user.name, table)
+
+            if len(metadata.used_tables - current_user.allowed_tables) > 0 and '*' not in current_user.allowed_tables:
+                logging.warning('Permission denied for user %s to table %s', self.current_user.name, metadata.used_tables)
                 return {
                     'job': {
-                        'error': 'Access denied for table %s' % (table)
+                        'error': 'Access denied for table(s): %s' % (metadata.used_tables)
                     }
                 }
         
