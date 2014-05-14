@@ -52,7 +52,7 @@
             replace: true,
             link: function(scope) {
                 scope.$watch(function(){return scope.$parent.selectedTab}, function(tab) {
-                    scope.selectedTab = tab;
+                  scope.selectedTab = tab;
                 });
             }
         }

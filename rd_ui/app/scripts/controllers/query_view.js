@@ -169,6 +169,7 @@
       if (hash == 'pivot') {
         Events.record(currentUser, 'pivot', 'query', $scope.query && $scope.query.id);
       }
+      
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
   };
