@@ -1,41 +1,15 @@
 (function () {
-  var heatmapVisualization = angular.module('redash.visualization');
+  var mapVisualization = angular.module('redash.visualization');
 
-  heatmapVisualization.config(['VisualizationProvider', function (VisualizationProvider) {
+  mapVisualization.config(['VisualizationProvider', function (VisualizationProvider) {
     VisualizationProvider.registerVisualization({
-      type: 'HEATMAP',
-      name: 'Heatmap',
-      renderTemplate: '<heatmap-renderer class="col-lg-12" query-result="queryResult"></heatmap-renderer>'
+      type: 'MAP',
+      name: 'Map',
+      renderTemplate: '<map-renderer class="col-lg-12" query-result="queryResult"></map-renderer>'
     });
   }]);
 
-  heatmapVisualization.directive('heatmapRenderer', function () {
-    var getCenterFromCoordinates = function(data) {
-      var x = 0.0;
-      var y = 0.0;
-      var z = 0.0;
-      var total = data.length;
-  
-      _.each(data, function(row){
-        var lat = row[0] * Math.PI / 180;
-        var lon = row[1] * Math.PI / 180;
-    
-        x += Math.cos(lat) * Math.cos(lon);
-        y += Math.cos(lat) * Math.sin(lon);
-        z += Math.sin(lat);
-      });
-  
-      x /= total;
-      y /= total;
-      z /= total;
-  
-      lon = Math.atan2(y, x);
-      hyp = Math.sqrt(x * x + y * y);
-      lat = Math.atan2(z, hyp);
-  
-      return [lat * 180 / Math.PI, lon * 180 / Math.PI];
-    }
-    
+  mapVisualization.directive('mapRenderer', function () {
     return {
       restrict: 'E',
       scope: {
@@ -68,22 +42,33 @@
             
             _.each(data, function(row){
               if (row.lat != undefined && row.lon != undefined) {
-                latlngs.push([row.lat, row.lon]);
+                latlngs.push({
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates: [row.lon, row.lat]
+                  },
+                  properties: {
+                    // title: 'A Single Marker',
+                    // description: 'Just one of me',
+                    'marker-size': 'small',
+                    'marker-color': '#FFB200'
+                  }
+                });
               }
             });
             
             if (latlngs.length > 0) {
-              center = getCenterFromCoordinates(latlngs);
-              
               if (layer != null) {
                 map.removeLayer(layer);
               }
               
-              map.setView(center, 10).addLayer(L.mapbox.tileLayer('examples.map-9ijuk24y', {
+              map.setView([0,0], 10).addLayer(L.mapbox.tileLayer('examples.map-9ijuk24y', {
                 detectRetina: true
               }));
               
-              layer = L.heatLayer(latlngs, {maxZoom: 12, blur: 50}).addTo(map);
+              layer = L.mapbox.featureLayer(latlngs).addTo(map);
+              map.fitBounds(layer.getBounds());
             }
           }
         });
