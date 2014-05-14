@@ -4,6 +4,7 @@ import time
 import datetime
 from flask.ext.peewee.utils import slugify
 from flask.ext.login import UserMixin, AnonymousUserMixin
+import itertools
 from passlib.apps import custom_app_context as pwd_context
 import peewee
 from playhouse.postgres_ext import ArrayField
@@ -18,16 +19,17 @@ class BaseModel(db.Model):
 
 class AnonymousUser(AnonymousUserMixin):
     @property
-    def groups(self):
+    def permissions(self):
         return []
+
 
 class ApiUser(UserMixin):
     def __init__(self, api_key):
         self.id = api_key
 
     @property
-    def groups(self):
-        return ['api']
+    def permissions(self):
+        return ['view_query']
 
 
 class Group(BaseModel):
@@ -72,6 +74,25 @@ class User(BaseModel, UserMixin):
             'name': self.name,
             'email': self.email
         }
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self._allowed_tables = None
+
+    @property
+    def permissions(self):
+        # TODO: this should be cached.
+        return list(itertools.chain(*[g.permissions for g in
+                                      Group.select().where(Group.name << self.groups)]))
+
+    @property
+    def allowed_tables(self):
+        # TODO: cache this as weel
+        if self._allowed_tables is None:
+            self._allowed_tables = set([t.lower() for t in itertools.chain(*[g.tables for g in
+                                        Group.select().where(Group.name << self.groups)])])
+
+        return self._allowed_tables
 
     def __unicode__(self):
         return '%r, %r' % (self.name, self.email)
@@ -400,6 +421,11 @@ class Widget(BaseModel):
 all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group)
 
 
+def init_db():
+    Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
+    Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
+
+
 def create_db(create_tables, drop_tables):
     db.connect_db()
 
@@ -411,10 +437,5 @@ def create_db(create_tables, drop_tables):
 
         if create_tables and not model.table_exists():
             model.create_table()
-
-    
-    Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
-    Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
-    Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
 
     db.close_db(None)

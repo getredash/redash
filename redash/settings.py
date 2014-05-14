@@ -68,3 +68,6 @@ EVENTS_LOG_PATH = os.environ.get("REDASH_EVENTS_LOG_PATH", "")
 EVENTS_CONSOLE_OUTPUT = parse_boolean(os.environ.get("REDASH_EVENTS_CONSOLE_OUTPUT", "false"))
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
 ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")
+
+# Features:
+FEATURE_TABLES_PERMISSIONS = parse_boolean(os.environ.get("REDASH_FEATURE_TABLES_PERMISSIONS", "false"))
