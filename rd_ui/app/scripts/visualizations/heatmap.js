@@ -79,7 +79,7 @@
                 map.removeLayer(layer);
               }
               
-              map.setView(center, 10).addLayer(L.mapbox.tileLayer('examples.map-9ijuk24y', {
+              map.setView(center, 10).addLayer(L.mapbox.tileLayer('hailocabs.g9mb2ka2', {
                 detectRetina: true
               }));
               
