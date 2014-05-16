@@ -2,7 +2,7 @@ import datetime
 from tests import BaseTestCase
 from redash import models
 from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory
-from utils import gen_query_hash
+from redash.utils import gen_query_hash
 
 
 class DashboardTest(BaseTestCase):
