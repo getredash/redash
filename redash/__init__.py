@@ -10,7 +10,7 @@ from statsd import StatsClient
 import events
 from redash import settings, utils
 
-__version__ = '0.3.7'
+__version__ = '0.4.0'
 
 
 def setup_logging():
