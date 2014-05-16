@@ -22,16 +22,6 @@ def runworkers():
     """Prints deprecation warning."""
     print "** This command is deprecated. Please use Celery's CLI to control the workers. **"
 
-    # TODO: Move to celery beat?
-    # while True:
-    #     try:
-    #         data_manager.refresh_queries()
-    #         data_manager.report_status()
-    #     except Exception as e:
-    #         logging.error("Something went wrong with refreshing queries...")
-    #         logging.exception(e)
-    #     time.sleep(60)
-
 
 @manager.shell
 def make_shell_context():

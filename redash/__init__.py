@@ -1,6 +1,7 @@
 import json
 import urlparse
 import logging
+from datetime import timedelta
 from flask import Flask, make_response
 from flask.ext.restful import Api
 from flask_peewee.db import Database
@@ -33,7 +34,14 @@ app = Flask(__name__,
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
                 include='redash.tasks')
-celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND)
+celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
+                   CELERYBEAT_SCHEDULE={
+                       'refresh_queries': {
+                           'task': 'redash.tasks.refresh_queries',
+                           'schedule': timedelta(seconds=30)
+                       },
+                   },
+                   CELERY_TIMEZONE='UTC')
 
 api = Api(app)
 

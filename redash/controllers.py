@@ -106,12 +106,11 @@ def status_api():
     status['dashboards_count'] = models.Dashboard.select().count()
     status['widgets_count'] = models.Widget.select().count()
 
-    status['workers'] = [redis_connection.hgetall(w)
-                         for w in redis_connection.smembers('workers')]
+    status['workers'] = []
 
-    manager_status = redis_connection.hgetall('manager:status')
+    manager_status = redis_connection.hgetall('redash:status')
     status['manager'] = manager_status
-    status['manager']['queue_size'] = redis_connection.zcard('jobs')
+    status['manager']['queue_size'] = 'Unknown'#redis_connection.zcard('jobs')
 
     return jsonify(status)
 

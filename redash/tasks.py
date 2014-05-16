@@ -97,6 +97,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True)
 
 
+@celery.task
 def refresh_queries():
     # self.status['last_refresh_at'] = time.time()
     # self._save_status()
@@ -110,18 +111,20 @@ def refresh_queries():
         outdated_queries_count += 1
 
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
+    # TODO: decide if we still need this
     # statsd_client.gauge('manager.queue_size', self.redis_connection.zcard('jobs'))
 
-    logger.info("Done refreshing queries... %d" % outdated_queries_count)
+    logger.info("Done refreshing queries. Found %d outdated queries." % outdated_queries_count)
 
-    # def report_status(self):
-    #     manager_status = self.redis_connection.hgetall('manager:status')
-    #     self.statsd_client.gauge('manager.seconds_since_refresh',
-    #                              time.time() - float(manager_status['last_refresh_at']))
-    #
-    # def _save_status(self):
-    #     self.redis_connection.hmset('manager:status', self.status)
+    status = redis_connection.hgetall('redash:status')
+    now = time.time()
 
+    redis_connection.hmset('redash:status', {
+        'outdated_queries_count': outdated_queries_count,
+        'last_refresh_at': now
+    })
+
+    statsd_client.gauge('manager.seconds_since_refresh', now - float(status['last_refresh_at']))
 
 @celery.task(bind=True, track_started=True)
 def execute_query(self, query, data_source_id):
