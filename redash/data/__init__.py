@@ -1,2 +1,1 @@
-from manager import Manager
-from worker import Job
+from manager import Manager, Job

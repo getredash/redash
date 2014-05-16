@@ -40,7 +40,7 @@ def parse_boolean(str):
 
 NAME = os.environ.get('REDASH_NAME', 're:dash')
 
-REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379")
+REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0")
 
 STATSD_HOST = os.environ.get('REDASH_STATSD_HOST', "127.0.0.1")
 STATSD_PORT = int(os.environ.get('REDASH_STATSD_PORT', "8125"))
