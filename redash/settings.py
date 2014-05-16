@@ -38,13 +38,13 @@ def parse_boolean(str):
     return json.loads(str.lower())
 
 
+NAME = os.environ.get('REDASH_NAME', 're:dash')
+
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379")
 
 STATSD_HOST = os.environ.get('REDASH_STATSD_HOST', "127.0.0.1")
 STATSD_PORT = int(os.environ.get('REDASH_STATSD_PORT', "8125"))
 STATSD_PREFIX = os.environ.get('REDASH_STATSD_PREFIX', "redash")
-
-NAME = os.environ.get('REDASH_NAME', 're:dash')
 
 # The following is kept for backward compatability, and shouldn't be used any more.
 CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
@@ -52,6 +52,10 @@ CONNECTION_STRING = os.environ.get("REDASH_CONNECTION_STRING", "user= password= 
 
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
 DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql://postgres"))
+
+# Celery related settings
+CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
+CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", REDIS_URL)
 
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
