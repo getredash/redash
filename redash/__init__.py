@@ -4,9 +4,10 @@ import logging
 from flask import Flask, make_response
 from flask.ext.restful import Api
 from flask_peewee.db import Database
-
 import redis
 from statsd import StatsClient
+from celery import Celery
+
 import events
 from redash import settings, utils
 
@@ -28,6 +29,11 @@ app = Flask(__name__,
             template_folder=settings.STATIC_ASSETS_PATH,
             static_folder=settings.STATIC_ASSETS_PATH,
             static_path='/static')
+
+celery = Celery('redash',
+                broker=settings.CELERY_BROKER,
+                include='redash.tasks')
+celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND)
 
 api = Api(app)
 
