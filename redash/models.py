@@ -280,6 +280,23 @@ class Query(BaseModel):
         return q
 
     @classmethod
+    def outdated_queries(cls):
+        # TODO: this will only find scheduled queries that were executed before. I think this is
+        # a reasonable assumption, but worth revisiting.
+        outdated_queries_ids = cls.select(
+            peewee.Func('first_value', cls.id).over(partition_by=[cls.query_hash, cls.data_source])) \
+            .join(QueryResult) \
+            .where(cls.ttl > 0,
+                   (QueryResult.retrieved_at +
+                    (cls.ttl * peewee.SQL("interval '1 second'"))) <
+                   peewee.SQL("(now() at time zone 'utc')"))
+
+        queries = cls.select(cls, DataSource).join(DataSource) \
+            .where(cls.id << outdated_queries_ids )
+
+        return queries
+
+    @classmethod
     def update_instance(cls, query_id, **kwargs):
         if 'query' in kwargs:
             kwargs['query_hash'] = utils.gen_query_hash(kwargs['query'])

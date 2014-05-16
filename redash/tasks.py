@@ -98,28 +98,13 @@ class QueryTask(object):
 
 
 def refresh_queries():
-    # TODO: this will only execute scheduled queries that were executed before. I think this is
-    # a reasonable assumption, but worth revisiting.
-
-    # TODO: move this logic to the model.
-    outdated_queries = models.Query.select(peewee.Func('first_value', models.Query.id)\
-        .over(partition_by=[models.Query.query_hash, models.Query.data_source]))\
-        .join(models.QueryResult)\
-        .where(models.Query.ttl > 0,
-               (models.QueryResult.retrieved_at +
-                (models.Query.ttl * peewee.SQL("interval '1 second'"))) <
-               peewee.SQL("(now() at time zone 'utc')"))
-
-    queries = models.Query.select(models.Query, models.DataSource).join(models.DataSource)\
-        .where(models.Query.id << outdated_queries)
-
     # self.status['last_refresh_at'] = time.time()
     # self._save_status()
 
     logger.info("Refreshing queries...")
 
     outdated_queries_count = 0
-    for query in queries:
+    for query in models.Query.outdated_queries():
         # TODO: this should go into lower priority
         QueryTask.add_task(query.query, query.data_source)
         outdated_queries_count += 1

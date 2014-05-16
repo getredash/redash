@@ -5,6 +5,9 @@ from tests.factories import query_factory, query_result_factory
 from redash.tasks import refresh_queries
 
 
+# TODO: this test should be split into two:
+# 1. tests for Query.outdated_queries method
+# 2. test for the refresh_query task
 class TestRefreshQueries(BaseTestCase):
     def test_enqueues_outdated_queries(self):
         query = query_factory.create(ttl=60)
