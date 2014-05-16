@@ -393,7 +393,7 @@ class QueryResultListAPI(BaseResource):
             return {'query_result': query_result.to_dict()}
         else:
             data_source = models.DataSource.get_by_id(params['data_source_id'])
-            job = data_manager.add_job(params['query'], data.Job.HIGH_PRIORITY, data_source)
+            job = data_manager.add_job(params['query'], data_source)
             return {'job': job.to_dict()}
 
 
@@ -444,11 +444,11 @@ api.add_resource(QueryResultAPI, '/api/query_results/<query_result_id>', endpoin
 class JobAPI(BaseResource):
     def get(self, job_id):
         # TODO: if finished, include the query result
-        job = data.Job.load(data_manager.redis_connection, job_id)
+        job = data.Job(job_id=job_id)
         return {'job': job.to_dict()}
 
     def delete(self, job_id):
-        job = data.Job.load(data_manager.redis_connection, job_id)
+        job = data.Job(job_id=job_id)
         job.cancel()
 
 api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
