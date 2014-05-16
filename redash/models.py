@@ -1,5 +1,6 @@
 import json
 import hashlib
+import logging
 import time
 import datetime
 from flask.ext.peewee.utils import slugify
@@ -182,6 +183,25 @@ class QueryResult(BaseModel):
                                                   ttl)).order_by(cls.retrieved_at.desc())
 
         return query.first()
+
+    @classmethod
+    def store_result(cls, data_source_id, query_hash, query, data, run_time, retrieved_at):
+        query_result = cls.create(query_hash=query_hash,
+                                  query=query,
+                                  runtime=run_time,
+                                  data_source=data_source_id,
+                                  retrieved_at=retrieved_at,
+                                  data=data)
+
+        logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
+
+        updated_count = Query.update(latest_query_data=query_result).\
+            where(Query.query_hash==query_hash, Query.data_source==data_source_id).\
+            execute()
+
+        logging.info("Updated %s queries with result (%s).", updated_count, query_hash)
+
+        return query_result
 
     def __unicode__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)

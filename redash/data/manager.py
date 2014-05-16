@@ -114,40 +114,6 @@ class Manager(object):
 
         logging.info("Done refreshing queries... %d" % outdated_queries_count)
 
-    def store_query_result(self, data_source_id, query, data, run_time, retrieved_at):
-        query_hash = gen_query_hash(query)
-
-        query_result = models.QueryResult.create(query_hash=query_hash,
-                                                 query=query,
-                                                 runtime=run_time,
-                                                 data_source=data_source_id,
-                                                 retrieved_at=retrieved_at,
-                                                 data=data)
-
-        logging.info("[Manager][%s] Inserted query data; id=%s", query_hash, query_result.id)
-
-        # TODO: move this logic to the model?
-        updated_count = models.Query.update(latest_query_data=query_result).\
-            where(models.Query.query_hash==query_hash, models.Query.data_source==data_source_id).\
-            execute()
-
-        logging.info("[Manager][%s] Updated %s queries.", query_hash, updated_count)
-
-        return query_result.id
-
-    def start_workers(self, workers_count):
-        if self.workers:
-            return self.workers
-
-        redis_connection_params = self.redis_connection.connection_pool.connection_kwargs
-        self.workers = [worker.Worker(worker_id, self, redis_connection_params)
-                        for worker_id in xrange(workers_count)]
-
-        for w in self.workers:
-            w.start()
-
-        return self.workers
-
     def stop_workers(self):
         for w in self.workers:
             w.terminate()
