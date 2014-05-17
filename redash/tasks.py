@@ -51,10 +51,10 @@ class QueryTask(object):
                 if job_id:
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
 
-                    job = Job(job_id=job_id)
+                    job = cls(job_id=job_id)
                 else:
                     pipe.multi()
-                    job = Job(async_result=execute_query.delay(query, data_source.id))
+                    job = cls(async_result=execute_query.delay(query, data_source.id))
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
                     pipe.set('query_hash_job:%s' % query_hash, job.id)
                 break
