@@ -131,7 +131,7 @@ def refresh_queries():
         'last_refresh_at': now
     })
 
-    statsd_client.gauge('manager.seconds_since_refresh', now - float(status['last_refresh_at']))
+    statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
 
 @celery.task(bind=True, track_started=True)
 def execute_query(self, query, data_source_id):
