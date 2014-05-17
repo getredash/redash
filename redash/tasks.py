@@ -64,6 +64,7 @@ class QueryTask(object):
                     job = cls(async_result=result)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
                     pipe.set('query_hash_job:%s' % query_hash, job.id)
+                    pipe.execute()
                 break
 
             except redis.WatchError:
