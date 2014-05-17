@@ -129,11 +129,14 @@ class ActivityLog(BaseModel):
     def __unicode__(self):
         return unicode(self.id)
 
+
 class DataSource(BaseModel):
     id = peewee.PrimaryKeyField()
     name = peewee.CharField()
     type = peewee.CharField()
     options = peewee.TextField()
+    queue_name = peewee.CharField(default="queries")
+    scheduled_queue_name = peewee.CharField(default="queries")
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
