@@ -35,7 +35,7 @@ class QueryTask(object):
         return self._async_result.id
 
     @classmethod
-    def add_task(cls, query, data_source):
+    def add_task(cls, query, data_source, scheduled=False):
         query_hash = gen_query_hash(query)
         logging.info("[Manager][%s] Inserting job", query_hash)
         try_count = 0
@@ -54,7 +54,14 @@ class QueryTask(object):
                     job = cls(job_id=job_id)
                 else:
                     pipe.multi()
-                    job = cls(async_result=execute_query.delay(query, data_source.id))
+
+                    if scheduled:
+                        queue_name = data_source.queue_name
+                    else:
+                        queue_name = data_source.scheduled_queue_name
+
+                    result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
+                    job = cls(async_result=result)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
                     pipe.set('query_hash_job:%s' % query_hash, job.id)
                 break
@@ -107,7 +114,7 @@ def refresh_queries():
     outdated_queries_count = 0
     for query in models.Query.outdated_queries():
         # TODO: this should go into lower priority
-        QueryTask.add_task(query.query, query.data_source)
+        QueryTask.add_task(query.query, query.data_source, scheduled=True)
         outdated_queries_count += 1
 
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
