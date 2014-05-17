@@ -2,10 +2,7 @@
 """
 CLI to manage redash.
 """
-import signal
-import logging
-import time
-from redash import settings, app, db, models, data_manager, __version__
+from redash import settings, app, db, models, __version__
 from redash.import_export import import_manager
 from flask.ext.script import Manager, prompt_pass
 
@@ -22,32 +19,8 @@ def version():
 
 @manager.command
 def runworkers():
-    """Starts the re:dash query executors/workers."""
-
-    def stop_handler(signum, frame):
-        logging.warning("Exiting; waiting for workers")
-        data_manager.stop_workers()
-        exit()
-
-    signal.signal(signal.SIGTERM, stop_handler)
-    signal.signal(signal.SIGINT, stop_handler)
-
-    old_workers = data_manager.redis_connection.smembers('workers')
-    data_manager.redis_connection.delete('workers')
-
-    logging.info("Cleaning old workers: %s", old_workers)
-
-    data_manager.start_workers(settings.WORKERS_COUNT)
-    logging.info("Workers started.")
-
-    while True:
-        try:
-            data_manager.refresh_queries()
-            data_manager.report_status()
-        except Exception as e:
-            logging.error("Something went wrong with refreshing queries...")
-            logging.exception(e)
-        time.sleep(60)
+    """Prints deprecation warning."""
+    print "** This command is deprecated. Please use Celery's CLI to control the workers. **"
 
 
 @manager.shell

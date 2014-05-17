@@ -15,10 +15,8 @@ peewee==2.2.2
 psycopg2==2.5.1
 python-dateutil==2.1
 pytz==2013.9
-qr==0.6.0
 redis==2.7.5
 requests==2.2.0
-setproctitle==1.1.8
 six==1.5.2
 sqlparse==0.1.8
 wsgiref==0.1.2
@@ -27,3 +25,4 @@ Flask-Script==0.6.6
 honcho==0.5.0
 statsd==2.1.2
 gunicorn==18.0
+celery==3.1.11

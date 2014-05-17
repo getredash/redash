@@ -2,6 +2,7 @@ import datetime
 from tests import BaseTestCase
 from redash import models
 from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory
+from redash.utils import gen_query_hash
 
 
 class DashboardTest(BaseTestCase):
@@ -91,3 +92,60 @@ class QueryResultTest(BaseTestCase):
         found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query, -1)
 
         self.assertEqual(found_query_result.id, qr.id)
+
+class TestQueryResultStoreResult(BaseTestCase):
+    def setUp(self):
+        super(TestQueryResultStoreResult, self).setUp()
+        self.data_source = data_source_factory.create()
+        self.query = "SELECT 1"
+        self.query_hash = gen_query_hash(self.query)
+        self.runtime = 123
+        self.utcnow = datetime.datetime.utcnow()
+        self.data = "data"
+
+    def test_stores_the_result(self):
+        query_result = models.QueryResult.store_result(self.data_source.id, self.query_hash, self.query,
+                                                          self.data, self.runtime, self.utcnow)
+
+        self.assertEqual(query_result.data, self.data)
+        self.assertEqual(query_result.runtime, self.runtime)
+        self.assertEqual(query_result.retrieved_at, self.utcnow)
+        self.assertEqual(query_result.query, self.query)
+        self.assertEqual(query_result.query_hash, self.query_hash)
+        self.assertEqual(query_result.data_source, self.data_source)
+
+    def test_updates_existing_queries(self):
+        query1 = query_factory.create(query=self.query, data_source=self.data_source)
+        query2 = query_factory.create(query=self.query, data_source=self.data_source)
+        query3 = query_factory.create(query=self.query, data_source=self.data_source)
+
+        query_result = models.QueryResult.store_result(self.data_source.id, self.query_hash, self.query, self.data,
+                                                       self.runtime, self.utcnow)
+
+        self.assertEqual(models.Query.get_by_id(query1.id)._data['latest_query_data'], query_result.id)
+        self.assertEqual(models.Query.get_by_id(query2.id)._data['latest_query_data'], query_result.id)
+        self.assertEqual(models.Query.get_by_id(query3.id)._data['latest_query_data'], query_result.id)
+
+    def test_doesnt_update_queries_with_different_hash(self):
+        query1 = query_factory.create(query=self.query, data_source=self.data_source)
+        query2 = query_factory.create(query=self.query, data_source=self.data_source)
+        query3 = query_factory.create(query=self.query + "123", data_source=self.data_source)
+
+        query_result = models.QueryResult.store_result(self.data_source.id, self.query_hash, self.query, self.data,
+                                                       self.runtime, self.utcnow)
+
+        self.assertEqual(models.Query.get_by_id(query1.id)._data['latest_query_data'], query_result.id)
+        self.assertEqual(models.Query.get_by_id(query2.id)._data['latest_query_data'], query_result.id)
+        self.assertNotEqual(models.Query.get_by_id(query3.id)._data['latest_query_data'], query_result.id)
+
+    def test_doesnt_update_queries_with_different_data_source(self):
+        query1 = query_factory.create(query=self.query, data_source=self.data_source)
+        query2 = query_factory.create(query=self.query, data_source=self.data_source)
+        query3 = query_factory.create(query=self.query, data_source=data_source_factory.create())
+
+        query_result = models.QueryResult.store_result(self.data_source.id, self.query_hash, self.query, self.data,
+                                                       self.runtime, self.utcnow)
+
+        self.assertEqual(models.Query.get_by_id(query1.id)._data['latest_query_data'], query_result.id)
+        self.assertEqual(models.Query.get_by_id(query2.id)._data['latest_query_data'], query_result.id)
+        self.assertNotEqual(models.Query.get_by_id(query3.id)._data['latest_query_data'], query_result.id)
