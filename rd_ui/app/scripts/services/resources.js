@@ -224,7 +224,9 @@
       '__qm': /\?/g,
       '__brkt': /[\(\)\[\]]/g,
       '__dash': /-/g,
-      '__amp': /&/g
+      '__amp': /&/g,
+      '__sl': /\//g,
+      '__fsl': /\\/g,
     };
 
     QueryResult.prototype.getColumnCleanName = function (column) {
