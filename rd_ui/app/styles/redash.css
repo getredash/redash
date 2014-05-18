@@ -264,7 +264,7 @@ to add those CSS styles here. */
 .rd-form-control {
      width: 100%;
 }
-visualization-renderer > div {
+pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
     overflow: auto;
 }
 
