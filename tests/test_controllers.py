@@ -8,7 +8,8 @@ from mock import patch
 from tests import BaseTestCase
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
     query_result_factory, user_factory, data_source_factory
-from redash import app, models, settings
+from redash import models, settings
+from redash.wsgi import app
 from redash.utils import json_dumps
 from redash.authentication import sign
 

@@ -3,16 +3,46 @@ import hashlib
 import logging
 import time
 import datetime
-from flask.ext.peewee.utils import slugify
-from flask.ext.login import UserMixin, AnonymousUserMixin
 import itertools
-from passlib.apps import custom_app_context as pwd_context
+
 import peewee
+from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField
-from redash import db, utils
+from flask.ext.login import UserMixin, AnonymousUserMixin
+
+from redash import utils, settings
 
 
-class BaseModel(db.Model):
+class Database(object):
+    def __init__(self):
+        self.database_config = dict(settings.DATABASE_CONFIG)
+        self.database_name = self.database_config.pop('name')
+        self.database = peewee.PostgresqlDatabase(self.database_name, **self.database_config)
+        self.app = None
+
+    def init_app(self, app):
+        self.app = app
+        self.register_handlers()
+
+    def connect_db(self):
+        self.database.connect()
+
+    def close_db(self, exc):
+        if not self.database.is_closed():
+            self.database.close()
+
+    def register_handlers(self):
+        self.app.before_request(self.connect_db)
+        self.app.teardown_request(self.close_db)
+
+
+db = Database()
+
+
+class BaseModel(peewee.Model):
+    class Meta:
+        database = db.database
+
     @classmethod
     def get_by_id(cls, model_id):
         return cls.get(cls.id == model_id)
@@ -383,11 +413,11 @@ class Dashboard(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = utils.slugify(self.name)
 
             tries = 1
             while self.select().where(Dashboard.slug == self.slug).first() is not None:
-                self.slug = slugify(self.name) + "_{0}".format(tries)
+                self.slug = utils.slugify(self.name) + "_{0}".format(tries)
                 tries += 1
 
         super(Dashboard, self).save(*args, **kwargs)

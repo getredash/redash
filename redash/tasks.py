@@ -1,12 +1,12 @@
 import time
 import datetime
 from celery.utils.log import get_task_logger
-import peewee
 import logging
 from celery.result import AsyncResult
 import redis
 from redash.data.query_runner import get_query_runner
-from redash import celery, redis_connection, models, statsd_client
+from redash import models, redis_connection, statsd_client
+from redash.worker import celery
 from redash.utils import gen_query_hash
 
 logger = get_task_logger(__name__)
@@ -77,7 +77,7 @@ class QueryTask(object):
 
     def to_dict(self):
         if self._async_result.status == 'STARTED':
-            updated_at = self._async_result.result['start_time']
+            updated_at = self._async_result.result.get('start_time', 0)
         else:
             updated_at = 0
 
@@ -169,7 +169,7 @@ def execute_query(self, query, data_source_id):
     # TODO: it is possible that storing the data will fail, and we will need to retry
     # while we already marked the job as done
     # Delete query_hash
-    redis_connection.delete('query_hash_job:%s', query_hash)
+    redis_connection.delete('query_hash_job:%s' % query_hash)
 
     if not error:
         query_result = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, datetime.datetime.utcnow())
