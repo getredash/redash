@@ -215,6 +215,9 @@
 
     QueryResult.prototype.getColumnNameWithoutType = function (column) {
       var parts = column.split('::');
+      if (parts[0] == "" && parts.length == 2) {
+        return parts[1];
+      }
       return parts[0];
     };
 
@@ -224,7 +227,9 @@
       '__qm': /\?/g,
       '__brkt': /[\(\)\[\]]/g,
       '__dash': /-/g,
-      '__amp': /&/g
+      '__amp': /&/g,
+      '__sl': /\//g,
+      '__fsl': /\\/g,
     };
 
     QueryResult.prototype.getColumnCleanName = function (column) {

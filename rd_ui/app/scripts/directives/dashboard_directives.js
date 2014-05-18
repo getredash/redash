@@ -96,6 +96,11 @@
                 'name': $scope.dashboard.name
               }).success(function(response) {
                 $(element).modal('hide');
+                $scope.dashboard = {
+                  'name': null,
+                  'layout': null
+                };
+                $scope.saveInProgress = false;
                 $location.path('/dashboard/' + response.slug).replace();
               });
               Events.record(currentUser, 'create', 'dashboard');

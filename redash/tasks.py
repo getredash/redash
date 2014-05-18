@@ -58,8 +58,8 @@ class QueryTask(object):
 
             pipe = redis_connection.pipeline()
             try:
-                pipe.watch('query_hash_job:%s' % query_hash)
-                job_id = pipe.get('query_hash_job:%s' % query_hash)
+                pipe.watch(cls._job_lock_id(query_hash, data_source.id))
+                job_id = pipe.get(cls._job_lock_id(query_hash, data_source.id))
                 if job_id:
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
 
@@ -75,7 +75,7 @@ class QueryTask(object):
                     result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
                     job = cls(async_result=result)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
-                    pipe.set('query_hash_job:%s' % query_hash, job.id)
+                    pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id)
                     pipe.execute()
                 break
 
@@ -116,6 +116,9 @@ class QueryTask(object):
     def cancel(self):
         return self._async_result.revoke(terminate=True)
 
+    @staticmethod
+    def _job_lock_id(query_hash, data_source_id):
+        return "query_hash_job:%s:%s" % (data_source_id, query_hash)
 
 @celery.task(base=BaseTask)
 def refresh_queries():
@@ -178,11 +181,11 @@ def execute_query(self, query, data_source_id):
 
     self.update_state(state='STARTED', meta={'start_time': start_time, 'error': error, 'custom_message': ''})
 
+    # Delete query_hash
+    redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
+
     # TODO: it is possible that storing the data will fail, and we will need to retry
     # while we already marked the job as done
-    # Delete query_hash
-    redis_connection.delete('query_hash_job:%s' % query_hash)
-
     if not error:
         query_result = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, datetime.datetime.utcnow())
     else:
