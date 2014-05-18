@@ -17,14 +17,19 @@ def setup_logging():
 
     events.setup_logging(settings.EVENTS_LOG_PATH, settings.EVENTS_CONSOLE_OUTPUT)
 
+
+def create_redis_connection():
+    redis_url = urlparse.urlparse(settings.REDIS_URL)
+    if redis_url.path:
+        redis_db = redis_url.path[1]
+    else:
+        redis_db = 0
+
+    r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
+
+    return r
+
+
 setup_logging()
-
-redis_url = urlparse.urlparse(settings.REDIS_URL)
-if redis_url.path:
-    redis_db = redis_url.path[1]
-else:
-    redis_db = 0
-
-# TODO: move this to function that create a connection?
-redis_connection = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
+redis_connection = create_redis_connection()
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)

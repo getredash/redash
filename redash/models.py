@@ -1,6 +1,8 @@
 import json
 import hashlib
 import logging
+import os
+import threading
 import time
 import datetime
 import itertools
@@ -19,17 +21,27 @@ class Database(object):
         self.database_name = self.database_config.pop('name')
         self.database = peewee.PostgresqlDatabase(self.database_name, **self.database_config)
         self.app = None
+        self.pid = os.getpid()
 
     def init_app(self, app):
         self.app = app
         self.register_handlers()
 
     def connect_db(self):
+        self._check_pid()
         self.database.connect()
 
     def close_db(self, exc):
+        self._check_pid()
         if not self.database.is_closed():
             self.database.close()
+
+    def _check_pid(self):
+        current_pid = os.getpid()
+        if self.pid != current_pid:
+            logging.info("New pid detected (%d!=%d); resetting database lock.", self.pid, current_pid)
+            self.pid = os.getpid()
+            self.database._conn_lock = threading.Lock()
 
     def register_handlers(self):
         self.app.before_request(self.connect_db)
