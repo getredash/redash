@@ -10,5 +10,10 @@
 
       <label class="control-label">X Axis Type</label>
       <select required ng-model="xAxisType" ng-options="value as key for (key, value) in xAxisOptions" class="form-control"></select>
+
+      <span ng-repeat="column in columns">
+          <label class="control-label">{{column.name}}</label>
+          <select ng-options="value as key for (key, value) in columnTypes" class="form-control" ng-model="visualization.options.columnMapping[column.name]" ng-change="logMapping()"></select>
+      </span>
   </div>
 </div>

@@ -33,21 +33,31 @@
         $scope.chartSeries = [];
         $scope.chartOptions = {};
 
-        $scope.$watch('options', function (chartOptions) {
-          if (chartOptions) {
-            $scope.chartOptions = chartOptions;
-          }
-        });
-        $scope.$watch('queryResult && queryResult.getData()', function (data) {
+        var reloadData = function(data) {
           if (!data || $scope.queryResult.getData() == null) {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-            _.each($scope.queryResult.getChartData(), function (s) {
+            console.log('mapping:', $scope.options.columnMapping);
+            _.each($scope.queryResult.getChartData($scope.options.columnMapping), function (s) {
               $scope.chartSeries.push(_.extend(s, {'stacking': 'normal'}));
             });
           }
+        };
+
+        $scope.$watch('options', function (chartOptions) {
+          if (chartOptions) {
+            $scope.chartOptions = chartOptions;
+          }
+        });
+
+        $scope.$watchCollection('options.columnMapping', function (chartOptions) {
+          reloadData($scope.queryResult.getData());
+        });
+
+        $scope.$watch('queryResult && queryResult.getData()', function (data) {
+          reloadData(data);
         });
       }]
     }
@@ -81,6 +91,18 @@
         scope.xAxisType = "datetime";
         scope.stacking = "none";
 
+        scope.columns = scope.query.getQueryResult().getColumns();
+        scope.columnTypes = {
+          "X": "x",
+          "Y": "y",
+          "Series": "series",
+          "Unused": "unused"
+        };
+
+        scope.logMapping = function () {
+          console.log(scope.visualization.options.columnMapping);
+        }
+
         var chartOptionsUnwatch = null;
 
         scope.$watch('visualization', function (visualization) {
@@ -91,6 +113,24 @@
               scope.stacking = "normal";
             } else {
               scope.stacking = scope.visualization.options.series.stacking;
+            }
+
+            if (scope.visualization.options.columnMapping == undefined) {
+              // initial mapping
+              scope.visualization.options.columnMapping = {};
+              _.each(scope.columns, function(column) {
+                var definition = column.name.split("::");
+                if (definition.length == 1) {
+                  scope.visualization.options.columnMapping[column.name] = 'unused';
+                } else if (definition == 'multi-filter') {
+                  scope.visualization.options.columnMapping[column.name] = 'series';
+                } else if (_.indexOf(_.values(scope.columnTypes), definition[1]) != -1) {
+                  scope.visualization.options.columnMapping[column.name] = definition[1];
+                } else {
+                  scope.visualization.options.columnMapping[column.name] = 'unused';
+                }
+              });
+              scope.logMapping();
             }
 
             chartOptionsUnwatch = scope.$watch("stacking", function (stacking) {
