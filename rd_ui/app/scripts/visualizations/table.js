@@ -88,11 +88,17 @@
                 columnDefinition.formatParameter = 2;
               } else if (columnType === 'date') {
                 columnDefinition.formatFunction = function (value) {
-                  return value.format("DD/MM/YY");
+                  if (value) {
+                    return value.format("DD/MM/YY");
+                  }
+                  return value;
                 };
               } else if (columnType === 'datetime') {
                 columnDefinition.formatFunction = function (value) {
-                  return value.format("DD/MM/YY HH:mm");
+                  if (value) {
+                    return value.format("DD/MM/YY HH:mm");
+                  }
+                  return value;
                 };
               } else {
                 columnDefinition.formatFunction = function (value) {
