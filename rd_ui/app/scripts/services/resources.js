@@ -215,6 +215,9 @@
 
     QueryResult.prototype.getColumnNameWithoutType = function (column) {
       var parts = column.split('::');
+      if (parts[0] == "" && parts.length == 2) {
+        return parts[1];
+      } 
       return parts[0];
     };
 
