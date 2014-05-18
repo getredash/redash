@@ -1,14 +1,14 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
-    Events.record(currentUser, "view", "dashboard", dashboard.id);
-
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
 
     var loadDashboard = _.throttle(function() {
       $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
-      $scope.$parent.pageTitle = dashboard.name;
-      var filters = {};
+        Events.record(currentUser, "view", "dashboard", dashboard.id);
+
+        $scope.$parent.pageTitle = dashboard.name;
+        var filters = {};
 
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
           return _.map(row, function (widget) {
