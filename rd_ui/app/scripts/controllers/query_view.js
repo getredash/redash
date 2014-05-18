@@ -67,13 +67,17 @@
 
     $scope.updateDataSource = function() {
       Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
+
       $scope.query.latest_query_data = null;
       $scope.query.latest_query_data_id = null;
-      Query.save({
+
+      if ($scope.query.id) {
+        Query.save({
           'id': $scope.query.id,
           'data_source_id': $scope.query.data_source_id,
           'latest_query_data_id': null
-      });
+        });
+      }
 
       $scope.executeQuery();
     };
