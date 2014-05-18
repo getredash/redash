@@ -1,15 +1,27 @@
 import time
 import datetime
-from celery.utils.log import get_task_logger
 import logging
-from celery.result import AsyncResult
 import redis
-from redash.data.query_runner import get_query_runner
-from redash import models, redis_connection, statsd_client
-from redash.worker import celery
+from celery import Task
+from celery.result import AsyncResult
+from celery.utils.log import get_task_logger
+from redash import redis_connection, models, statsd_client
 from redash.utils import gen_query_hash
+from redash.worker import celery
+from redash.data.query_runner import get_query_runner
 
 logger = get_task_logger(__name__)
+
+
+class BaseTask(Task):
+    abstract = True
+
+    def after_return(self, *args, **kwargs):
+        models.db.close_db(None)
+
+    def __call__(self, *args, **kwargs):
+        models.db.connect_db()
+        return super(BaseTask, self).__call__(*args, **kwargs)
 
 
 class QueryTask(object):
@@ -105,7 +117,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True)
 
 
-@celery.task
+@celery.task(base=BaseTask)
 def refresh_queries():
     # self.status['last_refresh_at'] = time.time()
     # self._save_status()
@@ -134,7 +146,7 @@ def refresh_queries():
 
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
 
-@celery.task(bind=True, track_started=True)
+@celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id):
     # TODO: maybe this should be a class?
     start_time = time.time()
