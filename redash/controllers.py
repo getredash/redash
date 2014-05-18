@@ -19,10 +19,9 @@ from flask_login import current_user, login_user, logout_user
 import sqlparse
 import events
 from permissions import require_permission
-from redash import settings, utils, __version__, statsd_client
 
-from redash import app, auth, api, redis_connection
-from redash import models
+from redash import redis_connection, statsd_client, models, settings, utils, __version__
+from redash.wsgi import app, auth, api
 
 import logging
 from tasks import QueryTask

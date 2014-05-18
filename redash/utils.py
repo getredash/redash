@@ -62,6 +62,10 @@ class SQLMetaData(object):
         return False
 
 
+def slugify(s):
+    return re.sub('[^a-z0-9_\-]+', '-', s.lower())
+
+
 def gen_query_hash(sql):
     """Returns hash of the given query after stripping all comments, line breaks and multiple
     spaces, and lower casing all text.

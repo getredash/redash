@@ -5,9 +5,7 @@ import urlparse
 
 def parse_db_url(url):
     url_parts = urlparse.urlparse(url)
-    connection = {
-        'engine': 'peewee.PostgresqlDatabase',
-    }
+    connection = {'threadlocals': True}
 
     if url_parts.hostname and not url_parts.path:
         connection['name'] = url_parts.hostname

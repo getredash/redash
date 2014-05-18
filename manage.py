@@ -2,9 +2,11 @@
 """
 CLI to manage redash.
 """
-from redash import settings, app, db, models, __version__
-from redash.import_export import import_manager
 from flask.ext.script import Manager, prompt_pass
+
+from redash import settings, models, __version__
+from redash.wsgi import app
+from redash.import_export import import_manager
 
 manager = Manager(app)
 database_manager = Manager(help="Manages the database (create/drop tables).")
@@ -25,6 +27,7 @@ def runworkers():
 
 @manager.shell
 def make_shell_context():
+    from redash.models import db
     return dict(app=app, db=db, models=models)
 
 @manager.command

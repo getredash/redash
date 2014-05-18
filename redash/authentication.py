@@ -5,13 +5,11 @@ import time
 import logging
 
 from flask import request, make_response, redirect, url_for
-from flask.ext.googleauth import GoogleAuth, login
 from flask.ext.login import LoginManager, login_user, current_user
+from flask.ext.googleauth import GoogleAuth, login
 from werkzeug.contrib.fixers import ProxyFix
 
-from models import AnonymousUser
 from redash import models, settings
-
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
@@ -99,7 +97,7 @@ def setup_authentication(app):
             openid_auth._OPENID_ENDPOINT = "https://www.google.com/a/%s/o8/ud?be=o8" % settings.GOOGLE_APPS_DOMAIN
 
     login_manager.init_app(app)
-    login_manager.anonymous_user = AnonymousUser
+    login_manager.anonymous_user = models.AnonymousUser
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.secret_key = settings.COOKIE_SECRET
 
