@@ -38,6 +38,26 @@
     }
   }
 
+  function queryResultCSVLink() {
+    return {
+      restrict: 'A',
+      link: function (scope, element) {
+        scope.$watch('queryResult && queryResult.getData()', function(data) {
+          if (!data) {
+            return;
+          }
+
+          if (scope.queryResult.getId() == null) {
+            element.attr('href', '');
+          } else {
+            element.attr('href', '/api/queries/' + scope.query.id + '/results/' + scope.queryResult.getId() + '.csv');
+            element.attr('download', scope.query.name.replace(" ", "_") + moment(scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") + ".csv");
+          }
+        });
+      }
+    }
+  }
+
   function queryEditor() {
     return {
       restrict: 'E',
@@ -135,6 +155,7 @@
   angular.module('redash.directives')
   .directive('queryLink', queryLink)
   .directive('querySourceLink', querySourceLink)
+  .directive('queryResultLink', queryResultCSVLink)
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryFormatter', ['$http', queryFormatter]);
