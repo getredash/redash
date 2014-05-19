@@ -42,7 +42,6 @@
     return {
       restrict: 'A',
       link: function (scope, element) {
-        console.log('hello world');
         scope.$watch('queryResult && queryResult.getData()', function(data) {
           if (!data) {
             return;
