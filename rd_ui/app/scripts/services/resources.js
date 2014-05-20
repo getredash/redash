@@ -151,8 +151,6 @@
     QueryResult.prototype.getChartData = function (mapping) {
       var series = {};
 
-      console.log(mapping);
-
       _.each(this.getData(), function (row) {
         var point = {};
         var seriesName = undefined;
@@ -398,9 +396,9 @@
         }
         queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {
-        queryResult = QueryResult.getById(this.latest_query_data_id);
+        this.queryResult = queryResult = QueryResult.getById(this.latest_query_data_id);
       } else if (this.data_source_id) {
-        queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
+        this.queryResult = queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
       }
 
       return queryResult;
