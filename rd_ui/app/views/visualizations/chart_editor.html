@@ -1,19 +1,91 @@
-<div>
-  <div class="form-group">
-      <label class="control-label">Chart Type</label>
-      <select required ng-model="visualization.options.series.type" ng-options="value as key for (key, value) in seriesTypes" class="form-control"></select>
-  </div>
+<div class="form-horizontal">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <label class="control-label col-sm-2">Stacking</label>
 
-  <div class="form-group">
-      <label class="control-label">Stacking</label>
-      <select required ng-model="stacking" ng-options="value as key for (key, value) in stackingOptions" class="form-control"></select>
+                <div class="col-sm-10">
+                    <select required ng-model="stacking"
+                            ng-options="value as key for (key, value) in stackingOptions"
+                            class="form-control"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="control-label col-sm-2">X Axis Type</label>
 
-      <label class="control-label">X Axis Type</label>
-      <select required ng-model="xAxisType" ng-options="value as key for (key, value) in xAxisOptions" class="form-control"></select>
+                <div class="col-sm-10">
+                    <select required ng-model="xAxisType" ng-options="value as key for (key, value) in xAxisOptions"
+                            class="form-control"></select>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      <span ng-repeat="column in columns">
-          <label class="control-label">{{column.name}}</label>
-          <select ng-options="value as key for (key, value) in columnTypes" class="form-control" ng-model="visualization.options.columnMapping[column.name]" ng-change="logMapping()"></select>
-      </span>
-  </div>
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="list-group">
+                <div class="list-group-item active">
+                    Columns Mapping
+                </div>
+                <div class="list-group-item">
+                    <div class="form-group" ng-repeat="column in columns">
+                        <label class="control-label col-sm-2">{{column.name}}</label>
+
+                        <div class="col-sm-10">
+                            <select ng-options="value as key for (key, value) in columnTypes" class="form-control"
+                                    ng-model="columnTypeSelection[column.name]"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6" ng-if="series.length > 0">
+            <div class="list-group" ng-repeat="seriesName in series">
+                <div class="list-group-item active">
+                    {{seriesName}}
+                </div>
+                <div class="list-group-item">
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">Type</label>
+
+                        <div class="col-sm-10">
+                            <select required ng-model="visualization.options.seriesOptions[seriesName].type"
+                                    ng-options="value as key for (key, value) in seriesTypes"
+                                    class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">zIndex</label>
+
+                        <div class="col-sm-10">
+                            <select required ng-model="visualization.options.seriesOptions[seriesName].zIndex"
+                                    ng-options="o as o for o in zIndexes"
+                                    class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">y Axis</label>
+
+                        <div class="col-sm-10">
+                            <select required ng-model="visualization.options.seriesOptions[seriesName].yAxis"
+                                    ng-options="o[0] as o[1] for o in yAxes"
+                                    class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2">Name</label>
+
+                        <div class="col-sm-10">
+                            <input name="seriesName" type="text" class="form-control"
+                                   ng-model="visualization.options.seriesOptions[seriesName].name"
+                                   placeholder="{{seriesName}}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
 </div>
