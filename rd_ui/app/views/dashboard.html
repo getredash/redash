@@ -4,8 +4,6 @@
 <div class="container">
     <h2 id="dashboard_title">
         {{dashboard.name}}
-
-            <button type="button" class="btn btn-default btn-xs" ng-class="{active: refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>
             <span ng-show="dashboard.canEdit()">
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
                         class="glyphicon glyphicon-cog"></span></button>
@@ -13,6 +11,8 @@
                         href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
                 </button>
             </span>
+            <h6><small>Created by</small> <span  tooltip="{{dashboard.user_email}}">{{dashboard.user_name}}</span></h6>
+
     </h2>
     <filters></filters>
 </div>
