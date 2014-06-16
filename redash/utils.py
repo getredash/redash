@@ -7,9 +7,9 @@ import json
 import re
 import hashlib
 import sqlparse
+import logging 
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
-
 
 class SQLMetaData(object):
     TABLE_SELECTION_KEYWORDS = ('FROM', 'JOIN', 'LEFT JOIN', 'FULL JOIN', 'RIGHT JOIN', 'CROSS JOIN', 'INNER JOIN',
@@ -40,7 +40,7 @@ class SQLMetaData(object):
     def extract_table_names(self, tokens):
         tables = set()
         tokens = [t for t in tokens if t.ttype not in (sqlparse.tokens.Whitespace, sqlparse.tokens.Newline)]
-
+        
         for i in range(len(tokens)):
             if tokens[i].is_group():
                 tables.update(self.extract_table_names(tokens[i].tokens))
@@ -51,7 +51,16 @@ class SQLMetaData(object):
 
                     if isinstance(tokens[i + 1], sqlparse.sql.IdentifierList):
                         tables.update(set([t.value for t in tokens[i+1].get_identifiers()]))
-        return tables
+        
+        result = []
+        for table in tables:
+            if table:
+                res = re.search("^[a-zA-Z0-9_]*",table)
+                tableName = res.group(0)
+                if tableName != "":
+                    result.append(res.group(0))
+        
+        return result
 
     def _find_dml_statements(self):
         for statement in self.parsed_sql:
