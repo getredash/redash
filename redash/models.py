@@ -332,6 +332,8 @@ class Dashboard(BaseModel):
             'slug': self.slug,
             'name': self.name,
             'user_id': self._data['user'],
+            'user_name': self.user.name,
+            'user_email': self.user.email,
             'layout': layout,
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
             'widgets': widgets_layout
