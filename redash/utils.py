@@ -7,7 +7,6 @@ import json
 import re
 import hashlib
 import sqlparse
-import logging 
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
