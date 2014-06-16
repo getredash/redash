@@ -10,7 +10,6 @@ import sqlparse
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
-
 class SQLMetaData(object):
     TABLE_SELECTION_KEYWORDS = ('FROM', 'JOIN', 'LEFT JOIN', 'FULL JOIN', 'RIGHT JOIN', 'CROSS JOIN', 'INNER JOIN',
                                 'OUTER JOIN', 'LEFT OUTER JOIN', 'RIGHT OUTER JOIN', 'FULL OUTER JOIN')
@@ -51,7 +50,19 @@ class SQLMetaData(object):
 
                     if isinstance(tokens[i + 1], sqlparse.sql.IdentifierList):
                         tables.update(set([t.value for t in tokens[i+1].get_identifiers()]))
-        return tables
+
+        result = []
+        for table in tables:
+            if table:
+                # This will match the first word in the string which should be a table name
+                # sqlparser recursivenes returns multiple results including whole subqueries and their tablenames as well
+                # we only want the table names and shoud ignore anything else
+                res = re.search("^[a-zA-Z0-9_]*",table)
+                tableName = res.group(0)
+                if tableName != "":
+                    result.append(res.group(0))
+        
+        return result
 
     def _find_dml_statements(self):
         for statement in self.parsed_sql:
