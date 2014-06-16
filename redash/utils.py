@@ -39,7 +39,7 @@ class SQLMetaData(object):
     def extract_table_names(self, tokens):
         tables = set()
         tokens = [t for t in tokens if t.ttype not in (sqlparse.tokens.Whitespace, sqlparse.tokens.Newline)]
-        
+
         for i in range(len(tokens)):
             if tokens[i].is_group():
                 tables.update(self.extract_table_names(tokens[i].tokens))
@@ -50,10 +50,13 @@ class SQLMetaData(object):
 
                     if isinstance(tokens[i + 1], sqlparse.sql.IdentifierList):
                         tables.update(set([t.value for t in tokens[i+1].get_identifiers()]))
-        
+
         result = []
         for table in tables:
             if table:
+                # This will match the first word in the string which should be a table name
+                # sqlparser recursivenes returns multiple results including whole subqueries and their tablenames as well
+                # we only want the table names and shoud ignore anything else
                 res = re.search("^[a-zA-Z0-9_]*",table)
                 tableName = res.group(0)
                 if tableName != "":
