@@ -124,6 +124,7 @@ def format_sql_query():
     return sqlparse.format(query, reindent=True, keyword_case='upper')
 
 
+
 class BaseResource(Resource):
     decorators = [auth.required]
 
@@ -140,6 +141,32 @@ class BaseResource(Resource):
             response = super(BaseResource, self).dispatch_request(*args, **kwargs)
         return response
 
+
+
+class GroupListAPI(BaseResource):
+    def get(self):
+        groups = [g.to_dict() for g in models.Group.select()]
+        return groups
+
+class GroupAPI(BaseResource):
+    def get(self, group_id):
+        try:
+            g = models.Group.get(models.Group.id == group_id)
+        except models.Group.DoesNotExist:
+            abort(404, message="Group not found.")
+        
+        return g.to_dict()
+
+    def post(self):
+        json = request.get_json(force=True)
+        g = models.Group(name=json['name'], tables=json["tables"])
+        g.save()
+        return g.to_dict()
+ 
+
+ 
+api.add_resource(GroupListAPI, '/api/groups', endpoint='groups')
+api.add_resource(GroupAPI, '/api/groups/<int:group_id>', endpoint='group')
 
 class EventAPI(BaseResource):
     def post(self):
