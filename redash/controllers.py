@@ -124,7 +124,6 @@ def format_sql_query():
     return sqlparse.format(query, reindent=True, keyword_case='upper')
 
 
-
 class BaseResource(Resource):
     decorators = [auth.required]
 
@@ -147,6 +146,13 @@ class GroupListAPI(BaseResource):
     def get(self):
         groups = [g.to_dict() for g in models.Group.select()]
         return groups
+        
+    def post(self):
+        json = request.get_json(force=True)
+        g = models.Group(name=json['name'], tables=json["tables"])
+        g.save()
+        return g.to_dict()
+
 
 class GroupAPI(BaseResource):
     def get(self, group_id):
@@ -157,16 +163,10 @@ class GroupAPI(BaseResource):
         
         return g.to_dict()
 
-    def post(self):
-        json = request.get_json(force=True)
-        g = models.Group(name=json['name'], tables=json["tables"])
-        g.save()
-        return g.to_dict()
- 
-
  
 api.add_resource(GroupListAPI, '/api/groups', endpoint='groups')
 api.add_resource(GroupAPI, '/api/groups/<int:group_id>', endpoint='group')
+
 
 class EventAPI(BaseResource):
     def post(self):
@@ -311,15 +311,12 @@ class QueryListAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in 
-                models.Query.all_queries().where(models.Query.is_archived==False)]
+        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
 
 
 class QueryAPI(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
-        query = models.Query.get_by_id(query_id)
-        
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
@@ -339,35 +336,10 @@ class QueryAPI(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
-        if q and q.is_archived == False:
+        if q:
             return q.to_dict(with_visualizations=True)
         else:
             abort(404, message="Query not found.")
-    
-    def delete(self, query_id):
-        q = models.Query.get(models.Query.id == query_id)
-        if q:
-            if q.user.id == self.current_user.id:
-                q.is_archived = True
-                q.save()
-                
-                # Delete widgets using this query
-                vis_ids = [v.id for v in q.visualizations]
-                models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
-            else:
-                self.delete_others_query(query_id)
-        else:
-            abort(404, message="Query not found.")
-    
-    @require_permission('delete_queries')
-    def delete_others_query(self, query_id):
-        q = models.Query.get(models.Query.id == query_id)
-        q.is_archived = True
-        q.save()
-        
-        # Delete widgets using this query
-        vis_ids = [v.id for v in q.visualizations]
-        models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
 
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
@@ -379,7 +351,7 @@ class VisualizationListAPI(BaseResource):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
         kwargs['query'] = kwargs.pop('query_id')
-        
+
         vis = models.Visualization(**kwargs)
         vis.save()
 
@@ -393,7 +365,7 @@ class VisualizationAPI(BaseResource):
         if 'options' in kwargs:
             kwargs['options'] = json.dumps(kwargs['options'])
         kwargs.pop('id', None)
-        
+
         update = models.Visualization.update(**kwargs).where(models.Visualization.id == visualization_id)
         update.execute()
 
