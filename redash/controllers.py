@@ -53,7 +53,8 @@ def index(**kwargs):
     }
 
     features = {
-        'clientSideMetrics': settings.CLIENT_SIDE_METRICS
+        'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
+        'flowerUrl': settings.CELERY_FLOWER_URL
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,

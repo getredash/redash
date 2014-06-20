@@ -1,7 +1,7 @@
 import peewee
 from playhouse.migrate import Migrator
-from redash import db
 from redash import models
+from redash.models import db
 
 
 if __name__ == '__main__':

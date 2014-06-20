@@ -16,9 +16,16 @@
       $timeout(refresh, 59 * 1000);
     };
 
+    $scope.flowerUrl = featureFlags.flowerUrl;
+
     refresh();
   }
 
+  var AdminWorkersCtrl = function ($scope, $sce) {
+    $scope.flowerUrl = $sce.trustAsResourceUrl(featureFlags.flowerUrl);
+  };
+
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
+         .controller('AdminWorkersCtrl', ['$scope', '$sce', AdminWorkersCtrl])
 })();
