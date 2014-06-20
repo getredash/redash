@@ -20,9 +20,9 @@
                     <span class="badge" am-time-ago="manager.started_at*1000.0"></span>
                     Started
                 </li>
-                <li class="list-group-item">
-                    <span class="badge">{{manager.queue_size}}</span>
-                    Queue Size
+
+                <li class="list-group-item" ng-if="flowerUrl">
+                    <a href="/admin/workers">Workers' Status</a>
                 </li>
             </ul>
             <ul class="list-group col-lg-4">

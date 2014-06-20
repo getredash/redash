@@ -54,6 +54,7 @@ DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
 CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", REDIS_URL)
+CELERY_FLOWER_URL = os.environ.get("REDASH_CELERY_FLOWER_URL", "/flower")
 
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
