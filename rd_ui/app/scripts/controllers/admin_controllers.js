@@ -18,24 +18,21 @@
 
     refresh();
   }   
-  
+
+  var AdminGroupsCtrl = function ($scope, Events, Group) {    
 
 
-  var AdminGroupsCtrl = function ($scope, Events, Group) {   
-    $scope.allGroups = _.map(queries, function (query) {
-        group.created_at = moment(group.created_at);
-        return group;
-      });
-
-    var dateFormatter = function (value) {
+    var dateFormatter = function (date) {
+      value = moment(date);
       if (!value) return "-";
       return value.format("DD/MM/YY HH:mm");
     }
 
+
     $scope.groupColumns = [
       {
         "label": "Name",
-        "map": "name",
+        "map": "name"
       },
       {
         "label": "ID",
@@ -48,7 +45,8 @@
       {
         "label": "Created At",
         "map": "created_at",
-        "formatFunction": dateFormatter
+        'formatFunction': dateFormatter   
+        
       },      
       {
         "label": "Permissions",
@@ -63,69 +61,8 @@
      });
   }
 
-  var AdminGroupsCtrl = function ($scope, Events, Group) {
-     var group = new Group();
-     group.getGroups().$promise.then(function(groups) {
-        $scope.groups = groups;
-     });
-  }
-
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Group', AdminGroupsCtrl])
 })();
 
-
-// $scope.gridColumns = [
-//       {
-//         "label": "Name",
-//         "map": "name",
-//         "cellTemplateUrl": "/views/queries_query_name_cell.html"
-//       },
-//       {
-//         'label': 'Created By',
-//         'map': 'user.name'
-//       },
-//       {
-//         'label': 'Created At',
-//         'map': 'created_at',
-//         'formatFunction': dateFormatter
-//       },
-//       {
-//         'label': 'Runtime (avg)',
-//         'map': 'avg_runtime',
-//         'formatFunction': function (value) {
-//           return $filter('durationHumanize')(value);
-//         }
-//       },
-//       {
-//         'label': 'Runtime (min)',
-//         'map': 'min_runtime',
-//         'formatFunction': function (value) {
-//           return $filter('durationHumanize')(value);
-//         }
-//       },
-//       {
-//         'label': 'Runtime (max)',
-//         'map': 'max_runtime',
-//         'formatFunction': function (value) {
-//           return $filter('durationHumanize')(value);
-//         }
-//       },
-//       {
-//         'label': 'Last Executed At',
-//         'map': 'last_retrieved_at',
-//         'formatFunction': dateFormatter
-//       },
-//       {
-//         'label': 'Times Executed',
-//         'map': 'times_retrieved'
-//       },
-//       {
-//         'label': 'Update Schedule',
-//         'map': 'ttl',
-//         'formatFunction': function (value) {
-//           return $filter('refreshRateHumanize')(value);
-//         }
-//       }
-//     ]
