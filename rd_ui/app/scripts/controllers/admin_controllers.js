@@ -19,9 +19,11 @@
     refresh();
   }   
 
+  var AdminGroupFormCtrl = function ($scope, Events, Group) {
+  }
+
+
   var AdminGroupsCtrl = function ($scope, Events, Group) {    
-
-
     var dateFormatter = function (date) {
       value = moment(date);
       if (!value) return "-";
@@ -75,5 +77,7 @@
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Group', AdminGroupsCtrl])
+         .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Group', AdminGroupFormCtrl])
+         
 })();
 
