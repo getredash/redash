@@ -61,6 +61,16 @@ def index(**kwargs):
                            analytics=settings.ANALYTICS)
 
 
+
+# @app.route('/admin/groups/<anything>')
+# def admin_group():
+
+# 	# if current_user.is_authenticated() == False:
+# 	# 	return redirect(request.args.get('next') or '/')
+
+
+# 	return render_template("admin_groups.html", )
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated():
@@ -146,24 +156,46 @@ class GroupListAPI(BaseResource):
     def get(self):
         groups = [g.to_dict() for g in models.Group.select()]
         return groups
-        
+
     def post(self):
         json = request.get_json(force=True)
         g = models.Group(name=json['name'], tables=json["tables"])
         g.save()
         return g.to_dict()
 
+class UserListAPI(BaseResource):
+	def get(self):
+		users = [u.to_dict() for u in models.User.select()]
+		return users
+
+	def post(self):
+		json = request.get_json(force=True)
+		u = models.User(name=json['name'], email=json["email"], groups=json["groups"])
+		u.save()
+		return u.to_dict()
+
+
+class UserAPI(BaseResource):
+	def get(self, user_id):
+		try:
+			u = models.User.get(models.User.id == user_id)
+		except models.User.DoesNotExist:
+			abort(404, message="User not found")
+
+		return u.to_dict()
+
 
 class GroupAPI(BaseResource):
     def get(self, group_id):
-        try:
-            g = models.Group.get(models.Group.id == group_id)
+    	try:
+    		g = models.Group.get(models.Group.id == group_id)
         except models.Group.DoesNotExist:
             abort(404, message="Group not found.")
         
         return g.to_dict()
 
- 
+api.add_resource(UserListAPI, '/api/user', endpoint='users')
+api.add_resource(UserAPI, '/api/user/<int:user_id>', endpoint='user') 
 api.add_resource(GroupListAPI, '/api/groups', endpoint='groups')
 api.add_resource(GroupAPI, '/api/groups/<int:group_id>', endpoint='group')
 
