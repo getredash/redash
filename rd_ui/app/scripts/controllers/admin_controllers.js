@@ -28,6 +28,16 @@
       return value.format("DD/MM/YY HH:mm");
     }
 
+    var permissionsFormatter = function (permissions) {
+      value = permissions.join(', ');      
+      if (!value) return "-";
+      return value.replace(new RegExp("_", "g"), " ");
+    }
+
+    var tableFormatter = function (table) {
+     
+      return table;
+    }
 
     $scope.groupColumns = [
       {
@@ -40,18 +50,19 @@
       },
       {
         'label': 'Tables',
-        'map': 'tables'
+        'map': 'tables',
+        'formatFunction': tableFormatter     
       },    
       {
         "label": "Created At",
         "map": "created_at",
-        'formatFunction': dateFormatter   
-        
+        'formatFunction': dateFormatter           
       },      
       {
         "label": "Permissions",
-        "map": "permissions"
-      }            
+        "map": "permissions",
+        'formatFunction': permissionsFormatter
+        }                  
     ]
 
 
