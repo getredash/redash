@@ -17,6 +17,50 @@
     };
 
     refresh();
+  }   
+  
+
+
+  var AdminGroupsCtrl = function ($scope, Events, Group) {   
+    $scope.allGroups = _.map(queries, function (query) {
+        group.created_at = moment(group.created_at);
+        return group;
+      });
+
+    var dateFormatter = function (value) {
+      if (!value) return "-";
+      return value.format("DD/MM/YY HH:mm");
+    }
+
+    $scope.groupColumns = [
+      {
+        "label": "Name",
+        "map": "name",
+      },
+      {
+        "label": "ID",
+        "map": "id"
+      },
+      {
+        'label': 'Tables',
+        'map': 'tables'
+      },    
+      {
+        "label": "Created At",
+        "map": "created_at",
+        "formatFunction": dateFormatter
+      },      
+      {
+        "label": "Permissions",
+        "map": "permissions"
+      }            
+    ]
+
+
+     var group = new Group();
+     group.getGroups().$promise.then(function(groups) {
+        $scope.groups = groups;
+     });
   }
 
   var AdminGroupsCtrl = function ($scope, Events, Group) {
