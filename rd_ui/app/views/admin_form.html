@@ -1,11 +1,44 @@
-<div ng-controller="Controller">
-  <form novalidate class="simple-form">
-    Name: <input type="text" ng-model="user.name" /><br />
-    E-mail: <input type="email" ng-model="user.email" /><br />
-    Gender: <input type="radio" ng-model="user.gender" value="male" />male
-    <input type="radio" ng-model="user.gender" value="female" />female<br />
-    <button ng-click="reset()">RESET</button>
-    <button ng-click="update(user)">SAVE</button>
-  </form>
+<div class="container">
+	<h1>Add Group</h1><br />
 </div>
+<form class="form-horizontal" role="form"ng-submit="submitForm(userForm.$valid)">
+	<div class="form-group">
+		<label for="inputName3" class="col-sm-2 control-label">Name</label>
+		<div class="col-sm-4">
+			<input class="form-control" id="inputName3" placeholder="Name">
+		</div>
+	</div>      	     
+	
+</form>	
 
+<div class="container">
+	<label for"list1" class="col-sm-2 control-label">Permissions</label>	
+	<div class="controls span2">
+		<label class="checkbox" id="list1">
+			<input type="checkbox" value="multiselect-all" id="inlineCheckbox0"> Select All
+		</label>
+		<label class="checkbox">
+			<input type="checkbox" value="option1" id="inlineCheckbox1"> Create Dashboard
+		</label>
+		<label class="checkbox">
+			<input type="checkbox" value="option2" id="inlineCheckbox2"> Create Query
+		</label>
+		<label class="checkbox">
+			<input type="checkbox" value="option3" id="inlineCheckbox3"> Edit Dashboard
+		</label>		
+	</div>
+	<div class="controls span2">
+		<label class="checkbox">
+			<input type="checkbox" value="option4" id="inlineCheckbox4"> Edit Query
+		</label>
+		<label class="checkbox">
+			<input type="checkbox" value="option1" id="inlineCheckbox1"> View Query
+		</label>
+		<label class="checkbox">
+			<input type="checkbox" value="option2" id="inlineCheckbox2"> View Source
+		</label>
+		<label class="checkbox">
+			<input type="checkbox" value="option3" id="inlineCheckbox3"> Execute Query
+		</label>			
+	</div>    
+</div>
