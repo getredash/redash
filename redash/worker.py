@@ -8,8 +8,6 @@ celery = Celery('redash',
                 include='redash.tasks')
 
 celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
-                   CELERY_TASK_SERIALIZER='json',
-                   CELERY_ACCEPT_CONTENT = ['json'],
                    CELERYBEAT_SCHEDULE={
                        'refresh_queries': {
                            'task': 'redash.tasks.refresh_queries',
