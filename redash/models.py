@@ -102,11 +102,13 @@ class Group(BaseModel):
 
 
 class User(BaseModel, UserMixin):
+    DEFAULT_GROUPS = ['default']
+
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
-    groups = ArrayField(peewee.CharField, default=['default'])
+    groups = ArrayField(peewee.CharField, default=DEFAULT_GROUPS)
 
     class Meta:
         db_table = 'users'
