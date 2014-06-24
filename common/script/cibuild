@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo This test should affect only Adam's changes.
+echo If this is causing you problems contact me (Adam) via hipchat or email ( adam.szczerbicki@hailocab.com ).
+
+echo testing
+echo test_no_1 
+echo test_no_2
+echo test_no_3 
+echo test_no_4 
+
+echo everything is fine
+exit 0
+
+
