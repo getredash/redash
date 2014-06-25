@@ -1,44 +1,100 @@
-<div class="container">
-	<h1>Add Group</h1><br />
-</div>
-<form class="form-horizontal" role="form"ng-submit="submitForm(userForm.$valid)">
-	<div class="form-group">
-		<label for="inputName3" class="col-sm-2 control-label">Name</label>
-		<div class="col-sm-4">
-			<input class="form-control" id="inputName3" placeholder="Name">
-		</div>
-	</div>      	     
-	
-</form>	
+    <head>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 
-<div class="container">
-	<label for"list1" class="col-sm-2 control-label">Permissions</label>	
-	<div class="controls span2">
-		<label class="checkbox" id="list1">
-			<input type="checkbox" value="multiselect-all" id="inlineCheckbox0"> Select All
-		</label>
-		<label class="checkbox">
-			<input type="checkbox" value="option1" id="inlineCheckbox1"> Create Dashboard
-		</label>
-		<label class="checkbox">
-			<input type="checkbox" value="option2" id="inlineCheckbox2"> Create Query
-		</label>
-		<label class="checkbox">
-			<input type="checkbox" value="option3" id="inlineCheckbox3"> Edit Dashboard
-		</label>		
-	</div>
-	<div class="controls span2">
-		<label class="checkbox">
-			<input type="checkbox" value="option4" id="inlineCheckbox4"> Edit Query
-		</label>
-		<label class="checkbox">
-			<input type="checkbox" value="option1" id="inlineCheckbox1"> View Query
-		</label>
-		<label class="checkbox">
-			<input type="checkbox" value="option2" id="inlineCheckbox2"> View Source
-		</label>
-		<label class="checkbox">
-			<input type="checkbox" value="option3" id="inlineCheckbox3"> Execute Query
-		</label>			
-	</div>    
-</div>
+</head>
+
+    <div class="container">
+    	<h1>Add Groups<br /><br /></h1>
+    </div>
+
+
+    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm">
+    	<div class="form-group">
+    		<label for="inputName3" class="col-sm-2 control-label">Name</label>
+    		<div class="col-sm-4">
+    			<input class="form-control" id="inputName3" ng-model="user.name" placeholder="Name">
+    		</div>
+    	</div>
+    	<div class="form-group">
+    		<label for="inputEmail3" class="col-sm-2 control-label">Permissions</label>
+    		<div class="col-sm-4">
+
+    			<div class="boxes" data-toggle="checkbox">
+    				<label class="checkbox">
+    					<input type="checkbox" value="option1" id="inlineCheckbox1"> Create Dashboard
+    				</label>
+    				<label class="checkbox">
+    					<input type="checkbox" value="option2" id="inlineCheckbox2"> Create Query
+    				</label>
+    				<label class="checkbox">
+    					<input type="checkbox" value="option3" id="inlineCheckbox3"> Edit Dashboard
+    				</label>
+    				<label class="checkbox">
+    					<input type="checkbox" value="option4" id="inlineCheckbox4"> Edit Query
+    				</label>
+    				<label class="checkbox">
+    					<input type="checkbox" value="option5" id="inlineCheckbox5"> View Query
+    				</label>
+    				<label class="checkbox">
+    					<input type="checkbox" value="option6" id="inlineCheckbox6"> View Source
+    				</label>
+    				<label class="checkbox">
+    					<input type="checkbox" value="option7" id="inlineCheckbox7"> Execute Query
+    				</label>
+    			</div>
+    		</div>
+    	</div>
+    	<div class="form-group">
+    		<label for="tables" class="col-sm-2 control-label">Table</label>
+    		<div class="col-sm-4">
+    			<input type="text" class="form-control" id="tables" placeholder="Table" ng-model="user.table">
+    		</div>
+    	</div>
+    	<div class="form-group">
+    		<div class="col-sm-offset-2 col-sm-10">
+    			<button type="button" class="btn btn-primary btn-xs" id="submitButton"ng-click="">Submit</button>
+    		</div>
+    	</div>
+    </form>
+ 
+  <script>
+  $(function() {
+    var availableTags = [
+      "Example 1",
+      "Example 2",
+      "Example 3",
+      "Example 4",
+      "Example 5",
+      "Example 6",
+      "Example 7"
+    ];
+    $( "#tables" ).autocomplete({
+      source: availableTags
+    });
+  });
+  </script>
+
+  <script>
+
+  function Ctrl($scope) {
+    $scope.list = [];
+    $scope.text = 'hello';
+    $scope.submit = function() {
+      if ($scope.text) {
+        $scope.list.push(this.text);
+        $scope.text = '';
+      }
+    };
+  }
+
+    });
+
+
+</script>
+ 
+ <pre>list={{list}}</pre>
+
+
+

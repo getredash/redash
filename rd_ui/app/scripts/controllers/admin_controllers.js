@@ -21,21 +21,41 @@
 
   var AdminGroupFormCtrl = function ($scope, Events, Group) {
 
-    $scope.submitForm = function(user) {
-      if(user == "admin") {
-        return "Admin Permissions";
-      }
-      else if(user == "default") {
-        return "create dashboard, create query, edit dashboard, edit query, view query, view source, execute query"
-      }
-    }
+     $(function() {
+    var availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ];
+    $( "#tables" ).autocomplete({
+      source: availableTags
+    });
+  });
 
 
   }
 
 
-  var AdminGroupsCtrl = function ($scope, Events, Group) {  
-
+  var AdminGroupsCtrl = function ($scope, Events, Group) {    
     var dateFormatter = function (date) {
       value = moment(date);
       if (!value) return "-";
