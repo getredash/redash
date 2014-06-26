@@ -21,36 +21,51 @@
 
   var AdminGroupFormCtrl = function ($scope, Events, Group) {
 
-     $(function() {
-    var availableTags = [
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ];
-    $( "#tables" ).autocomplete({
-      source: availableTags
-    });
-  });
+     
 
+  }
+
+  var AdminUserCtrl = function ($scope, Events, User) {
+    
+    $scope.userColumns =[
+    {
+      "label": "ID",
+      "map": "id"
+    },
+    {
+      "label": "Name",
+      "map": "name"
+    },
+    {
+      "label": "Email",
+      "map": "email"
+    }
+    ]
+
+    var user = new User();
+     user.getUsers().$promise.then(function(groups) {
+        $scope.users = users;
+     });
+
+
+  }
+
+  var AdminUsersCtrl = function ($scope, Events, User) {
+
+    $scope.groupColumns = [
+      {
+        "label": "Name",
+        "map": "name"
+      },
+      {
+        "label": "ID",
+        "map": "id"
+      },
+      {
+        'label': 'Email',
+        'map': 'email'             
+      }                  
+    ]
 
   }
 
@@ -110,6 +125,6 @@
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Group', AdminGroupsCtrl])
          .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Group', AdminGroupFormCtrl])
-         
+         .controller('AdminUsersCtrl', ['$scope', 'Events', 'Group', AdminUsersCtrl])
 })();
 

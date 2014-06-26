@@ -83,21 +83,11 @@
     	$scope.submit = function() {
     		if ($scope.name) {
     			$scope.list.push(this.name);
-    		}
-
-
-    		for (var i=1; i<8; i++) {    			
-    			if ($scope.checkbox) {
-    				$scope.list.push(this.checkbox)
-				}
-				else {
-					$scope.list.push(false)
-				}
-			}
+    		}   		
 
 
 
-    		/* if ($scope.checkbox1) {
+    		if ($scope.checkbox1) {
     			$scope.list.push(this.checkbox1)
     		}
     		else  {
@@ -138,7 +128,7 @@
     		}
     		else  {
     			$scope.list.push(false)
-    		} */
+    		} 
 
 
 

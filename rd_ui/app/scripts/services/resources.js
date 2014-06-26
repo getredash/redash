@@ -386,6 +386,14 @@
     return DataSourceResource;
   }
 
+  var User = function ($resource) {
+    var UserResource = $resource('/api/users', {}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}})
+    GroupResource.prototype.getUsers = function () {
+      return UserResource.get();
+    };
+    return UserResource;
+  }
+
   var Group = function ($resource) {
     var GroupResource = $resource('/api/groups', {}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}})
     GroupResource.prototype.getGroups = function () {

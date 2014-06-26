@@ -78,6 +78,14 @@ angular.module('redash', [
         templateUrl: '/views/admin_status.html',
         controller: 'AdminStatusCtrl'
       });
+      $routeProvider.when('/admin/users', {
+        templateUrl: '/views/admin_users.html',
+        controller: 'AdminUsersCtrl'
+      });
+      $routeProvider.when('/admin/add-user', {
+        templateUrl: '/views/admin_user_form.html',
+        controller: 'AdminUserCtrl'
+      });
       $routeProvider.when('/admin/groups', {
         templateUrl: '/views/admin_groups.html',
         controller: 'AdminGroupsCtrl'
