@@ -10,11 +10,11 @@
     </div>
 
 
-    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm">
+    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm" ng-controller="Ctrl"script>
     	<div class="form-group">
     		<label for="inputName3" class="col-sm-2 control-label">Name</label>
     		<div class="col-sm-4">
-    			<input class="form-control" id="inputName3" ng-model="user.name" placeholder="Name">
+    			<input class="form-control" id="inputName3" placeholder="Name" type="text" ng-model="name" name="text">
     		</div>
     	</div>
     	<div class="form-group">
@@ -23,25 +23,25 @@
 
     			<div class="boxes" data-toggle="checkbox">
     				<label class="checkbox">
-    					<input type="checkbox" value="option1" id="inlineCheckbox1"> Create Dashboard
+    					<input id="inlineCheckbox1" type="checkbox" ng-model="checkbox1" name="checkbox"> Create Dashboard
     				</label>
     				<label class="checkbox">
-    					<input type="checkbox" value="option2" id="inlineCheckbox2"> Create Query
+    					<input type="checkbox" ng-model="checkbox2" name="checkbox" id="inlineCheckbox2"> Create Query
     				</label>
     				<label class="checkbox">
-    					<input type="checkbox" value="option3" id="inlineCheckbox3"> Edit Dashboard
+    					<input type="checkbox" ng-model="checkbox3" name="checkbox" id="inlineCheckbox3"> Edit Dashboard
     				</label>
     				<label class="checkbox">
-    					<input type="checkbox" value="option4" id="inlineCheckbox4"> Edit Query
+    					<input type="checkbox" ng-model="checkbox4" name="checkbox" id="inlineCheckbox4"> Edit Query
     				</label>
     				<label class="checkbox">
-    					<input type="checkbox" value="option5" id="inlineCheckbox5"> View Query
+    					<input type="checkbox" ng-model="checkbox5" name="checkbox" id="inlineCheckbox5"> View Query
     				</label>
     				<label class="checkbox">
-    					<input type="checkbox" value="option6" id="inlineCheckbox6"> View Source
+    					<input type="checkbox" ng-model="checkbox6" name="checkbox" id="inlineCheckbox6"> View Source
     				</label>
     				<label class="checkbox">
-    					<input type="checkbox" value="option7" id="inlineCheckbox7"> Execute Query
+    					<input type="checkbox" ng-model="checkbox7" name="checkbox" id="inlineCheckbox7"> Execute Query
     				</label>
     			</div>
     		</div>
@@ -49,14 +49,15 @@
     	<div class="form-group">
     		<label for="tables" class="col-sm-2 control-label">Table</label>
     		<div class="col-sm-4">
-    			<input type="text" class="form-control" id="tables" placeholder="Table" ng-model="user.table">
+    			<input type="text" class="form-control" id="tables" placeholder="Table" ng-model="stable">
     		</div>
     	</div>
     	<div class="form-group">
     		<div class="col-sm-offset-2 col-sm-10">
-    			<button type="button" class="btn btn-primary btn-xs" id="submitButton"ng-click="">Submit</button>
+    			<button class="btn btn-primary btn-xs" type="submit" id="submit" value="Submit">Submit</button>
     		</div>
     	</div>
+    	<pre>list={{list}}</pre>
     </form>
  
   <script>
@@ -76,25 +77,29 @@
   });
   </script>
 
-  <script>
-
+<script>
   function Ctrl($scope) {
-    $scope.list = [];
-    $scope.text = 'hello';
+    $scope.list = [];    
     $scope.submit = function() {
-      if ($scope.text) {
-        $scope.list.push(this.text);
-        $scope.text = '';
+      if ($scope.name) {
+        $scope.list.push(this.name);        
       }
+      else if ($scope.checkbox1) {
+      	$scope.list.push(this.checkbox1)
+      }
+
+
+      else if ($scope.table) {
+      	$scope.list.push(this.table);     	
+      }
+
+
     };
   }
-
-    });
-
-
 </script>
+
  
- <pre>list={{list}}</pre>
+ 
 
 
 
