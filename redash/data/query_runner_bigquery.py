@@ -1,3 +1,4 @@
+import datetime
 import httplib2
 import json
 import logging
@@ -15,6 +16,14 @@ except ImportError:
 
 from redash.utils import JSONEncoder
 
+types_map = {
+    'INTEGER': 'integer',
+    'FLOAT': 'float',
+    'BOOLEAN': 'boolean',
+    'STRING': 'string',
+    'TIMESTAMP': 'datetime',
+}
+
 def transform_row(row, fields):
     column_index = 0
     row_data = {}
@@ -28,12 +37,12 @@ def transform_row(row, fields):
         # Otherwise just cast the value
         elif field['type'] == 'INTEGER':
             cell_value = int(cell_value)
-
         elif field['type'] == 'FLOAT':
             cell_value = float(cell_value)
-
         elif field['type'] == 'BOOLEAN':
-            cell_value = cell_value in ('True', 'true', 'TRUE')
+            cell_value = cell_value.lower() == "true"
+        elif field['type'] == 'TIMESTAMP':
+            cell_value = datetime.datetime.fromtimestamp(float(cell_value))
 
         row_data[field["name"]] = cell_value
         column_index += 1
@@ -105,7 +114,7 @@ def bigquery(connection_string):
 
             columns = [{'name': f["name"],
                         'friendly_name': f["name"],
-                        'type': None} for f in query_reply["schema"]["fields"]]
+                        'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
 
             data = {
                 "columns": columns,
