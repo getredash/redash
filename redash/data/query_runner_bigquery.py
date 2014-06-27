@@ -1,3 +1,4 @@
+import datetime
 import httplib2
 import json
 import logging
@@ -15,6 +16,38 @@ except ImportError:
 
 from redash.utils import JSONEncoder
 
+types_map = {
+    'INTEGER': 'integer',
+    'FLOAT': 'float',
+    'BOOLEAN': 'boolean',
+    'STRING': 'string',
+    'TIMESTAMP': 'datetime',
+}
+
+def transform_row(row, fields):
+    column_index = 0
+    row_data = {}
+
+    for cell in row["f"]:
+        field = fields[column_index]
+        cell_value = cell['v']
+
+        if cell_value is None:
+            pass
+        # Otherwise just cast the value
+        elif field['type'] == 'INTEGER':
+            cell_value = int(cell_value)
+        elif field['type'] == 'FLOAT':
+            cell_value = float(cell_value)
+        elif field['type'] == 'BOOLEAN':
+            cell_value = cell_value.lower() == "true"
+        elif field['type'] == 'TIMESTAMP':
+            cell_value = datetime.datetime.fromtimestamp(float(cell_value))
+
+        row_data[field["name"]] = cell_value
+        column_index += 1
+
+    return row_data
 
 def bigquery(connection_string):
     def load_key(filename):
@@ -67,28 +100,21 @@ def bigquery(connection_string):
             query_reply = get_query_results(jobs, project_id=project_id,
                                             job_id=insert_response['jobReference']['jobId'], start_index=current_row)
 
+            logging.debug("bigquery replied: %s", query_reply)
+
             rows = []
-            field_names = []
-            for f in query_reply["schema"]["fields"]:
-                field_names.append(f["name"])
 
             while ("rows" in query_reply) and current_row < query_reply['totalRows']:
                 for row in query_reply["rows"]:
-                    row_data = {}
-                    column_index = 0
-                    for cell in row["f"]:
-                        row_data[field_names[column_index]] = cell["v"]
-                        column_index += 1
-
-                    rows.append(row_data)
+                    rows.append(transform_row(row, query_reply["schema"]["fields"]))
 
                 current_row += len(query_reply['rows'])
                 query_reply = jobs.getQueryResults(projectId=project_id, jobId=query_reply['jobReference']['jobId'],
                                                    startIndex=current_row).execute()
 
-            columns = [{'name': name,
-                        'friendly_name': name,
-                        'type': None} for name in field_names]
+            columns = [{'name': f["name"],
+                        'friendly_name': f["name"],
+                        'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
 
             data = {
                 "columns": columns,
