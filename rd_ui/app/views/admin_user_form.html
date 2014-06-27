@@ -1,0 +1,51 @@
+    <head>
+    	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+    	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+    </head>
+
+    <div class="container">
+     	<h1>Add Users<br /><br /></h1>
+    </div>
+
+
+    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm" ng-controller="userCtrl" novalidate>
+    	<div class="form-group">
+    		<label for="inputName3" class="col-sm-2 control-label">Name</label>
+    		<div class="col-sm-4">
+    			<input class="form-control" id="inputName3" placeholder="Name" type="text" ng-model="names" name="text" required>
+    		</div>
+    	</div>    	
+    	<div class="form-group">
+    		<label for="id" class="col-sm-2 control-label">ID</label>
+    		<div class="col-sm-4">
+    			<input type="text" class="form-control" id="id" placeholder="ID" ng-model="id" required>
+    		</div>
+    	</div>
+        <div class="form-group">
+            <label for="email" class="col-sm-2 control-label">Email</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="email" placeholder="Email" type="text" ng-model="email" name="email" required>
+            </div>
+        </div>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+             <button class="btn btn-primary btn-xs" type="submit" id="submit" value="Submit" ng-disabled="!id || !names || !email">Submit</button>
+         </div>
+     </div>
+     <pre>list = {{list}}</pre>
+ </form> 
+
+ <script>
+ function Ctrl($scope) {
+    $scope.list = [];    
+    $scope.submit = function() {
+        if ($scope.names) {
+            $scope.list.push(this.names);
+        }
+    }
+}
+</script>
+
+    
