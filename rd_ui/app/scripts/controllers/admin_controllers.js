@@ -19,13 +19,46 @@
     refresh();
   }   
 
-  var AdminGroupFormCtrl = function ($scope, Events, Group) {
 
-     
+  var AdminGroupFormCtrl = function ($scope, Events, Groups) {
 
+    $scope.permissions = {create_dashboard: true, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
+
+    // available tables
+    var tables = [
+        { id: 'jss_pmuh', text: 'jss_pmuh' },
+        { id: 'jss_allocation', text: 'jss_allocation' },
+        { id: 'jss_fareQuote', text: 'jss_fareQuote' },
+        ];
+
+    // preselected tables
+    $scope.multi2Value = [
+        { id: 'jss_pmuh', text: 'jss_pmuh' },
+        { id: 'jss_allocation', text: 'jss_allocation' }
+        ];
+
+    $scope.multi = {
+        multiple: true,
+        query: function (query) {
+            query.callback({ results: tables });
+        },
+        initSelection: function (element, callback) {
+            
+            var val = $(element).select2('val'),
+            results = [];
+            for (var i=0; i<val.length; i++) {
+                results.push(findState(val[i]));
+            }
+            callback(results);
+        }
+    };
+
+    $scope.submit = function() {
+      console.log($scope.permissions);
+    };
   }
 
-  var AdminUserCtrl = function ($scope, Events, User) {
+  var AdminUsersCtrl = function ($scope, Events, Users) {
     
     $scope.userColumns =[
     {
@@ -42,15 +75,16 @@
     }
     ]
 
-    var user = new User();
-     user.getUsers().$promise.then(function(groups) {
-        $scope.users = users;
+    var users = new Users();
+     users.getUsers().$promise.then(function(result) {
+        $scope.users = result;
      });
 
 
   }
 
-  var AdminGroupsCtrl = function ($scope, Events, Group) {    
+  var AdminGroupsCtrl = function ($scope, Events, Groups) {    
+   
     var dateFormatter = function (date) {
       value = moment(date);
       if (!value) return "-";
@@ -64,7 +98,6 @@
     }
 
     var tableFormatter = function (table) {
-     
       return table;
     }
 
@@ -94,17 +127,27 @@
         }                  
     ]
 
-
-     var group = new Group();
-     group.getGroups().$promise.then(function(groups) {
-        $scope.groups = groups;
+     var groups = new Groups();
+     groups.get().$promise.then(function(res) {
+        $scope.groups = res;
      });
   }
 
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
-         .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Group', AdminGroupsCtrl])
-         .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Group', AdminGroupFormCtrl])
-         .controller('AdminUsersCtrl', ['$scope', 'Events', 'Group', AdminUsersCtrl])
+         .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
+         .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
+         .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Groups', AdminGroupFormCtrl])
+         // .directive('applystyle', function() {
+         //    return {
+         //        // Restrict it to be an attribute in this case
+         //        restrict: 'A',
+         //        // responsible for registering DOM listeners as well as updating the DOM
+         //        link: function(scope, element, attrs) {
+         //          $('#select2-choices').class('form-control');
+         //        }
+         //    };
+         //  });
+         
 })();
 

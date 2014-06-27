@@ -1,16 +1,10 @@
-    <head>
-    	<link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-    	<script src="//code.jquery.com/jquery-1.10.2.js"></script>
-    	<script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
-
-    </head>
 
     <div class="container">
     	<h1>Add Groups<br /><br /></h1>
     </div>
 
 
-    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm" ng-controller="Ctrl" novalidate>
+    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm" novalidate ng-controller="AdminGroupFormCtrl">
     	<div class="form-group">
     		<label for="inputName3" class="col-sm-2 control-label">Name</label>
     		<div class="col-sm-4">
@@ -19,128 +13,23 @@
     	</div>
     	<div class="form-group">
     		<label for="inputEmail3" class="col-sm-2 control-label">Permissions</label>
-    		<div class="col-sm-4">
-
-    			<div class="boxes" data-toggle="checkbox">
-    				<label class="checkbox">
-    					<input id="inlineCheckbox1" type="checkbox" ng-model="checkbox1" name="checkbox"> Create Dashboard
-    				</label>
-    				<label class="checkbox">
-    					<input type="checkbox" ng-model="checkbox2" name="checkbox" id="inlineCheckbox2"> Create Query
-    				</label>
-    				<label class="checkbox">
-    					<input type="checkbox" ng-model="checkbox3" name="checkbox" id="inlineCheckbox3"> Edit Dashboard
-    				</label>
-    				<label class="checkbox">
-    					<input type="checkbox" ng-model="checkbox4" name="checkbox" id="inlineCheckbox4"> Edit Query
-    				</label>
-    				<label class="checkbox">
-    					<input type="checkbox" ng-model="checkbox5" name="checkbox" id="inlineCheckbox5"> View Query
-    				</label>
-    				<label class="checkbox">
-    					<input type="checkbox" ng-model="checkbox6" name="checkbox" id="inlineCheckbox6"> View Source
-    				</label>
-    				<label class="checkbox">
-    					<input type="checkbox" ng-model="checkbox7" name="checkbox" id="inlineCheckbox7"> Execute Query
-    				</label>
-    			</div>
+    		<div class="col-sm-4" ng-controller="AdminGroupFormCtrl">
+                <div class="checkbox" ng-repeat="(permission,enabled) in permissions">
+                 <label>
+                      <input type="checkbox" ng-model="permissions[permission]" /> {{permission}} 
+                 </label>
+                 </div>
     		</div>
     	</div>
     	<div class="form-group">
     		<label for="tables" class="col-sm-2 control-label">Table</label>
     		<div class="col-sm-4">
-    			<input type="text" class="form-control" id="tables" placeholder="Table" ng-model="table" required>
+                <div style="width:400px" ui-select2="multi" ng-model="tables" />
     		</div>
     	</div>
     	<div class="form-group">
     		<div class="col-sm-offset-2 col-sm-10">
-    			<button class="btn btn-primary btn-xs" type="submit" id="submit" value="Submit" ng-disabled="!table || !name">Submit</button>
+    			<input class="btn btn-primary btn-xs" type="submit" id="submit" value="Submit" />
     		</div>
     	</div>
-    	<pre>list={{list}}</pre>
     </form>
-
-    <script>
-    $(function() {
-    	var availableTags = [
-    	"Example 1",
-    	"Example 2",
-    	"Example 3",
-    	"Example 4",
-    	"Example 5",
-    	"Example 6",
-    	"Example 7"
-    	];
-    	$( "#tables" ).autocomplete({
-    		source: availableTags
-    	});
-    });
-    </script>
-
-    <script>
-    function Ctrl($scope) {
-    	$scope.list = [];    
-    	$scope.submit = function() {
-    		if ($scope.name) {
-    			$scope.list.push(this.name);
-    		}   		
-
-
-
-    		if ($scope.checkbox1) {
-    			$scope.list.push(this.checkbox1)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		}
-    		if ($scope.checkbox2) {
-    			$scope.list.push(this.checkbox2)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		}
-    		if ($scope.checkbox3) {
-    			$scope.list.push(this.checkbox3)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		}
-    		if ($scope.checkbox4) {
-    			$scope.list.push(this.checkbox4)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		}
-    		if ($scope.checkbox5) {
-    			$scope.list.push(this.checkbox5)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		}
-    		if ($scope.checkbox6) {
-    			$scope.list.push(this.checkbox6)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		}
-    		if ($scope.checkbox7) {
-    			$scope.list.push(this.checkbox7)
-    		}
-    		else  {
-    			$scope.list.push(false)
-    		} 
-
-
-
-    		if ($scope.table) {
-    			$scope.list.push(this.table);
-    		}   		
-    	};
-    }
-    </script>
-
-
-
-
-
-

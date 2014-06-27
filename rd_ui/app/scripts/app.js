@@ -92,7 +92,7 @@ angular.module('redash', [
       });
       $routeProvider.when('/admin/add-group', {
         templateUrl: '/views/admin_form.html',
-        controller: 'AdminGroupsCtrl'
+        controller: 'AdminGroupFormCtrl'
       });
       $routeProvider.when('/', {
         templateUrl: '/views/index.html',
