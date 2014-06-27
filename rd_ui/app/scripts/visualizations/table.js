@@ -86,6 +86,13 @@
               } else if (columnType === 'float') {
                 columnDefinition.formatFunction = 'number';
                 columnDefinition.formatParameter = 2;
+              } else if (columnType === 'boolean') {
+                columnDefinition.formatFunction = function (value) {
+                  if (value !== undefined) {
+                    return "" + value;
+                  }
+                  return value;
+                };
               } else if (columnType === 'date') {
                 columnDefinition.formatFunction = function (value) {
                   if (value) {
