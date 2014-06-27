@@ -50,26 +50,6 @@
 
   }
 
-  var AdminUsersCtrl = function ($scope, Events, User) {
-
-    $scope.groupColumns = [
-      {
-        "label": "Name",
-        "map": "name"
-      },
-      {
-        "label": "ID",
-        "map": "id"
-      },
-      {
-        'label': 'Email',
-        'map': 'email'             
-      }                  
-    ]
-
-  }
-
-
   var AdminGroupsCtrl = function ($scope, Events, Group) {    
     var dateFormatter = function (date) {
       value = moment(date);

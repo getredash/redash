@@ -387,8 +387,8 @@
   }
 
   var User = function ($resource) {
-    var UserResource = $resource('/api/users', {}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}})
-    GroupResource.prototype.getUsers = function () {
+    var UserResource = $resource('/api/user', {}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}})
+    UserResource.prototype.getUser = function () {
       return UserResource.get();
     };
     return UserResource;
