@@ -5,6 +5,9 @@
 rd_ui/dist
 .DS_Store
 celerybeat-schedule
+.#*
+\#*#
+*~
 
 # Vagrant related
 .vagrant
@@ -13,3 +16,4 @@ redash/dump.rdb
 .env
 .ruby-version
 venv
+
