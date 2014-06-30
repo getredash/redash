@@ -406,7 +406,13 @@
   }
 
   var Group = function ($resource) {
-    var Group = $resource('/api/groups', {});
+    var Group = $resource('/api/groups/:id', {id: '@id'});
+    
+    Group.new = function (data) {
+      return new Group(data);
+    };
+
+
     return Group;
   }
 

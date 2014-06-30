@@ -19,9 +19,49 @@
     refresh();
   }   
 
-  var AdminGroupFormCtrl = function ($location, $scope, Events, Groups, Group) {
+  var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group) {
 
-    $scope.permissions = {create_dashboard: true, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
+    var loadData = function(group)  {
+
+      $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
+
+      if (group != null) {
+
+        // get relevant group
+        group.$get(function(group) {
+
+          // map group to scope
+          $scope.group = group;  
+
+          // set group form name
+          $scope.name = group.name;
+
+          // populate permissions
+          for (key in group.permissions) {
+
+            // get permission name
+            var permission = group.permissions[key]
+
+            // set form permission on true
+            $scope.permissions[permission] = true;
+          }
+
+          // populate tables
+          var tables = [];
+          for (key in group.tables) {
+            tables.push({id: group.tables[key], text: group.tables[key]});
+          }
+
+          // tables
+          $scope.tables = tables;
+        })
+      }
+    }
+
+    if ($routeParams.id != null) { 
+      var group = new Group({id: $routeParams.id});
+      loadData(group);
+    }
 
     // available tables
     var tables = [
@@ -30,19 +70,12 @@
         { id: 'jss_fareQuote', text: 'jss_fareQuote' },
         ];
 
-    // preselected tables
-    $scope.multi2Value = [
-        { id: 'jss_pmuh', text: 'jss_pmuh' },
-        { id: 'jss_allocation', text: 'jss_allocation' }
-        ];
-
     $scope.multi = {
         multiple: true,
         query: function (query) {
             query.callback({ results: tables });
         },
         initSelection: function (element, callback) {
-            
             var val = $(element).select2('val'),
             results = [];
             for (var i=0; i<val.length; i++) {
@@ -68,14 +101,33 @@
         tables.push($scope.tables[key].id);
       }
 
-      var g = new Group();
-      g.permissions = perms;
-      g.tables = tables;
-      g.name = $scope.name;
-      g.$save(function(group){
-        $location.path("/admin/groups");
-      });
+      
 
+      if ($routeParams.id == null) {
+
+        post.permissions = perms;
+        post.tables = tables;
+        post.name = $scope.name;
+
+        var group = Group.new(post)
+        group.$save(function(result){
+          $location.path("/admin/groups");
+        });
+      
+      // edit existing record
+      } else {
+
+        // update 
+        var groupResource = new Group({id: $routeParams.id});
+        groupResource.$get(function(group) {
+          group.permissions = perms;
+          group.tables = tables;
+          group.name = $scope.name;
+          group.$save(function(result) {
+            $location.path("/admin/groups");
+          });
+        });
+      }
       
     };
   }
@@ -146,7 +198,11 @@
         "label": "Permissions",
         "map": "permissions",
         'formatFunction': permissionsFormatter
-        }                  
+      },
+      {
+        "label": "Actions",
+        "cellTemplateUrl": "/views/admin_groups_actions_cell.html"
+      }
     ]
 
      var groups = new Groups();
@@ -159,7 +215,7 @@
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
-         .controller('AdminGroupFormCtrl', ['$location', '$scope',  'Events', 'Groups','Group', AdminGroupFormCtrl])
+         .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
          //    return {
          //        // Restrict it to be an attribute in this case

@@ -175,7 +175,7 @@ class GroupAPI(BaseResource):
         
         return g.to_dict()
 
-    def put(self, group_id):
+    def post(self, group_id):
         try:
             g = models.Group.get(models.Group.id == group_id)
         except models.Group.DoesNotExist:
@@ -186,7 +186,7 @@ class GroupAPI(BaseResource):
         g.permissions = json["permissions"]
         g.tables = json["tables"]
         g.save()
-        
+
         return g.to_dict()
 
 class UserListAPI(BaseResource):
