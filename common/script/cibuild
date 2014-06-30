@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo "${0}: This test should affect only Adam's changes."
-echo "${0}: If this is causing you problems contact me (Adam) via hipchat or email ( adam.szczerbicki@hailocab.com )."
-
 for T in `find tests-jenkins -type f -name 'test*.bash'`
 do
 	echo "#####"
