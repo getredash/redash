@@ -386,7 +386,18 @@
     return DataSourceResource;
   }
 
+
+  var Users = function ($resource) {
+    var UserResource = $resource('/api/user', {}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}})
+    UserResource.prototype.getUsers = function () {
+      return UserResource.get();
+    };
+    return UserResource;
+  }
+
+  
   var Groups = function ($resource) {
+
     var GroupResource = $resource('/api/groups', {}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}})
     GroupResource.prototype.get = function () {
       return GroupResource.get();
@@ -426,5 +437,6 @@
       .factory('DataSource', ['$resource', DataSource])
       .factory('Groups', ['$resource', Groups])
       .factory('Group', ['$resource', Group])
-      .factory('Widget', ['$resource', 'Query', Widget]);
+      .factory('Widget', ['$resource', 'Query', Widget])
+      .factory('Users', ['$resource', Users]);
 })();

@@ -19,7 +19,7 @@
     refresh();
   }   
 
-  var AdminGroupFormCtrl = function ( $location, $scope,Events, Groups, Group) {
+  var AdminGroupFormCtrl = function ($location, $scope, Events, Groups, Group) {
 
     $scope.permissions = {create_dashboard: true, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
 
@@ -52,8 +52,6 @@
         }
     };
 
-
-    // save group
     $scope.submit = function() {
       var post = {};
 
@@ -82,6 +80,30 @@
     };
   }
 
+  var AdminUsersCtrl = function ($scope, Events, Users) {
+    
+    $scope.userColumns =[
+    {
+      "label": "ID",
+      "map": "id"
+    },
+    {
+      "label": "Name",
+      "map": "name"
+    },
+    {
+      "label": "Email",
+      "map": "email"
+    }
+    ]
+
+    var users = new Users();
+     users.getUsers().$promise.then(function(result) {
+        $scope.users = result;
+     });
+
+
+  }
 
   var AdminGroupsCtrl = function ($scope, Events, Groups) {    
    
@@ -135,6 +157,7 @@
 
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
+         .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
          .controller('AdminGroupFormCtrl', ['$location', '$scope',  'Events', 'Groups','Group', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
@@ -147,7 +170,6 @@
          //        }
          //    };
          //  });
-
          
 })();
 
