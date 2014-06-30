@@ -26,31 +26,31 @@
 
     // available tables
     var tables = [
-        { id: 'jss_pmuh', text: 'jss_pmuh' },
-        { id: 'jss_allocation', text: 'jss_allocation' },
-        { id: 'jss_fareQuote', text: 'jss_fareQuote' },
-        ];
+    { id: 'jss_pmuh', text: 'jss_pmuh' },
+    { id: 'jss_allocation', text: 'jss_allocation' },
+    { id: 'jss_fareQuote', text: 'jss_fareQuote' },
+    ];
 
     // preselected tables
     $scope.multi2Value = [
-        { id: 'jss_pmuh', text: 'jss_pmuh' },
-        { id: 'jss_allocation', text: 'jss_allocation' }
-        ];
+    { id: 'jss_pmuh', text: 'jss_pmuh' },
+    { id: 'jss_allocation', text: 'jss_allocation' }
+    ];
 
     $scope.multi = {
-        multiple: true,
-        query: function (query) {
-            query.callback({ results: tables });
-        },
-        initSelection: function (element, callback) {
-            
-            var val = $(element).select2('val'),
-            results = [];
-            for (var i=0; i<val.length; i++) {
-                results.push(findState(val[i]));
-            }
-            callback(results);
+      multiple: true,
+      query: function (query) {
+        query.callback({ results: tables });
+      },
+      initSelection: function (element, callback) {
+
+        var val = $(element).select2('val'),
+        results = [];
+        for (var i=0; i<val.length; i++) {
+          results.push(findState(val[i]));
         }
+        callback(results);
+      }
     };
 
     $scope.submit = function() {
@@ -58,17 +58,23 @@
     };
   }
 
+  var AdminUserFormCtrl = function ($scope, Events, Users) {
+    $scope.submitUser = function() {
+      console.log($scope.permissions);
+    };
+  }
+
   var AdminUsersCtrl = function ($scope, Events, Users) {
-    
+
     $scope.userColumns =[
-    {
-      "label": "ID",
-      "map": "id"
-    },
     {
       "label": "Name",
       "map": "name"
     },
+    {
+      "label": "ID",
+      "map": "id"
+    },    
     {
       "label": "Email",
       "map": "email"
@@ -76,15 +82,13 @@
     ]
 
     var users = new Users();
-     users.getUsers().$promise.then(function(result) {
-        $scope.users = result;
-     });
-
-
+    users.getUsers().$promise.then(function(result) {
+      $scope.users = result;
+    });
   }
 
   var AdminGroupsCtrl = function ($scope, Events, Groups) {    
-   
+
     var dateFormatter = function (date) {
       value = moment(date);
       if (!value) return "-";
@@ -102,42 +106,43 @@
     }
 
     $scope.groupColumns = [
-      {
-        "label": "Name",
-        "map": "name"
-      },
-      {
-        "label": "ID",
-        "map": "id"
-      },
-      {
-        'label': 'Tables',
-        'map': 'tables',
-        'formatFunction': tableFormatter     
-      },    
-      {
-        "label": "Created At",
-        "map": "created_at",
-        'formatFunction': dateFormatter           
-      },      
-      {
-        "label": "Permissions",
-        "map": "permissions",
-        'formatFunction': permissionsFormatter
-        }                  
+    {
+      "label": "Name",
+      "map": "name"
+    },
+    {
+      "label": "ID",
+      "map": "id"
+    },
+    {
+      'label': 'Tables',
+      'map': 'tables',
+      'formatFunction': tableFormatter     
+    },    
+    {
+      "label": "Created At",
+      "map": "created_at",
+      'formatFunction': dateFormatter           
+    },      
+    {
+      "label": "Permissions",
+      "map": "permissions",
+      'formatFunction': permissionsFormatter
+    }                  
     ]
 
-     var groups = new Groups();
-     groups.get().$promise.then(function(res) {
-        $scope.groups = res;
-     });
+    var groups = new Groups();
+    groups.get().$promise.then(function(res) {
+      $scope.groups = res;
+    });
   }
 
   angular.module('redash.admin_controllers', [])
-         .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
-         .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
-         .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
-         .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Groups', AdminGroupFormCtrl])
+  .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
+  .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
+  .controller('AdminUserFormCtrl', ['$scope', 'Events', 'Users', AdminUserFormCtrl])
+  .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
+  .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Groups', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
          //    return {
          //        // Restrict it to be an attribute in this case
@@ -148,6 +153,6 @@
          //        }
          //    };
          //  });
-         
+
 })();
 
