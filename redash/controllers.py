@@ -194,8 +194,8 @@ class GroupAPI(BaseResource):
         
         return g.to_dict()
 
-api.add_resource(UserListAPI, '/api/user', endpoint='users')
-api.add_resource(UserAPI, '/api/user/<int:user_id>', endpoint='user') 
+api.add_resource(UserListAPI, '/api/users', endpoint='users')
+api.add_resource(UserAPI, '/api/users/<int:user_id>', endpoint='user') 
 api.add_resource(GroupListAPI, '/api/groups', endpoint='groups')
 api.add_resource(GroupAPI, '/api/groups/<int:group_id>', endpoint='group')
 
