@@ -19,7 +19,7 @@
     refresh();
   }   
 
-  var AdminGroupFormCtrl = function ($scope, Events, Groups) {
+  var AdminGroupFormCtrl = function ( $location, $scope,Events, Groups, Group) {
 
     $scope.permissions = {create_dashboard: true, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
 
@@ -53,8 +53,32 @@
     };
 
 
+    // save group
     $scope.submit = function() {
-      console.log($scope.permissions);
+      var post = {};
+
+      var perms = [];
+      var tables = [];
+
+      for (key in $scope.permissions) {
+        if ($scope.permissions[key] == true) {
+          perms.push(key);
+        }
+      }
+
+      for (key in $scope.tables) {
+        tables.push($scope.tables[key].id);
+      }
+
+      var g = new Group();
+      g.permissions = perms;
+      g.tables = tables;
+      g.name = $scope.name;
+      g.$save(function(group){
+        $location.path("/admin/groups");
+      });
+
+      
     };
   }
 
@@ -112,7 +136,7 @@
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
-         .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Groups', AdminGroupFormCtrl])
+         .controller('AdminGroupFormCtrl', ['$location', '$scope',  'Events', 'Groups','Group', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
          //    return {
          //        // Restrict it to be an attribute in this case

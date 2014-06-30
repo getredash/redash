@@ -159,7 +159,7 @@ class GroupListAPI(BaseResource):
 
     def post(self):
         json = request.get_json(force=True)
-        g = models.Group(name=json['name'], tables=json["tables"])
+        g = models.Group(name=json['name'], tables=json["tables"], permissions=json["permissions"])
         g.save()
         return g.to_dict()
 
