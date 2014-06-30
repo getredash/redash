@@ -19,8 +19,7 @@
     refresh();
   }   
 
-
-  var AdminGroupFormCtrl = function ($scope, Events, Groups) {
+  var AdminGroupFormCtrl = function ($location, $scope, Events, Groups, Group) {
 
     $scope.permissions = {create_dashboard: true, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
 
@@ -54,15 +53,45 @@
     };
 
     $scope.submit = function() {
-      console.log($scope.permissions);
+      var post = {};
+
+      var perms = [];
+      var tables = [];
+
+      for (key in $scope.permissions) {
+        if ($scope.permissions[key] == true) {
+          perms.push(key);
+        }
+      }
+
+      for (key in $scope.tables) {
+        tables.push($scope.tables[key].id);
+      }
+
+      var g = new Group();
+      g.permissions = perms;
+      g.tables = tables;
+      g.name = $scope.name;
+      console.log("hello");
+      g.$save(function(group){
+        $location.path("/admin/groups");
+      });     
     };
   }
 
-  var AdminUserFormCtrl = function ($scope, Events, Users) {
-    $scope.submitUser = function() {
-      console.log($scope.permissions);
-    };
+  
+    var AdminUserFormCtrl = function ($location, $scope, Events, Users, User) {
+     $scope.submit = function() {
+      var post = {};
+      var u = new User(); 
+      u.email = $scope.email;
+      u.id = $scope.id;
+      u.name = $scope.name;       
+      u.$save(function(user){
+        $location.path("/admin/users");
+      }); 
   }
+}
 
   var AdminUsersCtrl = function ($scope, Events, Users) {
 
@@ -74,16 +103,16 @@
     {
       "label": "ID",
       "map": "id"
-    },    
+    },
     {
       "label": "Email",
       "map": "email"
     }
     ]
 
-    var users = new Users();
-    users.getUsers().$promise.then(function(result) {
-      $scope.users = result;
+    var user = new User();
+    user.getUsers().$promise.then(function(result) {
+      $scope.user = result;
     });
   }
 
@@ -139,10 +168,10 @@
 
   angular.module('redash.admin_controllers', [])
   .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
-  .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
-  .controller('AdminUserFormCtrl', ['$scope', 'Events', 'Users', AdminUserFormCtrl])
   .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
-  .controller('AdminGroupFormCtrl', ['$scope', 'Events', 'Groups', AdminGroupFormCtrl])
+  .controller('AdminGroupFormCtrl', ['$location', '$scope',  'Events', 'Groups','Group', AdminGroupFormCtrl])
+  .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
+  .controller('AdminUserFormCtrl', ['$location','$scope', 'Events', 'Users', 'User', AdminUserFormCtrl]);
          // .directive('applystyle', function() {
          //    return {
          //        // Restrict it to be an attribute in this case

@@ -405,6 +405,16 @@
     return GroupResource;
   }
 
+  var Group = function ($resource) {
+    var Group = $resource('/api/groups', {});
+    return Group;
+  }
+
+  var User = function ($resource) {
+    var User = $resource('/api/users', {});
+    return User;
+  }
+
   var Widget = function ($resource, Query) {
     var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
 
@@ -431,6 +441,8 @@
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
       .factory('Groups', ['$resource', Groups])
-      .factory('Widget', ['$resource', 'Query', Widget])
-      .factory('Users', ['$resource', Users]);
+      .factory('Group', ['$resource', Group])
+      .factory('Users', ['$resource', Users])
+      .factory('User', ['$resource', User])
+      .factory('Widget', ['$resource', 'Query', Widget])      
 })();
