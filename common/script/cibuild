@@ -1,15 +1,23 @@
 #!/bin/bash
 
-echo This test should affect only Adam's changes.
-echo If this is causing you problems contact me (Adam) via hipchat or email ( adam.szczerbicki@hailocab.com ).
+echo "${0}: This test should affect only Adam's changes."
+echo "${0}: If this is causing you problems contact me (Adam) via hipchat or email ( adam.szczerbicki@hailocab.com )."
 
-echo testing
-echo test_no_1 
-echo test_no_2
-echo test_no_3 
-echo test_no_4 
+for T in `find tests-jenkins -type f -name 'test*.bash'`
+do
+	echo "#####"
 
-echo everything is fine
+	echo ${T}
+
+	if ! bash ${T}
+	then
+		echo
+		echo "${0}: ${T} did not finish with zero exit code, skipping other tests."
+		exit 1
+	fi
+done
+
+echo "${0}: everything is fine"
 exit 0
 
 
