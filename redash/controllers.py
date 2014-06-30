@@ -32,7 +32,9 @@ def ping():
     return 'PONG.'
 
 
+
 @app.route('/admin/<anything>')
+@app.route('/admin/<anything>/<id>')
 @app.route('/dashboard/<anything>')
 @app.route('/queries')
 @app.route('/queries/<query_id>')
@@ -163,6 +165,30 @@ class GroupListAPI(BaseResource):
         g.save()
         return g.to_dict()
 
+
+class GroupAPI(BaseResource):
+    def get(self, group_id):
+        try:
+            g = models.Group.get(models.Group.id == group_id)
+        except models.Group.DoesNotExist:
+            abort(404, message="Group not found.")
+        
+        return g.to_dict()
+
+    def put(self, group_id):
+        try:
+            g = models.Group.get(models.Group.id == group_id)
+        except models.Group.DoesNotExist:
+            abort(404, message="Group not found.")
+
+        json = request.get_json(force=True)
+        g.name = json["name"]
+        g.permissions = json["permissions"]
+        g.tables = json["tables"]
+        g.save()
+        
+        return g.to_dict()
+
 class UserListAPI(BaseResource):
 	def get(self):
 		users = [u.to_dict() for u in models.User.select()]
@@ -185,14 +211,7 @@ class UserAPI(BaseResource):
 		return u.to_dict()
 
 
-class GroupAPI(BaseResource):
-    def get(self, group_id):
-    	try:
-    		g = models.Group.get(models.Group.id == group_id)
-        except models.Group.DoesNotExist:
-            abort(404, message="Group not found.")
-        
-        return g.to_dict()
+
 
 api.add_resource(UserListAPI, '/api/user', endpoint='users')
 api.add_resource(UserAPI, '/api/user/<int:user_id>', endpoint='user') 
