@@ -1,0 +1,19 @@
+#!/bin/bash
+
+for T in `find tests-jenkins -type f -name 'test*.bash'`
+do
+	echo "#####"
+
+	echo ${T}
+
+	if ! bash ${T}
+	then
+		echo
+		echo "${0}: ${T} did not finish with zero exit code, skipping other tests."
+		exit 1
+	fi
+done
+
+echo "${0}: everything is fine"
+exit 0
+
