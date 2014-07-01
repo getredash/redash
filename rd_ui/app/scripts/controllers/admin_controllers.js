@@ -21,9 +21,11 @@
 
   var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group) {
 
+    $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
+    
     var loadData = function(group)  {
 
-      $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
+      
 
       if (group != null) {
 
