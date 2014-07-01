@@ -19,7 +19,7 @@
     refresh();
   }   
 
-  var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group) {
+  var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group, Table) {
 
     $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
     
@@ -65,26 +65,37 @@
       loadData(group);
     }
 
-    // available tables
-    var tables = [
-        { id: 'jss_pmuh', text: 'jss_pmuh' },
-        { id: 'jss_allocation', text: 'jss_allocation' },
-        { id: 'jss_fareQuote', text: 'jss_fareQuote' },
-        ];
+    $scope.alltables = [];
+
+    var tableResource = new Table();
+    tableResource.$get(function(tables) {
+      var alltables = [];
+      for (key in tables["tablenames"]) {
+        var table = {};
+        table["id"] = tables["tablenames"][key];
+        table["text"] = tables["tablenames"][key];
+        $scope.alltables.push(table);
+      } 
+    });
 
     $scope.multi = {
-        multiple: true,
-        query: function (query) {
-            query.callback({ results: tables });
-        },
-        initSelection: function (element, callback) {
-            var val = $(element).select2('val'),
-            results = [];
-            for (var i=0; i<val.length; i++) {
-                results.push(findState(val[i]));
-            }
-            callback(results);
+      multiple: true,
+      query: function (query) {
+          query.callback({ results: $scope.alltables });
+      },
+      sortResults: function(results, container, query) {
+
+      // matching search results
+      if (query.term) {
+        res = [];
+        for (var j=0; j<results.length; j++) {
+          if (results[j]["id"].match(query.term)) res.push(results[j]);
         }
+        return res;
+      }
+
+      return results;
+      }
     };
 
     $scope.submit = function() {
@@ -102,8 +113,6 @@
       for (key in $scope.tables) {
         tables.push($scope.tables[key].id);
       }
-
-      
 
       if ($routeParams.id == null) {
 
@@ -174,7 +183,7 @@
     }
 
     var tableFormatter = function (table) {
-      return table;
+      return table.join(', ');
     }
 
     $scope.groupColumns = [
@@ -217,7 +226,7 @@
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
-         .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group', AdminGroupFormCtrl])
+         .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group','Table', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
          //    return {
          //        // Restrict it to be an attribute in this case

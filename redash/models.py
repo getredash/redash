@@ -31,6 +31,17 @@ class ApiUser(UserMixin):
     def permissions(self):
         return ['view_query']
 
+class Table(BaseModel):
+
+    class Meta:
+        db_table = 'pg_tables'
+
+    tablename = peewee.CharField(max_length=100)
+
+    def to_dict(self):
+        return {
+            'tablename': self.tablename,
+        }
 
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
@@ -142,7 +153,15 @@ class DataSource(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'type': self.type
+            'type': self.type,
+        }
+
+    def to_dict_protected(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type,
+            'options': self.options
         }
 
 

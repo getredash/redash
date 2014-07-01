@@ -153,6 +153,18 @@ class BaseResource(Resource):
         return response
 
 
+class TableAPI(BaseResource):
+    def get(self):
+        source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
+        qr = data.query_runner.get_query_runner(source.type, source.options)
+        tablenames = qr("select tablename from pg_tables;")
+        
+        result = {}
+        result["tablenames"] = [t["tablename"] for t in json.loads(tablenames[0])["rows"]]
+        return result;
+
+
+api.add_resource(TableAPI, '/api/tables', endpoint='tables')
 
 class GroupListAPI(BaseResource):
     def get(self):

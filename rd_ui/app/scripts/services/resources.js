@@ -416,6 +416,11 @@
     return Group;
   }
 
+  var Table = function ($resource) {
+    var Table = $resource('/api/tables', {});
+    return Table;
+  }
+
   var User = function ($resource) {
     var User = $resource('/api/users', {});
     return User;
@@ -451,4 +456,5 @@
       .factory('Users', ['$resource', Users])
       .factory('User', ['$resource', User])
       .factory('Widget', ['$resource', 'Query', Widget])      
+      .factory('Table', ['$resource', Table]);
 })();
