@@ -17,15 +17,80 @@
     };
 
     refresh();
-  }   
+  }  
+
+
+  var AdminUserFormCtrl = function ($location, $scope, $routeParams, Events, Users, User) {
+
+    var groups = [];
+
+    groups.push();
+
+    var loadData = function(user)  {    
+
+      if (user != null) {
+        // get relevant user
+        user.$get(function(user) {
+
+          // map user to scope
+          $scope.user = user;  
+
+          // set user form name, email address and ID
+          $scope.name = user.name;
+
+          $scope.email = user.email;
+
+          $scope.id = user.id;         
+        })
+      }
+    }
+
+
+    if ($routeParams.id != null) { 
+      console.log("hello");
+      var user = new User({id: $routeParams.id});
+      loadData(user);
+      console.log("hello");
+    }
+
+    $scope.submit = function() {
+      var post = {};     
+
+      if ($routeParams.id == null) {
+
+        post.email = $scope.email;
+        post.id = $scope.id;        
+        post.name = $scope.name;
+        post.groups = [];
+        //post.groups = $scope.groups;
+        var user = User.new(post)
+        user.$save(function(result){
+          $location.path("/admin/users");
+        });
+      
+      // edit existing record
+      } else {
+
+        // update 
+        var userResource = new User({id: $routeParams.id});
+        userResource.$get(function(user) {
+          user.email = $scope.email;          
+          user.name = $scope.name;
+          user.groups = [];
+          user.$save(function(result) {
+            $location.path("/admin/users");
+          });
+        });
+      }
+      
+    };
+  } 
 
   var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group) {
 
     $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
     
-    var loadData = function(group)  {
-
-      
+    var loadData = function(group)  {      
 
       if (group != null) {
 
@@ -110,7 +175,6 @@
         post.permissions = perms;
         post.tables = tables;
         post.name = $scope.name;
-
         var group = Group.new(post)
         group.$save(function(result){
           $location.path("/admin/groups");
@@ -126,7 +190,7 @@
           group.tables = tables;
           group.name = $scope.name;
           group.$save(function(result) {
-            $location.path("/admin/groups");
+           $location.path("/admin/groups");
           });
         });
       }
@@ -148,6 +212,10 @@
     {
       "label": "Email",
       "map": "email"
+    },
+    {
+        "label": "Actions",
+        "cellTemplateUrl": "/views/admin_users_actions_cell.html"
     }
     ]
 
@@ -216,6 +284,7 @@
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
+         .controller('AdminUserFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Users','User', AdminUserFormCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
          .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group', AdminGroupFormCtrl])
          // .directive('applystyle', function() {

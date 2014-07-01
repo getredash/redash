@@ -202,13 +202,27 @@ class UserListAPI(BaseResource):
 
 
 class UserAPI(BaseResource):
-	def get(self, user_id):
-		try:
-			u = models.User.get(models.User.id == user_id)
-		except models.User.DoesNotExist:
-			abort(404, message="User not found")
+    def get(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found")
 
-		return u.to_dict()
+        return u.to_dict()
+
+    def post(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found.")
+
+        json = request.get_json(force=True)
+        u.name = json["name"]
+        u.id = json["id"]
+        u.email = json["email"]
+        u.save()
+
+        return u.to_dict() 
 
 
 
