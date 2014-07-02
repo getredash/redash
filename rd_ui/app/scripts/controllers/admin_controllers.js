@@ -20,7 +20,7 @@
   }  
 
 
-  var AdminUserFormCtrl = function ($location, $scope, $routeParams, Events, Users, User) {
+  var AdminUserFormCtrl = function ($location, $scope, $routeParams, Events, Users, User, Groups) {
 
     var groups = [];
 
@@ -40,17 +40,37 @@
 
           $scope.email = user.email;
 
-          $scope.id = user.id;         
+          $scope.id = user.id;          
+
+        var groups = [];
+          for (key in user.groups) {
+            groups.push({id: user.groups[key], text: user.groups[key]});
+          }
+
+          // tables
+          $scope.groups = groups;
         })
       }
     }
 
+    var groups = new Groups();
+    groups.get().$promise.then(function(result) {
 
-    if ($routeParams.id != null) { 
-      console.log("hello");
+      var groups = [];
+      for (key in result) {
+        if (result[key]["name"] != null) {
+          var group = {};
+          group["id"] = result[key]["name"];
+          group["text"] = result[key]["name"];
+          groups.push(group)
+        }         
+      }
+      $scope.allgroups = groups;
+    });
+
+    if ($routeParams.id != null) {
       var user = new User({id: $routeParams.id});
       loadData(user);
-      console.log("hello");
     }
 
     $scope.submit = function() {
@@ -62,7 +82,7 @@
         post.id = $scope.id;        
         post.name = $scope.name;
         post.groups = [];
-        //post.groups = $scope.groups;
+        post.groups = $scope.groups;
         var user = User.new(post)
         user.$save(function(result){
           $location.path("/admin/users");
@@ -76,13 +96,20 @@
         userResource.$get(function(user) {
           user.email = $scope.email;          
           user.name = $scope.name;
-          user.groups = [];
+          user.groups = $scope.groups;
           user.$save(function(result) {
             $location.path("/admin/users");
           });
         });
       }
       
+    };
+
+    $scope.multi = {
+        multiple: true,
+        query: function (query) {
+            query.callback({ results: $scope.allgroups });
+        }
     };
   } 
 
@@ -284,7 +311,7 @@
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
-         .controller('AdminUserFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Users','User', AdminUserFormCtrl])
+         .controller('AdminUserFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Users','User', 'Groups', AdminUserFormCtrl])
          .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
          .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
