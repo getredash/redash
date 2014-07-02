@@ -59,7 +59,7 @@
                 <ul class="dropdown-menu">
                     <li ng-show="currentUser.hasPermission('create_query')"><a href="/queries/new">New Query</a></li>
                     <li><a href="/queries">Queries</a></li>
-                </ul>
+                </ul>                
             </li>
             <li class="dropdown" ng-show="currentUser.hasPermission('admin_groups') || currentUser.hasPermission('admin_users')">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Admin <b class="caret"></b></a>
@@ -68,6 +68,7 @@
                     <li ng-show="currentUser.hasPermission('admin_users')"><a href="/admin/users">Users</a></li>
                 </ul>
             </li>
+            <li><a href="https://hailo.jira.com/wiki/display/DATA/Re%3Adash">Help</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <p class="navbar-text avatar" ng-show="currentUser.id" ng-cloak>
