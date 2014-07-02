@@ -218,8 +218,8 @@ class UserAPI(BaseResource):
 
         json = request.get_json(force=True)
         u.name = json["name"]
-        u.id = json["id"]
         u.email = json["email"]
+        u.groups = json["groups"]
         u.save()
 
         return u.to_dict() 

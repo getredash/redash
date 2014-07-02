@@ -72,7 +72,8 @@ class User(BaseModel, UserMixin):
         return {
             'id': self.id,
             'name': self.name,
-            'email': self.email
+            'email': self.email,
+            'groups': self.groups
         }
 
     def __init__(self, *args, **kwargs):

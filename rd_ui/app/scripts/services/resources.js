@@ -416,8 +416,6 @@
 
   var User = function ($resource) {
     var User = $resource('/api/users/:id', {id: '@id'});
-    console.log(User);
-
     User.new = function (data) {
       return new User(data);
     };

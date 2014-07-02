@@ -74,15 +74,18 @@
     }
 
     $scope.submit = function() {
-      var post = {};     
+      var post = {};
+      var groups = [];    
+
+      for (key in $scope.groups) {
+        groups.push($scope.groups[key].id);
+      } 
 
       if ($routeParams.id == null) {
-
         post.email = $scope.email;
         post.id = $scope.id;        
-        post.name = $scope.name;
-        post.groups = [];
-        post.groups = $scope.groups;
+        post.name = $scope.name;        
+        post.groups = groups;
         var user = User.new(post)
         user.$save(function(result){
           $location.path("/admin/users");
@@ -94,15 +97,14 @@
         // update 
         var userResource = new User({id: $routeParams.id});
         userResource.$get(function(user) {
-          user.email = $scope.email;          
+          user.email = $scope.email;
           user.name = $scope.name;
-          user.groups = $scope.groups;
+          user.groups = groups;
           user.$save(function(result) {
             $location.path("/admin/users");
           });
         });
       }
-      
     };
 
     $scope.multi = {
@@ -113,11 +115,12 @@
     };
   } 
 
+
   var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group) {
 
     $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
     
-    var loadData = function(group)  {      
+    var loadData = function(group)  {
 
       if (group != null) {
 
@@ -125,7 +128,7 @@
         group.$get(function(group) {
 
           // map group to scope
-          $scope.group = group;  
+          $scope.group = group;
 
           // set group form name
           $scope.name = group.name;
@@ -152,7 +155,7 @@
       }
     }
 
-    if ($routeParams.id != null) { 
+    if ($routeParams.id != null) {
       var group = new Group({id: $routeParams.id});
       loadData(group);
     }
@@ -254,7 +257,7 @@
 
   }
 
-  var AdminGroupsCtrl = function ($scope, Events, Groups) {    
+  var AdminGroupsCtrl = function ($scope, Events, Groups) {
    
     var dateFormatter = function (date) {
       value = moment(date);
@@ -263,7 +266,7 @@
     }
 
     var permissionsFormatter = function (permissions) {
-      value = permissions.join(', ');      
+      value = permissions.join(', ');
       if (!value) return "-";
       return value.replace(new RegExp("_", "g"), " ");
     }
@@ -284,12 +287,12 @@
       {
         'label': 'Tables',
         'map': 'tables',
-        'formatFunction': tableFormatter     
+        'formatFunction': tableFormatter
       },    
       {
         "label": "Created At",
         "map": "created_at",
-        'formatFunction': dateFormatter           
+        'formatFunction': dateFormatter
       },      
       {
         "label": "Permissions",
