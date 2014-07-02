@@ -154,6 +154,8 @@ class BaseResource(Resource):
 
 
 class TableAPI(BaseResource):
+
+    @require_permission('admin_groups')
     def get(self):
         source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
         qr = data.query_runner.get_query_runner(source.type, source.options)
@@ -167,10 +169,13 @@ class TableAPI(BaseResource):
 api.add_resource(TableAPI, '/api/tables', endpoint='tables')
 
 class GroupListAPI(BaseResource):
+
+    @require_permission('admin_groups')
     def get(self):
         groups = [g.to_dict() for g in models.Group.select()]
         return groups
 
+    @require_permission('admin_groups')
     def post(self):
         json = request.get_json(force=True)
         g = models.Group(name=json['name'], tables=json["tables"], permissions=json["permissions"])
@@ -179,6 +184,8 @@ class GroupListAPI(BaseResource):
 
 
 class GroupAPI(BaseResource):
+
+    @require_permission('admin_groups')
     def get(self, group_id):
         try:
             g = models.Group.get(models.Group.id == group_id)
@@ -187,6 +194,7 @@ class GroupAPI(BaseResource):
         
         return g.to_dict()
 
+    @require_permission('admin_groups')
     def post(self, group_id):
         try:
             g = models.Group.get(models.Group.id == group_id)
@@ -202,25 +210,30 @@ class GroupAPI(BaseResource):
         return g.to_dict()
 
 class UserListAPI(BaseResource):
-	def get(self):
-		users = [u.to_dict() for u in models.User.select()]
-		return users
 
-	def post(self):
-		json = request.get_json(force=True)
-		u = models.User(name=json['name'], email=json["email"], groups=json["groups"])
-		u.save()
-		return u.to_dict()
+    @require_permission('admin_users')
+    def get(self):
+        users = [u.to_dict() for u in models.User.select()]
+        return users
+
+    @require_permission('admin_users')
+    def post(self):
+        json = request.get_json(force=True)
+        u = models.User(name=json['name'], email=json["email"], groups=json["groups"])
+        u.save()
+        return u.to_dict()
 
 
 class UserAPI(BaseResource):
-	def get(self, user_id):
-		try:
-			u = models.User.get(models.User.id == user_id)
-		except models.User.DoesNotExist:
-			abort(404, message="User not found")
 
-		return u.to_dict()
+    @require_permission('admin_users')
+    def get(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found")
+
+        return u.to_dict()
 
 
 

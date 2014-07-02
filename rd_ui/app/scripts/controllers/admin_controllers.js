@@ -20,12 +20,15 @@
   }   
 
   var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group, Table) {
+    
+    // check user permissions
+    if (! currentUser.hasPermission("admin_groups") && ! currentUser.hasPermission("admin")) {
+      $location.path("/");
+    }
 
-    $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false};
+    $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false, admin: false, admin_groups: false, admin_users: false};
     
     var loadData = function(group)  {
-
-      
 
       if (group != null) {
 
@@ -50,9 +53,17 @@
 
           // populate tables
           var tables = [];
+
+
           for (key in group.tables) {
             tables.push({id: group.tables[key], text: group.tables[key]});
           }
+
+          tables.sort(function(a, b){
+              if(a.id < b.id) return -1;
+              if(a.id > b.id) return 1;
+              return 0;
+          })
 
           // tables
           $scope.tables = tables;
@@ -77,6 +88,13 @@
         $scope.alltables.push(table);
       } 
     });
+
+    // add * wildcard which alows to add a permission to all tables
+    var table = {};
+    table["id"] = "*";
+    table["text"] = "*";
+    $scope.alltables.push(table);
+
 
     $scope.multi = {
       multiple: true,
@@ -168,8 +186,12 @@
 
   }
 
-  var AdminGroupsCtrl = function ($scope, Events, Groups) {    
+  var AdminGroupsCtrl = function ($scope, $location, Events, Groups) {    
    
+    if (! currentUser.hasPermission("admin_groups") && ! currentUser.hasPermission("admin")) {
+      $location.path("/");
+    }
+
     var dateFormatter = function (date) {
       value = moment(date);
       if (!value) return "-";
@@ -186,30 +208,23 @@
       return table.join(', ');
     }
 
+    $scope.groupConfig = {
+      isPaginationEnabled: true,
+      itemsByPage: 50,
+      maxSize: 8,
+      isGlobalSearchActivated: true
+    }
+
     $scope.groupColumns = [
       {
-        "label": "Name",
+        "label": "Permission group name",
         "map": "name"
       },
-      {
-        "label": "ID",
-        "map": "id"
-      },
-      {
-        'label': 'Tables',
-        'map': 'tables',
-        'formatFunction': tableFormatter     
-      },    
       {
         "label": "Created At",
         "map": "created_at",
         'formatFunction': dateFormatter           
       },      
-      {
-        "label": "Permissions",
-        "map": "permissions",
-        'formatFunction': permissionsFormatter
-      },
       {
         "label": "Actions",
         "cellTemplateUrl": "/views/admin_groups_actions_cell.html"
@@ -225,7 +240,7 @@
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])
          .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
-         .controller('AdminGroupsCtrl', ['$scope', 'Events', 'Groups', AdminGroupsCtrl])
+         .controller('AdminGroupsCtrl', ['$scope', '$location', 'Events', 'Groups', AdminGroupsCtrl])
          .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group','Table', AdminGroupFormCtrl])
          // .directive('applystyle', function() {
          //    return {
