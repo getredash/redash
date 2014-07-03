@@ -232,10 +232,6 @@
     
     $scope.userColumns =[
     {
-      "label": "ID",
-      "map": "id"
-    },
-    {
       "label": "Name",
       "map": "name"
     },
