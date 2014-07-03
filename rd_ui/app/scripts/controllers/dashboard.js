@@ -123,11 +123,7 @@
      .directive('applystyle', function() {        
 
       $( "#refreshbutton" ).click(function(currentClass) {
-        if ($('#refreshbutton').hasClass('btn btn-default btn-xs' )){          
-          $( this ).removeClass( "btn btn-default btn-xs" );
-          $( this ).addClass( "btn btn-success btn-xs" );
-        }
-        else if ($('#refreshbutton').hasClass('btn btn-success btn-xs')){
+        if ($('#refreshbutton').hasClass('btn btn-success btn-xs')){
           $( this ).removeClass( "btn btn-success btn-xs" );
           $( this ).addClass( "btn btn-danger btn-xs" );
         }
