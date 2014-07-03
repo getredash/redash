@@ -122,7 +122,7 @@
 
      .directive('applystyle', function() {        
 
-      $( "button" ).click(function(currentClass) {
+      $( "#refreshbutton" ).click(function(currentClass) {
         if ($('#refreshbutton').hasClass('btn btn-default btn-xs' )){          
           $( this ).removeClass( "btn btn-default btn-xs" );
           $( this ).addClass( "btn btn-success btn-xs" );
