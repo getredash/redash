@@ -13,11 +13,23 @@
     xAxis: {
       type: 'datetime'
     },
-    yAxis: {
-      title: {
-        text: null
+    yAxis: [
+      {
+        title: {
+          text: null
+        },
+        // showEmpty: true // by default
+      },
+      {
+        title: {
+          text: null
+        },
+        opposite: true,
+        showEmpty: false
       }
-    },
+    ],
+
+
     tooltip: {
       valueDecimals: 2,
       formatter: function () {

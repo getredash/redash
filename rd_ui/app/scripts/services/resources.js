@@ -148,7 +148,7 @@
       return this.filteredData;
     }
 
-    QueryResult.prototype.getChartData = function () {
+    QueryResult.prototype.getChartData = function (mapping) {
       var series = {};
 
       _.each(this.getData(), function (row) {
@@ -158,8 +158,15 @@
         var yValues = {};
 
         _.each(row, function (value, definition) {
-          var type = definition.split("::")[1];
           var name = definition.split("::")[0];
+          var type = definition.split("::")[1];
+          if (mapping) {
+            type = mapping[definition];
+          }
+
+          if (type == 'unused') {
+            return;
+          }
 
           if (type == 'x') {
             xValue = value;
@@ -389,9 +396,9 @@
         }
         queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {
-        queryResult = QueryResult.getById(this.latest_query_data_id);
+        this.queryResult = queryResult = QueryResult.getById(this.latest_query_data_id);
       } else if (this.data_source_id) {
-        queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
+        this.queryResult = queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
       }
 
       return queryResult;
