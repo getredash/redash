@@ -142,10 +142,11 @@
                 scope.visualization.options.columnMapping = {};
               }
 
+              scope.columnTypeSelection = scope.visualization.options.columnMapping;
+
               _.each(scope.columns, function(column) {
                 var definition = column.name.split("::"),
                     definedColumns = _.keys(scope.visualization.options.columnMapping);
-
 
                 if (_.indexOf(definedColumns, column.name) != -1) {
                   // Skip already defined columns.
@@ -164,9 +165,9 @@
               });
             });
 
-            scope.$watchCollection('columnTypeSelection', function(selections) {
-              console.log("selections: ", selections);
 
+
+            scope.$watchCollection('columnTypeSelection', function(selections) {
               _.each(scope.columnTypeSelection, function(type, name) {
                 scope.visualization.options.columnMapping[name] = type;
               });
