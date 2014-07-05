@@ -63,23 +63,6 @@
 
               var columnType = columns[i].type;
 
-              if (!columnType) {
-                var rawData = $scope.queryResult.getRawData();
-
-                if (rawData.length > 0) {
-                  var exampleData = rawData[0][col];
-                  if (angular.isNumber(exampleData)) {
-                    columnType = 'float';
-                  } else if (moment.isMoment(exampleData)) {
-                    if (exampleData._i.match(/^\d{4}-\d{2}-\d{2}T/)) {
-                      columnType = 'datetime';
-                    } else {
-                      columnType = 'date';
-                    }
-                  }
-                }
-              }
-
               if (columnType === 'integer') {
                 columnDefinition.formatFunction = 'number';
                 columnDefinition.formatParameter = 0;

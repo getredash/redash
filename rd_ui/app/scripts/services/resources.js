@@ -10,13 +10,28 @@
         this.filters = undefined;
         this.filterFreeze = undefined;
 
+        var columnTypes = {};
+
         _.each(this.query_result.data.rows, function (row) {
           _.each(row, function (v, k) {
-            if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
+            if (angular.isNumber(v)) {
+              columnTypes[k] = 'float';
+            } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
               row[k] = moment(v);
+              columnTypes[k] = 'datetime';
+            } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
+              row[k] = moment(v);
+              columnTypes[k] = 'date';
             }
-          });
+          }, this);
+        }, this);
+
+        _.each(this.query_result.data.columns, function(column) {
+          if (columnTypes[column.name]) {
+            column.type = columnTypes[column.name];
+          }
         });
+
       } else if (this.job.status == 3) {
         this.status = "processing";
       } else {
