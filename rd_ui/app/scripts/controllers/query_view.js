@@ -24,28 +24,20 @@
       if (data) {
         data.id = $scope.query.id;
       } else {
-        data = $scope.query;
+        data = _.clone($scope.query);
       }
-
-      console.log("saveQuery: after data update");
 
       options = _.extend({}, {
         successMessage: 'Query saved',
         errorMessage: 'Query could not be saved'
       }, options);
 
-      console.log("saveQuery: after options set.");
-
-      delete $scope.query.latest_query_data;
-      delete $scope.query.queryResult;
-
-      console.log("saveQuery: after deleting.");
+      delete data.latest_query_data;
+      delete data.queryResult;
 
       return Query.save(data, function() {
-        console.log("saveQuery: all good.");
         growl.addSuccessMessage(options.successMessage);
       }, function(httpResponse) {
-        console.log("saveQuery: mega fail.");
         growl.addErrorMessage(options.errorMessage);
       }).$promise;
     }
