@@ -135,7 +135,7 @@
                 return;
               }
 
-              scope.columns = scope.query.getQueryResult().getColumns();
+              scope.columns = scope.queryResult.getColumns();
 
               if (scope.visualization.options.columnMapping == undefined) {
                 scope.visualization.options.columnMapping = {};
