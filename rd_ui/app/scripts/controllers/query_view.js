@@ -27,17 +27,25 @@
         data = $scope.query;
       }
 
+      console.log("saveQuery: after data update");
+
       options = _.extend({}, {
         successMessage: 'Query saved',
         errorMessage: 'Query could not be saved'
       }, options);
 
+      console.log("saveQuery: after options set.");
+
       delete $scope.query.latest_query_data;
       delete $scope.query.queryResult;
 
+      console.log("saveQuery: after deleting.");
+
       return Query.save(data, function() {
+        console.log("saveQuery: all good.");
         growl.addSuccessMessage(options.successMessage);
       }, function(httpResponse) {
+        console.log("saveQuery: mega fail.");
         growl.addErrorMessage(options.errorMessage);
       }).$promise;
     }
