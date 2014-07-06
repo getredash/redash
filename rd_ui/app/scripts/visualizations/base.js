@@ -111,26 +111,23 @@
         scope.editRawOptions = currentUser.hasPermission('edit_raw_chart');
         scope.visTypes = Visualization.visualizationTypes;
 
-        scope.newVisualization = function (q) {
+        scope.newVisualization = function () {
           return {
-            'query_id': q.id,
             'type': Visualization.defaultVisualization.type,
             'name': Visualization.defaultVisualization.name,
-            'description': q.description || '',
+            'description': '',
             'options': Visualization.defaultVisualization.defaultOptions
           };
         }
 
         if (!scope.visualization) {
-          // create new visualization
-          // wait for query to load to populate with defaults
-          var unwatch = scope.$watch('query', function (q) {
-            if (q && q.id) {
+          var unwatch = scope.$watch('query.id', function (queryId) {
+            if (queryId) {
               unwatch();
 
-              scope.visualization = scope.newVisualization(q);
+              scope.visualization = scope.newVisualization();
             }
-          }, true);
+          });
         }
 
         scope.$watch('visualization.type', function (type, oldType) {
@@ -147,6 +144,8 @@
           } else {
             Events.record(currentUser, "create", "visualization", null, {'type': scope.visualization.type});
           }
+
+          scope.visualization.query_id = scope.query.id;
 
           Visualization.save(scope.visualization, function success(result) {
             growl.addSuccessMessage("Visualization saved");

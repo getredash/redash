@@ -33,9 +33,8 @@
         $scope.chartSeries = [];
         $scope.chartOptions = {};
 
-        // TODO: add delay to reloadData?
-        var reloadData = function(data) {
-          if (!data || $scope.queryResult.getData() == null) {
+        var reloadData = _.throttle(function(data) {
+          if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
@@ -51,7 +50,7 @@
               $scope.chartSeries.push(_.extend(s, additional));
             });
           }
-        };
+        }, 500);
 
         $scope.$watch('options', function (chartOptions) {
           if (chartOptions) {
@@ -72,7 +71,7 @@
           reloadData(data);
         });
       }]
-    }
+    };
   });
 
   chartVisualization.directive('chartEditor', function () {
@@ -121,8 +120,8 @@
         var chartOptionsUnwatch = null,
             columnsWatch = null;
 
-        scope.$watch('visualization', function (visualization) {
-          if (visualization && visualization.type == 'CHART') {
+        scope.$watch('visualization.type', function (visualizationType) {
+          if (visualizationType == 'CHART') {
             if (scope.visualization.options.series.stacking === null) {
               scope.stacking = "none";
             } else if (scope.visualization.options.series.stacking === undefined) {
@@ -131,7 +130,7 @@
               scope.stacking = scope.visualization.options.series.stacking;
             }
 
-            columnsWatch = scope.$watchCollection('query.getQueryResult().getId()', function(id) {
+            columnsWatch = scope.$watch('queryResult.getId()', function(id) {
               if (!id) {
                 return;
               }
@@ -164,8 +163,6 @@
                 }
               });
             });
-
-
 
             scope.$watchCollection('columnTypeSelection', function(selections) {
               _.each(scope.columnTypeSelection, function(type, name) {

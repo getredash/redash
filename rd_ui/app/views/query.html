@@ -172,7 +172,7 @@
 
                         <div ng-show="selectedTab == 'add'">
                             <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
-                            <edit-visulatization-form visualization="newVisualization" query="query" ng-show="canEdit" open-editor="true" on-new-success="setVisualizationTab"></edit-visulatization-form>
+                            <edit-visulatization-form visualization="newVisualization" query="query" query-result="queryResult" ng-show="canEdit" open-editor="true" on-new-success="setVisualizationTab"></edit-visulatization-form>
                         </div>
                     </div>
                 </div>
