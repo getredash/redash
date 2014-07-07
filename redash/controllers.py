@@ -338,6 +338,7 @@ class VisualizationAPI(BaseResource):
         if 'options' in kwargs:
             kwargs['options'] = json.dumps(kwargs['options'])
         kwargs.pop('id', None)
+        kwargs.pop('query_id', None)
 
         update = models.Visualization.update(**kwargs).where(models.Visualization.id == visualization_id)
         update.execute()
