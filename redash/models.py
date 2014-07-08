@@ -339,7 +339,7 @@ class Query(BaseModel):
                    peewee.SQL("(now() at time zone 'utc')"))
 
         queries = cls.select(cls, DataSource).join(DataSource) \
-            .where(cls.id << outdated_queries_ids )
+            .where(cls.id << outdated_queries_ids)
 
         return queries
 

@@ -110,7 +110,21 @@ def status_api():
 
     manager_status = redis_connection.hgetall('redash:status')
     status['manager'] = manager_status
-    status['manager']['queue_size'] = 'Unknown'#redis_connection.zcard('jobs')
+    status['manager']['queue_size'] = redis_connection.llen('queries') + redis_connection.llen('scheduled_queries')
+    status['manager']['outdated_queries_count'] = models.Query.outdated_queries().count()
+
+    queues = {}
+    for ds in models.DataSource.select():
+        for queue in (ds.queue_name, ds.scheduled_queue_name):
+            queues.setdefault(queue, set())
+            queues[queue].add(ds.name)
+
+    status['manager']['queues'] = {}
+    for queue, sources in queues.iteritems():
+        status['manager']['queues'][queue] = {
+            'data_sources': ', '.join(sources),
+            'size': redis_connection.llen(queue)
+        }
 
     return jsonify(status)
 
