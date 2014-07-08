@@ -411,8 +411,6 @@
     Group.new = function (data) {
       return new Group(data);
     };
-
-
     return Group;
   }
 
@@ -422,7 +420,10 @@
   }
 
   var User = function ($resource) {
-    var User = $resource('/api/users', {});
+    var User = $resource('/api/users/:id', {id: '@id'});
+    User.new = function (data) {
+      return new User(data);
+    };
     return User;
   }
 
@@ -457,4 +458,5 @@
       .factory('User', ['$resource', User])
       .factory('Widget', ['$resource', 'Query', Widget])      
       .factory('Table', ['$resource', Table]);
+
 })();

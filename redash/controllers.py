@@ -226,6 +226,7 @@ class UserListAPI(BaseResource):
 
 class UserAPI(BaseResource):
 
+
     @require_permission('admin_users')
     def get(self, user_id):
         try:
@@ -234,6 +235,29 @@ class UserAPI(BaseResource):
             abort(404, message="User not found")
 
         return u.to_dict()
+
+    def get(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found")
+
+        return u.to_dict()
+
+    def post(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found.")
+
+        json = request.get_json(force=True)
+        u.name = json["name"]
+        u.email = json["email"]
+        u.groups = json["groups"]
+        u.save()
+
+        return u.to_dict() 
+
 
 
 

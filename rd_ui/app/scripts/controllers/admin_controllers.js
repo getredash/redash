@@ -17,7 +17,104 @@
     };
 
     refresh();
-  }   
+  }  
+
+
+  var AdminUserFormCtrl = function ($location, $scope, $routeParams, Events, Users, User, Groups) {
+
+    var groups = [];
+
+    groups.push();
+
+    var loadData = function(user)  {    
+
+      if (user != null) {
+        // get relevant user
+        user.$get(function(user) {
+
+          // map user to scope
+          $scope.user = user;  
+
+          // set user form name, email address and ID
+          $scope.name = user.name;
+
+          $scope.email = user.email;
+
+          $scope.id = user.id;          
+
+        var groups = [];
+          for (key in user.groups) {
+            groups.push({id: user.groups[key], text: user.groups[key]});
+          }
+
+          // tables
+          $scope.groups = groups;
+        })
+      }
+    }
+
+    var groups = new Groups();
+    groups.get().$promise.then(function(result) {
+
+      var groups = [];
+      for (key in result) {
+        if (result[key]["name"] != null) {
+          var group = {};
+          group["id"] = result[key]["name"];
+          group["text"] = result[key]["name"];
+          groups.push(group)
+        }         
+      }
+      $scope.allgroups = groups;
+    });
+
+    if ($routeParams.id != null) {
+      var user = new User({id: $routeParams.id});
+      loadData(user);
+    }
+
+    $scope.submit = function() {
+      var post = {};
+      var groups = [];    
+
+      for (key in $scope.groups) {
+        groups.push($scope.groups[key].id);
+      } 
+
+      if ($routeParams.id == null) {
+        post.email = $scope.email;
+        post.id = $scope.id;        
+        post.name = $scope.name;        
+        post.groups = groups;
+        var user = User.new(post)
+        user.$save(function(result){
+          $location.path("/admin/users");
+        });
+      
+      // edit existing record
+      } else {
+
+        // update 
+        var userResource = new User({id: $routeParams.id});
+        userResource.$get(function(user) {
+          user.email = $scope.email;
+          user.name = $scope.name;
+          user.groups = groups;
+          user.$save(function(result) {
+            $location.path("/admin/users");
+          });
+        });
+      }
+    };
+
+    $scope.multi = {
+        multiple: true,
+        query: function (query) {
+            query.callback({ results: $scope.allgroups });
+        }
+    };
+  } 
+
 
   var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group, Table) {
     
@@ -36,7 +133,7 @@
         group.$get(function(group) {
 
           // map group to scope
-          $scope.group = group;  
+          $scope.group = group;
 
           // set group form name
           $scope.name = group.name;
@@ -71,7 +168,7 @@
       }
     }
 
-    if ($routeParams.id != null) { 
+    if ($routeParams.id != null) {
       var group = new Group({id: $routeParams.id});
       loadData(group);
     }
@@ -137,7 +234,6 @@
         post.permissions = perms;
         post.tables = tables;
         post.name = $scope.name;
-
         var group = Group.new(post)
         group.$save(function(result){
           $location.path("/admin/groups");
@@ -153,7 +249,7 @@
           group.tables = tables;
           group.name = $scope.name;
           group.$save(function(result) {
-            $location.path("/admin/groups");
+           $location.path("/admin/groups");
           });
         });
       }
@@ -165,16 +261,16 @@
     
     $scope.userColumns =[
     {
-      "label": "ID",
-      "map": "id"
-    },
-    {
       "label": "Name",
       "map": "name"
     },
     {
       "label": "Email",
       "map": "email"
+    },
+    {
+        "label": "Actions",
+        "cellTemplateUrl": "/views/admin_users_actions_cell.html"
     }
     ]
 
@@ -186,7 +282,9 @@
 
   }
 
+
   var AdminGroupsCtrl = function ($scope, $location, Events, Groups) {    
+
    
     if (! currentUser.hasPermission("admin_groups") && ! currentUser.hasPermission("admin")) {
       $location.path("/");
@@ -199,7 +297,7 @@
     }
 
     var permissionsFormatter = function (permissions) {
-      value = permissions.join(', ');      
+      value = permissions.join(', ');
       if (!value) return "-";
       return value.replace(new RegExp("_", "g"), " ");
     }
@@ -223,7 +321,7 @@
       {
         "label": "Created At",
         "map": "created_at",
-        'formatFunction': dateFormatter           
+        'formatFunction': dateFormatter
       },      
       {
         "label": "Actions",
@@ -242,6 +340,7 @@
          .controller('AdminUsersCtrl', ['$scope', 'Events', 'Users', AdminUsersCtrl])
          .controller('AdminGroupsCtrl', ['$scope', '$location', 'Events', 'Groups', AdminGroupsCtrl])
          .controller('AdminGroupFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Groups','Group','Table', AdminGroupFormCtrl])
+         .controller('AdminUserFormCtrl', ['$location', '$scope', '$routeParams', 'Events', 'Users','User', 'Groups', AdminUserFormCtrl])
          // .directive('applystyle', function() {
          //    return {
          //        // Restrict it to be an attribute in this case
