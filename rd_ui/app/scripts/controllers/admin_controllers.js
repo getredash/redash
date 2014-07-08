@@ -279,6 +279,13 @@
         $scope.users = result;
      });
 
+      $scope.userConfig = {
+      isPaginationEnabled: true,
+      itemsByPage: 50,
+      maxSize: 8,
+      isGlobalSearchActivated: true
+    }
+
 
   }
 
