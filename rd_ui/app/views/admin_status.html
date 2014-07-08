@@ -20,31 +20,21 @@
                     <span class="badge" am-time-ago="manager.started_at*1000.0"></span>
                     Started
                 </li>
+                <li class="list-group-item">
+                    <span class="badge">{{manager.outdated_queries_count}}</span>
+                    Outdated Queries Count
+                </li>
 
                 <li class="list-group-item" ng-if="flowerUrl">
                     <a href="/admin/workers">Workers' Status</a>
                 </li>
             </ul>
             <ul class="list-group col-lg-4">
-                <div ng-repeat="worker in workers">
-                    <li class="list-group-item active">Worker {{$index+1}}</li>
-                    <li class="list-group-item">
-                    <span class="badge" am-time-ago="worker.updated_at*1000.0"></span>
-                    Updated
+                <li class="list-group-item active">Queues</li>
+                <li class="list-group-item" ng-repeat="(name, value) in manager.queues">
+                    <span class="badge">{{value.size}}</span>
+                    {{name}} ({{value.data_sources}})
                 </li>
-                <li class="list-group-item">
-                    <span class="badge" am-time-ago="worker.started_at*1000.0"></span>
-                    Started
-                </li>
-                <li class="list-group-item">
-                    <span class="badge">{{worker.jobs_count}}</span>
-                    Jobs Received
-                </li>
-                <li class="list-group-item">
-                    <span class="badge">{{worker.done_jobs_count}}</span>
-                    Jobs Done
-                </li>
-                </div>
             </ul>
         </div>
         <div class="panel-footer">Next refresh: <span am-time-ago="refresh_time"></span></div>
