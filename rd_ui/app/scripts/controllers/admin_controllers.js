@@ -163,11 +163,7 @@
 
   var AdminUsersCtrl = function ($scope, Events, Users) {
     
-    $scope.userColumns =[
-    {
-      "label": "ID",
-      "map": "id"
-    },
+    $scope.userColumns =[    
     {
       "label": "Name",
       "map": "name"
@@ -175,6 +171,10 @@
     {
       "label": "Email",
       "map": "email"
+    },
+    {s
+        "label": "Actions",
+        "cellTemplateUrl": "/views/admin_users_actions_cell.html"
     }
     ]
 
