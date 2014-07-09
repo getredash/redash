@@ -502,7 +502,24 @@ class Widget(BaseModel):
     def __unicode__(self):
         return u"%s" % self.id
 
-all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group)
+
+class Event(BaseModel):
+    # user, action, object_type, object_id, additional_properties
+    user = peewee.ForeignKeyField(User, related_name="events")
+    action = peewee.CharField()
+    object_type = peewee.CharField()
+    object_id = peewee.IntegerField()
+    additional_properties = peewee.TextField(null=True)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'events'
+
+    def __unicode__(self):
+        return u"%s,%s,%s,%s" % (self._data['user'], self.action, self.object_type, self.object_id)
+
+
+all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group, Event)
 
 
 def init_db():
