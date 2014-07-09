@@ -2,6 +2,7 @@
 """
 CLI to manage redash.
 """
+import datetime
 from flask.ext.script import Manager, prompt_pass
 
 from redash import settings, models, __version__
@@ -38,6 +39,36 @@ def check_settings():
         item = getattr(settings, name)
         if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
             print "{} = {}".format(name, item)
+
+@manager.command
+def import_events(events_file):
+    import json
+
+    count = 0
+    with open(events_file) as f:
+        for line in f:
+            try:
+                event = json.loads(line)
+
+                user = event.pop('user_id')
+                action = event.pop('action')
+                object_type = event.pop('object_type')
+                object_id = event.pop('object_id')
+                created_at = datetime.datetime.utcfromtimestamp(event.pop('timestamp'))
+                additional_properties = json.dumps(event)
+
+                models.Event.create(user=user, action=action, object_type=object_type, object_id=object_id,
+                                    additional_properties=additional_properties, created_at=created_at)
+
+                count += 1
+
+            except Exception as ex:
+                print "Failed importing line:"
+                print line
+                print ex.message
+
+    print "Importe %d rows" % count
+
 
 @database_manager.command
 def create_tables():
