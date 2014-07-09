@@ -157,13 +157,15 @@ class TableAPI(BaseResource):
 
     @require_permission('admin_groups')
     def get(self):
-        source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
-        qr = data.query_runner.get_query_runner(source.type, source.options)
-        tablenames = qr("select tablename from pg_tables;")
+        #source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
+        #qr = data.query_runner.get_query_runner(source.type, source.options)
+        #tablenames = qr("select tablename from pg_tables;")
         
         result = {}
+        result["tablenames"] = [];
+        return result
         result["tablenames"] = [t["tablename"] for t in json.loads(tablenames[0])["rows"]]
-        return result;
+        return result
 
 
 api.add_resource(TableAPI, '/api/tables', endpoint='tables')

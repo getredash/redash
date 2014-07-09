@@ -89,7 +89,11 @@ angular.module('redash', [
       $routeProvider.when('/admin/user/:id', {
         templateUrl: '/views/admin_user_form.html',
         controller: 'AdminUserFormCtrl'
-      });      
+      });
+      $routeProvider.when('/admin/user-view/:id', {
+        templateUrl: '/views/admin_view_user.html',
+        controller: 'AdminViewUserCtrl'
+      });
       $routeProvider.when('/admin/groups', {
         templateUrl: '/views/admin_groups.html',
         controller: 'AdminGroupsCtrl'
@@ -97,7 +101,11 @@ angular.module('redash', [
       $routeProvider.when('/admin/group/:id', {
         templateUrl: '/views/admin_form.html',
         controller: 'AdminGroupFormCtrl'
-      });          
+      });   
+      $routeProvider.when('/admin/group-view/:id', {
+        templateUrl: '/views/admin_view_group.html',
+        controller: 'AdminViewGroupCtrl'
+      });        
       $routeProvider.when('/admin/group', {
         templateUrl: '/views/admin_form.html',
         controller: 'AdminGroupFormCtrl'
