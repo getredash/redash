@@ -1,0 +1,37 @@
+
+<div class="container">
+    <div style="margin:20px 0px;" class="row"><div class="col-md-12" ><h1>View Group</h1></div></div>
+
+    <div class="row"><div class="col-md-12">
+    <form ng-submit="submit()" class="form-horizontal" role="form" id="groupAddForm" novalidate ng-controller="AdminGroupFormCtrl">
+        <div class="form-group">
+            <label for="inputName3" class="col-sm-2 control-label">Group name</label>
+            <div class="col-sm-4">
+                <input class="form-control" id="inputName3" placeholder="Name" type="text" ng-model="name" name="text" required>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label">Permissions</label>
+            <div class="col-sm-4" >
+                <div class="checkbox" ng-repeat="(permission,enabled) in permissions">
+                 <label>
+                      <input type="checkbox" ng-model="permissions[permission]" /> {{permission}} 
+                 </label>
+                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="tables" class="col-sm-2 control-label">Tables/Views permissions</label>
+            <div style="margin-top:10px;" class="col-sm-4">
+                <div style="width:400px" ui-select2="multi" ng-model="tables" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input class="btn btn-primary btn-xs" type="submit" id="submit" value="Submit" />
+            </div>
+        </div>
+    </form>
+</div></div>
+</div>
+
