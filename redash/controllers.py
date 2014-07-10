@@ -159,7 +159,7 @@ class TableAPI(BaseResource):
     def get(self):
         source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
         qr = data.query_runner.get_query_runner(source.type, source.options)
-        tablenames = qr("select tablename from pg_tables;")
+        tablenames = qr("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name")
         
         result = {}
         result["tablenames"] = [t["tablename"] for t in json.loads(tablenames[0])["rows"]]
