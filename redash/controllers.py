@@ -160,10 +160,8 @@ class TableAPI(BaseResource):
         source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
         qr = data.query_runner.get_query_runner(source.type, source.options)
         tablenames = qr("SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name")
-        
-        result = {}
         result["tablenames"] = [t["tablename"] for t in json.loads(tablenames[0])["rows"]]
-        return result;
+        return result
 
 
 api.add_resource(TableAPI, '/api/tables', endpoint='tables')
@@ -226,6 +224,7 @@ class UserListAPI(BaseResource):
 
 class UserAPI(BaseResource):
 
+
     @require_permission('admin_users')
     def get(self, user_id):
         try:
@@ -234,6 +233,29 @@ class UserAPI(BaseResource):
             abort(404, message="User not found")
 
         return u.to_dict()
+
+    def get(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found")
+
+        return u.to_dict()
+
+    def post(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found.")
+
+        json = request.get_json(force=True)
+        u.name = json["name"]
+        u.email = json["email"]
+        u.groups = json["groups"]
+        u.save()
+
+        return u.to_dict() 
+
 
 
 
