@@ -120,4 +120,18 @@
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
     .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
 
+     .directive('applystyle', function() {        
+
+      $( "#refreshbutton" ).click(function(currentClass) {
+        if ($('#refreshbutton').hasClass('btn btn-success btn-xs')){
+          $( this ).removeClass( "btn btn-success btn-xs" );
+          $( this ).addClass( "btn btn-danger btn-xs" );
+        }
+        else {
+           $( this ).removeClass( "btn btn-danger btn-xs" );
+           $( this ).addClass( "btn btn-success btn-xs" );
+        }        
+       });
+    });
+
 })();
