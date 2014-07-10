@@ -31,6 +31,17 @@ class ApiUser(UserMixin):
     def permissions(self):
         return ['view_query']
 
+class Table(BaseModel):
+
+    class Meta:
+        db_table = 'pg_tables'
+
+    tablename = peewee.CharField(max_length=100)
+
+    def to_dict(self):
+        return {
+            'tablename': self.tablename,
+        }
 
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
@@ -72,7 +83,8 @@ class User(BaseModel, UserMixin):
         return {
             'id': self.id,
             'name': self.name,
-            'email': self.email
+            'email': self.email,
+            'groups': self.groups
         }
 
     def __init__(self, *args, **kwargs):
@@ -142,7 +154,15 @@ class DataSource(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'type': self.type
+            'type': self.type,
+        }
+
+    def to_dict_protected(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type,
+            'options': self.options
         }
 
 
@@ -199,7 +219,6 @@ class Query(BaseModel):
     ttl = peewee.IntegerField()
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
-    is_archived = peewee.BooleanField(default=False, index=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
@@ -221,7 +240,6 @@ class Query(BaseModel):
             'query_hash': self.query_hash,
             'ttl': self.ttl,
             'api_key': self.api_key,
-            'is_archived': self.is_archived,
             'created_at': self.created_at,
             'data_source_id': self._data.get('data_source', None)
         }
@@ -303,7 +321,6 @@ class Dashboard(BaseModel):
         if with_widgets:
             widgets = Widget.select(Widget, Visualization, Query, QueryResult, User)\
                 .where(Widget.dashboard == self.id)\
-                .where(Query.is_archived == False)\
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(User, join_type=peewee.JOIN_LEFT_OUTER)\
@@ -335,8 +352,6 @@ class Dashboard(BaseModel):
             'slug': self.slug,
             'name': self.name,
             'user_id': self._data['user'],
-            'user_name': self.user.name,
-            'user_email': self.user.email,
             'layout': layout,
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
             'widgets': widgets_layout
@@ -419,7 +434,7 @@ class Widget(BaseModel):
             d['visualization'] = self.visualization.to_dict()
 
         return d
-    
+
     def __unicode__(self):
         return u"%s" % self.id
 
@@ -442,9 +457,5 @@ def create_db(create_tables, drop_tables):
 
         if create_tables and not model.table_exists():
             model.create_table()
-    
-    Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
-    Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
-    Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
 
     db.close_db(None)
