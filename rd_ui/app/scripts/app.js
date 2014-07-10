@@ -81,11 +81,7 @@ angular.module('redash', [
       $routeProvider.when('/admin/users', {
         templateUrl: '/views/admin_users.html',
         controller: 'AdminUsersCtrl'
-      });
-      $routeProvider.when('/admin/user', {
-        templateUrl: '/views/admin_user_form.html',
-        controller: 'AdminUserFormCtrl'
-      });
+      });      
       $routeProvider.when('/admin/user/:id', {
         templateUrl: '/views/admin_user_form.html',
         controller: 'AdminUserFormCtrl'
