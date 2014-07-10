@@ -18,14 +18,17 @@
 
     refresh();
   }
-  var AdminViewUserCtrl = function ($location, $scope, $routeParams, Events, Users, User, Groups) {
+  var AdminViewUserCtrl = function ($location, $scope, $routeParams, Events, Users, User, Groups) {    
 
     var groupsFormatter = function (groups) {
-      value = groups.join(', ');
+      sorted = groups.sort(function (a, b) {
+      return a.toLowerCase().localeCompare(b.toLowerCase());
+      });      
+      value = sorted.join(', ');
       if (!value) return "-";
       return value.replace(new RegExp("_", "g"), " ");
     }
-     var groups = [];
+    var groups = [];
 
     groups.push();
 
@@ -45,13 +48,20 @@
 
           $scope.id = user.id;          
 
-          var groups = [];
           for (key in user.groups) {
             groups.push({id: user.groups[key], text: user.groups[key]});
           }
 
+          groups.sort(function(a, b){
+            if(a.id < b.id) return -1;
+            if(a.id > b.id) return 1;
+            return 0;
+          })
+
           // tables
           $scope.groups = groupsFormatter(user.groups);
+          (groupsFormatter(user.groups));
+        
         })
       }
     }   
@@ -59,9 +69,7 @@
     if ($routeParams.id != null) {
       var user = new User({id: $routeParams.id});
       loadData(user);
-    }
-
-    
+    }   
 
     
   }
@@ -91,7 +99,14 @@
           var groups = [];
           for (key in user.groups) {
             groups.push({id: user.groups[key], text: user.groups[key]});
-          }
+          }   
+
+          groups.sort(function(a, b){
+            if(a.id < b.id) return -1;
+            if(a.id > b.id) return 1;
+            return 0;
+          })
+
 
           // tables
           $scope.groups = groups;
@@ -153,41 +168,57 @@
       }
     };
 
+    // $scope.multi = {
+    //   multiple: true,
+    //   query: function (query) {
+    //     query.callback({ results: $scope.allgroups });
+    //   }
+    // };
+
     $scope.multi = {
       multiple: true,
       query: function (query) {
         query.callback({ results: $scope.allgroups });
+      },
+      sortResults: function(results, container, query) {
+
+      // matching search results
+      if (query.term) {
+        res = [];
+        for (var j=0; j<results.length; j++) {
+          if (results[j]["id"].match(query.term)) res.push(results[j]);
+        }
+        return res;        
       }
-    };
+      return results;
+      
+    }
+  };
+}
+
+var AdminViewGroupCtrl = function ($location, $scope, $routeParams, Events, Groups, Group, Table) {
+
+  $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false, admin: false, admin_groups: false, admin_users: false};
+
+  var dateFormatter = function (date) {
+    value = moment(date);
+    if (!value) return "-";
+    return value.format("DD/MM/YY HH:mm");
   }
 
+  var permissionsFormatter = function (permissions) {
+    value = permissions.join(', ');
+    if (!value) return "-";
+    return value.replace(new RegExp("_", "g"), " ");
+  }
 
+  var tableFormatter = function (table) {
+    return table.join(', ');
+  }
 
-  var AdminViewGroupCtrl = function ($location, $scope, $routeParams, Events, Groups, Group, Table) {
+  var loadData = function(group)  {
 
-
-
-    $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false, admin: false, admin_groups: false, admin_users: false};
-    
-    var dateFormatter = function (date) {
-      value = moment(date);
-      if (!value) return "-";
-      return value.format("DD/MM/YY HH:mm");
-    }
-
-    var permissionsFormatter = function (permissions) {
-      value = permissions.join(', ');
-      if (!value) return "-";
-      return value.replace(new RegExp("_", "g"), " ");
-    }
-
-    var tableFormatter = function (table) {
-      return table.join(', ');
-    }
-
-    var loadData = function(group)  {
-
-      if (group != null) {
+    if (group != null) {
 
         // get relevant group
         group.$get(function(group) {
@@ -197,7 +228,7 @@
 
           $scope.created_at = dateFormatter(group.created_at);
 
-          console.log($scope.name);
+          ($scope.name);
           // set group form name
           $scope.name = group.name;
 
@@ -220,7 +251,7 @@
 
           // tables
           $scope.tables = tableFormatter(group.tables);
-          console.log(tableFormatter(group.tables));
+          (tableFormatter(group.tables));
         })
       }
     }
@@ -230,9 +261,7 @@
       var group = new Group({id: $routeParams.id});
       loadData(group);
     }   
-  }
-
-  
+  }  
 
   var AdminGroupFormCtrl = function ($location, $scope, $routeParams, Events, Groups, Group, Table) {
 
@@ -242,8 +271,6 @@
     }
 
     $scope.permissions = {create_dashboard: false, create_query: false, edit_dashboard: false, edit_query: false, view_query: false, view_source: false, execute_query:false, admin: false, admin_groups: false, admin_users: false};
-
-
     
     var loadData = function(group)  {
 
@@ -257,7 +284,7 @@
 
           $scope.created_at = group.created_at;
 
-          console.log($scope.name);
+          ($scope.name);
           // set group form name
           $scope.name = group.name;
 
@@ -331,10 +358,7 @@
         }
         return res;        
       }
-
-
-      return results;
-      
+      return results;      
     }
   };
 
@@ -405,6 +429,22 @@
 
     var users = new Users();
     users.getUsers().$promise.then(function(result) {
+
+
+      for (k in result) {
+        if (result[k]["name"] != null) {
+          name = result[k]["name"];
+          ucName = name.charAt(0).toUpperCase() +  name.slice(1);
+          result[k]["name"] = ucName;
+        }
+      }
+
+      result.sort(function(a, b){
+        if(a.name < b.name) return -1;
+        if(a.name > b.name) return 1;
+        return 0;
+      })
+
       $scope.users = result;
     });
 
@@ -414,10 +454,7 @@
       maxSize: 8,
       isGlobalSearchActivated: true
     }
-
-
   }
-
 
   var AdminGroupsCtrl = function ($scope, $location, Events, Groups) {    
 
@@ -447,6 +484,7 @@
       itemsByPage: 50,
       maxSize: 8,
       isGlobalSearchActivated: true
+
     }
 
     $scope.groupColumns = [
@@ -470,8 +508,24 @@
     ]
 
     var groups = new Groups();
-    groups.get().$promise.then(function(res) {
+    groups.get().$promise.then(function(res) {    
+
+      for (k in res) {
+        if (res[k]["name"] != null) {
+          name = res[k]["name"];
+          ucName = name.charAt(0).toUpperCase() +  name.slice(1);
+          res[k]["name"] = ucName;
+        }      }
+
+
+      res.sort(function(a, b){
+        if(a.name < b.name) return -1;
+        if(a.name > b.name) return 1;
+        return 0;
+      })
+
       $scope.groups = res;
+
     });
   }
 
