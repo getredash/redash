@@ -416,11 +416,7 @@ var AdminViewGroupCtrl = function ($location, $scope, $routeParams, Events, Grou
     {
       "label": "Email",
       "map": "email"
-    },
-    {
-      "label": "View User",
-      "cellTemplateUrl": "/views/admin_users_view_actions_cell.html"
-    },   
+    },      
     {
       "label": "Actions",
       "cellTemplateUrl": "/views/admin_users_actions_cell.html"
