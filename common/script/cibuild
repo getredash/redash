@@ -16,5 +16,3 @@ done
 
 echo "${0}: everything is fine"
 exit 0
-
-

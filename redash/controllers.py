@@ -32,7 +32,9 @@ def ping():
     return 'PONG.'
 
 
+
 @app.route('/admin/<anything>')
+@app.route('/admin/<anything>/<id>')
 @app.route('/dashboard/<anything>')
 @app.route('/queries')
 @app.route('/queries/<query_id>')
@@ -60,6 +62,16 @@ def index(**kwargs):
                            features=json.dumps(features),
                            analytics=settings.ANALYTICS)
 
+
+
+# @app.route('/admin/groups/<anything>')
+# def admin_group():
+
+# 	# if current_user.is_authenticated() == False:
+# 	# 	return redirect(request.args.get('next') or '/')
+
+
+# 	return render_template("admin_groups.html", )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -139,6 +151,123 @@ class BaseResource(Resource):
         with statsd_client.timer('requests.{}.{}'.format(request.endpoint, request.method.lower())):
             response = super(BaseResource, self).dispatch_request(*args, **kwargs)
         return response
+
+
+class TableAPI(BaseResource):
+
+    @require_permission('admin_groups')
+    def get(self):
+        #source = models.DataSource.select().where(models.DataSource.type == "pg")[0]
+        #qr = data.query_runner.get_query_runner(source.type, source.options)
+        #tablenames = qr("select tablename from pg_tables;")
+        
+        result = {}
+        result["tablenames"] = [];
+        return result
+        result["tablenames"] = [t["tablename"] for t in json.loads(tablenames[0])["rows"]]
+        return result
+
+
+api.add_resource(TableAPI, '/api/tables', endpoint='tables')
+
+class GroupListAPI(BaseResource):
+
+    @require_permission('admin_groups')
+    def get(self):
+        groups = [g.to_dict() for g in models.Group.select()]
+        return groups
+
+    @require_permission('admin_groups')
+    def post(self):
+        json = request.get_json(force=True)
+        g = models.Group(name=json['name'], tables=json["tables"], permissions=json["permissions"])
+        g.save()
+        return g.to_dict()
+
+
+class GroupAPI(BaseResource):
+
+    @require_permission('admin_groups')
+    def get(self, group_id):
+        try:
+            g = models.Group.get(models.Group.id == group_id)
+        except models.Group.DoesNotExist:
+            abort(404, message="Group not found.")
+        
+        return g.to_dict()
+
+    @require_permission('admin_groups')
+    def post(self, group_id):
+        try:
+            g = models.Group.get(models.Group.id == group_id)
+        except models.Group.DoesNotExist:
+            abort(404, message="Group not found.")
+
+        json = request.get_json(force=True)
+        g.name = json["name"]
+        g.permissions = json["permissions"]
+        g.tables = json["tables"]
+        g.save()
+
+        return g.to_dict()
+
+class UserListAPI(BaseResource):
+
+    @require_permission('admin_users')
+    def get(self):
+        users = [u.to_dict() for u in models.User.select()]
+        return users
+
+    @require_permission('admin_users')
+    def post(self):
+        json = request.get_json(force=True)
+        u = models.User(name=json['name'], email=json["email"], groups=json["groups"])
+        u.save()
+        return u.to_dict()
+
+
+class UserAPI(BaseResource):
+
+
+    @require_permission('admin_users')
+    def get(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found")
+
+        return u.to_dict()
+
+    def get(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found")
+
+        return u.to_dict()
+
+    def post(self, user_id):
+        try:
+            u = models.User.get(models.User.id == user_id)
+        except models.User.DoesNotExist:
+            abort(404, message="User not found.")
+
+        json = request.get_json(force=True)
+        u.name = json["name"]
+        u.email = json["email"]
+        u.groups = json["groups"]
+        u.save()
+
+        return u.to_dict() 
+
+
+
+
+
+api.add_resource(UserListAPI, '/api/users', endpoint='users')
+api.add_resource(UserAPI, '/api/users/<int:user_id>', endpoint='user') 
+api.add_resource(GroupListAPI, '/api/groups', endpoint='groups')
+api.add_resource(GroupAPI, '/api/groups/<int:group_id>', endpoint='group')
 
 
 class EventAPI(BaseResource):
@@ -284,15 +413,12 @@ class QueryListAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in 
-                models.Query.all_queries().where(models.Query.is_archived==False)]
+        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
 
 
 class QueryAPI(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
-        query = models.Query.get_by_id(query_id)
-        
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
@@ -312,35 +438,10 @@ class QueryAPI(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
-        if q and q.is_archived == False:
+        if q:
             return q.to_dict(with_visualizations=True)
         else:
             abort(404, message="Query not found.")
-    
-    def delete(self, query_id):
-        q = models.Query.get(models.Query.id == query_id)
-        if q:
-            if q.user.id == self.current_user.id:
-                q.is_archived = True
-                q.save()
-                
-                # Delete widgets using this query
-                vis_ids = [v.id for v in q.visualizations]
-                models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
-            else:
-                self.delete_others_query(query_id)
-        else:
-            abort(404, message="Query not found.")
-    
-    @require_permission('delete_queries')
-    def delete_others_query(self, query_id):
-        q = models.Query.get(models.Query.id == query_id)
-        q.is_archived = True
-        q.save()
-        
-        # Delete widgets using this query
-        vis_ids = [v.id for v in q.visualizations]
-        models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
 
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
@@ -352,7 +453,7 @@ class VisualizationListAPI(BaseResource):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
         kwargs['query'] = kwargs.pop('query_id')
-        
+
         vis = models.Visualization(**kwargs)
         vis.save()
 
@@ -366,7 +467,7 @@ class VisualizationAPI(BaseResource):
         if 'options' in kwargs:
             kwargs['options'] = json.dumps(kwargs['options'])
         kwargs.pop('id', None)
-        
+
         update = models.Visualization.update(**kwargs).where(models.Visualization.id == visualization_id)
         update.execute()
 

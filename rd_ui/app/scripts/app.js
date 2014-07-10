@@ -74,6 +74,38 @@ angular.module('redash', [
         templateUrl: '/views/admin_status.html',
         controller: 'AdminStatusCtrl'
       });
+      $routeProvider.when('/admin/status', {
+        templateUrl: '/views/admin_status.html',
+        controller: 'AdminStatusCtrl'
+      });
+      $routeProvider.when('/admin/users', {
+        templateUrl: '/views/admin_users.html',
+        controller: 'AdminUsersCtrl'
+      });      
+      $routeProvider.when('/admin/user/:id', {
+        templateUrl: '/views/admin_user_form.html',
+        controller: 'AdminUserFormCtrl'
+      });
+      $routeProvider.when('/admin/user-view/:id', {
+        templateUrl: '/views/admin_view_user.html',
+        controller: 'AdminViewUserCtrl'
+      });
+      $routeProvider.when('/admin/groups', {
+        templateUrl: '/views/admin_groups.html',
+        controller: 'AdminGroupsCtrl'
+      });
+      $routeProvider.when('/admin/group/:id', {
+        templateUrl: '/views/admin_form.html',
+        controller: 'AdminGroupFormCtrl'
+      });   
+      $routeProvider.when('/admin/group-view/:id', {
+        templateUrl: '/views/admin_view_group.html',
+        controller: 'AdminViewGroupCtrl'
+      });        
+      $routeProvider.when('/admin/group', {
+        templateUrl: '/views/admin_form.html',
+        controller: 'AdminGroupFormCtrl'
+      });
       $routeProvider.when('/', {
         templateUrl: '/views/index.html',
         controller: 'IndexCtrl'
@@ -81,7 +113,5 @@ angular.module('redash', [
       $routeProvider.otherwise({
         redirectTo: '/'
       });
-
-
     }
   ]);

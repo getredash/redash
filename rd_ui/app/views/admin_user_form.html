@@ -1,0 +1,37 @@
+
+    <div class="container">
+        <h1>Edit User<br /><br /></h1>
+    </div>
+
+
+    <form ng-submit="submit()" class="form-horizontal" role="form" id="userAddForm" novalidate ng-controller="AdminUserFormCtrl">
+        <div class="form-group">
+            <label for="inputName1" class="col-sm-2 control-label">Name</label>
+            <div style="padding-top:7px;" class="col-sm-4">
+                {{name}}
+            </div>
+        </div>       
+        <div class="form-group">
+            <label for="inputName3" class="col-sm-2 control-label">Email</label>
+            <div style="padding-top:7px;" class="col-sm-4">
+                {{email}}
+            </div>
+
+        </div>
+        <div class="form-group">           
+            <label for="groups" class="col-sm-2 control-label">Groups</label>
+            <div class="col-sm-4">
+                <div style="width:400px" ui-select2="multi" ng-model="groups" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input class="btn btn-primary btn-xs" type="submit" id="submit" value="Submit" />
+            </div>
+        </div>
+
+        <input class="form-control" id="inputName1" placeholder="Name" type="hidden" ng-model="name" name="text">
+        <input class="form-control" id="inputName3" placeholder="Email" type="hidden" ng-model="email" name="text">
+    </form>
+
