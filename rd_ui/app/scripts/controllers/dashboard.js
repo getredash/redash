@@ -102,7 +102,7 @@
 
     Events.record(currentUser, "view", "widget", $scope.widget.id);
 
-    if ($scope.widget.visualization) {
+    if ($scope.widget != null && $scope.widget.visualization) {
       Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
       Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
