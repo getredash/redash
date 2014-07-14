@@ -1,6 +1,6 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
-    Events.record(currentUser, "view", "dashboard", dashboard.id);
+    Events.record(currentUser, "view", "dashboard", dashboard.id);    
 
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
