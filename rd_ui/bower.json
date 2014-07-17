@@ -11,7 +11,7 @@
     "moment": "2.1.0",
     "angular-ui-bootstrap": "0.5.0",
     "angular-ui-codemirror": "0.0.5",
-    "highcharts": "3.0.1",
+    "highcharts": "3.0.10",
     "underscore": "1.5.1",
     "angular-resource": "1.2.15",
     "angular-growl": "0.3.1",
