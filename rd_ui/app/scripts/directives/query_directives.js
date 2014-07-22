@@ -107,8 +107,8 @@
                 name: 'No Refresh'
             },
             {
-                value: 60,
-                name: 'Every minute'
+                value: 60 * 15,
+                name: 'Every 15mins'
             },
         ]
 
