@@ -80,8 +80,7 @@
         console.log('is true and making false')
       }  
 
-      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
-      console.log(Events)
+      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});      
 
       if ($scope.refreshEnabled) {
         var refreshRate = _.min(_.flatten($scope.dashboard.widgets), function(widget) {
