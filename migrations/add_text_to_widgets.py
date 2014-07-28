@@ -1,5 +1,5 @@
 from playhouse.migrate import Migrator
-from redash import db
+from redash.models import db
 from redash import models
 
 
