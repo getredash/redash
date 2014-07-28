@@ -16,6 +16,10 @@
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
 
+    // in view mode, latest dataset is always visible
+    // source mode changes this behavior
+    $scope.showDataset = true;
+
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
     };
@@ -91,16 +95,6 @@
       $scope.$parent.pageTitle = $scope.query.name;
     });
 
-    $scope.$watch('queryResult && queryResult.getError()', function(newError, oldError) {
-      if (newError == undefined) {
-        return;
-      }
-
-      if (oldError == undefined && newError != undefined) {
-        $scope.lockButton(false);
-      }
-    });
-
     $scope.$watch('queryResult && queryResult.getData()', function(data, oldData) {
       if (!data) {
         return;
@@ -114,7 +108,7 @@
         return;
       }
 
-      if (status == "done") {
+      if (status == 'done') {
         if ($scope.query.id &&
           $scope.query.latest_query_data_id != $scope.queryResult.getId() &&
           $scope.query.query_hash == $scope.queryResult.query_result.query_hash) {
@@ -126,7 +120,9 @@
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
 
         notifications.showNotification("re:dash", $scope.query.name + " updated.");
+      }
 
+      if (status === 'done' || status === 'failed') {
         $scope.lockButton(false);
       }
     });

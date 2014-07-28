@@ -221,7 +221,7 @@
       if (this.columns == undefined && this.query_result.data) {
         this.columns = this.query_result.data.columns;
       }
-      
+
       return this.columns;
     }
 

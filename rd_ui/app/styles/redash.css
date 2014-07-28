@@ -245,6 +245,9 @@ to add those CSS styles here. */
     background-color: #FF8080;
     border-radius: 50%;
 }
+.nav-tabs > li.rd-tab-btn {
+    float: right;
+}
 
 /* light version of bootstrap's form-control */
 .rd-form-control {
