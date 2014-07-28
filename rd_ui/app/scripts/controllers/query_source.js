@@ -36,12 +36,12 @@
 
     // @override
     $scope.saveQuery = function(options, data) {
+      console.log('i am a duck'+data)
       var savePromise = saveQuery(options, data);
 
       savePromise.then(function(savedQuery) {
         queryText = savedQuery.query;
         $scope.isDirty = $scope.query.query !== queryText;
-
         if (isNewQuery) {
           // redirect to new created query (keep hash)
           $location.path(savedQuery.getSourceLink()).replace();

@@ -14,7 +14,7 @@ def graphite(connection_params):
 
         for series in response.json():
             for values in series['datapoints']:
-                timestamp = datetime.datetime.fromtimestamp(int(values[1]))
+                timestamp = datetime.format_cldr("YYYY-MM-dd hh:mm:ss").fromtimestamp(int(values[1]))
                 rows.append({'Time::x': timestamp, 'name::series': series['target'], 'value::y': values[0]})
 
         data = {'columns': columns, 'rows': rows}
