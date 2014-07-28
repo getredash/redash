@@ -551,7 +551,12 @@ class CsvQueryResultsAPI(BaseResource):
             writer.writeheader()
             for row in query_data['rows']:
                 for k, v in row.iteritems():
-                    if isinstance(v, numbers.Number) and (v > 1000 * 1000 * 1000 * 100):
+                    print 'THIS IS K: '
+                    print k
+                    print 'THIS IS v: '
+                    print v
+                    if 'T' in v:
+                        print 'hello'
                         row[k] = datetime.datetime.fromtimestamp(v/1000.0)
 
                 writer.writerow(row)
