@@ -59,6 +59,10 @@
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
     };
 
+    $scope.goToBottom = function () {
+      window.scrollTo(0,document.body.scrollHeight);
+    }
+
     $scope.cancelExecution = function() {
       $scope.cancelling = true;
       $scope.queryResult.cancelExecution();
