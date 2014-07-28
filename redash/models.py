@@ -78,7 +78,7 @@ class ApiUser(UserMixin):
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query']
-    
+
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=100)
     permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
@@ -151,7 +151,7 @@ class User(BaseModel, UserMixin):
 
 class ActivityLog(BaseModel):
     QUERY_EXECUTION = 1
-    
+
     id = peewee.PrimaryKeyField()
     user = peewee.ForeignKeyField(User)
     type = peewee.IntegerField()
@@ -383,14 +383,12 @@ class Dashboard(BaseModel):
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widgets = Widget.select(Widget, Visualization, Query, QueryResult, User)\
+            widgets = Widget.select(Widget, Visualization, Query, User)\
                 .where(Widget.dashboard == self.id)\
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
-                .join(User, join_type=peewee.JOIN_LEFT_OUTER)\
-                .switch(Query)\
-                .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)
-            widgets = {w.id: w.to_dict() for w in widgets}
+                .join(User, join_type=peewee.JOIN_LEFT_OUTER)
+            widgets = {w.id: w.to_dict(with_query_result=False) for w in widgets}
 
             # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
             # updated. This happens for users with old databases that didn't have a foreign key relationship between
@@ -451,7 +449,7 @@ class Visualization(BaseModel):
     class Meta:
         db_table = 'visualizations'
 
-    def to_dict(self, with_query=True):
+    def to_dict(self, with_query=True, with_query_result=True):
         d = {
             'id': self.id,
             'type': self.type,
@@ -461,7 +459,7 @@ class Visualization(BaseModel):
         }
 
         if with_query:
-            d['query'] = self.query.to_dict()
+            d['query'] = self.query.to_dict(with_result=with_query_result)
 
         return d
 
@@ -485,7 +483,7 @@ class Widget(BaseModel):
     class Meta:
         db_table = 'widgets'
 
-    def to_dict(self):
+    def to_dict(self, with_query_result=True):
         d = {
             'id': self.id,
             'width': self.width,
@@ -495,7 +493,7 @@ class Widget(BaseModel):
         }
 
         if self.visualization and self.visualization.id:
-            d['visualization'] = self.visualization.to_dict()
+            d['visualization'] = self.visualization.to_dict(with_query=True, with_query_result=False)
 
         return d
 
