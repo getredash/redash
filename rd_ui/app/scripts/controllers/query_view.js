@@ -60,7 +60,8 @@
     };
 
     $scope.goToBottom = function () {
-      window.scrollTo(0,document.body.scrollHeight);
+      console.log("SCROLLING INTENSIFIES")
+      window.scrollTo(0,9999999999999999);      
     }
 
     $scope.cancelExecution = function() {
