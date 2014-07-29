@@ -35,8 +35,7 @@
     KeyboardShortcuts.bind(shortcuts);
 
     // @override
-    $scope.saveQuery = function(options, data) {
-      console.log('i am a duck'+data)
+    $scope.saveQuery = function(options, data) {      
       var savePromise = saveQuery(options, data);
 
       savePromise.then(function(savedQuery) {

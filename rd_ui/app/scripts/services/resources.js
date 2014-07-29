@@ -363,13 +363,12 @@
       }
 
       var queryResult = null;
-      console.log('hi there')
+      
       if (this.latest_query_data && ttl != 0) {
-        console.log('hello')
+       
         if (!this.queryResult) {
           this.queryResult = new QueryResult({'query_result': this.latest_query_data});
-          console.log(this.queryResult)
-          console.log(queryResult)
+          
         }
         queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {
