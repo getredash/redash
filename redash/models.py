@@ -277,7 +277,7 @@ class Query(BaseModel):
                                             type="TABLE", options="{}")
         table_visualization.save()
 
-    def to_dict(self, with_result=True, with_stats=False, with_visualizations=False, with_user=True):
+    def to_dict(self, with_stats=False, with_visualizations=False, with_user=True):
         d = {
             'id': self.id,
             'latest_query_data_id': self._data.get('latest_query_data', None),
@@ -306,9 +306,6 @@ class Query(BaseModel):
         if with_visualizations:
             d['visualizations'] = [vis.to_dict(with_query=False)
                                    for vis in self.visualizations]
-
-        if with_result and self.latest_query_data:
-            d['latest_query_data'] = self.latest_query_data.to_dict()
 
         return d
 
@@ -388,7 +385,7 @@ class Dashboard(BaseModel):
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(User, join_type=peewee.JOIN_LEFT_OUTER)
-            widgets = {w.id: w.to_dict(with_query_result=False) for w in widgets}
+            widgets = {w.id: w.to_dict() for w in widgets}
 
             # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
             # updated. This happens for users with old databases that didn't have a foreign key relationship between
@@ -449,7 +446,7 @@ class Visualization(BaseModel):
     class Meta:
         db_table = 'visualizations'
 
-    def to_dict(self, with_query=True, with_query_result=True):
+    def to_dict(self, with_query=True):
         d = {
             'id': self.id,
             'type': self.type,
@@ -459,7 +456,7 @@ class Visualization(BaseModel):
         }
 
         if with_query:
-            d['query'] = self.query.to_dict(with_result=with_query_result)
+            d['query'] = self.query.to_dict()
 
         return d
 
@@ -483,7 +480,7 @@ class Widget(BaseModel):
     class Meta:
         db_table = 'widgets'
 
-    def to_dict(self, with_query_result=True):
+    def to_dict(self):
         d = {
             'id': self.id,
             'width': self.width,
@@ -493,7 +490,7 @@ class Widget(BaseModel):
         }
 
         if self.visualization and self.visualization.id:
-            d['visualization'] = self.visualization.to_dict(with_query=True, with_query_result=False)
+            d['visualization'] = self.visualization.to_dict()
 
         return d
 

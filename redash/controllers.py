@@ -294,11 +294,11 @@ class QueryListAPI(BaseResource):
 
         query.create_default_visualizations()
 
-        return query.to_dict(with_result=False)
+        return query.to_dict()
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
+        return [q.to_dict(with_stats=True) for q in models.Query.all_queries()]
 
 
 class QueryAPI(BaseResource):
@@ -318,7 +318,7 @@ class QueryAPI(BaseResource):
 
         query = models.Query.get_by_id(query_id)
 
-        return query.to_dict(with_result=False, with_visualizations=True)
+        return query.to_dict(with_visualizations=True)
 
     @require_permission('view_query')
     def get(self, query_id):
@@ -392,7 +392,7 @@ class QueryResultListAPI(BaseResource):
                         'error': 'Access denied for table(s): %s' % (metadata.used_tables)
                     }
                 }
-        
+
         models.ActivityLog(
             user=self.current_user,
             type=models.ActivityLog.QUERY_EXECUTION,
