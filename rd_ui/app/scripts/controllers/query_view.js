@@ -65,7 +65,7 @@
       Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
     };
     
-    $scope.deleteQuery = function(options, data) {
+    $scope.deleteQuery = function(options, data) {      
       if (data) {
         data.id = $scope.query.id;
       } else {
@@ -78,14 +78,16 @@
         successMessage: 'Query deleted',
         errorMessage: 'Query could not be deleted'
       }, options);
-      
+
       return Query.delete({id: data.id}, function() {
+        console.log('WHY HELLO THERE I HOPE THIS COMES UP')
         growl.addSuccessMessage(options.successMessage);
-          $('#delete-confirmation-modal').modal('hide');
-          $location.path('/queries');
+          
         }, function(httpResponse) {
+          console.log('I ALSO SORTA HOPE THIS COMES UP OTHERWISE I WILL HAVE NO IDEA')
           growl.addErrorMessage(options.errorMessage);
-        }).$promise;
+          $('#delete-confirmation-modal').modal('hide');         
+        }, 'jsonp').$promise;
     }
 
     $scope.updateDataSource = function() {
