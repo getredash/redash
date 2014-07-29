@@ -2,10 +2,10 @@
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
     Events.record(currentUser, "view", "dashboard", dashboard.id);
     
-    console.log(Events)
+    
     if(!$scope.refreshEnabled) {
       $scope.refreshEnabled = false
-      console.log('refreshEnabled doesnt exist making false')
+     
     }       
     $scope.refreshRate = 60;
     $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
@@ -73,11 +73,11 @@
     $scope.triggerRefresh = function() {
       if ($scope.refreshEnabled == false) {
         $scope.refreshEnabled = true
-        console.log('is false and making true')
+       
       }
       else if ($scope.refreshEnabled == true) {
         $scope.refreshEnabled = false
-        console.log('is true and making false')
+        
       }  
 
       Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});      
