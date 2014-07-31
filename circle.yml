@@ -1,7 +1,7 @@
 machine:
   node:
     version:
-      0.10.22
+      0.10.24
   python:
     version:
       2.7.3
@@ -17,7 +17,7 @@ test:
   override:
     - make test
   post:
-    - make pack 
+    - make pack
 deployment:
   github:
     branch: master
