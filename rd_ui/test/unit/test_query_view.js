@@ -29,8 +29,6 @@ describe('QueryViewCtrl', function() {
     expect(scope.queryExecuting).toBe(false);
     scope.executeQuery();
     expect(scope.queryExecuting).toBe(true);
-    scope.cancelExecution();
-    expect(scope.queryExecuting).toBe(false);
   });
 
 });

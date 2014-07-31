@@ -1,4 +1,3 @@
-// these are non angu
 featureFlags = [];
 currentUser = {
   id: 1,
