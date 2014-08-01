@@ -57,24 +57,8 @@
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
-    };
-
-
-    $scope.queries = [];
-    $scope.reloadQueries = function () {
-      Query.query(function (queries) {
-        $scope.queries = _.sortBy(queries, "name");
-        $scope.allQueries = _.groupBy($scope.queries, function (q) {
-          parts = q.name.split(":");
-          if (parts.length == 1) {
-            return "Other";
-          }
-          return parts[0];
-        });
-        $scope.otherQueries = $scope.allQueries['Other'] || [];
-        
-      });
-    }
+    };   
+    
 
     $scope.cancelExecution = function() {
       $scope.cancelling = true;
@@ -93,8 +77,7 @@
         Events.record(currentUser, "archive", "query", $scope.query.id);
         $scope.query.$delete(function () {
           growl.addSuccessMessage(options.successMessage);
-          $location.path('/queries');
-          $scope.$parent.reloadQueries();
+          $location.path('/queries');          
         }, function(httpResponse) {
           growl.addErrorMessage(options.errorMessage);
         }).promise;
