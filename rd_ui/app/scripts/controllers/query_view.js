@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource, Dashboard) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource, Widget, Dashboard) {
     var DEFAULT_TAB = 'table';
 
     $scope.query = $route.current.locals.query;
@@ -59,9 +59,6 @@
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
       }
-      else {
-        console.log('HELLO THERE')
-      }
     };   
     
 
@@ -72,35 +69,21 @@
     };
 
     $scope.deleteQuery = function (query, options) {
-
       var dashboards = $scope.dashboards
-
        options = _.extend({}, {
         successMessage: 'Query deleted',
         errorMessage: 'Query could not be deleted',
         errorQueryUsed: 'This query is used in a dashboard'
       }, options);
-
-      console.log(dashboards)
+      
+      
+      
 
        for (var i in dashboards) {
-        console.log(i.id)
+        
+        console.log(dashboards)
 
-       }
-       
-
-
-       // for dashboard in dashboards {
-       //  console.log('hello there')
-       //  if $scope.query in dashboard {
-       //    growl.addErrorMessage(options.errorQueryUsed);
-       //    console.log('I will be so suprised if this comes up and it all works')
-       //  }
-
-       // }
-
-
-      
+       }     
         Events.record(currentUser, "archive", "query", $scope.query.id);
         $scope.query.$delete(function () {
           growl.addSuccessMessage(options.successMessage);
@@ -198,5 +181,5 @@
 
   angular.module('redash.controllers')
   .controller('QueryViewCtrl',
-    ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', 'Dashboard', QueryViewCtrl]);
+    ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', 'Widget', 'Dashboard', QueryViewCtrl]);  
 })();

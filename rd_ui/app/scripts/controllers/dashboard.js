@@ -9,6 +9,7 @@
       var filters = {};
 
       $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
+        console.log($scope.dashboard)
         return _.map(row, function (widget) {
           var w = new Widget(widget);
 
