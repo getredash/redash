@@ -219,6 +219,7 @@ class Query(BaseModel):
     ttl = peewee.IntegerField()
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
+    is_archived = peewee.BooleanField(default=False, index=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
@@ -239,6 +240,7 @@ class Query(BaseModel):
             'query': self.query,
             'query_hash': self.query_hash,
             'ttl': self.ttl,
+            'is_archived': self.is_archived,
             'api_key': self.api_key,
             'created_at': self.created_at,
             'data_source_id': self._data.get('data_source', None)

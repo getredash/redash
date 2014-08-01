@@ -59,45 +59,107 @@
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
     };
 
+
+    $scope.queries = [];
+    $scope.reloadQueries = function () {
+      Query.query(function (queries) {
+        $scope.queries = _.sortBy(queries, "name");
+        $scope.allQueries = _.groupBy($scope.queries, function (q) {
+          parts = q.name.split(":");
+          if (parts.length == 1) {
+            return "Other";
+          }
+          return parts[0];
+        });
+        $scope.otherQueries = $scope.allQueries['Other'] || [];
+        
+      });
+    }
+
     $scope.cancelExecution = function() {
       $scope.cancelling = true;
       $scope.queryResult.cancelExecution();
       Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
     };
-    
-    $scope.deleteQuery = function(options, data) {      
-      if (data) {
-        data.id = $scope.query.id;
-      } else {
-        data = $scope.query;
-      }
-      
-      $scope.isDirty = false;
-      
-      options = _.extend({}, {
+
+    $scope.deleteQuery = function (query, options) {
+
+       options = _.extend({}, {
         successMessage: 'Query deleted',
         errorMessage: 'Query could not be deleted'
       }, options);
 
-      return Query.delete({id: data.id}, function() {
-        console.log('WHY HELLO THERE I HOPE THIS COMES UP')
-        growl.addSuccessMessage(options.successMessage);
-          
+      
+        Events.record(currentUser, "archive", "query", $scope.query.id);
+        $scope.query.$delete(function () {
+          growl.addSuccessMessage(options.successMessage);
+          $location.path('/queries');
+          $scope.$parent.reloadQueries();
         }, function(httpResponse) {
-          console.log('I ALSO SORTA HOPE THIS COMES UP OTHERWISE I WILL HAVE NO IDEA')
           growl.addErrorMessage(options.errorMessage);
-          $('#delete-confirmation-modal').modal('hide');         
-        }, 'jsonp').$promise;
+        }).promise;
+      
     }
+  
+
+     // $scope.deleteQuery = function (data, options) {
+     //   if (data) {
+     //    data.id = $scope.query.id;
+     //  } else {
+     //    data = $scope.query;
+     //  }
+
+
+     //  options = _.extend({}, {
+     //    successMessage: 'Query deleted',
+     //    errorMessage: 'Query could not be deleted'
+     //  }, options);
+
+
+     //  console.log($scope.query)
+      
+
+
+     //    Events.record(currentUser, "archive", "query", {id: data.id});
+     //    $scope.query.$delete(function () {
+     //      $scope.$parent.queries();
+     //      growl.addSuccessMessage(options.successMessage);
+     //    }, function(httpResponse) {
+     //      growl.addErrorMessage(options.errorMessage);
+     //    }).promise;
+     //  }
+    
+    // $scope.deleteQuery = function(options, data) {
+    //   if (data) {
+    //     data.id = $scope.query.id;
+    //   } else {
+    //     data = $scope.query;
+    //   }
+
+    //   $scope.isDirty = false;
+
+    //   options = _.extend({}, {
+    //     successMessage: 'Query deleted',
+    //     errorMessage: 'Query could not be deleted'
+    //   }, options);
+
+    //   return Query.delete({id: data.id}, function() {
+    //     growl.addSuccessMessage(options.successMessage);
+    //       $('#delete-confirmation-modal').modal('hide');
+    //       $location.path('/queries');
+    //     }, function(httpResponse) {
+    //       growl.addErrorMessage(options.errorMessage);
+    //     }).$promise;
+    // }
 
     $scope.updateDataSource = function() {
       Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
       $scope.query.latest_query_data = null;
       $scope.query.latest_query_data_id = null;
       Query.save({
-          'id': $scope.query.id,
-          'data_source_id': $scope.query.data_source_id,
-          'latest_query_data_id': null
+        'id': $scope.query.id,
+        'data_source_id': $scope.query.data_source_id,
+        'latest_query_data_id': null
       });
 
       $scope.executeQuery();
@@ -133,13 +195,13 @@
         $scope.dataUri = "";
       } else {
         $scope.dataUri =
-          '/api/queries/' + $scope.query.id + '/results/' +
-          $scope.queryResult.getId() + '.csv';
+        '/api/queries/' + $scope.query.id + '/results/' +
+        $scope.queryResult.getId() + '.csv';
 
         $scope.dataFilename =
-          $scope.query.name.replace(" ", "_") +
-          moment($scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") +
-          ".csv";
+        $scope.query.name.replace(" ", "_") +
+        moment($scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") +
+        ".csv";
       }
     });
 
@@ -156,14 +218,14 @@
             'id': $scope.query.id,
             'latest_query_data_id': $scope.queryResult.getId()
           })
-        }
-        $scope.query.latest_query_data_id = $scope.queryResult.getId();
-
-        notifications.showNotification("re:dash", $scope.query.name + " updated.");
-
-        $scope.lockButton(false);
       }
-    });
+      $scope.query.latest_query_data_id = $scope.queryResult.getId();
+
+      notifications.showNotification("re:dash", $scope.query.name + " updated.");
+
+      $scope.lockButton(false);
+    }
+  });
 
     $scope.$watch(function() {
       return $location.hash()
@@ -177,6 +239,6 @@
   };
 
   angular.module('redash.controllers')
-    .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
+  .controller('QueryViewCtrl',
+    ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
 })();

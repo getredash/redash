@@ -410,8 +410,11 @@ class QueryListAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
 
+        queries = [q.to_dict(with_result=False, with_stats=True)for q in models.Query.all_queries().where(models.Query.is_archived==False)]
+        return queries
+
+   
 
 class QueryAPI(BaseResource):
     @require_permission('edit_query')
@@ -439,6 +442,13 @@ class QueryAPI(BaseResource):
             return q.to_dict(with_visualizations=True)
         else:
             abort(404, message="Query not found.")
+
+    @require_permission('edit_query')
+    def delete(self, query_id):
+        query = models.Query.get(models.Query.id == query_id)
+        query.is_archived = True
+        query.save()
+
 
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')

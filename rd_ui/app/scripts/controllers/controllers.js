@@ -118,6 +118,22 @@
       });
     }
 
+    $scope.queries = [];
+    $scope.reloadqueries = function () {
+      Query.query(function (queries) {
+        $scope.queries = _.sortBy(queries, "name");
+        $scope.allQueries = _.groupBy($scope.queries, function (q) {
+          parts = q.name.split(":");
+          if (parts.length == 1) {
+            return "Other";
+          }
+          return parts[0];
+        });
+        $scope.otherQueries = $scope.allQueries['Other'] || [];
+        
+      });
+    }
+
 
     $scope.dashboards = [];
     $scope.reloadDashboards = function () {
