@@ -80,60 +80,8 @@
           $location.path('/queries');          
         }, function(httpResponse) {
           growl.addErrorMessage(options.errorMessage);
-        }).promise;
-      
+        }).promise;      
     }
-  
-
-     // $scope.deleteQuery = function (data, options) {
-     //   if (data) {
-     //    data.id = $scope.query.id;
-     //  } else {
-     //    data = $scope.query;
-     //  }
-
-
-     //  options = _.extend({}, {
-     //    successMessage: 'Query deleted',
-     //    errorMessage: 'Query could not be deleted'
-     //  }, options);
-
-
-     //  console.log($scope.query)
-      
-
-
-     //    Events.record(currentUser, "archive", "query", {id: data.id});
-     //    $scope.query.$delete(function () {
-     //      $scope.$parent.queries();
-     //      growl.addSuccessMessage(options.successMessage);
-     //    }, function(httpResponse) {
-     //      growl.addErrorMessage(options.errorMessage);
-     //    }).promise;
-     //  }
-    
-    // $scope.deleteQuery = function(options, data) {
-    //   if (data) {
-    //     data.id = $scope.query.id;
-    //   } else {
-    //     data = $scope.query;
-    //   }
-
-    //   $scope.isDirty = false;
-
-    //   options = _.extend({}, {
-    //     successMessage: 'Query deleted',
-    //     errorMessage: 'Query could not be deleted'
-    //   }, options);
-
-    //   return Query.delete({id: data.id}, function() {
-    //     growl.addSuccessMessage(options.successMessage);
-    //       $('#delete-confirmation-modal').modal('hide');
-    //       $location.path('/queries');
-    //     }, function(httpResponse) {
-    //       growl.addErrorMessage(options.errorMessage);
-    //     }).$promise;
-    // }
 
     $scope.updateDataSource = function() {
       Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
