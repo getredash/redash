@@ -32,6 +32,14 @@
 
     $scope.newVisualization = undefined;
 
+    // @override
+    Object.defineProperty($scope, 'showDataset', {
+      get: function() {
+        return $scope.queryResult && $scope.queryResult.getStatus() == 'done';
+      }
+    });
+
+
     KeyboardShortcuts.bind(shortcuts);
 
     // @override
