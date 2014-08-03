@@ -6,7 +6,7 @@ FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
 deps:
 	cd rd_ui && npm install
-	cd rd_ui && npm install grunt-cli bower
+	cd rd_ui && npm install -g bower grunt-cli
 	cd rd_ui && bower install
 	cd rd_ui && grunt build
 
@@ -19,3 +19,4 @@ upload:
 
 test:
 	nosetests --with-coverage --cover-package=redash tests/*.py
+	cd rd_ui && grunt test
