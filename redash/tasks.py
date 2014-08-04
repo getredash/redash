@@ -68,9 +68,9 @@ class QueryTask(object):
                     pipe.multi()
 
                     if scheduled:
-                        queue_name = data_source.queue_name
-                    else:
                         queue_name = data_source.scheduled_queue_name
+                    else:
+                        queue_name = data_source.queue_name
 
                     result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
                     job = cls(async_result=result)
