@@ -245,6 +245,9 @@ to add those CSS styles here. */
     background-color: #FF8080;
     border-radius: 50%;
 }
+.nav-tabs > li.rd-tab-btn {
+    float: right;
+}
 
 /* light version of bootstrap's form-control */
 .rd-form-control {
@@ -266,6 +269,10 @@ to add those CSS styles here. */
 }
 pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
     overflow: auto;
+}
+
+.rd-widget-textbox p {
+    margin-bottom: 0;
 }
 
 .iframe-container {

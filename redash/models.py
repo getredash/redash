@@ -78,7 +78,7 @@ class ApiUser(UserMixin):
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query']
-    
+
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=100)
     permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
@@ -151,7 +151,7 @@ class User(BaseModel, UserMixin):
 
 class ActivityLog(BaseModel):
     QUERY_EXECUTION = 1
-    
+
     id = peewee.PrimaryKeyField()
     user = peewee.ForeignKeyField(User)
     type = peewee.IntegerField()
@@ -277,7 +277,7 @@ class Query(BaseModel):
                                             type="TABLE", options="{}")
         table_visualization.save()
 
-    def to_dict(self, with_result=True, with_stats=False, with_visualizations=False, with_user=True):
+    def to_dict(self, with_stats=False, with_visualizations=False, with_user=True):
         d = {
             'id': self.id,
             'latest_query_data_id': self._data.get('latest_query_data', None),
@@ -306,9 +306,6 @@ class Query(BaseModel):
         if with_visualizations:
             d['visualizations'] = [vis.to_dict(with_query=False)
                                    for vis in self.visualizations]
-
-        if with_result and self.latest_query_data:
-            d['latest_query_data'] = self.latest_query_data.to_dict()
 
         return d
 
@@ -383,13 +380,11 @@ class Dashboard(BaseModel):
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widgets = Widget.select(Widget, Visualization, Query, QueryResult, User)\
+            widgets = Widget.select(Widget, Visualization, Query, User)\
                 .where(Widget.dashboard == self.id)\
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
-                .join(User, join_type=peewee.JOIN_LEFT_OUTER)\
-                .switch(Query)\
-                .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)
+                .join(User, join_type=peewee.JOIN_LEFT_OUTER)
             widgets = {w.id: w.to_dict() for w in widgets}
 
             # The following is a workaround for cases when the widget object gets deleted without the dashboard layout

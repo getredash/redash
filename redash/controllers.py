@@ -26,6 +26,7 @@ from redash.wsgi import app, auth, api
 import logging
 from tasks import QueryTask
 
+from cache import headers as cache_headers
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -294,11 +295,11 @@ class QueryListAPI(BaseResource):
 
         query.create_default_visualizations()
 
-        return query.to_dict(with_result=False)
+        return query.to_dict()
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_result=False, with_stats=True) for q in models.Query.all_queries()]
+        return [q.to_dict(with_stats=True) for q in models.Query.all_queries()]
 
 
 class QueryAPI(BaseResource):
@@ -318,7 +319,7 @@ class QueryAPI(BaseResource):
 
         query = models.Query.get_by_id(query_id)
 
-        return query.to_dict(with_result=False, with_visualizations=True)
+        return query.to_dict(with_visualizations=True)
 
     @require_permission('view_query')
     def get(self, query_id):
@@ -392,7 +393,7 @@ class QueryResultListAPI(BaseResource):
                         'error': 'Access denied for table(s): %s' % (metadata.used_tables)
                     }
                 }
-        
+
         models.ActivityLog(
             user=self.current_user,
             type=models.ActivityLog.QUERY_EXECUTION,
@@ -417,7 +418,8 @@ class QueryResultAPI(BaseResource):
     def get(self, query_result_id):
         query_result = models.QueryResult.get_by_id(query_result_id)
         if query_result:
-            return {'query_result': query_result.to_dict()}
+            data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
+            return make_response(data, 200, cache_headers)
         else:
             abort(404)
 

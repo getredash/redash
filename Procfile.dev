@@ -1,2 +1,2 @@
 web: ./manage.py runserver -p $PORT
-worker: ./manage.py runworkers
+worker: ./bin/run celery worker --app=redash.worker --beat -Qqueries,celery,scheduled_queries
