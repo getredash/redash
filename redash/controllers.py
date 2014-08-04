@@ -26,6 +26,7 @@ from redash.wsgi import app, auth, api
 import logging
 from tasks import QueryTask
 
+from cache import headers as cache_headers
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -417,7 +418,8 @@ class QueryResultAPI(BaseResource):
     def get(self, query_result_id):
         query_result = models.QueryResult.get_by_id(query_result_id)
         if query_result:
-            return {'query_result': query_result.to_dict()}
+            data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
+            return make_response(data, 200, cache_headers)
         else:
             abort(404)
 
