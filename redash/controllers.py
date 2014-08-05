@@ -179,7 +179,7 @@ api.add_resource(MetricsAPI, '/api/metrics/v1/send', endpoint='metrics')
 
 class DataSourceListAPI(BaseResource):
     def get(self):
-        data_sources = [ds.to_dict() for ds in models.DataSource.select()]
+        data_sources = [ds.to_dict() for ds in models.DataSource.all()]
         return data_sources
 
 api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')

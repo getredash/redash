@@ -139,6 +139,10 @@ class User(BaseModel, UserMixin):
 
         return self._allowed_tables
 
+    @classmethod
+    def get_by_email(cls, email):
+        return cls.get(cls.email == email)
+
     def __unicode__(self):
         return '%r, %r' % (self.name, self.email)
 
@@ -192,6 +196,10 @@ class DataSource(BaseModel):
             'name': self.name,
             'type': self.type
         }
+
+    @classmethod
+    def all(cls):
+        return cls.select().order_by(cls.id.asc())
 
 
 class QueryResult(BaseModel):
