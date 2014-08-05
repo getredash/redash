@@ -1,13 +1,14 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource, Widget, Dashboard) {
+  function QueryViewCtrl($scope, Events, $route, $timeout, $location, notifications, growl, Query, DataSource, Widget, Dashboard) {
     var DEFAULT_TAB = 'table';
 
     $scope.query = $route.current.locals.query;
     Events.record(currentUser, 'view', 'query', $scope.query.id);
     $scope.queryResult = $scope.query.getQueryResult();
     $scope.queryExecuting = false;
+    $scope.queryUsed = $scope.query.queryWidget();
 
     $scope.isQueryOwner = currentUser.id === $scope.query.user.id;
     $scope.canViewSource = currentUser.hasPermission('view_source');
@@ -15,6 +16,8 @@
     $scope.dataSources = DataSource.get(function(dataSources) {
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
+
+   // console.log($scope.queryUsed)
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -69,28 +72,28 @@
     };
 
     $scope.deleteQuery = function (query, options) {
-      var dashboards = $scope.dashboards
-       options = _.extend({}, {
+
+      options = _.extend({}, {
         successMessage: 'Query deleted',
         errorMessage: 'Query could not be deleted',
         errorQueryUsed: 'This query is used in a dashboard'
       }, options);
-      
-      
-      
 
-       for (var i in dashboards) {
-        
-        console.log(dashboards)
+      if ($scope.queryUsed.widget == null) {
 
-       }     
+        var dashboards = $scope.dashboards
         Events.record(currentUser, "archive", "query", $scope.query.id);
+
         $scope.query.$delete(function () {
           growl.addSuccessMessage(options.successMessage);
           $location.path('/queries');          
         }, function(httpResponse) {
           growl.addErrorMessage(options.errorMessage);
         }).promise;      
+       
+      } else {
+       growl.addErrorMessage(options.errorQueryUsed);
+      }
     }
 
     $scope.updateDataSource = function() {
@@ -181,5 +184,5 @@
 
   angular.module('redash.controllers')
   .controller('QueryViewCtrl',
-    ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', 'Widget', 'Dashboard', QueryViewCtrl]);  
+    ['$scope', 'Events', '$route', '$timeout',  '$location', 'notifications', 'growl', 'Query', 'DataSource', 'Widget', 'Dashboard', QueryViewCtrl]);  
 })();

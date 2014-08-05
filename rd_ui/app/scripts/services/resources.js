@@ -343,6 +343,7 @@
 
   var Query = function ($resource, QueryResult, DataSource) {
     var Query = $resource('/api/queries/:id', {id: '@id'});
+    var queryWidget  = $resource('/api/widget_check/:id');
 
     Query.newQuery = function () {
       return new Query({
@@ -357,10 +358,18 @@
       return '/queries/' + this.id + '/source';
     };
 
+     Query.prototype.queryWidget = function () {
+      console.log(this.id);
+      if (this.id != null) {
+        return queryWidget.get({id:this.id});
+      }
+      return null
+    };
+
     Query.prototype.getQueryResult = function (ttl) {
       if (ttl == undefined) {
         ttl = this.ttl;
-      }
+      } 
 
       var queryResult = null;
       if (this.latest_query_data && ttl != 0) {

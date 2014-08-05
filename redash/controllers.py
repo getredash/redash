@@ -374,6 +374,16 @@ class WidgetListAPI(BaseResource):
 
         return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row}
 
+class WidgetCheckApi(BaseResource):
+    def get(self, query_id):
+        try:
+            widget = models.Widget.get(models.Widget.query_id == query_id)
+            return {'widget': widget.to_dict()}
+        except models.Widget.DoesNotExist:
+            return {}
+
+
+api.add_resource(WidgetCheckApi, '/api/widget_check/<int:query_id>', endpoint='widget_check')
 
 class WidgetAPI(BaseResource):
     @require_permission('edit_dashboard')

@@ -219,8 +219,8 @@ class Query(BaseModel):
     ttl = peewee.IntegerField()
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
+    created_at = peewee.DateTimeField(default=datetime.datetime.now)    
     is_archived = peewee.BooleanField(default=False, index=True)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'queries'
@@ -239,11 +239,11 @@ class Query(BaseModel):
             'description': self.description,
             'query': self.query,
             'query_hash': self.query_hash,
-            'ttl': self.ttl,
-            'is_archived': self.is_archived,
+            'ttl': self.ttl,            
             'api_key': self.api_key,
             'created_at': self.created_at,
-            'data_source_id': self._data.get('data_source', None)
+            'data_source_id': self._data.get('data_source', None),
+            'is_archived': self.is_archived
         }
 
         if with_user:
@@ -333,7 +333,7 @@ class Dashboard(BaseModel):
             # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
             # updated. This happens for users with old databases that didn't have a foreign key relationship between
             # visualizations and widgets.
-            # It's temporary until better solution is implemented (we probably should move the position information
+            # It's temporary until better solutiond is implemented (we probably should move the position information
             # to the widget).
             widgets_layout = []
             for row in layout:
