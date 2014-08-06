@@ -11,7 +11,7 @@ angular.module('redash', [
     'ui.select2',
     'angular-growl',
     'angularMoment',
-    'ui.bootstrap',
+    'ui.bootstrap', 
     'smartTable.table',
     'ngResource',
     'ngRoute'

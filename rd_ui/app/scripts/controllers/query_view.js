@@ -17,8 +17,6 @@
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
 
-   // console.log($scope.queryUsed)
-
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
     };
@@ -85,6 +83,7 @@
         var dashboards = $scope.dashboards
         Events.record(currentUser, "archive", "query", $scope.query.id);
         return $scope.query.$delete
+        
 
       } else {
         growl.addErrorMessage(options.errorQueryUsed);
