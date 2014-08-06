@@ -32,10 +32,8 @@
       });
     }
 
-    var deleteQuery = function (query) {
-      console.log('1');
+    var deleteQuery = function (query) {    
       if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
-       //Events.record(currentUser, "archive", "query", query.id);
         query.$delete(function () {
           location.reload();
         });
@@ -51,7 +49,7 @@
           query.isUsed = false;
           query.deleteQuery = deleteQuery;
         }
-        console.log(query.isUsed)
+        
 
         query.created_at = moment(query.created_at);
         query.last_retrieved_at = moment(query.last_retrieved_at);

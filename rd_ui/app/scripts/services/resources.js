@@ -360,7 +360,6 @@
     };
 
      Query.prototype.queryWidget = function () {
-      console.log(this.id);
       if (this.id != null) {
         return queryWidget.get({id:this.id});
       }
