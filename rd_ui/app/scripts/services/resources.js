@@ -341,6 +341,7 @@
     return QueryResult;
   };
 
+
   var Query = function ($resource, QueryResult, DataSource) {
     var Query = $resource('/api/queries/:id', {id: '@id'});
     var queryWidget  = $resource('/api/widget_check/:id');

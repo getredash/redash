@@ -38,7 +38,7 @@ angular.module('redash', [
       $routeProvider.when('/dashboard/:dashboardSlug', {
         templateUrl: '/views/dashboard.html',
         controller: 'DashboardCtrl'
-      });
+      });      
       $routeProvider.when('/queries', {
         templateUrl: '/views/queries.html',
         controller: 'QueriesCtrl',
