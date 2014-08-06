@@ -79,19 +79,16 @@
       };
 
       if ($scope.queryUsed.widget == null) {
-        growl.addSuccessMessage(options.successMessage);
         var dashboards = $scope.dashboards
         Events.record(currentUser, "archive", "query", $scope.query.id);
-        return $scope.query.$delete
-        
-
+        return $scope.query.$delete;
       } else {
         growl.addErrorMessage(options.errorQueryUsed);
       }
     }
 
     $scope.redirect = function() {
-       $location.path('/queries');
+       return $location.path('/queries');
     }
 
     $scope.updateDataSource = function() {

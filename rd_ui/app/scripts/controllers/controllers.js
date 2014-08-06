@@ -32,7 +32,7 @@
       });
     }
 
-    var deleteQuery = function (query) {    
+    var deleteQueryfromQueries = function (query) {    
       if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
         query.$delete(function () {
           location.reload();
@@ -47,7 +47,7 @@
           query.isUsed = true;
         } else {
           query.isUsed = false;
-          query.deleteQuery = deleteQuery;
+          query.deleteQuery = deleteQueryfromQueries;
         }
         
 

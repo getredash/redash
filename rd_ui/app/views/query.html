@@ -1,4 +1,5 @@
-<div class="container" ng-if="query.is_archived == false">
+
+<div class="container">
 
     <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
@@ -142,8 +143,8 @@
                         Are you sure you want to delete the query?
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="deleteQuery({id:query.id}, redirect);">Yes, delete!</button>
+                        <button type="button" class="btn btn-default"  data-dismiss="modal" >No</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"  ng-click="deleteQuery()({id:query.id}, redirect);">Yes, delete!</button>
                       </div>
                     </div>
                   </div>
