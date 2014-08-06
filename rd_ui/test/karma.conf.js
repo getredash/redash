@@ -75,9 +75,16 @@ module.exports = function(config) {
       'app/scripts/directives/dashboard_directives.js',
       'app/scripts/filters.js',
 
+      'app/views/**/*.html',
+
       'test/mocks/*.js',
       'test/unit/*.js'
     ],
+
+    // generate js files from html templates
+    preprocessors: {
+      'app/views/**/*.html': 'ng-html2js'
+    },
 
     // list of files / patterns to exclude
     exclude: [],
@@ -100,7 +107,8 @@ module.exports = function(config) {
     // Which plugins to enable
     plugins: [
       'karma-phantomjs-launcher',
-      'karma-jasmine'
+      'karma-jasmine',
+      'karma-ng-html2js-preprocessor'
     ],
 
     // Continuous Integration mode

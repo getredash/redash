@@ -29,7 +29,8 @@
     "karma-jasmine": "~0.1.5",
     "grunt-karma": "~0.8.3",
     "karma-phantomjs-launcher": "~0.1.4",
-    "karma": "~0.12.19"
+    "karma": "~0.12.19",
+    "karma-ng-html2js-preprocessor": "~0.1.0"
   },
   "engines": {
     "node": ">=0.10.0"
