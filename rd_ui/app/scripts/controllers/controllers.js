@@ -51,6 +51,7 @@
           query.isUsed = false;
           query.deleteQuery = deleteQuery;
         }
+        console.log(query.isUsed)
 
         query.created_at = moment(query.created_at);
         query.last_retrieved_at = moment(query.last_retrieved_at);
@@ -114,7 +115,7 @@
       }
     ];
 
-    if ($.inArray('edit_query', currentUser.permissions > -1)) {
+    if ($.inArray('edit_query', currentUser.permissions > -1)) {      
       var deleteColumn = {
         "label": "Delete",
         "map": "delete",
