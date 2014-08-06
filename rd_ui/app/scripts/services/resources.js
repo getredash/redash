@@ -1,5 +1,5 @@
 (function () {
-  var QueryResult = function ($resource, $timeout) {
+  var QueryResult = function ($resource, $timeout, $q) {
     var QueryResultResource = $resource('/api/query_results/:id', {id: '@id'}, {'post': {'method': 'POST'}});
     var Job = $resource('/api/jobs/:id', {id: '@id'});
 
@@ -32,6 +32,7 @@
           }
         });
 
+        this.deferred.resolve(this);
       } else if (this.job.status == 3) {
         this.status = "processing";
       } else {
@@ -40,6 +41,7 @@
     }
 
     function QueryResult(props) {
+      this.deferred = $q.defer();
       this.job = {};
       this.query_result = {};
       this.status = "waiting";
@@ -349,6 +351,10 @@
       });
 
       return queryResult;
+    };
+
+    QueryResult.prototype.toPromise = function() {
+      return this.deferred.promise;
     }
 
     QueryResult.get = function (data_source_id, query, ttl) {
@@ -404,8 +410,14 @@
       return this.queryResult;
     };
 
+    Query.prototype.getQueryResultPromise = function() {
+      return this.getQueryResult().toPromise();
+    }
+
     return Query;
   };
+
+
 
   var DataSource = function ($resource) {
     var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}});
@@ -435,7 +447,7 @@
   }
 
   angular.module('redash.services')
-      .factory('QueryResult', ['$resource', '$timeout', QueryResult])
+      .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
       .factory('Widget', ['$resource', 'Query', Widget]);
