@@ -43,8 +43,10 @@ def check_settings():
 @manager.command
 def import_events(events_file):
     import json
+    from collections import Counter
 
-    count = 0
+    count = Counter()
+
     with open(events_file) as f:
         for line in f:
             try:
@@ -53,21 +55,32 @@ def import_events(events_file):
                 user = event.pop('user_id')
                 action = event.pop('action')
                 object_type = event.pop('object_type')
-                object_id = event.pop('object_id')
+                object_id = event.pop('object_id', None)
+
+                if object_id == 'dashboard' and object_type == 'dashboard':
+                    count['bad dashboard id'] += 1
+                    continue
+
                 created_at = datetime.datetime.utcfromtimestamp(event.pop('timestamp'))
                 additional_properties = json.dumps(event)
 
                 models.Event.create(user=user, action=action, object_type=object_type, object_id=object_id,
                                     additional_properties=additional_properties, created_at=created_at)
 
-                count += 1
+                count['imported'] += 1
 
             except Exception as ex:
                 print "Failed importing line:"
                 print line
                 print ex.message
+                count[ex.message] += 1
+                count['failed'] += 1
 
-    print "Importe %d rows" % count
+                models.db.close_db(None)
+
+    for k, v in count.iteritems():
+        print k
+        print v
 
 
 @database_manager.command

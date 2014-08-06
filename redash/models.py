@@ -507,11 +507,10 @@ class Widget(BaseModel):
 
 
 class Event(BaseModel):
-    # user, action, object_type, object_id, additional_properties
     user = peewee.ForeignKeyField(User, related_name="events")
     action = peewee.CharField()
     object_type = peewee.CharField()
-    object_id = peewee.IntegerField()
+    object_id = peewee.CharField(null=True)
     additional_properties = peewee.TextField(null=True)
     created_at = peewee.DateTimeField(default=datetime.datetime.now)
 
