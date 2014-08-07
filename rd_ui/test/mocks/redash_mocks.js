@@ -16,9 +16,8 @@ currentUser = {
 
 
 angular.module('redashMocks', [])
-  .value('mockData', {
+  .value('MockData', {
     query: {
-
       "ttl": -1,
       "query": "select name from users;",
       "id": 1803,
@@ -72,5 +71,38 @@ angular.module('redashMocks', [])
         "data_source_id": 1
       }
 
+    },
+
+    queryResult: {
+      "job": {},
+      "query_result": {
+        "retrieved_at": "2014-08-04T13:33:45.563486+03:00",
+        "query_hash": "9951c38c9cf00e6ee8aecce026b51c19",
+        "query": "select name as \"name::filter\" from users",
+        "runtime": 0.00896096229553223,
+        "data": {
+          "rows": [],
+          "columns": [{
+            "friendly_name": "name::filter",
+            "type": null,
+            "name": "name::filter"
+          }]
+        },
+        "id": 106673,
+        "data_source_id": 1
+      },
+      "status": "done",
+      "filters": [],
+      "filterFreeze": "test@example.com",
+      "updatedAt": "2014-08-05T13:13:40.833Z",
+      "columnNames": ["name::filter"],
+      "filteredData": [{
+        "name::filter": "test@example.com"
+      }],
+      "columns": [{
+        "friendly_name": "name::filter",
+        "type": null,
+        "name": "name::filter"
+      }]
     }
   });

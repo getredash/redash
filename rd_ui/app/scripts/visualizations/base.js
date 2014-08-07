@@ -55,7 +55,7 @@
     }];
   };
 
-  var VisualizationRenderer = function (Visualization) {
+  var VisualizationRenderer = function ($location, Visualization) {
     return {
       restrict: 'E',
       scope: {
@@ -68,12 +68,47 @@
       template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
       replace: false,
       link: function (scope) {
+
         scope.select2Options = {
           width: '50%'
+        };
+
+        function readURL() {
+          var searchFilters = angular.fromJson($location.search().filters);
+          if (searchFilters) {
+            _.forEach(scope.filters, function(filter) {
+              var value = searchFilters[filter.friendlyName];
+              if (value) {
+                filter.current = value;
+              }
+            });
+          }
         }
+
+        function updateURL(filters) {
+          var current = {};
+          _.each(filters, function(filter) {
+            if (filter.current) {
+              current[filter.friendlyName] = filter.current;
+            }
+          });
+
+          var newSearch = angular.extend($location.search(), {
+            filters: angular.toJson(current)
+          });
+          $location.search(newSearch);
+        }
+
         scope.$watch('queryResult && queryResult.getFilters()', function (filters) {
           if (filters) {
             scope.filters = filters;
+
+            if (filters.length) {
+              readURL();
+
+              // start watching for changes and update URL
+              scope.$watch('filters', updateURL, true);
+            }
           }
         });
       }
@@ -172,7 +207,7 @@
 
   angular.module('redash.visualization', [])
       .provider('Visualization', VisualizationProvider)
-      .directive('visualizationRenderer', ['Visualization', VisualizationRenderer])
+      .directive('visualizationRenderer', ['$location', 'Visualization', VisualizationRenderer])
       .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
       .directive('filters', Filters)
       .directive('editVisulatizationForm', ['Events', 'Visualization', 'growl', EditVisualizationForm])

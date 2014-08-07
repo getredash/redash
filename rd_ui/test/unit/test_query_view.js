@@ -2,18 +2,18 @@
 
 describe('QueryViewCtrl', function() {
   var scope;
-  var mockData;
+  var MockData;
 
   beforeEach(module('redash', 'redashMocks'));
 
-  beforeEach(inject(function($injector, $controller, $rootScope, Query, _mockData_) {
-    mockData = _mockData_;
+  beforeEach(inject(function($injector, $controller, $rootScope, Query, _MockData_) {
+    MockData = _MockData_;
     scope = $rootScope.$new();
 
     var route = {
       current: {
         locals: {
-          query: new Query(mockData.query)
+          query: new Query(MockData.query)
         }
       }
     };
