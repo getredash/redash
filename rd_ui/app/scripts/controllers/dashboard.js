@@ -1,5 +1,5 @@
 (function() {
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, $q, Dashboard) {
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
 
@@ -8,43 +8,49 @@
         Events.record(currentUser, "view", "dashboard", dashboard.id);
 
         $scope.$parent.pageTitle = dashboard.name;
-        var filters = {};
+
+        var promises = [];
 
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
           return _.map(row, function (widget) {
             var w = new Widget(widget);
 
             if (w.visualization && dashboard.dashboard_filters_enabled) {
-              var queryFilters = w.getQuery().getQueryResult().getFilters();
-              _.each(queryFilters, function (filter) {
-                if (!_.has(filters, filter.name)) {
-                  // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
-                  filters[filter.name] = filter;
-                  filters[filter.name].originFilters = [];
-
-                  $scope.$watch(function () {
-                    return filter.current
-                  }, function (value) {
-                    _.each(filter.originFilters, function (originFilter) {
-                      originFilter.current = value;
-                    })
-                  });
-
-                }
-                ;
-
-                // TODO: merge values.
-                filters[filter.name].originFilters.push(filter);
-              });
+              promises.push(w.getQuery().getQueryResultPromise());
             }
 
             return w;
           });
         });
 
-        if (dashboard.dashboard_filters_enabled) {
-          $scope.filters = _.values(filters);
-        }
+        $q.all(promises).then(function(queryResults) {
+          var filters = {};
+          _.each(queryResults, function(queryResult) {
+            var queryFilters = queryResult.getFilters();
+            _.each(queryFilters, function (filter) {
+              if (!_.has(filters, filter.name)) {
+                // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
+                filters[filter.name] = filter;
+                filters[filter.name].originFilters = [];
+
+                $scope.$watch(function () { return filter.current }, function (value) {
+                  _.each(filter.originFilters, function (originFilter) {
+                    originFilter.current = value;
+                  });
+                });
+              };
+
+              // TODO: merge values.
+              filters[filter.name].originFilters.push(filter);
+            });
+          });
+
+          if (dashboard.dashboard_filters_enabled) {
+            $scope.filters = _.values(filters);
+          }
+        });
+
+
       }, function () {
         // error...
         // try again. we wrap loadDashboard with throttle so it doesn't happen too often.\
@@ -131,7 +137,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
     .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
 
 })();
