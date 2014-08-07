@@ -131,6 +131,11 @@
         if (filters) {
           this.filteredData = _.filter(this.query_result.data.rows, function (row) {
             return _.reduce(filters, function (memo, filter) {
+              // empty filter: not set (undefined) or cleared ('')
+              if (filter.current === undefined || filter.current === '') {
+                return true;
+              }
+
               if (!_.isArray(filter.current)) {
                 filter.current = [filter.current];
               };
@@ -311,12 +316,10 @@
         }
       }, this);
 
+      // XXX this would be more efficient if done by the server
       _.each(this.getRawData(), function (row) {
         _.each(filters, function (filter) {
           filter.values.push(row[filter.name]);
-          if (filter.values.length == 1) {
-            filter.current = row[filter.name];
-          }
         })
       });
 

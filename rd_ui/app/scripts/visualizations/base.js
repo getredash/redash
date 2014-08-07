@@ -58,10 +58,6 @@
   var VisualizationRenderer = function (Visualization) {
     return {
       restrict: 'E',
-      scope: {
-        visualization: '=',
-        queryResult: '='
-      },
       // TODO: using switch here (and in the options editor) might introduce errors and bad
       // performance wise. It's better to eventually show the correct template based on the
       // visualization type and not make the browser render all of them.
@@ -69,8 +65,9 @@
       replace: false,
       link: function (scope) {
         scope.select2Options = {
+          allowClear: true,
           width: '50%'
-        }
+        };
         scope.$watch('queryResult && queryResult.getFilters()', function (filters) {
           if (filters) {
             scope.filters = filters;
