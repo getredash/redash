@@ -58,9 +58,9 @@ class SQLMetaData(object):
                 # sqlparser recursivenes returns multiple results including whole subqueries and their tablenames as well
                 # we only want the table names and shoud ignore anything else
                 res = re.search("^[a-zA-Z0-9_]*",table)
-                tableName = res.group(0)
+                tableName = res.group(0).lower()
                 if tableName != "":
-                    result.append(res.group(0))
+                    result.append(tableName)
         
         return result
 
