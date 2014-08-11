@@ -32,8 +32,25 @@
       });
     }
 
+    var deleteQueryfromQueries = function (query) {    
+      if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
+        query.$delete(function () {
+          location.reload();
+        });
+      }
+    }
+
     Query.query(function (queries) {
       $scope.allQueries = _.map(queries, function (query) {
+
+        if (query.queryWidget().widget != null) {
+          query.isUsed = true;
+        } else {
+          query.isUsed = false;
+          query.deleteQuery = deleteQueryfromQueries;
+        }
+        
+
         query.created_at = moment(query.created_at);
         query.last_retrieved_at = moment(query.last_retrieved_at);
         return query;
@@ -94,7 +111,19 @@
           return $filter('refreshRateHumanize')(value);
         }
       }
-    ]
+    ];
+
+    if ($.inArray('edit_query', currentUser.permissions > -1)) {      
+      var deleteColumn = {
+        "label": "Delete",
+        "map": "delete",
+        "cellTemplateUrl": "/views/queries_delete_query_cell.html"
+      };
+
+      $scope.gridColumns.push(deleteColumn)
+    }
+   
+
     $scope.tabs = [
       {"name": "My Queries", "key": "my"},
       {"key": "all", "name": "All Queries"},
@@ -108,6 +137,8 @@
 
       filterQueries();
     });
+
+    
   }
 
   var MainCtrl = function ($scope, Dashboard, notifications) {
@@ -115,6 +146,22 @@
       $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
         // This will be called once per actual page load.
         Bucky.sendPagePerformance();
+      });
+    }
+
+    $scope.queries = [];
+    $scope.reloadqueries = function () {
+      Query.query(function (queries) {
+        $scope.queries = _.sortBy(queries, "name");
+        $scope.allQueries = _.groupBy($scope.queries, function (q) {
+          parts = q.name.split(":");
+          if (parts.length == 1) {
+            return "Other";
+          }
+          return parts[0];
+        });
+        $scope.otherQueries = $scope.allQueries['Other'] || [];
+        
       });
     }
 

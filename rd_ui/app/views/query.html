@@ -126,7 +126,7 @@
                 </a>
             </p>          
             <p ng-show="query.id != undefined && (isQueryOwner || currentUser.hasPermission('delete_queries'))">
-                <a class="btn btn-danger btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#delete-confirmation-modal">
+                <a class="btn btn-danger btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#delete-confirmation-modal">                
                     <span class="glyphicon glyphicon-remove"></span>
                     <span class="rd-hidden-xs">Delete query</span>
                 </a>
@@ -141,8 +141,8 @@
                         Are you sure you want to delete the query?
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                        <button type="button" class="btn btn-primary" ng-click="deleteQuery()">Yes, delete!</button>
+                        <button type="button" class="btn btn-default"  data-dismiss="modal" >No</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"  ng-click="deleteQuery()({id:query.id}, redirect);">Yes, delete!</button>
                       </div>
                     </div>
                   </div>

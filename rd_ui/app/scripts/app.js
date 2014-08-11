@@ -11,7 +11,7 @@ angular.module('redash', [
     'ui.select2',
     'angular-growl',
     'angularMoment',
-    'ui.bootstrap',
+    'ui.bootstrap', 
     'smartTable.table',
     'ngResource',
     'ngRoute'
@@ -38,7 +38,7 @@ angular.module('redash', [
       $routeProvider.when('/dashboard/:dashboardSlug', {
         templateUrl: '/views/dashboard.html',
         controller: 'DashboardCtrl'
-      });
+      });      
       $routeProvider.when('/queries', {
         templateUrl: '/views/queries.html',
         controller: 'QueriesCtrl',
