@@ -1,8 +1,12 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, Dashboard) {
     Events.record(currentUser, "view", "dashboard", dashboard.id);
-
-    $scope.refreshEnabled = false;
+    
+    
+    if(!$scope.refreshEnabled) {
+      $scope.refreshEnabled = false
+     
+    }       
     $scope.refreshRate = 60;
     $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
       $scope.$parent.pageTitle = dashboard.name;
@@ -67,9 +71,16 @@
     }
 
     $scope.triggerRefresh = function() {
-      $scope.refreshEnabled = !$scope.refreshEnabled;
+      if ($scope.refreshEnabled == false) {
+        $scope.refreshEnabled = true
+       
+      }
+      else if ($scope.refreshEnabled == true) {
+        $scope.refreshEnabled = false
+        
+      }  
 
-      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
+      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});      
 
       if ($scope.refreshEnabled) {
         var refreshRate = _.min(_.flatten($scope.dashboard.widgets), function(widget) {
@@ -102,7 +113,7 @@
 
     Events.record(currentUser, "view", "widget", $scope.widget.id);
 
-    if ($scope.widget.visualization) {
+    if ($scope.widget != null && $scope.widget.visualization) {
       Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
       Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
@@ -119,19 +130,4 @@
   angular.module('redash.controllers')
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', 'Dashboard', DashboardCtrl])
     .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
-
-     .directive('applystyle', function() {        
-
-      $( "#refreshbutton" ).click(function(currentClass) {
-        if ($('#refreshbutton').hasClass('btn btn-success btn-xs')){
-          $( this ).removeClass( "btn btn-success btn-xs" );
-          $( this ).addClass( "btn btn-danger btn-xs" );
-        }
-        else {
-           $( this ).removeClass( "btn btn-danger btn-xs" );
-           $( this ).addClass( "btn btn-success btn-xs" );
-        }        
-       });
-    });
-
 })();

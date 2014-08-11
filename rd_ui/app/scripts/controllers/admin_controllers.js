@@ -408,6 +408,11 @@ var AdminViewGroupCtrl = function ($location, $scope, $routeParams, Events, Grou
 
   var AdminUsersCtrl = function ($scope, Events, Users) {
 
+    var groupsFormatter = function (groups) {     
+      if (groups == false) return "-";
+      return groups.join(', ');
+    }
+
     $scope.userColumns =[
     {
       "label": "Name",
@@ -416,12 +421,17 @@ var AdminViewGroupCtrl = function ($location, $scope, $routeParams, Events, Grou
     {
       "label": "Email",
       "map": "email"
-    },      
+    },
+    {
+      "label": "Group",
+      "map": "groups",
+      'formatFunction': groupsFormatter
+    },    
     {
       "label": "Actions",
       "cellTemplateUrl": "/views/admin_users_actions_cell.html"
     }
-    ]
+    ]   
 
     var users = new Users();
     users.getUsers().$promise.then(function(result) {
@@ -459,7 +469,7 @@ var AdminViewGroupCtrl = function ($location, $scope, $routeParams, Events, Grou
       $location.path("/");
     }
 
-    var dateFormatter = function (date) {
+    var dateFormatter = function (date) {     
       value = moment(date);
       if (!value) return "-";
       return value.format("DD/MM/YY HH:mm");
