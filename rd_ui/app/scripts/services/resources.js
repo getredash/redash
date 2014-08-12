@@ -372,9 +372,12 @@
       } 
 
       var queryResult = null;
+      
       if (this.latest_query_data && ttl != 0) {
+       
         if (!this.queryResult) {
           this.queryResult = new QueryResult({'query_result': this.latest_query_data});
+          
         }
         queryResult = this.queryResult;
       } else if (this.latest_query_data_id && ttl != 0) {

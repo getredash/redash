@@ -2,18 +2,28 @@
 <edit-dashboard-form dashboard="dashboard" id="edit_dashboard_dialog"></edit-dashboard-form>
 <div class="container">
     <h2 id="dashboard_title">
-        {{dashboard.name}}
-        <button id="refreshbutton" type="button" applystyle="directive" class="btn btn-danger btn-xs" ng-class="{active: refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>
-            <span ng-show="dashboard.canEdit()">
-                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
-                        class="glyphicon glyphicon-cog"></span></button>
-                <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                        href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
-                </button>
-            </span>
-            <h6><small>Created by</small> <span  tooltip="{{dashboard.user_email}}">{{dashboard.user_name}}</span></h6>
 
-    </h2>
+    
+        <div class="pull-left">{{dashboard.name}}</div>
+        
+        
+        
+      
+        <div class="animate-switch-container" ng-switch on="refreshEnabled"  ng-show="dashboard.canEdit()"> 
+        <button id="refreshbutton" type="button" ng-switch-when="false" applystyle="directive" class="btn btn-danger btn-xs refreshButton" ng-class="{active: refreshEnabled}" style="margin-left:5px" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>
+        <button id="refreshbutton" type="button" ng-switch-when="true" applystyle="directive" class="btn btn-success btn-xs refreshButton" ng-class="{active: refreshEnabled}" style="margin-left:5px" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>            
+                  
+             <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
+                     class="glyphicon glyphicon-cog"></span></button>
+             <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
+                     href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
+             </button>
+         </div>
+         
+         <div class="clear-fix"></div> 
+         <h6><small>Created by</small> <span  tooltip="{{currentUser.email}}">{{currentUser.name}}</span></h6>
+     </h2>
+
     <filters></filters>
 </div>
 

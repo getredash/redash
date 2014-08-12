@@ -571,6 +571,10 @@ class CsvQueryResultsAPI(BaseResource):
             writer.writeheader()
             for row in query_data['rows']:
                 for k, v in row.iteritems():
+                    if (v > 1000 * 1000 * 1000 * 100):
+                        v = v.replace('T', ' ')                        
+                        row[k] = v                  
+
                     if isinstance(v, numbers.Number) and (v > 1000 * 1000 * 1000 * 100):
                         row[k] = datetime.datetime.fromtimestamp(v/1000.0)
 

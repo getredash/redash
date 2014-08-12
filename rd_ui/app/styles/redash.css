@@ -79,7 +79,7 @@ a.navbar-brand {
 }
 
 .list-group-item.active button {
-    color: white;
+    color: white;    
 }
 
 .panel-heading > p:last-child {
@@ -286,4 +286,8 @@ use this class when you need to keep the original display value
     .rd-hidden-xs {
         display: none !important;
     }
+}
+
+button.refreshButton:focus {
+    outline:0;
 }
