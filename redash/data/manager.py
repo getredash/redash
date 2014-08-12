@@ -88,10 +88,12 @@ class Manager(object):
         # a reasonable assumption, but worth revisiting.
 
         # TODO: move this logic to the model.
+
         outdated_queries = models.Query.select(peewee.Func('first_value', models.Query.id)\
             .over(partition_by=[models.Query.query_hash, models.Query.data_source]))\
             .join(models.QueryResult)\
-            .where(models.Query.ttl > 0,
+            .where(models.Query.is_archived == False, 
+                    models.Query.ttl > 0,
                    (models.QueryResult.retrieved_at +
                     (models.Query.ttl * peewee.SQL("interval '1 second'"))) <
                    peewee.SQL("(now() at time zone 'utc')"))

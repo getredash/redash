@@ -70,7 +70,7 @@
     };
 
     $scope.deleteQuery = function () {
-
+      console.log($scope.query)
 
       var options = {
         successMessage: 'Query deleted',
