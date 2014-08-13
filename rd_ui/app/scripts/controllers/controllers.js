@@ -113,15 +113,15 @@
       }
     ];
 
-    if ($.inArray('edit_query', currentUser.permissions > -1)) {      
-      var deleteColumn = {
-        "label": "Delete",
-        "map": "delete",
-        "cellTemplateUrl": "/views/queries_delete_query_cell.html"
-      };
+    // if ($.inArray('edit_query', currentUser.permissions > -1)) {      
+    //   var deleteColumn = {
+    //     "label": "Delete",
+    //     "map": "delete",
+    //     "cellTemplateUrl": "/views/queries_delete_query_cell.html"
+    //   };
 
-      $scope.gridColumns.push(deleteColumn)
-    }
+    //   $scope.gridColumns.push(deleteColumn)
+    // }
    
 
     $scope.tabs = [
