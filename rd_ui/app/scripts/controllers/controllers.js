@@ -43,12 +43,12 @@
         Query.query(function(queries) {
             $scope.allQueries = _.map(queries, function(query) {
 
-                if (query.queryWidget().widget != null) {
-                    query.isUsed = true;
-                } else {
-                    query.isUsed = false;
-                    query.deleteQuery = deleteQueryfromQueries;
-                }
+                // if (query.queryWidget().widget != null) {
+                //     query.isUsed = true;
+                // } else {
+                //     query.isUsed = false;
+                query.deleteQuery = deleteQueryfromQueries;
+                // }
 
 
                 query.created_at = moment(query.created_at);
