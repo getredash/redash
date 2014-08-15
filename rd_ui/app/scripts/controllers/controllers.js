@@ -107,7 +107,8 @@
             var deleteColumn = {
                 "label": "Delete",
                 "map": "delete",
-                "cellTemplateUrl": "/views/queries_delete_query_cell.html"
+                "cellTemplateUrl": "/views/queries_delete_query_cell.html",
+                "test": "!!!"
             };
 
             $scope.gridColumns.push(deleteColumn)
