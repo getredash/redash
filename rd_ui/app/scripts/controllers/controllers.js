@@ -33,6 +33,7 @@
         }
 
         var deleteQueryfromQueries = function(query) {
+            console.log(query.queryWidget().widgets)
             if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
                 query.$delete(function() {
                     location.reload();

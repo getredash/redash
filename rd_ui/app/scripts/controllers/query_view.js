@@ -78,21 +78,39 @@
 
         $scope.setUpDelete = function() {
             $scope.queryUsed = $scope.query.queryWidget();
+            console.log($scope.queryUsed)
         }
 
-        $scope.deleteQuery = function() {
+        $scope.deleteQuery = function(data) {
+            if (data) {
+                data.id = $scope.query.id;
+            } else {
+                data = $scope.query;
+            }
 
             var options = {
                 successMessage: 'Query deleted',
                 errorMessage: 'Query could not be deleted',
                 errorQueryUsed: 'This query is used in a dashboard'
             };
-            var dashboards = $scope.dashboards
-            Events.record(currentUser, "archive", "query", $scope.query.id);
-            growl.addSuccessMessage(options.successMessage);
-            return $scope.query.$delete;
 
+            //if(query.isUsed == True) {
+            // growl.addErrorMessage(options.errorQueryUsed)
+            // }
+
+            // else {
+            Events.record(currentUser, "archive", "query", $scope.query.id);
+            Query.delete(data, function() {
+                growl.addSuccessMessage(options.successMessage);
+                $location.path('/queries');
+            }, function(httpResponse) {
+                growl.addErrorMessage(options.errorMessage);
+            }).$promise;
+
+            // }
         }
+
+
 
         $scope.redirect = function() {
             return $location.path('/queries');
