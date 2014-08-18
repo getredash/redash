@@ -33,11 +33,16 @@
         }
 
         var deleteQueryfromQueries = function(query) {
-            console.log(query.queryWidget().widgets)
-            if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
-                query.$delete(function() {
-                    location.reload();
-                });
+            console.log(query)
+            $scope.queryUsed = query.queryWidget();
+            if ($scope.queryUsed.widget == null) {
+                if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
+                    query.$delete(function() {
+                        location.reload();
+                    });
+                }
+            } else {
+                console.log('ABRAKADABRA')
             }
         }
 
