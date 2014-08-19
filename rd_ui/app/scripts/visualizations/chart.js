@@ -144,7 +144,9 @@
 
               // TODO: remove uneeded ones?
               if (scope.visualization.options.seriesOptions == undefined) {
-                scope.visualization.options.seriesOptions = {};
+                scope.visualization.options.seriesOptions = {
+                  type: scope.globalSeriesType
+                };
               };
 
               _.each(scope.series, function(s, i) {
