@@ -88,11 +88,12 @@ def pg(connection_string):
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()
-        except (select.error, OSError, psycopg2.OperationalError) as e:
+        except (select.error, OSError) as e:
             logging.exception(e)
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
+            logging.exception(e)
             json_data = None
             error = e.message
         except KeyboardInterrupt:
