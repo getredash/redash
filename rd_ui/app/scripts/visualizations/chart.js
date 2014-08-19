@@ -87,6 +87,8 @@
           'Pie': 'pie'
         };
 
+        scope.globalSeriesType = 'column';
+
         scope.stackingOptions = {
           "None": "none",
           "Normal": "normal",
@@ -120,6 +122,13 @@
         var chartOptionsUnwatch = null,
             columnsWatch = null;
 
+        scope.$watch('globalSeriesType', function(type, old) {
+          if (type && old && type !== old && scope.visualization.options.seriesOptions) {
+            _.each(scope.visualization.options.seriesOptions, function(sOptions) {
+              sOptions.type = type;
+            });
+          }
+        });
         scope.$watch('visualization.type', function (visualizationType) {
           if (visualizationType == 'CHART') {
             if (scope.visualization.options.series.stacking === null) {
