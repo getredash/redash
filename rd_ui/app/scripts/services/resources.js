@@ -384,11 +384,11 @@
             return '/queries/' + this.id + '/source';
         };
 
-        Query.prototype.queryWidget = function() {
+        Query.prototype.queryWidget = function(fn) {
             if (this.id != null) {
                 return queryWidget.get({
                     id: this.id
-                });
+                }, fn);
             }
             return null
         };
