@@ -33,7 +33,7 @@
         $scope.chartSeries = [];
         $scope.chartOptions = {};
 
-        var reloadData = _.throttle(function(data) {
+        var reloadData = function(data) {
           if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
           } else {
@@ -49,8 +49,8 @@
               }
               $scope.chartSeries.push(_.extend(s, additional));
             });
-          }
-        }, 500);
+          };
+        };
 
         $scope.$watch('options', function (chartOptions) {
           if (chartOptions) {
@@ -144,7 +144,9 @@
 
               // TODO: remove uneeded ones?
               if (scope.visualization.options.seriesOptions == undefined) {
-                scope.visualization.options.seriesOptions = {};
+                scope.visualization.options.seriesOptions = {
+                  type: scope.globalSeriesType
+                };
               };
 
               _.each(scope.series, function(s, i) {
