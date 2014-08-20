@@ -68,7 +68,6 @@
       template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
       replace: false,
       link: function (scope) {
-
         scope.select2Options = {
           width: '50%'
         };
@@ -103,7 +102,7 @@
           if (filters) {
             scope.filters = filters;
 
-            if (filters.length) {
+            if (filters.length && false) {
               readURL();
 
               // start watching for changes and update URL
