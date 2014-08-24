@@ -18,7 +18,7 @@ def mysql(connection_string):
     
     def query_runner(query):
         connections_params = [entry.split('=')[1] for entry in connection_string.split(';')]
-        connection = MySQLdb.connect(*connections_params)
+        connection = MySQLdb.connect(*connections_params, charset="utf8", use_unicode=True)
         cursor = connection.cursor()
 
         logging.debug("mysql got query: %s", query)
