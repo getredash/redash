@@ -396,6 +396,7 @@ class Visualization(BaseModel):
             'name': self.name,
             'description': self.description,
             'options': json.loads(self.options),
+            
         }
 
         if with_query:

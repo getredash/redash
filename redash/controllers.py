@@ -375,9 +375,11 @@ class WidgetListAPI(BaseResource):
         return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row}
 
 class WidgetCheckApi(BaseResource):
-    def get(self, query_id):
+    def get(self, query_id):        
         try:
-            widget = models.Widget.get(models.Widget.query_id == query_id)
+            visualization = models.Visualization.get(models.Visualization.query == query_id)            
+            widget = models.Widget.get(models.Widget.visualization == visualization.id)            
+
             return {'widget': widget.to_dict()}
         except models.Widget.DoesNotExist:
             return {}
