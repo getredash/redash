@@ -1,5 +1,5 @@
 (function() {
-    var QueriesCtrl = function($scope, $http, $location, $filter, Query) {
+    var QueriesCtrl = function(growl, $scope, $http, $location, $filter, Query) {
         $scope.$parent.pageTitle = "All Queries";
         $scope.gridConfig = {
             isPaginationEnabled: true,
@@ -35,8 +35,6 @@
         var deleteQueryfromQueries = function(query) {
             query.queryWidget(function(data) {
                 $scope.queryUsed = data;
-                console.log($scope.queryUsed.widget)
-
                 if (data.widget == null) {
                     if (confirm('Are you sure you want to delete "' + query.name + '" query?')) {
                         query.$delete(function() {
@@ -44,7 +42,10 @@
                         });
                     }
                 } else {
-                    console.log('Cant be deleted')
+                    var options = {
+                        errorQueryUsed: 'This query is used in a dashboard'
+                    };
+                    growl.addErrorMessage(options.errorQueryUsed)
                 }
             });
         }
@@ -52,12 +53,8 @@
         Query.query(function(queries) {
             $scope.allQueries = _.map(queries, function(query) {
 
-                // if (query.queryWidget().widget != null) {
-                //     query.isUsed = true;
-                // } else {
-                //     query.isUsed = false;
+
                 query.deleteQuery = deleteQueryfromQueries;
-                // }
 
 
                 query.created_at = moment(query.created_at);
@@ -116,8 +113,7 @@
             var deleteColumn = {
                 "label": "Delete",
                 "map": "delete",
-                "cellTemplateUrl": "/views/queries_delete_query_cell.html",
-                "test": "!!!"
+                "cellTemplateUrl": "/views/queries_delete_query_cell.html"
             };
 
             $scope.gridColumns.push(deleteColumn)
@@ -215,7 +211,7 @@
     }
 
     angular.module('redash.controllers', [])
-        .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
+        .controller('QueriesCtrl', ['growl', '$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
         .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
         .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
 })();
