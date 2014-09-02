@@ -426,7 +426,7 @@ class QueryResultAPI(BaseResource):
 
 class CsvQueryResultsAPI(BaseResource):
     @require_permission('view_query')
-    def get(self, query_id, query_result_id=None):
+    def get(self, query_id, query_result_id=None, filetype='csv'):
         if not query_result_id:
             query = models.Query.get(models.Query.id == query_id)
             if query:
@@ -434,6 +434,9 @@ class CsvQueryResultsAPI(BaseResource):
 
         query_result = query_result_id and models.QueryResult.get_by_id(query_result_id)
         if query_result:
+            if filetype == 'json':
+                return make_response(query_result.data, 200, {'Content-Type': "application/json; charset=UTF-8"})
+
             s = cStringIO.StringIO()
 
             query_data = json.loads(query_result.data)
@@ -451,8 +454,8 @@ class CsvQueryResultsAPI(BaseResource):
         else:
             abort(404)
 
-api.add_resource(CsvQueryResultsAPI, '/api/queries/<query_id>/results/<query_result_id>.csv',
-                 '/api/queries/<query_id>/results.csv',
+api.add_resource(CsvQueryResultsAPI, '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
+                 '/api/queries/<query_id>/results.<filetype>',
                  endpoint='csv_query_results')
 api.add_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
 api.add_resource(QueryResultAPI, '/api/query_results/<query_result_id>', endpoint='query_result')
