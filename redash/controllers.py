@@ -414,51 +414,52 @@ class QueryResultListAPI(BaseResource):
 
 
 class QueryResultAPI(BaseResource):
-    @require_permission('view_query')
-    def get(self, query_result_id):
-        query_result = models.QueryResult.get_by_id(query_result_id)
-        if query_result:
-            data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
-            return make_response(data, 200, cache_headers)
-        else:
-            abort(404)
+    @staticmethod
+    def csv_response(query_result):
+        s = cStringIO.StringIO()
 
+        query_data = json.loads(query_result.data)
+        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
+        writer.writer = utils.UnicodeWriter(s)
+        writer.writeheader()
+        for row in query_data['rows']:
+            for k, v in row.iteritems():
+                if isinstance(v, numbers.Number) and (v > 1000 * 1000 * 1000 * 100):
+                    row[k] = datetime.datetime.fromtimestamp(v/1000.0)
 
-class CsvQueryResultsAPI(BaseResource):
+            writer.writerow(row)
+
+        headers = {'Content-Type': "text/csv; charset=UTF-8"}
+        headers.update(cache_headers)
+        return make_response(s.getvalue(), 200, headers)
+
     @require_permission('view_query')
-    def get(self, query_id, query_result_id=None, filetype='csv'):
-        if not query_result_id:
+    def get(self, query_id=None, query_result_id=None, filetype='json'):
+        if query_result_id is None and query_id is not None:
             query = models.Query.get(models.Query.id == query_id)
             if query:
                 query_result_id = query._data['latest_query_data']
 
-        query_result = query_result_id and models.QueryResult.get_by_id(query_result_id)
+        if query_result_id:
+            query_result = models.QueryResult.get_by_id(query_result_id)
+
         if query_result:
             if filetype == 'json':
-                return make_response(query_result.data, 200, {'Content-Type': "application/json; charset=UTF-8"})
+                data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
+                return make_response(data, 200, cache_headers)
+            else:
+                return self.csv_response(query_result)
 
-            s = cStringIO.StringIO()
-
-            query_data = json.loads(query_result.data)
-            writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
-            writer.writer = utils.UnicodeWriter(s)
-            writer.writeheader()
-            for row in query_data['rows']:
-                for k, v in row.iteritems():
-                    if isinstance(v, numbers.Number) and (v > 1000 * 1000 * 1000 * 100):
-                        row[k] = datetime.datetime.fromtimestamp(v/1000.0)
-
-                writer.writerow(row)
-
-            return make_response(s.getvalue(), 200, {'Content-Type': "text/csv; charset=UTF-8"})
         else:
             abort(404)
 
-api.add_resource(CsvQueryResultsAPI, '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
-                 '/api/queries/<query_id>/results.<filetype>',
-                 endpoint='csv_query_results')
+
 api.add_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
-api.add_resource(QueryResultAPI, '/api/query_results/<query_result_id>', endpoint='query_result')
+api.add_resource(QueryResultAPI,
+                 '/api/query_results/<query_result_id>',
+                 '/api/queries/<query_id>/results.<filetype>',
+                 '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
+                 endpoint='query_result')
 
 
 class JobAPI(BaseResource):
