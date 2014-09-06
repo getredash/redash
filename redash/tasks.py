@@ -64,7 +64,12 @@ class QueryTask(object):
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
 
                     job = cls(job_id=job_id)
-                else:
+                    if job.is_cancelled:
+                        logging.info("[%s] job found cancelled already, removing lock", query_hash)
+                        redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
+                        job = None
+
+                if not job:
                     pipe.multi()
 
                     if scheduled:
@@ -112,6 +117,10 @@ class QueryTask(object):
             'error': error,
             'query_result_id': query_result_id,
         }
+
+    @property
+    def is_cancelled(self):
+        return self._async_result.status == 'REVOKED'
 
     def cancel(self):
         return self._async_result.revoke(terminate=True)
