@@ -13,10 +13,6 @@ celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
                            'task': 'redash.tasks.refresh_queries',
                            'schedule': timedelta(seconds=30)
                        },
-                       'cleanup_tasks': {
-                           'task': 'redahs.tasks.cleanup_tasks',
-                           'schedule': timedelta(minutes=5)
-                       }
                    },
                    CELERY_TIMEZONE='UTC')
 

@@ -111,7 +111,6 @@ def status_api():
 
     manager_status = redis_connection.hgetall('redash:status')
     status['manager'] = manager_status
-    status['manager']['queue_size'] = redis_connection.llen('queries') + redis_connection.llen('scheduled_queries')
     status['manager']['outdated_queries_count'] = models.Query.outdated_queries().count()
 
     queues = {}
