@@ -1,12 +1,11 @@
 import time
 import datetime
 import logging
-import itertools
 import redis
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client
+from redash import redis_connection, models, statsd_client, settings
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.data.query_runner import get_query_runner
@@ -81,7 +80,7 @@ class QueryTask(object):
                     result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
                     job = cls(async_result=result)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
-                    pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id)
+                    pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                     pipe.execute()
                 break
 
