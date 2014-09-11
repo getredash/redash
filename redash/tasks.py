@@ -1,12 +1,11 @@
 import time
 import datetime
 import logging
-import itertools
 import redis
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client
+from redash import redis_connection, models, statsd_client, settings
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.data.query_runner import get_query_runner
@@ -65,8 +64,8 @@ class QueryTask(object):
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
 
                     job = cls(job_id=job_id)
-                    if job.is_cancelled:
-                        logging.info("[%s] job found cancelled already, removing lock", query_hash)
+                    if job.ready():
+                        logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.celery_status)
                         redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
                         job = None
 
@@ -81,7 +80,7 @@ class QueryTask(object):
                     result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
                     job = cls(async_result=result)
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
-                    pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id)
+                    pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                     pipe.execute()
                 break
 
@@ -127,6 +126,9 @@ class QueryTask(object):
     def celery_status(self):
         return self._async_result.status
 
+    def ready(self):
+        return self._async_result.ready()
+
     def cancel(self):
         return self._async_result.revoke(terminate=True)
 
@@ -163,6 +165,41 @@ def refresh_queries():
     })
 
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
+
+
+@celery.task(base=BaseTask)
+def cleanup_tasks():
+    # in case of cold restart of the workers, there might be jobs that still have their "lock" object, but aren't really
+    # going to run. this job removes them.
+
+    lock_keys = redis_connection.keys("query_hash_job:*") # TODO: use set instead of keys command
+    query_tasks = [QueryTask(job_id=j) for j in redis_connection.mget(lock_keys)]
+
+    logger.info("Found %d locks", len(query_tasks))
+
+    inspect = celery.control.inspect()
+    active_tasks = inspect.active()
+    if active_tasks is None:
+        active_tasks = []
+    else:
+        active_tasks = active_tasks.values()
+
+    all_tasks = set()
+    for task_list in active_tasks:
+        for task in task_list:
+            all_tasks.add(task['id'])
+
+    logger.info("Active jobs count: %d", len(all_tasks))
+
+    for i, t in enumerate(query_tasks):
+        if t.ready():
+            # if locked task is ready already (failed, finished, revoked), we don't need the lock anymore
+            logger.warning("%s is ready (%s), removing lock.", lock_keys[i], t.celery_status)
+            redis_connection.delete(lock_keys[i])
+
+        if t.celery_status == 'STARTED' and t.id not in all_tasks:
+            logger.warning("Couldn't find active job for: %s, removing lock.", lock_keys[i])
+            redis_connection.delete(lock_keys[i])
 
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
