@@ -194,7 +194,7 @@ def cleanup_tasks():
     for i, t in enumerate(query_tasks):
         if t.ready():
             # if locked task is ready already (failed, finished, revoked), we don't need the lock anymore
-            logger.info("%s is ready (%s), removing lock.", lock_keys[i], t.celery_status)
+            logger.warning("%s is ready (%s), removing lock.", lock_keys[i], t.celery_status)
             redis_connection.delete(lock_keys[i])
 
         if t.celery_status == 'STARTED' and t.id not in all_tasks:
