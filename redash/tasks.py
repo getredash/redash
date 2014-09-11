@@ -64,8 +64,8 @@ class QueryTask(object):
                     logging.info("[Manager][%s] Found existing job: %s", query_hash, job_id)
 
                     job = cls(job_id=job_id)
-                    if job.is_cancelled:
-                        logging.info("[%s] job found cancelled already, removing lock", query_hash)
+                    if job.ready():
+                        logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.celery_status)
                         redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
                         job = None
 
@@ -125,6 +125,9 @@ class QueryTask(object):
     @property
     def celery_status(self):
         return self._async_result.status
+
+    def ready(self):
+        return self._async_result.ready()
 
     def cancel(self):
         return self._async_result.revoke(terminate=True)
