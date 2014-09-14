@@ -23,3 +23,6 @@ deployment:
     branch: master
     commands:
       - make upload
+notify:
+  webhooks:
+    - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
