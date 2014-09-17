@@ -3,7 +3,7 @@
 
 </p>
 <p align="center">
-    ![Build Status](https://circleci.com/gh/EverythingMe/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040 "Build Status")
+    <img title="Build Status" src='https://circleci.com/gh/EverythingMe/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
 </p>
 
 **_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
