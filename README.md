@@ -31,6 +31,7 @@ Due to Heroku dev plan limits, it has a small database of flights (see schema [h
 ## Getting Started
 
 * [Setting re:dash on your own server (Ubuntu)](https://github.com/EverythingMe/redash/wiki/Setting-re:dash-on-your-own-server-(for-version-0.4))
+* Additional documentation in the [Wiki](https://github.com/everythingme/redash/wiki).
 
 
 ## Getting help
