@@ -7,7 +7,7 @@ import logging
 from flask import request, make_response, redirect, url_for
 from flask.ext.login import LoginManager, login_user, current_user
 
-from redash import models, settings, google_oauth
+from redash import models, settings
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
@@ -65,6 +65,8 @@ def setup_authentication(app):
     login_manager.anonymous_user = models.AnonymousUser
     app.secret_key = settings.COOKIE_SECRET
 
-    app.register_blueprint(google_oauth.blueprint)
+    if settings.GOOGLE_OAUTH_ENABLED:
+        from redash import google_oauth
+        app.register_blueprint(google_oauth.blueprint)
 
     return HMACAuthentication()

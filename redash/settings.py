@@ -59,9 +59,10 @@ CELERY_FLOWER_URL = os.environ.get("REDASH_CELERY_FLOWER_URL", "/flower")
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
 GOOGLE_APPS_DOMAIN = os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", "")
-GOOGLE_OAUTH_ENABLED = parse_boolean(os.environ.get("REDASH_GOOGLE_OAUTH_ENABLED", "true"))
+
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", None)
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", None)
+GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID is not None and GOOGLE_CLIENT_SECRET is not None
 
 PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
 STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/"))
