@@ -69,8 +69,7 @@ def login():
         return redirect(request.args.get('next') or '/')
 
     if not settings.PASSWORD_LOGIN_ENABLED:
-        blueprint = app.extensions['googleauth'].blueprint
-        return redirect(url_for("%s.login" % blueprint.name, next=request.args.get('next')))
+        return redirect(url_for("google_oauth.authorize", next=request.args.get('next')))
 
     if request.method == 'POST':
         user = models.User.select().where(models.User.email == request.form['username']).first()
@@ -84,7 +83,7 @@ def login():
                            analytics=settings.ANALYTICS,
                            next=request.args.get('next'),
                            username=request.form.get('username', ''),
-                           show_google_openid=settings.GOOGLE_OPENID_ENABLED)
+                           show_google_openid=settings.GOOGLE_OAUTH_ENABLED)
 
 
 @app.route('/logout')
