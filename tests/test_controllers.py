@@ -380,7 +380,7 @@ class TestLogin(BaseTestCase):
         with app.test_client() as c, patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False):
             rv = c.get('/login')
             self.assertEquals(rv.status_code, 302)
-            self.assertTrue(rv.location.endswith(url_for('GoogleAuth.login')))
+            self.assertTrue(rv.location.endswith(url_for('google_oauth.authorize')))
 
     def test_get_login_form(self):
         with app.test_client() as c:
