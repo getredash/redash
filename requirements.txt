@@ -1,7 +1,7 @@
 Flask==0.10.1
-Flask-GoogleAuth==0.4
 Flask-RESTful==0.2.10
 Flask-Login==0.2.9
+Flask-OAuth==0.12
 passlib==1.6.2
 Jinja2==2.7.2
 MarkupSafe==0.18
