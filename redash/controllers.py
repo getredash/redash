@@ -271,13 +271,6 @@ class WidgetAPI(BaseResource):
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
         widget = models.Widget.get(models.Widget.id == widget_id)
-        # TODO: reposition existing ones
-        layout = json.loads(widget.dashboard.layout)
-        layout = map(lambda row: filter(lambda w: w != widget_id, row), layout)
-        layout = filter(lambda row: len(row) > 0, layout)
-        widget.dashboard.layout = json.dumps(layout)
-        widget.dashboard.save()
-
         widget.delete_instance()
 
 api.add_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
@@ -316,9 +309,7 @@ class QueryListAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        # TODO: encapsulate the is_archived logic in the model
-        return [q.to_dict(with_stats=True) for q in
-                models.Query.all_queries().where(models.Query.is_archived==False)]
+        return [q.to_dict(with_stats=True) for q in models.Query.all_queries()]
 
 
 class QueryAPI(BaseResource):
@@ -345,35 +336,22 @@ class QueryAPI(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
-        if q and q.is_archived == False:
+        if q:
             return q.to_dict(with_visualizations=True)
         else:
             abort(404, message="Query not found.")
-    
+
+    # TODO: move to resource of its own? (POST /queries/{id}/archive)
     def delete(self, query_id):
         q = models.Query.get(models.Query.id == query_id)
+
         if q:
-            if q.user.id == self.current_user.id:
-                q.is_archived = True
-                q.save()
-                
-                # Delete widgets using this query
-                vis_ids = [v.id for v in q.visualizations]
-                models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
+            if q.user.id == self.current_user.id or self.current_user.has_permission('admin'):
+                q.archive()
             else:
                 self.delete_others_query(query_id)
         else:
             abort(404, message="Query not found.")
-    
-    @require_permission('delete_queries')
-    def delete_others_query(self, query_id):
-        q = models.Query.get(models.Query.id == query_id)
-        q.is_archived = True
-        q.save()
-        
-        # Delete widgets using this query
-        vis_ids = [v.id for v in q.visualizations]
-        models.Widget.delete().where(models.Widget.visualization << vis_ids).execute()
 
 api.add_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
 api.add_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
@@ -410,7 +388,7 @@ class VisualizationAPI(BaseResource):
 
         return vis.to_dict(with_query=False)
 
-    @require_permission('delete_query')
+    @require_permission('edit_query')
     def delete(self, visualization_id):
         vis = models.Visualization.get(models.Visualization.id == visualization_id)
         vis.delete_instance()

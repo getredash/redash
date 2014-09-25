@@ -60,13 +60,26 @@ class BaseModel(peewee.Model):
         return cls.get(cls.id == model_id)
 
 
-class AnonymousUser(AnonymousUserMixin):
+class PermissionsCheckMixin(object):
+    def has_permission(self, permission):
+        return self.has_permissions((permission,))
+
+    def has_permissions(self, permissions):
+        has_permissions = reduce(lambda a, b: a and b,
+                                 map(lambda permission: permission in self.permissions,
+                                     permissions),
+                                 True)
+
+        return has_permissions
+
+
+class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     @property
     def permissions(self):
         return []
 
 
-class ApiUser(UserMixin):
+class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key):
         self.id = api_key
 
@@ -77,7 +90,7 @@ class ApiUser(UserMixin):
 
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
-                           'view_query', 'view_source', 'execute_query', 'delete_query']
+                           'view_query', 'view_source', 'execute_query']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=100)
@@ -101,7 +114,7 @@ class Group(BaseModel):
         return unicode(self.id)
 
 
-class User(BaseModel, UserMixin):
+class User(BaseModel, UserMixin, PermissionsCheckMixin):
     DEFAULT_GROUPS = ['default']
 
     id = peewee.PrimaryKeyField()
@@ -325,11 +338,22 @@ class Query(BaseModel):
 
         return d
 
+    def archive(self):
+        self.is_archived = True
+        self.ttl = -1
+
+        for vis in self.visualizations:
+            for w in vis.widgets:
+                w.delete_instance()
+
+        self.save()
+
     @classmethod
     def all_queries(cls):
         q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
+            .where(Query.is_archived==False)\
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)\
             .order_by(cls.created_at.desc())
 
@@ -343,6 +367,7 @@ class Query(BaseModel):
             peewee.Func('first_value', cls.id).over(partition_by=[cls.query_hash, cls.data_source])) \
             .join(QueryResult) \
             .where(cls.ttl > 0,
+                   cls.is_archived==False,
                    (QueryResult.retrieved_at +
                     (cls.ttl * peewee.SQL("interval '1 second'"))) <
                    peewee.SQL("(now() at time zone 'utc')"))
@@ -361,6 +386,8 @@ class Query(BaseModel):
         if term.isdigit():
             where |= cls.id == term
 
+        where &= cls.is_archived == False
+
         return cls.select().where(where).order_by(cls.created_at.desc())
 
     @classmethod
@@ -370,7 +397,8 @@ class Query(BaseModel):
             where(Event.action << ('edit', 'execute', 'edit_name', 'edit_description', 'view_source')).\
             where(Event.user == user_id).\
             where(~(Event.object_id >> None)).\
-            where(Event.object_type == 'query').\
+            where(Event.object_type == 'query'). \
+            where(cls.is_archived == False).\
             group_by(Event.object_id, Query.id).\
             order_by(peewee.SQL("count(0) desc"))
 
@@ -551,6 +579,13 @@ class Widget(BaseModel):
     def __unicode__(self):
         return u"%s" % self.id
 
+    def delete_instance(self, *args, **kwargs):
+        layout = json.loads(self.dashboard.layout)
+        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
+        layout = filter(lambda row: len(row) > 0, layout)
+        self.dashboard.layout = json.dumps(layout)
+        self.dashboard.save()
+        super(Widget, self).delete_instance(*args, **kwargs)
 
 class Event(BaseModel):
     user = peewee.ForeignKeyField(User, related_name="events")
@@ -597,13 +632,8 @@ def create_db(create_tables, drop_tables):
         if drop_tables and model.table_exists():
             # TODO: submit PR to peewee to allow passing cascade option to drop_table.
             db.database.execute_sql('DROP TABLE %s CASCADE' % model._meta.db_table)
-            #model.drop_table()
 
         if create_tables and not model.table_exists():
             model.create_table()
-    
-    Group.insert(name='admin', permissions=['admin'], tables=['*']).execute()
-    Group.insert(name='api', permissions=['view_query'], tables=['*']).execute()
-    Group.insert(name='default', permissions=Group.DEFAULT_PERMISSIONS, tables=['*']).execute()
 
     db.close_db(None)

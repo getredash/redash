@@ -69,7 +69,7 @@
       Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
     };
     
-    $scope.deleteQuery = function(options, data) {
+    $scope.archiveQuery = function(options, data) {
       if (data) {
         data.id = $scope.query.id;
       } else {
@@ -79,14 +79,16 @@
       $scope.isDirty = false;
       
       options = _.extend({}, {
-        successMessage: 'Query deleted',
-        errorMessage: 'Query could not be deleted'
+        successMessage: 'Query archived',
+        errorMessage: 'Query could not be archived'
       }, options);
       
       return Query.delete({id: data.id}, function() {
+        $scope.query.is_archived = true;
+        $scope.query.ttl = -1;
         growl.addSuccessMessage(options.successMessage);
-          $('#delete-confirmation-modal').modal('hide');
-          $location.path('/queries');
+          // This feels dirty.
+          $('#archive-confirmation-modal').modal('hide');
         }, function(httpResponse) {
           growl.addErrorMessage(options.errorMessage);
         }).$promise;

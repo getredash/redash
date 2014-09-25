@@ -60,6 +60,7 @@ query_factory = ModelFactory(redash.models.Query,
                              query='SELECT 1',
                              ttl=-1,
                              user=user_factory.create,
+                             is_archived=False,
                              data_source=data_source_factory.create)
 
 query_result_factory = ModelFactory(redash.models.QueryResult,
