@@ -1,14 +1,15 @@
 .main {
     max-width: 320px;
     margin: 0 auto;
+    margin-top:20px;
 }
 
 .login-or {
     position: relative;
     font-size: 18px;
     color: #aaa;
-    margin-top: 10px;
-            margin-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 20px;
     padding-top: 10px;
     padding-bottom: 10px;
 }
@@ -31,7 +32,9 @@
     margin-bottom: 0px !important;
 }
 
-/*h3 {*/
-    /*text-align: center;*/
-    /*line-height: 300%;*/
-/*}*/
+img.login-button {
+    width: 250px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
