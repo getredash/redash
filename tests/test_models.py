@@ -1,7 +1,8 @@
 import datetime
+import json
 from tests import BaseTestCase
 from redash import models
-from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory
+from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory, user_factory
 from redash.utils import gen_query_hash
 
 
@@ -149,3 +150,37 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.assertEqual(models.Query.get_by_id(query1.id)._data['latest_query_data'], query_result.id)
         self.assertEqual(models.Query.get_by_id(query2.id)._data['latest_query_data'], query_result.id)
         self.assertNotEqual(models.Query.get_by_id(query3.id)._data['latest_query_data'], query_result.id)
+
+
+class TestEvents(BaseTestCase):
+    def raw_event(self):
+        timestamp = 1411778709.791
+        user = user_factory.create()
+        created_at = datetime.datetime.utcfromtimestamp(timestamp)
+        raw_event = {"action": "view",
+                      "timestamp": timestamp,
+                      "object_type": "dashboard",
+                      "user_id": user.id,
+                      "object_id": 1}
+
+        return raw_event, user, created_at
+
+    def test_records_event(self):
+        raw_event, user, created_at = self.raw_event()
+
+        event = models.Event.record(raw_event)
+
+        self.assertEqual(event.user, user)
+        self.assertEqual(event.action, "view")
+        self.assertEqual(event.object_type, "dashboard")
+        self.assertEqual(event.object_id, 1)
+        self.assertEqual(event.created_at, created_at)
+
+    def test_records_additional_properties(self):
+        raw_event, _, _ = self.raw_event()
+        additional_properties = {'test': 1, 'test2': 2, 'whatever': "abc"}
+        raw_event.update(additional_properties)
+
+        event = models.Event.record(raw_event)
+
+        self.assertDictEqual(json.loads(event.additional_properties), additional_properties)
