@@ -42,6 +42,7 @@ def check_settings():
 
 @manager.command
 def import_events(events_file):
+    # TODO: remove this code past 1/11/2014.
     import json
     from collections import Counter
 

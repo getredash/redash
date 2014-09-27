@@ -246,3 +246,7 @@ def execute_query(self, query, data_source_id):
 
     return query_result.id
 
+
+@celery.task(base=BaseTask)
+def record_event(event):
+    models.Event.record(event)

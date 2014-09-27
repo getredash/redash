@@ -10,23 +10,20 @@ import json
 import numbers
 import cStringIO
 import datetime
+import logging
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for
 from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
-
 import sqlparse
-import events
-from permissions import require_permission
 
 from redash import redis_connection, statsd_client, models, settings, utils, __version__
 from redash.wsgi import app, auth, api
+from redash.tasks import QueryTask, record_event
+from redash.cache import headers as cache_headers
+from redash.permissions import require_permission
 
-import logging
-from tasks import QueryTask
-
-from cache import headers as cache_headers
 
 @app.route('/ping', methods=['GET'])
 def ping():
@@ -158,7 +155,7 @@ class EventAPI(BaseResource):
     def post(self):
         events_list = request.get_json(force=True)
         for event in events_list:
-            events.record_event(event)
+            record_event.delay(event)
 
 
 api.add_resource(EventAPI, '/api/events', endpoint='events')

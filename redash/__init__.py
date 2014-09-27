@@ -3,7 +3,7 @@ import urlparse
 import redis
 from statsd import StatsClient
 
-from redash import settings, events
+from redash import settings
 
 __version__ = '0.4.0'
 
@@ -14,8 +14,6 @@ def setup_logging():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
-
-    events.setup_logging(settings.EVENTS_LOG_PATH, settings.EVENTS_CONSOLE_OUTPUT)
 
 
 def create_redis_connection():

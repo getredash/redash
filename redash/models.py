@@ -520,6 +520,21 @@ class Event(BaseModel):
     def __unicode__(self):
         return u"%s,%s,%s,%s" % (self._data['user'], self.action, self.object_type, self.object_id)
 
+    @classmethod
+    def record(cls, event):
+        user = event.pop('user_id')
+        action = event.pop('action')
+        object_type = event.pop('object_type')
+        object_id = event.pop('object_id', None)
+
+        created_at = datetime.datetime.utcfromtimestamp(event.pop('timestamp'))
+        additional_properties = json.dumps(event)
+
+        event = cls.create(user=user, action=action, object_type=object_type, object_id=object_id,
+                           additional_properties=additional_properties, created_at=created_at)
+
+        return event
+
 
 all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group, Event)
 
