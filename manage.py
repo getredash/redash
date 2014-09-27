@@ -53,20 +53,14 @@ def import_events(events_file):
             try:
                 event = json.loads(line)
 
-                user = event.pop('user_id')
-                action = event.pop('action')
-                object_type = event.pop('object_type')
-                object_id = event.pop('object_id', None)
+                object_type = event.get('object_type', None)
+                object_id = event.get('object_id', None)
 
                 if object_id == 'dashboard' and object_type == 'dashboard':
                     count['bad dashboard id'] += 1
                     continue
 
-                created_at = datetime.datetime.utcfromtimestamp(event.pop('timestamp'))
-                additional_properties = json.dumps(event)
-
-                models.Event.create(user=user, action=action, object_type=object_type, object_id=object_id,
-                                    additional_properties=additional_properties, created_at=created_at)
+                models.Event.record(event)
 
                 count['imported'] += 1
 
