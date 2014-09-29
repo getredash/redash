@@ -29,7 +29,7 @@
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
                             <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
                         </p>
-                        <div class="text-muted" ng-bind="query.description"></div>
+                        <div class="text-muted" ng-bind-html="query.description | markdown"></div>
                     </h3>
                 </div>
 
