@@ -349,6 +349,11 @@ class Query(BaseModel):
         return queries
 
     @classmethod
+    def search(cls, term):
+        # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
+        return cls.select().where((cls.name**"%{}%".format(term)) | (cls.description**"%{}%".format(term)))
+
+    @classmethod
     def update_instance(cls, query_id, **kwargs):
         if 'query' in kwargs:
             kwargs['query_hash'] = utils.gen_query_hash(kwargs['query'])
