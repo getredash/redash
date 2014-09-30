@@ -36,7 +36,6 @@ def mongodb(connection_string):
 
     def _convert_date(q, field_name):
         m = date_regex.findall(q[field_name])
-        logging.debug(m)
         if len(m) > 0:
             if q[field_name].find(":") == -1:
                 q[field_name] = datetime.datetime.fromtimestamp(time.mktime(time.strptime(m[0], "%Y-%m-%d")))
@@ -55,7 +54,7 @@ def mongodb(connection_string):
 
         collection = None
         if not "collection" in query_data:
-            raise ValueError("Missing 'collection' value")
+            return None, "'collection' is not specified"
         else:
             collection = query_data["collection"]
 
