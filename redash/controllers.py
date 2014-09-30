@@ -276,6 +276,14 @@ api.add_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
 api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
 
 
+class QuerySearchAPI(BaseResource):
+    @require_permission('view_query')
+    def get(self):
+        term = request.args.get('q', '')
+
+        return [q.to_dict() for q in models.Query.search(term)]
+
+
 class QueryListAPI(BaseResource):
     @require_permission('create_query')
     def post(self):
@@ -324,6 +332,7 @@ class QueryAPI(BaseResource):
         else:
             abort(404, message="Query not found.")
 
+api.add_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
 

@@ -30,6 +30,28 @@ class QueryTest(BaseTestCase):
 
         self.assertNotEquals(old_hash, q.query_hash)
 
+    def test_search_finds_in_name(self):
+        q1 = query_factory.create(name="Testing search")
+        q2 = query_factory.create(name="Testing searching")
+        q3 = query_factory.create(name="Testing sea rch")
+
+        queries = models.Query.search("search")
+
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
+    def test_search_finds_in_description(self):
+        q1 = query_factory.create(description="Testing search")
+        q2 = query_factory.create(description="Testing searching")
+        q3 = query_factory.create(description="Testing sea rch")
+
+        queries = models.Query.search("search")
+
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertNotIn(q3, queries)
+
 
 class QueryResultTest(BaseTestCase):
     def setUp(self):
@@ -93,6 +115,7 @@ class QueryResultTest(BaseTestCase):
         found_query_result = models.QueryResult.get_latest(qr.data_source, qr.query, -1)
 
         self.assertEqual(found_query_result.id, qr.id)
+
 
 class TestQueryResultStoreResult(BaseTestCase):
     def setUp(self):
