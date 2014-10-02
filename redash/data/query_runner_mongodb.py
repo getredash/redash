@@ -45,16 +45,23 @@ def mongodb(connection_string):
     def query_runner(query):
         db_name = connection_string.split("/")[-1]
 
-        db = pymongo.MongoClient(connection_string)[db_name]
+        db_connection = pymongo.MongoClient(connection_string)
+        if db_name not in db_connection.database_names():
+            return None, "Unknown database name '%s'" % db_name
+
+        db = db_connection[db_name]
 
         logging.debug("mongodb connection string: %s", connection_string)
         logging.debug("mongodb got query: %s", query)
 
-        query_data = json.loads(query)
+        try:
+            query_data = json.loads(query)
+        except:
+            return None, "Invalid query format. The query is not a valid JSON."
 
         collection = None
         if not "collection" in query_data:
-            return None, "'collection' is not specified"
+            return None, "'collection' must have a value to run a query"
         else:
             collection = query_data["collection"]
 
