@@ -1,5 +1,5 @@
 (function () {
-  var QuerySearchCtrl = function($scope, $location, Query) {
+  var QuerySearchCtrl = function($scope, $location, $filter, Query) {
     $scope.$parent.pageTitle = "Queries Search";
 
     $scope.gridConfig = {
@@ -27,6 +27,25 @@
         'label': 'Created At',
         'map': 'created_at',
         'formatFunction': dateFormatter
+      },
+      {
+        'label': 'Runtime',
+        'map': 'runtime',
+        'formatFunction': function (value) {
+          return $filter('durationHumanize')(value);
+        }
+      },
+      {
+        'label': 'Last Executed At',
+        'map': 'retrieved_at',
+        'formatFunction': dateFormatter
+      },
+      {
+        'label': 'Update Schedule',
+        'map': 'ttl',
+        'formatFunction': function (value) {
+          return $filter('refreshRateHumanize')(value);
+        }
       }
     ];
 
@@ -37,6 +56,7 @@
       console.log(results);
       $scope.queries = _.map(results, function(query) {
         query.created_at = moment(query.created_at);
+        query.retrieved_at = moment(query.retrieved_at);
         return query;
       });
     });
@@ -86,7 +106,7 @@
     Query.query(function (queries) {
       $scope.allQueries = _.map(queries, function (query) {
         query.created_at = moment(query.created_at);
-        query.last_retrieved_at = moment(query.last_retrieved_at);
+        query.retrieved_at = moment(query.retrieved_at);
         return query;
       });
 
@@ -109,34 +129,16 @@
         'formatFunction': dateFormatter
       },
       {
-        'label': 'Runtime (avg)',
-        'map': 'avg_runtime',
-        'formatFunction': function (value) {
-          return $filter('durationHumanize')(value);
-        }
-      },
-      {
-        'label': 'Runtime (min)',
-        'map': 'min_runtime',
-        'formatFunction': function (value) {
-          return $filter('durationHumanize')(value);
-        }
-      },
-      {
-        'label': 'Runtime (max)',
-        'map': 'max_runtime',
+        'label': 'Runtime',
+        'map': 'runtime',
         'formatFunction': function (value) {
           return $filter('durationHumanize')(value);
         }
       },
       {
         'label': 'Last Executed At',
-        'map': 'last_retrieved_at',
+        'map': 'retrieved_at',
         'formatFunction': dateFormatter
-      },
-      {
-        'label': 'Times Executed',
-        'map': 'times_retrieved'
       },
       {
         'label': 'Update Schedule',
@@ -146,6 +148,7 @@
         }
       }
     ]
+    
     $scope.tabs = [
       {"name": "My Queries", "key": "my"},
       {"key": "all", "name": "All Queries"},
@@ -222,5 +225,5 @@
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
-    .controller('QuerySearchCtrl', ['$scope', '$location', 'Query', QuerySearchCtrl]);
+    .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Query', QuerySearchCtrl]);
 })();

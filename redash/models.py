@@ -305,11 +305,8 @@ class Query(BaseModel):
             d['user_id'] = self._data['user']
 
         if with_stats:
-            d['avg_runtime'] = self.avg_runtime
-            d['min_runtime'] = self.min_runtime
-            d['max_runtime'] = self.max_runtime
-            d['last_retrieved_at'] = self.last_retrieved_at
-            d['times_retrieved'] = self.times_retrieved
+            d['retrieved_at'] = self.retrieved_at
+            d['runtime'] = self.runtime
 
         if with_visualizations:
             d['visualizations'] = [vis.to_dict(with_query=False)
@@ -319,15 +316,10 @@ class Query(BaseModel):
 
     @classmethod
     def all_queries(cls):
-        q = Query.select(Query, User,
-                     peewee.fn.Count(QueryResult.id).alias('times_retrieved'),
-                     peewee.fn.Avg(QueryResult.runtime).alias('avg_runtime'),
-                     peewee.fn.Min(QueryResult.runtime).alias('min_runtime'),
-                     peewee.fn.Max(QueryResult.runtime).alias('max_runtime'),
-                     peewee.fn.Max(QueryResult.retrieved_at).alias('last_retrieved_at'))\
+        q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
-            .group_by(Query.id, User.id)
+            .group_by(Query.id, User.id, QueryResult.id)
 
         return q
 
@@ -351,7 +343,7 @@ class Query(BaseModel):
     @classmethod
     def search(cls, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
-        return cls.select().where((cls.name**"%{}%".format(term)) | (cls.description**"%{}%".format(term)))
+        return cls.all_queries().where((cls.name**"%{}%".format(term)) | (cls.description**"%{}%".format(term)))
 
     @classmethod
     def update_instance(cls, query_id, **kwargs):
@@ -370,6 +362,14 @@ class Query(BaseModel):
         if not self.api_key:
             self.api_key = hashlib.sha1(
                 u''.join((str(time.time()), self.query, str(self._data['user']), self.name)).encode('utf-8')).hexdigest()
+
+    @property
+    def runtime(self):
+        return self.latest_query_data.runtime
+
+    @property
+    def retrieved_at(self):
+        return self.latest_query_data.retrieved_at
 
     def __unicode__(self):
         return unicode(self.id)
