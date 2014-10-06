@@ -1,5 +1,5 @@
 (function () {
-  var QuerySearchCtrl = function($scope, $location, $filter, Query) {
+  var QuerySearchCtrl = function($scope, $location, $filter, Events, Query) {
     $scope.$parent.pageTitle = "Queries Search";
 
     $scope.gridConfig = {
@@ -53,7 +53,6 @@
     $scope.$parent.term = $location.search().q;
 
     Query.search({q: $scope.term }, function(results) {
-      console.log(results);
       $scope.queries = _.map(results, function(query) {
         query.created_at = moment(query.created_at);
         query.retrieved_at = moment(query.retrieved_at);
@@ -69,6 +68,8 @@
 
       $location.search({q: $scope.term});
     };
+
+    Events.record(currentUser, "search", "query", "", {"term": $scope.term});
   };
 
   var QueriesCtrl = function ($scope, $http, $location, $filter, Query) {
@@ -148,7 +149,7 @@
         }
       }
     ]
-    
+
     $scope.tabs = [
       {"name": "My Queries", "key": "my"},
       {"key": "all", "name": "All Queries"},
@@ -190,7 +191,6 @@
     };
 
     $scope.searchQueries = function() {
-      console.log("search");
       $location.path('/queries/search').search({q: $scope.term});
     };
 
@@ -225,5 +225,5 @@
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
-    .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Query', QuerySearchCtrl]);
+    .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();
