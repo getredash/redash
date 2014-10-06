@@ -52,16 +52,6 @@ class QueryTest(BaseTestCase):
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
-    def test_search_returns_extended_info_queries(self):
-        query = query_factory.create(description="Testing search")
-        qr = query_result_factory.create()
-        query.latest_query_data = qr
-        query.save()
-        queries = models.Query.search("search")
-
-        self.assertIsNotNone(queries[0].retrieved_at)
-        self.assertIsNotNone(queries[0].runtime)
-
 
 class QueryResultTest(BaseTestCase):
     def setUp(self):

@@ -29,18 +29,6 @@
         'formatFunction': dateFormatter
       },
       {
-        'label': 'Runtime',
-        'map': 'runtime',
-        'formatFunction': function (value) {
-          return $filter('durationHumanize')(value);
-        }
-      },
-      {
-        'label': 'Last Executed At',
-        'map': 'retrieved_at',
-        'formatFunction': dateFormatter
-      },
-      {
         'label': 'Update Schedule',
         'map': 'ttl',
         'formatFunction': function (value) {
@@ -55,7 +43,6 @@
     Query.search({q: $scope.term }, function(results) {
       $scope.queries = _.map(results, function(query) {
         query.created_at = moment(query.created_at);
-        query.retrieved_at = moment(query.retrieved_at);
         return query;
       });
     });

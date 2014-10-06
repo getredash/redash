@@ -281,7 +281,7 @@ class QuerySearchAPI(BaseResource):
     def get(self):
         term = request.args.get('q', '')
 
-        return [q.to_dict(with_stats=True) for q in models.Query.search(term)]
+        return [q.to_dict() for q in models.Query.search(term)]
 
 
 class QueryListAPI(BaseResource):
