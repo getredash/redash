@@ -47,6 +47,7 @@ module.exports = function(config) {
       'app/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js',
       'app/bower_components/select2/select2.js',
       'app/bower_components/angular-ui-select2/src/select2.js',
+      'app/bower_components/angular-ui-select/dist/select.js',
       'app/bower_components/underscore.string/lib/underscore.string.js',
       'app/bower_components/marked/lib/marked.js',
       'app/scripts/ng_highchart.js',
