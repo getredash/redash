@@ -75,4 +75,13 @@ angular.module('redash.filters', []).
       }
       return $sce.trustAsHtml(marked(text));
     }
+  }])
+
+  .filter('trustAsHtml', ['$sce', function ($sce) {
+    return function (text) {
+      if (!text) {
+        return "";
+      }
+      return $sce.trustAsHtml(text);
+    }
   }]);

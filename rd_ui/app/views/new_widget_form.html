@@ -22,22 +22,22 @@
                 </div>
 
                 <div ng-show="isVisualization()">
-                    <p>
-                        <form class="form-inline" role="form" ng-submit="loadVisualizations()">
-                            <div class="form-group">
-                                <input class="form-control" placeholder="Query Id" ng-model="queryId">
-                            </div>
-                            <button type="submit" class="btn btn-primary" ng-disabled="!queryId">
-                                Load visualizations
-                            </button>
-                        </form>
-                    </p>
+                    <div class="form-group">
+                        <ui-select ng-model="query.selected" theme="bootstrap" reset-search-input="false">
+                            <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
+                            <ui-select-choices repeat="q in queries"
+                                               refresh="searchQueries($select.search)"
+                                               refresh-delay="0">
+                                <div ng-bind-html="q.name | highlight: $select.search | trustAsHtml"></div>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
 
-                    <div ng-show="query">
-                      <div class="form-group">
-                          <label for="">Choose Visualization</label>
-                          <select ng-model="selectedVis" ng-options="vis as vis.name group by vis.type for vis in query.visualizations" class="form-control"></select>
-                      </div>
+                    <div ng-show="selected_query">
+                        <div class="form-group">
+                            <label for="">Choose Visualization</label>
+                            <select ng-model="selectedVis" ng-options="vis as vis.name group by vis.type for vis in selected_query.visualizations" class="form-control"></select>
+                        </div>
                     </div>
                 </div>
 

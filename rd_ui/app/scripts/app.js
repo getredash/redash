@@ -14,7 +14,8 @@ angular.module('redash', [
     'ui.bootstrap',
     'smartTable.table',
     'ngResource',
-    'ngRoute'
+    'ngRoute',
+    'ui.select'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider) {
       if (featureFlags.clientSideMetrics) {

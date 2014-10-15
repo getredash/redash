@@ -147,28 +147,42 @@
           var reset = function() {
             $scope.saveInProgress = false;
             $scope.widgetSize = 1;
-            $scope.queryId = null;
             $scope.selectedVis = null;
-            $scope.query = null;
+            $scope.query = {};
+            $scope.selected_query = undefined;
             $scope.text = "";
           };
 
           reset();
 
           $scope.loadVisualizations = function () {
-            if (!$scope.queryId) {
+            if (!$scope.query.selected) {
               return;
             }
 
-            Query.get({ id: $scope.queryId }, function(query) {
+            Query.get({ id: $scope.query.selected.id }, function(query) {
               if (query) {
-                $scope.query = query;
+                $scope.selected_query = query;
                 if (query.visualizations.length) {
                   $scope.selectedVis = query.visualizations[0];
                 }
               }
             });
           };
+
+          $scope.searchQueries = function (term) {
+            if (!term || term.length < 3) {
+              return;
+            }
+
+            Query.search({q: term}, function(results) {
+              $scope.queries = results;
+            });
+          };
+
+          $scope.$watch('query', function () {
+            $scope.loadVisualizations();
+          }, true);
 
           $scope.saveWidget = function() {
             $scope.saveInProgress = true;

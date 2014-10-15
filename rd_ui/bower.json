@@ -2,7 +2,10 @@
   "name": "rdUi",
   "version": "0.1.0",
   "dependencies": {
-    "angular": "1.2.7",
+    "angular": "1.2.18",
+    "angular-resource": "1.2.18",
+    "angular-route": "1.2.18",
+    "angular-growl": "0.4.0",
     "json3": "3.2.4",
     "jquery": "1.9.1",
     "bootstrap": "3.0.0",
@@ -13,9 +16,6 @@
     "angular-ui-codemirror": "0.0.5",
     "highcharts": "3.0.10",
     "underscore": "1.5.1",
-    "angular-resource": "1.2.15",
-    "angular-growl": "0.3.1",
-    "angular-route": "1.2.7",
     "pivottable": "~1.1.1",
     "cornelius": "https://github.com/restorando/cornelius.git",
     "gridster": "0.2.0",
@@ -25,13 +25,14 @@
     "underscore.string": "~2.3.3",
     "marked": "~0.3.2",
     "bucky": "~0.2.6",
-    "pace": "~0.5.1"
+    "pace": "~0.5.1",
+    "angular-ui-select": "0.8.2"
   },
   "devDependencies": {
-    "angular-mocks": "~1.0.7",
-    "angular-scenario": "~1.0.7"
+    "angular-mocks": "1.2.18",
+    "angular-scenario": "1.2.18"
   },
   "resolutions": {
-    "angular": "1.2.7"
+    "angular": "1.2.18"
   }
 }
