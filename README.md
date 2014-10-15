@@ -24,9 +24,7 @@ Today **_re:dash_** has support for querying multiple databases, including: Reds
 
 ![Screenshots](https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif)
 
-You can try out the demo instance: http://rd-demo.herokuapp.com/ (login with any Google account).
-
-Due to Heroku dev plan limits, it has a small database of flights (see schema [here](http://rd-demo.herokuapp.com/dashboard/schema)). Also due to another Heroku limitation, it is running with the regular user, hence you can DELETE or INSERT data/tables. Please be nice and don't do this.
+You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
 
 ## Getting Started
 

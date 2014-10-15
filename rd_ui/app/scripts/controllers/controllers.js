@@ -1,12 +1,71 @@
 (function () {
+  var QuerySearchCtrl = function($scope, $location, $filter, Events, Query) {
+    $scope.$parent.pageTitle = "Queries Search";
+
+    $scope.gridConfig = {
+      isPaginationEnabled: true,
+      itemsByPage: 50,
+      maxSize: 8,
+    };
+
+    var dateFormatter = function (value) {
+      if (!value) return "-";
+      return value.format("DD/MM/YY HH:mm");
+    }
+
+    $scope.gridColumns = [
+      {
+        "label": "Name",
+        "map": "name",
+        "cellTemplateUrl": "/views/queries_query_name_cell.html"
+      },
+      {
+        'label': 'Created By',
+        'map': 'user.name'
+      },
+      {
+        'label': 'Created At',
+        'map': 'created_at',
+        'formatFunction': dateFormatter
+      },
+      {
+        'label': 'Update Schedule',
+        'map': 'ttl',
+        'formatFunction': function (value) {
+          return $filter('refreshRateHumanize')(value);
+        }
+      }
+    ];
+
+    $scope.queries = [];
+    $scope.$parent.term = $location.search().q;
+
+    Query.search({q: $scope.term }, function(results) {
+      $scope.queries = _.map(results, function(query) {
+        query.created_at = moment(query.created_at);
+        return query;
+      });
+    });
+
+    $scope.search = function() {
+      if (!angular.isString($scope.term) || $scope.term.trim() == "") {
+        $scope.queries = [];
+        return;
+      }
+
+      $location.search({q: $scope.term});
+    };
+
+    Events.record(currentUser, "search", "query", "", {"term": $scope.term});
+  };
+
   var QueriesCtrl = function ($scope, $http, $location, $filter, Query) {
     $scope.$parent.pageTitle = "All Queries";
     $scope.gridConfig = {
       isPaginationEnabled: true,
       itemsByPage: 50,
       maxSize: 8,
-      isGlobalSearchActivated: true
-    }
+      isGlobalSearchActivated: true};
 
     $scope.allQueries = [];
     $scope.queries = [];
@@ -35,7 +94,7 @@
     Query.query(function (queries) {
       $scope.allQueries = _.map(queries, function (query) {
         query.created_at = moment(query.created_at);
-        query.last_retrieved_at = moment(query.last_retrieved_at);
+        query.retrieved_at = moment(query.retrieved_at);
         return query;
       });
 
@@ -58,34 +117,16 @@
         'formatFunction': dateFormatter
       },
       {
-        'label': 'Runtime (avg)',
-        'map': 'avg_runtime',
-        'formatFunction': function (value) {
-          return $filter('durationHumanize')(value);
-        }
-      },
-      {
-        'label': 'Runtime (min)',
-        'map': 'min_runtime',
-        'formatFunction': function (value) {
-          return $filter('durationHumanize')(value);
-        }
-      },
-      {
-        'label': 'Runtime (max)',
-        'map': 'max_runtime',
+        'label': 'Runtime',
+        'map': 'runtime',
         'formatFunction': function (value) {
           return $filter('durationHumanize')(value);
         }
       },
       {
         'label': 'Last Executed At',
-        'map': 'last_retrieved_at',
+        'map': 'retrieved_at',
         'formatFunction': dateFormatter
-      },
-      {
-        'label': 'Times Executed',
-        'map': 'times_retrieved'
       },
       {
         'label': 'Update Schedule',
@@ -95,6 +136,7 @@
         }
       }
     ]
+
     $scope.tabs = [
       {"name": "My Queries", "key": "my"},
       {"key": "all", "name": "All Queries"},
@@ -110,7 +152,7 @@
     });
   }
 
-  var MainCtrl = function ($scope, Dashboard, notifications) {
+  var MainCtrl = function ($scope, $location, Dashboard, notifications) {
     if (featureFlags.clientSideMetrics) {
       $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
         // This will be called once per actual page load.
@@ -133,7 +175,11 @@
         $scope.otherDashboards = $scope.allDashboards['Other'] || [];
         $scope.groupedDashboards = _.omit($scope.allDashboards, 'Other');
       });
-    }
+    };
+
+    $scope.searchQueries = function() {
+      $location.path('/queries/search').search({q: $scope.term});
+    };
 
     $scope.reloadDashboards();
 
@@ -165,5 +211,6 @@
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
-    .controller('MainCtrl', ['$scope', 'Dashboard', 'notifications', MainCtrl]);
+    .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
+    .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();

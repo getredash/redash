@@ -70,6 +70,9 @@ angular.module('redash.filters', []).
 
   .filter('markdown', ['$sce', function ($sce) {
     return function (text) {
+      if (!text) {
+        return "";
+      }
       return $sce.trustAsHtml(marked(text));
     }
   }]);

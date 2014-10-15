@@ -97,14 +97,24 @@
         value: '=',
         ignoreBlanks: '=',
         editable: '=',
-        done: '='
+        done: '=',
       },
       template: function (tElement, tAttrs) {
         var elType = tAttrs.editor || 'input';
         var placeholder = tAttrs.placeholder || 'Click to edit';
-        return '<span ng-click="editable && edit()" ng-bind="value" ng-class="{editable: editable}"></span>' +
-          '<span ng-click="editable && edit()" ng-show="editable && !value" ng-class="{editable: editable}">' + placeholder + '</span>' +
-          '<{elType} ng-model="value" class="rd-form-control"></{elType}>'.replace('{elType}', elType);
+
+        var viewMode = '';
+
+        if (tAttrs.markdown == "true") {
+          viewMode = '<span ng-click="editable && edit()" ng-bind-html="value|markdown" ng-class="{editable: editable}"></span>';
+        } else {
+          viewMode = '<span ng-click="editable && edit()" ng-bind="value" ng-class="{editable: editable}"></span>';
+        }
+
+        var placeholderSpan = '<span ng-click="editable && edit()" ng-show="editable && !value" ng-class="{editable: editable}">' + placeholder + '</span>';
+        var editor = '<{elType} ng-model="value" class="rd-form-control"></{elType}>'.replace('{elType}', elType);
+
+        return viewMode + placeholderSpan + editor;
       },
       link: function ($scope, element, attrs) {
         // Let's get a reference to the input element, as we'll want to reference it.
@@ -224,4 +234,17 @@
         '</span>'
     }
   });
+
+  // Used instead of autofocus attribute, which doesn't work in Angular as there is no real page load.
+  directives.directive('autofocus',
+    ['$timeout', function ($timeout) {
+      return {
+        link: function (scope, element) {
+          $timeout(function () {
+            element[0].focus();
+          });
+        }
+      };
+    }]
+  );
 })();
