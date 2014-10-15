@@ -171,6 +171,10 @@
           };
 
           $scope.searchQueries = function (term) {
+            if (!term || term.length < 3) {
+              return;
+            }
+
             Query.search({q: term}, function(results) {
               $scope.queries = results;
             });
