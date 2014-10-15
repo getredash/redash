@@ -15,7 +15,11 @@
         _.each(this.query_result.data.rows, function (row) {
           _.each(row, function (v, k) {
             if (angular.isNumber(v)) {
-              columnTypes[k] = 'float';
+                if (parseInt(v) === v) {
+                    columnTypes[k] = 'integer';
+                } else {
+                    columnTypes[k] = 'float';
+                }
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
               row[k] = moment(v);
               columnTypes[k] = 'datetime';
