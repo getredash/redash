@@ -33,7 +33,7 @@
                         </ui-select>
                     </div>
 
-                    <div ng-show="query.selected">
+                    <div ng-show="selected_query">
                         <div class="form-group">
                             <label for="">Choose Visualization</label>
                             <select ng-model="selectedVis" ng-options="vis as vis.name group by vis.type for vis in selected_query.visualizations" class="form-control"></select>
