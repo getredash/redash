@@ -28,7 +28,7 @@
                             <ui-select-choices repeat="q in queries"
                                                refresh="searchQueries($select.search)"
                                                refresh-delay="0">
-                                <div ng-bind-html="q.name | highlight: $select.search | markdown"></div>
+                                <div ng-bind-html="q.name | highlight: $select.search | trustAsHtml"></div>
                             </ui-select-choices>
                         </ui-select>
                     </div>
