@@ -1,0 +1,46 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+  "builders": [
+    {
+      "name": "redash-us-east-1",
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-east-1",
+      "source_ami": "ami-fe7cc796",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "redash-040b563-us-east-1"
+    },
+    {
+      "name": "redash-eu-west-1",
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "eu-west-1",
+      "source_ami": "ami-d2ff50a5",
+      "instance_type": "t2.micro",
+      "ssh_username": "ubuntu",
+      "ami_name": "redash-040b563-eu-west-1"
+    },
+    {
+        "type": "googlecompute",
+        "bucket_name": "redash-images",
+        "account_file": "account.json",
+        "client_secrets_file": "client_secret.json",
+        "project_id": "redash-bird-123",
+        "source_image": "debian-7-wheezy-v20141017",
+        "zone": "us-central1-a",
+        "image_name": "redash-040b563"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "bootstrap.sh"
+    }
+  ]
+}
