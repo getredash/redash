@@ -43,9 +43,24 @@ def mongodb(connection_string):
                 q[field_name] = datetime.datetime.fromtimestamp(time.mktime(time.strptime(m[0], "%Y-%m-%d %H:%M")))
 
     def query_runner(query):
-        db_name = connection_string.split("/")[-1]
+        if not "dbName" in connection_string or not connection_string["dbName"]:
+            return None, "dbName is missing from connection string JSON or is empty"
 
-        db_connection = pymongo.MongoClient(connection_string)
+        db_name = connection_string["dbName"]
+
+        if not "connectionString" in connection_string or not connection_string["connectionString"]:
+            return None, "connectionString is missing from connection string JSON or is empty"
+
+        is_replica_set = True if "replicaSetName" in connection_string and connection_string["replicaSetName"] else False
+
+        if is_replica_set:
+            if not connection_string["replicaSetName"]:
+                return None, "replicaSetName is set in the connection string JSON but is empty"
+                
+            db_connection = pymongo.MongoReplicaSetClient(connection_string["connectionString"], replicaSet=connection_string["replicaSetName"])
+        else:
+            db_connection = pymongo.MongoClient(connection_string["connectionString"])
+
         if db_name not in db_connection.database_names():
             return None, "Unknown database name '%s'" % db_name
 
