@@ -127,6 +127,34 @@ def delete(email):
     deleted_count = models.User.delete().where(models.User.email == email).execute()
     print "Deleted %d users." % deleted_count
 
+
+@users_manager.option('password', help="new password for the user")
+@users_manager.option('email', help="email address of the user to change password for")
+def password(email, password):
+    try:
+        user = models.User.get_by_email(email)
+
+        user.hash_password(password)
+        user.save()
+
+        print "User updated."
+    except models.User.DoesNotExist:
+        print "User [%s] not found." % email
+
+
+@users_manager.option('email', help="email address of the user to grant admin to")
+def grant_admin(email):
+    try:
+        user = models.User.get_by_email(email)
+
+        user.groups.append('admin')
+        user.save()
+
+        print "User updated."
+    except models.User.DoesNotExist:
+        print "User [%s] not found." % email
+
+
 @data_sources_manager.command
 def import_from_settings(name=None):
     """Import data source from settings (env variables)."""
