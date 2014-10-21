@@ -17,6 +17,9 @@ def script(connection_string):
             json_data = None
             error = None
 
+            if connection_string is None:
+                return None, "script execution path is not set. Please reconfigure the data source"
+
             # Poor man's protection against running scripts from output the scripts directory
             if connection_string.find("../") > -1:
                 return None, "Scripts can only be run from the configured scripts directory"
