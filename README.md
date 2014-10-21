@@ -28,7 +28,7 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 
 ## Getting Started
 
-* [Setting re:dash on your own server (Ubuntu)](https://github.com/EverythingMe/redash/wiki/Setting-re:dash-on-your-own-server-(for-version-0.4))
+* [Setting re:dash instnace](https://github.com/EverythingMe/redash/wiki/Setting-up-re:dash-instance) (includes links to ready made AWS/GCE images).
 * Additional documentation in the [Wiki](https://github.com/everythingme/redash/wiki).
 
 
