@@ -98,8 +98,10 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v0.4.0%2Bb563/redash.0.4.0.b563.tar.gz"
-VERSION_DIR=/opt/redash/redash.0.4.0.b563
+REDASH_VERSION=${REDASH_VERSION-0.4.0.b589}
+LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION/.b/%2Bb}/redash.$REDASH_VERSION.tar.gz"
+VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
+REDASH_TARBALL=/tmp/redash.tar.gz
 REDASH_TARBALL=/tmp/redash.tar.gz
 
 if [ ! -d "$VERSION_DIR" ]; then
@@ -154,6 +156,9 @@ pip install google-api-python-client==1.2 pyOpenSSL==0.14 oauth2client==1.2
 # MySQL dependencies:
 apt-get install -y libmysqlclient-dev
 pip install MySQL-python==1.2.5
+
+# Mongo dependencies:
+pip install pymongo==2.7.2
 
 # Setup supervisord + sysv init startup script
 sudo -u redash mkdir -p /opt/redash/supervisord
