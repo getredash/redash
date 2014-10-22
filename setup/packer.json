@@ -1,7 +1,9 @@
 {
   "variables": {
     "aws_access_key": "",
-    "aws_secret_key": ""
+    "aws_secret_key": "",
+    "redash_version": "0.4.0.b589",
+    "image_version": "040b589"
   },
   "builders": [
     {
@@ -13,7 +15,7 @@
       "source_ami": "ami-fe7cc796",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "redash-040b563-us-east-1"
+      "ami_name": "redash-{{user `image_version`}}-us-east-1"
     },
     {
       "name": "redash-eu-west-1",
@@ -24,7 +26,7 @@
       "source_ami": "ami-d2ff50a5",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
-      "ami_name": "redash-040b563-eu-west-1"
+      "ami_name": "redash-{{user `image_version`}}-eu-west-1"
     },
     {
         "type": "googlecompute",
@@ -34,13 +36,14 @@
         "project_id": "redash-bird-123",
         "source_image": "debian-7-wheezy-v20141017",
         "zone": "us-central1-a",
-        "image_name": "redash-040b563"
+        "image_name": "redash-{{user `image_version`}}"
     }
   ],
   "provisioners": [
     {
       "type": "shell",
-      "script": "bootstrap.sh"
+      "script": "bootstrap.sh",
+      "environment_vars": ["REDASH_VERSION={{user `redash_version`}}"]
     }
   ]
 }
