@@ -74,11 +74,13 @@
     };
   });
 
-  chartVisualization.directive('chartEditor', function () {
+  chartVisualization.directive('chartEditor', function (ColorPalette) {
     return {
       restrict: 'E',
       templateUrl: '/views/visualizations/chart_editor.html',
       link: function (scope, element, attrs) {
+        scope.palette = ColorPalette;
+
         scope.seriesTypes = {
           'Line': 'line',
           'Column': 'column',
