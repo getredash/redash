@@ -1,0 +1,14 @@
+<counter ng-class="{'positive': trendPositive, 'negative': !trendPositive}">
+  <value>{{counterValue}}</value>
+  <counter-name>{{visualization.name}}</counter-name>
+  <div class="details">
+    <delta>
+      <i class="glyphicon glyphicon-arrow-up" ng-if="trendPositive"></i>
+      <i class="glyphicon glyphicon-arrow-down" ng-if="!trendPositive"></i>
+      {{delta}}
+    </delta>
+    <counter-target class="pull-right" ng-if="visualization.options.target">
+      Target: {{visualization.options.target}}
+    </counter-target>
+  </div>
+</counter>
