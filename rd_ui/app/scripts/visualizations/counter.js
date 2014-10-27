@@ -30,12 +30,6 @@
         $scope.visualization.options.rowNumber =
           $scope.visualization.options.rowNumber || 0;
 
-        $scope.visualization.options.counterColName =
-          $scope.visualization.options.counterColName || 'counter';
-
-        $scope.visualization.options.targetColName =
-          $scope.visualization.options.targetColName || 'target';
-
         $scope.$watch('queryResult && queryResult.getData() && visualization.options',
           function() {
             var queryData = $scope.queryResult.getData();
@@ -49,7 +43,7 @@
 
               if ($scope.targetValue) {
                 $scope.delta = $scope.counterValue - $scope.targetValue;
-                $scope.trendPositive = $scope.delta > 0;
+                $scope.trendPositive = $scope.delta >= 0;
               }
             }
           }, true);

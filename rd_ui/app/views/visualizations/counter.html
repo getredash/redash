@@ -1,4 +1,4 @@
-<counter ng-class="{'positive': trendPositive, 'negative': !trendPositive}">
+<counter ng-class="{'positive': targetValue && trendPositive, 'negative': targetValue && !trendPositive}">
   <value>{{counterValue}}</value>
   <counter-target ng-if="targetValue">({{targetValue}})</counter-target>
   <counter-name>{{visualization.name}}</counter-name>
