@@ -27,20 +27,32 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/counter.html',
       link: function($scope, elm, attrs) {
+        $scope.visualization.options.rowNumber =
+          $scope.visualization.options.rowNumber || 0;
+
+        $scope.visualization.options.counterColName =
+          $scope.visualization.options.counterColName || 'counter';
+
+        $scope.visualization.options.targetColName =
+          $scope.visualization.options.targetColName || 'target';
+
         $scope.$watch('queryResult && queryResult.getData() && visualization.options',
           function() {
             var queryData = $scope.queryResult.getData();
             if (queryData) {
-             var colNumber = $scope.visualization.options.colNumber || 0;
-             $scope.counterValue =
-              (queryData[colNumber] && queryData[colNumber].count) || '--';
+              var rowNumber = $scope.visualization.options.rowNumber || 0;
+              var counterColName = $scope.visualization.options.counterColName || 'counter';
+              var targetColName = $scope.visualization.options.targetColName || 'target';
 
-             if ($scope.visualization.options.target) {
-               $scope.delta = $scope.counterValue - $scope.visualization.options.target;
-               $scope.trendPositive = $scope.delta > 0;
-             }
+              $scope.counterValue = queryData[rowNumber][counterColName];
+              $scope.targetValue = queryData[rowNumber][targetColName];
+
+              if ($scope.targetValue) {
+                $scope.delta = $scope.counterValue - $scope.targetValue;
+                $scope.trendPositive = $scope.delta > 0;
+              }
             }
-        }, true);
+          }, true);
       }
     }
   });
