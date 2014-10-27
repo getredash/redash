@@ -270,6 +270,35 @@ to add those CSS styles here. */
 pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
     overflow: auto;
 }
+counter-renderer {
+    display: block;
+    text-align: center;
+    padding: 30px 0;
+}
+counter-renderer counter {
+    margin: 0 auto;
+    background: #f9f9f9;
+    padding: 15px 50px;
+    display: block;;
+}
+counter-renderer value,
+counter-renderer counter-target {
+    font-size: 130px;
+}
+counter-renderer counter-target {
+    color: #ccc;
+}
+counter-renderer counter.positive value {
+    color: #5cb85c;
+}
+counter-renderer counter.negative value {
+    color: #d9534f;
+    margin-right: 15px;
+}
+counter-renderer counter-name {
+    font-size: 40px;
+    display: block;
+}
 
 .rd-widget-textbox p {
     margin-bottom: 0;

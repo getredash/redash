@@ -1,0 +1,20 @@
+<div class="form-horizontal">
+  <div class="form-group">
+    <label class="col-lg-6">Row Number</label>
+    <div class="col-lg-6">
+      <input type="number" ng-model="visualization.options.rowNumber" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Counter Column Name</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.counterColName" class="form-control"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Target Column Name</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.targetColName" class="form-control"></select>
+    </div>
+  </div>
+</div>
