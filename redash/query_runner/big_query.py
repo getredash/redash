@@ -1,28 +1,23 @@
 import datetime
-import httplib2
 import json
+import httplib2
 import logging
 import sys
 import time
 
-try:
-    import apiclient.errors
-    from apiclient.discovery import build
-    from apiclient.errors import HttpError
-    from oauth2client.client import SignedJwtAssertionCredentials
-except ImportError:
-    print "Missing dependencies. Please install google-api-python-client and oauth2client."
-    print "You can use pip:   pip install google-api-python-client oauth2client"
-
+from redash.query_runner import *
 from redash.utils import JSONEncoder
 
+logger = logging.getLogger(__name__)
+
 types_map = {
-    'INTEGER': 'integer',
-    'FLOAT': 'float',
-    'BOOLEAN': 'boolean',
-    'STRING': 'string',
-    'TIMESTAMP': 'datetime',
+    'INTEGER': TYPE_INTEGER,
+    'FLOAT': TYPE_FLOAT,
+    'BOOLEAN': TYPE_BOOLEAN,
+    'STRING': TYPE_STRING,
+    'TIMESTAMP': TYPE_DATETIME,
 }
+
 
 def transform_row(row, fields):
     column_index = 0
@@ -49,37 +44,70 @@ def transform_row(row, fields):
 
     return row_data
 
-def bigquery(connection_string):
-    def load_key(filename):
-        f = file(filename, "rb")
-        try:
-            return f.read()
-        finally:
-            f.close()
 
-    def get_bigquery_service():
-        scope = [
-            "https://www.googleapis.com/auth/bigquery",
-        ]
+def _import():
+    try:
+        import apiclient.errors
+        from apiclient.discovery import build
+        from apiclient.errors import HttpError
+        from oauth2client.client import SignedJwtAssertionCredentials
 
-        credentials = SignedJwtAssertionCredentials(connection_string["serviceAccount"],
-                                                    load_key(connection_string["privateKey"]), scope=scope)
-        http = httplib2.Http()
-        http = credentials.authorize(http)
+        return True
+    except ImportError:
+        logger.warning("Missing dependencies. Please install google-api-python-client and oauth2client.")
+        logger.warning("You can use pip:   pip install google-api-python-client oauth2client")
 
-        return build("bigquery", "v2", http=http)
+    return False
 
-    def get_query_results(jobs, project_id, job_id, start_index):
-        query_reply = jobs.getQueryResults(projectId=project_id, jobId=job_id, startIndex=start_index).execute()
-        logging.debug('query_reply %s', query_reply)
-        if not query_reply['jobComplete']:
-            time.sleep(10)
-            return get_query_results(jobs, project_id, job_id, start_index)
 
-        return query_reply
+def _load_key(filename):
+    f = file(filename, "rb")
+    try:
+        return f.read()
+    finally:
+        f.close()
 
-    def query_runner(query):
-        bigquery_service = get_bigquery_service()
+
+def _get_bigquery_service(service_account, private_key):
+    scope = [
+        "https://www.googleapis.com/auth/bigquery",
+    ]
+
+    credentials = SignedJwtAssertionCredentials(service_account, private_key, scope=scope)
+    http = httplib2.Http()
+    http = credentials.authorize(http)
+
+    return build("bigquery", "v2", http=http)
+
+
+def _get_query_results(jobs, project_id, job_id, start_index):
+    query_reply = jobs.getQueryResults(projectId=project_id, jobId=job_id, startIndex=start_index).execute()
+    logging.debug('query_reply %s', query_reply)
+    if not query_reply['jobComplete']:
+        time.sleep(10)
+        return _get_query_results(jobs, project_id, job_id, start_index)
+
+    return query_reply
+
+
+class BigQuery(BaseQueryRunner):
+    @classmethod
+    def enabled(cls):
+        return _import()
+
+    @classmethod
+    def configuration_fields(cls):
+        return "serviceAccount", "privateKey", "projectId"
+
+    def __init__(self, configuration_json):
+        super(BigQuery, self).__init__(configuration_json)
+        _import()
+
+        self.private_key = _load_key(self.configuration["privateKey"])
+
+    def run_query(self, query):
+        bigquery_service = _get_bigquery_service(self.configuration["serviceAccount"],
+                                                 self.private_key)
 
         jobs = bigquery_service.jobs()
         job_data = {
@@ -90,17 +118,17 @@ def bigquery(connection_string):
             }
         }
 
-        logging.debug("bigquery got query: %s", query)
+        logger.debug("BigQuery got query: %s", query)
 
-        project_id = connection_string["projectId"]
+        project_id = self.configuration["projectId"]
 
         try:
             insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
             current_row = 0
-            query_reply = get_query_results(jobs, project_id=project_id,
+            query_reply = _get_query_results(jobs, project_id=project_id,
                                             job_id=insert_response['jobReference']['jobId'], start_index=current_row)
 
-            logging.debug("bigquery replied: %s", query_reply)
+            logger.debug("bigquery replied: %s", query_reply)
 
             rows = []
 
@@ -134,5 +162,4 @@ def bigquery(connection_string):
 
         return json_data, error
 
-
-    return query_runner
+register("bigquery", BigQuery)

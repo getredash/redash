@@ -8,7 +8,7 @@ from celery.utils.log import get_task_logger
 from redash import redis_connection, models, statsd_client, settings
 from redash.utils import gen_query_hash
 from redash.worker import celery
-from redash.data.query_runner import get_query_runner
+from redash.query_runner import get_query_runner
 
 logger = get_task_logger(__name__)
 
@@ -151,8 +151,6 @@ def refresh_queries():
         outdated_queries_count += 1
 
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
-    # TODO: decide if we still need this
-    # statsd_client.gauge('manager.queue_size', self.redis_connection.zcard('jobs'))
 
     logger.info("Done refreshing queries. Found %d outdated queries." % outdated_queries_count)
 
@@ -237,15 +235,15 @@ def execute_query(self, query, data_source_id):
     query_hash = gen_query_hash(query)
     query_runner = get_query_runner(data_source.type, data_source.options)
 
-    if getattr(query_runner, 'annotate_query', True):
-        # TODO: anotate with queu ename
+    if query_runner.annotate_query():
+        # TODO: annotate with queue name
         annotated_query = "/* Task Id: %s, Query hash: %s */ %s" % \
                           (self.request.id, query_hash, query)
     else:
         annotated_query = query
 
     with statsd_client.timer('query_runner.{}.{}.run_time'.format(data_source.type, data_source.name)):
-        data, error = query_runner(annotated_query)
+        data, error = query_runner.run_query(annotated_query)
 
     run_time = time.time() - start_time
     logger.info("Query finished... data length=%s, error=%s", data and len(data), error)
@@ -255,8 +253,6 @@ def execute_query(self, query, data_source_id):
     # Delete query_hash
     redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
 
-    # TODO: it is possible that storing the data will fail, and we will need to retry
-    # while we already marked the job as done
     if not error:
         query_result = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, datetime.datetime.utcnow())
     else:

@@ -4,6 +4,7 @@ import redis
 from statsd import StatsClient
 
 from redash import settings
+from redash.query_runner import import_query_runners
 
 __version__ = '0.5.0'
 
@@ -32,3 +33,5 @@ def create_redis_connection():
 setup_logging()
 redis_connection = create_redis_connection()
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
+
+import_query_runners(settings.QUERY_RUNNERS)

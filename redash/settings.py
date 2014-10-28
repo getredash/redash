@@ -77,5 +77,16 @@ LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
 ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")
 
+# Query Runners
+QUERY_RUNNERS = [
+    'redash.query_runner.big_query',
+    'redash.query_runner.graphite',
+    'redash.query_runner.mongodb',
+    'redash.query_runner.mysql',
+    'redash.query_runner.pg',
+    'redash.query_runner.script',
+    'redash.query_runner.url',
+]
+
 # Features:
 FEATURE_TABLES_PERMISSIONS = parse_boolean(os.environ.get("REDASH_FEATURE_TABLES_PERMISSIONS", "false"))

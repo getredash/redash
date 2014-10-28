@@ -1,16 +1,22 @@
-import json
-import logging
 import sys
-import os
 import urllib2
 
-def url(connection_string):
+from redash.query_runner import *
 
-    def query_runner(query):
-        base_url = connection_string
+
+class Url(BaseQueryRunner):
+    @classmethod
+    def configuration_fields(cls):
+        return ("url",)
+
+    @classmethod
+    def annotate_query(cls):
+        return False
+
+    def run_query(self, query):
+        base_url = self.configuration["url"]
 
         try:
-            json_data = None
             error = None
 
             query = query.strip()
@@ -41,5 +47,4 @@ def url(connection_string):
 
         return json_data, error
 
-    query_runner.annotate_query = False
-    return query_runner
+register("url", Url)
