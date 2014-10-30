@@ -30,6 +30,49 @@ class ConfigurationError(RuntimeError):
     pass
 
 
+def _friendly_name(key):
+    return " ".join(key.capitalize().split("_"))
+
+
+class ConfigurationField(object):
+    def __init__(self, key, name=None, mandatory=True, field_type="string"):
+        if name is None:
+            name = _friendly_name(key)
+
+        self.key = key
+        self.name = name
+        self.mandatory = mandatory
+        self.field_type = field_type
+
+    def to_dict(self):
+        return {
+            "key": self.key,
+            "name": self.name,
+            "mandatory": self.mandatory,
+            "field_type": self.field_type
+        }
+
+
+class Configuration(object):
+    def __init__(self, fields):
+        self.fields = {field.key: field for field in fields}
+
+    def parse(self, configuration):
+        parsed = {}
+
+        for key, field in self.fields.iteritems():
+            if field.mandatory and key not in configuration:
+                raise ConfigurationError("Missing mandatory field: {}".format(field.name))
+
+            if key in configuration:
+                parsed[key] = configuration[key]
+
+        return parsed
+
+    def get_input_definition(self):
+        return [field.to_dict() for field in self.fields]
+
+
 class BaseQueryRunner(object):
     def __init__(self, configuration_json):
         try:
