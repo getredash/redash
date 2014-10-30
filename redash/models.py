@@ -343,7 +343,13 @@ class Query(BaseModel):
     @classmethod
     def search(cls, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
-        return cls.select().where((cls.name**"%{}%".format(term)) | (cls.description**"%{}%".format(term)))
+
+        where = (cls.name**"%{}%".format(term)) | (cls.description**"%{}%".format(term))
+
+        if term.isdigit():
+            where |= cls.id == term
+
+        return cls.select().where(where)
 
     @classmethod
     def update_instance(cls, query_id, **kwargs):
