@@ -52,6 +52,18 @@ class QueryTest(BaseTestCase):
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
+    def test_search_by_id_returns_query(self):
+        q1 = query_factory.create(description="Testing search")
+        q2 = query_factory.create(description="Testing searching")
+        q3 = query_factory.create(description="Testing sea rch")
+
+
+        queries = models.Query.search(str(q3.id))
+
+        self.assertIn(q3, queries)
+        self.assertNotIn(q1, queries)
+        self.assertNotIn(q2, queries)
+
 
 class QueryResultTest(BaseTestCase):
     def setUp(self):
