@@ -1,8 +1,11 @@
 import contextlib
 import json
+import logging
+import os
 from redash import models
 from flask.ext.script import Manager
 
+logger = logging.getLogger()
 
 class Importer(object):
     def __init__(self, object_mapping=None, data_source=None):
@@ -22,21 +25,16 @@ class Importer(object):
 
         return query_result
 
-
     def import_query(self, user, query):
-        query_result = self.import_query_result(query['latest_query_data'])
-
         new_query = self._get_or_create(models.Query, query['id'], name=query['name'],
                                         user=user,
                                         ttl=-1,
                                         query=query['query'],
                                         query_hash=query['query_hash'],
                                         description=query['description'],
-                                        latest_query_data=query_result,
                                         data_source=self.data_source)
 
         return new_query
-
 
     def import_visualization(self, user, visualization):
         query = self.import_query(user, visualization['query'])
@@ -50,9 +48,13 @@ class Importer(object):
         return new_visualization
 
     def import_widget(self, dashboard, widget):
-        visualization = self.import_visualization(dashboard.user, widget['visualization'])
+        if 'visualization' in widget:
+            visualization = self.import_visualization(dashboard.user, widget['visualization'])
+        else:
+            visualization = None
 
         new_widget = self._get_or_create(models.Widget, widget['id'],
+                                         text=widget.get('text', None),
                                          dashboard=dashboard,
                                          width=widget['width'],
                                          options=json.dumps(widget['options']),
@@ -91,6 +93,7 @@ class Importer(object):
 
     def _get_or_create(self, object_type, external_id, **properties):
         internal_id = self._get_mapping(object_type, external_id)
+        logger.info("Creating %s with external id: %s and internal id: %s", object_type, external_id, internal_id)
         if internal_id:
             update = object_type.update(**properties).where(object_type.id == internal_id)
             update.execute()
@@ -114,11 +117,21 @@ export_manager = Manager(help="export utilities")
 
 
 @contextlib.contextmanager
-def importer_with_mapping_file(mapping_filename):
+def importer_with_mapping_file(mapping_filename, data_source_id=None):
+    # Touch file in case it doesn't exists
+    if not os.path.isfile(mapping_filename):
+        with open(mapping_filename, 'w') as f:
+            f.write("{}")
+
     with open(mapping_filename) as f:
         mapping = json.loads(f.read())
 
-    importer = Importer(object_mapping=mapping, data_source=get_data_source())
+    if data_source_id is not None:
+        data_source = models.DataSource.get_by_id(data_source_id)
+    else:
+        data_source = get_data_source()
+
+    importer = Importer(object_mapping=mapping, data_source=data_source)
     yield importer
 
     with open(mapping_filename, 'w') as f:
@@ -146,12 +159,13 @@ def query(mapping_filename, query_filename, user_id):
 
 
 @import_manager.command
-def dashboard(mapping_filename, dashboard_filename, user_id):
+def dashboard(mapping_filename, dashboard_filename, user_id, data_source_id=None):
     user = models.User.get_by_id(user_id)
+
     with open(dashboard_filename) as f:
         dashboard = json.loads(f.read())
 
-    with importer_with_mapping_file(mapping_filename) as importer:
+    with importer_with_mapping_file(mapping_filename, data_source_id) as importer:
         importer.import_dashboard(user, dashboard)
 
 
