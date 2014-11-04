@@ -26,9 +26,8 @@ class ImportTest(BaseTestCase):
         self.assertEqual(dashboard.widgets.count(),
                          reduce(lambda s, row: s + len(row), self.dashboard['widgets'], 0))
 
-        self.assertEqual(models.Visualization.select().count(), dashboard.widgets.count())
-        self.assertEqual(models.Query.select().count(), dashboard.widgets.count()-1)
-        self.assertEqual(models.QueryResult.select().count(), dashboard.widgets.count()-1)
+        self.assertEqual(models.Visualization.select().count(), dashboard.widgets.count()-1)
+        self.assertEqual(models.Query.select().count(), dashboard.widgets.count()-2)
 
     def test_imports_updates_existing_models(self):
         importer = import_export.Importer(data_source=data_source_factory.create())
