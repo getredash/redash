@@ -155,6 +155,17 @@ def grant_admin(email):
         print "User [%s] not found." % email
 
 
+# it should be named just "list", but then it will collide with "list" data sources.
+# TODO: need to split to multiple files.
+@users_manager.command
+def list_users():
+    """List all users"""
+    for i, user in enumerate(models.User.select()):
+        if i > 0:
+            print "-"*20
+
+        print "Id: {}\nName: {}\nEmail: {}".format(user.id, user.name.encode('utf-8'), user.email)
+
 @data_sources_manager.command
 def import_from_settings(name=None):
     """Import data source from settings (env variables)."""
