@@ -180,8 +180,12 @@ def import_from_settings(name=None):
 @data_sources_manager.command
 def list():
     """List currently configured data sources"""
-    for ds in models.DataSource.select():
-        print "Name: {}\nType: {}\nOptions: {}".format(ds.name, ds.type, ds.options)
+    for i, ds in enumerate(models.DataSource.select()):
+        if i > 0:
+            print "-"*20
+
+        print "Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options)
+
 
 @data_sources_manager.command
 def new(name, type, options):
