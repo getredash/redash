@@ -5,6 +5,8 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     'ConfigurationError',
+    'Configuration',
+    'ConfigurationField',
     'BaseQueryRunner',
     'TYPE_DATETIME',
     'TYPE_BOOLEAN',
@@ -35,20 +37,20 @@ def _friendly_name(key):
 
 
 class ConfigurationField(object):
-    def __init__(self, key, name=None, mandatory=True, field_type="string"):
+    def __init__(self, key, name=None, required=False, field_type="string"):
         if name is None:
             name = _friendly_name(key)
 
         self.key = key
         self.name = name
-        self.mandatory = mandatory
+        self.required = required
         self.field_type = field_type
 
     def to_dict(self):
         return {
             "key": self.key,
             "name": self.name,
-            "mandatory": self.mandatory,
+            "mandatory": self.required,
             "field_type": self.field_type
         }
 
@@ -61,7 +63,7 @@ class Configuration(object):
         parsed = {}
 
         for key, field in self.fields.iteritems():
-            if field.mandatory and key not in configuration:
+            if field.required and key not in configuration:
                 raise ConfigurationError("Missing mandatory field: {}".format(field.name))
 
             if key in configuration:
@@ -76,7 +78,11 @@ class Configuration(object):
 class BaseQueryRunner(object):
     def __init__(self, configuration_json):
         try:
-            self.configuration = json.loads(configuration_json)
+            configuration_spec = self.configuration_spec()
+            if not isinstance(configuration_spec, Configuration):
+                configuration_spec = Configuration([ConfigurationField(k) for k in configuration_spec])
+
+            self.configuration = configuration_spec.parse(json.loads(configuration_json))
         except ValueError:
             raise ConfigurationError("Invalid configuration syntax")
 
@@ -93,8 +99,8 @@ class BaseQueryRunner(object):
         return True
 
     @classmethod
-    def configuration_fields(cls):
-        return []
+    def configuration_spec(cls):
+        return Configuration([])
 
     def run_query(self, query):
         raise NotImplementedError()

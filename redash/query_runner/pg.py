@@ -46,14 +46,15 @@ def _wait(conn):
 
 class PostgreSQL(BaseQueryRunner):
     @classmethod
-    def configuration_fields(cls):
-        return 'user', 'password', 'host', 'port', 'dbname'
+    def configuration_spec(cls):
+        return Configuration([ConfigurationField('user'),
+                              ConfigurationField('password'),
+                              ConfigurationField('host'),
+                              ConfigurationField('port'),
+                              ConfigurationField('dbname', name='Database Name', required=True)])
 
     def __init__(self, configuration_json):
         super(PostgreSQL, self).__init__(configuration_json)
-
-        if 'dbname' not in self.configuration:
-            raise ConfigurationError("Missing dbname")
 
         values = []
         for k, v in self.configuration.iteritems():

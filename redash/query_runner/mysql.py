@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class Mysql(BaseQueryRunner):
     @classmethod
-    def configuration_fields(cls):
+    def configuration_spec(cls):
         return "host", "user", "passwd" "db"
 
     @classmethod

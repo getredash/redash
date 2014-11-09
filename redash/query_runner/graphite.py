@@ -26,7 +26,7 @@ def _transform_result(response):
 
 class Graphite(BaseQueryRunner):
     @classmethod
-    def configuration_fields(cls):
+    def configuration_spec(cls):
         return "url", "username", "password", "verify"
 
     @classmethod

@@ -96,7 +96,7 @@ class BigQuery(BaseQueryRunner):
         return _import()
 
     @classmethod
-    def configuration_fields(cls):
+    def configuration_spec(cls):
         return "serviceAccount", "privateKey", "projectId"
 
     def __init__(self, configuration_json):

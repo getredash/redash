@@ -6,7 +6,7 @@ from redash.query_runner import *
 
 class Url(BaseQueryRunner):
     @classmethod
-    def configuration_fields(cls):
+    def configuration_spec(cls):
         return ("url",)
 
     @classmethod

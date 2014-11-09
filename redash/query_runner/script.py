@@ -11,7 +11,7 @@ class Script(BaseQueryRunner):
         return "check_output" in subprocess.__dict__
 
     @classmethod
-    def configuration_fields(cls):
+    def configuration_spec(cls):
         return ("path",)
 
     @classmethod

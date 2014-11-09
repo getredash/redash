@@ -55,7 +55,7 @@ def _convert_date(q, field_name):
 
 class MongoDB(BaseQueryRunner):
     @classmethod
-    def configuration_fields(cls):
+    def configuration_spec(cls):
         return "connectionString", "dbName", "replicaSetName"
 
     @classmethod

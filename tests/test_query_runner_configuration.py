@@ -4,9 +4,9 @@ from redash.query_runner import Configuration, ConfigurationField, Configuration
 
 class TestConfigurationParsing(unittest.TestCase):
     def test_parse_raises_error_when_missing_mandatory_fields(self):
-        configuration = Configuration([ConfigurationField("dbname", mandatory=True)])
+        configuration = Configuration([ConfigurationField("dbname", required=True)])
         self.assertRaises(ConfigurationError, configuration.parse, {})
 
     def test_parse_returns_value_when_correct(self):
-        configuration = Configuration([ConfigurationField("dbname", mandatory=True)])
+        configuration = Configuration([ConfigurationField("dbname", required=True)])
         self.assertDictEqual(configuration.parse({"dbname":"test"}), {"dbname":"test"})
