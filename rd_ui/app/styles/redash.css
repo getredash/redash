@@ -273,7 +273,6 @@ pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div 
 counter-renderer {
     display: block;
     text-align: center;
-    padding: 30px 0;
 }
 counter-renderer counter {
     margin: 0 auto;
@@ -283,7 +282,8 @@ counter-renderer counter {
 }
 counter-renderer value,
 counter-renderer counter-target {
-    font-size: 130px;
+    font-size: 80px;
+    display: block;
 }
 counter-renderer counter-target {
     color: #ccc;
