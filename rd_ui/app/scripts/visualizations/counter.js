@@ -30,7 +30,7 @@
         $scope.visualization.options.rowNumber =
           $scope.visualization.options.rowNumber || 0;
 
-        $scope.$watch('queryResult && queryResult.getData() && visualization.options',
+        $scope.$watch('[queryResult && queryResult.getData(), visualization.options]',
           function() {
             var queryData = $scope.queryResult.getData();
             if (queryData) {
