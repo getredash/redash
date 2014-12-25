@@ -129,6 +129,25 @@ class QueryResultTest(BaseTestCase):
         self.assertEqual(found_query_result.id, qr.id)
 
 
+class TestUnusedQueryResults(BaseTestCase):
+    def test_returns_only_unused_query_results(self):
+        two_weeks_ago = datetime.datetime.now() - datetime.timedelta(days=14)
+        qr = query_result_factory.create()
+        query = query_factory.create(latest_query_data=qr)
+        unused_qr = query_result_factory.create(retrieved_at=two_weeks_ago)
+
+        self.assertIn(unused_qr, models.QueryResult.unused())
+        self.assertNotIn(qr, models.QueryResult.unused())
+
+    def test_returns_only_over_a_week_old_results(self):
+        two_weeks_ago = datetime.datetime.now() - datetime.timedelta(days=14)
+        unused_qr = query_result_factory.create(retrieved_at=two_weeks_ago)
+        new_unused_qr = query_result_factory.create()
+
+        self.assertIn(unused_qr, models.QueryResult.unused())
+        self.assertNotIn(new_unused_qr, models.QueryResult.unused())
+
+
 class TestQueryResultStoreResult(BaseTestCase):
     def setUp(self):
         super(TestQueryResultStoreResult, self).setUp()
