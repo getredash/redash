@@ -226,6 +226,15 @@ class QueryResult(BaseModel):
         }
 
     @classmethod
+    def unused(cls):
+        week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+
+        unused_results = cls.select().where(Query.id == None, cls.retrieved_at < week_ago)\
+            .join(Query, join_type=peewee.JOIN_LEFT_OUTER)
+
+        return unused_results
+
+    @classmethod
     def get_latest(cls, data_source, query, ttl=0):
         query_hash = utils.gen_query_hash(query)
 

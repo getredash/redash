@@ -56,6 +56,10 @@ CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
 CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", REDIS_URL)
 CELERY_FLOWER_URL = os.environ.get("REDASH_CELERY_FLOWER_URL", "/flower")
 
+# The following enables periodic job (every 5 minutes) of removing unused query results. Behind this "feature flag" until
+# proved to be "safe".
+QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "false"))
+
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
 GOOGLE_APPS_DOMAIN = os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", "")

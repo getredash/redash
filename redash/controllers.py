@@ -100,6 +100,7 @@ def status_api():
     status['version'] = __version__
     status['queries_count'] = models.Query.select().count()
     status['query_results_count'] = models.QueryResult.select().count()
+    status['unused_query_results_count'] = models.QueryResult.unused().count()
     status['dashboards_count'] = models.Dashboard.select().count()
     status['widgets_count'] = models.Widget.select().count()
 
