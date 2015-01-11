@@ -26,6 +26,8 @@
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
               row[k] = moment(v);
               columnTypes[k] = 'date';
+            } else if (typeof(v) == 'object') {
+              row[k] = JSON.stringify(v);
             }
           }, this);
         }, this);
