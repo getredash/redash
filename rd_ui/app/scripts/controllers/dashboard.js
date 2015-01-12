@@ -1,5 +1,5 @@
 (function() {
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $http, $timeout, $q, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
 
@@ -15,7 +15,7 @@
           return _.map(row, function (widget) {
             var w = new Widget(widget);
 
-            if (w.visualization && dashboard.dashboard_filters_enabled) {
+            if (w.visualization) {
               promises.push(w.getQuery().getQueryResultPromise());
             }
 
@@ -32,6 +32,9 @@
                 // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
                 filters[filter.name] = filter;
                 filters[filter.name].originFilters = [];
+                if (_.has($location.search(), filter.friendlyName)) {
+                  filter.current = $location.search()[filter.friendlyName];
+                }
 
                 $scope.$watch(function () { return filter.current }, function (value) {
                   _.each(filter.originFilters, function (originFilter) {
@@ -45,9 +48,7 @@
             });
           });
 
-          if (dashboard.dashboard_filters_enabled) {
-            $scope.filters = _.values(filters);
-          }
+          $scope.filters = _.values(filters);
         });
 
 
@@ -137,7 +138,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
     .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
 
 })();
