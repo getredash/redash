@@ -38,7 +38,7 @@
                     originFilter.current = value;
                   });
                 });
-              };
+              }
 
               // TODO: merge values.
               filters[filter.name].originFilters.push(filter);
@@ -83,8 +83,8 @@
           });
 
         }, $scope.refreshRate);
-      };
-    }
+      }
+    };
 
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
