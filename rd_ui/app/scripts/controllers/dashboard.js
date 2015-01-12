@@ -32,8 +32,8 @@
                 // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
                 filters[filter.name] = filter;
                 filters[filter.name].originFilters = [];
-                if (_.has($location.search(), filter.friendlyName)) {
-                  filter.current = $location.search()[filter.friendlyName];
+                if (_.has($location.search(), filter.name)) {
+                  filter.current = $location.search()[filter.name];
                 }
 
                 $scope.$watch(function () { return filter.current }, function (value) {
