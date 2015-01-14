@@ -10,6 +10,11 @@ from redash.import_export import import_manager
 from redash.cli import users, database, data_sources
 
 manager = Manager(app)
+manager.add_command("database", database.manager)
+manager.add_command("users", users.manager)
+manager.add_command("import", import_manager)
+manager.add_command("ds", data_sources.manager)
+
 
 @manager.command
 def version():
@@ -39,11 +44,6 @@ def check_settings():
         if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
             print "{} = {}".format(name, item)
 
-
-manager.add_command("database", database.manager)
-manager.add_command("users", users.manager)
-manager.add_command("import", import_manager)
-manager.add_command("ds", data_sources.manager)
 
 if __name__ == '__main__':
     manager.run()
