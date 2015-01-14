@@ -2,17 +2,19 @@
 """
 CLI to manage redash.
 """
-import datetime
-from flask.ext.script import Manager, prompt_pass
+from flask.ext.script import Manager
 
 from redash import settings, models, __version__
 from redash.wsgi import app
 from redash.import_export import import_manager
+from redash.cli import users, database, data_sources
 
 manager = Manager(app)
-database_manager = Manager(help="Manages the database (create/drop tables).")
-users_manager = Manager(help="Users management commands.")
-data_sources_manager = Manager(help="Data sources management commands.")
+manager.add_command("database", database.manager)
+manager.add_command("users", users.manager)
+manager.add_command("import", import_manager)
+manager.add_command("ds", data_sources.manager)
+
 
 @manager.command
 def version():
@@ -22,7 +24,7 @@ def version():
 
 @manager.command
 def runworkers():
-    """Prints deprecation warning."""
+    """Start workers (deprecated)."""
     print "** This command is deprecated. Please use Celery's CLI to control the workers. **"
 
 
@@ -31,8 +33,10 @@ def make_shell_context():
     from redash.models import db
     return dict(app=app, db=db, models=models)
 
+
 @manager.command
 def check_settings():
+    """Show the settings as re:dash sees them (useful for debugging)."""
     from types import ModuleType
 
     for name in dir(settings):
@@ -40,168 +44,6 @@ def check_settings():
         if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
             print "{} = {}".format(name, item)
 
-@manager.command
-def import_events(events_file):
-    # TODO: remove this code past 1/11/2014.
-    import json
-    from collections import Counter
-
-    count = Counter()
-
-    with open(events_file) as f:
-        for line in f:
-            try:
-                event = json.loads(line)
-
-                object_type = event.get('object_type', None)
-                object_id = event.get('object_id', None)
-
-                if object_id == 'dashboard' and object_type == 'dashboard':
-                    count['bad dashboard id'] += 1
-                    continue
-
-                models.Event.record(event)
-
-                count['imported'] += 1
-
-            except Exception as ex:
-                print "Failed importing line:"
-                print line
-                print ex.message
-                count[ex.message] += 1
-                count['failed'] += 1
-
-                models.db.close_db(None)
-
-    for k, v in count.iteritems():
-        print k
-        print v
-
-
-@database_manager.command
-def create_tables():
-    """Creates the database tables."""
-    from redash.models import create_db, init_db
-
-    create_db(True, False)
-    init_db()
-
-@database_manager.command
-def drop_tables():
-    """Drop the database tables."""
-    from redash.models import create_db
-
-    create_db(False, True)
-
-
-@users_manager.option('email', help="User's email")
-@users_manager.option('name', help="User's full name")
-@users_manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
-@users_manager.option('--google', dest='google_auth', action="store_true", default=False, help="user uses Google Auth to login")
-@users_manager.option('--password', dest='password', default=None, help="Password for users who don't use Google Auth (leave blank for prompt).")
-@users_manager.option('--groups', dest='groups', default=models.User.DEFAULT_GROUPS, help="Comma seperated list of groups (leave blank for default).")
-def create(email, name, groups, is_admin=False, google_auth=False, password=None):
-    print "Creating user (%s, %s)..." % (email, name)
-    print "Admin: %r" % is_admin
-    print "Login with Google Auth: %r\n" % google_auth
-    if isinstance(groups, basestring):
-        groups= groups.split(',')
-        groups.remove('') # in case it was empty string
-
-    if is_admin:
-        groups += ['admin']
-
-    user = models.User(email=email, name=name, groups=groups)
-    if not google_auth:
-        password = password or prompt_pass("Password")
-        user.hash_password(password)
-
-    try:
-        user.save()
-    except Exception, e:
-        print "Failed creating user: %s" % e.message
-
-
-@users_manager.option('email', help="email address of user to delete")
-def delete(email):
-    deleted_count = models.User.delete().where(models.User.email == email).execute()
-    print "Deleted %d users." % deleted_count
-
-
-@users_manager.option('password', help="new password for the user")
-@users_manager.option('email', help="email address of the user to change password for")
-def password(email, password):
-    try:
-        user = models.User.get_by_email(email)
-
-        user.hash_password(password)
-        user.save()
-
-        print "User updated."
-    except models.User.DoesNotExist:
-        print "User [%s] not found." % email
-
-
-@users_manager.option('email', help="email address of the user to grant admin to")
-def grant_admin(email):
-    try:
-        user = models.User.get_by_email(email)
-
-        user.groups.append('admin')
-        user.save()
-
-        print "User updated."
-    except models.User.DoesNotExist:
-        print "User [%s] not found." % email
-
-
-# it should be named just "list", but then it will collide with "list" data sources.
-# TODO: need to split to multiple files.
-@users_manager.command
-def list_users():
-    """List all users"""
-    for i, user in enumerate(models.User.select()):
-        if i > 0:
-            print "-"*20
-
-        print "Id: {}\nName: {}\nEmail: {}".format(user.id, user.name.encode('utf-8'), user.email)
-
-@data_sources_manager.command
-def import_from_settings(name=None):
-    """Import data source from settings (env variables)."""
-    name = name or "Default"
-    data_source = models.DataSource.create(name=name,
-                                           type=settings.CONNECTION_ADAPTER,
-                                           options=settings.CONNECTION_STRING)
-
-    print "Imported data source from settings (id={}).".format(data_source.id)
-
-
-@data_sources_manager.command
-def list():
-    """List currently configured data sources"""
-    for i, ds in enumerate(models.DataSource.select()):
-        if i > 0:
-            print "-"*20
-
-        print "Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options)
-
-
-@data_sources_manager.command
-def new(name, type, options):
-    """Create new data source"""
-    # TODO: validate it's a valid type and in the future, validate the options.
-    print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
-    data_source = models.DataSource.create(name=name,
-                                           type=type,
-                                           options=options)
-    print "Id: {}".format(data_source.id)
-
-
-manager.add_command("database", database_manager)
-manager.add_command("users", users_manager)
-manager.add_command("import", import_manager)
-manager.add_command("ds", data_sources_manager)
 
 if __name__ == '__main__':
     manager.run()
