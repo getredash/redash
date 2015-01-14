@@ -166,16 +166,6 @@ def list_users():
 
         print "Id: {}\nName: {}\nEmail: {}".format(user.id, user.name.encode('utf-8'), user.email)
 
-@data_sources_manager.command
-def import_from_settings(name=None):
-    """Import data source from settings (env variables)."""
-    name = name or "Default"
-    data_source = models.DataSource.create(name=name,
-                                           type=settings.CONNECTION_ADAPTER,
-                                           options=settings.CONNECTION_STRING)
-
-    print "Imported data source from settings (id={}).".format(data_source.id)
-
 
 @data_sources_manager.command
 def list():
