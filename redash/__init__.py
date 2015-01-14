@@ -14,6 +14,7 @@ def setup_logging():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
+    logging.getLogger("passlib").setLevel("ERROR")
 
 
 def create_redis_connection():
