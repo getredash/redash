@@ -197,6 +197,9 @@ def mongodb(connection_string):
             else:
                 cursor = db[collection].find(q, f)
 
+            if "skip" in query_data:
+                cursor = cursor.skip(query_data["skip"])
+
             if "limit" in query_data:
                 cursor = cursor.limit(query_data["limit"])
 
