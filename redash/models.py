@@ -358,7 +358,7 @@ class Query(BaseModel):
         if term.isdigit():
             where |= cls.id == term
 
-        return cls.select().where(where)
+        return cls.select().where(where).order_by(cls.created_at.desc())
 
     @classmethod
     def update_instance(cls, query_id, **kwargs):
