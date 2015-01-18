@@ -21,7 +21,12 @@
               $scope.saveQuery();
             }
           },
+          // Cmd+Enter for Mac
           'meta+enter': function () {
+            $scope.executeQuery();
+          },
+          // Ctrl+Enter for PC
+          'ctrl+enter': function () {
             $scope.executeQuery();
           }
         };
