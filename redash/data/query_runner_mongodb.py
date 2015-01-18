@@ -179,8 +179,7 @@ def mongodb(connection_string):
             if "sort" in query_data and query_data["sort"]:
                 s = []
                 for field in query_data["sort"]:
-                    for k in field:
-                        s.append((k, field[k]))
+                    s.append((field["name"], field["direction"]))
 
         if "fields" in query_data:
             f = query_data["fields"]
@@ -192,11 +191,18 @@ def mongodb(connection_string):
         json_data = None
 
         cursor = None
-        if q:
+        if q or (not q and not aggregate):
             if s:
                 cursor = db[collection].find(q, f).sort(s)
             else:
                 cursor = db[collection].find(q, f)
+
+            if "skip" in query_data:
+                cursor = cursor.skip(query_data["skip"])
+
+            if "limit" in query_data:
+                cursor = cursor.limit(query_data["limit"])
+
         elif aggregate:
             r = db[collection].aggregate(aggregate)
             cursor = r["result"]
