@@ -75,7 +75,7 @@
               _.each(row, function(widget, i) {
                 var newWidget = newWidgets[widget.id];
                 if (newWidget && newWidget[0].visualization.query.latest_query_data_id != widget.visualization.query.latest_query_data_id) {
-                  row[i] = newWidget[0];
+                  row[i] = new Widget(newWidget[0]);
                 }
               });
             });
