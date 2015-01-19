@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="row">
+        <div class="list-group col-md-6">
+            <div class="list-group-item active">
+                Recent Dashboards
+                <button ng-show="currentUser.hasPermission('create_dashboard')" type="button" class="btn btn-sm btn-link" data-toggle="modal" href="#new_dashboard_dialog" tooltip="New Dashboard"><span class="glyphicon glyphicon-plus-sign"></span></button>
+            </div>
+            <div class="list-group-item" ng-repeat="dashboard in recentDashboards" >
+                <button type="button" class="close delete-button" aria-hidden="true" ng-show="dashboard.canEdit()" ng-click="archiveDashboard(dashboard)" tooltip="Delete Dashboard">&times;</button>
+                <a ng-href="/dashboard/{{dashboard.slug}}">{{dashboard.name}}</a>
+            </div>
+        </div>
+
+        <div class="list-group col-md-6">
+            <div class="list-group-item active">
+                Recent Queries
+            </div>
+            <a ng-href="/queries/{{query.id}}" class="list-group-item" ng-repeat="query in recentQueries">{{query.name}}</a>
+        </div>
+    </div>
+
+    <div ng-show="currentUser.hasPermission('admin')" class="row">
+        <div class="list-group">
+            <div class="list-group-item active">Admin</div>
+            <a href="/admin/status" class="list-group-item">Status</a>
+        </div>
+    </div>
+</div>

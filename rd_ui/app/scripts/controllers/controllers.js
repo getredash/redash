@@ -192,7 +192,7 @@
     $(window).click(function () {
       notifications.getPermissions();
     });
-  }
+  };
 
   var IndexCtrl = function ($scope, Events, Dashboard) {
     Events.record(currentUser, "view", "page", "homepage");
@@ -206,11 +206,29 @@
         });
       }
     }
-  }
+  };
+
+  var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query) {
+    Events.record(currentUser, "view", "page", "homepage");
+    $scope.$parent.pageTitle = "Home";
+
+    $scope.recentQueries = Query.recent();
+    $scope.recentDashboards = Dashboard.recent();
+
+    $scope.archiveDashboard = function (dashboard) {
+      if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
+        Events.record(currentUser, "archive", "dashboard", dashboard.id);
+        dashboard.$delete(function () {
+          $scope.$parent.reloadDashboards();
+        });
+      }
+    }
+  };
 
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
+    .controller('PersonalIndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', PersonalIndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();

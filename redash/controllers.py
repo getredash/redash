@@ -35,6 +35,7 @@ def ping():
 @app.route('/queries')
 @app.route('/queries/<query_id>')
 @app.route('/queries/<query_id>/<anything>')
+@app.route('/personal')
 @app.route('/')
 @auth.required
 def index(**kwargs):
@@ -181,6 +182,11 @@ class DataSourceListAPI(BaseResource):
 api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
 
 
+class DashboardRecentAPI(BaseResource):
+    def get(self):
+        return [d.to_dict() for d in models.Dashboard.recent(current_user.id).limit(20)]
+
+
 class DashboardListAPI(BaseResource):
     def get(self):
         dashboards = [d.to_dict() for d in
@@ -225,6 +231,7 @@ class DashboardAPI(BaseResource):
         dashboard.save()
 
 api.add_resource(DashboardListAPI, '/api/dashboards', endpoint='dashboards')
+api.add_resource(DashboardRecentAPI, '/api/dashboards/recent', endpoint='recent_dashboards')
 api.add_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
 
 
@@ -285,6 +292,12 @@ class QuerySearchAPI(BaseResource):
         return [q.to_dict() for q in models.Query.search(term)]
 
 
+class QueryRecentAPI(BaseResource):
+    @require_permission('view_query')
+    def get(self):
+        return [q.to_dict() for q in models.Query.recent(current_user.id).limit(20)]
+
+
 class QueryListAPI(BaseResource):
     @require_permission('create_query')
     def post(self):
@@ -334,6 +347,7 @@ class QueryAPI(BaseResource):
             abort(404, message="Query not found.")
 
 api.add_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
+api.add_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
 api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
 

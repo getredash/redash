@@ -90,6 +90,10 @@ angular.module('redash', [
         templateUrl: '/views/index.html',
         controller: 'IndexCtrl'
       });
+      $routeProvider.when('/personal', {
+        templateUrl: '/views/personal.html',
+        controller: 'PersonalIndexCtrl'
+      });
       $routeProvider.otherwise({
         redirectTo: '/'
       });
