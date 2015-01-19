@@ -361,6 +361,17 @@ class Query(BaseModel):
         return cls.select().where(where)
 
     @classmethod
+    def recent(cls, user_id):
+        return cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
+            join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
+            where(Event.action << ('edit', 'execute', 'edit_name', 'edit_description', 'view_source')).\
+            where(Event.user == user_id).\
+            where(~(Event.object_id >> None)).\
+            where(Event.object_type == 'query').\
+            group_by(Event.object_id, Query.id).\
+            order_by(peewee.SQL("count(0) desc"))
+
+    @classmethod
     def update_instance(cls, query_id, **kwargs):
         if 'query' in kwargs:
             kwargs['query_hash'] = utils.gen_query_hash(kwargs['query'])
@@ -447,6 +458,17 @@ class Dashboard(BaseModel):
     @classmethod
     def get_by_slug(cls, slug):
         return cls.get(cls.slug == slug)
+
+    @classmethod
+    def recent(cls, user_id):
+        return cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
+            join(Event, on=(Dashboard.id == peewee.SQL("t2.object_id::integer"))). \
+            where(Event.action << ('edit', 'view')).\
+            where(Event.user == user_id). \
+            where(~(Event.object_id >> None)). \
+            where(Event.object_type == 'dashboard'). \
+            group_by(Event.object_id, Dashboard.id). \
+            order_by(peewee.SQL("count(0) desc"))
 
     def save(self, *args, **kwargs):
         if not self.slug:

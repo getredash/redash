@@ -377,7 +377,18 @@
   };
 
   var Query = function ($resource, QueryResult, DataSource) {
-    var Query = $resource('/api/queries/:id', {id: '@id'}, {search: {method: 'get', isArray: true, url: "/api/queries/search"}});
+    var Query = $resource('/api/queries/:id', {id: '@id'},
+      {
+        search: {
+          method: 'get',
+          isArray: true,
+          url: "/api/queries/search"
+        },
+        recent: {
+          method: 'get',
+          isArray: true,
+          url: "/api/queries/recent"
+        }});
 
     Query.newQuery = function () {
       return new Query({
