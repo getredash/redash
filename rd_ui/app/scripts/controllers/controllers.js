@@ -209,7 +209,7 @@
   };
 
   var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query) {
-    Events.record(currentUser, "view", "page", "homepage");
+    Events.record(currentUser, "view", "page", "personal_homepage");
     $scope.$parent.pageTitle = "Home";
 
     $scope.recentQueries = Query.recent();
