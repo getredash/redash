@@ -32,7 +32,6 @@
 
             //using the 'tag' to avoid showing duplicate notifications
             var notification = new Notification(title, {'tag': title+content, 'body': content});
-            lastNotification = notification;
             notification.onclick = function () {
                 window.focus();
                 this.cancel();
