@@ -1,10 +1,9 @@
 (function () {
     var notifications = function (Events) {
         var notificationService = {};
-        var lastNotification = null;
 
         notificationService.isSupported = function () {
-            if (window.webkitNotifications) {
+            if ("Notification" in window) {
                 return true;
             } else {
                 console.log("HTML5 notifications are not supported.");
@@ -17,8 +16,12 @@
                 return;
             }
 
-            if (!window.webkitNotifications.checkPermission() == 0) { // 0 is PERMISSION_ALLOWED
-                window.webkitNotifications.requestPermission();
+            if (Notification.permission !== "granted") {
+	        Notification.requestPermission(function (status) {
+	            if (Notification.permission !== status) {
+                        Notification.permission = status;
+                    }
+                });
             }
         }
 
@@ -27,23 +30,14 @@
                 return;
             }
 
-            if (document.webkitVisibilityState && document.webkitVisibilityState == 'visible') {
-                return;
-            }
-
-            if (lastNotification) {
-                lastNotification.cancel();
-            }
-
-            var notification = window.webkitNotifications.createNotification('', title, content);
+            //using the 'tag' to avoid showing duplicate notifications
+            var notification = new Notification(title, {'tag': title+content, 'body': content});
             lastNotification = notification;
             notification.onclick = function () {
                 window.focus();
                 this.cancel();
                 Events.record(currentUser, 'click', 'notification');
             };
-
-            notification.show()
         }
 
         return notificationService;
