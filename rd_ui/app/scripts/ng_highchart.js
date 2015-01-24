@@ -126,6 +126,12 @@
             {
               text: 'Show Total',
               onclick: function () {
+                var hasTotalsAlready = _.some(this.series, function (s) {
+                    return s.name == 'Total';
+                })
+                if (hasTotalsAlready){
+                    return;
+                }
                 var data = {};
                 _.each(this.series, function (s) {
                   s.setVisible(false, false);
