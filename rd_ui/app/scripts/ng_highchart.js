@@ -127,21 +127,23 @@
               text: 'Show Total',
               onclick: function () {
                 var hasTotalsAlready = _.some(this.series, function (s) {
-                    return s.name == 'Total';
+                    var res = (s.name == 'Total');
+                    //if 'Total' already exists - just make it visible
+                    if (res) s.setVisible(true, false);
+                    return res;
                 })
-                if (hasTotalsAlready){
-                    return;
-                }
                 var data = {};
                 _.each(this.series, function (s) {
-                  s.setVisible(false, false);
-                  _.each(s.data, function (p) {
-                    data[p.x] = data[p.x] || {'x': p.x, 'y': 0};
-                    data[p.x].y = data[p.x].y + p.y;
-                  });
+                  if (s.name != 'Total') s.setVisible(false, false);
+                  if (!hasTotalsAlready) {
+                      _.each(s.data, function (p) {
+                        data[p.x] = data[p.x] || {'x': p.x, 'y': 0};
+                        data[p.x].y = data[p.x].y + p.y;
+                      }); 
+                  }
                 });
 
-                this.addSeries({
+                if (!hasTotalsAlready) this.addSeries({
                   data: _.values(data),
                   type: 'line',
                   name: 'Total'
