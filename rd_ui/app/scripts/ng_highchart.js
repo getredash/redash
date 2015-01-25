@@ -143,11 +143,13 @@
                   }
                 });
 
-                if (!hasTotalsAlready) this.addSeries({
-                  data: _.values(data),
-                  type: 'line',
-                  name: 'Total'
-                }, false)
+                if (!hasTotalsAlready) {
+                    this.addSeries({
+                      data: _.values(data),
+                      type: 'line',
+                      name: 'Total'
+                    }, false)
+                }
 
                 this.redraw();
               }
