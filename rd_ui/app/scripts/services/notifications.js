@@ -32,6 +32,9 @@
 
             //using the 'tag' to avoid showing duplicate notifications
             var notification = new Notification(title, {'tag': title+content, 'body': content});
+            setTimeout(function(){
+                 notification.close();
+                },3000);
             notification.onclick = function () {
                 window.focus();
                 this.cancel();
