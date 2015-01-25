@@ -349,7 +349,7 @@ class QueryAPI(BaseResource):
             if q.user.id == self.current_user.id or self.current_user.has_permission('admin'):
                 q.archive()
             else:
-                self.delete_others_query(query_id)
+                abort(403)
         else:
             abort(404, message="Query not found.")
 
