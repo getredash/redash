@@ -2,7 +2,7 @@ import datetime
 import json
 from tests import BaseTestCase
 from redash import models
-from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory, user_factory
+from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory, user_factory, widget_factory
 from redash.utils import gen_query_hash
 
 
@@ -63,6 +63,53 @@ class QueryTest(BaseTestCase):
         self.assertIn(q3, queries)
         self.assertNotIn(q1, queries)
         self.assertNotIn(q2, queries)
+
+
+class QueryArchiveTest(BaseTestCase):
+    def setUp(self):
+        super(QueryArchiveTest, self).setUp()
+
+    def test_archive_query_sets_flag(self):
+        query = query_factory.create(ttl=1)
+        query.archive()
+        query = models.Query.get_by_id(query.id)
+
+        self.assertEquals(query.is_archived, True)
+
+    def test_archived_query_doesnt_return_in_all(self):
+        query = query_factory.create(ttl=1)
+        yesterday = datetime.datetime.now() - datetime.timedelta(days=1)
+        query_result = models.QueryResult.store_result(query.data_source.id, query.query_hash, query.query, "1",
+                                                       123, yesterday)
+
+        query.latest_query_data = query_result
+        query.save()
+
+        self.assertIn(query, models.Query.all_queries())
+        self.assertIn(query, models.Query.outdated_queries())
+
+        query.archive()
+
+        self.assertNotIn(query, models.Query.all_queries())
+        self.assertNotIn(query, models.Query.outdated_queries())
+
+    def test_removes_associated_widgets_from_dashboards(self):
+        widget = widget_factory.create()
+        query = widget.visualization.query
+
+        query.archive()
+
+        self.assertRaises(models.Widget.DoesNotExist, models.Widget.get_by_id, widget.id)
+
+    def test_removes_scheduling(self):
+        query = query_factory.create(ttl=1)
+
+        query.archive()
+
+        query = models.Query.get_by_id(query.id)
+
+        self.assertEqual(-1, query.ttl)
+
 
 
 class QueryResultTest(BaseTestCase):
@@ -238,3 +285,24 @@ class TestEvents(BaseTestCase):
         event = models.Event.record(raw_event)
 
         self.assertDictEqual(json.loads(event.additional_properties), additional_properties)
+
+
+class TestWidgetDeleteInstance(BaseTestCase):
+    def test_delete_removes_from_layout(self):
+        widget = widget_factory.create()
+        widget2 = widget_factory.create(dashboard=widget.dashboard)
+        widget.dashboard.layout = json.dumps([[widget.id, widget2.id]])
+        widget.dashboard.save()
+        widget.delete_instance()
+
+        self.assertEquals(json.dumps([[widget2.id]]), widget.dashboard.layout)
+
+    def test_delete_removes_empty_rows(self):
+        widget = widget_factory.create()
+        widget2 = widget_factory.create(dashboard=widget.dashboard)
+        widget.dashboard.layout = json.dumps([[widget.id, widget2.id]])
+        widget.dashboard.save()
+        widget.delete_instance()
+        widget2.delete_instance()
+
+        self.assertEquals("[]", widget.dashboard.layout)

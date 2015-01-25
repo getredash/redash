@@ -5,7 +5,7 @@ from statsd import StatsClient
 
 from redash import settings
 
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 
 def setup_logging():

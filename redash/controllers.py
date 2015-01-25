@@ -271,13 +271,6 @@ class WidgetAPI(BaseResource):
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
         widget = models.Widget.get(models.Widget.id == widget_id)
-        # TODO: reposition existing ones
-        layout = json.loads(widget.dashboard.layout)
-        layout = map(lambda row: filter(lambda w: w != widget_id, row), layout)
-        layout = filter(lambda row: len(row) > 0, layout)
-        widget.dashboard.layout = json.dumps(layout)
-        widget.dashboard.save()
-
         widget.delete_instance()
 
 api.add_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
@@ -322,6 +315,8 @@ class QueryListAPI(BaseResource):
 class QueryAPI(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
+        query = models.Query.get_by_id(query_id)
+        
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
             query_def.pop(field, None)
@@ -346,6 +341,18 @@ class QueryAPI(BaseResource):
         else:
             abort(404, message="Query not found.")
 
+    # TODO: move to resource of its own? (POST /queries/{id}/archive)
+    def delete(self, query_id):
+        q = models.Query.get(models.Query.id == query_id)
+
+        if q:
+            if q.user.id == self.current_user.id or self.current_user.has_permission('admin'):
+                q.archive()
+            else:
+                self.delete_others_query(query_id)
+        else:
+            abort(404, message="Query not found.")
+
 api.add_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
 api.add_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
 api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
@@ -358,7 +365,7 @@ class VisualizationListAPI(BaseResource):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
         kwargs['query'] = kwargs.pop('query_id')
-
+        
         vis = models.Visualization(**kwargs)
         vis.save()
 

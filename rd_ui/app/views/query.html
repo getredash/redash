@@ -1,6 +1,7 @@
 
 <div class="container">
 
+    <p class="alert alert-warning" ng-if="query.is_archived">This query is archived and can't be used in dashboards, and won't appear in search results.</p>
     <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
     <div class="row">
@@ -133,6 +134,29 @@
                     <span class="glyphicon glyphicon-cloud-download"></span>
                     <span class="rd-hidden-xs">Download Dataset</span>
                 </a>
+
+                <a class="btn btn-warning btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal"
+                   ng-show="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+                    <i class="fa fa-archive" title="Archive Query"></i>
+                </a>
+                
+                <div class="modal fade" id="archive-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="archiveConfirmationModal" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title">Query Archive</h4>
+                      </div>
+                      <div class="modal-body">
+                        Are you sure you want to archive this query? <br/>
+                        All dashboard widgets created with its visualizations will be deleted.
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                        <button type="button" class="btn btn-primary" ng-click="archiveQuery()">Yes, archive.</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
             </p>
         </div>
 

@@ -68,6 +68,31 @@
       $scope.queryResult.cancelExecution();
       Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
     };
+    
+    $scope.archiveQuery = function(options, data) {
+      if (data) {
+        data.id = $scope.query.id;
+      } else {
+        data = $scope.query;
+      }
+      
+      $scope.isDirty = false;
+      
+      options = _.extend({}, {
+        successMessage: 'Query archived',
+        errorMessage: 'Query could not be archived'
+      }, options);
+      
+      return Query.delete({id: data.id}, function() {
+        $scope.query.is_archived = true;
+        $scope.query.ttl = -1;
+        growl.addSuccessMessage(options.successMessage);
+          // This feels dirty.
+          $('#archive-confirmation-modal').modal('hide');
+        }, function(httpResponse) {
+          growl.addErrorMessage(options.errorMessage);
+        }).$promise;
+    }
 
     $scope.updateDataSource = function() {
       Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
