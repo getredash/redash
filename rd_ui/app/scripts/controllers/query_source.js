@@ -21,6 +21,11 @@
               $scope.saveQuery();
             }
           },
+          'ctrl+s': function () {
+            if ($scope.canEdit) {
+              $scope.saveQuery();
+            }
+          },
           // Cmd+Enter for Mac
           'meta+enter': function () {
             $scope.executeQuery();
