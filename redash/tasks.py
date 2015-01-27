@@ -171,8 +171,10 @@ def refresh_queries():
 def cleanup_tasks():
     # in case of cold restart of the workers, there might be jobs that still have their "lock" object, but aren't really
     # going to run. this job removes them.
-
     lock_keys = redis_connection.keys("query_hash_job:*") # TODO: use set instead of keys command
+    if not lock_keys:
+        return
+    
     query_tasks = [QueryTask(job_id=j) for j in redis_connection.mget(lock_keys)]
 
     logger.info("Found %d locks", len(query_tasks))
