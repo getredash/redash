@@ -16,7 +16,7 @@
             var w = new Widget(widget);
 
             if (w.visualization) {
-              promises.push(w.getQuery().getQueryResultPromise());
+              promises.push(w.getQuery().getQueryResult().toPromise());
             }
 
             return w;
@@ -104,7 +104,7 @@
     };
   };
 
-  var WidgetCtrl = function($scope, Events, Query) {
+  var WidgetCtrl = function($scope, $location, Events, Query) {
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
@@ -128,7 +128,8 @@
       Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
       $scope.query = $scope.widget.getQuery();
-      $scope.queryResult = $scope.query.getQueryResult();
+      var parameters = Query.collectParamsFromQueryString($location, $scope.query);
+      $scope.queryResult = $scope.query.getQueryResult(undefined, parameters);
       $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
 
       $scope.type = 'visualization';
@@ -139,6 +140,6 @@
 
   angular.module('redash.controllers')
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', 'Events', 'Query', WidgetCtrl])
+    .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', WidgetCtrl])
 
 })();

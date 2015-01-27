@@ -399,6 +399,21 @@
       });
     };
 
+    Query.collectParamsFromQueryString = function($location, query) {
+      var parameterNames = query.getParameters();
+      var parameters = {};
+
+      var queryString = $location.search();
+      _.each(parameterNames, function(param, i) {
+        var qsName = "p_" + param;
+        if (qsName in queryString) {
+          parameters[param] = queryString[qsName];
+        }
+      });
+
+      return parameters;
+    };
+
     Query.prototype.getSourceLink = function () {
       return '/queries/' + this.id + '/source';
     };

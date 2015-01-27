@@ -6,16 +6,7 @@
 
     var getQueryResult = function(ttl) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
-      var parameterNames = $scope.query.getParameters();
-      var parameters = {};
-
-      var queryString = $location.search();
-      _.each(parameterNames, function(param, i) {
-        var qsName = "p_" + param;
-        if (qsName in queryString) {
-          parameters[param] = queryString[qsName];
-        }
-      });
+      var parameters = Query.collectParamsFromQueryString($location, $scope.query);
       $scope.queryResult = $scope.query.getQueryResult(ttl, parameters);
     }
 
