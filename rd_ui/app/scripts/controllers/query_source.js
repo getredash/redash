@@ -14,27 +14,7 @@
     var isNewQuery = !$scope.query.id,
         queryText = $scope.query.query,
         // ref to QueryViewCtrl.saveQuery
-        saveQuery = $scope.saveQuery,
-        shortcuts = {
-          'meta+s': function () {
-            if ($scope.canEdit) {
-              $scope.saveQuery();
-            }
-          },
-          'ctrl+s': function () {
-            if ($scope.canEdit) {
-              $scope.saveQuery();
-            }
-          },
-          // Cmd+Enter for Mac
-          'meta+enter': function () {
-            $scope.executeQuery();
-          },
-          // Ctrl+Enter for PC
-          'ctrl+enter': function () {
-            $scope.executeQuery();
-          }
-        };
+        saveQuery = $scope.saveQuery;
 
     $scope.sourceMode = true;
     $scope.canEdit = currentUser.canEdit($scope.query);
@@ -49,8 +29,22 @@
       }
     });
 
-
-    KeyboardShortcuts.bind(shortcuts);
+    KeyboardShortcuts.bind({
+      'meta+s': function () {
+        if ($scope.canEdit) {
+          $scope.saveQuery();
+        }
+      },
+      'ctrl+s': function () {
+        if ($scope.canEdit) {
+          $scope.saveQuery();
+        }
+      },
+      // Cmd+Enter for Mac
+      'meta+enter': $scope.executeQuery,
+      // Ctrl+Enter for PC
+      'ctrl+enter': $scope.executeQuery
+    });
 
     // @override
     $scope.saveQuery = function(options, data) {

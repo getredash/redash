@@ -4,9 +4,24 @@
   function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
+    var getQueryResult = function(ttl) {
+      // Collect params, and getQueryResult with params; getQueryResult merges it into the query
+      var parameterNames = $scope.query.getParameters();
+      var parameters = {};
+
+      var queryString = $location.search();
+      _.each(parameterNames, function(param, i) {
+        var qsName = "p_" + param;
+        if (qsName in queryString) {
+          parameters[param] = queryString[qsName];
+        }
+      });
+      $scope.queryResult = $scope.query.getQueryResult(ttl, parameters);
+    }
+
     $scope.query = $route.current.locals.query;
     Events.record(currentUser, 'view', 'query', $scope.query.id);
-    $scope.queryResult = $scope.query.getQueryResult();
+    getQueryResult();
     $scope.queryExecuting = false;
 
     $scope.isQueryOwner = currentUser.id === $scope.query.user.id;
@@ -57,7 +72,7 @@
     };
 
     $scope.executeQuery = function() {
-      $scope.queryResult = $scope.query.getQueryResult(0);
+      getQueryResult(0);
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
