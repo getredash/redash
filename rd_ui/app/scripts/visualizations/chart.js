@@ -41,6 +41,9 @@
 
             _.each($scope.queryResult.getChartData($scope.options.columnMapping), function (s) {
               var additional = {'stacking': 'normal'};
+              if ('globalSeriesType' in $scope.options) {
+                additional['type'] = $scope.options.globalSeriesType;
+              }
               if ($scope.options.seriesOptions && $scope.options.seriesOptions[s.name]) {
                 additional = $scope.options.seriesOptions[s.name];
                 if (!additional.name || additional.name == "") {
@@ -89,7 +92,7 @@
           'Pie': 'pie'
         };
 
-        scope.globalSeriesType = 'column';
+        scope.globalSeriesType = scope.visualization.options.globalSeriesType || 'column';
 
         scope.stackingOptions = {
           "None": "none",
@@ -125,12 +128,15 @@
             columnsWatch = null;
 
         scope.$watch('globalSeriesType', function(type, old) {
+          scope.visualization.options.globalSeriesType = type;
+
           if (type && old && type !== old && scope.visualization.options.seriesOptions) {
             _.each(scope.visualization.options.seriesOptions, function(sOptions) {
               sOptions.type = type;
             });
           }
         });
+
         scope.$watch('visualization.type', function (visualizationType) {
           if (visualizationType == 'CHART') {
             if (scope.visualization.options.series.stacking === null) {
@@ -153,9 +159,9 @@
 
               _.each(scope.series, function(s, i) {
                 if (scope.visualization.options.seriesOptions[s] == undefined) {
-                  scope.visualization.options.seriesOptions[s] = {'type': 'column', 'yAxis': 0};
+                  scope.visualization.options.seriesOptions[s] = {'type': scope.visualization.options.globalSeriesType, 'yAxis': 0};
                 }
-                scope.visualization.options.seriesOptions[s].zIndex = i;
+                scope.visualization.options.seriesOptions[s].zIndex = scope.visualization.options.seriesOptions[s].zIndex === undefined ? i : scope.visualization.options.seriesOptions[s].zIndex;
 
               });
               scope.zIndexes = _.range(scope.series.length);
