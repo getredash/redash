@@ -452,7 +452,6 @@ class Dashboard(BaseModel):
         if with_widgets:
             widgets = Widget.select(Widget, Visualization, Query, User)\
                 .where(Widget.dashboard == self.id)\
-                .where(Query.is_archived == False)\
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(User, join_type=peewee.JOIN_LEFT_OUTER)
