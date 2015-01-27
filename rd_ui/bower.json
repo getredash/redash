@@ -27,7 +27,8 @@
     "bucky": "~0.2.6",
     "pace": "~0.5.1",
     "angular-ui-select": "0.8.2",
-    "font-awesome": "~4.2.0"
+    "font-awesome": "~4.2.0",
+    "mustache": "~1.0.0"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",

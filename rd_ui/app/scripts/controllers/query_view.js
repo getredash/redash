@@ -4,9 +4,18 @@
   function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
+    var getQueryResult = function(ttl) {
+      // Collect params, and getQueryResult with params; getQueryResult merges it into the query
+      var parameters = Query.collectParamsFromQueryString($location, $scope.query);
+      if (ttl == undefined) {
+        ttl = $location.search()['maxAge'];
+      }
+      $scope.queryResult = $scope.query.getQueryResult(ttl, parameters);
+    }
+
     $scope.query = $route.current.locals.query;
     Events.record(currentUser, 'view', 'query', $scope.query.id);
-    $scope.queryResult = $scope.query.getQueryResult();
+    getQueryResult();
     $scope.queryExecuting = false;
 
     $scope.isQueryOwner = currentUser.id === $scope.query.user.id;
@@ -57,7 +66,7 @@
     };
 
     $scope.executeQuery = function() {
-      $scope.queryResult = $scope.query.getQueryResult(0);
+      getQueryResult(0);
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);

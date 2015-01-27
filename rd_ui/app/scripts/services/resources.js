@@ -399,13 +399,52 @@
       });
     };
 
+    Query.collectParamsFromQueryString = function($location, query) {
+      var parameterNames = query.getParameters();
+      var parameters = {};
+
+      var queryString = $location.search();
+      _.each(parameterNames, function(param, i) {
+        var qsName = "p_" + param;
+        if (qsName in queryString) {
+          parameters[param] = queryString[qsName];
+        }
+      });
+
+      return parameters;
+    };
+
     Query.prototype.getSourceLink = function () {
       return '/queries/' + this.id + '/source';
     };
 
-    Query.prototype.getQueryResult = function (ttl) {
+    Query.prototype.getQueryResult = function (ttl, parameters) {
       if (ttl == undefined) {
         ttl = this.ttl;
+      }
+
+      var queryText = this.query;
+
+      var queryParameters = this.getParameters();
+      var paramsRequired = !_.isEmpty(queryParameters);
+
+      var missingParams = parameters === undefined ? queryParameters : _.difference(queryParameters, _.keys(parameters));
+
+      if (paramsRequired && missingParams.length > 0) {
+        var paramsWord = "parameter";
+        if (missingParams.length > 1) {
+          paramsWord = "parameters";
+        }
+
+        return new QueryResult({job: {error: "Missing values for " + missingParams.join(', ')  + " "+paramsWord+".", status: 4}});
+      }
+
+      if (parameters !== undefined) {
+        queryText = Mustache.render(queryText, parameters);
+
+        // Need to clear latest results, to make sure we don't used results for different params.
+        this.latest_query_data = null;
+        this.latest_query_data_id = null;
       }
 
       if (this.latest_query_data && ttl != 0) {
@@ -417,7 +456,7 @@
           this.queryResult = QueryResult.getById(this.latest_query_data_id);
         }
       } else if (this.data_source_id) {
-        this.queryResult = QueryResult.get(this.data_source_id, this.query, ttl);
+        this.queryResult = QueryResult.get(this.data_source_id, queryText, ttl);
       }
 
       return this.queryResult;
@@ -425,6 +464,18 @@
 
     Query.prototype.getQueryResultPromise = function() {
       return this.getQueryResult().toPromise();
+    };
+
+    Query.prototype.getParameters = function() {
+      var parts = Mustache.parse(this.query);
+      var parameters = [];
+      _.each(parts, function(part) {
+        if (part[0] == 'name') {
+          parameters.push(part[1]);
+        }
+      });
+
+      return parameters;
     }
 
     return Query;
