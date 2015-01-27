@@ -161,7 +161,7 @@
                 if (scope.visualization.options.seriesOptions[s] == undefined) {
                   scope.visualization.options.seriesOptions[s] = {'type': scope.visualization.options.globalSeriesType, 'yAxis': 0};
                 }
-                scope.visualization.options.seriesOptions[s].zIndex = i;
+                scope.visualization.options.seriesOptions[s].zIndex = scope.visualization.options.seriesOptions[s].zIndex === undefined ? i : scope.visualization.options.seriesOptions[s].zIndex;
 
               });
               scope.zIndexes = _.range(scope.series.length);
