@@ -55,6 +55,7 @@ module.exports = function(config) {
       'app/scripts/ui-bootstrap-tpls-0.5.0.min.js',
       'app/bower_components/bucky/bucky.js',
       'app/bower_components/pace/pace.js',
+      'app/bower_components/mustache/mustache.js',
 
       'app/scripts/app.js',
       'app/scripts/services/services.js',
