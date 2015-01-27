@@ -7,6 +7,9 @@
     var getQueryResult = function(ttl) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
+      if (ttl == undefined) {
+        ttl = $location.search()['maxAge'];
+      }
       $scope.queryResult = $scope.query.getQueryResult(ttl, parameters);
     }
 

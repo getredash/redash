@@ -129,7 +129,8 @@
 
       $scope.query = $scope.widget.getQuery();
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
-      $scope.queryResult = $scope.query.getQueryResult(undefined, parameters);
+      var maxAge = $location.search()['maxAge'];
+      $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
       $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
 
       $scope.type = 'visualization';
