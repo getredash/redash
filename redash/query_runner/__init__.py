@@ -29,13 +29,10 @@ TYPE_DATETIME = 'datetime'
 TYPE_DATE = 'date'
 
 
-def _friendly_name(key):
-    return " ".join(key.capitalize().split("_"))
-
-
 class BaseQueryRunner(object):
     def __init__(self, configuration):
         jsonschema.validate(configuration, self.configuration_schema())
+        self.configuration = configuration
 
     @classmethod
     def name(cls):
@@ -82,7 +79,6 @@ def register(query_runner_class):
 
 
 def get_query_runner(query_runner_type, configuration_json):
-    global query_runners
     query_runner_class = query_runners.get(query_runner_type, None)
     if query_runner_class is None:
         return None
@@ -91,7 +87,6 @@ def get_query_runner(query_runner_type, configuration_json):
 
 
 def validate_configuration(query_runner_type, configuration_json):
-    global query_runners
     query_runner_class = query_runners.get(query_runner_type, None)
     if query_runner_class is None:
         return False

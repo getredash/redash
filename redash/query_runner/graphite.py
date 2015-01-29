@@ -59,7 +59,7 @@ class Graphite(BaseQueryRunner):
         else:
             self.auth = None
 
-        self.verify = self.configuration["verify"] == "true"
+        self.verify = self.configuration["verify"]
         self.base_url = "%s/render?format=json&" % self.configuration['url']
 
     def run_query(self, query):
