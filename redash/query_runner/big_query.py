@@ -96,8 +96,25 @@ class BigQuery(BaseQueryRunner):
         return _import()
 
     @classmethod
-    def configuration_spec(cls):
-        return "serviceAccount", "privateKey", "projectId"
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'serviceAccount': {
+                    'type': 'string',
+                    'title': 'Service Account'
+                },
+                'projectId': {
+                    'type': 'string',
+                    'title': 'Project ID'
+                },
+                'privateKey': {
+                    'type': 'string',
+                    'title': 'Private Key Path'
+                }
+            },
+            'required': ['serviceAccount', 'projectId', 'privateKey']
+        }
 
     def __init__(self, configuration_json):
         super(BigQuery, self).__init__(configuration_json)
@@ -162,4 +179,4 @@ class BigQuery(BaseQueryRunner):
 
         return json_data, error
 
-register("bigquery", BigQuery)
+register(BigQuery)

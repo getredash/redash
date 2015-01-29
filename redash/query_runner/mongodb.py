@@ -55,8 +55,25 @@ def _convert_date(q, field_name):
 
 class MongoDB(BaseQueryRunner):
     @classmethod
-    def configuration_spec(cls):
-        return "connectionString", "dbName", "replicaSetName"
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'connectionString': {
+                    'type': 'string',
+                    'title': 'Connection String'
+                },
+                'dbName': {
+                    'type': 'string',
+                    'title': "Database Name"
+                },
+                'replicaSetName': {
+                    'type': 'string',
+                    'title': 'Replica Set Name'
+                },
+                'required': ['connectionString']
+            }
+        }
 
     @classmethod
     def enabled(cls):
@@ -70,19 +87,9 @@ class MongoDB(BaseQueryRunner):
         _import()
         super(MongoDB, self).__init__(configuration_json)
 
-        if "dbName" not in self.configuration or not connection_string["dbName"]:
-            raise ConfigurationError("dbName is missing from connection string")
-
         self.db_name = self.configuration["dbName"]
 
-        if "connectionString" not in self.configuration or not self.configuration["connectionString"]:
-            raise ConfigurationError("connectionString is missing from connection string")
-
         self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
-
-        if self.is_replica_set and not self.configuration["replicaSetName"]:
-            raise ConfigurationError("replicaSetName is set in the connection string JSON but is empty")
-
 
     def run_query(self, query):
         if self.is_replica_set:
@@ -172,4 +179,4 @@ class MongoDB(BaseQueryRunner):
 
         return json_data, error
 
-register("mongo", MongoDB)
+register(MongoDB)

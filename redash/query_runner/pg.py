@@ -46,12 +46,33 @@ def _wait(conn):
 
 class PostgreSQL(BaseQueryRunner):
     @classmethod
-    def configuration_spec(cls):
-        return Configuration([ConfigurationField('user'),
-                              ConfigurationField('password'),
-                              ConfigurationField('host'),
-                              ConfigurationField('port'),
-                              ConfigurationField('dbname', name='Database Name', required=True)])
+    def configuration_schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "dbname": {
+                    "type": "string",
+                    "title": "Database Name"
+                }
+            },
+            "required": ["dbname"]
+        }
+
+    @classmethod
+    def type(cls):
+        return "pg"
 
     def __init__(self, configuration_json):
         super(PostgreSQL, self).__init__(configuration_json)
@@ -118,4 +139,4 @@ class PostgreSQL(BaseQueryRunner):
 
         return json_data, error
 
-register("pg", PostgreSQL)
+register(PostgreSQL)

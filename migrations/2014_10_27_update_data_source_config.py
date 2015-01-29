@@ -42,6 +42,9 @@ def update(data_source):
     elif data_source.type == 'script':
         data_source.options = json.dumps({"path": data_source.options})
 
+    elif data_source.type == 'mongo':
+        data_source.type = 'mongodb'
+
     else:
         print "[%s] No need to convert type of: %s" % (data_source.name, data_source.type)
 

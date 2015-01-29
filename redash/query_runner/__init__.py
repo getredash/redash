@@ -1,12 +1,13 @@
 import logging
 import json
 
+import jsonschema
+from jsonschema import ValidationError
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    'ConfigurationError',
-    'Configuration',
-    'ConfigurationField',
+    'ValidationError',
     'BaseQueryRunner',
     'TYPE_DATETIME',
     'TYPE_BOOLEAN',
@@ -28,67 +29,21 @@ TYPE_DATETIME = 'datetime'
 TYPE_DATE = 'date'
 
 
-class ConfigurationError(RuntimeError):
-    pass
-
-
 def _friendly_name(key):
     return " ".join(key.capitalize().split("_"))
 
 
-class ConfigurationField(object):
-    def __init__(self, key, name=None, required=False, field_type="string"):
-        if name is None:
-            name = _friendly_name(key)
-
-        self.key = key
-        self.name = name
-        self.required = required
-        self.field_type = field_type
-
-    def to_dict(self):
-        return {
-            "key": self.key,
-            "name": self.name,
-            "mandatory": self.required,
-            "field_type": self.field_type
-        }
-
-
-class Configuration(object):
-    def __init__(self, fields):
-        self.fields = {field.key: field for field in fields}
-
-    def parse(self, configuration):
-        parsed = {}
-
-        for key, field in self.fields.iteritems():
-            if field.required and key not in configuration:
-                raise ConfigurationError("Missing mandatory field: {}".format(field.name))
-
-            if key in configuration:
-                parsed[key] = configuration[key]
-
-        return parsed
-
-    def get_input_definition(self):
-        return [field.to_dict() for field in self.fields]
-
-
 class BaseQueryRunner(object):
-    def __init__(self, configuration_json):
-        try:
-            configuration_spec = self.configuration_spec()
-            if not isinstance(configuration_spec, Configuration):
-                configuration_spec = Configuration([ConfigurationField(k) for k in configuration_spec])
-
-            self.configuration = configuration_spec.parse(json.loads(configuration_json))
-        except ValueError:
-            raise ConfigurationError("Invalid configuration syntax")
+    def __init__(self, configuration):
+        jsonschema.validate(configuration, self.configuration_schema())
 
     @classmethod
     def name(cls):
-        raise NotImplementedError()
+        return cls.__name__
+
+    @classmethod
+    def type(cls):
+        return cls.__name__.lower()
 
     @classmethod
     def enabled(cls):
@@ -99,23 +54,31 @@ class BaseQueryRunner(object):
         return True
 
     @classmethod
-    def configuration_spec(cls):
-        return Configuration([])
+    def configuration_schema(cls):
+        return {}
 
     def run_query(self, query):
         raise NotImplementedError()
+
+    @classmethod
+    def to_dict(cls):
+        return {
+            'name': cls.name(),
+            'type': cls.type(),
+            'configuration_schema': cls.configuration_schema()
+        }
 
 
 query_runners = {}
 
 
-def register(query_runner_type, query_runner_class):
+def register(query_runner_class):
     global query_runners
     if query_runner_class.enabled():
-        logger.info("Registering %s query runner.", query_runner_type)
-        query_runners[query_runner_type] = query_runner_class
+        logger.info("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
+        query_runners[query_runner_class.type()] = query_runner_class
     else:
-        logger.warning("%s query runner not enabled; not registering", query_runner_type)
+        logger.warning("%s query runner not enabled; not registering", query_runner_class.name())
 
 
 def get_query_runner(query_runner_type, configuration_json):
@@ -124,7 +87,21 @@ def get_query_runner(query_runner_type, configuration_json):
     if query_runner_class is None:
         return None
 
-    return query_runner_class(configuration_json)
+    return query_runner_class(json.loads(configuration_json))
+
+
+def validate_configuration(query_runner_type, configuration_json):
+    global query_runners
+    query_runner_class = query_runners.get(query_runner_type, None)
+    if query_runner_class is None:
+        return False
+
+    try:
+        jsonschema.validate(json.loads(configuration_json), query_runner_class.configuration_schema())
+    except ValidationError:
+        return False
+
+    return True
 
 
 def import_query_runners(query_runner_imports):

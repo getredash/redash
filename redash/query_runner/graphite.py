@@ -26,8 +26,26 @@ def _transform_result(response):
 
 class Graphite(BaseQueryRunner):
     @classmethod
-    def configuration_spec(cls):
-        return "url", "username", "password", "verify"
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'url': {
+                    'type': 'string'
+                },
+                'username': {
+                    'type': 'string'
+                },
+                'password': {
+                    'type': 'string'
+                },
+                'verify': {
+                    'type': 'boolean',
+                    'title': 'Verify SSL certificate'
+                }
+            },
+            'required': ['url']
+        }
 
     @classmethod
     def annotate_query(cls):
@@ -35,9 +53,6 @@ class Graphite(BaseQueryRunner):
 
     def __init__(self, configuration_json):
         super(Graphite, self).__init__(configuration_json)
-
-        if "url" not in self.configuration:
-            raise ConfigurationError("Missing url")
 
         if "username" in self.configuration and self.configuration["username"]:
             self.auth = (self.configuration["username"], self.configuration["password"])
@@ -65,4 +80,4 @@ class Graphite(BaseQueryRunner):
 
         return data, error
 
-register("graphite", Graphite)
+register(Graphite)

@@ -11,8 +11,17 @@ class Script(BaseQueryRunner):
         return "check_output" in subprocess.__dict__
 
     @classmethod
-    def configuration_spec(cls):
-        return ("path",)
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'path': {
+                    'type': 'string',
+                    'title': 'Scripts path'
+                }
+            },
+            'required': ['path']
+        }
 
     @classmethod
     def annotate_query(cls):
@@ -23,7 +32,7 @@ class Script(BaseQueryRunner):
 
         # Poor man's protection against running scripts from output the scripts directory
         if self.configuration["path"].find("../") > -1:
-            raise ConfigurationError("Scripts can only be run from the configured scripts directory")
+            raise ValidationError("Scripts can only be run from the configured scripts directory")
 
     def run_query(self, query):
         try:
@@ -53,4 +62,4 @@ class Script(BaseQueryRunner):
 
         return json_data, error
 
-register("script", Script)
+register(Script)

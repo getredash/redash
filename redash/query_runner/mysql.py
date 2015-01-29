@@ -10,8 +10,27 @@ logger = logging.getLogger(__name__)
 
 class Mysql(BaseQueryRunner):
     @classmethod
-    def configuration_spec(cls):
-        return "host", "user", "passwd" "db"
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'host': {
+                    'type': 'string'
+                },
+                'user': {
+                    'type': 'string'
+                },
+                'passwd': {
+                    'type': 'string',
+                    'title': 'Password'
+                },
+                'db': {
+                    'type': 'string',
+                    'title': 'Database name'
+                }
+            },
+            'required': ['db']
+        }
 
     @classmethod
     def enabled(cls):
@@ -24,9 +43,6 @@ class Mysql(BaseQueryRunner):
 
     def __init__(self, configuration_json):
         super(Mysql, self).__init__(configuration_json)
-
-        if 'db' not in configuration_json.keys():
-            raise ConfigurationError("Missing database name")
 
         self.configuration.update({
             "charset": "utf8",
@@ -79,4 +95,4 @@ class Mysql(BaseQueryRunner):
 
         return json_data, error
 
-register("mysql", Mysql)
+register(Mysql)

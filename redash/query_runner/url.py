@@ -6,8 +6,16 @@ from redash.query_runner import *
 
 class Url(BaseQueryRunner):
     @classmethod
-    def configuration_spec(cls):
-        return ("url",)
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'url': {
+                    'type': 'string',
+                    'title': 'URL base path'
+                }
+            }
+        }
 
     @classmethod
     def annotate_query(cls):
@@ -47,4 +55,4 @@ class Url(BaseQueryRunner):
 
         return json_data, error
 
-register("url", Url)
+register(Url)
