@@ -439,7 +439,7 @@
         return new QueryResult({job: {error: "Missing values for " + missingParams.join(', ')  + " "+paramsWord+".", status: 4}});
       }
 
-      if (parameters !== undefined) {
+      if (paramsRequired) {
         queryText = Mustache.render(queryText, parameters);
 
         // Need to clear latest results, to make sure we don't used results for different params.
