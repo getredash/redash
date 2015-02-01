@@ -162,7 +162,7 @@
                 var href = canvas.toDataURL('image/png');
                 var a = document.createElement('a');
                 a.href = href;
-                var filenameSuffix = new Date().toISOString();
+                var filenameSuffix = new Date().toISOString().replace(/:/g,'_').replace('Z', '');
                 if (this.title) {
                     filenameSuffix = this.title.text;
                 }
