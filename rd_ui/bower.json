@@ -26,7 +26,8 @@
     "marked": "~0.3.2",
     "bucky": "~0.2.6",
     "pace": "~0.5.1",
-    "angular-ui-select": "0.8.2"
+    "angular-ui-select": "0.8.2",
+    "canvg": "gabelerner/canvg"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
