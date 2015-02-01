@@ -27,12 +27,19 @@
           var filters = {};
           _.each(queryResults, function(queryResult) {
             var queryFilters = queryResult.getFilters();
-            _.each(queryFilters, function (filter) {
-              if (!_.has(filters, filter.name)) {
-                // TODO: first object should be a copy, otherwise one of the chart filters behaves different than the others.
+            _.each(queryFilters, function (queryFilter) {
+              var hasQueryStringValue = _.has($location.search(), queryFilter.name);
+
+              if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
+                // If dashboard filters not enabled, or no query string value given, skip filters linking.
+                return;
+              }
+
+              if (!_.has(filters, queryFilter.name)) {
+                var filter = _.extend({}, queryFilter);
                 filters[filter.name] = filter;
                 filters[filter.name].originFilters = [];
-                if (_.has($location.search(), filter.name)) {
+                if (hasQueryStringValue) {
                   filter.current = $location.search()[filter.name];
                 }
 
@@ -44,7 +51,7 @@
               }
 
               // TODO: merge values.
-              filters[filter.name].originFilters.push(filter);
+              filters[queryFilter.name].originFilters.push(queryFilter);
             });
           });
 
