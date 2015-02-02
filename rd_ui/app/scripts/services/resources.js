@@ -342,22 +342,6 @@
             refreshStatus(queryResult, query, ttl);
           }, 3000);
         }
-      }, function() {
-        var upHandler = function() {
-          Offline.off('up', upHandler);
-          console.log('trying again');
-          refreshStatus(queryResult, query, ttl);
-        };
-
-        var downHandler = function() {
-          console.log('2 handling down case');
-
-          Offline.on('up', upHandler);
-          Offline.off('down', downHandler);
-        };
-
-        Offline.on('down', downHandler);
-        Offline.check();
       })
     }
 

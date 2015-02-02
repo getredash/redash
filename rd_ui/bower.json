@@ -29,7 +29,6 @@
     "angular-ui-select": "0.8.2",
     "font-awesome": "~4.2.0",
     "mustache": "~1.0.0",
-    "offline": "~0.7.11",
     "canvg": "gabelerner/canvg"
   },
   "devDependencies": {
