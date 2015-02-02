@@ -158,15 +158,15 @@
               text: 'Save Image',
               onclick: function () {
                 var canvas = document.createElement('canvas'); 
-                window.canvg(canvas, this.getSVG())
+                window.canvg(canvas, this.getSVG());
                 var href = canvas.toDataURL('image/png');
                 var a = document.createElement('a');
                 a.href = href;
-                var filenameSuffix = '';
+                var filenameSuffix = new Date().toISOString().replace(/:/g,'_').replace('Z', '');
                 if (this.title) {
                     filenameSuffix = this.title.text;
                 }
-                a.download = 'redash_'+filenameSuffix+'.png';
+                a.download = 'redash_charts_'+filenameSuffix+'.png';
                 document.body.appendChild(a);
                 a.click();
                 a.remove(); 
