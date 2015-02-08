@@ -155,6 +155,8 @@
         $scope.query.queryResult = $scope.queryResult;
 
         notifications.showNotification("re:dash", $scope.query.name + " updated.");
+      } else if (status == 'failed') {
+        notifications.showNotification("re:dash", $scope.query.name + " failed to run: " + $scope.queryResult.getError());
       }
 
       if (status === 'done' || status === 'failed') {
