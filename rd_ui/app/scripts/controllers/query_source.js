@@ -29,7 +29,7 @@
       }
     });
 
-    KeyboardShortcuts.bind({
+    var shortcuts = {
       'meta+s': function () {
         if ($scope.canEdit) {
           $scope.saveQuery();
@@ -44,7 +44,9 @@
       'meta+enter': $scope.executeQuery,
       // Ctrl+Enter for PC
       'ctrl+enter': $scope.executeQuery
-    });
+    };
+
+    KeyboardShortcuts.bind(shortcuts);
 
     // @override
     $scope.saveQuery = function(options, data) {

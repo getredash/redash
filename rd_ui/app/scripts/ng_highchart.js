@@ -305,8 +305,28 @@
                 scope.chart.series[0].remove(false);
               };
 
+              // We check either for true or undefined for backward compatibility.
+              var series = scope.series;
+
+              if (chartOptions['sortX'] === true || chartOptions['sortX'] === undefined) {
+                var seriesCopy = [];
+
+                _.each(series, function (s) {
+                  // make a copy of series data, so we don't override original.
+                  var fieldName = 'x';
+                  if (s.data.length > 0 && _.has(s.data[0], 'name')) {
+                    fieldName = 'name';
+                  };
+
+                  var sorted = _.extend({}, s, {data: _.sortBy(s.data, fieldName)});
+                  seriesCopy.push(sorted);
+                });
+
+                series = seriesCopy;
+              }
+
               if (!('xAxis' in chartOptions && 'type' in chartOptions['xAxis'])) {
-                if (scope.series.length > 0 && _.some(scope.series[0].data, function (p) {
+                if (series.length > 0 && _.some(series[0].data, function (p) {
                   return (angular.isString(p.x) || angular.isDefined(p.name));
                 })) {
                   chartOptions['xAxis'] = chartOptions['xAxis'] || {};
@@ -318,13 +338,13 @@
               }
 
               if (chartOptions['xAxis']['type'] == 'category' || chartOptions['series']['type']=='pie') {
-                if (!angular.isDefined(scope.series[0].data[0].name)) {
+                if (!angular.isDefined(series[0].data[0].name)) {
                   // We need to make sure that for each category, each series has a value.
-                  var categories = _.union.apply(this, _.map(scope.series, function (s) {
+                  var categories = _.union.apply(this, _.map(series, function (s) {
                     return _.pluck(s.data, 'x')
                   }));
 
-                  _.each(scope.series, function (s) {
+                  _.each(series, function (s) {
                     // TODO: move this logic to Query#getChartData
                     var yValues = _.groupBy(s.data, 'x');
 
@@ -335,11 +355,6 @@
                       }
                     });
 
-                    if (categories.length == 1) {
-                      newData = _.sortBy(newData, 'y').reverse();
-                    }
-                    ;
-
                     s.data = newData;
                   });
                 }
@@ -347,7 +362,7 @@
 
               scope.chart.counters.color = 0;
 
-              _.each(scope.series, function (s) {
+              _.each(series, function (s) {
                 // here we override the series with the visualization config
                 s = _.extend(s, chartOptions['series']);
 
