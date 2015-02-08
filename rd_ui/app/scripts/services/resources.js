@@ -469,11 +469,19 @@
     Query.prototype.getParameters = function() {
       var parts = Mustache.parse(this.query);
       var parameters = [];
-      _.each(parts, function(part) {
-        if (part[0] == 'name') {
-          parameters.push(part[1]);
-        }
-      });
+      var collectParams = function(parts) {
+        parameters = [];
+        _.each(parts, function(part) {
+          if (part[0] == 'name' || part[0] == '&') {
+            parameters.push(part[1]);
+          } else if (part[0] == '#') {
+            parameters = _.union(parameters, collectParams(part[4]));
+          }
+        });
+        return parameters;
+      };
+
+      parameters = collectParams(parts);
 
       return parameters;
     }
