@@ -98,13 +98,13 @@
                 </button>',
       link: function($scope) {
         $scope.formatQuery = function formatQuery() {
-            $scope.queryExecuting = true;
+            $scope.queryFormatting = true;
             $http.post('/api/queries/format', {
                 'query': $scope.query.query
             }).success(function (response) {
                 $scope.query.query = response;
             }).finally(function () {
-              $scope.queryExecuting = false;
+              $scope.queryFormatting = false;
             });
         };
       }
