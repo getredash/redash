@@ -147,6 +147,10 @@
               scope.stacking = scope.visualization.options.series.stacking;
             }
 
+            if (scope.visualization.options.sortX === undefined) {
+              scope.visualization.options.sortX = true;
+            }
+
             var refreshSeries = function() {
               scope.series = _.map(scope.queryResult.getChartData(scope.visualization.options.columnMapping), function (s) { return s.name; });
 
