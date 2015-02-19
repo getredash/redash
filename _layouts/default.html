@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>re:dash {{ site.version }} - {{ page.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/static/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/static/css/base.css" />
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/static/css/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/static/css/font-awesome.min.css" />
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <script>
+    if (window.location.href.indexOf('nsq.io') == -1 && window.location.href.indexOf('127.0.0.1') == -1) {
+        window.location = window.location.protocol + '//nsq.io/' + window.location.pathname.replace(/\/nsq\//, '');
+    }
+    </script>
+    <style type="text/css">
+    a code {
+        color: #08c;
+    }
+    </style>
+  </head>
+  <body lang="en">
+    <div class="container">
+      <div class="row">
+        <div class="span3 sidebar">{% include sidebar.html %}</div>
+        <div class="span9">{{ content }}</div>
+      </div>
+      <div class="row">
+        <footer class="footer">
+          <p class="muted built">Built: {{ site.time | date_to_rfc822 }}</p>
+        </footer>
+      </div>
+    </div>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-', 'redash.io');
+      ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
