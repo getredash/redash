@@ -449,10 +449,6 @@ class QueryResultAPI(BaseResource):
         writer.writer = utils.UnicodeWriter(s)
         writer.writeheader()
         for row in query_data['rows']:
-            for k, v in row.iteritems():
-                if isinstance(v, numbers.Number) and (v > 1000 * 1000 * 1000 * 100):
-                    row[k] = datetime.datetime.fromtimestamp(v/1000.0)
-
             writer.writerow(row)
 
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
