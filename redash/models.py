@@ -381,7 +381,7 @@ class Query(BaseModel):
     def search(cls, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
 
-        where = (cls.name**"%{}%".format(term)) | (cls.description**"%{}%".format(term))
+        where = (cls.name**u"%{}%".format(term)) | (cls.description**u"%{}%".format(term))
 
         if term.isdigit():
             where |= cls.id == term

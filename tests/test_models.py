@@ -1,3 +1,4 @@
+#encoding: utf8
 import datetime
 import json
 from tests import BaseTestCase
@@ -31,22 +32,22 @@ class QueryTest(BaseTestCase):
         self.assertNotEquals(old_hash, q.query_hash)
 
     def test_search_finds_in_name(self):
-        q1 = query_factory.create(name="Testing search")
-        q2 = query_factory.create(name="Testing searching")
-        q3 = query_factory.create(name="Testing sea rch")
+        q1 = query_factory.create(name=u"Testing seåřċħ")
+        q2 = query_factory.create(name=u"Testing seåřċħing")
+        q3 = query_factory.create(name=u"Testing seå řċħ")
 
-        queries = models.Query.search("search")
+        queries = models.Query.search(u"seåřċħ")
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertNotIn(q3, queries)
 
     def test_search_finds_in_description(self):
-        q1 = query_factory.create(description="Testing search")
-        q2 = query_factory.create(description="Testing searching")
-        q3 = query_factory.create(description="Testing sea rch")
+        q1 = query_factory.create(description=u"Testing seåřċħ")
+        q2 = query_factory.create(description=u"Testing seåřċħing")
+        q3 = query_factory.create(description=u"Testing seå řċħ")
 
-        queries = models.Query.search("search")
+        queries = models.Query.search(u"seåřċħ")
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
