@@ -12,33 +12,23 @@ Today **_re:dash_** has support for querying multiple databases, including: Reds
 
 **_re:dash_** is a work in progress and has its rough edges and way to go to fulfill its full potential. The Query Editor part is quite solid, but the visualizations need more work to enrich them and to make them more user friendly.
 
-## Demo
+### Demo
 
 ![Screenshots](https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif)
 
-You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
+You can try out the demo instance: [http://demo.redash.io/](http://demo.redash.io/) (login with any Google account).
 
-## Getting Started
+### Getting Started
 
-* [Setting up re:dash instance](https://github.com/EverythingMe/redash/wiki/Setting-up-re:dash-instance) (includes links to ready made AWS/GCE images).
-* Additional documentation in the [Wiki](https://github.com/everythingme/redash/wiki).
+[Setting up re:dash instance]({% post_url 2015-02-18-setup %}) (includes links to ready made AWS/GCE images).
 
+### Getting Help
 
-## Getting help
-
-* [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): the best place to get updates about new releases or ask general questions.
-* Find us [on gitter](https://gitter.im/EverythingMe/redash#) (chat).
+* Source: https://github.com/everythingme/redash
+* Issues: https://github.com/everythingme/redash/issues
+* Mailing List: redash-users@googlegroups.com
+* Gitter (chat): https://gitter.im/EverythingMe/redash
 * Contact Arik, the maintainer directly: arik@everything.me.
 
-## Roadmap
-
-TBD.
-
-## Reporting Bugs and Contributing Code
-
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/everythingme/redash/issues/new).
-* Want to help us build **_re:dash_**? Fork the project and make a pull request. We need all the help we can get!
-
-## License
-
-See [LICENSE](https://github.com/EverythingMe/redash/blob/master/LICENSE) file.
+### Contributing
+**_re:dash_** has a growing community and contributions are always welcome (particularly documentation). To contribute, fork the project on GitHub and send a pull request.
