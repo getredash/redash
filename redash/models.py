@@ -9,7 +9,7 @@ import itertools
 
 import peewee
 from passlib.apps import custom_app_context as pwd_context
-from playhouse.postgres_ext import ArrayField
+from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
 from flask.ext.login import UserMixin, AnonymousUserMixin
 
 from redash import utils, settings
@@ -18,8 +18,9 @@ from redash import utils, settings
 class Database(object):
     def __init__(self):
         self.database_config = dict(settings.DATABASE_CONFIG)
+        self.database_config['register_hstore'] = False
         self.database_name = self.database_config.pop('name')
-        self.database = peewee.PostgresqlDatabase(self.database_name, **self.database_config)
+        self.database = PostgresqlExtDatabase(self.database_name, **self.database_config)
         self.app = None
         self.pid = os.getpid()
 
@@ -96,7 +97,7 @@ class Group(BaseModel):
     name = peewee.CharField(max_length=100)
     permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
     tables = ArrayField(peewee.CharField)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'groups'
@@ -173,7 +174,7 @@ class ActivityLog(BaseModel):
     user = peewee.ForeignKeyField(User)
     type = peewee.IntegerField()
     activity = peewee.TextField()
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'activity_log'
@@ -198,7 +199,7 @@ class DataSource(BaseModel):
     options = peewee.TextField()
     queue_name = peewee.CharField(default="queries")
     scheduled_queue_name = peewee.CharField(default="queries")
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'data_sources'
@@ -222,7 +223,7 @@ class QueryResult(BaseModel):
     query = peewee.TextField()
     data = peewee.TextField()
     runtime = peewee.FloatField()
-    retrieved_at = peewee.DateTimeField()
+    retrieved_at = DateTimeTZField()
 
     class Meta:
         db_table = 'query_results'
@@ -297,7 +298,7 @@ class Query(BaseModel):
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     is_archived = peewee.BooleanField(default=False, index=True)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'queries'
@@ -441,7 +442,7 @@ class Dashboard(BaseModel):
     layout = peewee.TextField()
     dashboard_filters_enabled = peewee.BooleanField(default=False)
     is_archived = peewee.BooleanField(default=False, index=True)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'dashboards'
@@ -552,7 +553,7 @@ class Widget(BaseModel):
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     # unused; kept for backward compatability:
     type = peewee.CharField(max_length=100, null=True)
@@ -586,13 +587,14 @@ class Widget(BaseModel):
         self.dashboard.save()
         super(Widget, self).delete_instance(*args, **kwargs)
 
+
 class Event(BaseModel):
     user = peewee.ForeignKeyField(User, related_name="events")
     action = peewee.CharField()
     object_type = peewee.CharField()
     object_id = peewee.CharField(null=True)
     additional_properties = peewee.TextField(null=True)
-    created_at = peewee.DateTimeField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'events'
