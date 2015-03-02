@@ -1,6 +1,8 @@
+import json
 import click
 from flask.ext.script import Manager
 from redash import models
+from redash.query_runner import query_runners, validate_configuration
 
 manager = Manager(help="Data sources management commands.")
 
@@ -14,13 +16,20 @@ def list():
         print "Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options)
 
 
+def validate_data_source_type(type):
+    if type not in query_runners.keys():
+        print "Error: the type \"{}\" is not supported (supported types: {}).".format(type, ", ".join(query_runners.keys()))
+        exit()
+
+
+def validate_data_source_options(type, options):
+    if not validate_configuration(type, options):
+        print "Error: invalid configuration."
+        exit()
+
 @manager.command
 def new(name=None, type=None, options=None):
     """Create new data source"""
-
-    import json
-    from redash.query_runner import query_runners, validate_configuration
-
     if name is None:
         name = click.prompt("Name")
 
@@ -34,9 +43,8 @@ def new(name=None, type=None, options=None):
             idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())), type=int)
 
         type = query_runners.keys()[idx-1]
-    elif type not in query_runners.keys():
-        print "Error: type not supported (supported types: {})".format(", ".join(query_runners.keys()))
-        exit()
+    else:
+        validate_data_source_type(type)
 
     if options is None:
         query_runner = query_runners[type]
@@ -68,9 +76,7 @@ def new(name=None, type=None, options=None):
 
         options = json.dumps(options_obj)
 
-    if not validate_configuration(type, options):
-        print "Error: invalid configuration."
-        exit()
+    validate_data_source_options(type, options)
 
     print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
 
@@ -105,7 +111,14 @@ def update_attr(obj, attr, new_value):
 def edit(name, new_name=None, options=None, type=None):
     """Edit data source settings (name, options, type)"""
     try:
+        if type is not None:
+            validate_data_source_type(type)
+
         data_source = models.DataSource.get(models.DataSource.name==name)
+
+        if options is not None:
+            validate_data_source_options(data_source.type, options)
+
         update_attr(data_source, "name", new_name)
         update_attr(data_source, "type", type)
         update_attr(data_source, "options", options)
