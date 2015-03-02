@@ -93,7 +93,7 @@ def validate_configuration(query_runner_type, configuration_json):
 
     try:
         jsonschema.validate(json.loads(configuration_json), query_runner_class.configuration_schema())
-    except ValidationError:
+    except (ValidationError, ValueError):
         return False
 
     return True

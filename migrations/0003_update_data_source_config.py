@@ -1,10 +1,16 @@
 import json
 
+from redash import query_runner
 from redash.models import DataSource
 
 
 def update(data_source):
     print "[%s] Old options: %s" % (data_source.name, data_source.options)
+
+    if query_runner.validate_configuration(data_source.type, data_source.options):
+        print "[%s] configuration already valid. skipping." % data_source.name
+        return
+
     if data_source.type == 'pg':
         values = data_source.options.split(" ")
         configuration = {}
