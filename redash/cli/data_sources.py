@@ -1,3 +1,4 @@
+import click
 from flask.ext.script import Manager
 from redash import models
 
@@ -14,10 +15,65 @@ def list():
 
 
 @manager.command
-def new(name, type, options):
+def new(name=None, type=None, options=None):
     """Create new data source"""
-    # TODO: validate it's a valid type and in the future, validate the options.
+
+    import json
+    from redash.query_runner import query_runners, validate_configuration
+
+    if name is None:
+        name = click.prompt("Name")
+
+    if type is None:
+        print "Select type:"
+        for i, query_runner_name in enumerate(query_runners.keys()):
+            print "{}. {}".format(i+1, query_runner_name)
+
+        idx = 0
+        while idx < 1 or idx > len(query_runners.keys()):
+            idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())), type=int)
+
+        type = query_runners.keys()[idx-1]
+    elif type not in query_runners.keys():
+        print "Error: type not supported (supported types: {})".format(", ".join(query_runners.keys()))
+        exit()
+
+    if options is None:
+        query_runner = query_runners[type]
+        schema = query_runner.configuration_schema()
+
+        types = {
+            'string': unicode,
+            'number': int,
+            'boolean': bool
+        }
+
+        options_obj = {}
+
+        for k, prop in schema['properties'].iteritems():
+            required = k in schema.get('required', [])
+            default_value = "<<DEFAULT_VALUE>>"
+            if required:
+                default_value = None
+
+            prompt = prop.get('title', k.capitalize())
+            if required:
+                prompt = "{} (required)".format(prompt)
+            else:
+                prompt = "{} (optional)".format(prompt)
+
+            value = click.prompt(prompt, default=default_value, type=types[prop['type']], show_default=False)
+            if value != default_value:
+                options_obj[k] = value
+
+        options = json.dumps(options_obj)
+
+    if not validate_configuration(type, options):
+        print "Error: invalid configuration."
+        exit()
+
     print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
+
     data_source = models.DataSource.create(name=name,
                                            type=type,
                                            options=options)
