@@ -72,10 +72,10 @@ query_runners = {}
 def register(query_runner_class):
     global query_runners
     if query_runner_class.enabled():
-        logger.info("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
+        logger.debug("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
         query_runners[query_runner_class.type()] = query_runner_class
     else:
-        logger.warning("%s query runner not enabled; not registering", query_runner_class.name())
+        logger.warning("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
 
 
 def get_query_runner(query_runner_type, configuration_json):
