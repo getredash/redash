@@ -9,18 +9,15 @@ from redash.query_runner import *
 
 logger = logging.getLogger(__name__)
 
+try:
+    import pymongo
+    from bson.objectid import ObjectId
+    enabled = True
 
-def _import():
-    try:
-        import pymongo
-        from bson.objectid import ObjectId
-        return True
-
-    except ImportError:
-        logger.warning("Missing dependencies. Please install pymongo.")
-        logger.warning("You can use pip:   pip install pymongo")
-
-    return False
+except ImportError:
+    logger.warning("Missing dependencies. Please install pymongo.")
+    logger.warning("You can use pip:   pip install pymongo")
+    enabled = False
 
 
 TYPES_MAP = {
@@ -77,14 +74,13 @@ class MongoDB(BaseQueryRunner):
 
     @classmethod
     def enabled(cls):
-        return _import()
+        return enabled
 
     @classmethod
     def annotate_query(cls):
         return False
 
     def __init__(self, configuration_json):
-        _import()
         super(MongoDB, self).__init__(configuration_json)
 
         self.db_name = self.configuration["dbName"]
