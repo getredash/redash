@@ -1,5 +1,7 @@
 source: .
 version: 0.5.0
-pygments: true
+highlighter: pygments
 baseurl: ''
 markdown: kramdown
+kramdown:
+  input: GFM
