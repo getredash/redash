@@ -10,6 +10,19 @@ from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
+try:
+    import apiclient.errors
+    from apiclient.discovery import build
+    from apiclient.errors import HttpError
+    from oauth2client.client import SignedJwtAssertionCredentials
+
+    enabled = True
+except ImportError:
+    logger.warning("Missing dependencies. Please install google-api-python-client and oauth2client.")
+    logger.warning("You can use pip:   pip install google-api-python-client oauth2client")
+
+    enabled = False
+
 types_map = {
     'INTEGER': TYPE_INTEGER,
     'FLOAT': TYPE_FLOAT,
@@ -45,21 +58,6 @@ def transform_row(row, fields):
     return row_data
 
 
-def _import():
-    try:
-        import apiclient.errors
-        from apiclient.discovery import build
-        from apiclient.errors import HttpError
-        from oauth2client.client import SignedJwtAssertionCredentials
-
-        return True
-    except ImportError:
-        logger.warning("Missing dependencies. Please install google-api-python-client and oauth2client.")
-        logger.warning("You can use pip:   pip install google-api-python-client oauth2client")
-
-    return False
-
-
 def _load_key(filename):
     f = file(filename, "rb")
     try:
@@ -93,7 +91,7 @@ def _get_query_results(jobs, project_id, job_id, start_index):
 class BigQuery(BaseQueryRunner):
     @classmethod
     def enabled(cls):
-        return _import()
+        return enabled
 
     @classmethod
     def configuration_schema(cls):
@@ -118,7 +116,6 @@ class BigQuery(BaseQueryRunner):
 
     def __init__(self, configuration_json):
         super(BigQuery, self).__init__(configuration_json)
-        _import()
 
         self.private_key = _load_key(self.configuration["privateKey"])
 
