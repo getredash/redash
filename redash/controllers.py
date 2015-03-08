@@ -23,6 +23,7 @@ from redash.wsgi import app, auth, api
 from redash.tasks import QueryTask, record_event
 from redash.cache import headers as cache_headers
 from redash.permissions import require_permission
+from redash.query_runner import query_runners, validate_configuration
 
 
 @app.route('/ping', methods=['GET'])
@@ -174,10 +175,34 @@ class MetricsAPI(BaseResource):
 api.add_resource(MetricsAPI, '/api/metrics/v1/send', endpoint='metrics')
 
 
+class DataSourceTypeListAPI(BaseResource):
+    @require_permission("admin")
+    def get(self):
+        return [q.to_dict() for q in query_runners.values()]
+
+api.add_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
+
+
 class DataSourceListAPI(BaseResource):
     def get(self):
         data_sources = [ds.to_dict() for ds in models.DataSource.all()]
         return data_sources
+
+    @require_permission("admin")
+    def post(self):
+        req = request.get_json(True)
+        required_fields = ('options', 'name', 'type')
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+
+        if not validate_configuration(req['type'], req['options']):
+            abort(400)
+
+        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=req['options'])
+
+        return datasource.to_dict()
+
 
 api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
 

@@ -23,3 +23,5 @@ honcho==0.5.0
 statsd==2.1.2
 gunicorn==18.0
 celery==3.1.11
+jsonschema==2.4.0
+click==3.3

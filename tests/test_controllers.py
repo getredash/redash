@@ -473,3 +473,44 @@ class TestLogout(BaseTestCase):
             rv = c.get('/logout')
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(current_user.is_authenticated())
+
+
+class DataSourceTypesTest(BaseTestCase):
+    def test_returns_data_for_admin(self):
+        admin = user_factory.create(groups=['admin', 'default'])
+        with app.test_client() as c, authenticated_user(c, user=admin):
+            rv = c.get("/api/data_sources/types")
+            self.assertEqual(rv.status_code, 200)
+
+    def test_returns_403_for_non_admin(self):
+        with app.test_client() as c, authenticated_user(c):
+            rv = c.get("/api/data_sources/types")
+            self.assertEqual(rv.status_code, 403)
+
+
+class DataSourceTest(BaseTestCase):
+    def test_returns_400_when_missing_fields(self):
+        admin = user_factory.create(groups=['admin', 'default'])
+        with app.test_client() as c, authenticated_user(c, user=admin):
+            rv = c.post("/api/data_sources")
+            self.assertEqual(rv.status_code, 400)
+
+            rv = json_request(c.post, '/api/data_sources', data={'name': 'DS 1'})
+
+            self.assertEqual(rv.status_code, 400)
+
+    def test_returns_400_when_configuration_invalid(self):
+        admin = user_factory.create(groups=['admin', 'default'])
+        with app.test_client() as c, authenticated_user(c, user=admin):
+            rv = json_request(c.post, '/api/data_sources',
+                              data={'name': 'DS 1', 'type': 'pg', 'options': '{}'})
+
+            self.assertEqual(rv.status_code, 400)
+
+    def test_creates_data_source(self):
+        admin = user_factory.create(groups=['admin', 'default'])
+        with app.test_client() as c, authenticated_user(c, user=admin):
+            rv = json_request(c.post, '/api/data_sources',
+                              data={'name': 'DS 1', 'type': 'pg', 'options': '{"dbname": "redash"}'})
+
+            self.assertEqual(rv.status_code, 200)
