@@ -9,6 +9,17 @@ re:dash supports several types of data sources (see below the full list) and the
 
 ### Create new data source
 
+#### Version 0.6 and newer
+
+```bash
+$ bin/run ./manage.py ds new -n {name} -t {type} -o {options}
+```
+
+If you omit any of the options (-n, -t, -o) it will show a prompt asking for it. Options is a JSON string with the connection parameters.
+Unless you're doing some sort of automation, it's probably easier to leave it empty and fill out the prompt.
+
+#### Version 0.5 and older
+
 ```bash
 $ bin/run ./manage.py ds new {name} {type} {options}
 ```
@@ -26,38 +37,50 @@ See below for the different supported data sources types and the relevant option
 $ bin/run ./manage.py ds list
 ```
 
-### Import from settings (environment variables)
-
-If you have a data source already defined in your environment variables, and haven't upgraded from an old version, you can use this command to import it into the data sources list.
-
-```bash
-$ bin/run ./manage.py ds import_from_settings
-```
-(it accept options `--name` argument to set the name, otherwise it will be named "Default")
-
 ## Supported data sources
 
 ### PostgreSQL / Redshift
 
 * **Type**: pg
-* **Options string format**: "user= password= host= port=5439 dbname="
+* **Options**:
+	* User (user)
+	* Password (password)
+	* Host (host)
+	* Port (port)
+	* Database name (dbname) (mandatory)
+* **Options string format (for v0.5 and older)**: "user= password= host= port=5439 dbname="
 
 ### MySQL
 
 * **Type**: mysql
-* **Options string format**: "Server=localhost;User=;Pwd=;Database="
+* **Options**:
+	* User (user)
+	* Password (passwd)
+	* Host (host)
+	* Port (port)
+	* Database name (db) (mandatory)
+* **Options string format (for v0.5 and older)**: "Server=localhost;User=;Pwd=;Database="
 
 Note that you need to install the MySQLDb package as it is not included in the `requirements.txt` file.
 
 ### Graphite
 
 * **Type**: graphite
+* **Options**:
+	* Url (url) (mandatory)
+	* User (username)
+	* Password (password)
+	* Verify SSL ceritficate (verify)
 * **Options string format**: '{"url": "https://graphite.yourcompany.com", "auth": ["user", "password"], "verify": true}'
 
 ### Google BigQuery
 
 * **Type**: bigquery
-* **Options string format**: {"serviceAccount" : "43242343247-fjdfakljr3r2@developer.gserviceaccount.com", "privateKey" : "/somewhere/23fjkfjdsfj21312-privatekey.p12", "projectId" : "myproject-123" }
+* **Options**:
+	* Service Account (serviceAccount) (mandatory)
+	* Project ID (projectId) (mandatory)
+	* Private Key filename (privateKey) (mandatory)
+* **Options string format (for v0.5 and older)**: {"serviceAccount" : "43242343247-fjdfakljr3r2@developer.gserviceaccount.com", "privateKey" : "/somewhere/23fjkfjdsfj21312-privatekey.p12", "projectId" : "myproject-123" }
 
 Notes:
 
@@ -67,7 +90,11 @@ Notes:
 ### MongoDB
 
 * **Type**: mongo
-* **Options string format**: { "connectionString" : "mongodb://user:password@localhost:27017/mydb", "dbName" : "mydb" }
+* **Options**:
+	* Connection String (connectionString) (mandatory)
+	* Database name (dbName)
+	* Replica set name (replicaSetName)
+* **Options string format (for v0.5 and older)**: { "connectionString" : "mongodb://user:password@localhost:27017/mydb", "dbName" : "mydb" }
 
 For ReplicaSet databases use the following connection string:
 * **Options string format**: { "connectionString" : "mongodb://user:pasword@server1:27017,server2:27017/mydb", "dbName" : "mydb", "replicaSetName" : "myreplicaSet" }
@@ -86,7 +113,9 @@ Very useful in situations where you want to expose the data without connecting d
 The query itself inside re:dash will simply contain the URL to be executed (i.e. http://myserver/path/myquery)
 
 * **Type**: url
-* **Options string format (optional)**: http://myserver/path/
+* **Options**:
+	* Url (url)
+* **Options string format (optional) (for v0.5 and older)**: http://myserver/path/
 
 Notes:
 
@@ -103,7 +132,9 @@ This integration is useful in situations where you need more than just a query a
 Once the path to scripts is configured in the datasource the query needs to contain the file name of the script as well as any command line parameters the script requires (i.e. myscript.py param1 param2 --param3=value)
 
 * **Type**: script
-* **Options string format**: /path/to/scripts/
+* **Options**:
+	* Scripts Path (path) (mandatory)
+* **Options string format (for v0.5 and older)**: /path/to/scripts/
 
 Notes:
 
