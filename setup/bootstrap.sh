@@ -146,7 +146,7 @@ if [ $pg_user_exists -ne 0 ]; then
     sudo -u redash psql -c "grant select on activity_log, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
-    sudo -u redash bin/run ./manage.py ds new "re:dash metadata" "pg" "user=redash_reader password=$REDASH_READER_PASSWORD host=localhost dbname=redash"
+    sudo -u redash bin/run ./manage.py ds new "re:dash metadata" "pg" "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
 fi
 
 # BigQuery dependencies:
