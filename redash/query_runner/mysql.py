@@ -44,15 +44,14 @@ class Mysql(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Mysql, self).__init__(configuration_json)
 
-        self.configuration.update({
-            "charset": "utf8",
-            "use_unicode": True
-        })
-
     def run_query(self, query):
         import MySQLdb
 
-        connection = MySQLdb.connect(**self.configuration)
+        connection = MySQLdb.connect(self.configuration['host'],
+                                     self.configuration['user'],
+                                     self.configuration['passwd'],
+                                     self.configuration['db'],
+                                     charset='utf8', use_unicode=True)
         cursor = connection.cursor()
 
         logger.debug("MySQL running query: %s", query)

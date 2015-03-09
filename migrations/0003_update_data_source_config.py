@@ -17,14 +17,24 @@ def update(data_source):
         for value in values:
             k, v = value.split("=", 1)
             configuration[k] = v
+            if k == 'port':
+                configuration[k] = int(v)
+
         data_source.options = json.dumps(configuration)
 
     elif data_source.type == 'mysql':
+        mapping = {
+            'Server': 'host',
+            'User': 'user',
+            'Pwd': 'passwd',
+            'Database': 'db'
+        }
+
         values = data_source.options.split(";")
         configuration = {}
         for value in values:
             k, v = value.split("=", 1)
-            configuration[k] = v
+            configuration[mapping[k]] = v
         data_source.options = json.dumps(configuration)
 
     elif data_source.type == 'graphite':
