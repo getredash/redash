@@ -47,9 +47,9 @@ class Mysql(BaseQueryRunner):
     def run_query(self, query):
         import MySQLdb
 
-        connection = MySQLdb.connect(self.configuration['host'],
-                                     self.configuration['user'],
-                                     self.configuration['passwd'],
+        connection = MySQLdb.connect(self.configuration.get('host', ''),
+                                     self.configuration.get('user', ''),
+                                     self.configuration.get('passwd', ''),
                                      self.configuration['db'],
                                      charset='utf8', use_unicode=True)
         cursor = connection.cursor()
