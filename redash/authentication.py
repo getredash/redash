@@ -92,7 +92,7 @@ def setup_authentication(app):
     elif settings.AUTH_TYPE == 'api_key':
         auth = ApiKeyAuthentication()
     else:
-        logger.warning("Unknown authentication type ({}). Use default (HMAC).".format(settings.AUTH_TYPE))
+        logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
         auth = HMACAuthentication()
 
     return auth

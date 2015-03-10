@@ -20,7 +20,7 @@ class TestApiKeyAuthentication(BaseTestCase):
     def test_no_api_key(self):
         auth = ApiKeyAuthentication()
         with app.test_client() as c:
-            rv = c.get('/api/queries/{0}'.format(self.query.id))#, query_string={'api_key': 'whatever'})
+            rv = c.get('/api/queries/{0}'.format(self.query.id))
             self.assertFalse(auth.verify_authentication())
 
     def test_wrong_api_key(self):
