@@ -60,6 +60,8 @@ CELERY_FLOWER_URL = os.environ.get("REDASH_CELERY_FLOWER_URL", "/flower")
 # proved to be "safe".
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "false"))
 
+AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "hmac")
+
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
 GOOGLE_APPS_DOMAIN = os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", "")

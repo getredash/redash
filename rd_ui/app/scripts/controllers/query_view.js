@@ -33,6 +33,10 @@
       $scope.queryExecuting = lock;
     };
 
+    $scope.showApiKey = function() {
+      alert("API Key for this query:\n" + $scope.query.api_key);
+    };
+
     $scope.saveQuery = function(options, data) {
       if (data) {
         data.id = $scope.query.id;
