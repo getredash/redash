@@ -84,6 +84,9 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key):
         self.id = api_key
 
+    def __repr__(self):
+        return u"<ApiUser: {}>".format(self.id)
+
     @property
     def permissions(self):
         return ['view_query']

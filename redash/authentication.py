@@ -5,7 +5,7 @@ import time
 import logging
 
 from flask import request, make_response, redirect, url_for
-from flask.ext.login import LoginManager, login_user, current_user
+from flask.ext.login import LoginManager, login_user, current_user, logout_user
 
 from redash import models, settings, google_oauth
 
@@ -23,9 +23,38 @@ def sign(key, path, expires):
     return h.hexdigest()
 
 
-class HMACAuthentication(object):
-    @staticmethod
-    def api_key_authentication():
+class Authentication(object):
+    def verify_authentication(self):
+        return False
+
+    def required(self, fn):
+        @functools.wraps(fn)
+        def decorated(*args, **kwargs):
+            if current_user.is_authenticated() or self.verify_authentication():
+                return fn(*args, **kwargs)
+
+            return make_response(redirect(url_for("login", next=request.url)))
+
+        return decorated
+
+
+class ApiKeyAuthentication(Authentication):
+    def verify_authentication(self):
+        api_key = request.args.get('api_key')
+        query_id = request.view_args.get('query_id', None)
+
+        if query_id and api_key:
+            query = models.Query.get(models.Query.id == query_id)
+
+            if query.api_key and api_key == query.api_key:
+                login_user(models.ApiUser(query.api_key), remember=False)
+                return True
+
+        return False
+
+
+class HMACAuthentication(Authentication):
+    def verify_authentication(self):
         signature = request.args.get('signature')
         expires = float(request.args.get('expires') or 0)
         query_id = request.view_args.get('query_id', None)
@@ -41,22 +70,14 @@ class HMACAuthentication(object):
 
         return False
 
-    def required(self, fn):
-        @functools.wraps(fn)
-        def decorated(*args, **kwargs):
-            if current_user.is_authenticated():
-                return fn(*args, **kwargs)
-
-            if self.api_key_authentication():
-                return fn(*args, **kwargs)
-
-            return make_response(redirect(url_for("login", next=request.url)))
-
-        return decorated
-
 
 @login_manager.user_loader
 def load_user(user_id):
+    # If the user was previously logged in as api user, the user_id will be the api key and will raise an exception as
+    # it can't be casted to int.
+    if isinstance(user_id, basestring) and not user_id.isdigit():
+        return None
+
     return models.User.select().where(models.User.id == user_id).first()
 
 
@@ -66,4 +87,13 @@ def setup_authentication(app):
     app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
 
-    return HMACAuthentication()
+    if settings.AUTH_TYPE == 'hmac':
+        auth = HMACAuthentication()
+    elif settings.AUTH_TYPE == 'api_key':
+        auth = ApiKeyAuthentication()
+    else:
+        logger.warning("Unknown authentication type ({}). Use default (HMAC).".format(settings.AUTH_TYPE))
+        auth = HMACAuthentication()
+
+    return auth
+
