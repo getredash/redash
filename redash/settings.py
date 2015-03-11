@@ -44,10 +44,6 @@ STATSD_HOST = os.environ.get('REDASH_STATSD_HOST', "127.0.0.1")
 STATSD_PORT = int(os.environ.get('REDASH_STATSD_PORT', "8125"))
 STATSD_PREFIX = os.environ.get('REDASH_STATSD_PREFIX', "redash")
 
-# The following is kept for backward compatability, and shouldn't be used any more.
-CONNECTION_ADAPTER = os.environ.get("REDASH_CONNECTION_ADAPTER", "pg")
-CONNECTION_STRING = os.environ.get("REDASH_CONNECTION_STRING", "user= password= host= port=5439 dbname=")
-
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
 DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql://postgres"))
 
@@ -60,6 +56,7 @@ CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", REDIS_URL)
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "false"))
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "hmac")
+PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
 
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
@@ -69,9 +66,7 @@ GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 
-PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
 STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/"))
-WORKERS_COUNT = int(os.environ.get("REDASH_WORKERS_COUNT", "2"))
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600*6))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
