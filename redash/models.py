@@ -592,7 +592,7 @@ class Widget(BaseModel):
 
 
 class Event(BaseModel):
-    user = peewee.ForeignKeyField(User, related_name="events")
+    user = peewee.ForeignKeyField(User, related_name="events", null=True)
     action = peewee.CharField()
     object_type = peewee.CharField()
     object_id = peewee.CharField(null=True)
