@@ -7,9 +7,8 @@ but this is only due to configuration issues and temporary.
 import csv
 import hashlib
 import json
-import numbers
 import cStringIO
-import datetime
+import time
 import logging
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
@@ -490,6 +489,24 @@ class QueryResultAPI(BaseResource):
             query_result = models.QueryResult.get_by_id(query_result_id)
 
         if query_result:
+            if isinstance(self.current_user, models.ApiUser):
+                event = {
+                    'user_id': None,
+                    'action': 'api_get',
+                    'timestamp': int(time.time()),
+                    'api_key': self.current_user.id,
+                    'file_type': filetype
+                }
+
+                if query_id:
+                    event['object_type'] = 'query'
+                    event['object_id'] = query_id
+                else:
+                    event['object_type'] = 'query_result'
+                    event['object_id'] = query_result_id
+
+                record_event.delay(event)
+
             if filetype == 'json':
                 data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
                 return make_response(data, 200, cache_headers)
