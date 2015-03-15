@@ -79,14 +79,14 @@
               } else if (columnType === 'date') {
                 columnDefinition.formatFunction = function (value) {
                   if (value) {
-                    return value.format("DD/MM/YY");
+                    return value.toDate().toLocaleDateString();
                   }
                   return value;
                 };
               } else if (columnType === 'datetime') {
                 columnDefinition.formatFunction = function (value) {
                   if (value) {
-                    return value.format("DD/MM/YY HH:mm");
+                    return value.toDate().toLocaleString();
                   }
                   return value;
                 };
