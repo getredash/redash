@@ -19,21 +19,18 @@ permalink: /deployment/google-developers-project.html
     * Choose an Email Address and specify a Product Name.
 6. In the sidebar under "APIs & auth", select **Credentials**.
 7. Click **Create a new Client ID** — a dialog box appears.
-
-   * In the **Application type** section of the dialog, select **Web application**.
-   * In the **Authorized JavaScript origins** field, enter the origin for your app. You can enter multiple origins to use with multiple re:dash instance. Wildcards are not allowed. In the example below, we assume your re:dash instance address is _redash.example.com_:
+     * In the **Application type** section of the dialog, select **Web application**.
+     * In the **Authorized JavaScript origins** field, enter the origin for your app. You can enter multiple origins to use with multiple re:dash instance. Wildcards are not allowed. In the example below, we assume your re:dash instance address is _redash.example.com_:
 
     ```
     http://redash.example.com
     https://redash.example.com
     ```
-
-  * In the Authorized redirect URI field, enter the redirect URI callback:
+    * In the Authorized redirect URI field, enter the redirect URI callback:
 
     ```
     http://redash.example.com/oauth/google_callback
     ```
+    * Click the `Create Client ID` button.
 
-  * Click the `Create Client ID` button.
-  
 8. In the resulting **Client ID for web application** section, copy the **Client ID** and **Client secret** to your `.env` file.
