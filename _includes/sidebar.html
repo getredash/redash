@@ -2,10 +2,10 @@
   <a href="{{ site.baseurl }}/"><img src="{{ site.baseurl }}/static/img/redash_logo.png" /></a>
   <p class="muted version">{{ site.version }}</p>
   <ul class="nav nav-list">
-    {% for category in site.categories %} 
+    {% for category in site.categories %}
       <li class="nav-header">{{ category[0] }}</li>
-      {% for post in category[1] %} 
-        <li><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li> 
+      {% for post in category[1] %}
+        <li><a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
       {% endfor %}
     {% endfor %}
     <li class="nav-header">Links</li>
@@ -13,5 +13,7 @@
     <li><a href="https://github.com/everythingme/redash">GitHub Repo</a></li>
     <li><a href="https://github.com/everythingme/redash/issues">Issues</a></li>
     <li><a href="http://groups.google.com/group/redash-users">Google Group</a></li>
+    <li class="nav-header"></li>
+    <li><a href="/contact.html">Contact us</a></li>
   </ul>
 </div>
