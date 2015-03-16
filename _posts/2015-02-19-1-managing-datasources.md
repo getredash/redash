@@ -119,13 +119,13 @@ The query itself inside re:dash will simply contain the URL to be executed (i.e.
 
 Notes:
 
-1. All URLs must return the supported [results JSON format](https://github.com/EverythingMe/redash/wiki/re:dash-Data-Source-Results-JSON-Format).
-2. If the Options string is set, only URLs that are part of the supplied path can be executed using this data source. Not setting the options path allows any URL to be executed as long as it returns the supported [results JSON format](https://github.com/EverythingMe/redash/wiki/re:dash-Data-Source-Results-JSON-Format).
+1. All URLs must return the supported [results JSON format]({% post_url 2015-02-19-8-json-format %}).
+2. If the Options string is set, only URLs that are part of the supplied path can be executed using this data source. Not setting the options path allows any URL to be executed as long as it returns the supported [results JSON format]({% post_url 2015-02-19-8-json-format %}).
 
 
 ### Script
 
-Allows executing any executable script residing on the server as long as its standard output conforms to the supported [results JSON format](https://github.com/EverythingMe/redash/wiki/re:dash-Data-Source-Results-JSON-Format).
+Allows executing any executable script residing on the server as long as its standard output conforms to the supported [results JSON format]({% post_url 2015-02-19-8-json-format %}).
 
 This integration is useful in situations where you need more than just a query and requires some processing to happen.
 
@@ -141,4 +141,4 @@ Notes:
 1. You MUST set a path to execute the scripts, otherwise the data source will not work.
 2. All scripts must be executable, otherwise results won't return
 3. The script data source does not allow relative paths in the form of "../". You may use a relative sub path such as "./mydir/myscript".
-4. All scripts must output to the standard output the supported [results JSON format](https://github.com/EverythingMe/redash/wiki/re:dash-Data-Source-Results-JSON-Format) and only that, otherwise the data source will not be able to load the data.
+4. All scripts must output to the standard output the supported [results JSON format]({% post_url 2015-02-19-8-json-format %}) and only that, otherwise the data source will not be able to load the data.
