@@ -17,7 +17,7 @@
     };
 
     refresh();
-  }
+  };
 
   angular.module('redash.admin_controllers', [])
          .controller('AdminStatusCtrl', ['$scope', 'Events', '$http', '$timeout', AdminStatusCtrl])

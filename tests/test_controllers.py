@@ -477,6 +477,6 @@ class DataSourceTest(BaseTestCase):
         admin = user_factory.create(groups=['admin', 'default'])
         with app.test_client() as c, authenticated_user(c, user=admin):
             rv = json_request(c.post, '/api/data_sources',
-                              data={'name': 'DS 1', 'type': 'pg', 'options': '{"dbname": "redash"}'})
+                              data={'name': 'DS 1', 'type': 'pg', 'options': {"dbname": "redash"}})
 
             self.assertEqual(rv.status_code, 200)

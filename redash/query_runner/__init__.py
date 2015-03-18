@@ -105,7 +105,11 @@ def validate_configuration(query_runner_type, configuration_json):
         return False
 
     try:
-        jsonschema.validate(json.loads(configuration_json), query_runner_class.configuration_schema())
+        if isinstance(configuration_json, basestring):
+            configuration = json.loads(configuration_json)
+        else:
+            configuration = configuration_json
+        jsonschema.validate(configuration, query_runner_class.configuration_schema())
     except (ValidationError, ValueError):
         return False
 

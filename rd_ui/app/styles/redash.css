@@ -100,6 +100,15 @@ a.navbar-brand img {
     text-decoration: underline;
 }
 
+.list-group-item.clickable {
+    cursor: pointer;
+}
+
+.list-group-item.clickable:focus,
+.list-group-item.clickable:hover {
+    background-color: #f5f5f5;
+}
+
 /* angular-growl */
 .growl {
     position: fixed;
@@ -328,6 +337,11 @@ div.table-name {
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
+}
+
+.blankslate {
+    text-align: center;
+    padding: 30px;
 }
 
 /*

@@ -218,7 +218,7 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
         return cls.get(cls.api_key == api_key)
 
     def __unicode__(self):
-        return '%r, %r' % (self.name, self.email)
+        return u'%s (%s)' % (self.name, self.email)
 
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
@@ -264,13 +264,23 @@ class DataSource(BaseModel):
     class Meta:
         db_table = 'data_sources'
 
-    def to_dict(self):
-        return {
+    def to_dict(self, all=False):
+        d = {
             'id': self.id,
             'name': self.name,
             'type': self.type,
             'syntax': self.query_runner.syntax
         }
+
+        if all:
+            d['options'] = json.loads(self.options)
+            d['queue_name'] = self.queue_name
+            d['scheduled_queue_name'] = self.scheduled_queue_name
+
+        return d
+
+    def __unicode__(self):
+        return self.name
 
     def get_schema(self, refresh=False):
         key = "data_source:schema:{}".format(self.id)
@@ -296,6 +306,7 @@ class DataSource(BaseModel):
     @classmethod
     def all(cls):
         return cls.select().order_by(cls.id.asc())
+
 
 class JSONField(peewee.TextField):
     def db_value(self, value):
@@ -401,7 +412,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ModelTimestampsMixin, BaseModel):
     id = peewee.PrimaryKeyField()
-    data_source = peewee.ForeignKeyField(DataSource)
+    data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
     description = peewee.CharField(max_length=4096, null=True)

@@ -1,3 +1,4 @@
+from base64 import b64decode
 import json
 import logging
 import sys
@@ -64,12 +65,12 @@ class GoogleSpreadsheet(BaseQueryRunner):
         return {
             'type': 'object',
             'properties': {
-                'credentialsFilePath': {
-                    'type': 'string',
-                    'title': 'Credentials File Path'
+                'jsonKeyFile': {
+                    "type": "string",
+                    'title': 'JSON Key File'
                 }
             },
-            'required': ['credentialsFilePath']
+            'required': ['jsonKeyFile']
         }
 
     def __init__(self, configuration_json):
@@ -80,8 +81,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'https://spreadsheets.google.com/feeds',
         ]
 
-        cred_file = _load_key(self.configuration['credentialsFilePath'])
-        credentials = SignedJwtAssertionCredentials(cred_file['client_email'], cred_file["private_key"], scope=scope)
+        key = json.loads(b64decode(self.configuration['jsonKeyFile']))
+        credentials = SignedJwtAssertionCredentials(key['client_email'], key["private_key"], scope=scope)
         spreadsheetservice = gspread.authorize(credentials)
         return spreadsheetservice
 
@@ -89,7 +90,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         values = query.split("|")
         key = values[0] #key of the spreadsheet
-        worksheet_num = 0 if len(values != 2) else int(values[1])# if spreadsheet contains more than one worksheet - this is the number of it
+        worksheet_num = 0 if len(values) != 2 else int(values[1])# if spreadsheet contains more than one worksheet - this is the number of it
         try:
             spreadsheet_service = self._get_spreadsheet_service()
             spreadsheet = spreadsheet_service.open_by_key(key)

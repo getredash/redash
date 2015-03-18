@@ -36,6 +36,7 @@
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "bower": "bower"
   }
 }

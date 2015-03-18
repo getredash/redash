@@ -1,4 +1,28 @@
 (function () {
+  function QueryResultError(errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+
+  QueryResultError.prototype.getError = function() {
+    return this.errorMessage;
+  };
+
+  QueryResultError.prototype.getStatus = function() {
+    return 'failed';
+  };
+
+  QueryResultError.prototype.getData = function() {
+    return null;
+  };
+
+  QueryResultError.prototype.getLog = function() {
+    return null;
+  };
+
+  QueryResultError.prototype.getChartData = function() {
+    return null;
+  };
+
   var QueryResult = function ($resource, $timeout, $q) {
     var QueryResultResource = $resource('/api/query_results/:id', {id: '@id'}, {'post': {'method': 'POST'}});
     var Job = $resource('/api/jobs/:id', {id: '@id'});
@@ -44,7 +68,7 @@
       } else {
         this.status = undefined;
       }
-    }
+    };
 
     function QueryResult(props) {
       this.deferred = $q.defer();
@@ -414,20 +438,23 @@
       return '/queries/' + this.id + '/source';
     };
 
+    Query.prototype.isNew = function() {
+      return this.id === undefined;
+    };
+
     Query.prototype.hasDailySchedule = function() {
       return (this.schedule && this.schedule.match(/\d\d:\d\d/) !== null);
-    }
+    };
 
     Query.prototype.scheduleInLocalTime = function() {
       var parts = this.schedule.split(':');
       return moment.utc().hour(parts[0]).minute(parts[1]).local().format('HH:mm');
-    }
+    };
 
     Query.prototype.getQueryResult = function (maxAge, parameters) {
-//      if (ttl == undefined) {
-//        ttl = this.ttl;
-//      }
-
+      if (!this.query) {
+        return;
+      }
       var queryText = this.query;
 
       var queryParameters = this.getParameters();
@@ -462,6 +489,8 @@
         }
       } else if (this.data_source_id) {
         this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge, this.id);
+      } else {
+        return new QueryResultError("Please select data source to run this query.");
       }
 
       return this.queryResult;
@@ -498,11 +527,13 @@
 
   var DataSource = function ($resource) {
     var actions = {
-      'get': {'method': 'GET', 'cache': true, 'isArray': true},
+      'get': {'method': 'GET', 'cache': false, 'isArray': false},
+      'query': {'method': 'GET', 'cache': false, 'isArray': true},
       'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': '/api/data_sources/:id/schema'}
     };
 
     var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, actions);
+
 
     return DataSourceResource;
   };
