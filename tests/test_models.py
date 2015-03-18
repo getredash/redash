@@ -65,6 +65,10 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q1, queries)
         self.assertNotIn(q2, queries)
 
+    def test_save_creates_default_visualization(self):
+        q = query_factory.create()
+        self.assertEquals(q.visualizations.count(), 1)
+
 
 class QueryArchiveTest(BaseTestCase):
     def setUp(self):

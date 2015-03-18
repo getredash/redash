@@ -60,6 +60,21 @@ class BaseModel(peewee.Model):
     def get_by_id(cls, model_id):
         return cls.get(cls.id == model_id)
 
+    def pre_save(self, created):
+        # Handler for pre_save operations. Overriding if needed.
+        pass
+
+    def post_save(self, created):
+        # Handler for post_save operations. Overriding if needed.
+        pass
+
+    def save(self, *args, **kwargs):
+        pk_value = self._get_pk_value()
+        created = kwargs.get('force_insert', False) or not bool(pk_value)
+        self.pre_save(created)
+        super(BaseModel, self).save(*args, **kwargs)
+        self.post_save(created)
+
 
 class PermissionsCheckMixin(object):
     def has_permission(self, permission):
@@ -306,12 +321,6 @@ class Query(BaseModel):
     class Meta:
         db_table = 'queries'
 
-    def create_default_visualizations(self):
-        table_visualization = Visualization(query=self, name="Table",
-                                            description='',
-                                            type="TABLE", options="{}")
-        table_visualization.save()
-
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True):
         d = {
             'id': self.id,
@@ -396,6 +405,7 @@ class Query(BaseModel):
 
     @classmethod
     def recent(cls, user_id):
+        # TODO: instead of t2 here, we should define table_alias for Query table
         return cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
             join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
             where(Event.action << ('edit', 'execute', 'edit_name', 'edit_description', 'view_source')).\
@@ -414,10 +424,19 @@ class Query(BaseModel):
         update = cls.update(**kwargs).where(cls.id == query_id)
         return update.execute()
 
-    def save(self, *args, **kwargs):
+    def pre_save(self, created):
         self.query_hash = utils.gen_query_hash(self.query)
         self._set_api_key()
-        super(Query, self).save(*args, **kwargs)
+
+    def post_save(self, created):
+        if created:
+            self._create_default_visualizations()
+
+    def _create_default_visualizations(self):
+        table_visualization = Visualization(query=self, name="Table",
+                                            description='',
+                                            type="TABLE", options="{}")
+        table_visualization.save()
 
     def _set_api_key(self):
         if not self.api_key:
