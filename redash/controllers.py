@@ -135,6 +135,24 @@ def format_sql_query():
     return sqlparse.format(query, reindent=True, keyword_case='upper')
 
 
+@app.route('/queries/new', methods=['POST'])
+@auth.required
+def create_query_route():
+    query = request.form.get('query', None)
+    data_source_id = request.form.get('data_source_id', None)
+
+    if query is None or data_source_id is None:
+        abort(400)
+
+    query = models.Query.create(name="New Query",
+                                query=query,
+                                data_source=data_source_id,
+                                user=current_user._get_current_object(),
+                                ttl=-1)
+
+    return redirect('/queries/{}'.format(query.id), 303)
+
+
 class BaseResource(Resource):
     decorators = [auth.required]
 
@@ -326,8 +344,6 @@ class QueryListAPI(BaseResource):
         query = models.Query(**query_def)
         query.save()
 
-        query.create_default_visualizations()
-
         return query.to_dict()
 
     @require_permission('view_query')
@@ -350,6 +366,7 @@ class QueryAPI(BaseResource):
         if 'data_source_id' in query_def:
             query_def['data_source'] = query_def.pop('data_source_id')
 
+        # TODO: use #save() with #dirty_fields.
         models.Query.update_instance(query_id, **query_def)
 
         query = models.Query.get_by_id(query_id)

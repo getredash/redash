@@ -294,7 +294,8 @@ class VisualizationAPITest(BaseTestCase):
             rv = json_request(c.delete, '/api/visualizations/{0}'.format(visualization.id))
 
             self.assertEquals(rv.status_code, 200)
-            self.assertEquals(models.Visualization.select().count(), 0)
+            # =1 because each query has a default table visualization.
+            self.assertEquals(models.Visualization.select().count(), 1)
 
     def test_update_visualization(self):
         visualization = visualization_factory.create()
