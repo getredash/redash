@@ -50,7 +50,7 @@
         ;
 
         if (moment.isMoment(this.x)) {
-          var s = '<b>' + moment(this.x).format("DD/MM/YY HH:mm") + '</b>',
+          var s = '<b>' + this.x.toDate().toLocaleString() + '</b>',
               pointsCount = this.points.length;
 
           $.each(this.points, function (i, point) {
