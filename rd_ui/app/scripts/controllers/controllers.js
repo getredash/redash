@@ -1,4 +1,9 @@
 (function () {
+  var dateFormatter = function (value) {
+    if (!value) return "-";
+    return value.toDate().toLocaleString();
+  };
+
   var QuerySearchCtrl = function($scope, $location, $filter, Events, Query) {
     $scope.$parent.pageTitle = "Queries Search";
 
@@ -8,11 +13,6 @@
       maxSize: 8,
     };
 
-    var dateFormatter = function (value) {
-      if (!value) return "-";
-      return value.format("DD/MM/YY HH:mm");
-    }
-
     $scope.gridColumns = [
       {
         "label": "Name",
@@ -21,7 +21,7 @@
       },
       {
         'label': 'Created By',
-        'map': 'user.name'
+        'map': 'user_name'
       },
       {
         'label': 'Created At',
@@ -43,6 +43,7 @@
     Query.search({q: $scope.term }, function(results) {
       $scope.queries = _.map(results, function(query) {
         query.created_at = moment(query.created_at);
+        query.user_name = query.user.name;
         return query;
       });
     });
@@ -70,11 +71,6 @@
     $scope.allQueries = [];
     $scope.queries = [];
 
-    var dateFormatter = function (value) {
-      if (!value) return "-";
-      return value.format("DD/MM/YY HH:mm");
-    }
-
     var filterQueries = function () {
       $scope.queries = _.filter($scope.allQueries, function (query) {
         if (!$scope.selectedTab) {
@@ -95,6 +91,7 @@
       $scope.allQueries = _.map(queries, function (query) {
         query.created_at = moment(query.created_at);
         query.retrieved_at = moment(query.retrieved_at);
+        query.user_name = query.user.name;
         return query;
       });
 
@@ -109,7 +106,7 @@
       },
       {
         'label': 'Created By',
-        'map': 'user.name'
+        'map': 'user_name'
       },
       {
         'label': 'Created At',
