@@ -91,7 +91,7 @@
 
                     //insert columns from column config
                     //TODO add a way to clean all columns
-                    scope.$watch('columnCollection', function (oldValue, newValue) {
+                    scope.$watchCollection('columnCollection', function (oldValue, newValue) {
                         if (scope.columnCollection) {
                             scope.columns.length = 0;
                             for (var i = 0, l = scope.columnCollection.length; i < l; i++) {
