@@ -243,26 +243,8 @@
       return parts[0];
     };
 
-    var charConversionMap = {
-      '__pct': /%/g,
-      '_': / /g,
-      '__qm': /\?/g,
-      '__brkt': /[\(\)\[\]]/g,
-      '__dash': /-/g,
-      '__amp': /&/g,
-      '__dot': /\./g,
-      '__sl': /\//g,
-      '__fsl': /\\/g,
-    };
-
     QueryResult.prototype.getColumnCleanName = function (column) {
       var name = this.getColumnNameWithoutType(column);
-
-      if (name != '') {
-        _.each(charConversionMap, function(regex, replacement) {
-          name = name.replace(regex, replacement);
-        });
-      }
 
       return name;
     }

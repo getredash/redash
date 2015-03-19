@@ -205,11 +205,10 @@
                         column = scope.column,
                         row = scope.dataRow,
                         format = filter('format'),
-                        getter = parse(column.map),
                         childScope;
 
                     //can be useful for child directives
-                    scope.formatedValue = format(getter(row), column.formatFunction, column.formatParameter);
+                    scope.formatedValue = format(row[column.map], column.formatFunction, column.formatParameter);
 
                     function defaultContent() {
                         //clear content
@@ -267,12 +266,11 @@
                 replace: true,
                 link: function (scope, element, attrs, ctrl) {
                     var form = angular.element(element.children()[1]),
-                        input = angular.element(form.children()[0]),
-                        getter = parse(scope.column.map);
+                        input = angular.element(form.children()[0]);
 
                     //init values
                     scope.isEditMode = false;
-                    scope.value = getter(scope.row);
+                    scope.value = scope.row[scope.column.map];
 
 
                     scope.submit = function () {
@@ -285,7 +283,7 @@
                     };
 
                     scope.toggleEditMode = function () {
-                        scope.value = getter(scope.row);
+                        scope.value = scope.row[scope.column.map];
                         scope.isEditMode = scope.isEditMode !== true;
                     };
 
@@ -595,13 +593,11 @@
              */
             this.updateDataRow = function (dataRow, propertyName, newValue) {
                 var index = scope.displayedCollection.indexOf(dataRow),
-                    getter = parse(propertyName),
-                    setter = getter.assign,
                     oldValue;
                 if (index !== -1) {
-                    oldValue = getter(scope.displayedCollection[index]);
+                    oldValue = scope.displayedCollection[index][propertyName];
                     if (oldValue !== newValue) {
-                        setter(scope.displayedCollection[index], newValue);
+                        scope.displayedCollection[index][propertyName] = newValue;
                         scope.$emit('updateDataRow', {item: scope.displayedCollection[index]});
                     }
                 }
