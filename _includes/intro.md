@@ -5,18 +5,30 @@ Prior to **_re:dash_**, we tried to use traditional BI suites and discovered a s
 **_re:dash_** was built to allow fast and easy access to billions of records, that we process and collect using Amazon Redshift ("petabyte scale data warehouse" that "speaks" PostgreSQL).
 Today **_re:dash_** has support for querying multiple databases, including: Redshift, Google BigQuery, PostgreSQL, MySQL, Graphite and custom scripts.
 
-**_re:dash_** consists of two parts:
+### Features
 
-1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the dataset and the query that generated it. This way everyone can peer review not only the resulting dataset but also the process that generated it. Also it's possible to fork it and generate new datasets and reach new insights.
-2. **Dashboards/Visualizations**: once you have a dataset, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently it supports charts, pivot table and cohorts.
-
-**_re:dash_** is a work in progress and has its rough edges and way to go to fulfill its full potential. The Query Editor part is quite solid, but the visualizations need more work to enrich them and to make them more user friendly.
+1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the dataset and the query that generated it. This way everyone can peer review not only the resulting dataset but also the process that generated it.
+2. **Visualizations**: once you have a dataset, you can create different visualizations out of it. Currently it supports charts, pivot table and cohorts.
+3. **Dashboards**: combine several visualizations into a single dashboard.
 
 ### Demo
 
 ![Screenshots](https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif)
 
 You can try out the demo instance: [http://demo.redash.io/](http://demo.redash.io/) (login with any Google account).
+
+### Users
+
+<center>
+    <table class="production">
+        <tr>
+            <td align="center"><a href="http://everything.me"><img src="{{ site.baseurl }}/static/img/evme_logo.png" width="84"/></a></td>
+            <td align="center"><a href="http://yallo.com"><img src="{{ site.baseurl }}/static/img/yallo_logo.png" width="84"/></a></td>
+            <td align="center"><a href="http://bringg.com"><img src="{{ site.baseurl }}/static/img/bringg_logo.png" width="84"/></a></td>
+            <td align="center"><a href="http://nextpeer.com"><img src="{{ site.baseurl }}/static/img/nextpeer_logo.png" width="84"/></a></td>
+        </tr>
+    </table>
+</center>
 
 ### Getting Started
 
