@@ -26,6 +26,7 @@ You can try out the demo instance: [http://demo.redash.io/](http://demo.redash.i
             <td align="center"><a href="http://yallo.com"><img src="{{ site.baseurl }}/static/img/yallo_logo.png" width="84"/></a></td>
             <td align="center"><a href="http://bringg.com"><img src="{{ site.baseurl }}/static/img/bringg_logo.png" width="84"/></a></td>
             <td align="center"><a href="http://nextpeer.com"><img src="{{ site.baseurl }}/static/img/nextpeer_logo.png" width="84"/></a></td>
+            <td align="center"><a href="http://http://www.ravellosystems.com/"><img src="{{ site.baseurl }}/static/img/ravello_logo.svg" width="140"/></a></td>
         </tr>
     </table>
 </center>
