@@ -18,7 +18,7 @@
     getQueryResult();
     $scope.queryExecuting = false;
 
-    $scope.isQueryOwner = currentUser.id === $scope.query.user.id;
+    $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
 
     $scope.dataSources = DataSource.get(function(dataSources) {

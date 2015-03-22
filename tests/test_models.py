@@ -69,6 +69,15 @@ class QueryTest(BaseTestCase):
         q = query_factory.create()
         self.assertEquals(q.visualizations.count(), 1)
 
+    def test_save_updates_updated_at_field(self):
+        # This should be a test of ModelTimestampsMixin, but it's easier to test in context of existing model... :-\
+        one_day_ago = datetime.datetime.today() - datetime.timedelta(days=1)
+        q = query_factory.create(created_at=one_day_ago, updated_at=one_day_ago)
+
+        q.save()
+
+        self.assertNotEqual(q.updated_at, one_day_ago)
+
 
 class QueryArchiveTest(BaseTestCase):
     def setUp(self):

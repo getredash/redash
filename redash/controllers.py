@@ -357,7 +357,7 @@ class QueryAPI(BaseResource):
         query = models.Query.get_by_id(query_id)
         
         query_def = request.get_json(force=True)
-        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user']:
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by']:
             query_def.pop(field, None)
 
         if 'latest_query_data_id' in query_def:
@@ -365,6 +365,8 @@ class QueryAPI(BaseResource):
 
         if 'data_source_id' in query_def:
             query_def['data_source'] = query_def.pop('data_source_id')
+
+        query_def['last_modified_by'] = self.current_user
 
         # TODO: use #save() with #dirty_fields.
         models.Query.update_instance(query_id, **query_def)

@@ -93,17 +93,21 @@
     <div class="row">
         <div class="col-lg-3 rd-hidden-xs">
             <p>
+                <span class="glyphicon glyphicon-user"></span>
+                <span class="text-muted">Created By </span>
+                <strong>{{query.user.name}}</strong>
+            </p>
+            <p ng-if="query.user.id != query.last_modified_by.id">
+                <span class="glyphicon glyphicon-user"></span>
+                <span class="text-muted">Last Modified By </span>
+                <strong>{{query.last_modified_by.name}}</strong>
+            </p>
+            <p>
                 <span class="glyphicon glyphicon-time"></span>
                 <span class="text-muted">Last update </span>
                 <strong>
                     <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
                 </strong>
-            </p>
-            <p>
-                <span class="glyphicon glyphicon-user"></span>
-                <span class="text-muted">Created By </span>
-                <strong ng-hide="isQueryOwner">{{query.user.name}}</strong>
-                <strong ng-show="isQueryOwner">You</strong>
             </p>
             <p>
                 <span class="glyphicon glyphicon-play"></span>
