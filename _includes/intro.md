@@ -15,7 +15,7 @@ Today **_re:dash_** has support for querying multiple databases, including: Reds
 
 ![Screenshots](https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif)
 
-You can try out the demo instance: [http://demo.redash.io/](http://demo.redash.io/) (login with any Google account).
+You can try out the demo instance: <a href="http://demo.redash.io" onclick="trackOutboundLink('http://demo.redash.io'); return false;">http://demo.redash.io/</a> (login with any Google account).
 
 ### Users
 
