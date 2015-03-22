@@ -1,5 +1,6 @@
 import logging
 from unittest import TestCase
+import datetime
 from redash import settings
 settings.DATABASE_CONFIG = {
     'name': 'circle_test',
@@ -19,3 +20,17 @@ class BaseTestCase(TestCase):
     def tearDown(self):
         models.db.close_db(None)
         models.create_db(False, True)
+
+    def assertResponseEqual(self, expected, actual):
+        for k, v in expected.iteritems():
+            if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):
+                continue
+
+            if isinstance(v, list):
+                continue
+
+            if isinstance(v, dict):
+                self.assertResponseEqual(v, actual[k])
+                continue
+
+            self.assertEqual(v, actual[k], "{} not equal (expected: {}, actual: {}).".format(k, v, actual[k]))

@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 import json
 import time
+import datetime
 from unittest import TestCase
 from flask import url_for
 from flask.ext.login import current_user
@@ -104,7 +105,11 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
         with app.test_client() as c, authenticated_user(c):
             rv = c.get('/api/dashboards/{0}'.format(d1.slug))
             self.assertEquals(rv.status_code, 200)
-            self.assertDictEqual(json.loads(rv.data), d1.to_dict(with_widgets=True))
+
+            expected = d1.to_dict(with_widgets=True)
+            actual = json.loads(rv.data)
+
+            self.assertResponseEqual(expected, actual)
 
     def test_get_non_existint_dashbaord(self):
         with app.test_client() as c, authenticated_user(c):
@@ -259,8 +264,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
             rv = json_request(c.get, '/api/queries/{0}'.format(query.id))
 
             self.assertEquals(rv.status_code, 200)
-            # d = query.to_dict(with_visualizations=True)
-            # self.assertEqual(json_dumps(d), rv.data)
+            self.assertResponseEqual(rv.json, query.to_dict(with_visualizations=True))
 
     def test_get_all_queries(self):
         queries = [query_factory.create() for _ in range(10)]
