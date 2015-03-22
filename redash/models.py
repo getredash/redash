@@ -61,7 +61,6 @@ class BaseModel(peewee.Model):
         return cls.get(cls.id == model_id)
 
     def pre_save(self, created):
-        # Handler for pre_save operations. Overriding if needed.
         pass
 
     def post_save(self, created):
@@ -74,6 +73,16 @@ class BaseModel(peewee.Model):
         self.pre_save(created)
         super(BaseModel, self).save(*args, **kwargs)
         self.post_save(created)
+
+
+class ModelTimestampsMixin(BaseModel):
+    updated_at = DateTimeTZField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
+
+    def pre_save(self, created):
+        super(ModelTimestampsMixin, self).pre_save(created)
+
+        self.updated_at = datetime.datetime.now()
 
 
 class PermissionsCheckMixin(object):
@@ -133,7 +142,7 @@ class Group(BaseModel):
         return unicode(self.id)
 
 
-class User(BaseModel, UserMixin, PermissionsCheckMixin):
+class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
     DEFAULT_GROUPS = ['default']
 
     id = peewee.PrimaryKeyField()
@@ -149,7 +158,9 @@ class User(BaseModel, UserMixin, PermissionsCheckMixin):
         return {
             'id': self.id,
             'name': self.name,
-            'email': self.email
+            'email': self.email,
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
         }
 
     def __init__(self, *args, **kwargs):
@@ -303,7 +314,7 @@ class QueryResult(BaseModel):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
 
-class Query(BaseModel):
+class Query(ModelTimestampsMixin, BaseModel):
     id = peewee.PrimaryKeyField()
     data_source = peewee.ForeignKeyField(DataSource)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
@@ -316,7 +327,6 @@ class Query(BaseModel):
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     is_archived = peewee.BooleanField(default=False, index=True)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'queries'
@@ -332,6 +342,7 @@ class Query(BaseModel):
             'ttl': self.ttl,
             'api_key': self.api_key,
             'is_archived': self.is_archived,
+            'updated_at': self.updated_at,
             'created_at': self.created_at,
             'data_source_id': self._data.get('data_source', None)
         }
@@ -425,6 +436,7 @@ class Query(BaseModel):
         return update.execute()
 
     def pre_save(self, created):
+        super(Query, self).pre_save(created)
         self.query_hash = utils.gen_query_hash(self.query)
         self._set_api_key()
 
@@ -455,7 +467,7 @@ class Query(BaseModel):
         return unicode(self.id)
 
 
-class Dashboard(BaseModel):
+class Dashboard(ModelTimestampsMixin, BaseModel):
     id = peewee.PrimaryKeyField()
     slug = peewee.CharField(max_length=140, index=True)
     name = peewee.CharField(max_length=100)
@@ -464,7 +476,6 @@ class Dashboard(BaseModel):
     layout = peewee.TextField()
     dashboard_filters_enabled = peewee.BooleanField(default=False)
     is_archived = peewee.BooleanField(default=False, index=True)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
         db_table = 'dashboards'
@@ -506,7 +517,9 @@ class Dashboard(BaseModel):
             'user_id': self._data['user'],
             'layout': layout,
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
-            'widgets': widgets_layout
+            'widgets': widgets_layout,
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
         }
 
     @classmethod
@@ -539,7 +552,7 @@ class Dashboard(BaseModel):
         return u"%s=%s" % (self.id, self.name)
 
 
-class Visualization(BaseModel):
+class Visualization(ModelTimestampsMixin, BaseModel):
     id = peewee.PrimaryKeyField()
     type = peewee.CharField(max_length=100)
     query = peewee.ForeignKeyField(Query, related_name='visualizations')
@@ -557,6 +570,8 @@ class Visualization(BaseModel):
             'name': self.name,
             'description': self.description,
             'options': json.loads(self.options),
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
         }
 
         if with_query:
@@ -568,14 +583,13 @@ class Visualization(BaseModel):
         return u"%s %s" % (self.id, self.type)
 
 
-class Widget(BaseModel):
+class Widget(ModelTimestampsMixin, BaseModel):
     id = peewee.PrimaryKeyField()
     visualization = peewee.ForeignKeyField(Visualization, related_name='widgets', null=True)
     text = peewee.TextField(null=True)
     width = peewee.IntegerField()
     options = peewee.TextField()
     dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
 
     # unused; kept for backward compatability:
     type = peewee.CharField(max_length=100, null=True)
@@ -590,7 +604,9 @@ class Widget(BaseModel):
             'width': self.width,
             'options': json.loads(self.options),
             'dashboard_id': self._data['dashboard'],
-            'text': self.text
+            'text': self.text,
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
         }
 
         if self.visualization and self.visualization.id:
