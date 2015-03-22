@@ -336,7 +336,7 @@ class QueryListAPI(BaseResource):
     @require_permission('create_query')
     def post(self):
         query_def = request.get_json(force=True)
-        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data']:
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:
             query_def.pop(field, None)
 
         query_def['user'] = self.current_user
