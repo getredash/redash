@@ -326,6 +326,7 @@ class Query(ModelTimestampsMixin, BaseModel):
     ttl = peewee.IntegerField()
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
+    last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
 
     class Meta:
@@ -349,6 +350,7 @@ class Query(ModelTimestampsMixin, BaseModel):
 
         if with_user:
             d['user'] = self.user.to_dict()
+            d['last_modified_by'] = self.last_modified_by.to_dict()
         else:
             d['user_id'] = self._data['user']
 
@@ -439,6 +441,9 @@ class Query(ModelTimestampsMixin, BaseModel):
         super(Query, self).pre_save(created)
         self.query_hash = utils.gen_query_hash(self.query)
         self._set_api_key()
+
+        if self.last_modified_by is None:
+            self.last_modified_by = self.user
 
     def post_save(self, created):
         if created:
