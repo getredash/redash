@@ -12,7 +12,7 @@
     "es5-shim": "2.0.8",
     "angular-moment": "0.2.0",
     "moment": "2.1.0",
-    "angular-ui-codemirror": "0.0.5",
+    "angular-ui-codemirror": "0.2.3",
     "highcharts": "3.0.10",
     "underscore": "1.5.1",
     "pivottable": "~1.1.1",

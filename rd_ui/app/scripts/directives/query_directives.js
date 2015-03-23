@@ -29,7 +29,7 @@
       restrict: 'E',
       template: '<span ng-show="query.id && canViewSource">\
                     <a ng-show="!sourceMode"\
-                      ng-href="{{query.id}}/source#{{selectedTab}}">Show Source\
+                      ng-href="/queries/{{query.id}}/source#{{selectedTab}}">Show Source\
                     </a>\
                     <a ng-show="sourceMode"\
                       ng-href="/queries/{{query.id}}#{{selectedTab}}">Hide Source\
@@ -68,19 +68,21 @@
       template: '<textarea\
                   ui-codemirror="editorOptions"\
                   ng-model="query.query">',
-      link: function($scope) {
-        $scope.editorOptions = {
+      link: {
+        pre: function ($scope) {
+          $scope.editorOptions = {
             mode: 'text/x-sql',
             lineWrapping: true,
             lineNumbers: true,
             readOnly: false,
             matchBrackets: true,
             autoCloseBrackets: true
-        };
+          };
 
-        $scope.$watch('lock', function(locked) {
-          $scope.editorOptions.readOnly = locked ? 'nocursor' : false;
-        });
+          $scope.$watch('lock', function (locked) {
+            $scope.editorOptions.readOnly = locked ? 'nocursor' : false;
+          });
+        },
       }
     }
   }
