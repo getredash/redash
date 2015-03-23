@@ -69,7 +69,7 @@
       link: {
         pre: function ($scope, element) {
           var textarea = element.children()[0];
-          $scope.editorOptions = {
+          var editorOptions = {
             mode: 'text/x-sql',
             lineWrapping: true,
             lineNumbers: true,
@@ -80,10 +80,17 @@
           };
 
           CodeMirror.commands.autocomplete = function(cm) {
-            CodeMirror.showHint(cm, CodeMirror.hint.anyword);
+            var hinter  = function(editor, options) {
+              var hints = CodeMirror.hint.anyword(editor, options);
+//              hints.list.push('select', 'from', 'where');
+              return hints;
+            };
+
+//            CodeMirror.showHint(cm, CodeMirror.hint.anyword);
+            CodeMirror.showHint(cm, hinter);
           };
 
-          var codemirror = CodeMirror.fromTextArea(textarea, $scope.editorOptions);
+          var codemirror = CodeMirror.fromTextArea(textarea, editorOptions);
 
           codemirror.on('change', function(instance) {
             var newValue = instance.getValue();
@@ -95,7 +102,7 @@
             }
           });
 
-          $scope.$watch('query.query', function (newValue, oldValue) {
+          $scope.$watch('query.query', function () {
             if ($scope.query.query !== codemirror.getValue()) {
               codemirror.setValue($scope.query.query);
             }

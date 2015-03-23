@@ -59,9 +59,9 @@
 
     <hr>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div ng-show="sourceMode">
+    <div class="row" ng-if="sourceMode">
+        <div ng-class="editorSize">
+            <div>
                 <p>
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
@@ -77,17 +77,25 @@
                         </button>
                     </span>
                 </p>
-            </div>
 
-            <!-- code editor -->
-            <div ng-if="sourceMode">
                 <p>
                     <query-editor query="query" lock="queryFormatting"></query-editor>
                 </p>
-                <hr>
             </div>
         </div>
-
+        <div class="col-md-3" ng-show="hasSchema">
+            <div>
+                <input type="text" placeholder="Search schema..." class="form-control" ng-model="schemaFilter">
+            </div>
+            <div style="height:300px; overflow: overlay;">
+                <div ng-repeat="table in schema | filter:schemaFilter">
+                    {{obj}}
+                    <div class="tree-toggler"><i class="fa fa-table"></i> <strong>{{table.name}}</strong></div>
+                    <div ng-repeat="column in table.columns | filter:schemaFilter" style="padding-left:16px;">{{column}}</div>
+                </div>
+            </div>
+        </div>
+        <hr>
     </div>
 
     <div class="row">

@@ -86,7 +86,7 @@ class PostgreSQL(BaseQueryRunner):
 
     def get_schema(self):
         query = """
-        SELECT table_schema, table_name, column_name, data_type
+        SELECT table_schema, table_name, column_name
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
         """
@@ -98,15 +98,19 @@ class PostgreSQL(BaseQueryRunner):
 
         results = json.loads(results)
 
-        schema = defaultdict(list)
+        schema = {}
         for row in results['rows']:
             if row['table_schema'] != 'public':
                 table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
-            schema[table_name].append({'name': row['column_name'], 'type': row['data_type']})
 
-        return schema
+            if table_name not in schema:
+                schema[table_name] = {'name': table_name, 'columns': []}
+
+            schema[table_name]['columns'].append(row['column_name'])
+
+        return schema.values()
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)

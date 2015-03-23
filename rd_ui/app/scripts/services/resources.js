@@ -480,7 +480,12 @@
 
 
   var DataSource = function ($resource) {
-    var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, {'get': {'method': 'GET', 'cache': true, 'isArray': true}});
+    var actions = {
+      'get': {'method': 'GET', 'cache': true, 'isArray': true},
+      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': '/api/data_sources/:id/schema'}
+    };
+
+    var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, actions);
 
     return DataSourceResource;
   }
