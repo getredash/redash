@@ -225,7 +225,7 @@ class ActivityLog(BaseModel):
 
 class DataSource(BaseModel):
     id = peewee.PrimaryKeyField()
-    name = peewee.CharField()
+    name = peewee.CharField(unique=True)
     type = peewee.CharField()
     options = peewee.TextField()
     queue_name = peewee.CharField(default="queries")
