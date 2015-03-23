@@ -65,26 +65,49 @@
         'query': '=',
         'lock': '='
       },
-      template: '<textarea\
-                  ui-codemirror="editorOptions"\
-                  ng-model="query.query">',
+      template: '<textarea></textarea>',
       link: {
-        pre: function ($scope) {
+        pre: function ($scope, element) {
+          var textarea = element.children()[0];
           $scope.editorOptions = {
             mode: 'text/x-sql',
             lineWrapping: true,
             lineNumbers: true,
             readOnly: false,
             matchBrackets: true,
-            autoCloseBrackets: true
+            autoCloseBrackets: true,
+            extraKeys: {"Ctrl-Space": "autocomplete"}
           };
 
-          $scope.$watch('lock', function (locked) {
-            $scope.editorOptions.readOnly = locked ? 'nocursor' : false;
+          CodeMirror.commands.autocomplete = function(cm) {
+            CodeMirror.showHint(cm, CodeMirror.hint.anyword);
+          };
+
+          var codemirror = CodeMirror.fromTextArea(textarea, $scope.editorOptions);
+
+          codemirror.on('change', function(instance) {
+            var newValue = instance.getValue();
+
+            if (newValue !== $scope.query.query) {
+              $scope.$evalAsync(function() {
+                $scope.query.query = newValue;
+              });
+            }
           });
-        },
+
+          $scope.$watch('query.query', function (newValue, oldValue) {
+            if ($scope.query.query !== codemirror.getValue()) {
+              codemirror.setValue($scope.query.query);
+            }
+          });
+
+          $scope.$watch('lock', function (locked) {
+            var readOnly = locked ? 'nocursor' : false;
+            codemirror.setOption('readOnly', readOnly);
+          });
+        }
       }
-    }
+    };
   }
 
   function queryFormatter($http) {

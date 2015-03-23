@@ -6,7 +6,6 @@ angular.module('redash', [
     'redash.services',
     'redash.renderers',
     'redash.visualization',
-    'ui.codemirror',
     'highchart',
     'ui.select2',
     'angular-growl',
