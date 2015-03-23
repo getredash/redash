@@ -57,6 +57,9 @@ class BaseQueryRunner(object):
     def run_query(self, query):
         raise NotImplementedError()
 
+    def get_schema(self):
+        return {}
+
     @classmethod
     def to_dict(cls):
         return {

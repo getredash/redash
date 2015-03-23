@@ -1,3 +1,4 @@
+from collections import defaultdict
 import json
 import logging
 import psycopg2
@@ -82,6 +83,30 @@ class PostgreSQL(BaseQueryRunner):
             values.append("{}={}".format(k, v))
 
         self.connection_string = " ".join(values)
+
+    def get_schema(self):
+        query = """
+        SELECT table_schema, table_name, column_name, data_type
+        FROM information_schema.columns
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+        """
+
+        results, error = self.run_query(query)
+
+        if error is not None:
+           raise Exception("Failed getting schema.")
+
+        results = json.loads(results)
+
+        schema = defaultdict(list)
+        for row in results['rows']:
+            if row['table_schema'] != 'public':
+                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+            else:
+                table_name = row['table_name']
+            schema[table_name].append({'name': row['column_name'], 'type': row['data_type']})
+
+        return schema
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
