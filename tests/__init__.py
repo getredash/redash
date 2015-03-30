@@ -1,13 +1,15 @@
+import os
+os.environ['REDASH_REDIS_URL'] = "redis://localhost:6379/5"
+
 import logging
 from unittest import TestCase
 import datetime
 from redash import settings
+
 settings.DATABASE_CONFIG = {
     'name': 'circle_test',
     'threadlocals': True
 }
-
-settings.REDIS_URL = "redis://localhost:6379/5"
 
 from redash import models, redis_connection
 
