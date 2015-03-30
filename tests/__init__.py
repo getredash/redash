@@ -7,7 +7,9 @@ settings.DATABASE_CONFIG = {
     'threadlocals': True
 }
 
-from redash import models
+settings.REDIS_URL = "redis://localhost:6379/5"
+
+from redash import models, redis_connection
 
 logging.getLogger('peewee').setLevel(logging.INFO)
 
@@ -20,6 +22,7 @@ class BaseTestCase(TestCase):
     def tearDown(self):
         models.db.close_db(None)
         models.create_db(False, True)
+        redis_connection.flushdb()
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():
