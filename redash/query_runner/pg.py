@@ -1,4 +1,3 @@
-from collections import defaultdict
 import json
 import logging
 import psycopg2

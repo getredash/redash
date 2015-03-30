@@ -22,7 +22,7 @@ from redash.wsgi import app, auth, api
 from redash.tasks import QueryTask, record_event
 from redash.cache import headers as cache_headers
 from redash.permissions import require_permission
-from redash.query_runner import query_runners, validate_configuration, get_query_runner
+from redash.query_runner import query_runners, validate_configuration
 
 
 @app.route('/ping', methods=['GET'])
@@ -225,8 +225,7 @@ api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources'
 class DataSourceSchemaAPI(BaseResource):
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id(data_source_id)
-        query_runner = get_query_runner(data_source.type, data_source.options)
-        schema = query_runner.get_schema()
+        schema = data_source.get_schema()
 
         return schema
 

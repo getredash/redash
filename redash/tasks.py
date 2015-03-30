@@ -218,6 +218,17 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results out of total of %d." % (deleted_count, total_unused_query_results))
 
 
+@celery.task(base=BaseTask)
+def refresh_schemas():
+    """
+    Refershs the datasources schema.
+    """
+
+    for ds in models.DataSource.all():
+        logger.info("Refreshing schema for: {}".format(ds.name))
+        ds.get_schema(refresh=True)
+
+
 @celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id):
     # TODO: maybe this should be a class?
