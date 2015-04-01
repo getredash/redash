@@ -397,6 +397,14 @@
       return '/queries/' + this.id + '/source';
     };
 
+    Query.prototype.hasDailySchedule = function() {
+      return (this.schedule && this.schedule.match(/\d\d:\d\d/) !== null);
+    }
+
+    Query.prototype.scheduleInLocalTime = function() {
+      return moment.utc(this.schedule, 'HH:mm').local().format('HH:mm');
+    }
+
     Query.prototype.getQueryResult = function (maxAge, parameters) {
 //      if (ttl == undefined) {
 //        ttl = this.ttl;

@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
@@ -173,6 +173,28 @@
       }
     });
 
+    $scope.openScheduleForm = function() {
+      if (!$scope.isQueryOwner) {
+        return;
+      };
+
+      $modal.open({
+        templateUrl: '/views/schedule_form.html',
+        size: 'sm',
+        scope: $scope,
+        controller: function($scope, $modalInstance) {
+          $scope.close = function() {
+            $modalInstance.close();
+          }
+          if ($scope.query.hasDailySchedule()) {
+            $scope.refreshType = 'daily';
+          } else {
+            $scope.refreshType = 'periodic';
+          }
+        }
+      });
+    };
+
     $scope.$watch(function() {
       return $location.hash()
     }, function(hash) {
@@ -185,5 +207,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
 })();
