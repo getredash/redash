@@ -108,7 +108,7 @@ def status_api():
 
     manager_status = redis_connection.hgetall('redash:status')
     status['manager'] = manager_status
-    status['manager']['outdated_queries_count'] = models.Query.outdated_queries().count()
+    status['manager']['outdated_queries_count'] = len(models.Query.outdated_queries())
 
     queues = {}
     for ds in models.DataSource.select():
@@ -148,7 +148,7 @@ def create_query_route():
                                 query=query,
                                 data_source=data_source_id,
                                 user=current_user._get_current_object(),
-                                ttl=-1)
+                                schedule=None)
 
     return redirect('/queries/{}'.format(query.id), 303)
 
@@ -468,10 +468,12 @@ class QueryResultListAPI(BaseResource):
             activity=params['query']
         ).save()
 
-        if params['ttl'] == 0:
+        max_age = int(params['max_age'])
+
+        if max_age == 0:
             query_result = None
         else:
-            query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], int(params['ttl']))
+            query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], max_age)
 
         if query_result:
             return {'query_result': query_result.to_dict()}

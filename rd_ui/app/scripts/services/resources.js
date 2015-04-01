@@ -308,7 +308,7 @@
       this.filters = filters;
     }
 
-    var refreshStatus = function (queryResult, query, ttl) {
+    var refreshStatus = function (queryResult, query) {
       Job.get({'id': queryResult.job.id}, function (response) {
         queryResult.update(response);
 
@@ -318,7 +318,7 @@
           });
         } else if (queryResult.getStatus() != "failed") {
           $timeout(function () {
-            refreshStatus(queryResult, query, ttl);
+            refreshStatus(queryResult, query);
           }, 3000);
         }
       })
@@ -338,14 +338,14 @@
       return this.deferred.promise;
     }
 
-    QueryResult.get = function (data_source_id, query, ttl) {
+    QueryResult.get = function (data_source_id, query, maxAge) {
       var queryResult = new QueryResult();
 
-      QueryResultResource.post({'data_source_id': data_source_id, 'query': query, 'ttl': ttl}, function (response) {
+      QueryResultResource.post({'data_source_id': data_source_id, 'query': query, 'max_age': maxAge}, function (response) {
         queryResult.update(response);
 
         if ('job' in response) {
-          refreshStatus(queryResult, query, ttl);
+          refreshStatus(queryResult, query);
         }
       });
 
@@ -373,7 +373,7 @@
       return new Query({
         query: "",
         name: "New Query",
-        ttl: -1,
+        schedule: null,
         user: currentUser
       });
     };
@@ -397,10 +397,10 @@
       return '/queries/' + this.id + '/source';
     };
 
-    Query.prototype.getQueryResult = function (ttl, parameters) {
-      if (ttl == undefined) {
-        ttl = this.ttl;
-      }
+    Query.prototype.getQueryResult = function (maxAge, parameters) {
+//      if (ttl == undefined) {
+//        ttl = this.ttl;
+//      }
 
       var queryText = this.query;
 
@@ -426,16 +426,16 @@
         this.latest_query_data_id = null;
       }
 
-      if (this.latest_query_data && ttl != 0) {
+      if (this.latest_query_data && maxAge != 0) {
         if (!this.queryResult) {
           this.queryResult = new QueryResult({'query_result': this.latest_query_data});
         }
-      } else if (this.latest_query_data_id && ttl != 0) {
+      } else if (this.latest_query_data_id && maxAge != 0) {
         if (!this.queryResult) {
           this.queryResult = QueryResult.getById(this.latest_query_data_id);
         }
       } else if (this.data_source_id) {
-        this.queryResult = QueryResult.get(this.data_source_id, queryText, ttl);
+        this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge);
       }
 
       return this.queryResult;

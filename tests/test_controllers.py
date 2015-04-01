@@ -241,7 +241,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
         query_data = {
             'name': 'Testing',
             'query': 'SELECT 1',
-            'ttl': 3600,
+            'schedule': "3600",
             'data_source_id': data_source.id
         }
 

@@ -58,9 +58,9 @@ query_factory = ModelFactory(redash.models.Query,
                              name='New Query',
                              description='',
                              query='SELECT 1',
-                             ttl=-1,
                              user=user_factory.create,
                              is_archived=False,
+                             schedule=None,
                              data_source=data_source_factory.create)
 
 query_result_factory = ModelFactory(redash.models.QueryResult,

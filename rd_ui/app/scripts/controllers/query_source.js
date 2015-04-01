@@ -68,7 +68,7 @@
     $scope.duplicateQuery = function() {
       Events.record(currentUser, 'fork', 'query', $scope.query.id);
       $scope.query.id = null;
-      $scope.query.ttl = -1;
+      $scope.query.schedule = null;
 
       $scope.saveQuery({
         successMessage: 'Query forked',

@@ -116,35 +116,35 @@
       restrict: 'E',
       template: '<select\
                   ng-disabled="!isQueryOwner"\
-                  ng-model="query.ttl"\
+                  ng-model="query.schedule"\
                   ng-change="saveQuery()"\
                   ng-options="c.value as c.name for c in refreshOptions">\
                   </select>',
       link: function($scope) {
         $scope.refreshOptions = [
             {
-                value: -1,
+                value: null,
                 name: 'No Refresh'
             },
             {
-                value: 60,
+                value: "60",
                 name: 'Every minute'
             },
         ]
 
         _.each(_.range(1, 13), function (i) {
             $scope.refreshOptions.push({
-                value: i * 3600,
+                value: String(i * 3600),
                 name: 'Every ' + i + 'h'
             });
         })
 
         $scope.refreshOptions.push({
-            value: 24 * 3600,
+            value: String(24 * 3600),
             name: 'Every 24h'
         });
         $scope.refreshOptions.push({
-            value: 7 * 24 * 3600,
+            value: String(7 * 24 * 3600),
             name: 'Once a week'
         });
       }
