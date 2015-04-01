@@ -119,13 +119,10 @@
                   ng-model="query.schedule"\
                   ng-change="saveQuery()"\
                   ng-options="c.value as c.name for c in refreshOptions">\
+                  <option value="">No Refresh</option>\
                   </select>',
       link: function($scope) {
         $scope.refreshOptions = [
-            {
-                value: null,
-                name: 'No Refresh'
-            },
             {
                 value: "60",
                 name: 'Every minute'
