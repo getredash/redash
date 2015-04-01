@@ -182,7 +182,7 @@
         templateUrl: '/views/schedule_form.html',
         size: 'sm',
         scope: $scope,
-        controller: function($scope, $modalInstance) {
+        controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
           $scope.close = function() {
             $modalInstance.close();
           }
@@ -191,7 +191,7 @@
           } else {
             $scope.refreshType = 'periodic';
           }
-        }
+        }]
       });
     };
 
