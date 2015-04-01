@@ -100,9 +100,13 @@
       Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
 
       if ($scope.refreshEnabled) {
-        var refreshRate = _.min(_.flatten($scope.dashboard.widgets), function(widget) {
-          return widget.visualization.query.ttl;
-        }).visualization.query.ttl;
+        var refreshRate = _.min(_.map(_.flatten($scope.dashboard.widgets), function(widget) {
+          var schedule = widget.visualization.query.schedule;
+          if (schedule === null || schedule.match(/\d\d:\d\d/) !== null) {
+            return 60;
+          }
+          return widget.visualization.query.schedule;
+        }));
 
         $scope.refreshRate = _.max([120, refreshRate * 2]) * 1000;
 
@@ -138,7 +142,6 @@
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
       var maxAge = $location.search()['maxAge'];
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
-      $scope.nextUpdateTime = moment(new Date(($scope.query.updated_at + $scope.query.ttl + $scope.query.runtime + 300) * 1000)).fromNow();
 
       $scope.type = 'visualization';
     } else {

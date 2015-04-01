@@ -11,6 +11,7 @@ import peewee
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
 from flask.ext.login import UserMixin, AnonymousUserMixin
+import psycopg2
 
 from redash import utils, settings
 
@@ -278,16 +279,16 @@ class QueryResult(BaseModel):
         return unused_results
 
     @classmethod
-    def get_latest(cls, data_source, query, ttl=0):
+    def get_latest(cls, data_source, query, max_age=0):
         query_hash = utils.gen_query_hash(query)
 
-        if ttl == -1:
+        if max_age == -1:
             query = cls.select().where(cls.query_hash == query_hash,
                                        cls.data_source == data_source).order_by(cls.retrieved_at.desc())
         else:
             query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
                                        peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'",
-                                                  ttl)).order_by(cls.retrieved_at.desc())
+                                                  max_age)).order_by(cls.retrieved_at.desc())
 
         return query.first()
 
@@ -314,6 +315,27 @@ class QueryResult(BaseModel):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
 
+def should_schedule_next(previous_iteration, now, schedule):
+    if schedule.isdigit():
+        ttl = int(schedule)
+        next_iteration = previous_iteration + datetime.timedelta(seconds=ttl)
+    else:
+        hour, minute = schedule.split(':')
+        hour, minute = int(hour), int(minute)
+
+        # The following logic is needed for cases like the following:
+        # - The query scheduled to run at 23:59.
+        # - The scheduler wakes up at 00:01.
+        # - Using naive implementation of comparing timestamps, it will skip the execution.
+        normalized_previous_iteration = previous_iteration.replace(hour=hour, minute=minute)
+        if normalized_previous_iteration > previous_iteration:
+            previous_iteration = normalized_previous_iteration - datetime.timedelta(days=1)
+
+        next_iteration = (previous_iteration + datetime.timedelta(days=1)).replace(hour=hour, minute=minute)
+
+    return now > next_iteration
+
+
 class Query(ModelTimestampsMixin, BaseModel):
     id = peewee.PrimaryKeyField()
     data_source = peewee.ForeignKeyField(DataSource)
@@ -323,11 +345,11 @@ class Query(ModelTimestampsMixin, BaseModel):
     query = peewee.TextField()
     query_hash = peewee.CharField(max_length=32)
     api_key = peewee.CharField(max_length=40)
-    ttl = peewee.IntegerField()
     user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
+    schedule = peewee.CharField(max_length=10, null=True)
 
     class Meta:
         db_table = 'queries'
@@ -340,7 +362,7 @@ class Query(ModelTimestampsMixin, BaseModel):
             'description': self.description,
             'query': self.query,
             'query_hash': self.query_hash,
-            'ttl': self.ttl,
+            'schedule': self.schedule,
             'api_key': self.api_key,
             'is_archived': self.is_archived,
             'updated_at': self.updated_at,
@@ -366,7 +388,7 @@ class Query(ModelTimestampsMixin, BaseModel):
 
     def archive(self):
         self.is_archived = True
-        self.ttl = -1
+        self.schedule = None
 
         for vis in self.visualizations:
             for w in vis.widgets:
@@ -387,21 +409,19 @@ class Query(ModelTimestampsMixin, BaseModel):
 
     @classmethod
     def outdated_queries(cls):
-        # TODO: this will only find scheduled queries that were executed before. I think this is
-        # a reasonable assumption, but worth revisiting.
-        outdated_queries_ids = cls.select(
-            peewee.Func('first_value', cls.id).over(partition_by=[cls.query_hash, cls.data_source])) \
-            .join(QueryResult) \
-            .where(cls.ttl > 0,
-                   cls.is_archived==False,
-                   (QueryResult.retrieved_at +
-                    (cls.ttl * peewee.SQL("interval '1 second'"))) <
-                   peewee.SQL("(now() at time zone 'utc')"))
+        queries = cls.select(cls, QueryResult.retrieved_at, DataSource)\
+            .join(QueryResult)\
+            .switch(Query).join(DataSource)\
+            .where(cls.schedule != None)
 
-        queries = cls.select(cls, DataSource).join(DataSource) \
-            .where(cls.id << outdated_queries_ids)
+        now = datetime.datetime.utcnow().replace(tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None))
+        outdated_queries = {}
+        for query in queries:
+            if should_schedule_next(query.latest_query_data.retrieved_at, now, query.schedule):
+                key = "{}:{}".format(query.query_hash, query.data_source.id)
+                outdated_queries[key] = query
 
-        return queries
+        return outdated_queries.values()
 
     @classmethod
     def search(cls, term):

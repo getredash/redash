@@ -24,13 +24,16 @@ angular.module('redash.filters', []).
     return durationHumanize;
   })
 
-  .filter('refreshRateHumanize', function () {
-    return function (ttl) {
-      if (ttl == -1) {
+  .filter('scheduleHumanize', function() {
+    return function (schedule) {
+      if (schedule === null) {
         return "Never";
-      } else {
-        return "Every " + durationHumanize(ttl);
+      } else if (schedule.match(/\d\d:\d\d/) !== null) {
+        var localTime = moment.utc(schedule, 'HH:mm').local().format('HH:mm');
+        return "Every day at " + localTime;
       }
+
+      return "Every " + durationHumanize(parseInt(schedule));
     }
   })
 

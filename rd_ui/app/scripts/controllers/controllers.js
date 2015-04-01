@@ -1,6 +1,8 @@
 (function () {
   var dateFormatter = function (value) {
-    if (!value) return "-";
+    if (!value) {
+      return "-";
+    }
     return value.toDate().toLocaleString();
   };
 
@@ -30,9 +32,9 @@
       },
       {
         'label': 'Update Schedule',
-        'map': 'ttl',
+        'map': 'schedule',
         'formatFunction': function (value) {
-          return $filter('refreshRateHumanize')(value);
+          return $filter('scheduleHumanize')(value);
         }
       }
     ];
@@ -127,9 +129,9 @@
       },
       {
         'label': 'Update Schedule',
-        'map': 'ttl',
+        'map': 'schedule',
         'formatFunction': function (value) {
-          return $filter('refreshRateHumanize')(value);
+          return $filter('scheduleHumanize')(value);
         }
       }
     ]

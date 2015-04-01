@@ -39,9 +39,9 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
             <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
-            <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
-                <ul class="dropdown-menu">
+            <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
+                <a href="#" class="dropdown-toggle" dropdown-toggle><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
+                <ul class="dropdown-menu" dropdown-menu>
                     <span ng-repeat="(name, group) in groupedDashboards">
                         <li class="dropdown-submenu">
                           <a href="#" ng-bind="name"></a>
@@ -59,9 +59,9 @@
                     <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
                 </ul>
             </li>
-            <li class="dropdown" ng-show="currentUser.hasPermission('view_query')">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Queries <b class="caret"></b></a>
-                <ul class="dropdown-menu">
+            <li class="dropdown" ng-show="currentUser.hasPermission('view_query')" dropdown>
+                <a href="#" class="dropdown-toggle" dropdown-toggle>Queries <b class="caret"></b></a>
+                <ul class="dropdown-menu" dropdown-menu>
                     <li ng-show="currentUser.hasPermission('create_query')"><a href="/queries/new">New Query</a></li>
                     <li><a href="/queries">Queries</a></li>
                 </ul>
@@ -123,7 +123,7 @@
 <script src="/bower_components/marked/lib/marked.js"></script>
 <script src="/scripts/ng_highchart.js"></script>
 <script src="/scripts/ng_smart_table.js"></script>
-<script src="/scripts/ui-bootstrap-tpls-0.5.0.min.js"></script>
+<script src="/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
 <script src="/bower_components/bucky/bucky.js"></script>
 <script src="/bower_components/pace/pace.js"></script>
 <script src="/bower_components/mustache/mustache.js"></script>

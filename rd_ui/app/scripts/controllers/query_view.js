@@ -1,16 +1,21 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
-    var getQueryResult = function(ttl) {
+    var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
-      if (ttl == undefined) {
-        ttl = $location.search()['maxAge'];
+      if (maxAge == undefined) {
+        maxAge = $location.search()['maxAge'];
       }
-      $scope.queryResult = $scope.query.getQueryResult(ttl, parameters);
+
+      if (maxAge == undefined) {
+        maxAge = -1;
+      }
+
+      $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
     }
 
     $scope.query = $route.current.locals.query;
@@ -98,7 +103,7 @@
       
       return Query.delete({id: data.id}, function() {
         $scope.query.is_archived = true;
-        $scope.query.ttl = -1;
+        $scope.query.schedule = null;
         growl.addSuccessMessage(options.successMessage);
           // This feels dirty.
           $('#archive-confirmation-modal').modal('hide');
@@ -168,6 +173,28 @@
       }
     });
 
+    $scope.openScheduleForm = function() {
+      if (!$scope.isQueryOwner) {
+        return;
+      };
+
+      $modal.open({
+        templateUrl: '/views/schedule_form.html',
+        size: 'sm',
+        scope: $scope,
+        controller: function($scope, $modalInstance) {
+          $scope.close = function() {
+            $modalInstance.close();
+          }
+          if ($scope.query.hasDailySchedule()) {
+            $scope.refreshType = 'daily';
+          } else {
+            $scope.refreshType = 'periodic';
+          }
+        }
+      });
+    };
+
     $scope.$watch(function() {
       return $location.hash()
     }, function(hash) {
@@ -180,5 +207,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
 })();

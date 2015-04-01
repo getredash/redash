@@ -121,8 +121,8 @@
             </p>
             <p>
                 <span class="glyphicon glyphicon-refresh"></span>
-                <span class="text-muted">Refresh Interval</span>
-                <query-refresh-select></query-refresh-select>
+                <span class="text-muted">Refresh Schedule</span>
+                <a href="" ng-click="openScheduleForm()">{{query.schedule | scheduleHumanize}}</a>
             </p>
 
             <p>

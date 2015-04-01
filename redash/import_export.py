@@ -28,7 +28,7 @@ class Importer(object):
     def import_query(self, user, query):
         new_query = self._get_or_create(models.Query, query['id'], name=query['name'],
                                         user=user,
-                                        ttl=-1,
+                                        schedule=None,
                                         query=query['query'],
                                         query_hash=query['query_hash'],
                                         description=query['description'],
