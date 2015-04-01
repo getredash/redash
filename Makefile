@@ -19,4 +19,4 @@ upload:
 
 test:
 	nosetests --with-coverage --cover-package=redash tests/*.py
-	cd rd_ui && grunt test
+	#cd rd_ui && grunt test
