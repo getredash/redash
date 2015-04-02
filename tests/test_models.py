@@ -199,7 +199,8 @@ class QueryArchiveTest(BaseTestCase):
 
 class DataSourceTest(BaseTestCase):
     def test_get_schema(self):
-        return_value = "{}"
+        return_value = [{'name': 'table', 'columns': []}]
+
         with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
             patched_get_schema.return_value = return_value
 
@@ -209,7 +210,7 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(return_value, schema)
 
     def test_get_schema_uses_cache(self):
-        return_value = "{}"
+        return_value = [{'name': 'table', 'columns': []}]
         with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
             patched_get_schema.return_value = return_value
 
@@ -221,13 +222,13 @@ class DataSourceTest(BaseTestCase):
             self.assertEqual(patched_get_schema.call_count, 1)
 
     def test_get_schema_skips_cache_with_refresh_true(self):
-        return_value = "{}"
+        return_value = [{'name': 'table', 'columns': []}]
         with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
             patched_get_schema.return_value = return_value
 
             ds = data_source_factory.create()
             ds.get_schema()
-            new_return_value = '{"new":true}'
+            new_return_value = [{'name': 'new_table', 'columns': []}]
             patched_get_schema.return_value = new_return_value
             schema = ds.get_schema(refresh=True)
 
