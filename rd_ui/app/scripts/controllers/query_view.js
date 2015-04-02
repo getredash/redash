@@ -19,6 +19,27 @@
     }
 
     $scope.query = $route.current.locals.query;
+
+    var updateSchema = function() {
+      $scope.hasSchema = false;
+      $scope.editorSize = "col-md-12";
+      var dataSourceId = $scope.query.data_source_id || $scope.dataSources[0].id;
+      DataSource.getSchema({id: dataSourceId}, function(data) {
+        if (data && data.length > 0) {
+          $scope.schema = data;
+          _.each(data, function(table) {
+            table.collapsed = true;
+          });
+
+          $scope.editorSize = "col-md-9";
+          $scope.hasSchema = true;
+        } else {
+          $scope.hasSchema = false;
+          $scope.editorSize = "col-md-12";
+        }
+      });
+    }
+
     Events.record(currentUser, 'view', 'query', $scope.query.id);
     getQueryResult();
     $scope.queryExecuting = false;
@@ -27,6 +48,7 @@
     $scope.canViewSource = currentUser.hasPermission('view_source');
 
     $scope.dataSources = DataSource.get(function(dataSources) {
+      updateSchema();
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
     });
 
@@ -126,6 +148,7 @@
         });
       }
 
+      updateSchema();
       $scope.executeQuery();
     };
 

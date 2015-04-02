@@ -219,9 +219,17 @@ class DataSourceListAPI(BaseResource):
 
         return datasource.to_dict()
 
-
 api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
 
+
+class DataSourceSchemaAPI(BaseResource):
+    def get(self, data_source_id):
+        data_source = models.DataSource.get_by_id(data_source_id)
+        schema = data_source.get_schema()
+
+        return schema
+
+api.add_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')
 
 class DashboardRecentAPI(BaseResource):
     def get(self):

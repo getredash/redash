@@ -29,7 +29,7 @@
       restrict: 'E',
       template: '<span ng-show="query.id && canViewSource">\
                     <a ng-show="!sourceMode"\
-                      ng-href="{{query.id}}/source#{{selectedTab}}">Show Source\
+                      ng-href="/queries/{{query.id}}/source#{{selectedTab}}">Show Source\
                     </a>\
                     <a ng-show="sourceMode"\
                       ng-href="/queries/{{query.id}}#{{selectedTab}}">Hide Source\
@@ -63,26 +63,80 @@
       restrict: 'E',
       scope: {
         'query': '=',
-        'lock': '='
+        'lock': '=',
+        'schema': '='
       },
-      template: '<textarea\
-                  ui-codemirror="editorOptions"\
-                  ng-model="query.query">',
-      link: function($scope) {
-        $scope.editorOptions = {
+      template: '<textarea></textarea>',
+      link: {
+        pre: function ($scope, element) {
+          var textarea = element.children()[0];
+          var editorOptions = {
             mode: 'text/x-sql',
             lineWrapping: true,
             lineNumbers: true,
             readOnly: false,
             matchBrackets: true,
-            autoCloseBrackets: true
-        };
+            autoCloseBrackets: true,
+            extraKeys: {"Ctrl-Space": "autocomplete"}
+          };
 
-        $scope.$watch('lock', function(locked) {
-          $scope.editorOptions.readOnly = locked ? 'nocursor' : false;
-        });
+          var additionalHints = [];
+
+          CodeMirror.commands.autocomplete = function(cm) {
+            var hinter  = function(editor, options) {
+              var hints = CodeMirror.hint.anyword(editor, options);
+              var cur = editor.getCursor(), token = editor.getTokenAt(cur).string;
+
+              hints.list = _.union(hints.list, _.filter(additionalHints, function (h) {
+                return h.search(token) === 0;
+              }));
+
+              return hints;
+            };
+
+//            CodeMirror.showHint(cm, CodeMirror.hint.anyword);
+            CodeMirror.showHint(cm, hinter);
+          };
+
+          var codemirror = CodeMirror.fromTextArea(textarea, editorOptions);
+
+          codemirror.on('change', function(instance) {
+            var newValue = instance.getValue();
+
+            if (newValue !== $scope.query.query) {
+              $scope.$evalAsync(function() {
+                $scope.query.query = newValue;
+              });
+            }
+          });
+
+          $scope.$watch('query.query', function () {
+            if ($scope.query.query !== codemirror.getValue()) {
+              codemirror.setValue($scope.query.query);
+            }
+          });
+
+          $scope.$watch('schema', function (schema) {
+            if (schema) {
+              var keywords = [];
+              _.each(schema, function (table) {
+                keywords.push(table.name);
+                _.each(table.columns, function (c) {
+                  keywords.push(c);
+                });
+              });
+
+              additionalHints = _.unique(keywords);
+            }
+          });
+
+          $scope.$watch('lock', function (locked) {
+            var readOnly = locked ? 'nocursor' : false;
+            codemirror.setOption('readOnly', readOnly);
+          });
+        }
       }
-    }
+    };
   }
 
   function queryFormatter($http) {

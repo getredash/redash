@@ -2,10 +2,12 @@
 import datetime
 import json
 from unittest import TestCase
+import mock
 from tests import BaseTestCase
 from redash import models
 from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory, user_factory, widget_factory
 from redash.utils import gen_query_hash
+from redash import query_runner
 
 
 class DashboardTest(BaseTestCase):
@@ -194,6 +196,44 @@ class QueryArchiveTest(BaseTestCase):
 
         self.assertEqual(None, query.schedule)
 
+
+class DataSourceTest(BaseTestCase):
+    def test_get_schema(self):
+        return_value = [{'name': 'table', 'columns': []}]
+
+        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
+            patched_get_schema.return_value = return_value
+
+            ds = data_source_factory.create()
+            schema = ds.get_schema()
+
+            self.assertEqual(return_value, schema)
+
+    def test_get_schema_uses_cache(self):
+        return_value = [{'name': 'table', 'columns': []}]
+        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
+            patched_get_schema.return_value = return_value
+
+            ds = data_source_factory.create()
+            ds.get_schema()
+            schema = ds.get_schema()
+
+            self.assertEqual(return_value, schema)
+            self.assertEqual(patched_get_schema.call_count, 1)
+
+    def test_get_schema_skips_cache_with_refresh_true(self):
+        return_value = [{'name': 'table', 'columns': []}]
+        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
+            patched_get_schema.return_value = return_value
+
+            ds = data_source_factory.create()
+            ds.get_schema()
+            new_return_value = [{'name': 'new_table', 'columns': []}]
+            patched_get_schema.return_value = new_return_value
+            schema = ds.get_schema(refresh=True)
+
+            self.assertEqual(new_return_value, schema)
+            self.assertEqual(patched_get_schema.call_count, 2)
 
 
 class QueryResultTest(BaseTestCase):

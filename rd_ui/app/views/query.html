@@ -59,9 +59,9 @@
 
     <hr>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div ng-show="sourceMode">
+    <div class="row" ng-if="sourceMode">
+        <div ng-class="editorSize">
+            <div>
                 <p>
                     <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
@@ -77,19 +77,31 @@
                         </button>
                     </span>
                 </p>
-            </div>
 
-            <!-- code editor -->
-            <div ng-show="sourceMode">
                 <p>
-                    <query-editor query="query" lock="queryFormatting"></query-editor>
+                    <query-editor query="query" schema="schema" lock="queryFormatting"></query-editor>
                 </p>
-                <hr>
+            </div>
+        </div>
+        <div class="col-md-3" ng-show="hasSchema">
+            <div>
+                <input type="text" placeholder="Search schema..." class="form-control" ng-model="schemaFilter">
+            </div>
+            <div class="schema-browser">
+                <div ng-repeat="table in schema | filter:schemaFilter">
+                    <div class="table-name" ng-click="table.collapsed = !table.collapsed">
+                        <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span></strong>
+                    </div>
+                    <div collapse="table.collapsed">
+                        <div ng-repeat="column in table.columns | filter:schemaFilter" style="padding-left:16px;">{{column}}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-    </div>
 
+    </div>
+    <hr ng-if="sourceMode">
     <div class="row">
         <div class="col-lg-3 rd-hidden-xs">
             <p>
@@ -97,7 +109,7 @@
                 <span class="text-muted">Created By </span>
                 <strong>{{query.user.name}}</strong>
             </p>
-            <p ng-if="query.user.id != query.last_modified_by.id">
+            <p ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
                 <span class="glyphicon glyphicon-user"></span>
                 <span class="text-muted">Last Modified By </span>
                 <strong>{{query.last_modified_by.name}}</strong>
@@ -190,7 +202,7 @@
                             <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" ng-repeat="vis in query.visualizations">
                                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
                             </rd-tab>
-                            <rd-tab tab-id="add" name="&plus; New" removeable="true" ng-show="canEdit"></rd-tab>
+                            <rd-tab tab-id="add" name="&plus; New Visualization" removeable="true" ng-show="canEdit"></rd-tab>
                             <li ng-if="!sourceMode" class="rd-tab-btn"><button class="btn btn-sm btn-default" ng-click="executeQuery()" ng-disabled="queryExecuting" title="Refresh Dataset"><span class="glyphicon glyphicon-refresh"></span></button></li>
                         </ul>
                     </div>

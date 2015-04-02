@@ -47,7 +47,7 @@ user_factory = ModelFactory(redash.models.User,
 data_source_factory = ModelFactory(redash.models.DataSource,
                                    name='Test',
                                    type='pg',
-                                   options='')
+                                   options='{"dbname": "test"}')
 
 
 dashboard_factory = ModelFactory(redash.models.Dashboard,
