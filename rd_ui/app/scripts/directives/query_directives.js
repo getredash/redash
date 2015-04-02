@@ -63,7 +63,8 @@
       restrict: 'E',
       scope: {
         'query': '=',
-        'lock': '='
+        'lock': '=',
+        'schema': '='
       },
       template: '<textarea></textarea>',
       link: {
@@ -79,10 +80,17 @@
             extraKeys: {"Ctrl-Space": "autocomplete"}
           };
 
+          var additionalHints = [];
+
           CodeMirror.commands.autocomplete = function(cm) {
             var hinter  = function(editor, options) {
               var hints = CodeMirror.hint.anyword(editor, options);
-//              hints.list.push('select', 'from', 'where');
+              var cur = editor.getCursor(), token = editor.getTokenAt(cur).string;
+
+              hints.list = _.union(hints.list, _.filter(additionalHints, function (h) {
+                return h.search(token) === 0;
+              }));
+
               return hints;
             };
 
@@ -105,6 +113,20 @@
           $scope.$watch('query.query', function () {
             if ($scope.query.query !== codemirror.getValue()) {
               codemirror.setValue($scope.query.query);
+            }
+          });
+
+          $scope.$watch('schema', function (schema) {
+            if (schema) {
+              var keywords = [];
+              _.each(schema, function (table) {
+                keywords.push(table.name);
+                _.each(table.columns, function (c) {
+                  keywords.push(c);
+                });
+              });
+
+              additionalHints = _.unique(keywords);
             }
           });
 
