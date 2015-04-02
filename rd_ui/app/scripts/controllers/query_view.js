@@ -24,8 +24,13 @@
       $scope.hasSchema = false;
       $scope.editorSize = "col-md-12";
       var dataSourceId = $scope.query.data_source_id || $scope.dataSources[0].id;
-      $scope.schema = DataSource.getSchema({id: dataSourceId}, function(data) {
+      DataSource.getSchema({id: dataSourceId}, function(data) {
         if (data && data.length > 0) {
+          $scope.schema = data;
+          _.each(data, function(table) {
+            table.collapsed = true;
+          });
+
           $scope.editorSize = "col-md-9";
           $scope.hasSchema = true;
         } else {

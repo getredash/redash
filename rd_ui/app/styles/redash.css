@@ -156,7 +156,7 @@ li.widget:hover {
 /* CodeMirror */
 .CodeMirror {
     border: 1px solid #eee;
-    height: auto;
+    /*height: auto;*/
     min-height: 300px;
     margin-bottom: 10px;
 }
@@ -306,6 +306,18 @@ counter-renderer counter-name {
 
 .iframe-container {
     height: 100%;
+}
+
+.schema-browser {
+    height: 300px;
+    overflow: scroll;
+}
+
+div.table-name {
+    overflow: scroll;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
 /*
