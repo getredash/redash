@@ -29,7 +29,8 @@ angular.module('redash.filters', []).
       if (schedule === null) {
         return "Never";
       } else if (schedule.match(/\d\d:\d\d/) !== null) {
-        var localTime = moment.utc(schedule, 'HH:mm').local().format('HH:mm');
+        var parts = schedule.split(':');
+        var localTime = moment.utc().hour(parts[0]).minute(parts[1]).local().format('HH:mm');
         return "Every day at " + localTime;
       }
 

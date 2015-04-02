@@ -402,7 +402,8 @@
     }
 
     Query.prototype.scheduleInLocalTime = function() {
-      return moment.utc(this.schedule, 'HH:mm').local().format('HH:mm');
+      var parts = this.schedule.split(':');
+      return moment.utc().hour(parts[0]).minute(parts[1]).local().format('HH:mm');
     }
 
     Query.prototype.getQueryResult = function (maxAge, parameters) {

@@ -138,7 +138,7 @@
         }
 
         $scope.updateSchedule = function() {
-          var newSchedule = moment($scope.hour + ":" + $scope.minute, 'HH:mm').utc().format('HH:mm');
+          var newSchedule = moment().hour($scope.hour).minute($scope.minute).utc().format('HH:mm');
           if (newSchedule != $scope.query.schedule) {
             $scope.query.schedule = newSchedule;
             $scope.saveQuery();
