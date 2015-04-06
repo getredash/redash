@@ -5,16 +5,9 @@ import re
 import subprocess
 import requests
 
-# Get release for tag name: version-rc
-# If found: delete previous upload & update with new one.
-# If not found: create new.
-
-# * history of commits (only merges and commits to master)
-
 github_token = os.environ['GITHUB_TOKEN']
 auth = (github_token, 'x-oauth-basic')
 repo = 'EverythingMe/redash'
-repo = 'arikfr/test_releases'
 
 def _github_request(method, path, params=None, headers={}):
     if not path.startswith('https://api.github.com'):
