@@ -19,6 +19,10 @@ test:
   post:
     - make pack
 deployment:
+  test:
+    branch: chore/release_process
+    commands:
+      - make upload
   github:
     branch: master
     commands:

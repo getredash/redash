@@ -1,6 +1,7 @@
 NAME=redash
 VERSION=`python ./manage.py version`
 FULL_VERSION=$(VERSION)+b$(CIRCLE_BUILD_NUM)
+BASE_VERSION=$(shell python ./manage.py version | cut -d + -f 1)
 # VERSION gets evaluated every time it's referenced, therefore we need to use VERSION here instead of FULL_VERSION.
 FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
@@ -15,7 +16,7 @@ pack:
 	tar -zcv -f $(FILENAME) --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="rd_ui/node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
 
 upload:
-	python bin/upload_version.py $(VERSION) $(FILENAME)
+	python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
 
 test:
 	nosetests --with-coverage --cover-package=redash tests/*.py
