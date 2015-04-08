@@ -310,11 +310,12 @@ counter-renderer counter-name {
 
 .schema-browser {
     height: 300px;
-    overflow: scroll;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 div.table-name {
-    overflow: scroll;
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     cursor: pointer;
