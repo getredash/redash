@@ -29,14 +29,14 @@ TYPE_STRING = 'string'
 TYPE_DATETIME = 'datetime'
 TYPE_DATE = 'date'
 
-SUPPORTED_COLUMN_TYPES = {
-    TYPE_INTEGER : None,
-    TYPE_FLOAT : None,
-    TYPE_BOOLEAN : None,
-    TYPE_STRING : None,
-    TYPE_DATETIME : None,
-    TYPE_DATE : None
-}
+SUPPORTED_COLUMN_TYPES = set([
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+    TYPE_BOOLEAN,
+    TYPE_STRING,
+    TYPE_DATETIME,
+    TYPE_DATE
+])
 
 class BaseQueryRunner(object):
     def __init__(self, configuration):
