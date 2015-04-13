@@ -57,7 +57,7 @@ def get_query_result(query_id):
 def execute_query(data_source_name_or_id, query):
     try:
         if type(data_source_name) == int:
-            data_source = models.DataSource.get(models.DataSource.id==data_source_name_or_id)
+            data_source = models.DataSource.get_by_id(data_source_name_or_id)
         else:
             data_source = models.DataSource.get(models.DataSource.name==data_source_name_or_id)
     except models.DataSource.DoesNotExist:
@@ -122,7 +122,7 @@ class Python(BaseQueryRunner):
 
         super(Python, self).__init__(configuration_json)
 
-        if "allowedImportModules" in self.configuration and self.configuration["allowedImportModules"]:
+        if self.configuration.get("allowedImportModules", None):
             for item in self.configuration["allowedImportModules"].split(","):
                 ALLOWED_MODULES[item] = None
 
