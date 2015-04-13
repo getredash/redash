@@ -9,16 +9,8 @@ import importlib
 
 logger = logging.getLogger(__name__)
 
-try:
-    from RestrictedPython import compile_restricted
-    from RestrictedPython.Guards import safe_builtins
-
-    enabled = True
-except ImportError:
-    logger.warning("Missing dependencies. Please install RestrictedPython")
-    logger.warning("You can use pip:   pip install RestrictedPython")
-
-    enabled = False
+from RestrictedPython import compile_restricted
+from RestrictedPython.Guards import safe_builtins
 
 ALLOWED_MODULES = {}
 
@@ -111,7 +103,7 @@ class Python(BaseQueryRunner):
 
     @classmethod
     def enabled(cls):
-        return enabled
+        return True
 
     @classmethod
     def annotate_query(cls):
