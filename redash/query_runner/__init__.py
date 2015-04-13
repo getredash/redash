@@ -15,6 +15,7 @@ __all__ = [
     'TYPE_STRING',
     'TYPE_DATE',
     'TYPE_FLOAT',
+    'SUPPORTED_COLUMN_TYPES',
     'register',
     'get_query_runner',
     'import_query_runners'
@@ -28,6 +29,14 @@ TYPE_STRING = 'string'
 TYPE_DATETIME = 'datetime'
 TYPE_DATE = 'date'
 
+SUPPORTED_COLUMN_TYPES = set([
+    TYPE_INTEGER,
+    TYPE_FLOAT,
+    TYPE_BOOLEAN,
+    TYPE_STRING,
+    TYPE_DATETIME,
+    TYPE_DATE
+])
 
 class BaseQueryRunner(object):
     def __init__(self, configuration):
