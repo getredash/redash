@@ -18,6 +18,7 @@
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
     }
 
+    $scope.dataSource = {};
     $scope.query = $route.current.locals.query;
 
     var updateSchema = function() {
@@ -50,6 +51,7 @@
     $scope.dataSources = DataSource.get(function(dataSources) {
       updateSchema();
       $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
+      $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
     });
 
     // in view mode, latest dataset is always visible
@@ -149,6 +151,7 @@
       }
 
       updateSchema();
+      $scope.dataSource = _.find($scope.dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
       $scope.executeQuery();
     };
 

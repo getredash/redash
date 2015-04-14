@@ -239,7 +239,8 @@ class DataSource(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'type': self.type
+            'type': self.type,
+            'syntax': self.query_runner.syntax
         }
 
     def get_schema(self, refresh=False):
@@ -250,7 +251,7 @@ class DataSource(BaseModel):
             cache = redis_connection.get(key)
 
         if cache is None:
-            query_runner = get_query_runner(self.type, self.options)
+            query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(), key=lambda t: t['name'])
 
             redis_connection.set(key, json.dumps(schema))
@@ -258,6 +259,10 @@ class DataSource(BaseModel):
             schema = json.loads(cache)
 
         return schema
+
+    @property
+    def query_runner(self):
+        return get_query_runner(self.type, self.options)
 
     @classmethod
     def all(cls):

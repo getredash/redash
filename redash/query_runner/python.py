@@ -114,6 +114,8 @@ class Python(BaseQueryRunner):
 
         super(Python, self).__init__(configuration_json)
 
+        self.syntax = "python"
+
         if self.configuration.get("allowedImportModules", None):
             for item in self.configuration["allowedImportModules"].split(","):
                 ALLOWED_MODULES[item] = None
