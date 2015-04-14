@@ -64,14 +64,23 @@
       scope: {
         'query': '=',
         'lock': '=',
-        'schema': '='
+        'schema': '=',
+        'syntax': '='
       },
       template: '<textarea></textarea>',
       link: {
         pre: function ($scope, element) {
+          $scope.syntax = $scope.syntax || 'sql';
+
+          var modes = {
+            'sql': 'text/x-sql',
+            'python': 'text/x-python',
+            'json': 'application/json'
+          };
+
           var textarea = element.children()[0];
           var editorOptions = {
-            mode: 'text/x-sql',
+            mode: modes[$scope.syntax],
             lineWrapping: true,
             lineNumbers: true,
             readOnly: false,
@@ -128,6 +137,10 @@
 
               additionalHints = _.unique(keywords);
             }
+          });
+
+          $scope.$watch('syntax', function(syntax) {
+            codemirror.setOption('mode', modes[syntax]);
           });
 
           $scope.$watch('lock', function (locked) {

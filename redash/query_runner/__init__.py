@@ -41,6 +41,7 @@ SUPPORTED_COLUMN_TYPES = set([
 class BaseQueryRunner(object):
     def __init__(self, configuration):
         jsonschema.validate(configuration, self.configuration_schema())
+        self.syntax = 'sql'
         self.configuration = configuration
 
     @classmethod

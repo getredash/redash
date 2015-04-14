@@ -83,6 +83,8 @@ class MongoDB(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(MongoDB, self).__init__(configuration_json)
 
+        self.syntax = 'json'
+
         self.db_name = self.configuration["dbName"]
 
         self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
