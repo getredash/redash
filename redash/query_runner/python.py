@@ -14,10 +14,14 @@ from RestrictedPython.Guards import safe_builtins
 
 ALLOWED_MODULES = {}
 
-# Custom hooks which controls the way objects/lists/tuples/dicts behave in
-# RestrictedPython
+
 def custom_write(obj):
+    """
+    Custom hooks which controls the way objects/lists/tuples/dicts behave in
+    RestrictedPython
+    """
     return obj
+
 
 def custom_import(name, globals=None, locals=None, fromlist=(), level=0):
     if name in ALLOWED_MODULES:
@@ -31,6 +35,7 @@ def custom_import(name, globals=None, locals=None, fromlist=(), level=0):
         return m
 
     raise Exception("'{0}' is not configured as a supported import module".format(name))
+
 
 def get_query_result(query_id):
     try:
@@ -46,14 +51,15 @@ def get_query_result(query_id):
 
     return json.loads(query.latest_query_data.data)
 
+
 def execute_query(data_source_name_or_id, query):
     try:
-        if type(data_source_name) == int:
+        if type(data_source_name_or_id) == int:
             data_source = models.DataSource.get_by_id(data_source_name_or_id)
         else:
             data_source = models.DataSource.get(models.DataSource.name==data_source_name_or_id)
     except models.DataSource.DoesNotExist:
-        raise Exception("Wrong data source name: %s." % data_source_name)
+        raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
     query_runner = get_query_runner(data_source.type, data_source.options)
 
@@ -63,6 +69,7 @@ def execute_query(data_source_name_or_id, query):
 
     # TODO: allow avoiding the json.dumps/loads in same process
     return json.loads(data)
+
 
 def add_result_column(result, column_name, friendly_name, column_type):
     """ Helper function to add columns inside a Python script running in re:dash in an easier way """
@@ -77,6 +84,7 @@ def add_result_column(result, column_name, friendly_name, column_type):
         "friendly_name" : friendly_name,
         "type" : column_type
     })
+
 
 def add_result_row(result, values):
     if not "rows" in result:
