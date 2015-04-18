@@ -27,7 +27,10 @@ class Mysql(BaseQueryRunner):
                 'db': {
                     'type': 'string',
                     'title': 'Database name'
-                }
+                },
+                "port": {
+                    "type": "number"
+                },
             },
             'required': ['db']
         }
@@ -82,10 +85,11 @@ class Mysql(BaseQueryRunner):
     def run_query(self, query):
         import MySQLdb
 
-        connection = MySQLdb.connect(self.configuration.get('host', ''),
-                                     self.configuration.get('user', ''),
-                                     self.configuration.get('passwd', ''),
-                                     self.configuration['db'],
+        connection = MySQLdb.connect(host=self.configuration.get('host', ''),
+                                     user=self.configuration.get('user', ''),
+                                     passwd=self.configuration.get('passwd', ''),
+                                     db=self.configuration['db'],
+                                     port=self.configuration.get('port', 3306),
                                      charset='utf8', use_unicode=True)
         cursor = connection.cursor()
 
