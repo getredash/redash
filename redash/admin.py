@@ -52,7 +52,7 @@ class PgModelConverter(CustomModelConverter):
         return field.name, fields.DateTimeField(**kwargs)
 
 
-class PgModelView(ModelView):
+class BaseModelView(ModelView):
     model_form_converter = PgModelConverter
 
     @require_permission('admin')
@@ -60,8 +60,26 @@ class PgModelView(ModelView):
         return True
 
 
+class UserModelView(BaseModelView):
+    column_searchable_list = ('name', 'email')
+    form_excluded_columns = ('created_at', 'updated_at')
+    column_exclude_list = ('password_hash',)
+
+    form_overrides = dict(password_hash=PasswordHashField)
+    form_args = {
+        'password_hash': {'label': 'Password'}
+    }
+
+
 def init_admin(app):
     admin = Admin(app, name='re:dash')
 
+    views = {
+        models.User: UserModelView
+    }
+
     for m in models.all_models:
-        admin.add_view(PgModelView(m))
+        if m in views:
+            admin.add_view(views[m](m))
+        else:
+            admin.add_view(BaseModelView(m))
