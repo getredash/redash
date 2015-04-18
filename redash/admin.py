@@ -4,9 +4,37 @@ from flask_admin.contrib.peewee.form import CustomModelConverter
 from flask_admin.form.widgets import DateTimePickerWidget
 from playhouse.postgres_ext import ArrayField, DateTimeTZField
 from wtforms import fields
+from wtforms.widgets import TextInput
 
 from redash import models
 from redash.permissions import require_permission
+
+
+class ArrayListField(fields.Field):
+    widget = TextInput()
+
+    def _value(self):
+        if self.data:
+            return u', '.join(self.data)
+        else:
+            return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = [x.strip() for x in valuelist[0].split(',')]
+        else:
+            self.data = []
+
+
+class PasswordHashField(fields.PasswordField):
+    def _value(self):
+        return u''
+
+    def process_formdata(self, valuelist):
+        if valuelist:
+            self.data = models.pwd_context.encrypt(valuelist[0])
+        else:
+            self.data = u''
 
 
 class PgModelConverter(CustomModelConverter):
@@ -17,7 +45,7 @@ class PgModelConverter(CustomModelConverter):
         self.view = view
 
     def handle_array_field(self, model, field, **kwargs):
-        return field.name, fields.StringField(**kwargs)
+        return field.name, ArrayListField(**kwargs)
 
     def handle_datetime_tz_field(self, model, field, **kwargs):
         kwargs['widget'] = DateTimePickerWidget()
