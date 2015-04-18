@@ -1,4 +1,5 @@
 Flask==0.10.1
+Flask-Admin==1.1.0
 Flask-RESTful==0.2.10
 Flask-Login==0.2.9
 Flask-OAuth==0.12
@@ -26,3 +27,5 @@ celery==3.1.11
 jsonschema==2.4.0
 click==3.3
 RestrictedPython==3.6.0
+peewee==2.4.7
+wtf-peewee==0.2.3
