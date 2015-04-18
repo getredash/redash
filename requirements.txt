@@ -27,5 +27,4 @@ celery==3.1.11
 jsonschema==2.4.0
 click==3.3
 RestrictedPython==3.6.0
-peewee==2.4.7
 wtf-peewee==0.2.3
