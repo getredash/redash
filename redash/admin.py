@@ -1,3 +1,4 @@
+import json
 from flask_admin.contrib.peewee import ModelView
 from flask.ext.admin import Admin
 from flask_admin.contrib.peewee.form import CustomModelConverter
@@ -7,6 +8,7 @@ from wtforms import fields
 from wtforms.widgets import TextInput
 
 from redash import models
+from redash import query_runner
 from redash.permissions import require_permission
 
 
@@ -25,6 +27,17 @@ class ArrayListField(fields.Field):
         else:
             self.data = []
 
+
+class JSONTextAreaField(fields.TextAreaField):
+    def process_formdata(self, valuelist):
+        if valuelist:
+            try:
+                json.loads(valuelist[0])
+            except ValueError:
+                raise ValueError(self.gettext(u'Invalid JSON'))
+            self.data = valuelist[0]
+        else:
+            self.data = ''
 
 class PasswordHashField(fields.PasswordField):
     def _value(self):
@@ -71,15 +84,33 @@ class UserModelView(BaseModelView):
     }
 
 
+def query_runner_type_formatter(view, context, model, name):
+    qr = query_runner.query_runners.get(model.type, None)
+    if qr:
+        return qr.name()
+
+    return model.type
+
+
+class DataSourceModelView(BaseModelView):
+    form_overrides = dict(type=fields.SelectField, options=JSONTextAreaField)
+    form_args = dict(type={
+        'choices': [(k, r.name()) for k, r in query_runner.query_runners.iteritems()]
+    })
+    column_formatters = dict(type=query_runner_type_formatter)
+    column_filters = ('type',)
+
+
 def init_admin(app):
-    admin = Admin(app, name='re:dash')
+    admin = Admin(app, name='re:dash admin')
 
     views = {
-        models.User: UserModelView
+        models.User: UserModelView(models.User),
+        models.DataSource: DataSourceModelView(models.DataSource)
     }
 
     for m in models.all_models:
         if m in views:
-            admin.add_view(views[m](m))
+            admin.add_view(views[m])
         else:
             admin.add_view(BaseModelView(m))
