@@ -13,7 +13,7 @@ class PgModelConverter(CustomModelConverter):
     def __init__(self, view, additional=None):
         additional = {ArrayField: self.handle_array_field,
                       DateTimeTZField: self.handle_datetime_tz_field}
-        super(CustomModelConverter, self).__init__(additional)
+        super(PgModelConverter, self).__init__(view, additional)
         self.view = view
 
     def handle_array_field(self, model, field, **kwargs):
