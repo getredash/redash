@@ -33,7 +33,7 @@ class PgModelView(ModelView):
 
 
 def init_admin(app):
-    admin = Admin(app, name='redash')
+    admin = Admin(app, name='re:dash')
 
     for m in models.all_models:
         admin.add_view(PgModelView(m))
