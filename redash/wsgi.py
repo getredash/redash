@@ -4,6 +4,8 @@ from flask.ext.restful import Api
 
 from redash import settings, utils
 from redash.models import db
+from redash.admin import init_admin
+
 
 __version__ = '0.4.0'
 
@@ -14,6 +16,7 @@ app = Flask(__name__,
 
 
 api = Api(app)
+init_admin(app)
 
 # configure our database
 settings.DATABASE_CONFIG.update({'threadlocals': True})
