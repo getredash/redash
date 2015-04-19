@@ -47,12 +47,15 @@ class QueryTask(object):
         return self._async_result.id
 
     @classmethod
-    def add_task(cls, query, data_source, scheduled=False):
+    def add_task(cls, query, data_source, scheduled=False, **kwargs):
+        username = kwargs.get('username',None)
+        query_id = kwargs.get('q_id',None)
         query_hash = gen_query_hash(query)
         logging.info("[Manager][%s] Inserting job", query_hash)
+        logging.info("[Manager] user [%s]", username)
         try_count = 0
         job = None
-
+        
         while try_count < cls.MAX_RETRIES:
             try_count += 1
 
@@ -77,8 +80,9 @@ class QueryTask(object):
                     else:
                         queue_name = data_source.queue_name
 
-                    result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
+                    result = execute_query.apply_async(args=(query, data_source.id, username, query_id), queue=queue_name)
                     job = cls(async_result=result)
+                    
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
                     pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                     pipe.execute()
@@ -230,7 +234,7 @@ def refresh_schemas():
 
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
-def execute_query(self, query, data_source_id):
+def execute_query(self, query, data_source_id, username, query_id):
     # TODO: maybe this should be a class?
     start_time = time.time()
 
@@ -248,11 +252,12 @@ def execute_query(self, query, data_source_id):
 
     if query_runner.annotate_query():
         # TODO: annotate with queue name
-        annotated_query = "/* Task Id: %s, Query hash: %s */ %s" % \
-                          (self.request.id, query_hash, query)
+        annotated_query = "/* Task Id: %s, Redash User: [%s], QueryId: [%s], Query hash: %s */ %s" % \
+                          (self.request.id, username, query_id, query_hash, query)
     else:
         annotated_query = query
 
+    logger.warning(annotated_query)
     with statsd_client.timer('query_runner.{}.{}.run_time'.format(data_source.type, data_source.name)):
         data, error = query_runner.run_query(annotated_query)
 

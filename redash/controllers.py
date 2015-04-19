@@ -486,8 +486,12 @@ class QueryResultListAPI(BaseResource):
         if query_result:
             return {'query_result': query_result.to_dict()}
         else:
+            qry = params['query']
             data_source = models.DataSource.get_by_id(params['data_source_id'])
-            job = QueryTask.add_task(params['query'], data_source)
+            query_hash = utils.gen_query_hash(qry)
+            query_res = models.Query.search_by_hash(query_hash)
+            query_id = query_res and query_res.id or -1
+            job = QueryTask.add_task(qry, data_source, username=self.current_user.name, q_id=query_id)
             return {'job': job.to_dict()}
 
 
