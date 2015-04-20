@@ -338,10 +338,15 @@
       return this.deferred.promise;
     }
 
-    QueryResult.get = function (data_source_id, query, maxAge) {
+    QueryResult.get = function (data_source_id, query, maxAge, queryId) {
       var queryResult = new QueryResult();
 
-      QueryResultResource.post({'data_source_id': data_source_id, 'query': query, 'max_age': maxAge}, function (response) {
+      var params = {'data_source_id': data_source_id, 'query': query, 'max_age': maxAge};
+      if (queryId !== undefined) {
+        params['query_id'] = queryId;
+      };
+
+      QueryResultResource.post(params, function (response) {
         queryResult.update(response);
 
         if ('job' in response) {
@@ -444,7 +449,7 @@
           this.queryResult = QueryResult.getById(this.latest_query_data_id);
         }
       } else if (this.data_source_id) {
-        this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge);
+        this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge, this.id);
       }
 
       return this.queryResult;

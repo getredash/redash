@@ -47,12 +47,13 @@ class QueryTask(object):
         return self._async_result.id
 
     @classmethod
-    def add_task(cls, query, data_source, scheduled=False):
+    def add_task(cls, query, data_source, scheduled=False, metadata={}):
         query_hash = gen_query_hash(query)
         logging.info("[Manager][%s] Inserting job", query_hash)
+        logging.info("[Manager] Metadata: [%s]", metadata)
         try_count = 0
         job = None
-
+        
         while try_count < cls.MAX_RETRIES:
             try_count += 1
 
@@ -77,8 +78,9 @@ class QueryTask(object):
                     else:
                         queue_name = data_source.queue_name
 
-                    result = execute_query.apply_async(args=(query, data_source.id), queue=queue_name)
+                    result = execute_query.apply_async(args=(query, data_source.id, metadata), queue=queue_name)
                     job = cls(async_result=result)
+                    
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
                     pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                     pipe.execute()
@@ -146,8 +148,8 @@ def refresh_queries():
 
     outdated_queries_count = 0
     for query in models.Query.outdated_queries():
-        # TODO: this should go into lower priority
-        QueryTask.add_task(query.query, query.data_source, scheduled=True)
+        QueryTask.add_task(query.query, query.data_source, scheduled=True,
+                           metadata={'Query ID': query.id, 'Username': 'Scheduled'})
         outdated_queries_count += 1
 
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
@@ -230,8 +232,7 @@ def refresh_schemas():
 
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
-def execute_query(self, query, data_source_id):
-    # TODO: maybe this should be a class?
+def execute_query(self, query, data_source_id, metadata):
     start_time = time.time()
 
     logger.info("Loading data source (%d)...", data_source_id)
@@ -247,9 +248,15 @@ def execute_query(self, query, data_source_id):
     query_runner = get_query_runner(data_source.type, data_source.options)
 
     if query_runner.annotate_query():
-        # TODO: annotate with queue name
-        annotated_query = "/* Task Id: %s, Query hash: %s */ %s" % \
-                          (self.request.id, query_hash, query)
+        metadata['Task ID'] = self.request.id
+        metadata['Query Hash'] = query_hash
+        metadata['Queue'] = self.request.delivery_info['routing_key']
+
+        annotation = ", ".join(["{}: {}".format(k, v) for k, v in metadata.iteritems()])
+
+        logging.debug("Annotation: %s", annotation)
+
+        annotated_query = "/* {} */ {}".format(annotation, query)
     else:
         annotated_query = query
 
