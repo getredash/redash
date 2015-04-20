@@ -199,9 +199,9 @@ def cleanup_tasks():
             logger.warning("%s is ready (%s), removing lock.", lock_keys[i], t.celery_status)
             redis_connection.delete(lock_keys[i])
 
-        if t.celery_status == 'STARTED' and t.id not in all_tasks:
-            logger.warning("Couldn't find active job for: %s, removing lock.", lock_keys[i])
-            redis_connection.delete(lock_keys[i])
+        # if t.celery_status == 'STARTED' and t.id not in all_tasks:
+        #     logger.warning("Couldn't find active job for: %s, removing lock.", lock_keys[i])
+        #     redis_connection.delete(lock_keys[i])
 
 
 @celery.task(base=BaseTask)
