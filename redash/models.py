@@ -447,14 +447,6 @@ class Query(ModelTimestampsMixin, BaseModel):
         return outdated_queries.values()
 
     @classmethod
-    def search_by_hash(cls, hashh):
-        where = (cls.query_hash == hashh)
-
-        where &= cls.is_archived == False
-
-        return cls.select(Query).where(where).order_by(cls.created_at.desc()).first()
-
-    @classmethod
     def search(cls, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
 
