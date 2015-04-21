@@ -68,8 +68,8 @@ class MongoDB(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Replica Set Name'
                 },
-                'required': ['connectionString']
-            }
+            },
+            'required': ['connectionString']
         }
 
     @classmethod
@@ -132,8 +132,8 @@ class MongoDB(BaseQueryRunner):
         s = None
         if "sort" in query_data and query_data["sort"]:
             s = []
-            for field_name in query_data["sort"]:
-                s.append((field_name, query_data["sort"][field_name]))
+            for field_data in query_data["sort"]:
+                s.append((field_data["name"], field_data["direction"]))
 
         columns = []
         rows = []
@@ -145,6 +145,9 @@ class MongoDB(BaseQueryRunner):
             cursor = db[collection].find(q, f).sort(s)
         else:
             cursor = db[collection].find(q, f)
+
+        if "limit" in query_data and query_data["limit"]:
+            cursor = cursor.limit(query_data["limit"])
 
         for r in cursor:
             for k in r:
