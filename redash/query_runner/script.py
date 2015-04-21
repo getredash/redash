@@ -30,7 +30,7 @@ class Script(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Script, self).__init__(configuration_json)
 
-        # Poor man's protection against running scripts from output the scripts directory
+        # Poor man's protection against running scripts from outside the scripts directory
         if self.configuration["path"].find("../") > -1:
             raise ValidationError("Scripts can only be run from the configured scripts directory")
 
@@ -41,11 +41,13 @@ class Script(BaseQueryRunner):
 
             query = query.strip()
 
-            script = os.path.join(self.configuration["path"], query)
+            script = os.path.join(self.configuration["path"], query.split(" ")[0])
             if not os.path.exists(script):
                 return None, "Script '%s' not found in script directory" % query
 
-            output = subprocess.check_output(script, shell=False)
+            script = os.path.join(self.configuration["path"], query)
+
+            output = subprocess.check_output(script.split(" "), shell=False)
             if output is not None:
                 output = output.strip()
                 if output != "":
