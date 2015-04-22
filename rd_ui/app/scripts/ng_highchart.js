@@ -325,6 +325,36 @@
                 series = seriesCopy;
               }
 
+              if (chartOptions['sortY'] === true || chartOptions['sortY'] === undefined) {
+                var sortable = true;
+
+                for (var i = 0; i < series.length; i++) {
+                  if (series[i].data.length != 1) {
+                    sortable = false;
+                    break;
+                  }
+                }
+
+                if (sortable) {
+                  var sortFunction = function(s1, s2) {
+                    if (s1.data.length == 1 && s2.data.length == 1) {
+                      var a = s1.data[0].y;
+                      var b = s2.data[0].y;
+
+                      if (a < b) {
+                        return -1;
+                      } else if (a == b) {
+                        return 0;
+                      } else {
+                        return 1;
+                      }
+                    }
+                  }
+
+                  series.sort(sortFunction);
+                }
+              }
+
               if (!('xAxis' in chartOptions && 'type' in chartOptions['xAxis'])) {
                 if (series.length > 0 && _.some(series[0].data, function (p) {
                   return (angular.isString(p.x) || angular.isDefined(p.name));
