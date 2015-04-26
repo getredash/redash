@@ -325,34 +325,21 @@
                 series = seriesCopy;
               }
 
-              if (chartOptions['sortY'] === true || chartOptions['sortY'] === undefined) {
-                var sortable = true;
+              // If this is a chart that has just one row for multiple columns, sort
+              // by the Y values. For example:
+              //
+              // A  | B  | C
+              // 20 | 30 | 15
+              //
+              // Will be sorted:
+              // C  | A  | B
+              // 15 | 20 | 30
+              var sortable = _.every(series, function(s) { return s.data.length == 1 });
 
-                for (var i = 0; i < series.length; i++) {
-                  if (series[i].data.length != 1) {
-                    sortable = false;
-                    break;
-                  }
-                }
-
-                if (sortable) {
-                  var sortFunction = function(s1, s2) {
-                    if (s1.data.length == 1 && s2.data.length == 1) {
-                      var a = s1.data[0].y;
-                      var b = s2.data[0].y;
-
-                      if (a < b) {
-                        return -1;
-                      } else if (a == b) {
-                        return 0;
-                      } else {
-                        return 1;
-                      }
-                    }
-                  }
-
-                  series.sort(sortFunction);
-                }
+              if (sortable) {
+                series = _.sortBy(series, function (s) {
+                  return s.data[0].y
+                });
               }
 
               if (!('xAxis' in chartOptions && 'type' in chartOptions['xAxis'])) {
