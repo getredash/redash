@@ -36,6 +36,8 @@ def custom_import(name, globals=None, locals=None, fromlist=(), level=0):
 
     raise Exception("'{0}' is not configured as a supported import module".format(name))
 
+def custom_get_item(obj, key):
+    return obj[key]
 
 def get_query_result(query_id):
     try:
@@ -140,6 +142,8 @@ class Python(BaseQueryRunner):
             safe_builtins["getattr"] = getattr
             safe_builtins["_setattr_"] = setattr
             safe_builtins["setattr"] = setattr
+            safe_builtins["setattr"] = setattr
+            safe_builtins["_getitem_"] = custom_get_item
 
             script_locals = { "result" : { "rows" : [], "columns" : [] } }
 
