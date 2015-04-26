@@ -15,6 +15,9 @@ There you can see the names of its programs (`redash_celery`, `redash_server`) a
 
 ### Restarting Celery workers
 
+In case you are handling a problem, and you need to stop the currently running queries, follow the steps below.
+In simpler cases, like upgrades, just use ` sudo supervisorctl restart redash_celery`.
+
 1. stop celery:
 
 `sudo supervisorctl stop redash_celery`
