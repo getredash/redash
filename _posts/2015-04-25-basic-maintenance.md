@@ -55,6 +55,19 @@ The limit here is memory so 6 or 8 are safe values, depends on the instance size
 
 ### See the currently configured data source
 
+This varies based on the redash version and personal preferences. 
+You can do one of the following:
+
+#### Using command line
+
+In `/opt/redash/current`, run: `bin/run ./manage.py ds list`
+
+#### Using the admin
+
+Browse to `/admin/datasource`
+
+#### view the definition directly in the DB
+
 `sudo -u redash psql`
 
 `redash=> select * from data_sources;`
