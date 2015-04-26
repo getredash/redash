@@ -47,7 +47,9 @@ In simpler cases, like upgrades, just use `sudo supervisorctl restart redash_cel
 2. Edit the `[program:redash_celery]` section and add to the command value, the param "-c" with the number of concurrent workers you need. 
 The limit here is memory so 6 or 8 are safe values, depends on the instance size.
 
-3. [Restart celery](#restarting-celery-workers)
+3. Restart 
+
+`sudo /etc/init.d/redash_supervisord restart`
 
 ## DB
 
