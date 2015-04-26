@@ -325,6 +325,23 @@
                 series = seriesCopy;
               }
 
+              // If this is a chart that has just one row for multiple columns, sort
+              // by the Y values. For example:
+              //
+              // A  | B  | C
+              // 20 | 30 | 15
+              //
+              // Will be sorted:
+              // C  | A  | B
+              // 15 | 20 | 30
+              var sortable = _.every(series, function(s) { return s.data.length == 1 });
+
+              if (sortable) {
+                series = _.sortBy(series, function (s) {
+                  return s.data[0].y
+                });
+              }
+
               if (!('xAxis' in chartOptions && 'type' in chartOptions['xAxis'])) {
                 if (series.length > 0 && _.some(series[0].data, function (p) {
                   return (angular.isString(p.x) || angular.isDefined(p.name));
