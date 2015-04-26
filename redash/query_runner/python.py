@@ -142,7 +142,6 @@ class Python(BaseQueryRunner):
             safe_builtins["getattr"] = getattr
             safe_builtins["_setattr_"] = setattr
             safe_builtins["setattr"] = setattr
-            safe_builtins["setattr"] = setattr
             safe_builtins["_getitem_"] = custom_get_item
 
             script_locals = { "result" : { "rows" : [], "columns" : [] } }
