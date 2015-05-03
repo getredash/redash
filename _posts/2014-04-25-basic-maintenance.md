@@ -1,5 +1,5 @@
 ---
-title: Ongoing maintanence and basic operations
+title: Ongoing Maintanence and Basic Operations
 layout: post
 category: deployment
 permalink: /deployment/maintenance.html
@@ -18,19 +18,19 @@ There you can see the names of its programs (`redash_celery`, `redash_server`) a
 In case you are handling a problem, and you need to stop the currently running queries, follow the steps below.
 In simpler cases, like upgrades, just use `sudo supervisorctl restart redash_celery`.
 
-1. stop celery:
+1. Stop celery:
 
 `sudo supervisorctl stop redash_celery`
 
 (celery might take some time to stop, if it's in the middle of running a query)
 
-2. flush redis 
+2. Flush redis 
 
 `redis-cli`
 
 `127.0.0.1:6379>flushdb`
 
-3. start celery:
+3. Start celery:
 
 `sudo supervisorctl start redash_celery`
 
@@ -75,4 +75,3 @@ Browse to `/admin/datasource`
 ### Backup redash's DB:
 
 `sudo -u redash pg_dump > backup_filename.sql`
-
