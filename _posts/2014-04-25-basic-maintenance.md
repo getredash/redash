@@ -21,7 +21,7 @@ There you can see the names of its programs (`redash_celery`, `redash_server`) a
 
 `sudo supervisorctl restart redash_celery`
 
-### "Restarting" Celery Workers & the Queries Queue
+### Restarting Celery Workers & the Queries Queue
 
 In case you are handling a problem, and you need to stop the currently running queries and reset the queue, follow the steps below.
 
@@ -31,7 +31,7 @@ In case you are handling a problem, and you need to stop the currently running q
 
 3. Start celery: `sudo supervisorctl start redash_celery`
 
-## Chaninging the Number of Workers
+## Changing the Number of Workers
 
 By default, Celery will start a worker per CPU core. Because most of re:dash's tasks are IO bound, the real limit for number of workers you can use depends on the amount of memory your machine has. It's recommended to increase number of workers, to support more concurrent queries.
 
