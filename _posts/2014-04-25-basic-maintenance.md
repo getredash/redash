@@ -13,65 +13,56 @@ There you can see the names of its programs (`redash_celery`, `redash_server`) a
 
 ## Restart
 
-### Restarting Celery workers
-
-In case you are handling a problem, and you need to stop the currently running queries, follow the steps below.
-In simpler cases, like upgrades, just use `sudo supervisorctl restart redash_celery`.
-
-1. Stop celery:
-
-`sudo supervisorctl stop redash_celery`
-
-(celery might take some time to stop, if it's in the middle of running a query)
-
-2. Flush redis 
-
-`redis-cli`
-
-`127.0.0.1:6379>flushdb`
-
-3. Start celery:
-
-`sudo supervisorctl start redash_celery`
-
-### Restarting the web client
+### Restarting the Web Server
 
 `sudo supervisorctl stop redash_server`
 
-## Chaninging the number of workers
+### Restarting Celery Workers
 
-1. Open the supervisord configuration file 
+`sudo supervisorctl restart redash_celery`
 
-`/opt/redash/supervisord/supervisord.conf`
+### "Restarting" Celery Workers & the Queries Queue
 
-2. Edit the `[program:redash_celery]` section and add to the command value, the param "-c" with the number of concurrent workers you need. 
-The limit here is memory so 6 or 8 are safe values, depends on the instance size.
+In case you are handling a problem, and you need to stop the currently running queries and reset the queue, follow the steps below.
 
-3. Restart 
+1. Stop celery: `sudo supervisorctl stop redash_celery` (celery might take some time to stop, if it's in the middle of running a query)
 
-`sudo /etc/init.d/redash_supervisord restart`
+2. Flush redis: `redis-cli flushdb`
+
+3. Start celery: `sudo supervisorctl start redash_celery`
+
+## Chaninging the Number of Workers
+
+By default, Celery will start a worker per CPU core. Because most of re:dash's tasks are IO bound, the real limit for number of workers you can use depends on the amount of memory your machine has. It's recommended to increase number of workers, to support more concurrent queries.
+
+1. Open the supervisord configuration file: `/opt/redash/supervisord/supervisord.conf`
+
+2. Edit the `[program:redash_celery]` section and add to the _command_ value, the param "-c" with the number of concurrent workers you need.
+
+3. Restart supervisord to apply new configuration: `sudo /etc/init.d/redash_supervisord restart`.
 
 ## DB
 
-### See the currently configured data source
+### Show the Currently Configured Data Source
 
 This varies based on the redash version and personal preferences. 
 You can do one of the following:
 
-#### Using command line
+#### Using the CLI
 
-In `/opt/redash/current`, run: `bin/run ./manage.py ds list`
+In `/opt/redash/current`, run: `sudo -u redash bin/run ./manage.py ds list`
 
-#### Using the admin
+#### Using the Admin 
 
+(available from version 0.6b797).
 Browse to `/admin/datasource`
 
-#### view the definition directly in the DB
+#### View the Definition Directly in the DB
 
-`sudo -u redash psql`
+1. Open psql: `sudo -u redash psql`
 
-`redash=> select * from data_sources;`
+2. Run the query: `SELECT  * from data_sources;`
 
-### Backup redash's DB:
+### Backup re:dash's DB:
 
 `sudo -u redash pg_dump > backup_filename.sql`
