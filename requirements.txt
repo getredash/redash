@@ -15,7 +15,7 @@ psycopg2==2.5.2
 python-dateutil==2.1
 pytz==2013.9
 redis==2.7.5
-requests==2.2.0
+requests==2.3.0
 six==1.5.2
 sqlparse==0.1.8
 wsgiref==0.1.2
