@@ -30,7 +30,9 @@
 
         _.each(this.query_result.data.columns, function(column) {
           if (columnTypes[column.name]) {
-            column.type = columnTypes[column.name];
+            if (column.type == null) {
+              column.type = columnTypes[column.name];
+            }
           }
         });
 
