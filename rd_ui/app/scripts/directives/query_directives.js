@@ -117,6 +117,8 @@
                 $scope.query.query = newValue;
               });
             }
+
+            $('.schema-container').css('height', $('.CodeMirror').css('height'));
           });
 
           $scope.$watch('query.query', function () {
