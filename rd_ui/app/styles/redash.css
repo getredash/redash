@@ -156,7 +156,7 @@ li.widget:hover {
 /* CodeMirror */
 .CodeMirror {
     border: 1px solid #eee;
-    /*height: auto;*/
+    height: auto;
     min-height: 300px;
     margin-bottom: 10px;
 }
@@ -308,8 +308,12 @@ counter-renderer counter-name {
     height: 100%;
 }
 
-.schema-browser {
+.schema-container {
     height: 300px;
+}
+
+.schema-browser {
+    height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
 }
