@@ -72,42 +72,9 @@
           width: '50%'
         };
 
-        function readURL() {
-          var searchFilters = angular.fromJson($location.search().filters);
-          if (searchFilters) {
-            _.forEach(scope.filters, function(filter) {
-              var value = searchFilters[filter.friendlyName];
-              if (value) {
-                filter.current = value;
-              }
-            });
-          }
-        }
-
-        function updateURL(filters) {
-          var current = {};
-          _.each(filters, function(filter) {
-            if (filter.current) {
-              current[filter.friendlyName] = filter.current;
-            }
-          });
-
-          var newSearch = angular.extend($location.search(), {
-            filters: angular.toJson(current)
-          });
-          $location.search(newSearch);
-        }
-
         scope.$watch('queryResult && queryResult.getFilters()', function (filters) {
           if (filters) {
             scope.filters = filters;
-
-            if (filters.length && false) {
-              readURL();
-
-              // start watching for changes and update URL
-              scope.$watch('filters', updateURL, true);
-            }
           }
         });
       }
