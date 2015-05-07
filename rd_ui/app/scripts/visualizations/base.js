@@ -55,6 +55,22 @@
     }];
   };
 
+  var VisualizationName = function(Visualization) {
+    return {
+      restrict: 'E',
+      scope: {
+        visualization: '='
+      },
+      template: '<small>{{name}}</small>',
+      replace: false,
+      link: function (scope) {
+        if (Visualization.visualizations[scope.visualization.type].name != scope.visualization.name) {
+          scope.name = scope.visualization.name;
+        }
+      }
+    }
+  }
+
   var VisualizationRenderer = function ($location, Visualization) {
     return {
       restrict: 'E',
@@ -175,6 +191,7 @@
       .provider('Visualization', VisualizationProvider)
       .directive('visualizationRenderer', ['$location', 'Visualization', VisualizationRenderer])
       .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
+      .directive('visualizationName', ['Visualization', VisualizationName])
       .directive('filters', Filters)
       .directive('editVisulatizationForm', ['Events', 'Visualization', 'growl', EditVisualizationForm])
 })();
