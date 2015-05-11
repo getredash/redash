@@ -1,6 +1,5 @@
 <p align="center">
-  <img title="re:dash" src='https://raw.githubusercontent.com/EverythingMe/redash/screenshots/redash_logo.png' />
-
+  <img title="re:dash" src='http://redash.io/static/img/redash_logo.png' width="200px"/>
 </p>
 <p align="center">
     <img title="Build Status" src='https://circleci.com/gh/EverythingMe/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
