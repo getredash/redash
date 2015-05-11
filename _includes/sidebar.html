@@ -1,6 +1,7 @@
 <div class="well well-small navigation">
-  <a href="{{ site.baseurl }}/"><img src="{{ site.baseurl }}/static/img/redash_logo.png" /></a>
-  <p class="muted version">{{ site.version }}</p>
+  {% if page.layout != 'home' %}
+  <a href="{{ site.baseurl }}/"><img src="{{ site.baseurl }}/static/img/redash_icon.png" style="width: 75px;"/></a>
+  {% endif %}
   <ul class="nav nav-list">
     {% for category in site.categories %}
       <li class="nav-header">{{ category[0] }}</li>
