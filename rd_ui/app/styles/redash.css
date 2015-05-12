@@ -14,7 +14,12 @@ a.page-title {
 }
 
 a.navbar-brand {
-    font-style: italic;
+    padding: 5px 5px 0px 0px;
+    margin-left: 0px !important;
+}
+
+a.navbar-brand img {
+    height: 40px;
 }
 
 .graph {
