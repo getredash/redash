@@ -31,3 +31,8 @@ optional arguments:
   --google              user uses Google Auth to login
   --admin               set user as admin
 ```
+
+## Grant admin permissions
+
+`sudo -u redash bin/run ./manage.py users grant_admin {email}`
+
