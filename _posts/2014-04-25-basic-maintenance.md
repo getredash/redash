@@ -66,3 +66,9 @@ Browse to `/admin/datasource`
 ### Backup re:dash's DB:
 
 `sudo -u redash pg_dump > backup_filename.sql`
+
+## Version
+
+See current version:
+
+`bin/run ./manage.py version`
