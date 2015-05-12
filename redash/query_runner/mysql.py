@@ -7,6 +7,24 @@ from redash.query_runner import *
 
 logger = logging.getLogger(__name__)
 
+types_map = {
+    0: TYPE_FLOAT,
+    1: TYPE_INTEGER,
+    2: TYPE_INTEGER,
+    3: TYPE_INTEGER,
+    4: TYPE_FLOAT,
+    5: TYPE_FLOAT,
+    7: TYPE_DATETIME,
+    8: TYPE_INTEGER,
+    9: TYPE_INTEGER,
+    10: TYPE_DATE,
+    12: TYPE_DATETIME,
+    15: TYPE_STRING,
+    16: TYPE_INTEGER,
+    246: TYPE_FLOAT,
+    253: TYPE_STRING,
+    254: TYPE_STRING,
+}
 
 class Mysql(BaseQueryRunner):
     @classmethod
@@ -100,17 +118,15 @@ class Mysql(BaseQueryRunner):
 
             data = cursor.fetchall()
 
-            cursor_desc = cursor.description
-            if cursor_desc is not None:
-                num_fields = len(cursor_desc)
-                column_names = [i[0] for i in cursor.description]
+            # TODO - very similar to pg.py
+            if cursor.description is not None:
+                columns_data = [(i[0], i[1]) for i in cursor.description]
 
-                rows = [dict(zip(column_names, row)) for row in data]
+                rows = [dict(zip((c[0] for c in columns_data), row)) for row in data]
 
-                # TODO: add types support
-                columns = [{'name': col_name,
-                            'friendly_name': col_name,
-                            'type': None} for col_name in column_names]
+                columns = [{'name': col[0],
+                            'friendly_name': col[0],
+                            'type': types_map.get(col[1], None)} for col in columns_data]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
