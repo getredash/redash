@@ -104,9 +104,26 @@ def get_changelog(commit_sha):
 
     return "\n".join(changes)
 
+def update_release_commit_sha(release, commit_sha):
+    params = {
+        'target_commitish': commit_sha,
+    }
+
+    response = _github_request('patch', 'repos/{}/releases/{}'.format(repo, release['id']), params)
+
+    if response.status_code != 200:
+        raise exception_from_error("Failed updating commit sha for existing release", response)
+
+    return response
+
 def update_release(version, build_filepath, commit_sha):
     try:
-        release = get_rc_release(version) or create_release(version, commit_sha)
+        release = get_rc_release(version)
+        if release:
+            release = update_release_commit_sha(release, commit_sha)
+        else:
+            release = create_release(version, commit_sha)
+
         print "Using release id: {}".format(release['id'])
 
         remove_previous_builds(release)
