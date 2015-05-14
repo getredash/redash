@@ -114,7 +114,7 @@ def update_release_commit_sha(release, commit_sha):
     if response.status_code != 200:
         raise exception_from_error("Failed updating commit sha for existing release", response)
 
-    return response
+    return response.json()
 
 def update_release(version, build_filepath, commit_sha):
     try:
