@@ -319,6 +319,17 @@ class QueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
         self.paths = []
         super(QueryResultAPITest, self).setUp()
 
+    def test_post_result_list(self):
+        data_source = data_source_factory.create()
+        query_result = query_result_factory.create()
+        query = query_factory.create()
+
+        with app.test_client() as c, authenticated_user(c):
+            rv = json_request(c.post, '/api/query_results',
+                              data={'data_source_id': data_source.id,
+                                    'query': query.query})
+            self.assertEquals(rv.status_code, 200)
+
 
 class JobAPITest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
