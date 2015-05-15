@@ -97,7 +97,7 @@ a.navbar-brand img {
 }
 
 .panel-heading .query-link:hover {
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 /* angular-growl */
