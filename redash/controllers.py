@@ -450,7 +450,7 @@ api.add_resource(VisualizationAPI, '/api/visualizations/<visualization_id>', end
 class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
-        params = request.json
+        params = request.get_json(force=True)
 
         if settings.FEATURE_TABLES_PERMISSIONS:
             metadata = utils.SQLMetaData(params['query'])
@@ -476,7 +476,7 @@ class QueryResultListAPI(BaseResource):
             activity=params['query']
         ).save()
 
-        max_age = int(params['max_age'])
+        max_age = int(params.get('max_age', -1))
 
         if max_age == 0:
             query_result = None
