@@ -8,7 +8,7 @@
         'query': '=',
         'visualization': '=?'
       },
-      template: '<a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
+      template: '<small><span class="glyphicon glyphicon-link"></span></small> <a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
       link: function(scope, element) {
         scope.link = '/queries/' + scope.query.id;
         if (scope.visualization) {
