@@ -112,9 +112,6 @@
 
         scope.columnTypes = {
           "X": "x",
-//          "X (Date time)": "x",
-//          "X (Linear)": "x-linear",
-//          "X (Category)": "x-category",
           "Y": "y",
           "Series": "series",
           "Unused": "unused"
@@ -226,6 +223,12 @@
                 scope.visualization.options.series.stacking = stacking;
               }
             });
+
+            scope.visualization.options.xAxis = scope.visualization.options.xAxis || {};
+            scope.visualization.options.xAxis.labels = scope.visualization.options.xAxis.labels || {};
+            if (scope.visualization.options.xAxis.labels.enabled === undefined) {
+              scope.visualization.options.xAxis.labels.enabled = true;
+            }
 
             scope.xAxisType = (scope.visualization.options.xAxis && scope.visualization.options.xAxis.type) || scope.xAxisType;
 
