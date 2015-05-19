@@ -256,7 +256,7 @@ def execute_query(self, query, data_source_id, metadata):
 
         logging.debug("Annotation: %s", annotation)
 
-        annotated_query = "/* {} */ {}".format(annotation, query)
+        annotated_query = u"/* {} */ {}".format(annotation, query)
     else:
         annotated_query = query
 

@@ -381,7 +381,10 @@
             function sortDataRow(array, column) {
                 var sortAlgo = (scope.sortAlgorithm && angular.isFunction(scope.sortAlgorithm)) === true ? scope.sortAlgorithm : filter('orderBy');
                 if (column) {
-                    return arrayUtility.sort(array, sortAlgo, column.sortPredicate, column.reverse);
+                    var predicate = function(o) {
+                        return o[column.sortPredicate];
+                    };
+                    return arrayUtility.sort(array, sortAlgo, predicate, column.reverse);
                 } else {
                     return array;
                 }
