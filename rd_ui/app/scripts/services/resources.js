@@ -12,6 +12,8 @@
 
         var columnTypes = {};
 
+        // TODO: we should stop manipulating incoming data, and switch to relaying on the column type set by the backend.
+        // This logic is prone to errors, and better be removed. Kept for now, for backward compatability.
         _.each(this.query_result.data.rows, function (row) {
           _.each(row, function (v, k) {
             if (angular.isNumber(v)) {
@@ -30,7 +32,7 @@
 
         _.each(this.query_result.data.columns, function(column) {
           if (columnTypes[column.name]) {
-            if (column.type == null) {
+            if (column.type == null || column.type == 'string') {
               column.type = columnTypes[column.name];
             }
           }
