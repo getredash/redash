@@ -39,6 +39,9 @@ def custom_import(name, globals=None, locals=None, fromlist=(), level=0):
 def custom_get_item(obj, key):
     return obj[key]
 
+def custom_get_iter(obj):
+    return iter(obj)
+
 def get_query_result(query_id):
     try:
         query = models.Query.get_by_id(query_id)
@@ -143,6 +146,7 @@ class Python(BaseQueryRunner):
             safe_builtins["_setattr_"] = setattr
             safe_builtins["setattr"] = setattr
             safe_builtins["_getitem_"] = custom_get_item
+            safe_builtins["_getiter_"] = custom_get_iter
 
             script_locals = { "result" : { "rows" : [], "columns" : [] } }
 
