@@ -12,7 +12,8 @@ re:dash supports several types of data sources (see below the full list) and the
 #### Version 0.6 and newer
 
 ```bash
-$ bin/run ./manage.py ds new -n {name} -t {type} -o {options}
+$ cd /opt/redash/current
+$ sudo -u redash bin/run ./manage.py ds new -n {name} -t {type} -o {options}
 ```
 
 If you omit any of the options (-n, -t, -o) it will show a prompt asking for it. Options is a JSON string with the connection parameters.
@@ -21,20 +22,21 @@ Unless you're doing some sort of automation, it's probably easier to leave it em
 #### Version 0.5 and older
 
 ```bash
-$ bin/run ./manage.py ds new {name} {type} {options}
+$ cd /opt/redash/current
+$ sudo -u redash bin/run ./manage.py ds new {name} {type} {options}
 ```
 
 Where `{name}` is the name of the new data source, `{type}` is one of the supported types and `{options}` is the connection string. For example:
 
 ```bash
-$ bin/run ./manage.py ds new "Postgres" "pg" "dbname=database"
+$ sudo -u redash bin/run ./manage.py ds new "Postgres" "pg" "dbname=database"
 ```
 
 See below for the different supported data sources types and the relevant options string format.
 
 ### Listing existing data sources
 ```bash
-$ bin/run ./manage.py ds list
+$ sudo -u redash bin/run ./manage.py ds list
 ```
 
 ## Supported data sources
