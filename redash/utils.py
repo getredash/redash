@@ -7,6 +7,7 @@ import json
 import re
 import hashlib
 import sqlparse
+import pytz
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
@@ -61,6 +62,14 @@ class SQLMetaData(object):
 
         return False
 
+
+def utcnow():
+    """Return datetime.now value with timezone specified.
+
+    Without the timezone data, when the timestamp stored to the database it gets the current timezone of the server,
+    which leads to errors in calculations.
+    """
+    return datetime.datetime.now(pytz.utc)
 
 def slugify(s):
     return re.sub('[^a-z0-9_\-]+', '-', s.lower())

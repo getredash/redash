@@ -1,11 +1,10 @@
 import time
-import datetime
 import logging
 import redis
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client, settings
+from redash import redis_connection, models, statsd_client, settings, utils
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner
@@ -272,7 +271,7 @@ def execute_query(self, query, data_source_id, metadata):
     redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
 
     if not error:
-        query_result = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, datetime.datetime.utcnow())
+        query_result = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, utils.utcnow())
     else:
         raise Exception(error)
 

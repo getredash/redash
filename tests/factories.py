@@ -1,6 +1,5 @@
-import datetime
 import redash.models
-from redash.utils import gen_query_hash
+from redash.utils import gen_query_hash, utcnow
 
 
 class ModelFactory(object):
@@ -66,7 +65,7 @@ query_factory = ModelFactory(redash.models.Query,
 query_result_factory = ModelFactory(redash.models.QueryResult,
                                     data='{"columns":{}, "rows":[]}',
                                     runtime=1,
-                                    retrieved_at=datetime.datetime.utcnow,
+                                    retrieved_at=utcnow,
                                     query="SELECT 1",
                                     query_hash=gen_query_hash('SELECT 1'),
                                     data_source=data_source_factory.create)
