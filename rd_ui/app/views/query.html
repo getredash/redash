@@ -92,8 +92,8 @@
                     <div class="table-name" ng-click="table.collapsed = !table.collapsed">
                         <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span></strong>
                     </div>
-                    <div collapse="table.collapsed">
-                        <div ng-repeat="column in table.columns | filter:schemaFilter" style="padding-left:16px;">{{column}}</div>
+                    <div collapse="table.collapsed && !schemaFilter">
+                        <div ng-repeat="column in table.columns" style="padding-left:16px;">{{column}}</div>
                     </div>
                 </div>
             </div>
