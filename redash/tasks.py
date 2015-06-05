@@ -252,9 +252,9 @@ def execute_query(self, query, data_source_id, metadata):
         metadata['Query Hash'] = query_hash
         metadata['Queue'] = self.request.delivery_info['routing_key']
 
-        annotation = ", ".join(["{}: {}".format(k, v) for k, v in metadata.iteritems()])
+        annotation = u", ".join([u"{}: {}".format(k, v) for k, v in metadata.iteritems()])
 
-        logging.debug("Annotation: %s", annotation)
+        logging.debug(u"Annotation: %s", annotation)
 
         annotated_query = u"/* {} */ {}".format(annotation, query)
     else:
