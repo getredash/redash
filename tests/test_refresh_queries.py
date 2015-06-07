@@ -2,6 +2,7 @@ import datetime
 from mock import patch, call, ANY
 from tests import BaseTestCase
 from tests.factories import query_factory, query_result_factory
+from redash.utils import utcnow
 from redash.tasks import refresh_queries
 
 
@@ -11,7 +12,7 @@ from redash.tasks import refresh_queries
 class TestRefreshQueries(BaseTestCase):
     def test_enqueues_outdated_queries(self):
         query = query_factory.create(schedule="60")
-        retrieved_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = query_result_factory.create(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
         query.latest_query_data = query_result
@@ -23,7 +24,7 @@ class TestRefreshQueries(BaseTestCase):
 
     def test_skips_fresh_queries(self):
         query = query_factory.create(schedule="1200")
-        retrieved_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = query_result_factory.create(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
 
@@ -33,7 +34,7 @@ class TestRefreshQueries(BaseTestCase):
 
     def test_skips_queries_with_no_ttl(self):
         query = query_factory.create(schedule=None)
-        retrieved_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = query_result_factory.create(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
 
@@ -45,7 +46,7 @@ class TestRefreshQueries(BaseTestCase):
         query = query_factory.create(schedule="60")
         query2 = query_factory.create(schedule="60", query=query.query, query_hash=query.query_hash,
                                       data_source=query.data_source)
-        retrieved_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = query_result_factory.create(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
         query.latest_query_data = query_result
@@ -60,7 +61,7 @@ class TestRefreshQueries(BaseTestCase):
     def test_enqueues_query_with_correct_data_source(self):
         query = query_factory.create(schedule="60")
         query2 = query_factory.create(schedule="60", query=query.query, query_hash=query.query_hash)
-        retrieved_at = datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = query_result_factory.create(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
         query.latest_query_data = query_result
@@ -79,7 +80,7 @@ class TestRefreshQueries(BaseTestCase):
         query = query_factory.create(schedule="60")
         query2 = query_factory.create(schedule="3600", query=query.query, query_hash=query.query_hash)
         import psycopg2
-        retrieved_at = datetime.datetime.utcnow().replace(tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None)) - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow().replace(tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None)) - datetime.timedelta(minutes=10)
         query_result = query_result_factory.create(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
         query.latest_query_data = query_result

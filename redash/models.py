@@ -437,7 +437,7 @@ class Query(ModelTimestampsMixin, BaseModel):
             .switch(Query).join(DataSource)\
             .where(cls.schedule != None)
 
-        now = datetime.datetime.utcnow().replace(tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None))
+        now = utils.utcnow()
         outdated_queries = {}
         for query in queries:
             if should_schedule_next(query.latest_query_data.retrieved_at, now, query.schedule):

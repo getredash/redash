@@ -6,8 +6,7 @@ import mock
 from tests import BaseTestCase
 from redash import models
 from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory, user_factory, widget_factory
-from redash.utils import gen_query_hash
-from redash import query_runner
+from redash.utils import gen_query_hash, utcnow
 
 
 class DashboardTest(BaseTestCase):
@@ -141,7 +140,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         self.assertNotIn(query, queries)
 
     def test_outdated_queries_works_with_specific_time_schedule(self):
-        half_an_hour_ago = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
+        half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
         query = query_factory.create(schedule=half_an_hour_ago.strftime('%H:%M'))
         query_result = query_result_factory.create(query=query, retrieved_at=half_an_hour_ago-datetime.timedelta(days=1))
         query.latest_query_data = query_result
@@ -326,7 +325,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.query = "SELECT 1"
         self.query_hash = gen_query_hash(self.query)
         self.runtime = 123
-        self.utcnow = datetime.datetime.utcnow()
+        self.utcnow = utcnow()
         self.data = "data"
 
     def test_stores_the_result(self):
