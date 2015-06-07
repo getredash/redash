@@ -229,7 +229,7 @@ class DataSource(BaseModel):
     type = peewee.CharField()
     options = peewee.TextField()
     queue_name = peewee.CharField(default="queries")
-    scheduled_queue_name = peewee.CharField(default="queries")
+    scheduled_queue_name = peewee.CharField(default="scheduled_queries")
     created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
