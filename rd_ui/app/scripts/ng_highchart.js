@@ -308,22 +308,6 @@
               // We check either for true or undefined for backward compatibility.
               var series = scope.series;
 
-              if (chartOptions['sortX'] === true || chartOptions['sortX'] === undefined) {
-                var seriesCopy = [];
-
-                _.each(series, function (s) {
-                  // make a copy of series data, so we don't override original.
-                  var fieldName = 'x';
-                  if (s.data.length > 0 && _.has(s.data[0], 'name')) {
-                    fieldName = 'name';
-                  };
-
-                  var sorted = _.extend({}, s, {data: _.sortBy(s.data, fieldName)});
-                  seriesCopy.push(sorted);
-                });
-
-                series = seriesCopy;
-              }
 
               // If this is a chart that has just one row for multiple columns, sort
               // by the Y values. For example:
@@ -375,6 +359,23 @@
                     s.data = newData;
                   });
                 }
+              }
+              
+              if (chartOptions['sortX'] === true || chartOptions['sortX'] === undefined) {
+                var seriesCopy = [];
+
+                _.each(series, function (s) {
+                  // make a copy of series data, so we don't override original.
+                  var fieldName = 'x';
+                  if (s.data.length > 0 && _.has(s.data[0], 'name')) {
+                    fieldName = 'name';
+                  };
+
+                  var sorted = _.extend({}, s, {data: _.sortBy(s.data, fieldName)});
+                  seriesCopy.push(sorted);
+                });
+
+                series = seriesCopy;
               }
 
               scope.chart.counters.color = 0;
