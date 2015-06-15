@@ -1,7 +1,7 @@
---- 
-title: Managing Data Sources 
+---
+title: Managing Data Sources
 layout: post
-category: configuration 
+category: configuration
 permalink: /configuration/datasources.html
 ---
 
@@ -106,7 +106,7 @@ Notes:
 
 ### URL
 
-A URL based data source which requests URLs that conforms to the supported [results JSON format](https://github.com/EverythingMe/redash/wiki/re:dash-Data-Source-Results-JSON-Format). 
+A URL based data source which requests URLs that conforms to the supported [results JSON format](https://github.com/EverythingMe/redash/wiki/re:dash-Data-Source-Results-JSON-Format).
 
 Very useful in situations where you want to expose the data without connecting directly to the database.
 
@@ -142,3 +142,22 @@ Notes:
 2. All scripts must be executable, otherwise results won't return
 3. The script data source does not allow relative paths in the form of "../". You may use a relative sub path such as "./mydir/myscript".
 4. All scripts must output to the standard output the supported [results JSON format]({% post_url 2015-02-19-8-json-format %}) and only that, otherwise the data source will not be able to load the data.
+
+
+### Python
+
+#### Execute other queries, manipulate and compute with Python code
+
+The Python data source allows running Python code in a secure and safe environment.
+It won't allow writing files to disk, importing modules that were not pre-approved in the configuration etc.
+
+One of the benefits of using the Python data source is its ability to execute queries (or saved queries) which you can store in a variable and then manipulate/transform/merge with other data and queries.
+
+You can import data analysis libraries such as <a href="http://pandas.pydata.org/">Pandas</a>, <a href="http://www.numpy.org/">NumPy</a> and <a href="http://www.scipy.org/">SciPy</a>.
+
+This saved the trouble of having outside scripts do the synthesis of data from multiple sources to create a single data set that can then be used in dashboards.
+
+* **Type**: Python
+* **Options**:
+ 	* Allowed Modules in a comma separated list (optional).
+	  **NOTE:** You MUST make sure these modules are installed on the machine running the Celery workers
