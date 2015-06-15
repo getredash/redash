@@ -19,31 +19,7 @@ You can try out the demo instance: <a href="http://demo.redash.io" onclick="trac
 
 ### Users
 
-
-<table class="production">
-    <tr>
-        <td align="center"><a href="http://everything.me"><img src="{{ site.baseurl }}/static/img/evme_logo.png" width="84"/></a></td>
-        <td align="center"><a href="http://yallo.com"><img src="{{ site.baseurl }}/static/img/yallo_logo.png" width="84"/></a></td>
-        <td align="center"><a href="http://bringg.com"><img src="{{ site.baseurl }}/static/img/bringg_logo.png" width="84"/></a></td>
-        <td align="center"><a href="http://nextpeer.com"><img src="{{ site.baseurl }}/static/img/nextpeer_logo.png" width="84"/></a></td>
-        <td align="center"><a href="http://fundbox.com"><img src="{{ site.baseurl }}/static/img/fundbox_logo.png" width="54"/></a></td>
-        <td align="center"><a href="http://interlude.fm"><img src="{{ site.baseurl }}/static/img/interlude_logo.png" width="64"/></a></td>
-    </tr>
-    <tr>
-        <td align="center"><a href="http://everything.me">EverythingMe</a></td>
-        <td align="center"><a href="http://yallo.com">Yallo</a></td>
-        <td align="center"><a href="http://bringg.com">Bringg</a></td>
-        <td align="center"><a href="http://nextpeer.com">NextPeer</a></td>
-        <td align="center"><a href="http://fundbox.com">Fundbox</a></td>
-        <td align="center"><a href="http://interlude.fm">Interlude</a></td>
-    </tr>
-    <tr>
-        <td align="center"><a href="http://www.ravellosystems.com/"><img src="{{ site.baseurl }}/static/img/ravello_logo2.jpg" width="74"/></a></td>
-    </tr>
-    <tr>
-        <td align="center"><a href="http://www.ravellosystems.com/">Ravello Systems</a></td>
-    </tr>
-</table>
+{% include usedby.html %}
 
 ### Getting Started
 
