@@ -33,6 +33,14 @@ TYPES_MAP = {
 
 date_regex = re.compile("ISODate\(\"(.*)\"\)", re.IGNORECASE)
 
+class MongoDBJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+
+        super(MongoDBJSONEncoder, self).default(o)
+
+
 # Simple query example:
 #
 # {
@@ -265,7 +273,7 @@ class MongoDB(BaseQueryRunner):
             "rows": rows
         }
         error = None
-        json_data = json.dumps(data, cls=JSONEncoder)
+        json_data = json.dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
 
