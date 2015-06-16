@@ -255,10 +255,6 @@ class MongoDB(BaseQueryRunner):
                         "type": TYPES_MAP.get(type(r[k]), TYPE_STRING)
                     })
 
-                # Convert ObjectId to string
-                if type(r[k]) == ObjectId:
-                    r[k] = str(r[k])
-
             rows.append(r)
 
         if f:
