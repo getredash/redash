@@ -38,7 +38,7 @@ class MongoDBJSONEncoder(JSONEncoder):
         if isinstance(o, ObjectId):
             return str(o)
 
-        super(MongoDBJSONEncoder, self).default(o)
+        return super(MongoDBJSONEncoder, self).default(o)
 
 
 # Simple query example:
