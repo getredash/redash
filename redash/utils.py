@@ -95,7 +95,7 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, decimal.Decimal):
             return float(o)
 
-        if isinstance(o, datetime.date) or isinstance(o, datetime.datetime):
+        if isinstance(o, datetime.date):
             return o.isoformat()
             
         super(JSONEncoder, self).default(o)
