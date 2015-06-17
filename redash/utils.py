@@ -97,7 +97,7 @@ class JSONEncoder(json.JSONEncoder):
 
         if isinstance(o, datetime.date):
             return o.isoformat()
-
+            
         super(JSONEncoder, self).default(o)
 
 
