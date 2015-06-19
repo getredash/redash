@@ -27,7 +27,7 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 
 ## Getting Started
 
-* [Setting up re:dash instance](https://github.com/EverythingMe/redash/wiki/Setting-up-re:dash-instance) (includes links to ready made AWS/GCE images).
+* [Setting up re:dash instance](http://redash.io/deployment/setup.html) (includes links to ready made AWS/GCE images).
 * Additional documentation in the [Wiki](https://github.com/everythingme/redash/wiki).
 
 
