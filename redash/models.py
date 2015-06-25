@@ -395,7 +395,7 @@ class Query(ModelTimestampsMixin, BaseModel):
 
         if with_user:
             d['user'] = self.user.to_dict()
-            d['last_modified_by'] = self.last_modified_by.to_dict()
+            d['last_modified_by'] = self.last_modified_by.to_dict() if self.last_modified_by is not None else None
         else:
             d['user_id'] = self._data['user']
 
