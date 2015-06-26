@@ -29,3 +29,4 @@ click==3.3
 RestrictedPython==3.6.0
 wtf-peewee==0.2.3
 pysaml2==2.4.0
+pycrypto==2.6.1

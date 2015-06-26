@@ -18,6 +18,8 @@ app = Flask(__name__,
 api = Api(app)
 init_admin(app)
 
+app.config['SERVER_NAME'] = settings.SERVER_NAME
+
 # configure our database
 settings.DATABASE_CONFIG.update({'threadlocals': True})
 app.config['DATABASE'] = settings.DATABASE_CONFIG
