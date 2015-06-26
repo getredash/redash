@@ -8,7 +8,7 @@ FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 deps:
 	cd rd_ui && npm install
 	cd rd_ui && npm install -g bower grunt-cli
-	cd rd_ui && bower install
+	cd rd_ui && bower install --config.interactive=false --allow-root
 	cd rd_ui && grunt build
 
 pack:
