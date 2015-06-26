@@ -23,13 +23,10 @@ def get_saml_client():
     The configuration is a hash for use by saml2.config.Config
     '''
 
-    acs_url = url_for(
-        "saml_auth.idp_initiated",
-        _external=True)
-    https_acs_url = url_for(
-        "saml_auth.idp_initiated",
-        _external=True,
-        _scheme='https')
+    if settings.SAML_CALLBACK_SERVER_NAME:
+        acs_url=settings.SAML_CALLBACK_SERVER_NAME + url_for("saml_auth.idp_initiated")
+    else:    
+        acs_url = url_for("saml_auth.idp_initiated",_external=True)
 
     # NOTE:
     #   Ideally, this should fetch the metadata and pass it to
@@ -55,9 +52,7 @@ def get_saml_client():
                 'endpoints': {
                     'assertion_consumer_service': [
                         (acs_url, BINDING_HTTP_REDIRECT),
-                        (acs_url, BINDING_HTTP_POST),
-                        (https_acs_url, BINDING_HTTP_REDIRECT),
-                        (https_acs_url, BINDING_HTTP_POST)
+                        (acs_url, BINDING_HTTP_POST)
                     ],
                 },
                 # Don't verify that the incoming requests originate from us via
