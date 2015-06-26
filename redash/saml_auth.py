@@ -99,9 +99,7 @@ def idp_initiated():
         logger.debug("Creating user object (%r)", name)
         user_object = models.User.create(name=name, email=email, groups=models.User.DEFAULT_GROUPS)
 
-    user = User(email)
-    session['saml_attributes'] = authn_response.ava
-    login_user(user)
+    login_user(user_object, remember=True)
     url = url_for('index')
 
     return redirect(url)
