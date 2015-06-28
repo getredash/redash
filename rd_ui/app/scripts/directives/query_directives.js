@@ -139,6 +139,8 @@
 
               additionalHints = _.unique(keywords);
             }
+
+            codemirror.refresh();
           });
 
           $scope.$watch('syntax', function(syntax) {
