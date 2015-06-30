@@ -48,6 +48,19 @@
 
             {% endif %}
 
+            {% if show_saml_login %}
+
+            <div class="row">
+                <a href="/saml/login">SAML Login</a>
+            </div>
+
+            <div class="login-or">
+                <hr class="hr-or">
+                <span class="span-or">or</span>
+            </div>
+
+            {% endif %}
+
             <form role="form" method="post" name="login">
                 <div class="form-group">
                     <label for="inputUsernameEmail">Username or email</label>

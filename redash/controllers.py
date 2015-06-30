@@ -66,7 +66,11 @@ def login():
         return redirect(request.args.get('next') or '/')
 
     if not settings.PASSWORD_LOGIN_ENABLED:
-        return redirect(url_for("google_oauth.authorize", next=request.args.get('next')))
+        if settings.SAML_LOGIN_ENABLED:
+            return redirect(url_for("saml_auth.sp_initiated", next=request.args.get('next')))
+        else:
+            return redirect(url_for("google_oauth.authorize", next=request.args.get('next')))
+
 
     if request.method == 'POST':
         user = models.User.select().where(models.User.email == request.form['username']).first()
@@ -80,8 +84,8 @@ def login():
                            analytics=settings.ANALYTICS,
                            next=request.args.get('next'),
                            username=request.form.get('username', ''),
-                           show_google_openid=settings.GOOGLE_OAUTH_ENABLED)
-
+                           show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
+                           show_saml_login=settings.SAML_LOGIN_ENABLED)
 
 @app.route('/logout')
 def logout():
