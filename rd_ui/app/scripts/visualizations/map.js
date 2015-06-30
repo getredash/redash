@@ -144,11 +144,9 @@
                 }
 
                 var obj_description = '<ul style="list-style-type: none;padding-left: 0">';
-
                 for (var k in queryData[row]){
                   obj_description += "<li>" + k + ": " + queryData[row][k] + "</li>";
                 }
-
                 obj_description += '</ul>';
                 feature.bindPopup(obj_description);
                 tmp_features.push(feature);
@@ -164,8 +162,14 @@
                 f.addTo($scope.map)
               });
 
+              $scope.map.on('moveend', function(e) {
+                $scope.visualization.options.bounds = $scope.map.getBounds();
+              });
+
               var group = new L.featureGroup($scope.features);
-              $scope.map.fitBounds(group.getBounds());
+              var b = $scope.visualization.options.bounds;
+              $scope.map.fitBounds(b ?
+               [[b._southWest.lat, b._southWest.lng],[b._northEast.lat, b._northEast.lng]]: group.getBounds());
 
               // We redraw the map if it was loaded in a hidden tab
               if ($('a[href="#'+$scope.visualization.id+'"]').length > 0) {
@@ -173,10 +177,16 @@
                   setTimeout(function() {
                     $scope.map.invalidateSize(false);
                     var group = new L.featureGroup($scope.features);
-                    $scope.map.fitBounds(group.getBounds());
+                    var b = $scope.visualization.options.bounds;
+                    $scope.map.fitBounds(b ?
+                      [[b._southWest.lat, b._southWest.lng],[b._northEast.lat, b._northEast.lng]]: group.getBounds());
                   },500);
                 });
               }
+
+
+
+
             }
           }, true);
       }
