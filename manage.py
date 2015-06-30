@@ -2,12 +2,15 @@
 """
 CLI to manage redash.
 """
+import json
+
 from flask.ext.script import Manager
 
 from redash import settings, models, __version__
 from redash.wsgi import app
 from redash.import_export import import_manager
 from redash.cli import users, database, data_sources
+from redash.monitor import get_status
 
 manager = Manager(app)
 manager.add_command("database", database.manager)
@@ -21,6 +24,9 @@ def version():
     """Displays re:dash version."""
     print __version__
 
+@manager.command
+def status():
+    print json.dumps(get_status(), indent=2)
 
 @manager.command
 def runworkers():
