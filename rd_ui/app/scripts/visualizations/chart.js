@@ -163,7 +163,7 @@
                   scope.visualization.options.seriesOptions[s] = {'type': scope.visualization.options.globalSeriesType, 'yAxis': 0};
                 }
                 scope.visualization.options.seriesOptions[s].zIndex = scope.visualization.options.seriesOptions[s].zIndex === undefined ? i : scope.visualization.options.seriesOptions[s].zIndex;
-
+                scope.visualization.options.seriesOptions[s].index = scope.visualization.options.seriesOptions[s].index === undefined ? i : scope.visualization.options.seriesOptions[s].index;
               });
               scope.zIndexes = _.range(scope.series.length);
               scope.yAxes = [[0, 'left'], [1, 'right']];
