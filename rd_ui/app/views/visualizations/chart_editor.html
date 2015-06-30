@@ -109,6 +109,15 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="control-label col-sm-3">Index</label>
+
+                        <div class="col-sm-9">
+                            <select required ng-model="visualization.options.seriesOptions[seriesName].index"
+                                    ng-options="o as o for o in zIndexes"
+                                    class="form-control"></select>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="control-label col-sm-3">y Axis</label>
 
                         <div class="col-sm-9">
