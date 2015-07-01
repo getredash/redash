@@ -111,7 +111,9 @@
               }).join('');
             };
 
-
+            // Following line is used to avoid "Couldn't autodetect L.Icon.Default.imagePath" error
+            // https://github.com/Leaflet/Leaflet/issues/766#issuecomment-7741039
+            L.Icon.Default.imagePath = L.Icon.Default.imagePath || "http://api.tiles.mapbox.com/mapbox.js/v2.2.1/images";
 
             function getBounds(e) {
               $scope.visualization.options.bounds = $scope.map.getBounds();
