@@ -10,7 +10,7 @@
       '</map-renderer>';
 
     var editTemplate = '<map-editor></map-editor>';
-    var defaultOptions = {};
+    var defaultOptions = { 'height': 500 };
 
     VisualizationProvider.registerVisualization({
       type: 'MAP',
@@ -27,6 +27,18 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/map.html',
       link: function($scope, elm, attrs) {
+
+        var setBounds = function(){
+          var b = $scope.visualization.options.bounds;
+
+          if(b){
+            $scope.map.fitBounds([[b._southWest.lat, b._southWest.lng],[b._northEast.lat, b._northEast.lng]]);
+          } else if ($scope.features.length > 0){
+            var group= new L.featureGroup($scope.features);
+            $scope.map.fitBounds(group.getBounds());
+          }
+        };
+
         $scope.$watch('[queryResult && queryResult.getData(), visualization.options.draw,visualization.options.latColName,'+
             'visualization.options.lonColName,visualization.options.classify,visualization.options.classify]',
           function() {
@@ -99,16 +111,7 @@
               }).join('');
             };
 
-            var setBounds = function(){
-              var b = $scope.visualization.options.bounds;
 
-              if(b){
-                $scope.map.fitBounds([[b._southWest.lat, b._southWest.lng],[b._northEast.lat, b._northEast.lng]]);
-              } else if ($scope.features.length > 0){
-                var group= new L.featureGroup($scope.features);
-                $scope.map.fitBounds(group.getBounds());
-              }
-            };
 
             function getBounds(e) {
               $scope.visualization.options.bounds = $scope.map.getBounds();
@@ -134,8 +137,7 @@
               });
 
               if (!$scope.map) {
-                $(elm[0].children[0]).replaceWith($("<div style='margin:1%;height:"+$scope.visualization.options.height+"px;width:95%;'></div>"));
-                $scope.map = L.map(elm[0].children[0])
+                $scope.map = L.map(elm[0].children[0].children[0])
               }
 
               L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
@@ -204,6 +206,14 @@
 
             }
           }, true);
+
+        $scope.$watch('visualization.options.height', function() {
+
+          if (!$scope.map) return;
+          $scope.map.invalidateSize(false);
+          setBounds();
+
+        });
       }
     }
   });
@@ -215,6 +225,8 @@
       link: function($scope, elm, attrs) {
         $scope.visualization.options.draw_options = ['Marker','Color'];
         $scope.visualization.options.classify_columns = $scope.queryResult.columnNames.concat('none');
+
+        //FIXME: The following line should be removed when defaultOptions work
         $scope.visualization.options.height = $scope.visualization.options.height || 500;
       }
     }
