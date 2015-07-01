@@ -139,7 +139,7 @@
 
                 if ($scope.visualization.options.draw == 'Marker') {
                   feature = marker(queryData[row][lat_col], queryData[row][lon_col])
-                } else if ($scope.visualization.options.draw == 'Heatmap') {
+                } else if ($scope.visualization.options.draw == 'Color') {
                   feature = heatpoint(queryData[row][lat_col], queryData[row][lon_col], queryData[row])
                 }
 
@@ -198,7 +198,7 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/map_editor.html',
       link: function($scope, elm, attrs) {
-        $scope.visualization.options.draw_options = ['Marker','Heatmap'];
+        $scope.visualization.options.draw_options = ['Marker','Color'];
         $scope.visualization.options.classify_columns = $scope.queryResult.columnNames.concat('none')
       }
     }
