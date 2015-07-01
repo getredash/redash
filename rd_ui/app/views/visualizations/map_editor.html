@@ -1,5 +1,12 @@
 <div class="form-horizontal">
     <div class="form-group">
+        <label class="col-lg-2">Map height (px)</label>
+        <div class="col-sm-4">
+            <input class="form-control" type="text" ng-model = "visualization.options.height" />
+        </div>
+    </div>
+
+    <div class="form-group">
         <label class="col-lg-2">Draw option</label>
         <div class="col-sm-4">
             <select ng-options="opt for opt in visualization.options.draw_options" ng-model="visualization.options.draw" class="form-control"></select>
