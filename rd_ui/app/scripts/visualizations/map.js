@@ -116,7 +116,7 @@
 
             // Following line is used to avoid "Couldn't autodetect L.Icon.Default.imagePath" error
             // https://github.com/Leaflet/Leaflet/issues/766#issuecomment-7741039
-            L.Icon.Default.imagePath = L.Icon.Default.imagePath || "http://api.tiles.mapbox.com/mapbox.js/v2.2.1/images";
+            L.Icon.Default.imagePath = L.Icon.Default.imagePath || "//api.tiles.mapbox.com/mapbox.js/v2.2.1/images";
 
             function getBounds(e) {
               $scope.visualization.options.bounds = $scope.map.getBounds();
@@ -145,7 +145,7 @@
                 $scope.map = L.map(elm[0].children[0].children[0])
               }
 
-              L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+              L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
               }).addTo($scope.map);
 
