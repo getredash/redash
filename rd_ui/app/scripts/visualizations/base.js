@@ -152,6 +152,8 @@
           if (type && oldType != type && scope.visualization && !scope.visForm.name.$dirty) {
             scope.visualization.name = _.string.titleize(scope.visualization.type);
           }
+
+          scope.visualization.options = Visualization.visualizations[scope.visualization.type].defaultOptions;
         });
 
         scope.submit = function () {

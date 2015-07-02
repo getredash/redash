@@ -10,7 +10,10 @@
       '</map-renderer>';
 
     var editTemplate = '<map-editor></map-editor>';
-    var defaultOptions = { 'height': 500 };
+    var defaultOptions = {
+      'height': 500,
+      'draw': 'Marker'
+    };
 
     VisualizationProvider.registerVisualization({
       type: 'MAP',
@@ -227,9 +230,6 @@
       link: function($scope, elm, attrs) {
         $scope.visualization.options.draw_options = ['Marker','Color'];
         $scope.visualization.options.classify_columns = $scope.queryResult.columnNames.concat('none');
-
-        //FIXME: The following line should be removed when defaultOptions work
-        $scope.visualization.options.height = $scope.visualization.options.height || 500;
       }
     }
   });
