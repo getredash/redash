@@ -153,7 +153,10 @@
             scope.visualization.name = _.string.titleize(scope.visualization.type);
           }
 
-          scope.visualization.options = Visualization.visualizations[scope.visualization.type].defaultOptions;
+          if (type && oldType != type && scope.visualization) {
+            scope.visualization.options = Visualization.visualizations[scope.visualization.type].defaultOptions;
+          }
+
         });
 
         scope.submit = function () {
