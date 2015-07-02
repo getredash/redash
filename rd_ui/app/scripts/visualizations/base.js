@@ -121,7 +121,7 @@
         query: '=',
         queryResult: '=',
         visualization: '=?',
-        openEditor: '=?',
+        openEditor: '@',
         onNewSuccess: '=?'
       },
       link: function (scope, element, attrs) {
@@ -150,8 +150,7 @@
         scope.$watch('visualization.type', function (type, oldType) {
           // if not edited by user, set name to match type
           if (type && oldType != type && scope.visualization && !scope.visForm.name.$dirty) {
-            // poor man's titlecase
-            scope.visualization.name = scope.visualization.type[0] + scope.visualization.type.slice(1).toLowerCase();
+            scope.visualization.name = _.string.titleize(scope.visualization.type);
           }
         });
 
