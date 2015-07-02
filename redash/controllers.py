@@ -12,7 +12,7 @@ import time
 import logging
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
-    session, url_for
+    session, url_for, current_app
 from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user
 import sqlparse
@@ -547,7 +547,12 @@ api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
 
 @app.route('/<path:filename>')
 def send_static(filename):
-    return send_from_directory(settings.STATIC_ASSETS_PATH, filename)
+    if current_app.debug:
+        cache_timeout = 0
+    else:
+        cache_timeout = None
+
+    return send_from_directory(settings.STATIC_ASSETS_PATH, filename, cache_timeout=cache_timeout)
 
 
 if __name__ == '__main__':
