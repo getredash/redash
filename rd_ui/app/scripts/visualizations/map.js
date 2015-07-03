@@ -12,7 +12,9 @@
     var editTemplate = '<map-editor></map-editor>';
     var defaultOptions = {
       'height': 500,
-      'draw': 'Marker'
+      'draw': 'Marker',
+      'draw_options' : ['Marker','Color'],
+      'classify':'none'
     };
 
     VisualizationProvider.registerVisualization({
@@ -228,8 +230,7 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/map_editor.html',
       link: function($scope, elm, attrs) {
-        $scope.visualization.options.draw_options = ['Marker','Color'];
-        $scope.visualization.options.classify_columns = $scope.queryResult.columnNames.concat('none');
+        $scope.classify_columns = $scope.queryResult.columnNames.concat('none');
       }
     }
   });
