@@ -13,7 +13,6 @@
     var defaultOptions = {
       'height': 500,
       'draw': 'Marker',
-      'draw_options' : ['Marker','Color'],
       'classify':'none'
     };
 
@@ -230,6 +229,7 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/map_editor.html',
       link: function($scope, elm, attrs) {
+        $scope.draw_options = ['Marker','Color'];
         $scope.classify_columns = $scope.queryResult.columnNames.concat('none');
       }
     }
