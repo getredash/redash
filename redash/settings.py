@@ -86,6 +86,7 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.pg',
     'redash.query_runner.script',
     'redash.query_runner.url',
+    'redash.query_runner.influx_db',
 ])))
 
 # Features:
