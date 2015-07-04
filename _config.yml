@@ -1,5 +1,5 @@
 source: .
-version: 0.5.0
+version: 0.6.2
 highlighter: pygments
 baseurl: ''
 markdown: redcarpet
