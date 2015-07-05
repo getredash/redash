@@ -98,10 +98,8 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-# REDASH_VERSION=${REDASH_VERSION-0.4.0.b589}
-# modified by @fedex1 3/15/2015 seems to be the latest version at this point in time. 
-REDASH_VERSION=${REDASH_VERSION-0.6.0.b722}
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION/.b/%2Bb}/redash.$REDASH_VERSION.tar.gz"
+REDASH_VERSION=${REDASH_VERSION-0.6.2.b887}
+LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
 REDASH_TARBALL=/tmp/redash.tar.gz
 REDASH_TARBALL=/tmp/redash.tar.gz
