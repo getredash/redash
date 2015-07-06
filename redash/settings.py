@@ -80,6 +80,7 @@ ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")
 # Query Runners
 QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join([
     'redash.query_runner.big_query',
+    'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
     'redash.query_runner.mysql',
