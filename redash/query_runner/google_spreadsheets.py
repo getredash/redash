@@ -57,7 +57,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
                     'title': 'Private Key Path'
                 }
             },
-            'required': ['serviceAccount', 'privateKey']
+            'required': ['email', 'privateKey']
         }
 
     def __init__(self, configuration_json):
