@@ -36,6 +36,10 @@ def _load_key(filename):
 
 class GoogleSpreadsheet(BaseQueryRunner):
     @classmethod
+    def type(cls):
+        return "google_spreadsheets"
+
+    @classmethod
     def enabled(cls):
         return enabled
 
