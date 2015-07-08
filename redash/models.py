@@ -153,7 +153,7 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
     groups = ArrayField(peewee.CharField, default=DEFAULT_GROUPS)
-    api_key = peewee.CharField(max_length=40)
+    api_key = peewee.CharField(max_length=40, unique=True)
 
     class Meta:
         db_table = 'users'
