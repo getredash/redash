@@ -4,6 +4,7 @@ import codecs
 import decimal
 import datetime
 import json
+import random
 import re
 import hashlib
 import sqlparse
@@ -87,6 +88,14 @@ def gen_query_hash(sql):
     sql = "".join(sql.split()).lower()
     return hashlib.md5(sql.encode('utf-8')).hexdigest()
 
+
+def generate_token(length):
+    chars = ('abcdefghijklmnopqrstuvwxyz'
+             'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+             '0123456789')
+
+    rand = random.SystemRandom()
+    return ''.join(rand.choice(chars) for x in range(length))
 
 class JSONEncoder(json.JSONEncoder):
     """Custom JSON encoding class, to handle Decimal and datetime.date instances.

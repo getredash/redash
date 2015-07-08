@@ -15,6 +15,7 @@ import psycopg2
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner
+from utils import generate_token
 
 
 class Database(object):
@@ -152,6 +153,7 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
     email = peewee.CharField(max_length=320, index=True, unique=True)
     password_hash = peewee.CharField(max_length=128, null=True)
     groups = ArrayField(peewee.CharField, default=DEFAULT_GROUPS)
+    api_key = peewee.CharField(max_length=40, unique=True)
 
     class Meta:
         db_table = 'users'
@@ -168,6 +170,12 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
         self._allowed_tables = None
+
+    def pre_save(self, created):
+        super(User, self).pre_save(created)
+
+        if not self.api_key:
+            self.api_key = generate_token(40)
 
     @property
     def permissions(self):
@@ -187,6 +195,10 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
     @classmethod
     def get_by_email(cls, email):
         return cls.get(cls.email == email)
+
+    @classmethod
+    def get_by_api_key(cls, api_key):
+        return cls.get(cls.api_key == api_key)
 
     def __unicode__(self):
         return '%r, %r' % (self.name, self.email)

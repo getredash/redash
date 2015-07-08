@@ -1,11 +1,9 @@
-import functools
 import hashlib
 import hmac
 import time
 import logging
 
-from flask import request, make_response, redirect, url_for
-from flask.ext.login import LoginManager, login_user, current_user, logout_user
+from flask.ext.login import LoginManager
 
 from redash import models, settings, google_oauth, saml_auth
 
@@ -23,78 +21,72 @@ def sign(key, path, expires):
     return h.hexdigest()
 
 
-class Authentication(object):
-    def verify_authentication(self):
-        return False
-
-    def required(self, fn):
-        @functools.wraps(fn)
-        def decorated(*args, **kwargs):
-            if current_user.is_authenticated() or self.verify_authentication():
-                return fn(*args, **kwargs)
-
-            return make_response(redirect(url_for("login", next=request.url)))
-
-        return decorated
+@login_manager.user_loader
+def load_user(user_id):
+    return models.User.get_by_id(user_id)
 
 
-class ApiKeyAuthentication(Authentication):
-    def verify_authentication(self):
-        api_key = request.args.get('api_key')
-        query_id = request.view_args.get('query_id', None)
+def hmac_load_user_from_request(request):
+    signature = request.args.get('signature')
+    expires = float(request.args.get('expires') or 0)
+    query_id = request.view_args.get('query_id', None)
+    user_id = request.args.get('user_id', None)
 
-        if query_id and api_key:
-            query = models.Query.get(models.Query.id == query_id)
+    # TODO: 3600 should be a setting
+    if signature and time.time() < expires <= time.time() + 3600:
+        if user_id:
+            user = models.User.get_by_id(user_id)
+            calculated_signature = sign(user.api_key, request.path, expires)
 
-            if query.api_key and api_key == query.api_key:
-                login_user(models.ApiUser(query.api_key), remember=False)
-                return True
+            if user.api_key and signature == calculated_signature:
+                return user
 
-        return False
-
-
-class HMACAuthentication(Authentication):
-    def verify_authentication(self):
-        signature = request.args.get('signature')
-        expires = float(request.args.get('expires') or 0)
-        query_id = request.view_args.get('query_id', None)
-
-        # TODO: 3600 should be a setting
-        if signature and query_id and time.time() < expires <= time.time() + 3600:
+        if query_id:
             query = models.Query.get(models.Query.id == query_id)
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
-                login_user(models.ApiUser(query.api_key), remember=False)
-                return True
+                return models.ApiUser(query.api_key)
 
-        return False
+    return None
 
-
-@login_manager.user_loader
-def load_user(user_id):
-    # If the user was previously logged in as api user, the user_id will be the api key and will raise an exception as
-    # it can't be casted to int.
-    if isinstance(user_id, basestring) and not user_id.isdigit():
+def get_user_from_api_key(api_key, query_id):
+    if not api_key:
         return None
 
-    return models.User.select().where(models.User.id == user_id).first()
+    user = None
+    try:
+        user = models.User.get_by_api_key(api_key)
+    except models.User.DoesNotExist:
+        if query_id:
+            query = models.Query.get_by_id(query_id)
+            if query and query.api_key == api_key:
+                user = models.ApiUser(api_key)
+
+    return user
+
+def api_key_load_user_from_request(request):
+    api_key = request.args.get('api_key', None)
+    query_id = request.view_args.get('query_id', None)
+
+    user = get_user_from_api_key(api_key, query_id)
+    return user
 
 
 def setup_authentication(app):
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
+    login_manager.login_view = 'login'
     app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)
 
     if settings.AUTH_TYPE == 'hmac':
-        auth = HMACAuthentication()
+        login_manager.request_loader(hmac_load_user_from_request)
     elif settings.AUTH_TYPE == 'api_key':
-        auth = ApiKeyAuthentication()
+        login_manager.request_loader(api_key_load_user_from_request)
     else:
         logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
-        auth = HMACAuthentication()
+        login_manager.request_loader(hmac_load_user_from_request)
 
-    return auth
 
