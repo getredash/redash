@@ -14,11 +14,11 @@ import logging
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for, current_app
 from flask.ext.restful import Resource, abort
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 import sqlparse
 
-from redash import redis_connection, statsd_client, models, settings, utils, __version__
-from redash.wsgi import app, auth, api
+from redash import statsd_client, models, settings, utils
+from redash.wsgi import app, api
 from redash.tasks import QueryTask, record_event
 from redash.cache import headers as cache_headers
 from redash.permissions import require_permission
@@ -38,7 +38,7 @@ def ping():
 @app.route('/queries/<query_id>/<anything>')
 @app.route('/personal')
 @app.route('/')
-@auth.required
+@login_required
 def index(**kwargs):
     email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
@@ -72,13 +72,15 @@ def login():
         else:
             return redirect(url_for("google_oauth.authorize", next=request.args.get('next')))
 
-
     if request.method == 'POST':
-        user = models.User.select().where(models.User.email == request.form['username']).first()
-        if user and user.verify_password(request.form['password']):
-            remember = ('remember' in request.form)
-            login_user(user, remember=remember)
-            return redirect(request.args.get('next') or '/')
+        try:
+            user = models.User.get_by_email(request.form['username'])
+            if user and user.verify_password(request.form['password']):
+                remember = ('remember' in request.form)
+                login_user(user, remember=remember)
+                return redirect(request.args.get('next') or '/')
+        except models.User.DoesNotExist:
+            pass
 
     return render_template("login.html",
                            name=settings.NAME,
@@ -96,7 +98,7 @@ def logout():
     return redirect('/login')
 
 @app.route('/status.json')
-@auth.required
+@login_required
 @require_permission('admin')
 def status_api():
     status = get_status()
@@ -105,7 +107,7 @@ def status_api():
 
 
 @app.route('/api/queries/format', methods=['POST'])
-@auth.required
+@login_required
 def format_sql_query():
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
@@ -114,7 +116,7 @@ def format_sql_query():
 
 
 @app.route('/queries/new', methods=['POST'])
-@auth.required
+@login_required
 def create_query_route():
     query = request.form.get('query', None)
     data_source_id = request.form.get('data_source_id', None)
@@ -132,7 +134,7 @@ def create_query_route():
 
 
 class BaseResource(Resource):
-    decorators = [auth.required]
+    decorators = [login_required]
 
     def __init__(self, *args, **kwargs):
         super(BaseResource, self).__init__(*args, **kwargs)
