@@ -505,7 +505,32 @@
     var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, actions);
 
     return DataSourceResource;
-  }
+  };
+
+  var AlertSubscription = function ($resource) {
+    var resource = $resource('/api/alerts/:alertId/subscriptions/:userId', {alertId: '@alert_id', userId: '@user.id'});
+    return resource;
+  };
+
+  var Alert = function ($resource, $http) {
+    var actions = {
+      save: {
+        method: 'POST',
+        transformRequest: [function(data) {
+          var newData = _.extend({}, data);
+          if (newData.query_id === undefined) {
+            newData.query_id = newData.query.id;
+            delete newData.query;
+          }
+
+          return newData;
+        }].concat($http.defaults.transformRequest)
+      }
+    };
+    var resource = $resource('/api/alerts/:id', {id: '@id'}, actions);
+
+    return resource;
+  };
 
   var Widget = function ($resource, Query) {
     var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
@@ -532,5 +557,7 @@
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
+      .factory('Alert', ['$resource', '$http', Alert])
+      .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget]);
 })();

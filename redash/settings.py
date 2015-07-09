@@ -40,6 +40,17 @@ def parse_boolean(str):
     return json.loads(str.lower())
 
 
+def all_settings():
+    from types import ModuleType
+
+    settings = {}
+    for name, item in globals().iteritems():
+        if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
+            settings[name] = item
+
+    return settings
+
+
 NAME = os.environ.get('REDASH_NAME', 're:dash')
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0")
@@ -80,6 +91,19 @@ COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e23
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
 ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")
+
+# Mail settings:
+MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
+MAIL_PORT = int(os.environ.get('REDASH_MAIL_PORT', 25))
+MAIL_USE_TLS = parse_boolean(os.environ.get('REDASH_MAIL_USE_TLS', 'false'))
+MAIL_USE_SSL = parse_boolean(os.environ.get('REDASH_MAIL_USE_SSL', 'false'))
+MAIL_USERNAME = os.environ.get('REDASH_MAIL_USERNAME', None)
+MAIL_PASSWORD = os.environ.get('REDASH_MAIL_PASSWORD', None)
+MAIL_DEFAULT_SENDER = os.environ.get('REDASH_MAIL_DEFAULT_SENDER', None)
+MAIL_MAX_EMAILS = os.environ.get('REDASH_MAIL_MAX_EMAILS', None)
+MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHMENTS', 'false'))
+
+HOST = ""
 
 # CORS settings for the Query Result API (and possbily future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN

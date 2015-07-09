@@ -3,7 +3,7 @@ from flask import Flask, make_response
 from werkzeug.wrappers import Response
 from flask.ext.restful import Api
 
-from redash import settings, utils
+from redash import settings, utils, mail
 from redash.models import db
 from redash.admin import init_admin
 
@@ -22,7 +22,9 @@ init_admin(app)
 # configure our database
 settings.DATABASE_CONFIG.update({'threadlocals': True})
 app.config['DATABASE'] = settings.DATABASE_CONFIG
+app.config.update(settings.all_settings())
 db.init_app(app)
+mail.init_app(app)
 
 from redash.authentication import setup_authentication
 setup_authentication(app)

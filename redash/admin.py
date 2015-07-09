@@ -53,7 +53,8 @@ class PasswordHashField(fields.PasswordField):
 class PgModelConverter(CustomModelConverter):
     def __init__(self, view, additional=None):
         additional = {ArrayField: self.handle_array_field,
-                      DateTimeTZField: self.handle_datetime_tz_field}
+                      DateTimeTZField: self.handle_datetime_tz_field,
+                      }
         super(PgModelConverter, self).__init__(view, additional)
         self.view = view
 
@@ -104,13 +105,8 @@ class DataSourceModelView(BaseModelView):
 def init_admin(app):
     admin = Admin(app, name='re:dash admin')
 
-    views = {
-        models.User: UserModelView(models.User),
-        models.DataSource: DataSourceModelView(models.DataSource)
-    }
+    admin.add_view(UserModelView(models.User))
+    admin.add_view(DataSourceModelView(models.DataSource))
 
-    for m in models.all_models:
-        if m in views:
-            admin.add_view(views[m])
-        else:
-            admin.add_view(BaseModelView(m))
+    for m in (models.QueryResult, models.Query, models.Dashboard, models.Visualization, models.Widget, models.ActivityLog, models.Group, models.Event):
+        admin.add_view(BaseModelView(m))
