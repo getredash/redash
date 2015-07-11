@@ -89,8 +89,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         values = query.split("|")
         key = values[0] #key of the spreadsheet
-        worksheet_num = int(values[1]) or 0 # if spreadsheet contains more than one worksheet - this is the number of it
-        #logger.debig("%s - worksheet %s" % (key, worksheet_num))
+        worksheet_num = 0 if len(values != 2) else int(values[1])# if spreadsheet contains more than one worksheet - this is the number of it
         try:
             spreadsheet_service = self._get_spreadsheet_service()
             spreadsheet = spreadsheet_service.open_by_key(key)
