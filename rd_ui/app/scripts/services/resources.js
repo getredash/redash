@@ -95,6 +95,14 @@
       return this.job.error;
     }
 
+    QueryResult.prototype.getLog = function() {
+        if (!this.query_result.data  || !this.query_result.data.log || this.query_result.data.log.length == 0) {
+            return null;
+        }
+
+        return this.query_result.data.log;
+    }
+
     QueryResult.prototype.getUpdatedAt = function () {
       return this.query_result.retrieved_at || this.job.updated_at * 1000.0 || this.updatedAt;
     }

@@ -339,3 +339,7 @@ use this class when you need to keep the original display value
         display: none !important;
     }
 }
+
+.log-container {
+    margin-bottom: 50px;
+}
