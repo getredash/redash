@@ -488,6 +488,22 @@ class QueryResultAPI(BaseResource):
         headers.update(cache_headers)
         return make_response(s.getvalue(), 200, headers)
 
+    @staticmethod
+    def add_access_control_allow_origin_header(headers):
+        if 'Origin' in request.headers:
+            origin = request.headers['Origin']
+
+            if origin in settings.QUERIES_RESULT_CORS:
+                headers['Access-Control-Allow-Origin'] = origin
+                headers['Access-Control-Allow-Credentials'] = 'true'
+                if request.method == 'OPTIONS':
+                    headers['Access-Control-Request-Method'] = 'GET, POST, PUT'
+                    headers['Access-Control-Allow-Headers'] = 'Content-Type'
+
+    @require_permission('view_query')
+    def options(self, query_id=None, query_result_id=None, filetype='json'):
+        self.add_access_control_allow_origin_header(request.headers)
+
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
         if query_result_id is None and query_id is not None:
@@ -517,9 +533,15 @@ class QueryResultAPI(BaseResource):
 
                 record_event.delay(event)
 
+            headers = request.headers
+
+            if len(settings.QUERIES_RESULT_CORS) > 0:
+                self.add_access_control_allow_origin_header(headers)
+
             if filetype == 'json':
                 data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
-                return make_response(data, 200, cache_headers)
+                headers.update(cache_headers)
+                return make_response(data, 200, headers)
             else:
                 return self.csv_response(query_result)
 
@@ -559,6 +581,3 @@ def send_static(filename):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
