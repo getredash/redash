@@ -13,6 +13,10 @@
     <link rel="stylesheet" href="/styles/redash.css">
     <link rel="stylesheet" href="/styles/login.css">
     <!-- endbuild -->
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
 </head>
 <body>
 
@@ -26,13 +30,20 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/"><strong>{{name}}</strong></a>
+        <a class="navbar-brand" href="/"><img src="/images/redash_icon_small.png"/></a>
     </div>
     </div>
 </nav>
 
 <div class="container">
     <div class="row">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning" role="alert">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
 
         <div class="main">
             {% if show_google_openid %}

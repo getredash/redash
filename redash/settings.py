@@ -32,6 +32,10 @@ def array_from_string(str):
     return array
 
 
+def set_from_string(str):
+    return set(array_from_string(str))
+
+
 def parse_boolean(str):
     return json.loads(str.lower())
 
@@ -60,7 +64,7 @@ PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENA
 
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
 # access
-GOOGLE_APPS_DOMAIN = os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", "")
+GOOGLE_APPS_DOMAIN = set_from_string(os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", ""))
 
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")

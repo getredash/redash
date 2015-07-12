@@ -1,25 +1,25 @@
 import logging
 from flask.ext.login import login_user
 import requests
-from flask import redirect, url_for, Blueprint
+from flask import redirect, url_for, Blueprint, flash
 from flask_oauth import OAuth
 from redash import models, settings
 
 logger = logging.getLogger('google_oauth')
 oauth = OAuth()
 
-request_token_params = {'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile', 'response_type': 'code'}
 
-if settings.GOOGLE_APPS_DOMAIN:
-    request_token_params['hd'] = settings.GOOGLE_APPS_DOMAIN
-else:
+if not settings.GOOGLE_APPS_DOMAIN:
     logger.warning("No Google Apps domain defined, all Google accounts allowed.")
 
 google = oauth.remote_app('google',
                           base_url='https://www.google.com/accounts/',
                           authorize_url='https://accounts.google.com/o/oauth2/auth',
                           request_token_url=None,
-                          request_token_params=request_token_params,
+                          request_token_params={
+                              'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
+                              'response_type': 'code'
+                          },
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
                           access_token_params={'grant_type': 'authorization_code'},
@@ -31,7 +31,7 @@ blueprint = Blueprint('google_oauth', __name__)
 
 
 def get_user_profile(access_token):
-    headers = {'Authorization': 'OAuth '+access_token}
+    headers = {'Authorization': 'OAuth {}'.format(access_token)}
     response = requests.get('https://www.googleapis.com/oauth2/v1/userinfo', headers=headers)
 
     if response.status_code == 401:
@@ -41,9 +41,17 @@ def get_user_profile(access_token):
     return response.json()
 
 
+def verify_profile(profile):
+    if not settings.GOOGLE_APPS_DOMAIN:
+        return True
+
+    domain = profile['email'].split('@')[-1]
+    return domain in settings.GOOGLE_APPS_DOMAIN
+
+
 def create_and_login_user(name, email):
     try:
-        user_object = models.User.get(models.User.email == email)
+        user_object = models.User.get_by_email(email)
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
@@ -70,10 +78,17 @@ def authorized(resp):
 
     if access_token is None:
         logger.warning("Access token missing in call back request.")
+        flash("Validation error. Please retry.")
         return redirect(url_for('login'))
 
     profile = get_user_profile(access_token)
     if profile is None:
+        flash("Validation error. Please retry.")
+        return redirect(url_for('login'))
+
+    if not verify_profile(profile):
+        logger.warning("User tried to login with unauthorized domain name: %s", profile['email'])
+        flash("Your Google Apps domain name isn't allowed.")
         return redirect(url_for('login'))
 
     create_and_login_user(profile['name'], profile['email'])
