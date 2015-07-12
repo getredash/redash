@@ -81,7 +81,7 @@ LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
 ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")
 
-QUERIES_RESULT_CORS = set(os.environ.get("REDASH_QUERIES_RESULT_CORS", "").split(","))
+QUERIES_RESULT_CORS = set_from_string(os.environ.get("REDASH_QUERIES_RESULT_CORS", ""))
 
 # Query Runners
 QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join([
