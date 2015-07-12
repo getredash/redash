@@ -343,7 +343,7 @@ class QueryAPI(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
         query = models.Query.get_by_id(query_id)
-        
+
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by']:
             query_def.pop(field, None)
@@ -395,7 +395,7 @@ class VisualizationListAPI(BaseResource):
         kwargs = request.get_json(force=True)
         kwargs['options'] = json.dumps(kwargs['options'])
         kwargs['query'] = kwargs.pop('query_id')
-        
+
         vis = models.Visualization(**kwargs)
         vis.save()
 
@@ -533,7 +533,7 @@ class QueryResultAPI(BaseResource):
 
                 record_event.delay(event)
 
-            headers = request.headers
+            headers = {}
 
             if len(settings.QUERIES_RESULT_CORS) > 0:
                 self.add_access_control_allow_origin_header(headers)
