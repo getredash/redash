@@ -12,7 +12,7 @@ import time
 import logging
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
-    session, url_for, current_app
+    session, url_for, current_app, flash
 from flask.ext.restful import Resource, abort
 from flask_login import current_user, login_user, logout_user, login_required
 import sqlparse
@@ -80,7 +80,7 @@ def login():
                 login_user(user, remember=remember)
                 return redirect(request.args.get('next') or '/')
         except models.User.DoesNotExist:
-            pass
+            flash("Wrong username or password.")
 
     return render_template("login.html",
                            name=settings.NAME,
