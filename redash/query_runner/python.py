@@ -1,6 +1,8 @@
 import sys
+import datetime
 import json
 import logging
+import weakref
 
 from redash.query_runner import *
 from redash import models
@@ -12,96 +14,23 @@ logger = logging.getLogger(__name__)
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import safe_builtins
 
-ALLOWED_MODULES = {}
+class CustomPrint(object):
+    """ CustomPrint redirect "print" calls to be sent as "log" on the result object """
+    def __init__(self, python_runner):
+        self._python_runner = python_runner
 
+    def write(self, text):
+        if self._python_runner()._enable_print_log:
+            if text and text.strip():
+                log_line = "[{0}] {1}".format(datetime.datetime.utcnow().isoformat(), text)
+                self._python_runner()._result["log"].append(log_line)
 
-def custom_write(obj):
-    """
-    Custom hooks which controls the way objects/lists/tuples/dicts behave in
-    RestrictedPython
-    """
-    return obj
-
-
-def custom_import(name, globals=None, locals=None, fromlist=(), level=0):
-    if name in ALLOWED_MODULES:
-        m = None
-        if ALLOWED_MODULES[name] is None:
-            m = importlib.import_module(name)
-            ALLOWED_MODULES[name] = m
-        else:
-            m = ALLOWED_MODULES[name]
-
-        return m
-
-    raise Exception("'{0}' is not configured as a supported import module".format(name))
-
-def custom_get_item(obj, key):
-    return obj[key]
-
-def custom_get_iter(obj):
-    return iter(obj)
-
-def get_query_result(query_id):
-    try:
-        query = models.Query.get_by_id(query_id)
-    except models.Query.DoesNotExist:
-        raise Exception("Query id %s does not exist." % query_id)
-
-    if query.latest_query_data is None:
-        raise Exception("Query does not have results yet.")
-
-    if query.latest_query_data.data is None:
-        raise Exception("Query does not have results yet.")
-
-    return json.loads(query.latest_query_data.data)
-
-
-def execute_query(data_source_name_or_id, query):
-    try:
-        if type(data_source_name_or_id) == int:
-            data_source = models.DataSource.get_by_id(data_source_name_or_id)
-        else:
-            data_source = models.DataSource.get(models.DataSource.name==data_source_name_or_id)
-    except models.DataSource.DoesNotExist:
-        raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
-
-    query_runner = get_query_runner(data_source.type, data_source.options)
-
-    data, error = query_runner.run_query(query)
-    if error is not None:
-        raise Exception(error)
-
-    # TODO: allow avoiding the json.dumps/loads in same process
-    return json.loads(data)
-
-
-def add_result_column(result, column_name, friendly_name, column_type):
-    """ Helper function to add columns inside a Python script running in re:dash in an easier way """
-    if column_type not in SUPPORTED_COLUMN_TYPES:
-        raise Exception("'{0}' is not a supported column type".format(column_type))
-
-    if not "columns" in result:
-        result["columns"] = []
-
-    result["columns"].append({
-        "name" : column_name,
-        "friendly_name" : friendly_name,
-        "type" : column_type
-    })
-
-
-def add_result_row(result, values):
-    if not "rows" in result:
-        result["rows"] = []
-
-    result["rows"].append(values)
+    def __call__(self):
+        return self
 
 
 class Python(BaseQueryRunner):
-    """
-    This is very, very unsafe. Use at your own risk with people you really trust.
-    """
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -129,9 +58,97 @@ class Python(BaseQueryRunner):
 
         self.syntax = "python"
 
+        self._allowed_modules = {}
+        self._result = { "rows" : [], "columns" : [], "log" : [] }
+        self._enable_print_log = True
+
         if self.configuration.get("allowedImportModules", None):
             for item in self.configuration["allowedImportModules"].split(","):
-                ALLOWED_MODULES[item] = None
+                self._allowed_modules[item] = None
+
+    def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
+        if name in self._allowed_modules:
+            m = None
+            if self._allowed_modules[name] is None:
+                m = importlib.import_module(name)
+                self._allowed_modules[name] = m
+            else:
+                m = self._allowed_modules[name]
+
+            return m
+
+        raise Exception("'{0}' is not configured as a supported import module".format(name))
+
+    def custom_write(self, obj):
+        """
+        Custom hooks which controls the way objects/lists/tuples/dicts behave in
+        RestrictedPython
+        """
+        return obj
+
+    def custom_get_item(self, obj, key):
+        return obj[key]
+
+    def custom_get_iter(self, obj):
+        return iter(obj)
+
+    def disable_print_log(self):
+        self._enable_print_log = False
+
+    def enable_print_log(self):
+        self._enable_print_log = True
+
+    def add_result_column(self, result, column_name, friendly_name, column_type):
+        """ Helper function to add columns inside a Python script running in re:dash in an easier way """
+        if column_type not in SUPPORTED_COLUMN_TYPES:
+            raise Exception("'{0}' is not a supported column type".format(column_type))
+
+        if not "columns" in result:
+            result["columns"] = []
+
+        result["columns"].append({
+            "name" : column_name,
+            "friendly_name" : friendly_name,
+            "type" : column_type
+        })
+
+    def add_result_row(self, result, values):
+        if not "rows" in result:
+            result["rows"] = []
+
+        result["rows"].append(values)
+
+    def execute_query(self, data_source_name_or_id, query):
+        try:
+            if type(data_source_name_or_id) == int:
+                data_source = models.DataSource.get_by_id(data_source_name_or_id)
+            else:
+                data_source = models.DataSource.get(models.DataSource.name==data_source_name_or_id)
+        except models.DataSource.DoesNotExist:
+            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+
+        query_runner = get_query_runner(data_source.type, data_source.options)
+
+        data, error = query_runner.run_query(query)
+        if error is not None:
+            raise Exception(error)
+
+        # TODO: allow avoiding the json.dumps/loads in same process
+        return json.loads(data)
+
+    def get_query_result(self, query_id):
+        try:
+            query = models.Query.get_by_id(query_id)
+        except models.Query.DoesNotExist:
+            raise Exception("Query id %s does not exist." % query_id)
+
+        if query.latest_query_data is None:
+            raise Exception("Query does not have results yet.")
+
+        if query.latest_query_data.data is None:
+            raise Exception("Query does not have results yet.")
+
+        return json.loads(query.latest_query_data.data)
 
     def run_query(self, query):
         try:
@@ -139,22 +156,25 @@ class Python(BaseQueryRunner):
 
             code = compile_restricted(query, '<string>', 'exec')
 
-            safe_builtins["_write_"] = custom_write
-            safe_builtins["__import__"] = custom_import
+            safe_builtins["_write_"] = self.custom_write
+            safe_builtins["__import__"] = self.custom_import
             safe_builtins["_getattr_"] = getattr
             safe_builtins["getattr"] = getattr
             safe_builtins["_setattr_"] = setattr
             safe_builtins["setattr"] = setattr
-            safe_builtins["_getitem_"] = custom_get_item
-            safe_builtins["_getiter_"] = custom_get_iter
+            safe_builtins["_getitem_"] = self.custom_get_item
+            safe_builtins["_getiter_"] = self.custom_get_iter
+            safe_builtins["_print_"] = CustomPrint(weakref.ref(self))
 
-            script_locals = { "result" : { "rows" : [], "columns" : [] } }
+            script_locals = { "result" : self._result }
 
             restricted_globals = dict(__builtins__=safe_builtins)
-            restricted_globals["get_query_result"] = get_query_result
-            restricted_globals["execute_query"] = execute_query
-            restricted_globals["add_result_column"] = add_result_column
-            restricted_globals["add_result_row"] = add_result_row
+            restricted_globals["get_query_result"] = self.get_query_result
+            restricted_globals["execute_query"] = self.execute_query
+            restricted_globals["add_result_column"] = self.add_result_column
+            restricted_globals["add_result_row"] = self.add_result_row
+            restricted_globals["disable_print_log"] = self.disable_print_log
+            restricted_globals["enable_print_log"] = self.enable_print_log
 
             restricted_globals["TYPE_DATETIME"] = TYPE_DATETIME
             restricted_globals["TYPE_BOOLEAN"] = TYPE_BOOLEAN
@@ -169,15 +189,13 @@ class Python(BaseQueryRunner):
 
             exec(code) in restricted_globals, script_locals
 
-            if script_locals['result'] is None:
-                raise Exception("result wasn't set to value.")
-
-            json_data = json.dumps(script_locals['result'])
+            json_data = json.dumps(self._result)
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            error = str(e)
+            json_data = None
 
         return json_data, error
 

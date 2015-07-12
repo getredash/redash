@@ -15,6 +15,7 @@
         maxAge = -1;
       }
 
+      $scope.showLog = false;
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
     }
 
@@ -57,6 +58,7 @@
     // in view mode, latest dataset is always visible
     // source mode changes this behavior
     $scope.showDataset = true;
+    $scope.showLog = false;
 
     $scope.lockButton = function(lock) {
       $scope.queryExecuting = lock;
@@ -110,21 +112,21 @@
       $scope.queryResult.cancelExecution();
       Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
     };
-    
+
     $scope.archiveQuery = function(options, data) {
       if (data) {
         data.id = $scope.query.id;
       } else {
         data = $scope.query;
       }
-      
+
       $scope.isDirty = false;
-      
+
       options = _.extend({}, {
         successMessage: 'Query archived',
         errorMessage: 'Query could not be archived'
       }, options);
-      
+
       return Query.delete({id: data.id}, function() {
         $scope.query.is_archived = true;
         $scope.query.schedule = null;
@@ -196,6 +198,10 @@
 
       if (status === 'done' || status === 'failed') {
         $scope.lockButton(false);
+      }
+
+      if ($scope.queryResult.getLog() != null) {
+          $scope.showLog = true;
       }
     });
 
