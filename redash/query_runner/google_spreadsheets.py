@@ -64,12 +64,12 @@ class GoogleSpreadsheet(BaseQueryRunner):
         return {
             'type': 'object',
             'properties': {
-                'credfilePath': {
+                'credentialsFilePath': {
                     'type': 'string',
                     'title': 'Credentials File Path'
                 }
             },
-            'required': ['credfilePath']
+            'required': ['credentialsFilePath']
         }
 
     def __init__(self, configuration_json):
@@ -80,7 +80,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'https://spreadsheets.google.com/feeds',
         ]
 
-        credFile = _load_key(self.configuration['credfilePath'])
+        credFile = _load_key(self.configuration['credentialsFilePath'])
         credentials = SignedJwtAssertionCredentials(credFile['client_email'], credFile["private_key"], scope=scope)
         spreadsheetservice = gspread.authorize(credentials)
         return spreadsheetservice
