@@ -90,15 +90,16 @@ Notes:
 2. You need to install the `google-api-python-client`, `oauth2client` and `pyopenssl` packages (PyOpenSSL requires `libffi-dev` and `libssl-dev` packages), as they are not included in the `requirements.txt` file.
 
 ### Google Spreadsheets
+(supported from v0.6.3)
 
 * **Type**: google_spreadsheets
 * **Options**:
-	* Credentials filename (credfilePath) (mandatory)
-* **Options string format (for v0.5 and older)**: {"credfilePath" : "/somewhere/23fjkfjdsfj21312-privatekey.p12"}
+	* Credentials filename (credentialsFilePath) (mandatory)
 
 Notes:
 
 1. To obtain Google ServiceAccount credentials follow the guidelines at: https://developers.google.com/console/help/new/#serviceaccounts
+   (save the credentials as json file)
 2. To be able to load the spreadsheet in re:dash - share your it with the ServiceAccount's email (for example 43242343247-fjdfakljr3r2@developer.gserviceaccount.com)
    Note: all the service account details can be seen inside the json file you should obtain following step #1
 3. The query format is "DOC_UUID|SHEET_NUM" (for example "kjsdfhkjh4rsEFSDFEWR232jkddsfh|0")
