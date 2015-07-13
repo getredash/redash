@@ -508,7 +508,7 @@ class QueryResultAPI(BaseResource):
         if settings.ACCESS_CONTROL_ALLOW_HEADERS:
             headers['Access-Control-Allow-Headers'] = settings.ACCESS_CONTROL_ALLOW_HEADERS
 
-        return make_response(null, 200, headers)
+        return make_response("", 200, headers)
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
