@@ -103,17 +103,15 @@ class Mysql(BaseQueryRunner):
     def run_query(self, query):
         import MySQLdb
 
-        connection = MySQLdb.connect(host=self.configuration.get('host', ''),
-                                     user=self.configuration.get('user', ''),
-                                     passwd=self.configuration.get('passwd', ''),
-                                     db=self.configuration['db'],
-                                     port=self.configuration.get('port', 3306),
-                                     charset='utf8', use_unicode=True)
-        cursor = connection.cursor()
-
-        logger.debug("MySQL running query: %s", query)
-
         try:
+            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
+                                         user=self.configuration.get('user', ''),
+                                         passwd=self.configuration.get('passwd', ''),
+                                         db=self.configuration['db'],
+                                         port=self.configuration.get('port', 3306),
+                                         charset='utf8', use_unicode=True)
+            cursor = connection.cursor()
+            logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
 
             data = cursor.fetchall()
