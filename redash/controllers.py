@@ -489,20 +489,26 @@ class QueryResultAPI(BaseResource):
         return make_response(s.getvalue(), 200, headers)
 
     @staticmethod
-    def add_access_control_allow_origin_header(headers):
+    def add_cors_headers(headers):
         if 'Origin' in request.headers:
             origin = request.headers['Origin']
 
-            if origin in settings.QUERIES_RESULT_CORS:
+            if origin in settings.ACCESS_CONTROL_ALLOW_ORIGIN:
                 headers['Access-Control-Allow-Origin'] = origin
-                headers['Access-Control-Allow-Credentials'] = 'true'
-                if request.method == 'OPTIONS':
-                    headers['Access-Control-Request-Method'] = 'GET, POST, PUT'
-                    headers['Access-Control-Allow-Headers'] = 'Content-Type'
+                headers['Access-Control-Allow-Credentials'] = str(settings.ACCESS_CONTROL_ALLOW_CREDENTIALS).lower()
 
     @require_permission('view_query')
     def options(self, query_id=None, query_result_id=None, filetype='json'):
-        self.add_access_control_allow_origin_header(request.headers)
+        headers = {}
+        self.add_cors_headers(headers)
+
+        if settings.ACCESS_CONTROL_REQUEST_METHOD:
+            headers['Access-Control-Request-Method'] = settings.ACCESS_CONTROL_REQUEST_METHOD
+
+        if settings.ACCESS_CONTROL_ALLOW_HEADERS:
+            headers['Access-Control-Allow-Headers'] = settings.ACCESS_CONTROL_ALLOW_HEADERS
+
+        return make_response(null, 200, headers)
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
@@ -535,8 +541,8 @@ class QueryResultAPI(BaseResource):
 
             headers = {}
 
-            if len(settings.QUERIES_RESULT_CORS) > 0:
-                self.add_access_control_allow_origin_header(headers)
+            if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
+                self.add_cors_headers(headers)
 
             if filetype == 'json':
                 data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
