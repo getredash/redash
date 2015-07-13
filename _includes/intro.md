@@ -27,10 +27,10 @@ You can try out the demo instance: <a href="http://demo.redash.io" onclick="trac
 
 ### Getting Help
 
-* Source: https://github.com/everythingme/redash
-* Issues: https://github.com/everythingme/redash/issues
-* Mailing List: redash-users@googlegroups.com
-* Gitter (chat): https://gitter.im/EverythingMe/redash
+* Source: [https://github.com/everythingme/redash](https://github.com/everythingme/redash)
+* Issues: [https://github.com/everythingme/redash/issues](https://github.com/everythingme/redash/issues)
+* Mailing List: [https://groups.google.com/forum/#!forum/redash-users](https://groups.google.com/forum/#!forum/redash-users)
+* Gitter (chat): [https://gitter.im/EverythingMe/redash](https://gitter.im/EverythingMe/redash)
 * Contact Arik, the maintainer directly: arik@everything.me.
 
 ### Contributing
