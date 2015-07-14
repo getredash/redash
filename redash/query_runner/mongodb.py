@@ -244,7 +244,16 @@ class MongoDB(BaseQueryRunner):
 
         elif aggregate:
             r = db[collection].aggregate(aggregate)
-            cursor = r["result"]
+
+            # Backwards compatibility with older pymongo versions.
+            #
+            # Older pymongo version would return a dictionary from an aggregate command.
+            # The dict would contain a "result" key which would hold the cursor.
+            # Newer ones return pymongo.command_cursor.CommandCursor.
+            if isinstance(r, dict):
+                cursor = r["result"]
+            else:
+                cursor = r
 
         for r in cursor:
             for k in r:
