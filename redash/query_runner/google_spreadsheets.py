@@ -80,8 +80,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'https://spreadsheets.google.com/feeds',
         ]
 
-        credFile = _load_key(self.configuration['credentialsFilePath'])
-        credentials = SignedJwtAssertionCredentials(credFile['client_email'], credFile["private_key"], scope=scope)
+        cred_file = _load_key(self.configuration['credentialsFilePath'])
+        credentials = SignedJwtAssertionCredentials(cred_file['client_email'], cred_file["private_key"], scope=scope)
         spreadsheetservice = gspread.authorize(credentials)
         return spreadsheetservice
 
@@ -94,17 +94,17 @@ class GoogleSpreadsheet(BaseQueryRunner):
             spreadsheet_service = self._get_spreadsheet_service()
             spreadsheet = spreadsheet_service.open_by_key(key)
             worksheets = spreadsheet.worksheets()
-            allData = worksheets[worksheet_num].get_all_values()
+            all_data = worksheets[worksheet_num].get_all_values()
             column_names = []
             columns = []
-            for j, column_name in enumerate(allData[self.HEADER_INDEX]):
+            for j, column_name in enumerate(all_data[self.HEADER_INDEX]):
                 column_names.append(column_name)
                 columns.append({
                     'name': column_name,
                     'friendly_name': column_name,
-                    'type': _guess_type(allData[self.HEADER_INDEX+1][j])
+                    'type': _guess_type(all_data[self.HEADER_INDEX+1][j])
                 })
-            rows = [dict(zip(column_names, row)) for row in allData[self.HEADER_INDEX+1:]]
+            rows = [dict(zip(column_names, row)) for row in all_data[self.HEADER_INDEX+1:]]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
