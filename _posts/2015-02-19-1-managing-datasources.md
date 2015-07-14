@@ -89,6 +89,22 @@ Notes:
 1. To obtain BigQuery credentials follow the guidelines at: https://developers.google.com/bigquery/authorization#service-accounts
 2. You need to install the `google-api-python-client`, `oauth2client` and `pyopenssl` packages (PyOpenSSL requires `libffi-dev` and `libssl-dev` packages), as they are not included in the `requirements.txt` file.
 
+### Google Spreadsheets
+(supported from v0.6.4)
+
+* **Type**: google_spreadsheets
+* **Options**:
+	* Credentials filename (credentialsFilePath) (mandatory)
+
+Notes:
+
+1. To obtain Google ServiceAccount credentials follow the guidelines at: https://developers.google.com/console/help/new/#serviceaccounts
+   (save the JSON version of the credentials file)
+2. To be able to load the spreadsheet in re:dash - share your it with your ServiceAccount's email (it can be found in the credentials json file, for example 43242343247-fjdfakljr3r2@developer.gserviceaccount.com)
+   Note: all the service account details can be seen inside the json file you should obtain following step #1
+3. The query format is "DOC_UUID|SHEET_NUM" (for example "kjsdfhkjh4rsEFSDFEWR232jkddsfh|0")
+4. You (might) need to install the `gspread`, `oauth2client` and `dateutil` packages as they are not included in the `requirements.txt` file.
+
 ### MongoDB
 
 * **Type**: mongo
