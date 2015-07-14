@@ -162,10 +162,7 @@ class MongoDB(BaseQueryRunner):
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
 
-        if self.db_name not in db_connection.database_names():
-            return None, "Unknown database name '%s'" % self.db_name
-
-        db = db_connection[self.db_name ]
+        db = db_connection[self.db_name]
 
         logger.debug("mongodb connection string: %s", self.configuration['connectionString'])
         logger.debug("mongodb got query: %s", query)
@@ -225,9 +222,6 @@ class MongoDB(BaseQueryRunner):
 
         columns = []
         rows = []
-
-        error = None
-        json_data = None
 
         cursor = None
         if q or (not q and not aggregate):
