@@ -3,6 +3,7 @@ import datetime
 import logging
 import re
 import time
+from dateutil.parser import parse
 
 from redash.utils import JSONEncoder
 from redash.query_runner import *
@@ -151,10 +152,7 @@ class MongoDB(BaseQueryRunner):
     def _convert_date(self, q, field_name):
         m = date_regex.findall(q[field_name])
         if len(m) > 0:
-            if q[field_name].find(":") == -1:
-                q[field_name] = datetime.datetime.fromtimestamp(time.mktime(time.strptime(m[0], "%Y-%m-%d")))
-            else:
-                q[field_name] = datetime.datetime.fromtimestamp(time.mktime(time.strptime(m[0], "%Y-%m-%d %H:%M")))
+            q[field_name] = parse(m[0], yearfirst=True)
 
     def run_query(self, query):
         if self.is_replica_set:
@@ -195,7 +193,16 @@ class MongoDB(BaseQueryRunner):
         if "aggregate" in query_data:
             aggregate = query_data["aggregate"]
             for step in aggregate:
-                if "$sort" in step:
+                if "$match" in step:
+                    for field in step["$match"]:
+                        if type(step["$match"][field]) in [str, unicode]:
+                            logging.debug(step["$match"][field])
+                            self._convert_date(step["$match"], field)
+                        elif type(step["$match"][field]) is dict:
+                            for field2 in step["$match"][field]:
+                                if type(step["$match"][field][field2]) in (str, unicode):
+                                    self._convert_date(step["$match"][field], field2)
+                elif "$sort" in step:
                     sort_list = []
                     for sort_item in step["$sort"]:
                         sort_list.append((sort_item["name"], sort_item["direction"]))
