@@ -41,7 +41,6 @@ class MongoDBJSONEncoder(JSONEncoder):
 
         return super(MongoDBJSONEncoder, self).default(o)
 
-
 # Simple query example:
 #
 # {
@@ -148,6 +147,16 @@ class MongoDB(BaseQueryRunner):
 
         return None
 
+    def _fix_dates(self, data):
+        for k in data:
+            if isinstance(data[k], list):
+                for i in range(0, len(data[k])):
+                    self._fix_dates(data[k][i])
+            elif isinstance(data[k], dict):
+                self._fix_dates(data[k])
+            else:
+                if isinstance(data[k], (str, unicode)):
+                    self._convert_date(data, k)
 
     def _convert_date(self, q, field_name):
         m = date_regex.findall(q[field_name])
@@ -167,6 +176,7 @@ class MongoDB(BaseQueryRunner):
 
         try:
             query_data = json.loads(query)
+            self._fix_dates(query_data)
         except ValueError:
             return None, "Invalid query format. The query is not a valid JSON."
 
@@ -176,33 +186,13 @@ class MongoDB(BaseQueryRunner):
             collection = query_data["collection"]
 
         q = None
-        if "query" in query_data:
-            q = query_data["query"]
-            for k in q:
-                if q[k] and type(q[k]) in [str, unicode]:
-                    logging.debug(q[k])
-                    self._convert_date(q, k)
-                elif q[k] and type(q[k]) is dict:
-                    for k2 in q[k]:
-                        if type(q[k][k2]) in [str, unicode]:
-                            self._convert_date(q[k], k2)
-
         f = None
 
         aggregate = None
         if "aggregate" in query_data:
             aggregate = query_data["aggregate"]
             for step in aggregate:
-                if "$match" in step:
-                    for field in step["$match"]:
-                        if type(step["$match"][field]) in [str, unicode]:
-                            logging.debug(step["$match"][field])
-                            self._convert_date(step["$match"], field)
-                        elif type(step["$match"][field]) is dict:
-                            for field2 in step["$match"][field]:
-                                if type(step["$match"][field][field2]) in (str, unicode):
-                                    self._convert_date(step["$match"][field], field2)
-                elif "$sort" in step:
+                if "$sort" in step:
                     sort_list = []
                     for sort_item in step["$sort"]:
                         sort_list.append((sort_item["name"], sort_item["direction"]))
