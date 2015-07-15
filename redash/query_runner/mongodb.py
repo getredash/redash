@@ -185,12 +185,11 @@ class MongoDB(BaseQueryRunner):
         else:
             collection = query_data["collection"]
 
-        q = None
+        q = query_data.get("query", None)
         f = None
 
-        aggregate = None
-        if "aggregate" in query_data:
-            aggregate = query_data["aggregate"]
+        aggregate = query_data.get("aggregate", None)
+        if aggregate:
             for step in aggregate:
                 if "$sort" in step:
                     sort_list = []
@@ -199,9 +198,7 @@ class MongoDB(BaseQueryRunner):
 
                     step["$sort"] = SON(sort_list)
 
-        if aggregate:
-            pass
-        else:
+        if not aggregate:
             s = None
             if "sort" in query_data and query_data["sort"]:
                 s = []
