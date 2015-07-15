@@ -91,7 +91,7 @@ class BigQuery(BaseQueryRunner):
             'properties': {
                 'serviceAccount': {
                     'type': 'string',
-                    'title': 'Service Account'
+                    'title': 'Service Account Email address'
                 },
                 'projectId': {
                     'type': 'string',
