@@ -2,7 +2,7 @@
 title: "MongoDB: Querying"
 layout: post
 category: usage
-permalink: /usage/elasticsearch_querying.html
+permalink: /usage/mongodb_querying.html
 ---
 
 ## Simple query example:
