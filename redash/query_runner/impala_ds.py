@@ -4,17 +4,18 @@ import sys
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
+from dateutil import parser
 
 logger = logging.getLogger(__name__)
 
 try:
     from impala.dbapi import connect
-    from dateutil import parser
+    from impala.error import DatabaseError, RPCError
     enabled = True
 except ImportError, e:
     logger.exception(e)
-    logger.warning("Missing dependencies. Please install impyla and dateutil.")
-    logger.warning("You can use pip: pip install impyla dateutil")
+    logger.warning("Missing dependencies. Please install impyla.")
+    logger.warning("You can use pip: pip install impyla")
     enabled = False
 
 COLUMN_NAME = 0
@@ -43,26 +44,21 @@ class Impala(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "protocol": {
-                    "type": "string"
-                },
-                "database": {
-                    "type": "string"
-                },
                 "host": {
                     "type": "string"
                 },
                 "port": {
                     "type": "number"
                 },
-                "host": {
+                "protocol": {
+                    "type": "string",
+                    "title": "Please specify beeswax or hiveserver2"
+                },
+                "database": {
                     "type": "string"
                 },
                 "use_ldap": {
                     "type": "boolean"
-                },
-                "ldap_user": {
-                    "type": "string"
                 },
                 "ldap_user": {
                     "type": "string"
@@ -89,19 +85,12 @@ class Impala(BaseQueryRunner):
         pass
 
     def run_query(self, query):
-        #connection = connect(host=self.configuration['host'],
-        #                     port=(self.configuration['port'] if 'port' in self.configuration else None),
-        #                     protocol=(self.configuration['protocol'] if 'protocol' in self.configuration else None),
-        #                     timeout=(self.configuration['timeout'] if 'timeout' in self.configuration else None),
-        #                     database=(self.configuration['database'] if 'database' in self.configuration else None),
-        #                     use_ldap=(self.configuration['use_ldap'] if 'use_ldap' in self.configuration else None),
-        #                     ldap_user=(self.configuration['ldap_user'] if 'ldap_user' in self.configuration else None),
-        #                     ldap_password=(self.configuration['ldap_password'] if 'ldap_password' in self.configuration else None),)
-        connection = connect(**self.configuration)
-
-        cursor = connection.cursor()
 
         try:
+            connection = connect(**self.configuration)
+
+            cursor = connection.cursor()
+
             cursor.execute(query)
 
             column_names = []
@@ -123,6 +112,14 @@ class Impala(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()
+        except DatabaseError as e:
+            logging.exception(e)
+            json_data = None
+            error = e.message
+        except RPCError as e:
+            logging.exception(e)
+            json_data = None
+            error = "Metastore Error [%s]" % e.message
         except KeyboardInterrupt:
             connection.cancel()
             error = "Query cancelled by user."
