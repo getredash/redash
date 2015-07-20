@@ -4,8 +4,10 @@ import time
 import logging
 
 from flask.ext.login import LoginManager
+from flask.ext.login import user_logged_in
 
 from redash import models, settings, google_oauth, saml_auth
+from redash.tasks import record_event
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
@@ -73,6 +75,17 @@ def api_key_load_user_from_request(request):
     return user
 
 
+def log_user_logged_in(app, user):
+    event = {
+        'user_id': user.id,
+        'action': 'login',
+        'object_type': 'redash',
+        'timestamp': int(time.time()),
+    }
+
+    record_event.delay(event)
+
+
 def setup_authentication(app):
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
@@ -80,6 +93,8 @@ def setup_authentication(app):
     app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)
+
+    user_logged_in.connect(log_user_logged_in)
 
     if settings.AUTH_TYPE == 'hmac':
         login_manager.request_loader(hmac_load_user_from_request)
