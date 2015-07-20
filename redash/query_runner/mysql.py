@@ -103,6 +103,7 @@ class Mysql(BaseQueryRunner):
     def run_query(self, query):
         import MySQLdb
 
+        connection = None
         try:
             connection = MySQLdb.connect(host=self.configuration.get('host', ''),
                                          user=self.configuration.get('user', ''),
@@ -143,7 +144,8 @@ class Mysql(BaseQueryRunner):
         except Exception as e:
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
-            connection.close()
+            if connection:
+                connection.close()
 
         return json_data, error
 
