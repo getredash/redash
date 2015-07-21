@@ -241,6 +241,12 @@ function getKeyFromObject(obj, key) {
             if (column.isEditable) {
               element.html('<div editable-cell="" row="dataRow" column="column" type="column.type"></div>');
               compile(element.contents())(scope);
+            } else if (column.cellTemplate) {
+              //create a scope
+              childScope = scope.$new();
+              //compile the element with its new content and new scope
+              element.html(column.cellTemplate);
+              compile(element.contents())(childScope);
             } else {
               element.html(scope.formatedValue);
             }
