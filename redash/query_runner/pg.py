@@ -127,35 +127,38 @@ class PostgreSQL(BaseQueryRunner):
             columns = []
             duplicates_counter = 1
 
-            for column in cursor.description:
-                # TODO: this deduplication needs to be generalized and reused in all query runners.
-                column_name = column.name
-                if column_name in column_names:
-                    column_name += str(duplicates_counter)
-                    duplicates_counter += 1
+            if cursor.description is not None:
+                for column in cursor.description:
+                    # TODO: this deduplication needs to be generalized and reused in all query runners.
+                    column_name = column.name
+                    if column_name in column_names:
+                        column_name += str(duplicates_counter)
+                        duplicates_counter += 1
 
-                column_names.append(column_name)
+                    column_names.append(column_name)
 
-                columns.append({
-                    'name': column_name,
-                    'friendly_name': column_name,
-                    'type': types_map.get(column.type_code, None)
-                })
+                    columns.append({
+                        'name': column_name,
+                        'friendly_name': column_name,
+                        'type': types_map.get(column.type_code, None)
+                    })
 
-            rows = [dict(zip(column_names, row)) for row in cursor]
+                rows = [dict(zip(column_names, row)) for row in cursor]
 
-            data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
-            error = None
-            cursor.close()
+                data = {'columns': columns, 'rows': rows}
+                error = None
+                json_data = json.dumps(data, cls=JSONEncoder)
+            else:
+                error = 'Query completed but it returned no data.'
+                json_data = None
         except (select.error, OSError) as e:
             logging.exception(e)
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
             logging.exception(e)
-            json_data = None
             error = e.message
+            json_data = None
         except KeyboardInterrupt:
             connection.cancel()
             error = "Query cancelled by user."
