@@ -4,7 +4,6 @@ import sys
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
-from dateutil import parser
 
 logger = logging.getLogger(__name__)
 
@@ -80,12 +79,43 @@ class Impala(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Impala, self).__init__(configuration_json)
 
+    def run_q(self, query):
+        results, error = self.run_query(query)
+
+        if error is not None:
+            raise Exception("Failed getting schema.")
+        return json.loads(results)['rows']
+
     def get_schema(self):
-        #todo: implement :-)
-        pass
+        try:
+            schemas_query = """
+                show schemas;
+            """
+
+            tables_query = """
+                show tables in %s;
+            """
+
+            columns_query = """
+                show column stats %s;
+            """
+
+            schema = {}
+            for schema_name in map(lambda a: a['name'], self.run_q(schemas_query)):
+                for table_name in map(lambda a: a['name'], self.run_q(tables_query % schema_name)):
+                    columns = map(lambda a: a['Column'], self.run_q(columns_query % table_name))
+
+                    if schema_name != 'default':
+                        table_name = '{}.{}'.format(schema_name, table_name)
+
+                    schema[table_name] = {'name': table_name, 'columns': columns}
+        except Exception, e:
+            raise sys.exc_info()[1], None, sys.exc_info()[2]
+        return schema.values()
 
     def run_query(self, query):
 
+        connection = None
         try:
             connection = connect(**self.configuration)
 
@@ -125,6 +155,7 @@ class Impala(BaseQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
+            logging.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             connection.close()
