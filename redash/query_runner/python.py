@@ -52,14 +52,12 @@ class Python(BaseQueryRunner):
         return False
 
     def __init__(self, configuration_json):
-        global ALLOWED_MODULES
-
         super(Python, self).__init__(configuration_json)
 
         self.syntax = "python"
 
         self._allowed_modules = {}
-        self._result = { "rows" : [], "columns" : [], "log" : [] }
+        self._script_locals = { "result" : { "rows" : [], "columns" : [], "log" : [] } }
         self._enable_print_log = True
 
         if self.configuration.get("allowedImportModules", None):
@@ -166,7 +164,6 @@ class Python(BaseQueryRunner):
             safe_builtins["_getiter_"] = self.custom_get_iter
             safe_builtins["_print_"] = CustomPrint(weakref.ref(self))
 
-            script_locals = { "result" : self._result }
 
             restricted_globals = dict(__builtins__=safe_builtins)
             restricted_globals["get_query_result"] = self.get_query_result
@@ -187,9 +184,9 @@ class Python(BaseQueryRunner):
             #       One option is to use ETA with Celery + timeouts on workers
             #       And replacement of worker process every X requests handled.
 
-            exec(code) in restricted_globals, script_locals
+            exec(code) in restricted_globals, self._script_locals
 
-            json_data = json.dumps(self._result)
+            json_data = json.dumps(self._script_locals['result'])
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
