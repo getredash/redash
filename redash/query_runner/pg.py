@@ -93,7 +93,7 @@ class PostgreSQL(BaseQueryRunner):
         results, error = self.run_query(query)
 
         if error is not None:
-           raise Exception("Failed getting schema.")
+            raise Exception("Failed getting schema.")
 
         results = json.loads(results)
 
