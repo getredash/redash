@@ -14,23 +14,30 @@ logger = logging.getLogger(__name__)
 from RestrictedPython import compile_restricted
 from RestrictedPython.Guards import safe_builtins
 
+
 class CustomPrint(object):
     """ CustomPrint redirect "print" calls to be sent as "log" on the result object """
-    def __init__(self, python_runner):
-        self._python_runner = python_runner
+    def __init__(self):
+        self.enabled = True
+        self.lines = []
 
     def write(self, text):
-        if self._python_runner()._enable_print_log:
+        if self.enabled:
             if text and text.strip():
                 log_line = "[{0}] {1}".format(datetime.datetime.utcnow().isoformat(), text)
-                self._python_runner()._result["log"].append(log_line)
+                self.lines.append(log_line)
+
+    def enable(self):
+        self.enabled = True
+
+    def disable(self):
+        self.enabled = False
 
     def __call__(self):
         return self
 
 
 class Python(BaseQueryRunner):
-
     @classmethod
     def configuration_schema(cls):
         return {
@@ -59,6 +66,7 @@ class Python(BaseQueryRunner):
         self._allowed_modules = {}
         self._script_locals = { "result" : { "rows" : [], "columns" : [], "log" : [] } }
         self._enable_print_log = True
+        self._custom_print = CustomPrint()
 
         if self.configuration.get("allowedImportModules", None):
             for item in self.configuration["allowedImportModules"].split(","):
@@ -89,12 +97,6 @@ class Python(BaseQueryRunner):
 
     def custom_get_iter(self, obj):
         return iter(obj)
-
-    def disable_print_log(self):
-        self._enable_print_log = False
-
-    def enable_print_log(self):
-        self._enable_print_log = True
 
     def add_result_column(self, result, column_name, friendly_name, column_type):
         """ Helper function to add columns inside a Python script running in re:dash in an easier way """
@@ -162,16 +164,15 @@ class Python(BaseQueryRunner):
             safe_builtins["setattr"] = setattr
             safe_builtins["_getitem_"] = self.custom_get_item
             safe_builtins["_getiter_"] = self.custom_get_iter
-            safe_builtins["_print_"] = CustomPrint(weakref.ref(self))
-
+            safe_builtins["_print_"] = self._custom_print
 
             restricted_globals = dict(__builtins__=safe_builtins)
             restricted_globals["get_query_result"] = self.get_query_result
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
             restricted_globals["add_result_row"] = self.add_result_row
-            restricted_globals["disable_print_log"] = self.disable_print_log
-            restricted_globals["enable_print_log"] = self.enable_print_log
+            restricted_globals["disable_print_log"] = self._custom_print.disable
+            restricted_globals["enable_print_log"] = self._custom_print.enable
 
             restricted_globals["TYPE_DATETIME"] = TYPE_DATETIME
             restricted_globals["TYPE_BOOLEAN"] = TYPE_BOOLEAN
@@ -186,7 +187,9 @@ class Python(BaseQueryRunner):
 
             exec(code) in restricted_globals, self._script_locals
 
-            json_data = json.dumps(self._script_locals['result'])
+            result = self._script_locals['result']
+            result['log'] = self._custom_print.lines
+            json_data = json.dumps(result)
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
