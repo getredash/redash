@@ -79,7 +79,7 @@ class Impala(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Impala, self).__init__(configuration_json)
 
-    def run_q(self, query):
+    def _run_query_internal(self, query):
         results, error = self.run_query(query)
 
         if error is not None:
@@ -88,22 +88,16 @@ class Impala(BaseQueryRunner):
 
     def get_schema(self):
         try:
-            schemas_query = """
-                show schemas;
-            """
+            schemas_query = "show schemas;"
 
-            tables_query = """
-                show tables in %s;
-            """
+            tables_query = "show tables in %s;"
 
-            columns_query = """
-                show column stats %s;
-            """
+            columns_query = "show column stats %s;"
 
             schema = {}
-            for schema_name in map(lambda a: a['name'], self.run_q(schemas_query)):
-                for table_name in map(lambda a: a['name'], self.run_q(tables_query % schema_name)):
-                    columns = map(lambda a: a['Column'], self.run_q(columns_query % table_name))
+            for schema_name in map(lambda a: a['name'], self._run_query_internal(schemas_query)):
+                for table_name in map(lambda a: a['name'], self._run_query_internal(tables_query % schema_name)):
+                    columns = map(lambda a: a['Column'], self._run_query_internal(columns_query % table_name))
 
                     if schema_name != 'default':
                         table_name = '{}.{}'.format(schema_name, table_name)
