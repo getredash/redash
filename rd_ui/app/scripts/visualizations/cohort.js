@@ -26,7 +26,10 @@
                     if ($scope.queryResult.getData() == null) {
 
                     } else {
-                        var sortedData = _.sortBy($scope.queryResult.getData(), "date");
+                        var sortedData = _.sortBy($scope.queryResult.getData(),function(r) {
+                          return r['date'] + r['day_number']  ;
+                        });
+                        
                         var grouped = _.groupBy(sortedData, "date");
                         var maxColumns = _.reduce(grouped, function(memo, data){ 
                             return (data.length > memo)? data.length : memo;
