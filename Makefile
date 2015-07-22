@@ -13,7 +13,7 @@ deps:
 
 pack:
 	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py
-	tar -zcv -f $(FILENAME) --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="rd_ui/node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
+	tar -zcv -f $(FILENAME) --exclude optipng* --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="rd_ui/node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
 
 upload:
 	python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)

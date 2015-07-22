@@ -10,8 +10,6 @@ dependencies:
     - wget http://downloads.sourceforge.net/project/optipng/OptiPNG/optipng-0.7.5/optipng-0.7.5.tar.gz
     - tar xvf optipng-0.7.5.tar.gz
     - cd optipng-0.7.5; ./configure; make; sudo checkinstall -y;
-    - rm -rf optipng-0.7.5
-    - rm optipng-0.7.5.tar.gz
     - make deps
     - pip install -r dev_requirements.txt
     - pip install -r requirements.txt
