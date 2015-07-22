@@ -43,12 +43,15 @@ def make_shell_context():
 @manager.command
 def check_settings():
     """Show the settings as re:dash sees them (useful for debugging)."""
-    from types import ModuleType
+    for name, item in settings.all_settings().iteritems():
+        print "{} = {}".format(name, item)
 
-    for name in dir(settings):
-        item = getattr(settings, name)
-        if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
-            print "{} = {}".format(name, item)
+@manager.command
+def send_test_mail():
+    from redash import mail
+    from flask_mail import Message
+
+    mail.send(Message(subject="Test Message from re:dash", recipients=[settings.MAIL_DEFAULT_SENDER], body="Test message."))
 
 
 if __name__ == '__main__':

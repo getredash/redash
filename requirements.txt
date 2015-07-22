@@ -3,6 +3,7 @@ Flask-Admin==1.1.0
 Flask-RESTful==0.2.10
 Flask-Login==0.2.11
 Flask-OAuth==0.12
+flask-mail==0.9.1
 passlib==1.6.2
 Jinja2==2.7.2
 MarkupSafe==0.18
@@ -30,3 +31,4 @@ RestrictedPython==3.6.0
 wtf-peewee==0.2.3
 pysaml2==2.4.0
 pycrypto==2.6.1
+funcy==1.5

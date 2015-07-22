@@ -23,7 +23,7 @@
       },
       {
         'label': 'Created By',
-        'map': 'user_name'
+        'map': 'user.name'
       },
       {
         'label': 'Created At',
@@ -45,7 +45,6 @@
     Query.search({q: $scope.term }, function(results) {
       $scope.queries = _.map(results, function(query) {
         query.created_at = moment(query.created_at);
-        query.user_name = query.user.name;
         return query;
       });
     });
@@ -93,7 +92,6 @@
       $scope.allQueries = _.map(queries, function (query) {
         query.created_at = moment(query.created_at);
         query.retrieved_at = moment(query.retrieved_at);
-        query.user_name = query.user.name;
         return query;
       });
 
@@ -108,7 +106,7 @@
       },
       {
         'label': 'Created By',
-        'map': 'user_name'
+        'map': 'user.name'
       },
       {
         'label': 'Created At',

@@ -77,6 +77,17 @@ class BaseModel(peewee.Model):
         super(BaseModel, self).save(*args, **kwargs)
         self.post_save(created)
 
+    def update_instance(self, **kwargs):
+        for k, v in kwargs.items():
+            # setattr(model_instance, field_name, field_obj.python_value(value))
+            setattr(self, k, v)
+
+        dirty_fields = self.dirty_fields
+        if hasattr(self, 'updated_at'):
+            dirty_fields = dirty_fields + [self.__class__.updated_at]
+
+        self.save(only=dirty_fields)
+
 
 class ModelTimestampsMixin(BaseModel):
     updated_at = DateTimeTZField(default=datetime.datetime.now)
@@ -163,6 +174,7 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
             'id': self.id,
             'name': self.name,
             'email': self.email,
+            'gravatar_url': self.gravatar_url,
             'updated_at': self.updated_at,
             'created_at': self.created_at
         }
@@ -176,6 +188,11 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
 
         if not self.api_key:
             self.api_key = generate_token(40)
+
+    @property
+    def gravatar_url(self):
+        email_md5 = hashlib.md5(self.email.lower()).hexdigest()
+        return "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
     @property
     def permissions(self):
@@ -280,6 +297,13 @@ class DataSource(BaseModel):
     def all(cls):
         return cls.select().order_by(cls.id.asc())
 
+class JSONField(peewee.TextField):
+    def db_value(self, value):
+        return json.dumps(value)
+
+    def python_value(self, value):
+        return json.loads(value)
+
 
 class QueryResult(BaseModel):
     id = peewee.PrimaryKeyField()
@@ -338,13 +362,17 @@ class QueryResult(BaseModel):
 
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
 
-        updated_count = Query.update(latest_query_data=query_result).\
-            where(Query.query_hash==query_hash, Query.data_source==data_source_id).\
-            execute()
+        sql = "UPDATE queries SET latest_query_data_id = %s WHERE query_hash = %s AND data_source_id = %s RETURNING id"
+        query_ids = [row[0] for row in db.database.execute_sql(sql, params=(query_result.id, query_hash, data_source_id))]
 
-        logging.info("Updated %s queries with result (%s).", updated_count, query_hash)
+        # TODO: when peewee with update & returning support is released, we can get back to using this code:
+        # updated_count = Query.update(latest_query_data=query_result).\
+        #     where(Query.query_hash==query_hash, Query.data_source==data_source_id).\
+        #     execute()
 
-        return query_result
+        logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
+
+        return query_result, query_ids
 
     def __unicode__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
@@ -525,6 +553,83 @@ class Query(ModelTimestampsMixin, BaseModel):
 
     def __unicode__(self):
         return unicode(self.id)
+
+
+class Alert(ModelTimestampsMixin, BaseModel):
+    UNKNOWN_STATE = 'unknown'
+    OK_STATE = 'ok'
+    TRIGGERED_STATE = 'triggered'
+
+    id = peewee.PrimaryKeyField()
+    name = peewee.CharField()
+    query = peewee.ForeignKeyField(Query, related_name='alerts')
+    user = peewee.ForeignKeyField(User, related_name='alerts')
+    options = JSONField()
+    state = peewee.CharField(default=UNKNOWN_STATE)
+    last_triggered_at = DateTimeTZField(null=True)
+
+    class Meta:
+        db_table = 'alerts'
+
+    @classmethod
+    def all(cls):
+        return cls.select(Alert, User, Query).join(Query).switch(Alert).join(User)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'query': self.query.to_dict(),
+            'user': self.user.to_dict(),
+            'options': self.options,
+            'state': self.state,
+            'last_triggered_at': self.last_triggered_at,
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
+        }
+
+    def evaluate(self):
+        data = json.loads(self.query.latest_query_data.data)
+        # todo: safe guard for empty
+        value = data['rows'][0][self.options['column']]
+        op = self.options['op']
+
+        if op == 'greater than' and value > self.options['value']:
+            new_state = self.TRIGGERED_STATE
+        elif op == 'less than' and value < self.options['value']:
+            new_state = self.TRIGGERED_STATE
+        elif op == 'equals' and value == self.options['value']:
+            new_state = self.TRIGGERED_STATE
+        else:
+            new_state = self.OK_STATE
+
+        return new_state
+
+    def subscribers(self):
+        return User.select().join(AlertSubscription).where(AlertSubscription.alert==self)
+
+
+class AlertSubscription(ModelTimestampsMixin, BaseModel):
+    user = peewee.ForeignKeyField(User)
+    alert = peewee.ForeignKeyField(Alert)
+
+    class Meta:
+        db_table = 'alert_subscriptions'
+
+    def to_dict(self):
+        return {
+            'user': self.user.to_dict(),
+            'alert_id': self._data['alert']
+        }
+
+    @classmethod
+    def all(cls, alert_id):
+        return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
+
+    @classmethod
+    def unsubscribe(cls, alert_id, user_id):
+        query = AlertSubscription.delete().where(AlertSubscription.alert==alert_id).where(AlertSubscription.user==user_id)
+        return query.execute()
 
 
 class Dashboard(ModelTimestampsMixin, BaseModel):
@@ -716,7 +821,7 @@ class Event(BaseModel):
         return event
 
 
-all_models = (DataSource, User, QueryResult, Query, Dashboard, Visualization, Widget, ActivityLog, Group, Event)
+all_models = (DataSource, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, ActivityLog, Group, Event)
 
 
 def init_db():

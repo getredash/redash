@@ -2,6 +2,7 @@ import logging
 import urlparse
 import redis
 from statsd import StatsClient
+from flask_mail import Mail
 
 from redash import settings
 from redash.query_runner import import_query_runners
@@ -32,6 +33,8 @@ def create_redis_connection():
 
 setup_logging()
 redis_connection = create_redis_connection()
+mail = Mail()
+mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 
 import_query_runners(settings.QUERY_RUNNERS)

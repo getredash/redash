@@ -13,8 +13,9 @@ import logging
 
 from flask import render_template, send_from_directory, make_response, request, jsonify, redirect, \
     session, url_for, current_app, flash
-from flask.ext.restful import Resource, abort
+from flask.ext.restful import Resource, abort, reqparse
 from flask_login import current_user, login_user, logout_user, login_required
+from funcy import project
 import sqlparse
 
 from redash import statsd_client, models, settings, utils
@@ -33,6 +34,8 @@ def ping():
 
 @app.route('/admin/<anything>')
 @app.route('/dashboard/<anything>')
+@app.route('/alerts')
+@app.route('/alerts/<pk>')
 @app.route('/queries')
 @app.route('/queries/<query_id>')
 @app.route('/queries/<query_id>/<anything>')
@@ -575,6 +578,105 @@ class JobAPI(BaseResource):
 
 api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
 
+
+class AlertAPI(BaseResource):
+    def get(self, alert_id):
+        alert = models.Alert.get_by_id(alert_id)
+        return alert.to_dict()
+
+    def post(self, alert_id):
+        req = request.get_json(True)
+        params = project(req, ('options', 'name', 'query_id'))
+        alert = models.Alert.get_by_id(alert_id)
+        if 'query_id' in params:
+            params['query'] = params.pop('query_id')
+
+        alert.update_instance(**params)
+
+        record_event.delay({
+            'user_id': self.current_user.id,
+            'action': 'edit',
+            'timestamp': int(time.time()),
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+
+        return alert.to_dict()
+
+
+class AlertListAPI(BaseResource):
+    def post(self):
+        req = request.get_json(True)
+        required_fields = ('options', 'name', 'query_id')
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+
+        alert = models.Alert.create(
+            name=req['name'],
+            query=req['query_id'],
+            user=self.current_user,
+            options=req['options']
+        )
+
+        record_event.delay({
+            'user_id': self.current_user.id,
+            'action': 'create',
+            'timestamp': int(time.time()),
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+
+        # TODO: should be in model?
+        models.AlertSubscription.create(alert=alert, user=self.current_user)
+
+        record_event.delay({
+            'user_id': self.current_user.id,
+            'action': 'subscribe',
+            'timestamp': int(time.time()),
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+
+        return alert.to_dict()
+
+    def get(self):
+        return [alert.to_dict() for alert in models.Alert.all()]
+
+
+class AlertSubscriptionListResource(BaseResource):
+    def post(self, alert_id):
+        subscription = models.AlertSubscription.create(alert=alert_id, user=self.current_user)
+        record_event.delay({
+            'user_id': self.current_user.id,
+            'action': 'subscribe',
+            'timestamp': int(time.time()),
+            'object_id': alert_id,
+            'object_type': 'alert'
+        })
+        return subscription.to_dict()
+
+    def get(self, alert_id):
+        subscriptions = models.AlertSubscription.all(alert_id)
+        return [s.to_dict() for s in subscriptions]
+
+
+class AlertSubscriptionResource(BaseResource):
+    def delete(self, alert_id, subscriber_id):
+        models.AlertSubscription.unsubscribe(alert_id, subscriber_id)
+        record_event.delay({
+            'user_id': self.current_user.id,
+            'action': 'unsubscribe',
+            'timestamp': int(time.time()),
+            'object_id': alert_id,
+            'object_type': 'alert'
+        })
+
+api.add_resource(AlertAPI, '/api/alerts/<alert_id>', endpoint='alert')
+api.add_resource(AlertSubscriptionListResource, '/api/alerts/<alert_id>/subscriptions', endpoint='alert_subscriptions')
+api.add_resource(AlertSubscriptionResource, '/api/alerts/<alert_id>/subscriptions/<subscriber_id>', endpoint='alert_subscription')
+api.add_resource(AlertListAPI, '/api/alerts', endpoint='alerts')
+
 @app.route('/<path:filename>')
 def send_static(filename):
     if current_app.debug:
@@ -583,7 +685,3 @@ def send_static(filename):
         cache_timeout = None
 
     return send_from_directory(settings.STATIC_ASSETS_PATH, filename, cache_timeout=cache_timeout)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)

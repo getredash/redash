@@ -80,9 +80,14 @@ angular.module('redash', [
         templateUrl: '/views/admin_status.html',
         controller: 'AdminStatusCtrl'
       });
-      $routeProvider.when('/admin/workers', {
-        templateUrl: '/views/admin_workers.html',
-        controller: 'AdminWorkersCtrl'
+
+      $routeProvider.when('/alerts', {
+        templateUrl: '/views/alerts/list.html',
+        controller: 'AlertsCtrl'
+      });
+      $routeProvider.when('/alerts/:alertId', {
+        templateUrl: '/views/alerts/edit.html',
+        controller: 'AlertCtrl'
       });
 
       $routeProvider.when('/', {

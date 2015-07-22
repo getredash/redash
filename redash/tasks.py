@@ -1,10 +1,11 @@
 import time
 import logging
+from flask.ext.mail import Message
 import redis
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client, settings, utils
+from redash import redis_connection, models, statsd_client, settings, utils, mail
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner
@@ -222,12 +223,45 @@ def cleanup_query_results():
 @celery.task(base=BaseTask)
 def refresh_schemas():
     """
-    Refershs the datasources schema.
+    Refreshs the datasources schema.
     """
 
     for ds in models.DataSource.all():
         logger.info("Refreshing schema for: {}".format(ds.name))
         ds.get_schema(refresh=True)
+
+
+@celery.task(bind=True, base=BaseTask)
+def check_alerts_for_query(self, query_id):
+    from redash.wsgi import app
+
+    logger.debug("Checking query %d for alerts", query_id)
+    query = models.Query.get_by_id(query_id)
+    for alert in query.alerts:
+        alert.query = query
+        new_state = alert.evaluate()
+        if new_state != alert.state:
+            logger.info("Alert %d new state: %s", alert.id, new_state)
+            old_state = alert.state
+            alert.update_instance(state=new_state)
+
+            if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
+                logger.debug("Skipping notification (previous state was unknown and now it's ok).")
+                continue
+
+            # message = Message
+            recipients = [s.email for s in alert.subscribers()]
+            logger.debug("Notifying: %s", recipients)
+            html = """
+            Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
+            """.format(host=settings.HOST, alert_id=alert.id, query_id=query.id)
+
+            with app.app_context():
+                message = Message(recipients=recipients,
+                                  subject="[{1}] {0}".format(alert.name, new_state.upper()),
+                                  html=html)
+
+                mail.send(message)
 
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
@@ -271,7 +305,9 @@ def execute_query(self, query, data_source_id, metadata):
     redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
 
     if not error:
-        query_result = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, utils.utcnow())
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, utils.utcnow())
+        for query_id in updated_query_ids:
+            check_alerts_for_query.delay(query_id)
     else:
         raise Exception(error)
 
