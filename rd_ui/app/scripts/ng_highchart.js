@@ -145,7 +145,7 @@
 
                 if (!hasTotalsAlready) {
                     this.addSeries({
-                      data: _.values(data),
+                      data: _.sortBy(_.values(data), 'x'),
                       type: 'line',
                       name: 'Total'
                     }, false)
