@@ -60,7 +60,7 @@
       $scope.selectedQuery = item;
       item.getQueryResultPromise().then(function(result) {
         $scope.queryResult = result;
-        $scope.alert.options.column = result.getColumnNames()[0];
+        $scope.alert.options.column = $scope.alert.options.column || result.getColumnNames()[0];
       });
     };
 
