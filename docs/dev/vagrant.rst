@@ -39,6 +39,9 @@ To get started with this box:
         PYTHONPATH=. bin/run python migrations/0007_add_schedule_to_queries.py
         PYTHONPATH=. bin/run python migrations/0008_make_ds_name_unique.py
         PYTHONPATH=. bin/run python migrations/0009_add_api_key_to_user.py
+        PYTHONPATH=. bin/run python migrations/0010_create_alerts.py
+        PYTHONPATH=. bin/run python migrations/0010_allow_deleting_datasources.py
+        PYTHONPATH=. bin/run python migrations/0011_migrate_bigquery_to_json.py
 
 9.  Start the server and background workers with
     ``bin/run honcho start -f Procfile.dev``.
