@@ -1,5 +1,6 @@
 source: .
-version: 0.6.3
 highlighter: pygments
 baseurl: ''
 markdown: redcarpet
+gems:
+    - jekyll-redirect-from
