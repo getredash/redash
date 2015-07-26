@@ -68,9 +68,9 @@ CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", REDIS_URL)
 
 # The following enables periodic job (every 5 minutes) of removing unused query results. Behind this "feature flag" until
 # proved to be "safe".
-QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "false"))
+QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
 
-AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "hmac")
+AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
 
 # Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
@@ -124,6 +124,7 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.script',
     'redash.query_runner.url',
     'redash.query_runner.influx_db',
+    'redash.query_runner.elasticsearch',
     'redash.query_runner.presto',
     'redash.query_runner.impala_ds',
 ])))

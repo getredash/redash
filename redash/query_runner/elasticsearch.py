@@ -95,7 +95,8 @@ class ElasticSearch(BaseQueryRunner):
             'type': 'object',
             'properties': {
                 'server': {
-                    'type': 'string'
+                    'type': 'string',
+                    'title': 'Base URL'
                 }
             },
             "required" : ["server"]

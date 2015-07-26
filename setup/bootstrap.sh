@@ -143,6 +143,7 @@ if [ $pg_user_exists -ne 0 ]; then
     REDASH_READER_PASSWORD=$(pwgen -1)
     sudo -u postgres psql -c "CREATE ROLE redash_reader WITH PASSWORD '$REDASH_READER_PASSWORD' NOCREATEROLE NOCREATEDB NOSUPERUSER LOGIN"
     sudo -u redash psql -c "grant select(id,name,type) ON data_sources to redash_reader;" redash
+    sudo -u redash psql -c "grant select(id,name) ON users to redash_reader;" redash
     sudo -u redash psql -c "grant select on activity_log, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
@@ -159,6 +160,18 @@ pip install MySQL-python==1.2.5
 
 # Mongo dependencies:
 pip install pymongo==2.7.2
+
+# Google spreadsheets:
+pip install gspread
+
+# InfluxDB
+pip install influxdb
+
+# Presto
+pip install pyhive
+
+# Impala
+pip install impyla
 
 # Setup supervisord + sysv init startup script
 sudo -u redash mkdir -p /opt/redash/supervisord
