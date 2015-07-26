@@ -7,7 +7,6 @@ angular.module('redash', [
     'redash.renderers',
     'redash.visualization',
     'highchart',
-    'ui.select2',
     'angular-growl',
     'angularMoment',
     'ui.bootstrap',
@@ -16,8 +15,8 @@ angular.module('redash', [
     'ngRoute',
     'ui.select',
     'naif.base64'
-  ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
-    function ($routeProvider, $locationProvider, $compileProvider, growlProvider) {
+  ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig',
+    function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig) {
       if (featureFlags.clientSideMetrics) {
         Bucky.setOptions({
           host: '/api/metrics'
@@ -31,6 +30,8 @@ angular.module('redash', [
         var query = Query.get({'id': $route.current.params.queryId });
         return query.$promise;
       };
+
+      uiSelectConfig.theme = "bootstrap";
 
       $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
       $locationProvider.html5Mode(true);

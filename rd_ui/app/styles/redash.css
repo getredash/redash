@@ -137,6 +137,23 @@ a.navbar-brand img {
 
 }
 
+/* Visualization Filters */
+
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.filter {
+    width: 33%;
+    padding-left: 5px;
+    padding-bottom: 5px;
+}
+
+.filter > div {
+    width: 100%;
+}
+
 /* Gridster */
 
 .gridster ul {
