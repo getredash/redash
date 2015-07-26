@@ -161,6 +161,18 @@ pip install MySQL-python==1.2.5
 # Mongo dependencies:
 pip install pymongo==2.7.2
 
+# Google spreadsheets:
+pip install gspread
+
+# InfluxDB
+pip install influxdb
+
+# Presto
+pip install pyhive
+
+# Impala
+pip install impyla
+
 # Setup supervisord + sysv init startup script
 sudo -u redash mkdir -p /opt/redash/supervisord
 pip install supervisor==3.1.2 # TODO: move to requirements.txt
