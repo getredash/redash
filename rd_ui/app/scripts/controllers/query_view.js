@@ -49,10 +49,13 @@
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
 
-    $scope.dataSources = DataSource.get(function(dataSources) {
+    $scope.dataSources = DataSource.query(function(dataSources) {
       updateSchema();
-      $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
-      $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
+
+      if ($scope.query.isNew()) {
+        $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
+        $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
+      }
     });
 
     // in view mode, latest dataset is always visible
@@ -101,6 +104,9 @@
     };
 
     $scope.executeQuery = function() {
+      if (!$scope.query.query) {
+        return;
+      }
       getQueryResult(0);
       $scope.lockButton(true);
       $scope.cancelling = false;
@@ -154,9 +160,7 @@
 
       updateSchema();
       $scope.dataSource = _.find($scope.dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
-      if ($scope.query.query) {
-          $scope.executeQuery();
-      }
+      $scope.executeQuery();
     };
 
     $scope.setVisualizationTab = function (visualization) {

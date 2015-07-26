@@ -76,6 +76,9 @@
             <li>
                 <a href="/alerts">Alerts</a>
             </li>
+            <li ng-show="currentUser.hasPermission('admin')">
+                <a href="/data_sources">Data Sources</a>
+            </li>
         </ul>
         <form class="navbar-form navbar-left" role="search" ng-submit="searchQueries()">
             <div class="form-group">
@@ -133,6 +136,7 @@
 <script src="/bower_components/angular-ui-select/dist/select.js"></script>
 <script src="/bower_components/underscore.string/lib/underscore.string.js"></script>
 <script src="/bower_components/marked/lib/marked.js"></script>
+<script src="/bower_components/angular-base64-upload/dist/angular-base64-upload.js"></script>
 <script src="/scripts/ng_highchart.js"></script>
 <script src="/scripts/ng_smart_table.js"></script>
 <script src="/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
@@ -154,6 +158,7 @@
 <script src="/scripts/controllers/controllers.js"></script>
 <script src="/scripts/controllers/dashboard.js"></script>
 <script src="/scripts/controllers/admin_controllers.js"></script>
+<script src="/scripts/controllers/data_sources.js"></script>
 <script src="/scripts/controllers/query_view.js"></script>
 <script src="/scripts/controllers/query_source.js"></script>
 <script src="/scripts/visualizations/base.js"></script>
@@ -165,6 +170,7 @@
 <script src="/scripts/visualizations/pivot.js"></script>
 <script src="/scripts/directives/directives.js"></script>
 <script src="/scripts/directives/query_directives.js"></script>
+<script src="/scripts/directives/data_source_directives.js"></script>
 <script src="/scripts/directives/dashboard_directives.js"></script>
 <script src="/scripts/filters.js"></script>
 <script src="/scripts/controllers/alerts.js"></script>
@@ -182,7 +188,7 @@
 
     currentUser.hasPermission = function(permission) {
         return this.permissions.indexOf(permission) != -1;
-    }
+    };
 
     {{ analytics|safe }}
 </script>

@@ -85,28 +85,25 @@ class UserModelView(BaseModelView):
     }
 
 
-def query_runner_type_formatter(view, context, model, name):
-    qr = query_runner.query_runners.get(model.type, None)
-    if qr:
-        return qr.name()
-
-    return model.type
+class QueryResultModelView(BaseModelView):
+    column_exclude_list = ('data',)
 
 
-class DataSourceModelView(BaseModelView):
-    form_overrides = dict(type=fields.SelectField, options=JSONTextAreaField)
-    form_args = dict(type={
-        'choices': [(k, r.name()) for k, r in query_runner.query_runners.iteritems()]
-    })
-    column_formatters = dict(type=query_runner_type_formatter)
-    column_filters = ('type',)
+class QueryModelView(BaseModelView):
+    column_exclude_list = ('latest_query_data',)
+
+
+class DashboardModelView(BaseModelView):
+    column_searchable_list = ('name', 'slug')
 
 
 def init_admin(app):
-    admin = Admin(app, name='re:dash admin')
+    admin = Admin(app, name='re:dash admin', template_mode='bootstrap3')
 
     admin.add_view(UserModelView(models.User))
-    admin.add_view(DataSourceModelView(models.DataSource))
+    admin.add_view(QueryModelView(models.Query))
+    admin.add_view(QueryResultModelView(models.QueryResult))
+    admin.add_view(DashboardModelView(models.Dashboard))
 
-    for m in (models.QueryResult, models.Query, models.Dashboard, models.Visualization, models.Widget, models.ActivityLog, models.Group, models.Event):
+    for m in (models.Visualization, models.Widget, models.ActivityLog, models.Group, models.Event):
         admin.add_view(BaseModelView(m))

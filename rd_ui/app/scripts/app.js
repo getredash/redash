@@ -14,7 +14,8 @@ angular.module('redash', [
     'smartTable.table',
     'ngResource',
     'ngRoute',
-    'ui.select'
+    'ui.select',
+    'naif.base64'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider) {
       if (featureFlags.clientSideMetrics) {
@@ -88,6 +89,15 @@ angular.module('redash', [
       $routeProvider.when('/alerts/:alertId', {
         templateUrl: '/views/alerts/edit.html',
         controller: 'AlertCtrl'
+      });
+
+      $routeProvider.when('/data_sources/:dataSourceId', {
+        templateUrl: '/views/data_sources/edit.html',
+        controller: 'DataSourceCtrl'
+      });
+      $routeProvider.when('/data_sources', {
+        templateUrl: '/views/data_sources/list.html',
+        controller: 'DataSourcesCtrl'
       });
 
       $routeProvider.when('/', {

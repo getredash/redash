@@ -1,0 +1,18 @@
+<div class="container">
+    <ol class="breadcrumb">
+        <li class="active">Data Sources</li>
+    </ol>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="list-group">
+                <div class="list-group-item clickable" ng-repeat="dataSource in dataSources" ng-click="openDataSource(dataSource)">
+                    <i class="fa fa-database"></i> {{dataSource.name}}
+                    <button class="btn btn-xs btn-danger pull-right" ng-click="deleteDataSource($event, dataSource)">Delete</button>
+                </div>
+                <a ng-href="/data_sources/new" class="list-group-item">
+                    <i class="fa fa-plus"></i> Add Data Source
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

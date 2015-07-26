@@ -1,3 +1,4 @@
+from base64 import b64decode
 import datetime
 import json
 import httplib2
@@ -89,20 +90,16 @@ class BigQuery(BaseQueryRunner):
         return {
             'type': 'object',
             'properties': {
-                'serviceAccount': {
-                    'type': 'string',
-                    'title': 'Service Account Email address'
-                },
                 'projectId': {
                     'type': 'string',
                     'title': 'Project ID'
                 },
-                'privateKey': {
-                    'type': 'string',
-                    'title': 'Private Key Path'
+                'jsonKeyFile': {
+                    "type": "string",
+                    'title': 'JSON Key File'
                 }
             },
-            'required': ['serviceAccount', 'projectId', 'privateKey']
+            'required': ['jsonKeyFile', 'projectId']
         }
 
     def __init__(self, configuration_json):
@@ -113,8 +110,9 @@ class BigQuery(BaseQueryRunner):
             "https://www.googleapis.com/auth/bigquery",
             ]
 
-        private_key = _load_key(self.configuration["privateKey"])
-        credentials = SignedJwtAssertionCredentials(self.configuration['serviceAccount'], private_key, scope=scope)
+        key = json.loads(b64decode(self.configuration['jsonKeyFile']))
+
+        credentials = SignedJwtAssertionCredentials(key['client_email'], key['private_key'], scope=scope)
         http = httplib2.Http()
         http = credentials.authorize(http)
 

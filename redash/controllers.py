@@ -32,11 +32,14 @@ def ping():
     return 'PONG.'
 
 
+@app.route('/admin/<anything>/<whatever>')
 @app.route('/admin/<anything>')
 @app.route('/dashboard/<anything>')
 @app.route('/alerts')
 @app.route('/alerts/<pk>')
 @app.route('/queries')
+@app.route('/data_sources')
+@app.route('/data_sources/<pk>')
 @app.route('/queries/<query_id>')
 @app.route('/queries/<query_id>/<anything>')
 @app.route('/personal')
@@ -82,6 +85,8 @@ def login():
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(request.args.get('next') or '/')
+            else:
+                flash("Wrong username or password.")
         except models.User.DoesNotExist:
             flash("Wrong username or password.")
 
@@ -182,6 +187,34 @@ class DataSourceTypeListAPI(BaseResource):
 api.add_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
 
 
+class DataSourceAPI(BaseResource):
+    @require_permission('admin')
+    def get(self, data_source_id):
+        data_source = models.DataSource.get_by_id(data_source_id)
+        return data_source.to_dict(all=True)
+
+    @require_permission('admin')
+    def post(self, data_source_id):
+        data_source = models.DataSource.get_by_id(data_source_id)
+        req = request.get_json(True)
+        if not validate_configuration(req['type'], req['options']):
+            abort(400)
+
+        data_source.name = req['name']
+        data_source.options = json.dumps(req['options'])
+
+        data_source.save()
+
+        return data_source.to_dict(all=True)
+
+    @require_permission('admin')
+    def delete(self, data_source_id):
+        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source.delete_instance(recursive=True)
+
+        return make_response('', 204)
+
+
 class DataSourceListAPI(BaseResource):
     def get(self):
         data_sources = [ds.to_dict() for ds in models.DataSource.all()]
@@ -198,11 +231,12 @@ class DataSourceListAPI(BaseResource):
         if not validate_configuration(req['type'], req['options']):
             abort(400)
 
-        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=req['options'])
+        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=json.dumps(req['options']))
 
-        return datasource.to_dict()
+        return datasource.to_dict(all=True)
 
 api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
+api.add_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='data_source')
 
 
 class DataSourceSchemaAPI(BaseResource):
