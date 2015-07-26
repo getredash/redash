@@ -43,9 +43,8 @@ Getting Help
 * Gitter (chat): https://gitter.im/EverythingMe/redash
 * Contact Arik, the maintainer directly: arik@everything.me.
 
-Contributing
-######
-**re:dash** has a growing community and contributions are always welcome (particularly documentation). To contribute, fork the project on GitHub and send a pull request.
+TOC
+###
 
 .. toctree::
    :maxdepth: 2
@@ -56,13 +55,3 @@ Contributing
    usage
    dev
    misc
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
