@@ -152,26 +152,12 @@ fi
 
 # BigQuery dependencies:
 apt-get install -y libffi-dev libssl-dev
-pip install google-api-python-client==1.2 pyOpenSSL==0.14 oauth2client==1.2
 
 # MySQL dependencies:
 apt-get install -y libmysqlclient-dev
-pip install MySQL-python==1.2.5
 
-# Mongo dependencies:
-pip install pymongo==2.7.2
-
-# Google spreadsheets:
-pip install gspread
-
-# InfluxDB
-pip install influxdb
-
-# Presto
-pip install pyhive
-
-# Impala
-pip install impyla
+# Pip requirements for all data source types
+pip install -r requirements_all_ds.txt
 
 # Setup supervisord + sysv init startup script
 sudo -u redash mkdir -p /opt/redash/supervisord
@@ -188,3 +174,4 @@ rm /etc/nginx/sites-enabled/default
 wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
 ln -nfs /etc/nginx/sites-available/redash /etc/nginx/sites-enabled/redash
 service nginx restart
+

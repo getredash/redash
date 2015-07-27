@@ -11,7 +11,7 @@ dependencies:
     - tar xvf optipng-0.7.5.tar.gz
     - cd optipng-0.7.5; ./configure; make; sudo checkinstall -y;
     - make deps
-    - pip install -r dev_requirements.txt
+    - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
   cache_directories:
     - rd_ui/node_modules/
