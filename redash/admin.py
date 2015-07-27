@@ -67,6 +67,7 @@ class PgModelConverter(CustomModelConverter):
 
 
 class BaseModelView(ModelView):
+    column_display_pk = True
     model_form_converter = PgModelConverter
 
     @require_permission('admin')
