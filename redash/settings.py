@@ -125,6 +125,7 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.url',
     'redash.query_runner.influx_db',
     'redash.query_runner.presto',
+    'redash.query_runner.hive',
     'redash.query_runner.impala_ds',
 ])))
 
