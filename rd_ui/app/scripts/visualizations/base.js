@@ -84,10 +84,6 @@
       template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
       replace: false,
       link: function (scope) {
-        scope.select2Options = {
-          width: '50%'
-        };
-
         scope.$watch('queryResult && queryResult.getFilters()', function (filters) {
           if (filters) {
             scope.filters = filters;

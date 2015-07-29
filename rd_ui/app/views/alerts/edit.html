@@ -8,7 +8,7 @@
             <form name="alertForm" ng-submit="saveChanges()" class="form">
                 <div class="form-group">
                     <label>Query</label>
-                    <ui-select ng-model="alert.query" theme="bootstrap" reset-search-input="false" on-select="onQuerySelected($item)">
+                    <ui-select ng-model="alert.query" reset-search-input="false" on-select="onQuerySelected($item)">
                         <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
                         <ui-select-choices repeat="q in queries"
                                            refresh="searchQueries($select.search)"

@@ -1,8 +1,17 @@
-<div class="well well-sm" ng-show="filters">
-    <div ng-repeat="filter in filters">
-        {{filter.friendlyName}}:
-        <select ui-select2='select2Options' ng-model="filter.current" ng-multiple="{{filter.multiple}}">
-            <option ng-repeat="value in filter.values" value="{{value}}">{{value}}</option>
-        </select>
+<div class="well well-sm filters-container" ng-show="filters">
+    <div class="filter" ng-repeat="filter in filters">
+        <ui-select ng-model="filter.current" ng-if="!filter.multiple">
+           <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$select.selected}}</ui-select-match>
+           <ui-select-choices repeat="value in filter.values | filter: $select.search track by $index">
+               {{value}}
+           </ui-select-choices>
+        </ui-select>
+
+        <ui-select ng-model="filter.current" multiple ng-if="filter.multiple">
+            <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$item}}</ui-select-match>
+            <ui-select-choices repeat="value in filter.values | filter: $select.search track by $index">
+                {{value}}
+            </ui-select-choices>
+        </ui-select>
     </div>
 </div>
