@@ -60,31 +60,28 @@ class Hive(BaseQueryRunner):
         }
 
     @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
     def type(cls):
         return "hive"
 
     def __init__(self, configuration_json):
         super(Hive, self).__init__(configuration_json)
 
-    def _run_query_internal(self, query):
-        results, error = self.run_query(query)
-
-        if error is not None:
-            raise Exception("Failed getting schema.")
-        return json.loads(results)['rows']
-
     def get_schema(self):
         try:
-            schemas_query = "show schemas;"
+            schemas_query = "show schemas"
 
-            tables_query = "show tables in %s;"
+            tables_query = "show tables in %s"
 
-            columns_query = "show column stats %s;"
+            columns_query = "show columns in %s"
 
             schema = {}
-            for schema_name in map(lambda a: a['name'], self._run_query_internal(schemas_query)):
-                for table_name in map(lambda a: a['name'], self._run_query_internal(tables_query % schema_name)):
-                    columns = map(lambda a: a['Column'], self._run_query_internal(columns_query % table_name))
+            for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
+                for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
+                    columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % table_name)))
 
                     if schema_name != 'default':
                         table_name = '{}.{}'.format(schema_name, table_name)

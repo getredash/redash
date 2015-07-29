@@ -79,13 +79,6 @@ class Impala(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Impala, self).__init__(configuration_json)
 
-    def _run_query_internal(self, query):
-        results, error = self.run_query(query)
-
-        if error is not None:
-            raise Exception("Failed getting schema.")
-        return json.loads(results)['rows']
-
     def get_schema(self):
         try:
             schemas_query = "show schemas;"
