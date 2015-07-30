@@ -70,6 +70,13 @@ class BaseQueryRunner(object):
     def get_schema(self):
         return []
 
+    def _run_query_internal(self, query):
+        results, error = self.run_query(query)
+
+        if error is not None:
+            raise Exception("Failed running query [%s]." % query)
+        return json.loads(results)['rows']
+
     @classmethod
     def to_dict(cls):
         return {

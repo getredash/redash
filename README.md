@@ -11,7 +11,7 @@ Prior to **_re:dash_**, we tried to use traditional BI suites and discovered a s
 
 **_re:dash_** was built to allow fast and easy access to billions of records, that we process and collect using Amazon Redshift ("petabyte scale data warehouse" that "speaks" PostgreSQL).
 Today **_re:dash_** has support for querying multiple databases, including: Redshift, Google BigQuery, PostgreSQL, MySQL, Graphite,
-Presto, Google Spreadsheets, Cloudera Impala and custom scripts.
+Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 
 **_re:dash_** consists of two parts:
 

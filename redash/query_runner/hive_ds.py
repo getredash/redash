@@ -8,13 +8,12 @@ from redash.utils import JSONEncoder
 logger = logging.getLogger(__name__)
 
 try:
-    from impala.dbapi import connect
-    from impala.error import DatabaseError, RPCError
+    from pyhive import hive
     enabled = True
 except ImportError, e:
     logger.exception(e)
-    logger.warning("Missing dependencies. Please install impyla.")
-    logger.warning("You can use pip: pip install impyla")
+    logger.warning("Missing dependencies. Please install pyhive.")
+    logger.warning("You can use pip: pip install pyhive")
     enabled = False
 
 COLUMN_NAME = 0
@@ -31,13 +30,14 @@ types_map = {
     'REAL': TYPE_FLOAT,
     'BOOLEAN': TYPE_BOOLEAN,
     'TIMESTAMP': TYPE_DATETIME,
+    'DATE': TYPE_DATETIME,
     'CHAR': TYPE_STRING,
     'STRING': TYPE_STRING,
     'VARCHAR': TYPE_STRING
 }
 
 
-class Impala(BaseQueryRunner):
+class Hive(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -49,48 +49,39 @@ class Impala(BaseQueryRunner):
                 "port": {
                     "type": "number"
                 },
-                "protocol": {
-                    "type": "string",
-                    "title": "Please specify beeswax or hiveserver2"
-                },
                 "database": {
                     "type": "string"
                 },
-                "use_ldap": {
-                    "type": "boolean"
-                },
-                "ldap_user": {
+                "username": {
                     "type": "string"
-                },
-                "ldap_password": {
-                    "type": "string"
-                },
-                "timeout": {
-                    "type": "number"
                 }
             },
             "required": ["host"]
         }
 
     @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
     def type(cls):
-        return "impala"
+        return "hive"
 
     def __init__(self, configuration_json):
-        super(Impala, self).__init__(configuration_json)
+        super(Hive, self).__init__(configuration_json)
 
     def get_schema(self):
         try:
-            schemas_query = "show schemas;"
+            schemas_query = "show schemas"
 
-            tables_query = "show tables in %s;"
+            tables_query = "show tables in %s"
 
-            columns_query = "show column stats %s;"
+            columns_query = "show columns in %s"
 
             schema = {}
-            for schema_name in map(lambda a: a['name'], self._run_query_internal(schemas_query)):
-                for table_name in map(lambda a: a['name'], self._run_query_internal(tables_query % schema_name)):
-                    columns = map(lambda a: a['Column'], self._run_query_internal(columns_query % table_name))
+            for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
+                for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
+                    columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % table_name)))
 
                     if schema_name != 'default':
                         table_name = '{}.{}'.format(schema_name, table_name)
@@ -104,7 +95,7 @@ class Impala(BaseQueryRunner):
 
         connection = None
         try:
-            connection = connect(**self.configuration)
+            connection = hive.connect(**self.configuration)
 
             cursor = connection.cursor()
 
@@ -129,14 +120,6 @@ class Impala(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()
-        except DatabaseError as e:
-            logging.exception(e)
-            json_data = None
-            error = e.message
-        except RPCError as e:
-            logging.exception(e)
-            json_data = None
-            error = "Metastore Error [%s]" % e.message
         except KeyboardInterrupt:
             connection.cancel()
             error = "Query cancelled by user."
@@ -149,4 +132,4 @@ class Impala(BaseQueryRunner):
 
         return json_data, error
 
-register(Impala)
+register(Hive)
