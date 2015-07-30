@@ -24,13 +24,13 @@
     "marked": "~0.3.2",
     "bucky": "~0.2.6",
     "pace": "~0.5.1",
-    "angular-ui-select": "~0.12.0",
     "font-awesome": "~4.2.0",
     "mustache": "~1.0.0",
     "canvg": "gabelerner/canvg",
     "angular-ui-bootstrap-bower": "~0.12.1",
     "leaflet": "~0.7.3",
-    "angular-base64-upload": "~0.1.11"
+    "angular-base64-upload": "~0.1.11",
+    "angular-ui-select": "0.8.2"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
