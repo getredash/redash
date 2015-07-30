@@ -80,15 +80,15 @@ def login():
 
     if request.method == 'POST':
         try:
-            user = models.User.get_by_email(request.form['username'])
+            user = models.User.get_by_email(request.form['email'])
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(request.args.get('next') or '/')
             else:
-                flash("Wrong username or password.")
+                flash("Wrong email or password.")
         except models.User.DoesNotExist:
-            flash("Wrong username or password.")
+            flash("Wrong email or password.")
 
     return render_template("login.html",
                            name=settings.NAME,
