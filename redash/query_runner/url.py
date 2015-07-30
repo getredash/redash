@@ -22,11 +22,10 @@ class Url(BaseQueryRunner):
         return False
 
     def run_query(self, query):
-        base_url = self.configuration["url"]
+        base_url = self.configuration.get("url", None)
 
         try:
             error = None
-
             query = query.strip()
 
             if base_url is not None and base_url != "":
