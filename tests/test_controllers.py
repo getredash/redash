@@ -355,7 +355,7 @@ class TestLogin(BaseTestCase):
 
     def test_submit_non_existing_user(self):
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
-            rv = c.post('/login', data={'username': 'arik', 'password': 'password'})
+            rv = c.post('/login', data={'email': 'arik', 'password': 'password'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -366,7 +366,7 @@ class TestLogin(BaseTestCase):
         user.save()
 
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
-            rv = c.post('/login', data={'username': user.email, 'password': 'password'})
+            rv = c.post('/login', data={'email': user.email, 'password': 'password'})
             self.assertEquals(rv.status_code, 302)
             login_user_mock.assert_called_with(user, remember=False)
 
@@ -376,7 +376,7 @@ class TestLogin(BaseTestCase):
         user.save()
 
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
-            rv = c.post('/login', data={'username': user.email, 'password': 'password', 'remember': True})
+            rv = c.post('/login', data={'email': user.email, 'password': 'password', 'remember': True})
             self.assertEquals(rv.status_code, 302)
             login_user_mock.assert_called_with(user, remember=True)
 
@@ -387,14 +387,14 @@ class TestLogin(BaseTestCase):
 
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
             rv = c.post('/login?next=/test',
-                        data={'username': user.email, 'password': 'password'})
+                        data={'email': user.email, 'password': 'password'})
             self.assertEquals(rv.status_code, 302)
             self.assertEquals(rv.location, 'http://localhost/test')
             login_user_mock.assert_called_with(user, remember=False)
 
     def test_submit_incorrect_user(self):
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
-            rv = c.post('/login', data={'username': 'non-existing', 'password': 'password'})
+            rv = c.post('/login', data={'email': 'non-existing', 'password': 'password'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -404,7 +404,7 @@ class TestLogin(BaseTestCase):
         user.save()
 
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
-            rv = c.post('/login', data={'username': user.email, 'password': 'badbadpassword'})
+            rv = c.post('/login', data={'email': user.email, 'password': 'badbadpassword'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -412,7 +412,7 @@ class TestLogin(BaseTestCase):
         user = user_factory.create()
 
         with app.test_client() as c, patch('redash.controllers.login_user') as login_user_mock:
-            rv = c.post('/login', data={'username': user.email, 'password': ''})
+            rv = c.post('/login', data={'email': user.email, 'password': ''})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
