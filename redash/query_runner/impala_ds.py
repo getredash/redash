@@ -12,7 +12,6 @@ try:
     from impala.error import DatabaseError, RPCError
     enabled = True
 except ImportError, e:
-    logger.exception(e)
     logger.warning("Missing dependencies. Please install impyla.")
     logger.warning("You can use pip: pip install impyla")
     enabled = False
