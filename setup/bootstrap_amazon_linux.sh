@@ -178,7 +178,7 @@ fi
 
 
 # Get supervisord startup script
-sudo -u redash wget -O /opt/redash/supervisord/supervisord.conf $FILES_BASE_URL"supervisord.conf"
+sudo -u redash wget -O /opt/redash/supervisord/supervisord.conf $FILES_BASE_URL"supervisord_for_amazon_linux.conf"
 
 # install start-stop-daemon
 wget http://developer.axis.com/download/distribution/apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
@@ -187,7 +187,7 @@ cd apps/sys-utils/start-stop-daemon-IR1_9_18-2/
 gcc start-stop-daemon.c -o start-stop-daemon
 cp start-stop-daemon /sbin/
 
-# wget -O /etc/init.d/redash_supervisord $FILES_BASE_URL"redash_supervisord_init"
+wget -O /etc/init.d/redash_supervisord $FILES_BASE_URL"redash_supervisord_init_for_amazon_linux"
 add_service "redash_supervisord"
 
 # Nginx setup
