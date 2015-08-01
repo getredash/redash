@@ -25,7 +25,7 @@ from redash import statsd_client, models, settings, utils
 from redash.wsgi import app, api
 from redash.tasks import QueryTask, record_event
 from redash.cache import headers as cache_headers
-from redash.permissions import require_permission
+from redash.permissions import require_permission, require_admin_or_owner
 from redash.query_runner import query_runners, validate_configuration
 from redash.monitor import get_status
 
@@ -659,13 +659,16 @@ class AlertAPI(BaseResource):
         return alert.to_dict()
 
 
+def require_fields(req, fields):
+    for f in fields:
+        if f not in req:
+            abort(400)
+
+
 class AlertListAPI(BaseResource):
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'query_id')
-        for f in required_fields:
-            if f not in req:
-                abort(400)
+        require_fields(req, ('options', 'name', 'query_id'))
 
         alert = models.Alert.create(
             name=req['name'],
@@ -731,6 +734,56 @@ api.add_resource(AlertAPI, '/api/alerts/<alert_id>', endpoint='alert')
 api.add_resource(AlertSubscriptionListResource, '/api/alerts/<alert_id>/subscriptions', endpoint='alert_subscriptions')
 api.add_resource(AlertSubscriptionResource, '/api/alerts/<alert_id>/subscriptions/<subscriber_id>', endpoint='alert_subscription')
 api.add_resource(AlertListAPI, '/api/alerts', endpoint='alerts')
+
+
+class UserListResource(BaseResource):
+    def get(self):
+        return [u.to_dict() for u in models.User.select()]
+
+    @require_permission('admin')
+    def post(self):
+        # TODO: send invite.
+        req = request.get_json(force=True)
+        require_fields(req, ('name', 'email', 'password'))
+
+        user = models.User(name=req['name'], email=req['email'])
+        user.hash_password(req['password'])
+        user.save()
+
+        return user.to_dict()
+
+
+class UserResource(BaseResource):
+    def get(self, user_id):
+        user = models.User.get_by_id(user_id)
+        return user.to_dict()
+
+    def post(self, user_id):
+        user = models.User.get_by_id(user_id)
+        require_admin_or_owner(user_id)
+
+        req = request.get_json(True)
+
+        # grant admin?
+        params = project(req, ('email', 'name', 'password', 'old_password'))
+
+        if 'password' in params and 'old_password' not in params:
+            abort(403)
+
+        if 'old_password' in params and not user.verify_password(params['old_password']):
+            abort(403)
+
+        if 'password' in params:
+            user.hash_password(params.pop('password'))
+            params.pop('old_password')
+
+        user.update_instance(**params)
+
+        return user.to_dict()
+
+
+api.add_resource(UserListResource, '/api/users', endpoint='users')
+api.add_resource(UserResource, '/api/users/<user_id>', endpoint='user')
 
 @app.route('/<path:filename>')
 def send_static(filename):
