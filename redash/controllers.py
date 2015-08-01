@@ -59,7 +59,8 @@ def index(**kwargs):
     }
 
     features = {
-        'clientSideMetrics': settings.CLIENT_SIDE_METRICS
+        'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
+        'allowAllToEditQueries': settings.FEATURE_ALLOW_ALL_TO_EDIT_QUERIES
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
@@ -391,7 +392,9 @@ class QueryAPI(BaseResource):
         if 'data_source_id' in query_def:
             query_def['data_source'] = query_def.pop('data_source_id')
 
-        query_def['last_modified_by'] = self.current_user
+        # Don't set "last_modified_by" if the user only refreshing this query
+        if not ('latest_query_data' in query_def and len(query_def.keys()) == 1):
+            query_def['last_modified_by'] = self.current_user
 
         # TODO: use #save() with #dirty_fields.
         models.Query.update_instance(query_id, **query_def)
