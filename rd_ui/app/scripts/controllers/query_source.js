@@ -17,7 +17,7 @@
         saveQuery = $scope.saveQuery;
 
     $scope.sourceMode = true;
-    $scope.canEdit = true;
+    $scope.canEdit = currentUser.canEdit($scope.query) || featureFlags.allowAllToEditQueries;
     $scope.isDirty = false;
 
     $scope.newVisualization = undefined;

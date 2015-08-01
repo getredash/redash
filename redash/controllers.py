@@ -59,7 +59,8 @@ def index(**kwargs):
     }
 
     features = {
-        'clientSideMetrics': settings.CLIENT_SIDE_METRICS
+        'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
+        'allowAllToEditQueries': settings.FEATURE_ALLOW_ALL_TO_EDIT_QUERIES
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
