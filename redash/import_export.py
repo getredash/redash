@@ -7,6 +7,7 @@ from flask.ext.script import Manager
 
 logger = logging.getLogger()
 
+
 class Importer(object):
     def __init__(self, object_mapping=None, data_source=None):
         if object_mapping is None:

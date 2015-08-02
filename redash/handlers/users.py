@@ -36,7 +36,6 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        # grant admin?
         params = project(req, ('email', 'name', 'password', 'old_password'))
 
         if 'password' in params and 'old_password' not in params:

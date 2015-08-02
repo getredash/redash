@@ -25,5 +25,5 @@ def require_permission(permission):
 
 
 def require_admin_or_owner(object_owner_id):
-    if not (object_owner_id == current_user.id or current_user.has_permission('admin')):
+    if not (int(object_owner_id) == current_user.id or current_user.has_permission('admin')):
         abort(403)

@@ -1,42 +1,17 @@
-from contextlib import contextmanager
 import json
 from unittest import TestCase
 from flask import url_for
 from flask.ext.login import current_user
 from mock import patch
 from tests import BaseTestCase
+from tests.handlers import authenticated_user, json_request
 from tests.factories import dashboard_factory, widget_factory, visualization_factory, query_factory, \
     query_result_factory, user_factory, data_source_factory
 from redash import models, settings
 from redash.wsgi import app
-from redash.utils import json_dumps
 
 
 settings.GOOGLE_APPS_DOMAIN = "example.com"
-
-@contextmanager
-def authenticated_user(c, user=None):
-    if not user:
-        user = user_factory.create()
-
-    with c.session_transaction() as sess:
-        sess['user_id'] = user.id
-
-    yield
-
-
-def json_request(method, path, data=None):
-    if data:
-        response = method(path, data=json_dumps(data))
-    else:
-        response = method(path)
-
-    if response.data:
-        response.json = json.loads(response.data)
-    else:
-        response.json = None
-
-    return response
 
 
 class AuthenticationTestMixin():
