@@ -29,6 +29,7 @@ mail.init_app(app)
 from redash.authentication import setup_authentication
 setup_authentication(app)
 
+
 @api.representation('application/json')
 def json_representation(data, code, headers=None):
     # Flask-Restful checks only for flask.Response but flask-login uses werkzeug.wrappers.Response
@@ -38,4 +39,4 @@ def json_representation(data, code, headers=None):
     resp.headers.extend(headers or {})
     return resp
 
-from redash import controllers
+from redash import handlers
