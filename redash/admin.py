@@ -8,7 +8,6 @@ from wtforms import fields
 from wtforms.widgets import TextInput
 
 from redash import models
-from redash import query_runner
 from redash.permissions import require_permission
 
 

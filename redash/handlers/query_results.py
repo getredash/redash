@@ -11,7 +11,6 @@ from flask_login import current_user
 from redash import models, settings, utils
 from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
-from redash.cache import headers as cache_headers
 from redash.permissions import require_permission
 from redash.handlers.base import BaseResource
 
@@ -60,6 +59,12 @@ class QueryResultListAPI(BaseResource):
             job = QueryTask.add_task(params['query'], data_source, metadata={"Username": self.current_user.name, "Query ID": query_id})
             return {'job': job.to_dict()}
 
+
+ONE_YEAR = 60 * 60 * 24 * 365.25
+
+cache_headers = {
+    'Cache-Control': 'max-age=%d' % ONE_YEAR
+}
 
 class QueryResultAPI(BaseResource):
     @staticmethod

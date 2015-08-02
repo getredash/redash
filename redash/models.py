@@ -11,7 +11,6 @@ import peewee
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
 from flask.ext.login import UserMixin, AnonymousUserMixin
-import psycopg2
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner

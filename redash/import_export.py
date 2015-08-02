@@ -146,6 +146,7 @@ def get_data_source():
 
     return data_source
 
+
 @import_manager.command
 def query(mapping_filename, query_filename, user_id):
     user = models.User.get_by_id(user_id)
