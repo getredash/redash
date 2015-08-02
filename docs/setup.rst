@@ -81,7 +81,7 @@ Setup
 
 Once you created the instance with either the image or the script, you
 should have a running re:dash instance with everything you need to get
-started. You can even login to it with the user "admin" (password:
+started. You can now login to it with the user "admin" (password:
 "admin"). But to make it useful, there are a few more steps that you
 need to manually do to complete the setup:
 
@@ -133,17 +133,13 @@ file.
 Datasources
 -----------
 
-To make re:dash truly useful, you need to setup your data sources in it.
-Currently all data sources management is done with the CLI.
+To make re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
+to create new data source connection.
 
 See
 :doc:`documentation </datasources>`
 for the different options. Your instance comes ready with dependencies
 needed to setup supported sources.
-
-Follow issue
-`#193 <https://github.com/EverythingMe/redash/issues/193>`__ to know
-when UI was implemented to manage data sources.
 
 How to upgrade?
 ---------------
