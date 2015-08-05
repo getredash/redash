@@ -198,8 +198,8 @@
         var yValues = {};
 
         _.each(row, function (value, definition) {
-          var name = definition.split("__")[0];
-          var type = definition.split("__")[1];
+          var name = definition.split("::")[0];
+          var type = definition.split("::")[1];
           if (mapping) {
             type = mapping[definition];
           }
@@ -272,7 +272,7 @@
     }
 
     QueryResult.prototype.getColumnNameWithoutType = function (column) {
-      var parts = column.split('__');
+      var parts = column.split('::');
       if (parts[0] == "" && parts.length == 2) {
         return parts[1];
       }
@@ -315,7 +315,7 @@
       var filters = [];
       var filterTypes = ['filter', 'multi-filter'];
       _.each(this.getColumnNames(), function (col) {
-        var type = col.split('__')[1]
+        var type = col.split('::')[1]
         if (_.contains(filterTypes, type)) {
           // filter found
           var filter = {
