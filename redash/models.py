@@ -511,17 +511,23 @@ class Query(ModelTimestampsMixin, BaseModel):
         return cls.select().where(where).order_by(cls.created_at.desc())
 
     @classmethod
-    def recent(cls, user_id):
+    def recent(cls, user_id=None, limit=20):
         # TODO: instead of t2 here, we should define table_alias for Query table
-        return cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
+        query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
             join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
             where(Event.action << ('edit', 'execute', 'edit_name', 'edit_description', 'view_source')).\
-            where(Event.user == user_id).\
             where(~(Event.object_id >> None)).\
             where(Event.object_type == 'query'). \
             where(cls.is_archived == False).\
             group_by(Event.object_id, Query.id).\
             order_by(peewee.SQL("count(0) desc"))
+
+        if user_id:
+            query = query.where(Event.user == user_id)
+
+        query = query.limit(limit)
+
+        return query
 
     @classmethod
     def update_instance(cls, query_id, **kwargs):
@@ -703,15 +709,21 @@ class Dashboard(ModelTimestampsMixin, BaseModel):
         return cls.get(cls.slug == slug)
 
     @classmethod
-    def recent(cls, user_id):
-        return cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
+    def recent(cls, user_id=None, limit=20):
+        query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
             join(Event, on=(Dashboard.id == peewee.SQL("t2.object_id::integer"))). \
             where(Event.action << ('edit', 'view')).\
-            where(Event.user == user_id). \
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
+
+        if user_id:
+            query = query.where(Event.user == user_id)
+
+        query = query.limit(limit)
+
+        return query
 
     def save(self, *args, **kwargs):
         if not self.slug:

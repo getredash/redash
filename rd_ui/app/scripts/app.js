@@ -102,9 +102,10 @@ angular.module('redash', [
       });
 
       $routeProvider.when('/', {
-        templateUrl: '/views/index.html',
-        controller: 'IndexCtrl'
+        templateUrl: '/views/personal.html',
+        controller: 'PersonalIndexCtrl'
       });
+
       $routeProvider.when('/personal', {
         templateUrl: '/views/personal.html',
         controller: 'PersonalIndexCtrl'
