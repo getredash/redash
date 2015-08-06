@@ -257,6 +257,7 @@ class DashboardRecentAPI(BaseResource):
     def get(self):
         recent = [d.to_dict() for d in models.Dashboard.recent(current_user.id)]
 
+        global_recent = []
         if len(recent) < 10:
             global_recent = [d.to_dict() for d in models.Dashboard.recent()]
 
@@ -366,6 +367,7 @@ class QueryRecentAPI(BaseResource):
     def get(self):
         recent = [d.to_dict() for d in models.Query.recent(current_user.id)]
 
+        global_recent = []
         if len(recent) < 10:
             global_recent = [d.to_dict() for d in models.Query.recent()]
 
