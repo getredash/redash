@@ -16,6 +16,8 @@ from redash.wsgi import app
 @app.route('/queries')
 @app.route('/data_sources')
 @app.route('/data_sources/<pk>')
+@app.route('/users')
+@app.route('/users/<pk>')
 @app.route('/queries/<query_id>')
 @app.route('/queries/<query_id>/<anything>')
 @app.route('/personal')
@@ -35,7 +37,7 @@ def index(**kwargs):
     }
 
     features = {
-        'clientSideMetrics': settings.CLIENT_SIDE_METRICS
+        'clientSideMetrics': False# settings.CLIENT_SIDE_METRICS
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,

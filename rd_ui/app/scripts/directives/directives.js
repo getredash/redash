@@ -247,4 +247,38 @@
       };
     }]
   );
+
+  directives.directive('compareTo', function () {
+    return {
+      require: "ngModel",
+      scope: {
+        otherModelValue: "=compareTo"
+      },
+      link: function (scope, element, attributes, ngModel) {
+        var validate = function(value) {
+          ngModel.$setValidity("compareTo", value === scope.otherModelValue);
+        };
+
+        scope.$watch("otherModelValue", function() {
+          validate(ngModel.$modelValue);
+        });
+
+        ngModel.$parsers.push(function(value) {
+          validate(value);
+          return value;
+        });
+      }
+    };
+  });
+
+  directives.directive('inputErrors', function () {
+    return {
+      restrict: "E",
+      templateUrl: "/views/directives/form_errors.html",
+      replace: true,
+      scope: {
+        errors: "="
+      }
+    };
+  });
 })();

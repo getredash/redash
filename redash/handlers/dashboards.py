@@ -2,6 +2,9 @@ from flask import request
 from flask.ext.restful import abort
 from flask_login import current_user
 
+from funcy import distinct
+from itertools import chain
+
 from redash import models
 from redash.wsgi import api
 from redash.permissions import require_permission
@@ -10,7 +13,13 @@ from redash.handlers.base import BaseResource
 
 class DashboardRecentAPI(BaseResource):
     def get(self):
-        return [d.to_dict() for d in models.Dashboard.recent(current_user.id).limit(20)]
+        recent = [d.to_dict() for d in models.Dashboard.recent(current_user.id)]
+
+        global_recent = []
+        if len(recent) < 10:
+            global_recent = [d.to_dict() for d in models.Dashboard.recent()]
+
+        return distinct(chain(recent, global_recent), key=lambda d: d['id'])
 
 
 class DashboardListAPI(BaseResource):

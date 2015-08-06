@@ -46,7 +46,7 @@
         <ul class="nav navbar-nav">
             <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
             <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
-                <a href="#" class="dropdown-toggle" dropdown-toggle><span class="glyphicon glyphicon-th-large"></span> <b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" dropdown-toggle><span class="fa fa-tachometer"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu" dropdown-menu>
                     <span ng-repeat="(name, group) in groupedDashboards">
                         <li class="dropdown-submenu">
@@ -75,9 +75,6 @@
             <li>
                 <a href="/alerts">Alerts</a>
             </li>
-            <li ng-show="currentUser.hasPermission('admin')">
-                <a href="/data_sources">Data Sources</a>
-            </li>
         </ul>
         <form class="navbar-form navbar-left" role="search" ng-submit="searchQueries()">
             <div class="form-group">
@@ -86,12 +83,34 @@
             <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
         </form>
         <ul class="nav navbar-nav navbar-right">
-            <p class="navbar-text avatar" ng-show="currentUser.id" ng-cloak>
-                <img ng-src="{{currentUser.gravatar_url}}" class="img-circle" alt="{{currentUser.name}}"/>
-                <a target="_self" href="/logout" id="logout" title="Logout">
-                    <span class="glyphicon glyphicon-log-out"></span>
-                </a>
-            </p>
+            <li ng-show="currentUser.hasPermission('admin')">
+                <a href="/data_sources" title="Data Sources"><i class="fa fa-database"></i></a>
+            </li>
+            <li ng-show="currentUser.hasPermission('list_users')">
+                <a href="/users" title="Users"><i class="fa fa-users"></i></a>
+            </li>
+            <li class="dropdown" dropdown>
+                <a href="#" class="dropdown-toggle" dropdown-toggle><span ng-bind="currentUser.name"></span> <span class="caret"></span></a>
+                <ul class="dropdown-menu" dropdown-menu>
+                    <li style="width:300px">
+                        <a ng-href="/users/{{currentUser.id}}">
+                            <div class="row">
+                                <div class="col-sm-2">
+                                    <img src="{{currentUser.gravatar_url}}" size="40px" class="img-circle"/>
+                                </div>
+                                <div class="col-sm-10">
+                                    <p><strong>{{currentUser.name}}</strong></p>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="divider">
+                    </li>
+                    <li>
+                        <a href="/logout">Log out</a>
+                    </li>
+                </ul>
+            </li>
         </ul>
     </div>
     {% endraw %}
@@ -144,6 +163,7 @@
 <script src="/bower_components/canvg/StackBlur.js"></script>
 <script src="/bower_components/canvg/canvg.js"></script>
 <script src="/bower_components/leaflet/dist/leaflet.js"></script>
+<script src="/bower_components/angular-bootstrap-show-errors/src/showErrors.js"></script>
 <!-- endbuild -->
 
 <!-- build:js({.tmp,app}) /scripts/scripts.js -->
@@ -158,6 +178,7 @@
 <script src="/scripts/controllers/data_sources.js"></script>
 <script src="/scripts/controllers/query_view.js"></script>
 <script src="/scripts/controllers/query_source.js"></script>
+<script src="/scripts/controllers/users.js"></script>
 <script src="/scripts/visualizations/base.js"></script>
 <script src="/scripts/visualizations/chart.js"></script>
 <script src="/scripts/visualizations/cohort.js"></script>

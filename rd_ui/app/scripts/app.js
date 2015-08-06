@@ -14,7 +14,8 @@ angular.module('redash', [
     'ngResource',
     'ngRoute',
     'ui.select',
-    'naif.base64'
+    'naif.base64',
+    'ui.bootstrap.showErrors'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig) {
       if (featureFlags.clientSideMetrics) {
@@ -99,6 +100,20 @@ angular.module('redash', [
       $routeProvider.when('/data_sources', {
         templateUrl: '/views/data_sources/list.html',
         controller: 'DataSourcesCtrl'
+      });
+
+      $routeProvider.when('/users/new', {
+        templateUrl: '/views/users/new.html',
+        controller: 'NewUserCtrl'
+      });
+      $routeProvider.when('/users/:userId', {
+        templateUrl: '/views/users/show.html',
+        reloadOnSearch: false,
+        controller: 'UserCtrl'
+      });
+      $routeProvider.when('/users', {
+        templateUrl: '/views/users/list.html',
+        controller: 'UsersCtrl'
       });
 
       $routeProvider.when('/', {

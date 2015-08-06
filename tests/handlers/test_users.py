@@ -34,6 +34,26 @@ class TestUserListResourcePost(BaseTestCase):
             self.assertEqual(rv.json['email'], test_user['email'])
 
 
+class TestUserResourceGet(BaseTestCase):
+    def test_returns_api_key_for_your_own_user(self):
+        with app.test_client() as c, authenticated_user(c) as user:
+            rv = json_request(c.get, "/api/users/{}".format(user.id))
+            self.assertIn('api_key', rv.json)
+
+    def test_returns_api_key_for_other_user_when_admin(self):
+        other_user = user_factory.create()
+        admin = user_factory.create(groups=['admin', 'default'])
+        with app.test_client() as c, authenticated_user(c, user=admin):
+            rv = json_request(c.get, "/api/users/{}".format(other_user.id))
+            self.assertIn('api_key', rv.json)
+
+    def test_doesnt_return_api_key_for_other_user(self):
+        other_user = user_factory.create()
+        with app.test_client() as c, authenticated_user(c):
+            rv = json_request(c.get, "/api/users/{}".format(other_user.id))
+            self.assertNotIn('api_key', rv.json)
+
+
 class TestUserResourcePost(BaseTestCase):
     def test_returns_403_for_non_admin_changing_not_his_own(self):
         other_user = user_factory.create()

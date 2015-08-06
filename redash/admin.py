@@ -38,16 +38,6 @@ class JSONTextAreaField(fields.TextAreaField):
         else:
             self.data = ''
 
-class PasswordHashField(fields.PasswordField):
-    def _value(self):
-        return u''
-
-    def process_formdata(self, valuelist):
-        if valuelist:
-            self.data = models.pwd_context.encrypt(valuelist[0])
-        else:
-            self.data = u''
-
 
 class PgModelConverter(CustomModelConverter):
     def __init__(self, view, additional=None):
@@ -74,17 +64,6 @@ class BaseModelView(ModelView):
         return True
 
 
-class UserModelView(BaseModelView):
-    column_searchable_list = ('name', 'email')
-    form_excluded_columns = ('created_at', 'updated_at')
-    column_exclude_list = ('password_hash',)
-
-    form_overrides = dict(password_hash=PasswordHashField)
-    form_args = {
-        'password_hash': {'label': 'Password'}
-    }
-
-
 class QueryResultModelView(BaseModelView):
     column_exclude_list = ('data',)
 
@@ -100,7 +79,6 @@ class DashboardModelView(BaseModelView):
 def init_admin(app):
     admin = Admin(app, name='re:dash admin', template_mode='bootstrap3')
 
-    admin.add_view(UserModelView(models.User))
     admin.add_view(QueryModelView(models.Query))
     admin.add_view(QueryResultModelView(models.QueryResult))
     admin.add_view(DashboardModelView(models.Dashboard))

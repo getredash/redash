@@ -109,6 +109,19 @@ a.navbar-brand img {
     background-color: #f5f5f5;
 }
 
+.form-group.required .control-label:after {
+   content:"*";
+   color:red;
+}
+
+.form-group .help-block.error {
+  display: none;
+}
+
+.form-group.has-error .help-block.error {
+  display: block;
+}
+
 /* angular-growl */
 .growl {
     position: fixed;
