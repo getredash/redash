@@ -1,9 +1,16 @@
 <div class="container">
     <div class="row">
+        <p>
+            <a href="/queries/new" class="btn btn-default">New Query</a>
+            <button ng-show="currentUser.hasPermission('create_dashboard')" type="button" class="btn btn-default" data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</button>
+            <a href="/alerts/new" class="btn btn-default">New Alert</a>
+        </p>
+    </div>
+
+    <div class="row">
         <div class="list-group col-md-6">
             <div class="list-group-item active">
                 Recent Dashboards
-                <button ng-show="currentUser.hasPermission('create_dashboard')" type="button" class="btn btn-sm btn-link" data-toggle="modal" href="#new_dashboard_dialog" tooltip="New Dashboard"><span class="glyphicon glyphicon-plus-sign"></span></button>
             </div>
             <div class="list-group-item" ng-repeat="dashboard in recentDashboards" >
                 <button type="button" class="close delete-button" aria-hidden="true" ng-show="dashboard.canEdit()" ng-click="archiveDashboard(dashboard)" tooltip="Delete Dashboard">&times;</button>

@@ -18,6 +18,9 @@ from flask_login import current_user, login_user, logout_user, login_required
 from funcy import project
 import sqlparse
 
+from itertools import chain
+from funcy import distinct
+
 from redash import statsd_client, models, settings, utils
 from redash.wsgi import app, api
 from redash.tasks import QueryTask, record_event
@@ -249,9 +252,15 @@ class DataSourceSchemaAPI(BaseResource):
 
 api.add_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')
 
+
 class DashboardRecentAPI(BaseResource):
     def get(self):
-        return [d.to_dict() for d in models.Dashboard.recent(current_user.id).limit(20)]
+        recent = [d.to_dict() for d in models.Dashboard.recent(current_user.id)]
+
+        if len(recent) < 10:
+            global_recent = [d.to_dict() for d in models.Dashboard.recent()]
+
+        return distinct(chain(recent, global_recent), key=lambda d: d['id'])
 
 
 class DashboardListAPI(BaseResource):
@@ -355,7 +364,12 @@ class QuerySearchAPI(BaseResource):
 class QueryRecentAPI(BaseResource):
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict() for q in models.Query.recent(current_user.id).limit(20)]
+        recent = [d.to_dict() for d in models.Query.recent(current_user.id)]
+
+        if len(recent) < 10:
+            global_recent = [d.to_dict() for d in models.Query.recent()]
+
+        return distinct(chain(recent, global_recent), key=lambda d: d['id'])
 
 
 class QueryListAPI(BaseResource):
