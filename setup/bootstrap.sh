@@ -18,6 +18,7 @@ fi
 # Base packages
 apt-get update
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
+pip install -U setuptools
 
 # redash user
 # TODO: check user doesn't exist yet?
