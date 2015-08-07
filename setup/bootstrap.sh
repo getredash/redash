@@ -158,6 +158,7 @@ apt-get install -y libffi-dev libssl-dev
 apt-get install -y libmysqlclient-dev
 
 # Pip requirements for all data source types
+cd /opt/redash/current
 pip install -r requirements_all_ds.txt
 
 # Setup supervisord + sysv init startup script
