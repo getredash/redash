@@ -99,10 +99,11 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-REDASH_VERSION=${REDASH_VERSION-0.6.3.b906}
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
+REDASH_VERSION=${REDASH_VERSION-0.7.1.b1011}
+#LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
+# Use explicit path until we switch to using release version again instead of RC.
+LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v0.7.1-rc/redash.0.7.1.b1011.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
-REDASH_TARBALL=/tmp/redash.tar.gz
 REDASH_TARBALL=/tmp/redash.tar.gz
 
 if [ ! -d "$VERSION_DIR" ]; then
