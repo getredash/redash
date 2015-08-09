@@ -16,6 +16,7 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Base packages
+apt-get dist-upgrade
 apt-get update
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
 pip install -U setuptools
