@@ -272,7 +272,16 @@
     }
 
     QueryResult.prototype.getColumnNameWithoutType = function (column) {
-      var parts = column.split('::');
+      var typeSplit;
+      if (column.indexOf("::") != -1) {
+        typeSplit = "::";
+      } else if (column.indexOf("__" != -1)) {
+        typeSplit = "__";
+      } else {
+        return column;
+      }
+
+      var parts = column.split(typeSplit);
       if (parts[0] == "" && parts.length == 2) {
         return parts[1];
       }
@@ -315,7 +324,7 @@
       var filters = [];
       var filterTypes = ['filter', 'multi-filter'];
       _.each(this.getColumnNames(), function (col) {
-        var type = col.split('::')[1]
+        var type = col.split('::')[1] || col.split('__')[1];
         if (_.contains(filterTypes, type)) {
           // filter found
           var filter = {
