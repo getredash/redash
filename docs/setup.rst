@@ -47,15 +47,15 @@ AWS
 Launch the instance with from the pre-baked AMI (for small deployments
 t2.micro should be enough):
 
--  us-east-1': `ami-95e04efe <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-95e04efe>`__
--  us-west-2': `ami-01d8d331 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-01d8d331>`__
--  us-west-1': `ami-b35ea1f7 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-b35ea1f7>`__
--  eu-west-1': `ami-d46734a3 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-d46734a3>`__
--  eu-central-1': `ami-7e494e63 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-7e494e63>`__
--  ap-southeast-1': `ami-30343b62 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-30343b62>`__
--  ap-southeast-2': `ami-53357669 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-53357669>`__
--  ap-northeast-1': `ami-4253ea42 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-4253ea42>`__
--  sa-east-1': `ami-b170f9ac <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-b170f9ac>`__
+-  us-east-1: `ami-95e04efe <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-95e04efe>`__
+-  us-west-2: `ami-01d8d331 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-01d8d331>`__
+-  us-west-1: `ami-b35ea1f7 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-b35ea1f7>`__
+-  eu-west-1: `ami-d46734a3 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-d46734a3>`__
+-  eu-central-1: `ami-7e494e63 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-7e494e63>`__
+-  ap-southeast-1: `ami-30343b62 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-30343b62>`__
+-  ap-southeast-2: `ami-53357669 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-53357669>`__
+-  ap-northeast-1: `ami-4253ea42 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-4253ea42>`__
+-  sa-east-1: `ami-b170f9ac <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-b170f9ac>`__
 
 Now proceed to `"Setup" <#setup>`__.
 
