@@ -100,9 +100,7 @@ fi
 
 # Install latest version
 REDASH_VERSION=${REDASH_VERSION-0.7.1.b1015}
-#LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
-# Use explicit path until we switch to using release version again instead of RC.
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v0.7.1-rc/redash.0.7.1.b1015.tar.gz"
+LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
 REDASH_TARBALL=/tmp/redash.tar.gz
 
