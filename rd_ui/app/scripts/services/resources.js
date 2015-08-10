@@ -198,8 +198,8 @@
         var yValues = {};
 
         _.each(row, function (value, definition) {
-          var name = definition.split("::")[0];
-          var type = definition.split("::")[1];
+          var name = definition.split("::")[0] || definition.split("__")[0];
+          var type = definition.split("::")[1] || definition.split("__")[0];
           if (mapping) {
             type = mapping[definition];
           }
@@ -221,6 +221,10 @@
           }
 
           if (type == 'series') {
+            seriesName = String(value);
+          }
+
+          if (type == 'multiFilter') {
             seriesName = String(value);
           }
 
@@ -322,7 +326,7 @@
 
     QueryResult.prototype.prepareFilters = function () {
       var filters = [];
-      var filterTypes = ['filter', 'multi-filter'];
+      var filterTypes = ['filter', 'multi-filter', 'multiFilter'];
       _.each(this.getColumnNames(), function (col) {
         var type = col.split('::')[1] || col.split('__')[1];
         if (_.contains(filterTypes, type)) {
@@ -331,7 +335,7 @@
             name: col,
             friendlyName: this.getColumnFriendlyName(col),
             values: [],
-            multiple: (type=='multi-filter')
+            multiple: (type=='multiFilter') || (type=='multi-filter')
           }
           filters.push(filter);
         }
