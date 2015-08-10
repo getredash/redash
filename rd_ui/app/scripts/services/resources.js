@@ -224,11 +224,7 @@
             seriesName = String(value);
           }
 
-          if (type == 'multiFilter') {
-            seriesName = String(value);
-          }
-
-          if (type == 'multi-filter') {
+          if (type == 'multiFilter' || type == 'multi-filter') {
             seriesName = String(value);
           }
         });
