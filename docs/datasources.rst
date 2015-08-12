@@ -96,7 +96,22 @@ InfluxDB
 Presto
 ------
 
-...
+-  **Options**:
+
+    - Host (mandatory)
+        - Address to a Presto coordinator.
+    - Port
+        - Port to a Presto coordinator. `8080` is the default port.
+    - Schema
+        - Default schema name of Presto. You can read other schemas by qualified name like `FROM myschema.table1`.
+    - Catalog
+        - Catalog (connector) name of Presto such as `hive-cdh4`, `hive-hadoop1`, etc.
+    - Username
+        - User name to connect to a Presto.
+
+-  **Additional requirements**:
+
+   - ``pyhive`` python package.
 
 Hive
 ----

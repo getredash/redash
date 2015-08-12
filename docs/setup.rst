@@ -19,7 +19,7 @@ First, you need to add the images to your account:
 
 .. code:: bash
 
-    $ gcloud compute images add redash-063-b906 gs://redash-images/redash.0.6.3.b906.tar.gz
+    $ gcloud compute images create "redash-071-b1015" --source-uri gs://redash-images/redash.0.7.1.b1015.tar.gz
 
 Next you need to launch an instance using this image (n1-standard-1
 instance type is recommended). If you plan using re:dash with BigQuery,
@@ -28,13 +28,13 @@ you can use a dedicated image which comes with BigQuery preconfigured
 
 .. code:: bash
 
-    $ gcloud compute images add redash-063-b906-bq gs://redash-images/redash.0.6.3.b906-bq.tar.gz
+    $ gcloud compute images create "redash-071-b1015-bq" gs://redash-images/redash.0.7.1.b1015-bq.tar.gz
 
 Note that you need to launch this instance with BigQuery access:
 
 .. code:: bash
 
-    $ gcloud compute instances create <your_instance_name> --image redash-060-b812-bq --scopes storage-ro bigquery
+    $ gcloud compute instances create <your_instance_name> --image redash-071-b1015-bq --scopes storage-ro bigquery
 
 (the same can be done from the web interface, just make sure to enable
 BigQuery access)
@@ -47,24 +47,15 @@ AWS
 Launch the instance with from the pre-baked AMI (for small deployments
 t2.micro should be enough):
 
--  us-east-1:
-   `ami-47b4612c <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-47b4612c>`__
--  us-west-1:
-   `ami-a72edde3 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-a72edde3>`__
--  us-west-2:
-   `ami-f9d6d5c9 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-f9d6d5c9>`__
--  eu-central-1:
-   `ami-72eed46f <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-72eed46f>`__
--  eu-west-1:
-   `ami-5a135c2d <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-5a135c2d>`__
--  sa-east-1:
-   `ami-2b78f436 <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-2b78f436>`__
--  ap-northeast-1:
-   `ami-0a55fd0a <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-0a55fd0a>`__
--  ap-southeast-2:
-   `ami-9f793ea5 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-9f793ea5>`__
--  ap-southeast-1:
-   `ami-12545740 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-12545740>`__
+-  us-east-1: `ami-95e04efe <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-95e04efe>`__
+-  us-west-2: `ami-01d8d331 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-01d8d331>`__
+-  us-west-1: `ami-b35ea1f7 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-b35ea1f7>`__
+-  eu-west-1: `ami-d46734a3 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-d46734a3>`__
+-  eu-central-1: `ami-7e494e63 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-7e494e63>`__
+-  ap-southeast-1: `ami-30343b62 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-30343b62>`__
+-  ap-southeast-2: `ami-53357669 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-53357669>`__
+-  ap-northeast-1: `ami-4253ea42 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-4253ea42>`__
+-  sa-east-1: `ami-b170f9ac <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-b170f9ac>`__
 
 Now proceed to `"Setup" <#setup>`__.
 

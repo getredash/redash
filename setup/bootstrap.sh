@@ -16,8 +16,10 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Base packages
+apt-get dist-upgrade
 apt-get update
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
+pip install -U setuptools
 
 # redash user
 # TODO: check user doesn't exist yet?
@@ -98,10 +100,9 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-REDASH_VERSION=${REDASH_VERSION-0.6.3.b906}
+REDASH_VERSION=${REDASH_VERSION-0.7.1.b1015}
 LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
-REDASH_TARBALL=/tmp/redash.tar.gz
 REDASH_TARBALL=/tmp/redash.tar.gz
 
 if [ ! -d "$VERSION_DIR" ]; then
@@ -157,6 +158,7 @@ apt-get install -y libffi-dev libssl-dev
 apt-get install -y libmysqlclient-dev
 
 # Pip requirements for all data source types
+cd /opt/redash/current
 pip install -r requirements_all_ds.txt
 
 # Setup supervisord + sysv init startup script
