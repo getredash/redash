@@ -208,7 +208,6 @@
                     <div class="col-lg-12">
                         <ul class="nav nav-tabs">
                             <rd-tab tab-id="table" name="Table"></rd-tab>
-    
                             <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" ng-repeat="vis in query.visualizations">
                                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
                             </rd-tab>
@@ -223,9 +222,7 @@
                             <filters></filters>
                             <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
                         </div>
-
                         <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
-
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
 
