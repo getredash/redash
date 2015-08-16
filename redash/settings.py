@@ -64,7 +64,7 @@ DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql
 
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
-CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", REDIS_URL)
+CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", CELERY_BROKER)
 
 # The following enables periodic job (every 5 minutes) of removing unused query results. Behind this "feature flag" until
 # proved to be "safe".
