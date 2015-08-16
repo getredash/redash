@@ -274,7 +274,7 @@
   directives.directive('inputErrors', function () {
     return {
       restrict: "E",
-      templateUrl: "/views/directives/form_errors.html",
+      templateUrl: "/views/directives/input_errors.html",
       replace: true,
       scope: {
         errors: "="

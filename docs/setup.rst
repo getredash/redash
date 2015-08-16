@@ -92,10 +92,7 @@ file.
    can use ``pwgen 32 -1`` to generate random string).
 
 2. By default we create an admin user with the password "admin". You
-   need to change the password:
-
-   -  ``cd /opt/redash/current``
-   -  ``sudo -u redash bin/run ./manage.py users password admin {new password}``
+   can change this password at: ``/users/me#password``.
 
 3. If you want to use Google OAuth to authenticate users, you need to
    create a Google Developers project (see :doc:`instructions </misc/google_developers_project>`)
@@ -116,11 +113,11 @@ file.
 
 5. Once you have Google OAuth enabled, you can login using your Google
    Apps account. If you want to grant admin permissions to some users,
-   you can do it with the ``users grant_admin`` command:
-   ``sudo -u redash bin/run ./manage.py users grant_admin {email}``.
+   you can do this by editing the user profile and enabling admin
+   permission for it.
 
 6. If you don't use Google OAuth or just need username/password logins,
-   you can create additional users using the CLI (see :doc:`documentation </usage/users>`).
+   you can create additional users at: ``/users/new``.
 
 Datasources
 -----------
@@ -128,10 +125,8 @@ Datasources
 To make re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
 to create new data source connection.
 
-See
-:doc:`documentation </datasources>`
-for the different options. Your instance comes ready with dependencies
-needed to setup supported sources.
+See :doc:`documentation </datasources>` for the different options.
+Your instance comes ready with dependencies needed to setup supported sources.
 
 How to upgrade?
 ---------------

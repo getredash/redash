@@ -6,7 +6,6 @@ Usage
     :glob:
 
     usage/maintenance.rst
-    usage/users.rst
     usage/*
 
 
