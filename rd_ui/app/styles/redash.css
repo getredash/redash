@@ -18,6 +18,10 @@ a.navbar-brand {
     margin-left: 0px !important;
 }
 
+.navbar .fa {
+    font-size: 18px;
+}
+
 a.navbar-brand img {
     height: 40px;
 }
