@@ -66,6 +66,7 @@ Download the provision script and run it on your machine. Note that:
 
 1. You need to run the script as root.
 2. It was tested only on Ubuntu 12.04, Ubuntu 14.04 and Debian Wheezy.
+3. It's designed to run on a "clean" machine. If you're running this script on a machine that is used for other purposes, you might want to tweak it to your needs (like removing the ``apt-get dist-upgrade`` call at the beginning of it).
 
 Setup
 =====
