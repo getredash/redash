@@ -9,7 +9,7 @@
 	' </pivot-renderer>';	
 	var editTemplate = '<pivot-editor></pivot-editor>';
 	var defaultOptions = {};
-	
+
 	VisualizationProvider.registerVisualization({
 	 type: 'PIVOT',
 	 name: 'Pivot',
@@ -23,29 +23,27 @@
 	module.directive('pivotRenderer', function() {
 		return {
 			restrict: 'E',	
-			template:'',
+			template:'/views/visualizations/pivot.html',
 			replace: false,
 			link: function($scope, element, attrs) {		
-				$scope.visualization.options.cols = 
-				$scope.visualization.options.rows = 		
 				$scope.$watch('[queryResult && queryResult.getData(), visualization.options]', 
 				function (data) {
 						var data = $scope.queryResult.getData();				
-						if (!data) {
+						if ($scope.queryResult.getData() == null) {
 								return;
 							}
 							else {
-								var data = $.extend(true, [], $scope.queryResult.getData());	
 							    var cols= $scope.visualization.options.cols || 'cols';
 							    var rows= $scope.visualization.options.rows || 'rows';
-                                var options = {"rows":rows, "cols":cols}
-								$(element).pivotUI(data, options, true);						
+                                var optionsTable = {"rows":rows, "cols":cols}
+								var data = $.extend(true, [], $scope.queryResult.getData());
+								$(element).pivotUI(data, optionsTable, true);					
 							}
-						});
+						}, true);
 				}
 		}
 	});
-	
+          
 	module.directive('pivotEditor', function() {
 	return {
 	 restrict: 'E',
