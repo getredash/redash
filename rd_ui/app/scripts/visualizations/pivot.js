@@ -23,7 +23,7 @@
 	module.directive('pivotRenderer', function() {
 		return {
 			restrict: 'E',	
-			template:'/views/visualizations/pivot.html',
+			template:'',
 			replace: false,
 			link: function($scope, element, attrs) {		
 				$scope.$watch('[queryResult && queryResult.getData(), visualization.options]', 
