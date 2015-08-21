@@ -22,7 +22,7 @@
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}"
              ng-controller='WidgetCtrl'>
 
-            <div class="panel panel-default" ng-if="type=='visualization'">
+            <div class="panel panel-default" id="queryContainer" ng-if="type=='visualization'">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <p>
