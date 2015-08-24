@@ -28,7 +28,7 @@ you can use a dedicated image which comes with BigQuery preconfigured
 
 .. code:: bash
 
-    $ gcloud compute images create "redash-071-b1015-bq" gs://redash-images/redash.0.7.1.b1015-bq.tar.gz
+    $ gcloud compute images create "redash-071-b1015-bq" --source-uri gs://redash-images/redash.0.7.1.b1015-bq.tar.gz
 
 Note that you need to launch this instance with BigQuery access:
 
