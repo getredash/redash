@@ -528,6 +528,19 @@ class QueryResultListAPI(BaseResource):
             return {'job': job.to_dict()}
 
 
+# CODE to clean up CSV rows. strips tags.
+import re
+def clean_row(row):
+    new_row = []
+    for column in row:
+        matches = re.match(r"<.+>(.+)</.+>", column)
+        if matches:
+            new_row.append(matches.group(1))
+        else:
+            new_row.append(column)
+    return new_row
+
+
 class QueryResultAPI(BaseResource):
     @staticmethod
     def csv_response(query_result):
@@ -538,7 +551,7 @@ class QueryResultAPI(BaseResource):
         writer.writer = utils.UnicodeWriter(s)
         writer.writeheader()
         for row in query_data['rows']:
-            writer.writerow(row)
+            writer.writerow(clean_row(row))
 
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
         headers.update(cache_headers)
