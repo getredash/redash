@@ -531,13 +531,16 @@ class QueryResultListAPI(BaseResource):
 # CODE to clean up CSV rows. strips tags.
 import re
 def clean_row(row):
-    new_row = []
-    for column in row:
-        matches = re.match(r"<.+>(.+)</.+>", column)
-        if matches:
-            new_row.append(matches.group(1))
+    new_row = {}
+    for column in row.keys():
+        if type(row[column]).__name__ in ["str", "unicode"]:
+            matches = re.match(r"<.+>(.+)</.+>", row[column])
+            if matches:
+                new_row[column] = matches.group(1)
+            else:
+                new_row[column] = row[column]
         else:
-            new_row.append(column)
+            new_row[column] = row[column]
     return new_row
 
 
