@@ -123,6 +123,9 @@
         replace: true,
         link: function($scope, element, attrs) {
           $scope.widgetSizes = [{
+            name: 'Hide',
+            value: 0
+          }, {
             name: 'Regular',
             value: 1
           }, {
