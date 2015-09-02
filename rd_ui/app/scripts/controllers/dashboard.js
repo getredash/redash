@@ -116,6 +116,11 @@
   };
 
   var WidgetCtrl = function($scope, $location, Events, Query) {
+    $scope.checkWidth = function () {
+     if ($scope.widget && $scope.widget.width === 0)
+       return true;
+       else return false;
+    }
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
