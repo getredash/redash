@@ -48,6 +48,9 @@ angular.module('redash.filters', []).
 
   .filter('colWidth', function () {
     return function (widgetWidth) {
+      if (widgetWidth == 0) {
+        return 0;
+      } else
       if (widgetWidth == 1) {
         return 6;
       }
