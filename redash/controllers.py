@@ -30,6 +30,8 @@ from redash.query_runner import query_runners, validate_configuration
 from redash.monitor import get_status
 
 
+from devspark import custom_controllers
+
 @app.route('/ping', methods=['GET'])
 def ping():
     return 'PONG.'
@@ -101,6 +103,7 @@ def login():
                            username=request.form.get('username', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            show_saml_login=settings.SAML_LOGIN_ENABLED)
+
 
 @app.route('/logout')
 def logout():

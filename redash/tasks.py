@@ -10,6 +10,8 @@ from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner
 
+from devspark import custom_tasks
+
 logger = get_task_logger(__name__)
 
 
