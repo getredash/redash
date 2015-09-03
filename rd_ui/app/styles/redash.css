@@ -196,6 +196,14 @@ li.widget:hover {
     overflow-x: auto;
 }
 
+/* Support for Font-Awesome in btn-xs */
+
+.btn-xs > .fa {
+    font-size: 14px;
+    top: 1px;
+    position: relative;
+}
+
 /* Because of ng-repeat we add span between the .dropdown-menu element and the li element, so we had
 to add those CSS styles here. */
 

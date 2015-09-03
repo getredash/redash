@@ -194,15 +194,6 @@
   var IndexCtrl = function ($scope, Events, Dashboard) {
     Events.record(currentUser, "view", "page", "homepage");
     $scope.$parent.pageTitle = "Home";
-
-    $scope.archiveDashboard = function (dashboard) {
-      if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
-        Events.record(currentUser, "archive", "dashboard", dashboard.id);
-        dashboard.$delete(function () {
-          $scope.$parent.reloadDashboards();
-        });
-      }
-    }
   };
 
   var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query) {
@@ -211,15 +202,6 @@
 
     $scope.recentQueries = Query.recent();
     $scope.recentDashboards = Dashboard.recent();
-
-    $scope.archiveDashboard = function (dashboard) {
-      if (confirm('Are you sure you want to delete "' + dashboard.name + '" dashboard?')) {
-        Events.record(currentUser, "archive", "dashboard", dashboard.id);
-        dashboard.$delete(function () {
-          $scope.$parent.reloadDashboards();
-        });
-      }
-    }
   };
 
   angular.module('redash.controllers', [])
