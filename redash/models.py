@@ -715,6 +715,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel):
             where(Event.action << ('edit', 'view')).\
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
+            where(Dashboard.is_archived == False). \
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
