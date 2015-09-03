@@ -50,7 +50,7 @@ angular.module('redash.filters', []).
     return function (widgetWidth) {
       if (widgetWidth == 0) {
         return 0;
-      } else
+      }
       if (widgetWidth == 1) {
         return 6;
       }
