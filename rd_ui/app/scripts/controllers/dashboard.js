@@ -117,6 +117,7 @@
 
   var WidgetCtrl = function($scope, $location, Events, Query) {
     $scope.checkWidth = function () {
+     alert('CheckWidth VALUE widgetWidth: ' + widgetWidth)
      if ($scope.widget !== null && $scope.widget.width == 0)
         return true;
      return false;

@@ -48,6 +48,7 @@ angular.module('redash.filters', []).
 
   .filter('colWidth', function () {
     return function (widgetWidth) {
+      alert('Funcion entro con: ' + widgetWidth)
       if (widgetWidth == 0) {
         return 0;
       }
