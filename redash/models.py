@@ -700,6 +700,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel):
             'layout': layout,
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
             'widgets': widgets_layout,
+            'is_archived': self.is_archived,
             'updated_at': self.updated_at,
             'created_at': self.created_at
         }

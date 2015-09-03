@@ -94,6 +94,15 @@
       }
     };
 
+    $scope.archiveDashboard = function () {
+      if (confirm('Are you sure you want to archive the "' + $scope.dashboard.name + '" dashboard?')) {
+        Events.record(currentUser, "archive", "dashboard", $scope.dashboard.id);
+        $scope.dashboard.$delete(function () {
+          $scope.$parent.reloadDashboards();
+        });
+      }
+    }
+
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
