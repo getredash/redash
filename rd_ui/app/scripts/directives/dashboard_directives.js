@@ -189,7 +189,6 @@
 
           $scope.saveWidget = function() {
             $scope.saveInProgress = true;
-            alert('D D se crea con :' + $scope.widgetSize)
             var widget = new Widget({
               'visualization_id': $scope.selectedVis && $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
