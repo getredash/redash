@@ -1,12 +1,10 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
-    $scope.disableTagButton = {'visibility': 'show'};
+    $scope.disableWidget = {'visibility': 'visible'};
     $scope.checkWidth = function () {
-     console.log('CheckWidth VALUE widgetWidth: ' + $scope.widget.width);
-     alert('CheckWidth VALUE widgetWidth: ' + $scope.widget.width);
+    console.log('ACA TAAAAAAA: ' + $scope.widget);
      if ($scope.widget !== null && $scope.widget.width == 0)
-        return $scope.disableTagButton = {'visibility': 'hidden'};
-     return $scope.disableTagButton = {'visibility': 'show'};
+        $scope.disableWidget = {'visibility': 'hidden'};
     }
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
