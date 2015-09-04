@@ -1,5 +1,11 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
+    $scope.checkWidth = function () {
+     alert('CheckWidth VALUE widgetWidth: ' + widgetWidth);
+     if ($scope.widget !== null && $scope.widget.width == 0)
+        return true;
+     return false;
+    }
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
 
@@ -116,12 +122,6 @@
   };
 
   var WidgetCtrl = function($scope, $location, Events, Query) {
-    $scope.checkWidth = function () {
-     alert('CheckWidth VALUE widgetWidth: ' + widgetWidth)
-     if ($scope.widget !== null && $scope.widget.width == 0)
-        return true;
-     return false;
-    }
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
