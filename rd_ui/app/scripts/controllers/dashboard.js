@@ -1,6 +1,7 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
     $scope.checkWidth = function () {
+     console.log('CheckWidth VALUE widgetWidth: ' + $scope.widget.width);
      alert('CheckWidth VALUE widgetWidth: ' + $scope.widget.width);
      if ($scope.widget !== null && $scope.widget.width == 0)
         return true;
