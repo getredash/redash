@@ -151,7 +151,11 @@ class MongoDB(BaseQueryRunner):
         for k in data:
             if isinstance(data[k], list):
                 for i in range(0, len(data[k])):
-                    self._fix_dates(data[k][i])
+                    if isinstance(data[k][i], (str, unicode)):
+                        self._convert_date(data[k], i)
+                    elif not isinstance(data[k][i], (int)):
+                        self._fix_dates(data[k][i])
+
             elif isinstance(data[k], dict):
                 self._fix_dates(data[k])
             else:
