@@ -65,6 +65,8 @@ class DashboardAPI(BaseResource):
         dashboard.is_archived = True
         dashboard.save()
 
+        return dashboard.to_dict(with_widgets=True)
+
 api.add_resource(DashboardListAPI, '/api/dashboards', endpoint='dashboards')
 api.add_resource(DashboardRecentAPI, '/api/dashboards/recent', endpoint='recent_dashboards')
 api.add_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
