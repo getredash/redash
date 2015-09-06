@@ -18,6 +18,10 @@ a.navbar-brand {
     margin-left: 0px !important;
 }
 
+.navbar .fa {
+    font-size: 18px;
+}
+
 a.navbar-brand img {
     height: 40px;
 }
@@ -107,6 +111,19 @@ a.navbar-brand img {
 .list-group-item.clickable:focus,
 .list-group-item.clickable:hover {
     background-color: #f5f5f5;
+}
+
+.form-group.required .control-label:after {
+   content:"*";
+   color:red;
+}
+
+.form-group .help-block.error {
+  display: none;
+}
+
+.form-group.has-error .help-block.error {
+  display: block;
 }
 
 /* angular-growl */

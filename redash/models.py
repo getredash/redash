@@ -11,7 +11,6 @@ import peewee
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
 from flask.ext.login import UserMixin, AnonymousUserMixin
-import psycopg2
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner
@@ -132,7 +131,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
 
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
-                           'view_query', 'view_source', 'execute_query']
+                           'view_query', 'view_source', 'execute_query', 'list_users']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=100)
@@ -169,15 +168,26 @@ class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
     class Meta:
         db_table = 'users'
 
-    def to_dict(self):
-        return {
+    def to_dict(self, with_api_key=False):
+        d = {
             'id': self.id,
             'name': self.name,
             'email': self.email,
             'gravatar_url': self.gravatar_url,
+            'groups': self.groups,
             'updated_at': self.updated_at,
             'created_at': self.created_at
         }
+
+        if self.password_hash is None:
+            d['auth_type'] = 'external'
+        else:
+            d['auth_type'] = 'password'
+
+        if with_api_key:
+            d['api_key'] = self.api_key
+
+        return d
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)

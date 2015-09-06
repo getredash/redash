@@ -1,0 +1,76 @@
+<div class="container">
+    <ol class="breadcrumb">
+        <li ng-if="currentUser.hasPermission('list_users')"><a href="/users">Users</a></li>
+        <li ng-if="!currentUser.hasPermission('list_users')">Users</li>
+        <li class="active">{{user.name}}</li>
+    </ol>
+
+    <tabset>
+        <tab heading="Profile" active="tabs['profile']" select="setTab('profile')">
+            <p>
+                <img src="{{user.gravatar_url}}"/>
+            </p>
+
+            <p>
+                <strong>{{user.name}}</strong>
+            </p>
+
+            <p>
+                {{user.email}}
+            </p>
+        </tab>
+        <tab heading="API Key" ng-if="user.api_key" active="tabs['apiKey']" select="setTab('apiKey')">
+            API Key:
+            <input type="text" value="{{user.api_key}}" size="44" readonly/>
+        </tab>
+        <tab heading="Settings" ng-if="showSettings || currentUser.hasPermission('admin')" active="tabs['settings']" select="setTab('settings')">
+            <div class="col-md-6">
+                <form class="form" name="userSettingsForm" ng-submit="updateUser(userSettingsForm)" novalidate>
+                    <div class="form-group required" ng-if="showSettings" show-errors>
+                        <label class="control-label">Name</label>
+                        <input name="name" type="text" class="form-control" ng-model="user.name" required/>
+                        <input-errors errors="userSettingsForm.name.$error"/>
+                    </div>
+                    <div class="form-group required" ng-if="showSettings" show-errors>
+                        <label class="control-label">Email</label>
+                        <input name="email" type="email" class="form-control" ng-model="user.email" required/>
+                        <input-errors errors="userSettingsForm.email.$error"/>
+                    </div>
+                    <div class="checkbox" ng-if="currentUser.hasPermission('admin')">
+                        <label>
+                            <input type="checkbox" ng-model="user.admin"> Admin
+                        </label>
+                    </div>
+                    <div class="form-gruup">
+                        <button class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </tab>
+        <tab heading="Password" ng-if="showPasswordSettings" active="tabs['password']" select="setTab('password')">
+            <div class="col-md-6">
+                <form class="form" name="userPasswordForm" ng-submit="savePassword(userPasswordForm)" novalidate>
+                    <div class="form-group required" show-errors>
+                        <label class="control-label">Current Password</label>
+                        <input name="currentPassword" class="form-control" type="password" ng-model="password.current" required/>
+                        <input-errors name="Password" errors="userPasswordForm.currentPassword.$error"/>
+                    </div>
+                    <div class="form-group required" show-errors>
+                        <label class="control-label">New Password</label>
+                        <input name="newPassword" class="form-control" type="password" ng-model="password.new" ng-minlength="6" required/>
+                        <input-errors name="Password" errors="userPasswordForm.newPassword.$error"/>
+                    </div>
+                    <div class="form-group required" show-errors>
+                        <label class="control-label">Repeat New Password</label>
+                        <input name="passwordRepeat" class="form-control" type="password" ng-model="password.newRepeat" compare-to="password.new"/>
+                        <span class="help-block error" ng-if="userPasswordForm.passwordRepeat.$error.compareTo">Passwords don't match.</span>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </tab>
+    </tabset>
+
+</div>

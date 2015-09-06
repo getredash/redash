@@ -30,7 +30,8 @@
     "angular-ui-bootstrap-bower": "~0.12.1",
     "leaflet": "~0.7.3",
     "angular-base64-upload": "~0.1.11",
-    "angular-ui-select": "0.8.2"
+    "angular-ui-select": "0.8.2",
+    "angular-bootstrap-show-errors": "~2.3.0"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",

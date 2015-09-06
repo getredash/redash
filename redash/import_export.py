@@ -7,6 +7,7 @@ from flask.ext.script import Manager
 
 logger = logging.getLogger()
 
+
 class Importer(object):
     def __init__(self, object_mapping=None, data_source=None):
         if object_mapping is None:
@@ -145,6 +146,7 @@ def get_data_source():
         data_source = models.DataSource.create(name="Import", type="import", options='{}')
 
     return data_source
+
 
 @import_manager.command
 def query(mapping_filename, query_filename, user_id):
