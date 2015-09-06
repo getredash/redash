@@ -10,7 +10,11 @@
         '</counter-renderer>';
 
       var editTemplate = '<counter-editor></counter-editor>';
-      var defaultOptions = {};
+      var defaultOptions = {
+        counterColName: 'counter',
+        rowNumber: 1,
+        targetRowNumber: 1
+      };
 
       VisualizationProvider.registerVisualization({
         type: 'COUNTER',
@@ -27,23 +31,28 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/counter.html',
       link: function($scope, elm, attrs) {
-        $scope.visualization.options.rowNumber =
-          $scope.visualization.options.rowNumber || 0;
-
         $scope.$watch('[queryResult && queryResult.getData(), visualization.options]',
           function() {
             var queryData = $scope.queryResult.getData();
             if (queryData) {
-              var rowNumber = $scope.visualization.options.rowNumber || 0;
-              var counterColName = $scope.visualization.options.counterColName || 'counter';
-              var targetColName = $scope.visualization.options.targetColName || 'target';
+              var rowNumber = $scope.visualization.options.rowNumber - 1;
+              var targetRowNumber = $scope.visualization.options.targetRowNumber - 1;
+              var counterColName = $scope.visualization.options.counterColName;
+              var targetColName = $scope.visualization.options.targetColName;
 
-              $scope.counterValue = queryData[rowNumber][counterColName];
-              $scope.targetValue = queryData[rowNumber][targetColName];
+              if (counterColName) {
+                $scope.counterValue = queryData[rowNumber][counterColName];
+              }
 
-              if ($scope.targetValue) {
-                $scope.delta = $scope.counterValue - $scope.targetValue;
-                $scope.trendPositive = $scope.delta >= 0;
+              if (targetColName) {
+                $scope.targetValue = queryData[targetRowNumber][targetColName];
+
+                if ($scope.targetValue) {
+                  $scope.delta = $scope.counterValue - $scope.targetValue;
+                  $scope.trendPositive = $scope.delta >= 0;
+                }
+              } else {
+                $scope.targetValue = null;
               }
             }
           }, true);
