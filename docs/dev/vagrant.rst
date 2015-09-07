@@ -43,6 +43,7 @@ To get started with this box:
         PYTHONPATH=. bin/run python migrations/0010_allow_deleting_datasources.py
         PYTHONPATH=. bin/run python migrations/0011_migrate_bigquery_to_json.py
         PYTHONPATH=. bin/run python migrations/0012_add_list_users_permission.py
+        PYTHONPATH=. bin/run python migrations/0013_update_counter_options.py
 
 9.  Start the server and background workers with
     ``bin/run honcho start -f Procfile.dev``.
