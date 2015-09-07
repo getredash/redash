@@ -128,6 +128,9 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.impala_ds',
 ])))
 
+# Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
+SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
+
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
