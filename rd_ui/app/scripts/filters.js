@@ -77,7 +77,13 @@ angular.module('redash.filters', []).
       if (!text) {
         return "";
       }
-      return $sce.trustAsHtml(marked(text));
+
+      var html = marked(text);
+      if (featureFlags.allowScriptsInUserInput) {
+        html = $sce.trustAsHtml(html);
+      }
+
+      return html;
     }
   }])
 

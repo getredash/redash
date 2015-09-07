@@ -15,7 +15,8 @@ angular.module('redash', [
     'ngRoute',
     'ui.select',
     'naif.base64',
-    'ui.bootstrap.showErrors'
+    'ui.bootstrap.showErrors',
+    'ngSanitize'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig) {
       if (featureFlags.clientSideMetrics) {

@@ -221,7 +221,7 @@ function getKeyFromObject(obj, key) {
     }])
     //a customisable cell (see templateUrl) and editable
     //TODO check with the ng-include strategy
-    .directive('smartTableDataCell', ['$filter', '$http', '$templateCache', '$compile', '$parse', function (filter, http, templateCache, compile, parse) {
+    .directive('smartTableDataCell', ['$filter', '$http', '$templateCache', '$compile', '$parse', '$sanitize', function (filter, http, templateCache, compile, parse, sanitize) {
       return {
         restrict: 'C',
         link: function (scope, element) {
@@ -248,7 +248,7 @@ function getKeyFromObject(obj, key) {
               element.html(column.cellTemplate);
               compile(element.contents())(childScope);
             } else {
-              element.html(scope.formatedValue);
+              element.html(sanitize(scope.formatedValue));
             }
           }
 
