@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
             if 'targetColName' not in options:
                 options['targetColName'] = 'target'
-                options['targetRowNumber'] = options['rowNumber']
+            options['targetRowNumber'] = options['rowNumber']
 
             print "After: ", options
             vis.options = json.dumps(options)
