@@ -9,7 +9,6 @@ from redash.query_runner import import_query_runners
 
 __version__ = '0.9.3.5-cip'
 
-
 def setup_logging():
     handler = logging.StreamHandler()
     formatter = logging.Formatter('[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')

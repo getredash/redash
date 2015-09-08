@@ -543,8 +543,35 @@
 
     var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, actions);
 
-
     return DataSourceResource;
+  };
+
+  var User = function ($resource, $http) {
+    var transformSingle = function(user) {
+      if (user.groups !== undefined) {
+        user.admin = user.groups.indexOf("admin") != -1;
+      }
+    };
+
+    var transform = $http.defaults.transformResponse.concat(function(data, headers) {
+      if (_.isArray(data)) {
+        _.each(data, transformSingle);
+      } else {
+        transformSingle(data);
+      }
+      return data;
+    });
+
+    var actions = {
+      'get': {method: 'GET', transformResponse: transform},
+      'save': {method: 'POST', transformResponse: transform},
+      'query': {method: 'GET', isArray: true, transformResponse: transform},
+      'delete': {method: 'DELETE', transformResponse: transform}
+    };
+
+    var UserResource = $resource('/api/users/:id', {id: '@id'}, actions);
+
+    return UserResource;
   };
 
   var AlertSubscription = function ($resource) {
@@ -599,5 +626,6 @@
       .factory('DataSource', ['$resource', DataSource])
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
-      .factory('Widget', ['$resource', 'Query', Widget]);
+      .factory('Widget', ['$resource', 'Query', Widget])
+      .factory('User', ['$resource', '$http', User]);
 })();

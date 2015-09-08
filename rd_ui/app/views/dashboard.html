@@ -2,17 +2,21 @@
 <edit-dashboard-form dashboard="dashboard" id="edit_dashboard_dialog"></edit-dashboard-form>
 
 <div class="container">
+    <p class="alert alert-warning" ng-if="dashboard.is_archived">This dashboard is archived and won't appear in the dashboards list or search results.</p>
     <h2 id="dashboard_title">
         {{dashboard.name}}
 
+        <span ng-if="!dashboard.is_archived">
             <button type="button" class="btn btn-default btn-xs" ng-class="{active: refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>
-            <span ng-show="dashboard.canEdit()">
+            <div class="btn-group" role="group" ng-show="dashboard.canEdit()">
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
                         class="glyphicon glyphicon-cog"></span></button>
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
                         href="#add_query_dialog" tooltip="Add Widget (Chart/Table/Pivot)"><span class="glyphicon glyphicon-plus"></span>
                 </button>
-            </span>
+                <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
+            </div>
+        </span>
     </h2>
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
 </div>

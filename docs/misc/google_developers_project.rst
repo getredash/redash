@@ -18,12 +18,12 @@ How To: Create a Google Developers Project
    list of Google web services appears.
 4. Find the **Google+ API** service and set its status to **ON**—notice
    that this action moves the service to the top of the list.
-5. In the sidebar under "APIs & auth", select **Consent screen**.
+5. In the sidebar under "APIs & auth", select **Credentials** and in that screen choose the **OAuth consent screen** tab
 
    -  Choose an Email Address and specify a Product Name.
 
 6. In the sidebar under "APIs & auth", select **Credentials**.
-7. Click **Create a new Client ID** — a dialog box appears.
+7. Click **Add Credentials** button and choose **OAuth 20 Client ID**. 
 
    -  In the **Application type** section of the dialog, select **Web
       application**.
@@ -44,7 +44,7 @@ How To: Create a Google Developers Project
 
        http://redash.example.com/oauth/google_callback
 
-   -  Click the ``Create Client ID`` button.
+   -  Click the ``Create`` button.
 
 8. In the resulting **Client ID for web application** section, copy the
    **Client ID** and **Client secret** to your ``.env`` file.

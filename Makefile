@@ -19,5 +19,5 @@ upload:
 	python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
 
 test:
-	nosetests --with-coverage --cover-package=redash tests/*.py
+	nosetests --with-coverage --cover-package=redash tests/
 	#cd rd_ui && grunt test

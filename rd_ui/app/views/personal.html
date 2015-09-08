@@ -12,10 +12,9 @@
             <div class="list-group-item active">
                 Recent Dashboards
             </div>
-            <div class="list-group-item" ng-repeat="dashboard in recentDashboards" >
-                <button type="button" class="close delete-button" aria-hidden="true" ng-show="dashboard.canEdit()" ng-click="archiveDashboard(dashboard)" tooltip="Delete Dashboard">&times;</button>
-                <a ng-href="/dashboard/{{dashboard.slug}}">{{dashboard.name}}</a>
-            </div>
+            <a ng-href="/dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in recentDashboards">
+                {{dashboard.name}}
+            </a>
         </div>
 
         <div class="list-group col-md-6">

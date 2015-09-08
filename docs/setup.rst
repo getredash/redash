@@ -28,13 +28,13 @@ you can use a dedicated image which comes with BigQuery preconfigured
 
 .. code:: bash
 
-    $ gcloud compute images create "redash-071-b1015-bq" gs://redash-images/redash.0.7.1.b1015-bq.tar.gz
+    $ gcloud compute images create "redash-071-b1015-bq" --source-uri gs://redash-images/redash.0.7.1.b1015-bq.tar.gz
 
 Note that you need to launch this instance with BigQuery access:
 
 .. code:: bash
 
-    $ gcloud compute instances create <your_instance_name> --image redash-071-b1015-bq --scopes storage-ro bigquery
+    $ gcloud compute instances create <your_instance_name> --image redash-071-b1015-bq --scopes storage-ro,bigquery
 
 (the same can be done from the web interface, just make sure to enable
 BigQuery access)
@@ -66,6 +66,7 @@ Download the provision script and run it on your machine. Note that:
 
 1. You need to run the script as root.
 2. It was tested only on Ubuntu 12.04, Ubuntu 14.04 and Debian Wheezy.
+3. It's designed to run on a "clean" machine. If you're running this script on a machine that is used for other purposes, you might want to tweak it to your needs (like removing the ``apt-get dist-upgrade`` call at the beginning of it).
 
 Setup
 =====
@@ -91,10 +92,7 @@ file.
    can use ``pwgen 32 -1`` to generate random string).
 
 2. By default we create an admin user with the password "admin". You
-   need to change the password:
-
-   -  ``cd /opt/redash/current``
-   -  ``sudo -u redash bin/run ./manage.py users password admin {new password}``
+   can change this password at: ``/users/me#password``.
 
 3. If you want to use Google OAuth to authenticate users, you need to
    create a Google Developers project (see :doc:`instructions </misc/google_developers_project>`)
@@ -115,11 +113,11 @@ file.
 
 5. Once you have Google OAuth enabled, you can login using your Google
    Apps account. If you want to grant admin permissions to some users,
-   you can do it with the ``users grant_admin`` command:
-   ``sudo -u redash bin/run ./manage.py users grant_admin {email}``.
+   you can do this by editing the user profile and enabling admin
+   permission for it.
 
 6. If you don't use Google OAuth or just need username/password logins,
-   you can create additional users using the CLI (see :doc:`documentation </usage/users>`).
+   you can create additional users at: ``/users/new``.
 
 Datasources
 -----------
@@ -127,10 +125,8 @@ Datasources
 To make re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
 to create new data source connection.
 
-See
-:doc:`documentation </datasources>`
-for the different options. Your instance comes ready with dependencies
-needed to setup supported sources.
+See :doc:`documentation </datasources>` for the different options.
+Your instance comes ready with dependencies needed to setup supported sources.
 
 How to upgrade?
 ---------------

@@ -1,5 +1,8 @@
 import os
 os.environ['REDASH_REDIS_URL'] = "redis://localhost:6379/5"
+# Use different url for Celery to avoid DB being cleaned up:
+os.environ['REDASH_CELERY_BROKER'] = "redis://localhost:6379/6"
+
 
 import logging
 from unittest import TestCase

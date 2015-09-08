@@ -29,7 +29,6 @@ from redash.permissions import require_permission
 from redash.query_runner import query_runners, validate_configuration
 from redash.monitor import get_status
 
-
 from devspark import custom_controllers
 
 @app.route('/ping', methods=['GET'])

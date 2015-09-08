@@ -1,0 +1,32 @@
+<div class="container">
+    <ol class="breadcrumb">
+        <li><a href="/users">Users</a></li>
+        <li class="active">New</li>
+    </ol>
+
+    <form class="form" name="userForm" ng-submit="saveUser()" novalidate>
+        <div class="form-group required" show-errors>
+            <label class="control-label">Name</label>
+            <input type="text" name="name" class="form-control" ng-model="user.name" required/>
+            <input-errors name="Name" errors="userForm.name.$error"/>
+        </div>
+        <div class="form-group required" show-errors>
+            <label class="control-label">Email</label>
+            <input name="email" type="email" class="form-control" ng-model="user.email" required/>
+            <input-errors name="Email" errors="userForm.email.$error"/>
+        </div>
+        <div class="form-group required" show-errors>
+            <label class="control-label">Password</label>
+            <input class="form-control" type="password" name="password" ng-model="user.password" ng-minlength="6" required/>
+            <input-errors name="Password" errors="userForm.password.$error"/>
+        </div>
+        <div class="form-group required" show-errors>
+            <label class="control-label">Repeat Password</label>
+            <input class="form-control" type="password" name="passwordRepeat" ng-model="user.passwordRepeat" compare-to="user.password"/>
+            <span class="help-block error" ng-if="userForm.passwordRepeat.$error.compareTo">Passwords don't match.</span>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
