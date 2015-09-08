@@ -57,30 +57,6 @@ queries.
 DB
 ==
 
-Show the Currently Configured Data Source
------------------------------------------
-
-This varies based on the redash version and personal preferences. You
-can do one of the following:
-
-Using the CLI
-~~~~~~~~~~~~~
-
-In ``/opt/redash/current``, run:
-``sudo -u redash bin/run ./manage.py ds list``
-
-Using the Admin
-~~~~~~~~~~~~~~~
-
-(available from version 0.6b797). Browse to ``/admin/datasource``
-
-View the Definition Directly in the DB
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-1. Open psql: ``sudo -u redash psql``
-
-2. Run the query: ``SELECT  * from data_sources;``
-
 Backup re:dash's DB:
 --------------------
 
