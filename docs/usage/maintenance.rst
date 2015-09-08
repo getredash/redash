@@ -32,7 +32,7 @@ running queries and reset the queue, follow the steps below.
 1. Stop celery: ``sudo supervisorctl stop redash_celery`` (celery might
    take some time to stop, if it's in the middle of running a query)
 
-2. Flush redis: ``redis-cli flushdb``
+2. Flush redis: ``redis-cli flushall``.
 
 3. Start celery: ``sudo supervisorctl start redash_celery``
 
