@@ -51,7 +51,7 @@ class Vertica(BaseQueryRunner):
                     "type": "number"
                 },
             },
-            'required': ['database']
+            'required': ['schema']
         }
 
     @classmethod
@@ -107,7 +107,7 @@ class Vertica(BaseQueryRunner):
                 'port': self.configuration.get('port', 5433),
                 'user': self.configuration.get('user', ''),
                 'password': self.configuration.get('password', ''),
-                'database': self.configuration.get('database', '')
+                'database': self.configuration.get('schema', '')
             }
             connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()
