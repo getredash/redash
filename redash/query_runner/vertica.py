@@ -43,15 +43,15 @@ class Vertica(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Password'
                 },
-                'schema': {
+                'database': {
                     'type': 'string',
-                    'title': 'Database schema name'
+                    'title': 'Database name'
                 },
                 "port": {
                     "type": "number"
                 },
             },
-            'required': ['schema']
+            'required': ['database']
         }
 
     @classmethod
@@ -80,10 +80,7 @@ class Vertica(BaseQueryRunner):
 
         schema = {}
         for row in results['rows']:
-            if row['table_schema'] != self.configuration['schema']:
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            else:
-                table_name = row['table_name']
+            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
@@ -107,11 +104,11 @@ class Vertica(BaseQueryRunner):
                 'port': self.configuration.get('port', 5433),
                 'user': self.configuration.get('user', ''),
                 'password': self.configuration.get('password', ''),
-                'database': self.configuration.get('schema', '')
+                'database': self.configuration.get('database', '')
             }
             connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()
-            logger.info("Vetica running query: %s", query)
+            logger.debug("Vetica running query: %s", query)
             cursor.execute(query)
 
             # TODO - very similar to pg.py
