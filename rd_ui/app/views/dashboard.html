@@ -12,7 +12,7 @@
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
                         class="glyphicon glyphicon-cog"></span></button>
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                        href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
+                        href="#add_query_dialog" tooltip="Add Widget (Chart/Table/Pivot)"><span class="glyphicon glyphicon-plus"></span>
                 </button>
                 <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
             </div>
@@ -26,7 +26,7 @@
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}"
              ng-controller='WidgetCtrl'>
 
-            <div class="panel panel-default" ng-if="type=='visualization'">
+            <div class="panel panel-default queryContainer" ng-if="type=='visualization'">
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <p>
@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="panel panel-default rd-widget-textbox" ng-style="disableWidget" ng-init="checkWidth(widget.width)" ng-if="type=='textbox'" ng-mouseenter="showControls = true" ng-mouseleave="showControls = false">
+            <div class="panel panel-default rd-widget-textbox"  ng-init="checkWidth(widget.width)" ng-style="disableWidget" ng-if="type=='textbox'" ng-mouseenter="showControls = true" ng-mouseleave="showControls = false">
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-lg-11">
