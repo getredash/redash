@@ -123,6 +123,9 @@
         replace: true,
         link: function($scope, element, attrs) {
           $scope.widgetSizes = [{
+            name: 'Hidden',
+            value: 0
+          }, {
             name: 'Regular',
             value: 1
           }, {
@@ -186,7 +189,6 @@
 
           $scope.saveWidget = function() {
             $scope.saveInProgress = true;
-
             var widget = new Widget({
               'visualization_id': $scope.selectedVis && $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
