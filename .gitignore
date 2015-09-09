@@ -17,5 +17,5 @@ redash/dump.rdb
 .env
 .ruby-version
 venv
-
+.ropeproject
 dump.rdb

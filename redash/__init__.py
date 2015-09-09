@@ -7,8 +7,7 @@ from flask_mail import Mail
 from redash import settings
 from redash.query_runner import import_query_runners
 
-__version__ = '0.8.0'
-
+__version__ = '0.9.3.5-cip'
 
 def setup_logging():
     handler = logging.StreamHandler()

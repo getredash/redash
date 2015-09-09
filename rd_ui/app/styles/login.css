@@ -33,6 +33,7 @@
 }
 
 img.login-button {
+    margin-bottom: 30px;
     width: 250px;
     display: block;
     margin-left: auto;
