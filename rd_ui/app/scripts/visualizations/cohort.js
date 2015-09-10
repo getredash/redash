@@ -2,6 +2,12 @@
     var cohortVisualization = angular.module('redash.visualization');
 
     cohortVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
+
+      var editTemplate = '<cohort-editor2></cohort-editor2>';
+        var defaultOptions = {
+          timeInterval: 'daily'
+        };
+
         VisualizationProvider.registerVisualization({
             type: 'COHORT',
             name: 'Cohort',
@@ -49,13 +55,13 @@
                             container: container,
                             cohort: data,
                             title: null,
-                            timeInterval: 'daily',
+                            timeInterval: $scope.timeInterval,
                             labels: {
-                                time: 'Activation Day',
+                                time: 'Activation ' + $scope.timeLabel,
                                 people: 'Users'
                             },
                             formatHeaderLabel: function (i) {
-                                return "Day " + (i - 1);
+                                return  $scope.timeLabel + (i - 1);
                             }
                         });
                     }
