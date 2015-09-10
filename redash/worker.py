@@ -5,7 +5,7 @@ from redash import settings
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
-                include='redash.tasks')
+                include=['redash.tasks', 'redash.devspark.custom_tasks'])
 
 celery_schedule = {
     'refresh_queries': {

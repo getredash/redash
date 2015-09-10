@@ -15,12 +15,13 @@ logger = get_task_logger(__name__)
 
 # Added to support custom report generation within a celery task
 import os
-from bq2csv import make_reports
+from mg_csv_reports import make_reports
 
 
 @celery.task
 def generate_report(start_date, end_date, email_address):
-    make_reports.get_all_reports(start_date, end_date, email_address, os.environ.get("CLIENT_SECRET_FILE"), os.environ.get("REPORT_QUERY"))
+    make_reports.get_all_reports(start_date, end_date, email_address,
+                                 os.environ.get("REPORT_QUERY"))
 
 
 
