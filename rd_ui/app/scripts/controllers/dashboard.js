@@ -125,10 +125,10 @@
   };
 
   var WidgetCtrl = function($scope, $location, Events, Query) {
-    $scope.disableWidget = {'visibility': 'visible'};
+    $scope.widget.disableWidget = {'visibility': 'visible'};
 
     if ($scope.widget.width == 0) {
-      $scope.disableWidget = {'visibility': 'hidden'};
+      $scope.widget.disableWidget = {'visibility': 'hidden'};
     }
 
     $scope.deleteWidget = function() {
