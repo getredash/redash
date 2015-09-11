@@ -40,3 +40,4 @@ def json_representation(data, code, headers=None):
     return resp
 
 from redash import handlers
+from redash.devspark import custom_handlers

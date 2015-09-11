@@ -10,7 +10,7 @@ from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner
 
-from devspark import custom_tasks
+#from redash.devspark import custom_tasks
 
 logger = get_task_logger(__name__)
 
@@ -55,7 +55,7 @@ class QueryTask(object):
         logging.info("[Manager] Metadata: [%s]", metadata)
         try_count = 0
         job = None
-        
+
         while try_count < cls.MAX_RETRIES:
             try_count += 1
 
@@ -82,7 +82,7 @@ class QueryTask(object):
 
                     result = execute_query.apply_async(args=(query, data_source.id, metadata), queue=queue_name)
                     job = cls(async_result=result)
-                    
+
                     logging.info("[Manager][%s] Created new job: %s", query_hash, job.id)
                     pipe.set(cls._job_lock_id(query_hash, data_source.id), job.id, settings.JOB_EXPIRY_TIME)
                     pipe.execute()
@@ -176,7 +176,7 @@ def cleanup_tasks():
     lock_keys = redis_connection.keys("query_hash_job:*") # TODO: use set instead of keys command
     if not lock_keys:
         return
-    
+
     query_tasks = [QueryTask(job_id=j) for j in redis_connection.mget(lock_keys)]
 
     logger.info("Found %d locks", len(query_tasks))

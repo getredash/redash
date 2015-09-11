@@ -9,7 +9,7 @@ deps:
 	cd rd_ui && npm install
 	cd rd_ui && npm install bower grunt-cli
 	cd rd_ui && bower install
-	cd rd_ui && grunt build
+	cd rd_ui && grunt build --force
 
 pack:
 	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py

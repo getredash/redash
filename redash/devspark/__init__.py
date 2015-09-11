@@ -1,0 +1,1 @@
+from redash.devspark.custom_handlers import reports_handler

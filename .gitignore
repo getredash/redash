@@ -19,3 +19,6 @@ redash/dump.rdb
 venv
 .ropeproject
 dump.rdb
+
+#Credentials
+client_secret.json
