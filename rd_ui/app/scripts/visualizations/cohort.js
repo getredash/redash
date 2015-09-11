@@ -3,9 +3,10 @@
 
     cohortVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
 
-      var editTemplate = '<cohort-editor2></cohort-editor2>';
+      var editTemplate = '<cohort-editor></cohort-editor>';
         var defaultOptions = {
-          timeInterval: 'daily'
+          timeInterval: 'daily',
+          timeLabel: 'day'
         };
 
         VisualizationProvider.registerVisualization({
