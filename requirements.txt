@@ -32,4 +32,5 @@ wtf-peewee==0.2.3
 pysaml2==2.4.0
 pycrypto==2.6.1
 funcy==1.5
+vertica-python==0.5.1
 raven==5.6.0
