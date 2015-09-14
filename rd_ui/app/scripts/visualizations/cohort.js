@@ -12,7 +12,9 @@
         VisualizationProvider.registerVisualization({
             type: 'COHORT',
             name: 'Cohort',
-            renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>'
+            renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>',
+            editorTemplate: editTemplate,
+            defaultOptions: defaultOptions
         });
     }]);
 
@@ -56,9 +58,9 @@
                             container: container,
                             cohort: data,
                             title: null,
-                            timeInterval: $scope.timeInterval,
+                            timeInterval: $scope.visualization.options.timeInterval,
                             labels: {
-                                time: 'Activation ' + $scope.timeLabel,
+                                time: 'Activation ' + $scope.visualization.options.timeLabel,
                                 people: 'Users'
                             },
                             formatHeaderLabel: function (i) {
