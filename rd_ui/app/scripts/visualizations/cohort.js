@@ -72,7 +72,7 @@
             }
         }
     });
-    module.directive('cohortEditor', function() {
+    cohortVisualization.directive('cohortEditor', function() {
         return {
           restrict: 'E',
           templateUrl: '/views/visualizations/cohort_editor.html'
