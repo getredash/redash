@@ -27,7 +27,7 @@
             template: "",
             replace: false,
             link: function($scope, element, attrs) {
-                $scope.$watch('queryResult && queryResult.getData()', function (data) {
+                $scope.$watch('[queryResult && queryResult.getData(), visualization.options]', function (data) {
                     if (!data) {
                         return;
                     }
