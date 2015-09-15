@@ -5,8 +5,8 @@
 
       var editTemplate = '<cohort-editor></cohort-editor>';
         var defaultOptions = {
-          timeInterval: 'daily',
-          timeLabel: 'day'
+          'timeInterval': 'daily',
+          'timeLabel': 'day'
         };
 
         VisualizationProvider.registerVisualization({
@@ -64,12 +64,18 @@
                                 people: 'Users'
                             },
                             formatHeaderLabel: function (i) {
-                                return  $scope.timeLabel + (i - 1);
+                                return  $scope.visualization.options.timeLabel + (i - 1);
                             }
                         });
                     }
                 });
             }
+        }
+    });
+    module.directive('cohortEditor', function() {
+        return {
+          restrict: 'E',
+          templateUrl: '/views/visualizations/cohort_editor.html'
         }
     });
 
