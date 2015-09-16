@@ -5,8 +5,7 @@
 
       var editTemplate = '<cohort-editor></cohort-editor>';
         var defaultOptions = {
-          'timeInterval': 'daily',
-          'timeLabel': 'day'
+          'timeInterval': 'daily'
         };
 
         VisualizationProvider.registerVisualization({
@@ -27,7 +26,7 @@
             template: "",
             replace: false,
             link: function($scope, element, attrs) {
-                $scope.$watch('[queryResult && queryResult.getData(), visualization.options.timeInterval, visualization.options.timeLabel]', function () {
+                $scope.$watch('[queryResult && queryResult.getData(), visualization.options.timeInterval ]', function () {
                     if ($scope.queryResult.getData() == null) {
 
                     } else {
@@ -49,6 +48,11 @@
                         var initialDate = moment(sortedData[0].date).toDate(),
                             container = angular.element(element)[0];
 
+                        $scope.visualization.options.timeInterval = $scope.visualization.options.timeInterval || 'daily';
+
+                        var timeLabels = {'daily': 'Day', 'weekly': 'Week', 'monthly': 'Month'};
+                        var timeLabel = timeLabels[$scope.visualization.options.timeInterval];
+
                         Cornelius.draw({
                             initialDate: initialDate,
                             container: container,
@@ -56,11 +60,11 @@
                             title: null,
                             timeInterval: $scope.visualization.options.timeInterval,
                             labels: {
-                                time: 'Activation ' + $scope.visualization.options.timeLabel,
+                                time: 'Activation ' + timeLabel,
                                 people: 'Users'
                             },
                             formatHeaderLabel: function (i) {
-                                return  $scope.visualization.options.timeLabel + (i - 1);
+                                return  timeLabel + (i - 1);
                             }
                         });
                     }
