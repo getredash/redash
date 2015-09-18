@@ -14,7 +14,7 @@ _build
 .vagrant
 Berksfile.lock
 redash/dump.rdb
-.env
+env
 .ruby-version
 venv
 .ropeproject
