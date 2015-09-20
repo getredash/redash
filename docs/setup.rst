@@ -12,6 +12,24 @@ Cloud. These images created with the same provision script using Packer.
 Create an instance
 ==================
 
+AWS
+---
+
+Launch the instance with from the pre-baked AMI (for small deployments
+t2.micro should be enough):
+
+-  us-east-1: `ami-e32b5986 <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-e32b5986>`__
+-  us-west-1: `ami-abcf0bef <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-abcf0bef>`__
+-  us-west-2: `ami-bd89978d <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-bd89978d>`__
+-  eu-west-1: `ami-15eac562 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-15eac562>`__
+-  eu-central-1: `ami-520f0c4f <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-520f0c4f>`__
+-  sa-east-1: `ami-e79501fa <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-e79501fa>`__
+-  ap-northeast-1: `ami-fae373fa <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-fae373fa>`__
+-  ap-southeast-2: `ami-578fc16d <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-578fc16d>`__
+-  ap-southeast-1: `ami-20081c72 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-20081c72>`__
+
+Now proceed to `"Setup" <#setup>`__.
+
 Google Compute Engine
 ---------------------
 
@@ -19,7 +37,7 @@ First, you need to add the images to your account:
 
 .. code:: bash
 
-    $ gcloud compute images create "redash-071-b1015" --source-uri gs://redash-images/redash.0.7.1.b1015.tar.gz
+    $ gcloud compute images create "redash-080-b1058" --source-uri gs://redash-images/redash.0.8.0.b1058.tar.gz
 
 Next you need to launch an instance using this image (n1-standard-1
 instance type is recommended). If you plan using re:dash with BigQuery,
@@ -28,7 +46,7 @@ you can use a dedicated image which comes with BigQuery preconfigured
 
 .. code:: bash
 
-    $ gcloud compute images create "redash-071-b1015-bq" --source-uri gs://redash-images/redash.0.7.1.b1015-bq.tar.gz
+    $ gcloud compute images create "redash-080-b1058-bq" --source-uri gs://redash-images/redash.0.8.0.b1058-bq.tar.gz
 
 Note that you need to launch this instance with BigQuery access:
 
@@ -41,23 +59,6 @@ BigQuery access)
 
 Now proceed to `"Setup" <#setup>`__.
 
-AWS
----
-
-Launch the instance with from the pre-baked AMI (for small deployments
-t2.micro should be enough):
-
--  us-east-1: `ami-95e04efe <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-95e04efe>`__
--  us-west-2: `ami-01d8d331 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-01d8d331>`__
--  us-west-1: `ami-b35ea1f7 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-b35ea1f7>`__
--  eu-west-1: `ami-d46734a3 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-d46734a3>`__
--  eu-central-1: `ami-7e494e63 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-7e494e63>`__
--  ap-southeast-1: `ami-30343b62 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-30343b62>`__
--  ap-southeast-2: `ami-53357669 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-53357669>`__
--  ap-northeast-1: `ami-4253ea42 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-4253ea42>`__
--  sa-east-1: `ami-b170f9ac <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-b170f9ac>`__
-
-Now proceed to `"Setup" <#setup>`__.
 
 Other
 -----
