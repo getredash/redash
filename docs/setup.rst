@@ -52,7 +52,7 @@ Note that you need to launch this instance with BigQuery access:
 
 .. code:: bash
 
-    $ gcloud compute instances create <your_instance_name> --image redash-071-b1015-bq --scopes storage-ro,bigquery
+    $ gcloud compute instances create <your_instance_name> --image redash-080-b1058-bq --scopes storage-ro,bigquery
 
 (the same can be done from the web interface, just make sure to enable
 BigQuery access)
