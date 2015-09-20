@@ -202,7 +202,7 @@
 
     currentUser.canEdit = function(object) {
         var user_id = object.user_id || (object.user && object.user.id);
-        return user_id && (user_id == currentUser.id);
+        return this.hasPermission('admin') || (user_id && (user_id == currentUser.id));
     };
 
     currentUser.hasPermission = function(permission) {
