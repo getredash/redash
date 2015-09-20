@@ -8,6 +8,7 @@ import time
 
 import requests
 
+from redash import settings
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -113,7 +114,7 @@ class BigQuery(BaseQueryRunner):
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
 
         credentials = SignedJwtAssertionCredentials(key['client_email'], key['private_key'], scope=scope)
-        http = httplib2.Http()
+        http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
         http = credentials.authorize(http)
 
         return build("bigquery", "v2", http=http)
