@@ -13,9 +13,6 @@ try:
     from dateutil import parser
     enabled = True
 except ImportError:
-    logger.warning("Missing dependencies. Please install gspread, dateutil and oauth2client.")
-    logger.warning("You can use pip:   pip install gspread dateutil oauth2client")
-
     enabled = False
 
 

@@ -11,8 +11,6 @@ try:
     enabled = True
 
 except ImportError:
-    logger.warning("Missing dependencies. Please install PyHive.")
-    logger.warning("You can use pip:   pip install pyhive")
     enabled = False
 
 PRESTO_TYPES_MAPPING = {
