@@ -37,5 +37,4 @@ if settings.SENTRY_DSN:
     from raven.contrib.celery import register_signal, register_logger_signal
 
     client = Client(settings.SENTRY_DSN, release=__version__)
-    register_logger_signal(client)
     register_signal(client)
