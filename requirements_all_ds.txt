@@ -7,3 +7,4 @@ oauth2client==1.2
 pyhive==0.1.5
 pymongo==2.7.2
 pyOpenSSL==0.14
+vertica-python==0.5.1
