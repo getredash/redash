@@ -11,8 +11,6 @@ try:
     enabled = True
 
 except ImportError:
-    logger.warning("Missing dependencies. Please install influxdb.")
-    logger.warning("You can use pip:   pip install influxdb")
     enabled = False
 
 def _transform_result(results):

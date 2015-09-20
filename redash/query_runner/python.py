@@ -1,8 +1,6 @@
-import sys
 import datetime
 import json
 import logging
-import weakref
 
 from redash.query_runner import *
 from redash import models

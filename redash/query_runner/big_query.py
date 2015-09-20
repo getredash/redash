@@ -22,9 +22,6 @@ try:
 
     enabled = True
 except ImportError:
-    logger.warning("Missing dependencies. Please install google-api-python-client and oauth2client.")
-    logger.warning("You can use pip:   pip install google-api-python-client oauth2client")
-
     enabled = False
 
 types_map = {
