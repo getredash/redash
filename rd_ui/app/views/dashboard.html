@@ -26,19 +26,29 @@
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}"
              ng-controller='WidgetCtrl'>
 
+
+
             <div class="panel panel-default queryContainer" ng-if="type=='visualization'">
-                <div class="panel-heading">
+                <div class="panel-heading" style="display: inline-flex, width: 100%">
                     <h3 class="panel-title">
                         <p>
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
                             <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
+                        <span ng-if="queryResult.getStatus() == 'processing'" style="padding-left: 5px">
+                            <img src="http://www.sportdiver.com/sites/all/modules/platform/inline_login/loading.gif"/>
+                        </span>
                             <visualization-name visualization="widget.visualization"/>
                         </p>
                         <div class="text-muted" ng-bind-html="query.description | markdown"></div>
                     </h3>
+
+
+
                 </div>
 
                 <visualization-renderer visualization="widget.visualization" query-result="queryResult"></visualization-renderer class="panel-body">
+
+
 
                 <div class="panel-footer">
                     <span class="label label-default"
