@@ -1,6 +1,7 @@
 import json
 from flask_admin.contrib.peewee import ModelView
 from flask.ext.admin import Admin
+from flask.ext.admin.base import MenuLink
 from flask_admin.contrib.peewee.form import CustomModelConverter
 from flask_admin.form.widgets import DateTimePickerWidget
 from playhouse.postgres_ext import ArrayField, DateTimeTZField
@@ -82,6 +83,9 @@ def init_admin(app):
     admin.add_view(QueryModelView(models.Query))
     admin.add_view(QueryResultModelView(models.QueryResult))
     admin.add_view(DashboardModelView(models.Dashboard))
+    logout_link = MenuLink('logout', '/logout', 'logout') # name, url, endpoint
 
     for m in (models.Visualization, models.Widget, models.ActivityLog, models.Group, models.Event):
         admin.add_view(BaseModelView(m))
+
+    admin.add_link(logout_link)
