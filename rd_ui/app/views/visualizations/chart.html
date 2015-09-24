@@ -1,0 +1,13 @@
+<div>
+  <chart options='chartOptions' series='chartSeries' class='graph'></chart>
+  <section ng-if="dimensions.length > 0">
+    <header><h5>Dimensions</h5></header>
+    <form>
+      <div class="checkbox" ng-repeat="dimension in dimensions">
+        <label>
+          <input type="checkbox" ng-model="dimension.enabled"> {{dimension.name}}
+        </label>
+      </div>
+    </form>
+  </section>
+</div>

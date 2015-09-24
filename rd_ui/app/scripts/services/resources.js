@@ -188,14 +188,47 @@
       return this.filteredData;
     }
 
-    QueryResult.prototype.getChartData = function (mapping) {
+    QueryResult.prototype._serializeDimensions = function (dimensions, enabledDimensionNames) {
+      return _.sortBy(_.intersection(_.keys(dimensions), enabledDimensionNames))
+        .map(function (key) {
+          return [key, dimensions[key]].join(':')
+        }).join(',');
+    };
+
+    QueryResult.prototype._combinePoints = function (_data) {
+      var data = angular.copy(_data);
+      var newDataMapIndexedByX = {};
+
+      data.map(function (point) {
+        if (!newDataMapIndexedByX[point.x]) {
+          newDataMapIndexedByX[point.x] = angular.copy(point);
+        }
+        else {
+          newDataMapIndexedByX[point.x].y += point.y;
+        }
+      })
+
+      return _.values(newDataMapIndexedByX);
+    };
+
+    QueryResult.prototype.getChartData = function (mapping, dimensions) {
       var series = {};
+      var dimensions = dimensions || {};
+      var that = this;
+
+      var enabledDimensionNames = _.filter(dimensions, function (dimension) {
+          return dimension.enabled
+        })
+        .map(function (dimension) {
+          return dimension.name;
+        });
 
       _.each(this.getData(), function (row) {
         var point = {};
         var seriesName = undefined;
         var xValue = 0;
         var yValues = {};
+        var dimensions = {};
 
         _.each(row, function (value, definition) {
           var name = definition.split("::")[0] || definition.split("__")[0];
@@ -224,12 +257,22 @@
             seriesName = String(value);
           }
 
+          if (type == 'dimension') {
+            dimensions[name] = value === null ? 'NULL' : value;
+          }
+
           if (type == 'multiFilter' || type == 'multi-filter') {
             seriesName = String(value);
           }
         });
 
         var addPointToSeries = function (seriesName, point) {
+          // Append dimension string to seriesName
+          seriesName = [seriesName,
+            '(',
+            that._serializeDimensions(point.dimensions, enabledDimensionNames),
+            ')'].join('');
+
           if (series[seriesName] == undefined) {
             series[seriesName] = {
               name: seriesName,
@@ -243,14 +286,24 @@
 
         if (seriesName === undefined) {
           _.each(yValues, function (yValue, seriesName) {
-            addPointToSeries(seriesName, {'x': xValue, 'y': yValue});
+            addPointToSeries(seriesName, {
+              'x': xValue,
+              'y': yValue,
+              'dimensions': dimensions
+            });
           });
         } else {
           addPointToSeries(seriesName, point);
         }
       });
 
-      return _.values(series);
+      var result = _.values(series);
+
+      result.forEach(function (seriesItem) {
+        seriesItem.data = that._combinePoints(seriesItem.data)
+      });
+
+      return result;
     };
 
     QueryResult.prototype.getColumns = function () {
