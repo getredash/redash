@@ -94,4 +94,10 @@ angular.module('redash.filters', []).
       }
       return $sce.trustAsHtml(text);
     }
+  }])
+
+  .filter('moment', [function () {
+    return function (momentObject) {
+      momentObject.format('YYYY-MM-DD');
+    }
   }]);

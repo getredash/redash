@@ -27,11 +27,13 @@
         queryResult: '=',
         options: '=?'
       },
-      template: "<chart options='chartOptions' series='chartSeries' class='graph'></chart>",
+      templateUrl: '/views/visualizations/chart.html',
       replace: false,
       controller: ['$scope', function ($scope) {
         $scope.chartSeries = [];
         $scope.chartOptions = {};
+        $scope.dateRangeEnabled = $scope.options.xAxis && $scope.options.xAxis.type === 'datetime';
+        $scope.dateRange = { min: moment('1970-01-01'), max: moment() };
 
         var reloadData = function(data) {
           if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
@@ -39,7 +41,12 @@
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-            _.each($scope.queryResult.getChartData($scope.options.columnMapping), function (s) {
+            var chartData = $scope.queryResult.getChartData(
+              $scope.options.columnMapping,
+              $scope.dateRangeEnabled ? $scope.dateRange : 0
+            );
+
+            _.each(chartData, function (s) {
               var additional = {'stacking': 'normal'};
               if ('globalSeriesType' in $scope.options) {
                 additional['type'] = $scope.options.globalSeriesType;
@@ -52,6 +59,28 @@
               }
               $scope.chartSeries.push(_.extend(s, additional));
             });
+
+            // Update date range by finding date extremes
+            // TODO: Find a faster way to do this
+            // ISSUE: chart.getExtreme() does not support getting Moment object
+            //        out of box
+            if ($scope.dateRangeEnabled && chartData && chartData.length > 0) {
+              var maxDateRange = moment('1970-01-01'),
+                minDateRange = moment();
+              _.each(chartData, function (s) {
+                _.each(s.data, function (point) {
+                  if (point.x.isBefore(minDateRange)) {
+                    // Use the copy of point.x to prevent side effects
+                    minDateRange = moment(point.x);
+                  }
+                  if (point.x.isAfter(maxDateRange)) {
+                    maxDateRange = moment(point.x);
+                  }
+                });
+              });
+              $scope.dateRange.min = minDateRange;
+              $scope.dateRange.max = maxDateRange;
+            }
           };
         };
 
@@ -72,6 +101,18 @@
 
         $scope.$watch('queryResult && queryResult.getData()', function (data) {
           reloadData(data);
+        });
+
+        $scope.$watch('dateRange.min', function(minDateRange, oldMinDateRange) {
+          if (!minDateRange.isSame(oldMinDateRange)) {
+            reloadData(true);
+          }
+        });
+
+        $scope.$watch('dateRange.max', function (maxDateRange, oldMaxDateRange) {
+          if (!maxDateRange.isSame(oldMaxDateRange)) {
+            reloadData(true);
+          }
         });
       }]
     };

@@ -188,7 +188,7 @@
       return this.filteredData;
     }
 
-    QueryResult.prototype.getChartData = function (mapping) {
+    QueryResult.prototype.getChartData = function (mapping, dateRange) {
       var series = {};
 
       _.each(this.getData(), function (row) {
@@ -230,6 +230,15 @@
         });
 
         var addPointToSeries = function (seriesName, point) {
+          if (dateRange && moment.isMoment(point.x)) {
+            // date range enabled
+            if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
+              // if the point's date isn't within dateRange
+              // then we will omit this point
+              return;
+            }
+          }
+
           if (series[seriesName] == undefined) {
             series[seriesName] = {
               name: seriesName,
