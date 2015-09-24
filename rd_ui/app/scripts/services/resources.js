@@ -195,13 +195,12 @@
         }).join(',');
     };
 
-    QueryResult.prototype._combinePoints = function (_data) {
-      var data = angular.copy(_data);
+    QueryResult.prototype._combinePoints = function (data) {
       var newDataMapIndexedByX = {};
 
       data.map(function (point) {
         if (!newDataMapIndexedByX[point.x]) {
-          newDataMapIndexedByX[point.x] = angular.copy(point);
+          newDataMapIndexedByX[point.x] = _.clone(point);
         }
         else {
           newDataMapIndexedByX[point.x].y += point.y;
