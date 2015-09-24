@@ -2,10 +2,18 @@
     var cohortVisualization = angular.module('redash.visualization');
 
     cohortVisualization.config(['VisualizationProvider', function(VisualizationProvider) {
+
+      var editTemplate = '<cohort-editor></cohort-editor>';
+        var defaultOptions = {
+          'timeInterval': 'daily'
+        };
+
         VisualizationProvider.registerVisualization({
             type: 'COHORT',
             name: 'Cohort',
-            renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>'
+            renderTemplate: '<cohort-renderer options="visualization.options" query-result="queryResult"></cohort-renderer>',
+            editorTemplate: editTemplate,
+            defaultOptions: defaultOptions
         });
     }]);
 
@@ -18,11 +26,7 @@
             template: "",
             replace: false,
             link: function($scope, element, attrs) {
-                $scope.$watch('queryResult && queryResult.getData()', function (data) {
-                    if (!data) {
-                        return;
-                    }
-
+                $scope.$watch('[queryResult && queryResult.getData(), visualization.options.timeInterval ]', function () {
                     if ($scope.queryResult.getData() == null) {
 
                     } else {
@@ -44,23 +48,34 @@
                         var initialDate = moment(sortedData[0].date).toDate(),
                             container = angular.element(element)[0];
 
+                        $scope.visualization.options.timeInterval = $scope.visualization.options.timeInterval || 'daily';
+
+                        var timeLabels = {'daily': 'Day', 'weekly': 'Week', 'monthly': 'Month'};
+                        var timeLabel = timeLabels[$scope.visualization.options.timeInterval];
+
                         Cornelius.draw({
                             initialDate: initialDate,
                             container: container,
                             cohort: data,
                             title: null,
-                            timeInterval: 'daily',
+                            timeInterval: $scope.visualization.options.timeInterval,
                             labels: {
-                                time: 'Activation Day',
+                                time: 'Activation ' + timeLabel,
                                 people: 'Users'
                             },
                             formatHeaderLabel: function (i) {
-                                return "Day " + (i - 1);
+                                return  timeLabel + (i - 1);
                             }
                         });
                     }
                 });
             }
+        }
+    });
+    cohortVisualization.directive('cohortEditor', function() {
+        return {
+          restrict: 'E',
+          templateUrl: '/views/visualizations/cohort_editor.html'
         }
     });
 

@@ -1,15 +1,8 @@
 <div class="form-group">
-    <label class="control-label">Time Label</label>
-    <input type="text" class="form-control" ng-model="cohortOptions.timeLabel">
-    <label class="control-label">People Label</label>
-    <input type="text" class="form-control" ng-model="cohortOptions.peopleLabel">
-
-    <label class="control-label">Bucket Column</label>
-    <select ng-model="bucket_column" ng-options="value as key for (key, value) in columns" class="form-control"></select>
-    <label class="control-label">Bucket Total Value Column</label>
-    <select ng-model="total_column" ng-options="value as key for (key, value) in columns" class="form-control"></select>
-    <label class="control-label">Day Number Column</label>
-    <select ng-model="value_column" ng-options="value as key for (key, value) in columns" class="form-control"></select>
-    <label class="control-label">Day Value Column</label>
-    <select ng-model="day_column" ng-options="value as key for (key, value) in columns" class="form-control"></select>
+    <label class="control-label">Time Interval</label>
+    <select class="form-control" ng-model="visualization.options.timeInterval">
+      <option value="daily">Daily</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+    </select>
 </div>
