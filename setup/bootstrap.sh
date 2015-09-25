@@ -16,8 +16,8 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Base packages
-apt-get dist-upgrade
 apt-get update
+apt-get dist-upgrade
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
 pip install -U setuptools
 
@@ -176,4 +176,3 @@ rm /etc/nginx/sites-enabled/default
 wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
 ln -nfs /etc/nginx/sites-available/redash /etc/nginx/sites-enabled/redash
 service nginx restart
-
