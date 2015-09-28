@@ -78,8 +78,10 @@
                   }
                 });
               });
-              $scope.dateRange.min = minDateRange;
-              $scope.dateRange.max = maxDateRange;
+              $scope.dateRange = {
+                min: minDateRange,
+                max: maxDateRange
+              };
             }
           };
         };
