@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 import urllib
+from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
 
@@ -23,7 +24,13 @@ ELASTICSEARCH_TYPES_MAPPING = {
     "boolean" : TYPE_BOOLEAN,
     "string" : TYPE_STRING,
     "date" : TYPE_DATE,
+    "object" : TYPE_STRING,
     # "geo_point" TODO: Need to split to 2 fields somehow
+}
+
+ELASTICSEARCH_BUILTIN_FIELDS_MAPPING = {
+    "_id" : "Id",
+    "_score" : "Score"
 }
 
 PYTHON_TYPES_MAPPING = {
@@ -35,12 +42,123 @@ PYTHON_TYPES_MAPPING = {
     float: TYPE_FLOAT
 }
 
+class BaseElasticSearch(BaseQueryRunner):
+
+    DEBUG_ENABLED = True
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'server': {
+                    'type': 'string',
+                    'title': 'Base URL'
+                },
+                'basic_auth_user': {
+                    'type': 'string',
+                    'title': 'Basic Auth User'
+                },
+                'basic_auth_password': {
+                    'type': 'string',
+                    'title': 'Basic Auth Password'
+                }
+            },
+            "required" : ["server"]
+        }
+
+    @classmethod
+    def enabled(cls):
+        return False
+
+    def __init__(self, configuration_json):
+        super(BaseElasticSearch, self).__init__(configuration_json)
+
+        self.syntax = "json"
+
+        if self.DEBUG_ENABLED:
+            http_client.HTTPConnection.debuglevel = 1
+
+            # you need to initialize logging, otherwise you will not see anything from requests
+            logging.basicConfig()
+            logging.getLogger().setLevel(logging.DEBUG)
+            requests_log = logging.getLogger("requests.packages.urllib3")
+            requests_log.setLevel(logging.DEBUG)
+            requests_log.propagate = True
+
+            logger.setLevel(logging.DEBUG)
+
+        self.server_url = self.configuration["server"]
+        if self.server_url[-1] == "/":
+            self.server_url = self.server_url[:-1]
+
+        basic_auth_user = self.configuration["basic_auth_user"]
+        basic_auth_password = self.configuration["basic_auth_password"]
+        self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password) if basic_auth_user and basic_auth_password  else None
+
+    def _get_mappings(self, url):
+        mappings = {}
+
+        r = requests.get(url, auth=self.auth)
+        mappings_data = r.json()
+
+        logger.debug(mappings_data)
+
+        for index_name in mappings_data:
+            index_mappings = mappings_data[index_name]
+            for m in index_mappings.get("mappings", {}):
+                for property_name in index_mappings["mappings"][m]["properties"]:
+                    property_data = index_mappings["mappings"][m]["properties"][property_name]
+                    if not property_name in mappings:
+                        property_type = property_data.get("type", None)
+                        if property_type:
+                            if property_type in ELASTICSEARCH_TYPES_MAPPING:
+                                mappings[property_name] = property_type
+                            else:
+                                raise Exception("Unknown property type: {0}".format(property_type))
+
+        return mappings
+
+    def _parse_results(self, mappings, result_fields, raw_result, result_columns, result_rows):
+
+        def add_column_if_needed(mappings, column_name, friendly_name, result_columns, result_columns_index):
+            if friendly_name not in result_columns_index:
+                result_columns.append({
+                    "name" : friendly_name,
+                    "friendly_name" : friendly_name,
+                    "type" : mappings.get(column_name, "string")})
+                result_columns_index[friendly_name] = result_columns[-1]
+
+        result_columns_index = {c["name"] : c for c in result_columns}
+
+        result_fields_index = {}
+        if result_fields:
+            for r in result_fields:
+                result_fields_index[r] = None
+
+        for h in raw_result["hits"]["hits"]:
+            row = {}
+
+            for field, column in ELASTICSEARCH_BUILTIN_FIELDS_MAPPING.iteritems():
+                if field in h:
+                    add_column_if_needed(mappings, field, column, result_columns, result_columns_index)
+                    row[column] = h[field]
+
+            column_name = "_source" if "_source" in h else "fields"
+            for column in h[column_name]:
+                if result_fields and column not in result_fields_index:
+                    continue
+
+                add_column_if_needed(mappings, column, column, result_columns, result_columns_index)
+
+                value = h[column_name][column]
+                row[column] = value[0] if isinstance(value, list) and len(value) == 1 else value
+
+
+            if row and len(row) > 0:
+                result_rows.append(row)
+
 #
-# ElasticSearch currently supports only simple Lucene style queries (like Kibana
-# but without the aggregation).
-#
-# Full blown JSON based ElasticSearch queries (including aggregations) will be
-# added later
 #
 # Simple query example:
 #
@@ -77,26 +195,10 @@ PYTHON_TYPES_MAPPING = {
 #
 #
 
-class ElasticSearch(BaseQueryRunner):
-    DEBUG_ENABLED = False
+class ElasticSearch(BaseElasticSearch):
 
-    """
-    ElastichSearch query runner for querying ElasticSearch servers.
-    Query can be done using the Lucene Syntax (single line) or the more complex,
-    full blown ElasticSearch JSON syntax
-    """
-    @classmethod
-    def configuration_schema(cls):
-        return {
-            'type': 'object',
-            'properties': {
-                'server': {
-                    'type': 'string',
-                    'title': 'Base URL'
-                }
-            },
-            "required" : ["server"]
-        }
+    def __init__(self, configuration_json):
+        super(ElasticSearch, self).__init__(configuration_json)
 
     @classmethod
     def enabled(cls):
@@ -106,79 +208,15 @@ class ElasticSearch(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(ElasticSearch, self).__init__(configuration_json)
-
-        self.syntax = "json"
-
-        if self.DEBUG_ENABLED:
-            http_client.HTTPConnection.debuglevel = 1
-            
-            # you need to initialize logging, otherwise you will not see anything from requests
-            logging.basicConfig()
-            logging.getLogger().setLevel(logging.DEBUG)
-            requests_log = logging.getLogger("requests.packages.urllib3")
-            requests_log.setLevel(logging.DEBUG)
-            requests_log.propagate = True
-
-    def get_mappings(self, url):
-        mappings = {}
-
-        r = requests.get(url)
-        mappings_data = r.json()
-        for index_name in mappings_data:
-            index_mappings = mappings_data[index_name]
-            for m in index_mappings.get("mappings", {}):
-                for property_name in index_mappings["mappings"][m]["properties"]:
-                    property_data = index_mappings["mappings"][m]["properties"][property_name]
-                    if not property_name in mappings:
-                        property_type = property_data.get("type", None)
-                        if property_type:
-                            if property_type in ELASTICSEARCH_TYPES_MAPPING:
-                                mappings[property_name] = property_type
-                            else:
-                                raise "Unknown property type: {0}".format(property_type)
-
-        return mappings
-
-    def parse_results(self, mappings, result_fields, raw_result, result_columns, result_rows):
-        result_columns_index = {}
-        for c in result_columns:
-            result_columns_index[c["name"]] = c
-
-        result_fields_index = {}
-        if result_fields:
-            for r in result_fields:
-                result_fields_index[r] = None
-
-        for h in raw_result["hits"]["hits"]:
-            row = {}
-            for column in h["_source"]:
-                if result_fields and column not in result_fields_index:
-                    continue
-
-                if column not in result_columns_index:
-                    result_columns.append({
-                        "name" : column,
-                        "friendly_name" : column,
-                        "type" : mappings.get(column, "string")
-                    })
-                    result_columns_index[column] = result_columns[-1]
-
-                row[column] = h["_source"][column]
-
-            if row and len(row) > 0:
-                result_rows.append(row)
-
-    def execute_simple_query(self, url, _from, mappings, result_fields, result_columns, result_rows):
+    def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
         url += "&from={0}".format(_from)
-        r = requests.get(url)
+        r = requests.get(url, auth=self.auth)
         if r.status_code != 200:
             raise Exception("Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text))
 
         raw_result = r.json()
 
-        self.parse_results(mappings, result_fields, raw_result, result_columns, result_rows)
+        self._parse_results(mappings, result_fields, raw_result, result_columns, result_rows)
 
         total = raw_result["hits"]["total"]
         result_size = len(raw_result["hits"]["hits"])
@@ -199,19 +237,14 @@ class ElasticSearch(BaseQueryRunner):
             result_fields = query_params.get("fields", None)
             sort = query_params.get("sort", None)
 
-            server_url = self.configuration["server"]
-            if not server_url:
+            if not self.server_url:
                 error = "Missing configuration key 'server'"
                 return None, error
 
+            url = "{0}/{1}/_search?".format(self.server_url, index_name)
+            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
-            if server_url[-1] == "/":
-                server_url = server_url[:-1]
-
-            url = "{0}/{1}/_search?".format(server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(server_url, index_name)
-
-            mappings = self.get_mappings(mapping_url)
+            mappings = self._get_mappings(mapping_url)
 
             logger.debug(json.dumps(mappings, indent=4))
 
@@ -231,7 +264,7 @@ class ElasticSearch(BaseQueryRunner):
             if isinstance(query_data, str) or isinstance(query_data, unicode):
                 _from = 0
                 while True:
-                    total = self.execute_simple_query(url, _from, mappings, result_fields, result_columns, result_rows)
+                    total = self._execute_simple_query(url, _from, mappings, result_fields, result_columns, result_rows)
                     _from += size
                     if _from >= total:
                         break
@@ -252,4 +285,85 @@ class ElasticSearch(BaseQueryRunner):
         return json_data, error
 
 
+#
+#
+# Simple query example:
+#
+# - Query the index named "twitter"
+# - Filter by user equal "kimchy"
+# - Return the fields: "@timestamp", "tweet" and "user"
+# - Return up to 15 results
+# - Sort by @timestamp ascending
+#
+# {
+#     "index" : "twitter",
+#     "query" : {
+#       "match": {
+#           "user" : "kimchy"
+#       }
+#     },
+#     "fields" : ["@timestamp", "tweet", "user"],
+#     "size" : 15,
+#     "sort" : "@timestamp:asc"
+# }
+#
+#
+
+class ElasticSearchV2(BaseElasticSearch):
+
+    def __init__(self, configuration_json):
+        super(ElasticSearchV2, self).__init__(configuration_json)
+
+    @classmethod
+    def enabled(cls):
+        return True
+
+    @classmethod
+    def annotate_query(cls):
+        return False
+
+    def run_query(self, query):
+        try:
+            error = None
+
+            logger.debug(query)
+            query_params = json.loads(query)
+
+            index_name = query_params.pop("index", "")
+
+            if not self.server_url:
+                error = "Missing configuration key 'server'"
+                return None, error
+
+            url = "{0}/{1}/_search".format(self.server_url, index_name)
+            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
+
+            mappings = self._get_mappings(mapping_url)
+
+            logger.debug(json.dumps(mappings, indent=4))
+
+            logger.debug("Using URL: {0}".format(url))
+            logger.debug("Using Query: {0}".format(json.dumps(query_params)))
+
+            r = requests.get(url, params={"source": json.dumps(query_params)}, auth=self.auth)
+            logger.debug(r.json())
+
+            result_columns = []
+            result_rows = []
+            self._parse_results(mappings, None, r.json(), result_columns, result_rows)
+
+            json_data = json.dumps({
+                "columns" : result_columns,
+                "rows" : result_rows
+            })
+        except KeyboardInterrupt:
+            error = "Query cancelled by user."
+            json_data = None
+        except Exception as e:
+            raise sys.exc_info()[1], None, sys.exc_info()[2]
+
+        return json_data, error
+
+
 register(ElasticSearch)
+register(ElasticSearchV2)
