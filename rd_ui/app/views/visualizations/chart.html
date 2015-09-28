@@ -1,4 +1,8 @@
 <div>
-  <date-range-selector ng-if="options.xAxis.type == 'datetime'" date-range='dateRange' class='pull-right'></date-range-selector>
-  <chart options='chartOptions' series='chartSeries' class='graph'></chart>
+  <section class="clearfix">
+    <date-range-selector ng-if="options.xAxis.type == 'datetime'" date-range='dateRange' class='pull-right'></date-range-selector>
+  </section>
+  <section>
+    <chart options='chartOptions' series='chartSeries' class='graph'></chart>
+  </section>
 </div>
