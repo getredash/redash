@@ -10,7 +10,7 @@ function getNestedValue (obj, keys) {
 function getKeyFromObject(obj, key) {
   var value = obj[key];
 
-  if ((!_.include(obj, key) && _.string.include(key, '.'))) {
+  if ((!_.has(obj, key) && _.string.include(key, '.'))) {
     var keys = key.split(".");
 
     value = getNestedValue(obj, keys);
