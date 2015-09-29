@@ -79,7 +79,9 @@ class BaseQueryRunner(object):
                 duplicates_counter += 1
 
             column_names.append(column_name)
-            new_columns.append([column_name, col[1]])
+            new_columns.append({'name': column_name,
+                                'friendly_name': column_name,
+                                'type': col[1]})
 
         return new_columns
 

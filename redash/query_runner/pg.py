@@ -122,13 +122,8 @@ class PostgreSQL(BaseQueryRunner):
             _wait(connection)
 
             if cursor.description is not None:
-                columns_data = self.fetch_columns([(i.name, types_map.get(i.type_code, None)) for i in cursor.description])
-
-                columns = [{'name': col[0],
-                            'friendly_name': col[0],
-                            'type': col[1]} for col in columns_data]
-
-                rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None

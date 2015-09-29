@@ -119,13 +119,8 @@ class Mysql(BaseQueryRunner):
 
             # TODO - very similar to pg.py
             if cursor.description is not None:
-                columns_data = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-
-                rows = [dict(zip((c[0] for c in columns_data), row)) for row in data]
-
-                columns = [{'name': col[0],
-                            'friendly_name': col[0],
-                            'type': col[1]} for col in columns_data]
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
