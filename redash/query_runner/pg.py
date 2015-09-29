@@ -121,29 +121,14 @@ class PostgreSQL(BaseQueryRunner):
             cursor.execute(query)
             _wait(connection)
 
-            # While set would be more efficient here, it sorts the data which is not what we want, but due to the small
-            # size of the data we can assume it's ok.
-            column_names = []
-            columns = []
-            duplicates_counter = 1
-
             if cursor.description is not None:
-                for column in cursor.description:
-                    # TODO: this deduplication needs to be generalized and reused in all query runners.
-                    column_name = column.name
-                    if column_name in column_names:
-                        column_name += str(duplicates_counter)
-                        duplicates_counter += 1
+                columns_data = self.fetch_columns([(i.name, types_map.get(i.type_code, None)) for i in cursor.description])
 
-                    column_names.append(column_name)
+                columns = [{'name': col[0],
+                            'friendly_name': col[0],
+                            'type': col[1]} for col in columns_data]
 
-                    columns.append({
-                        'name': column_name,
-                        'friendly_name': column_name,
-                        'type': types_map.get(column.type_code, None)
-                    })
-
-                rows = [dict(zip(column_names, row)) for row in cursor]
+                rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
