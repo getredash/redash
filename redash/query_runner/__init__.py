@@ -75,7 +75,7 @@ class BaseQueryRunner(object):
         for col in columns:
             column_name = col[0]
             if column_name in column_names:
-                column_name += " " + str(duplicates_counter)
+                column_name = "{}_{}".format(column_name, duplicates_counter)
                 duplicates_counter += 1
 
             column_names.append(column_name)
