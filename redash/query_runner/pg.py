@@ -87,7 +87,22 @@ class PostgreSQL(BaseQueryRunner):
         query = """
         SELECT table_schema, table_name, column_name
         FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        UNION
+        SELECT
+          pg_namespace.nspname table_schema,
+          pg_class.relname table_name,
+          pg_attribute.attname column_name
+        FROM pg_catalog.pg_class
+        JOIN pg_catalog.pg_namespace
+          ON pg_namespace.oid = pg_class.relnamespace
+         AND pg_namespace.nspname NOT IN ('pg_catalog', 'information_schema')
+        JOIN pg_catalog.pg_attribute
+          ON pg_attribute.attrelid = (
+            pg_namespace.nspname || '.' || pg_class.relname
+          )::regclass
+         AND pg_attribute.attnum > 0
+        WHERE pg_class.relkind = 'm';
         """
 
         results, error = self.run_query(query)
