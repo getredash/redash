@@ -67,6 +67,22 @@ class BaseQueryRunner(object):
     def run_query(self, query):
         raise NotImplementedError()
 
+    def fetch_columns(self, columns):
+        column_names = []
+        duplicates_counter = 1
+        new_columns = []
+
+        for col in columns:
+            column_name = col[0]
+            if column_name in column_names:
+                column_name += " " + str(duplicates_counter)
+                duplicates_counter += 1
+
+            column_names.append(column_name)
+            new_columns.append([column_name, col[1]])
+
+        return new_columns
+
     def get_schema(self):
         return []
 
