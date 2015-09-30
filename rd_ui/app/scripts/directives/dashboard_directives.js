@@ -14,10 +14,10 @@
         replace: true,
         link: function($scope, element, attrs) {
           var gridster = element.find(".gridster ul").gridster({
-            widget_margins: [5, 5],
-            widget_base_dimensions: [260, 100],
-            min_cols: 2,
-            max_cols: 2,
+            widget_margins: [1, 1],
+            widget_base_dimensions: [200, 100],
+            min_cols: 3,
+            max_cols: 3,
             serialize_params: function($w, wgd) {
               return {
                 col: wgd.col,
