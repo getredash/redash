@@ -1,15 +1,11 @@
-import datetime
 import json
 import logging
 import sys
 import urllib
 
 from redash.query_runner import *
-from redash import models
 
 import requests
-import dateutil
-from dateutil.parser import parse
 
 try:
     import http.client as http_client

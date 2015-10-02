@@ -2,7 +2,6 @@ import json
 import datetime
 import logging
 import re
-import time
 from dateutil.parser import parse
 
 from redash.utils import JSONEncoder
@@ -17,8 +16,6 @@ try:
     enabled = True
 
 except ImportError:
-    logger.warning("Missing dependencies. Please install pymongo.")
-    logger.warning("You can use pip:   pip install pymongo")
     enabled = False
 
 

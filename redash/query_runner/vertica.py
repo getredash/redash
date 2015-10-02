@@ -8,25 +8,26 @@ from redash.query_runner import *
 logger = logging.getLogger(__name__)
 
 types_map = {
-    0: TYPE_FLOAT,
-    1: TYPE_INTEGER,
-    2: TYPE_INTEGER,
-    3: TYPE_INTEGER,
-    4: TYPE_FLOAT,
-    5: TYPE_FLOAT,
-    7: TYPE_DATETIME,
-    8: TYPE_INTEGER,
-    9: TYPE_INTEGER,
+    5: TYPE_BOOLEAN,
+    6: TYPE_INTEGER,
+    7: TYPE_FLOAT,
+    8: TYPE_STRING,
+    9: TYPE_STRING,
     10: TYPE_DATE,
+    11: TYPE_DATETIME,
     12: TYPE_DATETIME,
-    15: TYPE_STRING,
-    16: TYPE_INTEGER,
-    246: TYPE_FLOAT,
-    253: TYPE_STRING,
-    254: TYPE_STRING,
+    13: TYPE_DATETIME,
+    14: TYPE_DATETIME,
+    15: TYPE_DATETIME,
+    16: TYPE_FLOAT,
+    17: TYPE_STRING,
+    114: TYPE_DATETIME,
+    115: TYPE_STRING,
+    116: TYPE_STRING,
+    117: TYPE_STRING
 }
 
-class Mysql(BaseQueryRunner):
+class Vertica(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -38,11 +39,11 @@ class Mysql(BaseQueryRunner):
                 'user': {
                     'type': 'string'
                 },
-                'passwd': {
+                'password': {
                     'type': 'string',
                     'title': 'Password'
                 },
-                'db': {
+                'database': {
                     'type': 'string',
                     'title': 'Database name'
                 },
@@ -50,33 +51,24 @@ class Mysql(BaseQueryRunner):
                     "type": "number"
                 },
             },
-            'required': ['db']
+            'required': ['database']
         }
 
     @classmethod
     def enabled(cls):
         try:
-            import MySQLdb
+            import vertica_python
         except ImportError:
             return False
 
         return True
 
     def __init__(self, configuration_json):
-        super(Mysql, self).__init__(configuration_json)
+        super(Vertica, self).__init__(configuration_json)
 
     def get_schema(self):
         query = """
-        SELECT col.table_schema,
-               col.table_name,
-               col.column_name
-        FROM `information_schema`.`columns` col
-        INNER JOIN
-          (SELECT table_schema,
-                  TABLE_NAME
-           FROM information_schema.tables
-           WHERE table_type <> 'SYSTEM VIEW' AND table_schema NOT IN ('performance_schema', 'mysql')) tables ON tables.table_schema = col.table_schema
-        AND tables.TABLE_NAME = col.TABLE_NAME;
+        Select table_schema, table_name, column_name from columns where is_system_table=false;
         """
 
         results, error = self.run_query(query)
@@ -88,10 +80,7 @@ class Mysql(BaseQueryRunner):
 
         schema = {}
         for row in results['rows']:
-            if row['table_schema'] != self.configuration['db']:
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            else:
-                table_name = row['table_name']
+            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
@@ -101,26 +90,35 @@ class Mysql(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query):
-        import MySQLdb
+        import vertica_python
 
+        if query == "":
+            json_data=None
+            error = "Query is empty"
+            return json_data, error
+        
         connection = None
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
-                                         user=self.configuration.get('user', ''),
-                                         passwd=self.configuration.get('passwd', ''),
-                                         db=self.configuration['db'],
-                                         port=self.configuration.get('port', 3306),
-                                         charset='utf8', use_unicode=True)
+            conn_info = {
+                'host': self.configuration.get('host', ''), 
+                'port': self.configuration.get('port', 5433),
+                'user': self.configuration.get('user', ''),
+                'password': self.configuration.get('password', ''),
+                'database': self.configuration.get('database', '')
+            }
+            connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()
-            logger.debug("MySQL running query: %s", query)
+            logger.debug("Vetica running query: %s", query)
             cursor.execute(query)
-
-            data = cursor.fetchall()
 
             # TODO - very similar to pg.py
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+                columns_data = [(i[0], i[1]) for i in cursor.description]
+
+                rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor.fetchall()]
+                columns = [{'name': col[0],
+                            'friendly_name': col[0],
+                            'type': types_map.get(col[1], None)} for col in columns_data]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
@@ -130,9 +128,6 @@ class Mysql(BaseQueryRunner):
                 error = "No data was returned."
 
             cursor.close()
-        except MySQLdb.Error, e:
-            json_data = None
-            error = e.args[1]
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
@@ -144,4 +139,4 @@ class Mysql(BaseQueryRunner):
 
         return json_data, error
 
-register(Mysql)
+register(Vertica)

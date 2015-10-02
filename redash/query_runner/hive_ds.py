@@ -11,8 +11,6 @@ try:
     from pyhive import hive
     enabled = True
 except ImportError, e:
-    logger.warning("Missing dependencies. Please install pyhive.")
-    logger.warning("You can use pip: pip install pyhive")
     enabled = False
 
 COLUMN_NAME = 0

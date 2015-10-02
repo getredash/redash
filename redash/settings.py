@@ -126,7 +126,12 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.presto',
     'redash.query_runner.hive_ds',
     'redash.query_runner.impala_ds',
+    'redash.query_runner.vertica',
+    'redash.query_runner.treasuredata'
 ])))
+
+# Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
+SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
@@ -135,3 +140,6 @@ CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS",
 # Features:
 FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))
 FEATURE_TABLES_PERMISSIONS = parse_boolean(os.environ.get("REDASH_FEATURE_TABLES_PERMISSIONS", "false"))
+
+# BigQuery
+BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))

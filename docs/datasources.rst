@@ -179,3 +179,18 @@ VPN and with users you trust).
    -  Allowed Modules in a comma separated list (optional). **NOTE:**
       You MUST make sure these modules are installed on the machine
       running the Celery workers.
+
+Vertica
+-----
+
+-  **Options**:
+
+   -  Database (mandatory)
+   -  User
+   -  Password
+   -  Host
+   -  Port
+
+-  **Additional requirements**:
+
+   - ``vertica-python`` python package

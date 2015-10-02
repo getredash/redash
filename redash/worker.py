@@ -1,6 +1,6 @@
 from celery import Celery
 from datetime import timedelta
-from redash import settings
+from redash import settings, __version__
 
 
 celery = Celery('redash',
@@ -32,5 +32,9 @@ celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
                    CELERYBEAT_SCHEDULE=celery_schedule,
                    CELERY_TIMEZONE='UTC')
 
-if __name__ == '__main__':
-    celery.start()
+if settings.SENTRY_DSN:
+    from raven import Client
+    from raven.contrib.celery import register_signal, register_logger_signal
+
+    client = Client(settings.SENTRY_DSN, release=__version__)
+    register_signal(client)

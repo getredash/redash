@@ -6,7 +6,7 @@ if __name__ == '__main__':
         if vis.type == 'COUNTER':
             options = json.loads(vis.options)
             print "Before: ", options
-            if 'rowNumber' in options:
+            if 'rowNumber' in options and options['rowNumber'] is not None:
                 options['rowNumber'] += 1
             else:
                 options['rowNumber'] = 1

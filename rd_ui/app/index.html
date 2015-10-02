@@ -44,7 +44,6 @@
     {% raw %}
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
-            <li class="active" ng-show="pageTitle"><a class="page-title" ng-bind="pageTitle"></a></li>
             <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
                 <a href="#" class="dropdown-toggle" dropdown-toggle><span class="fa fa-tachometer"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu" dropdown-menu>
@@ -202,7 +201,7 @@
 
     currentUser.canEdit = function(object) {
         var user_id = object.user_id || (object.user && object.user.id);
-        return user_id && (user_id == currentUser.id);
+        return this.hasPermission('admin') || (user_id && (user_id == currentUser.id));
     };
 
     currentUser.hasPermission = function(permission) {

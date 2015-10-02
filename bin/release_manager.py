@@ -56,7 +56,7 @@ def create_release(version, commit_sha):
     return response.json()
 
 def upload_asset(release, filepath):
-    upload_url = release['upload_url'].replace('{?name}', '')
+    upload_url = release['upload_url'].replace('{?name,label}', '')
     filename = filepath.split('/')[-1]
 
     with open(filepath) as file_content:
