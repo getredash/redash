@@ -374,7 +374,7 @@ counter-renderer counter-name {
 
 .box .outlier {
   fill: none;
-  stroke: #ccc;
+  stroke: #000;
 }
 .axis text {
   font: 10px sans-serif;

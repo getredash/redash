@@ -46,11 +46,12 @@
           };
         };
 
-        $scope.$watch('queryResult && queryResult.getData()', function (data) {
-              
+        $scope.$watch('[queryResult && queryResult.getData(), visualization.options]', function () {
+          
+          var data = $scope.queryResult.getData();
           var colName = $scope.visualization.options.colName;
           var parentWidth = d3.select(elm[0].parentNode).node().getBoundingClientRect().width;
-          var margin = {top: 10, right: 50, bottom: 20, left: 50, inner: 25},
+          var margin = {top: 10, right: 50, bottom: 40, left: 50, inner: 25},
               width = parentWidth - margin.right - margin.left
               height = 500 - margin.top - margin.bottom;
 
@@ -59,6 +60,8 @@
           var mydata = [];
           var value = 0;
           var d = [];
+          var xAxisLabel = $scope.visualization.options.xAxisLabel;
+          var yAxisLabel = $scope.visualization.options.yAxisLabel;
 
           var columns = $scope.queryResult.columnNames;
           var xscale = d3.scale.ordinal()
@@ -124,6 +127,19 @@
               .attr("width",parentWidth-margin.left-margin.right)
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
+          d3.select("svg").append("text")
+              .attr("class", "box")
+              .attr("x", parentWidth/2.0)
+              .attr("text-anchor", "middle")
+              .attr("y", height+margin.bottom)
+              .text(xAxisLabel)
+
+          d3.select("svg").append("text")
+              .attr("class", "box")
+              .attr("transform","translate(10,"+(height+margin.top+margin.bottom)/2.0+")rotate(-90)")
+              .attr("text-anchor", "middle")
+              .text(yAxisLabel)
+
           plot.append("rect")
               .attr("class", "grid-background")
               .attr("width", width)
@@ -153,7 +169,7 @@
               .attr("height", height)
               .attr("transform", function(d,i) { return "translate(" + barOffset(i) + "," + 0 + ")"; } )
               .call(chart); 
-        });
+        }, true);
       }
     }
   });
