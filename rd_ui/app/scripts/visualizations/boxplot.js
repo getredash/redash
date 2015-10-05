@@ -100,6 +100,16 @@
             .scale(yscale)
             .orient("left");
 
+          var xLines = d3.svg.axis()
+            .scale(xscale)
+            .tickSize(height)
+            .orient("bottom");
+
+          var yLines = d3.svg.axis()
+            .scale(yscale)
+            .tickSize(width)
+            .orient("right");
+
           var barOffset = function(i){
             return xscale(columns[i]) + (xscale(columns[1]) - margin.inner)/2.0;
           };
@@ -114,14 +124,27 @@
               .attr("width",parentWidth-margin.left-margin.right)
               .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-          plot.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")")
-            .call(xAxis);
+          plot.append("rect")
+              .attr("class", "grid-background")
+              .attr("width", width)
+              .attr("height", height); 
 
           plot.append("g")
-            .attr("class", "y axis")
-            .call(yAxis);
+              .attr("class","grid")
+              .call(yLines)
+
+          plot.append("g")
+              .attr("class","grid")
+              .call(xLines)
+
+          plot.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis);
+
+          plot.append("g")
+              .attr("class", "y axis")
+              .call(yAxis);
 
           plot.selectAll(".box").data(mydata)
             .enter().append("g")

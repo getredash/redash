@@ -387,6 +387,22 @@ counter-renderer counter-name {
   shape-rendering: crispEdges;
 }
 
+.grid-background {
+  fill: #ddd;
+}
+.grid path,
+.grid line {
+  fill: none;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+.grid .minor line {
+  stroke-opacity: .5;
+}
+.grid text {
+  display: none;
+}
+
 .rd-widget-textbox p {
     margin-bottom: 0;
 }
