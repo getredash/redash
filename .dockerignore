@@ -2,4 +2,3 @@ rd_ui/dist/
 rd_ui/.tmp/
 .git/
 .vagrant/
-.env
