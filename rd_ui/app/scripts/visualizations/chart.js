@@ -103,6 +103,7 @@
         scope.xAxisOptions = {
           "Date/Time": "datetime",
           "Linear": "linear",
+          "Logarithmic": "logarithmic",
           "Category": "category"
         };
 
