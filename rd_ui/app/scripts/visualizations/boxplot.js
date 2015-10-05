@@ -63,11 +63,13 @@
           var columns = $scope.queryResult.columnNames;
           var xscale = d3.scale.ordinal()
             .domain(columns)
-            .rangeBands([0, parentWidth]);
+            .rangeBands([0, parentWidth-margin.left-margin.right]);
 
           if (columns.length > 1){
             boxWidth = Math.min(xscale(columns[1]),120.0);
-          } else {boxWidth=120.0}
+          } else {
+            boxWidth=120.0;
+          };
           margin.inner = boxWidth/3.0;
 
           _.each(columns, function(column, i){
@@ -80,23 +82,54 @@
             });
           });
 
+          var yscale = d3.scale.linear()
+            .domain([min*0.99,max*1.01])
+            .range([height, 0]);
+
           var chart = d3.box()
               .whiskers(iqr(1.5))
               .width(boxWidth-2*margin.inner)
               .height(height)
-              .domain([min,max]);   
+              .domain([min*0.99,max*1.01]);   
+          var xAxis = d3.svg.axis()
+            .scale(xscale)
+            .orient("bottom");
+
+
+          var yAxis = d3.svg.axis()
+            .scale(yscale)
+            .orient("left");
+
+          var barOffset = function(i){
+            return xscale(columns[i]) + (xscale(columns[1]) - margin.inner)/2.0;
+          };
 
           d3.select(elm[0]).selectAll("svg").remove();
 
-          d3.select(elm[0]).selectAll("svg").data(mydata)
-            .enter().append("svg")
+          var plot = d3.select(elm[0])
+            .append("svg")
+              .attr("width",parentWidth)
+              .attr("height",height + margin.bottom + margin.top)
+            .append("g")
+              .attr("width",parentWidth-margin.left-margin.right)
+              .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+          plot.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+          plot.append("g")
+            .attr("class", "y axis")
+            .call(yAxis);
+
+          plot.selectAll(".box").data(mydata)
+            .enter().append("g")
               .attr("class", "box")
               .attr("width", boxWidth)
-              .attr("height", height + margin.bottom + margin.top)
-            .append("g")
-              .attr("transform", "translate(" + margin.inner + "," + margin.top + ")")
+              .attr("height", height)
+              .attr("transform", function(d,i) { return "translate(" + barOffset(i) + "," + 0 + ")"; } )
               .call(chart); 
-
         });
       }
     }

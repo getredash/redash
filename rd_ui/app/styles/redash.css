@@ -376,6 +376,16 @@ counter-renderer counter-name {
   fill: none;
   stroke: #ccc;
 }
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
 
 .rd-widget-textbox p {
     margin-bottom: 0;
