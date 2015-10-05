@@ -49,8 +49,7 @@
         $scope.$watch('queryResult && queryResult.getData()', function (data) {
               
           var colName = $scope.visualization.options.colName;
-          var margin = {top: 10, right: 50, bottom: 20, left: 50},
-              width = 120 - margin.left - margin.right,
+          var margin = {top: 10, bottom: 20},
               height = 500 - margin.top - margin.bottom;
 
           var min = Infinity,
@@ -60,6 +59,16 @@
           var d = [];
 
           var columns = $scope.queryResult.columnNames;
+          var parentWidth = d3.select(elm[0].parentNode).node().getBoundingClientRect().width;
+          var xscale = d3.scale.ordinal()
+            .domain(columns)
+            .rangeBands([0, parentWidth]);
+
+          if (columns.length > 1){
+            boxWidth = Math.min(xscale(columns[1]),120.0);
+          } else {boxWidth=120.0}
+          leftMargin = boxWidth/3.0;
+
           _.each(columns, function(column, i){
             d = mydata[i] = [];
             _.each(data, function (row) {
@@ -69,20 +78,22 @@
               if (value < min) min = Math.floor(value);
             });
           });
+
           var chart = d3.box()
               .whiskers(iqr(1.5))
-              .width(width)
+              .width(boxWidth-2*leftMargin)
               .height(height)
-              .domain([min,max]);     
+              .domain([min,max]);   
+                
           d3.select(elm[0]).selectAll("svg").remove();
 
           d3.select(elm[0]).selectAll("svg").data(mydata)
             .enter().append("svg")
               .attr("class", "box")
-              .attr("width", width + margin.left + margin.right)
+              .attr("width", boxWidth)
               .attr("height", height + margin.bottom + margin.top)
             .append("g")
-              .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+              .attr("transform", "translate(" + leftMargin + "," + margin.top + ")")
               .call(chart); 
 
         });
