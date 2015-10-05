@@ -106,7 +106,13 @@
           "Category": "category"
         };
 
+        scope.yAxisOptions = {
+          "Linear": "linear",
+          "Logarithmic": "logarithmic"
+        };
+
         scope.xAxisType = "datetime";
+        scope.yAxisType = "linear";
         scope.stacking = "none";
 
 
@@ -236,6 +242,13 @@
               scope.visualization.options.xAxis = scope.visualization.options.xAxis || {};
               scope.visualization.options.xAxis.type = xAxisType;
             });
+
+            scope.yAxisType = (scope.visualization.options.yAxis && scope.visualization.options.yAxis.type) || scope.yAxisType;
+
+            yAxisUnwatch = scope.$watch("yAxisType", function (yAxisType) {
+              scope.visualization.options.yAxis = scope.visualization.options.yAxis || {};
+              scope.visualization.options.yAxis.type = yAxisType;
+            });
           } else {
             if (chartOptionsUnwatch) {
               chartOptionsUnwatch();
@@ -250,6 +263,11 @@
             if (xAxisUnwatch) {
               xAxisUnwatch();
               xAxisUnwatch = null;
+            }
+
+            if (yAxisUnwatch) {
+              yAxisUnwatch();
+              yAxisUnwatch = null;
             }
           }
         });
