@@ -16,7 +16,7 @@
 
       VisualizationProvider.registerVisualization({
         type: 'BOXPLOT',
-        name: 'boxplot',
+        name: 'Boxplot',
         renderTemplate: renderTemplate,
         editorTemplate: editTemplate,
         defaultOptions: defaultOptions
