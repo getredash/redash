@@ -49,7 +49,7 @@
         $scope.$watch('queryResult && queryResult.getData()', function (data) {
               
           var colName = $scope.visualization.options.colName;
-          var margin = {top: 10, bottom: 20},
+          var margin = {top: 10, right: 50, bottom: 20, left: 50, inner: 25},
               height = 500 - margin.top - margin.bottom;
 
           var min = Infinity,
@@ -67,7 +67,7 @@
           if (columns.length > 1){
             boxWidth = Math.min(xscale(columns[1]),120.0);
           } else {boxWidth=120.0}
-          leftMargin = boxWidth/3.0;
+          margin.inner = boxWidth/3.0;
 
           _.each(columns, function(column, i){
             d = mydata[i] = [];
@@ -81,10 +81,10 @@
 
           var chart = d3.box()
               .whiskers(iqr(1.5))
-              .width(boxWidth-2*leftMargin)
+              .width(boxWidth-2*margin.inner)
               .height(height)
               .domain([min,max]);   
-                
+
           d3.select(elm[0]).selectAll("svg").remove();
 
           d3.select(elm[0]).selectAll("svg").data(mydata)
@@ -93,7 +93,7 @@
               .attr("width", boxWidth)
               .attr("height", height + margin.bottom + margin.top)
             .append("g")
-              .attr("transform", "translate(" + leftMargin + "," + margin.top + ")")
+              .attr("transform", "translate(" + margin.inner + "," + margin.top + ")")
               .call(chart); 
 
         });
