@@ -72,7 +72,7 @@ mkdir -p /opt/redash/supervisord
 pip install supervisor==3.1.2 # TODO: move to requirements.txt
 
 # Get supervisord startup script
-cp $FILES_BASE_URL"supervisord.conf" /opt/redash/supervisord/supervisord.conf
+cp $FILES_BASE_URL"supervisord_docker.conf" /opt/redash/supervisord/supervisord.conf
 
 cp $FILES_BASE_URL"redash_supervisord_init" /etc/init.d/redash_supervisord
 add_service "redash_supervisord"
