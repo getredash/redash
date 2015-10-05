@@ -21,3 +21,5 @@ RUN /opt/redash/.npm/node_modules/bin/grunt build
 # Reset working directory and user for future `docker attach` sessions
 WORKDIR /opt/redash/current
 USER root
+
+CMD service redash_supervisord start
