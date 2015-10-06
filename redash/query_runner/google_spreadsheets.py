@@ -24,22 +24,51 @@ def _load_key(filename):
 def _guess_type(value):
     try:
         val = int(value)
-        return TYPE_INTEGER, val
+        return TYPE_INTEGER
     except ValueError:
         pass
     try:
         val = float(value)
-        return TYPE_FLOAT, val
+        return TYPE_FLOAT
     except ValueError:
         pass
     if str(value).lower() in ('true', 'false'):
-        return TYPE_BOOLEAN, bool(value)
+        return TYPE_BOOLEAN
     try:
         val = parser.parse(value)
-        return TYPE_DATETIME, val
+        return TYPE_DATETIME
     except ValueError:
         pass
-    return TYPE_STRING, value
+    return TYPE_STRING
+
+
+def _value_eval_list(value):
+    value_list = []
+    for member in value:
+        try:
+            val = int(member)
+            value_list.append(val)
+            continue
+        except ValueError:
+            pass
+        try:
+            val = float(member)
+            value_list.append(val)
+            continue
+        except ValueError:
+            pass
+        if str(member).lower() in ('true', 'false'):
+            val = bool(member)
+            value_list.append(val)
+            continue
+        try:
+            val = parser.parse(member)
+            value_list.append(val)
+            continue
+        except ValueError:
+            pass
+        value_list.append(member)
+    return value_list
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
@@ -102,7 +131,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
                     'friendly_name': column_name,
                     'type': _guess_type(all_data[self.HEADER_INDEX+1][j])
                 })
-            rows = [dict(zip(column_names, row)) for row in all_data[self.HEADER_INDEX+1:]]
+            rows = [dict(zip(column_names, _value_eval_list(row))) for row in all_data[self.HEADER_INDEX+1:]]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
