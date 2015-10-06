@@ -8,10 +8,10 @@ redash:
     - postgres
   env_file: .env
 redis:
-  image: redis:3.0
+  image: redis:2.8
   ports:
     - "6379:6379"
 postgres:
-  image: postgres:9.4
+  image: postgres:9.3
   ports:
     - "5432:5432"
