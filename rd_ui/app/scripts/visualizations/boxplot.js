@@ -39,7 +39,6 @@
         $scope.$watch('[queryResult && queryResult.getData(), visualization.options]', function () {
           
           var data = $scope.queryResult.getData();
-          var colName = $scope.visualization.options.colName;
           var parentWidth = d3.select(elm[0].parentNode).node().getBoundingClientRect().width;
           var margin = {top: 10, right: 50, bottom: 40, left: 50, inner: 25},
               width = parentWidth - margin.right - margin.left
