@@ -15,6 +15,7 @@ RUN pip install -U setuptools
 
 # redash user
 RUN useradd --system --comment " " --create-home redash
+RUN useradd --system --comment " " --create-home postgres
 
 # PostgreSQL
 RUN apt-get update
