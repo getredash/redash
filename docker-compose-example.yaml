@@ -6,7 +6,7 @@ redash:
   links:
     - redis
     - postgres
-  stdin_open: true
+  env_file: .env
 redis:
   image: redis:3.0
   ports:
