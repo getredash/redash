@@ -8,10 +8,10 @@ redash:
     - postgres
   stdin_open: true
 redis:
-  image: redis
+  image: redis:3.0
   ports:
     - "6379:6379"
 postgres:
-  image: postgres
+  image: postgres:9.4
   ports:
     - "5432:5432"
