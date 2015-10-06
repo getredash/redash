@@ -1,4 +1,4 @@
-FROM debian:wheezy
+FROM ubuntu:trusty
 MAINTAINER Di Wu <diwu@yelp.com>
 
 COPY . /opt/redash/current/
