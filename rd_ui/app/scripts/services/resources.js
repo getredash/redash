@@ -216,7 +216,6 @@
 
     QueryResult.prototype.getChartData = function (mapping, dateRange) {
       var series = {};
-      var that = this;
 
       _.each(this.getData(), function (row) {
         var point = {};
@@ -258,8 +257,8 @@
 
         if (seriesName === undefined) {
           _.each(yValues, function (yValue, seriesName) {
-            that._addPointToSeries({'x': xValue, 'y': yValue}, series, seriesName);
-          });
+            this._addPointToSeries({'x': xValue, 'y': yValue}, series, seriesName);
+          }.bind(this));
         } else if (dateRange && moment.isMoment(point.x)) {
           // Check whether the x axis is of type datetime and whether the dateRange feature is enabled (by checking if dateRange object is provided). If so, we will want to filter points based on dateRange set.
           this._addPointToSeriesIfInDateRange(point, series, seriesName, dateRange);
@@ -267,7 +266,7 @@
         else {
           this._addPointToSeries(point, series, seriesName);
         }
-      });
+      }.bind(this));
 
       return _.values(series);
     };
