@@ -35,6 +35,34 @@
         $scope.dateRangeEnabled = $scope.options.xAxis && $scope.options.xAxis.type === 'datetime';
         $scope.dateRange = { min: moment('1970-01-01'), max: moment() };
 
+        /**
+         * Update date range by finding date extremes
+         *
+         * ISSUE: chart.getExtreme() does not support getting Moment object out of box
+         * TODO: Find a faster way to do this
+         */
+        var setDateRangeToExtreme = function (chartData) {
+          if ($scope.dateRangeEnabled && chartData && chartData.length > 0) {
+            var maxDateRange = moment('1970-01-01'),
+              minDateRange = moment();
+            _.each(chartData, function (s) {
+              _.each(s.data, function (point) {
+                if (point.x.isBefore(minDateRange)) {
+                  // Use the copy of point.x to prevent side effects
+                  minDateRange = moment(point.x);
+                }
+                if (point.x.isAfter(maxDateRange)) {
+                  maxDateRange = moment(point.x);
+                }
+              });
+            });
+            $scope.dateRange = {
+              min: minDateRange,
+              max: maxDateRange
+            };
+          }
+        };
+
         var reloadData = function(data) {
           if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
@@ -60,29 +88,7 @@
               $scope.chartSeries.push(_.extend(s, additional));
             });
 
-            // Update date range by finding date extremes
-            // TODO: Find a faster way to do this
-            // ISSUE: chart.getExtreme() does not support getting Moment object
-            //        out of box
-            if ($scope.dateRangeEnabled && chartData && chartData.length > 0) {
-              var maxDateRange = moment('1970-01-01'),
-                minDateRange = moment();
-              _.each(chartData, function (s) {
-                _.each(s.data, function (point) {
-                  if (point.x.isBefore(minDateRange)) {
-                    // Use the copy of point.x to prevent side effects
-                    minDateRange = moment(point.x);
-                  }
-                  if (point.x.isAfter(maxDateRange)) {
-                    maxDateRange = moment(point.x);
-                  }
-                });
-              });
-              $scope.dateRange = {
-                min: minDateRange,
-                max: maxDateRange
-              };
-            }
+            setDateRangeToExtreme(chartData);
           };
         };
 
