@@ -186,10 +186,37 @@
       }
 
       return this.filteredData;
+    };
+
+    /**
+     * Helper function to add a point into a series, also checks whether the point is within dateRange
+     */
+    QueryResult.prototype._addPointToSeriesChecked = function (point, seriesCollection, seriesName, dateRange) {
+      if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
+        // if the point's date isn't within dateRange, then we will not add this point to series
+        return;
+      }
+      this._addPointToSeries(point, seriesCollection, seriesName);
     }
+
+    /**
+     * Helper function to add a point into a series
+     */
+    QueryResult.prototype._addPointToSeries = function (point, seriesCollection, seriesName) {
+      if (seriesCollection[seriesName] == undefined) {
+        seriesCollection[seriesName] = {
+          name: seriesName,
+          type: 'column',
+          data: []
+        };
+      }
+
+      seriesCollection[seriesName]['data'].push(point);
+    };
 
     QueryResult.prototype.getChartData = function (mapping, dateRange) {
       var series = {};
+      var that = this;
 
       _.each(this.getData(), function (row) {
         var point = {};
@@ -229,33 +256,16 @@
           }
         });
 
-        var addPointToSeries = function (seriesName, point) {
-          if (dateRange && moment.isMoment(point.x)) {
-            // date range enabled
-            if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
-              // if the point's date isn't within dateRange
-              // then we will omit this point
-              return;
-            }
-          }
-
-          if (series[seriesName] == undefined) {
-            series[seriesName] = {
-              name: seriesName,
-              type: 'column',
-              data: []
-            }
-          }
-
-          series[seriesName]['data'].push(point);
-        }
-
         if (seriesName === undefined) {
           _.each(yValues, function (yValue, seriesName) {
-            addPointToSeries(seriesName, {'x': xValue, 'y': yValue});
+            that._addPointToSeries({'x': xValue, 'y': yValue}, series, seriesName);
           });
-        } else {
-          addPointToSeries(seriesName, point);
+        } else if (dateRange && moment.isMoment(point.x)) {
+          // Check whether the x axis is of type datetime and whether the dateRange feature is enabled (by checking if dateRange object is provided). If so, we will want to filter points based on dateRange set.
+          this._addPointToSeriesChecked(point, series, seriesName, dateRange);
+        }
+        else {
+          this._addPointToSeries(point, series, seriesName);
         }
       });
 
