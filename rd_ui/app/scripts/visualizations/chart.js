@@ -43,7 +43,7 @@
 
             var chartData = $scope.queryResult.getChartData(
               $scope.options.columnMapping,
-              $scope.dateRangeEnabled ? $scope.dateRange : 0
+              $scope.dateRangeEnabled ? $scope.dateRange : null
             );
 
             _.each(chartData, function (s) {
