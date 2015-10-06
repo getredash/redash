@@ -41,11 +41,11 @@
          * ISSUE: chart.getExtreme() does not support getting Moment object out of box
          * TODO: Find a faster way to do this
          */
-        var setDateRangeToExtreme = function (chartData) {
-          if ($scope.dateRangeEnabled && chartData && chartData.length > 0) {
+        var setDateRangeToExtreme = function (seriesCollection) {
+          if ($scope.dateRangeEnabled && seriesCollection && seriesCollection.length > 0) {
             var maxDateRange = moment('1970-01-01'),
               minDateRange = moment();
-            _.each(chartData, function (s) {
+            _.each(seriesCollection, function (s) {
               _.each(s.data, function (point) {
                 if (point.x.isBefore(minDateRange)) {
                   // Use the copy of point.x to prevent side effects
@@ -69,12 +69,12 @@
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-            var chartData = $scope.queryResult.getChartData(
+            var seriesCollection = $scope.queryResult.getChartData(
               $scope.options.columnMapping,
               $scope.dateRangeEnabled ? $scope.dateRange : null
             );
 
-            _.each(chartData, function (s) {
+            _.each(seriesCollection, function (s) {
               var additional = {'stacking': 'normal'};
               if ('globalSeriesType' in $scope.options) {
                 additional['type'] = $scope.options.globalSeriesType;
@@ -88,7 +88,7 @@
               $scope.chartSeries.push(_.extend(s, additional));
             });
 
-            setDateRangeToExtreme(chartData);
+            setDateRangeToExtreme(seriesCollection);
           };
         };
 
