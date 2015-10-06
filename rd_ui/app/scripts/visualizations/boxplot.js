@@ -8,18 +8,12 @@
         '</boxplot-renderer>';
 
       var editTemplate = '<boxplot-editor></boxplot-editor>';
-      var defaultOptions = {
-        boxplotColName: 'boxplot',
-        rowNumber: 1,
-        targetRowNumber: 1
-      };
-
+      
       VisualizationProvider.registerVisualization({
         type: 'BOXPLOT',
         name: 'Boxplot',
         renderTemplate: renderTemplate,
-        editorTemplate: editTemplate,
-        defaultOptions: defaultOptions
+        editorTemplate: editTemplate
       });
     }
   ]);
@@ -28,10 +22,6 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/boxplot.html',
       link: function($scope, elm, attrs) {
-
-        
-        var loaddata = function(inputdata){
-        };
 
         function iqr(k) {
           return function(d, i) {
