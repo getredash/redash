@@ -14,17 +14,7 @@ useradd --system --comment " " --create-home redash
 
 # PostgreSQL
 apt-get update
-apt-get -y install libpq-dev postgresql
-
-# Redis client
-mkdir -p /tmp/redash && cd $_
-curl -L https://github.com/antirez/redis/archive/3.0.4.tar.gz -o redis.tar.gz
-mkdir redis
-tar -zxvf redis.tar.gz -C redis --strip-components 1
-cd redis
-make redis-cli
-cp src/redis-cli /usr/local/bin
-rm -rf /tmp/redis
+apt-get -y install libpq-dev postgresql-client
 
 add_service() {
     service_name=$1
