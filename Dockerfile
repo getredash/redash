@@ -48,4 +48,9 @@ RUN cp $FILES_BASE_URL"redash_supervisord_init" /etc/init.d/redash_supervisord
 # Fix permissions
 RUN chown -R redash /opt/redash
 
+# Expose ports
+EXPOSE 5000
+EXPOSE 9001
+
+# Startup script
 CMD bash /etc/init.d/redash_supervisord start
