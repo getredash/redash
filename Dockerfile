@@ -15,28 +15,19 @@ RUN apt-get update && \
   # Additional packages required for data sources:
   apt-get install -y libssl-dev libmysqlclient-dev
 
-RUN pip install -U setuptools
-
-# redash user
+# Users creation
 RUN useradd --system --comment " " --create-home redash
 RUN useradd --system --comment " " --create-home postgres
 
-# Make logs folder
-RUN mkdir /opt/redash/logs
-
-# Default config file
-RUN cp $FILES_BASE_URL"env" /opt/redash/.env
-
-# Install dependencies
-RUN cd /opt/redash/current
-RUN pip install -r requirements.txt
+# Folders creation
+RUN mkdir /opt/redash/logs && \
+  mkdir -p /opt/redash/supervisord
 
 # Pip requirements for all data source types
-RUN pip install -r requirements_all_ds.txt
-
-# Setup supervisord + sysv init startup script
-RUN mkdir -p /opt/redash/supervisord
-RUN pip install supervisor==3.1.2
+RUN pip install -U setuptools && \
+  pip install -r requirements_all_ds.txt && \
+  pip install -r requirements.txt && \
+  pip install supervisor==3.1.2
 
 # Get supervisord startup script
 RUN cp $FILES_BASE_URL"supervisord_docker.conf" /opt/redash/supervisord/supervisord.conf
