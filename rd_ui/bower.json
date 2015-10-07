@@ -15,7 +15,7 @@
     "codemirror": "4.8.0",
     "highcharts": "3.0.10",
     "underscore": "1.5.1",
-    "pivottable": "~1.1.1",
+    "pivottable": "1.6.3",
     "cornelius": "https://github.com/restorando/cornelius.git",
     "gridster": "0.2.0",
     "mousetrap": "~1.4.6",
