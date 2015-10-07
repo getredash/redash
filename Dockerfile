@@ -39,4 +39,4 @@ EXPOSE 5000
 EXPOSE 9001
 
 # Startup script
-CMD ["supervisord -c /opt/redash/supervisord/supervisord.conf"]
+CMD ["supervisord", "-c", "/opt/redash/supervisord/supervisord.conf"]
