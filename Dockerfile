@@ -7,18 +7,19 @@ WORKDIR /opt/redash/current
 
 ENV FILES_BASE_URL /opt/redash/current/setup/files/
 
-# Base packages
+# Ubuntu packages
 RUN apt-get update && \
-  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core
+  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core && \
+  # Postgres client
+  apt-get -y install libpq-dev postgresql-client && \
+  # Additional packages required for data sources:
+  apt-get install -y libssl-dev libmysqlclient-dev
+
 RUN pip install -U setuptools
 
 # redash user
 RUN useradd --system --comment " " --create-home redash
 RUN useradd --system --comment " " --create-home postgres
-
-# Install dependencies via apt-get
-RUN apt-get update && \
-  apt-get -y install libpq-dev postgresql-client
 
 # Make logs folder
 RUN mkdir /opt/redash/logs
@@ -29,9 +30,6 @@ RUN cp $FILES_BASE_URL"env" /opt/redash/.env
 # Install dependencies
 RUN cd /opt/redash/current
 RUN pip install -r requirements.txt
-
-RUN apt-get install -y libssl-dev && \
-  apt-get install -y libmysqlclient-dev
 
 # Pip requirements for all data source types
 RUN pip install -r requirements_all_ds.txt
