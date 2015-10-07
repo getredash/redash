@@ -19,20 +19,17 @@ RUN apt-get update && \
 RUN useradd --system --comment " " --create-home redash
 RUN useradd --system --comment " " --create-home postgres
 
-# Folders creation
-RUN mkdir /opt/redash/logs && \
-  mkdir -p /opt/redash/supervisord
-
 # Pip requirements for all data source types
 RUN pip install -U setuptools && \
   pip install -r requirements_all_ds.txt && \
   pip install -r requirements.txt && \
   pip install supervisor==3.1.2
 
-# Get supervisord startup script
-RUN cp $FILES_BASE_URL"supervisord_docker.conf" /opt/redash/supervisord/supervisord.conf
-
-RUN cp $FILES_BASE_URL"redash_supervisord_init" /etc/init.d/redash_supervisord
+# Setup supervisord
+RUN mkdir -p /opt/redash/supervisord && \
+    mkdir -p /opt/redash/logs && \
+    pip install supervisor==3.1.2 && \
+    cp /opt/redash/current/setup/files/supervisord_docker.conf /opt/redash/supervisord/supervisord.conf
 
 # Fix permissions
 RUN chown -R redash /opt/redash
@@ -42,4 +39,4 @@ EXPOSE 5000
 EXPOSE 9001
 
 # Startup script
-CMD bash /etc/init.d/redash_supervisord start
+CMD ["supervisord -c /opt/redash/supervisord/supervisord.conf"]
