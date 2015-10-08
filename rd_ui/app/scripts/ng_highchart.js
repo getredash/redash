@@ -16,7 +16,7 @@
     'Black':'#000000',
     'Gray':'#808080',
     'Pink':'#FFC0CB',
-    'DarkBlue':'#00008b'
+    'Dark Blue':'#00008b'
   };
 
   Highcharts.setOptions({
