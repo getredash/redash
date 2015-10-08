@@ -15,3 +15,11 @@ postgres:
   image: postgres:9.3
   ports:
     - "5432:5432"
+redash-nginx:
+  image: redash-nginx:1.0
+  ports:
+    - "80:80"
+  volumes:
+    - "../redash-nginx/nginx.conf:/etc/nginx/nginx.conf"
+  links:
+    - redash
