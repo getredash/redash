@@ -1,8 +1,6 @@
 FROM ubuntu:trusty
 MAINTAINER Di Wu <diwu@yelp.com>
 
-ENV FILES_BASE_URL /opt/redash/current/setup/files/
-
 # Ubuntu packages
 RUN apt-get update && \
   apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core wget && \
