@@ -2,19 +2,14 @@ redash:
   image: redash
   ports:
     - "5000:5000"
-    - "9001:9001"
   links:
     - redis
     - postgres
   env_file: .env
 redis:
   image: redis:2.8
-  ports:
-    - "6379:6379"
 postgres:
   image: postgres:9.3
-  ports:
-    - "5432:5432"
 redash-nginx:
   image: redash-nginx:1.0
   ports:
