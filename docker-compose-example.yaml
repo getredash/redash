@@ -1,5 +1,5 @@
 redash:
-  build: .
+  image: redash
   ports:
     - "5000:5000"
     - "9001:9001"
