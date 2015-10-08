@@ -41,11 +41,11 @@
          * ISSUE: chart.getExtreme() does not support getting Moment object out of box
          * TODO: Find a faster way to do this
          */
-        var setDateRangeToExtreme = function (seriesCollection) {
-          if ($scope.dateRangeEnabled && seriesCollection && seriesCollection.length > 0) {
+        var setDateRangeToExtreme = function (allSeries) {
+          if ($scope.dateRangeEnabled && allSeries && allSeries.length > 0) {
             var maxDateRange = moment('1970-01-01'),
               minDateRange = moment();
-            _.each(seriesCollection, function (s) {
+            _.each(allSeries, function (s) {
               _.each(s.data, function (point) {
                 if (point.x.isBefore(minDateRange)) {
                   // Use the copy of point.x to prevent side effects
@@ -69,26 +69,26 @@
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-            var seriesCollection = $scope.queryResult.getChartData(
+            var allSeries = $scope.queryResult.getChartData(
               $scope.options.columnMapping,
               $scope.dateRangeEnabled ? $scope.dateRange : null
             );
 
-            _.each(seriesCollection, function (s) {
+            _.each(allSeries, function (series) {
               var additional = {'stacking': 'normal'};
               if ('globalSeriesType' in $scope.options) {
                 additional['type'] = $scope.options.globalSeriesType;
               }
-              if ($scope.options.seriesOptions && $scope.options.seriesOptions[s.name]) {
-                additional = $scope.options.seriesOptions[s.name];
+              if ($scope.options.seriesOptions && $scope.options.seriesOptions[series.name]) {
+                additional = $scope.options.seriesOptions[series.name];
                 if (!additional.name || additional.name == "") {
-                  additional.name = s.name;
+                  additional.name = series.name;
                 }
               }
-              $scope.chartSeries.push(_.extend(s, additional));
+              $scope.chartSeries.push(_.extend(series, additional));
             });
 
-            setDateRangeToExtreme(seriesCollection);
+            setDateRangeToExtreme(allSeries);
           };
         };
 
