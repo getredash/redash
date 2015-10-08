@@ -8,14 +8,14 @@ if [ $pg_user_exists -ne 0 ]; then
      createdb redash --username=postgres --host=postgres --owner=redash
 
     cd /opt/redash/current
-    sudo -u redash bin/run ./manage.py database create_tables
+    ./manage.py database create_tables
 fi
 
 # Create default admin user
 cd /opt/redash/current
 # TODO: make sure user created only once
 # TODO: generate temp password and print to screen
-sudo -u redash bin/run ./manage.py users create --admin --password admin "Admin" "admin"
+./manage.py users create --admin --password admin "Admin" "admin"
 
 # Create re:dash read only pg user & setup data source
 pg_user_exists=0
@@ -29,5 +29,5 @@ if [ $pg_user_exists -ne 0 ]; then
     psql --host=postgres --username=postgres -c "grant select on activity_log, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
-    sudo -u redash bin/run ./manage.py ds new -n "re:dash metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
+    ./manage.py ds new -n "re:dash metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
 fi
