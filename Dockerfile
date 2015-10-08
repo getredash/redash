@@ -17,7 +17,6 @@ RUN apt-get update && \
 
 # Users creation
 RUN useradd --system --comment " " --create-home redash
-RUN useradd --system --comment " " --create-home postgres
 
 # Pip requirements for all data source types
 RUN pip install -U setuptools && \
