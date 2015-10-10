@@ -180,6 +180,13 @@ VPN and with users you trust).
       You MUST make sure these modules are installed on the machine
       running the Celery workers.
 
+Notes:
+
+1. For security, the python query runner is disabled by default.  
+   To enable, add redash.query_runner.python to the 
+   REDASH_ENABLED_QUERY_RUNNERS environmental variable.
+
+
 Vertica
 -----
 
