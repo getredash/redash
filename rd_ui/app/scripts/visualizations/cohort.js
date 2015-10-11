@@ -39,7 +39,7 @@
           });
 
           var grouped = _.groupBy(sortedData, "date");
-          
+
           var maxColumns = _.reduce(grouped, function (memo, data) {
             return (data.length > memo) ? data.length : memo;
           }, 0);
