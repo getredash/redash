@@ -69,6 +69,7 @@
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
+    $scope.canExecuteQuery = currentUser.hasPermission('execute_query');
 
     $scope.dataSources = DataSource.query(function(dataSources) {
       updateSchema();
@@ -125,9 +126,14 @@
     };
 
     $scope.executeQuery = function() {
+      if (!$scope.canExecuteQuery) {
+        return;
+      }
+
       if (!$scope.query.query) {
         return;
       }
+
       getQueryResult(0);
       $scope.lockButton(true);
       $scope.cancelling = false;

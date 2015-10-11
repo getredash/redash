@@ -63,7 +63,7 @@
         <div ng-class="editorSize">
             <div>
                 <p>
-                    <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()">
+                    <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting" ng-click="executeQuery()" ng-if="canExecuteQuery">
                         <span class="glyphicon glyphicon-play"></span> Execute
                     </button>
                     <query-formatter></query-formatter>
@@ -213,7 +213,7 @@
                                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
                             </rd-tab>
                             <rd-tab tab-id="add" name="&plus; New Visualization" removeable="true" ng-show="canEdit"></rd-tab>
-                            <li ng-if="!sourceMode" class="rd-tab-btn"><button class="btn btn-sm btn-default" ng-click="executeQuery()" ng-disabled="queryExecuting" title="Refresh Dataset"><span class="glyphicon glyphicon-refresh"></span></button></li>
+                            <li ng-if="!sourceMode && canExecuteQuery" class="rd-tab-btn"><button class="btn btn-sm btn-default" ng-click="executeQuery()" ng-disabled="queryExecuting" title="Refresh Dataset"><span class="glyphicon glyphicon-refresh"></span></button></li>
                         </ul>
                     </div>
                 </div>
