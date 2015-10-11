@@ -272,6 +272,9 @@
             };
 
             var chartOptions = $.extend(true, {}, defaultOptions, chartsDefaults);
+            chartOptions.plotOptions.series = {
+              turboThreshold: featureFlags.highChartsTurboThreshold
+            }
 
             // $timeout makes sure that this function invoked after the DOM ready. When draw/init
             // invoked after the DOM is ready, we see first an empty HighCharts objects and later

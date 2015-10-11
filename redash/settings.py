@@ -142,6 +142,8 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
+# http://api.highcharts.com/highcharts#plotOptions.series.turboThreshold
+HIGHCHARTS_TURBO_THRESHOLD = int(os.environ.get("REDASH_HIGHCHARTS_TURBO_THRESHOLD", "1000"))
 
 # Features:
 FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))
