@@ -50,7 +50,8 @@ class Mysql(BaseQueryRunner):
                     "type": "number"
                 },
             },
-            'required': ['db']
+            'required': ['db'],
+            'secret': ['passwd']
         }
 
     @classmethod

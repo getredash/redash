@@ -51,7 +51,8 @@ class Vertica(BaseQueryRunner):
                     "type": "number"
                 },
             },
-            'required': ['database']
+            'required': ['database'],
+            'secret': ['password']
         }
 
     @classmethod
