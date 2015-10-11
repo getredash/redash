@@ -67,7 +67,8 @@ class PostgreSQL(BaseQueryRunner):
                     "title": "Database Name"
                 }
             },
-            "required": ["dbname"]
+            "required": ["dbname"],
+            "secret": ["password"]
         }
 
     @classmethod

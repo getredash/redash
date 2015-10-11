@@ -97,7 +97,8 @@ class BigQuery(BaseQueryRunner):
                     'title': 'JSON Key File'
                 }
             },
-            'required': ['jsonKeyFile', 'projectId']
+            'required': ['jsonKeyFile', 'projectId'],
+            'secret': ['jsonKeyFile']
         }
 
     def __init__(self, configuration_json):
