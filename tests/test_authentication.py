@@ -44,6 +44,17 @@ class TestApiKeyAuthentication(BaseTestCase):
             rv = c.get('/api/queries/', query_string={'api_key': user.api_key})
             self.assertEqual(user.id, api_key_load_user_from_request(request).id)
 
+    def test_api_key_header(self):
+        with app.test_client() as c:
+            rv = c.get('/api/queries/{}'.format(self.query.id), headers={'Authorization': "Key {}".format(self.api_key)})
+            self.assertIsNotNone(api_key_load_user_from_request(request))
+
+    def test_api_key_header_with_wrong_key(self):
+        with app.test_client() as c:
+            rv = c.get('/api/queries/{}'.format(self.query.id), headers={'Authorization': "Key oops"})
+            self.assertIsNone(api_key_load_user_from_request(request))
+
+
 class TestHMACAuthentication(BaseTestCase):
     #
     # This is a bad way to write these tests, but the way Flask works doesn't make it easy to write them properly...
