@@ -123,9 +123,6 @@
         replace: true,
         link: function($scope, element, attrs) {
           $scope.widgetSizes = [{
-            name: 'Hidden',
-            value: 0
-          }, {
             name: 'Regular',
             value: 1
           }, {
@@ -145,6 +142,11 @@
 
           $scope.setType = function (type) {
             $scope.type = type;
+            if (type == 'textbox') {
+              $scope.widgetSizes.push({name: 'Hidden', value: 0});
+            } else if ($scope.widgetSizes.length > 2) {
+              $scope.widgetSizes.pop();
+            }
           };
 
           var reset = function() {

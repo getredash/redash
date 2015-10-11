@@ -125,12 +125,6 @@
   };
 
   var WidgetCtrl = function($scope, $location, Events, Query) {
-    $scope.disableWidget = {'visibility': 'visible'};
-
-    if ($scope.widget.width == 0) {
-      $scope.disableWidget = {'visibility': 'hidden'};
-    }
-
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
