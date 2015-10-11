@@ -182,9 +182,9 @@ VPN and with users you trust).
 
 Notes:
 
-1. For security, the python query runner is disabled by default.  
-   To enable, add redash.query_runner.python to the 
-   REDASH_ENABLED_QUERY_RUNNERS environmental variable.
+- For security, the python query runner is disabled by default.
+  To enable, add ``redash.query_runner.python`` to the ``REDASH_ADDITIONAL_QUERY_RUNNERS`` environmental variable. If you used
+  the bootstrap script, or one of the provided images, add to ``/opt/redash/.env`` file the line: ``export REDASH_ADDITIONAL_QUERY_RUNNERS=redash.query_runner.python``.
 
 
 Vertica

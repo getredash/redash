@@ -11,8 +11,6 @@ try:
     enabled = True
 
 except ImportError:
-    logger.warning("Missing dependencies. Please install td-client.")
-    logger.warning("You can use pip: pip install td-client")
     enabled = False
 
 TD_TYPES_MAPPING = {
@@ -33,6 +31,7 @@ TD_TYPES_MAPPING = {
     'string': TYPE_STRING,
     'varchar': TYPE_STRING,
 }
+
 
 class TreasureData(BaseQueryRunner):
     @classmethod

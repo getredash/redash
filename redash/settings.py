@@ -1,6 +1,7 @@
 import json
 import os
 import urlparse
+from funcy import distinct
 
 
 def parse_db_url(url):
@@ -113,7 +114,7 @@ ACCESS_CONTROL_REQUEST_METHOD = os.environ.get("REDASH_CORS_ACCESS_CONTROL_REQUE
 ACCESS_CONTROL_ALLOW_HEADERS = os.environ.get("REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS", "Content-Type")
 
 # Query Runners
-QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join([
+default_query_runners = [
     'redash.query_runner.big_query',
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
@@ -128,7 +129,12 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.treasuredata'
-])))
+]
+
+enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
+additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_QUERY_RUNNERS", ""))
+
+QUERY_RUNNERS = distinct(enabled_query_runners + additional_query_runners)
 
 # Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
