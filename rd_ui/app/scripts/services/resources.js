@@ -192,9 +192,12 @@
      * Helper function to add a point into a series, also checks whether the point is within dateRange
      */
     QueryResult.prototype._addPointToSeriesIfInDateRange = function (point, seriesCollection, seriesName, dateRange) {
-      if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
-        // if the point's date isn't within dateRange, then we will not add this point to series
-        return;
+      if (dateRange && moment.isMoment(point.x)) {
+        // if dateRange is provided and x Axis is of type datetime
+        if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
+          // if the point's date isn't within dateRange, then we will not add this point to series
+          return;
+        }
       }
       this._addPointToSeries(point, seriesCollection, seriesName);
     }
@@ -257,14 +260,11 @@
 
         if (seriesName === undefined) {
           _.each(yValues, function (yValue, seriesName) {
-            this._addPointToSeries({'x': xValue, 'y': yValue}, series, seriesName);
+            this._addPointToSeriesIfInDateRange({'x': xValue, 'y': yValue}, series, seriesName, dateRange);
           }.bind(this));
-        } else if (dateRange && moment.isMoment(point.x)) {
-          // Check whether the x axis is of type datetime and whether the dateRange feature is enabled (by checking if dateRange object is provided). If so, we will want to filter points based on dateRange set.
-          this._addPointToSeriesIfInDateRange(point, series, seriesName, dateRange);
         }
         else {
-          this._addPointToSeries(point, series, seriesName);
+          this._addPointToSeriesIfInDateRange(point, series, seriesName, dateRange);
         }
       }.bind(this));
 
