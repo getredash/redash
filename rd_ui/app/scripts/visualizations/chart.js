@@ -67,7 +67,8 @@
           }
         };
 
-        var reloadData = function(data) {
+        var reloadData = function(data, options) {
+          options = options || {};
           if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
           } else {
@@ -92,7 +93,9 @@
               $scope.chartSeries.push(_.extend(series, additional));
             });
 
-            setDateRangeToExtreme(allSeries);
+            if (!options.preventSetExtreme) {
+              setDateRangeToExtreme(allSeries);
+            }
           };
         };
 
@@ -117,13 +120,17 @@
 
         $scope.$watch('dateRange.min', function(minDateRange, oldMinDateRange) {
           if (!minDateRange.isSame(oldMinDateRange)) {
-            reloadData(true);
+            reloadData(true, {
+              preventSetExtreme: true
+            });
           }
         });
 
         $scope.$watch('dateRange.max', function (maxDateRange, oldMaxDateRange) {
           if (!maxDateRange.isSame(oldMaxDateRange)) {
-            reloadData(true);
+            reloadData(true, {
+              preventSetExtreme: true
+            });
           }
         });
       }]
