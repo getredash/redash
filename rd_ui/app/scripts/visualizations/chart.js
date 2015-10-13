@@ -43,7 +43,10 @@
          */
         $scope.dimensions = [];
 
-        var reloadDimensions = function () {
+        /**
+         * Extract all dimensions set by user
+         */
+        $scope.setAvailableDimensions = function () {
           $scope.dimensions = _.pairs($scope.options.columnMapping)
             .filter(function (pair) {
               return pair[1] === 'dimension';
@@ -97,7 +100,7 @@
         }, true);
 
         $scope.$watchCollection('options.columnMapping', function (chartOptions) {
-          reloadDimensions();
+          $scope.setAvailableDimensions();
           reloadData(true);
         });
 
@@ -145,8 +148,8 @@
           "X": "x",
           "Y": "y",
           "Series": "series",
-          "Unused": "unused",
-          "Dimension": "dimension"
+          "Dimension": "dimension",
+          "Unused": "unused"
         };
 
         scope.series = [];
