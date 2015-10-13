@@ -127,8 +127,7 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.hive_ds',
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
-    'redash.query_runner.treasuredata',
-    'redash.query_runner.python'
+    'redash.query_runner.treasuredata'
 ])))
 
 # Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
