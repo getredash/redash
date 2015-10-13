@@ -43,22 +43,26 @@
          */
         var setDateRangeToExtreme = function (allSeries) {
           if ($scope.dateRangeEnabled && allSeries && allSeries.length > 0) {
-            var maxDateRange = moment('1970-01-01'),
-              minDateRange = moment();
-            _.each(allSeries, function (s) {
-              _.each(s.data, function (point) {
-                if (point.x.isBefore(minDateRange)) {
-                  // Use the copy of point.x to prevent side effects
-                  minDateRange = moment(point.x);
-                }
-                if (point.x.isAfter(maxDateRange)) {
-                  maxDateRange = moment(point.x);
-                }
-              });
-            });
+            // var maxDateRange = moment('1970-01-01'),
+            //   minDateRange = moment();
+            // _.each(allSeries, function (s) {
+            //   _.each(s.data, function (point) {
+            //     if (point.x.isBefore(minDateRange)) {
+            //       // Use the copy of point.x to prevent side effects
+            //       minDateRange = moment(point.x);
+            //     }
+            //     if (point.x.isAfter(maxDateRange)) {
+            //       maxDateRange = moment(point.x);
+            //     }
+            //   });
+            // });
             $scope.dateRange = {
-              min: minDateRange,
-              max: maxDateRange
+              min: moment.min.apply(undefined, _.map(allSeries, function (series) {
+                return moment.min(_.pluck(series.data, 'x'));
+              })),
+              max: moment.max.apply(undefined, _.map(allSeries, function (series) {
+                return moment.max(_.pluck(series.data, 'x'));
+              }))
             };
           }
         };
