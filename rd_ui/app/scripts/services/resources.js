@@ -195,6 +195,9 @@
         }).join(',');
     };
 
+    /**
+     * Sum up all y values of those points within the same dimension and also have the same x value
+     */
     QueryResult.prototype._combinePoints = function (data) {
       var newDataMapIndexedByX = {};
 
