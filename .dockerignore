@@ -1,4 +1,4 @@
-rd_ui/dist/
 rd_ui/.tmp/
+rd_ui/node_modules/
 .git/
 .vagrant/
