@@ -36,7 +36,7 @@
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
                             <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
                         <span ng-if="queryResult.getStatus() == 'processing'" style="padding-left: 5px">
-                            <img src=/images/spinner.gif"/>
+                            <img src="/images/spinner.gif"/>
                         </span>
                             <visualization-name visualization="widget.visualization"/>
                         </p>
