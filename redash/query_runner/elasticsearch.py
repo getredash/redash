@@ -94,7 +94,9 @@ class BaseElasticSearch(BaseQueryRunner):
 
         basic_auth_user = self.configuration["basic_auth_user"]
         basic_auth_password = self.configuration["basic_auth_password"]
-        self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password) if basic_auth_user and basic_auth_password  else None
+        self.auth = None
+        if basic_auth_user and basic_auth_password:
+            self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
 
     def _get_mappings(self, url):
         mappings = {}
@@ -158,47 +160,11 @@ class BaseElasticSearch(BaseQueryRunner):
             if row and len(row) > 0:
                 result_rows.append(row)
 
-#
-#
-# Simple query example:
-#
-# - Query the index named "twitter"
-# - Filter by "user:kimchy"
-# - Return the fields: "@timestamp", "tweet" and "user"
-# - Return up to 15 results
-# - Sort by @timestamp ascending
-#
-# {
-#     "index" : "twitter",
-#     "query" : "user:kimchy",
-#     "fields" : ["@timestamp", "tweet", "user"],
-#     "size" : 15,
-#     "sort" : "@timestamp:asc"
-# }
-#
-#
-# Simple query on a logstash ElasticSearch instance:
-#
-# - Query the index named "logstash-2015.04.*" (in this case its all of April 2015)
-# - Filter by type:events AND eventName:UserUpgrade AND channel:selfserve
-# - Return fields: "@timestamp", "userId", "channel", "utm_source", "utm_medium", "utm_campaign", "utm_content"
-# - Return up to 250 results
-# - Sort by @timestamp ascending
 
-# {
-#     "index" : "logstash-2015.04.*",
-#     "query" : "type:events AND eventName:UserUpgrade AND channel:selfserve",
-#     "fields" : ["@timestamp", "userId", "channel", "utm_source", "utm_medium", "utm_campaign", "utm_content"],
-#     "size" : 250,
-#     "sort" : "@timestamp:asc"
-# }
-#
-#
-
-class ElasticSearch(BaseElasticSearch):
+class Kibana(BaseElasticSearch):
 
     def __init__(self, configuration_json):
-        super(ElasticSearch, self).__init__(configuration_json)
+        super(Kibana, self).__init__(configuration_json)
 
     @classmethod
     def enabled(cls):
@@ -285,34 +251,10 @@ class ElasticSearch(BaseElasticSearch):
         return json_data, error
 
 
-#
-#
-# Simple query example:
-#
-# - Query the index named "twitter"
-# - Filter by user equal "kimchy"
-# - Return the fields: "@timestamp", "tweet" and "user"
-# - Return up to 15 results
-# - Sort by @timestamp ascending
-#
-# {
-#     "index" : "twitter",
-#     "query" : {
-#       "match": {
-#           "user" : "kimchy"
-#       }
-#     },
-#     "fields" : ["@timestamp", "tweet", "user"],
-#     "size" : 15,
-#     "sort" : "@timestamp:asc"
-# }
-#
-#
-
-class ElasticSearchV2(BaseElasticSearch):
+class ElasticSearch(BaseElasticSearch):
 
     def __init__(self, configuration_json):
-        super(ElasticSearchV2, self).__init__(configuration_json)
+        super(ElasticSearch, self).__init__(configuration_json)
 
     @classmethod
     def enabled(cls):
@@ -327,9 +269,9 @@ class ElasticSearchV2(BaseElasticSearch):
             error = None
 
             logger.debug(query)
-            query_params = json.loads(query)
+            query_dict = json.loads(query)
 
-            index_name = query_params.pop("index", "")
+            index_name = query_dict.pop("index", "")
 
             if not self.server_url:
                 error = "Missing configuration key 'server'"
@@ -342,11 +284,11 @@ class ElasticSearchV2(BaseElasticSearch):
 
             logger.debug(json.dumps(mappings, indent=4))
 
-            logger.debug("Using URL: {0}".format(url))
-            logger.debug("Using Query: {0}".format(json.dumps(query_params)))
-
-            r = requests.get(url, params={"source": json.dumps(query_params)}, auth=self.auth)
-            logger.debug(r.json())
+            params = {"source": json.dumps(query_dict)}
+            logger.debug("Using URL: %s", url)
+            logger.debug("Using params : %s", params)
+            r = requests.get(url, params=params, auth=self.auth)
+            logger.debug("Result: %s", r.json())
 
             result_columns = []
             result_rows = []
@@ -365,5 +307,5 @@ class ElasticSearchV2(BaseElasticSearch):
         return json_data, error
 
 
+register(Kibana)
 register(ElasticSearch)
-register(ElasticSearchV2)
