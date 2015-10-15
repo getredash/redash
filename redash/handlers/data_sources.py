@@ -28,6 +28,9 @@ class DataSourceAPI(BaseResource):
     def post(self, data_source_id):
         data_source = models.DataSource.get_by_id(data_source_id)
         req = request.get_json(True)
+
+        data_source.replace_secret_placeholders(req['options'])
+
         if not validate_configuration(req['type'], req['options']):
             abort(400)
 

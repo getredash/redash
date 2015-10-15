@@ -22,3 +22,7 @@ dump.rdb
 
 #Credentials
 client_secret.json
+
+# Docker related
+docker-compose.yaml
+

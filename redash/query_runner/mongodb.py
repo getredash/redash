@@ -29,7 +29,6 @@ TYPES_MAP = {
     datetime.datetime: TYPE_DATETIME,
 }
 
-date_regex = re.compile("ISODate\(\"(.*)\"\)", re.IGNORECASE)
 
 class MongoDBJSONEncoder(JSONEncoder):
     def default(self, o):
@@ -38,66 +37,25 @@ class MongoDBJSONEncoder(JSONEncoder):
 
         return super(MongoDBJSONEncoder, self).default(o)
 
-# Simple query example:
-#
-# {
-#     "collection" : "my_collection",
-#     "query" : {
-#         "date" : {
-#             "$gt" : "ISODate(\"2015-01-15 11:41\")",
-#         },
-#         "type" : 1
-#     },
-#     "fields" : {
-#         "_id" : 1,
-#         "name" : 2
-#     },
-#     "sort" : [
-#        {
-#             "name" : "date",
-#             "direction" : -1
-#        }
-#     ]
-#
-# }
-#
-#
-# Aggregation
-# ===========
-# Uses a syntax similar to the one used in PyMongo, however to support the
-# correct order of sorting, it uses a regular list for the "$sort" operation
-# that converts into a SON (sorted dictionary) object before execution.
-#
-# Aggregation query example:
-#
-# {
-#     "collection" : "things",
-#     "aggregate" : [
-#         {
-#             "$unwind" : "$tags"
-#         },
-#         {
-#             "$group" : {
-#                 "_id" : "$tags",
-#                 "count" : { "$sum" : 1 }
-#             }
-#         },
-#         {
-#             "$sort" : [
-#                 {
-#                     "name" : "count",
-#                     "direction" : -1
-#                 },
-#                 {
-#                     "name" : "_id",
-#                     "direction" : -1
-#                 }
-#             ]
-#         }
-#     ]
-# }
-#
-#
+
+date_regex = re.compile("ISODate\(\"(.*)\"\)", re.IGNORECASE)
+
+
+def datetime_parser(dct):
+    for k, v in dct.iteritems():
+        if isinstance(v, basestring):
+            m = date_regex.findall(v)
+            if len(m) > 0:
+                dct[k] = parse(m[0], yearfirst=True)
+
+    return dct
+
+
+def parse_query_json(query):
+    query_data = json.loads(query, object_hook=datetime_parser)
+    return query_data
+
+
 class MongoDB(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
@@ -144,25 +102,6 @@ class MongoDB(BaseQueryRunner):
 
         return None
 
-    def _fix_dates(self, data):
-        for k in data:
-            if isinstance(data[k], list):
-                for i in range(0, len(data[k])):
-                    if isinstance(data[k][i], (str, unicode)):
-                        self._convert_date(data[k], i)
-                    elif not isinstance(data[k][i], (int)):
-                        self._fix_dates(data[k][i])
-
-            elif isinstance(data[k], dict):
-                self._fix_dates(data[k])
-            else:
-                if isinstance(data[k], (str, unicode)):
-                    self._convert_date(data, k)
-
-    def _convert_date(self, q, field_name):
-        m = date_regex.findall(q[field_name])
-        if len(m) > 0:
-            q[field_name] = parse(m[0], yearfirst=True)
 
     def run_query(self, query):
         if self.is_replica_set:
@@ -176,8 +115,7 @@ class MongoDB(BaseQueryRunner):
         logger.debug("mongodb got query: %s", query)
 
         try:
-            query_data = json.loads(query)
-            self._fix_dates(query_data)
+            query_data = parse_query_json(query)
         except ValueError:
             return None, "Invalid query format. The query is not a valid JSON."
 

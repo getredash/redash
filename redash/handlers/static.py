@@ -38,7 +38,8 @@ def index(**kwargs):
 
     features = {
         'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
-        'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT
+        'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
+        'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
