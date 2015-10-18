@@ -2,7 +2,7 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/docs_setup/setup/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/master/setup/ubuntu_or_debian/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
@@ -176,4 +176,3 @@ rm /etc/nginx/sites-enabled/default
 wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
 ln -nfs /etc/nginx/sites-available/redash /etc/nginx/sites-enabled/redash
 service nginx restart
-
