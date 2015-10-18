@@ -21,4 +21,4 @@ venv
 dump.rdb
 
 # Docker related
-docker-compose.yaml
+docker-compose.yml
