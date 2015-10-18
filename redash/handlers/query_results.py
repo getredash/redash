@@ -62,25 +62,8 @@ class QueryResultListAPI(BaseResource):
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
-cache_headers = {
-    'Cache-Control': 'max-age=%d' % ONE_YEAR
-}
 
 class QueryResultAPI(BaseResource):
-    @staticmethod
-    def csv_response(query_result):
-        s = cStringIO.StringIO()
-
-        query_data = json.loads(query_result.data)
-        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
-        writer.writer = utils.UnicodeWriter(s)
-        writer.writeheader()
-        for row in query_data['rows']:
-            writer.writerow(row)
-
-        headers = {'Content-Type': "text/csv; charset=UTF-8"}
-        headers.update(cache_headers)
-        return make_response(s.getvalue(), 200, headers)
 
     @staticmethod
     def add_cors_headers(headers):
@@ -106,6 +89,7 @@ class QueryResultAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
+        should_cache = query_result_id is not None
         if query_result_id is None and query_id is not None:
             query = models.Query.get(models.Query.id == query_id)
             if query:
@@ -133,20 +117,39 @@ class QueryResultAPI(BaseResource):
 
                 record_event.delay(event)
 
-            headers = {}
+            if filetype == 'json':
+                response = self.make_json_response(query_result)
+            else:
+                response = self.make_csv_response(query_result)
 
             if len(settings.ACCESS_CONTROL_ALLOW_ORIGIN) > 0:
-                self.add_cors_headers(headers)
+                self.add_cors_headers(response.headers)
 
-            if filetype == 'json':
-                data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
-                headers.update(cache_headers)
-                return make_response(data, 200, headers)
-            else:
-                return self.csv_response(query_result)
+            if should_cache:
+                response.headers.add_header('Cache-Control', 'max-age=%d' % ONE_YEAR)
+
+            return response
 
         else:
             abort(404)
+
+    def make_json_response(self, query_result):
+        data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
+        return make_response(data, 200, {})
+
+    @staticmethod
+    def make_csv_response(query_result):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(query_result.data)
+        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
+        writer.writer = utils.UnicodeWriter(s)
+        writer.writeheader()
+        for row in query_data['rows']:
+            writer.writerow(row)
+
+        headers = {'Content-Type': "text/csv; charset=UTF-8"}
+        return make_response(s.getvalue(), 200, headers)
 
 
 api.add_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')

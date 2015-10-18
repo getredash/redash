@@ -3,6 +3,7 @@ import datetime
 import json
 from unittest import TestCase
 import mock
+from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
 from redash import models
 from factories import dashboard_factory, query_factory, data_source_factory, query_result_factory, user_factory, widget_factory
@@ -99,9 +100,9 @@ class ShouldScheduleNextTest(TestCase):
         self.assertTrue(models.should_schedule_next(yesterday, now, schedule))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
-        now = datetime.datetime.now()
-        yesterday = (now - datetime.timedelta(days=1)).replace(hour=now.hour+3, minute=now.minute+1)
-        schedule = "{:02d}:00".format(now.hour + 3)
+        now = date_parse("2015-10-16 20:10")
+        yesterday = date_parse("2015-10-15 23:07")
+        schedule = "23:00"
         self.assertFalse(models.should_schedule_next(yesterday, now, schedule))
 
     def test_exact_time_with_day_change(self):
