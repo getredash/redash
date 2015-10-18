@@ -3,11 +3,11 @@ MAINTAINER Di Wu <diwu@yelp.com>
 
 # Ubuntu packages
 RUN apt-get update && \
-  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core wget && \
+  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core wget \
   # Postgres client
-  apt-get -y install libpq-dev postgresql-client && \
+  libpq-dev \
   # Additional packages required for data sources:
-  apt-get install -y libssl-dev libmysqlclient-dev
+  libssl-dev libmysqlclient-dev
 
 # Users creation
 RUN useradd --system --comment " " --create-home redash
@@ -34,7 +34,7 @@ RUN pip install -r requirements_all_ds.txt && \
 # Setup supervisord
 RUN mkdir -p /opt/redash/supervisord && \
     mkdir -p /opt/redash/logs && \
-    cp /opt/redash/current/setup/files/supervisord_docker.conf /opt/redash/supervisord/supervisord.conf
+    cp /opt/redash/current/setup/docker/supervisord/supervisord.conf /opt/redash/supervisord/supervisord.conf
 
 # Fix permissions
 RUN chown -R redash /opt/redash
