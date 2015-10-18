@@ -16,12 +16,6 @@ RUN useradd --system --comment " " --create-home redash
 RUN pip install -U setuptools && \
   pip install supervisor==3.1.2
 
-# Download latest source and extract into /opt/redash/current
-# COPY setup/latest_release_url.py /tmp/latest_release_url.py
-# RUN wget $(python /tmp/latest_release_url.py) -O redash.tar.gz && \
-#     mkdir -p /opt/redash/current && \
-#     tar -C /opt/redash/current -xvf redash.tar.gz && \
-#     rm redash.tar.gz
 COPY . /opt/redash/current
 
 # Setting working directory
