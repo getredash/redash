@@ -1,15 +1,14 @@
 machine:
+  services:
+    - docker
   node:
     version:
-      0.10.24
+      0.12.4
   python:
     version:
       2.7.3
 dependencies:
   pre:
-    - wget http://downloads.sourceforge.net/project/optipng/OptiPNG/optipng-0.7.5/optipng-0.7.5.tar.gz
-    - tar xvf optipng-0.7.5.tar.gz
-    - cd optipng-0.7.5; ./configure; make; sudo checkinstall -y;
     - make deps
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
@@ -26,6 +25,12 @@ deployment:
     branch: master
     commands:
       - make upload
+  docker:
+    branch: [master, docker]
+    commands:
+        - docker build -t everythingme/redash:$(./manage.py version)
+        - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+        - docker push everythingme/redash:$(./manage.py version)
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
