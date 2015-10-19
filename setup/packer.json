@@ -12,7 +12,7 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "eu-west-1",
-      "source_ami": "ami-20cc9d57",
+      "source_ami": "ami-63a19214",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "ami_name": "redash-{{user `image_version`}}-eu-west-1"
@@ -21,7 +21,7 @@
   "provisioners": [
     {
       "type": "shell",
-      "script": "bootstrap.sh",
+      "script": "ubuntu/bootstrap.sh",
       "execute_command": "{{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "environment_vars": ["REDASH_VERSION={{user `redash_version`}}"]
     }
