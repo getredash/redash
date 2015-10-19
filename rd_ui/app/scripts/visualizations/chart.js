@@ -244,11 +244,12 @@
               scope.visualization.options.xAxis.type = xAxisType;
             });
 
-            scope.yAxisType = (scope.visualization.options.yAxis && scope.visualization.options.yAxis.type) || scope.yAxisType;
+            scope.visualization.options.yAxis = scope.visualization.options.yAxis || [{type: 'linear'}, {type: 'linear', opposite: true}];
+            scope.yAxisType = (scope.visualization.options.yAxis && scope.visualization.options.yAxis[0].type) || scope.yAxisType;
 
             yAxisUnwatch = scope.$watch("yAxisType", function (yAxisType) {
-              scope.visualization.options.yAxis = scope.visualization.options.yAxis || {};
-              scope.visualization.options.yAxis.type = yAxisType;
+              scope.visualization.options.yAxis[0].type = yAxisType;
+              scope.visualization.options.yAxis[1].type = yAxisType;
             });
           } else {
             if (chartOptionsUnwatch) {
