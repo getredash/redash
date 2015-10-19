@@ -2,7 +2,7 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/master/setup/ubuntu_or_debian/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/docker/setup/ubuntu/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
