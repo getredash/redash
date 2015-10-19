@@ -18,15 +18,16 @@ AWS
 Launch the instance with from the pre-baked AMI (for small deployments
 t2.micro should be enough):
 
--  us-east-1: `ami-e32b5986 <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-e32b5986>`__
--  us-west-1: `ami-abcf0bef <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-abcf0bef>`__
--  us-west-2: `ami-bd89978d <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-bd89978d>`__
--  eu-west-1: `ami-15eac562 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-15eac562>`__
--  eu-central-1: `ami-520f0c4f <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-520f0c4f>`__
--  sa-east-1: `ami-e79501fa <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-e79501fa>`__
--  ap-northeast-1: `ami-fae373fa <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-fae373fa>`__
--  ap-southeast-2: `ami-578fc16d <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-578fc16d>`__
--  ap-southeast-1: `ami-20081c72 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-20081c72>`__
+-  us-east-1: `ami-752c7f10 <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-752c7f10>`__
+-  us-west-1: `ami-b36babf7 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-b36babf7>`__
+-  us-west-2: `ami-a0a04393 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-a0a04393>`__
+-  eu-west-1: `ami-198cb16e <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-198cb16e>`__
+-  eu-central-1: `ami-a81418b5 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-a81418b5>`__
+-  sa-east-1: `ami-2b52c336 <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-2b52c336>`__
+-  ap-northeast-1: `ami-4898fb48 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-4898fb48>`__
+-  ap-southeast-2: `ami-7559134f <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-7559134f>`__
+-  ap-southeast-1: `ami-a0786bf2 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-a0786bf2>`__
+
 
 Now proceed to `"Setup" <#setup>`__.
 
@@ -37,7 +38,7 @@ First, you need to add the images to your account:
 
 .. code:: bash
 
-    $ gcloud compute images create "redash-080-b1058" --source-uri gs://redash-images/redash.0.8.0.b1058.tar.gz
+    $ gcloud compute images create "redash-081-b1110" --source-uri gs://redash-images/redash.0.8.1.b1110.tar.gz
 
 Next you need to launch an instance using this image (n1-standard-1
 instance type is recommended). If you plan using re:dash with BigQuery,
@@ -46,13 +47,13 @@ you can use a dedicated image which comes with BigQuery preconfigured
 
 .. code:: bash
 
-    $ gcloud compute images create "redash-080-b1058-bq" --source-uri gs://redash-images/redash.0.8.0.b1058-bq.tar.gz
+    $ gcloud compute images create "redash-081-b1110-bq" --source-uri gs://redash-images/redash.0.8.1.b1110-bq.tar.gz
 
 Note that you need to launch this instance with BigQuery access:
 
 .. code:: bash
 
-    $ gcloud compute instances create <your_instance_name> --image redash-080-b1058-bq --scopes storage-ro,bigquery
+    $ gcloud compute instances create <your_instance_name> --image redash-081-b1110-bq --scopes storage-ro,bigquery
 
 (the same can be done from the web interface, just make sure to enable
 BigQuery access)
