@@ -28,9 +28,10 @@ deployment:
   docker:
     branch: [master, docker]
     commands:
-        - docker build -t everythingme/redash:$(./manage.py version)
+        - echo "rd_ui/app" >> .dockerignore
+        - docker build -t everythingme/redash:$(./manage.py version | sed -e "s/\+/./") .
         - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-        - docker push everythingme/redash:$(./manage.py version)
+        - docker push everythingme/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
