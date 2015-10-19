@@ -85,9 +85,6 @@
                     if (option.link && option.visible && option.inputLink.labels.length > 0) {
                       var string = option.inputLink.text;
                       _.forEach(option.inputLink.labels, function(label) {
-                        /*if (row[label + 'original'] === undefined) {
-                          row[label + 'original'] = row[label];
-                        }*/
                         string = string.replace('##' + label + '##', row[label]);
                       });
                       // Replaces the label for the link
@@ -95,9 +92,6 @@
 
                       var visualLabel = option.inputLink.visualText;
                       _.forEach(option.inputLink.visualLabels, function(label) {
-                        /*if (row[label + 'original'] === undefined) {
-                          row[label + 'original'] = row[label];
-                        }*/
                         visualLabel = visualLabel.replace('##' + label + '##', row[label]);
                       });
                       // Replaces the label for the visual label
@@ -373,38 +367,6 @@
       $scope.inputLink.visualText = getText(column, $scope.inputLink.visualText);
       $scope.inputLink.visualLabels = getRefreshedLabels(column, $scope.inputLink.visualLabels);
     }
-
-    /*
-        $scope.addToInput = function(column) {
-          var value = '##' + column.label + '##';
-          column.selected = !column.selected;
-          var index = $scope.inputLink.labels.indexOf(column.label);
-          if (column.selected) {
-            $scope.inputLink.text = $scope.inputLink.text + value;
-            $scope.inputLink.labels.push(column.label);
-          } else {
-            $scope.inputLink.text = $scope.inputLink.text.replace(value, '');
-            if (index > -1) {
-              $scope.inputLink.labels.splice(index, 1);
-            }
-          }
-        }
-
-
-        $scope.addToVisual = function(column) {
-          var value = '##' + column.label + '##';
-          column.selected = !column.selected;
-          var index = $scope.inputLink.visualLabels.indexOf(column.label);
-          if (column.selected) {
-            $scope.inputLink.visualText = $scope.inputLink.visualText + value;
-            $scope.inputLink.visualLabels.push(column.label);
-          } else {
-            $scope.inputLink.visualText = $scope.inputLink.visualText.replace(value, '');
-            if (index > -1) {
-              $scope.inputLink.visualLabels.splice(index, 1);
-            }
-          }
-        }*/
 
     $scope.ok = function() {
       $modalInstance.close($scope.inputLink);
