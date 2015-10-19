@@ -1,0 +1,76 @@
+<div class="form-horizontal">
+    <div class="form-group" ng-repeat="option in cols">
+        <label class="control-label col-sm-2">{{option.column}}</label>
+        <div class=" col-sm-10">
+            <div class="btn-group">
+                <div class="checkbox" style="float: left">
+                    <label>
+                        <input type="checkbox" ng-model="option.visible"> Show
+                    </label>
+                </div>
+
+                <button ng-class="{'selected-option-cTable': option.align === 'left'}" type="button" style="margin-left:5px" class="btn btn-default" title="Left Align" ng-click="option.align = 'left'">
+                    <span class="glyphicon glyphicon-align-left"></span>
+                </button>
+                <button ng-class="{'selected-option-cTable': option.align === 'center'}" type="button" class="btn btn-default" title="Center Align" ng-click="option.align = 'center'">
+                    <span class="glyphicon glyphicon-align-center"></span>
+                </button>
+                <button ng-class="{'selected-option-cTable': option.align === 'right'}" type="button" class="btn btn-default" title="Right Align" ng-click="option.align = 'right'">
+                    <span class="glyphicon glyphicon-align-right"></span>
+                </button>
+
+                <button ng-class="{'selected-option-cTable': option.bold}" type="button" style="margin-left:5px" class="btn btn-default" title="Bold" ng-click="option.bold = !option.bold">
+                    <span class="glyphicon glyphicon-bold"></span>
+                </button>
+                <button ng-class="{'selected-option-cTable': option.italic}" type="button" class="btn btn-default" title="Italic" ng-click="option.italic = !option.italic">
+                    <span class="glyphicon glyphicon-italic"></span>
+                </button>
+                <!--<button type="button" class="btn btn-default" aria-label="Text Color" title="Text Color">
+                    <span class="glyphicon glyphicon-text-color"></span>
+                </button>-->
+                <button ng-class="{'selected-option-cTable': option.link}" type="button" class="btn btn-default" title="Link" ng-click="createLink(option)">
+                    <span class="glyphicon glyphicon-link"></span>
+                </button>
+                <label ng-if="option.link" style="margin-left: 5px" class="control-label">Link: {{option.inputLink.text}}</label>
+                <button style="margin-left: 5px" ng-if="option.link" type="button" class="btn btn-default" title="Updated" ng-click="updateLink(option)">
+                    <span>Update</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Link options</h3>
+        </div>
+        <div class="modal-body">
+            <div ng-repeat="column in columns">
+                <input type="checkbox" ng-click="updateLinkText(column)" ng-model="column.selected"> {{column.label}}
+            </div>
+            <form class="form-horizontal">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">Link</label>
+                    <div class="col-sm-10" style="margin-top: 5px">
+                        <input type="text" class="form-control" ng-model="inputLink.text">
+                    </div>
+                </div>
+            </form>
+            <div ng-repeat="column in visuals">
+                <input type="checkbox" ng-click="updateVisualText(column)" ng-model="column.selected"> {{column.label}}
+            </div>
+            <form class="form-horizontal">
+                <div class="form-group" style="margin-top: 5px">
+                    <label class="col-sm-3 control-label">Visual Label</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" ng-model="inputLink.visualText">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+</div>

@@ -1,0 +1,22 @@
+<table st-safe-src="gridData" st-table="rowCollection" class="table table-striped">
+	<thead>
+		<tr>
+			<th ng-repeat="column in gridColumns" ng-if="column.visible">{{column.label}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="row in rowCollection">
+			<td ng-repeat="column in gridColumns" ng-if="column.visible" style="{{column.style}}">
+				<div ng-if="column.link === false">{{row[column.map]}}</div>
+				<a ng-if="column.link === true" ng-href="{{row[column.map + 'link']}}">{{row[column.map + 'visualLabel']}}</a>
+			</td>
+		</tr>
+	</tbody>
+	<tfoot>
+	<tr>
+		<td colspan="4" class="text-center">
+			<div  st-items-by-page="20" st-pagination=""></div>
+		</td>
+	</tr>
+	</tfoot>
+</table>

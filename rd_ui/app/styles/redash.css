@@ -399,3 +399,9 @@ use this class when you need to keep the original display value
 .log-container {
     margin-bottom: 50px;
 }
+
+
+.selected-option-cTable {
+    background-color: lightgrey;
+}
+    
