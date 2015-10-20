@@ -69,7 +69,8 @@
               var style = {
                 fillColor:color,
                 fillOpacity:0.5,
-                stroke:false
+                stroke:false,
+                radius: 3
               };
 
               return L.circleMarker([lat,lon],style)

@@ -66,7 +66,8 @@ class Impala(BaseQueryRunner):
                     "type": "number"
                 }
             },
-            "required": ["host"]
+            "required": ["host"],
+            "secret": ["ldap_password"]
         }
 
     @classmethod

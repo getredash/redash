@@ -14,8 +14,8 @@ How to run the Fabric script
 1. Install Fabric: ``pip install fabric requests`` (needed only once)
 2. Download the ``fabfile.py`` from the gist.
 3. Run the script:
-   ``fab -H{your re:dash host} -u{the ssh user for this host} -i{path to key file for passwordless login} deploy_latest_release`` 
-   
+   ``fab -H{your re:dash host} -u{the ssh user for this host} -i{path to key file for passwordless login} deploy_latest_release``
+
    ``-i`` is optional and it is only needed in case you're using private-key based authentication (and didn't add the key file to your authentication agent or set its path in your SSH config).
 
 What the Fabric script does

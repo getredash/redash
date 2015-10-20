@@ -11,6 +11,12 @@
     'Light Blue': '#92A8CD',
     'Lilac': '#A47D7C',
     'Light Green': '#B5CA92',
+    'Brown':'#A52A2A',
+    'Yellow':'#ffff00',
+    'Black':'#000000',
+    'Gray':'#808080',
+    'Pink':'#FFC0CB',
+    'Dark Blue':'#00008b'
   };
 
   Highcharts.setOptions({
@@ -266,6 +272,9 @@
             };
 
             var chartOptions = $.extend(true, {}, defaultOptions, chartsDefaults);
+            chartOptions.plotOptions.series = {
+              turboThreshold: featureFlags.highChartsTurboThreshold
+            }
 
             // $timeout makes sure that this function invoked after the DOM ready. When draw/init
             // invoked after the DOM is ready, we see first an empty HighCharts objects and later

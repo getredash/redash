@@ -19,14 +19,35 @@
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
     }
 
+    var getDataSourceId = function() {
+      // Try to get the query's data source id
+      var dataSourceId = $scope.query.data_source_id;
+
+      // If there is no source yet, then parse what we have in localStorage
+      //   e.g. `null` -> `NaN`, malformed data -> `NaN`, "1" -> 1
+      if (dataSourceId === undefined) {
+        dataSourceId = parseInt(localStorage.lastSelectedDataSourceId, 10);
+      }
+
+      // If we had an invalid value in localStorage (e.g. nothing, deleted source), then use the first data source
+      var isValidDataSourceId = !isNaN(dataSourceId) && _.some($scope.dataSources, function(ds) {
+        return ds.id == dataSourceId;
+      });
+      if (!isValidDataSourceId) {
+        dataSourceId = $scope.dataSources[0].id;
+      }
+
+      // Return our data source id
+      return dataSourceId;
+    }
+
     $scope.dataSource = {};
     $scope.query = $route.current.locals.query;
 
     var updateSchema = function() {
       $scope.hasSchema = false;
       $scope.editorSize = "col-md-12";
-      var dataSourceId = $scope.query.data_source_id || $scope.dataSources[0].id;
-      DataSource.getSchema({id: dataSourceId}, function(data) {
+      DataSource.getSchema({id: getDataSourceId()}, function(data) {
         if (data && data.length > 0) {
           $scope.schema = data;
           _.each(data, function(table) {
@@ -48,12 +69,13 @@
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
+    $scope.canExecuteQuery = currentUser.hasPermission('execute_query');
 
     $scope.dataSources = DataSource.query(function(dataSources) {
       updateSchema();
 
       if ($scope.query.isNew()) {
-        $scope.query.data_source_id = $scope.query.data_source_id || dataSources[0].id;
+        $scope.query.data_source_id = getDataSourceId();
         $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
       }
     });
@@ -104,9 +126,14 @@
     };
 
     $scope.executeQuery = function() {
+      if (!$scope.canExecuteQuery) {
+        return;
+      }
+
       if (!$scope.query.query) {
         return;
       }
+
       getQueryResult(0);
       $scope.lockButton(true);
       $scope.cancelling = false;
@@ -146,6 +173,7 @@
 
     $scope.updateDataSource = function() {
       Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
+      localStorage.lastSelectedDataSourceId = $scope.query.data_source_id;
 
       $scope.query.latest_query_data = null;
       $scope.query.latest_query_data_id = null;

@@ -15,7 +15,7 @@
     "codemirror": "4.8.0",
     "highcharts": "3.0.10",
     "underscore": "1.5.1",
-    "pivottable": "~1.1.1",
+    "pivottable": "1.6.3",
     "cornelius": "https://github.com/restorando/cornelius.git",
     "gridster": "0.2.0",
     "mousetrap": "~1.4.6",
@@ -33,7 +33,8 @@
     "angular-ui-select": "0.8.2",
     "angular-bootstrap-show-errors": "~2.3.0",
     "angular-sanitize": "1.2.18",
-    "angular-smart-table": "~2.1.4"
+    "angular-smart-table": "~2.1.4",
+    "d3": "3.5.6"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
