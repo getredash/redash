@@ -33,6 +33,7 @@
     "angular-ui-select": "0.8.2",
     "angular-bootstrap-show-errors": "~2.3.0",
     "angular-sanitize": "1.2.18",
+    "angular-smart-table": "~2.1.4",
     "d3": "3.5.6"
   },
   "devDependencies": {
