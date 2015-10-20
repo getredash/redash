@@ -79,14 +79,14 @@
               } else if (columnType === 'date') {
                 columnDefinition.formatFunction = function (value) {
                   if (value && moment.isMoment(value)) {
-                    return value.toDate().toLocaleDateString();
+                    return value.format(clientConfig.dateFormat);
                   }
                   return value;
                 };
               } else if (columnType === 'datetime') {
                 columnDefinition.formatFunction = function (value) {
                   if (value && moment.isMoment(value)) {
-                    return value.toDate().toLocaleString();
+                    return value.format(clientConfig.dateTimeFormat);
                   }
                   return value;
                 };

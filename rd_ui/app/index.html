@@ -200,7 +200,7 @@
 
 <script>
     // TODO: move currentUser & features to be an Angular service
-    var featureFlags = {{ features|safe }};
+    var clientConfig = {{ client_config|safe }};
     var currentUser = {{ user|safe }};
 
     currentUser.canEdit = function(object) {
