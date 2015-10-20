@@ -36,14 +36,16 @@ def index(**kwargs):
         'permissions': current_user.permissions
     }
 
-    features = {
+    client_config = {
         'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD
+        'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD,
+        'dateFormat': settings.DATE_FORMAT,
+        'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT)
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
-                           features=json.dumps(features),
+                           client_config=json.dumps(client_config),
                            analytics=settings.ANALYTICS)
 
 

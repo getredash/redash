@@ -1,4 +1,4 @@
-featureFlags = [];
+clientConfig = {};
 currentUser = {
   id: 1,
   name: 'John Mock',

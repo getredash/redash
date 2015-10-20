@@ -19,7 +19,7 @@ angular.module('redash', [
     'ngSanitize'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig) {
-      if (featureFlags.clientSideMetrics) {
+      if (clientConfig.clientSideMetrics) {
         Bucky.setOptions({
           host: '/api/metrics'
         });

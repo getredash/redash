@@ -43,10 +43,10 @@
             if (angular.isNumber(v)) {
               columnTypes[k] = 'float';
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
-              row[k] = moment(v);
+              row[k] = moment.utc(v);
               columnTypes[k] = 'datetime';
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
-              row[k] = moment(v);
+              row[k] = moment.utc(v);
               columnTypes[k] = 'date';
             } else if (typeof(v) == 'object' && v !== null) {
               row[k] = JSON.stringify(v);

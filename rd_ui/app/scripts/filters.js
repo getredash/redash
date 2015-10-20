@@ -82,7 +82,7 @@ angular.module('redash.filters', []).
       }
 
       var html = marked(text);
-      if (featureFlags.allowScriptsInUserInput) {
+      if (clientConfig.allowScriptsInUserInput) {
         html = $sce.trustAsHtml(html);
       }
 
