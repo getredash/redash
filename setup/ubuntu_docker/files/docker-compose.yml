@@ -1,0 +1,22 @@
+redash:
+  image: everythingme/redash
+  ports:
+    - "5000:5000"
+  links:
+    - redis
+    - postgres
+  env_file: env
+redis:
+  image: redis:2.8
+postgres:
+  image: postgres:9.3
+  volumes:
+   - /opt/postgres-data:/var/lib/postgresql/data
+nginx:
+  image: nginx
+  ports:
+    - "80:80"
+  volumes:
+    - "./setup/docker/nginx/nginx.conf:/etc/nginx/nginx.conf"
+  links:
+    - redash
