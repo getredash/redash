@@ -201,3 +201,18 @@ Vertica
 -  **Additional requirements**:
 
    - ``vertica-python`` python package
+
+Oracle
+------
+
+- **Options**
+
+   -  DSN Service name
+   -  User
+   -  Password
+   -  Host
+   -  Port
+
+- **Additional requirements**
+
+  - ``cx_Oracle`` python package. This requires the installation of the Oracle `instant client <http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html>`__.
