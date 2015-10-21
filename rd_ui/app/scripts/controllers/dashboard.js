@@ -163,6 +163,29 @@
     } else {
       $scope.type = 'textbox';
     }
+
+    // Listen for url changed
+    $scope.$on('$routeUpdate', function() {
+      if ($scope.widget.visualization) {
+        // Set missingParameters to false
+        $scope.missingParameters = false;
+        // Gets query
+        $scope.query = $scope.widget.getQuery();
+        // Gets the parameters from the query and location
+        var parameters = Query.collectParamsFromQueryString($location, $scope.query);
+        var maxAge = $location.search()['maxAge'];
+        // Calls to query
+        $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
+        var requiredParameters = $scope.query.getParameters();
+        // Searchs if all the parameters are instantiated
+        for (var i = 0; i < requiredParameters.length; i++) {
+          if (parameters[requiredParameters[i]] === undefined) {
+            $scope.missingParameters = true;
+            return;
+          }
+        }
+      }
+    });
   };
 
   angular.module('redash.controllers')
