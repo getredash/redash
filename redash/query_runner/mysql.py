@@ -46,9 +46,25 @@ class Mysql(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Database name'
                 },
-                "port": {
-                    "type": "number"
+                'port': {
+                    'type': 'number'
                 },
+                'use_ssl': {
+                    'type': 'boolean',
+                    'title': 'Use SSL'
+                },
+                'ssl_cacert': {
+                    'type': 'string',
+                    'title': 'CA certificate to verify peer against (SSL)'
+                },
+                'ssl_cert': {
+                    'type': 'string',
+                    'title': 'Client certificate file (SSL)'
+                },
+                'ssl_key': {
+                    'type': 'string',
+                    'title': 'Private key filename (SSL)'
+                }
             },
             'required': ['db'],
             'secret': ['passwd']
@@ -111,7 +127,8 @@ class Mysql(BaseQueryRunner):
                                          passwd=self.configuration.get('passwd', ''),
                                          db=self.configuration['db'],
                                          port=self.configuration.get('port', 3306),
-                                         charset='utf8', use_unicode=True)
+                                         charset='utf8', use_unicode=True,
+                                         ssl=self._get_ssl_parameters())
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
@@ -144,5 +161,20 @@ class Mysql(BaseQueryRunner):
                 connection.close()
 
         return json_data, error
+
+    def _get_ssl_parameters(self):
+        ssl_params = {}
+
+        if self.configuration.get('use_ssl'):
+            config_map = dict(ssl_cacert='ca',
+                              ssl_cert='cert',
+                              ssl_key='key')
+            for key, cfg in config_map.items():
+                val = self.configuration.get(key)
+                if val:
+                    ssl_params[cfg] = val
+
+        return ssl_params
+
 
 register(Mysql)
