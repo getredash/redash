@@ -44,9 +44,15 @@
         <div class="modal-header">
             <h3 class="modal-title">Link options</h3>
         </div>
+        
         <div class="modal-body">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="inputLink.parameters"> Use parameters from url
+                </label>
+            </div>
             <div ng-repeat="column in columns">
-                <input type="checkbox" ng-click="updateLinkText(column)" ng-model="column.selected"> {{column.label}}
+                <a ng-click="updateLinkText(column)">{{column.label}}</a>
             </div>
             <form class="form-horizontal">
                 <div class="form-group">
@@ -57,7 +63,7 @@
                 </div>
             </form>
             <div ng-repeat="column in visuals">
-                <input type="checkbox" ng-click="updateVisualText(column)" ng-model="column.selected"> {{column.label}}
+                <a ng-click="updateVisualText(column)">{{column.label}}</a>
             </div>
             <form class="form-horizontal">
                 <div class="form-group" style="margin-top: 5px">
@@ -69,8 +75,8 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
-            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+            <button class="btn btn-primary" type="button" ng-click="ok()">Submit</button>
+            <button class="btn btn-danger" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
 </div>

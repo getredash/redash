@@ -17,7 +17,7 @@
     });
   }]);
 
-  tableVisualization.directive('customtableRenderer', function() {
+  tableVisualization.directive('customtableRenderer', function($location) {
     return {
       restrict: 'E',
       templateUrl: "/views/customtable-renderer.html",
@@ -27,7 +27,7 @@
         $scope.gridData = [];
         $scope.rowCollection = [].concat($scope.gridData);
 
-        $scope.$watch('visualization.options',
+        $scope.$watch('[queryResult && queryResult.getData(), visualization.options]',
           function(data) {
             if (!data) {
               return;
@@ -81,21 +81,41 @@
                 var gridData = _.map(data, function(row) {
 
                   _.forEach(cols, function(option) {
+
                     // If there are option link and is visible renders the row
-                    if (option.link && option.visible && option.inputLink.labels.length > 0) {
+                    if (option.link && option.visible) {
                       var string = option.inputLink.text;
-                      _.forEach(option.inputLink.labels, function(label) {
-                        string = string.replace('##' + label + '##', row[label]);
+                      var visualLabel = option.inputLink.visualText;
+
+                      // Parameters logic
+                      var parameters = '';
+                      // If check parameters option is enabled to take from url
+                      if (option.inputLink.parameters) {
+                        // Gets the absUrl
+                        var absUrl = $location.absUrl();
+                        // Finds the index where the parameters begins
+                        var index = absUrl.indexOf('?');
+                        if (index > 0) {
+                          // Gets the parameters from url
+                          parameters = absUrl.substring(index + 1, absUrl.length - 1);
+                          // Checks if is needed to add & or ?
+                          if (option.inputLink.text.indexOf('?') >= 0) {
+                            parameters = '&' + parameters;
+                          } else {
+                            parameters = '?' + parameters;
+                          }
+                        }
+                      }
+                      _.forEach($scope.queryResult.getColumnCleanNames(), function(label) {
+                        //string = string.replace('##' + label + '##', row[label]);
+                        string = string.replace(new RegExp('##' + label + '##', 'g'), row[label]);
+                        //visualLabel = visualLabel.replace('/##' + label + '##/'g, row[label]);
+                        visualLabel = visualLabel.replace(new RegExp('##' + label + '##', 'g'), row[label]);
                       });
                       // Replaces the label for the link
-                      row[option.column + 'link'] = string;
-
-                      var visualLabel = option.inputLink.visualText;
-                      _.forEach(option.inputLink.visualLabels, function(label) {
-                        visualLabel = visualLabel.replace('##' + label + '##', row[label]);
-                      });
-                      // Replaces the label for the visual label
+                      row[option.column + 'link'] = string + parameters;
                       row[option.column + 'visualLabel'] = visualLabel;
+
                     }
                   })
 
@@ -172,9 +192,8 @@
             obj.link = false;
             obj.inputLink = {};
             obj.inputLink.text = '';
-            obj.inputLink.labels = [];
+            obj.parameters = false;
             obj.inputLink.visualText = '';
-            obj.inputLink.visualLabels = [];
             scope.cols.push(obj);
           });
         } else {
@@ -201,14 +220,11 @@
           // Resets the link
           option.link = !option.link;
           option.inputLink.text = '';
-          option.inputLink.labels = [];
           option.inputLink.visualText = '';
-          option.inputLink.visualLabels = [];
           var inputLink = {};
           inputLink.text = '';
-          inputLink.labels = [];
+          inputLink.parameters = false;
           inputLink.visualText = '';
-          inputLink.visualLabels = [];
 
           if (option.link) {
             var modalInstance = $modal.open({
@@ -273,18 +289,12 @@
 
     $scope.inputLink = {};
     $scope.inputLink.text = '';
-    $scope.inputLink.labels = [];
+    $scope.inputLink.parameters = false;
     $scope.inputLink.visualText = '';
-    $scope.inputLink.visualLabels = [];
 
-    // If the input has persisted data, copies the previous inputLink options
-    if (inputLink.labels.length > 0) {
-      $scope.inputLink.text = inputLink.text;
-      $scope.inputLink.labels = inputLink.labels;
-
-      $scope.inputLink.visualText = inputLink.visualText;
-      $scope.inputLink.visualLabels = inputLink.visualLabels;
-    }
+    $scope.inputLink.text = inputLink.text;
+    $scope.inputLink.parameters = inputLink.parameters;
+    $scope.inputLink.visualText = inputLink.visualText;
 
     $scope.columns = [];
     $scope.visuals = [];
@@ -297,20 +307,6 @@
       // Copies the column map
       obj.label = column;
       obj2.label = column;
-      // If has previous data, copies the labels that were added previously.
-      var index = $scope.inputLink.labels.indexOf(column);
-      if (index > -1) {
-        obj.selected = true;
-      } else {
-        obj.selected = false;
-      }
-      // If has previous data, copies the labels that were added previously.
-      var index2 = $scope.inputLink.visualLabels.indexOf(column);
-      if (index2 > -1) {
-        obj2.selected = true;
-      } else {
-        obj2.selected = false;
-      }
       // Ads to each array
       $scope.columns.push(obj);
       $scope.visuals.push(obj2);
@@ -333,29 +329,12 @@
     };
 
     /**
-     * getRefreshedLabels Update the labels array by adding or removing the label selected/unselected
-     * @param  {object} column    column object model
-     * @param  {array} labels     array of the current labels selected
-     * @return {array}            updated array of labels
-     */
-    var getRefreshedLabels = function(column, labels) {
-      var index = labels.indexOf(column.label);
-      if (index > -1) {
-        labels.splice(index, 1);
-      } else {
-        labels.push(column.label);
-      }
-      return labels;
-    };
-
-    /**
      * updateLinkText Logic to enabling or disabling the link association.
      * @param {object} column   column object model
      */
     $scope.updateLinkText = function(column) {
-      column.selected = !column.selected;
-      $scope.inputLink.text = getText(column, $scope.inputLink.text);
-      $scope.inputLink.labels = getRefreshedLabels(column, $scope.inputLink.labels);
+      var value = '##' + column.label + '##';
+      $scope.inputLink.text = $scope.inputLink.text + value;
     }
 
     /**
@@ -363,9 +342,8 @@
      * @param {object} column   column object model
      */
     $scope.updateVisualText = function(column) {
-      column.selected = !column.selected;
-      $scope.inputLink.visualText = getText(column, $scope.inputLink.visualText);
-      $scope.inputLink.visualLabels = getRefreshedLabels(column, $scope.inputLink.visualLabels);
+      var value = '##' + column.label + '##';
+      $scope.inputLink.visualText = $scope.inputLink.visualText + value;
     }
 
     $scope.ok = function() {
