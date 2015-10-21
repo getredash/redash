@@ -46,6 +46,12 @@
                     <select class="form-control" ng-model="widgetSize"
                             ng-options="c.value as c.name for c in widgetSizes"></select>
                 </div>
+
+                <div class="checkbox">
+                    <label title="Show table empty or filled.">
+                        <input type="checkbox" ng-model="showAlways"> Show Always
+                    </label>
+                </div>
             </div>
 
             <div class="modal-footer">
