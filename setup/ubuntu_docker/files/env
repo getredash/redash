@@ -1,0 +1,6 @@
+export REDASH_STATIC_ASSETS_PATH="../rd_ui/dist/"
+export REDASH_LOG_LEVEL="INFO"
+export REDASH_REDIS_URL=redis://localhost:6379/1
+export REDASH_DATABASE_URL="postgresql://redash"
+export REDASH_COOKIE_SECRET=veryverysecret
+export REDASH_GOOGLE_APPS_DOMAIN=
