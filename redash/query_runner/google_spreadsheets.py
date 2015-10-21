@@ -96,7 +96,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
                     'title': 'JSON Key File'
                 }
             },
-            'required': ['jsonKeyFile']
+            'required': ['jsonKeyFile'],
+            'secret': ['jsonKeyFile']
         }
 
     def __init__(self, configuration_json):

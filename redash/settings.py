@@ -1,6 +1,7 @@
 import json
 import os
 import urlparse
+from funcy import distinct
 
 
 def parse_db_url(url):
@@ -66,8 +67,7 @@ DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
 CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", CELERY_BROKER)
 
-# The following enables periodic job (every 5 minutes) of removing unused query results. Behind this "feature flag" until
-# proved to be "safe".
+# The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
@@ -113,7 +113,7 @@ ACCESS_CONTROL_REQUEST_METHOD = os.environ.get("REDASH_CORS_ACCESS_CONTROL_REQUE
 ACCESS_CONTROL_ALLOW_HEADERS = os.environ.get("REDASH_CORS_ACCESS_CONTROL_ALLOW_HEADERS", "Content-Type")
 
 # Query Runners
-QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join([
+default_query_runners = [
     'redash.query_runner.big_query',
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
@@ -128,7 +128,12 @@ QUERY_RUNNERS = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS",
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.treasuredata'
-])))
+]
+
+enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
+additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_QUERY_RUNNERS", ""))
+
+QUERY_RUNNERS = distinct(enabled_query_runners + additional_query_runners)
 
 # Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
@@ -136,6 +141,9 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
+# http://api.highcharts.com/highcharts#plotOptions.series.turboThreshold
+HIGHCHARTS_TURBO_THRESHOLD = int(os.environ.get("REDASH_HIGHCHARTS_TURBO_THRESHOLD", "1000"))
+DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 
 # Features:
 FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))

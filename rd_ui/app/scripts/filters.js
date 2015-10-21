@@ -48,6 +48,9 @@ angular.module('redash.filters', []).
 
   .filter('colWidth', function () {
     return function (widgetWidth) {
+      if (widgetWidth == 0) {
+        return 0;
+      }
       if (widgetWidth == 1) {
         return 6;
       }
@@ -79,7 +82,7 @@ angular.module('redash.filters', []).
       }
 
       var html = marked(text);
-      if (featureFlags.allowScriptsInUserInput) {
+      if (clientConfig.allowScriptsInUserInput) {
         html = $sce.trustAsHtml(html);
       }
 

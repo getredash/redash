@@ -12,7 +12,7 @@
         <input name="input" type="{{input.type}}" class="form-control" ng-model="dataSource.options[name]" ng-required="input.required"
                 ng-if="input.type !== 'file'" accesskey="tab">
 
-        <input name="input" type="file" class="form-control" ng-model="files[name]" ng-required="input.required"
+        <input name="input" type="file" class="form-control" ng-model="files[name]" ng-required="input.required && !dataSource.options[name]"
                base-sixty-four-input
                ng-if="input.type === 'file'">
     </div>

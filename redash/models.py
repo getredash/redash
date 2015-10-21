@@ -263,6 +263,8 @@ class ActivityLog(BaseModel):
 
 
 class DataSource(BaseModel):
+    SECRET_PLACEHOLDER = '--------'
+
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(unique=True)
     type = peewee.CharField()
@@ -283,7 +285,7 @@ class DataSource(BaseModel):
         }
 
         if all:
-            d['options'] = json.loads(self.options)
+            d['options'] = self.configuration
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
 
@@ -291,6 +293,23 @@ class DataSource(BaseModel):
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def configuration(self):
+        configuration = json.loads(self.options)
+        schema = self.query_runner.configuration_schema()
+        for prop in schema.get('secret', []):
+            if prop in configuration and configuration[prop]:
+                configuration[prop] = self.SECRET_PLACEHOLDER
+
+        return configuration
+
+    def replace_secret_placeholders(self, configuration):
+        current_configuration = json.loads(self.options)
+        schema = self.query_runner.configuration_schema()
+        for prop in schema.get('secret', []):
+            if prop in configuration and configuration[prop] == self.SECRET_PLACEHOLDER:
+                configuration[prop] = current_configuration[prop]
 
     def get_schema(self, refresh=False):
         key = "data_source:schema:{}".format(self.id)

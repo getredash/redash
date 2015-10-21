@@ -248,7 +248,12 @@ function getKeyFromObject(obj, key) {
               element.html(column.cellTemplate);
               compile(element.contents())(childScope);
             } else {
-              element.html(sanitize(scope.formatedValue));
+              if (typeof scope.formatedValue === 'string' || scope.formatedValue instanceof String) {
+                element.html(sanitize(scope.formatedValue));
+              } else {
+                element.text(scope.formatedValue);
+              }
+
             }
           }
 

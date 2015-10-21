@@ -3,7 +3,8 @@
     if (!value) {
       return "-";
     }
-    return value.toDate().toLocaleString();
+
+    return value.format(clientConfig.dateTimeFormat);
   };
 
   var QuerySearchCtrl = function($scope, $location, $filter, Events, Query) {
@@ -150,7 +151,7 @@
   }
 
   var MainCtrl = function ($scope, $location, Dashboard, notifications) {
-    if (featureFlags.clientSideMetrics) {
+    if (clientConfig.clientSideMetrics) {
       $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
         // This will be called once per actual page load.
         Bucky.sendPagePerformance();

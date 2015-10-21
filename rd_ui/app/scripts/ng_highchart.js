@@ -56,7 +56,7 @@
         ;
 
         if (moment.isMoment(this.x)) {
-          var s = '<b>' + this.x.toDate().toLocaleString() + '</b>',
+          var s = '<b>' + this.x.format(clientConfig.dateTimeFormat) + '</b>',
               pointsCount = this.points.length;
 
           $.each(this.points, function (i, point) {
@@ -272,6 +272,9 @@
             };
 
             var chartOptions = $.extend(true, {}, defaultOptions, chartsDefaults);
+            chartOptions.plotOptions.series = {
+              turboThreshold: clientConfig.highChartsTurboThreshold
+            }
 
             // $timeout makes sure that this function invoked after the DOM ready. When draw/init
             // invoked after the DOM is ready, we see first an empty HighCharts objects and later

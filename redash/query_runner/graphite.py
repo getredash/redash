@@ -44,7 +44,8 @@ class Graphite(BaseQueryRunner):
                     'title': 'Verify SSL certificate'
                 }
             },
-            'required': ['url']
+            'required': ['url'],
+            'secret': ['password']
         }
 
     @classmethod
