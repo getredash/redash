@@ -2,6 +2,10 @@
 <edit-dashboard-form dashboard="dashboard" id="edit_dashboard_dialog"></edit-dashboard-form>
 
 <div class="container">
+    <button class="btn btn-default" type="submit" ng-click="exportWidgets()">Export Tables</button>
+</div>
+
+<div class="container">
     <p class="alert alert-warning" ng-if="dashboard.is_archived">This dashboard is archived and won't appear in the dashboards list or search results.</p>
     <h2 id="dashboard_title">
         {{dashboard.name}}

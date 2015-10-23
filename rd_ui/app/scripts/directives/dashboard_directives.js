@@ -137,6 +137,11 @@
 
           $scope.showAlways = true;
 
+          $scope.exportable = {
+              isExportable: false,
+              name: ''
+            };
+
           $scope.isVisualization = function () {
             return $scope.type == 'visualization';
           };
@@ -162,6 +167,10 @@
             $scope.selected_query = undefined;
             $scope.text = "";
             $scope.showAlways = true;
+            $scope.exportable = {
+              isExportable: false,
+              name: ''
+            };
           };
 
           reset();
@@ -201,7 +210,8 @@
               'visualization_id': $scope.selectedVis && $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
               'options': {
-                'showAlways': $scope.showAlways
+                'showAlways': $scope.showAlways,
+                'exportable': $scope.exportable
               },
               'width': $scope.widgetSize,
               'text': $scope.text
