@@ -627,7 +627,6 @@
         return parameters;
       },
       setParameters: function(obj) {
-        console.log('obj:', obj);
         parameters = obj;
       }
     }
