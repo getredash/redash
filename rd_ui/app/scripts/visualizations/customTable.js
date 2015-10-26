@@ -22,7 +22,7 @@
       restrict: 'E',
       templateUrl: "/views/customtable-renderer.html",
       replace: false,
-      controller: ['$scope', '$filter', function($scope, $filter) {
+      controller: ['$scope', '$filter', 'Parameters', function($scope, $filter, Parameters) {
         $scope.gridColumns = [];
         $scope.gridData = [];
         $scope.rowCollection = [].concat($scope.gridData);
@@ -69,9 +69,9 @@
                 } else {
                   style += 'font-style:normal;';
                 }
-                /*if (option.color) {
-                  style += 'color:' + option.chosenColor + ';';
-                }*/
+              /*if (option.color) {
+                style += 'color:' + option.chosenColor + ';';
+              }*/
                 columnStyle[option.column] = style;
                 visibleColumn[option.column] = option.visible;
                 columnLink[option.column] = option.link;
@@ -91,19 +91,10 @@
                       var parameters = '';
                       // If check parameters option is enabled to take from url
                       if (option.inputLink.parameters) {
-                        // Gets the absUrl
-                        var absUrl = $location.absUrl();
-                        // Finds the index where the parameters begins
-                        var index = absUrl.indexOf('?');
-                        if (index > 0) {
-                          // Gets the parameters from url
-                          parameters = absUrl.substring(index + 1, absUrl.length - 1);
-                          // Checks if is needed to add & or ?
-                          if (option.inputLink.text.indexOf('?') >= 0) {
-                            parameters = '&' + parameters;
-                          } else {
-                            parameters = '?' + parameters;
-                          }
+
+                        var params = Parameters.getParameters();
+                        for (var propertyName in params) {
+                          parameters = parameters + '&' + propertyName + '=' + params[propertyName];
                         }
                       }
                       _.forEach($scope.queryResult.getColumnCleanNames(), function(label) {
