@@ -155,6 +155,15 @@
       var maxAge = $location.search()['maxAge'];
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
       $scope.type = 'visualization';
+
+      $scope.missingParameters = false;
+      var requiredParameters = $scope.query.getParameters();
+      // Searchs if all the parameters are instantiated
+      for (var i = 0; i < requiredParameters.length; i++) {
+        if (parameters[requiredParameters[i]] === undefined) {
+          $scope.missingParameters = true;
+        }
+      }
     } else {
       $scope.type = 'textbox';
     }
