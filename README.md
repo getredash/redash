@@ -1,9 +1,10 @@
-Some of you read the news about EverythingMe closing down. While more detailed announcement will come later (once more details are clear), <strong>I just wanted to reassure you that you shouldn't worry -- this won't affect the future of re:dash.</storng> I will keep maintaining re:dash, and might even be able to work more on it.
+Some of you read the news about EverythingMe closing down. While more detailed announcement will come later (once more details are clear), **I just wanted to reassure you that you shouldn't worry -- this won't affect the future of re:dash.** I will keep maintaining re:dash, and might even be able to work more on it.
 
 Those of who still have concerns, are more than welcome to reach out to me directly -- arik@arikfr.com.
 
--- Arik.
------
+Arik.
+
+---
 
 <p align="center">
   <img title="re:dash" src='http://redash.io/static/img/redash_logo.png' width="200px"/>
