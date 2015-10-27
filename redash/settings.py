@@ -19,6 +19,23 @@ def parse_db_url(url):
 
     return connection
 
+def parse_db_args(name, host, port, user, password, url):
+    if url is not None:
+        return parse_db_url(url)
+    connection = {'threadlocals': True}
+
+    if name is not None:
+        connection['name'] = name
+    if name is not None:
+        connection['host'] = host
+    if name is not None:
+        connection['port'] = port
+    if name is not None:
+        connection['user'] = user
+    if name is not None:
+        connection['password'] = password
+
+    return connection
 
 def fix_assets_path(path):
     fullpath = os.path.join(os.path.dirname(__file__), path)
@@ -61,7 +78,14 @@ STATSD_PORT = int(os.environ.get('REDASH_STATSD_PORT', "8125"))
 STATSD_PREFIX = os.environ.get('REDASH_STATSD_PREFIX', "redash")
 
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
-DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", "postgresql://postgres"))
+# Use either NAME+HOST+PORT+USER+PASSWORD or URL. URL override other values
+DATABASE_NAME = os.environ.get("REDASH_DATABASE_NAME", "postgres")
+DATABASE_HOST = os.environ.get("REDASH_DATABASE_HOST", None)
+DATABASE_PORT = os.environ.get("REDASH_DATABASE_PORT", None)
+DATABASE_USER = os.environ.get("REDASH_DATABASE_USER", None)
+DATABASE_PASSWORD = os.environ.get("REDASH_DATABASE_PASSWORD", None)
+DATABASE_URL = os.environ.get("REDASH_DATABASE_URL", None)
+DATABASE_CONFIG = parse_db_args(DATABASE_NAME, DATABASE_HOST, DATABASE_PORT, DATABASE_USER, DATABASE_PASSWORD, DATABASE_URL)
 
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
