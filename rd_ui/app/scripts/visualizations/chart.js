@@ -27,11 +27,37 @@
         queryResult: '=',
         options: '=?'
       },
-      template: "<chart options='chartOptions' series='chartSeries' class='graph'></chart>",
+      templateUrl: "/views/visualizations/chart.html",
       replace: false,
       controller: ['$scope', function ($scope) {
         $scope.chartSeries = [];
         $scope.chartOptions = {};
+        /**
+         * Dimension objects array. An example of this would be:
+         * [{
+         *   name: 'name of dimension',
+         *   enabled: true // whether we want to show this dimension in chart
+         * }]
+         *
+         * @type {Array}
+         */
+        $scope.dimensions = [];
+
+        /**
+         * Extract all dimensions set by user
+         */
+        $scope.setAvailableDimensions = function () {
+          $scope.dimensions = _.pairs($scope.options.columnMapping)
+            .filter(function (pair) {
+              return pair[1] === 'dimension';
+            })
+            .map(function (pair) {
+              return {
+                name: pair[0],
+                enabled: false
+              }
+            });
+        };
 
         var reloadData = function(data) {
           if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
@@ -39,7 +65,11 @@
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-            _.each($scope.queryResult.getChartData($scope.options.columnMapping), function (s) {
+            series = $scope.queryResult.getChartData(
+              $scope.options.columnMapping,
+              $scope.dimensions);
+
+            _.each(series, function (s) {
               var additional = {'stacking': 'normal'};
               if ('globalSeriesType' in $scope.options) {
                 additional['type'] = $scope.options.globalSeriesType;
@@ -65,8 +95,12 @@
           reloadData(true);
         }, true);
 
+        $scope.$watch('dimensions', function (dimensions) {
+          reloadData(true);
+        }, true);
 
         $scope.$watchCollection('options.columnMapping', function (chartOptions) {
+          $scope.setAvailableDimensions();
           reloadData(true);
         });
 
@@ -121,6 +155,7 @@
           "X": "x",
           "Y": "y",
           "Series": "series",
+          "Dimension": "dimension",
           "Unused": "unused"
         };
 
