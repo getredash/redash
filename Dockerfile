@@ -33,6 +33,9 @@ RUN mkdir -p /opt/redash/supervisord && \
 # Fix permissions
 RUN chown -R redash /opt/redash
 
+# Expose init script as /init.sh
+RUN ln -s /opt/redash/current/setup/docker/redash_database_init.sh /init.sh
+
 # Expose ports
 EXPOSE 5000
 EXPOSE 9001
