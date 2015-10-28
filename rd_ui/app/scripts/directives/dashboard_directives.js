@@ -135,7 +135,7 @@
 
           $scope.type = 'visualization';
 
-          $scope.showAlways = true;
+          $scope.showAlways = false;
 
           $scope.isVisualization = function () {
             return $scope.type == 'visualization';
@@ -161,7 +161,7 @@
             $scope.query = {};
             $scope.selected_query = undefined;
             $scope.text = "";
-            $scope.showAlways = true;
+            $scope.showAlways = false;
           };
 
           reset();

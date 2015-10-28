@@ -34,14 +34,17 @@
          * @return {String}           return the string link to be added on href row
          */
         var generateHref = function(urlParams, rowParams) {
+          var staticParameters = Parameters.getStaticParameters();
           var parameters = '';
-          for (var propertyName in urlParams) {
-            if (rowParams[propertyName] === undefined) {
-              parameters = parameters + '&' + propertyName + '=' + urlParams[propertyName];
-            } else {
-              parameters = parameters + '&' + propertyName + '=' + rowParams[propertyName];
+          _.forEach(staticParameters, function(param) {
+            if (urlParams[param] !== undefined) {
+              if (rowParams[param] !== undefined) {
+                parameters = parameters + '&' + param + '=' + rowParams[param];
+              } else {
+                parameters = parameters + '&' + param + '=' + urlParams[param];
+              }
             }
-          }
+          });
           for (var propertyName in rowParams) {
             if (parameters.indexOf(propertyName) < 0) {
               parameters = parameters + '&' + propertyName + '=' + rowParams[propertyName];
@@ -205,7 +208,7 @@
             obj.link = false;
             obj.inputLink = {};
             obj.inputLink.text = '';
-            obj.parameters = false;
+            obj.parameters = true;
             obj.inputLink.visualText = '';
             scope.cols.push(obj);
           });
@@ -236,7 +239,7 @@
           option.inputLink.visualText = '';
           var inputLink = {};
           inputLink.text = '';
-          inputLink.parameters = false;
+          inputLink.parameters = true;
           inputLink.visualText = '';
 
           if (option.link) {
@@ -302,7 +305,7 @@
 
     $scope.inputLink = {};
     $scope.inputLink.text = '';
-    $scope.inputLink.parameters = false;
+    $scope.inputLink.parameters = true;
     $scope.inputLink.visualText = '';
 
     $scope.inputLink.text = inputLink.text;
