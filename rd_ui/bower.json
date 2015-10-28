@@ -34,7 +34,8 @@
     "angular-bootstrap-show-errors": "~2.3.0",
     "angular-sanitize": "1.2.18",
     "angular-smart-table": "~2.1.4",
-    "d3": "3.5.6"
+    "d3": "3.5.6",
+    "uri.js": "~1.16.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",

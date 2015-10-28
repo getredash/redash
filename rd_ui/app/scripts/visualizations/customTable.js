@@ -27,6 +27,33 @@
         $scope.gridData = [];
         $scope.rowCollection = [].concat($scope.gridData);
 
+        /**
+         * generateHref Compares params from url and row and replaces the value of param if existing on both sides.
+         * @param  {Object} urlParams params from url
+         * @param  {Object} rowParams params from row
+         * @return {String}           return the string link to be added on href row
+         */
+        var generateHref = function(urlParams, rowParams) {
+          var staticParameters = Parameters.getStaticParameters();
+          var parameters = '';
+          _.forEach(staticParameters, function(param) {
+            if (urlParams[param] !== undefined) {
+              if (rowParams[param] !== undefined) {
+                parameters = parameters + '&' + param + '=' + rowParams[param];
+              } else {
+                parameters = parameters + '&' + param + '=' + urlParams[param];
+              }
+            }
+          });
+          for (var propertyName in rowParams) {
+            if (parameters.indexOf(propertyName) < 0) {
+              parameters = parameters + '&' + propertyName + '=' + rowParams[propertyName];
+            }
+          }
+          var result = '?' + parameters.substring(1);
+          return result;
+        }
+
         $scope.$watch('[queryResult && queryResult.getData(), visualization.options]',
           function(data) {
             if (!data) {
@@ -69,9 +96,9 @@
                 } else {
                   style += 'font-style:normal;';
                 }
-              /*if (option.color) {
-                style += 'color:' + option.chosenColor + ';';
-              }*/
+                /*if (option.color) {
+                  style += 'color:' + option.chosenColor + ';';
+                }*/
                 columnStyle[option.column] = style;
                 visibleColumn[option.column] = option.visible;
                 columnLink[option.column] = option.link;
@@ -91,11 +118,7 @@
                       var parameters = '';
                       // If check parameters option is enabled to take from url
                       if (option.inputLink.parameters) {
-
                         var params = Parameters.getParameters();
-                        for (var propertyName in params) {
-                          parameters = parameters + '&' + propertyName + '=' + params[propertyName];
-                        }
                       }
                       _.forEach($scope.queryResult.getColumnCleanNames(), function(label) {
                         //string = string.replace('##' + label + '##', row[label]);
@@ -103,8 +126,10 @@
                         //visualLabel = visualLabel.replace('/##' + label + '##/'g, row[label]);
                         visualLabel = visualLabel.replace(new RegExp('##' + label + '##', 'g'), row[label]);
                       });
+                      var uri = new URI(string);
+                      var cleanedParams = uri.search(true);
                       // Replaces the label for the link
-                      row[option.column + 'link'] = string + parameters;
+                      row[option.column + 'link'] = generateHref(params, cleanedParams);
                       row[option.column + 'visualLabel'] = visualLabel;
 
                     }
@@ -183,7 +208,7 @@
             obj.link = false;
             obj.inputLink = {};
             obj.inputLink.text = '';
-            obj.parameters = false;
+            obj.parameters = true;
             obj.inputLink.visualText = '';
             scope.cols.push(obj);
           });
@@ -214,7 +239,7 @@
           option.inputLink.visualText = '';
           var inputLink = {};
           inputLink.text = '';
-          inputLink.parameters = false;
+          inputLink.parameters = true;
           inputLink.visualText = '';
 
           if (option.link) {
@@ -280,7 +305,7 @@
 
     $scope.inputLink = {};
     $scope.inputLink.text = '';
-    $scope.inputLink.parameters = false;
+    $scope.inputLink.parameters = true;
     $scope.inputLink.visualText = '';
 
     $scope.inputLink.text = inputLink.text;
