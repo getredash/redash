@@ -1,3 +1,4 @@
+import datetime
 import time
 import logging
 from flask.ext.mail import Message
@@ -240,10 +241,10 @@ def check_alerts_for_query(self, query_id):
     for alert in query.alerts:
         alert.query = query
         new_state = alert.evaluate()
-        if new_state != alert.state:
+        if new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < datetime.datetime.now().replace(tzinfo=alert.last_triggered_at.tzinfo) ):
             logger.info("Alert %d new state: %s", alert.id, new_state)
             old_state = alert.state
-            alert.update_instance(state=new_state)
+            alert.update_instance(state=new_state, last_triggered_at=datetime.datetime.now())
 
             if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
                 logger.debug("Skipping notification (previous state was unknown and now it's ok).")
