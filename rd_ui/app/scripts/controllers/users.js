@@ -136,6 +136,8 @@
     Events.record(currentUser, "view", "page", "users/new");
 
     $scope.user = new User({});
+    $scope.user.groups = 'default';
+
     $scope.saveUser = function() {
       $scope.$broadcast('show-errors-check-validity');
 

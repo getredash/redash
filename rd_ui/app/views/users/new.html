@@ -25,6 +25,11 @@
             <input class="form-control" type="password" name="passwordRepeat" ng-model="user.passwordRepeat" compare-to="user.password"/>
             <span class="help-block error" ng-if="userForm.passwordRepeat.$error.compareTo">Passwords don't match.</span>
         </div>
+        <div class="form-group required" show-errors>
+            <label class="control-label">Groups</label>
+            <input class="form-control" type="text" name="groups" ng-model="user.groups" ng-minlength="6" required/>
+            <input-errors name="Groups" errors="userForm.groups.$error"/>
+        </div>
         <div class="form-group">
             <button class="btn btn-primary">Save</button>
         </div>
