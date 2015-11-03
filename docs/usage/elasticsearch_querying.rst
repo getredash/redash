@@ -46,3 +46,27 @@ Simple query on a logstash ElasticSearch instance:
         "size" : 250,
         "sort" : "@timestamp:asc"
     }
+
+Simple query on a ElasticSearch instance:
+==================================================
+
+
+- Query the index named "twitter"
+- Filter by user equal "kimchy"
+- Return the fields: "@timestamp", "tweet" and "user"
+- Return up to 15 results
+- Sort by @timestamp ascending
+
+.. code:: json
+
+    {
+        "index" : "twitter",
+        "query" : {
+        "match": {
+            "user" : "kimchy"
+            }
+        },
+        "fields" : ["@timestamp", "tweet", "user"],
+        "size" : 15,
+        "sort" : "@timestamp:asc"
+    }
