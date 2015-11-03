@@ -38,8 +38,8 @@
                     </div>
                     <div class="form-group required" ng-if="showSettings" show-errors>
                         <label class="control-label">Groups</label>
-                        <input name="groups" type="text" class="form-control" ng-model="user.groups" required/>
-                        <input-errors errors="userSettingsForm.groups.$error"/>
+                        <input name="groups-text" type="text" class="form-control" ng-model="userGroupsText" required/>
+                        <input-errors errors="userSettingsForm.userGroupsText.$error"/>
                     </div>
                     <div class="checkbox" ng-if="currentUser.hasPermission('admin')">
                         <label>

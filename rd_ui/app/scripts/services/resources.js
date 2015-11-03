@@ -549,7 +549,6 @@
   var User = function ($resource, $http) {
     var transformSingle = function(user) {
       if (user.groups !== undefined) {
-        // TODO: Match exactly 'admin' group here!
         user.admin = user.groups.indexOf("admin") != -1;
       }
     };

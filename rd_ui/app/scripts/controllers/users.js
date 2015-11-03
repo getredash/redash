@@ -113,7 +113,8 @@
       var data = {
         id: $scope.user.id,
         name: $scope.user.name,
-        email: $scope.user.email
+        email: $scope.user.email,
+        groups: $scope.user.groups
       };
 
       if ($scope.user.admin === true && $scope.user.groups.indexOf("admin") === -1) {
@@ -130,6 +131,21 @@
         growl.addErrorMessage(message);
       });
     };
+
+    $scope.$watch('userGroupsText', function (newValue) {
+      if (newValue) {
+        $scope.user.groups = newValue.split(',').map(function(group) {
+          return group.trim();
+        });
+      }
+      else {
+        $scope.user.groups = [];
+      }
+    });
+
+    $scope.$watch('user.groups', function (newValue) {
+      $scope.userGroupsText = newValue.join(',');
+    });
   };
 
   var NewUserCtrl = function ($scope, $location, growl, Events, User) {
