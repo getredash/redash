@@ -55,15 +55,15 @@ class Mysql(BaseQueryRunner):
                 },
                 'ssl_cacert': {
                     'type': 'string',
-                    'title': 'CA certificate to verify peer against (SSL)'
+                    'title': 'Path to CA certificate file to verify peer against (SSL)'
                 },
                 'ssl_cert': {
                     'type': 'string',
-                    'title': 'Client certificate file (SSL)'
+                    'title': 'Path to client certificate file (SSL)'
                 },
                 'ssl_key': {
                     'type': 'string',
-                    'title': 'Private key filename (SSL)'
+                    'title': 'Path to private key file (SSL)'
                 }
             },
             'required': ['db'],
