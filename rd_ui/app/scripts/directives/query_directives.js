@@ -279,7 +279,7 @@
     }
   }
 
-  angular.module('redash.directives', ['ngTagsInput'])
+  angular.module('redash.directives')
   .directive('queryLink', queryLink)
   .directive('querySourceLink', querySourceLink)
   .directive('queryResultLink', queryResultCSVLink)

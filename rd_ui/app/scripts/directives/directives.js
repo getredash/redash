@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var directives = angular.module('redash.directives', []);
+  var directives = angular.module('redash.directives', ['ngTagsInput']);
 
   directives.directive('alertUnsavedChanges', ['$window', function ($window) {
     return {
