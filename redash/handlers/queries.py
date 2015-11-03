@@ -44,17 +44,22 @@ class QuerySearchAPI(BaseResource):
     def get(self):
         term = request.args.get('q', '')
 
-        return [q.to_dict() for q in models.Query.search(term)]
+        return [q.to_dict() for q in models.Query.search(
+                    current_user,
+                    term)]
 
 
 class QueryRecentAPI(BaseResource):
     @require_permission('view_query')
     def get(self):
-        recent = [d.to_dict() for d in models.Query.recent(current_user.id)]
+        recent = [d.to_dict() for d in models.Query.recent(
+                    current_user,
+                    limit_to_current_user=True)]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict() for d in models.Query.recent()]
+            global_recent = [d.to_dict() for d in models.Query.recent(
+                                current_user)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -75,7 +80,8 @@ class QueryListAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_stats=True) for q in models.Query.all_queries()]
+        return [q.to_dict(with_stats=True)
+                for q in models.Query.all_queries(current_user)]
 
 
 class QueryAPI(BaseResource):

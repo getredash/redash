@@ -504,11 +504,12 @@ class Query(ModelTimestampsMixin, BaseModel):
         self.save()
 
     @classmethod
-    def all_queries(cls):
+    def all_queries(cls, current_user):
         q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
             .where(Query.is_archived==False)\
+            .where(cls.access_groups.contains_any(*current_user.groups))\
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)\
             .order_by(cls.created_at.desc())
 
@@ -531,7 +532,7 @@ class Query(ModelTimestampsMixin, BaseModel):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term):
+    def search(cls, current_user, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
 
         where = (cls.name**u"%{}%".format(term)) | (cls.description**u"%{}%".format(term))
@@ -541,10 +542,13 @@ class Query(ModelTimestampsMixin, BaseModel):
 
         where &= cls.is_archived == False
 
-        return cls.select().where(where).order_by(cls.created_at.desc())
+        return cls.select()\
+            .where(where)\
+            .where(cls.access_groups.contains_any(*current_user.groups))\
+            .order_by(cls.created_at.desc())
 
     @classmethod
-    def recent(cls, user_id=None, limit=20):
+    def recent(cls, current_user, limit_to_current_user=False, limit=20):
         # TODO: instead of t2 here, we should define table_alias for Query table
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
             join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
@@ -552,11 +556,12 @@ class Query(ModelTimestampsMixin, BaseModel):
             where(~(Event.object_id >> None)).\
             where(Event.object_type == 'query'). \
             where(cls.is_archived == False).\
+            where(cls.access_groups.contains_any(*current_user.groups)).\
             group_by(Event.object_id, Query.id).\
             order_by(peewee.SQL("count(0) desc"))
 
-        if user_id:
-            query = query.where(Event.user == user_id)
+        if limit_to_current_user:
+            query = query.where(Event.user == current_user.id)
 
         query = query.limit(limit)
 
