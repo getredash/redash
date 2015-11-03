@@ -97,7 +97,14 @@ class Python(BaseQueryRunner):
         return iter(obj)
 
     def add_result_column(self, result, column_name, friendly_name, column_type):
-        """ Helper function to add columns inside a Python script running in re:dash in an easier way """
+        """Helper function to add columns inside a Python script running in re:dash in an easier way
+        
+        Parameters:
+        :result dict: The result dict
+        :column_name string: Name of the column, which should be consisted of lowercase latin letters or underscore.
+        :friendly_name string: Name of the column for display
+        :column_type string: Type of the column. Check supported data types for details.
+        """
         if column_type not in SUPPORTED_COLUMN_TYPES:
             raise Exception("'{0}' is not a supported column type".format(column_type))
 
@@ -111,12 +118,24 @@ class Python(BaseQueryRunner):
         })
 
     def add_result_row(self, result, values):
+        """Helper function to add one row to results set
+        
+        Parameters:
+        :result dict: The result dict
+        :values dict: One row of result in dict. The key should be one of the column names. The value is the value of the column in this row.
+        """
         if not "rows" in result:
             result["rows"] = []
 
         result["rows"].append(values)
 
     def execute_query(self, data_source_name_or_id, query):
+        """Run query from specific data source.
+        
+        Parameters:
+        :data_source_name_or_id string|integer: Name or ID of the data source
+        :query string: Query to run
+        """
         try:
             if type(data_source_name_or_id) == int:
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
@@ -135,6 +154,11 @@ class Python(BaseQueryRunner):
         return json.loads(data)
 
     def get_query_result(self, query_id):
+        """Get result of an existing query.
+        
+        Parameters:
+        :query_id integer: ID of existing query
+        """
         try:
             query = models.Query.get_by_id(query_id)
         except models.Query.DoesNotExist:
@@ -171,7 +195,8 @@ class Python(BaseQueryRunner):
             restricted_globals["add_result_row"] = self.add_result_row
             restricted_globals["disable_print_log"] = self._custom_print.disable
             restricted_globals["enable_print_log"] = self._custom_print.enable
-
+            
+            # Supported data types
             restricted_globals["TYPE_DATETIME"] = TYPE_DATETIME
             restricted_globals["TYPE_BOOLEAN"] = TYPE_BOOLEAN
             restricted_globals["TYPE_INTEGER"] = TYPE_INTEGER
