@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource, $http) {
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
@@ -66,6 +66,7 @@
     Events.record(currentUser, 'view', 'query', $scope.query.id);
     getQueryResult();
     $scope.queryExecuting = false;
+    $scope.loadAllGroupsCompleted = false;
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
@@ -123,6 +124,14 @@
     $scope.saveName = function() {
       Events.record(currentUser, 'edit_name', 'query', $scope.query.id);
       $scope.saveQuery(undefined, {'name': $scope.query.name});
+    };
+
+    $scope.saveAccessGroups = function() {
+      if ($scope.loadAllGroupsCompleted) {
+        var access_groups = $scope.query.getFlatenAccessGroups();
+        Events.record(currentUser, 'edit_access_group', 'query', access_groups);
+        $scope.saveQuery(undefined, {'access_groups': access_groups});
+      }
     };
 
     $scope.executeQuery = function() {
@@ -196,6 +205,18 @@
       $location.hash(visualization.id);
     };
 
+    $scope.loadAllGroups = function () {
+      return $http.get('/api/groups')
+        .then(function (response) {
+          $scope.loadAllGroupsCompleted = true;
+          return response.data.groups.map(function (group) {
+            return {
+              'text': group['name']
+            };
+          });
+        });
+    };
+
     $scope.$watch('query.name', function() {
       $scope.$parent.pageTitle = $scope.query.name;
     });
@@ -239,6 +260,10 @@
       }
     });
 
+    $scope.$watch('query.access_groups', function (newValue) {
+      $scope.saveAccessGroups();
+    }, true);
+
     $scope.openScheduleForm = function() {
       if (!$scope.isQueryOwner) {
         return;
@@ -273,5 +298,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', '$http', QueryViewCtrl]);
 })();

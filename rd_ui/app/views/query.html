@@ -143,6 +143,16 @@
                 <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
             </p>
 
+            <p>
+                <i class="fa fa-lock"></i>
+                <span class="text-muted">Access Groups</span>
+                <div>
+                  <tags-input ng-model="query.access_groups">
+                    <auto-complete min-length="1" source="loadAllGroups()"></auto-complete>
+                  </tags-input>
+                </div>
+            </p>
+
             <hr>
 
             <p>
