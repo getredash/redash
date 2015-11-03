@@ -440,6 +440,8 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 
 class Query(ModelTimestampsMixin, BaseModel):
+    DEFAULT_ACCESS_GROUPS = ['default']
+
     id = peewee.PrimaryKeyField()
     data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
@@ -453,6 +455,7 @@ class Query(ModelTimestampsMixin, BaseModel):
     last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
     schedule = peewee.CharField(max_length=10, null=True)
+    access_groups = ArrayField(peewee.CharField, default=DEFAULT_ACCESS_GROUPS)
 
     class Meta:
         db_table = 'queries'
@@ -470,6 +473,7 @@ class Query(ModelTimestampsMixin, BaseModel):
             'is_archived': self.is_archived,
             'updated_at': self.updated_at,
             'created_at': self.created_at,
+            'access_groups': self.access_groups,
             'data_source_id': self._data.get('data_source', None)
         }
 
@@ -832,7 +836,7 @@ class Widget(ModelTimestampsMixin, BaseModel):
             d['visualization'] = self.visualization.to_dict()
 
         return d
-    
+
     def __unicode__(self):
         return u"%s" % self.id
 
