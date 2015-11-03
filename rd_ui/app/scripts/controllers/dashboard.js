@@ -12,7 +12,8 @@
 
       _.forEach($scope.dashboard.widgets, function(widget) {
         // The first check is for the previous version of widget, then checks if there is data on query result
-        if (widget[0].options.exportable !== undefined && 
+        if (widget[0] !== undefined && 
+            widget[0].options.exportable !== undefined && 
               widget[0].options.exportable.isExportable && 
                 widget[0].query.queryResult !== undefined && 
                   widget[0].query.queryResult.filteredData !== undefined) {

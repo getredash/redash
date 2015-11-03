@@ -2,10 +2,6 @@
 <edit-dashboard-form dashboard="dashboard" id="edit_dashboard_dialog"></edit-dashboard-form>
 
 <div class="container">
-    <button class="btn btn-default" type="submit" ng-click="exportWidgets()">Export Tables</button>
-</div>
-
-<div class="container">
     <p class="alert alert-warning" ng-if="dashboard.is_archived">This dashboard is archived and won't appear in the dashboards list or search results.</p>
     <h2 id="dashboard_title">
         {{dashboard.name}}
@@ -21,7 +17,9 @@
                 <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
             </div>
         </span>
+        <button style="float: right" class="btn btn-default" type="submit" ng-click="exportWidgets()" title="Export Tables to Excel."><i class="fa fa-file-excel-o"></i></button>
     </h2>
+
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
 </div>
 
