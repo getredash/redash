@@ -11,6 +11,7 @@ import peewee
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
 from flask.ext.login import UserMixin, AnonymousUserMixin
+from flask_login import current_user
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner
@@ -709,6 +710,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel):
         if with_widgets:
             widgets = Widget.select(Widget, Visualization, Query, User)\
                 .where(Widget.dashboard == self.id)\
+                .where(Query.access_groups.contains_any(current_user.groups))\
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(User, join_type=peewee.JOIN_LEFT_OUTER)
