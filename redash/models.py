@@ -505,7 +505,7 @@ class Query(ModelTimestampsMixin, BaseModel):
         self.save()
 
     @classmethod
-    def all_queries(cls, current_user):
+    def all_queries(cls):
         q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
@@ -533,7 +533,7 @@ class Query(ModelTimestampsMixin, BaseModel):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, current_user, term):
+    def search(cls, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
 
         where = (cls.name**u"%{}%".format(term)) | (cls.description**u"%{}%".format(term))
@@ -549,7 +549,7 @@ class Query(ModelTimestampsMixin, BaseModel):
             .order_by(cls.created_at.desc())
 
     @classmethod
-    def recent(cls, current_user, limit_to_current_user=False, limit=20):
+    def recent(cls, limit_to_current_user=False, limit=20):
         # TODO: instead of t2 here, we should define table_alias for Query table
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
             join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
