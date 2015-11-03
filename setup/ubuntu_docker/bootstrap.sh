@@ -19,13 +19,17 @@ fi
 # Base packages
 apt-get update
 # apt-get install -y python-pip python-dev nginx curl build-essential pwgen
+apt-get install -y python-pip
 
 # Install Docker
 # TODO: copy script into setup files
 curl -sSL https://get.docker.com/ | sh
 
+pip install docker-compose
+
 # Get docker-compose file
 wget $FILES_BASE_URL"docker-compose.yml"
+wget $FILES_BASE_URL"env"
 # Add to .profile docker compose file location
 # Setup upstart (?) for docker-compose
 wget $FILES_BASE_URL"upstart.conf" -O /etc/init/redash-docker.conf
@@ -33,3 +37,5 @@ wget $FILES_BASE_URL"upstart.conf" -O /etc/init/redash-docker.conf
 initctl reload-configuration
 service redash-docker start
 # Create database / tables
+
+#   sudo usermod -aG docker your-user
