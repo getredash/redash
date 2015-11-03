@@ -580,6 +580,9 @@ class Query(ModelTimestampsMixin, BaseModel):
         self.query_hash = utils.gen_query_hash(self.query)
         self._set_api_key()
 
+        if not self.access_groups:
+            self.access_groups = self.DEFAULT_ACCESS_GROUPS
+
         if self.last_modified_by is None:
             self.last_modified_by = self.user
 
