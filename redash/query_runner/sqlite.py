@@ -3,18 +3,9 @@ import logging
 import sqlite3
 import sys
 
-#from redash.query_runner import ValidationError
 from redash.query_runner import BaseQueryRunner
-#from redash.query_runner import TYPE_DATETIME
-#from redash.query_runner import TYPE_BOOLEAN
-#from redash.query_runner import TYPE_INTEGER
 from redash.query_runner import TYPE_STRING
-#from redash.query_runner import TYPE_DATE
-#from redash.query_runner import TYPE_FLOAT
-#from redash.query_runner import SUPPORTED_COLUMN_TYPES
 from redash.query_runner import register
-#from redash.query_runner import get_query_runner
-#from redash.query_runner import import_query_runners
 
 from redash.utils import JSONEncoder
 
@@ -26,12 +17,12 @@ class Sqlite(BaseQueryRunner):
         return {
             "type": "object",
             "properties": {
-                "dbname": {
+                "dbpath": {
                     "type": "string",
-                    "title": "Database Name"
+                    "title": "Database Path"
                 }
             },
-            "required": ["dbname"],
+            "required": ["dbpath"],
         }
 
     @classmethod
@@ -41,7 +32,7 @@ class Sqlite(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Sqlite, self).__init__(configuration_json)
 
-        self._dbname = self.configuration['dbname']
+        self._dbpath = self.configuration['dbpath']
 
     def get_schema(self):
         query_table = "select tbl_name from sqlite_master where type='table'"
@@ -69,7 +60,7 @@ class Sqlite(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query):
-        connection = sqlite3.connect(self._dbname)
+        connection = sqlite3.connect(self._dbpath)
 
         cursor = connection.cursor()
 
