@@ -147,9 +147,12 @@
                 <i class="fa fa-lock"></i>
                 <span class="text-muted">Access Groups</span>
                 <div>
-                  <tags-input ng-model="query.access_groups">
-                    <auto-complete min-length="1" source="loadAllGroups()"></auto-complete>
-                  </tags-input>
+                  <ui-select multiple ng-model="query.access_groups">
+                      <ui-select-match placeholder="Select access groups">{{$item}}</ui-select-match>
+                      <ui-select-choices repeat="group in availableGroups | filter:$select.search">
+                        {{group}}
+                      </ui-select-choices>
+                  </ui-select>
                 </div>
             </p>
 

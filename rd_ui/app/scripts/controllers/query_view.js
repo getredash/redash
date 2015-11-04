@@ -66,7 +66,7 @@
     Events.record(currentUser, 'view', 'query', $scope.query.id);
     getQueryResult();
     $scope.queryExecuting = false;
-    $scope.loadAllGroupsCompleted = false;
+    $scope.availableGroups = [];
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
@@ -127,11 +127,11 @@
     };
 
     $scope.saveAccessGroups = function() {
-      if ($scope.loadAllGroupsCompleted) {
-        var access_groups = $scope.query.getFlatenAccessGroups();
-        Events.record(currentUser, 'edit_access_group', 'query', access_groups);
-        $scope.saveQuery(undefined, {'access_groups': access_groups});
-      }
+        Events.record(currentUser,
+          'edit_access_group',
+          'query',
+          $scope.query.access_groups);
+        $scope.saveQuery(undefined, {'access_groups': $scope.query.access_groups});
     };
 
     $scope.executeQuery = function() {
@@ -205,18 +205,6 @@
       $location.hash(visualization.id);
     };
 
-    $scope.loadAllGroups = function () {
-      return $http.get('/api/groups')
-        .then(function (response) {
-          $scope.loadAllGroupsCompleted = true;
-          return response.data.groups.map(function (group) {
-            return {
-              'text': group['name']
-            };
-          });
-        });
-    };
-
     $scope.$watch('query.name', function() {
       $scope.$parent.pageTitle = $scope.query.name;
     });
@@ -260,10 +248,6 @@
       }
     });
 
-    $scope.$watch('query.access_groups', function (newValue) {
-      $scope.saveAccessGroups();
-    }, true);
-
     $scope.openScheduleForm = function() {
       if (!$scope.isQueryOwner) {
         return;
@@ -294,6 +278,26 @@
       }
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
+
+    /**
+     * Access groups related
+     */
+    $scope.loadAllGroups = function () {
+      $http.get('/api/groups')
+        .then(function (response) {
+          $scope.availableGroups = response.data.map(function (group) {
+            return group['name'];
+          });
+        });
+    };
+
+    $scope.$watch('query.access_groups', function (newValue, oldValue) {
+      if (newValue.length === 0) {
+        return $scope.query.access_groups = oldValue;
+      }
+      $scope.saveAccessGroups();
+    }, true);
+    $scope.loadAllGroups();
   };
 
   angular.module('redash.controllers')

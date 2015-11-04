@@ -443,12 +443,6 @@
       return parameters;
     };
 
-    Query.prototype.getFlatenAccessGroups = function () {
-      return this.access_groups.map(function (group) {
-        return group.text;
-      });
-    };
-
     Query.prototype.getSourceLink = function () {
       return '/queries/' + this.id + '/source';
     };
