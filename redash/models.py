@@ -11,7 +11,6 @@ import peewee
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
 from flask.ext.login import UserMixin, AnonymousUserMixin
-from flask_login import current_user
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner
@@ -505,7 +504,7 @@ class Query(ModelTimestampsMixin, BaseModel):
         self.save()
 
     @classmethod
-    def all_queries(cls):
+    def all_queries(cls, current_user):
         q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
@@ -533,7 +532,7 @@ class Query(ModelTimestampsMixin, BaseModel):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term):
+    def search(cls, current_user, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
 
         where = (cls.name**u"%{}%".format(term)) | (cls.description**u"%{}%".format(term))
@@ -549,7 +548,7 @@ class Query(ModelTimestampsMixin, BaseModel):
             .order_by(cls.created_at.desc())
 
     @classmethod
-    def recent(cls, limit_to_current_user=False, limit=20):
+    def recent(cls, current_user, limit_to_current_user=False, limit=20):
         # TODO: instead of t2 here, we should define table_alias for Query table
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
             join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
@@ -704,7 +703,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel):
     class Meta:
         db_table = 'dashboards'
 
-    def to_dict(self, with_widgets=False):
+    def to_dict(self, current_user, with_widgets=False):
         layout = json.loads(self.layout)
 
         if with_widgets:
