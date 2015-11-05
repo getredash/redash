@@ -620,6 +620,19 @@
     return WidgetResource;
   }
 
+  var Group = function ($resource, $http) {
+    var transform = $http.defaults.transformResponse.concat(function(data, headers) {
+      return data.map(function (group) {
+        return group['name'];
+      });
+    });
+
+    var GroupResource = $resource('/api/groups', null, {
+      query: { method: 'GET', isArray: true, transformResponse: transform }
+    });
+    return GroupResource;
+  };
+
   angular.module('redash.services')
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
@@ -627,5 +640,6 @@
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])
-      .factory('User', ['$resource', '$http', User]);
+      .factory('User', ['$resource', '$http', User])
+      .factory('Group', ['$resource', '$http', Group]);
 })();

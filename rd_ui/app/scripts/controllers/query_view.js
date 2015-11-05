@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource, $http) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource, $http, Group) {
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
@@ -282,15 +282,9 @@
     /**
      * Access groups related
      */
-    $scope.loadAllGroups = function () {
-      $http.get('/api/groups')
-        .then(function (response) {
-          $scope.availableGroups = response.data.map(function (group) {
-            return group['name'];
-          });
-        });
-    };
-    $scope.loadAllGroups();
+    Group.query(function (groups) {
+      $scope.availableGroups = groups;
+    });
 
     $scope.$watch('query.access_groups', function (newValue, oldValue) {
       if (newValue.length === 0) {
@@ -302,5 +296,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', '$http', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', '$http', 'Group', QueryViewCtrl]);
 })();
