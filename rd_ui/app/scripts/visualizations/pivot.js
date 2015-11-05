@@ -19,10 +19,8 @@ renderers.directive('pivotTableRenderer', function () {
                     // We need to give the pivot table its own copy of the data, because its change
                     // it which interferes with other visualizations.
                     var data = $.extend(true, [], $scope.queryResult.getData());
-                    var renderers = $.extend($.pivotUtilities.renderers,
-                      $.pivotUtilities.export_renderers)
                     $(element).pivotUI(data, {
-                         renderers: renderers
+                         renderers: $.pivotUtilities.renderers
                     }, true);
                 }
             });

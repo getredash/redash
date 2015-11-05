@@ -49,6 +49,10 @@
                 prop.type = 'file';
               }
 
+              if (prop.type == 'boolean') {
+                prop.type = 'checkbox';
+              }
+
               prop.required = _.contains(type.configuration_schema.required, name);
             });
           });

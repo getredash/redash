@@ -43,10 +43,10 @@
             if (angular.isNumber(v)) {
               columnTypes[k] = 'float';
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
-              row[k] = moment(v);
+              row[k] = moment.utc(v);
               columnTypes[k] = 'datetime';
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
-              row[k] = moment(v);
+              row[k] = moment.utc(v);
               columnTypes[k] = 'date';
             } else if (typeof(v) == 'object' && v !== null) {
               row[k] = JSON.stringify(v);
@@ -186,9 +186,38 @@
       }
 
       return this.filteredData;
+    };
+
+    /**
+     * Helper function to add a point into a series, also checks whether the point is within dateRange
+     */
+    QueryResult.prototype._addPointToSeriesIfInDateRange = function (point, seriesCollection, seriesName, dateRange) {
+      if (dateRange && moment.isMoment(point.x)) {
+        // if dateRange is provided and x Axis is of type datetime
+        if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
+          // if the point's date isn't within dateRange, then we will not add this point to series
+          return;
+        }
+      }
+      this._addPointToSeries(point, seriesCollection, seriesName);
     }
 
-    QueryResult.prototype.getChartData = function (mapping) {
+    /**
+     * Helper function to add a point into a series
+     */
+    QueryResult.prototype._addPointToSeries = function (point, seriesCollection, seriesName) {
+      if (seriesCollection[seriesName] == undefined) {
+        seriesCollection[seriesName] = {
+          name: seriesName,
+          type: 'column',
+          data: []
+        };
+      }
+
+      seriesCollection[seriesName]['data'].push(point);
+    };
+
+    QueryResult.prototype.getChartData = function (mapping, dateRange) {
       var series = {};
 
       _.each(this.getData(), function (row) {
@@ -229,26 +258,15 @@
           }
         });
 
-        var addPointToSeries = function (seriesName, point) {
-          if (series[seriesName] == undefined) {
-            series[seriesName] = {
-              name: seriesName,
-              type: 'column',
-              data: []
-            }
-          }
-
-          series[seriesName]['data'].push(point);
-        }
-
         if (seriesName === undefined) {
           _.each(yValues, function (yValue, seriesName) {
-            addPointToSeries(seriesName, {'x': xValue, 'y': yValue});
-          });
-        } else {
-          addPointToSeries(seriesName, point);
+            this._addPointToSeriesIfInDateRange({'x': xValue, 'y': yValue}, series, seriesName, dateRange);
+          }.bind(this));
         }
-      });
+        else {
+          this._addPointToSeriesIfInDateRange(point, series, seriesName, dateRange);
+        }
+      }.bind(this));
 
       return _.values(series);
     };

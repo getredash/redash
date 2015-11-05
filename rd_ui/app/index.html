@@ -146,7 +146,6 @@
 <script src="/bower_components/gridster/dist/jquery.gridster.js"></script>
 <script src="/bower_components/angular-growl/build/angular-growl.js"></script>
 <script src="/bower_components/pivottable/dist/pivot.js"></script>
-<script src="/bower_components/pivottable/dist/export_renderers.js"></script>
 <script src="/bower_components/cornelius/src/cornelius.js"></script>
 <script src="/bower_components/mousetrap/mousetrap.js"></script>
 <script src="/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js"></script>
@@ -190,6 +189,7 @@
 <script src="/scripts/visualizations/box.js"></script>
 <script src="/scripts/visualizations/table.js"></script>
 <script src="/scripts/visualizations/pivot.js"></script>
+<script src="/scripts/visualizations/date_range_selector.js"></script>
 <script src="/scripts/directives/directives.js"></script>
 <script src="/scripts/directives/query_directives.js"></script>
 <script src="/scripts/directives/data_source_directives.js"></script>
@@ -200,7 +200,7 @@
 
 <script>
     // TODO: move currentUser & features to be an Angular service
-    var featureFlags = {{ features|safe }};
+    var clientConfig = {{ client_config|safe }};
     var currentUser = {{ user|safe }};
 
     currentUser.canEdit = function(object) {
