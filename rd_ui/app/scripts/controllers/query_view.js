@@ -66,7 +66,6 @@
     Events.record(currentUser, 'view', 'query', $scope.query.id);
     getQueryResult();
     $scope.queryExecuting = false;
-    $scope.availableGroups = [];
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
@@ -282,10 +281,6 @@
     /**
      * Access groups related
      */
-    Group.query(function (groups) {
-      $scope.availableGroups = groups;
-    });
-
     $scope.$watch('query.access_groups', function (newValue, oldValue) {
       if (newValue.length === 0) {
         return $scope.query.access_groups = oldValue;

@@ -45,13 +45,6 @@
     $scope.showSettings =  false;
     $scope.showPasswordSettings = false;
 
-    // Get all available groups
-    // TODO: move $scope.availableGroups into higher level controller to keep DRY?
-    $scope.availableGroups = [];
-    Group.query(function (groups) {
-      $scope.availableGroups = groups;
-    });
-
     $scope.selectTab = function(tab) {
       _.each($scope.tabs, function(v, k) {
         $scope.tabs[k] = (k === tab);
