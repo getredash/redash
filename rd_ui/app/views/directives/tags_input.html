@@ -1,0 +1,8 @@
+<div>
+  <ui-select multiple ng-model="closingObject.tags">
+      <ui-select-match placeholder="Select access groups">{{$item}}</ui-select-match>
+      <ui-select-choices repeat="tag in availableChoices | filter:$select.search">
+        {{tag}}
+      </ui-select-choices>
+  </ui-select>
+</div>

@@ -290,6 +290,7 @@
           });
         });
     };
+    $scope.loadAllGroups();
 
     $scope.$watch('query.access_groups', function (newValue, oldValue) {
       if (newValue.length === 0) {
@@ -297,7 +298,6 @@
       }
       $scope.saveAccessGroups();
     }, true);
-    $scope.loadAllGroups();
   };
 
   angular.module('redash.controllers')
