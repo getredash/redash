@@ -32,7 +32,7 @@
     });
   };
 
-  var UserCtrl = function ($scope, $routeParams, $http, $location, growl, Events, User) {
+  var UserCtrl = function ($scope, $routeParams, $http, $location, growl, Events, User, Group) {
     $scope.$parent.pageTitle = "Users";
 
     $scope.userId = $routeParams.userId;
@@ -44,6 +44,13 @@
     $scope.canEdit = currentUser.hasPermission("admin") || currentUser.id === parseInt($scope.userId);
     $scope.showSettings =  false;
     $scope.showPasswordSettings = false;
+
+    // Get all available groups
+    // TODO: move $scope.availableGroups into higher level controller to keep DRY?
+    $scope.availableGroups = [];
+    Group.query(function (groups) {
+      $scope.availableGroups = groups;
+    });
 
     $scope.selectTab = function(tab) {
       _.each($scope.tabs, function(v, k) {
@@ -131,21 +138,6 @@
         growl.addErrorMessage(message);
       });
     };
-
-    $scope.$watch('userGroupsText', function (newValue) {
-      if (newValue) {
-        $scope.user.groups = newValue.split(',').map(function(group) {
-          return group.trim();
-        });
-      }
-      else {
-        $scope.user.groups = [];
-      }
-    });
-
-    $scope.$watch('user.groups', function (newValue) {
-      $scope.userGroupsText = newValue.join(',');
-    });
   };
 
   var NewUserCtrl = function ($scope, $location, growl, Events, User) {
@@ -173,6 +165,6 @@
 
   angular.module('redash.controllers')
     .controller('UsersCtrl', ['$scope', '$location', 'growl', 'Events', 'User', UsersCtrl])
-    .controller('UserCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'User', UserCtrl])
+    .controller('UserCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'User', 'Group', UserCtrl])
     .controller('NewUserCtrl', ['$scope', '$location', 'growl', 'Events', 'User', NewUserCtrl])
 })();
