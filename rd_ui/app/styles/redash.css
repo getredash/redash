@@ -432,16 +432,6 @@ div.table-name {
     padding: 30px;
 }
 
-/*
-bootstrap's hidden-xs class adds display:block when not hidden
-use this class when you need to keep the original display value
-*/
-@media (max-width: 767px) {
-    .rd-hidden-xs {
-        display: none !important;
-    }
-}
-
 .log-container {
     margin-bottom: 50px;
 }

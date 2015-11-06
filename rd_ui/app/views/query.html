@@ -26,7 +26,7 @@
                 </div>
 
                 <div class="col-lg-2">
-                    <div class="rd-hidden-xs pull-right">
+                    <div class="pull-right">
                         <query-source-link></query-source-link>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                     </button>
                     <query-formatter></query-formatter>
                     <span class="pull-right">
-                        <button class="btn btn-xs btn-default rd-hidden-xs" ng-click="duplicateQuery()">
+                        <button class="btn btn-xs btn-default" ng-click="duplicateQuery()">
                             <span class="glyphicon glyphicon-share-alt"></span> Fork
                         </button>
 
@@ -103,7 +103,7 @@
     </div>
     <hr ng-if="sourceMode">
     <div class="row">
-        <div class="col-lg-3 rd-hidden-xs">
+        <div class="col-lg-3">
             <p>
                 <span class="glyphicon glyphicon-user"></span>
                 <span class="text-muted">Created By </span>
@@ -148,7 +148,7 @@
             <p>
                 <a class="btn btn-primary btn-sm" ng-disabled="queryExecuting || !queryResult.getData()" query-result-link target="_self">
                     <span class="glyphicon glyphicon-cloud-download"></span>
-                    <span class="rd-hidden-xs">Download Dataset</span>
+                    <span>Download Dataset</span>
                 </a>
 
                 <a class="btn btn-warning btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal"
