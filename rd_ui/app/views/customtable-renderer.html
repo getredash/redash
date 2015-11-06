@@ -8,7 +8,7 @@
 		<tr ng-repeat="row in rowCollection">
 			<td ng-repeat="column in gridColumns" ng-if="column.visible" style="{{column.style}}">
 				<div ng-if="column.link === false">{{row[column.map]}}</div>
-				<a ng-if="column.link === true" ng-href="{{row[column.map + 'link']}}">{{row[column.map + 'visualLabel']}}</a>
+				<a ng-if="column.link === true" ng-href="{{row[column.map + 'link']}}" extra-tags="column.extraTags">{{row[column.map + 'visualLabel']}}</a>
 			</td>
 		</tr>
 	</tbody>
