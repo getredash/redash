@@ -44,6 +44,7 @@ To get started with this box:
         PYTHONPATH=. bin/run python migrations/0011_migrate_bigquery_to_json.py
         PYTHONPATH=. bin/run python migrations/0012_add_list_users_permission.py
         PYTHONPATH=. bin/run python migrations/0013_update_counter_options.py
+        PYTHONPATH=. bin/run python 0014_migrate_existing_es_to_kibana.py
 
 9.  Start the server and background workers with
     ``bin/run honcho start -f Procfile.dev``.
