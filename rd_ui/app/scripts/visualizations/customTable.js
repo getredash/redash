@@ -26,6 +26,7 @@
         $scope.gridColumns = [];
         $scope.gridData = [];
         $scope.rowCollection = [].concat($scope.gridData);
+        $scope.isGlobalSearchActivated = true;
 
         /**
          * generateHref Compares params from url and row and replaces the value of param if existing on both sides.

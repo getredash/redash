@@ -1,8 +1,21 @@
 <table st-safe-src="gridData" st-table="rowCollection" class="table table-striped">
 	<thead>
+		<tr ng-show="isGlobalSearchActivated">
+
+			<!--<th colspan="1">Search: <input st-search="" class="form-control" style="font-size: 14px; font-style: normal; font-variant: normal; font-weight: normal;letter-spacing: normal;" type="text"/></th>-->
+			<th colspan="100%">
+				<form class="form-inline">
+	                <div class="form-group">
+	                    <label>Search:</label>
+	                    <input st-search="" type="text"/>
+	                </div>
+            	</form>
+            </th>
+		</tr>
 		<tr>
 			<th ng-repeat="column in gridColumns" ng-if="column.visible">{{column.label}}</th>
 		</tr>
+		
 	</thead>
 	<tbody>
 		<tr ng-repeat="row in rowCollection">
