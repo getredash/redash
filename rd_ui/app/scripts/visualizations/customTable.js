@@ -26,6 +26,7 @@
         $scope.gridColumns = [];
         $scope.gridData = [];
         $scope.rowCollection = [].concat($scope.gridData);
+        $scope.isGlobalSearchActivated = true;
 
         /**
          * generateHref Compares params from url and row and replaces the value of param if existing on both sides.
@@ -82,6 +83,8 @@
               // This object will have the visible property for each columns
               // Hash with type (column, inputLink)
               var columnLink = {};
+
+              var columnExtras = {};
               // For each column gets style, visible and inputLink
               _.forEach(cols, function(option) {
                 var style = '';
@@ -102,11 +105,11 @@
                 columnStyle[option.column] = style;
                 visibleColumn[option.column] = option.visible;
                 columnLink[option.column] = option.link;
+                columnExtras[option.column] = option.extraTags;
               });
 
               var prepareGridData = function(data) {
                 var gridData = _.map(data, function(row) {
-
                   _.forEach(cols, function(option) {
 
                     // If there are option link and is visible renders the row
@@ -120,19 +123,22 @@
                       if (option.inputLink.parameters) {
                         var params = Parameters.getParameters();
                       }
-                      _.forEach($scope.queryResult.getColumnCleanNames(), function(label) {
-                        //string = string.replace('##' + label + '##', row[label]);
-                        string = string.replace(new RegExp('##' + label + '##', 'g'), row[label]);
-                        //visualLabel = visualLabel.replace('/##' + label + '##/'g, row[label]);
-                        visualLabel = visualLabel.replace(new RegExp('##' + label + '##', 'g'), row[label]);
-                      });
-                      var uri = new URI(string);
-                      var cleanedParams = uri.search(true);
-                      // Replaces the label for the link
-                      row[option.column + 'link'] = generateHref(params, cleanedParams);
-                      row[option.column + 'visualLabel'] = visualLabel;
+                      if (string !== undefined) {
+                        _.forEach($scope.queryResult.getColumnCleanNames(), function(label) {
+                          //string = string.replace('##' + label + '##', row[label]);
+                          string = string.replace(new RegExp('##' + label + '##', 'g'), row[label]);
+                          //visualLabel = visualLabel.replace('/##' + label + '##/'g, row[label]);
+                          visualLabel = visualLabel.replace(new RegExp('##' + label + '##', 'g'), row[label]);
+                        });
+                        var uri = new URI(string);
+                        var cleanedParams = uri.search(true);
+                        // Replaces the label for the link
+                        row[option.column + 'link'] = generateHref(params, cleanedParams);
+                        row[option.column + 'visualLabel'] = visualLabel;
 
+                      }
                     }
+
                   })
 
                   var newRow = {};
@@ -155,7 +161,8 @@
                   'map': col,
                   'style': '',
                   'visible': true,
-                  'link': false
+                  'link': false,
+                  'extraTags': ''
                 };
 
                 if (visibleColumn[col] !== undefined) {
@@ -168,6 +175,10 @@
 
                 if (columnLink[col] !== undefined) {
                   columnDefinition.link = columnLink[col];
+                }
+
+                if (columnExtras[col] !== undefined) {
+                  columnDefinition.extraTags = columnExtras[col];
                 }
 
                 return columnDefinition;
@@ -210,6 +221,7 @@
             obj.inputLink.text = '';
             obj.parameters = true;
             obj.inputLink.visualText = '';
+            obj.extraTags = '';
             scope.cols.push(obj);
           });
         } else {
@@ -235,8 +247,7 @@
 
           // Resets the link
           option.link = !option.link;
-          option.inputLink.text = '';
-          option.inputLink.visualText = '';
+          var extraTags = '';
           var inputLink = {};
           inputLink.text = '';
           inputLink.parameters = true;
@@ -254,13 +265,18 @@
                 inputLink: function() {
                   // Sends the current inputLink for the option
                   return inputLink;
+                },
+                extraTags: function() {
+                  return extraTags;
                 }
               }
             });
 
-            modalInstance.result.then(function(inputLink) {
+            modalInstance.result.then(function(result) {
               // Refreshes the inputLink to this scope
-              option.inputLink = inputLink;
+              option.inputLink = result.inputLink;
+              // Refreshes the extraTags to this scope
+              option.extraTags = result.extraTags;
             }, function() {
               option.link = false;
             });
@@ -284,13 +300,18 @@
               inputLink: function() {
                 // Sends the current inputLink for the option
                 return option.inputLink
+              },
+              extraTags: function() {
+                return option.extraTags;
               }
             }
           });
 
-          modalInstance.result.then(function(inputLink) {
+          modalInstance.result.then(function(result) {
             // Refreshes the inputLink to this scope
-            option.inputLink = inputLink;
+            option.inputLink = result.inputLink;
+            // Refreshes the extraTags to this scope
+            option.extraTags = result.extraTags;
           }, function() {});
         }
       }
@@ -301,16 +322,14 @@
    * Controller for the Modal. Lists all the columns table with a checkbox option and an input fot adding columns
    * on the column table.
    */
-  tableVisualization.controller('ModalInstanceCtrl', function($scope, $modalInstance, columns, inputLink) {
+  tableVisualization.controller('ModalInstanceCtrl', function($scope, $modalInstance, columns, inputLink, extraTags) {
 
     $scope.inputLink = {};
-    $scope.inputLink.text = '';
-    $scope.inputLink.parameters = true;
-    $scope.inputLink.visualText = '';
 
     $scope.inputLink.text = inputLink.text;
     $scope.inputLink.parameters = inputLink.parameters;
     $scope.inputLink.visualText = inputLink.visualText;
+    $scope.extraTags = extraTags;
 
     $scope.columns = [];
     $scope.visuals = [];
@@ -363,11 +382,32 @@
     }
 
     $scope.ok = function() {
-      $modalInstance.close($scope.inputLink);
+      var result = {};
+      result.inputLink = $scope.inputLink;
+      result.extraTags = $scope.extraTags;
+      $modalInstance.close(result);
     };
 
     $scope.cancel = function() {
       $modalInstance.dismiss('cancel');
+    };
+  });
+
+  tableVisualization.directive("extraTags", function() {
+    return {
+      compile: function(tElm, tAttrs) {
+        return function(scope, elm) {
+          if (scope.column.extraTags.length > 0) {
+            var arrStr = scope.column.extraTags.split('##');
+            for (var i = 0; i < arrStr.length; i++) {
+              var tags = arrStr[i].split('=');
+              var attr = tags[0];
+              var value = tags[1];
+              elm.attr(attr, value);
+            }
+          }
+        };
+      }
     };
   });
 
