@@ -264,6 +264,7 @@ class ActivityLog(BaseModel):
 
 class DataSource(BaseModel):
     SECRET_PLACEHOLDER = '--------'
+    DEFAULT_ACCESS_GROUPS = ['default']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(unique=True)
@@ -272,6 +273,7 @@ class DataSource(BaseModel):
     queue_name = peewee.CharField(default="queries")
     scheduled_queue_name = peewee.CharField(default="scheduled_queries")
     created_at = DateTimeTZField(default=datetime.datetime.now)
+    access_groups = ArrayField(peewee.CharField, default=DEFAULT_ACCESS_GROUPS)
 
     class Meta:
         db_table = 'data_sources'
@@ -281,7 +283,8 @@ class DataSource(BaseModel):
             'id': self.id,
             'name': self.name,
             'type': self.type,
-            'syntax': self.query_runner.syntax
+            'syntax': self.query_runner.syntax,
+            'access_groups': self.access_groups
         }
 
         if all:

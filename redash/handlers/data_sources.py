@@ -36,6 +36,9 @@ class DataSourceAPI(BaseResource):
 
         data_source.name = req['name']
         data_source.options = json.dumps(req['options'])
+        data_source.access_groups = req['access_groups']
+        import logging
+        logging.warn(req['access_groups'])
 
         data_source.save()
 
@@ -57,7 +60,7 @@ class DataSourceListAPI(BaseResource):
     @require_permission("admin")
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
+        required_fields = ('options', 'name', 'type', 'access_groups')
         for f in required_fields:
             if f not in req:
                 abort(400)
@@ -65,7 +68,11 @@ class DataSourceListAPI(BaseResource):
         if not validate_configuration(req['type'], req['options']):
             abort(400)
 
-        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=json.dumps(req['options']))
+        datasource = models.DataSource.create(
+            name=req['name'],
+            type=req['type'],
+            options=json.dumps(req['options']),
+            access_groups=req['access_groups'])
 
         return datasource.to_dict(all=True)
 

@@ -16,5 +16,9 @@
                base-sixty-four-input
                ng-if="input.type === 'file'">
     </div>
+    <div class="form-group">
+      <label>Access Groups</label>
+      <tags-input tags="dataSource.access_groups" available-choices="availableGroups"/>
+    </div>
     <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid">Save</button>
 </form>

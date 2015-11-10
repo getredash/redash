@@ -10,9 +10,11 @@
       replace: true,
       templateUrl: '/views/data_sources/form.html',
       scope: {
-        'dataSource': '='
+        'dataSource': '=',
+        'availableGroups': '='
       },
       link: function ($scope) {
+        console.log($scope.dataSource);
         var setType = function(types) {
           if ($scope.dataSource.type === undefined) {
             $scope.dataSource.type = types[0].type;
