@@ -38,8 +38,6 @@ class DataSourceAPI(BaseResource):
         data_source.name = req['name']
         data_source.options = json.dumps(req['options'])
         data_source.access_groups = req['access_groups']
-        import logging
-        logging.warn(req['access_groups'])
 
         data_source.save()
 
