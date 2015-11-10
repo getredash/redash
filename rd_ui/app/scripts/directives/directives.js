@@ -297,6 +297,9 @@
         scope.$watch('closingObject.tags', function (newValue) {
           scope.tags = newValue;
         }, true);
+        scope.$watch('tags', function (newValue) {
+          scope.closingObject.tags = newValue;
+        });
         scope.closingObject = {
           tags: scope.tags
         };
