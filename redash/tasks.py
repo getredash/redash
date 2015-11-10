@@ -1,12 +1,13 @@
 import time
 import logging
 import signal
+import traceback
 from flask.ext.mail import Message
 import redis
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client, settings, utils, mail
+from redash import redis_connection, models, statsd_client, settings, utils, mail, hipchat_client
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner, InterruptException
@@ -258,12 +259,24 @@ def check_alerts_for_query(self, query_id):
             Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
             """.format(host=settings.HOST, alert_id=alert.id, query_id=query.id)
 
-            with app.app_context():
-                message = Message(recipients=recipients,
-                                  subject="[{1}] {0}".format(alert.name, new_state.upper()),
-                                  html=html)
 
-                mail.send(message)
+            try:
+                with app.app_context():
+                    message = Message(recipients=recipients,
+                                      subject="[{1}] {0}".format(alert.name, new_state.upper()),
+                                      html=html)
+
+                    mail.send(message)
+            except:
+                tb = traceback.format_exc()
+                logger.error(tb)
+
+            try:
+                if settings.HIPCHAT_API_TOKEN:
+                    hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, alert.name + '<br />' + html, message_format='html')
+            except:
+                tb = traceback.format_exc()
+                logger.error(tb)
 
 
 def signal_handler(*args):

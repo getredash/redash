@@ -1,6 +1,7 @@
 import logging
 import urlparse
 import redis
+import hipchat
 from statsd import StatsClient
 from flask_mail import Mail
 
@@ -36,6 +37,7 @@ redis_connection = create_redis_connection()
 mail = Mail()
 mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
+hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
 
 import_query_runners(settings.QUERY_RUNNERS)
 
