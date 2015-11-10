@@ -101,9 +101,6 @@ class QueryResultAPI(BaseResource):
 
         if not query:
             query = models.Query.get(query_hash=query_result.query_hash)
-        logging.warn('===========')
-        logging.warn(set(query.access_groups))
-        logging.warn(set(current_user.groups))
         if not (set(query.access_groups) & set(current_user.groups)):
             abort(401)
 
