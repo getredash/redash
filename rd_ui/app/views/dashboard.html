@@ -36,7 +36,11 @@
                     <h3 class="panel-title">
                         <p>
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
+                            <span style="float: right">
+                                <input type="checkbox" ng-model="widget.options.exportable.isExportable"> Exportable
+                            </span>
                             <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
+                                   
                         <span ng-if="queryResult.getStatus() == 'processing'" style="padding-left: 5px">
                             <img src="/images/spinner.gif"/>
                         </span>

@@ -18,6 +18,10 @@
                 widget[0].query.queryResult !== undefined && 
                   widget[0].query.queryResult.filteredData !== undefined) {
           // Creates a new option for adding the sheet name
+          // 
+          if (widget[0].options.exportable.name.length === 0) {
+            widget[0].options.exportable.name = widget[0].query.name;
+          }
           var option = {
             sheetid: widget[0].options.exportable.name,
             header: true
