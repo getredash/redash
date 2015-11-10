@@ -131,7 +131,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
 
 class Group(BaseModel):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
-                           'view_query', 'view_source', 'execute_query', 'list_users']
+                           'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=100)
