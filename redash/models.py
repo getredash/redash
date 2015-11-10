@@ -336,7 +336,11 @@ class DataSource(BaseModel):
         return get_query_runner(self.type, self.options)
 
     @classmethod
-    def all(cls, current_user):
+    def all(cls):
+        return cls.select().order_by(cls.id.asc())
+
+    @classmethod
+    def all_for_user(cls, current_user):
         return cls.select()\
             .where(cls.access_groups.contains_any(*current_user.groups))\
             .order_by(cls.id.asc())

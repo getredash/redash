@@ -53,7 +53,7 @@ class DataSourceAPI(BaseResource):
 
 class DataSourceListAPI(BaseResource):
     def get(self):
-        data_sources = [ds.to_dict() for ds in models.DataSource.all(current_user)]
+        data_sources = [ds.to_dict() for ds in models.DataSource.all_for_user(current_user)]
         return data_sources
 
     @require_permission("admin")
