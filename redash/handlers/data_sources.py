@@ -2,6 +2,7 @@ import json
 
 from flask import make_response, request
 from flask.ext.restful import abort
+from flask_login import current_user
 
 from redash import models
 from redash.wsgi import api
@@ -54,7 +55,7 @@ class DataSourceAPI(BaseResource):
 
 class DataSourceListAPI(BaseResource):
     def get(self):
-        data_sources = [ds.to_dict() for ds in models.DataSource.all()]
+        data_sources = [ds.to_dict() for ds in models.DataSource.all(current_user)]
         return data_sources
 
     @require_permission("admin")

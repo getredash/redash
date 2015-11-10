@@ -336,8 +336,17 @@ class DataSource(BaseModel):
         return get_query_runner(self.type, self.options)
 
     @classmethod
-    def all(cls):
-        return cls.select().order_by(cls.id.asc())
+    def all(cls, current_user):
+        return cls.select()\
+            .where(cls.access_groups.contains_any(*current_user.groups))\
+            .order_by(cls.id.asc())
+
+    @classmethod
+    def has_permission(cls, data_source_id, current_user):
+        """Check if user has access to a specific data source
+        """
+        data_source = cls.get(id=data_source_id)
+        return set(data_source.access_groups) & set(current_user.groups)
 
 
 class JSONField(peewee.TextField):

@@ -70,6 +70,11 @@ class QueryListAPI(BaseResource):
 
         query_def['user'] = self.current_user
         query_def['data_source'] = query_def.pop('data_source_id')
+        if not models.DataSource.has_permission(
+                query_def['data_source'],
+                current_user):
+                abort(401)
+
         query = models.Query(**query_def)
         query.save()
 
@@ -95,6 +100,10 @@ class QueryAPI(BaseResource):
 
         if 'data_source_id' in query_def:
             query_def['data_source'] = query_def.pop('data_source_id')
+            if not models.DataSource.has_permission(
+                query_def['data_source'],
+                current_user):
+                abort(401)
 
         query_def['last_modified_by'] = self.current_user
 
