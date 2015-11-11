@@ -387,7 +387,7 @@
                 series = seriesCopy;
               }
 
-              scope.chart.counters.color = 0;
+              scope.chart.colorCounter = 0;
 
               _.each(series, function (s) {
                 // here we override the series with the visualization config
