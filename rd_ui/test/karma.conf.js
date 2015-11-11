@@ -38,7 +38,6 @@ module.exports = function(config) {
       'app/bower_components/codemirror/mode/javascript/javascript.js',
       'app/bower_components/angular-ui-codemirror/ui-codemirror.js',
       'app/bower_components/highcharts/highcharts.js',
-      'app/bower_components/highcharts/modules/exporting.js',
       'app/bower_components/gridster/dist/jquery.gridster.js',
       'app/bower_components/angular-growl/build/angular-growl.js',
       'app/bower_components/pivottable/dist/pivot.js',
