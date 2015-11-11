@@ -171,6 +171,13 @@
           "Unused": "unused"
         };
 
+        scope.zoomType = {
+          "None": "",
+          "X": "x",
+          "Y": "y",
+          "XY": "xy"
+        }
+
         scope.series = [];
 
         scope.columnTypeSelection = {};
