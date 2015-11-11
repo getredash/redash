@@ -295,6 +295,7 @@
             });
           });
         } else {
+          point.dimensions = dimensions;
           addPointToSeries(seriesName, point);
         }
       });
