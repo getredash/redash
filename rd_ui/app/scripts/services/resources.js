@@ -620,6 +620,18 @@
     return WidgetResource;
   }
 
+  var Parameters = function() {
+    var parameters = {};
+    return {
+      getParameters: function() {
+        return parameters;
+      },
+      setParameters: function(obj) {
+        parameters = obj;
+      }
+    }
+  }
+
   angular.module('redash.services')
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
@@ -627,5 +639,6 @@
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])
-      .factory('User', ['$resource', '$http', User]);
+      .factory('User', ['$resource', '$http', User])
+      .factory('Parameters', [Parameters]);
 })();

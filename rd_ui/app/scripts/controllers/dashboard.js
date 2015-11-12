@@ -161,8 +161,10 @@
     };
   };
 
-  var WidgetCtrl = function($scope, $location, Events, Query) {
-    
+  var WidgetCtrl = function($scope, $location, Events, Query, Parameters) {
+
+    Parameters.setParameters($location.search());
+
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
@@ -189,8 +191,16 @@
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
       var maxAge = $location.search()['maxAge'];
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
-
       $scope.type = 'visualization';
+
+      $scope.missingParameters = false;
+      var requiredParameters = $scope.query.getParameters();
+      // Searchs if all the parameters are instantiated
+      for (var i = 0; i < requiredParameters.length; i++) {
+        if (parameters[requiredParameters[i]] === undefined) {
+          $scope.missingParameters = true;
+        }
+      }
     } else {
       $scope.type = 'textbox';
     }
@@ -221,6 +231,6 @@
 
   angular.module('redash.controllers')
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', WidgetCtrl])
+    .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
 
 })();
