@@ -52,6 +52,18 @@
                         <input type="checkbox" ng-model="showAlways"> Show Always
                     </label>
                 </div>
+
+                <div class="checkbox">
+                    <label title="Include this widget on the export or not.">
+                        <input type="checkbox" ng-model="exportable.isExportable"> Include this widget on the export
+                    </label>
+                </div>
+
+                <div class="form-group" ng-if="exportable.isExportable">
+                    <label for="">Worksheet label for exporting widget</label>
+                    <input type="text" class="form-control" ng-model="exportable.name">
+                </div>
+
             </div>
 
             <div class="modal-footer">

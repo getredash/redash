@@ -17,7 +17,14 @@
                 <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
             </div>
         </span>
+        <button style="float: right" type="button" class="btn btn-danger" title="Export Tables to PDF.">
+            <span class="glyphicon glyphicon-download" aria-hidden="true"></span> PDF
+        </button>
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" ng-click="exportWidgets()" title="Export Tables to XLS.">
+            <span class="glyphicon glyphicon-download" aria-hidden="true"></span> XLS
+        </button>
     </h2>
+
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
 </div>
 
@@ -34,7 +41,11 @@
                     <h3 class="panel-title">
                         <p>
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
+                            <span style="float: right">
+                                <input type="checkbox" ng-model="widget.options.exportable.isExportable"> Exportable
+                            </span>
                             <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
+
                         <span ng-if="queryResult.getStatus() == 'waiting' || queryResult.getStatus() == 'processing'" style="padding-left: 5px">
                             <img src="/images/spinner.gif"/>
                         </span>

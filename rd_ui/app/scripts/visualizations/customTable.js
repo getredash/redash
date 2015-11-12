@@ -109,6 +109,10 @@
               });
 
               var prepareGridData = function(data) {
+                // Clones data to avoid changing the queryResult
+                // var clonedData = angular.copy(data);
+                // var gridData = _.map(clonedData, function(row) {
+
                 var gridData = _.map(data, function(row) {
                   _.forEach(cols, function(option) {
 
@@ -150,7 +154,6 @@
 
                 return gridData;
               };
-
               $scope.gridData = prepareGridData($scope.queryResult.getData());
               $scope.rowCollection = [].concat($scope.gridData);
 
