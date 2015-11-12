@@ -73,6 +73,14 @@
                     </div>
                 </div>
             </form>
+            <form class="form-horizontal">
+                <div class="form-group" title="Add new tags to row column by adding extra data on this input. You can add more than one tag by using '##' for separating tags (e.g.: name=test##style=margin-top:10px.)">
+                    <label class="col-sm-3 control-label">Extras</label>
+                    <div class="col-sm-9" style="margin-top: 5px">
+                        <input type="text" class="form-control" ng-model="extraTags">
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" type="button" ng-click="ok()">Submit</button>

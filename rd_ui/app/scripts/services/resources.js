@@ -621,6 +621,8 @@
   }
 
   var Parameters = function() {
+    var staticParameters = ['p_startdate', 'p_enddate', 'maxAge'];
+
     var parameters = {};
     return {
       getParameters: function() {
@@ -628,6 +630,9 @@
       },
       setParameters: function(obj) {
         parameters = obj;
+      },
+      getStaticParameters: function() {
+        return staticParameters;
       }
     }
   }

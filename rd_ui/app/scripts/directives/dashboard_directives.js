@@ -132,7 +132,7 @@
 
           $scope.type = 'visualization';
 
-          $scope.showAlways = true;
+          $scope.showAlways = false;
 
           $scope.exportable = {
               isExportable: false,
@@ -163,11 +163,11 @@
             $scope.query = {};
             $scope.selected_query = undefined;
             $scope.text = "";
-            $scope.showAlways = true;
             $scope.exportable = {
               isExportable: false,
               name: ''
             };
+            $scope.showAlways = false;
           };
 
           reset();
