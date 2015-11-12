@@ -20,7 +20,10 @@
   };
 
   Highcharts.setOptions({
-    colors: _.values(ColorPalette)
+    colors: _.values(ColorPalette),
+    lang: {
+      thousandsSep: ','
+    }
   });
 
   var defaultOptions = {
