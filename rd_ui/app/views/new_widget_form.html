@@ -59,7 +59,7 @@
                     </label>
                 </div>
 
-                <div class="form-group" ng-if="exportable.isExportable">
+                <div ng-if="query.selected !== undefined && exportable.isExportable" class="form-group" ng-if="exportable.isExportable">
                     <label for="">Worksheet label for exporting widget</label>
                     <input type="text" class="form-control" ng-model="exportable.name">
                 </div>
