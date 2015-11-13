@@ -11,26 +11,27 @@
       var opts = [];
 
       _.forEach($scope.dashboard.widgets, function(widget) {
-        // The first check is for the previous version of widget, then checks if there is data on query result
-        if (widget[0] !== undefined && 
-            widget[0].options.exportable !== undefined && 
-              widget[0].options.exportable.isExportable && 
-                widget[0].query.queryResult !== undefined && 
-                  widget[0].query.queryResult.filteredData !== undefined) {
-          // Creates a new option for adding the sheet name
-          // 
-          if (widget[0].options.exportable.name === undefined) {
-            widget[0].options.exportable.name = widget[0].query.name;
+        _.forEach(widget, function(w) {
+          if (w.options.exportable !== undefined &&
+              w.options.exportable.isExportable &&
+              w.query !== undefined &&
+              w.query.queryResult !== undefined &&
+              w.query.queryResult.filteredData !== undefined) {
+            // Creates a new option for adding the sheet name
+            // 
+            if (w.options.exportable.name === undefined) {
+              w.options.exportable.name = w.query.name;
+            }
+            var option = {
+              sheetid: w.options.exportable.name,
+              header: true
+            };
+            // Adds the option to the array for the current sheet
+            opts.push(option);
+            // Adds the data to the array of datas
+            data.push(w.query.queryResult.filteredData);
           }
-          var option = {
-            sheetid: widget[0].options.exportable.name,
-            header: true
-          };
-          // Adds the option to the array for the current sheet
-          opts.push(option);
-          // Adds the data to the array of datas
-          data.push(widget[0].query.queryResult.filteredData);
-        }
+        });
       });
       if (opts.length > 0) {
         var res = alasql('SELECT INTO XLSX("' + $scope.dashboard.name + '.xlsx",?) FROM ?', [opts, data]);

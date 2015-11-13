@@ -110,10 +110,10 @@
 
               var prepareGridData = function(data) {
                 // Clones data to avoid changing the queryResult
-                // var clonedData = angular.copy(data);
-                // var gridData = _.map(clonedData, function(row) {
+                //var gridData = _.map(data, function(row) {
+                var clonedData = angular.copy(data);
+                var gridData = _.map(clonedData, function(row) {
 
-                var gridData = _.map(data, function(row) {
                   _.forEach(cols, function(option) {
 
                     // If there are option link and is visible renders the row

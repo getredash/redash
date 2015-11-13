@@ -179,6 +179,7 @@
 
             Query.get({ id: $scope.query.selected.id }, function(query) {
               if (query) {
+                $scope.exportable.name = $scope.query.selected.name;
                 $scope.selected_query = query;
                 if (query.visualizations.length) {
                   $scope.selectedVis = query.visualizations[0];
