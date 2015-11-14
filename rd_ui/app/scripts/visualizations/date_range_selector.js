@@ -34,8 +34,8 @@
             scope.dateRangeHuman = oldDateRangeHuman;
             return;
           }
-          scope.dateRange.min = newDateRangeMin;
-          scope.dateRange.max = newDateRangeMax;
+          scope.dateRange.min = newDateRangeMin.startOf('day');
+          scope.dateRange.max = newDateRangeMax.endOf('day');
         }, true);
       }]
     }
