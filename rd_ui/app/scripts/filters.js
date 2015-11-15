@@ -52,9 +52,12 @@ angular.module('redash.filters', []).
         return 0;
       }
       if (widgetWidth == 1) {
-        return 6;
+        return 4;
+      } else if (widgetWidth == 2) {
+        return 8;
+      } else {
+        return 12;
       }
-      return 12;
     }
   })
 

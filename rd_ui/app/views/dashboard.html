@@ -21,7 +21,7 @@
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
 </div>
 
-<div class="container" id="dashboard">
+<div class="container-fluid" id="dashboard" style="padding:0 30px;">
     <div ng-repeat="row in dashboard.widgets" class="row">
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}"
              ng-controller='WidgetCtrl'>
