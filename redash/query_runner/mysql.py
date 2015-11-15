@@ -33,7 +33,8 @@ class Mysql(BaseQueryRunner):
             'type': 'object',
             'properties': {
                 'host': {
-                    'type': 'string'
+                    'type': 'string',
+                    'default': '127.0.0.1'
                 },
                 'user': {
                     'type': 'string'
@@ -47,7 +48,8 @@ class Mysql(BaseQueryRunner):
                     'title': 'Database name'
                 },
                 'port': {
-                    'type': 'number'
+                    'type': 'number',
+                    'default': 3306,
                 },
                 'use_ssl': {
                     'type': 'boolean',
