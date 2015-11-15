@@ -118,6 +118,7 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
+    'redash.query_runner.mql',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',
