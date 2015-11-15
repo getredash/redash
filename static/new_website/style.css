@@ -1,0 +1,108 @@
+html,
+body {
+  height: 100%;
+  /* The html and body elements cannot have any padding or margin. */
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  color:#5E5E5E;
+
+}
+h2 , h3,h4,h5,h6 {
+  font-weight:200
+}
+
+.logofont {
+  font-family: 'Inconsolata', ;
+  color:#249FB5
+}
+
+.logofontjumbo {
+  color:white;
+}
+
+.jumbo_frontpage {
+  /*-webkit-background-size: cover !important;
+  -moz-background-size: cover !important;
+  -o-background-size: cover !important;
+  background-size: cover !important;
+  background-attachment:scroll !important;
+  background: url('jumbo_background.jpg') no-repeat center center fixed;
+  */
+  background-color:#668899;
+  color:white;
+  height:100%;
+  background-image:url('graphpattern.png');
+  background-repeat:repeat-x;
+  background-position:128% 100%;
+
+}
+.jumbo_padding {
+  padding-top:50px;
+  padding-bottom:50px;
+}
+.container-footer {
+  padding-top:20px;
+  padding-bottom:20px;
+  background-color:#668899;
+  color:#FCFFF2;
+}
+.container-footer a {
+  color:#FCFFF2;
+}
+.navbar-trans {
+  background-color:transparent;
+  border:0px;
+  color:#FCFFF2;
+}
+.header-link {
+  color:rgba(255,255,255,0.3) !important;
+}
+.header-link:hover {
+  color:#FCFFF2 !important;
+}
+.btn-redash {
+  background-color:transparent;
+  border-color:rgba(255,255,255,0.2);
+}
+.btn-redash:hover {
+  background-color:#008888;
+
+  border-color:rgba(255,255,255,1);
+
+}
+.container {
+  max-width:960px;
+}
+.feature_row {
+  padding-top:20px;
+  padding-bottom:50px;
+}
+.img-logo {
+  max-width:50px;
+}
+.img-logo:hover {
+
+}
+.grey-img {
+
+  filter: url("data:image/svg+xml;utf8,&lt;svg xmlns=\'http://www.w3.org/2000/svg\'&gt;&lt;filter id=\'grayscale\'&gt;&lt;feColorMatrix type=\'matrix\' values=\'0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0.3333 0.3333 0.3333 0 0 0 0 0 1 0\'/&gt;&lt;/filter&gt;&lt;/svg&gt;#grayscale"); /* Firefox 10+, Firefox on Android */
+ filter: gray; /* IE6-9 */
+ -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+}
+.grey-img:hover {
+  filter: url("data:image/svg+xml;utf8,&lt;svg xmlns=\'http://www.w3.org/2000/svg\'&gt;&lt;filter id=\'grayscale\'&gt;&lt;feColorMatrix type=\'matrix\' values=\'1 0 0 0 0, 0 1 0 0 0, 0 0 1 0 0, 0 0 0 1 0\'/&gt;&lt;/filter&gt;&lt;/svg&gt;#grayscale");
+   -webkit-filter: grayscale(0%);
+}
+.db-logos {
+  opacity:0.7;
+  min-height:135px;
+}
+.db-logos:hover {
+  opacity:1;
+}
+.developer-logo {
+  border-radius:150px;
+  max-width:120px;
+  radius:150px;
+}
