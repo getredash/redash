@@ -31,14 +31,19 @@ h2 , h3,h4,h5,h6 {
   */
   background-color:#668899;
   color:white;
-  height:90%;
-  background-image:url('graphpattern.png');
-  background-repeat:repeat-x;
-  background-position:128% 100%;
-
 }
+
+@media (min-width: 768px) {
+    .jumbo_frontpage {
+      height:90%;
+      background-image:url('graphpattern.png');
+      background-repeat:repeat-x;
+      background-position:128% 100%;
+    }
+}
+
 .jumbo_padding {
-  padding-top:40px;
+  padding-top:80px;
   padding-bottom:40px;
 }
 .container-footer {
@@ -51,7 +56,9 @@ h2 , h3,h4,h5,h6 {
   color:#FCFFF2;
 }
 .navbar-trans {
-  background-color:transparent;
+  /*background-color:transparent;*/
+  padding: 20px;
+  background-color:#668899;
   border:0px;
   color:#FCFFF2;
 }
@@ -96,8 +103,10 @@ h2 , h3,h4,h5,h6 {
 }
 .db-logos {
   opacity:0.7;
-  min-height:135px;
+  /*min-height:135px;*/
+  height: 135px;
 }
+
 .db-logos:hover {
   opacity:1;
 }
