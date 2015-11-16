@@ -36,7 +36,7 @@ h2 , h3,h4,h5,h6 {
 @media (min-width: 768px) {
     .jumbo_frontpage {
       height:90%;
-      background-image:url('graphpattern.png');
+      background-image:url('static/img/graphpattern.png');
       background-repeat:repeat-x;
       background-position:128% 100%;
     }
