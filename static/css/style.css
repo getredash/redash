@@ -33,7 +33,7 @@ h2 , h3,h4,h5,h6 {
   color:white;
 }
 
-@media (min-width: 768px) {
+@media (min-height: 830px) {
     .jumbo_frontpage {
       height:90%;
       background-image:url('/static/img/graphpattern.png');
