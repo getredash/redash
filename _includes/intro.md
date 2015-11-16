@@ -31,7 +31,7 @@ You can try out the demo instance: <a href="http://demo.redash.io" onclick="trac
 * Issues: [https://github.com/everythingme/redash/issues](https://github.com/everythingme/redash/issues)
 * Mailing List: [https://groups.google.com/forum/#!forum/redash-users](https://groups.google.com/forum/#!forum/redash-users)
 * Gitter (chat): [https://gitter.im/EverythingMe/redash](https://gitter.im/EverythingMe/redash)
-* Contact Arik, the maintainer directly: arik@everything.me.
+* Contact Arik, the maintainer directly: arik@redash.io.
 
 ### Contributing
 **_re:dash_** has a growing community and contributions are always welcome (particularly documentation). To contribute, fork the project on GitHub and send a pull request.
