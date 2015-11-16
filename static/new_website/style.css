@@ -31,15 +31,15 @@ h2 , h3,h4,h5,h6 {
   */
   background-color:#668899;
   color:white;
-  height:100%;
+  height:90%;
   background-image:url('graphpattern.png');
   background-repeat:repeat-x;
   background-position:128% 100%;
 
 }
 .jumbo_padding {
-  padding-top:50px;
-  padding-bottom:50px;
+  padding-top:40px;
+  padding-bottom:40px;
 }
 .container-footer {
   padding-top:20px;
