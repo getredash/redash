@@ -4,10 +4,11 @@ import signal
 import traceback
 from flask.ext.mail import Message
 import redis
+import hipchat
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client, settings, utils, mail, hipchat_client
+from redash import redis_connection, models, statsd_client, settings, utils, mail
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner, InterruptException
@@ -253,31 +254,14 @@ def check_alerts_for_query(self, query_id):
                 continue
 
             # message = Message
-            recipients = [s.email for s in alert.subscribers()]
-            logger.debug("Notifying: %s", recipients)
             html = """
             Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
             """.format(host=settings.HOST, alert_id=alert.id, query_id=query.id)
 
+            notify_mail(alert, html, new_state, app)
 
-            try:
-                with app.app_context():
-                    message = Message(recipients=recipients,
-                                      subject="[{1}] {0}".format(alert.name, new_state.upper()),
-                                      html=html)
-
-                    mail.send(message)
-            except:
-                tb = traceback.format_exc()
-                logger.error(tb)
-
-            try:
-                if settings.HIPCHAT_API_TOKEN:
-                    hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, alert.name + '<br />' + html, message_format='html')
-            except:
-                tb = traceback.format_exc()
-                logger.error(tb)
-
+            if settings.HIPCHAT_API_TOKEN:
+                notify_hipchat(alert, html, new_state)
 
 def signal_handler(*args):
     raise InterruptException
@@ -338,7 +322,26 @@ def execute_query(self, query, data_source_id, metadata):
 def record_event(event):
     models.Event.record(event)
 
-
 @celery.task(base=BaseTask)
 def version_check():
     run_version_check()
+
+def notify_hipchat(alert, html, new_state):
+    try:
+        hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
+        message = '[' + new_state.upper() + '] ' + alert.name + '<br />' + html
+        hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, message, message_format='html')
+    except:
+        logger.exception("hipchat send ERROR.")
+
+def notify_mail(alert, html, new_state, app):
+    recipients = [s.email for s in alert.subscribers()]
+    logger.debug("Notifying: %s", recipients)
+    try:
+        with app.app_context():
+            message = Message(recipients=recipients,
+                              subject="[{1}] {0}".format(alert.name, new_state.upper()),
+                              html=html)
+            mail.send(message)
+    except:
+        logger.exception("mail send ERROR.")
