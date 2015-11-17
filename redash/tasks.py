@@ -352,6 +352,8 @@ def notify_mail(alert, html, new_state, app):
 
 def notify_webhook(alert, query, html, new_state):
     http_client = httplib2.Http(timeout=30)
+    if settings.WEBHOOK_USERNAME:
+        http_client.add_credentials(settings.WEBHOOK_USERNAME, settings.WEBHOOK_PASSWORD)
     try:
         data = {
             'new_state':new_state.upper(),
