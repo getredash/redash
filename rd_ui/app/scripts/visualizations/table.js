@@ -95,6 +95,11 @@
                   if (angular.isString(value)) {
                     value = $filter('linkify')(value);
                   }
+                  else{
+                    if (value === null) {
+                      value = '';
+                    }
+                  }
                   return value;
                 }
               }
