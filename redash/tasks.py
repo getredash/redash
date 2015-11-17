@@ -5,6 +5,8 @@ import traceback
 from flask.ext.mail import Message
 import redis
 import hipchat
+import httplib2
+from urllib import urlencode
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
@@ -263,9 +265,11 @@ def check_alerts_for_query(self, query_id):
             if settings.HIPCHAT_API_TOKEN:
                 notify_hipchat(alert, html, new_state)
 
+            if settings.WEBHOOK_ENDPOINT:
+                notify_webhook(alert, query, html, new_state)
+
 def signal_handler(*args):
     raise InterruptException
-
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id, metadata):
@@ -345,3 +349,25 @@ def notify_mail(alert, html, new_state, app):
             mail.send(message)
     except:
         logger.exception("mail send ERROR.")
+
+def notify_webhook(alert, query, html, new_state):
+    http_client = httplib2.Http(timeout=30)
+    try:
+        data = {
+            'new_state':new_state.upper(),
+            'alert_name':alert.name,
+            'alert_id':alert.id,
+            'query_id':query.id,
+            'url_base':settings.HOST
+        }
+        headers = {'Content-type': 'application/x-www-form-urlencoded'}
+        resp, content = http_client.request(
+            settings.WEBHOOK_ENDPOINT,
+            "POST",
+            urlencode(data),
+            headers=headers
+        )
+        if resp.status != 200:
+            logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status))
+    except:
+        logger.exception("webhook send ERROR.")
