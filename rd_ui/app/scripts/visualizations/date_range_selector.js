@@ -21,8 +21,8 @@
         });
 
         $scope.$watch('dateRangeHuman', function (dateRangeHuman, oldDateRangeHuman, scope) {
-          var newDateRangeMin = moment(dateRangeHuman.min);
-          var newDateRangeMax = moment(dateRangeHuman.max);
+          var newDateRangeMin = moment.utc(dateRangeHuman.min);
+          var newDateRangeMax = moment.utc(dateRangeHuman.max);
           if (!newDateRangeMin ||
               !newDateRangeMax ||
               !newDateRangeMin.isValid() ||
@@ -34,8 +34,8 @@
             scope.dateRangeHuman = oldDateRangeHuman;
             return;
           }
-          scope.dateRange.min = newDateRangeMin.startOf('day');
-          scope.dateRange.max = newDateRangeMax.endOf('day');
+          scope.dateRange.min = newDateRangeMin;
+          scope.dateRange.max = newDateRangeMax;
         }, true);
       }]
     }
