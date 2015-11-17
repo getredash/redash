@@ -46,6 +46,13 @@ h2 , h3,h4,h5,h6 {
   padding-top:80px;
   padding-bottom:40px;
 }
+
+.screenshots {
+    max-height:300px;
+    padding-bottom:10px;
+    margin: auto;
+}
+
 .container-footer {
   padding-top:20px;
   padding-bottom:20px;
