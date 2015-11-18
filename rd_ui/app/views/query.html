@@ -143,6 +143,12 @@
                 <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
             </p>
 
+            <p>
+                <i class="fa fa-lock"></i>
+                <span class="text-muted">Access Groups</span>
+                <tags-input tags="query.access_groups" available-choices="availableGroups"/>
+            </p>
+
             <hr>
 
             <p>

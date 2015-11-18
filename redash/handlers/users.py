@@ -23,7 +23,10 @@ class UserListResource(BaseResource):
         req = request.get_json(force=True)
         require_fields(req, ('name', 'email', 'password'))
 
-        user = models.User(name=req['name'], email=req['email'])
+        user = models.User(
+            name=req['name'],
+            email=req['email'],
+            groups=req['groups'])
         user.hash_password(req['password'])
         try:
             user.save()
@@ -48,7 +51,7 @@ class UserResource(BaseResource):
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
         user = models.User.get_by_id(user_id)
-        
+
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
     def post(self, user_id):

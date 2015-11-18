@@ -32,7 +32,7 @@
     });
   };
 
-  var UserCtrl = function ($scope, $routeParams, $http, $location, growl, Events, User) {
+  var UserCtrl = function ($scope, $routeParams, $http, $location, growl, Events, User, Group) {
     $scope.$parent.pageTitle = "Users";
 
     $scope.userId = $routeParams.userId;
@@ -113,7 +113,8 @@
       var data = {
         id: $scope.user.id,
         name: $scope.user.name,
-        email: $scope.user.email
+        email: $scope.user.email,
+        groups: $scope.user.groups
       };
 
       if ($scope.user.admin === true && $scope.user.groups.indexOf("admin") === -1) {
@@ -136,6 +137,8 @@
     Events.record(currentUser, "view", "page", "users/new");
 
     $scope.user = new User({});
+    $scope.user.groups = ['default'];
+
     $scope.saveUser = function() {
       $scope.$broadcast('show-errors-check-validity');
 
@@ -155,6 +158,6 @@
 
   angular.module('redash.controllers')
     .controller('UsersCtrl', ['$scope', '$location', 'growl', 'Events', 'User', UsersCtrl])
-    .controller('UserCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'User', UserCtrl])
+    .controller('UserCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'User', 'Group', UserCtrl])
     .controller('NewUserCtrl', ['$scope', '$location', 'growl', 'Events', 'User', NewUserCtrl])
 })();

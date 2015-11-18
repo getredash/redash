@@ -36,6 +36,10 @@
                         <input name="email" type="email" class="form-control" ng-model="user.email" required/>
                         <input-errors errors="userSettingsForm.email.$error"/>
                     </div>
+                    <div class="form-group required" ng-if="showSettings">
+                        <label class="control-label">Groups</label>
+                        <tags-input tags="user.groups" available-choices="availableGroups"/>
+                    </div>
                     <div class="checkbox" ng-if="currentUser.hasPermission('admin')">
                         <label>
                             <input type="checkbox" ng-model="user.admin"> Admin

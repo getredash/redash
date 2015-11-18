@@ -90,6 +90,7 @@ class QueryResultAPI(BaseResource):
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
         should_cache = query_result_id is not None
+        query = None
         if query_result_id is None and query_id is not None:
             query = models.Query.get(models.Query.id == query_id)
             if query:
@@ -97,6 +98,11 @@ class QueryResultAPI(BaseResource):
 
         if query_result_id:
             query_result = models.QueryResult.get_by_id(query_result_id)
+
+        if not query:
+            query = models.Query.get(query_hash=query_result.query_hash)
+        if not (set(query.access_groups) & set(current_user.groups)):
+            abort(401)
 
         if query_result:
             if isinstance(self.current_user, models.ApiUser):

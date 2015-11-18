@@ -150,7 +150,7 @@
     });
   }
 
-  var MainCtrl = function ($scope, $location, Dashboard, notifications) {
+  var MainCtrl = function ($scope, $location, Dashboard, notifications, Group) {
     if (clientConfig.clientSideMetrics) {
       $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
         // This will be called once per actual page load.
@@ -158,6 +158,10 @@
       });
     }
 
+    $scope.availableGroups = [];
+    Group.query(function (groups) {
+      $scope.availableGroups = groups;
+    });
 
     $scope.dashboards = [];
     $scope.reloadDashboards = function () {
@@ -209,6 +213,6 @@
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
     .controller('PersonalIndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', PersonalIndexCtrl])
-    .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
+    .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', 'Group', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();

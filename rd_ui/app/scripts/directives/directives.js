@@ -281,4 +281,29 @@
       }
     };
   });
+
+  directives.directive('tagsInput', function () {
+    return {
+      restrict: "E",
+      templateUrl: "/views/directives/tags_input.html",
+      replace: true,
+      scope: {
+        tags: "=",
+        availableChoices: "="
+      },
+      link: function (scope) {
+        // closingObject is a hack for getting around the issue with angular-ui-select.
+        // See https://goo.gl/ZDPkai for details
+        scope.$watch('closingObject.tags', function (newValue) {
+          scope.tags = newValue;
+        }, true);
+        scope.$watch('tags', function (newValue) {
+          scope.closingObject.tags = newValue;
+        });
+        scope.closingObject = {
+          tags: scope.tags
+        };
+      }
+    }
+  });
 })();

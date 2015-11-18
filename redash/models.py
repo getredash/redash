@@ -264,6 +264,7 @@ class ActivityLog(BaseModel):
 
 class DataSource(BaseModel):
     SECRET_PLACEHOLDER = '--------'
+    DEFAULT_ACCESS_GROUPS = ['default']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(unique=True)
@@ -272,6 +273,7 @@ class DataSource(BaseModel):
     queue_name = peewee.CharField(default="queries")
     scheduled_queue_name = peewee.CharField(default="scheduled_queries")
     created_at = DateTimeTZField(default=datetime.datetime.now)
+    access_groups = ArrayField(peewee.CharField, default=DEFAULT_ACCESS_GROUPS)
 
     class Meta:
         db_table = 'data_sources'
@@ -281,7 +283,8 @@ class DataSource(BaseModel):
             'id': self.id,
             'name': self.name,
             'type': self.type,
-            'syntax': self.query_runner.syntax
+            'syntax': self.query_runner.syntax,
+            'access_groups': self.access_groups
         }
 
         if all:
@@ -335,6 +338,19 @@ class DataSource(BaseModel):
     @classmethod
     def all(cls):
         return cls.select().order_by(cls.id.asc())
+
+    @classmethod
+    def all_for_user(cls, current_user):
+        return cls.select()\
+            .where(cls.access_groups.contains_any(*current_user.groups))\
+            .order_by(cls.id.asc())
+
+    @classmethod
+    def has_permission(cls, data_source_id, current_user):
+        """Check if user has access to a specific data source
+        """
+        data_source = cls.get(id=data_source_id)
+        return set(data_source.access_groups) & set(current_user.groups)
 
 
 class JSONField(peewee.TextField):
@@ -440,6 +456,8 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 
 class Query(ModelTimestampsMixin, BaseModel):
+    DEFAULT_ACCESS_GROUPS = ['default']
+
     id = peewee.PrimaryKeyField()
     data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
@@ -453,6 +471,7 @@ class Query(ModelTimestampsMixin, BaseModel):
     last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
     schedule = peewee.CharField(max_length=10, null=True)
+    access_groups = ArrayField(peewee.CharField, default=DEFAULT_ACCESS_GROUPS)
 
     class Meta:
         db_table = 'queries'
@@ -470,6 +489,7 @@ class Query(ModelTimestampsMixin, BaseModel):
             'is_archived': self.is_archived,
             'updated_at': self.updated_at,
             'created_at': self.created_at,
+            'access_groups': self.access_groups,
             'data_source_id': self._data.get('data_source', None)
         }
 
@@ -500,11 +520,12 @@ class Query(ModelTimestampsMixin, BaseModel):
         self.save()
 
     @classmethod
-    def all_queries(cls):
+    def all_queries(cls, current_user):
         q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
             .where(Query.is_archived==False)\
+            .where(cls.access_groups.contains_any(*current_user.groups))\
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)\
             .order_by(cls.created_at.desc())
 
@@ -527,7 +548,7 @@ class Query(ModelTimestampsMixin, BaseModel):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term):
+    def search(cls, current_user, term):
         # This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
 
         where = (cls.name**u"%{}%".format(term)) | (cls.description**u"%{}%".format(term))
@@ -537,10 +558,13 @@ class Query(ModelTimestampsMixin, BaseModel):
 
         where &= cls.is_archived == False
 
-        return cls.select().where(where).order_by(cls.created_at.desc())
+        return cls.select()\
+            .where(where)\
+            .where(cls.access_groups.contains_any(*current_user.groups))\
+            .order_by(cls.created_at.desc())
 
     @classmethod
-    def recent(cls, user_id=None, limit=20):
+    def recent(cls, current_user, limit_to_current_user=False, limit=20):
         # TODO: instead of t2 here, we should define table_alias for Query table
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")).\
             join(Event, on=(Query.id == peewee.SQL("t2.object_id::integer"))).\
@@ -548,11 +572,12 @@ class Query(ModelTimestampsMixin, BaseModel):
             where(~(Event.object_id >> None)).\
             where(Event.object_type == 'query'). \
             where(cls.is_archived == False).\
+            where(cls.access_groups.contains_any(*current_user.groups)).\
             group_by(Event.object_id, Query.id).\
             order_by(peewee.SQL("count(0) desc"))
 
-        if user_id:
-            query = query.where(Event.user == user_id)
+        if limit_to_current_user:
+            query = query.where(Event.user == current_user.id)
 
         query = query.limit(limit)
 
@@ -570,6 +595,9 @@ class Query(ModelTimestampsMixin, BaseModel):
         super(Query, self).pre_save(created)
         self.query_hash = utils.gen_query_hash(self.query)
         self._set_api_key()
+
+        if not self.access_groups:
+            self.access_groups = self.DEFAULT_ACCESS_GROUPS
 
         if self.last_modified_by is None:
             self.last_modified_by = self.user
@@ -691,12 +719,13 @@ class Dashboard(ModelTimestampsMixin, BaseModel):
     class Meta:
         db_table = 'dashboards'
 
-    def to_dict(self, with_widgets=False):
+    def to_dict(self, current_user, with_widgets=False):
         layout = json.loads(self.layout)
 
         if with_widgets:
             widgets = Widget.select(Widget, Visualization, Query, User)\
                 .where(Widget.dashboard == self.id)\
+                .where(Query.access_groups.contains_any(current_user.groups))\
                 .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
                 .join(User, join_type=peewee.JOIN_LEFT_OUTER)
@@ -832,7 +861,7 @@ class Widget(ModelTimestampsMixin, BaseModel):
             d['visualization'] = self.visualization.to_dict()
 
         return d
-    
+
     def __unicode__(self):
         return u"%s" % self.id
 

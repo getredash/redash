@@ -10,7 +10,8 @@
       replace: true,
       templateUrl: '/views/data_sources/form.html',
       scope: {
-        'dataSource': '='
+        'dataSource': '=',
+        'availableGroups': '='
       },
       link: function ($scope) {
         var setType = function(types) {

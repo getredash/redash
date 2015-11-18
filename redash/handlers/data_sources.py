@@ -2,6 +2,7 @@ import json
 
 from flask import make_response, request
 from flask.ext.restful import abort
+from flask_login import current_user
 
 from redash import models
 from redash.wsgi import api
@@ -36,6 +37,7 @@ class DataSourceAPI(BaseResource):
 
         data_source.name = req['name']
         data_source.options = json.dumps(req['options'])
+        data_source.access_groups = req['access_groups']
 
         data_source.save()
 
@@ -51,13 +53,13 @@ class DataSourceAPI(BaseResource):
 
 class DataSourceListAPI(BaseResource):
     def get(self):
-        data_sources = [ds.to_dict() for ds in models.DataSource.all()]
+        data_sources = [ds.to_dict() for ds in models.DataSource.all_for_user(current_user)]
         return data_sources
 
     @require_permission("admin")
     def post(self):
         req = request.get_json(True)
-        required_fields = ('options', 'name', 'type')
+        required_fields = ('options', 'name', 'type', 'access_groups')
         for f in required_fields:
             if f not in req:
                 abort(400)
@@ -65,7 +67,11 @@ class DataSourceListAPI(BaseResource):
         if not validate_configuration(req['type'], req['options']):
             abort(400)
 
-        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=json.dumps(req['options']))
+        datasource = models.DataSource.create(
+            name=req['name'],
+            type=req['type'],
+            options=json.dumps(req['options']),
+            access_groups=req['access_groups'])
 
         return datasource.to_dict(all=True)
 

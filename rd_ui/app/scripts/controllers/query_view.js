@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource, $http, Group) {
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
@@ -124,6 +124,14 @@
     $scope.saveName = function() {
       Events.record(currentUser, 'edit_name', 'query', $scope.query.id);
       $scope.saveQuery(undefined, {'name': $scope.query.name});
+    };
+
+    $scope.saveAccessGroups = function() {
+        Events.record(currentUser,
+          'edit_access_group',
+          'query',
+          $scope.query.access_groups);
+        $scope.saveQuery(undefined, {'access_groups': $scope.query.access_groups});
     };
 
     $scope.executeQuery = function() {
@@ -270,9 +278,19 @@
       }
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
+
+    /**
+     * Access groups related
+     */
+    $scope.$watch('query.access_groups', function (newValue, oldValue) {
+      if (newValue.length === 0) {
+        return $scope.query.access_groups = oldValue;
+      }
+      $scope.saveAccessGroups();
+    }, true);
   };
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', '$http', 'Group', QueryViewCtrl]);
 })();
