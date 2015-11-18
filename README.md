@@ -7,10 +7,10 @@ Arik.
 ---
 
 <p align="center">
-  <img title="re:dash" src='http://redash.io/static/img/redash_logo.png' width="200px"/>
+  <img title="re:dash" src='http://redash.io/static/old_img/redash_logo.png' width="200px"/>
 </p>
 <p align="center">
-    <img title="Build Status" src='https://circleci.com/gh/EverythingMe/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
+    <img title="Build Status" src='https://circleci.com/gh/getredash/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
 </p>
 
 **_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
