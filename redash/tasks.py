@@ -132,7 +132,7 @@ class QueryTask(object):
         return self._async_result.ready()
 
     def cancel(self):
-        return self._async_result.revoke(terminate=True)
+        return self._async_result.revoke(terminate=True, signal='SIGINT')
 
     @staticmethod
     def _job_lock_id(query_hash, data_source_id):
