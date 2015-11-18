@@ -120,6 +120,23 @@
 <edit-dashboard-form dashboard="newDashboard" id="new_dashboard_dialog"></edit-dashboard-form>
 <div ng-view></div>
 
+{% raw %}
+<div class="container-fluid footer">
+    <hr/>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                re:dash <span ng-bind="version"></span>
+            </div>
+            <div class="pull-right">
+                <a href="http://docs.redash.io/">Docs</a>
+                <a href="http://github.com/getredash/redash">Contribute</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endraw %}
+
 <script src="/bower_components/jquery/jquery.js"></script>
 
 <!-- build:js /scripts/plugins.js -->
