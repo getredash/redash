@@ -4,7 +4,7 @@ import json
 from flask import render_template, send_from_directory, current_app
 from flask_login import current_user, login_required
 
-from redash import settings
+from redash import settings, __version__
 from redash.wsgi import app
 
 
@@ -41,7 +41,8 @@ def index(**kwargs):
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD,
         'dateFormat': settings.DATE_FORMAT,
-        'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT)
+        'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT),
+        'version': __version__
     }
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
