@@ -1,5 +1,6 @@
 import logging
 import json
+import signal
 
 import jsonschema
 from jsonschema import ValidationError
@@ -38,11 +39,18 @@ SUPPORTED_COLUMN_TYPES = set([
     TYPE_DATE
 ])
 
+class InterruptException(Exception):
+    pass
+
+def signal_handler(*args):
+    raise InterruptException
+
 class BaseQueryRunner(object):
     def __init__(self, configuration):
         jsonschema.validate(configuration, self.configuration_schema())
         self.syntax = 'sql'
         self.configuration = configuration
+        signal.signal(signal.SIGINT, signal_handler)
 
     @classmethod
     def name(cls):
