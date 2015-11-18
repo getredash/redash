@@ -19,7 +19,10 @@
   };
 
   Highcharts.setOptions({
-    colors: _.values(ColorPalette)
+    colors: _.values(ColorPalette),
+    lang: {
+      thousandsSep: ','
+    }
   });
 
   var defaultOptions = {
@@ -131,7 +134,7 @@
                       _.each(s.data, function (p) {
                         data[p.x] = data[p.x] || {'x': p.x, 'y': 0};
                         data[p.x].y = data[p.x].y + p.y;
-                      }); 
+                      });
                   }
                 });
 
@@ -149,7 +152,7 @@
             {
               text: 'Save Image',
               onclick: function () {
-                var canvas = document.createElement('canvas'); 
+                var canvas = document.createElement('canvas');
                 window.canvg(canvas, this.getSVG());
                 var href = canvas.toDataURL('image/png');
                 var a = document.createElement('a');
@@ -161,7 +164,7 @@
                 a.download = 'redash_charts_'+filenameSuffix+'.png';
                 document.body.appendChild(a);
                 a.click();
-                a.remove(); 
+                a.remove();
               }
             }
           ]
@@ -253,7 +256,8 @@
                 renderTo: element[0],
                 type: attrs.type || null,
                 height: attrs.height || null,
-                width: attrs.width || null
+                width: attrs.width || null,
+                panKey: 'shift'
               }
             };
 
@@ -287,7 +291,6 @@
               if (scope.chart) {
                 scope.chart.destroy();
               }
-              ;
 
               $.extend(true, chartOptions, options);
 
@@ -355,7 +358,7 @@
                   });
                 }
               }
-              
+
               if (chartOptions['sortX'] === true || chartOptions['sortX'] === undefined) {
                 var seriesCopy = [];
 
@@ -373,7 +376,7 @@
                 series = seriesCopy;
               }
 
-              scope.chart.counters.color = 0;
+              scope.chart.colorCounter = 0;
 
               _.each(series, function (s) {
                 // here we override the series with the visualization config
