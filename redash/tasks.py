@@ -5,8 +5,8 @@ import traceback
 from flask.ext.mail import Message
 import redis
 import hipchat
-import httplib2
-from urllib import urlencode
+import requests
+from requests.auth import HTTPBasicAuth
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
@@ -351,9 +351,6 @@ def notify_mail(alert, html, new_state, app):
         logger.exception("mail send ERROR.")
 
 def notify_webhook(alert, query, html, new_state):
-    http_client = httplib2.Http(timeout=30)
-    if settings.WEBHOOK_USERNAME:
-        http_client.add_credentials(settings.WEBHOOK_USERNAME, settings.WEBHOOK_PASSWORD)
     try:
         data = {
             'new_state':new_state.upper(),
@@ -363,13 +360,9 @@ def notify_webhook(alert, query, html, new_state):
             'url_base':settings.HOST
         }
         headers = {'Content-type': 'application/x-www-form-urlencoded'}
-        resp, content = http_client.request(
-            settings.WEBHOOK_ENDPOINT,
-            "POST",
-            urlencode(data),
-            headers=headers
-        )
-        if resp.status != 200:
-            logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status))
+        auth = HTTPBasicAuth(settings.WEBHOOK_USERNAME, settings.WEBHOOK_PASSWORD) if settings.WEBHOOK_USERNAME else None
+        resp = requests.post(settings.WEBHOOK_ENDPOINT, data=data, auth=auth, headers=headers)
+        if resp.status_code != 200:
+            logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
     except:
         logger.exception("webhook send ERROR.")
