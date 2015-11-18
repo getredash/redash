@@ -1,3 +1,11 @@
+Some of you read the news about EverythingMe closing down. While more detailed announcement will come later (once more details are clear), **I just wanted to reassure you that you shouldn't worry -- this won't affect the future of re:dash.** I will keep maintaining re:dash, and might even be able to work more on it.
+
+If you still have concerns, you're welcome to reach out to me directly -- arik@arikfr.com.
+
+Arik.
+
+---
+
 <p align="center">
   <img title="re:dash" src='http://redash.io/static/img/redash_logo.png' width="200px"/>
 </p>
@@ -22,31 +30,27 @@ Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 
 ## Demo
 
-![Screenshots](https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif)
+![Screenshots](https://raw.github.com/getredash/redash/screenshots/screenshots.gif)
 
 You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
 
 ## Getting Started
 
 * [Setting up re:dash instance](http://redash.io/deployment/setup.html) (includes links to ready made AWS/GCE images).
-* Additional documentation in the [Wiki](https://github.com/everythingme/redash/wiki).
+* [Documentation](http://docs.redash.io).
 
 
 ## Getting help
 
 * [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): the best place to get updates about new releases or ask general questions.
 * Find us [on gitter](https://gitter.im/EverythingMe/redash#) (chat).
-* Contact Arik, the maintainer directly: arik@everything.me.
-
-## Roadmap
-
-TBD.
+* Contact Arik, the maintainer directly: arik@redash.io.
 
 ## Reporting Bugs and Contributing Code
 
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/everythingme/redash/issues/new).
+* Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
 * Want to help us build **_re:dash_**? Fork the project and make a pull request. We need all the help we can get!
 
 ## License
 
-See [LICENSE](https://github.com/EverythingMe/redash/blob/master/LICENSE) file.
+See [LICENSE](https://github.com/getredash/redash/blob/master/LICENSE) file.

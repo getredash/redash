@@ -70,6 +70,7 @@
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
     $scope.canExecuteQuery = currentUser.hasPermission('execute_query');
+    $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
 
     $scope.dataSources = DataSource.query(function(dataSources) {
       updateSchema();
@@ -240,7 +241,7 @@
     });
 
     $scope.openScheduleForm = function() {
-      if (!$scope.isQueryOwner) {
+      if (!$scope.isQueryOwner || !$scope.canScheduleQuery) {
         return;
       };
 

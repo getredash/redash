@@ -27,31 +27,62 @@
         queryResult: '=',
         options: '=?'
       },
-      template: "<chart options='chartOptions' series='chartSeries' class='graph'></chart>",
+      templateUrl: '/views/visualizations/chart.html',
       replace: false,
       controller: ['$scope', function ($scope) {
         $scope.chartSeries = [];
         $scope.chartOptions = {};
+        $scope.dateRangeEnabled = $scope.options.xAxis && $scope.options.xAxis.type === 'datetime';
+        $scope.dateRange = { min: moment('1970-01-01'), max: moment() };
 
-        var reloadData = function(data) {
+        /**
+         * Update date range by finding date extremes
+         *
+         * ISSUE: chart.getExtreme() does not support getting Moment object out of box
+         * TODO: Find a faster way to do this
+         */
+        var setDateRangeToExtreme = function (allSeries) {
+          if ($scope.dateRangeEnabled && allSeries && allSeries.length > 0) {
+            $scope.dateRange = {
+              min: moment.min.apply(undefined, _.map(allSeries, function (series) {
+                return moment.min(_.pluck(series.data, 'x'));
+              })),
+              max: moment.max.apply(undefined, _.map(allSeries, function (series) {
+                return moment.max(_.pluck(series.data, 'x'));
+              }))
+            };
+          }
+        };
+
+        var reloadData = function(data, options) {
+          options = options || {};
           if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
 
-            _.each($scope.queryResult.getChartData($scope.options.columnMapping), function (s) {
+            var allSeries = $scope.queryResult.getChartData(
+              $scope.options.columnMapping,
+              $scope.dateRangeEnabled ? $scope.dateRange : null
+            );
+
+            _.each(allSeries, function (series) {
               var additional = {'stacking': 'normal'};
               if ('globalSeriesType' in $scope.options) {
                 additional['type'] = $scope.options.globalSeriesType;
               }
-              if ($scope.options.seriesOptions && $scope.options.seriesOptions[s.name]) {
-                additional = $scope.options.seriesOptions[s.name];
+              if ($scope.options.seriesOptions && $scope.options.seriesOptions[series.name]) {
+                additional = $scope.options.seriesOptions[series.name];
                 if (!additional.name || additional.name == "") {
-                  additional.name = s.name;
+                  additional.name = series.name;
                 }
               }
-              $scope.chartSeries.push(_.extend(s, additional));
+              $scope.chartSeries.push(_.extend(series, additional));
             });
+
+            if (!options.preventSetExtreme) {
+              setDateRangeToExtreme(allSeries);
+            }
           };
         };
 
@@ -72,6 +103,22 @@
 
         $scope.$watch('queryResult && queryResult.getData()', function (data) {
           reloadData(data);
+        });
+
+        $scope.$watch('dateRange.min', function(minDateRange, oldMinDateRange) {
+          if (!minDateRange.isSame(oldMinDateRange)) {
+            reloadData(true, {
+              preventSetExtreme: true
+            });
+          }
+        });
+
+        $scope.$watch('dateRange.max', function (maxDateRange, oldMaxDateRange) {
+          if (!maxDateRange.isSame(oldMaxDateRange)) {
+            reloadData(true, {
+              preventSetExtreme: true
+            });
+          }
         });
       }]
     };

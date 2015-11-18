@@ -95,7 +95,7 @@
                         <a ng-href="/users/{{currentUser.id}}">
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <img src="{{currentUser.gravatar_url}}" size="40px" class="img-circle"/>
+                                    <img ng-src="{{currentUser.gravatar_url}}" size="40px" class="img-circle"/>
                                 </div>
                                 <div class="col-sm-10">
                                     <p><strong>{{currentUser.name}}</strong></p>
@@ -146,7 +146,6 @@
 <script src="/bower_components/gridster/dist/jquery.gridster.js"></script>
 <script src="/bower_components/angular-growl/build/angular-growl.js"></script>
 <script src="/bower_components/pivottable/dist/pivot.js"></script>
-<script src="/bower_components/pivottable/dist/export_renderers.js"></script>
 <script src="/bower_components/cornelius/src/cornelius.js"></script>
 <script src="/bower_components/mousetrap/mousetrap.js"></script>
 <script src="/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js"></script>
@@ -160,7 +159,7 @@
 <script src="/bower_components/bucky/bucky.js"></script>
 <script src="/bower_components/pace/pace.js"></script>
 <script src="/bower_components/mustache/mustache.js"></script>
-<script src="/bower_components/canvg/rgbcolor.js"></script> 
+<script src="/bower_components/canvg/rgbcolor.js"></script>
 <script src="/bower_components/canvg/StackBlur.js"></script>
 <script src="/bower_components/canvg/canvg.js"></script>
 <script src="/bower_components/leaflet/dist/leaflet.js"></script>
@@ -190,6 +189,7 @@
 <script src="/scripts/visualizations/box.js"></script>
 <script src="/scripts/visualizations/table.js"></script>
 <script src="/scripts/visualizations/pivot.js"></script>
+<script src="/scripts/visualizations/date_range_selector.js"></script>
 <script src="/scripts/directives/directives.js"></script>
 <script src="/scripts/directives/query_directives.js"></script>
 <script src="/scripts/directives/data_source_directives.js"></script>

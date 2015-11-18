@@ -57,10 +57,12 @@ class PostgreSQL(BaseQueryRunner):
                     "type": "string"
                 },
                 "host": {
-                    "type": "string"
+                    "type": "string",
+                    "default": "127.0.0.1"
                 },
                 "port": {
-                    "type": "number"
+                    "type": "number",
+                    "default": 5432
                 },
                 "dbname": {
                     "type": "string",

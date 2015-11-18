@@ -118,6 +118,7 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
+    'redash.query_runner.mql',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',
@@ -127,7 +128,9 @@ default_query_runners = [
     'redash.query_runner.hive_ds',
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
-    'redash.query_runner.treasuredata'
+    'redash.query_runner.treasuredata',
+    'redash.query_runner.oracle',
+    'redash.query_runner.sqlite',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
