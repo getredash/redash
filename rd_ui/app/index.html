@@ -44,6 +44,27 @@
     {% raw %}
     <div class="collapse navbar-collapse navbar-ex1-collapse">
         <ul class="nav navbar-nav">
+
+          <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
+            <a href="#" class="dropdown-toggle" dropdown-toggle>
+              <span class="fa fa-desktop"></span> <b class="caret"></b>
+            </a>
+
+            <ul class="dropdown-menu" dropdown-menu>
+              <li ng-repeat="dashboard in tvDashboards">
+                <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+              </li>
+
+              <li class="divider" ng-show="currentUser.hasPermission('create_dashboard')"></li>
+
+              <li>
+                <a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">
+                  New TV Dashboard
+                </a>
+              </li>
+            </ul>
+          </li>
+
             <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
                 <a href="#" class="dropdown-toggle" dropdown-toggle><span class="fa fa-tachometer"></span> <b class="caret"></b></a>
                 <ul class="dropdown-menu" dropdown-menu>
