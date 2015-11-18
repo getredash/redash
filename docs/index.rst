@@ -1,4 +1,4 @@
-.. image:: http://redash.io/static/img/redash_logo.png
+.. image:: http://redash.io/static/old_img/redash_logo.png
    :width: 200px
 
 Open Source Data Collaboration and Visualization Platform
