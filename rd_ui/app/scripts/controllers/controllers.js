@@ -167,11 +167,14 @@
           parts = d.name.split(":");
           if (parts.length == 1) {
             return "Other";
+          } else if(parts[0] === "TV") {
+            return "TV";
           }
           return parts[0];
         });
         $scope.otherDashboards = $scope.allDashboards['Other'] || [];
-        $scope.groupedDashboards = _.omit($scope.allDashboards, 'Other');
+        $scope.tvDashboards = $scope.allDashboards['TV'] || [];
+        $scope.groupedDashboards = _.omit($scope.allDashboards, ['Other', 'TV']);
       });
     };
 
