@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 __all__ = [
     'ValidationError',
     'BaseQueryRunner',
+    'InterruptException',
     'TYPE_DATETIME',
     'TYPE_BOOLEAN',
     'TYPE_INTEGER',
