@@ -40,7 +40,14 @@ angular.module('redash', [
       growlProvider.globalTimeToLive(2000);
 
       $routeProvider.when('/dashboard/:dashboardSlug', {
-        templateUrl: '/views/dashboard.html',
+        templateUrl: function(obj) {
+          if(obj.dashboardSlug.indexOf("tv-") > -1) {
+            $(".navbar-fixed-top").remove();
+            return '/views/dashboard-tv.html';
+          } else {
+            return '/views/dashboard.html';
+          }
+        },
         controller: 'DashboardCtrl',
         reloadOnSearch: false
       });
