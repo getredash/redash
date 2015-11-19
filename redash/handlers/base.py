@@ -26,4 +26,3 @@ def require_fields(req, fields):
     for f in fields:
         if f not in req:
             abort(400)
-

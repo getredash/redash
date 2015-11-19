@@ -21,4 +21,4 @@ def status_api():
 
 
 from redash.handlers import alerts, authentication, base, dashboards, data_sources, events, queries, query_results, \
-    static, users, visualizations, widgets
+    static, users, visualizations, widgets, embed

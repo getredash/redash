@@ -222,12 +222,36 @@
                         <div ng-show="selectedTab == 'table'" >
                             <filters></filters>
                             <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+
+                            <div class="row" ng-if="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
+                                <div class="col-lg-8 embed-code">
+                                    <i class="fa fa-code" ng-click="show_code = show_code==true ? false : true;"></i>
+                                    <div ng-show="show_code">
+                                        <span class="text-muted">Embed code for this table: <small>(height should be adjusted)</small></span>
+                                        <code>&lt;iframe src="{{ base_url }}/embed/query/{{query.id}}/visualization/{{ vis.id }}?api_key={{query.api_key}}"<br/>
+                                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                  width="720" height="1650"&gt;&lt;/iframe&gt;</code>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+
+                            <div class="row">
+                                <div class="col-lg-8 embed-code">
+                                    <i class="fa fa-code" ng-click="show_code = show_code==true ? false : true;"></i>
+                                    <div ng-show="show_code">
+                                        <span class="text-muted">Embed code for this chart: <small>(height should be adjusted)</small></span>
+                                        <code>&lt;iframe src="{{ base_url }}/embed/query/{{query.id}}/visualization/{{ vis.id }}?api_key={{query.api_key}}"<br/>
+                                                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                  width="720" height="391"&gt;&lt;/iframe&gt;</code>
+                                    </div>
+                                </div>
+                            </div>
 
                             <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
                         </div>
