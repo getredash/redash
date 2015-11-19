@@ -6,6 +6,8 @@ from flask.ext.mail import Message
 import redis
 import hipchat
 import requests
+import json
+from bson import json_util
 from requests.auth import HTTPBasicAuth
 from celery import Task
 from celery.result import AsyncResult
@@ -353,15 +355,13 @@ def notify_mail(alert, html, new_state, app):
 def notify_webhook(alert, query, html, new_state):
     try:
         data = {
-            'new_state':new_state.upper(),
-            'alert_name':alert.name,
-            'alert_id':alert.id,
-            'query_id':query.id,
-            'url_base':settings.HOST
+            'event': 'alert_state_change',
+            'alert': alert.to_dict(full=False),
+            'url_base': settings.HOST
         }
-        headers = {'Content-type': 'application/x-www-form-urlencoded'}
+        headers = {'Content-Type': 'application/json'}
         auth = HTTPBasicAuth(settings.WEBHOOK_USERNAME, settings.WEBHOOK_PASSWORD) if settings.WEBHOOK_USERNAME else None
-        resp = requests.post(settings.WEBHOOK_ENDPOINT, data=data, auth=auth, headers=headers)
+        resp = requests.post(settings.WEBHOOK_ENDPOINT, data=json.dumps(data, default=json_util.default), auth=auth, headers=headers)
         if resp.status_code != 200:
             logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
     except:
