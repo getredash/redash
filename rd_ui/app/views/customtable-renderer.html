@@ -13,7 +13,7 @@
             </th>
 		</tr>
 		<tr>
-			<th ng-repeat="column in gridColumns" ng-if="column.visible">{{column.label}}</th>
+			<th ng-repeat="column in gridColumns" ng-if="column.visible" style="{{column.headerStyle}}">{{column.label}}</th>
 		</tr>
 		
 	</thead>

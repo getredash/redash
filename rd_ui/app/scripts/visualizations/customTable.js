@@ -73,7 +73,9 @@
               if ($scope.visualization.options.cols !== undefined) {
                 cols = $scope.visualization.options.cols;
               }
-
+              // This object will set align for the header columns
+              // Hash with type (column, style)
+              var columnHeaderStyle = {};
               // This object will have the style for each columns
               // Hash with type (column, style)
               var columnStyle = {};
@@ -88,7 +90,9 @@
               // For each column gets style, visible and inputLink
               _.forEach(cols, function(option) {
                 var style = '';
+                var headerStyle = '';
                 style += 'text-align:' + option.align + ';';
+                headerStyle = 'text-align:' + option.align + ';';
                 if (option.bold) {
                   style += 'font-weight:bold;';
                 } else {
@@ -102,6 +106,7 @@
                 /*if (option.color) {
                   style += 'color:' + option.chosenColor + ';';
                 }*/
+                columnHeaderStyle[option.column] = headerStyle;
                 columnStyle[option.column] = style;
                 visibleColumn[option.column] = option.visible;
                 columnLink[option.column] = option.link;
@@ -163,6 +168,7 @@
                   'label': $scope.queryResult.getColumnFriendlyNames()[i],
                   'map': col,
                   'style': '',
+                  'headerStyle': '',
                   'visible': true,
                   'link': false,
                   'extraTags': ''
@@ -174,6 +180,10 @@
 
                 if (columnStyle[col] !== undefined) {
                   columnDefinition.style = columnStyle[col];
+                }
+
+                if (columnHeaderStyle[col] !== undefined) {
+                  columnDefinition.headerStyle = columnHeaderStyle[col];
                 }
 
                 if (columnLink[col] !== undefined) {
