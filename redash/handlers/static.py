@@ -41,6 +41,7 @@ def index(**kwargs):
         'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD,
+        'allowAllToEditQueries': settings.FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
         'dateFormat': settings.DATE_FORMAT,
         'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT),
         'newVersionAvailable': get_latest_version(),
