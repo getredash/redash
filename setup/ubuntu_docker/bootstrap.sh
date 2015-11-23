@@ -18,17 +18,23 @@ fi
 
 # Base packages
 apt-get update
-# apt-get install -y python-pip python-dev nginx curl build-essential pwgen
 apt-get install -y python-pip
 
 # Install Docker
-# TODO: copy script into setup files
+# TODO: copy script into setup files?
 curl -sSL https://get.docker.com/ | sh
 
 pip install docker-compose
 
+mkdir /opt/redash-docker
+mkdir /opt/redash-docker/nginx
+mkdir /opt/redash-docker/postgres-data
+mkdir /opt/redash-docker/supervisord
+
 # Get docker-compose file
-wget $FILES_BASE_URL"docker-compose.yml"
+wget $FILES_BASE_URL"docker-compose.yml" -O /opt/redash-docker/docker-compose.yml
+wget $FILES_BASE_URL"nginx_redash_site" -O /opt/redash-docker/nginx/nginx.conf
+
 # Add to .profile docker compose file location
 # Setup upstart (?) for docker-compose
 wget $FILES_BASE_URL"upstart.conf" -O /etc/init/redash-docker.conf
