@@ -29,7 +29,6 @@ pip install docker-compose
 
 # Get docker-compose file
 wget $FILES_BASE_URL"docker-compose.yml"
-wget $FILES_BASE_URL"env"
 # Add to .profile docker compose file location
 # Setup upstart (?) for docker-compose
 wget $FILES_BASE_URL"upstart.conf" -O /etc/init/redash-docker.conf

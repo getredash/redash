@@ -1,11 +1,17 @@
 redash:
-  image: everythingme/redash
+  image: redash/redash
   ports:
     - "5000:5000"
   links:
     - redis
     - postgres
-  env_file: env
+  environment:
+    REDASH_STATIC_ASSETS_PATH: ../rd_ui/dist/
+    REDASH_LOG_LEVEL: INFO
+    REDASH_REDIS_URL: redis://redis:6379/0
+    REDASH_DATABASE_URL: postgresql://postgres@postgres/postgres
+    REDASH_COOKIE_SECRET: veryverysecret
+    REDASH_GOOGLE_APPS_DOMAIN:
 redis:
   image: redis:2.8
 postgres:
@@ -17,6 +23,6 @@ nginx:
   ports:
     - "80:80"
   volumes:
-    - "./setup/docker/nginx/nginx.conf:/etc/nginx/nginx.conf"
+    - "./setup/docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
   links:
     - redash

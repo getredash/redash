@@ -1,11 +1,9 @@
-upstream rd_servers {
-  server 127.0.0.1:5000;
+upstream redash {
+  server redash:5000;
 }
  
 server {
   listen   80 default;
- 
-  access_log /var/log/nginx/rd.access.log;
  
   gzip on;
   gzip_types *;
@@ -15,6 +13,7 @@ server {
     proxy_set_header Host $http_host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_pass       http://rd_servers;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass       http://redash;
   }
 }
