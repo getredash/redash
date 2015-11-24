@@ -112,7 +112,8 @@
                 columnLink[option.column] = option.link;
                 columnExtras[option.column] = option.extraTags;
               });
-
+ 
+ 
               var prepareGridData = function(data) {
                 // Clones data to avoid changing the queryResult
                 //var gridData = _.map(data, function(row) {
