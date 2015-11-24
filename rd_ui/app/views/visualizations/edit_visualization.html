@@ -1,25 +1,42 @@
 <div>
   <span ng-click="openEditor=!openEditor" class="details-toggle" ng-class="{open: openEditor}">Edit</span>
 
-  <form ng-show="openEditor" role="form" name="visForm" ng-submit="submit()">
-    <div class="form-group">
-      <label class="control-label">Name</label>
-      <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type | capitalize}}">
+  <form ng-show="openEditor" role="form" name="visForm" ng-submit="submit()" class="form-horizontal">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group row">
+          <label class="control-label col-sm-5">Visualization Type</label>
+
+          <div class="col-sm-7">
+            <select required ng-model="visualization.type" ng-options="value as key for (key, value) in visTypes" class="form-control" ng-change="typeChanged()"></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group row">
+          <label class="control-label col-sm-5">Name</label>
+          <div class="col-sm-7">
+            <input name="name" type="text" class="form-control" ng-model="visualization.name" placeholder="{{visualization.type | capitalize}}">
+
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="form-group">
-      <label class="control-label">Visualization Type</label>
-      <select required ng-model="visualization.type" ng-options="value as key for (key, value) in visTypes" class="form-control" ng-change="typeChanged()"></select>
+    <div class="row">
+      <div class="col-md-12">
+        <visualization-options-editor></visualization-options-editor>
+      </div>
     </div>
-
-    <visualization-options-editor></visualization-options-editor>
 
     <div class="form-group" ng-if="editRawOptions">
       <label class="control-label">Advanced</label>
       <textarea json-text ng-model="visualization.options" class="form-control" rows="10"></textarea>
     </div>
 
-    <div class="form-group">
+    <div class="form-group text-center">
       <button type="submit" class="btn btn-primary">Save</button>
     </div>
 
