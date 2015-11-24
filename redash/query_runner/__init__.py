@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 __all__ = [
     'ValidationError',
     'BaseQueryRunner',
+    'InterruptException',
     'TYPE_DATETIME',
     'TYPE_BOOLEAN',
     'TYPE_INTEGER',
@@ -37,6 +38,9 @@ SUPPORTED_COLUMN_TYPES = set([
     TYPE_DATETIME,
     TYPE_DATE
 ])
+
+class InterruptException(Exception):
+    pass
 
 class BaseQueryRunner(object):
     def __init__(self, configuration):
