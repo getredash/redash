@@ -21,8 +21,8 @@
         });
 
         $scope.$watch('dateRangeHuman', function (dateRangeHuman, oldDateRangeHuman, scope) {
-          var newDateRangeMin = moment(dateRangeHuman.min);
-          var newDateRangeMax = moment(dateRangeHuman.max);
+          var newDateRangeMin = moment.utc(dateRangeHuman.min);
+          var newDateRangeMax = moment.utc(dateRangeHuman.max);
           if (!newDateRangeMin ||
               !newDateRangeMax ||
               !newDateRangeMin.isValid() ||

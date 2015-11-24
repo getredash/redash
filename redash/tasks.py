@@ -1,5 +1,6 @@
 import time
 import logging
+import signal
 from flask.ext.mail import Message
 import redis
 from celery import Task
@@ -8,7 +9,7 @@ from celery.utils.log import get_task_logger
 from redash import redis_connection, models, statsd_client, settings, utils, mail
 from redash.utils import gen_query_hash
 from redash.worker import celery
-from redash.query_runner import get_query_runner
+from redash.query_runner import get_query_runner, InterruptException
 
 logger = get_task_logger(__name__)
 
@@ -132,7 +133,7 @@ class QueryTask(object):
         return self._async_result.ready()
 
     def cancel(self):
-        return self._async_result.revoke(terminate=True)
+        return self._async_result.revoke(terminate=True, signal='SIGINT')
 
     @staticmethod
     def _job_lock_id(query_hash, data_source_id):
@@ -263,9 +264,12 @@ def check_alerts_for_query(self, query_id):
 
                 mail.send(message)
 
+def signal_handler(*args):
+    raise InterruptException
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id, metadata):
+    signal.signal(signal.SIGINT, signal_handler)
     start_time = time.time()
 
     logger.info("Loading data source (%d)...", data_source_id)

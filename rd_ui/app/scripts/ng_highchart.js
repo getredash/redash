@@ -12,7 +12,6 @@
     'Lilac': '#A47D7C',
     'Light Green': '#B5CA92',
     'Brown':'#A52A2A',
-    'Yellow':'#ffff00',
     'Black':'#000000',
     'Gray':'#808080',
     'Pink':'#FFC0CB',
@@ -98,19 +97,6 @@
       buttons: {
         contextButton: {
           menuItems: [
-            {
-              text: 'Toggle % Stacking',
-              onclick: function () {
-                var newStacking = "normal";
-                if (this.series[0].options.stacking == "normal") {
-                  newStacking = "percent";
-                }
-
-                _.each(this.series, function (series) {
-                  series.update({stacking: newStacking}, true);
-                });
-              }
-            },
             {
               text: 'Select All',
               onclick: function () {

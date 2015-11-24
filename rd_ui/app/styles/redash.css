@@ -435,3 +435,16 @@ div.table-name {
 .log-container {
     margin-bottom: 50px;
 }
+
+/* Footer */
+
+.footer {
+    color: #818d9f;
+    padding-bottom: 30px;
+}
+
+.footer a {
+    color: #818d9f;
+    margin-left: 20px;
+}
+

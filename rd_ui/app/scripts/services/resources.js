@@ -45,7 +45,7 @@
             } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
               row[k] = moment.utc(v);
               columnTypes[k] = 'datetime';
-            } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}/)) {
+            } else if (_.isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
               row[k] = moment.utc(v);
               columnTypes[k] = 'date';
             } else if (typeof(v) == 'object' && v !== null) {
@@ -228,7 +228,7 @@
 
         _.each(row, function (value, definition) {
           var name = definition.split("::")[0] || definition.split("__")[0];
-          var type = definition.split("::")[1] || definition.split("__")[0];
+          var type = definition.split("::")[1] || definition.split("__")[1];
           if (mapping) {
             type = mapping[definition];
           }

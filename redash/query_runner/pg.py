@@ -142,7 +142,7 @@ class PostgreSQL(BaseQueryRunner):
             logging.exception(e)
             error = e.message
             json_data = None
-        except KeyboardInterrupt:
+        except (KeyboardInterrupt, InterruptException):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
