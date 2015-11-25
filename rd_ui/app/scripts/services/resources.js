@@ -623,6 +623,8 @@
   var Parameters = function() {
     var staticParameters = ['p_startdate', 'p_enddate', 'maxAge'];
 
+    var blackList = ['maxAge', 'p_mgid', 'p_brokerageid', 'p_branchid'];
+
     var parameters = {};
     return {
       getParameters: function() {
@@ -633,6 +635,9 @@
       },
       getStaticParameters: function() {
         return staticParameters;
+      },
+      getBlackListParameters: function() {
+        return blackList;
       }
     }
   }

@@ -1,22 +1,54 @@
 (function() {
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
 
-  /**
-   * exportWidgets for each widget checks if exportable is true and generate a worksheet for it.
-   * 
-   */
+    /**
+     * excelFilters Creates a object that contains all the filters included on the dashboard
+     * excluding some parameters like maxAge
+     * @return {array}
+     */
+    var excelFilters = function() {
+      var params = $location.search();
+      var blacklist = Parameters.getBlackListParameters();
+      var parameters = [];
+      for (var propertyName in params) {
+        if (!_.contains(blacklist, propertyName)) {
+          var filter = {
+            'Filters': propertyName,
+            'Values': params[propertyName]
+          };
+          parameters.push(filter);
+        }
+
+      }
+      return parameters;
+    }
+
+    /**
+     * exportWidgets For Each widget takes the data and exports that on a Sheet
+     */
     $scope.exportWidgets = function() {
 
       var data = [];
       var opts = [];
 
+      var filtersUsed = excelFilters();
+
+      if (filtersUsed !== null) {
+        data.push(filtersUsed);
+        var option = {
+          sheetid: 'Filters Used',
+          headers: true
+        };
+        opts.push(option);
+      }
+
       _.forEach($scope.dashboard.widgets, function(widget) {
         _.forEach(widget, function(w) {
           if (w.options.exportable !== undefined &&
-              w.options.exportable.isExportable &&
-              w.query !== undefined &&
-              w.query.queryResult !== undefined &&
-              w.query.queryResult.filteredData !== undefined) {
+            w.options.exportable.isExportable &&
+            w.query !== undefined &&
+            w.query.queryResult !== undefined &&
+            w.query.queryResult.filteredData !== undefined) {
             // Creates a new option for adding the sheet name
             // 
             if (w.options.exportable.name === undefined) {
@@ -33,7 +65,7 @@
           }
         });
       });
-      if (opts.length > 0) {
+      if (opts.length > 1) {
         var res = alasql('SELECT INTO XLSX("' + $scope.dashboard.name + '.xlsx",?) FROM ?', [opts, data]);
       }
     }
@@ -231,7 +263,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
     .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
 
 })();
