@@ -20,7 +20,10 @@
         }
 
       }
-      return parameters;
+      if (parameters.length !== 0) {
+        return parameters;
+      }
+      return null;
     }
 
     /**
