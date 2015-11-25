@@ -26,3 +26,7 @@ client_secret.json
 # Docker related
 docker-compose.yaml
 
+# Devspark
+.env
+redash/devspark/custom_handlers/reports_handler.py
+redash/devspark/custom_tasks/report_tasks.py
