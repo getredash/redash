@@ -13,7 +13,7 @@
         for (var propertyName in params) {
           if (!_.contains(blacklist, propertyName)) {
             var filter = {
-              'Filters': propertyName,
+              'Filters': propertyName.split('p_')[1],
               'Values': params[propertyName]
             };
             parameters.push(filter);
