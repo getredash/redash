@@ -71,11 +71,7 @@
             worksheet = {
               option: {
                 sheet: w.options.exportable.name,
-                columnNames: _.map(w.query.queryResult.columnNames, function(col) {
-                  return {
-                    columnid: col
-                  };
-                })
+                columnNames: w.query.queryResult.columnNames
               },
               data: w.query.queryResult.filteredData
             };
