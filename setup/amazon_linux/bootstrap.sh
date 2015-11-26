@@ -2,7 +2,7 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/master/setup/amazon_linux/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/master/setup/amazon_linux/files/
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
     if [ $# -ne 0 ]; then
@@ -105,7 +105,7 @@ fi
 
 # Install latest version
 REDASH_VERSION=${REDASH_VERSION-0.6.3.b906}
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
+LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
 REDASH_TARBALL=/tmp/redash.tar.gz
 REDASH_TARBALL=/tmp/redash.tar.gz

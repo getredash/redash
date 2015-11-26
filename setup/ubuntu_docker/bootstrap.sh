@@ -3,7 +3,7 @@ set -eu
 
 REDASH_BASE_PATH=/opt/redash_docker
 # TODO: change this to master after merging:
-FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/docker/setup/ubuntu_docker/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/docker/setup/ubuntu_docker/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then

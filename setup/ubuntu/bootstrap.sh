@@ -2,7 +2,7 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/docker/setup/ubuntu/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/docker/setup/ubuntu/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
@@ -101,7 +101,7 @@ fi
 
 # Install latest version
 REDASH_VERSION=${REDASH_VERSION-0.7.1.b1015}
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
+LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
 REDASH_TARBALL=/tmp/redash.tar.gz
 

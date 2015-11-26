@@ -13,7 +13,7 @@ To get started with this box:
 1.  Make sure you have recent version of
     `Vagrant <https://www.vagrantup.com/>`__ installed.
 2.  Clone the re:dash repository:
-    ``git clone https://github.com/EverythingMe/redash.git``.
+    ``git clone https://github.com/getredash/redash.git``.
 3.  Change dir into the repository (``cd redash``) and run run
     ``vagrant up``. This might take some time the first time you run it,
     as it downloads the Vagrant virtual box.

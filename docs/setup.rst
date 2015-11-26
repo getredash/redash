@@ -2,7 +2,7 @@ Setting up re:dash instance
 ###########################
 
 The `provisioning
-script <https://github.com/EverythingMe/redash/blob/master/setup/bootstrap.sh>`__
+script <https://github.com/getredash/redash/blob/master/setup/ubuntu/bootstrap.sh>`__
 works on Ubuntu 12.04, Ubuntu 14.04 and Debian Wheezy. This script
 installs all needed dependencies and creates basic setup.
 

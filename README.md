@@ -43,7 +43,7 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 ## Getting help
 
 * [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): the best place to get updates about new releases or ask general questions.
-* Find us [on gitter](https://gitter.im/EverythingMe/redash#) (chat).
+* Find us [on gitter](https://gitter.im/getredash/redash#) (chat).
 * Contact Arik, the maintainer directly: arik@redash.io.
 
 ## Reporting Bugs and Contributing Code

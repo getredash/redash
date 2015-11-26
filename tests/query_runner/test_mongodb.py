@@ -52,7 +52,7 @@ class TestParseQueryJson(TestCase):
         self.assertEqual(query_data['test_dict']['b']['date'], datetime.datetime(2014, 10, 4, 0, 0))
 
     def test_handles_nested_fields(self):
-        # https://github.com/EverythingMe/redash/issues/597
+        # https://github.com/getredash/redash/issues/597
         query = {
             "collection": "bus",
             "aggregate": [
