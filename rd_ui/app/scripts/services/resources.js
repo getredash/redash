@@ -640,7 +640,11 @@
         return blackList;
       }
     }
-  }
+  };
+
+  var DashboardExport = function ($resource) {
+    return $resource('/api/dashboard/generate_excel');
+  };
 
   angular.module('redash.services')
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
@@ -650,5 +654,6 @@
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])
       .factory('User', ['$resource', '$http', User])
-      .factory('Parameters', [Parameters]);
+      .factory('Parameters', [Parameters])
+      .factory('DashboardExport', ['$resource', DashboardExport]);
 })();

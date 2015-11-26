@@ -1,5 +1,5 @@
 (function() {
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
+  var DashboardCtrl = function($scope, Events, Widget, DashboardExport, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
 
     /**
      * excelFilters Creates a object that contains all the filters included on the dashboard
@@ -31,20 +31,31 @@
      */
     $scope.exportWidgets = function() {
 
-      var data = [];
-      var opts = [];
+      var data = {
+        name: $scope.dashboard.name,
+        data: []
+      };
 
       var filtersUsed = excelFilters();
+      var worksheet,
+        option;
 
+      //first tab is for filters used, if they are defined
       if (filtersUsed !== null) {
-        data.push(filtersUsed);
-        var option = {
-          sheetid: 'Filters Used',
-          headers: true
+        worksheet = {
+          option: {
+            sheet: 'Filters Used',
+            columnNames: [
+              'Filters',
+              'Values'
+            ]
+          },
+          data: filtersUsed
         };
-        opts.push(option);
+        data.data.push(worksheet);
       }
 
+      //generate data to be exported for every widget that is marked for export
       _.forEach($scope.dashboard.widgets, function(widget) {
         _.forEach(widget, function(w) {
           if (w.options.exportable !== undefined &&
@@ -57,35 +68,43 @@
             if (w.options.exportable.name === undefined) {
               w.options.exportable.name = w.query.name;
             }
-            var option = {
-              sheetid: w.options.exportable.name,
-              header: true
+            worksheet = {
+              option: {
+                sheet: w.options.exportable.name,
+                columnNames: _.map(w.query.queryResult.columnNames, function(col) {
+                  return {
+                    columnid: col
+                  };
+                })
+              },
+              data: w.query.queryResult.filteredData
             };
-            // Adds the option to the array for the current sheet
-            opts.push(option);
-            // Adds the data to the array of datas
-            data.push(w.query.queryResult.filteredData);
+            data.data.push(worksheet);
           }
         });
       });
-      if (opts.length > 1) {
-        var res = alasql('SELECT INTO XLSX("' + $scope.dashboard.name + '.xlsx",?) FROM ?', [opts, data]);
+      if (data.data.length > 1) {
+        //@TO DO test this functionality integrated
+        DashboardExport.save({}, data);
+        //var res = alasql('SELECT INTO XLSX("' + $scope.dashboard.name + '.xlsx",?) FROM ?', [opts, data]);
       }
     }
-    
+
     $scope.refreshEnabled = false;
     $scope.refreshRate = 60;
 
     var loadDashboard = _.throttle(function() {
-      $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
+      $scope.dashboard = Dashboard.get({
+        slug: $routeParams.dashboardSlug
+      }, function(dashboard) {
         Events.record(currentUser, "view", "dashboard", dashboard.id);
 
         $scope.$parent.pageTitle = dashboard.name;
 
         var promises = [];
 
-        $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
-          return _.map(row, function (widget) {
+        $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function(row) {
+          return _.map(row, function(widget) {
             var w = new Widget(widget);
 
             if (w.visualization) {
@@ -100,7 +119,7 @@
           var filters = {};
           _.each(queryResults, function(queryResult) {
             var queryFilters = queryResult.getFilters();
-            _.each(queryFilters, function (queryFilter) {
+            _.each(queryFilters, function(queryFilter) {
               var hasQueryStringValue = _.has($location.search(), queryFilter.name);
 
               if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
@@ -116,8 +135,10 @@
                   filter.current = $location.search()[filter.name];
                 }
 
-                $scope.$watch(function () { return filter.current }, function (value) {
-                  _.each(filter.originFilters, function (originFilter) {
+                $scope.$watch(function() {
+                  return filter.current
+                }, function(value) {
+                  _.each(filter.originFilters, function(originFilter) {
                     originFilter.current = value;
                   });
                 });
@@ -132,7 +153,7 @@
         });
 
 
-      }, function () {
+      }, function() {
         // error...
         // try again. we wrap loadDashboard with throttle so it doesn't happen too often.\
         // we might want to consider exponential backoff and also move this as a general solution in $http/$resource for
@@ -167,10 +188,10 @@
       }
     };
 
-    $scope.archiveDashboard = function () {
+    $scope.archiveDashboard = function() {
       if (confirm('Are you sure you want to archive the "' + $scope.dashboard.name + '" dashboard?')) {
         Events.record(currentUser, "archive", "dashboard", $scope.dashboard.id);
-        $scope.dashboard.$delete(function () {
+        $scope.dashboard.$delete(function() {
           $scope.$parent.reloadDashboards();
         });
       }
@@ -179,7 +200,9 @@
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
-      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
+      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {
+        'enable': $scope.refreshEnabled
+      });
 
       if ($scope.refreshEnabled) {
         var refreshRate = _.min(_.map(_.flatten($scope.dashboard.widgets), function(widget) {
@@ -266,7 +289,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'DashboardExport', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
     .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
 
 })();
