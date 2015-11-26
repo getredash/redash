@@ -21,7 +21,7 @@ apt-get update
 apt-get install -y python-pip
 
 # Install Docker
-# TODO: copy script into setup files?
+# TODO: copy script into setup files? Install docker from package? Use different base image?
 curl -sSL https://get.docker.com/ | sh
 
 pip install docker-compose
@@ -41,6 +41,7 @@ wget $FILES_BASE_URL"upstart.conf" -O /etc/init/redash-docker.conf
 # Start everything
 initctl reload-configuration
 service redash-docker start
-# Create database / tables
 
-#   sudo usermod -aG docker your-user
+# TODO:
+# 1. Create database / tables
+# 2. Add the user to the docker group (sudo usermod -aG docker your-user).
