@@ -1,0 +1,19 @@
+upstream redash {
+  server redash:5000;
+}
+ 
+server {
+  listen   80 default;
+ 
+  gzip on;
+  gzip_types *;
+  gzip_proxied any;
+ 
+  location / {
+    proxy_set_header Host $http_host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_pass       http://redash;
+  }
+}

@@ -2,8 +2,7 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/EverythingMe/redash/docs_setup/setup/files/
-
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/master/setup/amazon_linux/files/
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
     if [ $# -ne 0 ]; then
@@ -16,25 +15,16 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Base packages
-apt-get dist-upgrade
-apt-get update
-apt-get install -y python-pip python-dev nginx curl build-essential pwgen
-pip install -U setuptools
+yum update
+yum install -y python-pip python-devel nginx curl
+yes | yum groupinstall -y "Development Tools"
+yum install -y libffi-devel openssl-devel
 
 # redash user
 # TODO: check user doesn't exist yet?
-adduser --system --no-create-home --disabled-login --gecos "" redash
-
-# PostgreSQL
-pg_available=0
-psql --version || pg_available=$?
-if [ $pg_available -ne 0 ]; then
-    wget $FILES_BASE_URL"postgres_apt.sh" -O /tmp/postgres_apt.sh
-    bash /tmp/postgres_apt.sh
-    apt-get update
-    apt-get -y install postgresql-9.3 postgresql-server-dev-9.3
+if [-x $(adduser --system --no-create-home --comment "" redash)]; then
+  echo "redash user have already registered."
 fi
-
 add_service() {
     service_name=$1
     service_command="/etc/init.d/$service_name"
@@ -55,6 +45,20 @@ add_service() {
 
     $service_command start
 }
+
+# PostgreSQL
+pg_available=0
+psql --version || pg_available=$?
+if [ $pg_available -ne 0 ]; then
+    # wget $FILES_BASE_URL"postgres_apt.sh" -O /tmp/postgres_apt.sh
+    # bash /tmp/postgres_apt.sh
+    yum update
+    yum -y install postgresql93-server postgresql93-devel
+    service postgresql93 initdb
+    add_service "postgresql93"
+fi
+
+
 
 # Redis
 redis_available=0
@@ -87,7 +91,7 @@ if [ $redis_available -ne 0 ]; then
     rm -rf redis-2.8.17
 fi
 
-# Directories
+
 if [ ! -d "$REDASH_BASE_PATH" ]; then
     sudo mkdir /opt/redash
     sudo chown redash /opt/redash
@@ -100,9 +104,10 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-REDASH_VERSION=${REDASH_VERSION-0.7.1.b1015}
-LATEST_URL="https://github.com/EverythingMe/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
+REDASH_VERSION=${REDASH_VERSION-0.6.3.b906}
+LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
+REDASH_TARBALL=/tmp/redash.tar.gz
 REDASH_TARBALL=/tmp/redash.tar.gz
 
 if [ ! -d "$VERSION_DIR" ]; then
@@ -117,6 +122,23 @@ if [ ! -d "$VERSION_DIR" ]; then
     # TODO: venv?
     pip install -r requirements.txt
 fi
+
+# InfluxDB dependencies:
+pip install influxdb==2.6.0
+
+# BigQuery dependencies:
+pip install google-api-python-client==1.2 pyOpenSSL==0.14 oauth2client==1.2
+
+# MySQL dependencies:
+yum install -y mysql-devel
+pip install MySQL-python==1.2.5
+
+# Mongo dependencies:
+pip install pymongo==2.7.2
+
+# Setup supervisord + sysv init startup script
+sudo -u redash mkdir -p /opt/redash/supervisord
+pip install supervisor==3.1.2 # TODO: move to requirements.txt
 
 # Create database / tables
 pg_user_exists=0
@@ -141,39 +163,36 @@ pg_user_exists=0
 sudo -u postgres psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='redash_reader'" | grep -q 1 || pg_user_exists=$?
 if [ $pg_user_exists -ne 0 ]; then
     echo "Creating redash reader postgres user."
-    REDASH_READER_PASSWORD=$(pwgen -1)
+
+    sudo yum install expect
+
+    REDASH_READER_PASSWORD=$(mkpasswd)
     sudo -u postgres psql -c "CREATE ROLE redash_reader WITH PASSWORD '$REDASH_READER_PASSWORD' NOCREATEROLE NOCREATEDB NOSUPERUSER LOGIN"
     sudo -u redash psql -c "grant select(id,name,type) ON data_sources to redash_reader;" redash
-    sudo -u redash psql -c "grant select(id,name) ON users to redash_reader;" redash
     sudo -u redash psql -c "grant select on activity_log, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
     sudo -u redash bin/run ./manage.py ds new -n "re:dash metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
 fi
 
-# BigQuery dependencies:
-apt-get install -y libffi-dev libssl-dev
-
-# MySQL dependencies:
-apt-get install -y libmysqlclient-dev
-
-# Pip requirements for all data source types
-cd /opt/redash/current
-pip install -r requirements_all_ds.txt
-
-# Setup supervisord + sysv init startup script
-sudo -u redash mkdir -p /opt/redash/supervisord
-pip install supervisor==3.1.2 # TODO: move to requirements.txt
 
 # Get supervisord startup script
 sudo -u redash wget -O /opt/redash/supervisord/supervisord.conf $FILES_BASE_URL"supervisord.conf"
+
+# install start-stop-daemon
+wget http://developer.axis.com/download/distribution/apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
+tar xvzf apps-sys-utils-start-stop-daemon-IR1_9_18-2.tar.gz
+cd apps/sys-utils/start-stop-daemon-IR1_9_18-2/
+gcc start-stop-daemon.c -o start-stop-daemon
+cp start-stop-daemon /sbin/
 
 wget -O /etc/init.d/redash_supervisord $FILES_BASE_URL"redash_supervisord_init"
 add_service "redash_supervisord"
 
 # Nginx setup
-rm /etc/nginx/sites-enabled/default
+if [-x $(mkdir /etc/nginx/sites-available)]; then
+  echo "/etc/nginx/sites-available exists."
+fi
 wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
-ln -nfs /etc/nginx/sites-available/redash /etc/nginx/sites-enabled/redash
+ln -nfs /etc/nginx/sites-available/redash /etc/nginx/conf.d/redash.conf
 service nginx restart
-

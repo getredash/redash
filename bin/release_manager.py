@@ -7,7 +7,7 @@ import requests
 
 github_token = os.environ['GITHUB_TOKEN']
 auth = (github_token, 'x-oauth-basic')
-repo = 'EverythingMe/redash'
+repo = 'getredash/redash'
 
 def _github_request(method, path, params=None, headers={}):
     if not path.startswith('https://api.github.com'):

@@ -21,7 +21,7 @@ Features
 Demo
 ####
 
-.. figure:: https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif
+.. figure:: https://raw.github.com/getredash/redash/screenshots/screenshots.gif
    :alt: Screenshots
 
 You can try out the demo instance: `http://demo.redash.io`_ (login with any Google account).
@@ -37,11 +37,11 @@ Getting Started
 Getting Help
 ############
 
-* Source: https://github.com/everythingme/redash
-* Issues: https://github.com/everythingme/redash/issues
+* Source: https://github.com/getredash/redash
+* Issues: https://github.com/getredash/redash/issues
 * Mailing List: https://groups.google.com/forum/#!forum/redash-users
-* Gitter (chat): https://gitter.im/EverythingMe/redash
-* Contact Arik, the maintainer directly: arik@everything.me.
+* Gitter (chat): https://gitter.im/getredash/redash
+* Contact Arik, the maintainer directly: arik@redash.io.
 
 TOC
 ###
