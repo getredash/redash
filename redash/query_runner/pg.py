@@ -112,6 +112,7 @@ class PostgreSQL(BaseQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
+        self._get_table_sizes(schema)
         return schema.values()
 
     def run_query(self, query):
