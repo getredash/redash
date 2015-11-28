@@ -99,6 +99,12 @@ class BaseQueryRunner(object):
             raise Exception("Failed running query [%s]." % query)
         return json.loads(results)['rows']
 
+    def _get_table_sizes(self, tables_dict):
+        for t in tables_dict.keys():
+            if type(tables_dict[t]) == dict:
+                res = self._run_query_internal('select count(*) as cnt from %s' % t) 
+                tables_dict[t]['size'] = res[0]['cnt']
+
     @classmethod
     def to_dict(cls):
         return {
