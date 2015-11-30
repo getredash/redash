@@ -71,7 +71,8 @@
               worksheet = {
                 option: {
                   sheet: w.options.exportable.name,
-                  columnNames: w.query.queryResult.columnNames
+                  columnNames: w.query.queryResult.columnNames,
+                  autofilter: true
                 },
                 data: w.query.queryResult.filteredData
               };

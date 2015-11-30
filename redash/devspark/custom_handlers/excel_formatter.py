@@ -25,6 +25,8 @@ def get_tasks():
             worksheet = workbook.add_worksheet(sheet['option']['sheet'][:31])
             rowIdx = 0
             colIdx = 0
+            _filter = sheet['option'].get('autofilter', None)
+
             # Defines the header
             for column in sheet['option']['columnNames']:
                 worksheet.write(rowIdx, colIdx, column, format1)
@@ -37,7 +39,9 @@ def get_tasks():
                     worksheet.write(rowIdx, colIdx, row[column], format2)
                     worksheet.set_column(rowIdx, colIdx, 25)
                     colIdx +=1
-
+            # Adds autofilter on all columns if 'option.filter' is defined as true
+            if _filter:
+                worksheet.autofilter(0, 0, len(sheet['data']), len(sheet['option']['columnNames']))
         workbook.close()
         tmp_flo.flush()
         contents = tmp_flo.read()
