@@ -7,7 +7,7 @@ import redis
 import hipchat
 import requests
 import json
-from bson import json_util
+from redash.utils import json_dumps
 from requests.auth import HTTPBasicAuth
 from celery import Task
 from celery.result import AsyncResult
@@ -361,7 +361,7 @@ def notify_webhook(alert, query, html, new_state):
         }
         headers = {'Content-Type': 'application/json'}
         auth = HTTPBasicAuth(settings.WEBHOOK_USERNAME, settings.WEBHOOK_PASSWORD) if settings.WEBHOOK_USERNAME else None
-        resp = requests.post(settings.WEBHOOK_ENDPOINT, data=json.dumps(data, default=json_util.default), auth=auth, headers=headers)
+        resp = requests.post(settings.WEBHOOK_ENDPOINT, data=json_dumps(data), auth=auth, headers=headers)
         if resp.status_code != 200:
             logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
     except:
