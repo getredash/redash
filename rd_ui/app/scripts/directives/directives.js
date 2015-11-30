@@ -281,4 +281,34 @@
       }
     };
   });
+
+  directives.directive('onDestroy', function () {
+    /* This directive can be used to invoke a callback when an element is destroyed,
+    A useful example is the following:
+    <div ng-if="includeText" on-destroy="form.text = null;">
+      <input type="text" ng-model="form.text">
+    </div>
+    */
+    return {
+      restrict: "A",
+      scope: {
+        onDestroy: "&",
+      },
+      link: function(scope, elem, attrs) {
+        console.log(scope.onDestroy);
+        scope.$on('$destroy', function() {
+          scope.onDestroy();
+        });
+      }
+    };
+  });
+
+  directives.directive('colorBox', function () {
+    return {
+      restrict: "E",
+      scope: {color: "="},
+      template: "<span style='width: 12px; height: 12px; background-color: {{color}}; display: inline-block; margin-right: 5px;'></span>"
+    };
+  });
+
 })();

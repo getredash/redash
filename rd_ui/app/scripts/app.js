@@ -10,6 +10,7 @@ angular.module('redash', [
     'angular-growl',
     'angularMoment',
     'ui.bootstrap',
+    'ui.sortable',
     'smartTable.table',
     'ngResource',
     'ngRoute',
