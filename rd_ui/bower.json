@@ -35,9 +35,9 @@
     "angular-sanitize": "1.2.18",
     "angular-smart-table": "~2.1.4",
     "d3": "3.5.6",
-    "alasql": "~0.2.1",
     "js-xlsx": "~0.8.0",
-    "uri.js": "~1.16.1"
+    "uri.js": "~1.16.1",
+    "angular-file-saver": "~1.0.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
