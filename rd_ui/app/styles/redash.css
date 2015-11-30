@@ -467,3 +467,8 @@ div.table-name {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
 }
+
+/* Immediately apply ng-cloak, instead of waiting for angular.js to load: */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}

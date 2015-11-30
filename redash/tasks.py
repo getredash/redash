@@ -10,6 +10,7 @@ from redash import redis_connection, models, statsd_client, settings, utils, mai
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import get_query_runner, InterruptException
+from version_check import run_version_check
 
 logger = get_task_logger(__name__)
 
@@ -264,8 +265,10 @@ def check_alerts_for_query(self, query_id):
 
                 mail.send(message)
 
+
 def signal_handler(*args):
     raise InterruptException
+
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id, metadata):
@@ -321,3 +324,8 @@ def execute_query(self, query, data_source_id, metadata):
 @celery.task(base=BaseTask)
 def record_event(event):
     models.Event.record(event)
+
+
+@celery.task(base=BaseTask)
+def version_check():
+    run_version_check()
