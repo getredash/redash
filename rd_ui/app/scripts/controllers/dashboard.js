@@ -16,7 +16,9 @@
             var w = new Widget(widget);
 
             if (w.visualization) {
-              promises.push(w.getQuery().getQueryResult().toPromise());
+              var queryResult = w.getQuery().getQueryResult();
+              if (angular.isDefined(queryResult))
+                promises.push(queryResult.toPromise());
             }
 
             return w;
