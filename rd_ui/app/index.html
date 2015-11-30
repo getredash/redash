@@ -125,9 +125,8 @@
     <hr/>
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
-                <a href="http://redash.io">re:dash</a> <span ng-bind="version"></span>
-            </div>
+            <a href="http://redash.io">re:dash</a> <span ng-bind="version"></span>
+            <small ng-if="newVersionAvailable"><a href="http://version.redash.io/">(new re:dash version available)</a></small>
             <div class="pull-right">
                 <a href="http://docs.redash.io/">Docs</a>
                 <a href="http://github.com/getredash/redash">Contribute</a>

@@ -152,6 +152,8 @@
 
   var MainCtrl = function ($scope, $location, Dashboard, notifications) {
     $scope.version = clientConfig.version;
+    $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
+
     if (clientConfig.clientSideMetrics) {
       $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
         // This will be called once per actual page load.
