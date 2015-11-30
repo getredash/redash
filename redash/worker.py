@@ -1,5 +1,7 @@
+from random import randint
 from celery import Celery
 from datetime import timedelta
+from celery.schedules import crontab
 from redash import settings, __version__
 
 
@@ -21,6 +23,14 @@ celery_schedule = {
         'schedule': timedelta(minutes=30)
     }
 }
+
+if settings.VERSION_CHECK:
+    celery_schedule['version_check'] = {
+        'task': 'redash.tasks_version_check',
+        # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users
+        # evenly.
+        'schedule': crontab(minute=randint(0, 59), hour=randint(0, 23))
+    }
 
 if settings.QUERY_RESULTS_CLEANUP_ENABLED:
     celery_schedule['cleanup_query_results'] = {

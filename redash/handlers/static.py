@@ -4,7 +4,7 @@ import json
 from flask import render_template, send_from_directory, current_app
 from flask_login import current_user, login_required
 
-from redash import settings, __version__
+from redash import settings, __version__, redis_connection
 from redash.wsgi import app
 
 
@@ -42,6 +42,7 @@ def index(**kwargs):
         'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD,
         'dateFormat': settings.DATE_FORMAT,
         'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT),
+        'newVersionAvailable': redis_connection.get('new_version_available'),
         'version': __version__
     }
 

@@ -151,6 +151,7 @@ DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 # Features:
 FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))
 FEATURE_TABLES_PERMISSIONS = parse_boolean(os.environ.get("REDASH_FEATURE_TABLES_PERMISSIONS", "false"))
+VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CEHCK", "true"))
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))

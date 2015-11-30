@@ -1,15 +1,18 @@
 import time
 import logging
 import signal
+import requests
+import semver
 from flask.ext.mail import Message
 import redis
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from redash import redis_connection, models, statsd_client, settings, utils, mail
-from redash.utils import gen_query_hash
+from redash.utils import gen_query_hash, json_dumps
 from redash.worker import celery
 from redash.query_runner import get_query_runner, InterruptException
+from redash import __version__ as current_version
 
 logger = get_task_logger(__name__)
 
@@ -264,8 +267,10 @@ def check_alerts_for_query(self, query_id):
 
                 mail.send(message)
 
+
 def signal_handler(*args):
     raise InterruptException
+
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id, metadata):
@@ -321,3 +326,32 @@ def execute_query(self, query, data_source_id, metadata):
 @celery.task(base=BaseTask)
 def record_event(event):
     models.Event.record(event)
+
+
+@celery.task(base=BaseTask)
+def version_check():
+    logger.info("Performing version check.")
+    logger.info("Current version: %s", current_version)
+
+    data = json_dumps({
+        'current_version': current_version
+    })
+    headers = {'content-type': 'application/json'}
+
+    try:
+        response = requests.post('https://version.redash.io/api/report?channel=stable',
+                                 data=data, headers=headers, timeout=3.0)
+        latest_version = response.json()['release']['version']
+        # TODO: support alpha channel (allow setting which channel to check & parse build number)
+        is_newer = semver.compare(current_version, latest_version) == -1
+        logger.info("Latest version: %s (newer: %s)", latest_version, is_newer)
+
+        if is_newer:
+            redis_connection.set("new_version_available", latest_version)
+        else:
+            redis_connection.delete("new_version_available")
+    except requests.RequestException:
+        logging.exception("Failed checking for new version.")
+    except (ValueError, KeyError):
+        logging.exception("Failed checking for new version (probably bad/non-JSON response).")
+
