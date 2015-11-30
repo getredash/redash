@@ -17,7 +17,13 @@
                 <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
             </div>
         </span>
-        <button style="float: right" type="button" class="btn btn-danger" title="Export Tables to PDF.">
+        <button style="float: right; font-weight: bold" type="button" class="btn btn-default" title="Collapse all widgets." ng-click="changeCollapseValues(true)">
+            Collapse 
+        </button>
+        <button style="float: right; font-weight: bold; margin-right: 5px;" type="button" class="btn btn-default" title="Expand all widgets." ng-click="changeCollapseValues(false)">
+            Expand 
+        </button>
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-danger" title="Export Tables to PDF.">
             <span class="glyphicon glyphicon-download" aria-hidden="true"></span> PDF
         </button>
         <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" ng-click="exportWidgets()" title="Export Tables to XLS.">
@@ -40,6 +46,8 @@
                 <div class="panel-heading" style="display: inline-flex, width: 100%">
                     <h3 class="panel-title">
                         <p>
+                            <span ng-show="!widget.isCollapsed" ng-click="widget.isCollapsed = !widget.isCollapsed" style="cursor: pointer" class="glyphicon glyphicon-chevron-down btn-xs" ng-init="collapseValue()"></span>
+                            <span ng-show="widget.isCollapsed" ng-click="widget.isCollapsed = !widget.isCollapsed" style="cursor: pointer" class="glyphicon glyphicon-chevron-up btn-xs"></span>
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
                             <span style="float: right">
                                 <input type="checkbox" ng-model="widget.options.exportable.isExportable"> Exportable
@@ -58,11 +66,12 @@
 
                 </div>
 
-                <visualization-renderer visualization="widget.visualization" query-result="queryResult"></visualization-renderer class="panel-body">
+                <div class="panel-collapse collapse" collapse="widget.isCollapsed">
+                    <visualization-renderer visualization="widget.visualization" query-result="queryResult"></visualization-renderer class="panel-body">
+                </div>
 
 
-
-                <div class="panel-footer">
+                <div class="panel-footer" collapse="widget.isCollapsed">
                     <span class="label label-default"
                           tooltip="(query runtime: {{queryResult.getRuntime() | durationHumanize}})"
                           tooltip-placement="bottom">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
