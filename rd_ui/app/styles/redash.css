@@ -472,3 +472,14 @@ div.table-name {
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
+/* Smart Table */
+
+.smart-table {
+    margin-bottom: 0px;
+}
+
+.smart-table .pagination {
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
