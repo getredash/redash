@@ -38,3 +38,6 @@ mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 
 import_query_runners(settings.QUERY_RUNNERS)
+
+from redash.version_check import reset_new_version_status
+reset_new_version_status()
