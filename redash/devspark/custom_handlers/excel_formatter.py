@@ -1,9 +1,6 @@
-import logging
 import xlsxwriter
 import tempfile
-import StringIO
-
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, request, make_response
 from flask_login import login_required
 from redash.wsgi import app
 
@@ -17,12 +14,20 @@ def get_tasks():
         workbook = xlsxwriter.Workbook(tmp_flo.name)
 
         # Add a bold format to use to highlight cells.
-        format1 = workbook.add_format({'bold': True, 'font_color': 'white', 'bg_color': 'black', 'border': True})
+        format1 = workbook.add_format({
+            'bold': True,
+            'font_color': 'white',
+            'bg_color': 'black',
+            'border': True})
         format2 = workbook.add_format({'border': True})
 
         # For each widget to be exported, creates a new sheet
+        page_count = 0
         for sheet in data['data']:
-            worksheet = workbook.add_worksheet(sheet['option']['sheet'][:31])
+            sheet_name = "%s_%s" % (page_count, sheet['option']['sheet'])
+            page_count += 1
+            worksheet = workbook.add_worksheet(sheet_name[:31])
+     
             rowIdx = 0
             colIdx = 0
             _filter = sheet['option'].get('autofilter', None)
