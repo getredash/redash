@@ -1,6 +1,40 @@
 (function() {
     var DashboardCtrl = function($scope, Events, Widget, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
 
+    /**
+     * changeCollapseValues for each widget sets the value received by param
+     * @param  {boolean} value 
+     */
+    $scope.changeCollapseValues = function(value) {
+      if ($scope.dashboard.widgets !== undefined) {
+        _.forEach($scope.dashboard.widgets, function(widget) {
+          _.forEach(widget, function(w) {
+            w.isCollapsed = value;
+          })
+        })
+      }
+    };
+
+    /**
+     * collapseValue Get the collapse value depending if the first widget is visualization
+     *
+     */
+    $scope.collapseValue = function() {
+      var marked = false;
+      if ($scope.dashboard.widgets !== undefined) {
+        _.forEach($scope.dashboard.widgets, function(widget) {
+          _.forEach(widget, function(w) {
+            if (w.visualization && marked !== true) {
+              w.isCollapsed = false;
+              marked = true;
+            } else {
+              w.isCollapsed = true;
+            }
+          });
+        });
+      }
+    };
+
       /**
        * excelFilters Creates a object that contains all the filters included on the dashboard
        * excluding some parameters like maxAge
