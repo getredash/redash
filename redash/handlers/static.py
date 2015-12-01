@@ -19,6 +19,9 @@ from redash.version_check import get_latest_version
 @app.route('/data_sources/<pk>')
 @app.route('/users')
 @app.route('/users/<pk>')
+@app.route('/groups')
+@app.route('/groups/<pk>')
+@app.route('/groups/<pk>/data_sources')
 @app.route('/queries/<query_id>')
 @app.route('/queries/<query_id>/<anything>')
 @app.route('/personal')
@@ -41,11 +44,20 @@ def index(**kwargs):
         'newVersionAvailable': get_latest_version(),
         'version': __version__
     }
+
     client_config.update(settings.COMMON_CLIENT_CONFIG)
 
-    return render_template("index.html", user=json.dumps(user), name=settings.NAME,
-                           client_config=json.dumps(client_config),
-                           analytics=settings.ANALYTICS)
+    headers = {
+        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
+    }
+
+    response = render_template("index.html",
+                               user=json.dumps(user),
+                               name=settings.NAME,
+                               client_config=json.dumps(client_config),
+                               analytics=settings.ANALYTICS)
+
+    return response, 200, headers
 
 
 @app.route('/<path:filename>')

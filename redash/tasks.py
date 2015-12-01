@@ -2,12 +2,10 @@ import datetime
 import time
 import logging
 import signal
-import traceback
 from flask.ext.mail import Message
 import redis
 import hipchat
 import requests
-import json
 from redash.utils import json_dumps
 from requests.auth import HTTPBasicAuth
 from celery import Task
@@ -243,42 +241,9 @@ def refresh_schemas():
         ds.get_schema(refresh=True)
 
 
-@celery.task(bind=True, base=BaseTask)
-def check_alerts_for_query(self, query_id):
-    from redash.wsgi import app
-
-    logger.debug("Checking query %d for alerts", query_id)
-    query = models.Query.get_by_id(query_id)
-    for alert in query.alerts:
-        alert.query = query
-        new_state = alert.evaluate()
-        passed_rearm_threshold = False
-        if alert.rearm and alert.last_triggered_at:
-            passed_rearm_threshold = alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < utils.utcnow()
-        if new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold ):
-            logger.info("Alert %d new state: %s", alert.id, new_state)
-            old_state = alert.state
-            alert.update_instance(state=new_state, last_triggered_at=utils.utcnow())
-
-            if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
-                logger.debug("Skipping notification (previous state was unknown and now it's ok).")
-                continue
-
-            # message = Message
-            html = """
-            Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
-            """.format(host=settings.HOST, alert_id=alert.id, query_id=query.id)
-
-            notify_mail(alert, html, new_state, app)
-
-            if settings.HIPCHAT_API_TOKEN:
-                notify_hipchat(alert, html, new_state)
-
-            if settings.WEBHOOK_ENDPOINT:
-                notify_webhook(alert, query, html, new_state)
-
 def signal_handler(*args):
     raise InterruptException
+
 
 @celery.task(bind=True, base=BaseTask, track_started=True)
 def execute_query(self, query, data_source_id, metadata):
@@ -322,7 +287,7 @@ def execute_query(self, query, data_source_id, metadata):
     redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
 
     if not error:
-        query_result, updated_query_ids = models.QueryResult.store_result(data_source.id, query_hash, query, data, run_time, utils.utcnow())
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source.id, query_hash, query, data, run_time, utils.utcnow())
         for query_id in updated_query_ids:
             check_alerts_for_query.delay(query_id)
     else:
@@ -339,13 +304,56 @@ def record_event(event):
 def version_check():
     run_version_check()
 
+
+def base_url(org):
+    if org.domain:
+        return 'https://{}'.format(org.domain)
+    return settings.HOST
+
+
+@celery.task(bind=True, base=BaseTask)
+def check_alerts_for_query(self, query_id):
+    from redash.wsgi import app
+
+    logger.debug("Checking query %d for alerts", query_id)
+    query = models.Query.get_by_id(query_id)
+    for alert in query.alerts:
+        alert.query = query
+        new_state = alert.evaluate()
+        passed_rearm_threshold = False
+        if alert.rearm and alert.last_triggered_at:
+            passed_rearm_threshold = alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < utils.utcnow()
+        if new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold ):
+            logger.info("Alert %d new state: %s", alert.id, new_state)
+            old_state = alert.state
+            alert.update_instance(state=new_state, last_triggered_at=utils.utcnow())
+
+            if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
+                logger.debug("Skipping notification (previous state was unknown and now it's ok).")
+                continue
+
+            # message = Message
+            html = """
+            Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
+            """.format(host=base_url(alert.query.org), alert_id=alert.id, query_id=query.id)
+
+            notify_mail(alert, html, new_state, app)
+
+            if settings.HIPCHAT_API_TOKEN:
+                notify_hipchat(alert, html, new_state)
+
+            if settings.WEBHOOK_ENDPOINT:
+                notify_webhook(alert, query, html, new_state)
+
+
 def notify_hipchat(alert, html, new_state):
     try:
         hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
         message = '[' + new_state.upper() + '] ' + alert.name + '<br />' + html
         hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, message, message_format='html')
-    except:
+    except Exception:
         logger.exception("hipchat send ERROR.")
+
 
 def notify_mail(alert, html, new_state, app):
     recipients = [s.email for s in alert.subscribers()]
@@ -356,20 +364,21 @@ def notify_mail(alert, html, new_state, app):
                               subject="[{1}] {0}".format(alert.name, new_state.upper()),
                               html=html)
             mail.send(message)
-    except:
+    except Exception:
         logger.exception("mail send ERROR.")
+
 
 def notify_webhook(alert, query, html, new_state):
     try:
         data = {
             'event': 'alert_state_change',
             'alert': alert.to_dict(full=False),
-            'url_base': settings.HOST
+            'url_base': base_url(query.org)
         }
         headers = {'Content-Type': 'application/json'}
         auth = HTTPBasicAuth(settings.WEBHOOK_USERNAME, settings.WEBHOOK_PASSWORD) if settings.WEBHOOK_USERNAME else None
         resp = requests.post(settings.WEBHOOK_ENDPOINT, data=json_dumps(data), auth=auth, headers=headers)
         if resp.status_code != 200:
             logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
-    except:
+    except Exception:
         logger.exception("webhook send ERROR.")

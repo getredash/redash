@@ -1,9 +1,10 @@
 <div class="container">
-    <ol class="breadcrumb">
-        <li ng-if="currentUser.hasPermission('list_users')"><a href="/users">Users</a></li>
-        <li ng-if="!currentUser.hasPermission('list_users')">Users</li>
-        <li class="active">{{user.name}}</li>
-    </ol>
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="/users">Users</a></li>
+        <li role="presentation"><a href="/groups">Groups</a></li>
+    </ul>
+
+    <h2>{{user.name}}</h2>
 
     <tabset>
         <tab heading="Profile" active="tabs['profile']" select="setTab('profile')">

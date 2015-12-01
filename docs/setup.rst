@@ -28,6 +28,7 @@ t2.micro should be enough):
 -  ap-southeast-2: `ami-7559134f <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-7559134f>`__
 -  ap-southeast-1: `ami-a0786bf2 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-a0786bf2>`__
 
+When launching the instance make sure to use a security grop, that only allows incoming traffic on: port 22 (SSH), 80 (HTTP) and 443 (HTTPS).
 
 Now proceed to `"Setup" <#setup>`__.
 
@@ -91,10 +92,11 @@ file.
 1. Update the cookie secret (important! otherwise anyone can sign new
    cookies and impersonate users): change "veryverysecret" in the line:
    ``export REDASH_COOKIE_SECRET=veryverysecret`` to something else (you
-   can use ``pwgen 32 -1`` to generate random string).
+   can run the command ``pwgen 32 -1`` to generate a random string).
 
 2. By default we create an admin user with the password "admin". You
-   can change this password at: ``/users/me#password``.
+   can change this password opening the: ``/users/me#password`` page after
+   logging in as admin.
 
 3. If you want to use Google OAuth to authenticate users, you need to
    create a Google Developers project (see :doc:`instructions </misc/google_developers_project>`)
@@ -104,22 +106,29 @@ file.
 
    export REDASH_GOOGLE_CLIENT_ID=""
    export REDASH_GOOGLE_CLIENT_SECRET=""
-   export REDASH_GOOGLE_APPS_DOMAIN=""
 
 
+4. Configure the domain(s) you want to allow to use with Google Apps, by running the command:
 
-``REDASH_GOOGLE_CLIENT_ID`` and ``REDASH_GOOGLE_CLIENT_SECRET`` are the values you get after registering with Google. ``READASH_GOOGLE_APPS_DOMAIN`` is used in case you want to limit access to single Google apps domain (*if you leave it empty anyone with a Google account can access your instance*).
+.. code::
 
-4. Restart the web server to apply the configuration changes:
+   cd /opt/redash/current
+   sudo -u redash bin/run ./manage.py set_google_apps_domains {{domains}}
+
+
+If you're passing multiple domains, separate them with commas.
+
+
+5. Restart the web server to apply the configuration changes:
    ``sudo supervisorctl restart redash_server``.
 
-5. Once you have Google OAuth enabled, you can login using your Google
+6. Once you have Google OAuth enabled, you can login using your Google
    Apps account. If you want to grant admin permissions to some users,
    you can do this by editing the user profile and enabling admin
    permission for it.
 
-6. If you don't use Google OAuth or just need username/password logins,
-   you can create additional users at: ``/users/new``.
+7. If you don't use Google OAuth or just need username/password logins,
+   you can create additional users by opening the ``/users/new`` page.
 
 Datasources
 -----------

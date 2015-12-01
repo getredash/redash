@@ -74,9 +74,9 @@ QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
+ORG_RESOLVING = os.environ.get("REDASH_ORG_RESOLVING", "single_org")
 
-# Google Apps domain to allow access from; any user with email in this Google Apps will be allowed
-# access
+# The following is deprecated and should be defined with the Organization object
 GOOGLE_APPS_DOMAIN = set_from_string(os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", ""))
 
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")

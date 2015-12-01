@@ -4,11 +4,9 @@ import requests
 from flask import redirect, url_for, Blueprint, flash, request
 from flask_oauthlib.client import OAuth
 from redash import models, settings
+from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger('google_oauth')
-
-if not settings.GOOGLE_APPS_DOMAIN:
-    logger.warning("No Google Apps domain defined, all Google accounts allowed.")
 
 oauth = OAuth()
 blueprint = Blueprint('google_oauth', __name__)
@@ -42,24 +40,24 @@ def get_user_profile(access_token):
     return response.json()
 
 
-def verify_profile(profile):
-    if not settings.GOOGLE_APPS_DOMAIN:
+def verify_profile(org, profile):
+    if org.is_public:
         return True
 
     domain = profile['email'].split('@')[-1]
-    return domain in settings.GOOGLE_APPS_DOMAIN
+    return domain in org.google_apps_domains
 
 
-def create_and_login_user(name, email):
+def create_and_login_user(org, name, email):
     try:
-        user_object = models.User.get_by_email(email)
+        user_object = models.User.get_by_email_and_org(email, org)
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             user_object.save()
     except models.User.DoesNotExist:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User.create(name=name, email=email, groups=models.User.DEFAULT_GROUPS)
+        user_object = models.User.create(org=org, name=name, email=email, groups=[org.default_group.id])
 
     login_user(user_object, remember=True)
 
@@ -88,12 +86,12 @@ def authorized():
         flash("Validation error. Please retry.")
         return redirect(url_for('login'))
 
-    if not verify_profile(profile):
-        logger.warning("User tried to login with unauthorized domain name: %s", profile['email'])
+    if not verify_profile(current_org, profile):
+        logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], current_org)
         flash("Your Google Apps domain name isn't allowed.")
         return redirect(url_for('login'))
 
-    create_and_login_user(profile['name'], profile['email'])
+    create_and_login_user(current_org.id, profile['name'], profile['email'])
 
     next = request.args.get('state', '/')
 

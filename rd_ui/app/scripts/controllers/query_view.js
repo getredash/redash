@@ -35,6 +35,7 @@
       var isValidDataSourceId = !isNaN(dataSourceId) && _.some($scope.dataSources, function(ds) {
         return ds.id == dataSourceId;
       });
+
       if (!isValidDataSourceId) {
         dataSourceId = $scope.dataSources[0].id;
       }
@@ -42,6 +43,24 @@
       // Return our data source id
       return dataSourceId;
     }
+
+    var updateDataSources = function(dataSources) {
+      updateSchema();
+
+      // Filter out data sources the user can't query (or used by current query):
+      $scope.dataSources = _.filter(dataSources, function(dataSource) {
+        return !dataSource.view_only || dataSource.id === $scope.query.data_source_id;
+      });
+
+      if ($scope.query.isNew()) {
+        $scope.query.data_source_id = getDataSourceId();
+      }
+      $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
+
+      //$scope.canExecuteQuery = $scope.canExecuteQuery && _.some(dataSources, function(ds) { return !ds.view_only });
+      $scope.canCreateQuery = _.any(dataSources, function(ds) { return !ds.view_only });
+    }
+
 
     $scope.dataSource = {};
     $scope.query = $route.current.locals.query;
@@ -71,17 +90,21 @@
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
-    $scope.canExecuteQuery = currentUser.hasPermission('execute_query');
+
+    $scope.canExecuteQuery = function() {
+      return currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+    }
+
     $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
 
-    $scope.dataSources = DataSource.query(function(dataSources) {
-      updateSchema();
 
-      if ($scope.query.isNew()) {
-        $scope.query.data_source_id = getDataSourceId();
-        $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
-      }
-    });
+
+    if ($route.current.locals.dataSources) {
+      $scope.dataSources = $route.current.locals.dataSources;
+      updateDataSources($route.current.locals.dataSources);
+    } else {
+      $scope.dataSources = DataSource.query(updateDataSources);
+    }
 
     // in view mode, latest dataset is always visible
     // source mode changes this behavior
@@ -129,7 +152,7 @@
     };
 
     $scope.executeQuery = function() {
-      if (!$scope.canExecuteQuery) {
+      if (!$scope.canExecuteQuery()) {
         return;
       }
 

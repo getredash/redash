@@ -4,9 +4,12 @@ import time
 import logging
 
 from flask.ext.login import LoginManager
+
 from flask.ext.login import user_logged_in
 
-from redash import models, settings, google_oauth, saml_auth
+from redash import models, settings
+from redash.authentication import google_oauth, saml_auth
+from redash.authentication.org_resolving import current_org
 from redash.tasks import record_event
 
 login_manager = LoginManager()
@@ -25,7 +28,7 @@ def sign(key, path, expires):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return models.User.get_by_id(user_id)
+    return models.User.get_by_id_and_org(user_id, current_org.id)
 
 
 def hmac_load_user_from_request(request):
@@ -48,7 +51,7 @@ def hmac_load_user_from_request(request):
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
-                return models.ApiUser(query.api_key)
+                return models.ApiUser(query.api_key, query.org, query.groups.keys())
 
     return None
 
@@ -64,7 +67,7 @@ def get_user_from_api_key(api_key, query_id):
         if query_id:
             query = models.Query.get_by_id(query_id)
             if query and query.api_key == api_key:
-                user = models.ApiUser(api_key)
+                user = models.ApiUser(api_key, query.org, query.groups.keys())
 
     return user
 

@@ -2,61 +2,48 @@ import csv
 import json
 import cStringIO
 import time
-import logging
 
 from flask import make_response, request
 from flask.ext.restful import abort
-from flask_login import current_user
 
 from redash import models, settings, utils
 from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
-from redash.permissions import require_permission
-from redash.handlers.base import BaseResource
+from redash.permissions import require_permission, not_view_only, has_access
+from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.get_json(force=True)
+        data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
-        if settings.FEATURE_TABLES_PERMISSIONS:
-            metadata = utils.SQLMetaData(params['query'])
+        if not has_access(data_source.groups, self.current_user, not_view_only):
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
-            if metadata.has_non_select_dml_statements or metadata.has_ddl_statements:
-                return {
-                    'job': {
-                        'error': 'Only SELECT statements are allowed'
-                    }
-                }
-
-            if len(metadata.used_tables - current_user.allowed_tables) > 0 and '*' not in current_user.allowed_tables:
-                logging.warning('Permission denied for user %s to table %s', self.current_user.name, metadata.used_tables)
-                return {
-                    'job': {
-                        'error': 'Access denied for table(s): %s' % (metadata.used_tables)
-                    }
-                }
-
-        models.ActivityLog(
-            user=self.current_user,
-            type=models.ActivityLog.QUERY_EXECUTION,
-            activity=params['query']
-        ).save()
+        record_event.delay({
+            'user_id': self.current_user.id,
+            'action': 'execute_query',
+            'timestamp': int(time.time()),
+            'object_id': data_source.id,
+            'object_type': 'data_source',
+            'query': params['query']
+        })
 
         max_age = int(params.get('max_age', -1))
 
         if max_age == 0:
             query_result = None
         else:
-            query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], max_age)
+            query_result = models.QueryResult.get_latest(data_source, params['query'], max_age)
 
         if query_result:
             return {'query_result': query_result.to_dict()}
         else:
-            data_source = models.DataSource.get_by_id(params['data_source_id'])
             query_id = params.get('query_id', 'adhoc')
-            job = QueryTask.add_task(params['query'], data_source, metadata={"Username": self.current_user.name, "Query ID": query_id})
+            job = QueryTask.add_task(params['query'], data_source,
+                                     metadata={"Username": self.current_user.name, "Query ID": query_id})
             return {'job': job.to_dict()}
 
 
@@ -64,7 +51,6 @@ ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
 class QueryResultAPI(BaseResource):
-
     @staticmethod
     def add_cors_headers(headers):
         if 'Origin' in request.headers:
@@ -91,12 +77,12 @@ class QueryResultAPI(BaseResource):
     def get(self, query_id=None, query_result_id=None, filetype='json'):
         should_cache = query_result_id is not None
         if query_result_id is None and query_id is not None:
-            query = models.Query.get(models.Query.id == query_id)
+            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
             if query:
                 query_result_id = query._data['latest_query_data']
 
         if query_result_id:
-            query_result = models.QueryResult.get_by_id(query_result_id)
+            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
 
         if query_result:
             if isinstance(self.current_user, models.ApiUser):

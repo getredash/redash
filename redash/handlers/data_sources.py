@@ -2,16 +2,17 @@ import json
 
 from flask import make_response, request
 from flask.ext.restful import abort
+from funcy import project
 
 from redash import models
 from redash.wsgi import api
-from redash.permissions import require_permission
+from redash.permissions import require_admin
 from redash.query_runner import query_runners, validate_configuration
-from redash.handlers.base import BaseResource
+from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class DataSourceTypeListAPI(BaseResource):
-    @require_permission("admin")
+    @require_admin
     def get(self):
         return [q.to_dict() for q in query_runners.values()]
 
@@ -19,14 +20,14 @@ api.add_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='dat
 
 
 class DataSourceAPI(BaseResource):
-    @require_permission('admin')
+    @require_admin
     def get(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         return data_source.to_dict(all=True)
 
-    @require_permission('admin')
+    @require_admin
     def post(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         req = request.get_json(True)
 
         data_source.replace_secret_placeholders(req['options'])
@@ -41,9 +42,9 @@ class DataSourceAPI(BaseResource):
 
         return data_source.to_dict(all=True)
 
-    @require_permission('admin')
+    @require_admin
     def delete(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete_instance(recursive=True)
 
         return make_response('', 204)
@@ -51,10 +52,20 @@ class DataSourceAPI(BaseResource):
 
 class DataSourceListAPI(BaseResource):
     def get(self):
-        data_sources = [ds.to_dict() for ds in models.DataSource.all()]
-        return data_sources
+        if self.current_user.has_permission('admin'):
+            data_sources = models.DataSource.all(self.current_org)
+        else:
+            data_sources = models.DataSource.all(self.current_org, groups=self.current_user.groups)
 
-    @require_permission("admin")
+        response = []
+        for ds in data_sources:
+            d = ds.to_dict()
+            d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
+            response.append(d)
+
+        return response
+
+    @require_admin
     def post(self):
         req = request.get_json(True)
         required_fields = ('options', 'name', 'type')
@@ -65,7 +76,7 @@ class DataSourceListAPI(BaseResource):
         if not validate_configuration(req['type'], req['options']):
             abort(400)
 
-        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=json.dumps(req['options']))
+        datasource = models.DataSource.create(org=self.current_org, name=req['name'], type=req['type'], options=json.dumps(req['options']))
 
         return datasource.to_dict(all=True)
 
@@ -75,7 +86,7 @@ api.add_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='
 
 class DataSourceSchemaAPI(BaseResource):
     def get(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         schema = data_source.get_schema()
 
         return schema

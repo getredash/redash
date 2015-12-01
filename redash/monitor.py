@@ -1,5 +1,6 @@
 from redash import redis_connection,  models, __version__
 
+
 def get_status():
     status = {}
     info = redis_connection.info()

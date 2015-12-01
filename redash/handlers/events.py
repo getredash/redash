@@ -10,6 +10,9 @@ class EventAPI(BaseResource):
     def post(self):
         events_list = request.get_json(force=True)
         for event in events_list:
+            event['user_id'] = self.current_user.id
+            event['org_id'] = self.current_org.id
+
             record_event.delay(event)
 
 

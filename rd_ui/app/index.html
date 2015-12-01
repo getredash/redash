@@ -119,6 +119,16 @@
 
 <edit-dashboard-form dashboard="newDashboard" id="new_dashboard_dialog"></edit-dashboard-form>
 <div ng-view></div>
+<div ng-if="showPermissionError" class="ng-cloak container" ng-cloak>
+    <div class="row">
+        <div class="text-center">
+            <h1><span class="glyphicon glyphicon-lock"></span></h1>
+            <p class="text-muted">
+                You do not have permission to view the requested page.
+            </p>
+        </div>
+    </div>
+</div>
 
 {% raw %}
 <div class="container-fluid footer">
@@ -228,6 +238,8 @@
     currentUser.hasPermission = function(permission) {
         return this.permissions.indexOf(permission) != -1;
     };
+
+    currentUser.isAdmin = currentUser.hasPermission('admin');
 
     {{ analytics|safe }}
 </script>

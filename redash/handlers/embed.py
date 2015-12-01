@@ -12,10 +12,11 @@ from redash.utils import json_dumps
 @app.route('/embed/query/<query_id>/visualization/<visualization_id>', methods=['GET'])
 @login_required
 def embed(query_id, visualization_id):
-
-    query = models.Query.get_by_id(query_id)
+    # TODO: should use some helper here insetad of current_user.org to allow refactoring of org retrieval logic.
+    query = models.Query.get_by_id_and_org(query_id, current_user.org)
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
+
     if vis is not None:
         vis = vis.to_dict()
         qr = query.latest_query_data

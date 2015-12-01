@@ -4,7 +4,7 @@ from werkzeug.wrappers import Response
 from werkzeug.contrib.fixers import ProxyFix
 from flask.ext.restful import Api
 
-from redash import settings, utils, mail, __version__, statsd_client
+from redash import settings, utils, mail, __version__
 from redash.models import db
 from redash.metrics.request import provision_app
 from redash.admin import init_admin

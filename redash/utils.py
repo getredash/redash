@@ -7,61 +7,9 @@ import json
 import random
 import re
 import hashlib
-import sqlparse
 import pytz
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
-
-
-class SQLMetaData(object):
-    TABLE_SELECTION_KEYWORDS = ('FROM', 'JOIN', 'LEFT JOIN', 'FULL JOIN', 'RIGHT JOIN', 'CROSS JOIN', 'INNER JOIN',
-                                'OUTER JOIN', 'LEFT OUTER JOIN', 'RIGHT OUTER JOIN', 'FULL OUTER JOIN')
-
-    def __init__(self, sql):
-        self.sql = sql
-        self.parsed_sql = sqlparse.parse(self.sql)
-
-        self.has_ddl_statements = self._find_ddl_statements()
-        self.has_non_select_dml_statements = self._find_dml_statements()
-        self.used_tables = self._find_tables()
-
-    def _find_ddl_statements(self):
-        for statement in self.parsed_sql:
-            if len([x for x in statement.flatten() if x.ttype == sqlparse.tokens.DDL]):
-                return True
-
-        return False
-
-    def _find_tables(self):
-        tables = set()
-        for statement in self.parsed_sql:
-            tables.update(self.extract_table_names(statement.tokens))
-
-        return tables
-
-    def extract_table_names(self, tokens):
-        tables = set()
-        tokens = [t for t in tokens if t.ttype not in (sqlparse.tokens.Whitespace, sqlparse.tokens.Newline)]
-
-        for i in range(len(tokens)):
-            if tokens[i].is_group():
-                tables.update(self.extract_table_names(tokens[i].tokens))
-            else:
-                if tokens[i].ttype == sqlparse.tokens.Keyword and tokens[i].normalized in self.TABLE_SELECTION_KEYWORDS:
-                    if isinstance(tokens[i + 1], sqlparse.sql.Identifier):
-                        tables.add(tokens[i + 1].value)
-
-                    if isinstance(tokens[i + 1], sqlparse.sql.IdentifierList):
-                        tables.update(set([t.value for t in tokens[i+1].get_identifiers()]))
-        return tables
-
-    def _find_dml_statements(self):
-        for statement in self.parsed_sql:
-            for token in statement.flatten():
-                if token.ttype == sqlparse.tokens.DML and token.normalized != 'SELECT':
-                    return True
-
-        return False
 
 
 def utcnow():
@@ -71,6 +19,7 @@ def utcnow():
     which leads to errors in calculations.
     """
     return datetime.datetime.now(pytz.utc)
+
 
 def slugify(s):
     return re.sub('[^a-z0-9_\-]+', '-', s.lower())

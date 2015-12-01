@@ -3,6 +3,7 @@ from contextlib import contextmanager
 
 from tests.factories import user_factory
 from redash.utils import json_dumps
+from redash.wsgi import app
 
 
 @contextmanager
@@ -28,3 +29,25 @@ def json_request(method, path, data=None):
         response.json = None
 
     return response
+
+
+def make_request(method, path, user, data=None, is_json=True):
+    with app.test_client() as c, authenticated_user(c, user=user):
+        method_fn = getattr(c, method.lower())
+        headers = {}
+
+        if data and is_json:
+            data = json_dumps(data)
+
+        if is_json:
+            content_type = 'application/json'
+        else:
+            content_type = None
+
+        base_url = "http://{}".format(user.org.domain)
+        response = method_fn(path, data=data, headers=headers, content_type=content_type, base_url=base_url)
+
+        if response.data and is_json:
+            response.json = json.loads(response.data)
+
+        return response

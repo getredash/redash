@@ -3,6 +3,7 @@ from flask_login import current_user, login_user, logout_user
 
 from redash import models, settings
 from redash.wsgi import app
+from redash.authentication.org_resolving import current_org
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -20,7 +21,7 @@ def login():
 
     if request.method == 'POST':
         try:
-            user = models.User.get_by_email(request.form['email'])
+            user = models.User.get_by_email_and_org(request.form['email'], current_org.id)
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
@@ -38,9 +39,11 @@ def login():
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            show_saml_login=settings.SAML_LOGIN_ENABLED)
 
+
 @app.route('/logout')
 def logout():
     logout_user()
+    # TODO(@arikfr): need to check if this is really needed.
     session.pop('openid', None)
 
     return redirect('/login')

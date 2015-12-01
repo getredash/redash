@@ -3,43 +3,49 @@ from flask import request
 
 from redash import models
 from redash.wsgi import api
-from redash.permissions import require_permission
-from redash.handlers.base import BaseResource
+from redash.permissions import require_permission, require_admin_or_owner
+from redash.handlers.base import BaseResource, get_object_or_404
 
 
-class VisualizationListAPI(BaseResource):
+class VisualizationListResource(BaseResource):
     @require_permission('edit_query')
     def post(self):
         kwargs = request.get_json(force=True)
-        kwargs['options'] = json.dumps(kwargs['options'])
-        kwargs['query'] = kwargs.pop('query_id')
 
-        vis = models.Visualization(**kwargs)
-        vis.save()
+        query = get_object_or_404(models.Query.get_by_id_and_org, kwargs.pop('query_id'), self.current_org)
+        require_admin_or_owner(query.user_id)
+
+        kwargs['options'] = json.dumps(kwargs['options'])
+        kwargs['query'] = query
+
+        vis = models.Visualization.create(**kwargs)
 
         return vis.to_dict(with_query=False)
 
 
-class VisualizationAPI(BaseResource):
+class VisualizationResource(BaseResource):
     @require_permission('edit_query')
     def post(self, visualization_id):
+        vis = get_object_or_404(models.Visualization.get_by_id_and_org, visualization_id, self.current_org)
+        require_admin_or_owner(vis.query.user_id)
+
         kwargs = request.get_json(force=True)
         if 'options' in kwargs:
             kwargs['options'] = json.dumps(kwargs['options'])
+
         kwargs.pop('id', None)
         kwargs.pop('query_id', None)
 
-        update = models.Visualization.update(**kwargs).where(models.Visualization.id == visualization_id)
-        update.execute()
-
-        vis = models.Visualization.get_by_id(visualization_id)
+        vis.update_instance(**kwargs)
 
         return vis.to_dict(with_query=False)
 
     @require_permission('edit_query')
     def delete(self, visualization_id):
-        vis = models.Visualization.get(models.Visualization.id == visualization_id)
+        vis = get_object_or_404(models.Visualization.get_by_id_and_org, visualization_id, self.current_org)
+        require_admin_or_owner(vis.query.user_id)
+
         vis.delete_instance()
 
-api.add_resource(VisualizationListAPI, '/api/visualizations', endpoint='visualizations')
-api.add_resource(VisualizationAPI, '/api/visualizations/<visualization_id>', endpoint='visualization')
+api.add_resource(VisualizationListResource, '/api/visualizations', endpoint='visualizations')
+api.add_resource(VisualizationResource, '/api/visualizations/<visualization_id>', endpoint='visualization')

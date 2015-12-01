@@ -58,7 +58,8 @@ angular.module('redash', [
         resolve: {
           'query': ['Query', function newQuery(Query) {
             return Query.newQuery();
-          }]
+          }],
+          'dataSources': ['DataSource', function (DataSource) { return DataSource.query().$promise }]
         }
       });
       $routeProvider.when('/queries/search', {
@@ -118,6 +119,18 @@ angular.module('redash', [
         templateUrl: '/views/users/list.html',
         controller: 'UsersCtrl'
       });
+      $routeProvider.when('/groups/:groupId/data_sources', {
+        templateUrl: '/views/groups/show_data_sources.html',
+        controller: 'GroupDataSourcesCtrl'
+      });
+      $routeProvider.when('/groups/:groupId', {
+        templateUrl: '/views/groups/show.html',
+        controller: 'GroupCtrl'
+      });
+      $routeProvider.when('/groups', {
+        templateUrl: '/views/groups/list.html',
+        controller: 'GroupsCtrl'
+      })
 
       $routeProvider.when('/', {
         templateUrl: '/views/personal.html',

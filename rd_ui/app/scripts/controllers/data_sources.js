@@ -13,7 +13,7 @@
       event.stopPropagation();
       Events.record(currentUser, "delete", "datasource", datasource.id);
       datasource.$delete(function(resource) {
-        growl.addSuccessMessage("Data source deleted succesfully.");
+        growl.addSuccessMessage("Data source deleted successfully.");
         this.$parent.dataSources = _.without(this.dataSources, resource);
       }.bind(this), function(httpResponse) {
         console.log("Failed to delete data source: ", httpResponse.status, httpResponse.statusText, httpResponse.data);
