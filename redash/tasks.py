@@ -243,11 +243,11 @@ def check_alerts_for_query(self, query_id):
         new_state = alert.evaluate()
         passed_rearm_threshold = False
         if alert.rearm and alert.last_triggered_at:
-            passed_rearm_threshold = alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < datetime.datetime.now().replace(tzinfo=alert.last_triggered_at.tzinfo)
+            passed_rearm_threshold = alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < utils.utcnow()
         if new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold ):
             logger.info("Alert %d new state: %s", alert.id, new_state)
             old_state = alert.state
-            alert.update_instance(state=new_state, last_triggered_at=datetime.datetime.now())
+            alert.update_instance(state=new_state, last_triggered_at=utils.utcnow())
 
             if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
                 logger.debug("Skipping notification (previous state was unknown and now it's ok).")
