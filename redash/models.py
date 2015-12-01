@@ -621,18 +621,25 @@ class Alert(ModelTimestampsMixin, BaseModel):
     def all(cls):
         return cls.select(Alert, User, Query).join(Query).switch(Alert).join(User)
 
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'query': self.query.to_dict(),
-            'user': self.user.to_dict(),
-            'options': self.options,
-            'state': self.state,
-            'last_triggered_at': self.last_triggered_at,
-            'updated_at': self.updated_at,
-            'created_at': self.created_at
+    def to_dict(self, full=True):
+        d = {
+                'id': self.id,
+                'name': self.name,
+                'options': self.options,
+                'state': self.state,
+                'last_triggered_at': self.last_triggered_at,
+                'updated_at': self.updated_at,
+                'created_at': self.created_at
         }
+
+        if full:
+            d['query'] = self.query.to_dict()
+            d['user'] = self.user.to_dict()
+        else:
+            d['query_id'] = self._data['query']
+            d['user_id'] = self._data['user']
+
+        return d
 
     def evaluate(self):
         data = json.loads(self.query.latest_query_data.data)

@@ -104,6 +104,13 @@ MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHM
 
 HOST = os.environ.get('REDASH_HOST', '')
 
+HIPCHAT_API_TOKEN = os.environ.get('REDASH_HIPCHAT_API_TOKEN', None)
+HIPCHAT_ROOM_ID = os.environ.get('REDASH_HIPCHAT_ROOM_ID', None)
+
+WEBHOOK_ENDPOINT = os.environ.get('REDASH_WEBHOOK_ENDPOINT', None)
+WEBHOOK_USERNAME = os.environ.get('REDASH_WEBHOOK_USERNAME', None)
+WEBHOOK_PASSWORD = os.environ.get('REDASH_WEBHOOK_PASSWORD', None)
+
 # CORS settings for the Query Result API (and possbily future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
 # to the calling domain (or domains in a comma separated list).
