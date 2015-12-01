@@ -34,7 +34,7 @@ types_map = {
 }
 
 
-class Hive(BaseQueryRunner):
+class Hive(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -67,7 +67,7 @@ class Hive(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Hive, self).__init__(configuration_json)
 
-    def get_schema(self):
+    def _get_tables(self, schema_dict):
         try:
             schemas_query = "show schemas"
 
@@ -75,7 +75,6 @@ class Hive(BaseQueryRunner):
 
             columns_query = "show columns in %s"
 
-            schema = {}
             for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
                 for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
                     columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % table_name)))
