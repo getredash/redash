@@ -44,7 +44,7 @@ def _wait(conn):
             raise psycopg2.OperationalError("select.error received")
 
 
-class PostgreSQL(BaseQueryRunner):
+class PostgreSQL(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -86,7 +86,7 @@ class PostgreSQL(BaseQueryRunner):
 
         self.connection_string = " ".join(values)
 
-    def get_schema(self):
+    def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name
         FROM information_schema.columns
@@ -100,7 +100,6 @@ class PostgreSQL(BaseQueryRunner):
 
         results = json.loads(results)
 
-        schema = {}
         for row in results['rows']:
             if row['table_schema'] != 'public':
                 table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
@@ -112,7 +111,6 @@ class PostgreSQL(BaseQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
-        self._get_table_sizes(schema)
         return schema.values()
 
     def run_query(self, query):
