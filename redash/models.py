@@ -320,7 +320,7 @@ class DataSource(BaseModel):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(query_runner.get_schema(get_stats=True), key=lambda t: t['name'])
+            schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
 
             redis_connection.set(key, json.dumps(schema))
         else:
