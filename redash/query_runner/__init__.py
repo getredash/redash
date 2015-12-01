@@ -10,6 +10,7 @@ __all__ = [
     'ValidationError',
     'BaseQueryRunner',
     'InterruptException',
+    'BaseSQLQueryRunner',
     'TYPE_DATETIME',
     'TYPE_BOOLEAN',
     'TYPE_INTEGER',
@@ -99,12 +100,6 @@ class BaseQueryRunner(object):
             raise Exception("Failed running query [%s]." % query)
         return json.loads(results)['rows']
 
-    def _get_table_sizes(self, tables_dict):
-        for t in tables_dict.keys():
-            if type(tables_dict[t]) == dict:
-                res = self._run_query_internal('select count(*) as cnt from %s' % t) 
-                tables_dict[t]['size'] = res[0]['cnt']
-
     @classmethod
     def to_dict(cls):
         return {
@@ -113,6 +108,25 @@ class BaseQueryRunner(object):
             'configuration_schema': cls.configuration_schema()
         }
 
+
+class BaseSQLQueryRunner(BaseQueryRunner):
+    def __init__(self, configuration):
+        super(BaseSQLQueryRunner, self).__init__(configuration)
+
+    def get_schema(self):
+        schema_dict = {}
+        self._get_tables(schema_dict)
+        self._get_tables_stats(schema_dict)
+        return schema_dict.values()
+
+    def _get_tables(self, schema_dict):
+        return []
+
+    def _get_tables_stats(self, tables_dict):
+        for t in tables_dict.keys():
+            if type(tables_dict[t]) == dict:
+                res = self._run_query_internal('select count(*) as cnt from %s' % t)
+                tables_dict[t]['size'] = res[0]['cnt']
 
 query_runners = {}
 
