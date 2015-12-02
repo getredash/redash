@@ -7,6 +7,8 @@ angular.module('redash', [
     'redash.renderers',
     'redash.visualization',
     'highchart',
+    'plotly',
+    'plotly-chart',
     'angular-growl',
     'angularMoment',
     'ui.bootstrap',

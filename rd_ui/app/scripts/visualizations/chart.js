@@ -35,50 +35,23 @@
       replace: false,
       controller: ['$scope', function ($scope) {
         $scope.chartSeries = [];
-        $scope.chartOptions = {};
 
-        var reloadData = function(data, options) {
-          options = options || {};
-          if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
-            $scope.chartSeries.splice(0, $scope.chartSeries.length);
-          } else {
-            $scope.chartSeries.splice(0, $scope.chartSeries.length);
-            var allSeries = $scope.queryResult.getChartData($scope.options.columnMapping);
+        var reloadChart = function() {
+          reloadData();
+          $scope.plotlyOptions = $scope.options;
+        }
 
-            _.each(allSeries, function (series) {
-              var additional = {'stacking': 'normal'};
-              if ('globalSeriesType' in $scope.options) {
-                additional['type'] = $scope.options.globalSeriesType;
-              }
-              if ($scope.options.seriesOptions && $scope.options.seriesOptions[series.name]) {
-                additional = $scope.options.seriesOptions[series.name];
-                if (!additional.name || additional.name == "") {
-                  additional.name = series.name;
-                }
-              }
-              $scope.chartSeries.push(_.extend(series, additional));
-            });
-          };
-        };
+        var reloadData = function() {
+          $scope.chartSeries = _.sortBy($scope.queryResult.getChartData($scope.options.columnMapping),
+                                        function(series) {
+                                          if ($scope.options.seriesOptions[series.name])
+                                            return $scope.options.seriesOptions[series.name].zIndex;
+                                          return 0;
+                                        });
+        }
 
-        $scope.$watch('options', function (chartOptions) {
-          if (chartOptions) {
-            $scope.chartOptions = chartOptions;
-          }
-        });
-
-        $scope.$watch('options.seriesOptions', function () {
-          reloadData(true);
-        }, true);
-
-
-        $scope.$watchCollection('options.columnMapping', function (chartOptions) {
-          reloadData(true);
-        });
-
-        $scope.$watch('queryResult && queryResult.getData()', function (data) {
-          reloadData(data);
-        });
+        $scope.$watch('options', reloadChart, true)
+        $scope.$watch('queryResult && queryResult.getData()', reloadData)
       }]
     };
   });

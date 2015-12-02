@@ -34,7 +34,9 @@
     "angular-bootstrap-show-errors": "~2.3.0",
     "angular-sanitize": "1.2.18",
     "d3": "3.5.6",
-    "angular-ui-sortable": "~0.13.4"
+    "angular-ui-sortable": "~0.13.4",
+    "angular-plotly": "~0.1.1",
+    "plotly": "~0.0.2"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
