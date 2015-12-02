@@ -47,7 +47,7 @@
         for (var propertyName in params) {
           if (!_.contains(blacklist, propertyName)) {
             var filter = {
-              'Filters': propertyName.split('p_')[1],
+              'Filters': propertyName.slice(0, 2) === 'p_' ? propertyName.slice(2) : propertyName,
               'Values': params[propertyName]
             };
             parameters.push(filter);
