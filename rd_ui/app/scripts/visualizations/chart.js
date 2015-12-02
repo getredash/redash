@@ -36,29 +36,6 @@
       controller: ['$scope', function ($scope) {
         $scope.chartSeries = [];
         $scope.chartOptions = {};
-        $scope.dateRangeEnabled = function() {
-          return $scope.options.xAxis && $scope.options.xAxis.type === 'datetime';
-        }
-        $scope.dateRange = { min: moment('1970-01-01'), max: moment() };
-
-        /**
-         * Update date range by finding date extremes
-         *
-         * ISSUE: chart.getExtreme() does not support getting Moment object out of box
-         * TODO: Find a faster way to do this
-         */
-        var setDateRangeToExtreme = function (allSeries) {
-          if ($scope.dateRangeEnabled() && allSeries && allSeries.length > 0) {
-            $scope.dateRange = {
-              min: moment.min.apply(undefined, _.map(allSeries, function (series) {
-                return moment.min(_.pluck(series.data, 'x'));
-              })),
-              max: moment.max.apply(undefined, _.map(allSeries, function (series) {
-                return moment.max(_.pluck(series.data, 'x'));
-              }))
-            };
-          }
-        };
 
         var reloadData = function(data, options) {
           options = options || {};
@@ -67,13 +44,6 @@
           } else {
             $scope.chartSeries.splice(0, $scope.chartSeries.length);
             var allSeries = $scope.queryResult.getChartData($scope.options.columnMapping);
-            if (!options.preventSetExtreme) {
-              setDateRangeToExtreme(allSeries);
-            }
-            var allSeries = $scope.queryResult.getChartData(
-              $scope.options.columnMapping,
-              $scope.dateRangeEnabled() ? $scope.dateRange : null
-            );
 
             _.each(allSeries, function (series) {
               var additional = {'stacking': 'normal'};
@@ -108,22 +78,6 @@
 
         $scope.$watch('queryResult && queryResult.getData()', function (data) {
           reloadData(data);
-        });
-
-        $scope.$watch('dateRange.min', function(minDateRange, oldMinDateRange) {
-          if (!minDateRange.isSame(oldMinDateRange)) {
-            reloadData(true, {
-              preventSetExtreme: true
-            });
-          }
-        });
-
-        $scope.$watch('dateRange.max', function (maxDateRange, oldMaxDateRange) {
-          if (!maxDateRange.isSame(oldMaxDateRange)) {
-            reloadData(true, {
-              preventSetExtreme: true
-            });
-          }
         });
       }]
     };
