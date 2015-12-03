@@ -13,35 +13,25 @@ from redash.utils import json_dumps
 @login_required
 def embed(query_id, visualization_id):
 
-    v = models.Visualization.get(models.Visualization.id == visualization_id)
+    query = models.Query.get_by_id(query_id)
+    vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
-    if v:
-        q = v.query
-        if q.id == int(query_id):
-            v = v.to_dict()
-            query_result_id = q._data['latest_query_data']
-            if query_result_id:
-                qr = models.QueryResult.get_by_id(query_result_id)
-                qr = qr.to_dict()
-            else:
-                abort(400, message="No Results for this query")
+    if vis is not None:
+        vis = vis.to_dict()
+        qr = query.latest_query_data
+        if qr is None:
+            abort(400, message="No Results for this query")
         else:
-            logging.error("%r != %r" % (q.id,query_id))
-            abort(404, message="Invalid visualization for query")
+            qr = qr.to_dict()
     else:
         abort(404, message="Visualization not found.")
 
-    client_config = {
-        'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
-        'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD,
-        'dateFormat': settings.DATE_FORMAT,
-        'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT)
-    }
+    client_config = {}
+    client_config.update(settings.COMMON_CLIENT_CONFIG)
 
     return render_template("embed.html",
                            name=settings.NAME,
                            client_config=json_dumps(client_config),
-                           visualization=json_dumps(v),
+                           visualization=json_dumps(vis),
                            query_result=json_dumps(qr),
                            analytics=settings.ANALYTICS)
