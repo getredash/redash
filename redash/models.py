@@ -369,10 +369,10 @@ class QueryResult(BaseModel):
         }
 
     @classmethod
-    def unused(cls):
-        week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+    def unused(cls, days=7):
+        age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
 
-        unused_results = cls.select().where(Query.id == None, cls.retrieved_at < week_ago)\
+        unused_results = cls.select().where(Query.id == None, cls.retrieved_at < age_threshold)\
             .join(Query, join_type=peewee.JOIN_LEFT_OUTER)
 
         return unused_results

@@ -221,7 +221,10 @@ def cleanup_query_results():
     Each time the job deletes only 100 query results so it won't choke the database in case of many such results.
     """
 
-    unused_query_results = models.QueryResult.unused().limit(100)
+    logging.info("Running query results clean up (removing maximum of %d unused results, that are %d days old or more)",
+                 settings.QUERY_RESULTS_CLEANUP_COUNT, settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
+
+    unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
     total_unused_query_results = models.QueryResult.unused().count()
     deleted_count = models.QueryResult.delete().where(models.QueryResult.id << unused_query_results).execute()
 
