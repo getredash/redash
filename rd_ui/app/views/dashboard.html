@@ -47,7 +47,7 @@
                     <h3 class="panel-title">
                         <p>
                             <span ng-show="!widget.isCollapsed" ng-click="widget.isCollapsed = !widget.isCollapsed" style="cursor: pointer" class="glyphicon glyphicon-chevron-down btn-xs" ng-init="collapseValue()"></span>
-                            <span ng-show="widget.isCollapsed" ng-click="widget.isCollapsed = !widget.isCollapsed" style="cursor: pointer" class="glyphicon glyphicon-chevron-up btn-xs"></span>
+                            <span ng-show="widget.isCollapsed" ng-click="widget.isCollapsed = !widget.isCollapsed" style="cursor: pointer; transform: rotate(90deg); vertical-align: middle;" class="glyphicon glyphicon-chevron-up btn-xs"></span>
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
                             <span style="float: right">
                                 <input type="checkbox" ng-model="widget.options.exportable.isExportable"> Exportable
