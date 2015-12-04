@@ -26,7 +26,7 @@ celery_schedule = {
 
 if settings.VERSION_CHECK:
     celery_schedule['version_check'] = {
-        'task': 'redash.tasks_version_check',
+        'task': 'redash.tasks.version_check',
         # We need to schedule the version check to run at a random hour/minute, to spread the requests from all users
         # evenly.
         'schedule': crontab(minute=randint(0, 59), hour=randint(0, 23))
