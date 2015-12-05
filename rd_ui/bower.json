@@ -13,7 +13,6 @@
     "angular-moment": "0.10.3",
     "moment": "~2.8.0",
     "codemirror": "4.8.0",
-    "highcharts": "3.0.10",
     "underscore": "1.5.1",
     "pivottable": "~1.1.1",
     "cornelius": "https://github.com/restorando/cornelius.git",

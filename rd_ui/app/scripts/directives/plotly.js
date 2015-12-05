@@ -60,6 +60,8 @@
   }
 
   var percentBarStacking = function(seriesList) {
+    if (seriesList.length == 0)
+      return;
     fillXValues(seriesList);
     for (var i = 0; i < seriesList[0].y.length; i++) {
       var sum = 0;
@@ -70,6 +72,13 @@
         seriesList[j]['y'][i] = seriesList[j]['y'][i] / sum * 100;
       }
     }
+  }
+
+  var normalizeValue = function(value) {
+    if (moment.isMoment(value)) {
+      return value.format("YYYY-MM-DD HH:MM:SS.ssssss");
+    }
+    return value;
   }
 
   angular.module('plotly-chart', [])
@@ -119,16 +128,19 @@
 
             if (scope.options.globalSeriesType == 'pie') {
               var hasX = _.contains(_.values(scope.options.columnMapping), 'x');
-              var piesInRow = Math.ceil(Math.sqrt(scope.series.length));
-              var cellSize = 1 / piesInRow;
-              var padding = 0.05;
+              var rows = scope.series.length > 2 ? 2 : 1;
+              var cellsInRow = Math.ceil(scope.series.length / rows)
+              var cellWidth = 1 / cellsInRow;
+              var cellHeight = 1 / rows;
+              var xPadding = 0.02;
+              var yPadding = 0.05;
               _.each(scope.series, function(series, index) {
-                var xPosition = index % piesInRow;
-                var yPosition = Math.floor(index / piesInRow);
+                var xPosition = (index % cellsInRow) * cellWidth;
+                var yPosition = Math.floor(index / cellsInRow) * cellHeight;
                 var plotlySeries = {values: [], labels: [], type: 'pie', hole: .4,
                                     text: series.name, textposition: 'inside', name: series.name,
-                                    domain: {x: [xPosition * cellSize, (xPosition + 1) * cellSize],
-                                             y: [yPosition * cellSize, (yPosition + 1) * cellSize - padding]}};
+                                    domain: {x: [xPosition, xPosition + cellWidth - xPadding],
+                                             y: [yPosition, yPosition + cellHeight - yPadding]}};
                 _.each(series.data, function(row, index) {
                   plotlySeries.values.push(row.y);
                   plotlySeries.labels.push(hasX ? row.x : 'Slice ' + index);
@@ -155,22 +167,29 @@
                 data = _.sortBy(data, 'x');
               }
               _.each(data, function(row) {
-                plotlySeries.x.push(row.x);
-                plotlySeries.y.push(row.y);
+                plotlySeries.x.push(normalizeValue(row.x));
+                plotlySeries.y.push(normalizeValue(row.y));
               });
               scope.data.push(plotlySeries)
             });
 
             var getTitle = function(axis) {
-              return axis.title ? axis.title.text : null;
+              if (angular.isDefined(axis) && angular.isDefined(axis.title)) {
+                return axis.title.text;
+              }
+              return null;
             }
 
             scope.layout.xaxis = {title: getTitle(scope.options.xAxis),
-                                  type: getScaleType(scope.options.xAxis.type),
-                                  showticklabels: scope.options.xAxis.labels.enabled};
-            scope.layout.yaxis = {title: getTitle(scope.options.yAxis[0]),
-                                  type: getScaleType(scope.options.yAxis[0].type)};
-            if (hasY2) {
+                                  type: getScaleType(scope.options.xAxis.type)};
+            if (angular.isDefined(scope.options.xAxis.labels)) {
+              scope.layout.xaxis.showticklabels = scope.options.xAxis.labels.enabled;
+            }
+            if (angular.isArray(scope.options.yAxis)) {
+              scope.layout.yaxis = {title: getTitle(scope.options.yAxis[0]),
+                                    type: getScaleType(scope.options.yAxis[0].type)};
+            }
+            if (hasY2 && angular.isDefined(scope.options.yAxis)) {
               scope.layout.yaxis2 = {title: getTitle(scope.options.yAxis[1]),
                                      type: getScaleType(scope.options.yAxis[1].type),
                                      overlaying: 'y',
@@ -193,9 +212,9 @@
             }
           }
 
-          scope.$watch('series', redraw, true);
+          scope.$watch('series', redraw);
           scope.$watch('options', redraw, true);
-          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height};
+          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height, autosize: true};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
         }

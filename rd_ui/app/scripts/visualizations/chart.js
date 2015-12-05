@@ -42,12 +42,14 @@
         }
 
         var reloadData = function() {
-          $scope.chartSeries = _.sortBy($scope.queryResult.getChartData($scope.options.columnMapping),
-                                        function(series) {
-                                          if ($scope.options.seriesOptions[series.name])
-                                            return $scope.options.seriesOptions[series.name].zIndex;
-                                          return 0;
-                                        });
+          if (angular.isDefined($scope.queryResult)) {
+            $scope.chartSeries = _.sortBy($scope.queryResult.getChartData($scope.options.columnMapping),
+                                          function(series) {
+                                            if ($scope.options.seriesOptions[series.name])
+                                              return $scope.options.seriesOptions[series.name].zIndex;
+                                            return 0;
+                                          });
+          }
         }
 
         $scope.$watch('options', reloadChart, true)
