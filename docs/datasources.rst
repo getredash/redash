@@ -10,8 +10,8 @@ If one of the listed data source types isn't available when trying to create a n
 1. You installed required dependencies.
 2. If you've set custom value for the ``REDASH_ENABLED_QUERY_RUNNERS`` setting, it's included in the list.
 
-PostgreSQL / Redshift
----------------------
+PostgreSQL / Redshift / Greenplum
+---------------------------------
 
 -  **Options**:
 
