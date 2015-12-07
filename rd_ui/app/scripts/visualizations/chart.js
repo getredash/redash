@@ -8,6 +8,7 @@
     var defaultOptions = {
       globalSeriesType: 'column',
       sortX: true,
+      legend: {enabled: true},
       yAxis: [{type: 'linear'}, {type: 'linear', opposite: true}],
       xAxis: {type: 'datetime', labels: {enabled: true}},
       series: {stacking: null},
@@ -179,6 +180,10 @@
             setColumnRole('series', value);
           }
         });
+
+        if (!_.has(scope.options, 'legend')) {
+          scope.options.legend = {enabled: true};
+        }
 
         if (scope.columnNames)
           _.each(scope.options.columnMapping, function(value, key) {

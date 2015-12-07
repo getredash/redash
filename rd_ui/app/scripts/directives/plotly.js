@@ -121,6 +121,7 @@
 
           var redraw = function() {
             scope.data.length = 0;
+            scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
             delete scope.layout.barmode;
             delete scope.layout.xaxis;
             delete scope.layout.yaxis;
