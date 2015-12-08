@@ -20,7 +20,7 @@ PostgreSQL / Redshift / Greenplum
    -  Password
    -  Host
    -  Port
-
+   
 -  **Additional requirements**:
 
    - None
@@ -216,3 +216,18 @@ Oracle
 - **Additional requirements**
 
   - ``cx_Oracle`` python package. This requires the installation of the Oracle `instant client <http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html>`__.
+
+Treasure Data
+------
+
+- **Options**
+
+   -  Type (TreasureData)
+   -  API Key
+   -  Database Name
+   -  Type (Presto/Hive[default])
+   
+- **Additional requirements**
+   - Must have account on https://console.treasuredata.com
+   
+Documentation: https://docs.treasuredata.com/articles/redash
