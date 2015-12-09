@@ -295,7 +295,6 @@
         onDestroy: "&",
       },
       link: function(scope, elem, attrs) {
-        console.log(scope.onDestroy);
         scope.$on('$destroy', function() {
           scope.onDestroy();
         });

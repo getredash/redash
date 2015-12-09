@@ -1,8 +1,3 @@
 <div>
-  <section class="clearfix">
-    <date-range-selector ng-if="dateRangeEnabled()" date-range='dateRange' class='pull-right'></date-range-selector>
-  </section>
-  <section>
-    <chart options='chartOptions' series='chartSeries' class='graph'></chart>
-  </section>
+  <plotly-chart options='plotlyOptions' series='chartSeries' height="300"></plotly-chart>
 </div>
