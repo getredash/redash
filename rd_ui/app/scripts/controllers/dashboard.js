@@ -20,15 +20,11 @@
      *
      */
     $scope.collapseValue = function() {
-      var marked = false;
       if ($scope.dashboard.widgets !== undefined) {
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
-            if (w.visualization && marked !== true) {
+            if (w.visualization) {
               w.isCollapsed = false;
-              marked = true;
-            } else {
-              w.isCollapsed = true;
             }
           });
         });
