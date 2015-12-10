@@ -48,6 +48,7 @@
     fillXValues(seriesList);
     _.each(seriesList, function(series) {
       series.text = [];
+      series.hoverinfo = 'text+name';
     });
     for (var i = 0; i < seriesList[0].y.length; i++) {
       var sum = 0;
@@ -55,8 +56,10 @@
         sum += seriesList[j]['y'][i];
       }
       for(var j = 0; j < seriesList.length; j++) {
-        seriesList[j].text.push('Value: ' + seriesList[j]['y'][i]);
-        seriesList[j]['y'][i] = seriesList[j]['y'][i] / sum * 100;
+        var value = seriesList[j]['y'][i] / sum * 100;
+        seriesList[j].text.push('Value: ' + seriesList[j]['y'][i] + '<br>Relative: ' + value.toFixed(2) + '%');
+
+        seriesList[j]['y'][i] = value;
         if (j > 0)
           seriesList[j].y[i] += seriesList[j-1].y[i];
       }
@@ -69,6 +72,7 @@
     fillXValues(seriesList);
     _.each(seriesList, function(series) {
       series.text = [];
+      series.hoverinfo = 'text+name';
     });
     for (var i = 0; i < seriesList[0].y.length; i++) {
       var sum = 0;
@@ -76,8 +80,9 @@
         sum += seriesList[j]['y'][i];
       }
       for(var j = 0; j < seriesList.length; j++) {
-        seriesList[j].text.push('Value: ' + seriesList[j]['y'][i]);
-        seriesList[j]['y'][i] = seriesList[j]['y'][i] / sum * 100;
+        var value = seriesList[j]['y'][i] / sum * 100;
+        seriesList[j].text.push('Value: ' + seriesList[j]['y'][i] + '<br>Relative: ' + value.toFixed(2) + '%');
+        seriesList[j]['y'][i] = value;
       }
     }
   }
