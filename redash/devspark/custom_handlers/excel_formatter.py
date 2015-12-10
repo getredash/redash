@@ -1,5 +1,6 @@
 import xlsxwriter
 import tempfile
+import datetime
 from flask import Flask, request, make_response
 from flask_login import login_required
 from redash.wsgi import app
@@ -30,6 +31,7 @@ def generate_first_page(workbook, filters, reports):
     wrap = workbook.add_format({
         'text_wrap': True, 
         'align': 'right',
+        'valign': 'top',
         'font_size': 9,
         'font_name': 'Times New Roman'
         })
@@ -78,8 +80,8 @@ def generate_first_page(workbook, filters, reports):
     worksheet.set_row(0, 35)
     worksheet.write(0, 0, 'MANSION GLOBAL', titleFormat)
 
-    worksheet.merge_range(0, 2, 0, 4, 'For any queries about this report please contact your local sales representative on :\n+1 212 XXX XXXX', wrap);
-
+    worksheet.merge_range(0, 2, 0, 4, 'For any queries about this report please contact your local sales representative', wrap);
+    
     # Row 1
     worksheet.set_row(1, 25)
     worksheet.write(1, 0, 'ONLY THE EXCEPTION', descriptionFormat)
@@ -87,7 +89,9 @@ def generate_first_page(workbook, filters, reports):
     # Row 3
     worksheet.write(3, 0, '1211 Ave of the Americas New York, NY 10036', font)
     worksheet.write(3, 2, 'Report Generated on:', right)
-    worksheet.write(3, 3, 42309, day_right)
+
+    d = datetime.datetime.now()
+    worksheet.write(3, 3, d, day_right)
 
     # Row 5
     worksheet.write(6, 0, 'Reports', bold)
