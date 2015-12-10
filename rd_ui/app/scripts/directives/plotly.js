@@ -158,7 +158,7 @@
                                   y: [],
                                   name: seriesOptions.name || series.name,
                                   marker: {color: seriesOptions.color ? seriesOptions.color : getColor(index)}};
-              if (seriesOptions.yAxis == 1) {
+              if (seriesOptions.yAxis == 1 && scope.options.series.stacking == null) {
                 hasY2 = true;
                 plotlySeries.yaxis = 'y2';
               }
