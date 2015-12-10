@@ -46,12 +46,16 @@
     if (seriesList.length == 0)
       return;
     fillXValues(seriesList);
+    _.each(seriesList, function(series) {
+      series.text = [];
+    });
     for (var i = 0; i < seriesList[0].y.length; i++) {
       var sum = 0;
       for(var j = 0; j < seriesList.length; j++) {
         sum += seriesList[j]['y'][i];
       }
       for(var j = 0; j < seriesList.length; j++) {
+        seriesList[j].text.push('Value: ' + seriesList[j]['y'][i]);
         seriesList[j]['y'][i] = seriesList[j]['y'][i] / sum * 100;
         if (j > 0)
           seriesList[j].y[i] += seriesList[j-1].y[i];
@@ -63,12 +67,16 @@
     if (seriesList.length == 0)
       return;
     fillXValues(seriesList);
+    _.each(seriesList, function(series) {
+      series.text = [];
+    });
     for (var i = 0; i < seriesList[0].y.length; i++) {
       var sum = 0;
       for(var j = 0; j < seriesList.length; j++) {
         sum += seriesList[j]['y'][i];
       }
       for(var j = 0; j < seriesList.length; j++) {
+        seriesList[j].text.push('Value: ' + seriesList[j]['y'][i]);
         seriesList[j]['y'][i] = seriesList[j]['y'][i] / sum * 100;
       }
     }
