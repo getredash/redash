@@ -613,6 +613,7 @@ class Alert(ModelTimestampsMixin, BaseModel):
     options = JSONField()
     state = peewee.CharField(default=UNKNOWN_STATE)
     last_triggered_at = DateTimeTZField(null=True)
+    rearm = peewee.IntegerField(null=True)
 
     class Meta:
         db_table = 'alerts'
@@ -623,13 +624,14 @@ class Alert(ModelTimestampsMixin, BaseModel):
 
     def to_dict(self, full=True):
         d = {
-                'id': self.id,
-                'name': self.name,
-                'options': self.options,
-                'state': self.state,
-                'last_triggered_at': self.last_triggered_at,
-                'updated_at': self.updated_at,
-                'created_at': self.created_at
+            'id': self.id,
+            'name': self.name,
+            'options': self.options,
+            'state': self.state,
+            'last_triggered_at': self.last_triggered_at,
+            'updated_at': self.updated_at,
+            'created_at': self.created_at,
+            'rearm': self.rearm
         }
 
         if full:

@@ -96,7 +96,9 @@
       if ($scope.alert.name === undefined || $scope.alert.name === '') {
         $scope.alert.name = $scope.getDefaultName();
       }
-
+      if ($scope.alert.rearm === '' || $scope.alert.rearm === 0) {
+        $scope.alert.rearm = null;
+      }
       $scope.alert.$save(function(alert) {
         growl.addSuccessMessage("Saved.");
         if ($scope.alertId === "new") {

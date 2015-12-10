@@ -16,7 +16,7 @@ class AlertAPI(BaseResource):
 
     def post(self, alert_id):
         req = request.get_json(True)
-        params = project(req, ('options', 'name', 'query_id'))
+        params = project(req, ('options', 'name', 'query_id', 'rearm'))
         alert = models.Alert.get_by_id(alert_id)
         if 'query_id' in params:
             params['query'] = params.pop('query_id')
