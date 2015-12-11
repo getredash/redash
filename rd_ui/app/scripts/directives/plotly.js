@@ -162,6 +162,7 @@
                 var xPosition = (index % cellsInRow) * cellWidth;
                 var yPosition = Math.floor(index / cellsInRow) * cellHeight;
                 var plotlySeries = {values: [], labels: [], type: 'pie', hole: .4,
+                                    marker: {colors: ColorPaletteArray},
                                     text: series.name, textposition: 'inside', name: series.name,
                                     domain: {x: [xPosition, xPosition + cellWidth - xPadding],
                                              y: [yPosition, yPosition + cellHeight - yPadding]}};
