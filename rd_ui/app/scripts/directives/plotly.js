@@ -96,9 +96,9 @@
         restrict: 'E',
         template: '<plotly data="data" layout="layout" options="plotlyOptions"></plotly>',
         scope: {
-          options: "=options",
-          series: "=series",
-          height: "=height",
+          options: "=",
+          series: "=",
+          minHeight: "="
         },
         link: function (scope, element, attrs) {
           var getScaleType = function(scale) {
@@ -127,9 +127,13 @@
             return ColorPaletteArray[index % ColorPaletteArray.length];
           }
 
+          var bottomMargin = 50,
+              pixelsPerLegendRow = 21;
           var redraw = function() {
             scope.data.length = 0;
             scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
+            scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * scope.series.length);
+            scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin) ;
             delete scope.layout.barmode;
             delete scope.layout.xaxis;
             delete scope.layout.yaxis;
@@ -223,7 +227,7 @@
 
           scope.$watch('series', redraw);
           scope.$watch('options', redraw, true);
-          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height, autosize: true};
+          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, autosize: true};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
         }
