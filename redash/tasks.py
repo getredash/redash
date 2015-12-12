@@ -1,3 +1,4 @@
+import datetime
 import time
 import logging
 import signal
@@ -221,7 +222,10 @@ def cleanup_query_results():
     Each time the job deletes only 100 query results so it won't choke the database in case of many such results.
     """
 
-    unused_query_results = models.QueryResult.unused().limit(100)
+    logging.info("Running query results clean up (removing maximum of %d unused results, that are %d days old or more)",
+                 settings.QUERY_RESULTS_CLEANUP_COUNT, settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
+
+    unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
     total_unused_query_results = models.QueryResult.unused().count()
     deleted_count = models.QueryResult.delete().where(models.QueryResult.id << unused_query_results).execute()
 
@@ -248,10 +252,13 @@ def check_alerts_for_query(self, query_id):
     for alert in query.alerts:
         alert.query = query
         new_state = alert.evaluate()
-        if new_state != alert.state:
+        passed_rearm_threshold = False
+        if alert.rearm and alert.last_triggered_at:
+            passed_rearm_threshold = alert.last_triggered_at + datetime.timedelta(seconds=alert.rearm) < utils.utcnow()
+        if new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold ):
             logger.info("Alert %d new state: %s", alert.id, new_state)
             old_state = alert.state
-            alert.update_instance(state=new_state)
+            alert.update_instance(state=new_state, last_triggered_at=utils.utcnow())
 
             if old_state == models.Alert.UNKNOWN_STATE and new_state == models.Alert.OK_STATE:
                 logger.debug("Skipping notification (previous state was unknown and now it's ok).")

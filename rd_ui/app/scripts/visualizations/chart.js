@@ -8,6 +8,7 @@
     var defaultOptions = {
       globalSeriesType: 'column',
       sortX: true,
+      legend: {enabled: true},
       yAxis: [{type: 'linear'}, {type: 'linear', opposite: true}],
       xAxis: {type: 'datetime', labels: {enabled: true}},
       series: {stacking: null},
@@ -35,96 +36,25 @@
       replace: false,
       controller: ['$scope', function ($scope) {
         $scope.chartSeries = [];
-        $scope.chartOptions = {};
-        $scope.dateRangeEnabled = function() {
-          return $scope.options.xAxis && $scope.options.xAxis.type === 'datetime';
+
+        var reloadChart = function() {
+          reloadData();
+          $scope.plotlyOptions = $scope.options;
         }
-        $scope.dateRange = { min: moment('1970-01-01'), max: moment() };
 
-        /**
-         * Update date range by finding date extremes
-         *
-         * ISSUE: chart.getExtreme() does not support getting Moment object out of box
-         * TODO: Find a faster way to do this
-         */
-        var setDateRangeToExtreme = function (allSeries) {
-          if ($scope.dateRangeEnabled() && allSeries && allSeries.length > 0) {
-            $scope.dateRange = {
-              min: moment.min.apply(undefined, _.map(allSeries, function (series) {
-                return moment.min(_.pluck(series.data, 'x'));
-              })),
-              max: moment.max.apply(undefined, _.map(allSeries, function (series) {
-                return moment.max(_.pluck(series.data, 'x'));
-              }))
-            };
+        var reloadData = function() {
+          if (angular.isDefined($scope.queryResult)) {
+            $scope.chartSeries = _.sortBy($scope.queryResult.getChartData($scope.options.columnMapping),
+                                          function(series) {
+                                            if ($scope.options.seriesOptions[series.name])
+                                              return $scope.options.seriesOptions[series.name].zIndex;
+                                            return 0;
+                                          });
           }
-        };
+        }
 
-        var reloadData = function(data, options) {
-          options = options || {};
-          if (!data || ($scope.queryResult && $scope.queryResult.getData()) == null) {
-            $scope.chartSeries.splice(0, $scope.chartSeries.length);
-          } else {
-            $scope.chartSeries.splice(0, $scope.chartSeries.length);
-            var allSeries = $scope.queryResult.getChartData($scope.options.columnMapping);
-            if (!options.preventSetExtreme) {
-              setDateRangeToExtreme(allSeries);
-            }
-            var allSeries = $scope.queryResult.getChartData(
-              $scope.options.columnMapping,
-              $scope.dateRangeEnabled() ? $scope.dateRange : null
-            );
-
-            _.each(allSeries, function (series) {
-              var additional = {'stacking': 'normal'};
-              if ('globalSeriesType' in $scope.options) {
-                additional['type'] = $scope.options.globalSeriesType;
-              }
-              if ($scope.options.seriesOptions && $scope.options.seriesOptions[series.name]) {
-                additional = $scope.options.seriesOptions[series.name];
-                if (!additional.name || additional.name == "") {
-                  additional.name = series.name;
-                }
-              }
-              $scope.chartSeries.push(_.extend(series, additional));
-            });
-          };
-        };
-
-        $scope.$watch('options', function (chartOptions) {
-          if (chartOptions) {
-            $scope.chartOptions = chartOptions;
-          }
-        });
-
-        $scope.$watch('options.seriesOptions', function () {
-          reloadData(true);
-        }, true);
-
-
-        $scope.$watchCollection('options.columnMapping', function (chartOptions) {
-          reloadData(true);
-        });
-
-        $scope.$watch('queryResult && queryResult.getData()', function (data) {
-          reloadData(data);
-        });
-
-        $scope.$watch('dateRange.min', function(minDateRange, oldMinDateRange) {
-          if (!minDateRange.isSame(oldMinDateRange)) {
-            reloadData(true, {
-              preventSetExtreme: true
-            });
-          }
-        });
-
-        $scope.$watch('dateRange.max', function (maxDateRange, oldMaxDateRange) {
-          if (!maxDateRange.isSame(oldMaxDateRange)) {
-            reloadData(true, {
-              preventSetExtreme: true
-            });
-          }
-        });
+        $scope.$watch('options', reloadChart, true)
+        $scope.$watch('queryResult && queryResult.getData()', reloadData)
       }]
     };
   });
@@ -250,6 +180,10 @@
             setColumnRole('series', value);
           }
         });
+
+        if (!_.has(scope.options, 'legend')) {
+          scope.options.legend = {enabled: true};
+        }
 
         if (scope.columnNames)
           _.each(scope.options.columnMapping, function(value, key) {
