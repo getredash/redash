@@ -3,6 +3,7 @@ import json
 
 import jsonschema
 from jsonschema import ValidationError
+from redash import settings
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema_dict = {}
         self._get_tables(schema_dict)
-        if get_stats:
+        if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
             self._get_tables_stats(schema_dict)
         return schema_dict.values()
 
