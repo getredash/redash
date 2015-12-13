@@ -92,8 +92,8 @@ class BaseElasticSearch(BaseQueryRunner):
         if self.server_url[-1] == "/":
             self.server_url = self.server_url[:-1]
 
-        basic_auth_user = self.configuration["basic_auth_user"]
-        basic_auth_password = self.configuration["basic_auth_password"]
+        basic_auth_user = self.configuration.get("basic_auth_user", None)
+        basic_auth_password = self.configuration.get("basic_auth_password", None)
         self.auth = None
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
@@ -117,7 +117,8 @@ class BaseElasticSearch(BaseQueryRunner):
                             if property_type in ELASTICSEARCH_TYPES_MAPPING:
                                 mappings[property_name] = property_type
                             else:
-                                raise Exception("Unknown property type: {0}".format(property_type))
+                                mappings[property_name] = TYPE_STRING
+                                #raise Exception("Unknown property type: {0}".format(property_type))
 
         return mappings
 
@@ -230,7 +231,7 @@ class Kibana(BaseElasticSearch):
             if isinstance(query_data, str) or isinstance(query_data, unicode):
                 _from = 0
                 while True:
-                    total = self._execute_simple_query(url, _from, mappings, result_fields, result_columns, result_rows)
+                    total = self._execute_simple_query(url, self.auth, _from, mappings, result_fields, result_columns, result_rows)
                     _from += size
                     if _from >= total:
                         break
