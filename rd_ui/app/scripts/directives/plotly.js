@@ -239,7 +239,7 @@
 
           scope.$watch('series', redraw);
           scope.$watch('options', redraw, true);
-          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, autosize: true, hovermode: 'closest'};
+          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, hovermode: 'closest'};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
         }
