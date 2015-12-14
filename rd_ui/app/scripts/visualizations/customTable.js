@@ -111,8 +111,9 @@
                 visibleColumn[option.column] = option.visible;
                 columnLink[option.column] = option.link;
                 columnExtras[option.column] = option.extraTags;
+
               });
- 
+
               var prepareGridData = function(data) {
                 // Clones data to avoid changing the queryResult
                 //var gridData = _.map(data, function(row) {
@@ -214,6 +215,66 @@
       templateUrl: '/views/visualizations/customtable_editor.html',
       link: function(scope, element, attrs) {
 
+        scope.$watch('queryResult && queryResult.getData()',
+          function(data) {
+            if (scope.queryResult.status === 'done' && scope.visualization.options.cols) {
+              processColumns();
+            }
+          });
+
+        /**
+         * processColumns gets the differences between the current visualization options and the 
+         * newest obtained for the query. This logic allows to remove and add all the columns
+         * that have been removed or added respectively on the query. 
+         */
+        function processColumns() {
+
+          // Checks for each columns
+          var columnsUsed = _.pluck(scope.visualization.options.cols, 'column');
+
+          // Checks if a column was removed when the query is updated
+          var removed = _.difference(columnsUsed, scope.queryResult.getColumnCleanNames());
+
+          // Iterates and removes each column that should not be displayed on Custom Table options
+          _.forEach(removed, function(item) {
+            var idx = _.findIndex(scope.visualization.options.cols, {
+              'column': item
+            });
+            if (idx) {
+              scope.visualization.options.cols.splice(idx, 1);
+            }
+          });
+          // Gets the columns to be added on Custom Table options
+          var difference = _.difference(scope.queryResult.getColumnCleanNames(), columnsUsed);
+
+          _.forEach(difference, function(item) {
+            scope.visualization.options.cols.push(emptyObject(item))
+          });
+          scope.cols = scope.visualization.options.cols;
+        }
+
+
+        /**
+         * emptyObject create custom object to render default options
+         * @param  {string} item column name
+         * @return {object}      object rendered by default
+         */
+        function emptyObject(item) {
+          var obj = {};
+          obj.column = item;
+          obj.visible = true;
+          obj.align = 'left';
+          obj.bold = false;
+          obj.italic = false;
+          obj.link = false;
+          obj.inputLink = {};
+          obj.inputLink.text = '';
+          obj.parameters = true;
+          obj.inputLink.visualText = '';
+          obj.extraTags = '';
+          return obj;
+        }
+
         scope.cols = [];
 
         // Initializes the columns options
@@ -221,24 +282,10 @@
           var columnStyle = {};
           var visibleColumn = {};
           _.forEach(scope.queryResult.getColumnCleanNames(), function(item) {
-            var obj = {};
-            obj.column = item;
-            obj.visible = true;
-            obj.align = 'left';
-            obj.bold = false;
-            obj.italic = false;
-            //obj.color = false;
-            //obj.chosenColor = 'green';
-            obj.link = false;
-            obj.inputLink = {};
-            obj.inputLink.text = '';
-            obj.parameters = true;
-            obj.inputLink.visualText = '';
-            obj.extraTags = '';
-            scope.cols.push(obj);
+            scope.cols.push(emptyObject(item));
           });
         } else {
-          scope.cols = scope.visualization.options.cols;
+          processColumns();
         }
 
 
@@ -247,9 +294,7 @@
           if (newVal === oldVal) {
             return;
           }
-          //console.log('table options changed');
           scope.visualization.options.cols = scope.cols;
-          //optionsService.setOptions(scope.cols);
         }, true);
 
         /**
