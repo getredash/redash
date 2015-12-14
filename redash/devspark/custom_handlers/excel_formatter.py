@@ -70,10 +70,9 @@ def generate_first_page(workbook, filters, reports):
     worksheet = workbook.add_worksheet('Details')
 
     # Columns
-    worksheet.set_column(0, 0, 40)
+    worksheet.set_column(0, 0, 45)
     worksheet.set_column(1, 1, 3)
-    worksheet.set_column(2, 2, 15)
-    worksheet.set_column(3, 3, 15)
+    worksheet.set_column(2, 3, 20)
     worksheet.set_column(4, 4, 13)
 
     # Row 0
@@ -104,12 +103,6 @@ def generate_first_page(workbook, filters, reports):
         worksheet.write(rowIdx, colIdx, report, font)
         rowIdx += 1
 
-    #worksheet.write(7, 0, 'Selected Development View', font)
-    #worksheet.write(8, 0, 'Developments Units', font)
-    #worksheet.write(9, 0, 'Development Views By MOD as Col', font)
-    #worksheet.write(10, 0, 'Development Leads', font)
-    #worksheet.write(11, 0, 'Development Views By MOD', font)
-
     # Filters Applied
     colIdx = 2
     rowIdx = 7
@@ -119,15 +112,6 @@ def generate_first_page(workbook, filters, reports):
             colIdx += 1
         rowIdx += 1
         colIdx = 2
-
-    #worksheet.write(7, 2, 42309, day_right)
-    #worksheet.write(7, 3, 'to', center)
-    #worksheet.write(7, 4, 42338, day_left)
-    
-    #worksheet.write(8, 2, 'Marketing Group', right)
-    #worksheet.write(8, 4, 'Sothebys', left)
-
-    return
 
 @app.route('/api/dashboard/generate_excel', methods=['POST'])
 def get_tasks():
