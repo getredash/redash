@@ -111,6 +111,7 @@
                 visibleColumn[option.column] = option.visible;
                 columnLink[option.column] = option.link;
                 columnExtras[option.column] = option.extraTags;
+
               });
 
               var prepareGridData = function(data) {
