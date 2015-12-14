@@ -164,3 +164,6 @@ VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CEHCK", "true"))
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))
+
+# Enhance schema fetching
+SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS", "false"))

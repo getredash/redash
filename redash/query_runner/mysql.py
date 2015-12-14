@@ -26,7 +26,7 @@ types_map = {
     254: TYPE_STRING,
 }
 
-class Mysql(BaseQueryRunner):
+class Mysql(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -84,7 +84,7 @@ class Mysql(BaseQueryRunner):
     def __init__(self, configuration_json):
         super(Mysql, self).__init__(configuration_json)
 
-    def get_schema(self):
+    def _get_tables(self, schema):
         query = """
         SELECT col.table_schema,
                col.table_name,
@@ -105,7 +105,6 @@ class Mysql(BaseQueryRunner):
 
         results = json.loads(results)
 
-        schema = {}
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
                 table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
