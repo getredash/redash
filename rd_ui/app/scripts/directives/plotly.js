@@ -143,8 +143,6 @@
           var redraw = function() {
             scope.data.length = 0;
             scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
-            scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * scope.series.length);
-            scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin) ;
             delete scope.layout.barmode;
             delete scope.layout.xaxis;
             delete scope.layout.yaxis;
@@ -158,6 +156,7 @@
               var cellHeight = 1 / rows;
               var xPadding = 0.02;
               var yPadding = 0.05;
+              var largestXCount = 0;
               _.each(scope.series, function(series, index) {
                 var xPosition = (index % cellsInRow) * cellWidth;
                 var yPosition = Math.floor(index / cellsInRow) * cellHeight;
@@ -171,10 +170,14 @@
                   plotlySeries.labels.push(hasX ? row.x : 'Slice ' + index);
                 });
                 scope.data.push(plotlySeries);
+                largestXCount = Math.max(largestXCount, plotlySeries.labels.length);
               });
+              scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * largestXCount);
+              scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
               return;
             }
-
+            scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * scope.series.length);
+            scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
             var hasY2 = false;
             _.each(scope.series, function(series, index) {
               var seriesOptions = scope.options.seriesOptions[series.name] || {};
