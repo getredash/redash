@@ -44,5 +44,7 @@ RUN mkdir -p /opt/redash/supervisord && \
 EXPOSE 5000
 EXPOSE 9001
 
+USER root
+
 # Startup script
 CMD ["supervisord", "-c", "/opt/redash/supervisord/supervisord.conf"]
