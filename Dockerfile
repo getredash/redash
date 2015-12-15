@@ -7,10 +7,9 @@ RUN apt-get update && \
   # Postgres client
   libpq-dev \
   # Additional packages required for data sources:
-  libssl-dev libmysqlclient-dev
-
-RUN curl https://deb.nodesource.com/setup_4.x | bash - && \
-  apt-get install -y nodejs
+  libssl-dev libmysqlclient-dev && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
 # Users creation
 RUN useradd --system --comment " " --create-home redash
