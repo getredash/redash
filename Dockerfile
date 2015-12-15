@@ -9,6 +9,9 @@ RUN apt-get update && \
   # Additional packages required for data sources:
   libssl-dev libmysqlclient-dev
 
+RUN curl https://deb.nodesource.com/setup_4.x | bash - && \
+  apt-get install -y nodejs
+
 # Users creation
 RUN useradd --system --comment " " --create-home redash
 
@@ -25,13 +28,17 @@ WORKDIR /opt/redash/current
 RUN pip install -r requirements_all_ds.txt && \
   pip install -r requirements.txt
 
+# Fix permissions
+RUN chown -R redash /opt/redash
+
+USER redash
+
+RUN make deps && rm -rf rd_ui/node_modules
+
 # Setup supervisord
 RUN mkdir -p /opt/redash/supervisord && \
     mkdir -p /opt/redash/logs && \
     cp /opt/redash/current/setup/docker/supervisord/supervisord.conf /opt/redash/supervisord/supervisord.conf
-
-# Fix permissions
-RUN chown -R redash /opt/redash
 
 # Expose ports
 EXPOSE 5000
