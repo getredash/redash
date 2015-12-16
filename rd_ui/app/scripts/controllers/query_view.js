@@ -99,6 +99,7 @@
         data.id = $scope.query.id;
       } else {
         data = _.clone($scope.query);
+        data.name = 'Copy of '+data.name;
       }
 
       options = _.extend({}, {
