@@ -132,13 +132,8 @@ class BigQuery(BaseQueryRunner):
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
-    def run_query(self, query):
-        logger.debug("BigQuery got query: %s", query)
-
-        bigquery_service = self._get_bigquery_service()
-        jobs = bigquery_service.jobs()
+    def _get_query_result(self, jobs, query):
         project_id = self._get_project_id()
-
         job_data = {
             "configuration": {
                 "query": {
@@ -147,6 +142,40 @@ class BigQuery(BaseQueryRunner):
             }
         }
 
+        insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
+        current_row = 0
+        query_reply = _get_query_results(jobs, project_id=project_id,
+                                         job_id=insert_response['jobReference']['jobId'], start_index=current_row)
+
+        logger.debug("bigquery replied: %s", query_reply)
+
+        rows = []
+
+        while ("rows" in query_reply) and current_row < query_reply['totalRows']:
+            for row in query_reply["rows"]:
+                rows.append(transform_row(row, query_reply["schema"]["fields"]))
+
+            current_row += len(query_reply['rows'])
+            query_reply = jobs.getQueryResults(projectId=project_id, jobId=query_reply['jobReference']['jobId'],
+                                               startIndex=current_row).execute()
+
+        columns = [{'name': f["name"],
+                    'friendly_name': f["name"],
+                    'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
+
+        data = {
+            "columns": columns,
+            "rows": rows
+        }
+
+        return data
+
+    def run_query(self, query):
+        logger.debug("BigQuery got query: %s", query)
+
+        bigquery_service = self._get_bigquery_service()
+        jobs = bigquery_service.jobs()
+
         try:
             if "maximumTotalMBytesProcessed" in self.configuration:
                 maximumMB = self.configuration["maximumTotalMBytesProcessed"]
@@ -154,31 +183,7 @@ class BigQuery(BaseQueryRunner):
                 if maximumMB < processedMB:
                     return None, "Too large data will be processed (%f MBytes; maximum: %d MBytes)" % (processedMB, maximumMB)
 
-            insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
-            current_row = 0
-            query_reply = _get_query_results(jobs, project_id=project_id,
-                                             job_id=insert_response['jobReference']['jobId'], start_index=current_row)
-
-            logger.debug("bigquery replied: %s", query_reply)
-
-            rows = []
-
-            while ("rows" in query_reply) and current_row < query_reply['totalRows']:
-                for row in query_reply["rows"]:
-                    rows.append(transform_row(row, query_reply["schema"]["fields"]))
-
-                current_row += len(query_reply['rows'])
-                query_reply = jobs.getQueryResults(projectId=project_id, jobId=query_reply['jobReference']['jobId'],
-                                                   startIndex=current_row).execute()
-
-            columns = [{'name': f["name"],
-                        'friendly_name': f["name"],
-                        'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
-
-            data = {
-                "columns": columns,
-                "rows": rows
-            }
+            data = self._get_query_result(jobs, query)
             error = None
 
             json_data = json.dumps(data, cls=JSONEncoder)
