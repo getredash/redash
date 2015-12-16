@@ -63,7 +63,8 @@
 
         var data = {
           name: $scope.dashboard.name,
-          data: []
+          data: [],
+          reports: []
         };
 
         var filtersUsed = excelFilters();
@@ -72,17 +73,14 @@
 
         //first tab is for filters used, if they are defined
         if (filtersUsed !== null) {
-          worksheet = {
-            option: {
-              sheet: 'Filters Used',
-              columnNames: [
+          filters = {
+            columnNames: [
                 'Filters',
                 'Values'
-              ]
-            },
+            ],
             data: filtersUsed
           };
-          data.data.push(worksheet);
+          data.filters = filters;
         }
 
         //generate data to be exported for every widget that is marked for export
@@ -106,11 +104,12 @@
                 },
                 data: w.query.queryResult.filteredData
               };
+              data.reports.push(worksheet.option.sheet);
               data.data.push(worksheet);
             }
           });
         });
-        if (data.data.length > 1) {
+        if (data.data.length > 0) {
           $http({
             url: '/api/dashboard/generate_excel',
             method: 'POST',
