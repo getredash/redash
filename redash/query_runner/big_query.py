@@ -96,9 +96,9 @@ class BigQuery(BaseQueryRunner):
                     "type": "string",
                     'title': 'JSON Key File'
                 },
-                'maximumTotalMBytesProcessed': {
+                'totalMBytesProcessedLimit': {
                     "type": "number",
-                    'title': 'Maximum Total MByte Processed'
+                    'title': 'Total MByte Processed Limit'
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
@@ -177,11 +177,11 @@ class BigQuery(BaseQueryRunner):
         jobs = bigquery_service.jobs()
 
         try:
-            if "maximumTotalMBytesProcessed" in self.configuration:
-                maximumMB = self.configuration["maximumTotalMBytesProcessed"]
+            if "totalMBytesProcessedLimit" in self.configuration:
+                limitMB = self.configuration["totalMBytesProcessedLimit"]
                 processedMB = self._get_total_bytes_processed(jobs, query) / 1000.0 / 1000.0
-                if maximumMB < processedMB:
-                    return None, "Too large data will be processed (%f MBytes; maximum: %d MBytes)" % (processedMB, maximumMB)
+                if limitMB < processedMB:
+                    return None, "Larger than %d MBytes will be processed (%f MBytes)" % (limitMB, processedMB)
 
             data = self._get_query_result(jobs, query)
             error = None
