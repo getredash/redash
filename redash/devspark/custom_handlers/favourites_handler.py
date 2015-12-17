@@ -17,9 +17,9 @@ def post_favourite(dashboard_id):
         fav = favourites.Favourite()
         fav.user = current_user.id
         fav.dashboard = dashboard_id
-        if data['flag'] and not exits_favourite(fav.dashboard):
+        if data['flag'] and not exist_favourite(fav.dashboard):
             fav.save()
-        elif not data['flag'] and exits_favourite(fav.dashboard):
+        elif not data['flag'] and exist_favourite(fav.dashboard):
             q = fav.delete().where((favourites.Favourite.user == fav.user)
                                    & (favourites.Favourite.dashboard == dashboard_id))
             q.execute();
@@ -47,7 +47,7 @@ def get_favourites():
     return json.dumps(fav_objs, default=json_util.default)
 
 # Retrieve TRUE if an specific dashboard is marked as favourite
-def exits_favourite(dashboard_id):
+def exist_favourite(dashboard_id):
     try:
         fav_obj = favourites.Favourite.select().dicts().where((favourites.Favourite.dashboard == dashboard_id)
                                                               & (favourites.Favourite.user == current_user.id)).get()
