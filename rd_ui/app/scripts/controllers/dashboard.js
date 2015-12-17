@@ -1,5 +1,12 @@
 (function() {
-    var DashboardCtrl = function($scope, Events, Widget, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
+    var DashboardCtrl = function($scope, Events, Widget, FavoriteDashboards, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
+    
+    /**
+    * toggleFavorite Add/Remove the current dashboard to favorite
+    */
+    $scope.toggleFavorite = function(value) {
+      FavoriteDashboards.updateFavorite({dashboardId: $scope.dashboard.id, flag: value});
+    };
 
     /**
      * changeCollapseValues for each widget sets the value received by param
@@ -54,7 +61,7 @@
           return parameters;
         }
         return null;
-      }
+      };
 
       /**
        * exportWidgets For Each widget takes the data and exports that on a Sheet
@@ -136,6 +143,10 @@
       slug: $routeParams.dashboardSlug
     }, function(dashboard) {
       Events.record(currentUser, "view", "dashboard", dashboard.id);
+
+      FavoriteDashboards.getFavoriteStatus({dashboardId: $scope.dashboard.id}, function(result) {
+        $scope.isFavorite = result.flag;
+      });
 
       $scope.$parent.pageTitle = dashboard.name;
 
@@ -327,7 +338,7 @@ var WidgetCtrl = function($scope, $location, Events, Query, Parameters) {
 };
 
 angular.module('redash.controllers')
-  .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'FileSaver', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
+  .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
   .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
 
 })();

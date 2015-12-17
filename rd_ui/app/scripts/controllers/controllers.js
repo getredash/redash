@@ -196,18 +196,44 @@
     $scope.$parent.pageTitle = "Home";
   };
 
-  var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query) {
+  var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query, FavoriteDashboards) {
+    var dashboard;
     Events.record(currentUser, "view", "page", "personal_homepage");
     $scope.$parent.pageTitle = "Home";
 
     $scope.recentQueries = Query.recent();
     $scope.recentDashboards = Dashboard.recent();
+
+    // Get user favorite dashboards
+    FavoriteDashboards.getAllFavorites().$promise.then(function(favoriteDashboards) {
+      $scope.favoriteDashboards = _.map(favoriteDashboards, function(favorite) {
+        dashboard = _.find($scope.dashboards, function(item) {
+          return item.id === favorite.dashboard;
+        });
+        if (dashboard) {
+          favorite.name = dashboard.name;
+          favorite.slug = dashboard.slug;
+        }
+        return favorite;
+      });
+    });
+
+    /**
+    * Removes clicked dashboard from favorites list
+    * @param {Integer} dashboardId
+    * @param {Integer} index: index position on favorites array
+    **/
+    $scope.removeFromFavorites = function(dashboardId, index) {
+      FavoriteDashboards.updateFavorite({dashboardId: dashboardId, flag: false}, function() {
+        $scope.favoriteDashboards.splice(index, 1);
+      });
+    };  
   };
 
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
-    .controller('PersonalIndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', PersonalIndexCtrl])
+    .controller('PersonalIndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', 'FavoriteDashboards', PersonalIndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();
