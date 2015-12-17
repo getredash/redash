@@ -642,19 +642,34 @@
     }
   };
 
-  var DashboardExport = function ($http) {
-        return {
-          exportXls: function(data) {
-            return $http({
-              url: '/api/dashboard/generate_excel',
-            method: 'POST',
-            headers: {
-              'Content-type': 'application/json'
-            },
-            responseType: 'arraybuffer',
-            data: data});
-          }
-        };
+  var FavoriteDashboards = function ($resource) {
+    var url = '/api/favourites';
+    var actions = {
+      getAllFavorites: {
+        'method': 'GET',
+        'cache': false,
+        'isArray': true
+      },
+      getFavoriteStatus: {
+        'method': 'GET',
+        'cache': false,
+        'isArray': false,
+        'url': url  + '/:dashboardId',
+      },
+      updateFavorite: {
+        'method': 'POST',
+        'cache': false,
+        'isArray': false,
+        'url': url  + '/:dashboardId',
+        params: {
+          dashboardId : '@dashboardId',
+          flag: '@flag'
+        }
+      }
+    };
+    var FavoriteResource = $resource(url, {}, actions);
+
+    return FavoriteResource;
   };
 
   angular.module('redash.services')
@@ -666,5 +681,5 @@
       .factory('Widget', ['$resource', 'Query', Widget])
       .factory('User', ['$resource', '$http', User])
       .factory('Parameters', [Parameters])
-      .factory('DashboardExport', ['$http', DashboardExport]);
+      .factory('FavoriteDashboards', ['$resource', FavoriteDashboards]);
 })();

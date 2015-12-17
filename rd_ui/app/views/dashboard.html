@@ -29,6 +29,8 @@
         <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" ng-click="exportWidgets()" title="Export Tables to XLS.">
             <span class="glyphicon glyphicon-download" aria-hidden="true"></span> XLS
         </button>
+        <span title="{{isFavorite ? 'Remove from favorites' : 'Add to favorites'}}" class="pull-left fa dashboard-favorite-icon" 
+              ng-click="isFavorite = !isFavorite; toggleFavorite(isFavorite)" ng-class="{'fa-star' : isFavorite, 'fa-star-o': !isFavorite}"></span>
     </h2>
 
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
