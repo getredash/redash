@@ -1,9 +1,9 @@
 <div class="container">
     <div class="row">
         <p>
-            <a href="/queries/new" class="btn btn-default">New Query</a>
+            <a href="/queries/new" class="btn btn-default" ng-show="currentUser.hasPermission('create_dashboard')">New Query</a>
             <button ng-show="currentUser.hasPermission('create_dashboard')" type="button" class="btn btn-default" data-toggle="modal" href="#new_dashboard_dialog">New Dashboard</button>
-            <a href="/alerts/new" class="btn btn-default">New Alert</a>
+            <a href="/alerts/new" class="btn btn-default" ng-show="currentUser.hasPermission('create_dashboard')">New Alert</a>
         </p>
     </div>
 
