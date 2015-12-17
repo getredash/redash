@@ -174,6 +174,16 @@
       });
     };
 
+    /**
+     * hasElements
+     * @param {Object} obj: object to check if it has properties or is empty
+     * @return {Boolean}: returns true if object has properties. Otherwise it returns false
+     *
+     */
+    $scope.hasElements = function(obj) {
+      return _.keys(obj).length;
+    };
+
     $scope.searchQueries = function() {
       $location.path('/queries/search').search({q: $scope.term});
     };
