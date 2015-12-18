@@ -1,42 +1,97 @@
 (function() {
     var DashboardCtrl = function($scope, Events, Widget, FavoriteDashboards, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
     
-    /**
-    * toggleFavorite Add/Remove the current dashboard to favorite
-    */
-    $scope.toggleFavorite = function(value) {
-      FavoriteDashboards.updateFavorite({dashboardId: $scope.dashboard.id, flag: value});
-    };
+      /**
+      * toggleFavorite Add/Remove the current dashboard to favorite
+      */
+      $scope.toggleFavorite = function(value) {
+        FavoriteDashboards.updateFavorite({dashboardId: $scope.dashboard.id, flag: value});
+      };
 
-    /**
-     * changeCollapseValues for each widget sets the value received by param
-     * @param  {boolean} value 
-     */
-    $scope.changeCollapseValues = function(value) {
-      if ($scope.dashboard.widgets !== undefined) {
-        _.forEach($scope.dashboard.widgets, function(widget) {
-          _.forEach(widget, function(w) {
-            w.isCollapsed = value;
+      /**
+       * changeCollapseValues for each widget sets the value received by param
+       * @param  {boolean} value 
+       */
+      $scope.changeCollapseValues = function(value) {
+        if ($scope.dashboard.widgets !== undefined) {
+          _.forEach($scope.dashboard.widgets, function(widget) {
+            _.forEach(widget, function(w) {
+              w.isCollapsed = value;
+            })
           })
-        })
-      }
-    };
+        }
+      };
 
-    /**
-     * collapseValue Get the collapse value depending if the first widget is visualization
-     *
-     */
-    $scope.collapseValue = function() {
-      if ($scope.dashboard.widgets !== undefined) {
+      /**
+       * collapseValue Get the collapse value depending if the first widget is visualization
+       *
+       */
+      $scope.collapseValue = function() {
+        if ($scope.dashboard.widgets !== undefined) {
+          _.forEach($scope.dashboard.widgets, function(widget) {
+            _.forEach(widget, function(w) {
+              if (w.visualization) {
+                w.isCollapsed = false;
+              }
+            });
+          });
+        }
+      };
+
+      /**
+       * exportWidgets For Each selected visualization widget export its svg to a pdf
+       */
+      $scope.exportWidgetsToPdf = function() {
+        var $chart,
+          data = {data: []};
+        //generate data to be exported for every widget that is marked for export
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
-            if (w.visualization) {
-              w.isCollapsed = false;
+            if (w.options.exportable !== undefined &&
+              w.options.exportable.isExportable && 
+              w.query !== undefined &&
+              w.query.queryResult !== undefined &&
+              w.query.queryResult.filteredData !== undefined) {
+              //to export charts, send SVG
+              if (w.visualization && w.visualization.type==='CHART') {
+                $chart = $('#' + w.id).find('div[data-highcharts-chart]');
+                data.data.push({
+                  name: (w.options.exportable.name || w.query.name) + '- ' + w.visualization.name,
+                  data: $chart.highcharts().getSVG(),
+                  type: 'SVG'
+                });
+              } else { //to export tables, send data
+                data.data.push({
+                  name: w.options.exportable.name || w.query.name,
+                  data: {
+                    columnNames: w.query.queryResult.columnNames,
+                    rows: w.query.queryResult.filteredData
+                  },
+                  type: 'TABLE'
+                });
+              }
+             
             }
           });
         });
-      }
-    };
+
+        if (data.data.length) {
+          $http({
+            url: '/services/pdf/create',
+            method: 'POST',
+            data: data,
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            responseType: 'arraybuffer'
+          }).then(function(response) {
+            var blob = new Blob([response.data], {
+              type: 'application/pdf;charset=utf-8'
+            });
+            FileSaver.saveAs(blob, $scope.dashboard.name + '.pdf');
+          });
+        }
+      };
 
       /**
        * excelFilters Creates a object that contains all the filters included on the dashboard

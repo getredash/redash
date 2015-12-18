@@ -23,7 +23,7 @@
         <button style="float: right; font-weight: bold; margin-right: 5px;" type="button" class="btn btn-default" title="Expand all widgets." ng-click="changeCollapseValues(false)">
             Expand 
         </button>
-        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-danger" title="Export Tables to PDF.">
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-danger" ng-click="exportWidgetsToPdf()" title="Export Tables to PDF.">
             <span class="glyphicon glyphicon-download" aria-hidden="true"></span> PDF
         </button>
         <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" ng-click="exportWidgets()" title="Export Tables to XLS.">
@@ -39,7 +39,7 @@
 <div class="container" id="dashboard">
     <div ng-repeat="row in dashboard.widgets" class="row">
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}"
-             ng-controller='WidgetCtrl'>
+             ng-controller="WidgetCtrl" id="{{widget.id}}">
 
 
 
