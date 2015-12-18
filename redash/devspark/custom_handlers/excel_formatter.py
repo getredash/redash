@@ -73,17 +73,17 @@ def generate_first_page(workbook, filters, reports):
     worksheet.set_column(0, 0, 45)
     worksheet.set_column(1, 1, 3)
     worksheet.set_column(2, 3, 20)
-    worksheet.set_column(4, 4, 13)
+    worksheet.set_column(4, 4, 25)
 
     # Row 0
     worksheet.set_row(0, 35)
     worksheet.write(0, 0, 'MANSION GLOBAL', titleFormat)
 
-    worksheet.merge_range(0, 2, 0, 4, 'For any queries about this report please contact your local sales representative', wrap);
+    worksheet.merge_range(0, 2, 0, 4, 'For any queries about this report please contact your Mansion Global sales representative', wrap);
     
     # Row 1
     worksheet.set_row(1, 25)
-    worksheet.write(1, 0, 'ONLY THE EXCEPTION', descriptionFormat)
+    worksheet.write(1, 0, 'ONLY THE EXCEPTIONAL', descriptionFormat)
 
     # Row 3
     worksheet.write(3, 0, '1211 Ave of the Americas New York, NY 10036', font)
