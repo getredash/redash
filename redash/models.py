@@ -156,7 +156,7 @@ class Group(BaseModel):
 
 
 class User(ModelTimestampsMixin, BaseModel, UserMixin, PermissionsCheckMixin):
-    DEFAULT_GROUPS = ['default']
+    DEFAULT_GROUPS = ['guest']
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField(max_length=320)
