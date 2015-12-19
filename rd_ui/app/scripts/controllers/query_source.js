@@ -67,9 +67,9 @@
 
     $scope.duplicateQuery = function() {
       Events.record(currentUser, 'fork', 'query', $scope.query.id);
+      $scope.query.name = 'Copy of (#'+$scope.query.id+') '+$scope.query.name;
       $scope.query.id = null;
       $scope.query.schedule = null;
-
       $scope.saveQuery({
         successMessage: 'Query forked',
         errorMessage: 'Query could not be forked'
