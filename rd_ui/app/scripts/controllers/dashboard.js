@@ -134,12 +134,16 @@
 
       Events.record(currentUser, "delete", "widget", $scope.widget.id);
 
-      $scope.widget.$delete(function() {
+      $scope.widget.$delete(function(response) {
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function(row) {
           return _.filter(row, function(widget) {
             return widget.id != undefined;
           })
         });
+
+        $scope.dashboard.widgets = _.filter($scope.dashboard.widgets, function(row) { return row.length > 0 });
+
+        $scope.dashboard.layout = response.layout;
       });
     };
 
