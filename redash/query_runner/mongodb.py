@@ -135,8 +135,8 @@ class MongoDB(BaseQueryRunner):
             last_document = d
 
         columns = []
-        self._merge_property_names(columns, first_document)
-        self._merge_property_names(columns, last_document)
+        if first_document: self._merge_property_names(columns, first_document)
+        if last_document: self._merge_property_names(columns, last_document)
 
         return columns
 
