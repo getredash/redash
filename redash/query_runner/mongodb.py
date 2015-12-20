@@ -102,14 +102,55 @@ class MongoDB(BaseQueryRunner):
 
         return None
 
-
-    def run_query(self, query):
+    def _get_db(self):
         if self.is_replica_set:
             db_connection = pymongo.MongoReplicaSetClient(self.configuration["connectionString"], replicaSet=self.configuration["replicaSetName"])
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
 
-        db = db_connection[self.db_name]
+        return db_connection[self.db_name]
+
+    def _merge_property_names(self, columns, document):
+        for property in document:
+              if property not in columns:
+                  columns.append(property)
+
+    def _get_collection_fields(self, db, collection_name):
+        # Since MongoDB is a document based database and each document doesn't have 
+        # to have the same fields as another documet in the collection its a bit hard to
+        # show these attributes as fields in the schema.
+        #
+        # For now, the logic is to take the first and last documents (last is determined
+        # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
+        # as we don't know the correct order. In most single server installations it would be 
+        # find. In replicaset when reading from non master it might not return the really last
+        # document written.
+        first_document = None
+        last_document = None
+
+        for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+            first_document = d
+
+        for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+            last_document = d
+
+        columns = []
+        self._merge_property_names(columns, first_document)
+        self._merge_property_names(columns, last_document)
+
+        return columns
+
+    def get_schema(self, get_stats=False):
+        schema = {}
+        db = self._get_db()
+        for collection_name in db.collection_names():
+            columns = self._get_collection_fields(db, collection_name)
+            schema[collection_name] = { "name" : collection_name, "columns" : sorted(columns) }
+
+        return schema.values()
+
+    def run_query(self, query):
+        db = self._get_db()
 
         logger.debug("mongodb connection string: %s", self.configuration['connectionString'])
         logger.debug("mongodb got query: %s", query)
