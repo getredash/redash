@@ -75,8 +75,10 @@ api.add_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='
 
 class DataSourceSchemaAPI(BaseResource):
     def get(self, data_source_id):
+        refresh = request.args.get("refresh", "0", type=bool)
+
         data_source = models.DataSource.get_by_id(data_source_id)
-        schema = data_source.get_schema()
+        schema = data_source.get_schema(refresh)
 
         return schema
 
