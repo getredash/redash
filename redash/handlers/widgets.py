@@ -46,5 +46,7 @@ class WidgetAPI(BaseResource):
         widget = models.Widget.get(models.Widget.id == widget_id)
         widget.delete_instance()
 
+        return {'layout': widget.dashboard.layout }
+
 api.add_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
 api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
