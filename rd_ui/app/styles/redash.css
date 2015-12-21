@@ -479,3 +479,13 @@ div.table-name {
     margin-bottom: 5px;
     margin-top: 10px;
 }
+
+/* Embed Code */
+.embed-code code  {
+    display: block;
+    white-space: normal;
+    width: 100%;
+}
+.embed-code i  {
+    cursor: pointer;
+}

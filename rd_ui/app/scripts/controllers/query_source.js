@@ -19,6 +19,7 @@
     $scope.sourceMode = true;
     $scope.canEdit = currentUser.canEdit($scope.query) || clientConfig.allowAllToEditQueries;
     $scope.isDirty = false;
+    $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
 
     $scope.newVisualization = undefined;
 

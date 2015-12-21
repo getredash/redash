@@ -38,14 +38,10 @@ def index(**kwargs):
     }
 
     client_config = {
-        'clientSideMetrics': settings.CLIENT_SIDE_METRICS,
-        'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
-        'highChartsTurboThreshold': settings.HIGHCHARTS_TURBO_THRESHOLD,
-        'dateFormat': settings.DATE_FORMAT,
-        'dateTimeFormat': "{0} HH:mm".format(settings.DATE_FORMAT),
         'newVersionAvailable': get_latest_version(),
         'version': __version__
     }
+    client_config.update(settings.COMMON_CLIENT_CONFIG)
 
     return render_template("index.html", user=json.dumps(user), name=settings.NAME,
                            client_config=json.dumps(client_config),

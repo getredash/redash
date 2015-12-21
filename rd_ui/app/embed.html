@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" ng-app="redash" ng-controller='EmbedCtrl'> <!--<![endif]-->
+<head>
+    <title ng-bind="'{{name}} | ' + pageTitle"></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- build:css /styles/embed.css -->
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/bower_components/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="/bower_components/gridster/dist/jquery.gridster.css">
+    <link rel="stylesheet" href="/bower_components/pivottable/dist/pivot.css">
+    <link rel="stylesheet" href="/bower_components/cornelius/src/cornelius.css">
+    <link rel="stylesheet" href="/bower_components/angular-ui-select/dist/select.css">
+    <link rel="stylesheet" href="/bower_components/pace/themes/pace-theme-minimal.css">
+    <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="/bower_components/codemirror/addon/hint/show-hint.css">
+    <link rel="stylesheet" href="/bower_components/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="/styles/redash.css">
+    <!-- endbuild -->
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+
+    <style>
+        body { padding:0; }
+        .col-lg-12, .row, .container, .panel { margin:0; padding:0; }
+        .container::after, .row::after { display:none; }
+    </style>
+</head>
+<body>
+<div growl></div>
+<div ng-view></div>
+
+<script src="/bower_components/jquery/jquery.js"></script>
+
+<!-- build:js /scripts/embed-plugins.js -->
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="/bower_components/jquery-ui/ui/jquery-ui.js"></script>
+<script src="/bower_components/bootstrap/js/collapse.js"></script>
+<script src="/bower_components/bootstrap/js/modal.js"></script>
+<script src="/bower_components/angular-resource/angular-resource.js"></script>
+<script src="/bower_components/angular-route/angular-route.js"></script>
+<script src="/bower_components/underscore/underscore.js"></script>
+<script src="/bower_components/moment/moment.js"></script>
+<script src="/bower_components/angular-moment/angular-moment.js"></script>
+<script src="/bower_components/codemirror/lib/codemirror.js"></script>
+<script src="/bower_components/codemirror/addon/edit/matchbrackets.js"></script>
+<script src="/bower_components/codemirror/addon/edit/closebrackets.js"></script>
+<script src="/bower_components/codemirror/addon/hint/show-hint.js"></script>
+<script src="/bower_components/codemirror/addon/hint/anyword-hint.js"></script>
+<script src="/bower_components/codemirror/mode/sql/sql.js"></script>
+<script src="/bower_components/codemirror/mode/python/python.js"></script>
+<script src="/bower_components/codemirror/mode/javascript/javascript.js"></script>
+<script src="/bower_components/gridster/dist/jquery.gridster.js"></script>
+<script src="/bower_components/angular-growl/build/angular-growl.js"></script>
+<script src="/bower_components/pivottable/dist/pivot.js"></script>
+<script src="/bower_components/cornelius/src/cornelius.js"></script>
+<script src="/bower_components/mousetrap/mousetrap.js"></script>
+<script src="/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js"></script>
+<script src="/bower_components/angular-ui-select/dist/select.js"></script>
+<script src="/bower_components/underscore.string/lib/underscore.string.js"></script>
+<script src="/bower_components/marked/lib/marked.js"></script>
+<script src="/bower_components/angular-base64-upload/dist/angular-base64-upload.js"></script>
+<script src="/bower_components/plotly/plotly.js"></script>
+<script src="/bower_components/angular-plotly/src/angular-plotly.js"></script>
+<script src="/scripts/directives/plotly.js"></script>
+<script src="/scripts/ng_smart_table.js"></script>
+<script src="/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
+<script src="/bower_components/bucky/bucky.js"></script>
+<script src="/bower_components/pace/pace.js"></script>
+<script src="/bower_components/mustache/mustache.js"></script>
+<script src="/bower_components/canvg/rgbcolor.js"></script>
+<script src="/bower_components/canvg/StackBlur.js"></script>
+<script src="/bower_components/canvg/canvg.js"></script>
+<script src="/bower_components/leaflet/dist/leaflet.js"></script>
+<script src="/bower_components/angular-bootstrap-show-errors/src/showErrors.js"></script>
+<script src="/bower_components/d3/d3.min.js"></script>
+<script src="/bower_components/angular-ui-sortable/sortable.js"></script>
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) /scripts/embed-scripts.js -->
+<script src="/scripts/embed.js"></script>
+<script src="/scripts/services/services.js"></script>
+<script src="/scripts/services/resources.js"></script>
+<script src="/scripts/services/notifications.js"></script>
+<script src="/scripts/services/dashboards.js"></script>
+<script src="/scripts/controllers/controllers.js"></script>
+<script src="/scripts/controllers/dashboard.js"></script>
+<script src="/scripts/controllers/admin_controllers.js"></script>
+<script src="/scripts/controllers/data_sources.js"></script>
+<script src="/scripts/controllers/query_view.js"></script>
+<script src="/scripts/controllers/query_source.js"></script>
+<script src="/scripts/controllers/users.js"></script>
+<script src="/scripts/visualizations/base.js"></script>
+<script src="/scripts/visualizations/chart.js"></script>
+<script src="/scripts/visualizations/cohort.js"></script>
+<script src="/scripts/visualizations/map.js"></script>
+<script src="/scripts/visualizations/counter.js"></script>
+<script src="/scripts/visualizations/boxplot.js"></script>
+<script src="/scripts/visualizations/box.js"></script>
+<script src="/scripts/visualizations/table.js"></script>
+<script src="/scripts/visualizations/pivot.js"></script>
+<script src="/scripts/visualizations/date_range_selector.js"></script>
+<script src="/scripts/directives/directives.js"></script>
+<script src="/scripts/directives/query_directives.js"></script>
+<script src="/scripts/directives/data_source_directives.js"></script>
+<script src="/scripts/directives/dashboard_directives.js"></script>
+<script src="/scripts/filters.js"></script>
+<script src="/scripts/controllers/alerts.js"></script>
+<!-- endbuild -->
+
+<script>
+    var clientConfig = {{ client_config|safe }};
+    var visualization = {{ visualization|safe }};
+    var query_result = {{ query_result|safe }};
+
+    {{ analytics|safe }}
+</script>
+
+</body>
+</html>

@@ -171,4 +171,3 @@ class JobAPI(BaseResource):
         job.cancel()
 
 api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
-

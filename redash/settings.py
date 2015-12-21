@@ -167,3 +167,13 @@ BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"
 
 # Enhance schema fetching
 SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS", "false"))
+
+### Common Client config
+COMMON_CLIENT_CONFIG = {
+    'clientSideMetrics': CLIENT_SIDE_METRICS,
+    'allowScriptsInUserInput': ALLOW_SCRIPTS_IN_USER_INPUT,
+    'highChartsTurboThreshold': HIGHCHARTS_TURBO_THRESHOLD,
+    'dateFormat': DATE_FORMAT,
+    'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
+    'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
+}

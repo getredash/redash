@@ -4,6 +4,8 @@
   function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
+    $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
+
     var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
