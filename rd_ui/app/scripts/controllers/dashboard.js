@@ -78,6 +78,8 @@
         if (data.data.length) {
           $http({
             url: '/services/pdf/create',
+            //local dev url
+            //url: '172.16.15.120:12345/create',
             method: 'POST',
             data: data,
             headers: {

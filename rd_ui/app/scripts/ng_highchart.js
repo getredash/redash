@@ -262,12 +262,13 @@
           replace: true,
 
           link: function (scope, element, attrs) {
+            var $container = $(element[0]);
             var chartsDefaults = {
               chart: {
                 renderTo: element[0],
                 type: attrs.type || null,
-                height: attrs.height || null,
-                width: attrs.width || null
+                height: attrs.height || $container.height(),
+                width: attrs.width || $container.width()
               }
             };
 
