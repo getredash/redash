@@ -181,7 +181,7 @@
      *
      */
     $scope.hasElements = function(obj) {
-      return _.keys(obj).length;
+      return obj ? _.keys(obj).length : false;
     };
 
     $scope.searchQueries = function() {
