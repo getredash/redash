@@ -14,7 +14,10 @@ from flask.ext.login import UserMixin, AnonymousUserMixin
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner
+from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from utils import generate_token
+
+
 
 
 class Database(object):
@@ -22,7 +25,7 @@ class Database(object):
         self.database_config = dict(settings.DATABASE_CONFIG)
         self.database_config['register_hstore'] = False
         self.database_name = self.database_config.pop('name')
-        self.database = PostgresqlExtDatabase(self.database_name, **self.database_config)
+        self.database = MeteredPostgresqlExtDatabase(self.database_name, **self.database_config)
         self.app = None
         self.pid = os.getpid()
 
@@ -32,6 +35,7 @@ class Database(object):
 
     def connect_db(self):
         self._check_pid()
+        self.database.reset_metrics()
         self.database.connect()
 
     def close_db(self, exc):
@@ -54,7 +58,7 @@ class Database(object):
 db = Database()
 
 
-class BaseModel(peewee.Model):
+class BaseModel(MeteredModel):
     class Meta:
         database = db.database
 
