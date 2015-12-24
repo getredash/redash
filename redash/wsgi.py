@@ -4,8 +4,9 @@ from werkzeug.wrappers import Response
 from werkzeug.contrib.fixers import ProxyFix
 from flask.ext.restful import Api
 
-from redash import settings, utils, mail, __version__
+from redash import settings, utils, mail, __version__, statsd_client
 from redash.models import db
+from redash.metrics.request import provision_app
 from redash.admin import init_admin
 
 
@@ -16,9 +17,11 @@ app = Flask(__name__,
 
 # Make sure we get the right referral address even behind proxies like nginx.
 app.wsgi_app = ProxyFix(app.wsgi_app)
+provision_app(app)
 
 api = Api(app)
 init_admin(app)
+
 
 if settings.SENTRY_DSN:
     from raven.contrib.flask import Sentry
