@@ -1,8 +1,8 @@
 import logging
 from flask.ext.login import login_user
 import requests
-from flask import redirect, url_for, Blueprint, flash
-from flask_oauth import OAuth
+from flask import redirect, url_for, Blueprint, flash, request
+from flask_oauthlib.client import OAuth
 from redash import models, settings
 
 logger = logging.getLogger('google_oauth')
@@ -18,11 +18,9 @@ google = oauth.remote_app('google',
                           request_token_url=None,
                           request_token_params={
                               'scope': 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile',
-                              'response_type': 'code'
                           },
                           access_token_url='https://accounts.google.com/o/oauth2/token',
                           access_token_method='POST',
-                          access_token_params={'grant_type': 'authorization_code'},
                           consumer_key=settings.GOOGLE_CLIENT_ID,
                           consumer_secret=settings.GOOGLE_CLIENT_SECRET)
 
@@ -65,10 +63,10 @@ def create_and_login_user(name, email):
 
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
-    # TODO, suport next
+    next = request.args.get('next','/')
     callback=url_for('.callback', _external=True)
     logger.debug("Callback url: %s", callback)
-    return google.authorize(callback=callback)
+    return google.authorize(callback=callback, state=next)
 
 
 @blueprint.route('/oauth/google_callback', endpoint="callback")
@@ -93,4 +91,6 @@ def authorized(resp):
 
     create_and_login_user(profile['name'], profile['email'])
 
-    return redirect(url_for('index'))
+    next = request.args.get('state','/')
+
+    return redirect(next)

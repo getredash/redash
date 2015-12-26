@@ -2,7 +2,7 @@ Flask==0.10.1
 Flask-Admin==1.1.0
 Flask-RESTful==0.2.10
 Flask-Login==0.2.11
-Flask-OAuth==0.12
+Flask-OAuthLib==0.9.2
 flask-mail==0.9.1
 passlib==1.6.2
 Jinja2==2.7.2
