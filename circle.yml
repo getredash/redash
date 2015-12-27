@@ -17,7 +17,7 @@ dependencies:
     - rd_ui/app/bower_components/
 test:
   override:
-    - make test
+    - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/nose --with-coverage --cover-package=redash tests/
   post:
     - make pack
 deployment:
