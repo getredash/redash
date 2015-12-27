@@ -16,6 +16,7 @@ settings.DATABASE_CONFIG = {
 
 from redash import models, redis_connection
 
+logging.getLogger("metrics").setLevel("ERROR")
 logging.getLogger('peewee').setLevel(logging.INFO)
 
 
