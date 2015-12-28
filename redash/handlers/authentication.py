@@ -7,14 +7,16 @@ from redash.wsgi import app
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    next_path = request.args.get('next', '/')
+
     if current_user.is_authenticated():
-        return redirect(request.args.get('next') or '/')
+        return redirect(next_path)
 
     if not settings.PASSWORD_LOGIN_ENABLED:
         if settings.SAML_LOGIN_ENABLED:
-            return redirect(url_for("saml_auth.sp_initiated", next=request.args.get('next')))
+            return redirect(url_for("saml_auth.sp_initiated", next=next_path))
         else:
-            return redirect(url_for("google_oauth.authorize", next=request.args.get('next')))
+            return redirect(url_for("google_oauth.authorize", next=next_path))
 
     if request.method == 'POST':
         try:
@@ -22,7 +24,7 @@ def login():
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
-                return redirect(request.args.get('next') or '/')
+                return redirect(next_path)
             else:
                 flash("Wrong email or password.")
         except models.User.DoesNotExist:
@@ -31,7 +33,7 @@ def login():
     return render_template("login.html",
                            name=settings.NAME,
                            analytics=settings.ANALYTICS,
-                           next=request.args.get('next'),
+                           next=next_path,
                            username=request.form.get('username', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            show_saml_login=settings.SAML_LOGIN_ENABLED)
