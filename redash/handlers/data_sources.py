@@ -3,7 +3,7 @@ import json
 from flask import make_response, request
 from flask.ext.restful import abort
 
-from redash import models
+from redash import models, settings
 from redash.wsgi import api
 from redash.permissions import require_permission
 from redash.query_runner import query_runners, validate_configuration
@@ -75,8 +75,11 @@ api.add_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='
 
 class DataSourceSchemaAPI(BaseResource):
     def get(self, data_source_id):
+        refresh = request.args.get("refresh", "false")
+	refresh = settings.parse_boolean(refresh)
+
         data_source = models.DataSource.get_by_id(data_source_id)
-        schema = data_source.get_schema()
+        schema = data_source.get_schema(refresh)
 
         return schema
 
