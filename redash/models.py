@@ -161,7 +161,7 @@ class Organization(ModelTimestampsMixin, BaseModel):
 
     id = peewee.PrimaryKeyField()
     name = peewee.CharField()
-    domain = peewee.CharField(null=True, unique=True)
+    slug = peewee.CharField(unique=True)
     settings = JSONField()
 
     class Meta:
@@ -171,8 +171,8 @@ class Organization(ModelTimestampsMixin, BaseModel):
         return u"<Organization: {}, {}>".format(self.id, self.name)
 
     @classmethod
-    def get_by_domain(cls, domain):
-        return cls.get(cls.domain == domain)
+    def get_by_slug(cls, slug):
+        return cls.get(cls.slug == slug)
 
     @property
     def default_group(self):
@@ -291,8 +291,8 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
         return cls.get(cls.email == email, cls.org == org)
 
     @classmethod
-    def get_by_api_key(cls, api_key):
-        return cls.get(cls.api_key == api_key)
+    def get_by_api_key_and_org(cls, api_key, org):
+        return cls.get(cls.api_key == api_key, cls.org == org)
 
     @classmethod
     def all(cls, org):
@@ -1023,7 +1023,7 @@ all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResul
 
 
 def init_db():
-    default_org = Organization.create(name="Default", settings={})
+    default_org = Organization.create(name="Default", slug='default', settings={})
     admin_group = Group.create(name='admin', permissions=['admin', 'super_admin'], org=default_org, type=Group.BUILTIN_GROUP)
     default_group = Group.create(name='default', permissions=Group.DEFAULT_PERMISSIONS, org=default_org, type=Group.BUILTIN_GROUP)
 

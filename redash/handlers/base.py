@@ -12,6 +12,11 @@ class BaseResource(Resource):
         super(BaseResource, self).__init__(*args, **kwargs)
         self._user = None
 
+    def dispatch_request(self, *args, **kwargs):
+        kwargs.pop('org_slug', None)
+
+        return super(BaseResource, self).dispatch_request(*args, **kwargs)
+
     @property
     def current_user(self):
         return current_user._get_current_object()

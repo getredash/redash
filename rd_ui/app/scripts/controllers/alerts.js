@@ -29,7 +29,7 @@
       {
         "label": "Name",
         "map": "name",
-        "cellTemplate": '<a href="/alerts/{{dataRow.id}}">{{dataRow.name}}</a> (<a href="/queries/{{dataRow.query.id}}">query</a>)'
+        "cellTemplate": '<a href="alerts/{{dataRow.id}}">{{dataRow.name}}</a> (<a href="queries/{{dataRow.query.id}}">query</a>)'
       },
       {
         'label': 'Created By',

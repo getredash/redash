@@ -138,8 +138,8 @@ class QueryResultAPI(BaseResource):
         return make_response(s.getvalue(), 200, headers)
 
 
-api.add_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
-api.add_resource(QueryResultAPI,
+api.add_org_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
+api.add_org_resource(QueryResultAPI,
                  '/api/query_results/<query_result_id>',
                  '/api/queries/<query_id>/results.<filetype>',
                  '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
@@ -156,4 +156,4 @@ class JobAPI(BaseResource):
         job = QueryTask(job_id=job_id)
         job.cancel()
 
-api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
+api.add_org_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')

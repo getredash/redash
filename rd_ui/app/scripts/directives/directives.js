@@ -40,7 +40,7 @@
     }
   }]);
 
-  directives.directive('rdTab', function () {
+  directives.directive('rdTab', ['$location', function ($location) {
     return {
       restrict: 'E',
       scope: {
@@ -48,9 +48,10 @@
         'name': '@'
       },
       transclude: true,
-      template: '<li class="rd-tab" ng-class="{active: tabId==selectedTab}"><a href="#{{tabId}}">{{name}}<span ng-transclude></span></a></li>',
+      template: '<li class="rd-tab" ng-class="{active: tabId==selectedTab}"><a href="{{basePath}}#{{tabId}}">{{name}}<span ng-transclude></span></a></li>',
       replace: true,
       link: function (scope) {
+        scope.basePath = $location.path().substring(1);
         scope.$watch(function () {
           return scope.$parent.selectedTab
         }, function (tab) {
@@ -58,7 +59,7 @@
         });
       }
     }
-  });
+  }]);
 
   directives.directive('rdTabs', ['$location', function ($location) {
     return {
@@ -67,9 +68,11 @@
         tabsCollection: '=',
         selectedTab: '='
       },
-      template: '<ul class="nav nav-tabs"><li ng-class="{active: tab==selectedTab}" ng-repeat="tab in tabsCollection"><a href="#{{tab.key}}">{{tab.name}}</a></li></ul>',
+      template: '<ul class="nav nav-tabs"><li ng-class="{active: tab==selectedTab}" ng-repeat="tab in tabsCollection"><a href="{{basePath}}#{{tab.key}}">{{tab.name}}</a></li></ul>',
       replace: true,
       link: function ($scope, element, attrs) {
+        $scope.basePath = $location.path().substring(1);
+        console.log($location.path, $location);
         $scope.selectTab = function (tabKey) {
           $scope.selectedTab = _.find($scope.tabsCollection, function (tab) {
             return tab.key == tabKey;

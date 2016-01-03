@@ -6,6 +6,7 @@ os.environ['REDASH_CELERY_BROKER'] = "redis://localhost:6379/6"
 # Dummy values for oauth login
 os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
+os.environ['REDASH_MULTI_ORG'] = "true"
 
 
 import logging
@@ -18,8 +19,6 @@ settings.DATABASE_CONFIG = {
     'name': 'circle_test',
     'threadlocals': True
 }
-
-settings.ORG_RESOLVING = "multi_org"
 
 from redash import redis_connection
 import redash.models
@@ -40,10 +39,18 @@ class BaseTestCase(TestCase):
         redash.models.create_db(False, True)
         redis_connection.flushdb()
 
-    def make_request(self, method, path, user=None, data=None, is_json=True):
+    def make_request(self, method, path, org=None, user=None, data=None, is_json=True):
         if user is None:
             user = self.factory.user
+
+        if org is None:
+            org = self.factory.org
+
+        if org is not False:
+            path = "/{}{}".format(org.slug, path)
+
         return make_request(method, path, user, data, is_json)
+
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():

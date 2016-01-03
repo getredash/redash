@@ -8,7 +8,7 @@ if __name__ == '__main__':
     with db.database.transaction():
         Organization.create_table()
 
-        default_org = Organization.create(name="Default", settings={
+        default_org = Organization.create(name="Default", slug='default', settings={
             Organization.SETTING_GOOGLE_APPS_DOMAINS: settings.GOOGLE_APPS_DOMAIN
         })
 

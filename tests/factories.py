@@ -45,7 +45,7 @@ user_factory = ModelFactory(redash.models.User,
 
 org_factory = ModelFactory(redash.models.Organization,
                            name=Sequence("Org {}"),
-                           domain=Sequence("org{}.example.com"),
+                           slug=Sequence("org{}.example.com"),
                            settings={})
 
 data_source_factory = ModelFactory(redash.models.DataSource,

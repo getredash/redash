@@ -16,7 +16,7 @@ class DataSourceTypeListAPI(BaseResource):
     def get(self):
         return [q.to_dict() for q in query_runners.values()]
 
-api.add_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
+api.add_org_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
 
 
 class DataSourceAPI(BaseResource):
@@ -80,8 +80,8 @@ class DataSourceListAPI(BaseResource):
 
         return datasource.to_dict(all=True)
 
-api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
-api.add_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='data_source')
+api.add_org_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
+api.add_org_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='data_source')
 
 
 class DataSourceSchemaAPI(BaseResource):
@@ -91,4 +91,4 @@ class DataSourceSchemaAPI(BaseResource):
 
         return schema
 
-api.add_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')
+api.add_org_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')

@@ -1,7 +1,7 @@
 import logging
 from flask.ext.login import login_user
 import requests
-from flask import redirect, url_for, Blueprint, flash, request
+from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_oauthlib.client import OAuth
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
@@ -62,10 +62,16 @@ def create_and_login_user(org, name, email):
     login_user(user_object, remember=True)
 
 
+@blueprint.route('/<org_slug>/oauth/google', endpoint="authorize_org")
+def org_login(org_slug):
+    session['org_slug'] = current_org.slug
+    return redirect(url_for(".authorize", next=request.args.get('next', None)))
+
+
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
-    next = request.args.get('next', '/')
     callback = url_for('.callback', _external=True)
+    next = request.args.get('next', url_for("index", org_slug=session.get('org_slug')))
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next)
     return google_remote_app().authorize(callback=callback, state=next)
@@ -86,13 +92,18 @@ def authorized():
         flash("Validation error. Please retry.")
         return redirect(url_for('login'))
 
-    if not verify_profile(current_org, profile):
-        logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], current_org)
+    if 'org_slug' in session:
+        org = models.Organization.get_by_slug(session.pop('org_slug'))
+    else:
+        org = current_org
+
+    if not verify_profile(org, profile):
+        logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
         flash("Your Google Apps domain name isn't allowed.")
-        return redirect(url_for('login'))
+        return redirect(url_for('login', org_slug=org.slug))
 
-    create_and_login_user(current_org.id, profile['name'], profile['email'])
+    create_and_login_user(org.id, profile['name'], profile['email'])
 
-    next = request.args.get('state', '/')
+    next = request.args.get('state') or url_for("index", org_slug=org.slug)
 
     return redirect(next)

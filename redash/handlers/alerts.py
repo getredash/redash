@@ -115,7 +115,7 @@ class AlertSubscriptionResource(BaseResource):
             'object_type': 'alert'
         })
 
-api.add_resource(AlertResource, '/api/alerts/<alert_id>', endpoint='alert')
-api.add_resource(AlertSubscriptionListResource, '/api/alerts/<alert_id>/subscriptions', endpoint='alert_subscriptions')
-api.add_resource(AlertSubscriptionResource, '/api/alerts/<alert_id>/subscriptions/<subscriber_id>', endpoint='alert_subscription')
-api.add_resource(AlertListResource, '/api/alerts', endpoint='alerts')
+api.add_org_resource(AlertResource, '/api/alerts/<alert_id>', endpoint='alert')
+api.add_org_resource(AlertSubscriptionListResource, '/api/alerts/<alert_id>/subscriptions', endpoint='alert_subscriptions')
+api.add_org_resource(AlertSubscriptionResource, '/api/alerts/<alert_id>/subscriptions/<subscriber_id>', endpoint='alert_subscription')
+api.add_org_resource(AlertListResource, '/api/alerts', endpoint='alerts')

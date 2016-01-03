@@ -105,7 +105,7 @@ class QueryAPI(BaseResource):
         query.archive()
 
 
-api.add_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
-api.add_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
-api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')
-api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
+api.add_org_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
+api.add_org_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
+api.add_org_resource(QueryListAPI, '/api/queries', endpoint='queries')
+api.add_org_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')

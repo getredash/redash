@@ -63,6 +63,16 @@ def json_dumps(data):
     return json.dumps(data, cls=JSONEncoder)
 
 
+def build_url(request, host, path):
+    parts = request.host.split(':')
+    if len(parts) > 1:
+        port = parts[1]
+        if (port, request.scheme) not in (('80', 'http'), ('443', 'https')):
+            host = '{}:{}'.format(host, port)
+
+    return "{}://{}{}".format(request.scheme, host, path)
+
+
 class UnicodeWriter:
     """
     A CSV writer which will write rows to CSV file "f",

@@ -44,8 +44,7 @@ def make_request(method, path, user, data=None, is_json=True):
         else:
             content_type = None
 
-        base_url = "http://{}".format(user.org.domain)
-        response = method_fn(path, data=data, headers=headers, content_type=content_type, base_url=base_url)
+        response = method_fn(path, data=data, headers=headers, content_type=content_type)
 
         if response.data and is_json:
             response.json = json.loads(response.data)

@@ -74,7 +74,8 @@ QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
 PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
-ORG_RESOLVING = os.environ.get("REDASH_ORG_RESOLVING", "single_org")
+
+MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 
 # The following is deprecated and should be defined with the Organization object
 GOOGLE_APPS_DOMAIN = set_from_string(os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", ""))
@@ -153,8 +154,6 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
 CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
-# http://api.highcharts.com/highcharts#plotOptions.series.turboThreshold
-HIGHCHARTS_TURBO_THRESHOLD = int(os.environ.get("REDASH_HIGHCHARTS_TURBO_THRESHOLD", "1000"))
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 
 # Features:
@@ -172,7 +171,6 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA
 COMMON_CLIENT_CONFIG = {
     'clientSideMetrics': CLIENT_SIDE_METRICS,
     'allowScriptsInUserInput': ALLOW_SCRIPTS_IN_USER_INPUT,
-    'highChartsTurboThreshold': HIGHCHARTS_TURBO_THRESHOLD,
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,

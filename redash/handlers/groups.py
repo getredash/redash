@@ -186,9 +186,9 @@ class GroupDataSourceResource(BaseResource):
         })
 
 
-api.add_resource(GroupListResource, '/api/groups', endpoint='groups')
-api.add_resource(GroupResource, '/api/groups/<group_id>', endpoint='group')
-api.add_resource(GroupMemberListResource, '/api/groups/<group_id>/members', endpoint='group_members')
-api.add_resource(GroupMemberResource, '/api/groups/<group_id>/members/<user_id>', endpoint='group_member')
-api.add_resource(GroupDataSourceListResource, '/api/groups/<group_id>/data_sources', endpoint='group_data_sources')
-api.add_resource(GroupDataSourceResource, '/api/groups/<group_id>/data_sources/<data_source_id>', endpoint='group_data_source')
+api.add_org_resource(GroupListResource, '/api/groups', endpoint='groups')
+api.add_org_resource(GroupResource, '/api/groups/<group_id>', endpoint='group')
+api.add_org_resource(GroupMemberListResource, '/api/groups/<group_id>/members', endpoint='group_members')
+api.add_org_resource(GroupMemberResource, '/api/groups/<group_id>/members/<user_id>', endpoint='group_member')
+api.add_org_resource(GroupDataSourceListResource, '/api/groups/<group_id>/data_sources', endpoint='group_data_sources')
+api.add_org_resource(GroupDataSourceResource, '/api/groups/<group_id>/data_sources/<data_source_id>', endpoint='group_data_source')

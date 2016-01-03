@@ -95,7 +95,7 @@ class UserResource(BaseResource):
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
 
-api.add_resource(UserListResource, '/api/users', endpoint='users')
-api.add_resource(UserResource, '/api/users/<user_id>', endpoint='user')
+api.add_org_resource(UserListResource, '/api/users', endpoint='users')
+api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
 
 

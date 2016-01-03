@@ -7,14 +7,14 @@
         </div>
         <div class="list-group-item" ng-repeat="dashboard in dashboards" >
             <button type="button" class="close delete-button" aria-hidden="true" ng-show="dashboard.canEdit()" ng-click="archiveDashboard(dashboard)" tooltip="Delete Dashboard">&times;</button>
-            <a ng-href="/dashboard/{{dashboard.slug}}">{{dashboard.name}}</a>
+            <a ng-href="dashboard/{{dashboard.slug}}">{{dashboard.name}}</a>
         </div>
     </div>
 
     <div ng-show="currentUser.hasPermission('super_admin')">
         <div class="list-group">
             <div class="list-group-item active">Admin</div>
-            <a href="/admin/status" class="list-group-item">Status</a>
+            <a href="admin/status" class="list-group-item">Status</a>
         </div>
     </div>
 </div>

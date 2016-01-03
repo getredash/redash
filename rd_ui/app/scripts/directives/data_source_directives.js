@@ -34,7 +34,7 @@
           });
         });
 
-        $http.get('/api/data_sources/types').success(function (types) {
+        $http.get('api/data_sources/types').success(function (types) {
           setType(types);
 
           $scope.dataSourceTypes = types;

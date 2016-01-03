@@ -20,13 +20,13 @@ class TestAlertResourceGet(BaseTestCase):
         rv = self.make_request('get', "/api/alerts/{}".format(alert.id))
         self.assertEqual(rv.status_code, 403)
 
-    def test_returns_403_if_admin_from_another_org(self):
+    def test_returns_404_if_admin_from_another_org(self):
         second_org = self.factory.create_org()
         second_org_admin = self.factory.create_admin(org=second_org)
 
         alert = self.factory.create_alert()
 
-        rv = self.make_request('get', "/api/alerts/{}".format(alert.id), user=second_org_admin)
+        rv = self.make_request('get', "/api/alerts/{}".format(alert.id), org=second_org, user=second_org_admin)
         self.assertEqual(rv.status_code, 404)
 
 

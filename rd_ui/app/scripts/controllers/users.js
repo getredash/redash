@@ -13,7 +13,7 @@
       {
         "label": "Name",
         "map": "name",
-        "cellTemplate": '<a href="/groups/{{dataRow.id}}">{{dataRow.name}}</a>'
+        "cellTemplate": '<a href="groups/{{dataRow.id}}">{{dataRow.name}}</a>'
       }
     ];
 
@@ -113,7 +113,7 @@
       // Clear selection, to clear up the input control.
       $scope.newDataSource.selected = undefined;
 
-      $http.post('/api/groups/' + $routeParams.groupId + '/data_sources', {'data_source_id': dataSource.id}).success(function(user) {
+      $http.post('api/groups/' + $routeParams.groupId + '/data_sources', {'data_source_id': dataSource.id}).success(function(user) {
         dataSource.view_only = false;
         $scope.dataSources.unshift(dataSource);
 
@@ -124,13 +124,13 @@
     };
 
     $scope.changePermission = function(dataSource, viewOnly) {
-      $http.post('/api/groups/' + $routeParams.groupId + '/data_sources/' + dataSource.id, {view_only: viewOnly}).success(function() {
+      $http.post('api/groups/' + $routeParams.groupId + '/data_sources/' + dataSource.id, {view_only: viewOnly}).success(function() {
         dataSource.view_only = viewOnly;
       });
     };
 
     $scope.removeDataSource = function(dataSource) {
-      $http.delete('/api/groups/' + $routeParams.groupId + '/data_sources/' + dataSource.id).success(function() {
+      $http.delete('api/groups/' + $routeParams.groupId + '/data_sources/' + dataSource.id).success(function() {
         $scope.dataSources = _.filter($scope.dataSources, function(ds) { return dataSource != ds; });
       });
     };
@@ -160,14 +160,14 @@
       // Clear selection, to clear up the input control.
       $scope.newMember.selected = undefined;
 
-      $http.post('/api/groups/' + $routeParams.groupId + '/members', {'user_id': user.id}).success(function() {
+      $http.post('api/groups/' + $routeParams.groupId + '/members', {'user_id': user.id}).success(function() {
         $scope.members.unshift(user);
         user.alreadyMember = true;
       });
     };
 
     $scope.removeMember = function(member) {
-      $http.delete('/api/groups/' + $routeParams.groupId + '/members/' + member.id).success(function() {
+      $http.delete('api/groups/' + $routeParams.groupId + '/members/' + member.id).success(function() {
         $scope.members = _.filter($scope.members, function(m) {  return m != member });
 
         if ($scope.foundUsers) {
@@ -191,7 +191,7 @@
       {
         "label": "Name",
         "map": "name",
-        "cellTemplate": '<img src="{{dataRow.gravatar_url}}" height="40px"/> <a href="/users/{{dataRow.id}}">{{dataRow.name}}</a>'
+        "cellTemplate": '<img src="{{dataRow.gravatar_url}}" height="40px"/> <a href="users/{{dataRow.id}}">{{dataRow.name}}</a>'
       },
       {
         'label': 'Joined',

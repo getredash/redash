@@ -25,6 +25,7 @@ PRESTO_TYPES_MAPPING = {
     "date" : TYPE_DATE,
 }
 
+
 class Presto(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):

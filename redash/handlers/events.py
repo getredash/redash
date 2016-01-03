@@ -16,7 +16,7 @@ class EventAPI(BaseResource):
             record_event.delay(event)
 
 
-api.add_resource(EventAPI, '/api/events', endpoint='events')
+api.add_org_resource(EventAPI, '/api/events', endpoint='events')
 
 
 class MetricsAPI(BaseResource):

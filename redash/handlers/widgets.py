@@ -51,5 +51,5 @@ class WidgetAPI(BaseResource):
 
         return {'layout': widget.dashboard.layout}
 
-api.add_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
-api.add_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')
+api.add_org_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
+api.add_org_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')

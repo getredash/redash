@@ -62,7 +62,7 @@ class DashboardAPI(BaseResource):
 
         return dashboard.to_dict(with_widgets=True, user=self.current_user)
 
-api.add_resource(DashboardListAPI, '/api/dashboards', endpoint='dashboards')
-api.add_resource(DashboardRecentAPI, '/api/dashboards/recent', endpoint='recent_dashboards')
-api.add_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
+api.add_org_resource(DashboardListAPI, '/api/dashboards', endpoint='dashboards')
+api.add_org_resource(DashboardRecentAPI, '/api/dashboards/recent', endpoint='recent_dashboards')
+api.add_org_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
 

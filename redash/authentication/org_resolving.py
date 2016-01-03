@@ -4,26 +4,19 @@ single_org strategy, which assumes you have a single Organization in your instal
 """
 
 import logging
-from redash import settings
 from redash.models import Organization
 from werkzeug.local import LocalProxy
 from flask import request
 
 
-def single_org(request):
-    return Organization.select().first()
-
-
-def multi_org(request):
-    return Organization.get_by_domain(request.host)
-
-
 def _get_current_org():
-    org = globals()[settings.ORG_RESOLVING](request)
-    logging.debug("Current organization: %s (resolved with: %s)", org, settings.ORG_RESOLVING)
+    slug = request.view_args.get('org_slug', 'default')
+    org = Organization.get_by_slug(slug)
+    logging.debug("Current organization: %s (slug: %s)", org, slug)
     return org
 
 
+# TODO: move to authentication
 current_org = LocalProxy(_get_current_org)
 
 

@@ -47,5 +47,5 @@ class VisualizationResource(BaseResource):
 
         vis.delete_instance()
 
-api.add_resource(VisualizationListResource, '/api/visualizations', endpoint='visualizations')
-api.add_resource(VisualizationResource, '/api/visualizations/<visualization_id>', endpoint='visualization')
+api.add_org_resource(VisualizationListResource, '/api/visualizations', endpoint='visualizations')
+api.add_org_resource(VisualizationResource, '/api/visualizations/<visualization_id>', endpoint='visualization')

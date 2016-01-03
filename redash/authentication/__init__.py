@@ -3,13 +3,14 @@ import hmac
 import time
 import logging
 
+from flask import redirect, request, jsonify
 from flask.ext.login import LoginManager
-
 from flask.ext.login import user_logged_in
 
 from redash import models, settings
 from redash.authentication import google_oauth, saml_auth
 from redash.authentication.org_resolving import current_org
+from redash.authentication.helper import get_login_url
 from redash.tasks import record_event
 
 login_manager = LoginManager()
@@ -28,7 +29,10 @@ def sign(key, path, expires):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return models.User.get_by_id_and_org(user_id, current_org.id)
+    try:
+        return models.User.get_by_id_and_org(user_id, current_org.id)
+    except models.User.DoesNotExist:
+        return None
 
 
 def hmac_load_user_from_request(request):
@@ -61,11 +65,12 @@ def get_user_from_api_key(api_key, query_id):
         return None
 
     user = None
+
     try:
-        user = models.User.get_by_api_key(api_key)
+        user = models.User.get_by_api_key_and_org(api_key, current_org.id)
     except models.User.DoesNotExist:
         if query_id:
-            query = models.Query.get_by_id(query_id)
+            query = models.Query.get_by_id_and_org(query_id, current_org.id)
             if query and query.api_key == api_key:
                 user = models.ApiUser(api_key, query.org, query.groups.keys())
 
@@ -101,10 +106,22 @@ def log_user_logged_in(app, user):
     record_event.delay(event)
 
 
+@login_manager.unauthorized_handler
+def redirect_to_login():
+    if request.is_xhr or '/api/' in request.path:
+        response = jsonify({'message': "Couldn't find resource. Please login and try again."})
+        response.status_code = 404
+        return response
+
+    login_url = get_login_url(next=request.url, external=False)
+
+    return redirect(login_url)
+
+
 def setup_authentication(app):
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
-    login_manager.login_view = 'login'
+
     app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)

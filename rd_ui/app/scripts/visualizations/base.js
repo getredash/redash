@@ -44,7 +44,7 @@
     }
 
     this.$get = ['$resource', function ($resource) {
-      var Visualization = $resource('/api/visualizations/:id', {id: '@id'});
+      var Visualization = $resource('api/visualizations/:id', {id: '@id'});
       Visualization.visualizations = this.visualizations;
       Visualization.visualizationTypes = this.visualizationTypes;
       Visualization.renderVisualizationsTemplate = this.getSwitchTemplate('renderTemplate');
