@@ -1,21 +1,23 @@
-import logging
-
-from flask import render_template, request, redirect, session, url_for, flash
+from flask import render_template
 from flask.ext.restful import abort
 
-from flask_login import current_user, login_required
+from flask_login import login_required
 
 from redash import models, settings
 from redash.wsgi import app
 from redash.utils import json_dumps
+from redash.handlers import org_scoped_rule
+from redash.authentication.org_resolving import current_org
 
-@app.route('/embed/query/<query_id>/visualization/<visualization_id>', methods=['GET'])
+
+@app.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
 @login_required
-def embed(query_id, visualization_id):
-
-    query = models.Query.get_by_id(query_id)
+def embed(query_id, visualization_id, org_slug=None):
+    # TODO: add event for embed access
+    query = models.Query.get_by_id_and_org(query_id, current_org)
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
+
     if vis is not None:
         vis = vis.to_dict()
         qr = query.latest_query_data

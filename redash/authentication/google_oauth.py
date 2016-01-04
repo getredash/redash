@@ -1,14 +1,12 @@
 import logging
 from flask.ext.login import login_user
 import requests
-from flask import redirect, url_for, Blueprint, flash, request
+from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_oauthlib.client import OAuth
 from redash import models, settings
+from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger('google_oauth')
-
-if not settings.GOOGLE_APPS_DOMAIN:
-    logger.warning("No Google Apps domain defined, all Google accounts allowed.")
 
 oauth = OAuth()
 blueprint = Blueprint('google_oauth', __name__)
@@ -42,32 +40,38 @@ def get_user_profile(access_token):
     return response.json()
 
 
-def verify_profile(profile):
-    if not settings.GOOGLE_APPS_DOMAIN:
+def verify_profile(org, profile):
+    if org.is_public:
         return True
 
     domain = profile['email'].split('@')[-1]
-    return domain in settings.GOOGLE_APPS_DOMAIN
+    return domain in org.google_apps_domains
 
 
-def create_and_login_user(name, email):
+def create_and_login_user(org, name, email):
     try:
-        user_object = models.User.get_by_email(email)
+        user_object = models.User.get_by_email_and_org(email, org)
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             user_object.save()
     except models.User.DoesNotExist:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User.create(name=name, email=email, groups=models.User.DEFAULT_GROUPS)
+        user_object = models.User.create(org=org, name=name, email=email, groups=[org.default_group.id])
 
     login_user(user_object, remember=True)
 
 
+@blueprint.route('/<org_slug>/oauth/google', endpoint="authorize_org")
+def org_login(org_slug):
+    session['org_slug'] = current_org.slug
+    return redirect(url_for(".authorize", next=request.args.get('next', None)))
+
+
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
-    next = request.args.get('next', '/')
     callback = url_for('.callback', _external=True)
+    next = request.args.get('next', url_for("index", org_slug=session.get('org_slug')))
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next)
     return google_remote_app().authorize(callback=callback, state=next)
@@ -88,13 +92,18 @@ def authorized():
         flash("Validation error. Please retry.")
         return redirect(url_for('login'))
 
-    if not verify_profile(profile):
-        logger.warning("User tried to login with unauthorized domain name: %s", profile['email'])
+    if 'org_slug' in session:
+        org = models.Organization.get_by_slug(session.pop('org_slug'))
+    else:
+        org = current_org
+
+    if not verify_profile(org, profile):
+        logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
         flash("Your Google Apps domain name isn't allowed.")
-        return redirect(url_for('login'))
+        return redirect(url_for('login', org_slug=org.slug))
 
-    create_and_login_user(profile['name'], profile['email'])
+    create_and_login_user(org.id, profile['name'], profile['email'])
 
-    next = request.args.get('state', '/')
+    next = request.args.get('state') or url_for("index", org_slug=org.slug)
 
     return redirect(next)

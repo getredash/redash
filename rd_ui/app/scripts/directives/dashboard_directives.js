@@ -81,7 +81,7 @@
               $scope.dashboard.layout = layout;
 
               layout = JSON.stringify(layout);
-              $http.post('/api/dashboards/' + $scope.dashboard.id, {
+              $http.post('api/dashboards/' + $scope.dashboard.id, {
                 'name': $scope.dashboard.name,
                 'layout': layout
               }).success(function(response) {
@@ -94,7 +94,7 @@
               Events.record(currentUser, 'edit', 'dashboard', $scope.dashboard.id);
             } else {
 
-              $http.post('/api/dashboards', {
+              $http.post('api/dashboards', {
                 'name': $scope.dashboard.name
               }).success(function(response) {
                 $(element).modal('hide');

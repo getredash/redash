@@ -159,6 +159,8 @@
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
 
       $scope.type = 'visualization';
+    } else if ($scope.widget.restricted) {
+      $scope.type = 'restricted';
     } else {
       $scope.type = 'textbox';
     }

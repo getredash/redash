@@ -151,6 +151,18 @@
   }
 
   var MainCtrl = function ($scope, $location, Dashboard, notifications) {
+    $scope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
+      if ($scope.showPermissionError) {
+        $scope.showPermissionError = false;
+      }
+    });
+
+    $scope.$on("$routeChangeError", function (event, current, previous, rejection) {
+      if (rejection.status === 403) {
+        $scope.showPermissionError = true;
+      }
+    });
+
     $scope.version = clientConfig.version;
     $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
 

@@ -1,0 +1,18 @@
+<div class="container">
+    <ul class="nav nav-tabs">
+        <li role="presentation"><a href="users">Users</a></li>
+        <li role="presentation" class="active"><a href="groups">Groups</a></li>
+    </ul>
+
+    <div class="row voffset1">
+        <div class="col-md-12">
+            <p ng-if="currentUser.hasPermission('admin')">
+                <a href="#" ng-click="newGroup()" class="btn btn-default"><i class="fa fa-plus"></i> New Group</a>
+            </p>
+
+            <smart-table rows="groups" columns="gridColumns"
+                         config="gridConfig"
+                         class="table table-condensed table-hover"></smart-table>
+        </div>
+    </div>
+</div>

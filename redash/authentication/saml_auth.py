@@ -1,35 +1,17 @@
-# Copyright 2015 Okta, Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import logging
-from flask.ext.login import login_user
 import requests
 from flask import redirect, url_for, Blueprint, request
-from flask_oauth import OAuth
-from redash import models, settings
-from saml2 import (
-    BINDING_HTTP_POST,
-    BINDING_HTTP_REDIRECT,
-    entity,
-)
+from redash.authentication.google_oauth import create_and_login_user
+from redash.authentication.org_resolving import current_org
+from redash import settings
+from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
-
 
 logger = logging.getLogger('saml_auth')
 
 blueprint = Blueprint('saml_auth', __name__)
+
 
 def get_saml_client():
     '''
@@ -38,9 +20,9 @@ def get_saml_client():
     '''
 
     if settings.SAML_CALLBACK_SERVER_NAME:
-        acs_url=settings.SAML_CALLBACK_SERVER_NAME + url_for("saml_auth.idp_initiated")
-    else:    
-        acs_url = url_for("saml_auth.idp_initiated",_external=True)
+        acs_url = settings.SAML_CALLBACK_SERVER_NAME + url_for("saml_auth.idp_initiated")
+    else:
+        acs_url = url_for("saml_auth.idp_initiated", _external=True)
 
     # NOTE:
     #   Ideally, this should fetch the metadata and pass it to
@@ -60,7 +42,7 @@ def get_saml_client():
         'metadata': {
             # 'inline': metadata,
             "local": [tmp.name]
-            },
+        },
         'service': {
             'sp': {
                 'endpoints': {
@@ -103,26 +85,17 @@ def idp_initiated():
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
-    try:
-        user_object = models.User.get(models.User.email == email)
-        if user_object.name != name:
-            logger.debug("Updating user name (%r -> %r)", user_object.name, name)
-            user_object.name = name
-            user_object.save()
-    except models.User.DoesNotExist:
-        logger.debug("Creating user object (%r)", name)
-        user_object = models.User.create(name=name, email=email, groups=models.User.DEFAULT_GROUPS)
-
-    login_user(user_object, remember=True)
+    create_and_login_user(current_org, name, email)
     url = url_for('index')
 
     return redirect(url)
 
+
 @blueprint.route("/saml/login")
 def sp_initiated():
     if not settings.SAML_METADATA_URL:
-      logger.error("Cannot invoke saml endpoint without metadata url in settings.")
-      return redirect(url_for('index'))
+        logger.error("Cannot invoke saml endpoint without metadata url in settings.")
+        return redirect(url_for('index'))
 
     saml_client = get_saml_client()
     reqid, info = saml_client.prepare_for_authenticate()

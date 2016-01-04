@@ -9,7 +9,7 @@ from wtforms import fields
 from wtforms.widgets import TextInput
 
 from redash import models
-from redash.permissions import require_permission
+from redash.permissions import require_super_admin
 
 
 class ArrayListField(fields.Field):
@@ -44,9 +44,13 @@ class PgModelConverter(CustomModelConverter):
     def __init__(self, view, additional=None):
         additional = {ArrayField: self.handle_array_field,
                       DateTimeTZField: self.handle_datetime_tz_field,
+                      models.JSONField: self.handle_json_field,
                       }
         super(PgModelConverter, self).__init__(view, additional)
         self.view = view
+
+    def handle_json_field(self, model, field, **kwargs):
+        return field.name, JSONTextAreaField(**kwargs)
 
     def handle_array_field(self, model, field, **kwargs):
         return field.name, ArrayListField(**kwargs)
@@ -60,7 +64,7 @@ class BaseModelView(ModelView):
     column_display_pk = True
     model_form_converter = PgModelConverter
 
-    @require_permission('admin')
+    @require_super_admin
     def is_accessible(self):
         return True
 
@@ -85,7 +89,7 @@ def init_admin(app):
     admin.add_view(DashboardModelView(models.Dashboard))
     logout_link = MenuLink('Logout', '/logout', 'logout')
 
-    for m in (models.Visualization, models.Widget, models.ActivityLog, models.Group, models.Event):
+    for m in (models.Visualization, models.Widget, models.Event, models.Organization):
         admin.add_view(BaseModelView(m))
 
     admin.add_link(logout_link)
