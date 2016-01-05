@@ -9,7 +9,7 @@ if __name__ == '__main__':
         Organization.create_table()
 
         default_org = Organization.create(name="Default", slug='default', settings={
-            Organization.SETTING_GOOGLE_APPS_DOMAINS: settings.GOOGLE_APPS_DOMAIN
+            Organization.SETTING_GOOGLE_APPS_DOMAINS: list(settings.GOOGLE_APPS_DOMAIN)
         })
 
         column = Group.org
