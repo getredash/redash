@@ -7,6 +7,17 @@ if __name__ == '__main__':
     migrator = PostgresqlMigrator(db.database)
 
     with db.database.transaction():
+        # Add type to groups
+        migrate(
+            migrator.add_column('groups', 'type', Group.type)
+        )
+
+        for name in ['default', 'admin']:
+            group = Group.get(Group.name==name)
+            group.type = Group.BUILTIN_GROUP
+            group.save()
+
+        # Create association table between data sources and groups
         DataSourceGroup.create_table()
 
         # add default to existing data source:
