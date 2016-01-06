@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from peewee import DoesNotExist
 
 from redash.authentication.org_resolving import current_org
+from redash.tasks import record_event
 
 
 class BaseResource(Resource):
@@ -24,6 +25,14 @@ class BaseResource(Resource):
     @property
     def current_org(self):
         return current_org._get_current_object()
+
+    def record_event(self, options):
+        options.update({
+            'user_id': self.current_user.id,
+            'org_id': self.current_org.id
+        })
+
+        record_event.delay(options)
 
 
 def require_fields(req, fields):

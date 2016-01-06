@@ -22,8 +22,7 @@ class QueryResultListAPI(BaseResource):
         if not has_access(data_source.groups, self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'execute_query',
             'timestamp': int(time.time()),
             'object_id': data_source.id,
@@ -88,6 +87,7 @@ class QueryResultAPI(BaseResource):
             if isinstance(self.current_user, models.ApiUser):
                 event = {
                     'user_id': None,
+                    'org_id': self.current_org.id,
                     'action': 'api_get',
                     'timestamp': int(time.time()),
                     'api_key': self.current_user.id,
