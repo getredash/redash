@@ -7,7 +7,9 @@ RUN apt-get update && \
   # Postgres client
   libpq-dev \
   # Additional packages required for data sources:
-  libssl-dev libmysqlclient-dev
+  libssl-dev libmysqlclient-dev && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
 # Users creation
 RUN useradd --system --comment " " --create-home redash
@@ -17,6 +19,7 @@ RUN pip install -U setuptools && \
   pip install supervisor==3.1.2
 
 COPY . /opt/redash/current
+RUN chown -R redash /opt/redash/current
 
 # Setting working directory
 WORKDIR /opt/redash/current
@@ -24,6 +27,14 @@ WORKDIR /opt/redash/current
 # Install project specific dependencies
 RUN pip install -r requirements_all_ds.txt && \
   pip install -r requirements.txt
+
+RUN curl https://deb.nodesource.com/setup_4.x | bash - && \
+  apt-get install -y nodejs && \
+  sudo -u redash -H make deps && \
+  rm -rf rd_ui/node_modules /home/redash/.npm /home/redash/.cache && \
+  apt-get purge -y nodejs && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
 # Setup supervisord
 RUN mkdir -p /opt/redash/supervisord && \

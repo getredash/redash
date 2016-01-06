@@ -7,9 +7,8 @@ FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
 deps:
 	cd rd_ui && npm install
-	cd rd_ui && npm install -g bower grunt-cli
-	cd rd_ui && bower install
-	cd rd_ui && grunt build
+	cd rd_ui && npm run bower install
+	cd rd_ui && npm run build
 
 pack:
 	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py
