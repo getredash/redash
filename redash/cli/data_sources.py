@@ -6,6 +6,7 @@ from redash.query_runner import query_runners, validate_configuration
 
 manager = Manager(help="Data sources management commands.")
 
+
 @manager.command
 def list():
     """List currently configured data sources"""
@@ -26,6 +27,7 @@ def validate_data_source_options(type, options):
     if not validate_configuration(type, options):
         print "Error: invalid configuration."
         exit()
+
 
 @manager.command
 def new(name=None, type=None, options=None):
@@ -82,7 +84,8 @@ def new(name=None, type=None, options=None):
 
     data_source = models.DataSource.create(name=name,
                                            type=type,
-                                           options=options)
+                                           options=options,
+                                           org=models.Organization.get_by_slug('default'))
     print "Id: {}".format(data_source.id)
 
 
