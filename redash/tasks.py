@@ -236,7 +236,7 @@ def refresh_schemas():
     Refreshs the datasources schema.
     """
 
-    for ds in models.DataSource.all():
+    for ds in models.DataSource.select():
         logger.info("Refreshing schema for: {}".format(ds.name))
         ds.get_schema(refresh=True)
 

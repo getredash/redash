@@ -6,7 +6,6 @@ from peewee import IntegrityError
 
 from redash import models
 from redash.wsgi import api
-from redash.tasks import record_event
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
@@ -23,7 +22,8 @@ class UserListResource(BaseResource):
         req = request.get_json(force=True)
         require_fields(req, ('name', 'email', 'password'))
 
-        user = models.User(org=self.current_org, name=req['name'], email=req['email'])
+        user = models.User(org=self.current_org, name=req['name'], email=req['email'],
+                           groups=[self.current_org.default_group.id])
         user.hash_password(req['password'])
 
         try:
@@ -34,8 +34,7 @@ class UserListResource(BaseResource):
 
             abort(500)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'create',
             'timestamp': int(time.time()),
             'object_id': user.id,
@@ -83,8 +82,7 @@ class UserResource(BaseResource):
 
             abort(400, message=message)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'edit',
             'timestamp': int(time.time()),
             'object_id': user.id,

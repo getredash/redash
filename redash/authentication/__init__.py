@@ -97,6 +97,7 @@ def api_key_load_user_from_request(request):
 
 def log_user_logged_in(app, user):
     event = {
+        'org_id': current_org.id,
         'user_id': user.id,
         'action': 'login',
         'object_type': 'redash',

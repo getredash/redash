@@ -3,7 +3,6 @@ from flask import request
 from flask.ext.restful import abort
 from redash import models
 from redash.wsgi import api
-from redash.tasks import record_event
 from redash.permissions import require_admin
 from redash.handlers.base import BaseResource, get_object_or_404
 
@@ -14,8 +13,7 @@ class GroupListResource(BaseResource):
         name = request.json['name']
         group = models.Group.create(name=name, org=self.current_org)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'create',
             'timestamp': int(time.time()),
             'object_id': group.id,
@@ -44,8 +42,7 @@ class GroupResource(BaseResource):
         group.name = request.json['name']
         group.save()
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'edit',
             'timestamp': int(time.time()),
             'object_id': group.id,
@@ -80,8 +77,7 @@ class GroupMemberListResource(BaseResource):
         user.groups.append(group.id)
         user.save()
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'add_member',
             'timestamp': int(time.time()),
             'object_id': group.id,
@@ -106,8 +102,7 @@ class GroupMemberResource(BaseResource):
         user.groups.remove(int(group_id))
         user.save()
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'remove_member',
             'timestamp': int(time.time()),
             'object_id': group_id,
@@ -125,8 +120,7 @@ class GroupDataSourceListResource(BaseResource):
 
         data_source.add_group(group)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'add_data_source',
             'timestamp': int(time.time()),
             'object_id': group_id,
@@ -157,8 +151,7 @@ class GroupDataSourceResource(BaseResource):
 
         data_source.update_group_permission(group, view_only)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'change_data_source_permission',
             'timestamp': int(time.time()),
             'object_id': group_id,
@@ -176,8 +169,7 @@ class GroupDataSourceResource(BaseResource):
 
         data_source.remove_group(group)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'remove_data_source',
             'timestamp': int(time.time()),
             'object_id': group_id,

@@ -5,7 +5,6 @@ from funcy import project
 
 from redash import models
 from redash.wsgi import api
-from redash.tasks import record_event
 from redash.permissions import require_access, require_admin_or_owner, view_only
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 
@@ -27,8 +26,7 @@ class AlertResource(BaseResource):
 
         alert.update_instance(**params)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'edit',
             'timestamp': int(time.time()),
             'object_id': alert.id,
@@ -53,8 +51,7 @@ class AlertListResource(BaseResource):
             options=req['options']
         )
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'create',
             'timestamp': int(time.time()),
             'object_id': alert.id,
@@ -64,8 +61,7 @@ class AlertListResource(BaseResource):
         # TODO: should be in model?
         models.AlertSubscription.create(alert=alert, user=self.current_user)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'subscribe',
             'timestamp': int(time.time()),
             'object_id': alert.id,
@@ -84,8 +80,7 @@ class AlertSubscriptionListResource(BaseResource):
         require_access(alert.groups, self.current_user, view_only)
 
         subscription = models.AlertSubscription.create(alert=alert_id, user=self.current_user)
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'subscribe',
             'timestamp': int(time.time()),
             'object_id': alert_id,
@@ -107,8 +102,7 @@ class AlertSubscriptionResource(BaseResource):
         models.AlertSubscription.unsubscribe(alert_id, subscriber_id)
         require_admin_or_owner(subscriber_id)
 
-        record_event.delay({
-            'user_id': self.current_user.id,
+        self.record_event({
             'action': 'unsubscribe',
             'timestamp': int(time.time()),
             'object_id': alert_id,
