@@ -40,7 +40,7 @@ def create(email, name, groups, is_admin=False, google_auth=False, password=None
     if is_admin:
         groups += [models.Group.get(models.Group.name=="admin", models.Group.org==org).id]
 
-    user = models.User(email=email, name=name, groups=groups)
+    user = models.User(org=org, email=email, name=name, groups=groups)
     if not google_auth:
         password = password or prompt_pass("Password")
         user.hash_password(password)
