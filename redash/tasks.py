@@ -350,7 +350,7 @@ def notify_hipchat(alert, html, new_state):
     try:
         hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
         message = '[' + new_state.upper() + '] ' + alert.name + '<br />' + html
-        hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, message, message_format='html')
+        hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, message.encode('utf-8', 'ignore'), message_format='html')
     except Exception:
         logger.exception("hipchat send ERROR.")
 
@@ -361,7 +361,7 @@ def notify_mail(alert, html, new_state, app):
     try:
         with app.app_context():
             message = Message(recipients=recipients,
-                              subject="[{1}] {0}".format(alert.name, new_state.upper()),
+                              subject="[{1}] {0}".format(alert.name.encode('utf-8', 'ignore'), new_state.upper()),
                               html=html)
             mail.send(message)
     except Exception:
