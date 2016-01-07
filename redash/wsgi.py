@@ -1,5 +1,6 @@
 import json
 from flask import Flask, make_response
+from flask.ext.sslify import SSLify
 from werkzeug.wrappers import Response
 from werkzeug.contrib.fixers import ProxyFix
 from flask.ext.restful import Api
@@ -49,6 +50,10 @@ class ApiExt(Api):
 
 api = ApiExt(app)
 init_admin(app)
+
+
+if settings.ENFORCE_HTTPS:
+    SSLify(app, skips=['/ping'])
 
 
 if settings.SENTRY_DSN:
