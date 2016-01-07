@@ -6,9 +6,9 @@ BASE_VERSION=$(shell python ./manage.py version | cut -d + -f 1)
 FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
 deps:
-	cd rd_ui && npm install
-	cd rd_ui && npm run bower install
-	cd rd_ui && npm run build
+	if [ -d "./rd_ui/app" ]; then cd rd_ui && npm install; fi
+	if [ -d "./rd_ui/app" ]; then cd rd_ui && npm run bower install; fi
+	if [ -d "./rd_ui/app" ]; then cd rd_ui && npm run build; fi
 
 pack:
 	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py
