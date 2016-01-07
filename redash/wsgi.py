@@ -53,7 +53,7 @@ init_admin(app)
 
 
 if settings.ENFORCE_HTTPS:
-    SSLify(app, skips=['/ping'])
+    SSLify(app, skips=['ping'])
 
 
 if settings.SENTRY_DSN:
