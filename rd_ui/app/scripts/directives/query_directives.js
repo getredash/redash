@@ -265,6 +265,10 @@
             value: String(7 * 24 * 3600),
             name: 'Once a week'
         });
+        $scope.refreshOptions.push({
+            value: String(30 * 24 * 3600),
+            name: 'Every 30d'
+        });
 
         $scope.$watch('refreshType', function() {
           if ($scope.refreshType == 'periodic') {
