@@ -306,8 +306,9 @@ def version_check():
 
 
 def base_url(org):
-    if org.domain:
-        return 'https://{}'.format(org.domain)
+    if settings.MULTI_ORG:
+        return "https://{}/{}".format(settings.HOST, org.slug)
+
     return settings.HOST
 
 
