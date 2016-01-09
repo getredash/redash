@@ -184,7 +184,7 @@ class Organization(ModelTimestampsMixin, BaseModel):
 
     @property
     def is_public(self):
-        return settings.parse_boolean(self.settings.get(self.SETTING_IS_PUBLIC, 'false'))
+        return self.settings.get(self.SETTING_IS_PUBLIC, False)
 
     @property
     def admin_group(self):
@@ -233,7 +233,7 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
     id = peewee.PrimaryKeyField()
     org = peewee.ForeignKeyField(Organization, related_name="users")
     name = peewee.CharField(max_length=320)
-    email = peewee.CharField(max_length=320, index=True, unique=True)
+    email = peewee.CharField(max_length=320)
     password_hash = peewee.CharField(max_length=128, null=True)
     groups = ArrayField(peewee.IntegerField, null=True)
     api_key = peewee.CharField(max_length=40, unique=True)
@@ -313,7 +313,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
     id = peewee.PrimaryKeyField()
     org = peewee.ForeignKeyField(Organization, related_name="data_sources")
-    name = peewee.CharField(unique=True)
+    name = peewee.CharField()
     type = peewee.CharField()
     options = peewee.TextField()
     queue_name = peewee.CharField(default="queries")
@@ -322,6 +322,10 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
     class Meta:
         db_table = 'data_sources'
+
+        indexes = (
+            (('org', 'name'), True),
+        )
 
     def to_dict(self, all=False, with_permissions=False):
         d = {

@@ -72,7 +72,6 @@
       replace: true,
       link: function ($scope, element, attrs) {
         $scope.basePath = $location.path().substring(1);
-        console.log($location.path, $location);
         $scope.selectTab = function (tabKey) {
           $scope.selectedTab = _.find($scope.tabsCollection, function (tab) {
             return tab.key == tabKey;
