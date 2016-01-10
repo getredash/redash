@@ -27,7 +27,7 @@ How To: Encrypt your re:dash installation with a free SSL certificate from Let's
 
 4. Generate a letsencrypt certificate
 
-.. code:: generate_cert
+.. code::
 
       cd /opt/letsencrypt
       sudo pip install urllib3[secure] --upgrade
@@ -113,6 +113,7 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
 7. Start the nginx and redash servers, 
 
 .. code::
+
   sudo service nginx start
   sudo supervisorctl start redash_server
 
@@ -124,9 +125,13 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
   sudo rm /etc/nginx/sites-available/redash.bak
 
 
-**Important Note:** letsencrypt certificates only remain valid for 90 days. To renew your certificate, simply run the same command again (below) and make sure you provide the same values you originally entered in step 4 when prompted.
+**Important Note:** letsencrypt certificates only remain valid for 90 days. To renew your certificate, simply follow steps 3 and 4 again:
 
 .. code::
+
+  sudo supervisorctl stop redash_server
+  sudo service nginx stop
+  netstat -na | grep ':80.*LISTEN'
 
   cd /opt/letsencrypt
   ./letsencrypt-auto certonly --standalone
