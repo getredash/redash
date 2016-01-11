@@ -312,4 +312,19 @@
     };
   });
 
+  directives.directive('overlay', function() {
+    return {
+      restrict: "E",
+      transclude: true,
+      template: "" +
+        '<div>' +
+          '<div class="overlay"></div>' +
+          '<div style="width: 100%; position:absolute; top:50px; z-index:2000">' +
+            '<div class="well well-lg" style="width: 70%; margin: auto;" ng-transclude>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+    }
+  })
+
 })();
