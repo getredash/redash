@@ -102,7 +102,7 @@ def authorized():
         flash("Your Google Apps domain name isn't allowed.")
         return redirect(url_for('login', org_slug=org.slug))
 
-    create_and_login_user(org.id, profile['name'], profile['email'])
+    create_and_login_user(org, profile['name'], profile['email'])
 
     next = request.args.get('state') or url_for("index", org_slug=org.slug)
 
