@@ -45,6 +45,10 @@
     }
 
     var updateDataSources = function(dataSources) {
+      if (dataSources.length == 0) {
+        $scope.noDataSources = true;
+        return;
+      }
       updateSchema();
 
       // Filter out data sources the user can't query (or used by current query):
@@ -96,8 +100,6 @@
     }
 
     $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
-
-
 
     if ($route.current.locals.dataSources) {
       $scope.dataSources = $route.current.locals.dataSources;
