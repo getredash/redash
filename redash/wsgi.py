@@ -30,7 +30,7 @@ app = Flask(__name__,
             static_path='/static')
 
 # Make sure we get the right referral address even behind proxies like nginx.
-app.wsgi_app = ProxyFix(app.wsgi_app)
+app.wsgi_app = ProxyFix(app.wsgi_app, settings.PROXIES_COUNT)
 app.url_map.converters['org_slug'] = SlugConverter
 provision_app(app)
 
