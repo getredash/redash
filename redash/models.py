@@ -349,6 +349,12 @@ class DataSource(BelongsToOrgMixin, BaseModel):
     def __unicode__(self):
         return self.name
 
+    @classmethod
+    def create_with_group(cls, *args, **kwargs):
+        data_source = cls.create(*args, **kwargs)
+        DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
+        return data_source
+
     @property
     def configuration(self):
         configuration = json.loads(self.options)

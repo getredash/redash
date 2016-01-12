@@ -45,24 +45,26 @@
     }
 
     var updateDataSources = function(dataSources) {
-      if (dataSources.length == 0) {
-        $scope.noDataSources = true;
-        return;
-      }
-      updateSchema();
-
       // Filter out data sources the user can't query (or used by current query):
       $scope.dataSources = _.filter(dataSources, function(dataSource) {
         return !dataSource.view_only || dataSource.id === $scope.query.data_source_id;
       });
 
+      if ($scope.dataSources.length == 0) {
+        $scope.noDataSources = true;
+        return;
+      }
+
       if ($scope.query.isNew()) {
         $scope.query.data_source_id = getDataSourceId();
       }
+
       $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
 
       //$scope.canExecuteQuery = $scope.canExecuteQuery && _.some(dataSources, function(ds) { return !ds.view_only });
       $scope.canCreateQuery = _.any(dataSources, function(ds) { return !ds.view_only });
+
+      updateSchema();
     }
 
 
@@ -72,7 +74,7 @@
     var updateSchema = function() {
       $scope.hasSchema = false;
       $scope.editorSize = "col-md-12";
-      DataSource.getSchema({id: getDataSourceId()}, function(data) {
+      DataSource.getSchema({id: $scope.query.data_source_id}, function(data) {
         if (data && data.length > 0) {
           $scope.schema = data;
           _.each(data, function(table) {
