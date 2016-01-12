@@ -5,12 +5,12 @@
     </overlay>
 
     <overlay ng-if="noDataSources && currentUser.isAdmin">
-        Looks like no data sources were created yet. Please create one first, and then start querying.
-        <a href="data_sources/new">Create Data Source</a>
+        Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please create one first, and then start querying.<br/>
+        <a href="data_sources/new" class="btn btn-default">Create Data Source</a> <a href="groups" class="btn btn-default">Manage Group Permissions</a>
     </overlay>
 
-    <overlay ng-if="noDataSources">
-        Looks like no data sources were created yet. Please ask your re:dash admin to create one first.
+    <overlay ng-if="noDataSources && !currentUser.isAdmin">
+        Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please ask your re:dash admin to create one first.
     </overlay>
 
     <p class="alert alert-warning" ng-if="query.is_archived">This query is archived and can't be used in dashboards, and won't appear in search results.</p>
