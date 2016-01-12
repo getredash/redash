@@ -81,13 +81,8 @@
               $scope.dashboard.layout = layout;
 
               layout = JSON.stringify(layout);
-              $http.post('api/dashboards/' + $scope.dashboard.id, {
-                'name': $scope.dashboard.name,
-                'layout': layout
-              }).success(function(response) {
-                // TODO(@arikfr): we should use the whole response object here, but because we need to manipulate it
-                // we can't until we move the manipulation code into a central place (like we did for Alerts).
-                $scope.dashboard.layout = response.layout;
+              Dashboard.save({slug: $scope.dashboard.id, name: $scope.dashboard.name, layout: layout}, function(dashboard) {
+                $scope.dashboard = dashboard;
                 $scope.saveInProgress = false;
                 $(element).modal('hide');
               });
