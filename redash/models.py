@@ -349,9 +349,11 @@ class DataSource(BelongsToOrgMixin, BaseModel):
     def __unicode__(self):
         return self.name
 
-    def post_save(self, created):
-        if created:
-            DataSourceGroup.create(data_source=self, group=self.org.default_group)
+    @classmethod
+    def create_with_group(cls, *args, **kwargs):
+        data_source = cls.create(*args, **kwargs)
+        DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
+        return data_source
 
     @property
     def configuration(self):

@@ -76,7 +76,9 @@ class DataSourceListAPI(BaseResource):
         if not validate_configuration(req['type'], req['options']):
             abort(400)
 
-        datasource = models.DataSource.create(org=self.current_org, name=req['name'], type=req['type'], options=json.dumps(req['options']))
+        datasource = models.DataSource.create_with_group(org=self.current_org,
+                                                         name=req['name'],
+                                                         type=req['type'], options=json.dumps(req['options']))
 
         return datasource.to_dict(all=True)
 
