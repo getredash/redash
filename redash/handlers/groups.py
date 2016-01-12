@@ -3,7 +3,7 @@ from flask import request
 from flask.ext.restful import abort
 from redash import models
 from redash.wsgi import api
-from redash.permissions import require_admin
+from redash.permissions import require_admin, require_permission
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
@@ -87,6 +87,7 @@ class GroupMemberListResource(BaseResource):
 
         return user.to_dict()
 
+    @require_permission('list_users')
     def get(self, group_id):
         if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.groups):
             abort(403)
