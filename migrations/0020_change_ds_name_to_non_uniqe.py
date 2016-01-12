@@ -8,9 +8,11 @@ if __name__ == '__main__':
     with db.database.transaction():
         # Change the uniqueness constraint on data source name to be (org, name):
         success = False
-        for constraint in ['unique_name', 'data_sources_name']:
+        for index_name in ['unique_name', 'data_sources_name']:
             try:
-                db.database.execute_sql("ALTER TABLE data_sources DROP CONSTRAINT {}".format(constraint))
+                print "Trying to remove data source name uniqueness index with the name: {}".format(index_name)
+                migrate(migrator.drop_index("data_sources", index_name))
+                print "Success!"
                 success = True
                 break
             except peewee.ProgrammingError:
@@ -19,7 +21,7 @@ if __name__ == '__main__':
         if not success:
             print "Failed removing uniqueness constraint on data source name."
             print "Please verify its name in the schema, update the migration and run again."
-            exit()
+            exit(1)
 
         migrate(
             migrator.add_index('data_sources', ('org_id', 'name'), unique=True)
