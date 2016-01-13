@@ -11,6 +11,9 @@ body {
 h2 , h3,h4,h5,h6 {
   font-weight:200
 }
+h2 {
+  font-size: 46px;
+}
 
 .logofont {
   font-family: 'Inconsolata', ;
@@ -31,20 +34,16 @@ h2 , h3,h4,h5,h6 {
   */
   background-color:#668899;
   color:white;
+  padding: 91px 0 30px;
 }
 
 @media (min-height: 920px) and (min-width: 768px) {
     .jumbo_frontpage {
-      height:90%;
-      background-image:url('/static/img/graphpattern.png');
+      background-image:url('../img/graphpattern.png');
       background-repeat:repeat-x;
       background-position:128% 100%;
+      padding-bottom: 150px;
     }
-}
-
-.jumbo_padding {
-  padding-top:80px;
-  padding-bottom:40px;
 }
 
 .screenshots {
@@ -62,9 +61,17 @@ h2 , h3,h4,h5,h6 {
 .container-footer a {
   color:#FCFFF2;
 }
+.navbar-brand {
+  padding: 0;
+  margin-top: 7px;
+}
+#main-header-links {
+  margin-top: 18px;
+  background-color:#668899;
+}
 .navbar-trans {
-  /*background-color:transparent;*/
-  padding: 20px;
+  height: 79px;
+  padding: 0;
   background-color:#668899;
   border:0px;
   color:#FCFFF2;
@@ -75,16 +82,7 @@ h2 , h3,h4,h5,h6 {
 .header-link:hover {
   color:#FCFFF2 !important;
 }
-.btn-redash {
-  background-color:transparent;
-  border-color:rgba(255,255,255,0.2);
-}
-.btn-redash:hover {
-  background-color:#008888;
 
-  border-color:rgba(255,255,255,1);
-
-}
 .container {
   max-width:960px;
 }
@@ -121,4 +119,21 @@ h2 , h3,h4,h5,h6 {
   border-radius:150px;
   max-width:120px;
   radius:150px;
+}
+
+#buttons {
+  margin: 20px 0 50px;
+}
+#buttons a {
+  background-color: #fd7968;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.27);
+  border: 0;
+  margin-right: 6px;
+  border-radius: 4px;
+}
+#buttons a:hover {
+  background-color: #ED6D5C;
+}
+#buttons a:last-child {
+  margin-right: 0;
 }
