@@ -21,15 +21,6 @@ angular.module('redash', [
     'ngSanitize'
   ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig',
     function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig) {
-      if (clientConfig.clientSideMetrics) {
-        Bucky.setOptions({
-          host: '/api/metrics'
-        });
-
-        Bucky.requests.monitor('ajax_requsts');
-        Bucky.requests.transforms.enable('dashboards', /dashboard\/[\w-]+/ig, '/dashboard');
-      }
-
       function getQuery(Query, $route) {
         var query = Query.get({'id': $route.current.params.queryId });
         return query.$promise;
@@ -131,15 +122,12 @@ angular.module('redash', [
         templateUrl: '/views/groups/list.html',
         controller: 'GroupsCtrl'
       })
-
       $routeProvider.when('/', {
-        templateUrl: '/views/personal.html',
-        controller: 'PersonalIndexCtrl'
+        templateUrl: '/views/index.html',
+        controller: 'IndexCtrl'
       });
-
       $routeProvider.when('/personal', {
-        templateUrl: '/views/personal.html',
-        controller: 'PersonalIndexCtrl'
+        redirectTo: '/'
       });
       $routeProvider.otherwise({
         redirectTo: '/'

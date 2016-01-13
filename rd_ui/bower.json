@@ -21,7 +21,6 @@
     "jquery-ui": "~1.10.4",
     "underscore.string": "~2.3.3",
     "marked": "~0.3.2",
-    "bucky": "~0.2.6",
     "pace": "~0.5.1",
     "font-awesome": "~4.2.0",
     "mustache": "~1.0.0",

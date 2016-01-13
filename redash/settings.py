@@ -155,7 +155,6 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
-CLIENT_SIDE_METRICS = parse_boolean(os.environ.get("REDASH_CLIENT_SIDE_METRICS", "false"))
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 
 # Features:
@@ -171,7 +170,6 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA
 
 ### Common Client config
 COMMON_CLIENT_CONFIG = {
-    'clientSideMetrics': CLIENT_SIDE_METRICS,
     'allowScriptsInUserInput': ALLOW_SCRIPTS_IN_USER_INPUT,
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
