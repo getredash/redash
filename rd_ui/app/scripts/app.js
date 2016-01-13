@@ -131,15 +131,12 @@ angular.module('redash', [
         templateUrl: '/views/groups/list.html',
         controller: 'GroupsCtrl'
       })
-
       $routeProvider.when('/', {
-        templateUrl: '/views/personal.html',
-        controller: 'PersonalIndexCtrl'
+        templateUrl: '/views/index.html',
+        controller: 'IndexCtrl'
       });
-
       $routeProvider.when('/personal', {
-        templateUrl: '/views/personal.html',
-        controller: 'PersonalIndexCtrl'
+        redirectTo: '/'
       });
       $routeProvider.otherwise({
         redirectTo: '/'

@@ -206,12 +206,7 @@
     });
   };
 
-  var IndexCtrl = function ($scope, Events, Dashboard) {
-    Events.record(currentUser, "view", "page", "homepage");
-    $scope.$parent.pageTitle = "Home";
-  };
-
-  var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query) {
+  var IndexCtrl = function ($scope, Events, Dashboard, Query) {
     Events.record(currentUser, "view", "page", "personal_homepage");
     $scope.$parent.pageTitle = "Home";
 
@@ -221,8 +216,7 @@
 
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-    .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
-    .controller('PersonalIndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', PersonalIndexCtrl])
+    .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();
