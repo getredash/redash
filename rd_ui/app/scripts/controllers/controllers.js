@@ -166,13 +166,6 @@
     $scope.version = clientConfig.version;
     $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
 
-    if (clientConfig.clientSideMetrics) {
-      $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
-        // This will be called once per actual page load.
-        Bucky.sendPagePerformance();
-      });
-    }
-
     $scope.dashboards = [];
     $scope.reloadDashboards = function () {
       Dashboard.query(function (dashboards) {
