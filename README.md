@@ -1,4 +1,4 @@
-More details about the future of re:dash: http://bit.ly/journey-first-step
+More details about the future of re:dash : http://bit.ly/journey-first-step
 
 ---
 
