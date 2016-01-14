@@ -119,7 +119,7 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
   sudo supervisorctl start redash_server
 
 
-8. Verify the installation by running a `SSLLabs test<https://www.ssllabs.com/ssltest/>`__. This guide *should* yield an A+ score. If everything is working as expected, optionally delete the old redash nginx config:
+8. Verify the installation by running a `SSLLabs test <https://www.ssllabs.com/ssltest/>`__. This guide *should* yield an A+ score. If everything is working as expected, optionally delete the old redash nginx config:
 
 .. code::
 
