@@ -39,6 +39,7 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
 5. Optionally generate a stronger Diffie-Hellman ephemeral parameter. Without this step, you will not achieve higher than a B score on `SSLLabs <https://www.ssllabs.com/ssltest/>`__. Please note that on a low-end server (VPS or micro/small GCE instance) this step can take approximately 20-30 minutes.
 
 .. code::
+
       cd /etc/ssl/certs
       sudo openssl dhparam -out dhparam.pem 3072
 
@@ -118,7 +119,7 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
   sudo supervisorctl start redash_server
 
 
-8. Verify that the installation by running a `SSLLabs test<https://www.ssllabs.com/ssltest>`___. This guide *should* yield an A+ score. If everything is working as expected, optionally delete the old redash nginx config.
+8. Verify that the installation by running a `SSLLabs test <https://www.ssllabs.com/ssltest/>`__. This guide *should* yield an A+ score. If everything is working as expected, optionally delete the old redash nginx config.
 
 .. code::
 
