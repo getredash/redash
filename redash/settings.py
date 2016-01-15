@@ -110,6 +110,7 @@ MAIL_ASCII_ATTACHMENTS = parse_boolean(os.environ.get('REDASH_MAIL_ASCII_ATTACHM
 HOST = os.environ.get('REDASH_HOST', '')
 
 HIPCHAT_API_TOKEN = os.environ.get('REDASH_HIPCHAT_API_TOKEN', None)
+HIPCHAT_API_URL = os.environ.get('REDASH_HIPCHAT_API_URL', None)
 HIPCHAT_ROOM_ID = os.environ.get('REDASH_HIPCHAT_ROOM_ID', None)
 
 WEBHOOK_ENDPOINT = os.environ.get('REDASH_WEBHOOK_ENDPOINT', None)
