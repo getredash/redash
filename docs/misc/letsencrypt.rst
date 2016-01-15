@@ -7,7 +7,7 @@ How To: Encrypt your re:dash installation with a free SSL certificate from Let's
 
 1. Open port 443 in your security group (if using AWS or GCE).
 
-2. Update package lists, install git, clone the letsencrypt repository
+2. Update package lists, install git, and clone the letsencrypt repository.
 
 .. code::
 
@@ -16,7 +16,7 @@ How To: Encrypt your re:dash installation with a free SSL certificate from Let's
     sudo git clone https://github.com/letsencrypt/letsencrypt /opt/letsencrypt
 
 
-3. Stop the servers and ensure that no processes are still listening on port 80
+3. Stop nginx and redash, then ensure that no processes are still listening on port 80.
 
 .. code::
 
@@ -25,7 +25,7 @@ How To: Encrypt your re:dash installation with a free SSL certificate from Let's
     netstat -na | grep ':80.*LISTEN'
 
 
-4. Generate a letsencrypt certificate
+4. Generate your letsencrypt certificate.
 
 .. code::
 
@@ -34,16 +34,17 @@ How To: Encrypt your re:dash installation with a free SSL certificate from Let's
       ./letsencrypt-auto certonly --standalone
 
 
-In most cases you'll want to enter 'example.com www.example.com' when prompted for your domain so that you can use the certificate when visiting http://example.com or http://www.example.com.
+In most cases you'll want to enter 'example.com www.example.com' when prompted for your domain so that you can use the certificate on http://example.com and http://www.example.com.
 
 5. Optionally generate a stronger Diffie-Hellman ephemeral parameter. Without this step, you will not achieve higher than a B score on `SSLLabs <https://www.ssllabs.com/ssltest/>`__. Please note that on a low-end server (VPS or micro/small GCE instance) this step can take approximately 20-30 minutes.
 
 .. code::
+
       cd /etc/ssl/certs
       sudo openssl dhparam -out dhparam.pem 3072
 
 
-6. Backup the existing nginx redash config, delete it, and then create a new version
+6. Backup the existing nginx redash config, delete it, and then create a new version with the code supplied below.
 
 .. code::
 
@@ -110,7 +111,7 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
       }
 
 
-7. Start the nginx and redash servers, 
+7. Start the nginx and redash servers again.
 
 .. code::
 
@@ -118,7 +119,7 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
   sudo supervisorctl start redash_server
 
 
-8. Verify that the installation by running a `SSLLabs test<https://www.ssllabs.com/ssltest>`___. This guide *should* yield an A+ score. If everything is working as expected, optionally delete the old redash nginx config.
+8. Verify the installation by running a `SSLLabs test <https://www.ssllabs.com/ssltest/>`__. This guide *should* yield an A+ score. If everything is working as expected, optionally delete the old redash nginx config:
 
 .. code::
 
@@ -135,4 +136,6 @@ In most cases you'll want to enter 'example.com www.example.com' when prompted f
 
   cd /opt/letsencrypt
   ./letsencrypt-auto certonly --standalone
-
+  
+  sudo service nginx start
+  sudo supervisorctl start redash_server
