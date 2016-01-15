@@ -19,7 +19,7 @@ How To: Backup your re:dash database and restore it on a different server
     df -hT
 
 
-3. Backup the existing redash database
+3. Backup the existing redash database.
 
 .. code::
 
