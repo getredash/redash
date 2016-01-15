@@ -60,7 +60,7 @@ How To: Backup your re:dash database and restore it on a different server
     psql -c "ALTER ROLE redash_reader WITH PASSWORD 'yourpasswordgoeshere';"
 
 
-Then navigate to the 're:dash metadata' data source in the new re:dash installation and change the password to match the one entered above.
+**Note:** Then you must navigate to the 're:dash metadata' data source (/data_sources/1) in the new re:dash installation and change the password to match the one entered above.
 
 10. Grant permissions on the redash database to the redash_reader user.
 
