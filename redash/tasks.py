@@ -349,7 +349,10 @@ def check_alerts_for_query(self, query_id):
 
 def notify_hipchat(alert, html, new_state):
     try:
-        hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
+        if settings.HIPCHAT_API_URL:
+            hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN, url=settings.HIPCHAT_API_URL)
+        else:
+            hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
         message = '[' + new_state.upper() + '] ' + alert.name + '<br />' + html
         hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, message.encode('utf-8', 'ignore'), message_format='html')
     except Exception:
