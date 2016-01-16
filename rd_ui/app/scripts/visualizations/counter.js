@@ -56,7 +56,7 @@
           }
         };
 
-        $scope.$watch("visualization.options", refreshData);
+        $scope.$watch("visualization.options", refreshData, true);
         $scope.$watch("queryResult && queryResult.getData()", refreshData);
       }
     }
