@@ -121,10 +121,8 @@ class TestCreateAndLoginUser(BaseTestCase):
         name = 'Test User'
 
         with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
-
             create_and_login_user(self.factory.org, name, email)
 
             self.assertTrue(login_user_mock.called)
             user = models.User.get(models.User.email == email)
-
 
