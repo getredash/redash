@@ -170,6 +170,11 @@ class Organization(ModelTimestampsMixin, BaseModel):
     def __repr__(self):
         return u"<Organization: {}, {}>".format(self.id, self.name)
 
+    # When Organization is used with LocalProxy (like the current_org helper), peewee doesn't recognize it as a Model
+    # and might call int() on it. This method makes sure it works.
+    def __int__(self):
+        return self.id
+
     @classmethod
     def get_by_slug(cls, slug):
         return cls.get(cls.slug == slug)
