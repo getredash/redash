@@ -31,7 +31,7 @@
             '<div class="panel-heading">{name}' +
             '</div></li>';
 
-          $scope.$watch('dashboard.widgets && dashboard.widgets.length', function(widgets_length) {
+          $scope.$watch('dashboard.layout', function() {
             $timeout(function() {
               gridster.remove_all_widgets();
 
@@ -57,7 +57,7 @@
                 });
               }
             });
-          });
+          }, true);
 
           $scope.saveDashboard = function() {
             $scope.saveInProgress = true;
