@@ -30,7 +30,7 @@ To get started with this box:
 
     ::
 
-        export PYTHONPATH=. && find migrations/ -type f  | grep 00 --null | xargs -I file bin/run python file
+        export PYTHONPATH=. && find migrations/ -type f | grep 00 --null | sort | xargs -I file bin/run python file
 
 9.  Start the server and background workers with
     ``bin/run honcho start -f Procfile.dev``.
