@@ -10,7 +10,7 @@ layout: default
                 <h3>Connect to any data source, easily visualize and share your data</h3>
                 <p id="buttons">
                     <a href="https://demo.redash.io/" id="cta-demo" class="btn btn-primary btn-lg btn-redash">Demo</a>
-                    <a href="http://docs.redash.io/en/latest/setup.html" id="cta-get-started" class="btn btn-primary btn-lg btn-redash">Get Started</a>
+                    <a href="/#get-started" id="cta-get-started" class="btn btn-primary btn-lg btn-redash">Get Started</a>
                 </p>
                 <img src="https://raw.github.com/EverythingMe/redash/screenshots/screenshots.gif" class="screenshots img-responsive"/>
             </div>
@@ -245,3 +245,37 @@ layout: default
         </div>
     </div>
 </div>
+
+<a name="get-started"></a>
+<div class="container-fluid">
+    <div class="container text-centeR">
+
+    <hr>
+        <div class="row" id="get-started">
+            <div id="hosted" class="col-md-6 col-sm-12">
+                <h2><img src="static/img/logo_white.png"> <label>HOSTED</label></h2>
+                <p>Start querying and sharing in a few clicks with our hosted service.</p>
+                <strong>Instant and hassle free</strong>
+                <div id="signup">
+                    <div>
+                        <a href="javascript:void(0)" onclick="SignUp.status = 'form'" class="btn btn-full">Early access signup</a>
+                        <a href="javascript:void(0)" onclick="SignUp.status = ''" class="fa fa-chevron-left"></a>
+                        <input placeholder="Your email" id="email" />
+                        <a href="javascript:void(0)" onclick="SignUp.send()" class="btn fa fa-check"></a>
+                        <span id="feedback"></span>
+                        <span id="success"><strong>Awesome!</strong> We'll contact you soon and get this thang rolling.</span>
+                    </div>
+                </div>
+            </div>
+            <span>or</span>
+            <div id="opensource" class="col-md-6 col-sm-12">
+                <h2><img src="static/img/logo_white.png"> <label>0.9.1</label></h2>
+                <p>Setup and install Redash on your own server free of charge.</p>
+                <strong>Perfect for developers</strong>
+                <a href="https://github.com/getredash/redash" class="btn btn-full">Quick start guide</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/home.js"></script>
