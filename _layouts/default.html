@@ -55,5 +55,33 @@
     analytics.page()
     }}();
     </script>
+
+    <script>
+    var link = document.getElementById('cta-demo');
+    if (link) {
+        analytics.trackLink(link, 'Clicked Demo', {
+            location: 'hero',
+            color: 'ugly-red',
+            text: 'Demo',
+            CTA: 'Demo',
+            category: 'Home Page',
+            type: 'Button',
+            pageTitle: document.title
+        });
+    }
+
+    link = document.getElementById('cta-get-started');
+    if (link) {
+        analytics.trackLink(link, 'Clicked Get Started', {
+            location: 'hero',
+            color: 'ugly-red',
+            text: 'Get Started',
+            CTA: 'Get Started',
+            category: 'Home Page',
+            type: 'Button',
+            pageTitle: document.title
+        });
+    }
+    </script>
 </body>
 </html>
