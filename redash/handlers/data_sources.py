@@ -57,13 +57,16 @@ class DataSourceListAPI(BaseResource):
         else:
             data_sources = models.DataSource.all(self.current_org, groups=self.current_user.groups)
 
-        response = []
+        response = {}
         for ds in data_sources:
+            if ds.id in response:
+                continue
+
             d = ds.to_dict()
             d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
-            response.append(d)
+            response[ds.id] = d
 
-        return response
+        return response.values()
 
     @require_admin
     def post(self):

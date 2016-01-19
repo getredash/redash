@@ -394,8 +394,8 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
         return schema
 
-    def add_group(self, group):
-        dsg = DataSourceGroup.create(group=group, data_source=self, view_only=False)
+    def add_group(self, group, view_only=False):
+        dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
         setattr(self, 'data_source_groups', dsg)
 
     def remove_group(self, group):
