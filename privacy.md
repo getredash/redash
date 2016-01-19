@@ -29,7 +29,7 @@ Redash uses some third party services to provide with parts of the services and 
 
 **Who Has Access To Your Information? **
 
-Redash uses selected third parties to provide you with the service, and shall share some information with them, under strict confidentiality obligations, to provide you with the services. Such service providers shall include, amongst others, Amazon Web Services, Google (Cloud Services), Sentry and MailChimp. Moreover, Redash’s employees and agents, who are under the most strict confidentiality obligations, also have monitored access to some of your information. Redash’s employees undergo casual and routine monitoring. Lastly, your information will be shared with people you specifically ask to share.
+Redash uses selected third parties to provide you with the service, and shall share some information with them, under strict confidentiality obligations, to provide you with the services. Such service providers shall include, amongst others, Amazon Web Services, Google (Cloud Services), Google Analytics, Segment.com, Sentry and MailChimp. Moreover, Redash’s employees and agents, who are under the most strict confidentiality obligations, also have monitored access to some of your information. Redash’s employees undergo casual and routine monitoring. Lastly, your information will be shared with people you specifically ask to share.
 
 **How Is Your Information Secured?**
 
