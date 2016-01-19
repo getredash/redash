@@ -1,7 +1,7 @@
 ---
 title: Terms of Service
 layout: page
-permalink: /terms
+permalink: /terms.html
 ---
 
 # Terms of Service
