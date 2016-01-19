@@ -15,6 +15,10 @@ h2 {
   font-size: 46px;
 }
 
+.content {
+  padding-top: 79px; /* fixed header compensation */
+}
+
 .logofont {
   font-family: 'Inconsolata', ;
   color:#249FB5
@@ -34,7 +38,7 @@ h2 {
   */
   background-color:#668899;
   color:white;
-  padding: 91px 0 30px;
+  padding: 0 0 30px;
 }
 
 @media (min-height: 920px) and (min-width: 768px) {
@@ -64,6 +68,7 @@ h2 {
 .navbar-brand {
   padding: 0;
   margin-top: 7px;
+  margin-left: 0 !important;
 }
 #main-header-links {
   margin-top: 18px;
@@ -76,8 +81,8 @@ h2 {
   border:0px;
   color:#FCFFF2;
 }
-.header-link {
-  color:rgba(255,255,255,0.3) !important;
+nav a, .container-footer a {
+  color:rgba(255,255,255,0.6) !important;
 }
 .header-link:hover {
   color:#FCFFF2 !important;
