@@ -69,5 +69,5 @@ def update(data_source):
 
 
 if __name__ == '__main__':
-    for data_source in DataSource.all():
+    for data_source in DataSource.select():
         update(data_source)
