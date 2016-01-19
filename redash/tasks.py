@@ -238,7 +238,10 @@ def refresh_schemas():
 
     for ds in models.DataSource.select():
         logger.info("Refreshing schema for: {}".format(ds.name))
-        ds.get_schema(refresh=True)
+        try:
+            ds.get_schema(refresh=True)
+        except Exception:
+            logger.exception("Failed refreshing the data source: %s", ds.name)
 
 
 def signal_handler(*args):
