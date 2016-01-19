@@ -82,6 +82,13 @@
             pageTitle: document.title
         });
     }
+
+    var form = document.getElementById('mc-embedded-subscribe-form');
+    if (form) {
+        analytics.trackForm(form, 'Signed up to Newsletter', {
+            location: 'bottom'
+        })
+    }
     </script>
 </body>
 </html>
