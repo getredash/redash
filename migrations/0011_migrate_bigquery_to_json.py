@@ -12,7 +12,7 @@ def convert_p12_to_pem(p12file):
 
 if __name__ == '__main__':
 
-    for ds in DataSource.all():
+    for ds in DataSource.select():
 
         if ds.type == 'bigquery':
             options = json.loads(ds.options)
