@@ -22,6 +22,6 @@ run_psql="docker-compose run --rm postgres psql -h $POSTGRES_PORT_5432_TCP_ADDR 
 $run_psql -c "CREATE ROLE redash_reader WITH PASSWORD 'redash_reader' NOCREATEROLE NOCREATEDB NOSUPERUSER LOGIN"
 $run_psql -c "grant select(id,name,type) ON data_sources to redash_reader;"
 $run_psql -c "grant select(id,name) ON users to redash_reader;"
-$run_psql -c "grant select on activity_log, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;"
+$run_psql -c "grant select on events, queries, dashboards, widgets, visualizations, query_results to redash_reader;"
 
 $run_redash /opt/redash/current/manage.py ds new -n "re:dash metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"redash_reader\", \"host\": \"postgres\", \"dbname\": \"postgres\"}"

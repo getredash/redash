@@ -68,7 +68,7 @@ How To: Backup your re:dash database and restore it on a different server
 
     psql -c "grant select(id,name,type) ON data_sources to redash_reader;" redash
     psql -c "grant select(id,name) ON users to redash_reader;" redash
-    psql -c "grant select on activity_log, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
+    psql -c "grant select on events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
 
 Create a new query in redash (using re:dash metadata as the data source) to test that everything is working as expected.
