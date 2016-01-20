@@ -248,7 +248,11 @@ def signal_handler(*args):
     raise InterruptException
 
 
-@celery.task(bind=True, base=BaseTask, track_started=True)
+class QueryExecutionError(Exception):
+    pass
+
+
+@celery.task(bind=True, base=BaseTask, track_started=True, throws=(QueryExecutionError,))
 def execute_query(self, query, data_source_id, metadata):
     signal.signal(signal.SIGINT, signal_handler)
     start_time = time.time()
@@ -294,7 +298,7 @@ def execute_query(self, query, data_source_id, metadata):
         for query_id in updated_query_ids:
             check_alerts_for_query.delay(query_id)
     else:
-        raise Exception(error)
+        raise QueryExecutionError(error)
 
     return query_result.id
 
