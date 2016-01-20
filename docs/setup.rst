@@ -113,7 +113,7 @@ file.
 .. code::
 
    cd /opt/redash/current
-   sudo -u redash bin/run ./manage.py set_google_apps_domains {{domains}}
+   sudo -u redash bin/run ./manage.py org set_google_apps_domains {{domains}}
 
 
 If you're passing multiple domains, separate them with commas.
