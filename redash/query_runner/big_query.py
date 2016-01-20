@@ -189,7 +189,10 @@ class BigQuery(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
         except apiclient.errors.HttpError, e:
             json_data = None
-            error = e.content
+            if e.resp.status == 400:
+                error = json.loads(e.content)['error']['message']
+            else:
+                error = e.content
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
