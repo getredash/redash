@@ -22,6 +22,8 @@ def _load_key(filename):
 
 
 def _guess_type(value):
+    if value == '':
+        return TYPE_STRING
     try:
         val = int(value)
         return TYPE_INTEGER
@@ -45,6 +47,10 @@ def _guess_type(value):
 def _value_eval_list(value):
     value_list = []
     for member in value:
+        if member == '' or member == None:
+            val = None
+            value_list.append(val)
+            continue
         try:
             val = int(member)
             value_list.append(val)
