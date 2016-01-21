@@ -30,12 +30,15 @@ var SignUp = new function() {
     // sending
     Feedback.set({text: 'Sending...'});
 
-    // ajax placeholder
-    setTimeout(function() {
-      // success!
+    $.ajax({
+      url: "//formspree.io/arik@redash.io",
+      method: "POST",
+      data: {message: "Early access signup", email: emailEl.value},
+      dataType: "json"
+    }).done(function() {
       self.status = 'success';
-    }, 2000);
-  }
+    });
+};
 
   function validateEmail(email) {
     var re = /\S+@\S+\.\S+/;
