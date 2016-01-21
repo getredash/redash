@@ -29,31 +29,30 @@ h2 {
 }
 
 .jumbo_frontpage {
-  /*-webkit-background-size: cover !important;
-  -moz-background-size: cover !important;
-  -o-background-size: cover !important;
-  background-size: cover !important;
-  background-attachment:scroll !important;
-  background: url('jumbo_background.jpg') no-repeat center center fixed;
-  */
   background-color:#668899;
   color:white;
-  padding: 0 0 30px;
+  padding: 0;
+  box-shadow: 0 0 15px 0px #668899;
 }
 
-@media (min-height: 920px) and (min-width: 768px) {
-    .jumbo_frontpage {
-      background-image:url('../img/graphpattern.png');
-      background-repeat:repeat-x;
-      background-position:128% 100%;
-      padding-bottom: 150px;
-    }
+.slick-slider {
+    margin-bottom: 0px !important;
 }
 
 .screenshots {
-    max-height:300px;
-    padding-bottom:10px;
+    max-height:520px;
+    max-width: 730px;
     margin: auto;
+}
+
+.screenshots img{
+    max-height:520px;
+    margin: auto;
+}
+
+.user-logo img {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .container-footer {
@@ -127,7 +126,7 @@ nav a, .container-footer a {
 }
 
 #buttons {
-  margin: 20px 0 50px;
+  margin: 20px 0 30px;
 }
 #buttons a {
   background-color: #fd7968;
@@ -141,4 +140,241 @@ nav a, .container-footer a {
 }
 #buttons a:last-child {
   margin-right: 0;
+}
+
+/* get started */
+#get-started {
+  position: relative;
+  background: rgb(212, 212, 210);
+  border-radius: 3px;
+  margin: 40px 0 50px;
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.05);
+}
+#get-started > div {
+  text-align: center;
+  padding: 10px 100px 60px;
+  margin: 10px 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.7);
+}
+@media (max-width: 991px) {
+  #get-started > div {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+#get-started #opensource {
+  border: none;
+}
+#get-started h2 img {
+  height: 70px;
+}
+#get-started h2 label {
+  font-size: 20px;
+  background: #70D082;
+  padding: 4px 5px 3px;
+  border-radius: 3px;
+  color: white;
+  font-weight: normal;
+  position: relative;
+  top: 19px;
+  left: -6px;
+}
+#get-started > span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  height: 60px;
+  width: 60px;
+  background-color: #ffffff;
+  margin: -30px 0 0 -30px;
+  text-align: center;
+  line-height: 58px;
+  font-style: italic;
+  font-size: 21px;
+  color: #77776D;
+}
+
+#get-started p {
+  margin-bottom: 26px;
+  margin-top: 14px;
+  color: #696962;
+  font-size: 15px;
+}
+#get-started > div > strong {
+  display: block;
+  margin-bottom: 10px;
+}
+#get-started a {
+  text-decoration: none !important;
+}
+#get-started a.btn {
+  font-size: 17px;
+  background: #70D082;
+  padding: 0 12px;
+  border-radius: 5px;
+  color: white;
+  font-weight: normal;
+  display: inline-block;
+  text-align: center;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.2);
+  text-transform: uppercase;
+  border: 0;
+  vertical-align: top;
+  height: 40px;
+  line-height: 40px;
+}
+#get-started a.btn-full {
+  padding-left: 21px;
+  padding-right: 21px;
+}
+#get-started a.btn:hover {
+  background-color: #5ED073;
+}
+#get-started strong {
+  color: #4A8059;
+}
+#get-started #opensource a.btn,
+#get-started #opensource h2 label {
+  background-color: #5ACECE;
+}
+#get-started #opensource a.btn:hover {
+  background-color: #1ED0D0;
+}
+#get-started #opensource strong {
+  color: #358282;
+}
+#get-started input {
+  border: 0;
+  outline: 0;
+  width: 180px;
+  padding: 10px;
+  height: 40px;
+  border-radius: 4px;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.15);
+  font-size: 17px;
+}
+#signup {
+  overflow: hidden;
+  white-space: nowrap;
+  width: 240px;
+  height: 58px;
+  margin: 0 auto;
+  position: relative;
+}
+#signup a:not(.btn) {
+  color: #A2A29F;
+}
+#signup a:not(.btn):hover {
+  color: #7D7D78;
+}
+
+#signup > div {
+  transition: transform 0.2s ease;
+}
+#signup > div > * {
+  position: relative;
+  z-index: 1;
+}
+#signup[data-status^="form"] > div {
+  transform: translateX(-240px);
+}
+#signup[data-status^="success"] > div {
+  transform: translateX(-480px);
+}
+
+#signup #feedback {
+  position: absolute;
+  top: 20px;
+  left: 259px;
+  transition: all 0.2s ease;
+  z-index: 0;
+  color: #A7A6A6;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+  opacity: 0;
+}
+#signup #feedback[data-show="true"] {
+  transform: translateY(20px);
+  opacity: 1;
+}
+#signup #feedback[data-success="true"] {
+  color: #3EA051;
+}
+#signup #feedback[data-success="false"] {
+  color: #BF5757;
+}
+#signup #success {
+  display: inline-block;
+  white-space: normal;
+  color: #3F8E4E;
+  vertical-align: top;
+}
+#signup #success strong {
+  font-size: 23px;
+  display: inline;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
+}
+
+.chrome .toolbar {
+    height: 28px;
+    max-width: 730px;
+    margin: auto;
+    background: #f0f0f0;
+    background-image: -webkit-linear-gradient(top, #fff, #dadee0);
+    background-image: linear-gradient(180deg, #fff 0, #dadee0);
+    background-repeat: repeat-x;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffdadee0', GradientType=0);
+    border-radius: 5px 5px 0 0;
+    position: relative;
+    border-bottom: none;
+    box-shadow: inset 0 1px 0 rgba(52, 60, 69, .2), inset 1px 0 0 rgba(52, 60, 69, .2), inset -1px 0 0 rgba(52, 60, 69, .2)
+}
+
+.toolbar .circle-wrap {
+    position: absolute;
+    top: 9px;
+    left: 15px
+}
+
+.toolbar .circle-wrap .circles {
+    background: #fdbe30;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+    margin: 0 18px;
+    border: 1px solid #f8ac02
+}
+
+.toolbar .circle-wrap .circles:before {
+    content: "";
+    background: #fc5959;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+    position: absolute;
+    left: 0;
+    border: 1px solid #fb3131;
+    margin-top: -1px
+}
+
+.toolbar .circle-wrap .circles:after {
+    content: "";
+    background: #36cf40;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+    position: absolute;
+    left: 36px;
+    border: 1px solid #2dbe37;
+    margin-top: -1px
+}
+
+.features {
+    margin-top: 20px;
 }
