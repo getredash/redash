@@ -16,6 +16,18 @@ var SignUp = new function() {
     }
   });
 
+  this.openForm = function() {
+      self.status = 'form';
+      analytics.track('Clicked Early Access Signup', {
+        text: 'Early Access Signup',
+        location: 'get-started',
+        CTA: 'Early Access Signup',
+        category: 'Home Page',
+        type: 'Button',
+        pageTitle: document.title
+      });
+  };
+
   this.send = function() {
     // validate email
     if (!validateEmail(emailEl.value)) {
@@ -37,6 +49,11 @@ var SignUp = new function() {
       dataType: "json"
     }).done(function() {
       self.status = 'success';
+    });
+    analytics.track('Submited Email', {
+      location: 'get-started',
+      category: 'Home Page',
+      type: 'Button'
     });
 };
 

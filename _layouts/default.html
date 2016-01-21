@@ -29,6 +29,8 @@
 
     <link href='static/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
     <link href='static/css/style.css' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.5.9/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.5.9/slick-theme.css"/>
 </head>
 
 <body>
@@ -69,6 +71,18 @@
             color: 'ugly-red',
             text: 'Get Started',
             CTA: 'Get Started',
+            category: 'Home Page',
+            type: 'Button',
+            pageTitle: document.title
+        });
+    }
+
+    link = document.getElementById('cta-quick-start-guide');
+    if (link) {
+        analytics.trackLink(link, 'Clicked Quick Start Guide', {
+            location: 'get-started',
+            text: 'Quick Start Guide',
+            CTA: 'Quick Start Guide',
             category: 'Home Page',
             type: 'Button',
             pageTitle: document.title

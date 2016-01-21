@@ -29,31 +29,30 @@ h2 {
 }
 
 .jumbo_frontpage {
-  /*-webkit-background-size: cover !important;
-  -moz-background-size: cover !important;
-  -o-background-size: cover !important;
-  background-size: cover !important;
-  background-attachment:scroll !important;
-  background: url('jumbo_background.jpg') no-repeat center center fixed;
-  */
   background-color:#668899;
   color:white;
-  padding: 0 0 30px;
+  padding: 0;
+  box-shadow: 0 0 15px 0px #668899;
 }
 
-@media (min-height: 920px) and (min-width: 768px) {
-    .jumbo_frontpage {
-      background-image:url('../img/graphpattern.png');
-      background-repeat:repeat-x;
-      background-position:128% 100%;
-      padding-bottom: 150px;
-    }
+.slick-slider {
+    margin-bottom: 0px !important;
 }
 
 .screenshots {
-    max-height:300px;
-    padding-bottom:10px;
+    max-height:520px;
+    max-width: 730px;
     margin: auto;
+}
+
+.screenshots img{
+    max-height:520px;
+    margin: auto;
+}
+
+.user-logo img {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .container-footer {
@@ -127,7 +126,7 @@ nav a, .container-footer a {
 }
 
 #buttons {
-  margin: 20px 0 50px;
+  margin: 20px 0 30px;
 }
 #buttons a {
   background-color: #fd7968;
@@ -319,3 +318,63 @@ nav a, .container-footer a {
   text-shadow: 1px 1px 0 rgba(255,255,255,0.2);
 }
 
+.chrome .toolbar {
+    height: 28px;
+    max-width: 730px;
+    margin: auto;
+    background: #f0f0f0;
+    background-image: -webkit-linear-gradient(top, #fff, #dadee0);
+    background-image: linear-gradient(180deg, #fff 0, #dadee0);
+    background-repeat: repeat-x;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#ffffffff', endColorstr='#ffdadee0', GradientType=0);
+    border-radius: 5px 5px 0 0;
+    position: relative;
+    border-bottom: none;
+    box-shadow: inset 0 1px 0 rgba(52, 60, 69, .2), inset 1px 0 0 rgba(52, 60, 69, .2), inset -1px 0 0 rgba(52, 60, 69, .2)
+}
+
+.toolbar .circle-wrap {
+    position: absolute;
+    top: 9px;
+    left: 15px
+}
+
+.toolbar .circle-wrap .circles {
+    background: #fdbe30;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+    margin: 0 18px;
+    border: 1px solid #f8ac02
+}
+
+.toolbar .circle-wrap .circles:before {
+    content: "";
+    background: #fc5959;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+    position: absolute;
+    left: 0;
+    border: 1px solid #fb3131;
+    margin-top: -1px
+}
+
+.toolbar .circle-wrap .circles:after {
+    content: "";
+    background: #36cf40;
+    display: block;
+    width: 12px;
+    height: 12px;
+    border-radius: 12px;
+    position: absolute;
+    left: 36px;
+    border: 1px solid #2dbe37;
+    margin-top: -1px
+}
+
+.features {
+    margin-top: 20px;
+}
