@@ -48,7 +48,7 @@ How To: Backup your re:dash database and restore it on a different server
 
 .. code::
 
-    dbdrop redash
+    dropdb redash
     createdb -T template0 redash
     gunzip -c redash_backup.gz | psql redash
 
