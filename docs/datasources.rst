@@ -48,7 +48,7 @@ Google BigQuery
 -  **Options**:
 
    -  Project ID (mandatory)
-   -  JSON key file, generated when creating a service account (see `instructions <https://developers.google.com/console/help/new/#serviceaccounts>`__).
+   -  JSON key file, generated when creating a service account (see `instructions <https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount>`__).
 
 
 -  **Additional requirements**:
@@ -145,7 +145,7 @@ Google Spreadsheets
 
 -  **Options**:
 
-   -  JSON key file, generated when creating a service account (see `instructions <https://developers.google.com/console/help/new/#serviceaccounts>`__).
+   -  JSON key file, generated when creating a service account (see `instructions <https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount>`__).
 
 -  **Additional requirements**:
 
