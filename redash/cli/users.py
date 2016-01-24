@@ -7,12 +7,17 @@ manager = Manager(help="Users management commands. This commands assume single o
 @manager.option('email', help="email address of the user to grant admin to")
 def grant_admin(email):
     try:
-        user = models.User.get_by_email_and_org(email, models.Organization.get_by_slug('default'))
+        org = models.Organization.get_by_slug('default')
+        admin_group = org.admin_group
+        user = models.User.get_by_email_and_org(email, org)
 
-        user.groups.append('admin')
-        user.save()
+        if admin_group.id in user.groups:
+            print "User is already an admin."
+        else:
+            user.groups.append(org.admin_group.id)
+            user.save()
 
-        print "User updated."
+            print "User updated."
     except models.User.DoesNotExist:
         print "User [%s] not found." % email
 
