@@ -43,8 +43,8 @@ var SignUp = new function() {
     Feedback.set({text: 'Sending...'});
 
     $.ajax({
-      url: "//formspree.io/arik@redash.io",
-      method: "POST",
+      url: "https://zapier.com/hooks/catch/23altb/",
+      method: "GET",
       data: {message: "Early access signup", email: emailEl.value},
       dataType: "json"
     }).done(function() {
