@@ -21,25 +21,20 @@
             API Key:
             <input type="text" value="{{user.api_key}}" size="44" readonly/>
         </tab>
-        <tab heading="Settings" ng-if="showSettings || currentUser.hasPermission('admin')" active="tabs['settings']" select="setTab('settings')">
+        <tab heading="Settings" ng-if="showSettings" active="tabs['settings']" select="setTab('settings')">
             <div class="col-md-6">
                 <form class="form" name="userSettingsForm" ng-submit="updateUser(userSettingsForm)" novalidate>
-                    <div class="form-group required" ng-if="showSettings" show-errors>
+                    <div class="form-group required" show-errors>
                         <label class="control-label">Name</label>
                         <input name="name" type="text" class="form-control" ng-model="user.name" required/>
                         <input-errors errors="userSettingsForm.name.$error"/>
                     </div>
-                    <div class="form-group required" ng-if="showSettings" show-errors>
+                    <div class="form-group required" show-errors>
                         <label class="control-label">Email</label>
                         <input name="email" type="email" class="form-control" ng-model="user.email" required/>
                         <input-errors errors="userSettingsForm.email.$error"/>
                     </div>
-                    <div class="checkbox" ng-if="currentUser.hasPermission('admin')">
-                        <label>
-                            <input type="checkbox" ng-model="user.admin"> Admin
-                        </label>
-                    </div>
-                    <div class="form-gruup">
+                    <div class="form-group">
                         <button class="btn btn-primary">Save</button>
                     </div>
                 </form>

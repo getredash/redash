@@ -306,12 +306,6 @@
         email: $scope.user.email
       };
 
-      if ($scope.user.admin === true && $scope.user.groups.indexOf("admin") === -1) {
-        data.groups = $scope.user.groups.concat("admin");
-      } else if ($scope.user.admin === false && $scope.user.groups.indexOf("admin") !== -1) {
-        data.groups = _.without($scope.user.groups, "admin");
-      }
-
       User.save(data, function(user) {
         growl.addSuccessMessage("Saved.")
         $scope.user = user;

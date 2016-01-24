@@ -65,9 +65,9 @@ def update(data_source):
         print "[%s] No need to convert type of: %s" % (data_source.name, data_source.type)
 
     print "[%s] New options: %s" % (data_source.name, data_source.options)
-    data_source.save()
+    data_source.save(only=data_source.dirty_fields)
 
 
 if __name__ == '__main__':
-    for data_source in DataSource.select():
+    for data_source in DataSource.select(DataSource.id, DataSource.name, DataSource.type, DataSource.options):
         update(data_source)
