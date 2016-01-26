@@ -4,5 +4,5 @@ layout: post
 category: configuration
 permalink: /configuration/datasources.html
 redirect_to:
-	- http://docs.redash.io/en/latest/datasources.html
+    - http://docs.redash.io/en/latest/datasources.html
 ---
