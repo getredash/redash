@@ -26,7 +26,7 @@ Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 
 ## Demo
 
-![Screenshots](https://raw.github.com/getredash/redash/screenshots/screenshots.gif)
+<img src="https://cloud.githubusercontent.com/assets/71468/12611424/1faf4d6a-c4f5-11e5-89b5-31efc1155d2c.gif" width="60%"/>
 
 You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
 
