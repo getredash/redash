@@ -164,7 +164,7 @@ sudo -u postgres psql postgres -tAc "SELECT 1 FROM pg_roles WHERE rolname='redas
 if [ $pg_user_exists -ne 0 ]; then
     echo "Creating redash reader postgres user."
 
-    sudo yum install expect
+    sudo yum install -y expect
 
     REDASH_READER_PASSWORD=$(mkpasswd)
     sudo -u postgres psql -c "CREATE ROLE redash_reader WITH PASSWORD '$REDASH_READER_PASSWORD' NOCREATEROLE NOCREATEDB NOSUPERUSER LOGIN"
@@ -190,9 +190,23 @@ wget -O /etc/init.d/redash_supervisord $FILES_BASE_URL"redash_supervisord_init"
 add_service "redash_supervisord"
 
 # Nginx setup
-if [-x $(mkdir /etc/nginx/sites-available)]; then
+if [ -d "/etc/nginx/conf.d" ]; then
+  echo "/etc/nginx/conf.d exists."
+  wget -O /etc/nginx/conf.d/redash.conf $FILES_BASE_URL"nginx_redash_site"
+elif [ -d "/etc/nginx/sites-available" ]; then
   echo "/etc/nginx/sites-available exists."
+  wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
+  ln -nfs /etc/nginx/sites-available/redash /etc/nginx/conf.d/redash.conf
+else
+  mkdir /etc/nginx/sites-available
+  if [ $? -ne 0 ] ; then
+    echo "create /etc/nginx/sites-available ok"
+    wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
+    ln -nfs /etc/nginx/sites-available/redash /etc/nginx/conf.d/redash.conf
+  else
+    echo "ERROR: create /etc/nginx/sites-available failed"
+    exit
+  fi  
 fi
-wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
-ln -nfs /etc/nginx/sites-available/redash /etc/nginx/conf.d/redash.conf
+
 service nginx restart

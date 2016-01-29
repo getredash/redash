@@ -126,8 +126,7 @@ If you're passing multiple domains, separate them with commas.
 
 6. Once you have Google OAuth enabled, you can login using your Google
    Apps account. If you want to grant admin permissions to some users,
-   you can do this by editing the user profile and enabling admin
-   permission for it.
+   you can do this by adding them to the admin group (from ``/groups`` page).
 
 7. If you don't use Google OAuth or just need username/password logins,
    you can create additional users by opening the ``/users/new`` page.

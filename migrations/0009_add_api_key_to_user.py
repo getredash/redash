@@ -14,8 +14,8 @@ if __name__ == '__main__':
             migrator.add_column('users', 'api_key', models.User.api_key),
         )
 
-        for user in models.User.select():
-            user.save()
+        for user in models.User.select(models.User.id, models.User.api_key):
+            user.save(only=user.dirty_fields)
 
         migrate(
             migrator.add_not_null('users', 'api_key')
