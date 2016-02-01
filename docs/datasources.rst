@@ -231,3 +231,31 @@ Treasure Data
    - Must have account on https://console.treasuredata.com
    
 Documentation: https://docs.treasuredata.com/articles/redash
+
+
+
+Microsoft SQL Server
+-----
+
+-  **Options**:
+
+   -  Database (mandatory)
+   -  User  #TODO: DB users only? What about domain users? 
+   -  Password
+   -  Server
+   -  Port
+
+-  **Notes**:
+
+   - Data type support is currently quite limited.
+   - Complex and new types are converted to strings in ``re:dash``
+      - Coerce into simpler types if needed using ``CAST()``
+   - Known conversion issues for: 
+      - DATE
+      - TIME
+      - DATETIMEOFFSET
+ 
+-  **Additional requirements**:
+
+   - ``freetds-dev`` C library
+   - ``pymsssql`` python package, requires FreeTDS to be installed first
