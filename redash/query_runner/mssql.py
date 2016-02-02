@@ -7,11 +7,11 @@ from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
- try:
-     import pymssql
-     enabled = True
- except ImportError:
-     enabled = False
+try:
+    import pymssql
+    enabled = True
+except ImportError:
+    enabled = False
 
 # from _mssql.pyx ## DB-API type definitions & http://www.freetds.org/tds.html#types ##
 types_map = { 

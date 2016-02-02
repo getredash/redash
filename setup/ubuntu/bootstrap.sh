@@ -157,9 +157,8 @@ apt-get install -y libffi-dev libssl-dev
 # MySQL dependencies:
 apt-get install -y libmysqlclient-dev
 
-# Microsoft SQL Server dependencies (`sudo` required):
-sudo apt-get install -y freetds-dev
-sudo pip install pymssql==2.1.1
+# Microsoft SQL Server dependencies:
+apt-get install -y freetds-dev
 
 # Pip requirements for all data source types
 cd /opt/redash/current
