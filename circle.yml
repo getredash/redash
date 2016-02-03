@@ -11,6 +11,7 @@ dependencies:
   pre:
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
+    - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
   cache_directories:
     - rd_ui/node_modules/
     - rd_ui/app/bower_components/
@@ -21,7 +22,6 @@ deployment:
   github_and_docker:
     branch: master
     commands:
-      - make deps
       - make pack
       - make upload
       - echo "rd_ui/app" >> .dockerignore
