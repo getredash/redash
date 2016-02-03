@@ -133,6 +133,10 @@ pip install google-api-python-client==1.2 pyOpenSSL==0.14 oauth2client==1.2
 yum install -y mysql-devel
 pip install MySQL-python==1.2.5
 
+# Microsoft SQL Server dependencies (`sudo` required):
+sudo apt-get install -y freetds-dev
+sudo pip install pymssql==2.1.1
+
 # Mongo dependencies:
 pip install pymongo==2.7.2
 

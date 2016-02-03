@@ -157,6 +157,9 @@ apt-get install -y libffi-dev libssl-dev
 # MySQL dependencies:
 apt-get install -y libmysqlclient-dev
 
+# Microsoft SQL Server dependencies:
+apt-get install -y freetds-dev
+
 # Pip requirements for all data source types
 cd /opt/redash/current
 pip install -r requirements_all_ds.txt
