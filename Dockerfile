@@ -1,5 +1,4 @@
 FROM ubuntu:trusty
-MAINTAINER Di Wu <diwu@yelp.com>
 
 # Ubuntu packages
 RUN apt-get update && \
@@ -7,7 +6,7 @@ RUN apt-get update && \
   # Postgres client
   libpq-dev \
   # Additional packages required for data sources:
-  libssl-dev libmysqlclient-dev && \
+  libssl-dev libmysqlclient-dev freetds-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 

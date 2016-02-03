@@ -27,6 +27,7 @@ deployment:
       - echo "rd_ui/app" >> .dockerignore
       - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker pull redash/redash:latest
       - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
   webhooks:
