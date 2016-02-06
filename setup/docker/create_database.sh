@@ -12,9 +12,9 @@ $run_redash /opt/redash/current/manage.py database create_tables
 $run_redash /opt/redash/current/manage.py users create --admin --password admin "Admin" "admin"
 
 # This is a hack to get the Postgres IP and PORT from the instance itself.
-temp_env_file=`mktemp /tmp/pg_env.XXXXXX`
-docker-compose run --rm postgres env > $temp_env_file
-source $temp_env_file
+temp_env_file=$(mktemp /tmp/pg_env.XXXXXX || exit 3)
+docker-compose run --rm postgres env > "$temp_env_file"
+source "$temp_env_file"
 
 run_psql="docker-compose run --rm postgres psql -h $POSTGRES_PORT_5432_TCP_ADDR -p $POSTGRES_PORT_5432_TCP_PORT -U postgres"
 

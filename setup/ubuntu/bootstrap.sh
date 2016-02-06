@@ -11,7 +11,7 @@ if [ "$(id -u)" != "0" ]; then
         exit 1
     fi
     echo "This script must be run as root. Trying to run with sudo."
-    sudo bash $0 --with-sudo
+    sudo bash "$0" --with-sudo
     exit 0
 fi
 
@@ -40,15 +40,15 @@ add_service() {
     service_command="/etc/init.d/$service_name"
 
     echo "Adding service: $service_name (/etc/init.d/$service_name)."
-    chmod +x $service_command
+    chmod +x "$service_command"
 
     if command -v chkconfig >/dev/null 2>&1; then
         # we're chkconfig, so lets add to chkconfig and put in runlevel 345
-        chkconfig --add $service_name && echo "Successfully added to chkconfig!"
-        chkconfig --level 345 $service_name on && echo "Successfully added to runlevels 345!"
+        chkconfig --add "$service_name" && echo "Successfully added to chkconfig!"
+        chkconfig --level 345 "$service_name" on && echo "Successfully added to runlevels 345!"
     elif command -v update-rc.d >/dev/null 2>&1; then
         #if we're not a chkconfig box assume we're able to use update-rc.d
-        update-rc.d $service_name defaults && echo "Success!"
+        update-rc.d "$service_name" defaults && echo "Success!"
     else
         echo "No supported init tool found."
     fi
@@ -63,7 +63,7 @@ if [ $redis_available -ne 0 ]; then
     wget http://download.redis.io/releases/redis-2.8.17.tar.gz
     tar xzf redis-2.8.17.tar.gz
     rm redis-2.8.17.tar.gz
-    cd redis-2.8.17
+    (cd redis-2.8.17
     make
     make install
 
@@ -74,16 +74,15 @@ if [ $redis_available -ne 0 ]; then
     REDIS_LOG_FILE="/var/log/redis_$REDIS_PORT.log"
     REDIS_DATA_DIR="/var/lib/redis/$REDIS_PORT"
 
-    mkdir -p `dirname "$REDIS_CONFIG_FILE"` || die "Could not create redis config directory"
-    mkdir -p `dirname "$REDIS_LOG_FILE"` || die "Could not create redis log dir"
+    mkdir -p "$(dirname "$REDIS_CONFIG_FILE")" || die "Could not create redis config directory"
+    mkdir -p "$(dirname "$REDIS_LOG_FILE")" || die "Could not create redis log dir"
     mkdir -p "$REDIS_DATA_DIR" || die "Could not create redis data directory"
 
     wget -O /etc/init.d/redis_6379 $FILES_BASE_URL"redis_init"
     wget -O $REDIS_CONFIG_FILE $FILES_BASE_URL"redis.conf"
 
     add_service "redis_$REDIS_PORT"
-
-    cd ..
+    )
     rm -rf redis-2.8.17
 fi
 
@@ -106,10 +105,10 @@ VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
 REDASH_TARBALL=/tmp/redash.tar.gz
 
 if [ ! -d "$VERSION_DIR" ]; then
-    sudo -u redash wget $LATEST_URL -O $REDASH_TARBALL
-    sudo -u redash mkdir $VERSION_DIR
-    sudo -u redash tar -C $VERSION_DIR -xvf $REDASH_TARBALL
-    ln -nfs $VERSION_DIR /opt/redash/current
+    sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
+    sudo -u redash mkdir "$VERSION_DIR"
+    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
+    ln -nfs "$VERSION_DIR" /opt/redash/current
     ln -nfs /opt/redash/.env /opt/redash/current/.env
 
     cd /opt/redash/current
