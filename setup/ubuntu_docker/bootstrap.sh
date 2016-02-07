@@ -12,7 +12,7 @@ if [ "$(id -u)" != "0" ]; then
         exit 1
     fi
     echo "This script must be run as root. Trying to run with sudo."
-    sudo bash $0 --with-sudo
+    sudo bash "$0" --with-sudo
     exit 0
 fi
 
