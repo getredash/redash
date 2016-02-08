@@ -14,6 +14,9 @@ def record_requets_start_time():
 
 
 def calculate_metrics(response):
+    if 'start_time' not in g:
+        return response
+
     request_duration = (time.time() - g.start_time) * 1000
 
     metrics_logger.info("method=%s path=%s endpoint=%s status=%d content_type=%s content_length=%d duration=%.2f query_count=%d query_duration=%.2f",

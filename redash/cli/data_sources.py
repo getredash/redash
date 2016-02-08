@@ -95,7 +95,7 @@ def delete(name):
     try:
         data_source = models.DataSource.get(models.DataSource.name==name)
         print "Deleting data source: {} (id={})".format(name, data_source.id)
-        data_source.delete_instance()
+        data_source.delete_instance(recursive=True)
     except models.DataSource.DoesNotExist:
         print "Couldn't find data source named: {}".format(name)
 
@@ -129,4 +129,3 @@ def edit(name, new_name=None, options=None, type=None):
 
     except models.DataSource.DoesNotExist:
         print "Couldn't find data source named: {}".format(name)
-
