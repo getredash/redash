@@ -133,6 +133,10 @@
             return $scope.type == 'visualization';
           };
 
+          $scope.isIframe = function () {
+            return $scope.type == 'iframe';
+          };
+
           $scope.isTextBox = function () {
             return $scope.type == 'textbox';
           };
@@ -153,6 +157,7 @@
             $scope.query = {};
             $scope.selected_query = undefined;
             $scope.text = "";
+            $scope.src = "";
           };
 
           reset();
@@ -191,7 +196,7 @@
             var widget = new Widget({
               'visualization_id': $scope.selectedVis && $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
-              'options': {},
+              'options': {'src': $scope.src},
               'width': $scope.widgetSize,
               'text': $scope.text
             });

@@ -87,6 +87,26 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="panel panel-default iframe-container" ng-if="type=='iframe'" ng-mouseenter="showControls = true" ng-mouseleave="showControls = false">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <iframe class="iframe-widget" ng-src="{{widget.options.src | trustUrl}}" height="{{showHeight}}px"></iframe>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-11" ng-show="showControls">    
+                            Adjust height (px): <input ng-model="showHeight"></input>
+                        </div>
+                        <div class="col-lg-1">
+                          <span class="pull-right" ng-show="showControls">
+                              <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
+                          </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

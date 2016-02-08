@@ -405,6 +405,10 @@ counter-renderer counter-name {
 .iframe-container {
     height: 100%;
 }
+.iframe-widget {
+    width: 100%;
+    border-width: 0px;
+}
 
 .schema-container {
     height: 300px;
