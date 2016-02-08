@@ -632,6 +632,8 @@
     WidgetResource.prototype.getName = function () {
       if (this.visualization) {
         return this.visualization.query.name + ' (' + this.visualization.name + ')';
+      } else if (this.options.src) {
+        return _.str.truncate(this.options.src, 20);
       }
       return _.str.truncate(this.text, 20);
     };

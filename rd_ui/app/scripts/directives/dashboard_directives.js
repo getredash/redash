@@ -108,7 +108,65 @@
       }
     }
   ]);
+  directives.directive('iframeHeight', ['Dashboard','Widget','growl',
+    function(Dashboard, Widget, growl) {
+      return {
+        restrict: 'E',
+        scope: {
+          dashboard: '=',
+          widget: '='
+        },
+        templateUrl: '/views/iframe_height.html',
+        replace: true,
+        link: function($scope, element, attrs) {      
 
+          $scope.showHeight = $scope.widget.options.showHeight;
+
+          $scope.saveShowHeight = function(showHeight) {
+            if (showHeight) {
+              $scope.widget.options.showHeight = showHeight;
+              for (var i = 0; i < $scope.dashboard.widgets.length; i++) {
+                for (var j = 0; j < $scope.dashboard.widgets[i].length; j++) {
+                  if ($scope.dashboard.widgets[i][j].id === $scope.widget.id) {
+                    $scope.currentRow = i;
+                    $scope.currentCol = j;
+                  };
+                };
+              };
+            };
+          };
+
+          $scope.saveDashboard = function() {
+            $scope.saveInProgress = true;
+            var widget = new Widget({
+              'visualization_id': null,
+              'dashboard_id': $scope.dashboard.id,
+              'options': {'src': $scope.widget.options.src,
+                          'showHeight': $scope.widget.options.showHeight},
+              'width': $scope.widget.width,
+              'text': ""
+            });
+            $scope.layout = $scope.dashboard.layout
+            widget.$save().then(function(response) {
+              // update dashboard layout
+              var newWidget = new Widget(response['widget']);
+              $scope.dashboard.widgets[$scope.currentRow][$scope.currentCol] = newWidget;
+              $scope.layout[$scope.currentRow][$scope.currentCol] = newWidget.id;
+              var layout = JSON.stringify($scope.layout);
+              Dashboard.save({slug: $scope.dashboard.id, name: $scope.dashboard.name, layout: layout}, function(dashboard) {
+                  $scope.dashboard = dashboard;
+                  $scope.saveInProgress = false;
+              });
+            }).catch(function() {
+              growl.addErrorMessage("Widget can not be added");
+            }).finally(function() {
+              $scope.saveInProgress = false;              
+            });
+          }
+        }
+      }
+    }
+  ]);
   directives.directive('newWidgetForm', ['Query', 'Widget', 'growl',
     function(Query, Widget, growl) {
       return {
@@ -133,6 +191,10 @@
             return $scope.type == 'visualization';
           };
 
+          $scope.isIframe = function () {
+            return $scope.type == 'iframe';
+          };
+
           $scope.isTextBox = function () {
             return $scope.type == 'textbox';
           };
@@ -153,6 +215,8 @@
             $scope.query = {};
             $scope.selected_query = undefined;
             $scope.text = "";
+            $scope.src = "";
+            $scope.showHeight = "200";
           };
 
           reset();
@@ -191,7 +255,8 @@
             var widget = new Widget({
               'visualization_id': $scope.selectedVis && $scope.selectedVis.id,
               'dashboard_id': $scope.dashboard.id,
-              'options': {},
+              'options': {'src': $scope.src,
+                          'showHeight': $scope.showHeight},
               'width': $scope.widgetSize,
               'text': $scope.text
             });
