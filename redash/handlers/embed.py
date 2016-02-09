@@ -1,4 +1,4 @@
-from flask import render_template
+from flask import render_template, url_for
 from flask.ext.restful import abort
 
 from flask_login import login_required
@@ -31,8 +31,14 @@ def embed(query_id, visualization_id, org_slug=None):
     client_config = {}
     client_config.update(settings.COMMON_CLIENT_CONFIG)
 
+    if settings.MULTI_ORG:
+        base_href = url_for('index', _external=True, org_slug=current_org.slug)
+    else:
+        base_href = url_for('index', _external=True)
+
     return render_template("embed.html",
                            name=settings.NAME,
+                           base_href=base_href,
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
                            query_result=json_dumps(qr),
