@@ -99,7 +99,7 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-REDASH_VERSION=${REDASH_VERSION-0.7.1.b1015}
+REDASH_VERSION=${REDASH_VERSION-0.9.1.b1377}
 LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
 VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
 REDASH_TARBALL=/tmp/redash.tar.gz
