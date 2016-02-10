@@ -1,6 +1,6 @@
+from funcy import project
 from flask import render_template, url_for
 from flask.ext.restful import abort
-
 from flask_login import login_required
 
 from redash import models, settings
@@ -30,6 +30,10 @@ def embed(query_id, visualization_id, org_slug=None):
 
     client_config = {}
     client_config.update(settings.COMMON_CLIENT_CONFIG)
+
+    qr = project(qr, ('data', 'id', 'retrieved_at'))
+    vis = project(vis, ('description', 'name', 'id', 'options', 'query', 'type', 'updated_at'))
+    vis['query'] = project(vis, ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
 
     if settings.MULTI_ORG:
         base_href = url_for('index', _external=True, org_slug=current_org.slug)
