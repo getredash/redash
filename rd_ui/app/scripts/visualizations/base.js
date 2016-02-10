@@ -186,12 +186,40 @@
     }
   };
 
+  var EmbedCode = function ($location) {
+    return {
+      restrict: 'E',
+      scope: {
+        visualization: '=',
+        query: '='
+      },
+      template:
+        '<div class="col-lg-8 embed-code">' +
+            '<i class="fa fa-code" ng-click="showCode = showCode==true ? false : true;"></i>' +
+            '<div ng-show="showCode">' +
+                '<span class="text-muted">Embed code for this visualization: <small>(height should be adjusted)</small></span>' +
+                '<code>&lt;iframe src="{{ embedUrl }}"<br/>' +
+                          '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
+                          'width="720" height="391"&gt;&lt;/iframe&gt;</code>' +
+            '</div>' +
+        '</div>',
+      replace: true,
+      link: function (scope) {
+        scope.$watch('visualization', function(visualization) {
+          if (visualization) {
+            scope.embedUrl = basePath + 'embed/query/' + scope.query.id + '/visualization/' + scope.visualization.id + '?api_key=' + scope.query.api_key;
+          }
+        });
+      }
+    };
+  };
 
   angular.module('redash.visualization', [])
       .provider('Visualization', VisualizationProvider)
       .directive('visualizationRenderer', ['$location', 'Visualization', VisualizationRenderer])
       .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
       .directive('visualizationName', ['Visualization', VisualizationName])
+      .directive('embedCode', ['$location', EmbedCode])
       .directive('filters', Filters)
-      .directive('editVisulatizationForm', ['Events', 'Visualization', 'growl', EditVisualizationForm])
+      .directive('editVisulatizationForm', ['Events', 'Visualization', 'growl', EditVisualizationForm]);
 })();

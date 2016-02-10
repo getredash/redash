@@ -183,6 +183,7 @@
 <script>
     // TODO: move currentUser & features to be an Angular service
     var clientConfig = {{ client_config|safe }};
+    var basePath = "{{base_href}}";
     var currentUser = {{ user|safe }};
     var currentOrgSlug = "{{ org_slug }}";
 
