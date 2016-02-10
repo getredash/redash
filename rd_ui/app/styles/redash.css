@@ -435,7 +435,10 @@ div.table-name {
 .log-container {
     margin-bottom: 50px;
 }
-
+.header {
+    color: #818d9f;
+    padding-bottom: 15px;
+}
 /* Footer */
 
 .footer {

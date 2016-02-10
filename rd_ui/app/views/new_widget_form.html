@@ -26,10 +26,6 @@
                     <div class="form-group">
                         <input class="form-control" ng-model="src"></input>
                     </div>
-                    <div ng-show="src">
-                        <strong>Preview:</strong> <br>
-                        <iframe ng-src="{{widget.options.src | trustUrl}}"></iframe>
-                    </div>
                 </div>
 
                 <div ng-show="isVisualization()">
