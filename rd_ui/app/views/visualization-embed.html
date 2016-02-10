@@ -6,6 +6,7 @@
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         <p>
+                            <img src="/images/redash_icon_small.png" style="height: 24px;"/>
                             <visualization-name visualization="visualization"/>
                         </p>
                         <div class="text-muted" ng-bind-html="query.description | markdown"></div>
@@ -17,10 +18,6 @@
 
                 <div class="panel-footer">
                     <span class="label label-default">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
-
-                    <span class="pull-right">
-                        <a class="btn btn-default btn-xs" ng-href="queries/{{query.id}}#{{widget.visualization.id}}"  target="_blank"><span class="glyphicon glyphicon-link"></span></a>
-                    </span>
 
                     <span class="pull-right">
                         <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self">
