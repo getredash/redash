@@ -159,8 +159,10 @@
       $scope.type = 'visualization';
     } else if ($scope.widget.restricted) {
       $scope.type = 'restricted';
-    } else {
+    } else if ($scope.widget.text != "") {
       $scope.type = 'textbox';
+    } else {
+      $scope.type = 'iframe';
     }
   };
 

@@ -9,6 +9,7 @@
                 <p class="btn-group">
                     <button type="button" class="btn btn-default" ng-class="{active: isVisualization()}" ng-click="setType('visualization')">Visualization</button>
                     <button type="button" class="btn btn-default" ng-class="{active: isTextBox()}" ng-click="setType('textbox')">Text Box</button>
+                    <button type="button" class="btn btn-default" ng-class="{active: isIframe()}" ng-click="setType('iframe')">External Link</button>
                 </p>
 
                 <div ng-show="isTextBox()">
@@ -18,6 +19,12 @@
                     <div ng-show="text">
                         <strong>Preview:</strong>
                         <p ng-bind-html="text | markdown"></p>
+                    </div>
+                </div>
+
+                <div ng-show="isIframe()">
+                    <div class="form-group">
+                        <input class="form-control" ng-model="src"></input>
                     </div>
                 </div>
 
@@ -50,7 +57,7 @@
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" ng-disabled="saveInProgress" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" ng-disabled="saveInProgress || !(selectedVis || isTextBox())" ng-click="saveWidget()">Add to Dashboard</button>
+                <button type="button" class="btn btn-primary" ng-disabled="saveInProgress || !(selectedVis || isTextBox() || isIframe())" ng-click="saveWidget()">Add to Dashboard</button>
             </div>
         </div>
         <!-- /.modal-content -->
