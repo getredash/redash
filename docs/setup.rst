@@ -118,7 +118,9 @@ file.
    sudo -u redash bin/run ./manage.py org set_google_apps_domains {{domains}}
 
 
-If you're passing multiple domains, separate them with commas.
+If you're passing multiple domains, separate them with commas. 
+
+These are the domains you will allow users to login from. I.e. `gmail.com` will allow all users trying to login with a gmail.com address to login. Other addresses will not be allowed. 
 
 
 5. Restart the web server to apply the configuration changes:
