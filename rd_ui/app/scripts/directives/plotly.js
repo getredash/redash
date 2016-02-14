@@ -102,7 +102,7 @@
 
   var normalizeValue = function(value) {
     if (moment.isMoment(value)) {
-      return value.format("YYYY-MM-DD HH:MM:SS.ssssss");
+      return value.format("YYYY-MM-DD HH:mm:ss");
     }
     return value;
   }
