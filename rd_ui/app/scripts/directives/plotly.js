@@ -17,21 +17,22 @@
     'Pink': '#FFC0CB',
     'Dark Blue': '#00008b'
   };
-  var ColorPaletteArray = _.values(ColorPalette)
+
+  var ColorPaletteArray = _.values(ColorPalette);
 
   var fillXValues = function(seriesList) {
-    var xValues = _.uniq(_.flatten(_.pluck(seriesList, 'x')));
-    xValues.sort();
+    var xValues = _.sortBy(_.union.apply(_, _.pluck(seriesList, 'x')), _.identity);
     _.each(seriesList, function(series) {
-      series.x.sort();
+      series.x = _.sortBy(series.x, _.identity);
+
       _.each(xValues, function(value, index) {
-        if (series.x[index] != value) {
+        if (series.x[index] !== value) {
           series.x.splice(index, 0, value);
-          series.y.splice(index, 0, 0);
+          series.y.splice(index, 0, null);
         }
       });
     });
-  }
+  };
 
   var normalAreaStacking = function(seriesList) {
     fillXValues(seriesList);
@@ -46,11 +47,13 @@
         seriesList[i].y[j] += sum;
       }
     }
-  }
+  };
 
   var percentAreaStacking = function(seriesList) {
-    if (seriesList.length == 0)
+    if (seriesList.length === 0) {
       return;
+    }
+
     fillXValues(seriesList);
     _.each(seriesList, function(series) {
       series.text = [];
@@ -61,20 +64,24 @@
       for(var j = 0; j < seriesList.length; j++) {
         sum += seriesList[j].y[i];
       }
+
       for(var j = 0; j < seriesList.length; j++) {
         var value = seriesList[j].y[i] / sum * 100;
         seriesList[j].text.push('Value: ' + seriesList[j].y[i] + '<br>Relative: ' + value.toFixed(2) + '%');
 
         seriesList[j].y[i] = value;
-        if (j > 0)
+        if (j > 0) {
           seriesList[j].y[i] += seriesList[j-1].y[i];
+        }
       }
     }
-  }
+  };
 
   var percentBarStacking = function(seriesList) {
-    if (seriesList.length == 0)
+    if (seriesList.length === 0) {
       return;
+    }
+
     fillXValues(seriesList);
     _.each(seriesList, function(series) {
       series.text = [];
@@ -111,32 +118,34 @@
           series: "=",
           minHeight: "="
         },
-        link: function (scope, element, attrs) {
+        link: function (scope) {
           var getScaleType = function(scale) {
-            if (scale == 'datetime')
+            if (scale === 'datetime') {
               return 'date';
-            if (scale == 'logarithmic')
+            }
+            if (scale === 'logarithmic') {
               return 'log';
+            }
             return scale;
-          }
+          };
 
           var setType = function(series, type) {
-            if (type == 'column') {
-              series['type'] = 'bar';
-            } else  if (type == 'line') {
-              series['mode'] = 'lines';
-            } else if (type == 'area') {
-              series['fill'] = scope.options.series.stacking == null ? 'tozeroy' : 'tonexty';
-              series['mode'] = 'lines';
-            } else if (type == 'scatter') {
-              series['type'] = 'scatter';
-              series['mode'] = 'markers';
+            if (type === 'column') {
+              series.type = 'bar';
+            } else  if (type === 'line') {
+              series.mode = 'lines';
+            } else if (type === 'area') {
+              series.fill = scope.options.series.stacking === null ? 'tozeroy' : 'tonexty';
+              series.mode = 'lines';
+            } else if (type === 'scatter') {
+              series.type = 'scatter';
+              series.mode = 'markers';
             }
-          }
+          };
 
           var getColor = function(index) {
             return ColorPaletteArray[index % ColorPaletteArray.length];
-          }
+          };
 
           var bottomMargin = 50,
               pixelsPerLegendRow = 21;
@@ -148,10 +157,10 @@
             delete scope.layout.yaxis;
             delete scope.layout.yaxis2;
 
-            if (scope.options.globalSeriesType == 'pie') {
+            if (scope.options.globalSeriesType === 'pie') {
               var hasX = _.contains(_.values(scope.options.columnMapping), 'x');
               var rows = scope.series.length > 2 ? 2 : 1;
-              var cellsInRow = Math.ceil(scope.series.length / rows)
+              var cellsInRow = Math.ceil(scope.series.length / rows);
               var cellWidth = 1 / cellsInRow;
               var cellHeight = 1 / rows;
               var xPadding = 0.02;
@@ -176,29 +185,54 @@
               scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
               return;
             }
+
             scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * scope.series.length);
             scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
             var hasY2 = false;
+            var sortX = scope.options.sortX === true || scope.options.sortX === undefined;
+            var useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category';
+
+            var unifiedX = null;
+            if (useUnifiedXaxis) {
+              unifiedX = _.sortBy(_.union.apply(_, _.map(scope.series, function(s) { return _.pluck(s.data, 'x'); })), _.identity);
+            }
+
             _.each(scope.series, function(series, index) {
               var seriesOptions = scope.options.seriesOptions[series.name] || {};
               var plotlySeries = {x: [],
                                   y: [],
                                   name: seriesOptions.name || series.name,
                                   marker: {color: seriesOptions.color ? seriesOptions.color : getColor(index)}};
-              if (seriesOptions.yAxis == 1 && (scope.options.series.stacking == null || seriesOptions.type == 'line')) {
+
+              if (seriesOptions.yAxis === 1 && (scope.options.series.stacking === null || seriesOptions.type === 'line')) {
                 hasY2 = true;
                 plotlySeries.yaxis = 'y2';
               }
+
               setType(plotlySeries, seriesOptions.type);
               var data = series.data;
-              if (scope.options.sortX) {
+              if (sortX) {
                 data = _.sortBy(data, 'x');
               }
-              _.each(data, function(row) {
-                plotlySeries.x.push(normalizeValue(row.x));
-                plotlySeries.y.push(normalizeValue(row.y));
-              });
-              scope.data.push(plotlySeries)
+
+              if (useUnifiedXaxis && index === 0) {
+                var values = {};
+                _.each(data, function(row) {
+                  values[row.x] = row.y;
+                });
+
+                _.each(unifiedX, function(x) {
+                  plotlySeries.x.push(normalizeValue(x));
+                  plotlySeries.y.push(normalizeValue(values[x] || null));
+                });
+              } else {
+                _.each(data, function(row) {
+                  plotlySeries.x.push(normalizeValue(row.x));
+                  plotlySeries.y.push(normalizeValue(row.y));
+                });
+              }
+
+              scope.data.push(plotlySeries);
             });
 
             var getTitle = function(axis) {
@@ -206,7 +240,7 @@
                 return axis.title.text;
               }
               return null;
-            }
+            };
 
             scope.layout.xaxis = {title: getTitle(scope.options.xAxis),
                                   type: getScaleType(scope.options.xAxis.type)};
@@ -225,20 +259,21 @@
             } else {
               delete scope.layout.yaxis2;
             }
-            if (scope.options.series.stacking == 'normal') {
+
+            if (scope.options.series.stacking === 'normal') {
               scope.layout.barmode = 'stack';
-              if (scope.options.globalSeriesType == 'area') {
+              if (scope.options.globalSeriesType === 'area') {
                 normalAreaStacking(scope.data);
               }
-            } else if (scope.options.series.stacking == 'percent') {
+            } else if (scope.options.series.stacking === 'percent') {
               scope.layout.barmode = 'stack';
-              if (scope.options.globalSeriesType == 'area') {
+              if (scope.options.globalSeriesType === 'area') {
                 percentAreaStacking(scope.data);
-              } else if (scope.options.globalSeriesType == 'column') {
+              } else if (scope.options.globalSeriesType === 'column') {
                 percentBarStacking(scope.data);
               }
             }
-          }
+          };
 
           scope.$watch('series', redraw);
           scope.$watch('options', redraw, true);
@@ -246,6 +281,6 @@
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
         }
-      }
+      };
     });
 })();
