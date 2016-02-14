@@ -14,7 +14,7 @@
     "moment": "~2.8.0",
     "codemirror": "4.8.0",
     "underscore": "1.5.1",
-    "pivottable": "~1.1.1",
+    "pivottable": "2.0.2",
     "cornelius": "https://github.com/restorando/cornelius.git",
     "gridster": "0.2.0",
     "mousetrap": "~1.4.6",
