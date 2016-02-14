@@ -42,8 +42,8 @@
                                 </button>
 
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#" ng-click="changePermission(dataSource, false)"><small ng-if="!dataSource.view_only"><span class="glyphicon glyphicon-ok"/></small> Full Access<br/></a></li>
-                                    <li><a href="#" ng-click="changePermission(dataSource, true)"><small ng-if="dataSource.view_only"><span class="glyphicon glyphicon-ok"/></small> View Only</a></li>
+                                    <li><a ng-click="changePermission(dataSource, false)"><small ng-if="!dataSource.view_only"><span class="glyphicon glyphicon-ok"/></small> Full Access<br/></a></li>
+                                    <li><a ng-click="changePermission(dataSource, true)"><small ng-if="dataSource.view_only"><span class="glyphicon glyphicon-ok"/></small> View Only</a></li>
                                 </ul>
                             </div>
 
