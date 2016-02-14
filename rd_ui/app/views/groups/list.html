@@ -4,7 +4,7 @@
     <div class="row voffset1">
         <div class="col-md-12">
             <p ng-if="currentUser.hasPermission('admin')">
-                <a href="#" ng-click="newGroup()" class="btn btn-default"><i class="fa fa-plus"></i> New Group</a>
+                <a ng-click="newGroup()" class="btn btn-default"><i class="fa fa-plus"></i> New Group</a>
             </p>
 
             <smart-table rows="groups" columns="gridColumns"

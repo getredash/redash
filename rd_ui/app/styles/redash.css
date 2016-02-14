@@ -2,6 +2,10 @@ body {
     padding-top: 70px;
 }
 
+a[ng-click]{
+    cursor: pointer;
+}
+
 a.link {
     cursor: pointer;
 }
