@@ -40,6 +40,19 @@
     }
   }]);
 
+  directives.directive('hashLink', ['$location', function($location) {
+    return {
+      restrict: 'A',
+      scope: {
+        'hash': '@'
+      },
+      link: function (scope, element) {
+        var basePath = $location.path().substring(1);
+        element[0].href = basePath + "#" + scope.hash;
+      }
+    };
+  }]);
+
   directives.directive('rdTab', ['$location', function ($location) {
     return {
       restrict: 'E',

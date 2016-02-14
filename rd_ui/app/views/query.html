@@ -240,7 +240,11 @@
                             </div>
                         </div>
 
-                        <pivot-table-renderer ng-show="selectedTab == 'pivot'" query-result="queryResult"></pivot-table-renderer>
+                        <div ng-show="selectedTab == 'pivot'">
+                          <h3>
+                            Pivot tables are now regular visualization, which you can create from the <a hash="add" hash-link>"New Visualization" tab</a> and <strong>save</strong>.
+                          </h3>
+                        </div>
 
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>

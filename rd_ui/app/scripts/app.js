@@ -4,7 +4,6 @@ angular.module('redash', [
     'redash.controllers',
     'redash.filters',
     'redash.services',
-    'redash.renderers',
     'redash.visualization',
     'plotly',
     'plotly-chart',

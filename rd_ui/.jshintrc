@@ -15,12 +15,13 @@
   "regexp": true,
   "undef": true,
   "unused": true,
-  "strict": true,
+  "strict": false,
   "trailing": true,
   "smarttabs": true,
   "globals": {
     "angular": false,
     "_": false,
+    "$": false,
     "currentUser": false
   }
 }
