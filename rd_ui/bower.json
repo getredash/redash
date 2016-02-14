@@ -34,7 +34,7 @@
     "d3": "3.5.6",
     "angular-ui-sortable": "~0.13.4",
     "angular-plotly": "~0.1.2",
-    "plotly": "~0.0.2"
+    "plotly": "~1.4.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
