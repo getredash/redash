@@ -40,21 +40,22 @@
         var reloadChart = function() {
           reloadData();
           $scope.plotlyOptions = $scope.options;
-        }
+        };
 
         var reloadData = function() {
           if (angular.isDefined($scope.queryResult)) {
             $scope.chartSeries = _.sortBy($scope.queryResult.getChartData($scope.options.columnMapping),
                                           function(series) {
-                                            if ($scope.options.seriesOptions[series.name])
+                                            if ($scope.options.seriesOptions[series.name]) {
                                               return $scope.options.seriesOptions[series.name].zIndex;
+                                            }
                                             return 0;
                                           });
           }
-        }
+        };
 
-        $scope.$watch('options', reloadChart, true)
-        $scope.$watch('queryResult && queryResult.getData()', reloadData)
+        $scope.$watch('options', reloadChart, true);
+        $scope.$watch('queryResult && queryResult.getData()', reloadData);
       }]
     };
   });
@@ -88,7 +89,7 @@
           _.each(scope.options.seriesOptions, function(options) {
             options.type = scope.options.globalSeriesType;
           });
-        }
+        };
 
         scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
         scope.yAxisScales = ['linear', 'logarithmic'];
@@ -130,12 +131,17 @@
           });
         };
 
-        scope.$watch('options.columnMapping', refreshSeries, true);
+        scope.$watch('options.columnMapping', function() {
+          if (scope.queryResult.status === "done") {
+            refreshSeries();
+          }
+        }, true);
 
-        scope.$watch(function() {return [scope.queryResult.getId(), scope.queryResult.status]}, function(changed) {
-          if (!changed[0]) {
+        scope.$watch(function() {return [scope.queryResult.getId(), scope.queryResult.status];}, function(changed) {
+          if (!changed[0] || changed[1] !== "done") {
             return;
           }
+
           refreshColumnsAndForm();
           refreshSeries();
         }, true);

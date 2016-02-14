@@ -11,7 +11,7 @@
   "latedef": true,
   "newcap": true,
   "noarg": true,
-  "quotmark": "single",
+  "quotmark": false,
   "regexp": true,
   "undef": true,
   "unused": true,
@@ -20,6 +20,7 @@
   "smarttabs": true,
   "globals": {
     "angular": false,
-    "_": false
+    "_": false,
+    "currentUser": false
   }
 }
