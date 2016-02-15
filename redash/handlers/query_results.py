@@ -5,7 +5,7 @@ import time
 
 from flask import make_response, request
 from flask.ext.restful import abort
-
+import xlsxwriter
 from redash import models, settings, utils
 from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
@@ -105,6 +105,8 @@ class QueryResultAPI(BaseResource):
 
             if filetype == 'json':
                 response = self.make_json_response(query_result)
+            elif filetype == 'xlsx':
+                response = self.make_excel_response(query_result)
             else:
                 response = self.make_csv_response(query_result)
 
@@ -135,6 +137,32 @@ class QueryResultAPI(BaseResource):
             writer.writerow(row)
 
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
+        return make_response(s.getvalue(), 200, headers)
+
+    @staticmethod
+    def make_excel_response(query_result):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(query_result.data)
+        book = xlsxwriter.Workbook(s)
+        sheet = book.add_worksheet("result")
+        logging.info(query_data['columns'])
+
+        list = []
+        for (c, col) in enumerate(query_data['columns']):
+            sheet.write(0, c, col['name'])
+            list.append(col['name'])
+
+        for (r, row) in enumerate(query_data['rows']):
+            logging.info(row)
+            for (c, name) in enumerate(list):
+                logging.info(c)
+                logging.info(name)
+                sheet.write(r+1, c, row[name])
+
+        book.close()
+
+        headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
         return make_response(s.getvalue(), 200, headers)
 
 
