@@ -1,6 +1,7 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
     $scope.refreshEnabled = false;
+    $scope.isFullscreen = false;
     $scope.refreshRate = 60;
 
     var renderDashboard = function (dashboard) {
@@ -102,6 +103,10 @@
         });
       }
     }
+
+    $scope.toggleFullscreen = function() {
+      $scope.isFullscreen = !$scope.isFullscreen;
+    };
 
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
