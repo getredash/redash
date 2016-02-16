@@ -146,18 +146,14 @@ class QueryResultAPI(BaseResource):
         query_data = json.loads(query_result.data)
         book = xlsxwriter.Workbook(s)
         sheet = book.add_worksheet("result")
-        logging.info(query_data['columns'])
 
-        list = []
+        column_names = []
         for (c, col) in enumerate(query_data['columns']):
             sheet.write(0, c, col['name'])
-            list.append(col['name'])
+            column_names.append(col['name'])
 
         for (r, row) in enumerate(query_data['rows']):
-            logging.info(row)
-            for (c, name) in enumerate(list):
-                logging.info(c)
-                logging.info(name)
+            for (c, name) in enumerate(column_names):
                 sheet.write(r+1, c, row[name])
 
         book.close()
