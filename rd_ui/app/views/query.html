@@ -158,11 +158,18 @@
             <hr>
 
             <p>
+            <p>
                 <a class="btn btn-primary btn-sm" ng-disabled="queryExecuting || !queryResult.getData()" query-result-link target="_self">
                     <span class="glyphicon glyphicon-cloud-download"></span>
-                    <span>Download Dataset</span>
+                    <span>Download CSV</span>
                 </a>
 
+                <a class="btn btn-primary btn-sm" ng-disabled="queryExecuting || !queryResult.getData()" file-type="xlsx" query-result-link target="_self">
+                    <span class="glyphicon glyphicon-cloud-download"></span>
+                    <span>Download Excel</span>
+                </a>
+            </p>
+            <p>
                 <a class="btn btn-warning btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal"
                    ng-show="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                     <i class="fa fa-archive" title="Archive Query"></i>
@@ -171,6 +178,7 @@
                 <button class="btn btn-default btn-sm" ng-show="query.id != undefined" ng-click="showApiKey()">
                     <i class="fa fa-key" title="Show API Key"></i>
                 </button>
+            </p>
 
                 <div class="modal fade" id="archive-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="archiveConfirmationModal" aria-hidden="true">
                   <div class="modal-dialog">

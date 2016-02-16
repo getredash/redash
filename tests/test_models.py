@@ -163,8 +163,9 @@ class ShouldScheduleNextTest(TestCase):
     def test_exact_time_that_needs_reschedule(self):
         now = datetime.datetime.now()
         yesterday = now - datetime.timedelta(days=1)
-        schedule = "{:02d}:00".format(now.hour - 3)
-        self.assertTrue(models.should_schedule_next(yesterday, now, schedule))
+        scheduled_datetime = now - datetime.timedelta(hours=3)
+        scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
+        self.assertTrue(models.should_schedule_next(yesterday, now, scheduled_time))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
         now = date_parse("2015-10-16 20:10")
