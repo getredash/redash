@@ -56,7 +56,7 @@
     <script>
     $(function() {
       $('[data-toggle="popover"]').popover({trigger: 'hover'})
-      
+
       $('.screenshots').slick({
           autoplay: true,
           dots: false,
@@ -82,54 +82,20 @@
           ]
       });
 
-      var link = document.getElementById('cta-demo');
-      if (link) {
-          analytics.trackLink(link, 'Clicked Demo', {
-              location: 'hero',
-              color: 'ugly-red',
-              text: 'Demo',
-              CTA: 'Demo',
-              category: 'Home Page',
-              type: 'Button',
-              pageTitle: document.title
-          });
-      }
-
       $('a[data-track]').each(function(_, element) {
         var $element = $(element);
-        analytics.trackLink(element, 'Clicked Link', {
+        var eventName = $element.data('track-event') || 'Clicked Link';
+        var type = $element.prop('tagName').toLowerCase()
+
+        analytics.trackLink(element, eventName, {
           location: $element.data('track-location'),
           text: $element.text(),
           category: 'Home Page',
           page: document.location.pathname,
-          pageTitle: document.title
+          pageTitle: document.title,
+          type: type
         });
       });
-
-      link = document.getElementById('cta-get-started');
-      if (link) {
-          analytics.trackLink(link, 'Clicked Get Started', {
-              location: 'hero',
-              color: 'ugly-red',
-              text: 'Get Started',
-              CTA: 'Get Started',
-              category: 'Home Page',
-              type: 'Button',
-              pageTitle: document.title
-          });
-      }
-
-      link = document.getElementById('cta-quick-start-guide');
-      if (link) {
-          analytics.trackLink(link, 'Clicked Quick Start Guide', {
-              location: 'get-started',
-              text: 'Quick Start Guide',
-              CTA: 'Quick Start Guide',
-              category: 'Home Page',
-              type: 'Button',
-              pageTitle: document.title
-          });
-      }
 
       var form = document.getElementById('mc-embedded-subscribe-form');
       if (form) {
