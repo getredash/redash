@@ -28,7 +28,7 @@
     <![endif]-->
 
     <link href='static/css/font-awesome.min.css' rel='stylesheet' type='text/css'>
-    <link href='static/css/style.2.css' rel='stylesheet' type='text/css'>
+    <link href='static/css/style.3.css' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.5.9/slick.css"/>
     <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.5.9/slick-theme.css"/>
 </head>
@@ -50,51 +50,94 @@
     }}();
     </script>
 
+    <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.9/slick.min.js"></script>
+    <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script>
-    var link = document.getElementById('cta-demo');
-    if (link) {
-        analytics.trackLink(link, 'Clicked Demo', {
-            location: 'hero',
-            color: 'ugly-red',
-            text: 'Demo',
-            CTA: 'Demo',
-            category: 'Home Page',
-            type: 'Button',
-            pageTitle: document.title
-        });
-    }
+    $(function() {
+      $('[data-toggle="popover"]').popover({trigger: 'hover'})
+      
+      $('.screenshots').slick({
+          autoplay: true,
+          dots: false,
+          arrows: true,
+          slidesToShow: 1,
+          slidesToScroll: 1
 
-    link = document.getElementById('cta-get-started');
-    if (link) {
-        analytics.trackLink(link, 'Clicked Get Started', {
-            location: 'hero',
-            color: 'ugly-red',
-            text: 'Get Started',
-            CTA: 'Get Started',
-            category: 'Home Page',
-            type: 'Button',
-            pageTitle: document.title
-        });
-    }
+      });
+      $('.users.slick').slick({
+          autoplay: true,
+          dots: false,
+          arrows: false,
+          slidesToShow: 6,
+          slidesToScroll: 3,
+          responsive: [
+            {
+              breakpoint: 768,
+              settings: {
+                slidesToShow: 3,
+                slidesToScroll: 1,
+              }
+            }
+          ]
+      });
 
-    link = document.getElementById('cta-quick-start-guide');
-    if (link) {
-        analytics.trackLink(link, 'Clicked Quick Start Guide', {
-            location: 'get-started',
-            text: 'Quick Start Guide',
-            CTA: 'Quick Start Guide',
-            category: 'Home Page',
-            type: 'Button',
-            pageTitle: document.title
-        });
-    }
+      var link = document.getElementById('cta-demo');
+      if (link) {
+          analytics.trackLink(link, 'Clicked Demo', {
+              location: 'hero',
+              color: 'ugly-red',
+              text: 'Demo',
+              CTA: 'Demo',
+              category: 'Home Page',
+              type: 'Button',
+              pageTitle: document.title
+          });
+      }
 
-    var form = document.getElementById('mc-embedded-subscribe-form');
-    if (form) {
-        analytics.trackForm(form, 'Signed up to Newsletter', {
-            location: 'bottom'
-        })
-    }
+      $('a[data-track]').each(function(_, element) {
+        var $element = $(element);
+        analytics.trackLink(element, 'Clicked Link', {
+          location: $element.data('track-location'),
+          text: $element.text(),
+          category: 'Home Page',
+          page: document.location.pathname,
+          pageTitle: document.title
+        });
+      });
+
+      link = document.getElementById('cta-get-started');
+      if (link) {
+          analytics.trackLink(link, 'Clicked Get Started', {
+              location: 'hero',
+              color: 'ugly-red',
+              text: 'Get Started',
+              CTA: 'Get Started',
+              category: 'Home Page',
+              type: 'Button',
+              pageTitle: document.title
+          });
+      }
+
+      link = document.getElementById('cta-quick-start-guide');
+      if (link) {
+          analytics.trackLink(link, 'Clicked Quick Start Guide', {
+              location: 'get-started',
+              text: 'Quick Start Guide',
+              CTA: 'Quick Start Guide',
+              category: 'Home Page',
+              type: 'Button',
+              pageTitle: document.title
+          });
+      }
+
+      var form = document.getElementById('mc-embedded-subscribe-form');
+      if (form) {
+          analytics.trackForm(form, 'Signed up to Newsletter', {
+              location: 'bottom'
+          })
+      }
+    });
     </script>
 </body>
 </html>

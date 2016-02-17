@@ -57,14 +57,19 @@ h2 {
 }
 
 .container-footer {
+  width: 100%;
+  margin-top: 20px;
+
   padding-top:20px;
   padding-bottom:20px;
   background-color:#668899;
   color:#FCFFF2;
 }
+
 .container-footer a {
   color:#FCFFF2;
 }
+
 .navbar-brand {
   padding: 0;
   margin-top: 7px;
@@ -378,4 +383,82 @@ nav a, .container-footer a {
 
 .features {
     margin-top: 20px;
+}
+
+/* Pricing Table */
+.price_table_container{
+	text-align:center;
+	color:#666;
+	margin-top:35px;
+}
+
+.price_table_heading{
+	font-size:36px;
+	padding:10px;
+	background:#EEE;
+}
+
+.price_table_row {
+    padding:15px;
+	background: #FFF;
+}
+
+.cost{
+	padding:30px;
+	font-size:30px;
+}
+
+.cost span{
+	font-size:15px;
+}
+
+.price_table_row:nth-of-type(even) {
+  background: #F8F8F8;
+}
+.btn{
+	border-radius:0px;
+}
+
+.recommended{
+  /*USER DEFINED COLOUR*/
+  background:#FF3A3A;
+  color:#FFF;
+  /*USER DEFINED COLOUR*/
+  padding:3px 0 3px 0;
+  margin-top:10px;
+  text-align:center;
+  margin-bottom:-35px;
+}
+
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+
+    vertical-align: text-top;
+}
+
+/* Default BS breakpoints */
+@media (min-width: 768px) {
+  .col-centered-sm {
+    display: inline-block
+  }
+}
+
+@media (min-width: 992px) {
+  .col-centered-md {
+    display: inline-block
+  }
+}
+
+@media (min-width: 1200px) {
+  .col-centered-lg {
+    display: inline-block
+  }
 }
