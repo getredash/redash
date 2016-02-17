@@ -2,7 +2,7 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/docker/setup/ubuntu/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/mobiledefense/redash/docker/setup/ubuntu/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
@@ -16,10 +16,11 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Base packages
-apt-get dist-upgrade
 apt-get update
-apt-get install -y python-pip python-dev nginx curl build-essential pwgen
+apt-get dist-upgrade
+apt-get install -y python-pip python-dev nginx curl build-essential pwgen git
 pip install -U setuptools
+pip install fabric requests
 
 # redash user
 # TODO: check user doesn't exist yet?
@@ -99,15 +100,12 @@ if [ ! -f "/opt/redash/.env" ]; then
 fi
 
 # Install latest version
-REDASH_VERSION=${REDASH_VERSION-0.9.1.b1377}
-LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
-VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
-REDASH_TARBALL=/tmp/redash.tar.gz
+GIT_URL="https://github.com/mobiledefense/redash.git"
+GIT_REVISION=$(git ls-remote "$GIT_URL" HEAD | sed "s/HEAD//")
+VERSION_DIR="/opt/redash/redash.$GIT_REVISION"
 
 if [ ! -d "$VERSION_DIR" ]; then
-    sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
-    sudo -u redash mkdir "$VERSION_DIR"
-    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
+    sudo -u redash git clone "$GIT_URL" "$VERSION_DIR"
     ln -nfs "$VERSION_DIR" /opt/redash/current
     ln -nfs /opt/redash/.env /opt/redash/current/.env
 
