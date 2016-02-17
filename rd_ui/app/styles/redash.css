@@ -409,6 +409,10 @@ counter-renderer counter-name {
 .iframe-container {
     height: 100%;
 }
+.iframe-widget {
+    width: 100%;
+    border-width: 0px;
+}
 
 .schema-container {
     height: 300px;
@@ -435,7 +439,10 @@ div.table-name {
 .log-container {
     margin-bottom: 50px;
 }
-
+.header {
+    color: #818d9f;
+    padding-bottom: 15px;
+}
 /* Footer */
 
 .footer {
