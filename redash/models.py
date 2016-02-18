@@ -17,6 +17,7 @@ from permissions import has_access, view_only
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner, get_configuration_schema_for_type
+from redash.destinations import get_destination
 from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from redash.utils import generate_token
 from redash.utils.configuration import ConfigurationContainer
@@ -1068,7 +1069,109 @@ class ApiKey(ModelTimestampsMixin, BaseModel):
         return cls.create(org=user.org, object=object, created_by=user)
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event, ApiKey)
+class NotificationDestination(BelongsToOrgMixin, BaseModel):
+
+    id = peewee.PrimaryKeyField()
+    org = peewee.ForeignKeyField(Organization, related_name="notification_destinations")
+    name = peewee.CharField()
+    type = peewee.CharField()
+    options = peewee.TextField()
+    created_at = DateTimeTZField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'notification_destinations'
+
+        indexes = (
+            (('org', 'name'), True),
+        )
+
+    def to_dict(self, all=False, with_permissions=False):
+        d = {
+            'id': self.id,
+            'name': self.name,
+            'type': self.type,
+        }
+
+        if all:
+            d['options'] = self.configuration
+            d['groups'] = self.groups
+
+        if with_permissions:
+            d['view_only'] = self.notification_destination_groups.view_only
+
+        return d
+
+    def __unicode__(self):
+        return self.name
+
+    @classmethod
+    def create_with_group(cls, *args, **kwargs):
+        notification_destination = cls.create(*args, **kwargs)
+        NotificationDestinationGroup.create(
+            notification_destination=notification_destination, 
+            group=notification_destination.org.default_group
+        )
+        return notification_destination
+
+    @property
+    def configuration(self):
+        configuration = json.loads(self.options)
+        schema = self.destination.configuration_schema()
+        for prop in schema.get('secret', []):
+            if prop in configuration and configuration[prop]:
+                configuration[prop] = self.SECRET_PLACEHOLDER
+
+        return configuration
+
+    def replace_secret_placeholders(self, configuration):
+        current_configuration = json.loads(self.options)
+        schema = self.destination.configuration_schema()
+        for prop in schema.get('secret', []):
+            if prop in configuration and configuration[prop] == self.SECRET_PLACEHOLDER:
+                configuration[prop] = current_configuration[prop]
+
+    def add_group(self, group, view_only=False):
+        ndg = NotificationDestinationGroup.create(group=group, notification_destination=self, view_only=view_only)
+        setattr(self, 'notification_destination_groups', ndg)
+
+    def remove_group(self, group):
+        NotificationDestinationGroup.delete().where(NotificationDestinationGroup.group==group, NotificationDestinationGroup.notification_destination==self).execute()
+
+    def update_group_permission(self, group, view_only):
+        ndg = NotificationDestinationGroup.get(NotificationDestinationGroup.group==group, NotificationDestinationGroup.notification_destination==self)
+        ndg.view_only = view_only
+        ndg.save()
+        setattr(self, 'notification_destination_groups', dsg)
+
+    @property
+    def destination(self):
+        return get_destination(self.type, self.options)
+
+    @classmethod
+    def all(cls, org, groups=None):
+        notification_destinations = cls.select().where(cls.org==org).order_by(cls.id.asc())
+
+        if groups:
+            notification_destinations = notification_destinations.join(NotificationDestinationGroup).where(NotificationDestinationGroup.group << groups)
+
+        return notification_destinations
+
+    @property
+    def groups(self):
+        groups = NotificationDestinationsGroup.select().where(NotificationDestinationGroup.notification_destination==self)
+        return dict(map(lambda g: (g.group_id, g.view_only), groups))
+
+
+class NotificationDestinationGroup(BaseModel):
+    notification_destination = peewee.ForeignKeyField(NotificationDestination)
+    group = peewee.ForeignKeyField(Group, related_name="notification_destinations")
+    view_only = peewee.BooleanField(default=False)
+
+    class Meta:
+        db_table = "notification_destination_groups"
+
+
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event, ApiKey, NotificationDestination, NotificationDestinationGroup)
 
 
 def init_db():
