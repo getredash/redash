@@ -14,7 +14,7 @@ from celery.utils.log import get_task_logger
 from redash import redis_connection, models, statsd_client, settings, utils, mail
 from redash.utils import gen_query_hash
 from redash.worker import celery
-from redash.query_runner import get_query_runner, InterruptException
+from redash.query_runner import InterruptException
 from version_check import run_version_check
 
 logger = get_task_logger(__name__)
@@ -270,7 +270,7 @@ def execute_query(self, query, data_source_id, metadata):
     logger.debug("Executing query:\n%s", query)
 
     query_hash = gen_query_hash(query)
-    query_runner = get_query_runner(data_source.type, data_source.options)
+    query_runner = data_source.query_runner
 
     logger.info("task=execute_query state=before query_hash=%s type=%s ds_id=%d task_id=%s queue=%s query_id=%s username=%s",
                 query_hash, data_source.type, data_source.id, self.request.id, self.request.delivery_info['routing_key'],

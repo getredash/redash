@@ -2,7 +2,8 @@ import json
 import click
 from flask.ext.script import Manager
 from redash import models
-from redash.query_runner import query_runners, validate_configuration
+from redash.query_runner import query_runners, get_configuration_schema_for_type
+from redash.utils.configuration import ConfigurationContainer
 
 manager = Manager(help="Data sources management commands.")
 
@@ -20,12 +21,6 @@ def list():
 def validate_data_source_type(type):
     if type not in query_runners.keys():
         print "Error: the type \"{}\" is not supported (supported types: {}).".format(type, ", ".join(query_runners.keys()))
-        exit()
-
-
-def validate_data_source_options(type, options):
-    if not validate_configuration(type, options):
-        print "Error: invalid configuration."
         exit()
 
 
@@ -76,9 +71,10 @@ def new(name=None, type=None, options=None):
             if value != default_value:
                 options_obj[k] = value
 
-        options = json.dumps(options_obj)
-
-    validate_data_source_options(type, options)
+        options = ConfigurationContainer(options_obj, schema)
+        if not options.is_valid():
+            print "Error: invalid configuration."
+            exit()
 
     print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
 
@@ -120,7 +116,10 @@ def edit(name, new_name=None, options=None, type=None):
         data_source = models.DataSource.get(models.DataSource.name==name)
 
         if options is not None:
-            validate_data_source_options(data_source.type, options)
+            schema = get_configuration_schema_for_type(data_source.type)
+            options = json.loads(options)
+            data_source.options.set_schema(schema)
+            data_source.options.update(options)
 
         update_attr(data_source, "name", new_name)
         update_attr(data_source, "type", type)
