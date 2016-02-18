@@ -78,8 +78,8 @@ class Oracle(BaseSQLQueryRunner):
     def type(cls):
         return "oracle"
 
-    def __init__(self, configuration_json):
-        super(Oracle, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Oracle, self).__init__(configuration)
 
         dsn = cx_Oracle.makedsn(
             self.configuration["host"],
@@ -88,7 +88,7 @@ class Oracle(BaseSQLQueryRunner):
 
         self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
 
-    def _get_tables(self, schema_dict):
+    def _get_tables(self, schema):
         query = """
         SELECT
             user_tables.TABLESPACE_NAME,

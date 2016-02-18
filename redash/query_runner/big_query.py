@@ -105,8 +105,8 @@ class BigQuery(BaseQueryRunner):
             'secret': ['jsonKeyFile']
         }
 
-    def __init__(self, configuration_json):
-        super(BigQuery, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(BigQuery, self).__init__(configuration)
 
     def _get_bigquery_service(self):
         scope = [

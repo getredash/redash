@@ -86,8 +86,8 @@ class MongoDB(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(MongoDB, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(MongoDB, self).__init__(configuration)
 
         self.syntax = 'json'
 

@@ -68,8 +68,8 @@ class TreasureData(BaseQueryRunner):
     def type(cls):
         return "treasuredata"
 
-    def __init__(self, configuration_json):
-        super(TreasureData, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(TreasureData, self).__init__(configuration)
 
     def get_schema(self):
         schema = {}

@@ -59,8 +59,8 @@ class SqlServer(BaseSQLQueryRunner):
     def type(cls):
         return "mssql"
 
-    def __init__(self, configuration_json):
-        super(SqlServer, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(SqlServer, self).__init__(configuration)
 
     def _get_tables(self, schema):
         query = """

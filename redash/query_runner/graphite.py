@@ -52,8 +52,8 @@ class Graphite(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(Graphite, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Graphite, self).__init__(configuration)
 
         if "username" in self.configuration and self.configuration["username"]:
             self.auth = (self.configuration["username"], self.configuration["password"])

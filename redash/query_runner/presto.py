@@ -63,8 +63,8 @@ class Presto(BaseQueryRunner):
     def type(cls):
         return "presto"
 
-    def __init__(self, configuration_json):
-        super(Presto, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Presto, self).__init__(configuration)
 
     def run_query(self, query):
         connection = presto.connect(

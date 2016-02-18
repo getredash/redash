@@ -71,8 +71,8 @@ class BaseElasticSearch(BaseQueryRunner):
     def enabled(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(BaseElasticSearch, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(BaseElasticSearch, self).__init__(configuration)
 
         self.syntax = "json"
 
@@ -164,8 +164,8 @@ class BaseElasticSearch(BaseQueryRunner):
 
 class Kibana(BaseElasticSearch):
 
-    def __init__(self, configuration_json):
-        super(Kibana, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Kibana, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -254,8 +254,8 @@ class Kibana(BaseElasticSearch):
 
 class ElasticSearch(BaseElasticSearch):
 
-    def __init__(self, configuration_json):
-        super(ElasticSearch, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(ElasticSearch, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):

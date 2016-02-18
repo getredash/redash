@@ -4,7 +4,6 @@ import sqlite3
 import sys
 
 from redash.query_runner import BaseQueryRunner
-from redash.query_runner import TYPE_STRING
 from redash.query_runner import register
 
 from redash.utils import JSONEncoder
@@ -29,8 +28,8 @@ class Sqlite(BaseQueryRunner):
     def type(cls):
         return "sqlite"
 
-    def __init__(self, configuration_json):
-        super(Sqlite, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Sqlite, self).__init__(configuration)
 
         self._dbpath = self.configuration['dbpath']
 

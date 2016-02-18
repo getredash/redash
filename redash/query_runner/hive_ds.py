@@ -64,8 +64,8 @@ class Hive(BaseSQLQueryRunner):
     def type(cls):
         return "hive"
 
-    def __init__(self, configuration_json):
-        super(Hive, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Hive, self).__init__(configuration)
 
     def _get_tables(self, schema_dict):
         try:
@@ -91,7 +91,7 @@ class Hive(BaseSQLQueryRunner):
 
         connection = None
         try:
-            connection = hive.connect(**self.configuration)
+            connection = hive.connect(**self.configuration.to_dict())
 
             cursor = connection.cursor()
 
