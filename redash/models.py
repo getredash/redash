@@ -1158,7 +1158,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
 
     @property
     def groups(self):
-        groups = NotificationDestinationsGroup.select().where(NotificationDestinationGroup.notification_destination==self)
+        groups = NotificationDestinationGroup.select().where(NotificationDestinationGroup.notification_destination==self)
         return dict(map(lambda g: (g.group_id, g.view_only), groups))
 
 
