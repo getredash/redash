@@ -1,0 +1,58 @@
+<div class="container">
+    <users-nav></users-nav>
+
+    <group-name group="group"></group-name>
+
+    <div class="row">
+        <div class="col-lg-4">
+            <ul class="nav nav-pills">
+                <li role="presentation"><a href="groups/{{group.id}}">Members</a></li>
+                <li role="presentation"><a href="groups/{{group.id}}/data_sources">Data Sources</a></li>
+                <li role="presentation" class="active"><a href="groups/{{group.id}}/destinations">Destinations</a></li>
+            </ul>
+        </div>
+        <div class="col-lg-8">
+            <ui-select ng-model="newDestination.selected" on-select="addDestination($item)">
+                <ui-select-match placeholder="Add Destination"></ui-select-match>
+                <ui-select-choices repeat="destination in foundDestinations | filter:$select.search"
+                                   refresh="findDestination($select.search)"
+                                   refresh-delay="0">
+                    <div>
+                        {{destination.name}}
+                    </div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+    <div class="row voffset1">
+        <div class="col-lg-12">
+            <table class="table table-condensed table-hover">
+                <thead>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="destination in destinations">
+                        <td> {{destination.name}}</td>
+                        <td width="180px">
+                            <div class="btn-group" dropdown>
+                                <button type="button" class="btn btn-sm btn-default dropdown-toggle" dropdown-toggle ng-if="destination.view_only">
+                                    View Only <span class="caret"></span>
+                                </button>
+
+                                <button type="button" class="btn btn-sm btn-success dropdown-toggle" dropdown-toggle ng-if="!destination.view_only">
+                                    Full Access <span class="caret"></span>
+                                </button>
+
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a ng-click="changePermission(destination, false)"><small ng-if="!destination.view_only"><span class="glyphicon glyphicon-ok"/></small> Full Access<br/></a></li>
+                                    <li><a ng-click="changePermission(destination, true)"><small ng-if="destination.view_only"><span class="glyphicon glyphicon-ok"/></small> View Only</a></li>
+                                </ul>
+                            </div>
+
+                            <button class="pull-right btn btn-sm btn-danger" ng-click="removeDestination(destination)">Remove</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

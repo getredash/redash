@@ -556,6 +556,18 @@
     return DataSourceResource;
   };
 
+  var Destination = function ($resource) {
+    var actions = {
+      'get': {'method': 'GET', 'cache': false, 'isArray': false},
+      'query': {'method': 'GET', 'cache': false, 'isArray': true},
+      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/destinations/:id/schema'}
+    };
+
+    var DestinationResource = $resource('api/destinations/:id', {id: '@id'}, actions);
+
+    return DestinationResource;
+  };
+
   var User = function ($resource, $http) {
     var transformSingle = function(user) {
       if (user.groups !== undefined) {
@@ -589,7 +601,8 @@
       'get': {'method': 'GET', 'cache': false, 'isArray': false},
       'query': {'method': 'GET', 'cache': false, 'isArray': true},
       'members': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/members'},
-      'dataSources': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/data_sources'}
+      'dataSources': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/data_sources'},
+      'destinations': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/destinations'}
     };
     var resource = $resource('api/groups/:id', {id: '@id'}, actions);
     return resource;
@@ -645,6 +658,7 @@
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
+      .factory('Destination', ['$resource', Destination])
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])

@@ -60,7 +60,6 @@ class DestinationListResource(BaseResource):
                 continue
 
             d = ds.to_dict()
-            d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
             response[ds.id] = d
 
         return response.values()
