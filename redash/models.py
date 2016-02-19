@@ -1141,7 +1141,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
         ndg = NotificationDestinationGroup.get(NotificationDestinationGroup.group==group, NotificationDestinationGroup.notification_destination==self)
         ndg.view_only = view_only
         ndg.save()
-        setattr(self, 'notification_destination_groups', dsg)
+        setattr(self, 'notification_destination_groups', ndg)
 
     @property
     def destination(self):

@@ -176,5 +176,3 @@ class GroupDataSourceResource(BaseResource):
             'object_type': 'group',
             'member_id': data_source.id
         })
-
-
