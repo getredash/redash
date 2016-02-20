@@ -90,6 +90,32 @@ SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
 SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "")
 
+# Enables the use of an externally-provided and trusted remote user via an HTTP
+# header.  The "user" must be an email address.
+#
+# By default the trusted header is X-Forwarded-Remote-User.  You can change
+# this by setting REDASH_REMOTE_USER_HEADER.
+#
+# Enabling this authentication method is *potentially dangerous*, and it is
+# your responsibility to ensure that only a trusted frontend (usually on the
+# same server) can talk to the redash backend server, otherwise people will be
+# able to login as anyone they want by directly talking to the redash backend.
+# You must *also* ensure that any special header in the original request is
+# removed or always overwritten by your frontend, otherwise your frontend may
+# pass it through to the backend unchanged.
+#
+# Note that redash will only check the remote user once, upon the first need
+# for a login, and then set a cookie which keeps the user logged in.  Dropping
+# the remote user header after subsequent requests won't automatically log the
+# user out.  Doing so could be done with further work, but usually it's
+# unnecessary.
+#
+# If you also set REDASH_PASSWORD_LOGIN_ENABLED to false, then your
+# authentication will be seamless.  Otherwise a link will be presented on the
+# login page to trigger remote user auth.
+REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
+REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
+
 # Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
 # last one will be used for Flask templates.
 STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/").split(',')]

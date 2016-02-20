@@ -8,7 +8,7 @@ from flask import redirect, request, jsonify, url_for
 
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
-from redash.authentication import google_oauth, saml_auth
+from redash.authentication import google_oauth, saml_auth, remote_user_auth
 from redash.tasks import record_event
 
 login_manager = LoginManager()
@@ -143,6 +143,7 @@ def setup_authentication(app):
     app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)
+    app.register_blueprint(remote_user_auth.blueprint)
 
     user_logged_in.connect(log_user_logged_in)
 
