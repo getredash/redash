@@ -98,7 +98,7 @@ class Python(BaseQueryRunner):
 
     def add_result_column(self, result, column_name, friendly_name, column_type):
         """Helper function to add columns inside a Python script running in re:dash in an easier way
-        
+
         Parameters:
         :result dict: The result dict
         :column_name string: Name of the column, which should be consisted of lowercase latin letters or underscore.
@@ -119,7 +119,7 @@ class Python(BaseQueryRunner):
 
     def add_result_row(self, result, values):
         """Helper function to add one row to results set
-        
+
         Parameters:
         :result dict: The result dict
         :values dict: One row of result in dict. The key should be one of the column names. The value is the value of the column in this row.
@@ -131,7 +131,7 @@ class Python(BaseQueryRunner):
 
     def execute_query(self, data_source_name_or_id, query):
         """Run query from specific data source.
-        
+
         Parameters:
         :data_source_name_or_id string|integer: Name or ID of the data source
         :query string: Query to run
@@ -155,7 +155,7 @@ class Python(BaseQueryRunner):
 
     def get_query_result(self, query_id):
         """Get result of an existing query.
-        
+
         Parameters:
         :query_id integer: ID of existing query
         """
@@ -195,7 +195,7 @@ class Python(BaseQueryRunner):
             restricted_globals["add_result_row"] = self.add_result_row
             restricted_globals["disable_print_log"] = self._custom_print.disable
             restricted_globals["enable_print_log"] = self._custom_print.enable
-            
+
             # Supported data types
             restricted_globals["TYPE_DATETIME"] = TYPE_DATETIME
             restricted_globals["TYPE_BOOLEAN"] = TYPE_BOOLEAN
@@ -203,6 +203,9 @@ class Python(BaseQueryRunner):
             restricted_globals["TYPE_STRING"] = TYPE_STRING
             restricted_globals["TYPE_DATE"] = TYPE_DATE
             restricted_globals["TYPE_FLOAT"] = TYPE_FLOAT
+
+            restricted_globals["sorted"] = sorted
+            restricted_globals["reversed"] = reversed
 
             # TODO: Figure out the best way to have a timeout on a script
             #       One option is to use ETA with Celery + timeouts on workers
