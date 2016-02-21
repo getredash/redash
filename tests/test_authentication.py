@@ -64,6 +64,14 @@ class TestApiKeyAuthentication(BaseTestCase):
             rv = c.get(self.query_url, headers={'Authorization': "Key {}".format(other_user.api_key)})
             self.assertEqual(404, rv.status_code)
 
+    def test_api_key_for_object(self):
+        api_key = self.factory.create_api_key()
+        path = '/{}/public/dashboards/{}'.format(self.factory.org.slug, api_key.api_key)
+
+        with app.test_client() as c:
+            rv = c.get(path, headers={'Authorization': "Key {}".format(api_key.api_key)})
+            self.assertEqual(200, rv.status_code)
+
 
 class TestHMACAuthentication(BaseTestCase):
     #

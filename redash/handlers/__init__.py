@@ -1,6 +1,7 @@
 from flask import jsonify, url_for
 from flask_login import login_required
 
+from redash.authentication import current_org
 from redash import settings
 from redash.wsgi import app
 from redash.permissions import require_super_admin
@@ -12,6 +13,15 @@ def org_scoped_rule(rule):
         return "/<org_slug:org_slug>{}".format(rule)
 
     return rule
+
+
+def base_href():
+    if settings.MULTI_ORG:
+        base_href = url_for('index', _external=True, org_slug=current_org.slug)
+    else:
+        base_href = url_for('index', _external=True)
+
+    return base_href
 
 
 @app.route('/ping', methods=['GET'])

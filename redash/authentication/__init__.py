@@ -65,13 +65,18 @@ def get_user_from_api_key(api_key, query_id):
 
     user = None
 
+    # TODO: once we switch all api key storage into the ApiKey model, this code will be much simplified
     try:
         user = models.User.get_by_api_key_and_org(api_key, current_org.id)
     except models.User.DoesNotExist:
-        if query_id:
-            query = models.Query.get_by_id_and_org(query_id, current_org.id)
-            if query and query.api_key == api_key:
-                user = models.ApiUser(api_key, query.org, query.groups.keys())
+        try:
+            api_key = models.ApiKey.get_by_api_key(api_key)
+            user = models.ApiUser(api_key, api_key.org, [])
+        except models.ApiKey.DoesNotExist:
+            if query_id:
+                query = models.Query.get_by_id_and_org(query_id, current_org.id)
+                if query and query.api_key == api_key:
+                    user = models.ApiUser(api_key, query.org, query.groups.keys())
 
     return user
 
@@ -82,6 +87,9 @@ def get_api_key_from_request(request):
     if api_key is None and request.headers.get('Authorization'):
         auth_header = request.headers.get('Authorization')
         api_key = auth_header.replace('Key ', '', 1)
+
+    if api_key is None and request.view_args.get('token'):
+        api_key = request.view_args['token']
 
     return api_key
 

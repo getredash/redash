@@ -5,7 +5,7 @@ from funcy import project
 from redash import models
 from redash.wsgi import api
 from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.permissions import require_admin
+from redash.permissions import require_admin, require_permission, require_access, view_only
 from redash.query_runner import query_runners, get_configuration_schema_for_type
 from redash.handlers.base import BaseResource, get_object_or_404
 
@@ -54,6 +54,7 @@ class DataSourceAPI(BaseResource):
 
 
 class DataSourceListAPI(BaseResource):
+    @require_permission('list_data_sources')
     def get(self):
         if self.current_user.has_permission('admin'):
             data_sources = models.DataSource.all(self.current_org)
@@ -101,6 +102,7 @@ api.add_org_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoi
 class DataSourceSchemaAPI(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+        require_access(data_source.groups, self.current_user, view_only)
         schema = data_source.get_schema()
 
         return schema

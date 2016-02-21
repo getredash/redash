@@ -1,7 +1,7 @@
 from functools import wraps
 import time
 import logging
-from peewee import Model
+from playhouse.gfk import Model
 import peewee
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from redash import statsd_client

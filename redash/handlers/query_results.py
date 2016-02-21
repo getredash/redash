@@ -100,6 +100,7 @@ class QueryResultAPI(BaseResource):
         should_cache = query_result_id is not None
         if query_result_id is None and query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+            # TODO: check access?
             if query:
                 query_result_id = query._data['latest_query_data']
 

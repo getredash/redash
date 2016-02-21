@@ -18,6 +18,7 @@ class WidgetListAPI(BaseResource):
         widget_properties['options'] = json.dumps(widget_properties['options'])
         widget_properties.pop('id', None)
         widget_properties['dashboard'] = dashboard
+        # TODO: verify access to the visualization
         widget_properties['visualization'] = widget_properties.pop('visualization_id')
         widget = models.Widget.create(**widget_properties)
 

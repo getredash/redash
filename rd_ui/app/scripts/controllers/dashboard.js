@@ -1,4 +1,14 @@
 (function() {
+  var PublicDashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
+    $scope.dashboard = seedData.dashboard;
+    $scope.public = true;
+    $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
+      return _.map(row, function (widget) {
+        return new Widget(widget);
+      });
+    });
+  };
+
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
     $scope.refreshEnabled = false;
     $scope.isFullscreen = false;
@@ -171,6 +181,7 @@
 
   angular.module('redash.controllers')
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
+    .controller('PublicDashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', PublicDashboardCtrl])
     .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', WidgetCtrl])
 
 })();

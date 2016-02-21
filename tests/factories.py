@@ -58,6 +58,9 @@ data_source_factory = ModelFactory(redash.models.DataSource,
 dashboard_factory = ModelFactory(redash.models.Dashboard,
                                  name='test', user=user_factory.create, layout='[]', org=1)
 
+api_key_factory = ModelFactory(redash.models.ApiKey,
+                               object=dashboard_factory.create)
+
 query_factory = ModelFactory(redash.models.Query,
                              name='New Query',
                              description='',
@@ -222,3 +225,10 @@ class Factory(object):
         }
         args.update(kwargs)
         return widget_factory.create(**args)
+
+    def create_api_key(self, **kwargs):
+        args = {
+            'org': self.org
+        }
+        args.update(kwargs)
+        return api_key_factory.create(**args)

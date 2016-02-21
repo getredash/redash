@@ -4,6 +4,7 @@ from peewee import DoesNotExist
 
 from redash.authentication.org_resolving import current_org
 from redash.tasks import record_event
+from redash.models import ApiUser
 
 
 class BaseResource(Resource):
@@ -27,10 +28,16 @@ class BaseResource(Resource):
         return current_org._get_current_object()
 
     def record_event(self, options):
-        options.update({
-            'user_id': self.current_user.id,
-            'org_id': self.current_org.id
-        })
+        if isinstance(self.current_user, ApiUser):
+            options.update({
+                'api_key': self.current_user.id,
+                'org_id': self.current_org.id
+            })
+        else:
+            options.update({
+                'user_id': self.current_user.id,
+                'org_id': self.current_org.id
+            })
 
         record_event.delay(options)
 

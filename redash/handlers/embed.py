@@ -1,12 +1,16 @@
+import json
+
 from funcy import project
-from flask import render_template, url_for
-from flask_login import login_required
+from flask import render_template, url_for, request
+from flask_login import login_required, current_user
 from flask_restful import abort
 
 from redash import models, settings
+from redash import serializers
 from redash.wsgi import app
 from redash.utils import json_dumps
-from redash.handlers import org_scoped_rule
+from redash.handlers import org_scoped_rule, base_href
+from redash.permissions import require_access, view_only
 from redash.authentication.org_resolving import current_org
 
 
@@ -15,6 +19,7 @@ from redash.authentication.org_resolving import current_org
 def embed(query_id, visualization_id, org_slug=None):
     # TODO: add event for embed access
     query = models.Query.get_by_id_and_org(query_id, current_org)
+    require_access(query.groups, current_user, view_only)
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
 
@@ -35,15 +40,39 @@ def embed(query_id, visualization_id, org_slug=None):
     vis = project(vis, ('description', 'name', 'id', 'options', 'query', 'type', 'updated_at'))
     vis['query'] = project(vis, ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
 
-    if settings.MULTI_ORG:
-        base_href = url_for('index', _external=True, org_slug=current_org.slug)
-    else:
-        base_href = url_for('index', _external=True)
-
     return render_template("embed.html",
                            name=settings.NAME,
-                           base_href=base_href,
+                           base_href=base_href(),
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
                            query_result=json_dumps(qr),
                            analytics=settings.ANALYTICS)
+
+
+@app.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
+@login_required
+def public_dashboard(token, org_slug=None):
+    # TODO: verify object is a dashboard?
+    dashboard = current_user.object
+
+    user = {
+        'permissions': [],
+        'apiKey': current_user.id
+    }
+
+    headers = {
+        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
+    }
+
+    response = render_template("public.html",
+                               headless='embed' in request.args,
+                               user=json.dumps(user),
+                               seed_data=json_dumps({
+                                 'dashboard': serializers.public_dashboard(dashboard)
+                               }),
+                               base_href=base_href(),
+                               name=settings.NAME,
+                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG),
+                               analytics=settings.ANALYTICS)
+
+    return response, 200, headers

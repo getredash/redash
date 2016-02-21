@@ -10,6 +10,7 @@ from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class DashboardRecentAPI(BaseResource):
+    @require_permission('list_dashboards')
     def get(self):
         recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.id)]
 
@@ -21,6 +22,7 @@ class DashboardRecentAPI(BaseResource):
 
 
 class DashboardListAPI(BaseResource):
+    @require_permission('list_dashboards')
     def get(self):
         dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_org)]
 
@@ -38,6 +40,7 @@ class DashboardListAPI(BaseResource):
 
 
 class DashboardAPI(BaseResource):
+    @require_permission('list_dashboards')
     def get(self, dashboard_slug=None):
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
 

@@ -6,7 +6,7 @@
     <h2 id="dashboard_title">
         {{dashboard.name}}
 
-        <span ng-if="!dashboard.is_archived" class="hidden-print">
+        <span ng-if="!dashboard.is_archived && !public" class="hidden-print">
             <button type="button" class="btn btn-default btn-xs" ng-class="{active: refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>
             <button type="button" class="btn btn-default btn-xs" ng-class="{active: isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="toggleFullscreen()"><span class="glyphicon glyphicon-picture"></span></button>
             <div class="btn-group" role="group" ng-show="dashboard.canEdit()">
@@ -53,7 +53,7 @@
                       Updated: {{queryResult.getUpdatedAt() | dateTime}}
                     </span>
 
-                    <span class="pull-right hidden-print">
+                    <span class="pull-right hidden-print" ng-if="!public">
 
                       <div class="btn-group">
                         <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self" title="Download as CSV File">

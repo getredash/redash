@@ -167,29 +167,6 @@
     $scope.version = clientConfig.version;
     $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
 
-    $scope.dashboards = [];
-    $scope.reloadDashboards = function () {
-      Dashboard.query(function (dashboards) {
-        $scope.dashboards = _.sortBy(dashboards, "name");
-        $scope.allDashboards = _.groupBy($scope.dashboards, function (d) {
-          parts = d.name.split(":");
-          if (parts.length == 1) {
-            return "Other";
-          }
-          return parts[0];
-        });
-        $scope.otherDashboards = $scope.allDashboards['Other'] || [];
-        $scope.groupedDashboards = _.omit($scope.allDashboards, 'Other');
-      });
-    };
-
-    $scope.searchQueries = function() {
-      $location.path('/queries/search').search({q: $scope.term});
-    };
-
-    $scope.reloadDashboards();
-
-    $scope.currentUser = currentUser;
     $scope.newDashboard = {
       'name': null,
       'layout': null

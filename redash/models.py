@@ -11,6 +11,7 @@ from funcy import project
 
 import peewee
 from passlib.apps import custom_app_context as pwd_context
+from playhouse.gfk import GFKField, BaseModel
 from playhouse.postgres_ext import ArrayField, DateTimeTZField
 from permissions import has_access, view_only
 
@@ -19,7 +20,6 @@ from redash.query_runner import get_query_runner, get_configuration_schema_for_t
 from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from redash.utils import generate_token
 from redash.utils.configuration import ConfigurationContainer
-
 
 
 class Database(object):
@@ -146,7 +146,12 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
 
 class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key, org, groups):
-        self.id = api_key
+        self.object = None
+        if isinstance(api_key, basestring):
+            self.id = api_key
+        else:
+            self.id = api_key.api_key
+            self.object = api_key.object
         self.groups = groups
         self.org = org
 
@@ -201,7 +206,8 @@ class Organization(ModelTimestampsMixin, BaseModel):
 
 class Group(BaseModel, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
-                           'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query']
+                           'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query',
+                           'list_dashboards', 'list_alerts', 'list_data_sources']
 
     BUILTIN_GROUP = 'builtin'
     REGULAR_GROUP = 'regular'
@@ -574,7 +580,6 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         else:
             d['last_modified_by_id'] = self.last_modified_by_id
 
-
         if with_stats:
             d['retrieved_at'] = self.retrieved_at
             d['runtime'] = self.runtime
@@ -853,8 +858,6 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
                         new_row.append(widget)
 
                 widgets_layout.append(new_row)
-
-            # widgets_layout = map(lambda row: map(lambda widget_id: widgets.get(widget_id, None), row), layout)
         else:
             widgets_layout = None
 
@@ -1014,7 +1017,7 @@ class Event(BaseModel):
     @classmethod
     def record(cls, event):
         org = event.pop('org_id')
-        user = event.pop('user_id')
+        user = event.pop('user_id', None)
         action = event.pop('action')
         object_type = event.pop('object_type')
         object_id = event.pop('object_id', None)
@@ -1028,7 +1031,27 @@ class Event(BaseModel):
         return event
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event)
+class ApiKey(ModelTimestampsMixin, BaseModel):
+    org = peewee.ForeignKeyField(Organization)
+    api_key = peewee.CharField(index=True, default=lambda: generate_token(40))
+    active = peewee.BooleanField(default=True)
+    object_type = peewee.CharField()
+    object_id = peewee.IntegerField()
+    object = GFKField('object_type', 'object_id')
+    created_by = peewee.ForeignKeyField(User, null=True)
+
+    class Meta:
+        db_table = 'api_keys'
+        indexes = (
+            (('object_type', 'object_id'), False),
+        )
+
+    @classmethod
+    def get_by_api_key(cls, api_key):
+        return cls.get(cls.api_key==api_key)
+
+
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event, ApiKey)
 
 
 def init_db():
