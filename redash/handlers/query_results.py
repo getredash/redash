@@ -3,7 +3,9 @@ import json
 import cStringIO
 import time
 
+import pystache
 from flask import make_response, request
+from flask.ext.login import current_user
 from flask.ext.restful import abort
 import xlsxwriter
 from redash import models, settings, utils
@@ -11,12 +13,42 @@ from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.utils import collect_query_parameters, collect_parameters_from_request
+
+
+def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
+    query_parameters = set(collect_query_parameters(query_text))
+    missing_params = set(query_parameters) - set(parameter_values.keys())
+    if missing_params:
+        return {'job': {'status': 4,
+                        'error': 'Missing parameter value for: {}'.format(", ".join(missing_params))}}, 400
+
+    if query_parameters:
+        query_text = pystache.render(query_text, parameter_values)
+
+    if max_age == 0:
+        query_result = None
+    else:
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+
+    if query_result:
+        return {'query_result': query_result.to_dict()}
+    else:
+        job = QueryTask.add_task(query_text, data_source,
+                                 metadata={"Username": current_user.name, "Query ID": query_id})
+        return {'job': job.to_dict()}
 
 
 class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.get_json(force=True)
+        parameter_values = collect_parameters_from_request(request.args)
+
+        query = params['query']
+        max_age = int(params.get('max_age', -1))
+        query_id = params.get('query_id', 'adhoc')
+
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
         if not has_access(data_source.groups, self.current_user, not_view_only):
@@ -27,23 +59,10 @@ class QueryResultListAPI(BaseResource):
             'timestamp': int(time.time()),
             'object_id': data_source.id,
             'object_type': 'data_source',
-            'query': params['query']
+            'query': query
         })
 
-        max_age = int(params.get('max_age', -1))
-
-        if max_age == 0:
-            query_result = None
-        else:
-            query_result = models.QueryResult.get_latest(data_source, params['query'], max_age)
-
-        if query_result:
-            return {'query_result': query_result.to_dict()}
-        else:
-            query_id = params.get('query_id', 'adhoc')
-            job = QueryTask.add_task(params['query'], data_source,
-                                     metadata={"Username": self.current_user.name, "Query ID": query_id})
-            return {'job': job.to_dict()}
+        return run_query(data_source, parameter_values, query, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
@@ -74,6 +93,10 @@ class QueryResultAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
+        # TODO:
+        # This method handles two cases: retrieving result by id & retrieving result by query id.
+        # They need to be split, as they have different logic (for example, retrieving by query id
+        # should check for query parameters and shouldn't cache the result).
         should_cache = query_result_id is not None
         if query_result_id is None and query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)

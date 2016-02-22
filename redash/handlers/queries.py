@@ -6,10 +6,12 @@ import sqlparse
 from funcy import distinct, take
 from itertools import chain
 
+from redash.handlers.query_results import run_query
 from redash import models
 from redash.wsgi import app, api
 from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.utils import collect_parameters_from_request
 
 
 @app.route('/api/queries/format', methods=['POST'])
@@ -105,7 +107,18 @@ class QueryAPI(BaseResource):
         query.archive()
 
 
+class QueryRefreshResource(BaseResource):
+    def post(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.groups, self.current_user, not_view_only)
+
+        parameter_values = collect_parameters_from_request(request.args)
+
+        return run_query(query.data_source, parameter_values, query.query, query.id)
+
+
 api.add_org_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
 api.add_org_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
 api.add_org_resource(QueryListAPI, '/api/queries', endpoint='queries')
+api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
 api.add_org_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
