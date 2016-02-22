@@ -8,6 +8,9 @@ import random
 import re
 import hashlib
 import pytz
+import pystache
+
+from funcy import distinct
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
@@ -109,3 +112,31 @@ class UnicodeWriter:
     def writerows(self, rows):
         for row in rows:
             self.writerow(row)
+
+
+def _collect_key_names(nodes):
+    keys = []
+    for node in nodes._parse_tree:
+        if isinstance(node, pystache.parser._EscapeNode):
+            keys.append(node.key)
+        elif isinstance(node, pystache.parser._SectionNode):
+            keys.append(node.key)
+            keys.extend(_collect_key_names(node.parsed))
+
+    return distinct(keys)
+
+
+def collect_query_parameters(query):
+    nodes = pystache.parse(query)
+    keys = _collect_key_names(nodes)
+    return keys
+
+
+def collect_parameters_from_request(args):
+    parameters = {}
+
+    for k, v in args.iteritems():
+        if k.startswith('p_'):
+            parameters[k[2:]] = v
+
+    return parameters

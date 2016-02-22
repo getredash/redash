@@ -38,3 +38,4 @@ raven==5.9.2
 semver==2.2.1
 python-simple-hipchat==0.4.0
 xlsxwriter==0.8.4
+pystache==0.5.4

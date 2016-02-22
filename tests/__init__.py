@@ -51,7 +51,6 @@ class BaseTestCase(TestCase):
 
         return make_request(method, path, user, data, is_json)
 
-
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():
             if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):

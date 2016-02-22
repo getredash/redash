@@ -204,81 +204,6 @@ class WidgetAPITest(BaseTestCase):
         # TODO: test how it updates the layout
 
 
-class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
-    def setUp(self):
-        self.paths = ['/api/queries']
-        super(QueryAPITest, self).setUp()
-
-    def test_update_query(self):
-        admin = self.factory.create_admin()
-        query = self.factory.create_query()
-
-        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=admin)
-        self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.json['name'], 'Testing')
-        self.assertEqual(rv.json['last_modified_by']['id'], admin.id)
-
-    def test_create_query(self):
-        query_data = {
-            'name': 'Testing',
-            'query': 'SELECT 1',
-            'schedule': "3600",
-            'data_source_id': self.factory.data_source.id
-        }
-
-        rv = self.make_request('post', '/api/queries', data=query_data)
-
-        self.assertEquals(rv.status_code, 200)
-        self.assertDictContainsSubset(query_data, rv.json)
-        self.assertEquals(rv.json['user']['id'], self.factory.user.id)
-        self.assertIsNotNone(rv.json['api_key'])
-        self.assertIsNotNone(rv.json['query_hash'])
-
-        query = models.Query.get_by_id(rv.json['id'])
-        self.assertEquals(len(list(query.visualizations)), 1)
-
-    def test_get_query(self):
-        query = self.factory.create_query()
-
-        rv = self.make_request('get', '/api/queries/{0}'.format(query.id))
-
-        self.assertEquals(rv.status_code, 200)
-        self.assertResponseEqual(rv.json, query.to_dict(with_visualizations=True))
-
-    def test_get_all_queries(self):
-        queries = [self.factory.create_query() for _ in range(10)]
-
-        rv = self.make_request('get', '/api/queries')
-
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(len(rv.json), 10)
-
-    def test_query_without_data_source_should_be_available_only_by_admin(self):
-        query = self.factory.create_query()
-        query.data_source = None
-        query.save()
-
-        rv = self.make_request('get', '/api/queries/{}'.format(query.id))
-        self.assertEquals(rv.status_code, 403)
-
-        rv = self.make_request('get', '/api/queries/{}'.format(query.id), user=self.factory.create_admin())
-        self.assertEquals(rv.status_code, 200)
-
-    def test_query_only_accessible_to_users_from_its_organization(self):
-        second_org = self.factory.create_org()
-        second_org_admin = self.factory.create_admin(org=second_org)
-
-        query = self.factory.create_query()
-        query.data_source = None
-        query.save()
-
-        rv = self.make_request('get', '/api/queries/{}'.format(query.id), user=second_org_admin)
-        self.assertEquals(rv.status_code, 404)
-
-        rv = self.make_request('get', '/api/queries/{}'.format(query.id), user=self.factory.create_admin())
-        self.assertEquals(rv.status_code, 200)
-
-
 class VisualizationResourceTest(BaseTestCase):
     def test_create_visualization(self):
         query = self.factory.create_query()
@@ -376,22 +301,6 @@ class VisualizationResourceTest(BaseTestCase):
 
         rv = self.make_request('delete', path, user=admin_from_diff_org)
         self.assertEquals(rv.status_code, 404)
-
-
-
-class QueryResultAPITest(BaseTestCase, AuthenticationTestMixin):
-    def setUp(self):
-        self.paths = []
-        super(QueryResultAPITest, self).setUp()
-
-    def test_post_result_list(self):
-        query_result = self.factory.create_query_result()
-        query = self.factory.create_query()
-
-        rv = self.make_request('post', '/api/query_results',
-                               data={'data_source_id': self.factory.data_source.id,
-                                     'query': query.query})
-        self.assertEquals(rv.status_code, 200)
 
 
 class JobAPITest(BaseTestCase, AuthenticationTestMixin):
