@@ -46,20 +46,17 @@
                           tooltip-placement="bottom">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
 
                     <span class="pull-right">
-                        <a class="btn btn-default btn-xs" ng-href="queries/{{query.id}}#{{widget.visualization.id}}" ng-show="currentUser.hasPermission('view_query')"><span class="glyphicon glyphicon-link"></span></a>
-                        <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
-                    </span>
 
-                    <span class="pull-right">
-                        <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self">
-                            <span class="glyphicon glyphicon-cloud-download"></span>
-                        </a>
-                    </span>
-
-                    <span class="pull-right">
-                        <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" file-type="xlsx" query-result-link target="_self">
+                      <div class="btn-group">
+                        <button class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self" title="Download as CSV File">
+                            <span class="fa fa-file-o"></span>
+                        </button>
+                        <button class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" file-type="xlsx" query-result-link target="_self" title="Download as Excel File">
                             <i class="fa fa-file-excel-o"></i>
-                        </a>
+                        </button>
+                      </div>
+                      <a class="btn btn-default btn-xs" ng-href="queries/{{query.id}}#{{widget.visualization.id}}" ng-show="currentUser.hasPermission('view_query')"><span class="glyphicon glyphicon-link"></span></a>
+                      <button type="button" class="btn btn-default btn-xs" ng-show="dashboard.canEdit()" ng-click="deleteWidget()" title="Remove Widget"><span class="glyphicon glyphicon-trash"></span></button>
                     </span>
                 </div>
             </div>
