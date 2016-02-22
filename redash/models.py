@@ -795,29 +795,6 @@ class Alert(ModelTimestampsMixin, BaseModel):
         return self.query.groups
 
 
-class AlertSubscription(ModelTimestampsMixin, BaseModel):
-    user = peewee.ForeignKeyField(User)
-    alert = peewee.ForeignKeyField(Alert)
-
-    class Meta:
-        db_table = 'alert_subscriptions'
-
-    def to_dict(self):
-        return {
-            'user': self.user.to_dict(),
-            'alert_id': self.alert_id
-        }
-
-    @classmethod
-    def all(cls, alert_id):
-        return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
-
-    @classmethod
-    def unsubscribe(cls, alert_id, user_id):
-        query = AlertSubscription.delete().where(AlertSubscription.alert==alert_id).where(AlertSubscription.user==user_id)
-        return query.execute()
-
-
 class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
     org = peewee.ForeignKeyField(Organization, related_name="dashboards")
@@ -1171,7 +1148,32 @@ class NotificationDestinationGroup(BaseModel):
         db_table = "notification_destination_groups"
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event, ApiKey, NotificationDestination, NotificationDestinationGroup)
+class AlertSubscription(ModelTimestampsMixin, BaseModel):
+    user = peewee.ForeignKeyField(User)
+    destination = peewee.ForeignKeyField(NotificationDestination, null=True)
+    alert = peewee.ForeignKeyField(Alert)
+
+    class Meta:
+        db_table = 'alert_subscriptions'
+
+    def to_dict(self):
+        return {
+            'user': self.user.to_dict(),
+            'destination': self.destination.to_dict(),
+            'alert_id': self.alert_id
+        }
+
+    @classmethod
+    def all(cls, alert_id):
+        return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
+
+    @classmethod
+    def unsubscribe(cls, alert_id, user_id):
+        query = AlertSubscription.delete().where(AlertSubscription.alert==alert_id).where(AlertSubscription.user==user_id)
+        return query.execute()
+
+
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event, NotificationDestination, NotificationDestinationGroup)
 
 
 def init_db():
