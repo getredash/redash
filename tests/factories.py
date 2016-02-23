@@ -1,5 +1,6 @@
 import redash.models
 from redash.utils import gen_query_hash, utcnow
+from redash.utils.configuration import ConfigurationContainer
 
 
 class ModelFactory(object):
@@ -51,7 +52,7 @@ org_factory = ModelFactory(redash.models.Organization,
 data_source_factory = ModelFactory(redash.models.DataSource,
                                    name=Sequence('Test {}'),
                                    type='pg',
-                                   options='{"dbname": "test"}',
+                                   options=ConfigurationContainer.from_json('{"dbname": "test"}'),
                                    org=1)
 
 dashboard_factory = ModelFactory(redash.models.Dashboard,

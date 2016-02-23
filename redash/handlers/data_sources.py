@@ -1,13 +1,12 @@
-import json
-
 from flask import make_response, request
 from flask.ext.restful import abort
 from funcy import project
 
 from redash import models
 from redash.wsgi import api
+from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.permissions import require_admin
-from redash.query_runner import query_runners, validate_configuration
+from redash.query_runner import query_runners, get_configuration_schema_for_type
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
@@ -30,14 +29,18 @@ class DataSourceAPI(BaseResource):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         req = request.get_json(True)
 
-        data_source.replace_secret_placeholders(req['options'])
-
-        if not validate_configuration(req['type'], req['options']):
+        schema = get_configuration_schema_for_type(req['type'])
+        if schema is None:
             abort(400)
 
-        data_source.name = req['name']
-        data_source.options = json.dumps(req['options'])
+        try:
+            data_source.options.set_schema(schema)
+            data_source.options.update(req['options'])
+        except ValidationError:
+            abort(400)
 
+        data_source.type = req['type']
+        data_source.name = req['name']
         data_source.save()
 
         return data_source.to_dict(all=True)
@@ -76,12 +79,18 @@ class DataSourceListAPI(BaseResource):
             if f not in req:
                 abort(400)
 
-        if not validate_configuration(req['type'], req['options']):
+        schema = get_configuration_schema_for_type(req['type'])
+        if schema is None:
+            abort(400)
+
+        config = ConfigurationContainer(req['options'], schema)
+        if not config.is_valid():
             abort(400)
 
         datasource = models.DataSource.create_with_group(org=self.current_org,
                                                          name=req['name'],
-                                                         type=req['type'], options=json.dumps(req['options']))
+                                                         type=req['type'],
+                                                         options=config)
 
         return datasource.to_dict(all=True)
 

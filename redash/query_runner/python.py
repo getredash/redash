@@ -56,8 +56,8 @@ class Python(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(Python, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Python, self).__init__(configuration)
 
         self.syntax = "python"
 
@@ -144,9 +144,7 @@ class Python(BaseQueryRunner):
         except models.DataSource.DoesNotExist:
             raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
-        query_runner = get_query_runner(data_source.type, data_source.options)
-
-        data, error = query_runner.run_query(query)
+        data, error = data_source.query_runner.run_query(query)
         if error is not None:
             raise Exception(error)
 

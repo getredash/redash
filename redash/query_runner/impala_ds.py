@@ -74,8 +74,8 @@ class Impala(BaseSQLQueryRunner):
     def type(cls):
         return "impala"
 
-    def __init__(self, configuration_json):
-        super(Impala, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Impala, self).__init__(configuration)
 
     def _get_tables(self, schema_dict):
         try:

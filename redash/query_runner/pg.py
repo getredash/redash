@@ -77,8 +77,8 @@ class PostgreSQL(BaseSQLQueryRunner):
     def type(cls):
         return "pg"
 
-    def __init__(self, configuration_json):
-        super(PostgreSQL, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(PostgreSQL, self).__init__(configuration)
 
         values = []
         for k, v in self.configuration.iteritems():

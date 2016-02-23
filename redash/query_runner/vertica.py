@@ -27,6 +27,7 @@ types_map = {
     117: TYPE_STRING
 }
 
+
 class Vertica(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
@@ -64,8 +65,8 @@ class Vertica(BaseQueryRunner):
 
         return True
 
-    def __init__(self, configuration_json):
-        super(Vertica, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Vertica, self).__init__(configuration)
 
     def get_schema(self):
         query = """

@@ -81,9 +81,6 @@ class Mysql(BaseSQLQueryRunner):
 
         return True
 
-    def __init__(self, configuration_json):
-        super(Mysql, self).__init__(configuration_json)
-
     def _get_tables(self, schema):
         query = """
         SELECT col.table_schema,

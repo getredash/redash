@@ -10,14 +10,16 @@ from funcy import project
 
 import peewee
 from passlib.apps import custom_app_context as pwd_context
-from playhouse.postgres_ext import ArrayField, DateTimeTZField, PostgresqlExtDatabase
+from playhouse.postgres_ext import ArrayField, DateTimeTZField
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from permissions import has_access, view_only
 
 from redash import utils, settings, redis_connection
 from redash.query_runner import get_query_runner
 from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
-from utils import generate_token
+from redash.utils import generate_token
+from redash.utils.configuration import ConfigurationContainer
+
 
 
 class Database(object):
@@ -314,14 +316,20 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
         return self.password_hash and pwd_context.verify(password, self.password_hash)
 
 
-class DataSource(BelongsToOrgMixin, BaseModel):
-    SECRET_PLACEHOLDER = '--------'
+class ConfigurationField(peewee.TextField):
+    def db_value(self, value):
+        return value.to_json()
 
+    def python_value(self, value):
+        return ConfigurationContainer.from_json(value)
+
+
+class DataSource(BelongsToOrgMixin, BaseModel):
     id = peewee.PrimaryKeyField()
     org = peewee.ForeignKeyField(Organization, related_name="data_sources")
     name = peewee.CharField()
     type = peewee.CharField()
-    options = peewee.TextField()
+    options = ConfigurationField()
     queue_name = peewee.CharField(default="queries")
     scheduled_queue_name = peewee.CharField(default="scheduled_queries")
     created_at = DateTimeTZField(default=datetime.datetime.now)
@@ -342,7 +350,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         }
 
         if all:
-            d['options'] = self.configuration
+            d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
@@ -360,23 +368,6 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         data_source = cls.create(*args, **kwargs)
         DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
         return data_source
-
-    @property
-    def configuration(self):
-        configuration = json.loads(self.options)
-        schema = self.query_runner.configuration_schema()
-        for prop in schema.get('secret', []):
-            if prop in configuration and configuration[prop]:
-                configuration[prop] = self.SECRET_PLACEHOLDER
-
-        return configuration
-
-    def replace_secret_placeholders(self, configuration):
-        current_configuration = json.loads(self.options)
-        schema = self.query_runner.configuration_schema()
-        for prop in schema.get('secret', []):
-            if prop in configuration and configuration[prop] == self.SECRET_PLACEHOLDER:
-                configuration[prop] = current_configuration[prop]
 
     def get_schema(self, refresh=False):
         key = "data_source:schema:{}".format(self.id)
