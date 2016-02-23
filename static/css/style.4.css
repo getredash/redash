@@ -70,6 +70,13 @@ h2 {
   color:#FCFFF2;
 }
 
+.container-footer-sticky {
+  position: absolute;
+  bottom: 0;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+}
+
 .navbar-brand {
   padding: 0;
   margin-top: 7px;

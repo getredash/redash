@@ -273,29 +273,12 @@ title: Make Your Company Data Driven
             </div>
         </div>
     </div>
+
 </div>
 <a name="newsletter"></a>
 <div class="container-fluid">
-    <div class="container text-center">
-        <hr>
-        <div class="row">
-            <h3>Newsletter</h3>
-            <p>Subscribe to get product updates about Re:dash, including notifications when new releases are available.</p>
-
-            <div id="mc_embed_signup" class="col-md-6 col-md-offset-3">
-                <form action="//redash.us1.list-manage.com/subscribe/post?u=a905176d2294593084d5264e5&amp;id=53ca028761" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="email" value="" placeholder="Email Address" ="email" name="EMAIL" class="form-control required email" id="mce-EMAIL">
-                            <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-                            <div style="position: absolute; left: -5000px;"><input type="text" name="b_a905176d2294593084d5264e5_53ca028761" tabindex="-1" value=""></div>
-                            <span class="input-group-btn">
-                                <input type="submit" value="Subscribe" name="subscribe" class="btn btn-primary">
-                            </span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <div class="container">
+      <hr>
+      {% include newsletter.html %}
     </div>
 </div>
