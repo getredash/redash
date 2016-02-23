@@ -19,6 +19,7 @@ from redash.query_runner import get_query_runner
 from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from utils import generate_token
 
+
 class Database(object):
     def __init__(self):
         self.database_config = dict(settings.DATABASE_CONFIG)
