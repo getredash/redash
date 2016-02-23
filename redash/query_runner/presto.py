@@ -6,6 +6,8 @@ from redash.query_runner import *
 import logging
 logger = logging.getLogger(__name__)
 
+from collections import defaultdict
+
 try:
     from pyhive import presto
     enabled = True
@@ -76,9 +78,18 @@ class Presto(BaseQueryRunner):
 
         cursor = connection.cursor()
 
+        # If a column appears more than once with the same name, subsequent
+        # instances are numbered 1, 2, , ... N.
+        columns_seen = defaultdict(int)
+        def make_unique(name):
+          columns_seen[name] += 1
+          if columns_seen[name] == 1:
+            return name
+          return name + str(columns_seen[name] - 1)
+
         try:
             cursor.execute(query)
-            columns_data = [(row[0], row[1]) for row in cursor.description]
+            columns_data = [(make_unique(row[0]), row[1]) for row in cursor.description]
 
             columns = [{'name': col[0],
                 'friendly_name': col[0],
