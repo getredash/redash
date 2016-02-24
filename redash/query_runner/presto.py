@@ -78,24 +78,12 @@ class Presto(BaseQueryRunner):
 
         cursor = connection.cursor()
 
-        # If a column appears more than once with the same name, subsequent
-        # instances are numbered 1, 2, , ... N.
-        columns_seen = defaultdict(int)
-        def make_unique(name):
-          columns_seen[name] += 1
-          if columns_seen[name] == 1:
-            return name
-          return name + str(columns_seen[name] - 1)
 
         try:
             cursor.execute(query)
-            columns_data = [(make_unique(row[0]), row[1]) for row in cursor.description]
-
-            columns = [{'name': col[0],
-                'friendly_name': col[0],
-                'type': PRESTO_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
-
-            rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
+            column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
+            columns = self.fetch_columns(column_tuples)
+            rows = [dict(zip(([c[0] for c in column_tuples]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
