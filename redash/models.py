@@ -15,7 +15,7 @@ from flask.ext.login import UserMixin, AnonymousUserMixin
 from permissions import has_access, view_only
 
 from redash import utils, settings, redis_connection
-from redash.query_runner import get_query_runner
+from redash.query_runner import get_query_runner, get_configuration_schema_for_type
 from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from redash.utils import generate_token
 from redash.utils.configuration import ConfigurationContainer
@@ -350,6 +350,8 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         }
 
         if all:
+            schema = get_configuration_schema_for_type(self.type)
+            self.options.set_schema(schema)
             d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
