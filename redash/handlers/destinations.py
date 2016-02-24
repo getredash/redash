@@ -6,7 +6,7 @@ from funcy import project
 
 from redash import models
 from redash.permissions import require_admin
-from redash.destinations import destinations, get_configuration_schema_for_type
+from redash.destinations import destinations, get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.handlers.base import BaseResource, get_object_or_404
 
@@ -28,7 +28,7 @@ class DestinationResource(BaseResource):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         req = request.get_json(True)
 
-        schema = get_configuration_schema_for_type(req['type'])
+        schema = get_configuration_schema_for_destination_type(req['type'])
         if schema is None:
             abort(400)
 
@@ -75,7 +75,7 @@ class DestinationListResource(BaseResource):
             if f not in req:
                 abort(400)
 
-        schema = get_configuration_schema_for_type(req['type'])
+        schema = get_configuration_schema_for_destination_type(req['type'])
         if schema is None:
             abort(400)
 

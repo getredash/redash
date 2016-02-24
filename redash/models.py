@@ -16,8 +16,8 @@ from playhouse.postgres_ext import ArrayField, DateTimeTZField
 from permissions import has_access, view_only
 
 from redash import utils, settings, redis_connection
-from redash.query_runner import get_query_runner, get_configuration_schema_for_type
-from redash.destinations import get_destination, get_configuration_schema_for_type
+from redash.query_runner import get_query_runner, get_configuration_schema_for_query_runner_type
+from redash.destinations import get_destination, get_configuration_schema_for_destination_type
 from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from redash.utils import generate_token
 from redash.utils.configuration import ConfigurationContainer
@@ -366,7 +366,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         }
 
         if all:
-            schema = get_configuration_schema_for_type(self.type)
+            schema = get_configuration_schema_for_query_runner_type(self.type)
             self.options.set_schema(schema)
             d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
@@ -1071,7 +1071,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
         }
 
         if all:
-            schema = get_configuration_schema_for_type(self.type)
+            schema = get_configuration_schema_for_destination_type(self.type)
             self.options.set_schema(schema)
             d['options'] = self.options.to_dict(mask_secrets=True)
 
@@ -1100,11 +1100,15 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
         db_table = 'alert_subscriptions'
 
     def to_dict(self):
-        return {
+        d = {
             'user': self.user.to_dict(),
-            'destination': self.destination.to_dict(),
             'alert_id': self.alert_id
         }
+
+        if self.destination:
+            d['destination'] = self.destination.to_dict()
+
+        return d
 
     @classmethod
     def all(cls, alert_id):

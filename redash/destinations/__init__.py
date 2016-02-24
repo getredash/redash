@@ -65,7 +65,7 @@ def get_destination(destination_type, configuration):
     return destination_class(json.loads(configuration))
 
 
-def get_configuration_schema_for_type(destination_type):
+def get_configuration_schema_for_destination_type(destination_type):
     destination_class = destinations.get(destination_type, None)
     if destination_class is None:
         return None
