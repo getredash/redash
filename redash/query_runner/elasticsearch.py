@@ -201,6 +201,7 @@ class Kibana(BaseElasticSearch):
             index_name = query_params["index"]
             query_data = query_params["query"]
             size = int(query_params.get("size", 500))
+            limit = int(query_params.get("limit", 500))
             result_fields = query_params.get("fields", None)
             sort = query_params.get("sort", None)
 
@@ -215,9 +216,6 @@ class Kibana(BaseElasticSearch):
 
             logger.debug(json.dumps(mappings, indent=4))
 
-            if size:
-                url += "&size={0}".format(size)
-
             if sort:
                 url += "&sort={0}".format(urllib.quote_plus(sort))
 
@@ -231,9 +229,10 @@ class Kibana(BaseElasticSearch):
             if isinstance(query_data, str) or isinstance(query_data, unicode):
                 _from = 0
                 while True:
-                    total = self._execute_simple_query(url, self.auth, _from, mappings, result_fields, result_columns, result_rows)
+                    query_size = size if limit >= (_from + size) else (limit - _from)
+                    total = self._execute_simple_query(url + "&size={0}".format(query_size), self.auth, _from, mappings, result_fields, result_columns, result_rows)
                     _from += size
-                    if _from >= total:
+                    if _from >= limit:
                         break
             else:
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
