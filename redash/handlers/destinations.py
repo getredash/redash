@@ -6,7 +6,8 @@ from funcy import project
 
 from redash import models
 from redash.permissions import require_admin
-from redash.destinations import destinations, validate_configuration
+from redash.destinations import destinations, get_configuration_schema_for_type
+from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
@@ -27,13 +28,18 @@ class DestinationResource(BaseResource):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         req = request.get_json(True)
 
-        destination.replace_secret_placeholders(req['options'])
-
-        if not validate_configuration(req['type'], req['options']):
+        schema = get_configuration_schema_for_type(req['type'])
+        if schema is None:
             abort(400)
 
+        try:
+            destination.options.set_schema(schema)
+            destination.options.update(req['options'])
+        except ValidationError:
+            abort(400)
+
+        destination.type = req['type']
         destination.name = req['name']
-        destination.options = json.dumps(req['options'])
 
         destination.save()
 
@@ -49,10 +55,7 @@ class DestinationResource(BaseResource):
 
 class DestinationListResource(BaseResource):
     def get(self):
-        if self.current_user.has_permission('admin'):
-            destinations = models.NotificationDestination.all(self.current_org)
-        else:
-            destinations = models.NotificationDestination.all(self.current_org, groups=self.current_user.groups)
+        destinations = models.NotificationDestination.all(self.current_org)
 
         response = {}
         for ds in destinations:
@@ -72,11 +75,19 @@ class DestinationListResource(BaseResource):
             if f not in req:
                 abort(400)
 
-        if not validate_configuration(req['type'], req['options']):
+        schema = get_configuration_schema_for_type(req['type'])
+        if schema is None:
             abort(400)
 
-        destination = models.NotificationDestination.create_with_group(org=self.current_org,
-                                                         name=req['name'],
-                                                         type=req['type'], options=json.dumps(req['options']))
+        config = ConfigurationContainer(req['options'], schema)
+        if not config.is_valid():
+            abort(400)
+
+        destination = models.NotificationDestination(org=self.current_org,
+                                                     name=req['name'],
+                                                     type=req['type'],
+                                                     options=config,
+                                                     user=self.current_user)
+        destination.save()
 
         return destination.to_dict(all=True)

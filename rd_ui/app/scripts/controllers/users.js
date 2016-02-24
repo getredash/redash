@@ -153,48 +153,6 @@
     };
   }
 
-  var GroupDestinationsCtrl = function($scope, $routeParams, $http, $location, growl, Events, Group, Destination) {
-    Events.record(currentUser, "view", "group_destinations", $scope.groupId);
-    $scope.group = Group.get({id: $routeParams.groupId});
-    $scope.destinations = Group.destinations({id: $routeParams.groupId});
-    $scope.newDestination= {};
-
-    $scope.findDestination = function(search) {
-      if ($scope.foundDestinations === undefined) {
-        Destination.query(function(destinations) {
-          var existingIds = _.map($scope.destinations, function(m) { return m.id; });
-          $scope.foundDestinations = _.filter(destinations, function(d) { return !_.contains(existingIds, d.id); });
-        });
-      }
-    };
-
-    $scope.addDestination = function(destination) {
-      // Clear selection, to clear up the input control.
-      $scope.newDestination.selected = undefined;
-
-      $http.post('api/groups/' + $routeParams.groupId + '/destinations', {'destination_id': destination.id}).success(function(user) {
-        destination.view_only = false;
-        $scope.destinations.unshift(destination);
-
-        if ($scope.foundDestinations) {
-          $scope.foundDestinations = _.filter($scope.foundDestinations, function(d) { return d != destination; });
-        }
-      });
-    };
-
-    $scope.changePermission = function(destination, viewOnly) {
-      $http.post('api/groups/' + $routeParams.groupId + '/destinations/' + destination.id, {view_only: viewOnly}).success(function() {
-        destination.view_only = viewOnly;
-      });
-    };
-
-    $scope.removeDestination = function(destination) {
-      $http.delete('api/groups/' + $routeParams.groupId + '/destinations/' + destination.id).success(function() {
-        $scope.destinations = _.filter($scope.destinations, function(d) { return destination != d; });
-      });
-    };
-  }
-
   var GroupCtrl = function($scope, $routeParams, $http, $location, growl, Events, Group, User) {
     Events.record(currentUser, "view", "group", $scope.groupId);
     $scope.group = Group.get({id: $routeParams.groupId});
@@ -394,7 +352,6 @@
     .directive('usersNav', ['$location', usersNav])
     .controller('GroupCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'User', GroupCtrl])
     .controller('GroupDataSourcesCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'DataSource', GroupDataSourcesCtrl])
-    .controller('GroupDestinationsCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'Destination', GroupDestinationsCtrl])
     .controller('UsersCtrl', ['$scope', '$location', 'growl', 'Events', 'User', UsersCtrl])
     .controller('UserCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'User', UserCtrl])
     .controller('NewUserCtrl', ['$scope', '$location', 'growl', 'Events', 'User', NewUserCtrl])

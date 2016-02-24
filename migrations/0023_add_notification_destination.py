@@ -1,4 +1,4 @@
-from redash.models import db, NotificationDestination, NotificationDestinationGroup, AlertSubscription
+from redash.models import db, NotificationDestination, AlertSubscription
 from playhouse.migrate import PostgresqlMigrator, migrate
 
 if __name__ == '__main__':
@@ -7,9 +7,6 @@ if __name__ == '__main__':
 
         if not NotificationDestination.table_exists():
             NotificationDestination.create_table()
-
-        if not NotificationDestinationGroup.table_exists():
-            NotificationDestinationGroup.create_table()
 
         # Update alert subscription fields
         migrate(

@@ -1,14 +1,11 @@
 import logging
 import json
 
-import jsonschema
-from jsonschema import ValidationError
 from redash import settings
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    'ValidationError',
     'BaseDestination',
     'register',
     'get_destination',
@@ -18,7 +15,6 @@ __all__ = [
 
 class BaseDestination(object):
     def __init__(self, configuration):
-        jsonschema.validate(configuration, self.configuration_schema())
         self.configuration = configuration
 
     @classmethod
@@ -61,29 +57,20 @@ def register(destination_class):
         logger.warning("%s destination enabled but not supported, not registering. Either disable or install missing dependencies.", destination_class.name())
 
 
-def get_destination(destination_type, configuration_json):
+def get_destination(destination_type, configuration):
     destination_class = destinations.get(destination_type, None)
     if destination_class is None:
         return None
 
-    return destination_class(json.loads(configuration_json))
+    return destination_class(json.loads(configuration))
 
 
-def validate_configuration(destination_type, configuration_json):
+def get_configuration_schema_for_type(destination_type):
     destination_class = destinations.get(destination_type, None)
     if destination_class is None:
-        return False
+        return None
 
-    try:
-        if isinstance(configuration_json, basestring):
-            configuration = json.loads(configuration_json)
-        else:
-            configuration = configuration_json
-        jsonschema.validate(configuration, destination_class.configuration_schema())
-    except (ValidationError, ValueError):
-        return False
-
-    return True
+    return destination_class.configuration_schema()
 
 
 def import_destinations(destination_imports):
