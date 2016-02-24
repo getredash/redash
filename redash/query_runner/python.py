@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import sys
 
 from redash.query_runner import *
 from redash import models
@@ -44,6 +45,9 @@ class Python(BaseQueryRunner):
                 'allowedImportModules': {
                     'type': 'string',
                     'title': 'Modules to import prior to running the script'
+                },
+                'additionalModulesPaths' : {
+                    'type' : 'string'
                 }
             },
         }
@@ -56,8 +60,8 @@ class Python(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration):
-        super(Python, self).__init__(configuration)
+    def __init__(self, configuration_json):
+        super(Python, self).__init__(configuration_json)
 
         self.syntax = "python"
 
@@ -69,6 +73,11 @@ class Python(BaseQueryRunner):
         if self.configuration.get("allowedImportModules", None):
             for item in self.configuration["allowedImportModules"].split(","):
                 self._allowed_modules[item] = None
+
+        if self.configuration.get("additionalModulesPaths", None):
+            for p in self.configuration["additionalModulesPaths"].split(","):
+                if p not in sys.path:
+                    sys.path.append(p) 
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
@@ -144,7 +153,9 @@ class Python(BaseQueryRunner):
         except models.DataSource.DoesNotExist:
             raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
-        data, error = data_source.query_runner.run_query(query)
+        query_runner = get_query_runner(data_source.type, data_source.options)
+
+        data, error = query_runner.run_query(query)
         if error is not None:
             raise Exception(error)
 
