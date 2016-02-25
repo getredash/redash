@@ -38,8 +38,9 @@ class AlertResource(BaseResource):
 class AlertListResource(BaseResource):
     def post(self):
         req = request.get_json(True)
-        require_fields(req, ('options', 'name', 'query_id'))
+        require_fields(req, ('options', 'name', 'query_id', 'destination_id'))
 
+        destination = models.NotificationDestination.get_by_id_and_org(req['destination_id'], self.current_org)
         query = models.Query.get_by_id_and_org(req['query_id'], self.current_org)
         require_access(query.groups, self.current_user, view_only)
 
@@ -58,7 +59,8 @@ class AlertListResource(BaseResource):
         })
 
         # TODO: should be in model?
-        models.AlertSubscription.create(alert=alert, user=self.current_user)
+        models.AlertSubscription.create(alert=alert, user=self.current_user,
+                                        destination=destination)
 
         self.record_event({
             'action': 'subscribe',
@@ -76,10 +78,15 @@ class AlertListResource(BaseResource):
 
 class AlertSubscriptionListResource(BaseResource):
     def post(self, alert_id):
+        req = request.get_json(True)
+        require_fields(req, ('destination_id',))
+
+        destination = models.NotificationDestination.get_by_id_and_org(req['destination_id'], self.current_org)
         alert = models.Alert.get_by_id_and_org(alert_id, self.current_org)
         require_access(alert.groups, self.current_user, view_only)
 
-        subscription = models.AlertSubscription.create(alert=alert_id, user=self.current_user)
+        subscription = models.AlertSubscription.create(alert=alert_id, user=self.current_user,
+                                                       destination=destination)
         self.record_event({
             'action': 'subscribe',
             'timestamp': int(time.time()),
