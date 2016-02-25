@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 try:
     import pymongo
     from bson.objectid import ObjectId
+    from bson.timestamp import Timestamp
     from bson.son import SON
     enabled = True
 
@@ -34,6 +35,8 @@ class MongoDBJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
+        elif isinstance(o, Timestamp):
+            return super(MongoDBJSONEncoder, self).default(o.as_datetime())
 
         return super(MongoDBJSONEncoder, self).default(o)
 
@@ -116,13 +119,13 @@ class MongoDB(BaseQueryRunner):
                   columns.append(property)
 
     def _get_collection_fields(self, db, collection_name):
-        # Since MongoDB is a document based database and each document doesn't have 
+        # Since MongoDB is a document based database and each document doesn't have
         # to have the same fields as another documet in the collection its a bit hard to
         # show these attributes as fields in the schema.
         #
         # For now, the logic is to take the first and last documents (last is determined
         # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
-        # as we don't know the correct order. In most single server installations it would be 
+        # as we don't know the correct order. In most single server installations it would be
         # find. In replicaset when reading from non master it might not return the really last
         # document written.
         first_document = None
