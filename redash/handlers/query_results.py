@@ -13,6 +13,7 @@ from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_query_parameters, collect_parameters_from_request
+from redash.tasks.queries import enqueue_query
 
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
@@ -33,8 +34,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = QueryTask.add_task(query_text, data_source,
-                                 metadata={"Username": current_user.name, "Query ID": query_id})
+        job = enqueue_query(query_text, data_source, metadata={"Username": current_user.name, "Query ID": query_id})
         return {'job': job.to_dict()}
 
 
@@ -190,7 +190,6 @@ class QueryResultResource(BaseResource):
 
 class JobResource(BaseResource):
     def get(self, job_id):
-        # TODO: if finished, include the query result
         job = QueryTask(job_id=job_id)
         return {'job': job.to_dict()}
 

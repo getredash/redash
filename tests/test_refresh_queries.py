@@ -17,7 +17,7 @@ class TestRefreshQueries(BaseTestCase):
         query.latest_query_data = query_result
         query.save()
 
-        with patch('redash.tasks.QueryTask.add_task') as add_job_mock:
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             add_job_mock.assert_called_with(query.query, query.data_source, scheduled=True, metadata=ANY)
 
@@ -27,7 +27,7 @@ class TestRefreshQueries(BaseTestCase):
         query_result = self.factory.create_query_result(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
 
-        with patch('redash.tasks.QueryTask.add_task') as add_job_mock:
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             self.assertFalse(add_job_mock.called)
 
@@ -37,7 +37,7 @@ class TestRefreshQueries(BaseTestCase):
         query_result = self.factory.create_query_result(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
 
-        with patch('redash.tasks.QueryTask.add_task') as add_job_mock:
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             self.assertFalse(add_job_mock.called)
 
@@ -52,7 +52,7 @@ class TestRefreshQueries(BaseTestCase):
         query.save()
         query2.save()
 
-        with patch('redash.tasks.QueryTask.add_task') as add_job_mock:
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             add_job_mock.assert_called_once_with(query.query, query.data_source, scheduled=True, metadata=ANY)#{'Query ID': query.id, 'Username': 'Scheduled'})
 
@@ -67,7 +67,7 @@ class TestRefreshQueries(BaseTestCase):
         query.save()
         query2.save()
 
-        with patch('redash.tasks.QueryTask.add_task') as add_job_mock:
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             add_job_mock.assert_has_calls([call(query2.query, query2.data_source, scheduled=True, metadata=ANY),
                                            call(query.query, query.data_source, scheduled=True, metadata=ANY)],
@@ -86,6 +86,6 @@ class TestRefreshQueries(BaseTestCase):
         query.save()
         query2.save()
 
-        with patch('redash.tasks.QueryTask.add_task') as add_job_mock:
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             add_job_mock.assert_called_once_with(query.query, query.data_source, scheduled=True, metadata=ANY)
