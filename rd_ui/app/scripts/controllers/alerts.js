@@ -46,7 +46,7 @@
     ];
   };
 
-  var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert) {
+  var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert, Destination) {
     $scope.$parent.pageTitle = "Alerts";
 
     $scope.alertId = $routeParams.alertId;
@@ -91,6 +91,8 @@
         $scope.queries = results;
       });
     };
+
+    $scope.destinations = Destination.query();
 
     $scope.saveChanges = function() {
       if ($scope.alert.name === undefined || $scope.alert.name === '') {
@@ -171,6 +173,6 @@
 
   angular.module('redash.controllers')
     .controller('AlertsCtrl', ['$scope', 'Events', 'Alert', AlertsCtrl])
-    .controller('AlertCtrl', ['$scope', '$routeParams', '$location', 'growl', 'Query', 'Events', 'Alert', AlertCtrl])
+    .controller('AlertCtrl', ['$scope', '$routeParams', '$location', 'growl', 'Query', 'Events', 'Alert', 'Destination', AlertCtrl])
 
 })();

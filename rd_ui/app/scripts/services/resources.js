@@ -620,7 +620,9 @@
           var newData = _.extend({}, data);
           if (newData.query_id === undefined) {
             newData.query_id = newData.query.id;
+            newData.destination_id = newData.destinations;
             delete newData.query;
+            delete newData.destinations;
           }
 
           return newData;
