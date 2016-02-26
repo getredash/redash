@@ -77,7 +77,7 @@ class Python(BaseQueryRunner):
         if self.configuration.get("additionalModulesPaths", None):
             for p in self.configuration["additionalModulesPaths"].split(","):
                 if p not in sys.path:
-                    sys.path.append(p) 
+                    sys.path.append(p)
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
@@ -153,9 +153,7 @@ class Python(BaseQueryRunner):
         except models.DataSource.DoesNotExist:
             raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
-        query_runner = get_query_runner(data_source.type, data_source.options)
-
-        data, error = query_runner.run_query(query)
+        data, error = data_source.query_runner.run_query(query)
         if error is not None:
             raise Exception(error)
 
