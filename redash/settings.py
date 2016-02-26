@@ -180,7 +180,9 @@ QUERY_RUNNERS = distinct(enabled_query_runners + additional_query_runners)
 
 # Destinations
 default_destinations = [
+    'redash.destinations.email',
     'redash.destinations.slack',
+    'redash.destinations.webhook'
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))

@@ -1090,11 +1090,17 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
 
         return notification_destinations
 
+    def notify(self, alert_id, query_id, user_id, new_state, app, host):
+        schema = get_configuration_schema_for_destination_type(self.type)
+        self.options.set_schema(schema)
+        return self.destination.notify(alert_id, query_id, user_id, new_state,
+                                       app, host, self.options)
+
 
 class AlertSubscription(ModelTimestampsMixin, BaseModel):
     user = peewee.ForeignKeyField(User)
     destination = peewee.ForeignKeyField(NotificationDestination, null=True)
-    alert = peewee.ForeignKeyField(Alert)
+    alert = peewee.ForeignKeyField(Alert, related_name="subscriptions")
 
     class Meta:
         db_table = 'alert_subscriptions'

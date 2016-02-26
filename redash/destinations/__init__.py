@@ -33,7 +33,7 @@ class BaseDestination(object):
     def configuration_schema(cls):
         return {}
 
-    def notify(self, query):
+    def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
         raise NotImplementedError()
 
     @classmethod
@@ -61,8 +61,7 @@ def get_destination(destination_type, configuration):
     destination_class = destinations.get(destination_type, None)
     if destination_class is None:
         return None
-
-    return destination_class(json.loads(configuration))
+    return destination_class(configuration)
 
 
 def get_configuration_schema_for_destination_type(destination_type):
