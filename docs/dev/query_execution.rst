@@ -76,7 +76,7 @@ query as a template and merge it with parameters taken from query string
 or UI (or both).
 
 When the caching facility isn't required (with queries that return in a
-reasonable time frame) the implementation can be completly client side
+reasonable time frame) the implementation can be completely client side
 and the backend can be "blind" to the parameters - it just receives the
 final query to execute and returns result.
 
