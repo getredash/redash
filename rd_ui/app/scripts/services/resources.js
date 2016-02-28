@@ -327,13 +327,15 @@
     QueryResult.prototype.prepareFilters = function () {
       var filters = [];
       var filterTypes = ['filter', 'multi-filter', 'multiFilter'];
-      _.each(this.getColumnNames(), function (col) {
-        var type = col.split('::')[1] || col.split('__')[1];
+      _.each(this.getColumns(), function (col) {
+        var name = col.name;
+        var type = name.split('::')[1] || name.split('__')[1];
         if (_.contains(filterTypes, type)) {
           // filter found
           var filter = {
-            name: col,
-            friendlyName: this.getColumnFriendlyName(col),
+            name: name,
+            friendlyName: this.getColumnFriendlyName(name),
+            column: col,
             values: [],
             multiple: (type=='multiFilter') || (type=='multi-filter')
           }

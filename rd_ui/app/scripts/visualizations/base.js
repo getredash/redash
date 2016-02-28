@@ -107,6 +107,27 @@
     };
   };
 
+  var FilterValueFilter = function() {
+    return function(value, filter) {
+      if (_.isArray(value)) {
+        value = value[0];
+      }
+
+      // TODO: deduplicate code with table.js:
+      if (filter.column.type === 'date') {
+        if (value && moment.isMoment(value)) {
+          return value.format(clientConfig.dateFormat);
+        }
+      } else if (filter.column.type === 'datetime') {
+        if (value && moment.isMoment(value)) {
+          return value.format(clientConfig.dateTimeFormat);
+        }
+      }
+
+      return value;
+    };
+  };
+
   var EditVisualizationForm = function (Events, Visualization, growl) {
     return {
       restrict: 'E',
@@ -219,5 +240,6 @@
       .directive('visualizationName', ['Visualization', VisualizationName])
       .directive('embedCode', EmbedCode)
       .directive('filters', Filters)
+      .filter('filterValue', FilterValueFilter)
       .directive('editVisulatizationForm', ['Events', 'Visualization', 'growl', EditVisualizationForm]);
 })();
