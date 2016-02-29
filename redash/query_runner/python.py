@@ -60,8 +60,8 @@ class Python(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(Python, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Python, self).__init__(configuration)
 
         self.syntax = "python"
 
