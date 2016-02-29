@@ -69,6 +69,12 @@ angular.module('redash.filters', []).
     }
   })
 
+  .filter('dateTime', function() {
+    return function(value) {
+      return moment(value).format(clientConfig.dateTimeFormat);
+    }
+  })
+
   .filter('linkify', function () {
     return function (text) {
       return text.replace(urlPattern, "$1<a href='$2' target='_blank'>$2</a>");
