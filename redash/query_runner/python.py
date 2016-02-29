@@ -117,7 +117,7 @@ class Python(BaseQueryRunner):
         if column_type not in SUPPORTED_COLUMN_TYPES:
             raise Exception("'{0}' is not a supported column type".format(column_type))
 
-        if not "columns" in result:
+        if "columns" not in result:
             result["columns"] = []
 
         result["columns"].append({
@@ -133,7 +133,7 @@ class Python(BaseQueryRunner):
         :result dict: The result dict
         :values dict: One row of result in dict. The key should be one of the column names. The value is the value of the column in this row.
         """
-        if not "rows" in result:
+        if "rows" not in result:
             result["rows"] = []
 
         result["rows"].append(values)
