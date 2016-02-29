@@ -98,11 +98,11 @@ class Vertica(BaseQueryRunner):
             json_data=None
             error = "Query is empty"
             return json_data, error
-        
+
         connection = None
         try:
             conn_info = {
-                'host': self.configuration.get('host', ''), 
+                'host': self.configuration.get('host', ''),
                 'port': self.configuration.get('port', 5433),
                 'user': self.configuration.get('user', ''),
                 'password': self.configuration.get('password', ''),
