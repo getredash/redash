@@ -9,4 +9,3 @@ class TestEmbedVisualization(BaseTestCase):
 
         res = self.make_request("get", "/embed/query/{}/visualization/{}".format(vis.query.id, vis.id), is_json=False)
         self.assertEqual(res.status_code, 200)
-

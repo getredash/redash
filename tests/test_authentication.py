@@ -125,4 +125,3 @@ class TestCreateAndLoginUser(BaseTestCase):
 
             self.assertTrue(login_user_mock.called)
             user = models.User.get(models.User.email == email)
-

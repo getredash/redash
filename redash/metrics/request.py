@@ -46,4 +46,3 @@ def provision_app(app):
     app.before_request(record_requets_start_time)
     app.after_request(calculate_metrics)
     app.teardown_request(calculate_metrics_on_exception)
-

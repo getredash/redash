@@ -18,4 +18,3 @@ if __name__ == '__main__':
             db.database.execute_sql("ALTER TABLE {} ALTER COLUMN {} TYPE timestamp with time zone;".format(*column))
 
     db.close_db(None)
-

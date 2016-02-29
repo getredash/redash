@@ -42,4 +42,3 @@ if __name__ == '__main__':
         migrate(migrator.drop_column('users', 'old_groups'))
 
     db.close_db(None)
-

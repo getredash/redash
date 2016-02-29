@@ -87,9 +87,3 @@ class Sqlite(BaseQueryRunner):
         return json_data, error
 
 register(Sqlite)
-
-
-
-
-
-

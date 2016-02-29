@@ -418,6 +418,3 @@ class TestLogout(BaseTestCase):
             rv = c.get('/default/logout')
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(current_user.is_authenticated)
-
-
-

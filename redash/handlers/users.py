@@ -95,5 +95,3 @@ class UserResource(BaseResource):
 
 api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
-
-

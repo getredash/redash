@@ -18,5 +18,3 @@ def _get_current_org():
 
 # TODO: move to authentication
 current_org = LocalProxy(_get_current_org)
-
-

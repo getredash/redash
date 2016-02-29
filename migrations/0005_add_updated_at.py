@@ -23,4 +23,3 @@ if __name__ == '__main__':
         db.database.execute_sql("UPDATE widgets SET updated_at = created_at;")
 
     db.close_db(None)
-

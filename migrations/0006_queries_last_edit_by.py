@@ -15,5 +15,3 @@ if __name__ == '__main__':
         db.database.execute_sql("UPDATE queries SET last_modified_by_id = user_id;")
 
     db.close_db(None)
-
-

@@ -16,4 +16,3 @@ def drop_tables():
     from redash.models import create_db
 
     create_db(False, True)
-

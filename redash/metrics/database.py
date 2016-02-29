@@ -100,5 +100,3 @@ class MeteredModel(Model):
         result = getattr(super(MeteredModel, cls), action)(*args, **kwargs)
         setattr(result, 'model_action', action)
         return result
-
-
