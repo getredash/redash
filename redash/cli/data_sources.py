@@ -13,7 +13,7 @@ def list():
     """List currently configured data sources"""
     for i, ds in enumerate(models.DataSource.select()):
         if i > 0:
-            print "-"*20
+            print "-" * 20
 
         print "Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options)
 
@@ -33,13 +33,13 @@ def new(name=None, type=None, options=None):
     if type is None:
         print "Select type:"
         for i, query_runner_name in enumerate(query_runners.keys()):
-            print "{}. {}".format(i+1, query_runner_name)
+            print "{}. {}".format(i + 1, query_runner_name)
 
         idx = 0
         while idx < 1 or idx > len(query_runners.keys()):
             idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())), type=int)
 
-        type = query_runners.keys()[idx-1]
+        type = query_runners.keys()[idx - 1]
     else:
         validate_data_source_type(type)
 

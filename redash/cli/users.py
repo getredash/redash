@@ -81,6 +81,6 @@ def list():
     """List all users"""
     for i, user in enumerate(models.User.select()):
         if i > 0:
-            print "-"*20
+            print "-" * 20
 
         print "Id: {}\nName: {}\nEmail: {}".format(user.id, user.name.encode('utf-8'), user.email)

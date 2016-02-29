@@ -50,7 +50,7 @@ def patch_query_execute():
             result = real_execute(self, *args, **kwargs)
             return result
         finally:
-            duration = (time.time() - start_time)*1000
+            duration = (time.time() - start_time) * 1000
             statsd_client.timing('db.{}.{}'.format(name, action), duration)
             metrics_logger.debug("model=%s query=%s duration=%.2f", name, action, duration)
 

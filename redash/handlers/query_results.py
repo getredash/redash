@@ -177,7 +177,7 @@ class QueryResultAPI(BaseResource):
 
         for (r, row) in enumerate(query_data['rows']):
             for (c, name) in enumerate(column_names):
-                sheet.write(r+1, c, row[name])
+                sheet.write(r + 1, c, row[name])
 
         book.close()
 
