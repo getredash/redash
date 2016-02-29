@@ -10,7 +10,7 @@ manager = Manager(help="Data sources management commands.")
 
 @manager.command
 def list():
-    """List currently configured data sources"""
+    """List currently configured data sources."""
     for i, ds in enumerate(models.DataSource.select()):
         if i > 0:
             print "-" * 20
@@ -26,7 +26,7 @@ def validate_data_source_type(type):
 
 @manager.command
 def new(name=None, type=None, options=None):
-    """Create new data source"""
+    """Create new data source."""
     if name is None:
         name = click.prompt("Name")
 
@@ -87,7 +87,7 @@ def new(name=None, type=None, options=None):
 
 @manager.command
 def delete(name):
-    """Deletes data source by name"""
+    """Delete data source by name."""
     try:
         data_source = models.DataSource.get(models.DataSource.name==name)
         print "Deleting data source: {} (id={})".format(name, data_source.id)
@@ -108,7 +108,7 @@ def update_attr(obj, attr, new_value):
 @manager.option('--options', dest='options', default=None, help="updated options for the data source")
 @manager.option('--type', dest='type', default=None, help="new type for the data source")
 def edit(name, new_name=None, options=None, type=None):
-    """Edit data source settings (name, options, type)"""
+    """Edit data source settings (name, options, type)."""
     try:
         if type is not None:
             validate_data_source_type(type)

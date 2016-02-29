@@ -15,7 +15,7 @@ from RestrictedPython.Guards import safe_builtins
 
 
 class CustomPrint(object):
-    """ CustomPrint redirect "print" calls to be sent as "log" on the result object """
+    """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
     def __init__(self):
         self.enabled = True
         self.lines = []
@@ -127,7 +127,7 @@ class Python(BaseQueryRunner):
         })
 
     def add_result_row(self, result, values):
-        """Helper function to add one row to results set
+        """Helper function to add one row to results set.
 
         Parameters:
         :result dict: The result dict
