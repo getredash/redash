@@ -66,7 +66,7 @@ class Python(BaseQueryRunner):
         self.syntax = "python"
 
         self._allowed_modules = {}
-        self._script_locals = { "result" : { "rows" : [], "columns" : [], "log" : [] } }
+        self._script_locals = {"result": {"rows": [], "columns": [], "log": []}}
         self._enable_print_log = True
         self._custom_print = CustomPrint()
 
@@ -121,9 +121,9 @@ class Python(BaseQueryRunner):
             result["columns"] = []
 
         result["columns"].append({
-            "name" : column_name,
-            "friendly_name" : friendly_name,
-            "type" : column_type
+            "name": column_name,
+            "friendly_name": friendly_name,
+            "type": column_type
         })
 
     def add_result_row(self, result, values):

@@ -95,7 +95,7 @@ class Vertica(BaseQueryRunner):
         import vertica_python
 
         if query == "":
-            json_data=None
+            json_data = None
             error = "Query is empty"
             return json_data, error
 
