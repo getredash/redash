@@ -1,7 +1,7 @@
 import logging
-from flask.ext.login import login_user
 import requests
 from flask import redirect, url_for, Blueprint, flash, request, session
+from flask_login import login_user
 from flask_oauthlib.client import OAuth
 from redash import models, settings
 from redash.authentication.org_resolving import current_org

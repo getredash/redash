@@ -5,8 +5,8 @@ import time
 
 import pystache
 from flask import make_response, request
-from flask.ext.login import current_user
-from flask.ext.restful import abort
+from flask_login import current_user
+from flask_restful import abort
 import xlsxwriter
 from redash import models, settings, utils
 from redash.wsgi import api

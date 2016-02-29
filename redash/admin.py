@@ -1,7 +1,7 @@
 import json
+from flask_admin import Admin
+from flask_admin.base import MenuLink
 from flask_admin.contrib.peewee import ModelView
-from flask.ext.admin import Admin
-from flask.ext.admin.base import MenuLink
 from flask_admin.contrib.peewee.form import CustomModelConverter
 from flask_admin.form.widgets import DateTimePickerWidget
 from playhouse.postgres_ext import ArrayField, DateTimeTZField

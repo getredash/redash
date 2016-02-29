@@ -2,7 +2,7 @@ import datetime
 import time
 import logging
 import signal
-from flask.ext.mail import Message
+from flask_mail import Message
 import redis
 import hipchat
 import requests

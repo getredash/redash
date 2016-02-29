@@ -1,9 +1,9 @@
 import json
 from flask import Flask, make_response
-from flask.ext.sslify import SSLify
 from werkzeug.wrappers import Response
+from flask_restful import Api
+from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
-from flask.ext.restful import Api
 
 from redash import settings, utils, mail, __version__
 from redash.models import db
