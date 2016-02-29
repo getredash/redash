@@ -1,4 +1,4 @@
-from flask.ext.script import Manager, prompt_pass
+from flask_script import Manager, prompt_pass
 from redash import models
 
 manager = Manager(help="Users management commands. This commands assume single organization operation.")

@@ -1,4 +1,4 @@
-from flask.ext.script import Manager
+from flask_script import Manager
 
 manager = Manager(help="Manages the database (create/drop tables).")
 

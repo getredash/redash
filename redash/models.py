@@ -1,4 +1,5 @@
 import json
+from flask_login import UserMixin, AnonymousUserMixin
 import hashlib
 import logging
 import os
@@ -11,7 +12,6 @@ from funcy import project
 import peewee
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.postgres_ext import ArrayField, DateTimeTZField
-from flask.ext.login import UserMixin, AnonymousUserMixin
 from permissions import has_access, view_only
 
 from redash import utils, settings, redis_connection

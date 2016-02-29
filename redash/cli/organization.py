@@ -1,4 +1,4 @@
-from flask.ext.script import Manager
+from flask_script import Manager
 from redash import models
 
 manager = Manager(help="Organization management commands.")

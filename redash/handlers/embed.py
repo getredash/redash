@@ -1,7 +1,7 @@
 from funcy import project
 from flask import render_template, url_for
-from flask.ext.restful import abort
 from flask_login import login_required
+from flask_restful import abort
 
 from redash import models, settings
 from redash.wsgi import app

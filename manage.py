@@ -4,7 +4,7 @@ CLI to manage redash.
 """
 import json
 
-from flask.ext.script import Manager
+from flask_script import Manager
 
 from redash import settings, models, __version__
 from redash.wsgi import app

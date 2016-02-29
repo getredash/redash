@@ -1,5 +1,5 @@
 from flask import request
-from flask.ext.restful import abort
+from flask_restful import abort
 from flask_login import login_required
 import sqlparse
 

@@ -1,11 +1,10 @@
+from flask_login import LoginManager, user_logged_in
 import hashlib
 import hmac
 import time
 import logging
 
 from flask import redirect, request, jsonify
-from flask.ext.login import LoginManager
-from flask.ext.login import user_logged_in
 
 from redash import models, settings
 from redash.authentication import google_oauth, saml_auth

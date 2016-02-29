@@ -1,6 +1,6 @@
 import json
 import click
-from flask.ext.script import Manager
+from flask_script import Manager
 from redash import models
 from redash.query_runner import query_runners, get_configuration_schema_for_type
 from redash.utils.configuration import ConfigurationContainer

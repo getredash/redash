@@ -1,4 +1,4 @@
-from flask.ext.restful import Resource, abort
+from flask_restful import Resource, abort
 from flask_login import current_user, login_required
 from peewee import DoesNotExist
 

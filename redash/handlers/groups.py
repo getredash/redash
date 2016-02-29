@@ -1,6 +1,6 @@
 import time
 from flask import request
-from flask.ext.restful import abort
+from flask_restful import abort
 from redash import models
 from redash.wsgi import api
 from redash.permissions import require_admin, require_permission

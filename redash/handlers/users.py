@@ -1,6 +1,6 @@
 import time
 from flask import request
-from flask.ext.restful import abort
+from flask_restful import abort
 from funcy import project
 from peewee import IntegrityError
 
