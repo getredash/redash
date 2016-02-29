@@ -163,6 +163,7 @@
       }
     });
 
+    $scope.location = String(document.location);
     $scope.version = clientConfig.version;
     $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
 
