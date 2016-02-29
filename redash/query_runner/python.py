@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import sys
 
 from redash.query_runner import *
 from redash import models
@@ -44,6 +45,9 @@ class Python(BaseQueryRunner):
                 'allowedImportModules': {
                     'type': 'string',
                     'title': 'Modules to import prior to running the script'
+                },
+                'additionalModulesPaths' : {
+                    'type' : 'string'
                 }
             },
         }
@@ -69,6 +73,11 @@ class Python(BaseQueryRunner):
         if self.configuration.get("allowedImportModules", None):
             for item in self.configuration["allowedImportModules"].split(","):
                 self._allowed_modules[item] = None
+
+        if self.configuration.get("additionalModulesPaths", None):
+            for p in self.configuration["additionalModulesPaths"].split(","):
+                if p not in sys.path:
+                    sys.path.append(p)
 
     def custom_import(self, name, globals=None, locals=None, fromlist=(), level=0):
         if name in self._allowed_modules:
