@@ -1,4 +1,4 @@
-from redash import redis_connection,  models, __version__
+from redash import redis_connection, models, __version__
 
 
 def get_status():

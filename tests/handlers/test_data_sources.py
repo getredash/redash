@@ -87,4 +87,3 @@ class TestDataSourceListAPIPost(BaseTestCase):
                                data={'name': 'DS 1', 'type': 'pg', 'options': {"dbname": "redash"}}, user=admin)
 
         self.assertEqual(rv.status_code, 200)
-

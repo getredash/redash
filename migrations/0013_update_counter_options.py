@@ -21,4 +21,3 @@ if __name__ == '__main__':
             print "After: ", options
             vis.options = json.dumps(options)
             vis.save()
-

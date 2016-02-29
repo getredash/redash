@@ -7,4 +7,3 @@ if __name__ == '__main__':
             AlertSubscription.create_table()
 
     db.close_db(None)
-

@@ -29,8 +29,8 @@ def slugify(s):
 
 
 def gen_query_hash(sql):
-    """Returns hash of the given query after stripping all comments, line breaks and multiple
-    spaces, and lower casing all text.
+    """Return hash of the given query after stripping all comments, line breaks
+    and multiple spaces, and lower casing all text.
 
     TODO: possible issue - the following queries will get the same id:
         1. SELECT 1 FROM table WHERE column='Value';
@@ -50,8 +50,8 @@ def generate_token(length):
     return ''.join(rand.choice(chars) for x in range(length))
 
 class JSONEncoder(json.JSONEncoder):
-    """Custom JSON encoding class, to handle Decimal and datetime.date instances.
-    """
+    """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
+
     def default(self, o):
         if isinstance(o, decimal.Decimal):
             return float(o)
@@ -84,6 +84,7 @@ class UnicodeWriter:
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
     """
+
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
         self.queue = cStringIO.StringIO()

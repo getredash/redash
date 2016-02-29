@@ -979,7 +979,7 @@ class Widget(ModelTimestampsMixin, BaseModel):
             d['visualization'] = self.visualization.to_dict()
 
         return d
-    
+
     def __unicode__(self):
         return u"%s" % self.id
 

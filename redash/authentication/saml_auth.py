@@ -14,11 +14,11 @@ blueprint = Blueprint('saml_auth', __name__)
 
 
 def get_saml_client():
-    '''
-    Return saml configuation.
-    The configuration is a hash for use by saml2.config.Config
-    '''
+    """
+    Return SAML configuration.
 
+    The configuration is a hash for use by saml2.config.Config
+    """
     if settings.SAML_CALLBACK_SERVER_NAME:
         acs_url = settings.SAML_CALLBACK_SERVER_NAME + url_for("saml_auth.idp_initiated")
     else:

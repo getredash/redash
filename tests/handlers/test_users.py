@@ -106,5 +106,3 @@ class TestUserResourcePost(BaseTestCase):
 
         user = models.User.get_by_id(self.factory.user.id)
         self.assertTrue(user.verify_password(new_password))
-
-

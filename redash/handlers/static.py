@@ -89,5 +89,3 @@ rules = ['/admin/<anything>/<whatever>',
           '/personal']
 
 register_static_routes(rules)
-
-

@@ -136,9 +136,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
                 columns.append({
                     'name': column_name,
                     'friendly_name': column_name,
-                    'type': _guess_type(all_data[self.HEADER_INDEX+1][j])
+                    'type': _guess_type(all_data[self.HEADER_INDEX + 1][j])
                 })
-            rows = [dict(zip(column_names, _value_eval_list(row))) for row in all_data[self.HEADER_INDEX+1:]]
+            rows = [dict(zip(column_names, _value_eval_list(row))) for row in all_data[self.HEADER_INDEX + 1:]]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None

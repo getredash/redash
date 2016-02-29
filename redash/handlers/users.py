@@ -48,7 +48,7 @@ class UserResource(BaseResource):
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
-        
+
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
     def post(self, user_id):
@@ -95,5 +95,3 @@ class UserResource(BaseResource):
 
 api.add_org_resource(UserListResource, '/api/users', endpoint='users')
 api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')
-
-

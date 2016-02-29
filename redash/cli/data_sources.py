@@ -10,10 +10,10 @@ manager = Manager(help="Data sources management commands.")
 
 @manager.command
 def list():
-    """List currently configured data sources"""
+    """List currently configured data sources."""
     for i, ds in enumerate(models.DataSource.select()):
         if i > 0:
-            print "-"*20
+            print "-" * 20
 
         print "Id: {}\nName: {}\nType: {}\nOptions: {}".format(ds.id, ds.name, ds.type, ds.options)
 
@@ -26,20 +26,20 @@ def validate_data_source_type(type):
 
 @manager.command
 def new(name=None, type=None, options=None):
-    """Create new data source"""
+    """Create new data source."""
     if name is None:
         name = click.prompt("Name")
 
     if type is None:
         print "Select type:"
         for i, query_runner_name in enumerate(query_runners.keys()):
-            print "{}. {}".format(i+1, query_runner_name)
+            print "{}. {}".format(i + 1, query_runner_name)
 
         idx = 0
         while idx < 1 or idx > len(query_runners.keys()):
             idx = click.prompt("[{}-{}]".format(1, len(query_runners.keys())), type=int)
 
-        type = query_runners.keys()[idx-1]
+        type = query_runners.keys()[idx - 1]
     else:
         validate_data_source_type(type)
 
@@ -87,7 +87,7 @@ def new(name=None, type=None, options=None):
 
 @manager.command
 def delete(name):
-    """Deletes data source by name"""
+    """Delete data source by name."""
     try:
         data_source = models.DataSource.get(models.DataSource.name==name)
         print "Deleting data source: {} (id={})".format(name, data_source.id)
@@ -108,7 +108,7 @@ def update_attr(obj, attr, new_value):
 @manager.option('--options', dest='options', default=None, help="updated options for the data source")
 @manager.option('--type', dest='type', default=None, help="new type for the data source")
 def edit(name, new_name=None, options=None, type=None):
-    """Edit data source settings (name, options, type)"""
+    """Edit data source settings (name, options, type)."""
     try:
         if type is not None:
             validate_data_source_type(type)

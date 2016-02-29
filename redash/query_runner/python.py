@@ -15,7 +15,7 @@ from RestrictedPython.Guards import safe_builtins
 
 
 class CustomPrint(object):
-    """ CustomPrint redirect "print" calls to be sent as "log" on the result object """
+    """CustomPrint redirect "print" calls to be sent as "log" on the result object."""
     def __init__(self):
         self.enabled = True
         self.lines = []
@@ -66,7 +66,7 @@ class Python(BaseQueryRunner):
         self.syntax = "python"
 
         self._allowed_modules = {}
-        self._script_locals = { "result" : { "rows" : [], "columns" : [], "log" : [] } }
+        self._script_locals = {"result": {"rows": [], "columns": [], "log": []}}
         self._enable_print_log = True
         self._custom_print = CustomPrint()
 
@@ -117,23 +117,23 @@ class Python(BaseQueryRunner):
         if column_type not in SUPPORTED_COLUMN_TYPES:
             raise Exception("'{0}' is not a supported column type".format(column_type))
 
-        if not "columns" in result:
+        if "columns" not in result:
             result["columns"] = []
 
         result["columns"].append({
-            "name" : column_name,
-            "friendly_name" : friendly_name,
-            "type" : column_type
+            "name": column_name,
+            "friendly_name": friendly_name,
+            "type": column_type
         })
 
     def add_result_row(self, result, values):
-        """Helper function to add one row to results set
+        """Helper function to add one row to results set.
 
         Parameters:
         :result dict: The result dict
         :values dict: One row of result in dict. The key should be one of the column names. The value is the value of the column in this row.
         """
-        if not "rows" in result:
+        if "rows" not in result:
             result["rows"] = []
 
         result["rows"].append(values)

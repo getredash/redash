@@ -129,7 +129,7 @@ class QueryRecentTest(BaseTestCase):
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
 
-        recent = models.Query.recent([self.factory.default_group], user_id=self.factory.user.id+1)
+        recent = models.Query.recent([self.factory.default_group], user_id=self.factory.user.id + 1)
         self.assertNotIn(q1, recent)
         self.assertNotIn(q2, recent)
 
@@ -211,7 +211,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
     def test_outdated_queries_works_with_specific_time_schedule(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
         query = self.factory.create_query(schedule=half_an_hour_ago.strftime('%H:%M'))
-        query_result = self.factory.create_query_result(query=query, retrieved_at=half_an_hour_ago-datetime.timedelta(days=1))
+        query_result = self.factory.create_query_result(query=query, retrieved_at=half_an_hour_ago - datetime.timedelta(days=1))
         query.latest_query_data = query_result
         query.save()
 

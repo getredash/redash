@@ -14,12 +14,12 @@ except ImportError:
     enabled = False
 
 # from _mssql.pyx ## DB-API type definitions & http://www.freetds.org/tds.html#types ##
-types_map = { 
+types_map = {
     1: TYPE_STRING,
     2: TYPE_BOOLEAN,
     3: TYPE_INTEGER,
     4: TYPE_DATETIME,
-    5: TYPE_FLOAT,  
+    5: TYPE_FLOAT,
 }
 
 class SqlServer(BaseSQLQueryRunner):
@@ -50,7 +50,7 @@ class SqlServer(BaseSQLQueryRunner):
             "required": ["db"],
             "secret": ["password"]
         }
-        
+
     @classmethod
     def enabled(cls):
         return enabled

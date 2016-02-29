@@ -65,4 +65,3 @@ class DashboardAPI(BaseResource):
 api.add_org_resource(DashboardListAPI, '/api/dashboards', endpoint='dashboards')
 api.add_org_resource(DashboardRecentAPI, '/api/dashboards/recent', endpoint='recent_dashboards')
 api.add_org_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
-

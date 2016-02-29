@@ -96,5 +96,3 @@ class TestAlertSubscriptionresourceDelete(BaseTestCase):
         AlertSubscription.create(alert=alert, user=other_user)
         response = self.make_request('delete', path, user=other_user)
         self.assertEqual(response.status_code, 200)
-
-
