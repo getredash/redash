@@ -94,57 +94,57 @@ class SqlServer(BaseSQLQueryRunner):
 
 
     def run_query(self, query):
-      
-      connection = None
-      
-      try:
-          server=self.configuration.get('server', '')
-          user=self.configuration.get('user', '')
-          password=self.configuration.get('password', '')
-          db=self.configuration['db']
-          port=self.configuration.get('port', 1433)
 
-          if port != 1433:
-            server = server+':'+str(port)
+        connection = None
 
-          connection = pymssql.connect(server,user,password,db)
-          cursor = connection.cursor()
-          logger.debug("SqlServer running query: %s", query)
-          
-          cursor.execute(query)
-          data = cursor.fetchall()
+        try:
+            server = self.configuration.get('server', '')
+            user = self.configuration.get('user', '')
+            password = self.configuration.get('password', '')
+            db = self.configuration['db']
+            port = self.configuration.get('port', 1433)
 
-          if cursor.description is not None:
-              columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-              rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+            if port != 1433:
+                server = server + ':' + str(port)
 
-              data = {'columns': columns, 'rows': rows}
-              json_data = json.dumps(data, cls=JSONEncoder)
-              error = None
-          else:
-              error = "No data was returned."
-              json_data = None
+            connection = pymssql.connect(server, user, password, db)
+            cursor = connection.cursor()
+            logger.debug("SqlServer running query: %s", query)
 
-          cursor.close()
-      except pymssql.Error as e:
-          logging.exception(e)
-          try:
-              # Query errors are at `args[1]`
-              error = e.args[1]
-          except IndexError:
-              # Connection errors are `args[0][1]`
-              error = e.args[0][1]
-          json_data = None
-      except KeyboardInterrupt:
-          connection.cancel()
-          error = "Query cancelled by user."
-          json_data = None
-      except Exception as e:
-          raise sys.exc_info()[1], None, sys.exc_info()[2]
-      finally:
-          if connection:
-              connection.close()
+            cursor.execute(query)
+            data = cursor.fetchall()
 
-      return json_data, error
+            if cursor.description is not None:
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+
+                data = {'columns': columns, 'rows': rows}
+                json_data = json.dumps(data, cls=JSONEncoder)
+                error = None
+            else:
+                error = "No data was returned."
+                json_data = None
+
+            cursor.close()
+        except pymssql.Error as e:
+            logging.exception(e)
+            try:
+                # Query errors are at `args[1]`
+                error = e.args[1]
+            except IndexError:
+                # Connection errors are `args[0][1]`
+                error = e.args[0][1]
+            json_data = None
+        except KeyboardInterrupt:
+            connection.cancel()
+            error = "Query cancelled by user."
+            json_data = None
+        except Exception as e:
+            raise sys.exc_info()[1], None, sys.exc_info()[2]
+        finally:
+            if connection:
+                connection.close()
+
+        return json_data, error
 
 register(SqlServer)
