@@ -213,6 +213,9 @@ class MongoDB(BaseQueryRunner):
             if "limit" in query_data:
                 cursor = cursor.limit(query_data["limit"])
 
+            if "count" in query_data:
+                cursor = cursor.count()
+
         elif aggregate:
             r = db[collection].aggregate(aggregate)
 
@@ -226,16 +229,25 @@ class MongoDB(BaseQueryRunner):
             else:
                 cursor = r
 
-        for r in cursor:
-            for k in r:
-                if self._get_column_by_name(columns, k) is None:
-                    columns.append({
-                        "name": k,
-                        "friendly_name": k,
-                        "type": TYPES_MAP.get(type(r[k]), TYPE_STRING)
-                    })
+        if "count" in query_data:
+            columns.append({
+                "name" : "count",
+                "friendly_name" : "count",
+                "type" : TYPE_INTEGER
+            })
 
-            rows.append(r)
+            rows.append({ "count" : cursor })
+        else:
+            for r in cursor:
+                for k in r:
+                    if self._get_column_by_name(columns, k) is None:
+                        columns.append({
+                            "name": k,
+                            "friendly_name": k,
+                            "type": TYPES_MAP.get(type(r[k]), TYPE_STRING)
+                        })
+
+                rows.append(r)
 
         if f:
             ordered_columns = []
