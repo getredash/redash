@@ -11,18 +11,18 @@ from redash.handlers.base import BaseResource, get_object_or_404
 
 class DashboardRecentAPI(BaseResource):
     def get(self):
-        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.id)]
+        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_user.groups, self.current_user.id)]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org)]
+            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_user.groups)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
 
 class DashboardListAPI(BaseResource):
     def get(self):
-        dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_org)]
+        dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_user.groups)]
 
         return dashboards
 

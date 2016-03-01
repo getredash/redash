@@ -872,22 +872,34 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         }
 
     @classmethod
-    def all(cls, org):
-        return cls.select().where(cls.org==org, cls.is_archived==False)
+    def all(cls, groups):
+        query = cls.select().\
+            join(Widget, on=(Dashboard.id == Widget.dashboard)).\
+            join(Visualization, on=(Widget.visualization == Visualization.id)).\
+            join(Query, on=(Visualization.query == Query.id)).\
+            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source)).\
+            where(Dashboard.is_archived == False).\
+            where(DataSourceGroup.group << groups).\
+            group_by(Dashboard.id)
+        return query
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.get(cls.slug == slug, cls.org==org)
 
     @classmethod
-    def recent(cls, org, user_id=None, limit=20):
+    def recent(cls, groups, user_id=None, limit=20):
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
             join(Event, on=(Dashboard.id == Event.object_id.cast('integer'))). \
+            join(Widget, on=(Dashboard.id == Widget.dashboard)).\
+            join(Visualization, on=(Widget.visualization == Visualization.id)).\
+            join(Query, on=(Visualization.query == Query.id)).\
+            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source)).\
             where(Event.action << ('edit', 'view')).\
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
-            where(Dashboard.org == org).\
+            where(DataSourceGroup.group << groups).\
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
