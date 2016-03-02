@@ -872,14 +872,14 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         }
 
     @classmethod
-    def all(cls, groups):
+    def all(cls, groups, user_id):
         query = cls.select().\
-            join(Widget, on=(Dashboard.id == Widget.dashboard)).\
-            join(Visualization, on=(Widget.visualization == Visualization.id)).\
-            join(Query, on=(Visualization.query == Query.id)).\
-            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source)).\
+            join(Widget, on=(Dashboard.id == Widget.dashboard), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Visualization, on=(Widget.visualization == Visualization.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
             where(Dashboard.is_archived == False).\
-            where(DataSourceGroup.group << groups).\
+            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id)).\
             group_by(Dashboard.id)
         return query
 
@@ -888,22 +888,22 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         return cls.get(cls.slug == slug, cls.org==org)
 
     @classmethod
-    def recent(cls, groups, user_id=None, limit=20):
+    def recent(cls, groups, user_id, for_user=False, limit=20):
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
-            join(Event, on=(Dashboard.id == Event.object_id.cast('integer'))). \
-            join(Widget, on=(Dashboard.id == Widget.dashboard)).\
-            join(Visualization, on=(Widget.visualization == Visualization.id)).\
-            join(Query, on=(Visualization.query == Query.id)).\
-            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source)).\
+            join(Event, on=(Dashboard.id == Event.object_id.cast('integer')), join_type=peewee.JOIN_LEFT_OUTER). \
+            join(Widget, on=(Dashboard.id == Widget.dashboard), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Visualization, on=(Widget.visualization == Visualization.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
             where(Event.action << ('edit', 'view')).\
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
-            where(DataSourceGroup.group << groups).\
+            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id)). \
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
-        if user_id:
+        if for_user:
             query = query.where(Event.user == user_id)
 
         query = query.limit(limit)
