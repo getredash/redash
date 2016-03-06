@@ -43,10 +43,10 @@ def new(name=None, type=None, options=None):
     else:
         validate_data_source_type(type)
 
-    if options is None:
-        query_runner = query_runners[type]
-        schema = query_runner.configuration_schema()
+    query_runner = query_runners[type]
+    schema = query_runner.configuration_schema()
 
+    if options is None:
         types = {
             'string': unicode,
             'number': int,
@@ -72,11 +72,14 @@ def new(name=None, type=None, options=None):
                 options_obj[k] = value
 
         options = ConfigurationContainer(options_obj, schema)
-        if not options.is_valid():
-            print "Error: invalid configuration."
-            exit()
+    else:
+        options = ConfigurationContainer(json.loads(options), schema)
 
-    print "Creating {} data source ({}) with options:\n{}".format(type, name, options)
+    if not options.is_valid():
+        print "Error: invalid configuration."
+        exit()
+
+    print "Creating {} data source ({}) with options:\n{}".format(type, name, options.to_json())
 
     data_source = models.DataSource.create(name=name,
                                            type=type,
