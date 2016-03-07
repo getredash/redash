@@ -48,9 +48,14 @@ class TreasureData(BaseQueryRunner):
                 'type': {
                     'type': 'string'
                 },
-                "db": {
-                    "type": "string",
-                    "title": "Database Name"
+                'db': {
+                    'type': 'string',
+                    'title': 'Database Name'
+                },
+                'getschema': {
+                    'type': 'boolean',
+                    'title': 'Auto Get Schema',
+                    'Default': True
                 }
             },
             'required': ['apikey','db']
@@ -71,16 +76,17 @@ class TreasureData(BaseQueryRunner):
     def __init__(self, configuration):
         super(TreasureData, self).__init__(configuration)
 
-    def get_schema(self):
+    def get_schema(self, get_stats=False):
         schema = {}
-        try:
-            with tdclient.Client(self.configuration.get('apikey')) as client:
-                for table in client.tables(self.configuration.get('db')):
-                    table_name = '{}.{}'.format(self.configuration.get('db'), table.name)
-                    for table_schema in table.schema:
-                        schema[table_name] = {'name': table_name, 'columns': table.schema}
-        except Exception, ex:
-            raise Exception("Failed getting schema")
+        if self.configuration.get('getschema') == True:
+            try:
+                with tdclient.Client(self.configuration.get('apikey')) as client:
+                    for table in client.tables(self.configuration.get('db')):
+                        table_name = '{}.{}'.format(self.configuration.get('db'), table.name)
+                        for table_schema in table.schema:
+                            schema[table_name] = {'name': table_name, 'columns': table.schema}
+            except Exception, ex:
+                raise Exception("Failed getting schema")
         return schema.values()
 
     def run_query(self, query):
