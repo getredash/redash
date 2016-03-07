@@ -13,7 +13,7 @@ redash:
     REDASH_COOKIE_SECRET:veryverysecret
     REDASH_GOOGLE_APPS_DOMAIN:
 redis:
-  image: redis:2.8
+  image: redis:latest
 postgres:
   image: postgres:9.3
   volumes:
