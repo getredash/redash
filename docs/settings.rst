@@ -1,7 +1,7 @@
 Settings
 ########
 
-Much of the functionality of re:dash can be changes with settings. Settings are read by `/redash/settings.py` from environment variables which (for most installs) can be set in `/opt/redash/current/.env`
+Much of the functionality of re:dash can be changed with settings. Settings are read by `/redash/settings.py` from environment variables which (for most installs) can be set in `/opt/redash/current/.env`
 
 The follow is a list of settings and what they control:
 
