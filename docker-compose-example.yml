@@ -22,7 +22,5 @@ redash-nginx:
   image: redash/nginx:latest
   ports:
     - "80:80"
-  volumes:
-    - "../redash-nginx/nginx.conf:/etc/nginx/nginx.conf"
   links:
     - redash
