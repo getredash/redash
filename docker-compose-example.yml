@@ -19,10 +19,8 @@ postgres:
   volumes:
    - /opt/postgres-data:/var/lib/postgresql/data
 redash-nginx:
-  image: redash-nginx:1.0
+  image: redash/nginx:latest
   ports:
     - "80:80"
-  volumes:
-    - "../redash-nginx/nginx.conf:/etc/nginx/nginx.conf"
   links:
     - redash
