@@ -4,9 +4,8 @@ Setting up development environment (using Vagrant)
 To simplify contribution there is a `Vagrant
 box <https://vagrantcloud.com/redash/boxes/dev>`__ available with all
 the needed software to run re:dash for development (use it only for
-development, for demo purposes there is
-`redash/demo <https://vagrantcloud.com/redash/boxes/demo>`__ box and the
-AWS/GCE images).
+development, for demo purposes use the
+`Redash website <https://demo.redash.io/>`__).
 
 To get started with this box:
 
