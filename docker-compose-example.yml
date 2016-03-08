@@ -1,28 +1,30 @@
-redash:
-  image: redash
-  ports:
-    - "5000:5000"
-  links:
-    - redis
-    - postgres
-  environment:
-    REDASH_STATIC_ASSETS_PATH:"../rd_ui/app/"
-    REDASH_LOG_LEVEL:"INFO"
-    REDASH_REDIS_URL:redis://localhost:6379/0
-    REDASH_DATABASE_URL:"postgresql://redash"
-    REDASH_COOKIE_SECRET:veryverysecret
-    REDASH_GOOGLE_APPS_DOMAIN:
-redis:
-  image: redis:2.8
-postgres:
-  image: postgres:9.3
-  volumes:
-   - /opt/postgres-data:/var/lib/postgresql/data
-redash-nginx:
-  image: redash-nginx:1.0
-  ports:
-    - "80:80"
-  volumes:
-    - "../redash-nginx/nginx.conf:/etc/nginx/nginx.conf"
-  links:
-    - redash
+version: '2'
+services:
+  redash:
+    image: redash
+    ports:
+      - "5000:5000"
+    links:
+      - redis
+      - postgres
+    environment:
+      REDASH_STATIC_ASSETS_PATH:"../rd_ui/app/"
+      REDASH_LOG_LEVEL:"INFO"
+      REDASH_REDIS_URL:redis://localhost:6379/0
+      REDASH_DATABASE_URL:"postgresql://redash"
+      REDASH_COOKIE_SECRET:veryverysecret
+      REDASH_GOOGLE_APPS_DOMAIN:
+  redis:
+    image: redis:2.8
+  postgres:
+    image: postgres:9.3
+    volumes:
+     - /opt/postgres-data:/var/lib/postgresql/data
+  redash-nginx:
+    image: redash-nginx:1.0
+    ports:
+      - "80:80"
+    volumes:
+      - "../redash-nginx/nginx.conf:/etc/nginx/nginx.conf"
+    links:
+      - redash
