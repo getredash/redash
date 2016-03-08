@@ -2,6 +2,10 @@ body {
     padding-top: 70px;
 }
 
+a[ng-click]{
+    cursor: pointer;
+}
+
 a.link {
     cursor: pointer;
 }
@@ -24,10 +28,6 @@ a.navbar-brand {
 
 a.navbar-brand img {
     height: 40px;
-}
-
-.graph {
-    height: 300px;
 }
 
 .avatar {
@@ -448,3 +448,71 @@ div.table-name {
     margin-left: 20px;
 }
 
+.col-table .missing-value {
+    color: #b94a48;
+}
+
+.col-table .super-small-input {
+    padding-left: 3px;
+    height: 24px;
+}
+
+.col-table .ui-select-toggle, .col-table .ui-select-search {
+    padding: 2px;
+    padding-left: 5px;
+    height: 24px;
+}
+
+.clearable button {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Immediately apply ng-cloak, instead of waiting for angular.js to load: */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+/* Smart Table */
+
+.smart-table {
+    margin-bottom: 0px;
+}
+
+.smart-table .pagination {
+    margin-bottom: 5px;
+    margin-top: 10px;
+}
+
+/* Embed Code */
+.embed-code code  {
+    display: block;
+    white-space: normal;
+    width: 100%;
+}
+.embed-code i  {
+    cursor: pointer;
+}
+
+.voffset  { margin-top: 2px; }
+.voffset1 { margin-top: 5px; }
+.voffset2 { margin-top: 10px; }
+.voffset3 { margin-top: 15px; }
+.voffset4 { margin-top: 30px; }
+.voffset5 { margin-top: 40px; }
+.voffset6 { margin-top: 60px; }
+.voffset7 { margin-top: 80px; }
+.voffset8 { margin-top: 100px; }
+.voffset9 { margin-top: 150px; }
+
+.overlay {
+    background-color: #808080;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0;
+    z-index: 1000;
+    opacity: 0.7;
+}

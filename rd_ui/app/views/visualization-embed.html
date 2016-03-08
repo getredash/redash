@@ -1,0 +1,31 @@
+<div class="container" id="widget">
+    <div class="row">
+        <div class="col-lg-12" ng-controller='EmbeddedVisualizationCtrl'>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <p>
+                            <img src="/images/redash_icon_small.png" style="height: 24px;"/>
+                            <visualization-name visualization="visualization"/>
+                        </p>
+                        <div class="text-muted" ng-bind-html="query.description | markdown"></div>
+                    </h3>
+                </div>
+
+                <visualization-renderer visualization="visualization" query-result="queryResult">
+                </visualization-renderer>
+
+                <div class="panel-footer">
+                    <span class="label label-default">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
+
+                    <span class="pull-right">
+                        <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self">
+                            <span class="glyphicon glyphicon-cloud-download"></span>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

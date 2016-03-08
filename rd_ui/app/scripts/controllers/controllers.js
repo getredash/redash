@@ -151,13 +151,21 @@
   }
 
   var MainCtrl = function ($scope, $location, Dashboard, notifications) {
+    $scope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
+      if ($scope.showPermissionError) {
+        $scope.showPermissionError = false;
+      }
+    });
+
+    $scope.$on("$routeChangeError", function (event, current, previous, rejection) {
+      if (rejection.status === 403) {
+        $scope.showPermissionError = true;
+      }
+    });
+
+    $scope.location = String(document.location);
     $scope.version = clientConfig.version;
-    if (clientConfig.clientSideMetrics) {
-      $scope.$on('$locationChangeSuccess', function(event, newLocation, oldLocation) {
-        // This will be called once per actual page load.
-        Bucky.sendPagePerformance();
-      });
-    }
+    $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
 
     $scope.dashboards = [];
     $scope.reloadDashboards = function () {
@@ -192,12 +200,7 @@
     });
   };
 
-  var IndexCtrl = function ($scope, Events, Dashboard) {
-    Events.record(currentUser, "view", "page", "homepage");
-    $scope.$parent.pageTitle = "Home";
-  };
-
-  var PersonalIndexCtrl = function ($scope, Events, Dashboard, Query) {
+  var IndexCtrl = function ($scope, Events, Dashboard, Query) {
     Events.record(currentUser, "view", "page", "personal_homepage");
     $scope.$parent.pageTitle = "Home";
 
@@ -207,8 +210,7 @@
 
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
-    .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', IndexCtrl])
-    .controller('PersonalIndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', PersonalIndexCtrl])
+    .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();

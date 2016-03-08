@@ -2,69 +2,73 @@ import csv
 import json
 import cStringIO
 import time
-import logging
 
+import pystache
 from flask import make_response, request
-from flask.ext.restful import abort
 from flask_login import current_user
-
+from flask_restful import abort
+import xlsxwriter
 from redash import models, settings, utils
 from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
-from redash.permissions import require_permission
-from redash.handlers.base import BaseResource
+from redash.permissions import require_permission, not_view_only, has_access
+from redash.handlers.base import BaseResource, get_object_or_404
+from redash.utils import collect_query_parameters, collect_parameters_from_request
+
+
+def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
+    query_parameters = set(collect_query_parameters(query_text))
+    missing_params = set(query_parameters) - set(parameter_values.keys())
+    if missing_params:
+        return {'job': {'status': 4,
+                        'error': 'Missing parameter value for: {}'.format(", ".join(missing_params))}}, 400
+
+    if query_parameters:
+        query_text = pystache.render(query_text, parameter_values)
+
+    if max_age == 0:
+        query_result = None
+    else:
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+
+    if query_result:
+        return {'query_result': query_result.to_dict()}
+    else:
+        job = QueryTask.add_task(query_text, data_source,
+                                 metadata={"Username": current_user.name, "Query ID": query_id})
+        return {'job': job.to_dict()}
 
 
 class QueryResultListAPI(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.get_json(force=True)
+        parameter_values = collect_parameters_from_request(request.args)
 
-        if settings.FEATURE_TABLES_PERMISSIONS:
-            metadata = utils.SQLMetaData(params['query'])
-
-            if metadata.has_non_select_dml_statements or metadata.has_ddl_statements:
-                return {
-                    'job': {
-                        'error': 'Only SELECT statements are allowed'
-                    }
-                }
-
-            if len(metadata.used_tables - current_user.allowed_tables) > 0 and '*' not in current_user.allowed_tables:
-                logging.warning('Permission denied for user %s to table %s', self.current_user.name, metadata.used_tables)
-                return {
-                    'job': {
-                        'error': 'Access denied for table(s): %s' % (metadata.used_tables)
-                    }
-                }
-
-        models.ActivityLog(
-            user=self.current_user,
-            type=models.ActivityLog.QUERY_EXECUTION,
-            activity=params['query']
-        ).save()
-
+        query = params['query']
         max_age = int(params.get('max_age', -1))
+        query_id = params.get('query_id', 'adhoc')
 
-        if max_age == 0:
-            query_result = None
-        else:
-            query_result = models.QueryResult.get_latest(params['data_source_id'], params['query'], max_age)
+        data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
-        if query_result:
-            return {'query_result': query_result.to_dict()}
-        else:
-            data_source = models.DataSource.get_by_id(params['data_source_id'])
-            query_id = params.get('query_id', 'adhoc')
-            job = QueryTask.add_task(params['query'], data_source, metadata={"Username": self.current_user.name, "Query ID": query_id})
-            return {'job': job.to_dict()}
+        if not has_access(data_source.groups, self.current_user, not_view_only):
+            return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
+
+        self.record_event({
+            'action': 'execute_query',
+            'timestamp': int(time.time()),
+            'object_id': data_source.id,
+            'object_type': 'data_source',
+            'query': query
+        })
+
+        return run_query(data_source, parameter_values, query, query_id, max_age)
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
 class QueryResultAPI(BaseResource):
-
     @staticmethod
     def add_cors_headers(headers):
         if 'Origin' in request.headers:
@@ -89,19 +93,24 @@ class QueryResultAPI(BaseResource):
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
+        # TODO:
+        # This method handles two cases: retrieving result by id & retrieving result by query id.
+        # They need to be split, as they have different logic (for example, retrieving by query id
+        # should check for query parameters and shouldn't cache the result).
         should_cache = query_result_id is not None
         if query_result_id is None and query_id is not None:
-            query = models.Query.get(models.Query.id == query_id)
+            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
             if query:
                 query_result_id = query._data['latest_query_data']
 
         if query_result_id:
-            query_result = models.QueryResult.get_by_id(query_result_id)
+            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
 
         if query_result:
             if isinstance(self.current_user, models.ApiUser):
                 event = {
                     'user_id': None,
+                    'org_id': self.current_org.id,
                     'action': 'api_get',
                     'timestamp': int(time.time()),
                     'api_key': self.current_user.id,
@@ -119,6 +128,8 @@ class QueryResultAPI(BaseResource):
 
             if filetype == 'json':
                 response = self.make_json_response(query_result)
+            elif filetype == 'xlsx':
+                response = self.make_excel_response(query_result)
             else:
                 response = self.make_csv_response(query_result)
 
@@ -151,9 +162,31 @@ class QueryResultAPI(BaseResource):
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
         return make_response(s.getvalue(), 200, headers)
 
+    @staticmethod
+    def make_excel_response(query_result):
+        s = cStringIO.StringIO()
 
-api.add_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
-api.add_resource(QueryResultAPI,
+        query_data = json.loads(query_result.data)
+        book = xlsxwriter.Workbook(s)
+        sheet = book.add_worksheet("result")
+
+        column_names = []
+        for (c, col) in enumerate(query_data['columns']):
+            sheet.write(0, c, col['name'])
+            column_names.append(col['name'])
+
+        for (r, row) in enumerate(query_data['rows']):
+            for (c, name) in enumerate(column_names):
+                sheet.write(r + 1, c, row[name])
+
+        book.close()
+
+        headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+        return make_response(s.getvalue(), 200, headers)
+
+
+api.add_org_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
+api.add_org_resource(QueryResultAPI,
                  '/api/query_results/<query_result_id>',
                  '/api/queries/<query_id>/results.<filetype>',
                  '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
@@ -170,5 +203,4 @@ class JobAPI(BaseResource):
         job = QueryTask(job_id=job_id)
         job.cancel()
 
-api.add_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')
-
+api.add_org_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')

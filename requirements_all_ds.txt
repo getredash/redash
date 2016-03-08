@@ -9,3 +9,4 @@ pymongo==2.7.2
 pyOpenSSL==0.14
 vertica-python==0.5.1
 td-client==0.3.2
+pymssql==2.1.1

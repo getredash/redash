@@ -1,10 +1,10 @@
-from flask.ext.script import Manager
+from flask_script import Manager
 
-manager = Manager(help="Manages the database (create/drop tables).")
+manager = Manager(help="Manage the database (create/drop tables).")
 
 @manager.command
 def create_tables():
-    """Creates the database tables."""
+    """Create the database tables."""
     from redash.models import create_db, init_db
 
     create_db(True, False)
@@ -16,4 +16,3 @@ def drop_tables():
     from redash.models import create_db
 
     create_db(False, True)
-

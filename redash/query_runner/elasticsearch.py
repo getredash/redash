@@ -71,8 +71,8 @@ class BaseElasticSearch(BaseQueryRunner):
     def enabled(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(BaseElasticSearch, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(BaseElasticSearch, self).__init__(configuration)
 
         self.syntax = "json"
 
@@ -92,8 +92,8 @@ class BaseElasticSearch(BaseQueryRunner):
         if self.server_url[-1] == "/":
             self.server_url = self.server_url[:-1]
 
-        basic_auth_user = self.configuration["basic_auth_user"]
-        basic_auth_password = self.configuration["basic_auth_password"]
+        basic_auth_user = self.configuration.get("basic_auth_user", None)
+        basic_auth_password = self.configuration.get("basic_auth_password", None)
         self.auth = None
         if basic_auth_user and basic_auth_password:
             self.auth = HTTPBasicAuth(basic_auth_user, basic_auth_password)
@@ -117,7 +117,8 @@ class BaseElasticSearch(BaseQueryRunner):
                             if property_type in ELASTICSEARCH_TYPES_MAPPING:
                                 mappings[property_name] = property_type
                             else:
-                                raise Exception("Unknown property type: {0}".format(property_type))
+                                mappings[property_name] = TYPE_STRING
+                                #raise Exception("Unknown property type: {0}".format(property_type))
 
         return mappings
 
@@ -163,8 +164,8 @@ class BaseElasticSearch(BaseQueryRunner):
 
 class Kibana(BaseElasticSearch):
 
-    def __init__(self, configuration_json):
-        super(Kibana, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Kibana, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -200,6 +201,7 @@ class Kibana(BaseElasticSearch):
             index_name = query_params["index"]
             query_data = query_params["query"]
             size = int(query_params.get("size", 500))
+            limit = int(query_params.get("limit", 500))
             result_fields = query_params.get("fields", None)
             sort = query_params.get("sort", None)
 
@@ -214,9 +216,6 @@ class Kibana(BaseElasticSearch):
 
             logger.debug(json.dumps(mappings, indent=4))
 
-            if size:
-                url += "&size={0}".format(size)
-
             if sort:
                 url += "&sort={0}".format(urllib.quote_plus(sort))
 
@@ -230,9 +229,10 @@ class Kibana(BaseElasticSearch):
             if isinstance(query_data, str) or isinstance(query_data, unicode):
                 _from = 0
                 while True:
-                    total = self._execute_simple_query(url, _from, mappings, result_fields, result_columns, result_rows)
+                    query_size = size if limit >= (_from + size) else (limit - _from)
+                    total = self._execute_simple_query(url + "&size={0}".format(query_size), self.auth, _from, mappings, result_fields, result_columns, result_rows)
                     _from += size
-                    if _from >= total:
+                    if _from >= limit:
                         break
             else:
                 # TODO: Handle complete ElasticSearch queries (JSON based sent over HTTP POST)
@@ -253,8 +253,8 @@ class Kibana(BaseElasticSearch):
 
 class ElasticSearch(BaseElasticSearch):
 
-    def __init__(self, configuration_json):
-        super(ElasticSearch, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(ElasticSearch, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):

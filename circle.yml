@@ -1,28 +1,34 @@
 machine:
+  services:
+    - docker
   node:
     version:
-      0.10.24
+      0.12.4
   python:
     version:
       2.7.3
 dependencies:
   pre:
-    - make deps
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
+    - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
   cache_directories:
     - rd_ui/node_modules/
     - rd_ui/app/bower_components/
 test:
   override:
-    - make test
-  post:
-    - make pack
+    - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
 deployment:
-  github:
+  github_and_docker:
     branch: master
     commands:
+      - make pack
       - make upload
+      - echo "rd_ui/app" >> .dockerignore
+      - docker pull redash/redash:latest
+      - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f

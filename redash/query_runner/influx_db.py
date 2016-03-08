@@ -13,6 +13,7 @@ try:
 except ImportError:
     enabled = False
 
+
 def _transform_result(results):
     result_columns = []
     result_rows = []
@@ -29,6 +30,7 @@ def _transform_result(results):
         "columns" : result_columns,
         "rows" : result_rows
     }, cls=JSONEncoder)
+
 
 class InfluxDB(BaseQueryRunner):
     @classmethod
@@ -55,8 +57,8 @@ class InfluxDB(BaseQueryRunner):
     def type(cls):
         return "influxdb"
 
-    def __init__(self, configuration_json):
-        super(InfluxDB, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(InfluxDB, self).__init__(configuration)
 
     def run_query(self, query):
         client = InfluxDBClusterClient.from_DSN(self.configuration['url'])

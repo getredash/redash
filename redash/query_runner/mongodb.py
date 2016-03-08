@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 try:
     import pymongo
     from bson.objectid import ObjectId
+    from bson.timestamp import Timestamp
     from bson.son import SON
     enabled = True
 
@@ -34,6 +35,8 @@ class MongoDBJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
+        elif isinstance(o, Timestamp):
+            return super(MongoDBJSONEncoder, self).default(o.as_datetime())
 
         return super(MongoDBJSONEncoder, self).default(o)
 
@@ -86,8 +89,8 @@ class MongoDB(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(MongoDB, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(MongoDB, self).__init__(configuration)
 
         self.syntax = 'json'
 
@@ -102,14 +105,55 @@ class MongoDB(BaseQueryRunner):
 
         return None
 
-
-    def run_query(self, query):
+    def _get_db(self):
         if self.is_replica_set:
             db_connection = pymongo.MongoReplicaSetClient(self.configuration["connectionString"], replicaSet=self.configuration["replicaSetName"])
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
 
-        db = db_connection[self.db_name]
+        return db_connection[self.db_name]
+
+    def _merge_property_names(self, columns, document):
+        for property in document:
+              if property not in columns:
+                  columns.append(property)
+
+    def _get_collection_fields(self, db, collection_name):
+        # Since MongoDB is a document based database and each document doesn't have
+        # to have the same fields as another documet in the collection its a bit hard to
+        # show these attributes as fields in the schema.
+        #
+        # For now, the logic is to take the first and last documents (last is determined
+        # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
+        # as we don't know the correct order. In most single server installations it would be
+        # find. In replicaset when reading from non master it might not return the really last
+        # document written.
+        first_document = None
+        last_document = None
+
+        for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+            first_document = d
+
+        for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+            last_document = d
+
+        columns = []
+        if first_document: self._merge_property_names(columns, first_document)
+        if last_document: self._merge_property_names(columns, last_document)
+
+        return columns
+
+    def get_schema(self, get_stats=False):
+        schema = {}
+        db = self._get_db()
+        for collection_name in db.collection_names():
+            columns = self._get_collection_fields(db, collection_name)
+            schema[collection_name] = { "name" : collection_name, "columns" : sorted(columns) }
+
+        return schema.values()
+
+    def run_query(self, query):
+        db = self._get_db()
 
         logger.debug("mongodb connection string: %s", self.configuration['connectionString'])
         logger.debug("mongodb got query: %s", query)
@@ -169,6 +213,9 @@ class MongoDB(BaseQueryRunner):
             if "limit" in query_data:
                 cursor = cursor.limit(query_data["limit"])
 
+            if "count" in query_data:
+                cursor = cursor.count()
+
         elif aggregate:
             r = db[collection].aggregate(aggregate)
 
@@ -182,16 +229,25 @@ class MongoDB(BaseQueryRunner):
             else:
                 cursor = r
 
-        for r in cursor:
-            for k in r:
-                if self._get_column_by_name(columns, k) is None:
-                    columns.append({
-                        "name": k,
-                        "friendly_name": k,
-                        "type": TYPES_MAP.get(type(r[k]), TYPE_STRING)
-                    })
+        if "count" in query_data:
+            columns.append({
+                "name" : "count",
+                "friendly_name" : "count",
+                "type" : TYPE_INTEGER
+            })
 
-            rows.append(r)
+            rows.append({ "count" : cursor })
+        else:
+            for r in cursor:
+                for k in r:
+                    if self._get_column_by_name(columns, k) is None:
+                        columns.append({
+                            "name": k,
+                            "friendly_name": k,
+                            "type": TYPES_MAP.get(type(r[k]), TYPE_STRING)
+                        })
+
+                rows.append(r)
 
         if f:
             ordered_columns = []

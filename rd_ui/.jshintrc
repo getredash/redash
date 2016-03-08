@@ -11,15 +11,17 @@
   "latedef": true,
   "newcap": true,
   "noarg": true,
-  "quotmark": "single",
+  "quotmark": false,
   "regexp": true,
   "undef": true,
   "unused": true,
-  "strict": true,
+  "strict": false,
   "trailing": true,
   "smarttabs": true,
   "globals": {
     "angular": false,
-    "_": false
+    "_": false,
+    "$": false,
+    "currentUser": false
   }
 }

@@ -8,9 +8,9 @@
         'query': '=',
         'visualization': '=?'
       },
-      template: '<small><span class="glyphicon glyphicon-link"></span></small> <a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
+      template: '<a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
       link: function(scope, element) {
-        scope.link = '/queries/' + scope.query.id;
+        scope.link = 'queries/' + scope.query.id;
         if (scope.visualization) {
           if (scope.visualization.type === 'TABLE') {
             // link to hard-coded table tab instead of the (hidden) visualization tab
@@ -29,19 +29,21 @@
       restrict: 'E',
       template: '<span ng-show="query.id && canViewSource">\
                     <a ng-show="!sourceMode"\
-                      ng-href="/queries/{{query.id}}/source#{{selectedTab}}">Show Source\
+                      ng-href="queries/{{query.id}}/source#{{selectedTab}}">Show Source\
                     </a>\
                     <a ng-show="sourceMode"\
-                      ng-href="/queries/{{query.id}}#{{selectedTab}}">Hide Source\
+                      ng-href="queries/{{query.id}}#{{selectedTab}}">Hide Source\
                     </a>\
                 </span>'
     }
   }
 
-  function queryResultCSVLink() {
+  function queryResultLink() {
     return {
       restrict: 'A',
-      link: function (scope, element) {
+      link: function (scope, element, attrs) {
+
+        var fileType = attrs.fileType ? attrs.fileType : "csv";
         scope.$watch('queryResult && queryResult.getData()', function(data) {
           if (!data) {
             return;
@@ -50,8 +52,8 @@
           if (scope.queryResult.getId() == null) {
             element.attr('href', '');
           } else {
-            element.attr('href', '/api/queries/' + scope.query.id + '/results/' + scope.queryResult.getId() + '.csv');
-            element.attr('download', scope.query.name.replace(" ", "_") + moment(scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") + ".csv");
+            element.attr('href', 'api/queries/' + scope.query.id + '/results/' + scope.queryResult.getId() + '.' + fileType);
+            element.attr('download', scope.query.name.replace(" ", "_") + moment(scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") + "." + fileType);
           }
         });
       }
@@ -265,6 +267,10 @@
             value: String(7 * 24 * 3600),
             name: 'Once a week'
         });
+        $scope.refreshOptions.push({
+            value: String(30 * 24 * 3600),
+            name: 'Every 30d'
+        });
 
         $scope.$watch('refreshType', function() {
           if ($scope.refreshType == 'periodic') {
@@ -282,7 +288,7 @@
   angular.module('redash.directives')
   .directive('queryLink', queryLink)
   .directive('querySourceLink', querySourceLink)
-  .directive('queryResultLink', queryResultCSVLink)
+  .directive('queryResultLink', queryResultLink)
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)

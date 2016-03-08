@@ -1,5 +1,4 @@
 from tests import BaseTestCase
-from tests.factories import user_factory
 from tests.handlers import authenticated_user, json_request
 from redash.wsgi import app
 from redash import models
@@ -7,94 +6,103 @@ from redash import models
 
 class TestUserListResourcePost(BaseTestCase):
     def test_returns_403_for_non_admin(self):
-        with app.test_client() as c, authenticated_user(c):
-            rv = c.post("/api/users")
-            self.assertEqual(rv.status_code, 403)
+        rv = self.make_request('post', "/api/users")
+        self.assertEqual(rv.status_code, 403)
 
     def test_returns_400_when_missing_fields(self):
-        admin = user_factory.create(groups=['admin', 'default'])
+        admin = self.factory.create_admin()
 
-        with app.test_client() as c, authenticated_user(c, user=admin):
-            rv = c.post("/api/users")
-            self.assertEqual(rv.status_code, 400)
+        rv = self.make_request('post', "/api/users", user=admin)
+        self.assertEqual(rv.status_code, 400)
 
-            rv = json_request(c.post, '/api/users', data={'name': 'User'})
-
-            self.assertEqual(rv.status_code, 400)
+        rv = self.make_request('post', '/api/users', data={'name': 'User'}, user=admin)
+        self.assertEqual(rv.status_code, 400)
 
     def test_creates_user(self):
-        admin = user_factory.create(groups=['admin', 'default'])
+        admin = self.factory.create_admin()
 
-        with app.test_client() as c, authenticated_user(c, user=admin):
-            test_user = {'name': 'User', 'email': 'user@example.com', 'password': 'test'}
-            rv = json_request(c.post, '/api/users', data=test_user)
+        test_user = {'name': 'User', 'email': 'user@example.com', 'password': 'test'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
 
-            self.assertEqual(rv.status_code, 200)
-            self.assertEqual(rv.json['name'], test_user['name'])
-            self.assertEqual(rv.json['email'], test_user['email'])
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], test_user['name'])
+        self.assertEqual(rv.json['email'], test_user['email'])
+
+
+class TestUserListGet(BaseTestCase):
+    def test_returns_users_for_given_org_only(self):
+        user1 = self.factory.user
+        user2 = self.factory.create_user()
+        org = self.factory.create_org()
+        user3 = self.factory.create_user(org=org)
+
+        rv = self.make_request('get', "/api/users")
+        user_ids = map(lambda u: u['id'], rv.json)
+        self.assertIn(user1.id, user_ids)
+        self.assertIn(user2.id, user_ids)
+        self.assertNotIn(user3.id, user_ids)
 
 
 class TestUserResourceGet(BaseTestCase):
     def test_returns_api_key_for_your_own_user(self):
-        with app.test_client() as c, authenticated_user(c) as user:
-            rv = json_request(c.get, "/api/users/{}".format(user.id))
-            self.assertIn('api_key', rv.json)
+        rv = self.make_request('get', "/api/users/{}".format(self.factory.user.id))
+        self.assertIn('api_key', rv.json)
 
     def test_returns_api_key_for_other_user_when_admin(self):
-        other_user = user_factory.create()
-        admin = user_factory.create(groups=['admin', 'default'])
-        with app.test_client() as c, authenticated_user(c, user=admin):
-            rv = json_request(c.get, "/api/users/{}".format(other_user.id))
-            self.assertIn('api_key', rv.json)
+        other_user = self.factory.user
+        admin = self.factory.create_admin()
+
+        rv = self.make_request('get', "/api/users/{}".format(other_user.id), user=admin)
+        self.assertIn('api_key', rv.json)
 
     def test_doesnt_return_api_key_for_other_user(self):
-        other_user = user_factory.create()
-        with app.test_client() as c, authenticated_user(c):
-            rv = json_request(c.get, "/api/users/{}".format(other_user.id))
-            self.assertNotIn('api_key', rv.json)
+        other_user = self.factory.create_user()
+
+        rv = self.make_request('get', "/api/users/{}".format(other_user.id))
+        self.assertNotIn('api_key', rv.json)
+
+    def test_doesnt_return_user_from_different_org(self):
+        org = self.factory.create_org()
+        other_user = self.factory.create_user(org=org)
+
+        rv = self.make_request('get', "/api/users/{}".format(other_user.id))
+        self.assertEqual(rv.status_code, 404)
 
 
 class TestUserResourcePost(BaseTestCase):
     def test_returns_403_for_non_admin_changing_not_his_own(self):
-        other_user = user_factory.create()
-        with app.test_client() as c, authenticated_user(c):
-            rv = c.post("/api/users/{}".format(other_user.id), data={"name": "New Name"})
-            self.assertEqual(rv.status_code, 403)
+        other_user = self.factory.create_user()
+
+        rv = self.make_request('post', "/api/users/{}".format(other_user.id), data={"name": "New Name"})
+        self.assertEqual(rv.status_code, 403)
 
     def test_returns_200_for_non_admin_changing_his_own(self):
-        with app.test_client() as c, authenticated_user(c) as user:
-            rv = json_request(c.post, "/api/users/{}".format(user.id), data={"name": "New Name"})
-            self.assertEqual(rv.status_code, 200)
+        rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"name": "New Name"})
+        self.assertEqual(rv.status_code, 200)
 
     def test_returns_200_for_admin_changing_other_user(self):
-        admin = user_factory.create(groups=['admin', 'default'])
-        user = user_factory.create()
+        admin = self.factory.create_admin()
 
-        with app.test_client() as c, authenticated_user(c, user=admin):
-            rv = json_request(c.post, "/api/users/{}".format(user.id), data={"name": "New Name"})
-            self.assertEqual(rv.status_code, 200)
+        rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"name": "New Name"}, user=admin)
+        self.assertEqual(rv.status_code, 200)
 
     def test_fails_password_change_without_old_password(self):
-        with app.test_client() as c, authenticated_user(c) as user:
-            rv = json_request(c.post, "/api/users/{}".format(user.id), data={"password": "new password"})
-            self.assertEqual(rv.status_code, 403)
+        rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"password": "new password"})
+        self.assertEqual(rv.status_code, 403)
 
     def test_fails_password_change_with_incorrect_old_password(self):
-        with app.test_client() as c, authenticated_user(c) as user:
-            rv = json_request(c.post, "/api/users/{}".format(user.id), data={"password": "new password", "old_password": "wrong"})
-            self.assertEqual(rv.status_code, 403)
+        rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"password": "new password", "old_password": "wrong"})
+        self.assertEqual(rv.status_code, 403)
 
     def test_changes_password(self):
         new_password = "new password"
         old_password = "old password"
-        with app.test_client() as c, authenticated_user(c) as user:
-            user.hash_password(old_password)
-            user.save()
 
-            rv = json_request(c.post, "/api/users/{}".format(user.id), data={"password": new_password, "old_password": old_password})
-            self.assertEqual(rv.status_code, 200)
+        self.factory.user.hash_password(old_password)
+        self.factory.user.save()
 
-            user = models.User.get_by_id(user.id)
-            self.assertTrue(user.verify_password(new_password))
+        rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"password": new_password, "old_password": old_password})
+        self.assertEqual(rv.status_code, 200)
 
-
+        user = models.User.get_by_id(self.factory.user.id)
+        self.assertTrue(user.verify_password(new_password))

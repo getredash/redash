@@ -29,7 +29,7 @@
       {
         "label": "Name",
         "map": "name",
-        "cellTemplate": '<a href="/alerts/{{dataRow.id}}">{{dataRow.name}}</a> (<a href="/queries/{{dataRow.query.id}}">query</a>)'
+        "cellTemplate": '<a href="alerts/{{dataRow.id}}">{{dataRow.name}}</a> (<a href="queries/{{dataRow.query.id}}">query</a>)'
       },
       {
         'label': 'Created By',
@@ -96,7 +96,9 @@
       if ($scope.alert.name === undefined || $scope.alert.name === '') {
         $scope.alert.name = $scope.getDefaultName();
       }
-
+      if ($scope.alert.rearm === '' || $scope.alert.rearm === 0) {
+        $scope.alert.rearm = null;
+      }
       $scope.alert.$save(function(alert) {
         growl.addSuccessMessage("Saved.");
         if ($scope.alertId === "new") {

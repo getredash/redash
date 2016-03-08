@@ -1,13 +1,31 @@
 import json
+import jsonschema
+from jsonschema import ValidationError
 
 from redash import query_runner
 from redash.models import DataSource
 
 
+def validate_configuration(query_runner_type, configuration_json):
+    query_runner_class = query_runner.query_runners.get(query_runner_type, None)
+    if query_runner_class is None:
+        return False
+
+    try:
+        if isinstance(configuration_json, basestring):
+            configuration = json.loads(configuration_json)
+        else:
+            configuration = configuration_json
+        jsonschema.validate(configuration, query_runner_class.configuration_schema())
+    except (ValidationError, ValueError):
+        return False
+
+    return True
+
 def update(data_source):
     print "[%s] Old options: %s" % (data_source.name, data_source.options)
 
-    if query_runner.validate_configuration(data_source.type, data_source.options):
+    if validate_configuration(data_source.type, data_source.options):
         print "[%s] configuration already valid. skipping." % data_source.name
         return
 
@@ -65,9 +83,9 @@ def update(data_source):
         print "[%s] No need to convert type of: %s" % (data_source.name, data_source.type)
 
     print "[%s] New options: %s" % (data_source.name, data_source.options)
-    data_source.save()
+    data_source.save(only=data_source.dirty_fields)
 
 
 if __name__ == '__main__':
-    for data_source in DataSource.all():
+    for data_source in DataSource.select(DataSource.id, DataSource.name, DataSource.type, DataSource.options):
         update(data_source)

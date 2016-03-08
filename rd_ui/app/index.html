@@ -4,6 +4,7 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9" ng-app="redash" ng-controller='MainCtrl'> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" ng-app="redash" ng-controller='MainCtrl'> <!--<![endif]-->
 <head>
+    <base href="{{base_href}}">
     <title ng-bind="'{{name}} | ' + pageTitle"></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -39,7 +40,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/"><img src="/images/redash_icon_small.png"/></a>
+        <a class="navbar-brand" href="{{base_href}}"><img src="/images/redash_icon_small.png"/></a>
     </div>
     {% raw %}
     <div class="collapse navbar-collapse navbar-ex1-collapse">
@@ -52,13 +53,13 @@
                           <a href="#" ng-bind="name"></a>
                           <ul class="dropdown-menu">
                             <li ng-repeat="dashboard in group" role="presentation">
-                                <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+                                <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                             </li>
                           </ul>
                         </li>
                     </span>
                     <li ng-repeat="dashboard in otherDashboards">
-                        <a role="menu-item" ng-href="/dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+                        <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
                     </li>
                     <li class="divider" ng-show="currentUser.hasPermission('create_dashboard') && (groupedDashboards.length > 0 || otherDashboards.length > 0)"></li>
                     <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
@@ -67,12 +68,12 @@
             <li class="dropdown" ng-show="currentUser.hasPermission('view_query')" dropdown>
                 <a href="#" class="dropdown-toggle" dropdown-toggle>Queries <b class="caret"></b></a>
                 <ul class="dropdown-menu" dropdown-menu>
-                    <li ng-show="currentUser.hasPermission('create_query')"><a href="/queries/new">New Query</a></li>
-                    <li><a href="/queries">Queries</a></li>
+                    <li ng-show="currentUser.hasPermission('create_query')"><a href="queries/new">New Query</a></li>
+                    <li><a href="queries">Queries</a></li>
                 </ul>
             </li>
             <li>
-                <a href="/alerts">Alerts</a>
+                <a href="alerts">Alerts</a>
             </li>
         </ul>
         <form class="navbar-form navbar-left" role="search" ng-submit="searchQueries()">
@@ -83,16 +84,16 @@
         </form>
         <ul class="nav navbar-nav navbar-right">
             <li ng-show="currentUser.hasPermission('admin')">
-                <a href="/data_sources" title="Data Sources"><i class="fa fa-database"></i></a>
+                <a href="data_sources" title="Data Sources"><i class="fa fa-database"></i></a>
             </li>
             <li ng-show="currentUser.hasPermission('list_users')">
-                <a href="/users" title="Users"><i class="fa fa-users"></i></a>
+                <a href="users" title="Users"><i class="fa fa-users"></i></a>
             </li>
             <li class="dropdown" dropdown>
                 <a href="#" class="dropdown-toggle" dropdown-toggle><span ng-bind="currentUser.name"></span> <span class="caret"></span></a>
                 <ul class="dropdown-menu" dropdown-menu>
                     <li style="width:300px">
-                        <a ng-href="/users/{{currentUser.id}}">
+                        <a ng-href="users/{{currentUser.id}}">
                             <div class="row">
                                 <div class="col-sm-2">
                                     <img ng-src="{{currentUser.gravatar_url}}" size="40px" class="img-circle"/>
@@ -106,7 +107,7 @@
                     <li class="divider">
                     </li>
                     <li>
-                        <a href="/logout" target="_self">Log out</a>
+                        <a href="logout" target="_self">Log out</a>
                     </li>
                 </ul>
             </li>
@@ -119,15 +120,28 @@
 
 <edit-dashboard-form dashboard="newDashboard" id="new_dashboard_dialog"></edit-dashboard-form>
 <div ng-view></div>
+<div ng-if="showPermissionError" class="ng-cloak container" ng-cloak>
+    <div class="row">
+        <div class="text-center">
+            <h1><span class="glyphicon glyphicon-lock"></span></h1>
+            <p class="text-muted">
+                You do not have permission to view the requested page.
+            </p>
+        </div>
+    </div>
+</div>
 
 {% raw %}
-<div class="container-fluid footer">
+<div class="visible-print">
+  <hr>
+  Source: {{location}}
+</div>
+<div class="container-fluid footer hidden-print">
     <hr/>
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
-                re:dash <span ng-bind="version"></span>
-            </div>
+            <a href="http://redash.io">re:dash</a> <span ng-bind="version"></span>
+            <small ng-if="newVersionAvailable" ng-cloak class="ng-cloak"><a href="http://version.redash.io/">(new re:dash version available)</a></small>
             <div class="pull-right">
                 <a href="http://docs.redash.io/">Docs</a>
                 <a href="http://github.com/getredash/redash">Contribute</a>
@@ -137,52 +151,7 @@
 </div>
 {% endraw %}
 
-<script src="/bower_components/jquery/jquery.js"></script>
-
-<!-- build:js /scripts/plugins.js -->
-<script src="/bower_components/angular/angular.js"></script>
-<script src="/bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script src="/bower_components/jquery-ui/ui/jquery-ui.js"></script>
-<script src="/bower_components/bootstrap/js/collapse.js"></script>
-<script src="/bower_components/bootstrap/js/modal.js"></script>
-<script src="/bower_components/angular-resource/angular-resource.js"></script>
-<script src="/bower_components/angular-route/angular-route.js"></script>
-<script src="/bower_components/underscore/underscore.js"></script>
-<script src="/bower_components/moment/moment.js"></script>
-<script src="/bower_components/angular-moment/angular-moment.js"></script>
-<script src="/bower_components/codemirror/lib/codemirror.js"></script>
-<script src="/bower_components/codemirror/addon/edit/matchbrackets.js"></script>
-<script src="/bower_components/codemirror/addon/edit/closebrackets.js"></script>
-<script src="/bower_components/codemirror/addon/hint/show-hint.js"></script>
-<script src="/bower_components/codemirror/addon/hint/anyword-hint.js"></script>
-<script src="/bower_components/codemirror/mode/sql/sql.js"></script>
-<script src="/bower_components/codemirror/mode/python/python.js"></script>
-<script src="/bower_components/codemirror/mode/javascript/javascript.js"></script>
-<script src="/bower_components/highcharts/highcharts.js"></script>
-<script src="/bower_components/highcharts/modules/exporting.js"></script>
-<script src="/bower_components/gridster/dist/jquery.gridster.js"></script>
-<script src="/bower_components/angular-growl/build/angular-growl.js"></script>
-<script src="/bower_components/pivottable/dist/pivot.js"></script>
-<script src="/bower_components/cornelius/src/cornelius.js"></script>
-<script src="/bower_components/mousetrap/mousetrap.js"></script>
-<script src="/bower_components/mousetrap/plugins/global-bind/mousetrap-global-bind.js"></script>
-<script src="/bower_components/angular-ui-select/dist/select.js"></script>
-<script src="/bower_components/underscore.string/lib/underscore.string.js"></script>
-<script src="/bower_components/marked/lib/marked.js"></script>
-<script src="/bower_components/angular-base64-upload/dist/angular-base64-upload.js"></script>
-<script src="/scripts/ng_highchart.js"></script>
-<script src="/scripts/ng_smart_table.js"></script>
-<script src="/bower_components/angular-ui-bootstrap-bower/ui-bootstrap-tpls.js"></script>
-<script src="/bower_components/bucky/bucky.js"></script>
-<script src="/bower_components/pace/pace.js"></script>
-<script src="/bower_components/mustache/mustache.js"></script>
-<script src="/bower_components/canvg/rgbcolor.js"></script>
-<script src="/bower_components/canvg/StackBlur.js"></script>
-<script src="/bower_components/canvg/canvg.js"></script>
-<script src="/bower_components/leaflet/dist/leaflet.js"></script>
-<script src="/bower_components/angular-bootstrap-show-errors/src/showErrors.js"></script>
-<script src="/bower_components/d3/d3.min.js"></script>
-<!-- endbuild -->
+{% include 'vendor_scripts.html' %}
 
 <!-- build:js({.tmp,app}) /scripts/scripts.js -->
 <script src="/scripts/app.js"></script>
@@ -218,7 +187,9 @@
 <script>
     // TODO: move currentUser & features to be an Angular service
     var clientConfig = {{ client_config|safe }};
+    var basePath = "{{base_href}}";
     var currentUser = {{ user|safe }};
+    var currentOrgSlug = "{{ org_slug }}";
 
     currentUser.canEdit = function(object) {
         var user_id = object.user_id || (object.user && object.user.id);
@@ -228,6 +199,9 @@
     currentUser.hasPermission = function(permission) {
         return this.permissions.indexOf(permission) != -1;
     };
+
+    currentUser.isAdmin = currentUser.hasPermission('admin');
+
 
     {{ analytics|safe }}
 </script>

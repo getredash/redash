@@ -1,71 +1,72 @@
 (function() {
   var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
     $scope.refreshEnabled = false;
+    $scope.isFullscreen = false;
     $scope.refreshRate = 60;
 
-    var loadDashboard = _.throttle(function() {
-      $scope.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, function (dashboard) {
-        Events.record(currentUser, "view", "dashboard", dashboard.id);
+    var renderDashboard = function (dashboard) {
+      $scope.$parent.pageTitle = dashboard.name;
 
-        $scope.$parent.pageTitle = dashboard.name;
+      var promises = [];
 
-        var promises = [];
+      _.each($scope.dashboard.widgets, function (row) {
+        return _.each(row, function (widget) {
+          if (widget.visualization) {
+            var queryResult = widget.getQuery().getQueryResult();
+            if (angular.isDefined(queryResult))
+              promises.push(queryResult.toPromise());
+          }
+        });
+      });
 
-        $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function (row) {
-          return _.map(row, function (widget) {
-            var w = new Widget(widget);
+      $q.all(promises).then(function(queryResults) {
+        var filters = {};
+        _.each(queryResults, function(queryResult) {
+          var queryFilters = queryResult.getFilters();
+          _.each(queryFilters, function (queryFilter) {
+            var hasQueryStringValue = _.has($location.search(), queryFilter.name);
 
-            if (w.visualization) {
-              promises.push(w.getQuery().getQueryResult().toPromise());
+            if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
+              // If dashboard filters not enabled, or no query string value given, skip filters linking.
+              return;
             }
 
-            return w;
-          });
-        });
-
-        $q.all(promises).then(function(queryResults) {
-          var filters = {};
-          _.each(queryResults, function(queryResult) {
-            var queryFilters = queryResult.getFilters();
-            _.each(queryFilters, function (queryFilter) {
-              var hasQueryStringValue = _.has($location.search(), queryFilter.name);
-
-              if (!(hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
-                // If dashboard filters not enabled, or no query string value given, skip filters linking.
-                return;
+            if (!_.has(filters, queryFilter.name)) {
+              var filter = _.extend({}, queryFilter);
+              filters[filter.name] = filter;
+              filters[filter.name].originFilters = [];
+              if (hasQueryStringValue) {
+                filter.current = $location.search()[filter.name];
               }
 
-              if (!_.has(filters, queryFilter.name)) {
-                var filter = _.extend({}, queryFilter);
-                filters[filter.name] = filter;
-                filters[filter.name].originFilters = [];
-                if (hasQueryStringValue) {
-                  filter.current = $location.search()[filter.name];
-                }
-
-                $scope.$watch(function () { return filter.current }, function (value) {
-                  _.each(filter.originFilters, function (originFilter) {
-                    originFilter.current = value;
-                  });
+              $scope.$watch(function () { return filter.current }, function (value) {
+                _.each(filter.originFilters, function (originFilter) {
+                  originFilter.current = value;
                 });
-              }
+              });
+            }
 
-              // TODO: merge values.
-              filters[queryFilter.name].originFilters.push(queryFilter);
-            });
+            // TODO: merge values.
+            filters[queryFilter.name].originFilters.push(queryFilter);
           });
-
-          $scope.filters = _.values(filters);
         });
 
-
-      }, function () {
-        // error...
-        // try again. we wrap loadDashboard with throttle so it doesn't happen too often.\
-        // we might want to consider exponential backoff and also move this as a general solution in $http/$resource for
-        // all AJAX calls.
-        loadDashboard();
+        $scope.filters = _.values(filters);
       });
+    }
+
+    var loadDashboard = _.throttle(function () {
+      $scope.dashboard = Dashboard.get({slug: $routeParams.dashboardSlug}, function (dashboard) {
+          Events.record(currentUser, "view", "dashboard", dashboard.id);
+          renderDashboard(dashboard);
+        }, function () {
+          // error...
+          // try again. we wrap loadDashboard with throttle so it doesn't happen too often.\
+          // we might want to consider exponential backoff and also move this as a general solution in $http/$resource for
+          // all AJAX calls.
+          loadDashboard();
+        }
+      );
     }, 1000);
 
     loadDashboard();
@@ -103,6 +104,10 @@
       }
     }
 
+    $scope.toggleFullscreen = function() {
+      $scope.isFullscreen = !$scope.isFullscreen;
+    };
+
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
@@ -132,12 +137,16 @@
 
       Events.record(currentUser, "delete", "widget", $scope.widget.id);
 
-      $scope.widget.$delete(function() {
+      $scope.widget.$delete(function(response) {
         $scope.dashboard.widgets = _.map($scope.dashboard.widgets, function(row) {
           return _.filter(row, function(widget) {
             return widget.id != undefined;
           })
         });
+
+        $scope.dashboard.widgets = _.filter($scope.dashboard.widgets, function(row) { return row.length > 0 });
+
+        $scope.dashboard.layout = response.layout;
       });
     };
 
@@ -153,6 +162,8 @@
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
 
       $scope.type = 'visualization';
+    } else if ($scope.widget.restricted) {
+      $scope.type = 'restricted';
     } else {
       $scope.type = 'textbox';
     }

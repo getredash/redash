@@ -26,7 +26,7 @@
       var events = this.events;
       this.events = [];
 
-      $http.post('/api/events', events);
+      $http.post('api/events', events);
 
     }, 1000);
 

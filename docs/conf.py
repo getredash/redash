@@ -108,4 +108,3 @@ texinfo_documents = [
    author, 'redash', 'One line description of project.',
    'Miscellaneous'),
 ]
-

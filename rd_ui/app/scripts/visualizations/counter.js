@@ -31,31 +31,33 @@
       restrict: 'E',
       templateUrl: '/views/visualizations/counter.html',
       link: function($scope, elm, attrs) {
-        $scope.$watch('[queryResult && queryResult.getData(), visualization.options]',
-          function() {
-            var queryData = $scope.queryResult.getData();
-            if (queryData) {
-              var rowNumber = $scope.visualization.options.rowNumber - 1;
-              var targetRowNumber = $scope.visualization.options.targetRowNumber - 1;
-              var counterColName = $scope.visualization.options.counterColName;
-              var targetColName = $scope.visualization.options.targetColName;
+        var refreshData = function() {
+          var queryData = $scope.queryResult.getData();
+          if (queryData) {
+            var rowNumber = $scope.visualization.options.rowNumber - 1;
+            var targetRowNumber = $scope.visualization.options.targetRowNumber - 1;
+            var counterColName = $scope.visualization.options.counterColName;
+            var targetColName = $scope.visualization.options.targetColName;
 
-              if (counterColName) {
-                $scope.counterValue = queryData[rowNumber][counterColName];
-              }
-
-              if (targetColName) {
-                $scope.targetValue = queryData[targetRowNumber][targetColName];
-
-                if ($scope.targetValue) {
-                  $scope.delta = $scope.counterValue - $scope.targetValue;
-                  $scope.trendPositive = $scope.delta >= 0;
-                }
-              } else {
-                $scope.targetValue = null;
-              }
+            if (counterColName) {
+              $scope.counterValue = queryData[rowNumber][counterColName];
             }
-          }, true);
+
+            if (targetColName) {
+              $scope.targetValue = queryData[targetRowNumber][targetColName];
+
+              if ($scope.targetValue) {
+                $scope.delta = $scope.counterValue - $scope.targetValue;
+                $scope.trendPositive = $scope.delta >= 0;
+              }
+            } else {
+              $scope.targetValue = null;
+            }
+          }
+        };
+
+        $scope.$watch("visualization.options", refreshData, true);
+        $scope.$watch("queryResult && queryResult.getData()", refreshData);
       }
     }
   });

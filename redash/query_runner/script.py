@@ -27,12 +27,12 @@ class Script(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration_json):
-        super(Script, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Script, self).__init__(configuration)
 
         # Poor man's protection against running scripts from outside the scripts directory
         if self.configuration["path"].find("../") > -1:
-            raise ValidationError("Scripts can only be run from the configured scripts directory")
+            raise ValueError("Scripts can only be run from the configured scripts directory")
 
     def run_query(self, query):
         try:

@@ -1,49 +1,53 @@
-import json
-
 from flask import make_response, request
-from flask.ext.restful import abort
+from flask_restful import abort
+from funcy import project
 
 from redash import models
 from redash.wsgi import api
-from redash.permissions import require_permission
-from redash.query_runner import query_runners, validate_configuration
-from redash.handlers.base import BaseResource
+from redash.utils.configuration import ConfigurationContainer, ValidationError
+from redash.permissions import require_admin
+from redash.query_runner import query_runners, get_configuration_schema_for_type
+from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class DataSourceTypeListAPI(BaseResource):
-    @require_permission("admin")
+    @require_admin
     def get(self):
         return [q.to_dict() for q in query_runners.values()]
 
-api.add_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
+api.add_org_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
 
 
 class DataSourceAPI(BaseResource):
-    @require_permission('admin')
+    @require_admin
     def get(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         return data_source.to_dict(all=True)
 
-    @require_permission('admin')
+    @require_admin
     def post(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         req = request.get_json(True)
 
-        data_source.replace_secret_placeholders(req['options'])
-
-        if not validate_configuration(req['type'], req['options']):
+        schema = get_configuration_schema_for_type(req['type'])
+        if schema is None:
             abort(400)
 
-        data_source.name = req['name']
-        data_source.options = json.dumps(req['options'])
+        try:
+            data_source.options.set_schema(schema)
+            data_source.options.update(req['options'])
+        except ValidationError:
+            abort(400)
 
+        data_source.type = req['type']
+        data_source.name = req['name']
         data_source.save()
 
         return data_source.to_dict(all=True)
 
-    @require_permission('admin')
+    @require_admin
     def delete(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete_instance(recursive=True)
 
         return make_response('', 204)
@@ -51,10 +55,23 @@ class DataSourceAPI(BaseResource):
 
 class DataSourceListAPI(BaseResource):
     def get(self):
-        data_sources = [ds.to_dict() for ds in models.DataSource.all()]
-        return data_sources
+        if self.current_user.has_permission('admin'):
+            data_sources = models.DataSource.all(self.current_org)
+        else:
+            data_sources = models.DataSource.all(self.current_org, groups=self.current_user.groups)
 
-    @require_permission("admin")
+        response = {}
+        for ds in data_sources:
+            if ds.id in response:
+                continue
+
+            d = ds.to_dict()
+            d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
+            response[ds.id] = d
+
+        return response.values()
+
+    @require_admin
     def post(self):
         req = request.get_json(True)
         required_fields = ('options', 'name', 'type')
@@ -62,22 +79,30 @@ class DataSourceListAPI(BaseResource):
             if f not in req:
                 abort(400)
 
-        if not validate_configuration(req['type'], req['options']):
+        schema = get_configuration_schema_for_type(req['type'])
+        if schema is None:
             abort(400)
 
-        datasource = models.DataSource.create(name=req['name'], type=req['type'], options=json.dumps(req['options']))
+        config = ConfigurationContainer(req['options'], schema)
+        if not config.is_valid():
+            abort(400)
+
+        datasource = models.DataSource.create_with_group(org=self.current_org,
+                                                         name=req['name'],
+                                                         type=req['type'],
+                                                         options=config)
 
         return datasource.to_dict(all=True)
 
-api.add_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
-api.add_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='data_source')
+api.add_org_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
+api.add_org_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='data_source')
 
 
 class DataSourceSchemaAPI(BaseResource):
     def get(self, data_source_id):
-        data_source = models.DataSource.get_by_id(data_source_id)
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         schema = data_source.get_schema()
 
         return schema
 
-api.add_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')
+api.add_org_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')

@@ -1,11 +1,10 @@
 <div class="container">
-    <ol class="breadcrumb">
-        <li class="active">Users</li>
-    </ol>
-    <div class="row">
+    <users-nav></users-nav>
+
+    <div class="row voffset1">
         <div class="col-md-12">
             <p ng-if="currentUser.hasPermission('admin')">
-                <a href="/users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
+                <a href="users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
             </p>
 
             <smart-table rows="users" columns="gridColumns"

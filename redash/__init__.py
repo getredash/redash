@@ -7,7 +7,15 @@ from flask_mail import Mail
 from redash import settings
 from redash.query_runner import import_query_runners
 
-__version__ = '0.8.2'
+__version__ = '0.10.0'
+
+
+if settings.FEATURE_TABLES_PERMISSIONS:
+    # TODO(@arikfr): remove this warning on next version release
+    print "You have table based permissions enabled, but this feature was removed."
+    print "Please use new data sources based permission model."
+    print "(re:dash won't load until you turn off this feature)"
+    exit(1)
 
 
 def setup_logging():
@@ -38,3 +46,6 @@ mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 
 import_query_runners(settings.QUERY_RUNNERS)
+
+from redash.version_check import reset_new_version_status
+reset_new_version_status()

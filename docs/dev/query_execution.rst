@@ -34,7 +34,7 @@ When query execution is done, the result gets stored to
 ``query_results`` table. Also we check for all queries in the
 ``queries`` table that have the same query hash and update their
 reference to the query result we just saved
-(`code <https://github.com/EverythingMe/redash/blob/master/redash/models.py#L235>`__).
+(`code <https://github.com/getredash/redash/blob/master/redash/models.py#L235>`__).
 
 Client
 ------
@@ -69,14 +69,14 @@ Ideas on how to implement query parameters
 Client side only implementation
 -------------------------------
 
-(This was actually implemented in. See pull request `#363 <https://github.com/EverythingMe/redash/pull/363>`__ for details.)
+(This was actually implemented in. See pull request `#363 <https://github.com/getredash/redash/pull/363>`__ for details.)
 
 The basic idea of how to implement parametized queries is to treat the
 query as a template and merge it with parameters taken from query string
 or UI (or both).
 
 When the caching facility isn't required (with queries that return in a
-reasonable time frame) the implementation can be completly client side
+reasonable time frame) the implementation can be completely client side
 and the backend can be "blind" to the parameters - it just receives the
 final query to execute and returns result.
 

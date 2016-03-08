@@ -24,8 +24,8 @@
   };
 
   var QueryResult = function ($resource, $timeout, $q) {
-    var QueryResultResource = $resource('/api/query_results/:id', {id: '@id'}, {'post': {'method': 'POST'}});
-    var Job = $resource('/api/jobs/:id', {id: '@id'});
+    var QueryResultResource = $resource('api/query_results/:id', {id: '@id'}, {'post': {'method': 'POST'}});
+    var Job = $resource('api/jobs/:id', {id: '@id'});
 
     var updateFunction = function (props) {
       angular.extend(this, props);
@@ -189,20 +189,6 @@
     };
 
     /**
-     * Helper function to add a point into a series, also checks whether the point is within dateRange
-     */
-    QueryResult.prototype._addPointToSeriesIfInDateRange = function (point, seriesCollection, seriesName, dateRange) {
-      if (dateRange && moment.isMoment(point.x)) {
-        // if dateRange is provided and x Axis is of type datetime
-        if (point.x.isBefore(dateRange.min) || point.x.isAfter(dateRange.max)) {
-          // if the point's date isn't within dateRange, then we will not add this point to series
-          return;
-        }
-      }
-      this._addPointToSeries(point, seriesCollection, seriesName);
-    }
-
-    /**
      * Helper function to add a point into a series
      */
     QueryResult.prototype._addPointToSeries = function (point, seriesCollection, seriesName) {
@@ -217,7 +203,7 @@
       seriesCollection[seriesName]['data'].push(point);
     };
 
-    QueryResult.prototype.getChartData = function (mapping, dateRange) {
+    QueryResult.prototype.getChartData = function (mapping) {
       var series = {};
 
       _.each(this.getData(), function (row) {
@@ -260,11 +246,11 @@
 
         if (seriesName === undefined) {
           _.each(yValues, function (yValue, seriesName) {
-            this._addPointToSeriesIfInDateRange({'x': xValue, 'y': yValue}, series, seriesName, dateRange);
+            this._addPointToSeries({'x': xValue, 'y': yValue}, series, seriesName);
           }.bind(this));
         }
         else {
-          this._addPointToSeriesIfInDateRange(point, series, seriesName, dateRange);
+          this._addPointToSeries(point, series, seriesName);
         }
       }.bind(this));
 
@@ -341,13 +327,15 @@
     QueryResult.prototype.prepareFilters = function () {
       var filters = [];
       var filterTypes = ['filter', 'multi-filter', 'multiFilter'];
-      _.each(this.getColumnNames(), function (col) {
-        var type = col.split('::')[1] || col.split('__')[1];
+      _.each(this.getColumns(), function (col) {
+        var name = col.name;
+        var type = name.split('::')[1] || name.split('__')[1];
         if (_.contains(filterTypes, type)) {
           // filter found
           var filter = {
-            name: col,
-            friendlyName: this.getColumnFriendlyName(col),
+            name: name,
+            friendlyName: this.getColumnFriendlyName(name),
+            column: col,
             values: [],
             multiple: (type=='multiFilter') || (type=='multi-filter')
           }
@@ -415,6 +403,10 @@
         if ('job' in response) {
           refreshStatus(queryResult, query);
         }
+      }, function(error) {
+        if (error.status === 403) {
+          queryResult.update(error.data);
+        }
       });
 
       return queryResult;
@@ -424,17 +416,17 @@
   };
 
   var Query = function ($resource, QueryResult, DataSource) {
-    var Query = $resource('/api/queries/:id', {id: '@id'},
+    var Query = $resource('api/queries/:id', {id: '@id'},
       {
         search: {
           method: 'get',
           isArray: true,
-          url: "/api/queries/search"
+          url: "api/queries/search"
         },
         recent: {
           method: 'get',
           isArray: true,
-          url: "/api/queries/recent"
+          url: "api/queries/recent"
         }});
 
     Query.newQuery = function () {
@@ -556,10 +548,10 @@
     var actions = {
       'get': {'method': 'GET', 'cache': false, 'isArray': false},
       'query': {'method': 'GET', 'cache': false, 'isArray': true},
-      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': '/api/data_sources/:id/schema'}
+      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/data_sources/:id/schema'}
     };
 
-    var DataSourceResource = $resource('/api/data_sources/:id', {id: '@id'}, actions);
+    var DataSourceResource = $resource('api/data_sources/:id', {id: '@id'}, actions);
 
     return DataSourceResource;
   };
@@ -587,13 +579,24 @@
       'delete': {method: 'DELETE', transformResponse: transform}
     };
 
-    var UserResource = $resource('/api/users/:id', {id: '@id'}, actions);
+    var UserResource = $resource('api/users/:id', {id: '@id'}, actions);
 
     return UserResource;
   };
 
+  var Group = function ($resource) {
+    var actions = {
+      'get': {'method': 'GET', 'cache': false, 'isArray': false},
+      'query': {'method': 'GET', 'cache': false, 'isArray': true},
+      'members': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/members'},
+      'dataSources': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/data_sources'}
+    };
+    var resource = $resource('api/groups/:id', {id: '@id'}, actions);
+    return resource;
+  };
+
   var AlertSubscription = function ($resource) {
-    var resource = $resource('/api/alerts/:alertId/subscriptions/:userId', {alertId: '@alert_id', userId: '@user.id'});
+    var resource = $resource('api/alerts/:alertId/subscriptions/:userId', {alertId: '@alert_id', userId: '@user.id'});
     return resource;
   };
 
@@ -612,13 +615,13 @@
         }].concat($http.defaults.transformRequest)
       }
     };
-    var resource = $resource('/api/alerts/:id', {id: '@id'}, actions);
+    var resource = $resource('api/alerts/:id', {id: '@id'}, actions);
 
     return resource;
   };
 
   var Widget = function ($resource, Query) {
-    var WidgetResource = $resource('/api/widgets/:id', {id: '@id'});
+    var WidgetResource = $resource('api/widgets/:id', {id: '@id'});
 
     WidgetResource.prototype.getQuery = function () {
       if (!this.query && this.visualization) {
@@ -645,5 +648,6 @@
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])
-      .factory('User', ['$resource', '$http', User]);
+      .factory('User', ['$resource', '$http', User])
+      .factory('Group', ['$resource', Group]);
 })();

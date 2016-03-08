@@ -22,6 +22,8 @@ def _load_key(filename):
 
 
 def _guess_type(value):
+    if value == '':
+        return TYPE_STRING
     try:
         val = int(value)
         return TYPE_INTEGER
@@ -45,6 +47,10 @@ def _guess_type(value):
 def _value_eval_list(value):
     value_list = []
     for member in value:
+        if member == '' or member == None:
+            val = None
+            value_list.append(val)
+            continue
         try:
             val = int(member)
             value_list.append(val)
@@ -100,8 +106,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'secret': ['jsonKeyFile']
         }
 
-    def __init__(self, configuration_json):
-        super(GoogleSpreadsheet, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(GoogleSpreadsheet, self).__init__(configuration)
 
     def _get_spreadsheet_service(self):
         scope = [
@@ -130,9 +136,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
                 columns.append({
                     'name': column_name,
                     'friendly_name': column_name,
-                    'type': _guess_type(all_data[self.HEADER_INDEX+1][j])
+                    'type': _guess_type(all_data[self.HEADER_INDEX + 1][j])
                 })
-            rows = [dict(zip(column_names, _value_eval_list(row))) for row in all_data[self.HEADER_INDEX+1:]]
+            rows = [dict(zip(column_names, _value_eval_list(row))) for row in all_data[self.HEADER_INDEX + 1:]]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None

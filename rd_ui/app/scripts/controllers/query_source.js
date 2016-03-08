@@ -17,8 +17,9 @@
         saveQuery = $scope.saveQuery;
 
     $scope.sourceMode = true;
-    $scope.canEdit = currentUser.canEdit($scope.query) || clientConfig.allowAllToEditQueries;
+    $scope.canEdit = currentUser.canEdit($scope.query);// TODO: bring this back? || clientConfig.allowAllToEditQueries;
     $scope.isDirty = false;
+    $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
 
     $scope.newVisualization = undefined;
 
@@ -67,9 +68,9 @@
 
     $scope.duplicateQuery = function() {
       Events.record(currentUser, 'fork', 'query', $scope.query.id);
+      $scope.query.name = 'Copy of (#'+$scope.query.id+') '+$scope.query.name;
       $scope.query.id = null;
       $scope.query.schedule = null;
-
       $scope.saveQuery({
         successMessage: 'Query forked',
         errorMessage: 'Query could not be forked'

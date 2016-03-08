@@ -95,14 +95,18 @@ class BigQuery(BaseQueryRunner):
                 'jsonKeyFile': {
                     "type": "string",
                     'title': 'JSON Key File'
+                },
+                'totalMBytesProcessedLimit': {
+                    "type": "number",
+                    'title': 'Total MByte Processed Limit'
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
             'secret': ['jsonKeyFile']
         }
 
-    def __init__(self, configuration_json):
-        super(BigQuery, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(BigQuery, self).__init__(configuration)
 
     def _get_bigquery_service(self):
         scope = [
@@ -120,10 +124,16 @@ class BigQuery(BaseQueryRunner):
     def _get_project_id(self):
         return self.configuration["projectId"]
 
-    def run_query(self, query):
-        bigquery_service = self._get_bigquery_service()
+    def _get_total_bytes_processed(self, jobs, query):
+        job_data = {
+            "query": query,
+            "dryRun": True,
+        }
+        response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
+        return int(response["totalBytesProcessed"])
 
-        jobs = bigquery_service.jobs()
+    def _get_query_result(self, jobs, query):
+        project_id = self._get_project_id()
         job_data = {
             "configuration": {
                 "query": {
@@ -132,42 +142,57 @@ class BigQuery(BaseQueryRunner):
             }
         }
 
+        insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
+        current_row = 0
+        query_reply = _get_query_results(jobs, project_id=project_id,
+                                         job_id=insert_response['jobReference']['jobId'], start_index=current_row)
+
+        logger.debug("bigquery replied: %s", query_reply)
+
+        rows = []
+
+        while ("rows" in query_reply) and current_row < query_reply['totalRows']:
+            for row in query_reply["rows"]:
+                rows.append(transform_row(row, query_reply["schema"]["fields"]))
+
+            current_row += len(query_reply['rows'])
+            query_reply = jobs.getQueryResults(projectId=project_id, jobId=query_reply['jobReference']['jobId'],
+                                               startIndex=current_row).execute()
+
+        columns = [{'name': f["name"],
+                    'friendly_name': f["name"],
+                    'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
+
+        data = {
+            "columns": columns,
+            "rows": rows
+        }
+
+        return data
+
+    def run_query(self, query):
         logger.debug("BigQuery got query: %s", query)
 
-        project_id = self._get_project_id()
+        bigquery_service = self._get_bigquery_service()
+        jobs = bigquery_service.jobs()
 
         try:
-            insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
-            current_row = 0
-            query_reply = _get_query_results(jobs, project_id=project_id,
-                                             job_id=insert_response['jobReference']['jobId'], start_index=current_row)
+            if "totalMBytesProcessedLimit" in self.configuration:
+                limitMB = self.configuration["totalMBytesProcessedLimit"]
+                processedMB = self._get_total_bytes_processed(jobs, query) / 1000.0 / 1000.0
+                if limitMB < processedMB:
+                    return None, "Larger than %d MBytes will be processed (%f MBytes)" % (limitMB, processedMB)
 
-            logger.debug("bigquery replied: %s", query_reply)
-
-            rows = []
-
-            while ("rows" in query_reply) and current_row < query_reply['totalRows']:
-                for row in query_reply["rows"]:
-                    rows.append(transform_row(row, query_reply["schema"]["fields"]))
-
-                current_row += len(query_reply['rows'])
-                query_reply = jobs.getQueryResults(projectId=project_id, jobId=query_reply['jobReference']['jobId'],
-                                                   startIndex=current_row).execute()
-
-            columns = [{'name': f["name"],
-                        'friendly_name': f["name"],
-                        'type': types_map.get(f['type'], "string")} for f in query_reply["schema"]["fields"]]
-
-            data = {
-                "columns": columns,
-                "rows": rows
-            }
+            data = self._get_query_result(jobs, query)
             error = None
 
             json_data = json.dumps(data, cls=JSONEncoder)
         except apiclient.errors.HttpError, e:
             json_data = None
-            error = e.content
+            if e.resp.status == 400:
+                error = json.loads(e.content)['error']['message']
+            else:
+                error = e.content
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None

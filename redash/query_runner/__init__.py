@@ -1,15 +1,14 @@
 import logging
 import json
 
-import jsonschema
-from jsonschema import ValidationError
+from redash import settings
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
-    'ValidationError',
     'BaseQueryRunner',
     'InterruptException',
+    'BaseSQLQueryRunner',
     'TYPE_DATETIME',
     'TYPE_BOOLEAN',
     'TYPE_INTEGER',
@@ -39,12 +38,13 @@ SUPPORTED_COLUMN_TYPES = set([
     TYPE_DATE
 ])
 
+
 class InterruptException(Exception):
     pass
 
+
 class BaseQueryRunner(object):
     def __init__(self, configuration):
-        jsonschema.validate(configuration, self.configuration_schema())
         self.syntax = 'sql'
         self.configuration = configuration
 
@@ -89,7 +89,7 @@ class BaseQueryRunner(object):
 
         return new_columns
 
-    def get_schema(self):
+    def get_schema(self, get_stats=False):
         return []
 
     def _run_query_internal(self, query):
@@ -108,6 +108,26 @@ class BaseQueryRunner(object):
         }
 
 
+class BaseSQLQueryRunner(BaseQueryRunner):
+    def __init__(self, configuration):
+        super(BaseSQLQueryRunner, self).__init__(configuration)
+
+    def get_schema(self, get_stats=False):
+        schema_dict = {}
+        self._get_tables(schema_dict)
+        if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
+            self._get_tables_stats(schema_dict)
+        return schema_dict.values()
+
+    def _get_tables(self, schema_dict):
+        return []
+
+    def _get_tables_stats(self, tables_dict):
+        for t in tables_dict.keys():
+            if type(tables_dict[t]) == dict:
+                res = self._run_query_internal('select count(*) as cnt from %s' % t)
+                tables_dict[t]['size'] = res[0]['cnt']
+
 query_runners = {}
 
 
@@ -120,29 +140,20 @@ def register(query_runner_class):
         logger.warning("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
 
 
-def get_query_runner(query_runner_type, configuration_json):
+def get_query_runner(query_runner_type, configuration):
     query_runner_class = query_runners.get(query_runner_type, None)
     if query_runner_class is None:
         return None
 
-    return query_runner_class(json.loads(configuration_json))
+    return query_runner_class(configuration)
 
 
-def validate_configuration(query_runner_type, configuration_json):
+def get_configuration_schema_for_type(query_runner_type):
     query_runner_class = query_runners.get(query_runner_type, None)
     if query_runner_class is None:
-        return False
+        return None
 
-    try:
-        if isinstance(configuration_json, basestring):
-            configuration = json.loads(configuration_json)
-        else:
-            configuration = configuration_json
-        jsonschema.validate(configuration, query_runner_class.configuration_schema())
-    except (ValidationError, ValueError):
-        return False
-
-    return True
+    return query_runner_class.configuration_schema()
 
 
 def import_query_runners(query_runner_imports):

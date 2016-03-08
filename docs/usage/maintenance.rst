@@ -60,7 +60,9 @@ DB
 Backup re:dash's DB:
 --------------------
 
-``sudo -u redash pg_dump > backup_filename.sql``
+Uncompressed backup: ``sudo -u redash pg_dump > backup_filename.sql``
+
+Compressed backup: ``sudo -u redash pg_dump redash | gzip > backup_filename.gz``
 
 Version
 =======

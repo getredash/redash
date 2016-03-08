@@ -1,8 +1,4 @@
-Some of you read the news about EverythingMe closing down. While more detailed announcement will come later (once more details are clear), **I just wanted to reassure you that you shouldn't worry -- this won't affect the future of re:dash.** I will keep maintaining re:dash, and might even be able to work more on it.
-
-If you still have concerns, you're welcome to reach out to me directly -- arik@arikfr.com.
-
-Arik.
+More details about the future of re:dash : http://bit.ly/journey-first-step
 
 ---
 
@@ -30,7 +26,7 @@ Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 
 ## Demo
 
-![Screenshots](https://raw.github.com/getredash/redash/screenshots/screenshots.gif)
+<img src="https://cloud.githubusercontent.com/assets/71468/12611424/1faf4d6a-c4f5-11e5-89b5-31efc1155d2c.gif" width="60%"/>
 
 You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
 
@@ -43,13 +39,13 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 ## Getting help
 
 * [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): the best place to get updates about new releases or ask general questions.
-* Find us [on gitter](https://gitter.im/EverythingMe/redash#) (chat).
+* Find us [on gitter](https://gitter.im/getredash/redash#) (chat).
 * Contact Arik, the maintainer directly: arik@redash.io.
 
 ## Reporting Bugs and Contributing Code
 
 * Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_re:dash_**? Fork the project and make a pull request. We need all the help we can get!
+* Want to help us build **_re:dash_**? Fork the project, edit in a [dev environment](http://docs.redash.io/en/latest/dev/vagrant.html), and make a pull request. We need all the help we can get!
 
 ## License
 

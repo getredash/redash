@@ -4,6 +4,8 @@
   function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
+    $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
+
     var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
@@ -33,6 +35,7 @@
       var isValidDataSourceId = !isNaN(dataSourceId) && _.some($scope.dataSources, function(ds) {
         return ds.id == dataSourceId;
       });
+
       if (!isValidDataSourceId) {
         dataSourceId = $scope.dataSources[0].id;
       }
@@ -41,13 +44,37 @@
       return dataSourceId;
     }
 
+    var updateDataSources = function(dataSources) {
+      // Filter out data sources the user can't query (or used by current query):
+      $scope.dataSources = _.filter(dataSources, function(dataSource) {
+        return !dataSource.view_only || dataSource.id === $scope.query.data_source_id;
+      });
+
+      if ($scope.dataSources.length == 0) {
+        $scope.noDataSources = true;
+        return;
+      }
+
+      if ($scope.query.isNew()) {
+        $scope.query.data_source_id = getDataSourceId();
+      }
+
+      $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
+
+      //$scope.canExecuteQuery = $scope.canExecuteQuery && _.some(dataSources, function(ds) { return !ds.view_only });
+      $scope.canCreateQuery = _.any(dataSources, function(ds) { return !ds.view_only });
+
+      updateSchema();
+    }
+
+
     $scope.dataSource = {};
     $scope.query = $route.current.locals.query;
 
     var updateSchema = function() {
       $scope.hasSchema = false;
       $scope.editorSize = "col-md-12";
-      DataSource.getSchema({id: getDataSourceId()}, function(data) {
+      DataSource.getSchema({id: $scope.query.data_source_id}, function(data) {
         if (data && data.length > 0) {
           $scope.schema = data;
           _.each(data, function(table) {
@@ -69,17 +96,19 @@
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
     $scope.canViewSource = currentUser.hasPermission('view_source');
-    $scope.canExecuteQuery = currentUser.hasPermission('execute_query');
+
+    $scope.canExecuteQuery = function() {
+      return currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+    }
+
     $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
 
-    $scope.dataSources = DataSource.query(function(dataSources) {
-      updateSchema();
-
-      if ($scope.query.isNew()) {
-        $scope.query.data_source_id = getDataSourceId();
-        $scope.dataSource = _.find(dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
-      }
-    });
+    if ($route.current.locals.dataSources) {
+      $scope.dataSources = $route.current.locals.dataSources;
+      updateDataSources($route.current.locals.dataSources);
+    } else {
+      $scope.dataSources = DataSource.query(updateDataSources);
+    }
 
     // in view mode, latest dataset is always visible
     // source mode changes this behavior
@@ -127,7 +156,7 @@
     };
 
     $scope.executeQuery = function() {
-      if (!$scope.canExecuteQuery) {
+      if (!$scope.canExecuteQuery()) {
         return;
       }
 

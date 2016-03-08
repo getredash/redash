@@ -31,7 +31,7 @@
             '<div class="panel-heading">{name}' +
             '</div></li>';
 
-          $scope.$watch('dashboard.widgets && dashboard.widgets.length', function(widgets_length) {
+          $scope.$watch('dashboard.layout', function() {
             $timeout(function() {
               gridster.remove_all_widgets();
 
@@ -57,7 +57,7 @@
                 });
               }
             });
-          });
+          }, true);
 
           $scope.saveDashboard = function() {
             $scope.saveInProgress = true;
@@ -81,18 +81,15 @@
               $scope.dashboard.layout = layout;
 
               layout = JSON.stringify(layout);
-              $http.post('/api/dashboards/' + $scope.dashboard.id, {
-                'name': $scope.dashboard.name,
-                'layout': layout
-              }).success(function(response) {
-                $scope.dashboard = new Dashboard(response);
+              Dashboard.save({slug: $scope.dashboard.id, name: $scope.dashboard.name, layout: layout}, function(dashboard) {
+                $scope.dashboard = dashboard;
                 $scope.saveInProgress = false;
                 $(element).modal('hide');
               });
               Events.record(currentUser, 'edit', 'dashboard', $scope.dashboard.id);
             } else {
 
-              $http.post('/api/dashboards', {
+              $http.post('api/dashboards', {
                 'name': $scope.dashboard.name
               }).success(function(response) {
                 $(element).modal('hide');

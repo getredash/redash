@@ -6,6 +6,8 @@ from redash.query_runner import *
 import logging
 logger = logging.getLogger(__name__)
 
+from collections import defaultdict
+
 try:
     from pyhive import presto
     enabled = True
@@ -14,16 +16,17 @@ except ImportError:
     enabled = False
 
 PRESTO_TYPES_MAPPING = {
-    "integer" : TYPE_INTEGER,
-    "long" : TYPE_INTEGER,
-    "bigint" : TYPE_INTEGER,
-    "float" : TYPE_FLOAT,
-    "double" : TYPE_FLOAT,
-    "boolean" : TYPE_BOOLEAN,
-    "string" : TYPE_STRING,
+    "integer": TYPE_INTEGER,
+    "long": TYPE_INTEGER,
+    "bigint": TYPE_INTEGER,
+    "float": TYPE_FLOAT,
+    "double": TYPE_FLOAT,
+    "boolean": TYPE_BOOLEAN,
+    "string": TYPE_STRING,
     "varchar": TYPE_STRING,
-    "date" : TYPE_DATE,
+    "date": TYPE_DATE,
 }
+
 
 class Presto(BaseQueryRunner):
     @classmethod
@@ -62,8 +65,8 @@ class Presto(BaseQueryRunner):
     def type(cls):
         return "presto"
 
-    def __init__(self, configuration_json):
-        super(Presto, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Presto, self).__init__(configuration)
 
     def run_query(self, query):
         connection = presto.connect(
@@ -75,15 +78,12 @@ class Presto(BaseQueryRunner):
 
         cursor = connection.cursor()
 
+
         try:
             cursor.execute(query)
-            columns_data = [(row[0], row[1]) for row in cursor.description]
-
-            columns = [{'name': col[0],
-                'friendly_name': col[0],
-                'type': PRESTO_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
-
-            rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
+            column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
+            columns = self.fetch_columns(column_tuples)
+            rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None

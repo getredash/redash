@@ -1,13 +1,14 @@
 FROM ubuntu:trusty
-MAINTAINER Di Wu <diwu@yelp.com>
 
 # Ubuntu packages
 RUN apt-get update && \
-  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core wget && \
+  apt-get install -y python-pip python-dev curl build-essential pwgen libffi-dev sudo git-core wget \
   # Postgres client
-  apt-get -y install libpq-dev postgresql-client && \
+  libpq-dev \
   # Additional packages required for data sources:
-  apt-get install -y libssl-dev libmysqlclient-dev
+  libssl-dev libmysqlclient-dev freetds-dev && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
 
 # Users creation
 RUN useradd --system --comment " " --create-home redash
@@ -16,13 +17,8 @@ RUN useradd --system --comment " " --create-home redash
 RUN pip install -U setuptools && \
   pip install supervisor==3.1.2
 
-# Download latest source and extract into /opt/redash/current
-# COPY setup/latest_release_url.py /tmp/latest_release_url.py
-# RUN wget $(python /tmp/latest_release_url.py) -O redash.tar.gz && \
-#     mkdir -p /opt/redash/current && \
-#     tar -C /opt/redash/current -xvf redash.tar.gz && \
-#     rm redash.tar.gz
 COPY . /opt/redash/current
+RUN chown -R redash /opt/redash/current
 
 # Setting working directory
 WORKDIR /opt/redash/current
@@ -31,10 +27,18 @@ WORKDIR /opt/redash/current
 RUN pip install -r requirements_all_ds.txt && \
   pip install -r requirements.txt
 
+RUN curl https://deb.nodesource.com/setup_4.x | bash - && \
+  apt-get install -y nodejs && \
+  sudo -u redash -H make deps && \
+  rm -rf rd_ui/node_modules /home/redash/.npm /home/redash/.cache && \
+  apt-get purge -y nodejs && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/*
+
 # Setup supervisord
 RUN mkdir -p /opt/redash/supervisord && \
     mkdir -p /opt/redash/logs && \
-    cp /opt/redash/current/setup/files/supervisord_docker.conf /opt/redash/supervisord/supervisord.conf
+    cp /opt/redash/current/setup/docker/supervisord/supervisord.conf /opt/redash/supervisord/supervisord.conf
 
 # Fix permissions
 RUN chown -R redash /opt/redash

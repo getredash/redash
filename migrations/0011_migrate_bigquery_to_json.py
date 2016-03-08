@@ -12,7 +12,7 @@ def convert_p12_to_pem(p12file):
 
 if __name__ == '__main__':
 
-    for ds in DataSource.all():
+    for ds in DataSource.select(DataSource.id, DataSource.type, DataSource.options):
 
         if ds.type == 'bigquery':
             options = json.loads(ds.options)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
             }
 
             ds.options = json.dumps(new_options)
-            ds.save()
+            ds.save(only=ds.dirty_fields)
         elif ds.type == 'google_spreadsheets':
             options = json.loads(ds.options)
             if 'jsonKeyFile' in options:
@@ -41,4 +41,4 @@ if __name__ == '__main__':
                 }
 
             ds.options = json.dumps(new_options)
-            ds.save()
+            ds.save(only=ds.dirty_fields)

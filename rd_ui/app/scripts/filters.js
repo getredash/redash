@@ -69,6 +69,12 @@ angular.module('redash.filters', []).
     }
   })
 
+  .filter('dateTime', function() {
+    return function(value) {
+      return moment(value).format(clientConfig.dateTimeFormat);
+    }
+  })
+
   .filter('linkify', function () {
     return function (text) {
       return text.replace(urlPattern, "$1<a href='$2' target='_blank'>$2</a>");
@@ -97,4 +103,21 @@ angular.module('redash.filters', []).
       }
       return $sce.trustAsHtml(text);
     }
-  }]);
+  }])
+
+  .filter('remove', function() {
+    return function(items, item) {
+      if (items == undefined)
+        return items;
+      if (item instanceof Array) {
+        var notEquals = function(other) { return item.indexOf(other) == -1; }
+      } else {
+        var notEquals = function(other) { return item != other;  }
+      }
+      var filtered = [];
+      for (var i = 0; i < items.length; i++)
+        if (notEquals(items[i]))
+          filtered.push(items[i])
+      return filtered;
+    };
+  });

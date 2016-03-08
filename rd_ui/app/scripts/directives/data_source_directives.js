@@ -4,7 +4,7 @@
   var directives = angular.module('redash.directives');
 
   // Angular strips data- from the directive, so data-source-form becomes sourceForm...
-  directives.directive('sourceForm', ['$http', 'growl', function ($http, growl) {
+  directives.directive('sourceForm', ['$http', 'growl', '$q', function ($http, growl, $q) {
     return {
       restrict: 'E',
       replace: true,
@@ -34,7 +34,10 @@
           });
         });
 
-        $http.get('/api/data_sources/types').success(function (types) {
+        var typesPromise = $http.get('api/data_sources/types');
+
+        $q.all([typesPromise, $scope.dataSource.$promise]).then(function(responses) {
+          var types = responses[0].data;
           setType(types);
 
           $scope.dataSourceTypes = types;

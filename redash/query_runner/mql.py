@@ -21,8 +21,8 @@ def deduce_columns(rows):
 
 class MQL(BaseQueryRunner):
 
-    def __init__(self, configuration_json):
-        super(MQL, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(MQL, self).__init__(configuration)
         self.syntax = 'sql'
 
     @classmethod

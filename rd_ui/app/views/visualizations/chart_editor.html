@@ -1,169 +1,246 @@
-<div class="form-horizontal">
-    <div class="panel panel-default">
+<form class="form-horizontal" name="chartEditor">
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group row">
+
+        <label class="control-label col-sm-5">Chart Type</label>
+        <div class="col-sm-7" ng-if="chartTypes"><!--the if is a weird workaround-->
+          <ui-select ng-model="options.globalSeriesType" on-select="chartTypeChanged()">
+            <ui-select-match placeholder="Choose chart type..."><i class="fa fa-{{$select.selected.value.icon}}"></i> {{$select.selected.value.name}}</ui-select-match>
+            <ui-select-choices repeat="info.chartType as (chartType, info) in chartTypes">
+              <div><i class="fa fa-{{info.value.icon}}"></i><span> </span><span ng-bind-html="info.value.name | highlight: $select.search"></span></div>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="form-group row">
+
+        <label class="control-label col-sm-5">Stacking</label>
+
+        <div class="col-sm-7" ng-if="stackingOptions"><!--the if is a weird workaround-->
+          <ui-select ng-model="options.series.stacking" ng-disabled="['line', 'area', 'column'].indexOf(options.globalSeriesType) == -1">
+            <ui-select-match placeholder="Choose Stacking...">{{$select.selected.key | capitalize}}</ui-select-match>
+            <ui-select-choices repeat="value.value as (key, value) in stackingOptions">
+              <div ng-bind-html="value.key | highlight: $select.search"></div>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="form-group row" ng-class="{'has-error': chartEditor.xAxisColumn.$invalid}">
+
+        <label class="control-label col-sm-5">X Column</label>
+
+        <div class="col-sm-7">
+          <ui-select name="xAxisColumn" required ng-model="form.xAxisColumn">
+            <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:form.yAxisColumns | remove:form.groupby">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span><small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group row">
+
+        <label class="control-label col-sm-5">Group by</label>
+
+        <div class="col-sm-7">
+
+          <ui-select name="groupby" ng-model="form.groupby" class="clearable">
+            <ui-select-match allow-clear="true" placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:form.yAxisColumns | remove:form.xAxisColumn">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span><small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <!-- not using regular validation (chartEditor.yAxisColumns.$invalid) due to a bug in ui-select with multiple choices-->
+      <div class="form-group row" ng-class="{'has-error': !form.yAxisColumns || form.yAxisColumns.length == 0}">
+
+        <label class="control-label col-sm-5">Y Columns</label>
+
+        <div class="col-sm-7">
+
+          <ui-select multiple name="yAxisColumns" required ng-model="form.yAxisColumns">
+            <ui-select-match placeholder="Choose columns...">{{$item}}</ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:form.groupby | remove:form.xAxisColumn">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span><small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="form-group row">
+
+        <label class="control-label col-sm-5">Legend</label>
+
+        <div class="col-sm-7">
+          <input type="checkbox" ng-model="options.legend.enabled">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-default">
+
+        <div class="panel-heading">
+          <h3 class="panel-title">X Axis</h3>
+        </div>
+
         <div class="panel-body">
-            <div class="form-group">
-                <label class="control-label col-sm-2">Stacking</label>
+          <div class="row">
 
-                <div class="col-sm-10">
-                    <select required ng-model="stacking"
-                            ng-options="value as key for (key, value) in stackingOptions"
-                            class="form-control"></select>
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="control-label col-sm-3">Scale</label>
+                <div class="col-sm-9">
+                  <ui-select ng-model="options.xAxis.type">
+                    <ui-select-match placeholder="Choose Scale...">{{$select.selected | capitalize}}</ui-select-match>
+                    <ui-select-choices repeat="scaleType in xAxisScales">
+                      <div ng-bind-html="scaleType | capitalize | highlight: $select.search"></div>
+                    </ui-select-choices>
+                  </ui-select>
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">X Axis Type</label>
-
-                <div class="col-sm-10">
-                    <select required ng-model="xAxisType" ng-options="value as key for (key, value) in xAxisOptions"
-                            class="form-control"></select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">Y Axis Type</label>
-
-                <div class="col-sm-10">
-                    <select required ng-model="yAxisType" ng-options="value as key for (key, value) in yAxisOptions"
-                            class="form-control"></select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">Series Type</label>
-
-                <div class="col-sm-10">
-                    <select required ng-options="value as key for (key, value) in seriesTypes"
-                            ng-model="globalSeriesType" class="form-control"></select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="control-label col-sm-2">y Axis min</label>
-
-                <div class="col-sm-10">
-                    <input name="yAxisMin" type="number" class="form-control"
-                           ng-model="visualization.options.yAxis.min"
-                           placeholder="Auto">
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">y Axis max</label>
-
-                <div class="col-sm-10">
-                    <input name="yAxisMax" type="number" class="form-control"
-                           ng-model="visualization.options.yAxis.max"
-                           placeholder="Auto">
-                </div>
-            </div>
-            <div class="form-group">
-              <label class="control-label col-sm-2">y Axis Name</label>
-
-              <div class="col-sm-10">
-                <input name="yAxisName" type="text" class="form-control"
-                       ng-model="visualization.options.yAxis[0].title.text"
-                       placeholder="">
               </div>
             </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Sort X Values</label>
 
-                <div class="col-sm-10">
-                    <input name="sortX" type="checkbox" class="form-control"
-                           ng-model="visualization.options.sortX">
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="control-label col-sm-8">Sort Values</label>
+                <div class="col-sm-4">
+                  <input type="checkbox" ng-model="options.sortX">
                 </div>
+              </div>
             </div>
-            <div class="form-group">
-                <label class="control-label col-sm-2">Show X Axis Labels</label>
 
-                <div class="col-sm-10">
-                    <input name="sortX" type="checkbox" class="form-control"
-                           ng-model="visualization.options.xAxis.labels.enabled">
+          </div>
+          <div class="row">
+
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="control-label col-sm-3">Name</label>
+                <div class="col-sm-9">
+                  <input ng-model="options.xAxis.title.text" type="text" class="form-control"></input>
                 </div>
+              </div>
             </div>
+
+            <div class="col-md-6">
+              <div class="form-group row">
+                <label class="control-label col-sm-8">Show Labels</label>
+                <div class="col-sm-4">
+                  <input type="checkbox" ng-model="options.xAxis.labels.enabled">
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
+      </div>
     </div>
+    <div ng-repeat="yAxis in options.yAxis" class="col-md-3">
+      <div class="panel panel-default">
 
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="list-group">
-                <div class="list-group-item active">
-                    Columns Mapping
-                </div>
-                <div class="list-group-item">
-                    <div class="form-group" ng-repeat="column in columns">
-                        <label class="control-label col-sm-4">{{column.name}}</label>
-
-                        <div class="col-sm-8">
-                            <select ng-options="value as key for (key, value) in columnTypes" class="form-control"
-                                    ng-model="columnTypeSelection[column.name]"></select>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="panel-heading">
+          <h3 class="panel-title">{{$index == 0 ? 'Left' : 'Right'}} Y Axis</h3>
         </div>
 
-        <div class="col-lg-6" ng-if="series.length > 0">
-            <div class="list-group" ng-repeat="seriesName in series">
-                <div class="list-group-item active">
-                    {{seriesName}}
-                </div>
-                <div class="list-group-item">
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">Type</label>
-
-                        <div class="col-sm-9">
-                            <select required ng-model="visualization.options.seriesOptions[seriesName].type"
-                                    ng-options="value as key for (key, value) in seriesTypes"
-                                    class="form-control"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">zIndex</label>
-
-                        <div class="col-sm-9">
-                            <select required ng-model="visualization.options.seriesOptions[seriesName].zIndex"
-                                    ng-options="o as o for o in zIndexes"
-                                    class="form-control"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">Index</label>
-
-                        <div class="col-sm-9">
-                            <select required ng-model="visualization.options.seriesOptions[seriesName].index"
-                                    ng-options="o as o for o in zIndexes"
-                                    class="form-control"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">y Axis</label>
-
-                        <div class="col-sm-9">
-                            <select required ng-model="visualization.options.seriesOptions[seriesName].yAxis"
-                                    ng-options="o[0] as o[1] for o in yAxes"
-                                    class="form-control"></select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">Name</label>
-
-                        <div class="col-sm-9">
-                            <input name="seriesName" type="text" class="form-control"
-                                   ng-model="visualization.options.seriesOptions[seriesName].name"
-                                   placeholder="{{seriesName}}">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-sm-3">Color</label>
-
-                        <div class="col-sm-9">
-                            <select class="form-control" ng-model="visualization.options.seriesOptions[seriesName].color" ng-options="val as key for (key,val) in palette"></select>
-                        </div>
-                    </div>
-                </div>
+        <div class="panel-body">
+          <div class="form-group row">
+            <label class="control-label col-sm-3">Scale</label>
+            <div class="col-sm-9">
+              <ui-select ng-model="yAxis.type">
+                <ui-select-match placeholder="Choose Scale...">{{$select.selected | capitalize}}</ui-select-match>
+                <ui-select-choices repeat="scaleType in yAxisScales">
+                  <div ng-bind-html="scaleType | capitalize | highlight: $select.search"></div>
+                </ui-select-choices>
+              </ui-select>
             </div>
-
-
+          </div>
+          <div class="form-group row">
+            <label class="control-label col-sm-3">Name</label>
+            <div class="col-sm-9">
+              <input ng-model="yAxis.title.text" type="text" class="form-control"></input>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+
+<div class="panel panel-default">
+
+  <div class="panel-heading"><h3 class="panel-title">Series Options</h3></div>
+
+  <div>
+    <table class="table table-condensed col-table">
+      <thead>
+        <th>zIndex</th>
+        <th>Column</th>
+        <th>Left Y Axis</th>
+        <th>Right Y Axis</th>
+        <th>Label</th>
+        <th>Color</th>
+        <th>Type</th>
+      </thead>
+      <tbody ui-sortable ng-model="form.seriesList">
+        <tr ng-repeat="name in form.seriesList">
+          <td style="cursor: move;"><i class="fa fa-arrows-v"></i> <span ng-bind="options.seriesOptions[name].zIndex + 1"></span></td>
+          <td>{{name}}</td>
+          <td>
+            <input type="radio" ng-value="0" ng-model="options.seriesOptions[name].yAxis">
+          </td>
+          <td>
+            <input type="radio" ng-value="1" ng-model="options.seriesOptions[name].yAxis">
+          </td>
+          <td style="padding: 3px; width: 140px;">
+            <input placeholder="{{name}}" class="form-control input-sm super-small-input" type="text" ng-model="options.seriesOptions[name].name">
+          </td>
+          <td style="padding: 3px; width: 35px;">
+            <ui-select ng-model="options.seriesOptions[name].color">
+              <ui-select-match><color-box color="$select.selected.value"></color-box></ui-select-match>
+              <ui-select-choices repeat="color.value as (key, color) in colors">
+                <color-box color="color.value"></color-box><span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+              </ui-select-choices>
+            </ui-select>
+          </td>
+          <td style="padding: 3px; width: 105px;">
+            <ui-select ng-model="options.seriesOptions[name].type">
+              <ui-select-match placeholder="Chart Type"><i class="fa fa-{{$select.selected.value.icon}}"></i> {{$select.selected.value.name}}</ui-select-match>
+              <ui-select-choices repeat="info.chartType as (chartType, info) in chartTypes">
+                <div><i class="fa fa-{{info.value.icon}}"></i><span> </span><span ng-bind-html="info.value.name | highlight: $select.search"></span></div>
+              </ui-select-choices>
+            </ui-select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
+
+</form>

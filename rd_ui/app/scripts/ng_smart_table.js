@@ -718,7 +718,7 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
     "    </tbody>\n" +
     "    <tfoot ng-show=\"isPaginationEnabled\">\n" +
     "    <tr class=\"smart-table-footer-row\">\n" +
-    "        <td colspan=\"{{columns.length}}\">\n" +
+    "        <td class=\"text-center\" colspan=\"{{columns.length}}\">\n" +
     "            <div pagination-smart-table=\"\" num-pages=\"numberOfPages\" max-size=\"maxSize\" current-page=\"currentPage\"></div>\n" +
     "        </td>\n" +
     "    </tr>\n" +

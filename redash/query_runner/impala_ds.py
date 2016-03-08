@@ -34,7 +34,7 @@ types_map = {
 }
 
 
-class Impala(BaseQueryRunner):
+class Impala(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -74,10 +74,10 @@ class Impala(BaseQueryRunner):
     def type(cls):
         return "impala"
 
-    def __init__(self, configuration_json):
-        super(Impala, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Impala, self).__init__(configuration)
 
-    def get_schema(self):
+    def _get_tables(self, schema_dict):
         try:
             schemas_query = "show schemas;"
 
@@ -85,7 +85,6 @@ class Impala(BaseQueryRunner):
 
             columns_query = "show column stats %s;"
 
-            schema = {}
             for schema_name in map(lambda a: a['name'], self._run_query_internal(schemas_query)):
                 for table_name in map(lambda a: a['name'], self._run_query_internal(tables_query % schema_name)):
                     columns = map(lambda a: a['Column'], self._run_query_internal(columns_query % table_name))

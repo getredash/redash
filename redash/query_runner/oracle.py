@@ -35,7 +35,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-class Oracle(BaseQueryRunner):
+class Oracle(BaseSQLQueryRunner):
 
     @classmethod
     def get_col_type(cls, col_type, scale):
@@ -78,8 +78,8 @@ class Oracle(BaseQueryRunner):
     def type(cls):
         return "oracle"
 
-    def __init__(self, configuration_json):
-        super(Oracle, self).__init__(configuration_json)
+    def __init__(self, configuration):
+        super(Oracle, self).__init__(configuration)
 
         dsn = cx_Oracle.makedsn(
             self.configuration["host"],
@@ -88,7 +88,7 @@ class Oracle(BaseQueryRunner):
 
         self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
 
-    def get_schema(self):
+    def _get_tables(self, schema):
         query = """
         SELECT
             user_tables.TABLESPACE_NAME,
@@ -105,7 +105,6 @@ class Oracle(BaseQueryRunner):
 
         results = json.loads(results)
 
-        schema = {}
         for row in results['rows']:
             if row['TABLESPACE_NAME'] != None:
                 table_name = '{}.{}'.format(row['TABLESPACE_NAME'], row['TABLE_NAME'])
