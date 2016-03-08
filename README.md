@@ -32,7 +32,7 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 
 ## Getting Started
 
-* [Setting up re:dash instance](http://redash.io/deployment/setup.html) (includes links to ready made AWS/GCE images).
+* [Setting up a re:dash instance](http://docs.redash.io/en/latest/setup.html).
 * [Documentation](http://docs.redash.io).
 
 

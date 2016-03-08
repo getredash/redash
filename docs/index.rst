@@ -9,7 +9,7 @@ Open Source Data Collaboration and Visualization Platform
 Prior to **re:dash**, we tried to use traditional BI suites and discovered a set of bloated, technically challenged and slow tools/flows. What we were looking for was a more hacker'ish way to look at data, so we built one.
 
 **re:dash** was built to allow fast and easy access to billions of records, that we process and collect using Amazon Redshift ("petabyte scale data warehouse" that "speaks" PostgreSQL).
-Today **_re:dash_** has support for querying multiple databases, including: Redshift, Google BigQuery,Google Spreadsheets, PostgreSQL, MySQL, Graphite and custom scripts.
+Today **_re:dash_** supports querying multiple databases, including: Redshift, Google BigQuery, Google Spreadsheets, PostgreSQL, MySQL, Graphite and custom scripts.
 
 Features
 ########
