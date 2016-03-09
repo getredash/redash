@@ -114,7 +114,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         for tablename, columns in schema.iteritems():
             table, created = DataSourceTable.get_or_create(
-                datasource_id=datasource_id,
+                datasource=datasource_id,
                 name=tablename
             )
             for columnname in columns:
