@@ -16,7 +16,7 @@ def authenticated_user(c, user=None):
     if not user:
         user = user_factory.create()
 
-    authenticate_request(user)
+    authenticate_request(c, user)
 
     yield user
 
