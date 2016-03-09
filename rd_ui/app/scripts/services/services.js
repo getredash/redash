@@ -26,13 +26,7 @@
       var events = this.events;
       this.events = [];
 
-      var headers = {};
-
-      if (currentUser.apiKey) {
-        headers['Authorization'] = 'Key ' + currentUser.apiKey;
-      }
-
-      $http.post('api/events', events, {headers: headers});
+      $http.post('api/events', events);
 
     }, 1000);
 
