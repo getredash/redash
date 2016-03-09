@@ -105,4 +105,3 @@ class DataSourceSchemaResource(BaseResource):
         schema = data_source.get_schema()
 
         return schema
-

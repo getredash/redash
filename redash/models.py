@@ -435,6 +435,73 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         groups = DataSourceGroup.select().where(DataSourceGroup.data_source==self)
         return dict(map(lambda g: (g.group_id, g.view_only), groups))
 
+class DataSourceMetaData(BelongsToOrgMixin, BaseModel):
+    id = peewee.PrimaryKeyField()
+    datasource_id = peewee.ForeignKeyField(DataSource, related_name="data_source_metadata")
+    org = peewee.ForeignKeyField(Organization, related_name="data_source_metadata")
+    table = peewee.CharField()
+    column = peewee.CharField()
+    tag = peewee.CharField()
+    description = peewee.CharField(max_length=1024)
+    options = ConfigurationField()
+    queue_name = peewee.CharField(default="queries")
+    scheduled_queue_name = peewee.CharField(default="scheduled_queries")
+    created_at = DateTimeTZField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'data_source_metadata'
+
+        indexes = (
+            (('table', 'datasource_id'), True),
+        )
+
+    def to_dict(self, all=False, with_permissions=False):
+        d = {
+            'datasource_id': self.datasource_id,
+            'table': self.table,
+            'column': self.column,
+            'tags': self.tag,
+            'description': self.description
+        }
+
+        if all:
+            schema = get_configuration_schema_for_type(self.type)
+            self.options.set_schema(schema)
+            d['options'] = self.options.to_dict(mask_secrets=True)
+            d['queue_name'] = self.queue_name
+            d['scheduled_queue_name'] = self.scheduled_queue_name
+            d['groups'] = self.groups
+
+        if with_permissions:
+            d['view_only'] = self.data_source_groups.view_only
+
+        return d
+
+    def __unicode__(self):
+        return '.'.join([self.table,self.column])
+
+    def get_schema(self, filters, refresh=False):
+        key = "data_source_metadata:schema:{}-{}".format(self.datasource_id,filters)
+
+        cache = None
+        if not refresh:
+            cache = redis_connection.get(key)
+
+        if cache is None:
+            schema = self.select()
+
+            redis_connection.set(key, json.dumps(schema))
+        else:
+            schema = json.loads(cache)
+
+        return schema
+
+    @classmethod
+    def all(cls, org, datasource_id, groups=None):
+        data_source_metadata = cls.select().where(cls.org==org, cls.datasource_id==datasource_id) \
+            .order_by(cls.datasource_id.asc(), cls.table.asc(), cls.column.asc())
+        return data_source_metadata
+
 
 class DataSourceGroup(BaseModel):
     data_source = peewee.ForeignKeyField(DataSource)
@@ -1140,7 +1207,7 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
                                            app, host, options)
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, DataSourceMetaData)
 
 
 def init_db():
