@@ -4,7 +4,7 @@ from flask import url_for
 from flask_login import current_user
 from mock import patch
 from tests import BaseTestCase
-from tests.handlers import authenticated_user, json_request
+from tests.handlers import authenticated_user
 from redash import models, settings
 from redash.wsgi import app
 

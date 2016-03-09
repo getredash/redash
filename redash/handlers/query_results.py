@@ -11,7 +11,7 @@ import xlsxwriter
 from redash import models, settings, utils
 from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
-from redash.permissions import require_permission, not_view_only, has_access
+from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_query_parameters, collect_parameters_from_request
 
@@ -108,6 +108,8 @@ class QueryResultAPI(BaseResource):
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
 
         if query_result:
+            require_access(query_result.data_source.groups, self.current_user, view_only)
+
             if isinstance(self.current_user, models.ApiUser):
                 event = {
                     'user_id': None,

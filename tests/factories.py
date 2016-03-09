@@ -174,11 +174,11 @@ class Factory(object):
         data_source = data_source_factory.create(**args)
 
         if 'group' in kwargs:
-            permissions = kwargs.pop('permissions', ['create', 'view'])
+            view_only = kwargs.pop('view_only', False)
 
             redash.models.DataSourceGroup.create(group=kwargs['group'],
                                                  data_source=data_source,
-                                                 permissions=permissions)
+                                                 view_only=view_only)
 
         return data_source
 
