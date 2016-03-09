@@ -387,7 +387,11 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
         return data_source
 
-    def get_schema(self, refresh=False):
+    def get_schema(self, all=False, refresh=False):
+        if all:
+            tables = DataSourceTable.all(self.id)
+            return [table.to_dict(all=True) for table in tables]
+
         key = "data_source:schema:{}".format(self.id)
 
         cache = None
@@ -451,11 +455,6 @@ class DataSourceTable(BaseModel):
         )
 
     def to_dict(self, all=False):
-        
-        column_list = DataSourceColumn.select(DataSourceColumn)\
-            .where(DataSourceColumn.table == self.id)\
-            .order_by(DataSourceColumn.id.asc())
-
         d = {
             'table': self.name,
             'columns': [column.to_dict() for column in column_list],
@@ -464,8 +463,11 @@ class DataSourceTable(BaseModel):
         }
 
         if all:
-            d['datasource_id'] = self.datasource
-            d['tags'] = self.tags
+            column_list = DataSourceColumn.select(DataSourceColumn)\
+                .where(DataSourceColumn.table == self.id)\
+                .order_by(DataSourceColumn.id.asc())
+            d['datasource'] = self.datasource.name
+            d['columns'] = [column.to_dict(all=True) for column in column_list]
             d['description'] = self.description
 
         return d
@@ -473,26 +475,9 @@ class DataSourceTable(BaseModel):
     def __unicode__(self):
         return unicode(self.id)
 
-    def get_schema(self, filters, refresh=False):
-        key = "data_source_metadata:schema:{}-{}".format(self.datasource_id,filters)
-
-        cache = None
-        if not refresh:
-            cache = redis_connection.get(key)
-
-        if cache is None:
-            schema = self.select()
-
-            redis_connection.set(key, json.dumps(schema))
-        else:
-            schema = json.loads(cache)
-
-        return schema
-
     @classmethod
     def all(cls, datasource_id):
-        data_source_tables = cls.select().where(cls.datasource==datasource_id) \
-            .order_by(cls.datasource.asc(), cls.table.asc())
+        data_source_tables = cls.select().where(cls.datasource==datasource_id).order_by(cls.name.asc())
         return data_source_tables
 
 
@@ -518,7 +503,7 @@ class DataSourceColumn(BaseModel):
         }
 
         if all:
-            d['tags'] = self.tags
+            d['tags'] = self.tags.split(',') if self.tags  else self.tags
             d['description'] = self.description
 
         return d
