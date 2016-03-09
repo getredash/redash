@@ -447,7 +447,7 @@ class DataSourceTable(BaseModel):
         db_table = 'data_source_tables'
 
         indexes = (
-            (('datasource_id', 'name'), True),
+            (('datasource', 'name'), True),
         )
 
     def to_dict(self, all=False):
