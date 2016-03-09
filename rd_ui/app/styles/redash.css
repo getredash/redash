@@ -331,8 +331,8 @@ to add those CSS styles here. */
   background-color: #ffffff;
   border: 1px solid #cccccc;
   border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-box-shadow: none;
+  box-shadow: none;
   -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
@@ -442,12 +442,24 @@ counter-renderer counter-name {
 
 .schema-container {
   height: 300px;
+  position: relative;
+  z-index: 10;
+  resize: both;
+  background: white;
+}
+
+.schema-container .form-control {
+  margin-bottom: 10px;
+  box-shadow: none;
 }
 
 .schema-browser {
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  background: white;
+  resize: both;
+  border: 1px solid rgba(0,0,0,.15);
 }
 
 div.table-name {
@@ -455,6 +467,11 @@ div.table-name {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+  padding: 0 10px;
+}
+
+div.table-name:hover {
+  background: #f4f4f4;
 }
 
 .blankslate {
@@ -581,3 +598,14 @@ div.table-name {
   padding-left: 5px;
   padding-right: 5px;
 }
+
+
+/* Bootstrap Overrides */
+
+.collapsing,
+.collapse.in {
+    background: #f4f4f4;
+    padding: 5px 10px;
+    transition: all 0.35s ease;
+}
+
