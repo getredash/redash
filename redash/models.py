@@ -441,7 +441,7 @@ class DataSourceTable(BaseModel):
     name = peewee.CharField()
     tags = peewee.CharField(null=True)
     description = peewee.CharField(max_length=1024, null=True)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.utcnow())
 
     class Meta:
         db_table = 'data_source_tables'
@@ -459,13 +459,13 @@ class DataSourceTable(BaseModel):
         d = {
             'table': self.name,
             'columns': [column.to_dict() for column in column_list],
-            'tags': self.tag,
+            'tags': self.tags,
             'description': self.description
         }
 
         if all:
             d['datasource_id'] = self.datasource
-            d['tags'] = self.tag
+            d['tags'] = self.tags
             d['description'] = self.description
 
         return d
@@ -500,9 +500,9 @@ class DataSourceColumn(BaseModel):
     id = peewee.PrimaryKeyField()
     table = peewee.ForeignKeyField(DataSourceTable, related_name="columns")
     name = peewee.CharField()
-    tag = peewee.CharField(null=True)
+    tags = peewee.CharField(null=True)
     description = peewee.CharField(max_length=1024, null=True)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
+    created_at = DateTimeTZField(default=datetime.datetime.utcnow())
 
     class Meta:
         db_table = 'data_source_columns'
@@ -518,7 +518,7 @@ class DataSourceColumn(BaseModel):
         }
 
         if all:
-            d['tags'] = self.tag
+            d['tags'] = self.tags
             d['description'] = self.description
 
         return d
