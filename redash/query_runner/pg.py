@@ -4,6 +4,7 @@ import psycopg2
 import select
 import sys
 
+from redash.models import DataSourceTable, DataSourceColumn
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -86,7 +87,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self.connection_string = " ".join(values)
 
-    def _get_tables(self, schema):
+    def _get_tables(self, schema, datasource_id):
         query = """
         SELECT table_schema, table_name, column_name
         FROM information_schema.columns
@@ -110,6 +111,17 @@ class PostgreSQL(BaseSQLQueryRunner):
                 schema[table_name] = {'name': table_name, 'columns': []}
 
             schema[table_name]['columns'].append(row['column_name'])
+
+        for tablename, columns in schema.iteritems():
+            table, created = DataSourceTable.get_or_create(
+                datasource_id=datasource_id,
+                name=tablename
+            )
+            for columnname in columns:
+                column, created = DataSourceColumn.get_or_create(
+                    table=table.id,
+                    name=columnname
+                )
 
         return schema.values()
 

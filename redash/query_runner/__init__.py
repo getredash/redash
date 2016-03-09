@@ -112,9 +112,9 @@ class BaseSQLQueryRunner(BaseQueryRunner):
     def __init__(self, configuration):
         super(BaseSQLQueryRunner, self).__init__(configuration)
 
-    def get_schema(self, get_stats=False):
+    def get_schema(self, datasource_id, get_stats=False):
         schema_dict = {}
-        self._get_tables(schema_dict)
+        self._get_tables(schema_dict, datasource_id)
         if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
             self._get_tables_stats(schema_dict)
         return schema_dict.values()

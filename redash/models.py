@@ -396,7 +396,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
+            schema = sorted(query_runner.get_schema(self.id, get_stats=refresh), key=lambda t: t['name'])
 
             redis_connection.set(key, json.dumps(schema))
         else:
@@ -435,50 +435,43 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         groups = DataSourceGroup.select().where(DataSourceGroup.data_source==self)
         return dict(map(lambda g: (g.group_id, g.view_only), groups))
 
-class DataSourceMetaData(BelongsToOrgMixin, BaseModel):
+class DataSourceTable(BaseModel):
     id = peewee.PrimaryKeyField()
-    datasource_id = peewee.ForeignKeyField(DataSource, related_name="data_source_metadata")
-    org = peewee.ForeignKeyField(Organization, related_name="data_source_metadata")
-    table = peewee.CharField()
-    column = peewee.CharField()
-    tag = peewee.CharField()
-    description = peewee.CharField(max_length=1024)
-    options = ConfigurationField()
-    queue_name = peewee.CharField(default="queries")
-    scheduled_queue_name = peewee.CharField(default="scheduled_queries")
+    datasource_id = peewee.ForeignKeyField(DataSource, related_name="table")
+    name = peewee.CharField()
+    tags = peewee.CharField(null=True)
+    description = peewee.CharField(max_length=1024, null=True)
     created_at = DateTimeTZField(default=datetime.datetime.now)
 
     class Meta:
-        db_table = 'data_source_metadata'
+        db_table = 'data_source_tables'
 
         indexes = (
-            (('table', 'datasource_id'), True),
+            (('datasource_id', 'name'), True),
         )
 
-    def to_dict(self, all=False, with_permissions=False):
+    def to_dict(self, all=False):
+        
+        column_list = DataSourceColumn.select(DataSourceColumn)\
+            .where(DataSourceColumn.table == self.id)\
+            .order_by(DataSourceColumn.id.asc())
+
         d = {
-            'datasource_id': self.datasource_id,
-            'table': self.table,
-            'column': self.column,
+            'table': self.name,
+            'columns': [column.to_dict() for column in column_list],
             'tags': self.tag,
             'description': self.description
         }
 
         if all:
-            schema = get_configuration_schema_for_type(self.type)
-            self.options.set_schema(schema)
-            d['options'] = self.options.to_dict(mask_secrets=True)
-            d['queue_name'] = self.queue_name
-            d['scheduled_queue_name'] = self.scheduled_queue_name
-            d['groups'] = self.groups
-
-        if with_permissions:
-            d['view_only'] = self.data_source_groups.view_only
+            d['datasource_id'] = self.datasource_id
+            d['tags'] = self.tag
+            d['description'] = self.description
 
         return d
 
     def __unicode__(self):
-        return '.'.join([self.table,self.column])
+        return unicode(self.id)
 
     def get_schema(self, filters, refresh=False):
         key = "data_source_metadata:schema:{}-{}".format(self.datasource_id,filters)
@@ -497,10 +490,41 @@ class DataSourceMetaData(BelongsToOrgMixin, BaseModel):
         return schema
 
     @classmethod
-    def all(cls, org, datasource_id, groups=None):
-        data_source_metadata = cls.select().where(cls.org==org, cls.datasource_id==datasource_id) \
-            .order_by(cls.datasource_id.asc(), cls.table.asc(), cls.column.asc())
-        return data_source_metadata
+    def all(cls, datasource_id):
+        data_source_tables = cls.select().where(cls.datasource_id==datasource_id) \
+            .order_by(cls.datasource_id.asc(), cls.table.asc())
+        return data_source_tables
+
+
+class DataSourceColumn(BaseModel):
+    id = peewee.PrimaryKeyField()
+    table = peewee.ForeignKeyField(DataSourceTable, related_name="columns")
+    name = peewee.CharField()
+    tag = peewee.CharField(null=True)
+    description = peewee.CharField(max_length=1024, null=True)
+    created_at = DateTimeTZField(default=datetime.datetime.now)
+
+    class Meta:
+        db_table = 'data_source_columns'
+
+        indexes = (
+            (('table', 'name'), True),
+        )
+
+    def to_dict(self, all=False):
+        
+        d = {
+            'column': self.name,
+        }
+
+        if all:
+            d['tags'] = self.tag
+            d['description'] = self.description
+
+        return d
+
+    def __unicode__(self):
+        return unicode(self.id)
 
 
 class DataSourceGroup(BaseModel):
@@ -1207,7 +1231,7 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
                                            app, host, options)
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, DataSourceMetaData)
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, DataSourceTable, DataSourceColumn)
 
 
 def init_db():
