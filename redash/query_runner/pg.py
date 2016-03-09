@@ -137,6 +137,17 @@ class PostgreSQL(BaseSQLQueryRunner):
         for table in tables_list:
             schema[table.name] = table.to_dict()
 
+        for tablename, columns in schema.iteritems():
+            table, created = DataSourceTable.get_or_create(
+                datasource_id=datasource_id,
+                name=tablename
+            )
+            for columnname in columns:
+                column, created = DataSourceColumn.get_or_create(
+                    table=table.id,
+                    name=columnname
+                )
+
         return schema.values()
 
     def run_query(self, query):
