@@ -123,6 +123,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                     name=columnname
                 )
 
+        tables_list = DataSourceTable.select(DataSourceTable)\
+            .where(DataSourceTable.datasource==datasource_id)\
+            .order_by(DataSourceTable.name.asc())
+        schemas = [table.to_dict() for table in tables_list]
+
         return schema.values()
 
     def run_query(self, query):
