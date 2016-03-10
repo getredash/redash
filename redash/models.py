@@ -494,6 +494,7 @@ class DataSourceColumn(BaseModel):
     def to_dict(self, all=False):
         
         d = {
+            'id': self.id,
             'name': self.name,
         }
 
