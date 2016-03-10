@@ -1,11 +1,11 @@
 (function() {
 
-  var SchemasCtrl = function($scope, $routeParams, $http, $location, $growl, Events, DataSource) {
+  var SchemasCtrl = function($scope, $routeParams, $http, $location, $growl, Events, Schema) {
     Events.record(currentUser, "view", "page", "schemas");
     $scope.$parent.pageTitle = "Schemas";
 
     $scope.schemas = [];
-    DataSource.getSchema({'id': $routeParams.dataSourceId}, function(data) {
+    Schema.get({'id': $routeParams.dataSourceId}, function(data) {
         $scope.schemas = data;
     });
 
@@ -20,7 +20,7 @@
       {
         "label": "Table",
         "map": "table",
-        "cellTemplate": '<a href="/schemas/{{dataRow.datasource}}/tables/{{dataRow.id}}">{{dataRow.name}}</a>'
+        "cellTemplate": '<a href="/schemas/tables/{{dataRow.id}}">{{dataRow.name}}</a>'
       },
       {
         'label': 'Description',
@@ -33,6 +33,38 @@
     ];
   };
 
+  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $growl, Events, Table) {
+    Events.record(currentUser, "view", "page", "tables");
+    $scope.$parent.pageTitle = "Table";
+
+    $scope.table = {};
+    $scope.table = Table.get({'id': $routeParams.tableId}, function(data) {
+        $scope.table = data;
+    });
+
+    $scope.gridConfig = {
+      maxSize: 8
+    };
+
+
+    $scope.gridColumns = [
+      {
+        "label": "Column",
+        "map": "name",
+      },
+      {
+        'label': 'Description',
+        'map': 'description'
+      },
+      {
+        'label': 'Tags',
+        'map': 'tags'
+      }
+    ];
+
+  };
+
   angular.module('redash.controllers')
-    .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'DataSource', SchemasCtrl])
+    .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
+    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Table', SchemaCtrl])
 })();
