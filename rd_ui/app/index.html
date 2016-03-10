@@ -29,33 +29,33 @@
 
 </head>
 <body>
-<div growl></div>
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse"
+    <div growl></div>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse"
                 data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="{{base_href}}"><img src="/images/redash_icon_small.png"/></a>
-    </div>
-    {% raw %}
-    <div class="collapse navbar-collapse navbar-ex1-collapse">
-        <ul class="nav navbar-nav">
-            <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
-                <a href="#" class="dropdown-toggle" dropdown-toggle><span class="fa fa-tachometer"></span> <b class="caret"></b></a>
-                <ul class="dropdown-menu" dropdown-menu>
-                    <span ng-repeat="(name, group) in groupedDashboards">
-                        <li class="dropdown-submenu">
-                          <a href="#" ng-bind="name"></a>
-                          <ul class="dropdown-menu">
-                            <li ng-repeat="dashboard in group" role="presentation">
-                                <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
-                            </li>
-                          </ul>
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{base_href}}"><img src="/images/redash_icon_small.png"/></a>
+        </div>
+        {% raw %}
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
+                    <a href="#" class="dropdown-toggle" dropdown-toggle><span class="fa fa-tachometer"></span> <b class="caret"></b></a>
+                    <ul class="dropdown-menu" dropdown-menu>
+                        <span ng-repeat="(name, group) in groupedDashboards">
+                            <li class="dropdown-submenu">
+                              <a href="#" ng-bind="name"></a>
+                              <ul class="dropdown-menu">
+                                <li ng-repeat="dashboard in group" role="presentation">
+                                    <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+                                </li>
+                            </ul>
                         </li>
                     </span>
                     <li ng-repeat="dashboard in otherDashboards">
@@ -74,6 +74,9 @@
             </li>
             <li>
                 <a href="alerts">Alerts</a>
+            </li>
+            <li>
+                <a href="">Schemas</a>
             </li>
         </ul>
         <form class="navbar-form navbar-left" role="search" ng-submit="searchQueries()">
@@ -115,7 +118,7 @@
     </div>
     {% endraw %}
 
-    </div>
+</div>
 </nav>
 
 <edit-dashboard-form dashboard="newDashboard" id="new_dashboard_dialog"></edit-dashboard-form>
