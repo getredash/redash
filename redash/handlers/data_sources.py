@@ -105,24 +105,41 @@ class DataSourceSchemaResource(BaseResource):
         schema = data_source.get_schema()
 
         return schema
+        
 
-    def post(self, data_source_id):
-    	
+class DataSourceSchemaTableResource(BaseResource):
+    def get(self, table_id):
+        data_source = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
+        return data_source.to_dict(all=True)
+            
+    def post(self, table_id):
         req = request.get_json(True)
-        
         if req:
-            if not req.has_key('type'):
-                abort(400)
+            data_source = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
         
-            if req['type'] == 'column':
-                data_source = get_object_or_404(models.DataSourceColumn.get_by_id, data_source_id)
-            elif req['type'] == 'table':
-                data_source = get_object_or_404(models.DataSourceTable.get_by_id, data_source_id)
-            else:
-                abort(400)
+            if req.has_key('description'):
+                data_source.description = req['description']
+            if req.has_key('tags'):
+                data_source.tags = req['tags']
+               
+            data_source.save()
+            
+            return data_source.to_dict(all=True)
+        else:
+            abort(400)
+    
+class DataSourceSchemaColumnResource(BaseResource):
+    def get(self, column_id):
+        data_source = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
+        return data_source.to_dict(all=True)
+            
+    def post(self, column_id):
+        req = request.get_json(True)
+        if req:
+            data_source = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
         
-            if req['type'] == 'column' and req.has_key('joins'):
-               data_source.joins = req['joins']
+            if req.has_key('joins'):
+                data_source.joins = req['joins']
             if req.has_key('description'):
                 data_source.description = req['description']
             if req.has_key('tags'):
