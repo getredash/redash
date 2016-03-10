@@ -52,6 +52,10 @@
       $scope.updateColRow(data);
     });
 
+    $scope.saveTableDescription = function() {
+      Table.save({'id': $scope.table.id, 'description': $scope.table.description});
+    };
+
     $scope.gridConfig = {
       isPaginationEnabled: false,
       isGlobalSearchActivated: true
