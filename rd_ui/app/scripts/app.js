@@ -106,7 +106,7 @@ angular.module('redash', [
         templateUrl: '/views/schemas/schema.html',
         controller: 'SchemasCtrl'
       });
-      $routeProvider.when('/schemas/:dataSourceId/tables/:tableId', {
+      $routeProvider.when('/schemas/tables/:tableId', {
         templateUrl: '/views/schemas/table.html',
         controller: 'SchemaCtrl'
       });
