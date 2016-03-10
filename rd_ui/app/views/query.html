@@ -99,7 +99,7 @@
         </div>
     </div>
     <hr ng-if="sourceMode">
-    <div class="row">
+    <div id="queryInfo" class="row">
         <div class="col-lg-12">
             <div class="row">
                 <div class="col-lg-3">
@@ -108,7 +108,7 @@
                         <span class="text-muted">Created By </span>
                         <strong>{{query.user.name}}</strong>
                     </p>
-                    <p ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
+                    <p style="margin-bottom: 0;" ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
                         <span class="glyphicon glyphicon-user"></span>
                         <span class="text-muted">Last Modified By </span>
                         <strong>{{query.last_modified_by.name}}</strong>
@@ -120,7 +120,7 @@
                         <span class="text-muted">Last update </span>
                         <strong><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago></strong>
                     </p>
-                    <p>
+                    <p style="margin-bottom: 0;">
                         <span class="glyphicon glyphicon-play"></span>
                         <span class="text-muted">Runtime </span>
                         <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
@@ -132,7 +132,7 @@
                         <span class="glyphicon glyphicon-align-justify"></span>
                         <span class="text-muted">Rows </span><strong>{{queryResult.getData().length}}</strong>
                     </p>
-                    <p>
+                    <p style="margin-bottom: 0;">
                         <span class="glyphicon glyphicon-refresh"></span>
                         <span class="text-muted">Refresh Schedule</span>
                         <a ng-click="openScheduleForm()">{{query.schedule | scheduleHumanize}}</a>
@@ -144,32 +144,30 @@
                         <span class="text-muted">Data Source</span>
                         <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
                     </p>
-                    <p>
-                        <p>
-                            <div class="btn-group" dropdown>
-                                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true" dropdown-toggle aria-expanded="false">
-                                    Download Dataset <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu" dropdown-menu>
-                                    <li>
-                                        <a query-result-link target="_self">
-                                            <span class="fa fa-file-o"></span> Download as CSV File
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a query-result-link file-type="xlsx" target="_self">
-                                            <span class="fa fa-file-excel-o"></span> Download as Excel File
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            <a class="btn btn-warning btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal" ng-show="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-                                <i class="fa fa-archive" title="Archive Query"></i>
-                            </a>
-                            <button class="btn btn-default btn-sm" ng-show="query.id != undefined" ng-click="showApiKey()">
-                                <i class="fa fa-key" title="Show API Key"></i>
+                    <p style="margin-bottom: 0;">
+                        <div class="btn-group" dropdown>
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true" dropdown-toggle aria-expanded="false">
+                                Download Dataset <span class="caret"></span>
                             </button>
-                        </p>
+                            <ul class="dropdown-menu" dropdown-menu>
+                                <li>
+                                    <a query-result-link target="_self">
+                                        <span class="fa fa-file-o"></span> Download as CSV File
+                                    </a>
+                                </li>
+                                <li>
+                                    <a query-result-link file-type="xlsx" target="_self">
+                                        <span class="fa fa-file-excel-o"></span> Download as Excel File
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <a class="btn btn-warning btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal" ng-show="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+                            <i class="fa fa-archive" title="Archive Query"></i>
+                        </a>
+                        <button class="btn btn-default btn-sm" ng-show="query.id != undefined" ng-click="showApiKey()">
+                            <i class="fa fa-key" title="Show API Key"></i>
+                        </button>
                         <div class="modal fade" id="archive-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="archiveConfirmationModal" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -192,7 +190,7 @@
             </div>
         </div>
     </div>
-    <hr>
+    <hr style="margin-top: 10px;">
     <div class="row">
         <div class="col-lg-12">
             <!-- alerts -->
