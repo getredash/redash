@@ -19,8 +19,21 @@ class TestPublicDashboard(BaseTestCase):
         res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 200)
 
+    def test_works_for_logged_in_user(self):
+        dashboard = self.factory.create_dashboard()
+        api_key = self.factory.create_api_key(object=dashboard)
+
+        res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), is_json=False)
+        self.assertEqual(res.status_code, 200)
+
     def test_bad_token(self):
         res = self.make_request('get', '/public/dashboards/bad-token', user=False, is_json=False)
+        self.assertEqual(res.status_code, 302)
+
+    def test_inactive_token(self):
+        dashboard = self.factory.create_dashboard()
+        api_key = self.factory.create_api_key(object=dashboard, active=False)
+        res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 302)
 
     # Not relevant for now, as tokens in api_keys table are only created for dashboards. Once this changes, we should

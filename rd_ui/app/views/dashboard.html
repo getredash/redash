@@ -8,16 +8,17 @@
 
         <span ng-if="!dashboard.is_archived && !public" class="hidden-print">
             <button type="button" class="btn btn-default btn-xs" ng-class="{active: refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()"><span class="glyphicon glyphicon-refresh"></span></button>
-            <button type="button" class="btn btn-default btn-xs" ng-class="{active: isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="toggleFullscreen()"><span class="glyphicon glyphicon-picture"></span></button>
-            <div class="btn-group" role="group" ng-show="dashboard.canEdit()">
-                <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
-                        class="glyphicon glyphicon-cog"></span></button>
-                <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
-                        href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
-                </button>
-                <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
-            </div>
+            <button type="button" class="btn btn-default btn-xs" ng-class="{active: isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="toggleFullscreen()"><span class="fa fa-arrows-alt"></span></button>
         </span>
+        <div class="btn-group pull-right" role="group" ng-show="dashboard.canEdit()">
+            <button class="btn btn-xs btn-default" tooltip="Share" ng-click="openShareForm()"><i class="fa fa-share-alt"></i></button>
+            <button type="button" class="btn btn-default btn-xs" data-toggle="modal" href="#edit_dashboard_dialog" tooltip="Edit Dashboard (Name/Layout)"><span
+              class="glyphicon glyphicon-cog"></span></button>
+            <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
+                    href="#add_query_dialog" tooltip="Add Widget (Chart/Table)"><span class="glyphicon glyphicon-plus"></span>
+            </button>
+            <button class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></button>
+        </div>
     </h2>
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
 </div>

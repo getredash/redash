@@ -9,7 +9,7 @@
     });
   };
 
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, $modal, Dashboard) {
     $scope.refreshEnabled = false;
     $scope.isFullscreen = false;
     $scope.refreshRate = 60;
@@ -137,6 +137,44 @@
         autoRefresh();
       }
     };
+
+    $scope.openShareForm = function() {
+      $modal.open({
+        templateUrl: '/views/dashboard_share.html',
+        size: 'sm',
+        scope: $scope,
+        controller: ['$scope', '$modalInstance', '$http', function($scope, $modalInstance, $http) {
+          $scope.close = function() {
+            $modalInstance.close();
+          };
+
+          $scope.publicAccessEnabled = $scope.dashboard.public_url !== undefined;
+
+          $scope.toggleSharing = function() {
+            console.log("should enable?", $scope.publicAccessEnabled);
+            var url = 'api/dashboards/' + $scope.dashboard.id + '/share';
+            if ($scope.publicAccessEnabled) {
+              // disable
+              $http.delete(url).success(function() {
+                $scope.publicAccessEnabled = false;
+                delete $scope.dashboard.public_url;
+              }).error(function() {
+                $scope.publicAccessEnabled = true;
+                // TODO: show message
+              })
+            } else {
+              $http.post(url).success(function(data) {
+                $scope.publicAccessEnabled = true;
+                $scope.dashboard.public_url = data.public_url;
+              }).error(function() {
+                $scope.publicAccessEnabled = false;
+                // TODO: show message
+              });
+            }
+          };
+        }]
+      });
+    }
   };
 
   var WidgetCtrl = function($scope, $location, Events, Query) {
@@ -180,7 +218,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', '$modal', 'Dashboard', DashboardCtrl])
     .controller('PublicDashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', PublicDashboardCtrl])
     .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', WidgetCtrl])
 

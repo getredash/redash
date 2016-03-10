@@ -53,7 +53,11 @@ def embed(query_id, visualization_id, org_slug=None):
 @login_required
 def public_dashboard(token, org_slug=None):
     # TODO: verify object is a dashboard?
-    dashboard = current_user.object
+    if not isinstance(current_user, models.ApiUser):
+        api_key = models.ApiKey.get_by_api_key(token)
+        dashboard = api_key.object
+    else:
+        dashboard = current_user.object
 
     user = {
         'permissions': [],

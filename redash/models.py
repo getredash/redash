@@ -1048,7 +1048,7 @@ class ApiKey(ModelTimestampsMixin, BaseModel):
 
     @classmethod
     def get_by_api_key(cls, api_key):
-        return cls.get(cls.api_key==api_key)
+        return cls.get(cls.api_key==api_key, cls.active==True)
 
     @classmethod
     def get_by_object(cls, object):

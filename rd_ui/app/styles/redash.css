@@ -6,6 +6,10 @@ body.headless {
   padding-top: 0px;
 }
 
+body.headless nav.app-header {
+  display: none;
+}
+
 a[ng-click] {
   cursor: pointer;
 }
