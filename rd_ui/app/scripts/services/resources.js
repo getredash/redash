@@ -643,7 +643,8 @@
 
   var Table = function ($resource) {
     var actions = {
-        'get': {'method': 'GET', 'cache': false, 'isArray': false}
+        'get': {'method': 'GET', 'cache': false, 'isArray': false},
+        'save': {'method': 'POST'}
     }
     var resource = $resource('api/tables/:id/schema', {id: '@id'}, actions);
     return resource;

@@ -40,6 +40,10 @@
         $scope.table = data;
     });
 
+    $scope.saveTableDescription = function() {
+      Table.save({'id': $scope.table.id, 'description': $scope.table.description});
+    };
+
     $scope.gridConfig = {
       maxSize: 8
     };

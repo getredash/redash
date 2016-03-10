@@ -3,6 +3,19 @@
         <li class="active">Schema Explorer</li>
     </ol>
     <div class="row">
+        <h2>Table: {{table.name}}</h2>
+        <p>
+            <em>
+                <edit-in-place editable="true"
+                               done="saveTableDescription"
+                               editor="textarea"
+                               placeholder="No description"
+                               ignore-blanks='false'
+                               value="table.description"
+                               markdown="true">
+                 </edit-in-place>
+            </em>
+        </p>
         <div class="col-md-12">
             <smart-table rows="table.columns" columns="gridColumns"
                          config="gridConfig"
