@@ -1050,6 +1050,14 @@ class ApiKey(ModelTimestampsMixin, BaseModel):
     def get_by_api_key(cls, api_key):
         return cls.get(cls.api_key==api_key)
 
+    @classmethod
+    def get_by_object(cls, object):
+        return cls.select().where(cls.object_type==object._meta.db_table, cls.object_id==object.id, cls.active==True).first()
+
+    @classmethod
+    def create_for_object(cls, object, user):
+        return cls.create(org=user.org, object=object, created_by=user)
+
 
 all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, AlertSubscription, Dashboard, Visualization, Widget, Event, ApiKey)
 
