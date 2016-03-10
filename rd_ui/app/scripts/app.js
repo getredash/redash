@@ -98,6 +98,28 @@ angular.module('redash', [
       controller: 'AlertCtrl'
     });
 
+      $routeProvider.when('/schemas', {
+        templateUrl: '/views/schemas/sources.html',
+        controller: 'DataSourcesCtrl'
+      });
+      $routeProvider.when('/schemas/:dataSourceId', {
+        templateUrl: '/views/schemas/schema.html',
+        controller: 'SchemasCtrl'
+      });
+      $routeProvider.when('/schemas/:dataSourceId/tables/:tableId', {
+        templateUrl: '/views/schemas/table.html',
+        controller: 'SchemaCtrl'
+      });
+
+      $routeProvider.when('/data_sources/:dataSourceId', {
+        templateUrl: '/views/data_sources/edit.html',
+        controller: 'DataSourceCtrl'
+      });
+      $routeProvider.when('/data_sources', {
+        templateUrl: '/views/data_sources/list.html',
+        controller: 'DataSourcesCtrl'
+      });
+
     $routeProvider.when('/data_sources/:dataSourceId', {
       templateUrl: '/views/data_sources/edit.html',
       controller: 'DataSourceCtrl'

@@ -1,0 +1,10 @@
+<div class="container">
+    <ol class="breadcrumb">
+        <li class="active">Schema Explorer</li>
+    </ol>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="schemas/{{datasource.id}}" class="btn btn-default" ng-repeat="datasource in dataSources | filter: { type: 'pg' }">{{datasource.name}}</a>
+        </div>
+    </div>
+</div>
