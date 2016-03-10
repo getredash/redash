@@ -151,9 +151,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         tables_list = DataSourceTable.select(DataSourceTable)\
             .where(DataSourceTable.datasource==datasource_id)\
             .order_by(DataSourceTable.name.asc())
-        schemas = [table.to_dict() for table in tables_list]
-
-        return schemas
+        for table in tables_list:
+            schema[table.name] = table.to_dict()
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
