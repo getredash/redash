@@ -128,7 +128,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             .order_by(DataSourceTable.name.asc())
         schemas = [table.to_dict() for table in tables_list]
 
-        return schema.values()
+        return schemas.values()
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
