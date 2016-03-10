@@ -414,6 +414,8 @@ counter-renderer counter-name {
     height: 300px;
     position: relative;
     z-index: 10;
+    resize: both;
+    background: white;
 }
 
 .schema-container .form-control {
@@ -425,8 +427,8 @@ counter-renderer counter-name {
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    resize: both;
     background: white;
+    resize: both;
     border: 1px solid rgba(0,0,0,.15);
 }
 
