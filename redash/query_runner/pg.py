@@ -89,7 +89,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
     def _get_tables(self, schema, datasource_id):
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
         """
@@ -109,17 +109,18 @@ class PostgreSQL(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'].append((row['column_name'], row['data_type']))
 
         for tablename, data in schema.iteritems():
             table, created = DataSourceTable.get_or_create(
                 datasource=datasource_id,
                 name=tablename
             )
-            for columnname in data['columns']:
+            for c in data['columns']:
                 column, created = DataSourceColumn.get_or_create(
                     table=table.id,
-                    name=columnname
+                    name=c[0],
+                    data_type=c[1]
                 )
 
         tables_list = DataSourceTable.select(DataSourceTable)\

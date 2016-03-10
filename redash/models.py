@@ -482,6 +482,7 @@ class DataSourceColumn(BaseModel):
     id = peewee.PrimaryKeyField()
     table = peewee.ForeignKeyField(DataSourceTable, related_name="columns")
     name = peewee.CharField()
+    data_type = peewee.CharField()
     joins = peewee.CharField(null=True)
     tags = peewee.CharField(null=True)
     description = peewee.CharField(max_length=1024, null=True)
@@ -504,6 +505,7 @@ class DataSourceColumn(BaseModel):
             d['joins'] = self.joins.split(',') if self.joins else self.joins
             d['tags'] = self.tags.split(',') if self.tags else self.tags
             d['description'] = self.description
+            d['data_type'] = self.data_type
 
         return d
 
