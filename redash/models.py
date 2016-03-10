@@ -443,7 +443,6 @@ class DataSourceTable(BaseModel):
     id = peewee.PrimaryKeyField()
     datasource = peewee.ForeignKeyField(DataSource, related_name="table")
     name = peewee.CharField()
-    tags = peewee.CharField(null=True)
     description = peewee.CharField(max_length=1024, null=True)
     created_at = DateTimeTZField(default=datetime.datetime.utcnow())
 
@@ -462,7 +461,6 @@ class DataSourceTable(BaseModel):
         }
 
         if all:
-            d['tags'] = self.tags
             d['description'] = self.description
             d['columns'] = [column.to_dict(all=True)
                             for column in self.columns.order_by(DataSourceColumn.id.desc())]
@@ -483,8 +481,6 @@ class DataSourceColumn(BaseModel):
     table = peewee.ForeignKeyField(DataSourceTable, related_name="columns")
     name = peewee.CharField()
     data_type = peewee.CharField()
-    joins = peewee.CharField(null=True)
-    tags = peewee.CharField(null=True)
     description = peewee.CharField(max_length=1024, null=True)
     created_at = DateTimeTZField(default=datetime.datetime.utcnow())
 
@@ -502,8 +498,6 @@ class DataSourceColumn(BaseModel):
         }
 
         if all:
-            d['joins'] = self.joins.split(',') if self.joins else self.joins
-            d['tags'] = self.tags.split(',') if self.tags else self.tags
             d['description'] = self.description
             d['data_type'] = self.data_type
 

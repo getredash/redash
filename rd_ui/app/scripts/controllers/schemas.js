@@ -10,8 +10,6 @@
     });
 
     $scope.gridConfig = {
-      isPaginationEnabled: true,
-      itemsByPage: 50,
       maxSize: 8,
     };
 
@@ -53,12 +51,12 @@
         "map": "name",
       },
       {
-        'label': 'Description',
-        'map': 'description'
+        'label': 'Data type',
+        'map': 'data_type'
       },
       {
-        'label': 'Tags',
-        'map': 'tags'
+        'label': 'Description',
+        'map': 'description'
       }
     ];
 
