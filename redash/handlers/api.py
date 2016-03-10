@@ -51,8 +51,8 @@ api.add_org_resource(DashboardShareResource, '/api/dashboards/<dashboard_id>/sha
 api.add_org_resource(DataSourceTypeListResource, '/api/data_sources/types', endpoint='data_source_types')
 api.add_org_resource(DataSourceListResource, '/api/data_sources', endpoint='data_sources')
 api.add_org_resource(DataSourceSchemaResource, '/api/data_sources/<data_source_id>/schema')
-api.add_org_resource(DataSourceSchemaTableResource, '/api/data_source_tables/<table_id>/schema')
-api.add_org_resource(DataSourceSchemaColumnResource, '/api/data_source_columns/<column_id>/schema')
+api.add_org_resource(DataSourceSchemaTableResource, '/api/tables/<table_id>/schema')
+api.add_org_resource(DataSourceSchemaColumnResource, '/api/columns/<column_id>/schema')
 api.add_org_resource(DataSourceResource, '/api/data_sources/<data_source_id>', endpoint='data_source')
 
 api.add_org_resource(GroupListResource, '/api/groups', endpoint='groups')
