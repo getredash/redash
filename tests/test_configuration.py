@@ -74,3 +74,10 @@ class TestConfigurationUpdate(TestCase):
         self.assertEqual(container['a'], 1)
         self.assertEqual('test', container['b'])
         self.assertNotIn('e', container)
+
+    def test_works_for_schema_without_secret(self):
+        secretless = configuration_schema.copy()
+        secretless.pop('secret')
+        container = ConfigurationContainer({'a': 1, 'b': 'test', 'e': 3}, secretless)
+        container.update({'a': 2})
+        self.assertEqual(container['a'], 2)
