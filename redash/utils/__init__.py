@@ -49,6 +49,7 @@ def generate_token(length):
     rand = random.SystemRandom()
     return ''.join(rand.choice(chars) for x in range(length))
 
+
 class JSONEncoder(json.JSONEncoder):
     """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
 

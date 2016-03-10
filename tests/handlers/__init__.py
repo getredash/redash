@@ -6,13 +6,17 @@ from redash.utils import json_dumps
 from redash.wsgi import app
 
 
+def authenticate_request(c, user):
+    with c.session_transaction() as sess:
+        sess['user_id'] = user.id
+
+
 @contextmanager
 def authenticated_user(c, user=None):
     if not user:
         user = user_factory.create()
 
-    with c.session_transaction() as sess:
-        sess['user_id'] = user.id
+    authenticate_request(c, user)
 
     yield user
 
@@ -32,7 +36,10 @@ def json_request(method, path, data=None):
 
 
 def make_request(method, path, user, data=None, is_json=True):
-    with app.test_client() as c, authenticated_user(c, user=user):
+    with app.test_client() as c:
+        if user:
+            authenticate_request(c, user)
+
         method_fn = getattr(c, method.lower())
         headers = {}
 

@@ -1,121 +1,133 @@
 body {
-    padding-top: 70px;
+  padding-top: 70px;
 }
 
-a[ng-click]{
-    cursor: pointer;
+body.headless {
+  padding-top: 0px;
+}
+
+body.headless nav.app-header {
+  display: none;
+}
+
+a[ng-click] {
+  cursor: pointer;
 }
 
 a.link {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 a.page-title {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 400px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
 }
 
 a.navbar-brand {
-    padding: 5px 5px 0px 0px;
-    margin-left: 0px !important;
+  padding: 5px 5px 0px 0px;
+  margin-left: 0px !important;
 }
 
 .navbar .fa {
-    font-size: 18px;
+  font-size: 18px;
 }
 
 a.navbar-brand img {
-    height: 40px;
+  height: 40px;
 }
 
 .avatar {
-    margin-top: 5px;
-    margin-bottom: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
+
 .avatar img {
-    width: 40px;
-    height: 40px;
+  width: 40px;
+  height: 40px;
 }
 
 #logout {
-    color: white;
-    position: relative;
-    left: -9px;
-    bottom: -11px;
+  color: white;
+  position: relative;
+  left: -9px;
+  bottom: -11px;
 }
 
 .details-toggle {
-    cursor: pointer;
+  cursor: pointer;
 }
+
 .details-toggle::before {
-    content: '▸';
-    margin-right: 5px;
+  content: '▸';
+  margin-right: 5px;
 }
+
 .details-toggle.open::before {
-    content: '▾';
-    margin-right: 5px;
+  content: '▾';
+  margin-right: 5px;
 }
 
 .edit-in-place span {
-    white-space: pre-line;
+  white-space: pre-line;
 }
+
 .edit-in-place span.editable {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .edit-in-place span.editable:hover {
-    background: #FCFCA2;
+  background: #FCFCA2;
 }
 
 .edit-in-place input,
 .edit-in-place textarea {
-    display: none;
+  display: none;
 }
 
 .edit-in-place.active span {
-    display: none;
+  display: none;
 }
 
 .edit-in-place.active input,
 .edit-in-place.active textarea {
-    display: inline-block;
+  display: inline-block;
 }
 
 .delete-button {
-    float: none !important;
+  float: none !important;
 }
 
 .list-group-item.active button {
-    color: white;
+  color: white;
 }
 
 .panel-heading > p:last-child {
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }
 
 .panel-heading > a,
 .panel-heading .query-link {
-    color: inherit;
+  color: inherit;
 }
 
 .panel-heading .query-link:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .list-group-item.clickable {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .list-group-item.clickable:focus,
 .list-group-item.clickable:hover {
-    background-color: #f5f5f5;
+  background-color: #f5f5f5;
 }
 
 .form-group.required .control-label:after {
-   content:"*";
-   color:red;
+  content: "*";
+  color: red;
 }
 
 .form-group .help-block.error {
@@ -128,97 +140,99 @@ a.navbar-brand img {
 
 /* angular-growl */
 .growl {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    float: right;
-    width: 250px;
-    z-index: 10000;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  float: right;
+  width: 250px;
+  z-index: 10000;
 }
 
 .growl-item.ng-enter,
 .growl-item.ng-leave {
-    -webkit-transition:0.5s linear all;
-    -moz-transition:0.5s linear all;
-    -o-transition:0.5s linear all;
-    transition:0.5s linear all;
+  -webkit-transition: 0.5s linear all;
+  -moz-transition: 0.5s linear all;
+  -o-transition: 0.5s linear all;
+  transition: 0.5s linear all;
 }
 
 .growl-item.ng-enter,
 .growl-item.ng-leave.ng-leave-active {
-    opacity:0;
+  opacity: 0;
 }
+
 .growl-item.ng-leave,
 .growl-item.ng-enter.ng-enter-active {
-    opacity:1;
+  opacity: 1;
 
 }
 
 /* Visualization Filters */
 
 .filters-container {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .filter {
-    width: 33%;
-    padding-left: 5px;
-    padding-bottom: 5px;
+  width: 33%;
+  padding-left: 5px;
+  padding-bottom: 5px;
 }
 
 .filter > div {
-    width: 100%;
+  width: 100%;
 }
 
 /* Gridster */
 
 .gridster ul {
-    list-style-type: none;
+  list-style-type: none;
 }
 
 li.widget {
-    /*background-color:grey;*/
-    border-width: 1px;
-    border-style: solid;
-    border-color: grey;
-    opacity: 0.7;
+  /*background-color:grey;*/
+  border-width: 1px;
+  border-style: solid;
+  border-color: grey;
+  opacity: 0.7;
 }
 
 li.widget:hover {
-    opacity: 1.0 !important;
+  opacity: 1.0 !important;
 
-    -webkit-transition: opacity .6s;
-    -moz-transition: opacity .6s;
-    -o-transition: opacity .6s;
-    -ms-transition: opacity .6s;
-    transition: opacity .6s;
+  -webkit-transition: opacity .6s;
+  -moz-transition: opacity .6s;
+  -o-transition: opacity .6s;
+  -ms-transition: opacity .6s;
+  transition: opacity .6s;
 }
 
 .gridster .preview-holder {
-    border: none!important;
-    border-radius: 0!important;
-    background: rgba(0,0,0,0.5) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
 }
 
 /* CodeMirror */
 .CodeMirror {
-    border: 1px solid #eee;
-    height: auto;
-    min-height: 300px;
-    margin-bottom: 10px;
+  border: 1px solid #eee;
+  height: auto;
+  min-height: 300px;
+  margin-bottom: 10px;
 }
+
 .CodeMirror-scroll {
-    overflow-y: hidden;
-    overflow-x: auto;
+  overflow-y: hidden;
+  overflow-x: auto;
 }
 
 /* Support for Font-Awesome in btn-xs */
 
 .btn-xs > .fa {
-    font-size: 14px;
-    top: 1px;
-    position: relative;
+  font-size: 14px;
+  top: 1px;
+  position: relative;
 }
 
 /* Because of ng-repeat we add span between the .dropdown-menu element and the li element, so we had
@@ -243,117 +257,128 @@ to add those CSS styles here. */
 
 /* Dropdown submenus */
 .dropdown-submenu {
-    position: relative;
+  position: relative;
 }
 
 .dropdown-submenu > .dropdown-menu {
-    top: 0;
-    left: 100%;
-    margin-top: -6px;
-    margin-left: -1px;
-    -webkit-border-radius: 0 6px 6px 6px;
-    -moz-border-radius: 0 6px 6px 6px;
-    border-radius: 0 6px 6px 6px;
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  -webkit-border-radius: 0 6px 6px 6px;
+  -moz-border-radius: 0 6px 6px 6px;
+  border-radius: 0 6px 6px 6px;
 }
 
 .dropdown-submenu:hover > .dropdown-menu {
-    display: block;
+  display: block;
 }
 
 .dropdown-submenu > a:after {
-    display: block;
-    content: " ";
-    float: right;
-    width: 0;
-    height: 0;
-    border-color: transparent;
-    border-style: solid;
-    border-width: 5px 0 5px 5px;
-    border-left-color: #cccccc;
-    margin-top: 5px;
-    margin-right: -10px;
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
 }
 
 .dropdown-submenu:hover > a:after {
-    /*border-left-color: #ffffff;*/
+  /*border-left-color: #ffffff;*/
 }
 
 .dropdown-submenu.pull-left {
-    float: none;
+  float: none;
 }
 
 .dropdown-submenu.pull-left > .dropdown-menu {
-    left: -100%;
-    margin-left: 10px;
-    -webkit-border-radius: 6px 0 6px 6px;
-    -moz-border-radius: 6px 0 6px 6px;
-    border-radius: 6px 0 6px 6px;
+  left: -100%;
+  margin-left: 10px;
+  -webkit-border-radius: 6px 0 6px 6px;
+  -moz-border-radius: 6px 0 6px 6px;
+  border-radius: 6px 0 6px 6px;
 }
 
 .rd-tab .remove {
-    cursor: pointer;
-    color: #A09797;
-    padding: 0 3px 1px 4px;
-    font-size: 11px;
+  cursor: pointer;
+  color: #A09797;
+  padding: 0 3px 1px 4px;
+  font-size: 11px;
 }
+
 .rd-tab .remove:hover {
-    color: white;
-    background-color: #FF8080;
-    border-radius: 50%;
+  color: white;
+  background-color: #FF8080;
+  border-radius: 50%;
 }
+
 .nav-tabs > li.rd-tab-btn {
-    float: right;
+  float: right;
 }
 
 /* light version of bootstrap's form-control */
 .rd-form-control {
-    display: block;
-    padding: 6px 12px;
-    line-height: 1.428571429;
-    color: #555555;
-    vertical-align: middle;
-    background-color: #ffffff;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
-    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
-    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  display: block;
+  padding: 6px 12px;
+  line-height: 1.428571429;
+  color: #555555;
+  vertical-align: middle;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
+
 .rd-form-control {
-     width: 100%;
+  width: 100%;
 }
+
 pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
-    overflow: auto;
+  overflow: auto;
 }
+
 counter-renderer {
-    display: block;
-    text-align: center;
+  display: block;
+  text-align: center;
 }
+
 counter-renderer counter {
-    margin: 0 auto;
-    background: #f9f9f9;
-    padding: 15px 50px;
-    display: block;;
+  margin: 0 auto;
+  background: #f9f9f9;
+  padding: 15px 50px;
+  display: block;;
 }
+
 counter-renderer value,
 counter-renderer counter-target {
-    font-size: 80px;
-    display: block;
+  font-size: 80px;
+  display: block;
 }
+
 counter-renderer counter-target {
-    color: #ccc;
+  color: #ccc;
 }
+
 counter-renderer counter.positive value {
-    color: #5cb85c;
+  color: #5cb85c;
 }
+
 counter-renderer counter.negative value {
-    color: #d9534f;
-    margin-right: 15px;
+  color: #d9534f;
+  margin-right: 15px;
 }
+
 counter-renderer counter-name {
-    font-size: 40px;
-    display: block;
+  font-size: 40px;
+  display: block;
 }
 
 .box {
@@ -369,13 +394,14 @@ counter-renderer counter-name {
 }
 
 .box .center {
-  stroke-dasharray: 3,3;
+  stroke-dasharray: 3, 3;
 }
 
 .box .outlier {
   fill: none;
   stroke: #000;
 }
+
 .axis text {
   font: 10px sans-serif;
 }
@@ -390,82 +416,86 @@ counter-renderer counter-name {
 .grid-background {
   fill: #ddd;
 }
+
 .grid path,
 .grid line {
   fill: none;
   stroke: #fff;
   shape-rendering: crispEdges;
 }
+
 .grid .minor line {
   stroke-opacity: .5;
 }
+
 .grid text {
   display: none;
 }
 
 .rd-widget-textbox p {
-    margin-bottom: 0;
+  margin-bottom: 0;
 }
+
 .iframe-container {
-    height: 100%;
+  height: 100%;
 }
 
 .schema-container {
-    height: 300px;
+  height: 300px;
 }
 
 .schema-browser {
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 div.table-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
 }
 
 .blankslate {
-    text-align: center;
-    padding: 30px;
+  text-align: center;
+  padding: 30px;
 }
 
 .log-container {
-    margin-bottom: 50px;
+  margin-bottom: 50px;
 }
 
 /* Footer */
 
 .footer {
-    color: #818d9f;
-    padding-bottom: 30px;
+  color: #818d9f;
+  padding-bottom: 30px;
 }
 
 .footer a {
-    color: #818d9f;
-    margin-left: 20px;
+  color: #818d9f;
+  margin-left: 20px;
 }
 
 .col-table .missing-value {
-    color: #b94a48;
+  color: #b94a48;
 }
 
 .col-table .super-small-input {
-    padding-left: 3px;
-    height: 24px;
+  padding-left: 3px;
+  height: 24px;
 }
 
 .col-table .ui-select-toggle, .col-table .ui-select-search {
-    padding: 2px;
-    padding-left: 5px;
-    height: 24px;
+  padding: 2px;
+  padding-left: 5px;
+  height: 24px;
 }
 
 .clearable button {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 /* Immediately apply ng-cloak, instead of waiting for angular.js to load: */
@@ -476,43 +506,73 @@ div.table-name {
 /* Smart Table */
 
 .smart-table {
-    margin-bottom: 0px;
+  margin-bottom: 0px;
 }
 
 .smart-table .pagination {
-    margin-bottom: 5px;
-    margin-top: 10px;
+  margin-bottom: 5px;
+  margin-top: 10px;
 }
 
 /* Embed Code */
-.embed-code code  {
-    display: block;
-    white-space: normal;
-    width: 100%;
-}
-.embed-code i  {
-    cursor: pointer;
+.embed-code code {
+  display: block;
+  white-space: normal;
+  width: 100%;
 }
 
-.voffset  { margin-top: 2px; }
-.voffset1 { margin-top: 5px; }
-.voffset2 { margin-top: 10px; }
-.voffset3 { margin-top: 15px; }
-.voffset4 { margin-top: 30px; }
-.voffset5 { margin-top: 40px; }
-.voffset6 { margin-top: 60px; }
-.voffset7 { margin-top: 80px; }
-.voffset8 { margin-top: 100px; }
-.voffset9 { margin-top: 150px; }
+.embed-code i {
+  cursor: pointer;
+}
+
+.voffset {
+  margin-top: 2px;
+}
+
+.voffset1 {
+  margin-top: 5px;
+}
+
+.voffset2 {
+  margin-top: 10px;
+}
+
+.voffset3 {
+  margin-top: 15px;
+}
+
+.voffset4 {
+  margin-top: 30px;
+}
+
+.voffset5 {
+  margin-top: 40px;
+}
+
+.voffset6 {
+  margin-top: 60px;
+}
+
+.voffset7 {
+  margin-top: 80px;
+}
+
+.voffset8 {
+  margin-top: 100px;
+}
+
+.voffset9 {
+  margin-top: 150px;
+}
 
 .overlay {
-    background-color: #808080;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    padding: 0;
-    z-index: 1000;
-    opacity: 0.7;
+  background-color: #808080;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0;
+  z-index: 1000;
+  opacity: 0.7;
 }

@@ -5,11 +5,10 @@ from flask import render_template, send_from_directory, current_app, url_for, re
 from flask_login import current_user, login_required
 
 from redash import settings, __version__
-from redash.handlers import org_scoped_rule
+from redash.handlers import org_scoped_rule, base_href
 from redash.wsgi import app
 from redash.version_check import get_latest_version
 from redash.authentication.org_resolving import current_org
-
 
 
 @app.route('/<path:filename>')
@@ -24,7 +23,6 @@ def send_static(filename):
 
 @login_required
 def index(**kwargs):
-
     email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
@@ -48,14 +46,9 @@ def index(**kwargs):
         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
     }
 
-    if settings.MULTI_ORG:
-        base_href = url_for('index', _external=True, org_slug=current_org.slug)
-    else:
-        base_href = url_for('index', _external=True)
-
     response = render_template("index.html",
                                user=json.dumps(user),
-                               base_href=base_href,
+                               base_href=base_href(),
                                name=settings.NAME,
                                org_slug=current_org.slug,
                                client_config=json.dumps(client_config),

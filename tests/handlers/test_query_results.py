@@ -17,7 +17,7 @@ class TestQueryResultsCacheHeaders(BaseTestCase):
         self.assertNotIn('Cache-Control', rv.headers)
 
 
-class QueryResultListAPITest(BaseTestCase):
+class TestQueryResultListAPI(BaseTestCase):
     def test_get_existing_result(self):
         query_result = self.factory.create_query_result()
         query = self.factory.create_query()
@@ -72,3 +72,26 @@ class QueryResultListAPITest(BaseTestCase):
 
         self.assertEquals(rv.status_code, 200)
         self.assertIn('job', rv.json)
+
+
+class TestQueryResultAPI(BaseTestCase):
+    def test_has_no_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.create_group())
+        query_result = self.factory.create_query_result(data_source=ds)
+
+        rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
+        self.assertEquals(rv.status_code, 403)
+
+    def test_has_view_only_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query_result = self.factory.create_query_result(data_source=ds)
+
+        rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
+        self.assertEquals(rv.status_code, 200)
+
+    def test_has_full_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
+        query_result = self.factory.create_query_result(data_source=ds)
+
+        rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
+        self.assertEquals(rv.status_code, 200)
