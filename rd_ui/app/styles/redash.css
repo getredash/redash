@@ -622,6 +622,12 @@ hr.subscription {
 
 /* Bootstrap Overrides */
 
+.flex-parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .collapsing,
 .collapse.in {
     background: #f4f4f4;
