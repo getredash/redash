@@ -119,7 +119,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
             self._get_tables_stats(schema_dict)
         return schema_dict.values()
 
-    def _get_tables(self, schema_dict):
+    def _get_tables(self, schema_dict, datasource_id):
         return []
 
     def _get_tables_stats(self, tables_dict):

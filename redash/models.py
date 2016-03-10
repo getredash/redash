@@ -456,18 +456,15 @@ class DataSourceTable(BaseModel):
 
     def to_dict(self, all=False):
         d = {
-            'table': self.name,
-            'columns': [column.to_dict() for column in column_list],
-            'tags': self.tags,
-            'description': self.description
+            'name': self.name,
+            'datasource': self.datasource.id,
+            'columns': [column.name for column in self.columns.order_by(DataSourceColumn.id.desc())]
         }
 
         if all:
-            column_list = DataSourceColumn.select(DataSourceColumn)\
-                .where(DataSourceColumn.table == self.id)\
-                .order_by(DataSourceColumn.id.asc())
-            d['datasource'] = self.datasource.name
-            d['columns'] = [column.to_dict(all=True) for column in column_list]
+            d['tags'] = self.tags
+            d['description'] = self.description
+            d['columns'] = [column.to_dict(all=all) for column in self.columns.order_by(DataSourceColumn.id.desc())]
 
         return d
 

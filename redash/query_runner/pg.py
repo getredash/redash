@@ -93,7 +93,6 @@ class PostgreSQL(BaseSQLQueryRunner):
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
         """
-
         results, error = self.run_query(query)
 
         if error is not None:
@@ -126,9 +125,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         tables_list = DataSourceTable.select(DataSourceTable)\
             .where(DataSourceTable.datasource==datasource_id)\
             .order_by(DataSourceTable.name.asc())
-        schemas = [table.to_dict() for table in tables_list]
-
-        return schemas
+        for table in tables_list:
+            schema[table.name] = table.to_dict()
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
