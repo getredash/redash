@@ -52,10 +52,10 @@ class TreasureData(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Database Name'
                 },
-                'getschema': {
+                'get_schema': {
                     'type': 'boolean',
-                    'title': 'Auto Get Schema',
-                    'Default': True
+                    'title': 'Auto Schema Retrieval',
+                    'default': False
                 }
             },
             'required': ['apikey','db']
@@ -78,7 +78,7 @@ class TreasureData(BaseQueryRunner):
 
     def get_schema(self, get_stats=False):
         schema = {}
-        if self.configuration.get('getschema') == True:
+        if self.configuration.get('get_schema', False):
             try:
                 with tdclient.Client(self.configuration.get('apikey')) as client:
                     for table in client.tables(self.configuration.get('db')):
