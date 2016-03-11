@@ -674,8 +674,7 @@ angular.module("partials/editableCell.html", []).run(["$templateCache", function
 
 angular.module("partials/globalSearchCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/globalSearchCell.html",
-    "<label>Search :</label>\n" +
-    "<input type=\"text\" ng-model=\"searchValue\"/>");
+    "<input placeholder='Search' type=\"text\" ng-model=\"searchValue\"/>");
 }]);
 
 angular.module("partials/pagination.html", []).run(["$templateCache", function ($templateCache) {
@@ -700,14 +699,14 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
   $templateCache.put("partials/smartTable.html",
     "<table class=\"smart-table\">\n" +
     "    <thead>\n" +
-    "    <tr class=\"smart-table-global-search-row\" ng-show=\"isGlobalSearchActivated\">\n" +
-    "        <td class=\"smart-table-global-search\" column-span=\"{{columns.length}}\" colspan=\"{{columnSpan}}\">\n" +
-    "        </td>\n" +
-    "    </tr>\n" +
     "    <tr class=\"smart-table-header-row\">\n" +
     "        <th ng-repeat=\"column in columns\" ng-include=\"column.headerTemplateUrl\"\n" +
     "            class=\"smart-table-header-cell {{column.headerClass}}\" scope=\"col\">\n" +
     "        </th>\n" +
+    "    </tr>\n" +
+    "    <tr class=\"smart-table-global-search-row\" ng-show=\"isGlobalSearchActivated\">\n" +
+    "        <td class=\"smart-table-global-search\" column-span=\"{{columns.length}}\" colspan=\"{{columnSpan}}\">\n" +
+    "        </td>\n" +
     "    </tr>\n" +
     "    </thead>\n" +
     "    <tbody>\n" +
