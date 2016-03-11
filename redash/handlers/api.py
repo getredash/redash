@@ -7,7 +7,7 @@ from redash.handlers.base import org_scoped_rule
 from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscriptionListResource, AlertSubscriptionResource
 from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource \
-    DataSourceTableResource, DataSourceColumnResource, DataSourceJoinResource
+    DataSourceTableResource, DataSourceColumnResource, DataSourceJoinListResource, DataSourceJoinResource
 from redash.handlers.events import EventResource
 from redash.handlers.queries import QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource
 from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
@@ -53,6 +53,7 @@ api.add_org_resource(DataSourceListResource, '/api/data_sources', endpoint='data
 api.add_org_resource(DataSourceSchemaResource, '/api/data_sources/<data_source_id>/schema')
 api.add_org_resource(DataSourceTableResource, '/api/tables/<table_id>/schema')
 api.add_org_resource(DataSourceColumnResource, '/api/columns/<column_id>/schema')
+api.add_org_resource(DataSourceJoinListResource, '/api/joins')
 api.add_org_resource(DataSourceJoinResource, '/api/joins/<join_id>')
 api.add_org_resource(DataSourceResource, '/api/data_sources/<data_source_id>', endpoint='data_source')
 

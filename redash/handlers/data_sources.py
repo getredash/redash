@@ -151,8 +151,8 @@ class DataSourceColumnResource(BaseResource):
         return data_source_column.to_dict(all=True)
 
 
-class DataSourceJoinResource(BaseResource):
-    def post(self, column_id):
+class DataSourceJoinListResource(BaseResource):
+    def post(self):
         req = request.get_json(True)
         required_fields = ('table', 'column', 'related_table',
                            'related_column', 'cardinality')
@@ -168,5 +168,16 @@ class DataSourceJoinResource(BaseResource):
             related_column=req['related_column'],
             cardinality=req['cardinality']
         )
+
+        return join.to_dict(all=True)
+
+
+class DataSourceJoinResource(BaseResource):
+    def post(self, join_id):
+        join = get_object_or_404(models.DataSourceJoin.get_by_id, join_id)
+
+        kwargs = request.get_json(True)
+
+        join.update_instance(**kwargs)
 
         return join.to_dict(all=True)
