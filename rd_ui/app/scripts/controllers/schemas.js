@@ -31,7 +31,7 @@
     ];
   };
 
-  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $growl, Events, Table) {
+  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $growl, Events, Table, Column, Join) {
     Events.record(currentUser, "view", "page", "tables");
     $scope.$parent.pageTitle = "Table";
 
@@ -45,6 +45,7 @@
     };
 
     $scope.gridConfig = {
+      isPaginationEnabled: false,
       maxSize: 8
     };
 
@@ -64,9 +65,42 @@
       }
     ];
 
+    $scope.joinGridColumns = [
+      {
+        "label": "Column",
+        "map": "column",
+      },
+      {
+        'label': 'Join type',
+        'map': 'cardinality'
+      },
+      {
+        'label': 'Related Table',
+        'map': 'related_table'
+      },
+      {
+        'label': 'Related Column',
+        'map': 'related_column'
+      }
+    ];
+
+    $scope.saveChanges = function() {
+      var join = new Join();
+      join.table = $scope.table.id;
+      join.column = $scope.join.column;
+      join.related_table = $scope.join.related_table;
+      join.related_column = $scope.join.related_column;
+      join.cardinality = $scope.join.cardinality;
+      join.$save(function(join) {
+        $growl.addSuccessMessage("Saved.");
+      }, function() {
+        $growl.addErrorMessage("Failed saving alert.");
+      });
+    };
+
   };
 
   angular.module('redash.controllers')
     .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
-    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Table', SchemaCtrl])
+    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Table', 'Column', 'Join', SchemaCtrl])
 })();

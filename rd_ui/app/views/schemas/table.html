@@ -22,4 +22,47 @@
                          class="table table-condensed table-hover"></smart-table>
         </div>
     </div>
+    <div class="row">
+        <h2>Joins</h2>
+        <div class="col-md-8">
+            <smart-table rows="table.joins" columns="joinGridColumns"
+                         config="gridConfig"
+                         class="table table-condensed table-hover"></smart-table>
+        </div>
+        <div class="col-md-4">
+            <h4>Add a Join</h4>
+            <form name="joinForm" ng-submit="saveChanges()" class="form">
+            <!-- Not passing data to $scope.join.column 
+                <div class="form-group">
+                    <label>Column</label>
+                    <ui-select ng-model="join.column">
+                        <ui-select-match>{{$select.selected.name}}</ui-select-match>
+                        <ui-select-choices repeat="c in table.columns">
+                            <span ng-bind="c.name"></span>
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            -->
+                <div class="form-group">
+                    <label>Column</label>
+                    <input type="string" placeholder="column" class="form-control" ng-model="join.column">
+                </div>
+                <div class="form-group">
+                    <label>Related Table</label>
+                    <input type="string" placeholder="related_table" class="form-control" ng-model="join.related_table">
+                </div>
+                <div class="form-group">
+                    <label>Related Column</label>
+                    <input type="string" placeholder="related_column" class="form-control" ng-model="join.related_column">
+                </div>
+                <div class="form-group">
+                    <label>Relationship</label>
+                    <input type="string" placeholder="relationship" class="form-control" ng-model="join.cardinality">
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
