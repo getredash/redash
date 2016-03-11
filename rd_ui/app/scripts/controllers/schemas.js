@@ -84,7 +84,8 @@
       },
       {
         'label': 'Related Table',
-        'map': 'related_table'
+        'map': 'related_table',
+        "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>'
       },
       {
         'label': 'Related Column',
