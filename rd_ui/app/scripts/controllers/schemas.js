@@ -23,10 +23,6 @@
       {
         'label': 'Description',
         'map': 'description'
-      },
-      {
-        'label': 'Tags',
-        'map': 'tags'
       }
     ];
   };

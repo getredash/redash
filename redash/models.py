@@ -461,6 +461,7 @@ class DataSourceTable(BaseModel):
         }
 
         if all:
+            d['datasource'] = self.datasource.to_dict()
             d['description'] = self.description
             d['columns'] = [column.to_dict(all=True)
                             for column in self.columns.order_by(DataSourceColumn.id.desc())]
