@@ -14,6 +14,10 @@ a[ng-click] {
   cursor: pointer;
 }
 
+.mb1 {
+    padding-bottom: 1rem;
+}
+
 .flex-container {
     display: -webkit-box;
     display: -webkit-flex;

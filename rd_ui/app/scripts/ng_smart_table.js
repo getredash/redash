@@ -674,7 +674,7 @@ angular.module("partials/editableCell.html", []).run(["$templateCache", function
 
 angular.module("partials/globalSearchCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/globalSearchCell.html",
-    "<input placeholder='Search' type=\"text\" ng-model=\"searchValue\"/>");
+    "<input placeholder='Search' type=\"text\" ng-model=\"searchValue\" class=\"form-control\"/>");
 }]);
 
 angular.module("partials/pagination.html", []).run(["$templateCache", function ($templateCache) {

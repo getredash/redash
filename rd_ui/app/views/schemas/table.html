@@ -4,7 +4,7 @@
         <li><a href="/schemas/{{table.datasource.id}}">{{table.datasource.name}}</a></li>
         <li class="active">{{table.name}}</li>
     </ol>
-    <div class="row">
+    <div class="row mb1">
         <div class="col-md-12">
             <h2>{{table.name}}</h2>
             <p>
@@ -26,53 +26,66 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <h2>Joins</h2>
+            <h3>Add a New Join</h3>
         </div>
         <div class="col-md-12">
-            <form name="joinForm" ng-submit="saveChanges()" class="form-inline">
-                <div id="form-join" class="flex-container">
-                    <div class="flex-grow-1">
-                        <label>Column</label>
-                        <ui-select ng-model="$parent.join.column">
-                            <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="c in table.columns">
-                                <span ng-bind="c.name"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                    <div class="flex-grow-2">
-                        <label>Related Table</label>
-                        <ui-select ng-model="$parent.join.related_table" on-select="onRelatedTableSelected($item)">
-                            <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="t in schemas | filter: {name: $select.search}">
-                                <span ng-bind="t.name"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                    <div class="flex-grow-2">
-                        <label>Related Column</label>
-                        <ui-select ng-model="$parent.join.related_column">
-                            <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                            <ui-select-choices repeat="c in related_table.columns | filter: {name: $select.search}">
-                                <span ng-bind="c.name"></span>
-                            </ui-select-choices>
-                        </ui-select>
-                    </div>
-                    <div class="flex-grow-1">
-                        <label>Relationship</label>
-                        <select class="form-control" ng-model="join.cardinality">
-                            <option value="1..*">One to Many</option>
-                            <option value="*..1">Many to One</option>
-                            <option value="*..*">Many to Many</option>
-                            <option value="1..1">One to One</option>
-                        </select>
-                    </div>
-                    <div class="flex-grow-1 flex-item-end">
-                        <button type="submit" class="btn btn-primary">Add Join</button>
-                        <button type="clear" class="btn btn-default">Reset</button>
-                    </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <form name="joinForm" ng-submit="saveChanges()" class="form-inline">
+                        <div id="form-join" class="flex-container">
+                            <div class="flex-grow-1">
+                                <label>Column</label>
+                                <ui-select ng-model="$parent.join.column">
+                                    <ui-select-match>{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="c in table.columns">
+                                        <span ng-bind="c.name"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                            <div class="flex-grow-2">
+                                <label>Related Table</label>
+                                <ui-select ng-model="$parent.join.related_table" on-select="onRelatedTableSelected($item)">
+                                    <ui-select-match>{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="t in schemas | filter: {name: $select.search}">
+                                        <span ng-bind="t.name"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                            <div class="flex-grow-2">
+                                <label>Related Column</label>
+                                <ui-select ng-model="$parent.join.related_column">
+                                    <ui-select-match>{{$select.selected.name}}</ui-select-match>
+                                    <ui-select-choices repeat="c in related_table.columns | filter: {name: $select.search}">
+                                        <span ng-bind="c.name"></span>
+                                    </ui-select-choices>
+                                </ui-select>
+                            </div>
+                            <div class="flex-grow-1">
+                                <label>Relationship</label>
+                                <select class="form-control" ng-model="join.cardinality">
+                                    <option value="1..*">One to Many</option>
+                                    <option value="*..1">Many to One</option>
+                                    <option value="*..*">Many to Many</option>
+                                    <option value="1..1">One to One</option>
+                                </select>
+                            </div>
+                            <div class="flex-grow-1 flex-item-end">
+                                <button type="submit" class="btn btn-primary">Add Join</button>
+                                <button type="clear" class="btn btn-default">Reset</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Joins</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
             <smart-table rows="table.joins" columns="joinGridColumns" config="gridConfig" class="table table-condensed table-hover"></smart-table>
         </div>
     </div>
