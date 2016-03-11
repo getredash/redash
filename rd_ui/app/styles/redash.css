@@ -14,6 +14,28 @@ a[ng-click] {
   cursor: pointer;
 }
 
+.flex-container {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display:         flex;
+    flex-wrap: wrap;
+}
+
+.flex-grow-1 {
+    -webkit-flex: 1 0 0;
+       flex: 1 0 0;
+}
+
+.flex-grow-2 {
+    -webkit-flex: 2 0 0;
+       flex: 2 0 0;
+}
+
+.flex-item-end {
+    align-self: flex-end;
+}
+
 a.link {
   cursor: pointer;
 }
@@ -531,10 +553,8 @@ div.table-name:hover {
   margin-top: 10px;
 }
 
-.smart-table.table-schema {
-    th:first-child {
-        width: 30%;
-    }
+.smart-table.table-schema th:first-child {
+    width: 30%;
 }
 
 /* Embed Code */
@@ -641,3 +661,15 @@ hr.subscription {
     transition: all 0.35s ease;
 }
 
+#form-join {
+    padding-bottom: 1em;
+}
+
+#form-join > div .ui-select-container,
+#form-join > div .form-control {
+    padding-right: 10px;
+}
+
+#form-join > div:last-child {
+    text-align: right;
+}
