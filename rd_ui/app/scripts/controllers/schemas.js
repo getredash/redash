@@ -10,9 +10,8 @@
     });
 
     $scope.gridConfig = {
-        isPaginationEnabled: true,
-        itemsByPage: 50,
-        maxSize: 8,
+      isPaginationEnabled: false,
+      isGlobalSearchActivated: true
     };
 
 
@@ -47,8 +46,8 @@
     };
 
     $scope.gridConfig = {
-        isPaginationEnabled: false,
-        maxSize: 8
+      isPaginationEnabled: false,
+      isGlobalSearchActivated: true
     };
 
     $scope.onRelatedTableSelected = function(item) {
