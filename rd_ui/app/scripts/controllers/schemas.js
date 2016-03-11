@@ -27,7 +27,7 @@
     ];
   };
 
-  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $growl, Events, Table, Column, Join, Schema) {
+  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $filter, $growl, Events, Table, Column, Join, Schema) {
     Events.record(currentUser, "view", "page", "tables");
     $scope.$parent.pageTitle = "Table";
 
@@ -74,8 +74,11 @@
         "map": "column",
       },
       {
-        'label': 'Join type',
-        'map': 'cardinality'
+        'label': 'Relationship',
+        'map': 'cardinality',
+        'formatFunction': function(value) {
+            return $filter('cardinalityHumanize')(value);
+        }
       },
       {
         'label': 'Related Table',
@@ -104,5 +107,5 @@
 
   angular.module('redash.controllers')
     .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
-    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Table', 'Column', 'Join', 'Schema', SchemaCtrl])
+    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', '$filter', 'growl', 'Events', 'Table', 'Column', 'Join', 'Schema', SchemaCtrl])
 })();
