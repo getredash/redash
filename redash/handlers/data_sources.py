@@ -162,7 +162,7 @@ class DataSourceJoinListResource(BaseResource):
         column = get_object_or_404(models.DataSourceColumn.get_by_id, req['column_id'])
         related_column = get_object_or_404(models.DataSourceColumn.get_by_id, req['related_column_id'])
 
-        join = models.DataSourceJoin.create(
+        join, create = models.DataSourceJoin.get_or_create(
             table=column.table,
             column=column,
             related_table=related_column.table,

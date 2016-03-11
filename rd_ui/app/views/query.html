@@ -67,11 +67,13 @@
             </div>
             <div class="schema-browser">
                 <div ng-repeat="table in schema | filter:schemaFilter track by table.name">
-                    <div class="table-name" ng-click="table.collapsed = !table.collapsed">
-                        <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span><span ng-if="table.size !== undefined"> ({{table.size}})</span></strong>
+                    <div class="table-name" ng-click="table.collapsed = !table.collapsed"
+                    data-toggle="tooltip" data-placement="right" title="{{ table.description }}" tooltip data-container="body">
+                        <i class="fa fa-table"></i> <strong>{{table.name}}<span ng-if="table.size !== undefined"> ({{table.size}})</span></strong>
                     </div>
                     <div collapse="table.collapsed">
-                        <div ng-repeat="column in table.columns track by column" style="padding-left:16px;">{{column}}</div>
+                        <div ng-repeat="column in table.columns track by column.id" style="padding-left:16px;"
+                        data-toggle="tooltip" data-placement="right" title="{{ column.description }}" tooltip data-container="body">{{column.name}}</div>
                     </div>
                 </div>
             </div>
