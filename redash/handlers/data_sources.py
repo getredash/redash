@@ -150,3 +150,59 @@ class DataSourceColumnSchemaResource(BaseResource):
             return data_source_column.to_dict(all=True)
         else:
             abort(400)
+
+
+class DataSourceColumnJoinListResource(BaseResource):
+    def get(self,table_id):
+        model = get_object_or_404(models.DataSourceColumnJoin.get_by_table,table_id)
+        join_col = [m.to_dict() for m in model['join_col'] if model['join_col']]
+        join_rel = [m.to_dict(is_related=True) for m in model['join_rel'] if model['join_rel'] ]
+        schema = join_col + join_rel
+        return schema
+
+    def post(self,table_id):
+        table_model = get_object_or_404(models.DataSourceTable.get_by_id,table_id)
+        req = request.get_json(True)
+        if isinstance(req,list):
+            joins = []
+            for req_jn in req:
+                if req_jn.has_key('column') and req_jn.has_key('related_column') \
+                    and req_jn.has_key('related_table') and req_jn.has_key('cardinality'):
+                    column_model = get_object_or_404(models.DataSourceColumn.get_by_id,req_jn['column'])
+                    if column_model.table.id != table_model.id:
+                        abort(400)
+                    related_column_model = get_object_or_404(models.DataSourceColumn.get_by_id,req_jn['related_column'])
+                    jn, created = models.DataSourceColumnJoin.get_or_create(related_table = related_column_model.table
+                          ,related_column = related_column_model
+                          ,cardinality = req_jn['cardinality']
+                          ,table = column_model.table
+                          ,column = column_model)
+                    joins.append(jn.to_dict(all=True))
+                else:
+                    abort(400)
+            return joins
+        else:
+            abort(400)
+
+
+class DataSourceColumnJoinResource(BaseResource):
+    def get(self,column_id):
+        column_model = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
+        model = models.DataSourceColumnJoin.get_by_column(column_model.id)
+        join_col = [m.to_dict() for m in model['join_col'] if model['join_col']]
+        join_rel = [m.to_dict(is_related=True) for m in model['join_rel'] if model['join_rel'] ]
+        schema = join_col + join_rel
+        return schema
+
+    def post(self, column_id):
+        column_model = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
+        req = request.get_json(True)
+        if req.has_key('related_column') and req.has_key('related_table') and req.has_key('cardinality'):
+            jn, created = models.DataSourceColumnJoin.get_or_create(related_table = req['related_table']
+                  ,related_column = req['related_column']
+                  ,cardinality = req['cardinality']
+                  ,table = column_model.table.id
+                  ,column = column_model.id)
+            return jn.to_dict(all=True)
+        else:
+            abort(400)

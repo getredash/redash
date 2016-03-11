@@ -464,7 +464,9 @@ class DataSourceTable(BaseModel):
             d['description'] = self.description
             d['columns'] = [column.to_dict(all=True)
                             for column in self.columns.order_by(DataSourceColumn.id.desc())]
-
+            join_col = [join_rel.to_dict() for join_rel in self.join_table]
+            join_rel = [join_rel.to_dict(is_related=True) for join_rel in self.join_related_table]
+            d['joins'] = join_col + join_rel
         return d
 
     def __unicode__(self):
@@ -495,7 +497,7 @@ class DataSourceColumn(BaseModel):
         
         d = {
             'id': self.id,
-            'name': self.name,
+            'name': self.name
         }
 
         if all:
@@ -507,6 +509,85 @@ class DataSourceColumn(BaseModel):
     def __unicode__(self):
         return unicode(self.id)
 
+class DataSourceColumnJoin(BaseModel):
+    id = peewee.PrimaryKeyField()
+    table = peewee.ForeignKeyField(DataSourceTable, related_name='join_table')
+    column = peewee.ForeignKeyField(DataSourceColumn, related_name="join_column")
+    related_table = peewee.ForeignKeyField(DataSourceTable, related_name='join_related_table')
+    related_column = peewee.ForeignKeyField(DataSourceColumn, related_name="join_related_column")
+    cardinality = peewee.CharField(null=True)
+    created_at = DateTimeTZField(default=datetime.datetime.utcnow())
+
+    class Meta:
+        db_table = 'data_source_column_joins'
+
+        indexes = (
+            (('table', 'related_table'), False),
+        )
+
+    def to_dict(self, is_related=False, all=False):
+        if is_related:
+            d = {
+                'related_table': self.table.name,
+                'related_column': self.column.name,
+                'cardinality': self.cardinality[::-1]
+            }
+        else:
+            d = {
+                'related_table': self.related_table.name,
+                'related_column': self.related_column.name,
+                'cardinality': self.cardinality
+            }
+        if all:
+            d = {
+                'table': self.table.name,
+                'column': self.column.name,
+                'related_table': self.related_table.name,
+                'related_column': self.related_column.name,
+                'cardinality': self.cardinality
+            }
+        return d
+
+    def __unicode__(self):
+        return unicode(self.id)
+
+    @classmethod
+    def get_by_table(cls,table_id):
+        # this is just to make sure the table_id exists. This will throw exception resulting in 404
+        table = DataSourceTable.get_by_id(table_id)
+
+        result = {'join_col': None,
+                  'join_rel': None}
+        try:
+            result['join_col'] = cls.select().where(cls.table == table_id)
+        except cls.DoesNotExist:
+            result = result
+
+        try:
+            result['join_rel'] = cls.select().where(cls.related_table == table_id)
+        except cls.DoesNotExist:
+            result = result
+
+        return result
+
+    @classmethod
+    def get_by_column(cls, column_id):
+        # this is just to make sure the table_id exists. This will throw exception resulting in 404
+        column = DataSourceColumn.get_by_id(column_id)
+
+        result = {'join_col': None,
+                  'join_rel': None}
+        try:
+            result['join_col'] = cls.select().where(cls.column == column_id)
+        except cls.DoesNotExist:
+            result = result
+
+        try:
+            result['join_rel'] = cls.select().where(cls.related_column == column_id)
+        except cls.DoesNotExist:
+            result = result
+
+        return result
 
 class DataSourceGroup(BaseModel):
     data_source = peewee.ForeignKeyField(DataSource)
