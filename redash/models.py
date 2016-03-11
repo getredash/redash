@@ -531,12 +531,14 @@ class DataSourceJoin(BaseModel):
     def to_dict(self, is_related=False, all=False):
         if is_related:
             d = {
+                'column': self.column.name,
                 'related_table': self.table.name,
                 'related_column': self.column.name,
                 'cardinality': self.cardinality[::-1]
             }
         else:
             d = {
+                'column': self.column.name,
                 'related_table': self.related_table.name,
                 'related_column': self.related_column.name,
                 'cardinality': self.cardinality

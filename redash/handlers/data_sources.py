@@ -160,12 +160,26 @@ class DataSourceJoinListResource(BaseResource):
         for f in required_fields:
             if f not in req:
                 abort(400)
+
+        column = models.DataSourceColumn.get(
+            models.DataSourceColumn.table == req['table'],
+            models.DataSourceColumn.name == req['column']
+        )
+        related_table = models.DataSourceTable.get(
+            models.DataSourceTable.datasource == column.table.datasource,
+            models.DataSourceTable.name == req['related_table']
+        )
+        related_column = models.DataSourceColumn.get(
+            models.DataSourceColumn.table == related_table,
+            models.DataSourceColumn.name == req['related_column']
+        )
+
         
         join = models.DataSourceJoin.create(
-            table=req['table'],
-            column=req['column'],
-            related_table=req['related_table'],
-            related_column=req['related_column'],
+            table=column.table,
+            column=column,
+            related_table=related_table,
+            related_column=related_column,
             cardinality=req['cardinality']
         )
 
