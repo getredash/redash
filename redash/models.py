@@ -453,7 +453,7 @@ class DataSourceTable(BaseModel):
             (('datasource', 'name'), True),
         )
 
-    def to_dict(self, all=False):
+    def to_dict(self, all=False, with_joins=False):
         d = {
             'id' : self.id,
             'name': self.name,
@@ -464,9 +464,12 @@ class DataSourceTable(BaseModel):
             d['description'] = self.description
             d['columns'] = [column.to_dict(all=True)
                             for column in self.columns.order_by(DataSourceColumn.id.desc())]
+
+        if with_joins:
             join_col = [join_rel.to_dict() for join_rel in self.join_table]
             join_rel = [join_rel.to_dict(is_related=True) for join_rel in self.join_related_table]
             d['joins'] = join_col + join_rel
+
         return d
 
     def __unicode__(self):
@@ -509,7 +512,7 @@ class DataSourceColumn(BaseModel):
     def __unicode__(self):
         return unicode(self.id)
 
-class DataSourceColumnJoin(BaseModel):
+class DataSourceJoin(BaseModel):
     id = peewee.PrimaryKeyField()
     table = peewee.ForeignKeyField(DataSourceTable, related_name='join_table')
     column = peewee.ForeignKeyField(DataSourceColumn, related_name="join_column")
@@ -519,7 +522,7 @@ class DataSourceColumnJoin(BaseModel):
     created_at = DateTimeTZField(default=datetime.datetime.utcnow())
 
     class Meta:
-        db_table = 'data_source_column_joins'
+        db_table = 'data_source_joins'
 
         indexes = (
             (('table', 'related_table'), False),
@@ -1293,7 +1296,10 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
                                            app, host, options)
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, DataSourceTable, DataSourceColumn)
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult,
+              Query, Alert, Dashboard, Visualization, Widget, Event,
+              NotificationDestination, AlertSubscription, ApiKey, DataSourceTable,
+              DataSourceColumn, DataSourceJoin)
 
 
 def init_db():

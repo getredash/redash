@@ -106,11 +106,10 @@ class DataSourceSchemaResource(BaseResource):
 
         return schema
         
-
-class DataSourceTableSchemaResource(BaseResource):
+class DataSourceTableResource(BaseResource):
     def get(self, table_id):
         data_source_table = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
-        return data_source_table.to_dict(all=True)
+        return data_source_table.to_dict(all=True, with_joins=True)
             
     def post(self, table_id):
         req = request.get_json(True)
@@ -128,81 +127,46 @@ class DataSourceTableSchemaResource(BaseResource):
         else:
             abort(400)
     
-class DataSourceColumnSchemaResource(BaseResource):
+
+class DataSourceColumnResource(BaseResource):
     def get(self, column_id):
         data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
         return data_source_column.to_dict(all=True)
             
     def post(self, column_id):
+        # We only allow manual updates of description, as rest is updated from database
         req = request.get_json(True)
-        if req:
-            data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
+        required_fields = ('description',)
+
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+
+        data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
         
-            if req.has_key('joins'):
-                data_source_column.joins = req['joins']
-            if req.has_key('description'):
-                data_source_column.description = req['description']
-            if req.has_key('tags'):
-                data_source_column.tags = req['tags']
-               
-            data_source_column.save()
+        data_source_column.description = req['description']
+           
+        data_source_column.save()
             
-            return data_source_column.to_dict(all=True)
-        else:
-            abort(400)
+        return data_source_column.to_dict(all=True)
 
 
-class DataSourceColumnJoinListResource(BaseResource):
-    def get(self,table_id):
-        model = get_object_or_404(models.DataSourceColumnJoin.get_by_table,table_id)
-        join_col = [m.to_dict() for m in model['join_col'] if model['join_col']]
-        join_rel = [m.to_dict(is_related=True) for m in model['join_rel'] if model['join_rel'] ]
-        schema = join_col + join_rel
-        return schema
-
-    def post(self,table_id):
-        table_model = get_object_or_404(models.DataSourceTable.get_by_id,table_id)
-        req = request.get_json(True)
-        if isinstance(req,list):
-            joins = []
-            for req_jn in req:
-                if req_jn.has_key('column') and req_jn.has_key('related_column') \
-                    and req_jn.has_key('related_table') and req_jn.has_key('cardinality'):
-                    column_model = get_object_or_404(models.DataSourceColumn.get_by_id,req_jn['column'])
-                    if column_model.table.id != table_model.id:
-                        abort(400)
-                    related_column_model = get_object_or_404(models.DataSourceColumn.get_by_id,req_jn['related_column'])
-                    jn, created = models.DataSourceColumnJoin.get_or_create(related_table = related_column_model.table
-                          ,related_column = related_column_model
-                          ,cardinality = req_jn['cardinality']
-                          ,table = column_model.table
-                          ,column = column_model)
-                    joins.append(jn.to_dict(all=True))
-                else:
-                    abort(400)
-            return joins
-        else:
-            abort(400)
-
-
-class DataSourceColumnJoinResource(BaseResource):
-    def get(self,column_id):
-        column_model = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
-        model = models.DataSourceColumnJoin.get_by_column(column_model.id)
-        join_col = [m.to_dict() for m in model['join_col'] if model['join_col']]
-        join_rel = [m.to_dict(is_related=True) for m in model['join_rel'] if model['join_rel'] ]
-        schema = join_col + join_rel
-        return schema
-
+class DataSourceJoinResource(BaseResource):
     def post(self, column_id):
-        column_model = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
         req = request.get_json(True)
-        if req.has_key('related_column') and req.has_key('related_table') and req.has_key('cardinality'):
-            jn, created = models.DataSourceColumnJoin.get_or_create(related_table = req['related_table']
-                  ,related_column = req['related_column']
-                  ,cardinality = req['cardinality']
-                  ,table = column_model.table.id
-                  ,column = column_model.id)
-            return jn.to_dict(all=True)
-        else:
-            abort(400)
+        required_fields = ('table', 'column', 'related_table',
+                           'related_column', 'cardinality')
+
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+        
+        join = models.DataSourceJoin.create(
+            table=req['table'],
+            column=req['column'],
+            related_table=req['related_table'],
+            related_column=req['related_column'],
+            cardinality=req['cardinality']
+        )
+
+        return join.to_dict(all=True)
