@@ -531,6 +531,12 @@ div.table-name:hover {
   margin-top: 10px;
 }
 
+.smart-table.table-schema {
+    th:first-child {
+        width: 30%;
+    }
+}
+
 /* Embed Code */
 .embed-code code {
   display: block;

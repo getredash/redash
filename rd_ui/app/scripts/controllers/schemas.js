@@ -10,20 +10,22 @@
     });
 
     $scope.gridConfig = {
-      maxSize: 8,
+        isPaginationEnabled: true,
+        itemsByPage: 50,
+        maxSize: 8,
     };
 
 
     $scope.gridColumns = [
-      {
+    {
         "label": "Table",
         "map": "table",
         "cellTemplate": '<a href="/schemas/tables/{{dataRow.id}}">{{dataRow.name}}</a>'
-      },
-      {
+    },
+    {
         'label': 'Description',
         'map': 'description'
-      }
+    }
     ];
   };
 
@@ -45,15 +47,15 @@
     };
 
     $scope.gridConfig = {
-      isPaginationEnabled: false,
-      maxSize: 8
+        isPaginationEnabled: false,
+        maxSize: 8
     };
 
     $scope.onRelatedTableSelected = function(item) {
         $scope.related_table = _.find($scope.schemas, function(table) {return table.name == item.name;});
     };
 
-    $scope.gridColumns = [
+  $scope.gridColumns = [
       {
         "label": "Column",
         "map": "name",
@@ -66,7 +68,7 @@
         'label': 'Description',
         'map': 'description'
       }
-    ];
+  ];
 
     $scope.joinGridColumns = [
       {
@@ -102,8 +104,7 @@
         $growl.addErrorMessage("Failed saving alert.");
       });
     };
-
-  };
+};
 
   angular.module('redash.controllers')
     .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
