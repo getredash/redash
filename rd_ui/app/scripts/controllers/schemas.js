@@ -89,6 +89,7 @@
       join.cardinality = $scope.join.cardinality;
       join.$save(function(join) {
         $growl.addSuccessMessage("Saved.");
+        $scope.table.joins.push(join);
       }, function() {
         $growl.addErrorMessage("Failed saving alert.");
       });

@@ -136,7 +136,7 @@ function getKeyFromObject(obj, key) {
           }, true);
 
           //if item are added or removed into the data model from outside the grid
-          scope.$watch('dataCollection', function (oldValue, newValue) {
+          scope.$watchCollection('dataCollection', function (oldValue, newValue) {
             // evme:
             // reset sorting when data updates (executing query again)
             if (newValue) {
