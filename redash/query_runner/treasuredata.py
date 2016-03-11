@@ -48,9 +48,14 @@ class TreasureData(BaseQueryRunner):
                 'type': {
                     'type': 'string'
                 },
-                "db": {
-                    "type": "string",
-                    "title": "Database Name"
+                'db': {
+                    'type': 'string',
+                    'title': 'Database Name'
+                },
+                'get_schema': {
+                    'type': 'boolean',
+                    'title': 'Auto Schema Retrieval',
+                    'default': False
                 }
             },
             'required': ['apikey','db']
@@ -71,23 +76,24 @@ class TreasureData(BaseQueryRunner):
     def __init__(self, configuration):
         super(TreasureData, self).__init__(configuration)
 
-    def get_schema(self):
+    def get_schema(self, get_stats=False):
         schema = {}
-        try:
-            with tdclient.Client(self.configuration.get('apikey')) as client:
-                for table in client.tables(self.configuration.get('db')):
-                    table_name = '{}.{}'.format(self.configuration.get('db'), table.name)
-                    for table_schema in table.schema:
-                        schema[table_name] = {'name': table_name, 'columns': table.schema}
-        except Exception, ex:
-            raise Exception("Failed getting schema")
+        if self.configuration.get('get_schema', False):
+            try:
+                with tdclient.Client(self.configuration.get('apikey')) as client:
+                    for table in client.tables(self.configuration.get('db')):
+                        table_name = '{}.{}'.format(self.configuration.get('db'), table.name)
+                        for table_schema in table.schema:
+                            schema[table_name] = {'name': table_name, 'columns': table.schema}
+            except Exception, ex:
+                raise Exception("Failed getting schema")
         return schema.values()
 
     def run_query(self, query):
         connection = tdclient.connect(
                 endpoint=self.configuration.get('endpoint', 'https://api.treasuredata.com'),
                 apikey=self.configuration.get('apikey'),
-                type=self.configuration.get('type', 'hive'),
+                type=self.configuration.get('type', 'hive').lower(),
                 db=self.configuration.get('db'))
 
         cursor = connection.cursor()
