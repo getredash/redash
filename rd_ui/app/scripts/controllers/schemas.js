@@ -27,13 +27,17 @@
     ];
   };
 
-  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $growl, Events, Table, Column, Join) {
+  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $growl, Events, Table, Column, Join, Schema) {
     Events.record(currentUser, "view", "page", "tables");
     $scope.$parent.pageTitle = "Table";
 
     $scope.table = {};
     $scope.table = Table.get({'id': $routeParams.tableId}, function(data) {
         $scope.table = data;
+        $scope.schema = {};
+        Schema.get({'id': $scope.table.datasource.id}, function(data) {
+            $scope.schemas = data;
+        });
     });
 
     $scope.saveTableDescription = function() {
@@ -45,6 +49,9 @@
       maxSize: 8
     };
 
+    $scope.onRelatedTableSelected = function(item) {
+        $scope.related_table = _.find($scope.schemas, function(table) {return table.name == item.name;});
+    };
 
     $scope.gridColumns = [
       {
@@ -82,10 +89,8 @@
 
     $scope.saveChanges = function() {
       var join = new Join();
-      join.table = $scope.table.id;
-      join.column = $scope.join.column;
-      join.related_table = $scope.join.related_table;
-      join.related_column = $scope.join.related_column;
+      join.column_id = $scope.join.column.id;
+      join.related_column_id = $scope.join.related_column.id;
       join.cardinality = $scope.join.cardinality;
       join.$save(function(join) {
         $growl.addSuccessMessage("Saved.");
@@ -99,5 +104,5 @@
 
   angular.module('redash.controllers')
     .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
-    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Table', 'Column', 'Join', SchemaCtrl])
+    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Table', 'Column', 'Join', 'Schema', SchemaCtrl])
 })();
