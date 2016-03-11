@@ -6,7 +6,7 @@
 
     $scope.schemas = [];
     Schema.get({'id': $routeParams.dataSourceId}, function(data) {
-        $scope.schemas = data;
+        $scope.schemas = _.map(data, function(d) { return _.pick(d, 'description', 'datasource', 'id', 'name')});
     });
 
     $scope.gridConfig = {
