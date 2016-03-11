@@ -24,7 +24,7 @@
     {
         'label': 'Description',
         'map': 'description',
-        "cellTemplate": "{{dataRow.description ||''}}"
+        "cellTemplate": "{{dataRow.description}}"
       }
     ];
   };
@@ -75,22 +75,26 @@
       {
         "label": "Column",
         "map": "column",
+        "headerClass": 'col-xs-3'
       },
       {
         'label': 'Relationship',
         'map': 'cardinality',
         'formatFunction': function(value) {
             return $filter('cardinalityHumanize')(value);
-        }
+        },
+        "headerClass": 'col-xs-3'
       },
       {
         'label': 'Related Table',
         'map': 'related_table',
-        "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>'
+        "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
+        "headerClass": 'col-xs-3'
       },
       {
         'label': 'Related Column',
-        'map': 'related_column'
+        'map': 'related_column',
+        "headerClass": 'col-xs-3'
       }
     ];
 
