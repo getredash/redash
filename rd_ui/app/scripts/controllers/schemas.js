@@ -23,8 +23,9 @@
     },
     {
         'label': 'Description',
-        'map': 'description'
-    }
+        'map': 'description',
+        "cellTemplate": "{{dataRow.description ||''}}"
+      }
     ];
   };
 
@@ -65,7 +66,8 @@
       },
       {
         'label': 'Description',
-        'map': 'description'
+        'map': 'description',
+        "cellTemplate": "{{dataRow.description ||''}}"
       }
   ];
 
