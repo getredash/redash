@@ -112,21 +112,21 @@ class DataSourceTableResource(BaseResource):
         return data_source_table.to_dict(all=True, with_joins=True)
             
     def post(self, table_id):
+        # We only allow manual updates of description, as rest is updated from database
         req = request.get_json(True)
-        if req:
-            data_source_table = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
+        required_fields = ('description',)
+
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+                
+        data_source_table = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
         
-            if req.has_key('description'):
-                data_source_table.description = req['description']
-            if req.has_key('tags'):
-                data_source_table.tags = req['tags']
-               
-            data_source_table.save()
-            
-            return data_source_table.to_dict(all=True)
-        else:
-            abort(400)
-    
+        data_source_table.description = req['description']
+        data_source_table.save()
+        
+        return data_source_table.to_dict(all=True)
+
 
 class DataSourceColumnResource(BaseResource):
     def get(self, column_id):
@@ -145,7 +145,6 @@ class DataSourceColumnResource(BaseResource):
         data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
         
         data_source_column.description = req['description']
-           
         data_source_column.save()
             
         return data_source_column.to_dict(all=True)
@@ -174,7 +173,6 @@ class DataSourceJoinListResource(BaseResource):
             models.DataSourceColumn.name == req['related_column']
         )
 
-        
         join = models.DataSourceJoin.create(
             table=column.table,
             column=column,
