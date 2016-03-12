@@ -116,6 +116,7 @@
 
     $scope.toggleFullscreen = function() {
       $scope.isFullscreen = !$scope.isFullscreen;
+      $('body').toggleClass('headless');
     };
 
     $scope.triggerRefresh = function() {

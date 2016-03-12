@@ -576,3 +576,8 @@ div.table-name {
   z-index: 1000;
   opacity: 0.7;
 }
+
+.container-fluid {
+  padding-left: 5px;
+  padding-right: 5px;
+}
