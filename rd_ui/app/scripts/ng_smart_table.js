@@ -302,7 +302,7 @@ function getKeyFromObject(obj, key) {
         },
         replace: true,
         link: function (scope, element, attrs, ctrl) {
-          var form = angular.element(element.children()[1]),
+          var form = angular.element(element.children()[2]),
             input = angular.element(form.children()[0]);
 
           //init values
@@ -664,11 +664,11 @@ angular.module("partials/defaultHeader.html", []).run(["$templateCache", functio
 angular.module("partials/editableCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/editableCell.html",
     "<div ng-dblclick=\"toggleEditMode($event)\">\n" +
-      "<p ng-show=\"value == null && !isEditMode\" title=\"Double click to edit\"'><em>Empty</em></p>" +
+      "<p ng-show=\"(value == '' || value == null) && !isEditMode\" title=\"Double click to edit\"'><em>Empty</em></p>" +
     "    <span ng-hide=\"isEditMode\">{{value | format:column.formatFunction:column.formatParameter}}</span>\n" +
     "\n" +
     "    <form ng-submit=\"submit()\" ng-show=\"isEditMode\" name=\"myForm\">\n" +
-    "        <input name=\"myInput\" ng-model=\"value\" type=\"type\" input-type/>\n" +
+    "        <input name=\"myInput\" ng-model=\"value\" type=\"type\" input-type class=\"rd-form-control\"/>\n" +
     "    </form>\n" +
     "</div>");
 }]);

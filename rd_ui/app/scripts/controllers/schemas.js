@@ -63,7 +63,7 @@
       var columns = $scope.table['columns'];
           var idx = columns.indexOf(row['item']);
           if (idx !== -1) {
-            var newValue = row['item']['description'];
+            var newValue = row['item']['description'] == '' ? null:row['item']['description'];
             TableColumn.save({'id': row['item']['id'],'description':newValue},function (col) {
                 $growl.addSuccessMessage("Saved.");
               }, function () {
