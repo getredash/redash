@@ -650,7 +650,7 @@
     return resource;
   };
 
-  var Column = function ($resource) {
+  var TableColumn = function ($resource) {
     var actions = {
         'get': {'method': 'GET', 'cache': false, 'isArray': false},
         'save': {'method': 'POST'}
@@ -697,7 +697,7 @@
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Schema', ['$resource', Schema])
       .factory('Table', ['$resource', Table])
-      .factory('Column', ['$resource', Column])
+      .factory('TableColumn', ['$resource', TableColumn])
       .factory('Join', ['$resource', Join])
       .factory('Widget', ['$resource', 'Query', Widget])
       .factory('User', ['$resource', '$http', User])

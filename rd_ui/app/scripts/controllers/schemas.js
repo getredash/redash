@@ -29,7 +29,7 @@
     ];
   };
 
-  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $filter, $growl, Events, Table, Column, Join, Schema) {
+  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $filter, $growl, Events, Table, TableColumn, Join, Schema) {
     Events.record(currentUser, "view", "page", "tables");
     $scope.$parent.pageTitle = "Table";
 
@@ -46,6 +46,10 @@
       Table.save({'id': $scope.table.id, 'description': $scope.table.description});
     };
 
+    $scope.$on("updateDataRow",function(event,data){
+      $scope.updateColRow(data);
+    });
+
     $scope.gridConfig = {
       isPaginationEnabled: false,
       isGlobalSearchActivated: true
@@ -54,6 +58,20 @@
     $scope.onRelatedTableSelected = function(item) {
         $scope.related_table = _.find($scope.schemas, function(table) {return table.name == item.name;});
     };
+
+    $scope.updateColRow = function(row){
+      var columns = $scope.table['columns'];
+          var idx = columns.indexOf(row['item']);
+          if (idx !== -1) {
+            var newValue = row['item']['description'];
+            TableColumn.save({'id': row['item']['id'],'description':newValue},function (col) {
+                $growl.addSuccessMessage("Saved.");
+              }, function () {
+                $growl.addErrorMessage("Failed saving alert.");
+              });
+          }
+        };
+
 
   $scope.gridColumns = [
       {
@@ -67,7 +85,7 @@
       {
         'label': 'Description',
         'map': 'description',
-        "cellTemplate": "{{dataRow.description ||''}}"
+        'isEditable': true
       }
   ];
 
@@ -114,5 +132,5 @@
 
   angular.module('redash.controllers')
     .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
-    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', '$filter', 'growl', 'Events', 'Table', 'Column', 'Join', 'Schema', SchemaCtrl])
+    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', '$filter', 'growl', 'Events', 'Table', 'TableColumn', 'Join', 'Schema', SchemaCtrl])
 })();
