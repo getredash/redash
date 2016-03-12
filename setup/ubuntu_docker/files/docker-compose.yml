@@ -11,7 +11,6 @@ redash:
     REDASH_REDIS_URL: redis://redis:6379/0
     REDASH_DATABASE_URL: postgresql://postgres@postgres/postgres
     REDASH_COOKIE_SECRET: veryverysecret
-    REDASH_GOOGLE_APPS_DOMAIN:
 redis:
   image: redis:2.8
 postgres:
