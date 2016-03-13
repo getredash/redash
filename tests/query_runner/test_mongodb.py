@@ -1,8 +1,8 @@
 import datetime
 import json
 from unittest import TestCase
+from pytz import utc
 from redash.query_runner.mongodb import parse_query_json
-from bson.tz_util import utc
 
 from redash.utils import parse_human_time
 
