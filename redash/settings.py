@@ -131,7 +131,6 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
-    'redash.query_runner.mql',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',
@@ -142,7 +141,6 @@ default_query_runners = [
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.treasuredata',
-    'redash.query_runner.oracle',
     'redash.query_runner.sqlite',
     'redash.query_runner.mssql',
 ]
