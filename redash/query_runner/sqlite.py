@@ -3,14 +3,14 @@ import logging
 import sqlite3
 import sys
 
-from redash.query_runner import BaseQueryRunner
+from redash.query_runner import BaseSQLQueryRunner
 from redash.query_runner import register
 
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
-class Sqlite(BaseQueryRunner):
+class Sqlite(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -33,7 +33,7 @@ class Sqlite(BaseQueryRunner):
 
         self._dbpath = self.configuration['dbpath']
 
-    def get_schema(self):
+    def _get_tables(self, schema):
         query_table = "select tbl_name from sqlite_master where type='table'"
         query_columns = "PRAGMA table_info(%s)"
 
@@ -44,7 +44,6 @@ class Sqlite(BaseQueryRunner):
 
         results = json.loads(results)
 
-        schema = {}
         for row in results['rows']:
             table_name = row['tbl_name']
             schema[table_name] = {'name': table_name, 'columns': []}
