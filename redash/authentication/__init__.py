@@ -4,16 +4,24 @@ import hmac
 import time
 import logging
 
-from flask import redirect, request, jsonify
+from flask import redirect, request, jsonify, url_for
 
 from redash import models, settings
-from redash.authentication import google_oauth, saml_auth
 from redash.authentication.org_resolving import current_org
-from redash.authentication.helper import get_login_url
+from redash.authentication import google_oauth, saml_auth
 from redash.tasks import record_event
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
+
+
+def get_login_url(external=False, next="/"):
+    if settings.MULTI_ORG:
+        login_url = url_for('redash.login', org_slug=current_org.slug, next=next, _external=external)
+    else:
+        login_url = url_for('redash.login', next=next, _external=external)
+
+    return login_url
 
 
 def sign(key, path, expires):
@@ -145,3 +153,5 @@ def setup_authentication(app):
     else:
         logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
         login_manager.request_loader(hmac_load_user_from_request)
+
+

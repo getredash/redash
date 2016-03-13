@@ -1,20 +1,20 @@
 import json
 
 from funcy import project
-from flask import render_template, url_for, request
+from flask import render_template, request
 from flask_login import login_required, current_user
 from flask_restful import abort
 
 from redash import models, settings
 from redash import serializers
-from redash.wsgi import app
 from redash.utils import json_dumps
-from redash.handlers import org_scoped_rule, base_href
+from redash.handlers import base_href, routes
+from redash.handlers.base import org_scoped_rule
 from redash.permissions import require_access, view_only
-from redash.authentication.org_resolving import current_org
+from authentication import current_org
 
 
-@app.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
+@routes.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
 @login_required
 def embed(query_id, visualization_id, org_slug=None):
     # TODO: add event for embed access
@@ -49,7 +49,7 @@ def embed(query_id, visualization_id, org_slug=None):
                            analytics=settings.ANALYTICS)
 
 
-@app.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
+@routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
 @login_required
 def public_dashboard(token, org_slug=None):
     # TODO: verify object is a dashboard?

@@ -1,17 +1,17 @@
 import hashlib
 import json
 
-from flask import render_template, send_from_directory, current_app, url_for, request
+from flask import render_template, send_from_directory, current_app
 from flask_login import current_user, login_required
 
 from redash import settings, __version__
-from redash.handlers import org_scoped_rule, base_href
-from redash.wsgi import app
+from redash.handlers import base_href, routes
+from redash.handlers.base import org_scoped_rule
 from redash.version_check import get_latest_version
-from redash.authentication.org_resolving import current_org
+from authentication import current_org
 
 
-@app.route('/<path:filename>')
+@routes.route('/<path:filename>')
 def send_static(filename):
     if current_app.debug:
         cache_timeout = 0
@@ -59,10 +59,10 @@ def index(**kwargs):
 
 def register_static_routes(rules):
     # Make sure that / is the first route considered as index.
-    app.add_url_rule(org_scoped_rule("/"), "index", index)
+    routes.add_url_rule(org_scoped_rule("/"), "index", index)
 
     for rule in rules:
-        app.add_url_rule(org_scoped_rule(rule), None, index)
+        routes.add_url_rule(org_scoped_rule(rule), None, index)
 
 rules = ['/admin/<anything>/<whatever>',
           '/admin/<anything>',

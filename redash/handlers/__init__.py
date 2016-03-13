@@ -1,35 +1,29 @@
 from flask import jsonify, url_for
 from flask_login import login_required
 
-from redash.authentication import current_org
 from redash import settings
-from redash.wsgi import app
-from redash.permissions import require_super_admin
+from redash.authentication.org_resolving import current_org
+from redash.handlers.api import api
+from redash.handlers.base import routes
 from redash.monitor import get_status
-
-
-def org_scoped_rule(rule):
-    if settings.MULTI_ORG:
-        return "/<org_slug:org_slug>{}".format(rule)
-
-    return rule
+from redash.permissions import require_super_admin
 
 
 def base_href():
     if settings.MULTI_ORG:
-        base_href = url_for('index', _external=True, org_slug=current_org.slug)
+        base_href = url_for('redash.index', _external=True, org_slug=current_org.slug)
     else:
-        base_href = url_for('index', _external=True)
+        base_href = url_for('redash.index', _external=True)
 
     return base_href
 
 
-@app.route('/ping', methods=['GET'])
+@routes.route('/ping', methods=['GET'])
 def ping():
     return 'PONG.'
 
 
-@app.route('/status.json')
+@routes.route('/status.json')
 @login_required
 @require_super_admin
 def status_api():
@@ -38,5 +32,7 @@ def status_api():
     return jsonify(status)
 
 
-from redash.handlers import alerts, authentication, base, dashboards, data_sources, events, queries, query_results, \
-    static, users, visualizations, widgets, embed, groups
+def init_app(app):
+    from redash.handlers import embed, queries, static, authentication
+    app.register_blueprint(routes)
+    api.init_app(app)

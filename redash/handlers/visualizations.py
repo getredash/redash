@@ -2,7 +2,6 @@ import json
 from flask import request
 
 from redash import models
-from redash.wsgi import api
 from redash.permissions import require_permission, require_admin_or_owner
 from redash.handlers.base import BaseResource, get_object_or_404
 
@@ -46,6 +45,3 @@ class VisualizationResource(BaseResource):
         require_admin_or_owner(vis.query.user_id)
 
         vis.delete_instance()
-
-api.add_org_resource(VisualizationListResource, '/api/visualizations', endpoint='visualizations')
-api.add_org_resource(VisualizationResource, '/api/visualizations/<visualization_id>', endpoint='visualization')

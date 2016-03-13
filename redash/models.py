@@ -152,6 +152,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         else:
             self.id = api_key.api_key
             self.object = api_key.object
+        # self.name =
         self.groups = groups
         self.org = org
 

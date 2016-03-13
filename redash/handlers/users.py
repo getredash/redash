@@ -5,7 +5,6 @@ from funcy import project
 from peewee import IntegrityError
 
 from redash import models
-from redash.wsgi import api
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
@@ -93,5 +92,3 @@ class UserResource(BaseResource):
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
 
-api.add_org_resource(UserListResource, '/api/users', endpoint='users')
-api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')

@@ -4,7 +4,6 @@ from funcy import distinct, take
 from itertools import chain
 
 from redash import models
-from redash.wsgi import api
 from redash.permissions import require_permission, require_admin_or_owner
 from redash.handlers.base import BaseResource, get_object_or_404
 
@@ -47,7 +46,7 @@ class DashboardResource(BaseResource):
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
-            response['public_url'] = url_for('public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
+            response['public_url'] = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
             response['api_key'] = api_key.api_key
 
         return response
@@ -77,7 +76,7 @@ class DashboardShareResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         require_admin_or_owner(dashboard.user_id)
         api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
-        public_url = url_for('public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
+        public_url = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
 
         return {'public_url': public_url, 'api_key': api_key.api_key}
 
@@ -91,7 +90,3 @@ class DashboardShareResource(BaseResource):
             api_key.save()
 
 
-api.add_org_resource(DashboardListResource, '/api/dashboards', endpoint='dashboards')
-api.add_org_resource(RecentDashboardsResource, '/api/dashboards/recent', endpoint='recent_dashboards')
-api.add_org_resource(DashboardResource, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
-api.add_org_resource(DashboardShareResource, '/api/dashboards/<dashboard_id>/share', endpoint='dashboard_share')
