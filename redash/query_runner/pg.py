@@ -152,4 +152,37 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return json_data, error
 
+
+class Redshift(PostgreSQL):
+    @classmethod
+    def type(cls):
+        return "redshift"
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "dbname": {
+                    "type": "string",
+                    "title": "Database Name"
+                }
+            },
+            "required": ["dbname", "user", "password", "host", "port"],
+            "secret": ["password"]
+        }
+
 register(PostgreSQL)
+register(Redshift)
