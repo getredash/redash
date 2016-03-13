@@ -13,7 +13,7 @@ from redash.handlers.base import BaseResource, get_object_or_404
 class DataSourceTypeListAPI(BaseResource):
     @require_admin
     def get(self):
-        return [q.to_dict() for q in query_runners.values()]
+        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
 
 api.add_org_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
 
