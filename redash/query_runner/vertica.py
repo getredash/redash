@@ -28,7 +28,7 @@ types_map = {
 }
 
 
-class Vertica(BaseQueryRunner):
+class Vertica(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -68,7 +68,7 @@ class Vertica(BaseQueryRunner):
     def __init__(self, configuration):
         super(Vertica, self).__init__(configuration)
 
-    def get_schema(self):
+    def _get_tables(self, schema):
         query = """
         Select table_schema, table_name, column_name from columns where is_system_table=false;
         """
@@ -80,7 +80,6 @@ class Vertica(BaseQueryRunner):
 
         results = json.loads(results)
 
-        schema = {}
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
 
