@@ -17,7 +17,7 @@ var paths = {
   scripts: [yeoman.app + '/scripts/**/*.js'],
   styles: [yeoman.app + '/styles/**/*.css'],
   views: {
-    main: [yeoman.app + '/index.html', 'app/vendor_scripts.html', 'app/login.html', 'app/embed.html'],
+    main: [yeoman.app + '/index.html', 'app/vendor_scripts.html', 'app/login.html', 'app/embed.html', 'app/app_layout.html'],
     files: [yeoman.app + '/views/**/*.html']
   }
 };
@@ -84,7 +84,7 @@ gulp.task('client:build', ['html', 'styles'], function () {
     .pipe(cssFilter)
     .pipe($.minifyCss({cache: true}))
     .pipe(cssFilter.restore())
-    .pipe(new $.revAll({dontRenameFile: ['.html'], dontUpdateReference: ['vendor_scripts.html']}).revision())
+    .pipe(new $.revAll({dontRenameFile: ['.html'], dontUpdateReference: ['vendor_scripts.html', 'app_layout.html']}).revision())
     .pipe(gulp.dest(yeoman.dist));
 });
 
