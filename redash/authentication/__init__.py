@@ -109,6 +109,8 @@ def log_user_logged_in(app, user):
         'action': 'login',
         'object_type': 'redash',
         'timestamp': int(time.time()),
+        'user_agent': request.user_agent.string,
+        'ip': request.remote_addr
     }
 
     record_event.delay(event)

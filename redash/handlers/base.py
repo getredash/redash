@@ -1,3 +1,4 @@
+from flask import request
 from flask_restful import Resource, abort
 from flask_login import current_user, login_required
 from peewee import DoesNotExist
@@ -38,6 +39,11 @@ class BaseResource(Resource):
                 'user_id': self.current_user.id,
                 'org_id': self.current_org.id
             })
+
+        options.update({
+            'user_agent': request.user_agent.string,
+            'ip': request.remote_addr
+        })
 
         record_event.delay(options)
 
