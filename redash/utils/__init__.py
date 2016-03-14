@@ -13,6 +13,7 @@ import pystache
 from funcy import distinct
 
 from .human_time import parse_human_time
+from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
@@ -144,3 +145,12 @@ def collect_parameters_from_request(args):
             parameters[k[2:]] = v
 
     return parameters
+
+
+def base_url(org):
+    if settings.MULTI_ORG:
+        return "https://{}/{}".format(settings.HOST, org.slug)
+
+    return settings.HOST
+
+

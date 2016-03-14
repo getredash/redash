@@ -1,0 +1,8 @@
+Hi {{ user.name }},
+
+You told us you forgot your password. If you really did, click here to choose a new one:
+
+{{ reset_link }}
+
+If you didn't mean to reset your password, then you can just ignore this email; your password will not change.
+

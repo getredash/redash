@@ -1,0 +1,17 @@
+Hi there,
+
+We searched for Re:dash accounts you've already joined or are allowed to join, using {{email}} and we found the following:
+
+{% for account in users %}
+* {{account.org.name}}: {{ url_for('redash.index', org_slug=account.org.slug, _external=True) }}
+{% endfor %}
+
+If you're trying to join a specific account that isn't listed here, you can try contacting your team administrator for an invitation.
+You can also try a different email, or forge ahead and create a new team!
+
+Please let us know if you have any other questions or feedback.
+
+Cheers,
+
+Re:dash
+

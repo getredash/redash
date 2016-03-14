@@ -1,0 +1,28 @@
+{% extends "emails/layout.html" %}
+
+{% block content %}
+
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">Hi there,</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+We searched for Re:dash accounts you've already joined or are allowed to join, using {{email}} and we found the following:
+</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+<ul>
+    {% for account in users %}
+        <li>{{account.org.name}}: <a href="{{ url_for('redash.index', org_slug=account.org.slug, _external=True) }}">{{ url_for('redash.index', org_slug=account.org.slug, _external=True) }}</a></li>
+    {% endfor %}
+</ul>
+
+</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+If you're trying to join a specific account that isn't listed here, you can try contacting your account administrator for an invitation.
+You can also try a different email, or forge ahead and <a href="{{ url_for('redash.signup', _external=True)}}">create a new account</a>!
+</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+Please let us know if you have any other questions or feedback.
+</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+Cheers,<br/>
+Re:dash
+</p>
+{% endblock %}

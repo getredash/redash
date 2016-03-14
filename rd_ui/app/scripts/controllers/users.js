@@ -314,6 +314,12 @@
         growl.addErrorMessage(message);
       });
     };
+
+    $scope.resendInvite= function() {
+      $http.post('api/users/' + $scope.user.id + '/invite').success(function(user) {
+        $scope.user.inviteLink = user.invite_link;
+      });
+    };
   };
 
   var NewUserCtrl = function ($scope, $location, growl, Events, User) {
@@ -328,8 +334,9 @@
       }
 
       $scope.user.$save(function(user) {
+        $scope.user = user;
+        $scope.user.created = true;
         growl.addSuccessMessage("Saved.")
-        $location.path('/users/' + user.id).replace();
       }, function(error) {
         var message = error.data.message || "Failed saving.";
         growl.addErrorMessage(message);
