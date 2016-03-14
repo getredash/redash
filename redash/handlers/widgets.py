@@ -3,12 +3,11 @@ import json
 from flask import request
 
 from redash import models
-from redash.wsgi import api
 from redash.permissions import require_permission, require_admin_or_owner, require_access, view_only
 from redash.handlers.base import BaseResource
 
 
-class WidgetListAPI(BaseResource):
+class WidgetListResource(BaseResource):
     @require_permission('edit_dashboard')
     def post(self):
         widget_properties = request.get_json(force=True)
@@ -51,7 +50,7 @@ class WidgetListAPI(BaseResource):
         return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row}
 
 
-class WidgetAPI(BaseResource):
+class WidgetResource(BaseResource):
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
@@ -60,5 +59,3 @@ class WidgetAPI(BaseResource):
 
         return {'layout': widget.dashboard.layout}
 
-api.add_org_resource(WidgetListAPI, '/api/widgets', endpoint='widgets')
-api.add_org_resource(WidgetAPI, '/api/widgets/<int:widget_id>', endpoint='widget')

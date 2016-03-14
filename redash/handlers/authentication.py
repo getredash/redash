@@ -2,15 +2,14 @@ from flask import render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_user, logout_user
 
 from redash import models, settings
-from redash.wsgi import app
-from redash.handlers import org_scoped_rule
-from redash.authentication.org_resolving import current_org
-from redash.authentication.helper import get_login_url
+from redash.handlers import routes
+from redash.handlers.base import org_scoped_rule
+from redash.authentication import current_org, get_login_url
 
 
-@app.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
+@routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 def login(org_slug=None):
-    index_url = url_for("index", org_slug=org_slug)
+    index_url = url_for("redash.index", org_slug=org_slug)
     next_path = request.args.get('next', index_url)
 
     if current_user.is_authenticated:
@@ -49,7 +48,7 @@ def login(org_slug=None):
                            show_saml_login=settings.SAML_LOGIN_ENABLED)
 
 
-@app.route(org_scoped_rule('/logout'))
+@routes.route(org_scoped_rule('/logout'))
 def logout(org_slug=None):
     logout_user()
     return redirect(get_login_url())

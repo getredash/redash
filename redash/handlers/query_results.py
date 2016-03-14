@@ -9,7 +9,6 @@ from flask_login import current_user
 from flask_restful import abort
 import xlsxwriter
 from redash import models, settings, utils
-from redash.wsgi import api
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
@@ -39,7 +38,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
         return {'job': job.to_dict()}
 
 
-class QueryResultListAPI(BaseResource):
+class QueryResultListResource(BaseResource):
     @require_permission('execute_query')
     def post(self):
         params = request.get_json(force=True)
@@ -68,7 +67,7 @@ class QueryResultListAPI(BaseResource):
 ONE_YEAR = 60 * 60 * 24 * 365.25
 
 
-class QueryResultAPI(BaseResource):
+class QueryResultResource(BaseResource):
     @staticmethod
     def add_cors_headers(headers):
         if 'Origin' in request.headers:
@@ -189,15 +188,7 @@ class QueryResultAPI(BaseResource):
         return make_response(s.getvalue(), 200, headers)
 
 
-api.add_org_resource(QueryResultListAPI, '/api/query_results', endpoint='query_results')
-api.add_org_resource(QueryResultAPI,
-                 '/api/query_results/<query_result_id>',
-                 '/api/queries/<query_id>/results.<filetype>',
-                 '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
-                 endpoint='query_result')
-
-
-class JobAPI(BaseResource):
+class JobResource(BaseResource):
     def get(self, job_id):
         # TODO: if finished, include the query result
         job = QueryTask(job_id=job_id)
@@ -207,4 +198,3 @@ class JobAPI(BaseResource):
         job = QueryTask(job_id=job_id)
         job.cancel()
 
-api.add_org_resource(JobAPI, '/api/jobs/<job_id>', endpoint='job')

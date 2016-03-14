@@ -3,22 +3,19 @@ from flask_restful import abort
 from funcy import project
 
 from redash import models
-from redash.wsgi import api
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.permissions import require_admin, require_permission, require_access, view_only
 from redash.query_runner import query_runners, get_configuration_schema_for_type
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
-class DataSourceTypeListAPI(BaseResource):
+class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
         return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
 
-api.add_org_resource(DataSourceTypeListAPI, '/api/data_sources/types', endpoint='data_source_types')
 
-
-class DataSourceAPI(BaseResource):
+class DataSourceResource(BaseResource):
     @require_admin
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
@@ -53,7 +50,7 @@ class DataSourceAPI(BaseResource):
         return make_response('', 204)
 
 
-class DataSourceListAPI(BaseResource):
+class DataSourceListResource(BaseResource):
     @require_permission('list_data_sources')
     def get(self):
         if self.current_user.has_permission('admin'):
@@ -100,11 +97,8 @@ class DataSourceListAPI(BaseResource):
 
         return datasource.to_dict(all=True)
 
-api.add_org_resource(DataSourceListAPI, '/api/data_sources', endpoint='data_sources')
-api.add_org_resource(DataSourceAPI, '/api/data_sources/<data_source_id>', endpoint='data_source')
 
-
-class DataSourceSchemaAPI(BaseResource):
+class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         require_access(data_source.groups, self.current_user, view_only)
@@ -112,4 +106,3 @@ class DataSourceSchemaAPI(BaseResource):
 
         return schema
 
-api.add_org_resource(DataSourceSchemaAPI, '/api/data_sources/<data_source_id>/schema')

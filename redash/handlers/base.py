@@ -1,12 +1,15 @@
 import time
-from flask import request
+from flask import request, Blueprint
 from flask_restful import Resource, abort
 from flask_login import current_user, login_required
 from peewee import DoesNotExist
 
-from redash.authentication.org_resolving import current_org
+from redash import settings
+from redash.authentication import current_org
 from redash.tasks import record_event
 from redash.models import ApiUser
+
+routes = Blueprint('redash', __name__)
 
 
 class BaseResource(Resource):
@@ -63,3 +66,10 @@ def get_object_or_404(fn, *args, **kwargs):
         return fn(*args, **kwargs)
     except DoesNotExist:
         abort(404)
+
+
+def org_scoped_rule(rule):
+    if settings.MULTI_ORG:
+        return "/<org_slug:org_slug>{}".format(rule)
+
+    return rule

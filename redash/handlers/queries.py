@@ -6,15 +6,15 @@ import sqlparse
 from funcy import distinct, take
 from itertools import chain
 
+from redash.handlers.base import routes
 from redash.handlers.query_results import run_query
 from redash import models
-from redash.wsgi import app, api
 from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_parameters_from_request
 
 
-@app.route('/api/queries/format', methods=['POST'])
+@routes.route('/api/queries/format', methods=['POST'])
 @login_required
 def format_sql_query():
     arguments = request.get_json(force=True)
@@ -23,7 +23,7 @@ def format_sql_query():
     return sqlparse.format(query, reindent=True, keyword_case='upper')
 
 
-class QuerySearchAPI(BaseResource):
+class QuerySearchResource(BaseResource):
     @require_permission('view_query')
     def get(self):
         term = request.args.get('q', '')
@@ -31,7 +31,7 @@ class QuerySearchAPI(BaseResource):
         return [q.to_dict() for q in models.Query.search(term, self.current_user.groups)]
 
 
-class QueryRecentAPI(BaseResource):
+class QueryRecentResource(BaseResource):
     @require_permission('view_query')
     def get(self):
         queries = models.Query.recent(self.current_user.groups, self.current_user.id)
@@ -44,7 +44,7 @@ class QueryRecentAPI(BaseResource):
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
 
-class QueryListAPI(BaseResource):
+class QueryListResource(BaseResource):
     @require_permission('create_query')
     def post(self):
         query_def = request.get_json(force=True)
@@ -72,7 +72,7 @@ class QueryListAPI(BaseResource):
         return [q.to_dict(with_stats=True) for q in models.Query.all_queries(self.current_user.groups)]
 
 
-class QueryAPI(BaseResource):
+class QueryResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
@@ -123,8 +123,3 @@ class QueryRefreshResource(BaseResource):
         return run_query(query.data_source, parameter_values, query.query, query.id)
 
 
-api.add_org_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')
-api.add_org_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')
-api.add_org_resource(QueryListAPI, '/api/queries', endpoint='queries')
-api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
-api.add_org_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')
