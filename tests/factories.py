@@ -107,6 +107,11 @@ destination_factory = ModelFactory(redash.models.NotificationDestination,
                                    type='slack',
                                    options=ConfigurationContainer.from_json('{"url": "https://www.slack.com"}'))
 
+alert_subscription_factory = ModelFactory(redash.models.AlertSubscription,
+                                   user=user_factory.create,
+                                   destination=destination_factory.create,
+                                   alert=alert_factory.create)
+
 
 class Factory(object):
     def __init__(self):
@@ -242,3 +247,6 @@ class Factory(object):
         }
         args.update(kwargs)
         return destination_factory.create(**args)
+
+    def create_alert_subscription(self, **kwargs):
+        return alert_subscription_factory.create(**kwargs)

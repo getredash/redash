@@ -106,9 +106,9 @@ class AlertSubscriptionListResource(BaseResource):
 
 class AlertSubscriptionResource(BaseResource):
     def delete(self, alert_id, subscriber_id):
-
+        
         subscription = get_object_or_404(models.AlertSubscription.get_by_id, subscriber_id)
-        require_admin_or_owner(subscription.id)
+        require_admin_or_owner(subscription.user.id)
         subscription.delete_instance()
 
         self.record_event({

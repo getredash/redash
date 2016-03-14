@@ -87,18 +87,20 @@ class TestAlertSubscriptionListResourceGet(BaseTestCase):
 
 class TestAlertSubscriptionresourceDelete(BaseTestCase):
     def test_only_subscriber_or_admin_can_unsubscribe(self):
-        alert = self.factory.create_alert()
+        subscription = self.factory.create_alert_subscription()
+        alert = subscription.alert
+        user = subscription.user
+        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, subscription.id)
+
         other_user = self.factory.create_user()
-        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, other_user.id)
 
-        AlertSubscription.create(alert=alert, user=other_user)
-
-        response = self.make_request('delete', path)
+        response = self.make_request('delete', path, user=other_user)
         self.assertEqual(response.status_code, 403)
 
-        response = self.make_request('delete', path, user=self.factory.create_admin())
+        response = self.make_request('delete', path, user=user)
         self.assertEqual(response.status_code, 200)
 
-        AlertSubscription.create(alert=alert, user=other_user)
-        response = self.make_request('delete', path, user=other_user)
+        subscription_two = AlertSubscription.create(alert=alert, user=other_user)
+        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, subscription_two.id)
+        response = self.make_request('delete', path, user=self.factory.create_admin())
         self.assertEqual(response.status_code, 200)
