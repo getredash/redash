@@ -1105,8 +1105,13 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
     class Meta:
         db_table = 'alert_subscriptions'
 
+        indexes = (
+            (('destination', 'alert'), True),
+        )
+
     def to_dict(self):
         d = {
+            'id': self.id,
             'user': self.user.to_dict(),
             'alert_id': self.alert_id
         }
@@ -1119,11 +1124,6 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
     @classmethod
     def all(cls, alert_id):
         return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
-
-    @classmethod
-    def unsubscribe(cls, alert_id, user_id):
-        query = AlertSubscription.delete().where(AlertSubscription.alert==alert_id).where(AlertSubscription.user==user_id)
-        return query.execute()
 
 
 all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription)
