@@ -1,4 +1,23 @@
 <div>
-    <strong>Subscribers</strong> <subscribe-button alert-id="alertId" subscribers="subscribers"></subscribe-button><br/>
-    <img ng-src="{{s.user.gravatar_url}}" class="img-circle" alt="{{s.user.name}}" ng-repeat="s in subscribers"/>
+    <form name="subscribeForm" ng-submit="saveSubscriber()" class="form">
+        <div class="form-group">
+            <label>Add a Destination</label>
+            <ui-select ng-model="subscription.destination">
+                <ui-select-match>{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="d in destinations">
+                    <span ng-bind-html=destinationsDisplay(d)></span>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary">Subscribe</button>
+        </div>
+    </form>
+    <div class="list-group">
+        <label>Currently subscribed</label>
+        <div class="list-group-item" ng-repeat="subscriber in subscribers">
+            <span ng-bind-html=destinationsDisplay(subscriber.destination)></span>
+            <button class="btn btn-xs btn-danger pull-right" ng-click="unsubscribe(subscriber)">Unsubscribe</button>
+        </div>
+    </div>
 </div>

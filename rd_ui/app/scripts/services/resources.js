@@ -608,7 +608,12 @@
   };
 
   var AlertSubscription = function ($resource) {
-    var resource = $resource('api/alerts/:alertId/subscriptions/:userId', {alertId: '@alert_id', userId: '@user.id'});
+    var actions = {
+      'get': {method: 'GET'},
+      'save': {method: 'POST'},
+      'delete': {method: 'DELETE'}
+    };
+    var resource = $resource('api/alerts/:alertId/subscriptions/:subscriberId', {alertId: '@alert_id', subscriberId: '@subscriber_id'});
     return resource;
   };
 

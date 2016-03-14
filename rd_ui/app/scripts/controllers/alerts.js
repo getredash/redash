@@ -74,6 +74,7 @@
 
     $scope.ops = ['greater than', 'less than', 'equals'];
     $scope.selectedQuery = null;
+    $scope.destinations = Destination.query();
 
     $scope.getDefaultName = function() {
       if (!$scope.alert.query) {
@@ -92,8 +93,6 @@
       });
     };
 
-    $scope.destinations = Destination.query();
-
     $scope.saveChanges = function() {
       if ($scope.alert.name === undefined || $scope.alert.name === '') {
         $scope.alert.name = $scope.getDefaultName();
@@ -110,9 +109,10 @@
         growl.addErrorMessage("Failed saving alert.");
       });
     };
+
   };
 
-  angular.module('redash.directives').directive('alertSubscribers', ['AlertSubscription', function (AlertSubscription) {
+  angular.module('redash.directives').directive('alertSubscribers', ['AlertSubscription', 'Destination', 'growl', function (AlertSubscription, Destination, growl) {
     return {
       restrict: 'E',
       replace: true,
@@ -122,6 +122,40 @@
       },
       controller: function ($scope) {
         $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId});
+        $scope.subscription = {};
+        $scope.destinations = Destination.query();
+
+        $scope.destinationsDisplay = function(destination) {
+            var icons = {
+                'slack': 'fa-slack',
+                'email': 'fa-envelope',
+                'webhook': 'fa-bolt',
+                'hipchat': 'fa-comment-o'
+            }
+            var icon = icons[destination.type] || 'fa-bullseye'
+
+            return '<i class="fa ' + icon + '"></i>&nbsp;' + destination.name
+        };
+
+        $scope.saveSubscriber = function() {
+            $scope.sub = new AlertSubscription({alert_id: $scope.alertId, destination_id: $scope.subscription.destination.id});
+            $scope.sub.$save(function() {
+              growl.addSuccessMessage("Subscribed.");
+              $scope.subscribers.push($scope.sub);
+            }, function() {
+              growl.addErrorMessage("Failed saving subscription.");
+            });
+        };
+
+        $scope.unsubscribe = function(subscriber) {
+            $scope.sub = new AlertSubscription({alert_id: subscriber.alert_id, subscriber_id: subscriber.id});
+            $scope.sub.$delete(function() {
+              growl.addSuccessMessage("Unsubscribed");
+              $scope.subscribers = _.without($scope.subscribers, subscriber);
+            }, function() {
+              growl.addErrorMessage("Failed unsubscribing.");
+            });
+        };
       }
     }
   }]);
@@ -159,7 +193,7 @@
             });
           } else {
             $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
-            $scope.subscription.$save(function() {
+            $scope.subscription.$delete(function() {
               $scope.subscribers.push($scope.subscription);
               updateClass();
             }, function() {
