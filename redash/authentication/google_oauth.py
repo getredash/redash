@@ -44,8 +44,16 @@ def verify_profile(org, profile):
     if org.is_public:
         return True
 
-    domain = profile['email'].split('@')[-1]
-    return domain in org.google_apps_domains
+    email = profile['email']
+    domain = email.split('@')[-1]
+
+    if domain in org.google_apps_domains:
+        return True
+
+    if org.has_user(email) == 1:
+        return True
+
+    return False
 
 
 def create_and_login_user(org, name, email):

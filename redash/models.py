@@ -203,6 +203,9 @@ class Organization(ModelTimestampsMixin, BaseModel):
     def admin_group(self):
         return self.groups.where(Group.name=='admin', Group.type==Group.BUILTIN_GROUP).first()
 
+    def has_user(self, email):
+        return self.users.where(User.email==email).count() == 1
+
 
 class Group(BaseModel, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
