@@ -116,7 +116,9 @@ class QueryResultAPI(BaseResource):
                     'action': 'api_get',
                     'timestamp': int(time.time()),
                     'api_key': self.current_user.id,
-                    'file_type': filetype
+                    'file_type': filetype,
+                    'user_agent': request.user_agent.string,
+                    'ip': request.remote_addr
                 }
 
                 if query_id:
