@@ -160,11 +160,9 @@ def get_tasks():
             # Add title and subtitle
             if sheet['option'].get('sheet', None) is not None:
                 worksheet.merge_range(rowIdx, 0, rowIdx, 2, sheet['option']['sheet'], formatTitle)
-                #worksheet.write(rowIdx, 0, sheet['option']['sheet'], formatTitle)
                 rowIdx += 1
             if sheet['option'].get('description', None) is not None:
                 worksheet.merge_range(rowIdx, 0, rowIdx, 2, sheet['option']['description'], formatSubtitle)
-                #worksheet.write(rowIdx, 0, sheet['option']['description'], formatSubtitle)
                 rowIdx += 1
             rowIdx += 1
 
