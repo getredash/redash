@@ -97,7 +97,7 @@ class TestParseQueryJson(TestCase):
 
     def test_supports_relative_timestamps(self):
         query = {
-            'ts': { '$relative_ts': '1 hour ago' }
+            'ts': {'$humanTime': '1 hour ago'}
         }
 
         one_hour_ago = parse_human_time("1 hour ago")

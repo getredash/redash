@@ -52,8 +52,8 @@ def datetime_parser(dct):
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
 
-    if '$relative_ts' in dct:
-        return parse_human_time(dct['$relative_ts'])
+    if '$humanTime' in dct:
+        return parse_human_time(dct['$humanTime'])
 
     return bson_object_hook(dct)
 
