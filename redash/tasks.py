@@ -364,7 +364,14 @@ def check_alerts_for_query(self, query_id):
             
             for subscription in alert.subscriptions:
                 try:
-                    subscription.destination.notify(alert.id, query.id, subscription.destination.user.id, new_state, app, host) 
+                    if subscription.destination:
+                        subscription.destination.notify(alert.id, query.id, subscription.destination.user.id, new_state, app, host) 
+                    else:
+                        # For backwards compatibility with prior alert system that was primarily email-based
+                        from redash.destinations import get_destination
+                        config = {}
+                        destination = get_destination('email', config)
+                        destination.notify(alert.id, query.id, subscription.user.id, new_state, app, host) 
                 except Exception as e:
                     logger.warn("Exception: {}".format(e))
 

@@ -1,5 +1,6 @@
 import logging
 
+from flask_mail import Message
 from redash import models, mail
 from redash.destinations import *
 
@@ -16,15 +17,17 @@ class Email(BaseDestination):
         alert = models.Alert.get_by_id(alert_id)
         html = """
         Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
-        """.format(host=host, alert_id=alert.id, query_id=query.id)
+        """.format(host=host, alert_id=alert.id, query_id=query_id)
         logging.debug("Notifying: %s", recipients)
 
         try:
             with app.app_context():
-                message = Message(recipients=recipients,
-                subject="[{1}] {0}".format(alert.name.encode('utf-8', 'ignore'), new_state.upper()),
-                html=html)
-            mail.send(message)
+                message = Message(
+                    recipients=recipients,
+                    subject="[{1}] {0}".format(alert.name.encode('utf-8', 'ignore'), new_state.upper()),
+                    html=html
+                )
+                mail.send(message)
         except Exception:
             logging.exception("mail send ERROR.")
 
