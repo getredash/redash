@@ -305,7 +305,7 @@ def execute_query(self, query, data_source_id, metadata):
     redis_connection.delete(QueryTask._job_lock_id(query_hash, data_source.id))
 
     if not error:
-        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source.id, query_hash, query, data, run_time, utils.utcnow())
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source.id, query_hash, query, data, run_time, utils.utcnow(), metadata.get('Query ID', 'unknown'))
         logger.info("task=execute_query state=after_store query_hash=%s type=%s ds_id=%d task_id=%s queue=%s query_id=%s username=%s",
                     query_hash, data_source.type, data_source.id, self.request.id, self.request.delivery_info['routing_key'],
                     metadata.get('Query ID', 'unknown'), metadata.get('Username', 'unknown'))
