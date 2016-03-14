@@ -1,6 +1,6 @@
 (function() {
     var DashboardCtrl = function($scope, Events, Widget, FavoriteDashboards, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
-    
+
       /**
       * toggleFavorite Add/Remove the current dashboard to favorite
       */
@@ -10,7 +10,7 @@
 
       /**
        * changeCollapseValues for each widget sets the value received by param
-       * @param  {boolean} value 
+       * @param  {boolean} value
        */
       $scope.changeCollapseValues = function(value) {
         if ($scope.dashboard.widgets !== undefined) {
@@ -48,7 +48,7 @@
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
             if (w.options.exportable !== undefined &&
-              w.options.exportable.isExportable && 
+              w.options.exportable.isExportable &&
               w.query !== undefined &&
               w.query.queryResult !== undefined &&
               w.query.queryResult.filteredData !== undefined) {
@@ -70,7 +70,7 @@
                   type: 'TABLE'
                 });
               }
-             
+
             }
           });
         });
@@ -119,7 +119,7 @@
       };
 
       /**
-       * exportWidgets For Each widget takes the data and exports that on a Sheet
+       * exportWidgets For Each widget takes the data and exports that on a Sheet (xls)
        */
       $scope.exportWidgets = function() {
 
@@ -154,13 +154,14 @@
               w.query.queryResult !== undefined &&
               w.query.queryResult.filteredData !== undefined) {
               // Creates a new option for adding the sheet name
-              // 
+              //
               if (w.options.exportable.name === undefined) {
                 w.options.exportable.name = w.query.name;
               }
               worksheet = {
                 option: {
-                  sheet: w.options.exportable.name,
+                  sheet: w.options.exportable.name, //title
+                  description: w.query.description, //subtitle
                   columnNames: w.query.queryResult.columnNames,
                   autofilter: true
                 },

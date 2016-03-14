@@ -29,7 +29,7 @@ def generate_first_page(workbook, filters, reports):
 
     # Add a format to use wrap the cell text.
     wrap = workbook.add_format({
-        'text_wrap': True, 
+        'text_wrap': True,
         'align': 'right',
         'valign': 'top',
         'font_size': 9,
@@ -56,13 +56,13 @@ def generate_first_page(workbook, filters, reports):
         })
 
     day_left = workbook.add_format({
-        'align': 'left', 
+        'align': 'left',
         'num_format': 'mmmm d yyyy',
         'font_name': 'Times New Roman'
         })
 
     day_right = workbook.add_format({
-        'align': 'right', 
+        'align': 'right',
         'num_format': 'mmmm d yyyy',
         'font_name': 'Times New Roman'
         })
@@ -80,7 +80,7 @@ def generate_first_page(workbook, filters, reports):
     worksheet.write(0, 0, 'MANSION GLOBAL', titleFormat)
 
     worksheet.merge_range(0, 2, 0, 4, 'For any queries about this report please contact your Mansion Global sales representative', wrap);
-    
+
     # Row 1
     worksheet.set_row(1, 25)
     worksheet.write(1, 0, 'ONLY THE EXCEPTIONAL', descriptionFormat)
@@ -133,16 +133,44 @@ def get_tasks():
             'border': True})
         format2 = workbook.add_format({'border': True})
 
+        formatTitle = workbook.add_format({
+            'text_wrap': True,
+            'font_size': 18,
+            'align': 'left',
+            'valign': 'vjustify',
+            'font_name': 'Times New Roman'})
+        formatSubtitle = workbook.add_format({
+            'text_wrap': True,
+            'font_size': 12,
+            'align': 'left',
+            'valign': 'vjustify',
+            'font_name': 'Times New Roman'})
+
         # For each widget to be exported, creates a new sheet
         page_count = 0
         for sheet in data['data']:
             sheet_name = "%s_%s" % (page_count, sheet['option']['sheet'])
             page_count += 1
             worksheet = workbook.add_worksheet(sheet_name[:31])
-     
+
             rowIdx = 0
             colIdx = 0
             _filter = sheet['option'].get('autofilter', None)
+
+            # Add title and subtitle
+            if sheet['option'].get('sheet', None) is not None:
+                worksheet.merge_range(rowIdx, 0, rowIdx, 2, sheet['option']['sheet'], formatTitle)
+                #worksheet.write(rowIdx, 0, sheet['option']['sheet'], formatTitle)
+                rowIdx += 1
+            if sheet['option'].get('description', None) is not None:
+                worksheet.merge_range(rowIdx, 0, rowIdx, 2, sheet['option']['description'], formatSubtitle)
+                #worksheet.write(rowIdx, 0, sheet['option']['description'], formatSubtitle)
+                rowIdx += 1
+            rowIdx += 1
+
+             # Adds autofilter on all columns if 'option.filter' is defined as true
+            if _filter:
+                worksheet.autofilter(rowIdx, 0, len(sheet['data']), len(sheet['option']['columnNames']) - 1)
 
             # Defines the header
             for column in sheet['option']['columnNames']:
@@ -156,9 +184,7 @@ def get_tasks():
                     worksheet.write(rowIdx, colIdx, row[column], format2)
                     worksheet.set_column(rowIdx, colIdx, 25)
                     colIdx +=1
-            # Adds autofilter on all columns if 'option.filter' is defined as true
-            if _filter:
-                worksheet.autofilter(0, 0, len(sheet['data']), len(sheet['option']['columnNames']))
+
         workbook.close()
         tmp_flo.flush()
         contents = tmp_flo.read()
