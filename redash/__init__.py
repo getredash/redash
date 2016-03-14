@@ -89,8 +89,13 @@ def create_app():
 
     if settings.SENTRY_DSN:
         from raven.contrib.flask import Sentry
+        from raven.handlers.logging import SentryHandler
         sentry = Sentry(app, dsn=settings.SENTRY_DSN)
         sentry.client.release = __version__
+
+        sentry_handler = SentryHandler(settings.SENTRY_DSN)
+        sentry_handler.setLevel(logging.ERROR)
+        logging.getLogger().addHandler(sentry_handler)
 
     # configure our database
     settings.DATABASE_CONFIG.update({'threadlocals': True})
