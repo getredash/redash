@@ -12,6 +12,8 @@ import pystache
 
 from funcy import distinct
 
+from .human_time import parse_human_time
+
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
 

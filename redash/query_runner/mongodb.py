@@ -4,7 +4,7 @@ import logging
 import re
 from dateutil.parser import parse
 
-from redash.utils import JSONEncoder
+from redash.utils import JSONEncoder, parse_human_time
 from redash.query_runner import *
 
 logger = logging.getLogger(__name__)
@@ -14,6 +14,7 @@ try:
     from bson.objectid import ObjectId
     from bson.timestamp import Timestamp
     from bson.son import SON
+    from bson.json_util import object_hook as bson_object_hook
     enabled = True
 
 except ImportError:
@@ -51,7 +52,10 @@ def datetime_parser(dct):
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
 
-    return dct
+    if '$humanTime' in dct:
+        return parse_human_time(dct['$humanTime'])
+
+    return bson_object_hook(dct)
 
 
 def parse_query_json(query):
