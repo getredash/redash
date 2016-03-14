@@ -92,6 +92,11 @@ class DataSourceListAPI(BaseResource):
                                                          name=req['name'],
                                                          type=req['type'],
                                                          options=config)
+        self.record_event({
+            'action': 'create',
+            'object_id': datasource.id,
+            'object_type': 'datasource'
+        })
 
         return datasource.to_dict(all=True)
 

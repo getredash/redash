@@ -1,3 +1,4 @@
+import time
 from flask import request
 from flask_restful import Resource, abort
 from flask_login import current_user, login_required
@@ -44,6 +45,9 @@ class BaseResource(Resource):
             'user_agent': request.user_agent.string,
             'ip': request.remote_addr
         })
+
+        if 'timestamp' not in options:
+            options['timestamp'] = int(time.time())
 
         record_event.delay(options)
 

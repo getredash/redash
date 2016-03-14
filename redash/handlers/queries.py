@@ -59,6 +59,12 @@ class QueryListAPI(BaseResource):
         query_def['org'] = self.current_org
         query = models.Query.create(**query_def)
 
+        self.record_event({
+            'action': 'create',
+            'object_id': query.id,
+            'object_type': 'query'
+        })
+
         return query.to_dict()
 
     @require_permission('view_query')
