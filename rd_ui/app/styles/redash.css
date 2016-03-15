@@ -636,6 +636,10 @@ hr.subscription {
 
 /* Bootstrap Overrides */
 
+div.edit-toggle:hover p > em {
+    background-color: yellow;
+}
+
 .flex-parent {
   display: flex;
   flex-direction: column;
