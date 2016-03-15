@@ -419,4 +419,4 @@ def send_mail(to, subject, html, text):
 
             mail.send(message)
     except Exception:
-        logger.exception('Failed sending message: ', message.subject)
+        logger.exception('Failed sending message: %s', message.subject)

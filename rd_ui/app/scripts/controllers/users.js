@@ -315,9 +315,11 @@
       });
     };
 
-    $scope.resendInvite= function() {
-      $http.post('api/users/' + $scope.user.id + '/invite').success(function(user) {
-        $scope.user.inviteLink = user.invite_link;
+    $scope.sendPasswordReset = function() {
+      $scope.disablePasswordResetButton = true;
+      $http.post('api/users/' + $scope.user.id + '/reset_password').success(function(user) {
+        $scope.disablePasswordResetButton = false;
+        growl.addSuccessMessage("The user should receive a link to reset his password by email soon.")
       });
     };
   };

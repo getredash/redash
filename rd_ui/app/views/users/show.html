@@ -20,17 +20,7 @@
             </p>
             <div ng-if="currentUser.isAdmin">
                 <hr/>
-                <button class="btn btn-default" ng-if="!user.inviteLink" ng-click="resendInvite()">Resend Invite</button>
-
-                <div ng-if="user.inviteLink" class="alert alert-success">
-                    <p>
-                        <strong>{{ user.name }} should receive an invite email soon.</strong>
-                    </p>
-                    <p>
-                        You can use the following link to invite them yourself:<br/>
-                        {{user.inviteLink}}
-                    </p>
-                </div>
+                <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send Password Reset Email</button>
             </div>
         </tab>
         <tab heading="API Key" ng-if="user.api_key" active="tabs['apiKey']" select="setTab('apiKey')">

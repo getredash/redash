@@ -52,5 +52,6 @@ def send_password_reset_email(user):
     subject = u"Reset your password"
 
     send_mail.delay([user.email], subject, html_content, text_content)
+    return reset_link
 
 

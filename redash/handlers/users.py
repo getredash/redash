@@ -9,7 +9,7 @@ from redash.permissions import require_permission, require_admin_or_owner, is_ad
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 
-from redash.authentication.account import invite_link_for_user, send_invite_email
+from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email
 
 
 def invite_user(org, inviter, user):
@@ -66,6 +66,13 @@ class UserInviteResource(BaseResource):
         d['invite_link'] = invite_url
 
         return d
+
+
+class UserResetPasswordResource(BaseResource):
+    @require_admin
+    def post(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        reset_link = send_password_reset_email(user)
 
 
 class UserResource(BaseResource):
