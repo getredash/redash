@@ -117,11 +117,18 @@ class PostgreSQL(BaseSQLQueryRunner):
                 name=tablename
             )
             for c in data['columns']:
-                column, created = DataSourceColumn.get_or_create(
-                    table=table.id,
-                    name=c[0],
-                    data_type=c[1]
-                )
+                try:
+                    column, created = DataSourceColumn.get_or_create(
+                        table=table.id,
+                        name=c[0],
+                        data_type=c[1]
+                    )
+                except Exception as ex:
+                    column = DataSourceColumn.get(table=table.id, name=c[0])
+                    if column.data_type != c[1]:
+                        column.data_type = c[1]
+                        column.save()
+
 
         tables_list = DataSourceTable.select(DataSourceTable)\
             .where(DataSourceTable.datasource==datasource_id)\

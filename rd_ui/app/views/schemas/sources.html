@@ -4,7 +4,7 @@
     </ol>
     <div class="row">
         <div class="col-md-12">
-            <a href="schemas/{{datasource.id}}" class="btn btn-primary" ng-repeat="datasource in dataSources | filter: { type: 'pg' }">{{datasource.name}}</a>
+            <a href="schemas/{{datasource.id}}" class="btn btn-primary" ng-repeat="datasource in dataSourcesWithSchema">{{datasource.name}}</a>
         </div>
     </div>
 </div>

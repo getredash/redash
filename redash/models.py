@@ -388,25 +388,32 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         return data_source
 
     def get_schema(self, all=False, refresh=False):
-        if all:
-            tables = DataSourceTable.all(self.id)
-            return [table.to_dict(all=True) for table in tables]
+        table_cache = None
+        table_key = "data_source:schema:{}:tables".format(self.id)
 
-        key = "data_source:schema:{}".format(self.id)
+        schema_cache = None
+        schema_key = "data_source:schema:{}".format(self.id)
 
-        cache = None
         if not refresh:
-            cache = redis_connection.get(key)
+            table_cache = redis_connection.get(table_key)
+            schema_cache = redis_connection.get(schema_key)
 
-        if cache is None:
+        if table_cache is None or schema_cache is None:
+            tables = DataSourceTable.all(self.id)
+            tables_schema = [table.to_dict(all=True) for table in tables]
+            redis_connection.set(table_key, json.dumps(tables_schema))
+
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(self.id, get_stats=refresh), key=lambda t: t['name'])
-
-            redis_connection.set(key, json.dumps(schema))
+            redis_connection.set(schema_key, json.dumps(schema))
         else:
-            schema = json.loads(cache)
+            tables_schema = json.loads(table_cache)
+            schema = json.loads(schema_cache)
 
-        return schema
+        if all:
+            return tables_schema
+        else:
+            return schema
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
@@ -468,7 +475,7 @@ class DataSourceTable(BaseModel):
 
         if with_joins:
             join_col = [join_rel.to_dict() for join_rel in self.join_table]
-            join_rel = [join_rel.to_dict(is_related=True) for join_rel in self.join_related_table]
+            join_rel = sorted([join_rel.to_dict(is_related=True) for join_rel in self.join_related_table],key=lambda x: x['name'])
             d['joins'] = join_col + join_rel
 
         return d

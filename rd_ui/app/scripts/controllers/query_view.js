@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource, Schema) {
     var DEFAULT_TAB = 'table';
 
     $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
@@ -74,21 +74,31 @@
     var updateSchema = function() {
       $scope.hasSchema = false;
       $scope.editorSize = "col-md-12";
-      DataSource.getSchema({id: $scope.query.data_source_id}, function(data) {
-        if (data && data.length > 0) {
-          $scope.schema = data;
-          _.each(data, function(table) {
+      var addCollapsed = function(all_data){
+        _.each(all_data, function(table) {
             table.collapsed = true;
           });
-
+        return all_data;
+      };
+      DataSource.getSchema({id: $scope.query.data_source_id}, function(data) {
+        if (data && data.length > 0) {
+          $scope.schema = addCollapsed(data);
           $scope.editorSize = "col-md-9";
           $scope.hasSchema = true;
+          $scope.hasDetail = false;
+          Schema.get({id: $scope.query.data_source_id}, function (detail_data) {
+            $scope.schema = addCollapsed(detail_data);
+            $scope.hasDetail = true;
+          });
         } else {
           $scope.hasSchema = false;
           $scope.editorSize = "col-md-12";
         }
+      }, function(error) {
+        //do nothing
       });
-    }
+
+    };
 
     Events.record(currentUser, 'view', 'query', $scope.query.id);
     getQueryResult();
@@ -303,5 +313,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource','Schema', QueryViewCtrl]);
 })();
