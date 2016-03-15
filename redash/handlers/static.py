@@ -1,8 +1,10 @@
+import os
 import hashlib
 import json
 
-from flask import render_template, send_from_directory, current_app
+from flask import render_template, safe_join, send_file, current_app
 from flask_login import current_user, login_required
+from werkzeug.exceptions import NotFound
 
 from redash import settings, __version__
 from redash.handlers import base_href, routes
@@ -18,7 +20,14 @@ def send_static(filename):
     else:
         cache_timeout = None
 
-    return send_from_directory(settings.STATIC_ASSETS_PATH, filename, cache_timeout=cache_timeout)
+    # The following is copied from send_from_directory, and extended to support multiple directories
+    for path in settings.STATIC_ASSETS_PATHS:
+        print path
+        full_path = safe_join(path, filename)
+        if os.path.isfile(full_path):
+            return send_file(full_path, **dict(cache_timeout=cache_timeout, conditional=True))
+
+    raise NotFound()
 
 
 @login_required

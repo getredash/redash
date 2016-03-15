@@ -76,8 +76,8 @@ def create_app():
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
-                template_folder=settings.STATIC_ASSETS_PATH,
-                static_folder=settings.STATIC_ASSETS_PATH,
+                template_folder=settings.STATIC_ASSETS_PATHS[-1],
+                static_folder=settings.STATIC_ASSETS_PATHS[-1],
                 static_path='/static')
 
     # Make sure we get the right referral address even behind proxies like nginx.
