@@ -174,4 +174,5 @@ COMMON_CLIENT_CONFIG = {
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
+    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None
 }

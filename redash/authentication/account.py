@@ -44,20 +44,6 @@ def send_invite_email(inviter, invited, invite_url, org):
     send_mail.delay([invited.email], subject, html_content, text_content)
 
 
-def send_reminder_email(email):
-    users = list(User.find_by_email(email))
-
-    if users:
-        context = dict(users=users, email=email)
-        html_content = render_template('emails/reminder.html', **context)
-        text_content = render_template('emails/reminder.txt', **context)
-        subject = u"Your Re:dash Account Reminder"
-
-        send_mail.delay([email], subject, html_content, text_content)
-    else:
-        logger.error("Reminder email - failed to find users for: %s", email)
-
-
 def send_password_reset_email(user):
     reset_link = reset_link_for_user(user)
     context = dict(user=user, reset_link=reset_link)
