@@ -38,3 +38,55 @@ img.login-button {
     margin-left: auto;
     margin-right: auto;
 }
+
+.navbar-brand {
+  padding: 0;
+  margin-top: 7px;
+  margin-left: 0 !important;
+}
+
+.navbar-brand img {
+  height: 60px !important;
+}
+
+.content {
+  padding-top: 20px;
+}
+
+.container-footer {
+  width: 100%;
+  margin-top: 20px;
+
+  padding-top:20px;
+  padding-bottom:20px;
+  background-color:#668899;
+  color:#FCFFF2;
+}
+
+.container-footer a {
+  color:#FCFFF2;
+}
+
+.navbar-brand {
+  padding: 0;
+  margin-top: 7px;
+  margin-left: 0 !important;
+}
+#main-header-links {
+  margin-top: 18px;
+  background-color:#668899;
+}
+.navbar-trans {
+  height: 79px;
+  padding: 0;
+  background-color:#668899;
+  border:0px;
+  color:#FCFFF2;
+}
+nav a, .container-footer a {
+  color:rgba(255,255,255,0.6) !important;
+}
+.header-link:hover {
+  color:#FCFFF2 !important;
+}
+

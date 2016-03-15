@@ -107,7 +107,7 @@ def authorized():
 
     if not verify_profile(org, profile):
         logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
-        flash("Your Google Apps domain name isn't allowed.")
+        flash("Your Google Apps account ({}) isn't allowed.".format(profile['email']))
         return redirect(url_for('redash.login', org_slug=org.slug))
 
     create_and_login_user(org, profile['name'], profile['email'])

@@ -107,6 +107,17 @@
     }
   }]);
 
+  directives.directive('emailSettingsWarning', function() {
+    return {
+      restrict: 'E',
+      template: '<p class="alert alert-warning" ng-if="showMailWarning">It looks like your mail server isn\'t configured, make sure to configure it for the {{function}} to work.</p>',
+      link: function(scope, elements, attrs) {
+        scope.showMailWarning = clientConfig.mailSettingsMissing && currentUser.isAdmin;
+        scope.function = attrs.function;
+      }
+    }
+  });
+
   directives.directive('rdTabs', ['$location', function ($location) {
     return {
       restrict: 'E',

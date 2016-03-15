@@ -57,3 +57,19 @@ def make_request(method, path, user, data=None, is_json=True):
             response.json = json.loads(response.data)
 
         return response
+
+
+def get_request(path, org=None):
+    if org:
+        path = "/{}{}".format(org.slug, path)
+
+    with app.test_client() as c:
+        return c.get(path)
+
+
+def post_request(path, data=None, org=None):
+    if org:
+        path = "/{}{}".format(org.slug, path)
+
+    with app.test_client() as c:
+        return c.post(path, data=data)

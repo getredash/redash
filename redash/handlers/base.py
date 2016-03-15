@@ -5,11 +5,11 @@ from flask_login import current_user, login_required
 from peewee import DoesNotExist
 
 from redash import settings
-from redash.authentication import current_org
 from redash.tasks import record_event
 from redash.models import ApiUser
+from redash.authentication import current_org
 
-routes = Blueprint('redash', __name__)
+routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
 
 class BaseResource(Resource):
