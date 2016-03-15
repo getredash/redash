@@ -548,7 +548,7 @@
     var actions = {
       'get': {'method': 'GET', 'cache': false, 'isArray': false},
       'query': {'method': 'GET', 'cache': false, 'isArray': true},
-      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/data_sources/:id/schema?all=True'}
+      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/data_sources/:id/schema'}
     };
 
     var DataSourceResource = $resource('api/data_sources/:id', {id: '@id'}, actions);
