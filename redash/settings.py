@@ -90,7 +90,10 @@ SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
 SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "")
 
-STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/"))
+# Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
+# last one will be used for Flask templates.
+STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/").split(',')]
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 6))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
