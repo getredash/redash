@@ -559,8 +559,7 @@
   var Destination = function ($resource) {
     var actions = {
       'get': {'method': 'GET', 'cache': false, 'isArray': false},
-      'query': {'method': 'GET', 'cache': false, 'isArray': true},
-      'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/destinations/:id/schema'}
+      'query': {'method': 'GET', 'cache': false, 'isArray': true}
     };
 
     var DestinationResource = $resource('api/destinations/:id', {id: '@id'}, actions);
@@ -608,11 +607,6 @@
   };
 
   var AlertSubscription = function ($resource) {
-    var actions = {
-      'get': {method: 'GET'},
-      'save': {method: 'POST'},
-      'delete': {method: 'DELETE'}
-    };
     var resource = $resource('api/alerts/:alertId/subscriptions/:subscriberId', {alertId: '@alert_id', subscriberId: '@subscriber_id'});
     return resource;
   };
