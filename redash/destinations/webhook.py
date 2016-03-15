@@ -32,8 +32,7 @@ class Webhook(BaseDestination):
     def icon(cls):
         return 'fa-bolt'
 
-    def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
-        alert = models.Alert.get_by_id(alert_id)
+    def notify(self, alert, query, user, new_state, app, host, options):
         try:
             data = {
                 'event': 'alert_state_change',

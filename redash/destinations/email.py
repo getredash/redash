@@ -15,13 +15,11 @@ class Email(BaseDestination):
     def icon(cls):
         return 'fa-envelope'
 
-    def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
-        user = models.User.get_by_id(user_id)
+    def notify(self, alert, query, user, new_state, app, host, options):
         recipients = [user.email]
-        alert = models.Alert.get_by_id(alert_id)
         html = """
         Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
-        """.format(host=host, alert_id=alert.id, query_id=query_id)
+        """.format(host=host, alert_id=alert.id, query_id=query.id)
         logging.debug("Notifying: %s", recipients)
 
         try:

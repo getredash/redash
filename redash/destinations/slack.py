@@ -23,9 +23,9 @@ class Slack(BaseDestination):
     def icon(cls):
         return 'fa-slack'
 
-    def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
+    def notify(self, alert, query, user, new_state, app, host, options):
         msg = "Check <{host}/alerts/{alert_id}|alert> / check <{host}/queries/{query_id}|query>".format(
-            host=host, alert_id=alert_id, query_id=query_id)
+            host=host, alert_id=alert.id, query_id=query.id)
         payload = {'text': msg}
         try:
             resp = requests.post(options.get('url'), data=json.dumps(payload))

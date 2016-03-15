@@ -1091,10 +1091,10 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
 
         return notification_destinations
 
-    def notify(self, alert_id, query_id, user_id, new_state, app, host):
+    def notify(self, alert, query, user, new_state, app, host):
         schema = get_configuration_schema_for_destination_type(self.type)
         self.options.set_schema(schema)
-        return self.destination.notify(alert_id, query_id, user_id, new_state,
+        return self.destination.notify(alert, query, user, new_state,
                                        app, host, self.options)
 
 

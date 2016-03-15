@@ -364,7 +364,7 @@ def check_alerts_for_query(self, query_id):
             
             for subscription in alert.subscriptions:
                 try:
-                    subscription.destination.notify(alert.id, query.id, subscription.user.id, new_state, app, host) 
+                    subscription.destination.notify(alert, query, subscription.user, new_state, app, host) 
                 except Exception as e:
                     logger.warn("Exception: {}".format(e))
 
