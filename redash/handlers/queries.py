@@ -6,7 +6,7 @@ import sqlparse
 from funcy import distinct, take
 from itertools import chain
 
-from redash.handlers.base import routes
+from redash.handlers.base import routes, org_scoped_rule
 from redash.handlers.query_results import run_query
 from redash import models
 from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only
@@ -14,9 +14,9 @@ from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_parameters_from_request
 
 
-@routes.route('/api/queries/format', methods=['POST'])
+@routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
 @login_required
-def format_sql_query():
+def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 

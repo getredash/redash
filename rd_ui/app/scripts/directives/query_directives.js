@@ -172,7 +172,7 @@
       link: function($scope) {
         $scope.formatQuery = function formatQuery() {
             $scope.queryFormatting = true;
-            $http.post('/api/queries/format', {
+            $http.post('api/queries/format', {
                 'query': $scope.query.query
             }).success(function (response) {
                 $scope.query.query = response;
