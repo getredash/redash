@@ -19,6 +19,10 @@ class Slack(BaseDestination):
             }
         }
 
+    @classmethod
+    def icon(cls):
+        return 'fa-slack'
+
     def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
         msg = "Check <{host}/alerts/{alert_id}|alert> / check <{host}/queries/{query_id}|query>".format(
             host=host, alert_id=alert_id, query_id=query_id)

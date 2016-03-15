@@ -6,7 +6,7 @@
         <div class="col-md-4">
             <div class="list-group">
                 <div class="list-group-item clickable" ng-repeat="destination in destinations" ng-click="openDestination(destination)">
-                    <i class="fa fa-bell-o"></i> {{destination.name}}
+                    <i class="fa {{destination.icon}}"></i> {{destination.name}}
                     <button class="btn btn-xs btn-danger pull-right" ng-click="deleteDestination($event, destination)">Delete</button>
                 </div>
                 <a ng-href="destinations/new" class="list-group-item">

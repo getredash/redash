@@ -26,6 +26,10 @@ class BaseDestination(object):
         return cls.__name__.lower()
 
     @classmethod
+    def icon(cls):
+        return 'fa-bullseye'
+
+    @classmethod
     def enabled(cls):
         return True
 
@@ -41,6 +45,7 @@ class BaseDestination(object):
         return {
             'name': cls.name(),
             'type': cls.type(),
+            'icon': cls.icon(),
             'configuration_schema': cls.configuration_schema()
         }
 

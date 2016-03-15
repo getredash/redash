@@ -126,15 +126,7 @@
         $scope.destinations = Destination.query();
 
         $scope.destinationsDisplay = function(destination) {
-            var icons = {
-                'slack': 'fa-slack',
-                'email': 'fa-envelope',
-                'webhook': 'fa-bolt',
-                'hipchat': 'fa-comment-o'
-            }
-            var icon = icons[destination.type] || 'fa-bullseye'
-
-            return '<i class="fa ' + icon + '"></i>&nbsp;' + destination.name
+            return '<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name
         };
 
         $scope.saveSubscriber = function() {

@@ -1068,6 +1068,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
             'id': self.id,
             'name': self.name,
             'type': self.type,
+            'icon': self.destination.icon()
         }
 
         if all:

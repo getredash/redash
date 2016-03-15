@@ -11,6 +11,10 @@ class Email(BaseDestination):
     def configuration_schema(cls):
         return {}
 
+    @classmethod
+    def icon(cls):
+        return 'fa-envelope'
+
     def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
         user = models.User.get_by_id(user_id)
         recipients = [user.email]

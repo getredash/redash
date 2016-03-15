@@ -28,6 +28,10 @@ class Webhook(BaseDestination):
             "secret": ["password"]
         }
 
+    @classmethod
+    def icon(cls):
+        return 'fa-bolt'
+
     def notify(self, alert_id, query_id, user_id, new_state, app, host, options):
         alert = models.Alert.get_by_id(alert_id)
         try:
