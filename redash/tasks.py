@@ -4,14 +4,11 @@ import logging
 import signal
 from flask_mail import Message
 import redis
-import hipchat
-import requests
-from redash.utils import json_dumps, base_url
-from requests.auth import HTTPBasicAuth
+from redash.utils import base_url
 from celery import Task
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client, settings, utils, mail
+from redash import redis_connection, models, statsd_client, settings, utils
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import InterruptException
@@ -367,18 +364,6 @@ def check_alerts_for_query(self, query_id):
                     subscription.destination.notify(alert, query, subscription.user, new_state, app, host) 
                 except Exception as e:
                     logger.warn("Exception: {}".format(e))
-
-
-def notify_hipchat(alert, html, new_state):
-    try:
-        if settings.HIPCHAT_API_URL:
-            hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN, url=settings.HIPCHAT_API_URL)
-        else:
-            hipchat_client = hipchat.HipChat(token=settings.HIPCHAT_API_TOKEN)
-        message = '[' + new_state.upper() + '] ' + alert.name + '<br />' + html
-        hipchat_client.message_room(settings.HIPCHAT_ROOM_ID, settings.NAME, message.encode('utf-8', 'ignore'), message_format='html')
-    except Exception:
-        logger.exception("hipchat send ERROR.")
 
 
 @celery.task(base=BaseTask)
