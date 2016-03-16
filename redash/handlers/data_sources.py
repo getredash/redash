@@ -6,6 +6,7 @@ from redash import models
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.permissions import require_admin, require_permission, require_access, view_only
 from redash.query_runner import query_runners, get_configuration_schema_for_query_runner_type
+from redash.tasks import refresh_schema
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
@@ -123,6 +124,9 @@ class DataSourceTableResource(BaseResource):
         
         data_source_table.description = req['description']
         data_source_table.save()
+
+        # Refresh cache
+        refresh_schema.delay(data_source_table.datasource)
         
         return data_source_table.to_dict(all=True)
 
@@ -130,7 +134,7 @@ class DataSourceTableResource(BaseResource):
 class DataSourceColumnResource(BaseResource):
     def get(self, column_id):
         data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
-        return data_source_column.to_dict(all=True)
+        return data_source_column.to_dict()
             
     def post(self, column_id):
         # We only allow manual updates of description, as rest is updated from database
@@ -145,8 +149,8 @@ class DataSourceColumnResource(BaseResource):
         
         data_source_column.description = req['description']
         data_source_column.save()
-            
-        return data_source_column.to_dict(all=True)
+
+        return data_source_column.to_dict()
 
 
 class DataSourceJoinListResource(BaseResource):

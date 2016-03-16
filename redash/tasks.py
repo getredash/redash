@@ -241,6 +241,23 @@ def refresh_schemas():
             logger.exception("Failed refreshing the data source: %s", ds.name)
 
 
+@celery.task(base=BaseTask)
+def refresh_schema(datasource_id):
+    """
+    Refreshs the datasources schema for a single datasource.
+
+    This is usually used for refreshing the cache key when a user adds information about a schema.
+    """
+
+    ds = models.DataSource.get(id=datasource_id)
+
+    logger.info("Refreshing schema for: {}".format(ds.name))
+    try:
+        ds.get_schema(refresh=True)
+    except Exception:
+        logger.exception("Failed refreshing the data source: %s", ds.name)
+
+
 def signal_handler(*args):
     raise InterruptException
 

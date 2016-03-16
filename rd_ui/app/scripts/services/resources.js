@@ -637,7 +637,7 @@
     var actions = {
         'get': {'method': 'GET', 'cache': false, 'isArray': true}
     }
-    var resource = $resource('api/data_sources/:id/schema?all=True', {id: '@id'}, actions);
+    var resource = $resource('api/data_sources/:id/schema', {id: '@id'}, actions);
     return resource;
   };
 
