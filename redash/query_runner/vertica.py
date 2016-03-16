@@ -68,7 +68,7 @@ class Vertica(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Vertica, self).__init__(configuration)
 
-    def _get_tables(self, schema):
+    def get_schema(self, datasource_id):
         query = """
         Select table_schema, table_name, column_name from columns where is_system_table=false;
         """

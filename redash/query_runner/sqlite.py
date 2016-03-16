@@ -33,7 +33,7 @@ class Sqlite(BaseSQLQueryRunner):
 
         self._dbpath = self.configuration['dbpath']
 
-    def _get_tables(self, schema):
+    def get_schema(self, datasource_id):
         query_table = "select tbl_name from sqlite_master where type='table'"
         query_columns = "PRAGMA table_info(%s)"
 

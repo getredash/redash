@@ -387,33 +387,22 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
         return data_source
 
-    def get_schema(self, all=False, refresh=False):
-        table_cache = None
-        table_key = "data_source:schema:{}:tables".format(self.id)
+    def get_schema(self, refresh=False):
+        key = "data_source:schema:{}".format(self.id)
 
-        schema_cache = None
-        schema_key = "data_source:schema:{}".format(self.id)
-
+        cache = None
         if not refresh:
-            table_cache = redis_connection.get(table_key)
-            schema_cache = redis_connection.get(schema_key)
+            cache = redis_connection.get(key)
 
-        if table_cache is None or schema_cache is None:
-            tables = DataSourceTable.all(self.id)
-            tables_schema = [table.to_dict(all=True) for table in tables]
-            redis_connection.set(table_key, json.dumps(tables_schema))
-
+        if cache is None:
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(self.id, get_stats=refresh), key=lambda t: t['name'])
-            redis_connection.set(schema_key, json.dumps(schema))
-        else:
-            tables_schema = json.loads(table_cache)
-            schema = json.loads(schema_cache)
 
-        if all:
-            return tables_schema
+            redis_connection.set(key, json.dumps(schema))
         else:
-            return schema
+            schema = json.loads(cache)
+
+        return schema
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
@@ -464,18 +453,20 @@ class DataSourceTable(BaseModel):
         d = {
             'id' : self.id,
             'name': self.name,
-            'columns': [column.name for column in self.columns.order_by(DataSourceColumn.id.desc())]
+            'columns': [column.name for column in self.columns.order_by(DataSourceColumn.id.desc())],
+            'description': self.description,
+            'datasource': self.datasource.to_dict()
         }
 
         if all:
-            d['datasource'] = self.datasource.to_dict()
-            d['description'] = self.description
-            d['columns'] = [column.to_dict(all=True)
+            d['columns'] = [column.to_dict()
                             for column in self.columns.order_by(DataSourceColumn.id.desc())]
 
         if with_joins:
             join_col = [join_rel.to_dict() for join_rel in self.join_table]
-            join_rel = sorted([join_rel.to_dict(is_related=True) for join_rel in self.join_related_table],key=lambda x: x['name'])
+            join_rel = sorted([join_rel.to_dict(is_related=True) 
+                               for join_rel in self.join_related_table],
+                               key=lambda x: x['name'])
             d['joins'] = join_col + join_rel
 
         return d
@@ -504,16 +495,14 @@ class DataSourceColumn(BaseModel):
             (('table', 'name'), True),
         )
 
-    def to_dict(self, all=False):
+    def to_dict(self):
         
         d = {
             'id': self.id,
-            'name': self.name
+            'name': self.name,
+            'description': self.description,
+            'data_type': self.data_type
         }
-
-        if all:
-            d['description'] = self.description
-            d['data_type'] = self.data_type
 
         return d
 

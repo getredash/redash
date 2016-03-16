@@ -124,6 +124,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                         data_type=c[1]
                     )
                 except Exception as ex:
+                    # Will get thrown when an existing column gets a new data_type, so just update data_type
                     column = DataSourceColumn.get(table=table.id, name=c[0])
                     if column.data_type != c[1]:
                         column.data_type = c[1]

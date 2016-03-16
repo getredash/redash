@@ -89,7 +89,7 @@ class BaseQueryRunner(object):
 
         return new_columns
 
-    def get_schema(self, get_stats=False):
+    def get_schema(self, datasource_id, get_stats=False):
         return []
 
     def _run_query_internal(self, query):
