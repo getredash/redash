@@ -73,64 +73,67 @@
         };
 
 
-  $scope.gridColumns = [
-      {
-        "label": "Column",
-        "map": "name",
-      },
-      {
-        'label': 'Data type',
-        'map': 'data_type'
-      },
-      {
-        'label': 'Description',
-        'map': 'description',
-        'isEditable': true
-      }
-  ];
+    $scope.gridColumns = [
+        {
+            "label": "Column",
+            "map": "name",
+        },
+        {
+            'label': 'Data type',
+            'map': 'data_type'
+        },
+        {
+            'label': 'Description',
+            'map': 'description',
+            //"cellTemplate": "{{dataRow.description ||''}}",
+            'isEditable': true
+        }
+    ];
 
     $scope.joinGridColumns = [
-      {
-        "label": "Column",
-        "map": "column",
-        "headerClass": 'col-xs-3'
-      },
-      {
-        'label': 'Relationship',
-        'map': 'cardinality',
-        'formatFunction': function(value) {
-            return $filter('cardinalityHumanize')(value);
+        {
+            "label": "Column",
+            "map": "column",
+            "headerClass": 'col-xs-3'
         },
-        "headerClass": 'col-xs-3'
-      },
-      {
-        'label': 'Related Table',
-        'map': 'related_table',
-        "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
-        "headerClass": 'col-xs-3'
-      },
-      {
-        'label': 'Related Column',
-        'map': 'related_column',
-        "headerClass": 'col-xs-3'
-      }
-    ];
+        {
+            'label': 'Relationship',
+            'map': 'cardinality',
+            'formatFunction': function(value) {
+                return $filter('cardinalityHumanize')(value);
+        },
+            "headerClass": 'col-xs-3'
+        },
+        {
+            'label': 'Related Table',
+            'map': 'related_table',
+            "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
+            "headerClass": 'col-xs-3'
+        },
+        {
+            'label': 'Related Column',
+            'map': 'related_column',
+            "headerClass": 'col-xs-3'
+        }
+      ];
 
     $scope.saveChanges = function() {
       var join = new Join();
       join.column_id = $scope.join.column.id;
-      join.related_column_id = $scope.join.related_column.id;
+      join.related_table_id = $scope.join.related_table.id;
+      join.related_column = $scope.join.related_column;
       join.cardinality = $scope.join.cardinality;
+      console.log(join);
       join.$save(function(join) {
-        $growl.addSuccessMessage("Saved.");
-        $scope.table.joins.push(join);
+          $growl.addSuccessMessage("Saved.");
+          $scope.table.joins.push(join);
       }, function() {
-        $growl.addErrorMessage("Failed saving alert.");
+          $growl.addErrorMessage("Failed saving alert.");
       });
     };
 };
 
-  angular.module('redash.controllers')
+angular.module('redash.controllers')
     .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
     .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', '$filter', 'growl', 'Events', 'Table', 'TableColumn', 'Join', 'Schema', SchemaCtrl])
 })();

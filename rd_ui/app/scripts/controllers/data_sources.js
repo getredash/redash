@@ -8,7 +8,6 @@
 
     $scope.dataSources.$promise.then(function(sources) {
       _.each(sources,function(source) {
-        try {
           DataSource.getSchema({id: source.id}, function (data) {
             if (data && data.length > 0) {
               source.hasSchema = true;
@@ -16,16 +15,8 @@
             } else {
               source.hasSchema = false;
             }
-          }, function (error) {
-            if (error.status == 500) {
-              source.hasSchema = false;
-            }
-          });
-        } catch (e) {
-          source.hasSchema = false;
-        }
-      });
-
+        })
+      })
     });
 
     $scope.openDataSource = function(datasource) {

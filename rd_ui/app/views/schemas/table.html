@@ -54,9 +54,9 @@
                             <div class="flex-grow-2">
                                 <label>Related Column</label>
                                 <ui-select ng-model="$parent.join.related_column">
-                                    <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                                    <ui-select-choices repeat="c in related_table.columns | filter: {name: $select.search}">
-                                        <span ng-bind="c.name"></span>
+                                    <ui-select-match>{{$select.selected}}</ui-select-match>
+                                    <ui-select-choices repeat="c in related_table.columns | filter:c">
+                                        <span ng-bind="c"></span>
                                     </ui-select-choices>
                                 </ui-select>
                             </div>

@@ -156,14 +156,18 @@ class DataSourceColumnResource(BaseResource):
 class DataSourceJoinListResource(BaseResource):
     def post(self):
         req = request.get_json(True)
-        required_fields = ('column_id', 'related_column_id', 'cardinality')
+        required_fields = ('column_id', 'related_table_id', 'related_column', 'cardinality')
 
         for f in required_fields:
             if f not in req:
                 abort(400)
 
         column = get_object_or_404(models.DataSourceColumn.get_by_id, req['column_id'])
-        related_column = get_object_or_404(models.DataSourceColumn.get_by_id, req['related_column_id'])
+        related_column = get_object_or_404(
+            models.DataSourceColumn.get,
+            table=req['related_table_id'],
+            name=req['related_column']
+        )
 
         join, create = models.DataSourceJoin.get_or_create(
             table=column.table,
