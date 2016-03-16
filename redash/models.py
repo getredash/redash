@@ -1100,7 +1100,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
 
 class AlertSubscription(ModelTimestampsMixin, BaseModel):
     user = peewee.ForeignKeyField(User)
-    destination = peewee.ForeignKeyField(NotificationDestination, null=True)
+    destination = peewee.ForeignKeyField(NotificationDestination, default=1)
     alert = peewee.ForeignKeyField(Alert, related_name="subscriptions")
 
     class Meta:
