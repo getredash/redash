@@ -21,8 +21,6 @@ redis==2.7.5
 requests==2.3.0
 botocore==1.4.4
 six==1.10.0
-dql==0.5.16
-dynamo3==0.4.7
 sqlparse==0.1.8
 wsgiref==0.1.2
 Flask-Script==0.6.6

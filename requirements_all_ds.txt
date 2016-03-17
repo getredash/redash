@@ -10,3 +10,5 @@ pyOpenSSL==0.14
 vertica-python==0.5.1
 td-client==0.4.1
 pymssql==2.1.1
+dql==0.5.16
+dynamo3==0.4.7
