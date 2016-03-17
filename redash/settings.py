@@ -144,6 +144,7 @@ default_query_runners = [
     'redash.query_runner.treasuredata',
     'redash.query_runner.oracle',
     'redash.query_runner.sqlite',
+    'redash.query_runner.dynamodb_sql',
     'redash.query_runner.mssql',
 ]
 
