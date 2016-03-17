@@ -230,12 +230,20 @@
       $scope.$parent.pageTitle = $scope.query.name;
     });
 
+    var firstLoad = true;
     $scope.$watch('queryResult && queryResult.getData()', function(data, oldData) {
       if (!data) {
         return;
       }
 
       $scope.filters = $scope.queryResult.getFilters();
+      if (firstLoad) {
+        _.each($scope.filters, function (queryFilter) {
+          if (_.has($location.search(), queryFilter.name))
+            queryFilter.current = $location.search()[queryFilter.name];
+        });
+        firstLoad = false;
+      }
     });
 
     $scope.$watch("queryResult && queryResult.getStatus()", function(status) {
