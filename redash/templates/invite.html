@@ -1,0 +1,40 @@
+{% extends "signed_out_layout.html" %}
+
+{% block content %}
+
+<h2>Welcome to Re:dash!</h2>
+<p class="lead">
+  {% if google_auth_url %}
+  To create your account, please choose a password or login with your Google account ({{ user.email }}).
+  {% else %}
+  To create your account, please choose a password.
+  {% endif %}
+</p>
+<div class="row">
+  <div class="col-md-6" style="padding-top: 30px;">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-warning" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% if google_auth_url %}
+    <div class="row">
+      <a href="{{ google_auth_url }}"><img src="/google_login.png" class="login-button"/></a>
+    </div>
+    <div class="login-or">
+      <hr class="hr-or">
+      <span class="span-or">or</span>
+    </div>
+    {% endif %}
+    <form role="form" method="post" name="invite">
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password">
+      </div>
+      <button type="submit" class="btn btn btn-primary">Set Password</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

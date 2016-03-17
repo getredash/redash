@@ -5,10 +5,17 @@ from funcy import project
 from peewee import IntegrityError
 
 from redash import models
-from redash.wsgi import api
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
     require_permission_or_owner, require_admin
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
+
+from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email
+
+
+def invite_user(org, inviter, user):
+    invite_url = invite_link_for_user(user)
+    send_invite_email(inviter, user, invite_url, org)
+    return invite_url
 
 
 class UserListResource(BaseResource):
@@ -18,13 +25,13 @@ class UserListResource(BaseResource):
 
     @require_admin
     def post(self):
-        # TODO: send invite.
         req = request.get_json(force=True)
-        require_fields(req, ('name', 'email', 'password'))
+        require_fields(req, ('name', 'email'))
 
-        user = models.User(org=self.current_org, name=req['name'], email=req['email'],
+        user = models.User(org=self.current_org,
+                           name=req['name'],
+                           email=req['email'],
                            groups=[self.current_org.default_group.id])
-        user.hash_password(req['password'])
 
         try:
             user.save()
@@ -41,7 +48,31 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        return user.to_dict()
+        invite_url = invite_user(self.current_org, self.current_user, user)
+
+        d = user.to_dict()
+        d['invite_link'] = invite_url
+
+        return d
+
+
+class UserInviteResource(BaseResource):
+    @require_admin
+    def post(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        invite_url = invite_user(self.current_org, self.current_user, user)
+
+        d = user.to_dict()
+        d['invite_link'] = invite_url
+
+        return d
+
+
+class UserResetPasswordResource(BaseResource):
+    @require_admin
+    def post(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        reset_link = send_password_reset_email(user)
 
 
 class UserResource(BaseResource):
@@ -93,5 +124,3 @@ class UserResource(BaseResource):
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
 
-api.add_org_resource(UserListResource, '/api/users', endpoint='users')
-api.add_org_resource(UserResource, '/api/users/<user_id>', endpoint='user')

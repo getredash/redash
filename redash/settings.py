@@ -90,7 +90,10 @@ SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
 SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "")
 
-STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/"))
+# Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
+# last one will be used for Flask templates.
+STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/").split(',')]
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 6))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
@@ -131,7 +134,6 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
-    'redash.query_runner.mql',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',
@@ -142,7 +144,6 @@ default_query_runners = [
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.treasuredata',
-    'redash.query_runner.oracle',
     'redash.query_runner.sqlite',
     'redash.query_runner.dynamodb_sql',
     'redash.query_runner.mssql',
@@ -177,4 +178,5 @@ COMMON_CLIENT_CONFIG = {
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
+    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None
 }

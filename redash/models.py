@@ -152,6 +152,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         else:
             self.id = api_key.api_key
             self.object = api_key.object
+        # self.name =
         self.groups = groups
         self.org = org
 
@@ -202,6 +203,9 @@ class Organization(ModelTimestampsMixin, BaseModel):
     @property
     def admin_group(self):
         return self.groups.where(Group.name=='admin', Group.type==Group.BUILTIN_GROUP).first()
+
+    def has_user(self, email):
+        return self.users.where(User.email==email).count() == 1
 
 
 class Group(BaseModel, BelongsToOrgMixin):

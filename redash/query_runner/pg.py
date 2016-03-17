@@ -28,16 +28,16 @@ types_map = {
 }
 
 
-def _wait(conn):
+def _wait(conn, timeout=None):
     while 1:
         try:
             state = conn.poll()
             if state == psycopg2.extensions.POLL_OK:
                 break
             elif state == psycopg2.extensions.POLL_WRITE:
-                select.select([], [conn.fileno()], [])
+                select.select([], [conn.fileno()], [], timeout)
             elif state == psycopg2.extensions.POLL_READ:
-                select.select([conn.fileno()], [], [])
+                select.select([conn.fileno()], [], [], timeout)
             else:
                 raise psycopg2.OperationalError("poll() returned %s" % state)
         except select.error:
@@ -115,7 +115,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
-        _wait(connection)
+        _wait(connection, timeout=10)
 
         cursor = connection.cursor()
 
@@ -152,4 +152,37 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return json_data, error
 
+
+class Redshift(PostgreSQL):
+    @classmethod
+    def type(cls):
+        return "redshift"
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "dbname": {
+                    "type": "string",
+                    "title": "Database Name"
+                }
+            },
+            "required": ["dbname", "user", "password", "host", "port"],
+            "secret": ["password"]
+        }
+
 register(PostgreSQL)
+register(Redshift)

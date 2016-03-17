@@ -314,6 +314,14 @@
         growl.addErrorMessage(message);
       });
     };
+
+    $scope.sendPasswordReset = function() {
+      $scope.disablePasswordResetButton = true;
+      $http.post('api/users/' + $scope.user.id + '/reset_password').success(function(user) {
+        $scope.disablePasswordResetButton = false;
+        growl.addSuccessMessage("The user should receive a link to reset his password by email soon.")
+      });
+    };
   };
 
   var NewUserCtrl = function ($scope, $location, growl, Events, User) {
@@ -328,8 +336,9 @@
       }
 
       $scope.user.$save(function(user) {
+        $scope.user = user;
+        $scope.user.created = true;
         growl.addSuccessMessage("Saved.")
-        $location.path('/users/' + user.id).replace();
       }, function(error) {
         var message = error.data.message || "Failed saving.";
         growl.addErrorMessage(message);

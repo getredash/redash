@@ -44,8 +44,16 @@ def verify_profile(org, profile):
     if org.is_public:
         return True
 
-    domain = profile['email'].split('@')[-1]
-    return domain in org.google_apps_domains
+    email = profile['email']
+    domain = email.split('@')[-1]
+
+    if domain in org.google_apps_domains:
+        return True
+
+    if org.has_user(email) == 1:
+        return True
+
+    return False
 
 
 def create_and_login_user(org, name, email):
@@ -71,7 +79,7 @@ def org_login(org_slug):
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
     callback = url_for('.callback', _external=True)
-    next = request.args.get('next', url_for("index", org_slug=session.get('org_slug')))
+    next = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next)
     return google_remote_app().authorize(callback=callback, state=next)
@@ -85,12 +93,12 @@ def authorized():
     if access_token is None:
         logger.warning("Access token missing in call back request.")
         flash("Validation error. Please retry.")
-        return redirect(url_for('login'))
+        return redirect(url_for('redash.login'))
 
     profile = get_user_profile(access_token)
     if profile is None:
         flash("Validation error. Please retry.")
-        return redirect(url_for('login'))
+        return redirect(url_for('redash.login'))
 
     if 'org_slug' in session:
         org = models.Organization.get_by_slug(session.pop('org_slug'))
@@ -99,11 +107,11 @@ def authorized():
 
     if not verify_profile(org, profile):
         logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
-        flash("Your Google Apps domain name isn't allowed.")
-        return redirect(url_for('login', org_slug=org.slug))
+        flash("Your Google Apps account ({}) isn't allowed.".format(profile['email']))
+        return redirect(url_for('redash.login', org_slug=org.slug))
 
     create_and_login_user(org, profile['name'], profile['email'])
 
-    next = request.args.get('state') or url_for("index", org_slug=org.slug)
+    next = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
 
     return redirect(next)
