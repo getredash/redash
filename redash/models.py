@@ -487,7 +487,7 @@ class QueryResult(BaseModel, BelongsToOrgMixin):
         return query.first()
 
     @classmethod
-    def store_result(cls, org_id, data_source_id, query_hash, query, data, run_time, retrieved_at):
+    def store_result(cls, org_id, data_source_id, query_hash, query, data, run_time, retrieved_at, query_id = 'adhoc'):
         query_result = cls.create(org=org_id,
                                   query_hash=query_hash,
                                   query=query,
@@ -500,6 +500,10 @@ class QueryResult(BaseModel, BelongsToOrgMixin):
 
         sql = "UPDATE queries SET latest_query_data_id = %s WHERE query_hash = %s AND data_source_id = %s RETURNING id"
         query_ids = [row[0] for row in db.database.execute_sql(sql, params=(query_result.id, query_hash, data_source_id))]
+
+        if (not query_ids) and query_id.__class__ == int:
+            sql = "UPDATE queries SET latest_query_data_id = %s WHERE id = %s RETURNING id"
+            query_ids = [row[0] for row in db.database.execute_sql(sql, params=(query_result.id, query_id))]
 
         # TODO: when peewee with update & returning support is released, we can get back to using this code:
         # updated_count = Query.update(latest_query_data=query_result).\
