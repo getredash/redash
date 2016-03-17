@@ -153,6 +153,8 @@ additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_Q
 
 QUERY_RUNNERS = distinct(enabled_query_runners + additional_query_runners)
 
+EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", ""))
+
 # Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
