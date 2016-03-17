@@ -323,6 +323,14 @@ def execute_query(self, query, data_source_id, metadata):
 @celery.task(base=BaseTask)
 def record_event(event):
     models.Event.record(event)
+    for hook in settings.EVENT_REPORTING_WEBHOOKS:
+        logging.debug("Forwarding event to: %s", hook)
+        try:
+            response = requests.post(hook, event)
+            if response.status_code != 200:
+                logging.error("Failed posting to %s: %s", hook, response.content)
+        except Exception:
+            logging.exception("Failed posting to %s", hook)
 
 
 @celery.task(base=BaseTask)
