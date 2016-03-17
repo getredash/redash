@@ -66,6 +66,9 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, datetime.timedelta):
             return str(o)
 
+        if isinstance(o, unicode):
+            return str(o)
+
         super(JSONEncoder, self).default(o)
 
 
