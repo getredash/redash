@@ -64,7 +64,8 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                     "default": False,
                 }
             },
-            "required": ["host"]
+            "required": ["host"],
+            "secret": ["secret_key"]
         }
 
     @classmethod
