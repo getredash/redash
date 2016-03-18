@@ -73,7 +73,8 @@
                     </div>
                     <div collapse="table.collapsed">
                         <div ng-repeat="column in table.columns track by $index" style="padding-left:16px;"
-                        data-toggle="tooltip" data-placement="right" title="{{ column.description }}" tooltip data-container="body">{{column.name}}</div>
+                        data-toggle="tooltip" data-placement="right" title="{{ column.description }}" tooltip data-container="body">
+                            <i class="{{ column.data_type_ico }}"></i> {{column.name}}</div>
                     </div>
                 </div>
             </div>

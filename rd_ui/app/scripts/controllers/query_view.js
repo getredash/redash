@@ -79,6 +79,38 @@
           $scope.schema = data;
           _.each(data, function(table) {
             table.collapsed = true;
+            _.each(table.columns,function(column){
+              switch(column.data_type){
+                case 'character varying':
+                case 'text':
+                case 'character':
+                case 'name':
+                      column.data_type_ico = 'fa fa-font';
+                      break;
+                case 'bigint':
+                case 'integer':
+                case 'double precision':
+                case 'numeric':
+                case 'smallint':
+                case 'real':
+                      column.data_type_ico = 'fa fa-hashtag';
+                      break;
+                case 'boolean':
+                      column.data_type_ico = 'fa fa-power-off';
+                      break;
+                case 'date':
+                      column.data_type_ico = 'fa fa-calendar-o';
+                      break;
+                case 'datetime':
+                case 'timestamp without time zone':
+                      column.data_type_ico = 'fa fa-clock-o';
+                      break;
+                default:
+                      column.data_type_ico = 'fa fa-question';
+                      break;
+              }
+
+            });
           });
           $scope.editorSize = "col-md-9";
           $scope.hasSchema = true;
