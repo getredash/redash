@@ -449,18 +449,15 @@ class DataSourceTable(BaseModel):
             (('datasource', 'name'), True),
         )
 
-    def to_dict(self, all=False, with_joins=False):
+    def to_dict(self, with_joins=True):
         d = {
             'id' : self.id,
             'name': self.name,
-            'columns': [column.name for column in self.columns.order_by(DataSourceColumn.id.desc())],
+            'columns': [column.to_dict()
+                            for column in self.columns.order_by(DataSourceColumn.id.desc())],
             'description': self.description,
             'datasource': self.datasource.to_dict()
         }
-
-        if all:
-            d['columns'] = [column.to_dict()
-                            for column in self.columns.order_by(DataSourceColumn.id.desc())]
 
         if with_joins:
             join_col = [join_rel.to_dict() for join_rel in self.join_table]

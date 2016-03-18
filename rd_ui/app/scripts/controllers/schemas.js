@@ -1,11 +1,11 @@
 (function() {
 
-  var SchemasCtrl = function($scope, $routeParams, $http, $location, $growl, Events, Schema) {
+  var SchemasCtrl = function($scope, $routeParams, $http, $location, $growl, Events, DataSource) {
     Events.record(currentUser, "view", "page", "schemas");
     $scope.$parent.pageTitle = "Schemas";
 
     $scope.schemas = [];
-    Schema.get({'id': $routeParams.dataSourceId}, function(data) {
+    DataSource.getSchema({'id': $routeParams.dataSourceId}, function(data) {
         $scope.schemas = _.map(data, function(d) { return _.pick(d, 'description', 'datasource', 'id', 'name')});
     });
 
@@ -19,7 +19,7 @@
     {
         "label": "Table",
         "map": "table",
-        "cellTemplate": '<a href="/schemas/tables/{{dataRow.id}}">{{dataRow.name}}</a>'
+        "cellTemplate": '<a href="/schemas/{{dataRow.datasource.id}}/tables/{{dataRow.id}}">{{dataRow.name}}</a>'
     },
     {
         'label': 'Description',
@@ -29,21 +29,23 @@
     ];
   };
 
-  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $filter, $growl, Events, Table, TableColumn, Join, Schema) {
+  var SchemaCtrl = function ($scope, $routeParams, $http, $location, $filter, $growl, Events, Table, TableColumn, Join, DataSource) {
     Events.record(currentUser, "view", "page", "tables");
     $scope.$parent.pageTitle = "Table";
 
-    $scope.table = {};
-    $scope.table = Table.get({'id': $routeParams.tableId}, function(data) {
-        $scope.table = data;
-        $scope.schema = {};
-        Schema.get({'id': $scope.table.datasource.id}, function(data) {
-            $scope.schemas = data;
-        });
+
+    DataSource.getSchema({'id': $routeParams.dataSourceId}, function(data) {
+      $scope.schemas = data;
+      $scope.table = _.findWhere(data,{id:parseInt($routeParams.tableId)});
     });
 
+
     $scope.saveTableDescription = function() {
-      Table.save({'id': $scope.table.id, 'description': $scope.table.description});
+      Table.save({'id': $scope.table.id, 'description': $scope.table.description},function (tab) {
+          $growl.addSuccessMessage("Table description updated");
+        }, function () {
+          $growl.addErrorMessage("Failed updating table description");
+        });
     };
 
     $scope.$on("updateDataRow",function(event,data){
@@ -65,9 +67,9 @@
           if (idx !== -1) {
             var newValue = row['item']['description'] == '' ? null:row['item']['description'];
             TableColumn.save({'id': row['item']['id'],'description':newValue},function (col) {
-                $growl.addSuccessMessage("Saved.");
+                $growl.addSuccessMessage("Column description updated");
               }, function () {
-                $growl.addErrorMessage("Failed saving alert.");
+                $growl.addErrorMessage("Failed updating column description");
               });
           }
         };
@@ -124,15 +126,15 @@
       join.related_column = $scope.join.related_column;
       join.cardinality = $scope.join.cardinality;
       join.$save(function(join) {
-          $growl.addSuccessMessage("Saved.");
+          $growl.addSuccessMessage("New relation saved");
           $scope.table.joins.push(join);
       }, function() {
-          $growl.addErrorMessage("Failed saving alert.");
+          $growl.addErrorMessage("Failed saving new relation");
       });
     };
 };
 
 angular.module('redash.controllers')
-    .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Schema', SchemasCtrl])
-    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', '$filter', 'growl', 'Events', 'Table', 'TableColumn', 'Join', 'Schema', SchemaCtrl])
+    .controller('SchemasCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'DataSource', SchemasCtrl])
+    .controller('SchemaCtrl', ['$scope', '$routeParams', '$http', '$location', '$filter', 'growl', 'Events', 'Table', 'TableColumn', 'Join', 'DataSource', SchemaCtrl])
 })();

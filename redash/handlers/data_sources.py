@@ -109,7 +109,7 @@ class DataSourceSchemaResource(BaseResource):
 class DataSourceTableResource(BaseResource):
     def get(self, table_id):
         data_source_table = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
-        return data_source_table.to_dict(all=True, with_joins=True)
+        return data_source_table.to_dict()
             
     def post(self, table_id):
         # We only allow manual updates of description, as rest is updated from database
@@ -128,7 +128,7 @@ class DataSourceTableResource(BaseResource):
         # Refresh cache
         refresh_schema.delay(data_source_table.datasource)
         
-        return data_source_table.to_dict(all=True)
+        return data_source_table.to_dict()
 
 
 class DataSourceColumnResource(BaseResource):

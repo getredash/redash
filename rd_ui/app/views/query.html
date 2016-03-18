@@ -61,7 +61,7 @@
     </div>
     <hr>
     <div class="row" ng-if="sourceMode">
-        <div class="col-md-3 schema-container" ng-show="hasSchema">
+        <div class="col-md-3 schema-container" ng-if="hasSchema">
             <div ng-show="schema.length < 500">
                 <input type="text" placeholder="Search schema..." class="form-control" ng-model="schemaFilter">
             </div>
@@ -72,7 +72,8 @@
                         <i class="fa fa-table"></i> <strong>{{table.name}}<span ng-if="table.size !== undefined"> ({{table.size}})</span></strong>
                     </div>
                     <div collapse="table.collapsed">
-                        <div ng-repeat="column in table.columns track by $index" style="padding-left:16px;">{{column}}</div>
+                        <div ng-repeat="column in table.columns track by $index" style="padding-left:16px;"
+                        data-toggle="tooltip" data-placement="right" title="{{ column.description }}" tooltip data-container="body">{{column.name}}</div>
                     </div>
                 </div>
             </div>
