@@ -108,7 +108,7 @@
                     column.data_type_ico = 'fa fa-clock-o';
                     break;
                   default:
-                    column.data_type_ico = 'fa fa-question';
+                    column.data_type_ico = '';
                     break;
                 }
 

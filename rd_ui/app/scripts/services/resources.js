@@ -655,7 +655,7 @@
     var actions = {
         'save': {'method': 'POST'}
     }
-    var resource = $resource('api/joins/', {}, actions);
+    var resource = $resource('api/joins', {}, actions);
     return resource;
   };
 

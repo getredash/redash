@@ -463,7 +463,7 @@ class DataSourceTable(BaseModel):
             join_col = [join_rel.to_dict() for join_rel in self.join_table]
             join_rel = sorted([join_rel.to_dict(is_related=True) 
                                for join_rel in self.join_related_table],
-                               key=lambda x: x['name'])
+                               key=lambda x: x['related_column'])
             d['joins'] = join_col + join_rel
 
         return d

@@ -123,7 +123,7 @@
       var join = new Join();
       join.column_id = $scope.join.column.id;
       join.related_table_id = $scope.join.related_table.id;
-      join.related_column = $scope.join.related_column;
+      join.related_column = $scope.join.related_column.name;
       join.cardinality = $scope.join.cardinality;
       join.$save(function(join) {
           $growl.addSuccessMessage("New relation saved");
