@@ -4,6 +4,7 @@ import sqlite3
 import sys
 
 from redash.query_runner import BaseSQLQueryRunner
+from redash.models import DataSourceTable, DataSourceColumn
 from redash.query_runner import register
 
 from redash.utils import JSONEncoder
@@ -33,7 +34,7 @@ class Sqlite(BaseSQLQueryRunner):
 
         self._dbpath = self.configuration['dbpath']
 
-    def get_schema(self, datasource_id):
+    def _get_tables(self, schema, datasource_id):
         query_table = "select tbl_name from sqlite_master where type='table'"
         query_columns = "PRAGMA table_info(%s)"
 
@@ -53,9 +54,33 @@ class Sqlite(BaseSQLQueryRunner):
 
             results_table = json.loads(results_table)
             for row_column in results_table['rows']:
-                schema[table_name]['columns'].append(row_column['name'])
+                schema[table_name]['columns'].append((row_column['name'],row_column['type']))
 
-        return schema.values()
+        for tablename, data in schema.iteritems():
+            table, created = DataSourceTable.get_or_create(
+                datasource=datasource_id,
+                name=tablename
+            )
+            for c in data['columns']:
+                try:
+                    column, created = DataSourceColumn.get_or_create(
+                        table=table.id,
+                        name=c[0],
+                        data_type=c[1]
+                    )
+                except Exception as ex:
+                    # Will get thrown when an existing column gets a new data_type, so just update data_type
+                    column = DataSourceColumn.get(table=table.id, name=c[0])
+                    if column.data_type != c[1]:
+                        column.data_type = c[1]
+                        column.save()
+
+
+        tables_list = DataSourceTable.select(DataSourceTable)\
+            .where(DataSourceTable.datasource==datasource_id)\
+            .order_by(DataSourceTable.name.asc())
+        for table in tables_list:
+            schema[table.name] = table.to_dict()
 
     def run_query(self, query):
         connection = sqlite3.connect(self._dbpath)

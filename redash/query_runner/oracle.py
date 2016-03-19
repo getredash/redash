@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 
+from redash.models import DataSourceTable, DataSourceColumn
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -88,12 +89,13 @@ class Oracle(BaseSQLQueryRunner):
 
         self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
 
-    def _get_tables(self, schema):
+    def _get_tables(self, schema, datasource_id):
         query = """
         SELECT
             user_tables.TABLESPACE_NAME,
             all_tab_cols.TABLE_NAME,
-            all_tab_cols.COLUMN_NAME
+            all_tab_cols.COLUMN_NAME,
+            all_tab_cols.DATA_TYPE
         FROM all_tab_cols
         JOIN user_tables ON (all_tab_cols.TABLE_NAME = user_tables.TABLE_NAME)
         """
@@ -114,8 +116,34 @@ class Oracle(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['COLUMN_NAME'])
+            schema[table_name]['columns'].append((row['COLUMN_NAME'], row['DATA_TYPE']))
 
+        for tablename, data in schema.iteritems():
+            table, created = DataSourceTable.get_or_create(
+                datasource=datasource_id,
+                name=tablename
+            )
+            for c in data['columns']:
+                try:
+                    column, created = DataSourceColumn.get_or_create(
+                        table=table.id,
+                        name=c[0],
+                        data_type=c[1]
+                    )
+                except Exception as ex:
+                    # Will get thrown when an existing column gets a new data_type, so just update data_type
+                    column = DataSourceColumn.get(table=table.id, name=c[0])
+                    if column.data_type != c[1]:
+                        column.data_type = c[1]
+                        column.save()
+
+
+        tables_list = DataSourceTable.select(DataSourceTable)\
+            .where(DataSourceTable.datasource==datasource_id)\
+            .order_by(DataSourceTable.name.asc())
+        for table in tables_list:
+            schema[table.name] = table.to_dict()
+            
         return schema.values()
 
     @classmethod

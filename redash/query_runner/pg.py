@@ -137,6 +137,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         for table in tables_list:
             schema[table.name] = table.to_dict()
 
+        return schema.values()
+
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
         _wait(connection, timeout=10)
