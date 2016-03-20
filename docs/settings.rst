@@ -29,7 +29,6 @@ The follow is a list of settings and what they control:
 - **REDASH_JOB_EXPIRY_TIME**: *default 3600 * 6*
 - **REDASH_COOKIE_SECRET**: *default "c292a0a3aa32397cdb050e233733900f"*
 - **REDASH_LOG_LEVEL**: *default "INFO"*
-- **REDASH_ANALYTICS**: *default ""*
 - **REDASH_MAIL_SERVER**: *default "localhost"*
 - **REDASH_MAIL_PORT**: *default 25*
 - **REDASH_MAIL_USE_TLS**: *default "false"*

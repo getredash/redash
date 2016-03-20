@@ -110,7 +110,6 @@ def login(org_slug=None):
 
     return render_template("login.html",
                            name=settings.NAME,
-                           analytics=settings.ANALYTICS,
                            org_slug=org_slug,
                            next=next_path,
                            username=request.form.get('username', ''),

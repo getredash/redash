@@ -20,13 +20,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-default navbar-trans navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/"><img src="/images/logo_white.png"/></a>
-    </div>
-  </div>
-</nav>
+{% include '_includes/signed_out_navbar.html' %}
 
 <div class="container content">
   {% block content %}
@@ -37,9 +31,7 @@
 <script src="/bower_components/jquery/jquery.js"></script>
 <!-- endbuild -->
 
-<script>
-    {{ analytics|safe }}
-</script>
+{% include '_includes/signed_out_tail.html' %}
 
 </body>
 </html>

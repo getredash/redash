@@ -60,8 +60,7 @@ def index(**kwargs):
                                base_href=base_href(),
                                name=settings.NAME,
                                org_slug=current_org.slug,
-                               client_config=json.dumps(client_config),
-                               analytics=settings.ANALYTICS)
+                               client_config=json.dumps(client_config))
 
     return response, 200, headers
 

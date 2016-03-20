@@ -45,8 +45,7 @@ def embed(query_id, visualization_id, org_slug=None):
                            base_href=base_href(),
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
-                           query_result=json_dumps(qr),
-                           analytics=settings.ANALYTICS)
+                           query_result=json_dumps(qr))
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
@@ -76,7 +75,6 @@ def public_dashboard(token, org_slug=None):
                                }),
                                base_href=base_href(),
                                name=settings.NAME,
-                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG),
-                               analytics=settings.ANALYTICS)
+                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
 
     return response, 200, headers
