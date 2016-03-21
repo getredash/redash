@@ -114,7 +114,7 @@ class QueryResultResource(BaseResource):
                     'org_id': self.current_org.id,
                     'action': 'api_get',
                     'timestamp': int(time.time()),
-                    'api_key': self.current_user.id,
+                    'api_key': self.current_user.name,
                     'file_type': filetype,
                     'user_agent': request.user_agent.string,
                     'ip': request.remote_addr

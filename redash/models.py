@@ -145,19 +145,20 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
 
 
 class ApiUser(UserMixin, PermissionsCheckMixin):
-    def __init__(self, api_key, org, groups):
+    def __init__(self, api_key, org, groups, name=None):
         self.object = None
         if isinstance(api_key, basestring):
             self.id = api_key
+            self.name = name
         else:
             self.id = api_key.api_key
+            self.name = "ApiKey: {}".format(api_key.id)
             self.object = api_key.object
-        # self.name =
         self.groups = groups
         self.org = org
 
     def __repr__(self):
-        return u"<ApiUser: {}>".format(self.id)
+        return u"<{}>".format(self.name)
 
     @property
     def permissions(self):
@@ -315,7 +316,7 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
     @classmethod
     def all(cls, org):
         return cls.select().where(cls.org == org)
-    
+
     @classmethod
     def find_by_email(cls, email):
         return cls.select().where(cls.email == email)
