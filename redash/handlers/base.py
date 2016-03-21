@@ -35,7 +35,7 @@ class BaseResource(Resource):
     def record_event(self, options):
         if isinstance(self.current_user, ApiUser):
             options.update({
-                'api_key': self.current_user.id,
+                'api_key': self.current_user.name,
                 'org_id': self.current_org.id
             })
         else:
