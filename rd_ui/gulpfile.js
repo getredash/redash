@@ -17,7 +17,7 @@ var paths = {
   scripts: [yeoman.app + '/scripts/**/*.js'],
   styles: [yeoman.app + '/styles/**/*.css'],
   views: {
-    main: [yeoman.app + '/index.html', 'app/vendor_scripts.html', 'app/login.html', 'app/embed.html', 'app/app_layout.html', 'app/signed_out_layout.html'],
+    main: [yeoman.app + '/index.html', 'app/vendor_scripts.html', 'app/login.html', 'app/embed.html', 'app/public.html', 'app/app_layout.html', 'app/signed_out_layout.html'],
     files: [yeoman.app + '/views/**/*.html']
   }
 };
