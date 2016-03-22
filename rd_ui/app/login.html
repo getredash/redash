@@ -37,6 +37,19 @@
 
     {% endif %}
 
+    {% if show_remote_user_login %}
+
+    <div class="row">
+      <a href="/remote_user/login">Remote User Login</a>
+    </div>
+
+    <div class="login-or">
+      <hr class="hr-or">
+      <span class="span-or">or</span>
+    </div>
+
+    {% endif %}
+
     <form role="form" method="post" name="login">
       <div class="form-group">
         <label for="inputEmail">Email</label>
