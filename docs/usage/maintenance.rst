@@ -16,7 +16,7 @@ Restart
 Restarting the Web Server
 -------------------------
 
-``sudo supervisorctl stop redash_server``
+``sudo supervisorctl restart redash_server``
 
 Restarting Celery Workers
 -------------------------
