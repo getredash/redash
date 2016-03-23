@@ -6,7 +6,7 @@ http {
   server_tokens off;
 
   server {
-    listen   80 default;
+    listen 80 default;
 
     gzip on;
     gzip_types *;
