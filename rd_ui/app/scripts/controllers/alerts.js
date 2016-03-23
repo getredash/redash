@@ -74,7 +74,6 @@
 
     $scope.ops = ['greater than', 'less than', 'equals'];
     $scope.selectedQuery = null;
-    $scope.destinations = Destination.query();
 
     $scope.getDefaultName = function() {
       if (!$scope.alert.query) {
@@ -112,42 +111,21 @@
 
   };
 
-  angular.module('redash.directives').directive('alertSubscribers', ['AlertSubscription', 'Destination', 'growl', function (AlertSubscription, Destination, growl) {
+  angular.module('redash.directives').directive('userSubscribers', ['AlertSubscription', 'growl', function (AlertSubscription, growl) {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/alerts/subscribers.html',
+      templateUrl: '/views/alerts/userSubscribers.html',
       scope: {
         'alertId': '='
       },
       controller: function ($scope) {
-        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId});
         $scope.subscription = {};
-        $scope.destinations = Destination.query();
+        $scope.subscribers = [];
 
-        $scope.destinationsDisplay = function(destination) {
-            return '<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name
-        };
-
-        $scope.saveSubscriber = function() {
-            $scope.sub = new AlertSubscription({alert_id: $scope.alertId, destination_id: $scope.subscription.destination.id});
-            $scope.sub.$save(function() {
-              growl.addSuccessMessage("Subscribed.");
-              $scope.subscribers.push($scope.sub);
-            }, function() {
-              growl.addErrorMessage("Failed saving subscription.");
-            });
-        };
-
-        $scope.unsubscribe = function(subscriber) {
-            $scope.sub = new AlertSubscription({alert_id: subscriber.alert_id, subscriber_id: subscriber.id});
-            $scope.sub.$delete(function() {
-              growl.addSuccessMessage("Unsubscribed");
-              $scope.subscribers = _.without($scope.subscribers, subscriber);
-            }, function() {
-              growl.addErrorMessage("Failed unsubscribing.");
-            });
-        };
+        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
+              $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination === "undefined"; });
+        });
       }
     }
   }]);
@@ -185,7 +163,7 @@
             });
           } else {
             $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
-            $scope.subscription.$delete(function() {
+            $scope.subscription.$save(function() {
               $scope.subscribers.push($scope.subscription);
               updateClass();
             }, function() {

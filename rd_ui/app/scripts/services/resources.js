@@ -607,7 +607,7 @@
   };
 
   var AlertSubscription = function ($resource) {
-    var resource = $resource('api/alerts/:alertId/subscriptions/:subscriberId', {alertId: '@alert_id', subscriberId: '@subscriber_id'});
+    var resource = $resource('api/alerts/:alertId/subscriptions/:subscriberId', {alertId: '@alert_id', subscriberId: '@id'});
     return resource;
   };
 
