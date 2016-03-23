@@ -9,14 +9,22 @@ class Email(BaseDestination):
 
     @classmethod
     def configuration_schema(cls):
-        return {}
+        return {
+            "type": "object",
+            "properties": {
+                "addresses": {
+                    "type": "string"
+                },
+            },
+            "required": ["addresses"]
+        }
 
     @classmethod
     def icon(cls):
         return 'fa-envelope'
 
     def notify(self, alert, query, user, new_state, app, host, options):
-        recipients = [user.email]
+        recipients = [email for email in options.get('addresses').split(',') if email]
         html = """
         Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
         """.format(host=host, alert_id=alert.id, query_id=query.id)

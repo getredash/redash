@@ -1100,7 +1100,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
 
 class AlertSubscription(ModelTimestampsMixin, BaseModel):
     user = peewee.ForeignKeyField(User)
-    destination = peewee.ForeignKeyField(NotificationDestination, default=1)
+    destination = peewee.ForeignKeyField(NotificationDestination, null=True)
     alert = peewee.ForeignKeyField(Alert, related_name="subscriptions")
 
     class Meta:
@@ -1125,6 +1125,19 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
     @classmethod
     def all(cls, alert_id):
         return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
+
+    def notify(self, alert, query, user, new_state, app, host):
+        if self.destination:
+            return self.destination.notify(alert, query, user, new_state,
+                                           app, host)
+        else:
+            # User email subscription, so create an email destination object
+            config = {'email': self.user.email}
+            schema = get_configuration_schema_for_destination_type('email')
+            options = ConfigurationContainer(json.dumps(config), schema)
+            destination = get_destination('email', options)
+            return destination.notify(alert, query, user, new_state,
+                                           app, host, options)
 
 
 all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription)
