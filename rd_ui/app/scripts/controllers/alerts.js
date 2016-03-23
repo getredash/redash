@@ -178,13 +178,13 @@
     return {
       restrict: 'E',
       replace: true,
-      template: '<button class="btn btn-default btn-xs" ng-click="toggleSubscription()"><i ng-class="class"></i></button>',
+      template: '<button class="btn btn-primary col-xs-4" ng-click="toggleSubscription()" ng-bind="message"></i></button>',
       controller: function ($scope) {
-        var updateClass = function() {
+        var updateMessage = function() {
           if ($scope.subscription) {
-            $scope.class = "fa fa-eye-slash";
+            $scope.message = "Unsubscribe";
           } else {
-            $scope.class = "fa fa-eye";
+            $scope.message = "Subscribe";
           }
         }
 
@@ -193,7 +193,7 @@
             return (subscription.user.email == currentUser.email);
           });
 
-          updateClass();
+          updateMessage();
         });
 
         $scope.toggleSubscription = function() {
@@ -201,7 +201,7 @@
             $scope.subscription.$delete(function() {
               $scope.subscribers = _.without($scope.subscribers, $scope.subscription);
               $scope.subscription = undefined;
-              updateClass();
+              updateMessage();
             }, function() {
               growl.addErrorMessage("Failed saving subscription.");
             });
@@ -209,7 +209,7 @@
             $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
             $scope.subscription.$save(function() {
               $scope.subscribers.push($scope.subscription);
-              updateClass();
+              updateMessage();
             }, function() {
               growl.addErrorMessage("Unsubscription failed.");
             });

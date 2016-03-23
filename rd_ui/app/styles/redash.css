@@ -581,3 +581,8 @@ div.table-name {
   padding-left: 5px;
   padding-right: 5px;
 }
+
+hr.subscription {
+    height: 2px;
+    background: #333;
+}
