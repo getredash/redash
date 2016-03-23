@@ -19,7 +19,6 @@ python-dateutil==2.4.2
 pytz==2015.7
 redis==2.7.5
 requests==2.3.0
-botocore==1.4.4
 six==1.10.0
 sqlparse==0.1.8
 wsgiref==0.1.2
