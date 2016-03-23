@@ -130,6 +130,50 @@
     }
   }]);
 
+  angular.module('redash.directives').directive('destinationSubscribers', ['AlertSubscription', 'Destination', 'growl', function (AlertSubscription, Destination, growl) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/alerts/destinationSubscribers.html',
+      scope: {
+        'alertId': '='
+      },
+      controller: function ($scope) {
+        $scope.subscription = {};
+        $scope.subscribers = [];
+        $scope.destinations = Destination.query();
+
+        $scope.destinationsDisplay = function(destination) {
+            return '<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name
+        };
+
+        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
+              $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination !== "undefined"; });
+        });
+        $scope.saveSubscriber = function() {
+            $scope.sub = new AlertSubscription({alert_id: $scope.alertId, destination_id: $scope.subscription.destination.id});
+            $scope.sub.$save(function() {
+              growl.addSuccessMessage("Subscribed.");
+              $scope.subscribers.push($scope.sub);
+            }, function(response) {
+              console.log(response);
+              growl.addErrorMessage("Failed saving subscription.");
+            });
+        };
+
+        $scope.unsubscribe = function(subscriber) {
+            $scope.sub = new AlertSubscription({alert_id: subscriber.alert_id, id: subscriber.id});
+            $scope.sub.$delete(function() {
+              growl.addSuccessMessage("Unsubscribed");
+              $scope.subscribers = _.without($scope.subscribers, subscriber);
+            }, function() {
+              growl.addErrorMessage("Failed unsubscribing.");
+            });
+        };
+      }
+    }
+  }]);
+
   angular.module('redash.directives').directive('subscribeButton', ['AlertSubscription', 'growl', function (AlertSubscription, growl) {
     return {
       restrict: 'E',
