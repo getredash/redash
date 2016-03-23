@@ -11,18 +11,6 @@ if __name__ == '__main__':
         if not NotificationDestination.table_exists():
             NotificationDestination.create_table()
             
-            # Create an email destination to migrate existing AlertSubscriptions
-            schema = get_configuration_schema_for_destination_type('email')
-            options = ConfigurationContainer('{}', schema)
-
-            email = NotificationDestination.create(
-                org=1,
-                user=1,
-                name="Email",
-                type="email",
-                options=options
-            )
-
             # Update alert subscription fields
             migrate(
                 migrator.add_column('alert_subscriptions', 'destination_id', AlertSubscription.destination)
