@@ -74,7 +74,11 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
     @classmethod
     def type(cls):
-        return "ddb_sql"
+        return "dynamodb_sql"
+
+    @classmethod
+    def name(cls):
+        return "DynamoDB (with DQL)"
 
     def __init__(self, configuration):
         super(DynamoDBSQL, self).__init__(configuration)
@@ -99,11 +103,11 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             engine = FragmentEngine()
             connection = engine.connect(**self.configuration.to_dict())
 
-            resDict = engine.execute(query if str(query).endswith(';') else str(query)+';')
+            res_dict = engine.execute(query if str(query).endswith(';') else str(query)+';')
 
             columns = []
             rows = []
-            for item in resDict:
+            for item in res_dict:
 
                 if not columns:
                     for k, v in item.iteritems():
