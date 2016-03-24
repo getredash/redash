@@ -239,14 +239,14 @@ class Factory(object):
         return widget_factory.create(**args)
 
     def create_api_key(self, **kwargs):
-        return api_key_factory.create(**args)
-
-    def create_destination(self, **kwargs):
         args = {
             'org': self.org
         }
         args.update(kwargs)
-        return destination_factory.create(**args)
+        return api_key_factory.create(**args)
+
+    def create_destination(self, **kwargs):
+        return destination_factory.create(**kwargs)
 
     def create_alert_subscription(self, **kwargs):
         return alert_subscription_factory.create(**kwargs)
