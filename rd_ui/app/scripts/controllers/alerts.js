@@ -122,6 +122,7 @@
       controller: function ($scope) {
         $scope.subscription = {};
         $scope.subscribers = [];
+        $scope.enabled = !clientConfig.mailSettingsMissing;
 
         $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
               $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination === "undefined"; });
