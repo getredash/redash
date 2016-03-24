@@ -156,7 +156,6 @@
               growl.addSuccessMessage("Subscribed.");
               $scope.subscribers.push($scope.sub);
             }, function(response) {
-              console.log(response);
               growl.addErrorMessage("Failed saving subscription.");
             });
         };

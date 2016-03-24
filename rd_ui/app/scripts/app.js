@@ -108,8 +108,8 @@ angular.module('redash', [
     });
 
     $routeProvider.when('/destinations/:destinationId', {
-      templateurl: '/views/destinations/edit.html',
-      controller: 'destinationctrl'
+      templateUrl: '/views/destinations/edit.html',
+      controller: 'DestinationCtrl'
     });
     $routeProvider.when('/destinations', {
       templateUrl: '/views/destinations/list.html',
