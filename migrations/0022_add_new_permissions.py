@@ -7,4 +7,4 @@ if __name__ == '__main__':
             group.permissions.append('list_dashboards')
             group.permissions.append('list_alerts')
             group.permissions.append('list_data_sources')
-            group.save(only=group.dirty_fields)
+            group.save(only=[models.Group.permissions])
