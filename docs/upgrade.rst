@@ -25,7 +25,7 @@ Even if you didn't use the image, it's very likely you can reuse most of
 this script with small modifications. What this script does is:
 
 1. Find the URL of the latest release tarball (from `GitHub releases
-   page <github.com/getredash/redash/releases>`__).
+   page <http://github.com/getredash/redash/releases>`__).
 2. Download it.
 3. Create new directory for this version (for example:
    ``/opt/redash/redash.0.5.0.b685``).
