@@ -21,7 +21,6 @@ The follow is a list of settings and what they control:
 - **REDASH_PASSWORD_LOGIN_ENABLED**: *default "true"*
 - **REDASH_ENFORCE_HTTPS**: *default "false"*
 - **REDASH_MULTI_ORG**: *default "false"*
-- **REDASH_GOOGLE_APPS_DOMAIN**: *default ""*
 - **REDASH_GOOGLE_CLIENT_ID**: *default ""*
 - **REDASH_GOOGLE_CLIENT_SECRET**: *default ""*
 - **REDASH_SAML_METADATA_URL**: *default ""*
@@ -30,7 +29,6 @@ The follow is a list of settings and what they control:
 - **REDASH_JOB_EXPIRY_TIME**: *default 3600 * 6*
 - **REDASH_COOKIE_SECRET**: *default "c292a0a3aa32397cdb050e233733900f"*
 - **REDASH_LOG_LEVEL**: *default "INFO"*
-- **REDASH_ANALYTICS**: *default ""*
 - **REDASH_MAIL_SERVER**: *default "localhost"*
 - **REDASH_MAIL_PORT**: *default 25*
 - **REDASH_MAIL_USE_TLS**: *default "false"*

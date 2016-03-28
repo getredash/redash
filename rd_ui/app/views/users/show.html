@@ -1,4 +1,6 @@
 <div class="container">
+    <email-settings-warning function="invite emails"></email-settings-warning>
+
     <users-nav></users-nav>
 
     <h2>{{user.name}}</h2>
@@ -16,6 +18,10 @@
             <p>
                 {{user.email}}
             </p>
+            <div ng-if="currentUser.isAdmin">
+                <hr/>
+                <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send Password Reset Email</button>
+            </div>
         </tab>
         <tab heading="API Key" ng-if="user.api_key" active="tabs['apiKey']" select="setTab('apiKey')">
             API Key:

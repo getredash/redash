@@ -1,30 +1,37 @@
+import os
 import hashlib
 import json
 
-from flask import render_template, send_from_directory, current_app, url_for, request
+from flask import render_template, safe_join, send_file, current_app
 from flask_login import current_user, login_required
+from werkzeug.exceptions import NotFound
 
 from redash import settings, __version__
-from redash.handlers import org_scoped_rule
-from redash.wsgi import app
+from redash.handlers import base_href, routes
+from redash.handlers.base import org_scoped_rule
 from redash.version_check import get_latest_version
-from redash.authentication.org_resolving import current_org
+from authentication import current_org
 
 
-
-@app.route('/<path:filename>')
+@routes.route('/<path:filename>')
 def send_static(filename):
     if current_app.debug:
         cache_timeout = 0
     else:
         cache_timeout = None
 
-    return send_from_directory(settings.STATIC_ASSETS_PATH, filename, cache_timeout=cache_timeout)
+    # The following is copied from send_from_directory, and extended to support multiple directories
+    for path in settings.STATIC_ASSETS_PATHS:
+        print path
+        full_path = safe_join(path, filename)
+        if os.path.isfile(full_path):
+            return send_file(full_path, **dict(cache_timeout=cache_timeout, conditional=True))
+
+    raise NotFound()
 
 
 @login_required
 def index(**kwargs):
-
     email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
     gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
@@ -48,28 +55,22 @@ def index(**kwargs):
         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
     }
 
-    if settings.MULTI_ORG:
-        base_href = url_for('index', _external=True, org_slug=current_org.slug)
-    else:
-        base_href = url_for('index', _external=True)
-
     response = render_template("index.html",
                                user=json.dumps(user),
-                               base_href=base_href,
+                               base_href=base_href(),
                                name=settings.NAME,
                                org_slug=current_org.slug,
-                               client_config=json.dumps(client_config),
-                               analytics=settings.ANALYTICS)
+                               client_config=json.dumps(client_config))
 
     return response, 200, headers
 
 
 def register_static_routes(rules):
     # Make sure that / is the first route considered as index.
-    app.add_url_rule(org_scoped_rule("/"), "index", index)
+    routes.add_url_rule(org_scoped_rule("/"), "index", index)
 
     for rule in rules:
-        app.add_url_rule(org_scoped_rule(rule), None, index)
+        routes.add_url_rule(org_scoped_rule(rule), None, index)
 
 rules = ['/admin/<anything>/<whatever>',
           '/admin/<anything>',

@@ -1,0 +1,17 @@
+{% extends "emails/layout.html" %}
+
+{% block content %}
+
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">Hi {{ user.name }},</p>
+<h2 class="intercom-align-left" style="color: #282F33; font-size: 18px; font-weight: bold; margin-bottom: 7px; margin-top: 30px; text-align: left !important" align="left">
+    You told us you forgot your password. If you really did, click here to choose a new one:
+</h2>
+<table class="intercom-container intercom-align-center" align="center" style="border-collapse: collapse; border-spacing: 0; margin: 17px auto; table-layout: fixed; text-align: center !important"><tr><td style="background: #0071b2; border: 1px none #dadada; border-radius: 3px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; margin: 0; padding: 12px 35px; text-align: left; vertical-align: top" align="left" bgcolor="#0071b2" valign="top"><a class="intercom-h2b-button" target="_blank" href="{{ reset_link }}" style="background: #0071b2; border: none; border-radius: 3px; color: white; display: inline-block; font-size: 14px; font-weight: bold; outline: none !important; text-decoration: none">Choose a new password</a></td></tr></table>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+    <small>Need the raw link? {{ reset_link }}</small>
+</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+    If you didn't mean to reset your password, then you can just ignore this email; your password will not change.
+</p>
+
+{% endblock %}

@@ -86,7 +86,7 @@ def idp_initiated():
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
     create_and_login_user(current_org, name, email)
-    url = url_for('index')
+    url = url_for('redash.index')
 
     return redirect(url)
 
@@ -95,7 +95,7 @@ def idp_initiated():
 def sp_initiated():
     if not settings.SAML_METADATA_URL:
         logger.error("Cannot invoke saml endpoint without metadata url in settings.")
-        return redirect(url_for('index'))
+        return redirect(url_for('redash.index'))
 
     saml_client = get_saml_client()
     reqid, info = saml_client.prepare_for_authenticate()

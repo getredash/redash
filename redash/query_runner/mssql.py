@@ -56,6 +56,10 @@ class SqlServer(BaseSQLQueryRunner):
         return enabled
 
     @classmethod
+    def name(cls):
+        return "Microsoft SQL Server"
+
+    @classmethod
     def type(cls):
         return "mssql"
 

@@ -4,16 +4,24 @@ import hmac
 import time
 import logging
 
-from flask import redirect, request, jsonify
+from flask import redirect, request, jsonify, url_for
 
 from redash import models, settings
-from redash.authentication import google_oauth, saml_auth
 from redash.authentication.org_resolving import current_org
-from redash.authentication.helper import get_login_url
+from redash.authentication import google_oauth, saml_auth, remote_user_auth
 from redash.tasks import record_event
 
 login_manager = LoginManager()
 logger = logging.getLogger('authentication')
+
+
+def get_login_url(external=False, next="/"):
+    if settings.MULTI_ORG:
+        login_url = url_for('redash.login', org_slug=current_org.slug, next=next, _external=external)
+    else:
+        login_url = url_for('redash.login', next=next, _external=external)
+
+    return login_url
 
 
 def sign(key, path, expires):
@@ -54,7 +62,7 @@ def hmac_load_user_from_request(request):
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
-                return models.ApiUser(query.api_key, query.org, query.groups.keys())
+                return models.ApiUser(query.api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
 
     return None
 
@@ -65,13 +73,18 @@ def get_user_from_api_key(api_key, query_id):
 
     user = None
 
+    # TODO: once we switch all api key storage into the ApiKey model, this code will be much simplified
     try:
         user = models.User.get_by_api_key_and_org(api_key, current_org.id)
     except models.User.DoesNotExist:
-        if query_id:
-            query = models.Query.get_by_id_and_org(query_id, current_org.id)
-            if query and query.api_key == api_key:
-                user = models.ApiUser(api_key, query.org, query.groups.keys())
+        try:
+            api_key = models.ApiKey.get_by_api_key(api_key)
+            user = models.ApiUser(api_key, api_key.org, [])
+        except models.ApiKey.DoesNotExist:
+            if query_id:
+                query = models.Query.get_by_id_and_org(query_id, current_org.id)
+                if query and query.api_key == api_key:
+                    user = models.ApiUser(api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
 
     return user
 
@@ -82,6 +95,9 @@ def get_api_key_from_request(request):
     if api_key is None and request.headers.get('Authorization'):
         auth_header = request.headers.get('Authorization')
         api_key = auth_header.replace('Key ', '', 1)
+
+    if api_key is None and request.view_args.get('token'):
+        api_key = request.view_args['token']
 
     return api_key
 
@@ -101,6 +117,8 @@ def log_user_logged_in(app, user):
         'action': 'login',
         'object_type': 'redash',
         'timestamp': int(time.time()),
+        'user_agent': request.user_agent.string,
+        'ip': request.remote_addr
     }
 
     record_event.delay(event)
@@ -125,6 +143,7 @@ def setup_authentication(app):
     app.secret_key = settings.COOKIE_SECRET
     app.register_blueprint(google_oauth.blueprint)
     app.register_blueprint(saml_auth.blueprint)
+    app.register_blueprint(remote_user_auth.blueprint)
 
     user_logged_in.connect(log_user_logged_in)
 
@@ -135,3 +154,5 @@ def setup_authentication(app):
     else:
         logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
         login_manager.request_loader(hmac_load_user_from_request)
+
+

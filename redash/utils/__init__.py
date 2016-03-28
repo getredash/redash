@@ -12,6 +12,9 @@ import pystache
 
 from funcy import distinct
 
+from .human_time import parse_human_time
+from redash import settings
+
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 
 
@@ -48,6 +51,7 @@ def generate_token(length):
 
     rand = random.SystemRandom()
     return ''.join(rand.choice(chars) for x in range(length))
+
 
 class JSONEncoder(json.JSONEncoder):
     """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
@@ -141,3 +145,12 @@ def collect_parameters_from_request(args):
             parameters[k[2:]] = v
 
     return parameters
+
+
+def base_url(org):
+    if settings.MULTI_ORG:
+        return "https://{}/{}".format(settings.HOST, org.slug)
+
+    return settings.HOST
+
+

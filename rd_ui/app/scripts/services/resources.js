@@ -493,7 +493,7 @@
       if (paramsRequired) {
         queryText = Mustache.render(queryText, parameters);
 
-        // Need to clear latest results, to make sure we don't used results for different params.
+        // Need to clear latest results, to make sure we don't use results for different params.
         this.latest_query_data = null;
         this.latest_query_data_id = null;
       }

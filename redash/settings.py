@@ -90,11 +90,39 @@ SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_LOGIN_ENABLED = SAML_METADATA_URL != ""
 SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "")
 
-STATIC_ASSETS_PATH = fix_assets_path(os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/"))
+# Enables the use of an externally-provided and trusted remote user via an HTTP
+# header.  The "user" must be an email address.
+#
+# By default the trusted header is X-Forwarded-Remote-User.  You can change
+# this by setting REDASH_REMOTE_USER_HEADER.
+#
+# Enabling this authentication method is *potentially dangerous*, and it is
+# your responsibility to ensure that only a trusted frontend (usually on the
+# same server) can talk to the redash backend server, otherwise people will be
+# able to login as anyone they want by directly talking to the redash backend.
+# You must *also* ensure that any special header in the original request is
+# removed or always overwritten by your frontend, otherwise your frontend may
+# pass it through to the backend unchanged.
+#
+# Note that redash will only check the remote user once, upon the first need
+# for a login, and then set a cookie which keeps the user logged in.  Dropping
+# the remote user header after subsequent requests won't automatically log the
+# user out.  Doing so could be done with further work, but usually it's
+# unnecessary.
+#
+# If you also set REDASH_PASSWORD_LOGIN_ENABLED to false, then your
+# authentication will be seamless.  Otherwise a link will be presented on the
+# login page to trigger remote user auth.
+REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
+REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
+
+# Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
+# last one will be used for Flask templates.
+STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_STATIC_ASSETS_PATH", "../rd_ui/app/").split(',')]
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 6))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
-ANALYTICS = os.environ.get("REDASH_ANALYTICS", "")
 
 # Mail settings:
 MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
@@ -131,7 +159,6 @@ default_query_runners = [
     'redash.query_runner.google_spreadsheets',
     'redash.query_runner.graphite',
     'redash.query_runner.mongodb',
-    'redash.query_runner.mql',
     'redash.query_runner.mysql',
     'redash.query_runner.pg',
     'redash.query_runner.url',
@@ -142,7 +169,6 @@ default_query_runners = [
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.treasuredata',
-    'redash.query_runner.oracle',
     'redash.query_runner.sqlite',
     'redash.query_runner.mssql',
 ]
@@ -151,6 +177,8 @@ enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_R
 additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_QUERY_RUNNERS", ""))
 
 QUERY_RUNNERS = distinct(enabled_query_runners + additional_query_runners)
+
+EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", ""))
 
 # Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
@@ -176,4 +204,5 @@ COMMON_CLIENT_CONFIG = {
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
+    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None
 }

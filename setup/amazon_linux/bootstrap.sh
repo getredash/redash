@@ -134,7 +134,7 @@ yum install -y mysql-devel
 pip install MySQL-python==1.2.5
 
 # Microsoft SQL Server dependencies (`sudo` required):
-sudo apt-get install -y freetds-dev
+sudo yum install -y freetds-devel
 sudo pip install pymssql==2.1.1
 
 # Mongo dependencies:

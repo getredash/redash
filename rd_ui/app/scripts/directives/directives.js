@@ -3,6 +3,39 @@
 
   var directives = angular.module('redash.directives', []);
 
+  directives.directive('appHeader', ['$location', 'Dashboard', 'notifications', function ($location, Dashboard) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/app_header.html',
+      link: function ($scope) {
+        $scope.dashboards = [];
+        $scope.reloadDashboards = function () {
+          Dashboard.query(function (dashboards) {
+            $scope.dashboards = _.sortBy(dashboards, "name");
+            $scope.allDashboards = _.groupBy($scope.dashboards, function (d) {
+              var parts = d.name.split(":");
+              if (parts.length == 1) {
+                return "Other";
+              }
+              return parts[0];
+            });
+            $scope.otherDashboards = $scope.allDashboards['Other'] || [];
+            $scope.groupedDashboards = _.omit($scope.allDashboards, 'Other');
+          });
+        };
+
+        $scope.searchQueries = function() {
+          $location.path('/queries/search').search({q: $scope.term});
+        };
+
+        $scope.reloadDashboards();
+
+        $scope.currentUser = currentUser;
+      }
+    }
+  }]);
+
   directives.directive('alertUnsavedChanges', ['$window', function ($window) {
     return {
       restrict: 'E',
@@ -73,6 +106,17 @@
       }
     }
   }]);
+
+  directives.directive('emailSettingsWarning', function() {
+    return {
+      restrict: 'E',
+      template: '<p class="alert alert-warning" ng-if="showMailWarning">It looks like your mail server isn\'t configured, make sure to configure it for the {{function}} to work.</p>',
+      link: function(scope, elements, attrs) {
+        scope.showMailWarning = clientConfig.mailSettingsMissing && currentUser.isAdmin;
+        scope.function = attrs.function;
+      }
+    }
+  });
 
   directives.directive('rdTabs', ['$location', function ($location) {
     return {

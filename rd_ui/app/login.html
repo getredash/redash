@@ -1,109 +1,83 @@
-<!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-<head>
-    <title>{{name}} Login</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+{% extends "signed_out_layout.html" %}
+{% block content %}
 
-    <!-- build:css /styles/main_login.css -->
-    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
-    <link rel="stylesheet" href="/styles/redash.css">
-    <link rel="stylesheet" href="/styles/login.css">
-    <!-- endbuild -->
+<div class="row">
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-warning" role="alert">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
 
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
-</head>
-<body>
+  <div class="main">
+    {% if show_google_openid %}
 
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse"
-                data-target=".navbar-ex1-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/"><img src="/images/redash_icon_small.png"/></a>
-    </div>
-    </div>
-</nav>
-
-<div class="container">
     <div class="row">
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-warning" role="alert">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
-        <div class="main">
-            {% if show_google_openid %}
-
-            <div class="row">
-                <a href="{{ google_auth_url }}"><img src="/google_login.png" class="login-button"/></a>
-            </div>
-
-            <div class="login-or">
-                <hr class="hr-or">
-                <span class="span-or">or</span>
-            </div>
-
-            {% endif %}
-
-            {% if show_saml_login %}
-
-            <div class="row">
-                <a href="/saml/login">SAML Login</a>
-            </div>
-
-            <div class="login-or">
-                <hr class="hr-or">
-                <span class="span-or">or</span>
-            </div>
-
-            {% endif %}
-
-            <form role="form" method="post" name="login">
-                <div class="form-group">
-                    <label for="inputEmail">Email</label>
-                    <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
-                </div>
-                <div class="form-group">
-                    <!--<a class="pull-right" href="#">Forgot password?</a>-->
-                    <label for="inputPassword">Password</label>
-                    <input type="password" class="form-control" id="inputPassword" name="password">
-                </div>
-                <div class="checkbox pull-right">
-                    <label>
-                        <input type="checkbox" name="remember">
-                        Remember me </label>
-                </div>
-
-                <button type="submit" class="btn btn btn-primary">
-                    Log In
-                </button>
-            </form>
-
-
-        </div>
-
+      <a href="{{ google_auth_url }}"><img src="/google_login.png" class="login-button"/></a>
     </div>
+
+    <div class="login-or">
+      <hr class="hr-or">
+      <span class="span-or">or</span>
+    </div>
+
+    {% endif %}
+
+    {% if show_saml_login %}
+
+    <div class="row">
+      <a href="/saml/login">SAML Login</a>
+    </div>
+
+    <div class="login-or">
+      <hr class="hr-or">
+      <span class="span-or">or</span>
+    </div>
+
+    {% endif %}
+
+    {% if show_remote_user_login %}
+
+    <div class="row">
+      <a href="/remote_user/login">Remote User Login</a>
+    </div>
+
+    <div class="login-or">
+      <hr class="hr-or">
+      <span class="span-or">or</span>
+    </div>
+
+    {% endif %}
+
+    <form role="form" method="post" name="login">
+      <div class="form-group">
+        <label for="inputEmail">Email</label>
+        <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
+      </div>
+      <div class="form-group">
+        <!--<a class="pull-right" href="#">Forgot password?</a>-->
+        <label for="inputPassword">Password</label>
+        <input type="password" class="form-control" id="inputPassword" name="password">
+      </div>
+      <div class="checkbox pull-right">
+        <label>
+          <input type="checkbox" name="remember">
+          Remember me </label>
+      </div>
+
+      <button type="submit" class="btn btn btn-primary">
+        Log In
+      </button>
+    </form>
+
+
+  </div>
+  <div class="main text-center">
+    <hr>
+    <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+  </div>
+
 </div>
 
-<script src="/bower_components/jquery/jquery.js"></script>
-
-<script>
-    {{ analytics|safe }}
-</script>
-
-</body>
-</html>
+{% endblock %}

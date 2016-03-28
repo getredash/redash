@@ -4,8 +4,7 @@ from flask import request
 from funcy import project
 
 from redash import models
-from redash.wsgi import api
-from redash.permissions import require_access, require_admin_or_owner, view_only
+from redash.permissions import require_access, require_admin_or_owner, view_only, require_permission
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 
 
@@ -70,6 +69,7 @@ class AlertListResource(BaseResource):
 
         return alert.to_dict()
 
+    @require_permission('list_alerts')
     def get(self):
         return [alert.to_dict() for alert in models.Alert.all(groups=self.current_user.groups)]
 
@@ -109,7 +109,3 @@ class AlertSubscriptionResource(BaseResource):
             'object_type': 'alert'
         })
 
-api.add_org_resource(AlertResource, '/api/alerts/<alert_id>', endpoint='alert')
-api.add_org_resource(AlertSubscriptionListResource, '/api/alerts/<alert_id>/subscriptions', endpoint='alert_subscriptions')
-api.add_org_resource(AlertSubscriptionResource, '/api/alerts/<alert_id>/subscriptions/<subscriber_id>', endpoint='alert_subscription')
-api.add_org_resource(AlertListResource, '/api/alerts', endpoint='alerts')

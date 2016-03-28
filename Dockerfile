@@ -23,6 +23,8 @@ RUN chown -R redash /opt/redash/current
 # Setting working directory
 WORKDIR /opt/redash/current
 
+ENV REDASH_STATIC_ASSETS_PATH="../rd_ui/dist/"
+
 # Install project specific dependencies
 RUN pip install -r requirements_all_ds.txt && \
   pip install -r requirements.txt

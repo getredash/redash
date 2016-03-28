@@ -6,7 +6,7 @@ from flask_mail import Message
 import redis
 import hipchat
 import requests
-from redash.utils import json_dumps
+from redash.utils import json_dumps, base_url
 from requests.auth import HTTPBasicAuth
 from celery import Task
 from celery.result import AsyncResult
@@ -322,18 +322,21 @@ def execute_query(self, query, data_source_id, metadata):
 
 @celery.task(base=BaseTask)
 def record_event(event):
+    original_event = event.copy()
     models.Event.record(event)
+    for hook in settings.EVENT_REPORTING_WEBHOOKS:
+        logging.debug("Forwarding event to: %s", hook)
+        try:
+            response = requests.post(hook, original_event)
+            if response.status_code != 200:
+                logging.error("Failed posting to %s: %s", hook, response.content)
+        except Exception:
+            logging.exception("Failed posting to %s", hook)
+
 
 @celery.task(base=BaseTask)
 def version_check():
     run_version_check()
-
-
-def base_url(org):
-    if settings.MULTI_ORG:
-        return "https://{}/{}".format(settings.HOST, org.slug)
-
-    return settings.HOST
 
 
 @celery.task(bind=True, base=BaseTask)
@@ -410,3 +413,19 @@ def notify_webhook(alert, query, html, new_state):
             logger.error("webhook send ERROR. status_code => {status}".format(status=resp.status_code))
     except Exception:
         logger.exception("webhook send ERROR.")
+
+
+@celery.task(base=BaseTask)
+def send_mail(to, subject, html, text):
+    from redash.wsgi import app
+
+    try:
+        with app.app_context():
+            message = Message(recipients=to,
+                              subject=subject,
+                              html=html,
+                              body=text)
+
+            mail.send(message)
+    except Exception:
+        logger.exception('Failed sending message: %s', message.subject)
