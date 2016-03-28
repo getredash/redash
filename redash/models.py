@@ -891,8 +891,9 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
             join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
             where(Dashboard.is_archived == False).\
-            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id)).\
+            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id) | (Widget.visualization_id is None)).\
             group_by(Dashboard.id)
+        logging.info('The query is: %s', query.sql())
         return query
 
     @classmethod
@@ -911,7 +912,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
-            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id)). \
+            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id) | (Widget.visualization_id is None)). \
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
