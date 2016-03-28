@@ -6,6 +6,7 @@
     </ol>
     <div class="row">
         <div class="col-md-8">
+            <h3><i>Alert</i></h3>
             <form name="alertForm" ng-submit="saveChanges()" class="form">
                 <div class="form-group">
                     <label>Query</label>
@@ -59,7 +60,9 @@
             </form>
         </div>
         <div class="col-md-4" ng-if="alert.id">
-            <alert-subscribers alert-id="alert.id"></alert-subscribers>
+            <h3><i>Subscriptions</i></h3>
+            <user-subscribers alert-id="alertId"></user-subscribers>
+            <destination-subscribers alert-id="alertId"></destination-subscribers>
         </div>
     </div>
 </div>

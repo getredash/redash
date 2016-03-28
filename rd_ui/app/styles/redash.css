@@ -599,6 +599,10 @@ div.table-name:hover {
   padding-right: 5px;
 }
 
+hr.subscription {
+    height: 2px;
+    background: #333;
+}
 
 /* Bootstrap Overrides */
 
@@ -614,4 +618,3 @@ div.table-name:hover {
     padding: 5px 10px;
     transition: all 0.35s ease;
 }
-

@@ -1,0 +1,8 @@
+<div class="container" ng-if="enabled">
+    <div class="row">
+        <label class="col-xs-8">User subscriptions</label> <subscribe-button alert-id="alertId" subscribers="subscribers"></subscribe-button><br><br>
+    </div>
+    <p><i>User subscriptions will send a notification to your email</i></p>
+    <img ng-src="{{s.user.gravatar_url}}" class="img-circle" alt="{{s.id}}" ng-repeat="s in subscribers"/>
+    <hr class="subscription">
+</div>
