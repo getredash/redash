@@ -33,4 +33,5 @@ this script with small modifications. What this script does is:
 5. Link ``/opt/redash/.env`` file into this directory.
 6. Apply any new migrations.
 7. Link ``/opt/redash/current`` to new version.
-8. Restart web server and celery workers.
+8. Install any new requirements - ``sudo pip install -r requirements.txt`` 
+9. Restart web server and celery workers.
