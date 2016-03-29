@@ -886,14 +886,15 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     @classmethod
     def all(cls, groups, user_id):
         query = cls.select().\
-            join(Widget, on=(Dashboard.id == Widget.dashboard), join_type=peewee.JOIN_LEFT_OUTER).\
-            join(Visualization, on=(Widget.visualization == Visualization.id), join_type=peewee.JOIN_LEFT_OUTER).\
-            join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
-            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
-            where(Dashboard.is_archived == False).\
-            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id) | (Widget.visualization_id is None)).\
+            join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
+            join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
+            join(Query, peewee.JOIN_LEFT_OUTER, on=(Visualization.query == Query.id)). \
+            join(DataSourceGroup, peewee.JOIN_LEFT_OUTER, on=(Query.data_source == DataSourceGroup.data_source)). \
+            where(Dashboard.is_archived == False). \
+            where((DataSourceGroup.group << groups) |
+                  (Dashboard.user == user_id) |
+                  (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
             group_by(Dashboard.id)
-        logging.info('The query is: %s', query.sql())
         return query
 
     @classmethod
@@ -903,16 +904,18 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     @classmethod
     def recent(cls, groups, user_id, for_user=False, limit=20):
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
-            join(Event, on=(Dashboard.id == Event.object_id.cast('integer')), join_type=peewee.JOIN_LEFT_OUTER). \
-            join(Widget, on=(Dashboard.id == Widget.dashboard), join_type=peewee.JOIN_LEFT_OUTER).\
-            join(Visualization, on=(Widget.visualization == Visualization.id), join_type=peewee.JOIN_LEFT_OUTER).\
-            join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
-            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
-            where(Event.action << ('edit', 'view')).\
+            join(Event, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Event.object_id.cast('integer'))). \
+            join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
+            join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
+            join(Query, peewee.JOIN_LEFT_OUTER, on=(Visualization.query == Query.id)). \
+            join(DataSourceGroup, peewee.JOIN_LEFT_OUTER, on=(Query.data_source == DataSourceGroup.data_source)). \
+            where(Event.action << ('edit', 'view')). \
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
-            where((DataSourceGroup.group << groups) | (Dashboard.user == user_id) | (Widget.visualization_id is None)). \
+            where((DataSourceGroup.group << groups) |
+                  (Dashboard.user == user_id) |
+                  (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
