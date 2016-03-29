@@ -28,7 +28,7 @@ statsd==2.1.2
 gunicorn==19.4.5
 celery==3.1.11
 jsonschema==2.4.0
-click==3.3r
+click==3.3
 RestrictedPython==3.6.0
 wtf-peewee==0.2.3
 pysaml2==2.4.0
