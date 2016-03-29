@@ -454,7 +454,7 @@ class DataSourceTable(BaseModel):
             'id' : self.id,
             'name': self.name,
             'columns': [column.to_dict()
-                            for column in self.columns.order_by(DataSourceColumn.id.desc())],
+                            for column in self.columns.order_by(DataSourceColumn.id.asc())],
             'description': self.description,
             'datasource': self.datasource.to_dict()
         }

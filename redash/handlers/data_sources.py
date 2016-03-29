@@ -150,6 +150,9 @@ class DataSourceColumnResource(BaseResource):
         data_source_column.description = req['description']
         data_source_column.save()
 
+        # Refresh cache
+        refresh_schema.delay(data_source_column.table.datasource)
+
         return data_source_column.to_dict()
 
 

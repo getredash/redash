@@ -105,6 +105,7 @@
                     break;
                   case 'datetime':
                   case 'timestamp without time zone':
+                  case 'timestamp with time zone':
                     column.data_type_ico = 'fa fa-clock-o';
                     break;
                   default:

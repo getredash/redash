@@ -21,11 +21,13 @@
             </p>
         </div>
         <div class="col-md-12">
+            <h2>Columns</h2>
             <smart-table rows="table.columns" columns="gridColumns" config="gridConfig" class="table table-condensed table-schema"></smart-table>
         </div>
     </div>
     <div class="row">
         <div class="col-md-12">
+            <h2>Joins</h2>
             <h3>Add a New Join</h3>
         </div>
         <div class="col-md-12">
@@ -77,78 +79,8 @@
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <h3>Joins</h3>
-        </div>
-    </div>
-    <div class="row">
-        <h2>Table: {{table.name}}</h2>
-        <p>
-            <em>
-                <edit-in-place editable="true"
-                               done="saveTableDescription"
-                               editor="textarea"
-                               placeholder="No description"
-                               ignore-blanks='false'
-                               value="table.description"
-                               markdown="true">
-                 </edit-in-place>
-            </em>
-        </p>
-        <div class="col-md-12">
-            <smart-table rows="table.joins" columns="joinGridColumns" config="gridConfig" class="table table-condensed table-hover"></smart-table>
-        </div>
-    </div>
-    <div class="row">
-        <h2>Joins</h2>
-        <div class="col-md-12">
-            <form name="joinForm" ng-submit="saveChanges()" class="form-inline">
-                <div class="form-group col-xs-3">
-                    <label>Column</label>
-                    <ui-select ng-model="$parent.join.column">
-                        <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices repeat="c in table.columns">
-                            <span ng-bind="c.name"></span>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-                <div class="form-group col-xs-2">
-                    <label>Relationship</label>
-                    <select class="form-control" ng-model="join.cardinality">
-                        <option value="1..*">One to Many</option>
-                        <option value="*..1">Many to One</option>
-                        <option value="*..*">Many to Many</option>
-                        <option value="1..1">One to One</option>
-                    </select>
-                </div>
-                <div class="form-group col-xs-3">
-                    <label>Related Table</label>
-                    <ui-select ng-model="$parent.join.related_table" on-select="onRelatedTableSelected($item)">
-                        <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices repeat="t in schemas | filter: {name: $select.search}">
-                            <span ng-bind="t.name"></span>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-                <div class="form-group col-xs-3">
-                    <label>Related Column</label>
-                    <ui-select ng-model="$parent.join.related_column">
-                        <ui-select-match>{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices repeat="c in related_table.columns | filter: {name: $select.search}">
-                            <span ng-bind="c.name"></span>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
-                <div class="form-group col-xs-1">
-                    <button class="btn btn-primary">Save</button>
-                </div>
-            </form>
             <smart-table rows="table.joins" columns="joinGridColumns"
                          config="gridConfig"
                          class="table table-condensed table-hover"></smart-table>
         </div>
     </div>
-</div>

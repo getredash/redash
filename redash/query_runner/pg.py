@@ -91,7 +91,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        ORDER BY table_name, ordinal_position;
         """
         results, error = self.run_query(query)
 
@@ -129,18 +130,6 @@ class PostgreSQL(BaseSQLQueryRunner):
                     if column.data_type != c[1]:
                         column.data_type = c[1]
                         column.save()
-            schema[table.name] = table.to_dict()
-
-        for tablename, data in schema.iteritems():
-            table, created = DataSourceTable.get_or_create(
-                datasource=datasource_id,
-                name=tablename
-            )
-            for columnname in data['columns']:
-                column, created = DataSourceColumn.get_or_create(
-                    table=table.id,
-                    name=columnname
-                )
 
         tables_list = DataSourceTable.select(DataSourceTable)\
             .where(DataSourceTable.datasource==datasource_id)\
@@ -208,7 +197,8 @@ class Redshift(PostgreSQL):
                     "type": "string"
                 },
                 "port": {
-                    "type": "number"
+                    "type": "number",
+                    "default": 5439
                 },
                 "dbname": {
                     "type": "string",
