@@ -147,7 +147,7 @@ class MongoDB(BaseQueryRunner):
 
         return columns
 
-    def get_schema(self, get_stats=False):
+    def get_schema(self, datasource_id, get_stats=False):
         schema = {}
         db = self._get_db()
         for collection_name in db.collection_names():

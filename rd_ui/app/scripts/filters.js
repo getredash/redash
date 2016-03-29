@@ -120,4 +120,15 @@ angular.module('redash.filters', []).
           filtered.push(items[i])
       return filtered;
     };
+  })
+  .filter('cardinalityHumanize', function() {
+    return function(cardinality) {
+        var cardinalityConversion = {
+            '1..*': 'One to Many',
+            '*..1': 'Many to One',
+            '*..*': 'Many to Many',
+            '1..1': 'One to One'
+        }
+        return cardinalityConversion[cardinality]
+    }
   });

@@ -1,0 +1,13 @@
+<div class="container">
+    <ol class="breadcrumb">
+        <li><a href="/schemas">Schema Explorer</a></li>
+        <li>{{schemas[0].datasource.name}}</li>
+    </ol>
+    <div class="row">
+        <div class="col-md-12">
+            <smart-table rows="schemas" columns="gridColumns"
+                         config="gridConfig"
+                         class="table table-condensed table-hover table-schema"></smart-table>
+        </div>
+    </div>
+</div>

@@ -6,6 +6,7 @@ from redash import models
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.permissions import require_admin, require_permission, require_access, view_only
 from redash.query_runner import query_runners, get_configuration_schema_for_query_runner_type
+from redash.tasks import refresh_schema
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
@@ -101,8 +102,121 @@ class DataSourceListResource(BaseResource):
 class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
-        require_access(data_source.groups, self.current_user, view_only)
         schema = data_source.get_schema()
 
         return schema
+        
+class DataSourceTableResource(BaseResource):
+    def get(self, table_id):
+        data_source_table = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
+        return data_source_table.to_dict()
+            
+    def post(self, table_id):
+        # We only allow manual updates of description, as rest is updated from database
+        req = request.get_json(True)
+        required_fields = ('description',)
 
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+                
+        data_source_table = get_object_or_404(models.DataSourceTable.get_by_id, table_id)
+        
+        data_source_table.description = req['description']
+        data_source_table.save()
+
+        # Refresh cache
+        refresh_schema.delay(data_source_table.datasource)
+        
+        return data_source_table.to_dict()
+
+
+class DataSourceColumnResource(BaseResource):
+    def get(self, column_id):
+        data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
+        return data_source_column.to_dict()
+            
+    def post(self, column_id):
+        # We only allow manual updates of description, as rest is updated from database
+        req = request.get_json(True)
+        required_fields = ('description',)
+
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+
+        data_source_column = get_object_or_404(models.DataSourceColumn.get_by_id, column_id)
+        
+        data_source_column.description = req['description']
+        data_source_column.save()
+
+        # Refresh cache
+        refresh_schema.delay(data_source_column.table.datasource)
+
+        return data_source_column.to_dict()
+
+
+class DataSourceJoinListResource(BaseResource):
+    def post(self):
+        req = request.get_json(True)
+        required_fields = ('column_id', 'related_table_id', 'related_column', 'cardinality')
+
+        for f in required_fields:
+            if f not in req:
+                abort(400)
+
+        column = get_object_or_404(models.DataSourceColumn.get_by_id, req['column_id'])
+        related_column = get_object_or_404(
+            models.DataSourceColumn.get,
+            table=req['related_table_id'],
+            name=req['related_column']
+        )
+
+        join, create = models.DataSourceJoin.get_or_create(
+            table=column.table,
+            column=column,
+            related_table=related_column.table,
+            related_column=related_column,
+            cardinality=req['cardinality']
+        )
+
+        return join.to_dict(all=True)
+
+
+class DataSourceJoinResource(BaseResource):
+    def post(self, join_id):
+        join = get_object_or_404(models.DataSourceJoin.get_by_id, join_id)
+
+        kwargs = request.get_json(True)
+
+        join.update_instance(**kwargs)
+
+        return join.to_dict(all=True)
+
+    def post(self, data_source_id):
+    	
+        req = request.get_json(True)
+        
+        if req:
+            if not req.has_key('type'):
+                abort(400)
+        
+            if req['type'] == 'column':
+                data_source = get_object_or_404(models.DataSourceColumn.get_by_id, data_source_id)
+            elif req['type'] == 'table':
+                data_source = get_object_or_404(models.DataSourceTable.get_by_id, data_source_id)
+            else:
+                abort(400)
+        
+            if req['type'] == 'column' and req.has_key('joins'):
+               data_source.joins = req['joins']
+            if req.has_key('description'):
+                data_source.description = req['description']
+            if req.has_key('tags'):
+                data_source.tags = req['tags']
+               
+            data_source.save()
+            
+            return data_source.to_dict(all=True)
+        else:
+            abort(400)

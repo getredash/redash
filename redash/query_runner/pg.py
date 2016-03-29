@@ -4,6 +4,7 @@ import psycopg2
 import select
 import sys
 
+from redash.models import DataSourceTable, DataSourceColumn
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -86,13 +87,13 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self.connection_string = " ".join(values)
 
-    def _get_tables(self, schema):
+    def _get_tables(self, schema, datasource_id):
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        ORDER BY table_name, ordinal_position;
         """
-
         results, error = self.run_query(query)
 
         if error is not None:
@@ -109,9 +110,32 @@ class PostgreSQL(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'].append((row['column_name'], row['data_type']))
 
-        return schema.values()
+        for tablename, data in schema.iteritems():
+            table, created = DataSourceTable.get_or_create(
+                datasource=datasource_id,
+                name=tablename
+            )
+            for c in data['columns']:
+                try:
+                    column, created = DataSourceColumn.get_or_create(
+                        table=table.id,
+                        name=c[0],
+                        data_type=c[1]
+                    )
+                except Exception as ex:
+                    # Will get thrown when an existing column gets a new data_type, so just update data_type
+                    column = DataSourceColumn.get(table=table.id, name=c[0])
+                    if column.data_type != c[1]:
+                        column.data_type = c[1]
+                        column.save()
+
+        tables_list = DataSourceTable.select(DataSourceTable)\
+            .where(DataSourceTable.datasource==datasource_id)\
+            .order_by(DataSourceTable.name.asc())
+        for table in tables_list:
+            schema[table.name] = table.to_dict()
 
     def run_query(self, query):
         connection = psycopg2.connect(self.connection_string, async=True)
@@ -173,7 +197,8 @@ class Redshift(PostgreSQL):
                     "type": "string"
                 },
                 "port": {
-                    "type": "number"
+                    "type": "number",
+                    "default": 5439
                 },
                 "dbname": {
                     "type": "string",

@@ -22,7 +22,7 @@
     "underscore.string": "~2.3.3",
     "marked": "~0.3.2",
     "pace": "~0.5.1",
-    "font-awesome": "~4.2.0",
+    "font-awesome": "~4.5.0",
     "mustache": "~1.0.0",
     "canvg": "gabelerner/canvg",
     "angular-ui-bootstrap-bower": "~0.12.1",

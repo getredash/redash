@@ -89,7 +89,7 @@ class BaseQueryRunner(object):
 
         return new_columns
 
-    def get_schema(self, get_stats=False):
+    def get_schema(self, datasource_id, get_stats=False):
         return []
 
     def _run_query_internal(self, query):
@@ -112,14 +112,14 @@ class BaseSQLQueryRunner(BaseQueryRunner):
     def __init__(self, configuration):
         super(BaseSQLQueryRunner, self).__init__(configuration)
 
-    def get_schema(self, get_stats=False):
+    def get_schema(self, datasource_id, get_stats=False):
         schema_dict = {}
-        self._get_tables(schema_dict)
+        self._get_tables(schema_dict, datasource_id)
         if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
             self._get_tables_stats(schema_dict)
         return schema_dict.values()
 
-    def _get_tables(self, schema_dict):
+    def _get_tables(self, schema_dict, datasource_id):
         return []
 
     def _get_tables_stats(self, tables_dict):

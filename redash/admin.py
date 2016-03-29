@@ -80,6 +80,17 @@ class QueryModelView(BaseModelView):
 class DashboardModelView(BaseModelView):
     column_searchable_list = ('name', 'slug')
 
+class SchemaTableModelView(BaseModelView):
+    column_searchable_list = ('name','description')
+    can_create = False
+    create_modal = False
+    edit_modal = True
+    form_excluded_columns = ('id', 'name', 'table', 'data_type', 'datasource', 'created_at' )
+
+class SchemaJoinModelView(BaseModelView):
+    column_choices = {'cardinality':[('1..1','1..*')]}
+    form_excluded_columns = ('id', 'created_at' )
+
 
 def init_admin(app):
     admin = Admin(app, name='re:dash admin', template_mode='bootstrap3')
@@ -87,6 +98,9 @@ def init_admin(app):
     admin.add_view(QueryModelView(models.Query))
     admin.add_view(QueryResultModelView(models.QueryResult))
     admin.add_view(DashboardModelView(models.Dashboard))
+    admin.add_view(SchemaTableModelView(models.DataSourceTable))
+    admin.add_view(SchemaTableModelView(models.DataSourceColumn))
+    admin.add_view(SchemaJoinModelView(models.DataSourceJoin))
     logout_link = MenuLink('Logout', '/logout', 'logout')
 
     for m in (models.Visualization, models.Widget, models.Event, models.Organization):

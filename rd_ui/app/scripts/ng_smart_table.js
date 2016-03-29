@@ -136,7 +136,7 @@ function getKeyFromObject(obj, key) {
           }, true);
 
           //if item are added or removed into the data model from outside the grid
-          scope.$watch('dataCollection', function (oldValue, newValue) {
+          scope.$watchCollection('dataCollection', function (oldValue, newValue) {
             // evme:
             // reset sorting when data updates (executing query again)
             if (newValue) {
@@ -302,7 +302,7 @@ function getKeyFromObject(obj, key) {
         },
         replace: true,
         link: function (scope, element, attrs, ctrl) {
-          var form = angular.element(element.children()[1]),
+          var form = angular.element(element.children()[2]),
             input = angular.element(form.children()[0]);
 
           //init values
@@ -663,19 +663,19 @@ angular.module("partials/defaultHeader.html", []).run(["$templateCache", functio
 
 angular.module("partials/editableCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/editableCell.html",
-    "<div ng-dblclick=\"toggleEditMode($event)\">\n" +
+    "<div ng-click=\"toggleEditMode($event)\" class=\"edit-toggle\">\n" +
+      "<p ng-show=\"(value == '' || value == null) && !isEditMode\" title=\"Double click to edit\"'><em>Empty</em></p>" +
     "    <span ng-hide=\"isEditMode\">{{value | format:column.formatFunction:column.formatParameter}}</span>\n" +
     "\n" +
     "    <form ng-submit=\"submit()\" ng-show=\"isEditMode\" name=\"myForm\">\n" +
-    "        <input name=\"myInput\" ng-model=\"value\" type=\"type\" input-type/>\n" +
+    "        <input name=\"myInput\" ng-model=\"value\" type=\"type\" input-type class=\"rd-form-control\"/>\n" +
     "    </form>\n" +
     "</div>");
 }]);
 
 angular.module("partials/globalSearchCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/globalSearchCell.html",
-    "<label>Search :</label>\n" +
-    "<input type=\"text\" ng-model=\"searchValue\"/>");
+    "<input placeholder='Search' type=\"text\" ng-model=\"searchValue\" class=\"form-control\"/>");
 }]);
 
 angular.module("partials/pagination.html", []).run(["$templateCache", function ($templateCache) {
@@ -700,14 +700,14 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
   $templateCache.put("partials/smartTable.html",
     "<table class=\"smart-table\">\n" +
     "    <thead>\n" +
-    "    <tr class=\"smart-table-global-search-row\" ng-show=\"isGlobalSearchActivated\">\n" +
-    "        <td class=\"smart-table-global-search\" column-span=\"{{columns.length}}\" colspan=\"{{columnSpan}}\">\n" +
-    "        </td>\n" +
-    "    </tr>\n" +
     "    <tr class=\"smart-table-header-row\">\n" +
     "        <th ng-repeat=\"column in columns\" ng-include=\"column.headerTemplateUrl\"\n" +
     "            class=\"smart-table-header-cell {{column.headerClass}}\" scope=\"col\">\n" +
     "        </th>\n" +
+    "    </tr>\n" +
+    "    <tr class=\"smart-table-global-search-row\" ng-show=\"isGlobalSearchActivated\">\n" +
+    "        <td class=\"smart-table-global-search\" column-span=\"{{columns.length}}\" colspan=\"{{columnSpan}}\">\n" +
+    "        </td>\n" +
     "    </tr>\n" +
     "    </thead>\n" +
     "    <tbody>\n" +

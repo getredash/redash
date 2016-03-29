@@ -14,6 +14,32 @@ a[ng-click] {
   cursor: pointer;
 }
 
+.mb1 {
+    padding-bottom: 1rem;
+}
+
+.flex-container {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display:         flex;
+    flex-wrap: wrap;
+}
+
+.flex-grow-1 {
+    -webkit-flex: 1 0 0;
+       flex: 1 0 0;
+}
+
+.flex-grow-2 {
+    -webkit-flex: 2 0 0;
+       flex: 2 0 0;
+}
+
+.flex-item-end {
+    align-self: flex-end;
+}
+
 a.link {
   cursor: pointer;
 }
@@ -531,6 +557,10 @@ div.table-name:hover {
   margin-top: 10px;
 }
 
+.smart-table.table-schema th:first-child {
+    width: 30%;
+}
+
 /* Embed Code */
 .embed-code code {
   display: block;
@@ -606,6 +636,10 @@ hr.subscription {
 
 /* Bootstrap Overrides */
 
+div.edit-toggle:hover p > em {
+    background-color: yellow;
+}
+
 .flex-parent {
   display: flex;
   flex-direction: column;
@@ -617,4 +651,33 @@ hr.subscription {
     background: #f4f4f4;
     padding: 5px 10px;
     transition: all 0.35s ease;
+}
+
+
+/* Bootstrap Overrides */
+
+.flex-parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.collapsing,
+.collapse.in {
+    background: #f4f4f4;
+    padding: 5px 10px;
+    transition: all 0.35s ease;
+}
+
+#form-join {
+    padding-bottom: 1em;
+}
+
+#form-join > div .ui-select-container,
+#form-join > div .form-control {
+    padding-right: 10px;
+}
+
+#form-join > div:last-child {
+    text-align: right;
 }

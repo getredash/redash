@@ -396,7 +396,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
         if cache is None:
             query_runner = self.query_runner
-            schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
+            schema = sorted(query_runner.get_schema(self.id, get_stats=refresh), key=lambda t: t['name'])
 
             redis_connection.set(key, json.dumps(schema))
         else:
@@ -435,6 +435,161 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         groups = DataSourceGroup.select().where(DataSourceGroup.data_source==self)
         return dict(map(lambda g: (g.group_id, g.view_only), groups))
 
+class DataSourceTable(BaseModel):
+    id = peewee.PrimaryKeyField()
+    datasource = peewee.ForeignKeyField(DataSource, related_name="table")
+    name = peewee.CharField()
+    description = peewee.CharField(max_length=1024, null=True)
+    created_at = DateTimeTZField(default=datetime.datetime.utcnow())
+
+    class Meta:
+        db_table = 'data_source_tables'
+
+        indexes = (
+            (('datasource', 'name'), True),
+        )
+
+    def to_dict(self, with_joins=True):
+        d = {
+            'id' : self.id,
+            'name': self.name,
+            'columns': [column.to_dict()
+                            for column in self.columns.order_by(DataSourceColumn.id.asc())],
+            'description': self.description,
+            'datasource': self.datasource.to_dict()
+        }
+
+        if with_joins:
+            join_col = [join_rel.to_dict() for join_rel in self.join_table]
+            join_rel = sorted([join_rel.to_dict(is_related=True)
+                               for join_rel in self.join_related_table],
+                               key=lambda x: x['related_column'])
+            d['joins'] = join_col + join_rel
+
+        return d
+
+    def __unicode__(self):
+        return unicode(self.id)
+
+    @classmethod
+    def all(cls, datasource_id):
+        data_source_tables = cls.select().where(cls.datasource==datasource_id).order_by(cls.name.asc())
+        return data_source_tables
+
+
+class DataSourceColumn(BaseModel):
+    id = peewee.PrimaryKeyField()
+    table = peewee.ForeignKeyField(DataSourceTable, related_name="columns")
+    name = peewee.CharField()
+    data_type = peewee.CharField()
+    description = peewee.CharField(max_length=1024, null=True)
+    created_at = DateTimeTZField(default=datetime.datetime.utcnow())
+
+    class Meta:
+        db_table = 'data_source_columns'
+
+        indexes = (
+            (('table', 'name'), True),
+        )
+
+    def to_dict(self):
+        
+        d = {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'data_type': self.data_type
+        }
+
+        return d
+
+    def __unicode__(self):
+        return unicode(self.id)
+
+class DataSourceJoin(BaseModel):
+    id = peewee.PrimaryKeyField()
+    table = peewee.ForeignKeyField(DataSourceTable, related_name='join_table')
+    column = peewee.ForeignKeyField(DataSourceColumn, related_name="join_column")
+    related_table = peewee.ForeignKeyField(DataSourceTable, related_name='join_related_table')
+    related_column = peewee.ForeignKeyField(DataSourceColumn, related_name="join_related_column")
+    cardinality = peewee.CharField(null=True)
+    created_at = DateTimeTZField(default=datetime.datetime.utcnow())
+
+    class Meta:
+        db_table = 'data_source_joins'
+
+        indexes = (
+            (('table', 'related_table'), False),
+        )
+
+    def to_dict(self, is_related=False, all=False):
+        if is_related:
+            d = {
+                'column': self.column.name,
+                'related_table': self.table.name,
+                'related_table_id': self.related_table.id,
+                'related_column': self.column.name,
+                'cardinality': self.cardinality[::-1]
+            }
+        else:
+            d = {
+                'column': self.column.name,
+                'related_table': self.related_table.name,
+                'related_table_id': self.related_table.id,
+                'related_column': self.related_column.name,
+                'cardinality': self.cardinality
+            }
+        if all:
+            d = {
+                'table': self.table.name,
+                'column': self.column.name,
+                'related_table': self.related_table.name,
+                'related_table_id': self.related_table.id,
+                'related_column': self.related_column.name,
+                'cardinality': self.cardinality
+            }
+        return d
+
+    def __unicode__(self):
+        return unicode(self.id)
+
+    @classmethod
+    def get_by_table(cls,table_id):
+        # this is just to make sure the table_id exists. This will throw exception resulting in 404
+        table = DataSourceTable.get_by_id(table_id)
+
+        result = {'join_col': None,
+                  'join_rel': None}
+        try:
+            result['join_col'] = cls.select().where(cls.table == table_id)
+        except cls.DoesNotExist:
+            result = result
+
+        try:
+            result['join_rel'] = cls.select().where(cls.related_table == table_id)
+        except cls.DoesNotExist:
+            result = result
+
+        return result
+
+    @classmethod
+    def get_by_column(cls, column_id):
+        # this is just to make sure the table_id exists. This will throw exception resulting in 404
+        column = DataSourceColumn.get_by_id(column_id)
+
+        result = {'join_col': None,
+                  'join_rel': None}
+        try:
+            result['join_col'] = cls.select().where(cls.column == column_id)
+        except cls.DoesNotExist:
+            result = result
+
+        try:
+            result['join_rel'] = cls.select().where(cls.related_column == column_id)
+        except cls.DoesNotExist:
+            result = result
+
+        return result
 
 class DataSourceGroup(BaseModel):
     data_source = peewee.ForeignKeyField(DataSource)
@@ -1140,7 +1295,10 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
                                            app, host, options)
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult,
+              Query, Alert, Dashboard, Visualization, Widget, Event,
+              NotificationDestination, AlertSubscription, ApiKey, DataSourceTable,
+              DataSourceColumn, DataSourceJoin)
 
 
 def init_db():

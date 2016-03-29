@@ -633,6 +633,32 @@
     return resource;
   };
 
+  var Table = function ($resource) {
+    var actions = {
+        'get': {'method': 'GET', 'cache': false, 'isArray': false},
+        'save': {'method': 'POST'}
+    }
+    var resource = $resource('api/tables/:id/schema', {id: '@id'}, actions);
+    return resource;
+  };
+
+  var TableColumn = function ($resource) {
+    var actions = {
+        'get': {'method': 'GET', 'cache': false, 'isArray': false},
+        'save': {'method': 'POST'}
+    }
+    var resource = $resource('api/columns/:id/schema', {id: '@id'}, actions);
+    return resource;
+  };
+
+  var Join = function ($resource) {
+    var actions = {
+        'save': {'method': 'POST'}
+    }
+    var resource = $resource('api/joins', {}, actions);
+    return resource;
+  };
+
   var Widget = function ($resource, Query) {
     var WidgetResource = $resource('api/widgets/:id', {id: '@id'});
 
@@ -661,6 +687,9 @@
       .factory('Destination', ['$resource', Destination])
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
+      .factory('Table', ['$resource', Table])
+      .factory('TableColumn', ['$resource', TableColumn])
+      .factory('Join', ['$resource', Join])
       .factory('Widget', ['$resource', 'Query', Widget])
       .factory('User', ['$resource', '$http', User])
       .factory('Group', ['$resource', Group]);

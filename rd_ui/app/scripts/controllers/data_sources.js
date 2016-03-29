@@ -4,6 +4,20 @@
     $scope.$parent.pageTitle = "Data Sources";
 
     $scope.dataSources = DataSource.query();
+    $scope.dataSourcesWithSchema = [];
+
+    $scope.dataSources.$promise.then(function(sources) {
+      _.each(sources,function(source) {
+          DataSource.getSchema({id: source.id}, function (data) {
+            if (data && data.length > 0) {
+              source.hasSchema = true;
+              $scope.dataSourcesWithSchema.push(source);
+            } else {
+              source.hasSchema = false;
+            }
+        })
+      })
+    });
 
     $scope.openDataSource = function(datasource) {
       $location.path('/data_sources/' + datasource.id);

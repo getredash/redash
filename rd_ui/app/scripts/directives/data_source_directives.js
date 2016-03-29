@@ -1,0 +1,93 @@
+(function () {
+  'use strict';
+
+  var directives = angular.module('redash.directives');
+
+  // Angular strips data- from the directive, so data-source-form becomes sourceForm...
+  directives.directive('sourceForm', ['$http', 'growl', '$q', 'DataSource', function ($http, growl, $q,DataSource) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/data_sources/form.html',
+      scope: {
+        'dataSource': '='
+      },
+      link: function ($scope) {
+        var setType = function(types) {
+          if ($scope.dataSource.type === undefined) {
+            $scope.dataSource.type = types[0].type;
+            return types[0];
+          }
+
+          $scope.type = _.find(types, function (t) {
+            return t.type == $scope.dataSource.type;
+          });
+        };
+
+        $scope.files = {};
+
+        $scope.$watchCollection('files', function() {
+          _.each($scope.files, function(v, k) {
+            if (v) {
+              $scope.dataSource.options[k] = v.base64;
+            }
+          });
+        });
+
+        var typesPromise = $http.get('api/data_sources/types');
+
+        $q.all([typesPromise, $scope.dataSource.$promise]).then(function(responses) {
+          var types = responses[0].data;
+          setType(types);
+
+          $scope.dataSourceTypes = types;
+
+          _.each(types, function (type) {
+            _.each(type.configuration_schema.properties, function (prop, name) {
+              if (name == 'password' || name == 'passwd') {
+                prop.type = 'password';
+              }
+
+              if (_.string.endsWith(name, "File")) {
+                prop.type = 'file';
+              }
+
+              if (prop.type == 'boolean') {
+                prop.type = 'checkbox';
+              }
+
+              prop.required = _.contains(type.configuration_schema.required, name);
+            });
+          });
+        });
+
+        $scope.$watch('dataSource.type', function(current, prev) {
+          if (prev !== current) {
+            if (prev !== undefined) {
+              $scope.dataSource.options = {};
+            }
+            setType($scope.dataSourceTypes);
+          }
+        });
+
+        $scope.saveChanges = function() {
+          $scope.dataSource.$save(function() {
+            DataSource.getSchema({id: $scope.dataSource.id}, function(data) {
+              if (data && data.length > 0) {
+                growl.addSuccessMessage("Connected.");
+                $scope.hasSchema = true;
+              } else {
+                $scope.hasSchema = false;
+              }
+            }, function(error){
+              growl.addErrorMessage("Failed to get schema");
+            });
+            growl.addSuccessMessage("Saved.");
+          }, function() {
+            growl.addErrorMessage("Failed saving.");
+          });
+        }
+      }
+    }
+  }]);
+})();
