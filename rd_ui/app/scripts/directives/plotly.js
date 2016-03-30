@@ -2,6 +2,12 @@
   'use strict';
 
   var ColorPalette = {
+    'Indian Red': '#F8766D',
+    'Green 2': '#53B400',
+    'Green 3': '#00C094',
+    'DarkTurquoise': '#00B6EB',
+    'Dark Violet': '#A58AFF',
+    'Pink 2' : '#FB61D7',
     'Blue': '#4572A7',
     'Red': '#AA4643',
     'Green': '#89A54E',
