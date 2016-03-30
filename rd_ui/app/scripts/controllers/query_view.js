@@ -168,6 +168,8 @@
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
+
+      notifications.getPermissions();
     };
 
     $scope.cancelExecution = function() {

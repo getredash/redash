@@ -150,7 +150,7 @@
     });
   }
 
-  var MainCtrl = function ($scope, $location, Dashboard, notifications) {
+  var MainCtrl = function ($scope, $location, Dashboard) {
     $scope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
       if ($scope.showPermissionError) {
         $scope.showPermissionError = false;
@@ -171,10 +171,6 @@
       'name': null,
       'layout': null
     }
-
-    $(window).click(function () {
-      notifications.getPermissions();
-    });
   };
 
   var IndexCtrl = function ($scope, Events, Dashboard, Query) {
@@ -188,6 +184,6 @@
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
-    .controller('MainCtrl', ['$scope', '$location', 'Dashboard', 'notifications', MainCtrl])
+    .controller('MainCtrl', ['$scope', '$location', 'Dashboard', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();
