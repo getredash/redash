@@ -319,6 +319,7 @@ to add those CSS styles here. */
 
 .nav-tabs > li.rd-tab-btn {
   float: right;
+  padding-left: 10px;
 }
 
 /* light version of bootstrap's form-control */
