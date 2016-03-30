@@ -23,7 +23,8 @@ def _transform_result(results):
             for column in series['columns']:
                 if column not in result_columns:
                     result_columns.append(column)
-            for key in series['tags'].keys():
+            tags = series.get('tags', {})
+            for key in tags.keys():
                 if key not in result_columns:
                     result_columns.append(key)
 
@@ -32,8 +33,9 @@ def _transform_result(results):
             for point in series['values']:
                 result_row = {}
                 for column in result_columns:
-                    if column in series['tags']:
-                        result_row[column] = series['tags'][column]
+                    tags = series.get('tags', {})
+                    if column in tags:
+                        result_row[column] = tags[column]
                     elif column in series['columns']:
                         index = series['columns'].index(column)
                         value = point[index]
