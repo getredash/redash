@@ -19,7 +19,7 @@ def _transform_result(results):
     result_rows = []
 
     for result in results:
-        for series in result.raw['series']:
+        for series in result.raw.get('series', []):
             for column in series['columns']:
                 if column not in result_columns:
                     result_columns.append(column)
@@ -29,7 +29,7 @@ def _transform_result(results):
                     result_columns.append(key)
 
     for result in results:
-        for series in result.raw['series']:
+        for series in result.raw.get('series', []):
             for point in series['values']:
                 result_row = {}
                 for column in result_columns:
