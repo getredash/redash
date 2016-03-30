@@ -2,7 +2,17 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/master/setup/amazon_linux/files/
+
+# Default version to master
+version=master
+
+# If a version is specified on the command line, use it instead
+if [[ -n "$1" ]]; then
+  version=$1
+fi
+
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/$version/setup/amazon_linux/files/
+
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
     if [ $# -ne 0 ]; then
