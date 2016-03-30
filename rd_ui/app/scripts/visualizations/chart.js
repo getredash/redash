@@ -102,6 +102,7 @@
               delete scope.options.columnMapping[column];
             });
         };
+
         refreshColumns();
 
         var refreshColumnsAndForm = function() {

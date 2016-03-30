@@ -9,11 +9,11 @@
     var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
-      if (maxAge == undefined) {
+      if (maxAge === undefined) {
         maxAge = $location.search()['maxAge'];
       }
 
-      if (maxAge == undefined) {
+      if (maxAge === undefined) {
         maxAge = -1;
       }
 
@@ -91,7 +91,9 @@
     }
 
     Events.record(currentUser, 'view', 'query', $scope.query.id);
-    getQueryResult();
+    if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
+      getQueryResult();
+    }
     $scope.queryExecuting = false;
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
@@ -246,14 +248,6 @@
       }
 
       if (status == 'done') {
-        if ($scope.query.id &&
-          $scope.query.latest_query_data_id != $scope.queryResult.getId() &&
-          $scope.query.query_hash == $scope.queryResult.query_result.query_hash) {
-          Query.save({
-            'id': $scope.query.id,
-            'latest_query_data_id': $scope.queryResult.getId()
-          })
-        }
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
         $scope.query.queryResult = $scope.queryResult;
 
