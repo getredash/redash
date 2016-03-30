@@ -1,13 +1,8 @@
 (function () {
   'use strict';
 
-  var ColorPalette = {
-    'Indian Red': '#F8766D',
-    'Green 2': '#53B400',
-    'Green 3': '#00C094',
-    'DarkTurquoise': '#00B6EB',
-    'Dark Violet': '#A58AFF',
-    'Pink 2' : '#FB61D7',
+  // The following colors will be used if you pick "Automatic" color.
+  var BaseColors = {
     'Blue': '#4572A7',
     'Red': '#AA4643',
     'Green': '#89A54E',
@@ -22,9 +17,19 @@
     'Gray': '#808080',
     'Pink': '#FFC0CB',
     'Dark Blue': '#00008b'
-  };
+  }
 
-  var ColorPaletteArray = _.values(ColorPalette);
+  // Additional colors for the user to choose from:
+  var ColorPalette = _.extend({}, BaseColors, {
+    'Indian Red': '#F8766D',
+    'Green 2': '#53B400',
+    'Green 3': '#00C094',
+    'DarkTurquoise': '#00B6EB',
+    'Dark Violet': '#A58AFF',
+    'Pink 2' : '#FB61D7'
+  });
+
+  var ColorPaletteArray = _.values(BaseColors);
 
   var fillXValues = function(seriesList) {
     var xValues = _.sortBy(_.union.apply(_, _.pluck(seriesList, 'x')), _.identity);
