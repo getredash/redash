@@ -4,8 +4,6 @@
   function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
-    $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
-
     var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
@@ -19,7 +17,7 @@
 
       $scope.showLog = false;
       $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
-    }
+    };
 
     var getDataSourceId = function() {
       // Try to get the query's data source id
@@ -265,6 +263,37 @@
       }
     });
 
+    $scope.openVisualizationEditor = function(visualization) {
+      function openModal() {
+        $modal.open({
+          templateUrl: '/views/directives/visualization_editor.html',
+          windowClass:'modal-xl',
+          scope: $scope,
+          controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
+            $scope.modalInstance = $modalInstance;
+            $scope.visualization = visualization;
+            $scope.close = function() {
+              $modalInstance.close();
+            }
+          }]
+        });
+      }
+
+      if ($scope.query.isNew()) {
+        $scope.saveQuery().then(function(query) {
+          // Because we have a path change, we need to "signal" the next page to open the visualization editor.
+          $location.path(query.getSourceLink()).hash('add');
+        });
+      } else {
+        openModal();
+      }
+    };
+
+    if ($location.hash() === 'add') {
+      $location.hash(null);
+      $scope.openVisualizationEditor();
+    }
+
     $scope.openScheduleForm = function() {
       if (!$scope.isQueryOwner || !$scope.canScheduleQuery) {
         return;
@@ -286,6 +315,18 @@
         }]
       });
     };
+
+    $scope.showEmbedDialog = function(query, visualization) {
+      $modal.open({
+        templateUrl: '/views/dialogs/embed_code.html',
+        controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
+          $scope.close = function() {
+            $modalInstance.close();
+          }
+          $scope.embedUrl = basePath + 'embed/query/' + query.id + '/visualization/' + visualization.id + '?api_key=' + query.api_key;
+        }]
+      })
+    }
 
     $scope.$watch(function() {
       return $location.hash()

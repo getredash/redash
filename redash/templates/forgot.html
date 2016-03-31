@@ -1,28 +1,21 @@
 {% extends "signed_out_layout.html" %}
+{% block title %}Password Reset{% endblock %}
 {% block content %}
-    {% if submitted %}
-        <h2>Password Reset</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <hr>
-                <p class="lead">
-                    If we found an account associated with that email address, you will find an email from us in your inbox shortly.
-                </p>
-            </div>
-        </div>
-    {% else %}
-        <h2>Password Reset</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <hr>
-                <form role="form" method="post">
-                    <div class="form-group ">
-                        <label for="email">Enter the email address you used for this account:</label>
-                        <input type="text" class="form-control" name="email" value="{{email}}">
-                    </div>
-                        <button type="submit" class="btn btn-primary">Reset my password</button>
-                </form>
-            </div>
-        </div>
-    {% endif %}
+{% if submitted %}
+<h2>Password Reset</h2>
+<hr>
+<p class="lead">
+    If we found an account associated with that email address, you will find an email from us in your inbox shortly.
+</p>
+{% else %}
+<h2>Password Reset</h2>
+<hr>
+<form role="form" method="post">
+    <div class="form-group ">
+        <label for="email">Enter the email address you used for this account:</label>
+        <input type="text" class="form-control" name="email" value="{{email}}">
+    </div>
+    <button type="submit" class="btn btn-primary">Reset my password</button>
+</form>
+{% endif %}
 {% endblock %}

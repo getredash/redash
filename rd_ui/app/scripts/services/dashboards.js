@@ -6,6 +6,7 @@
             return new Widget(widget);
           });
         });
+        dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
       };
 
       var transform = $http.defaults.transformResponse.concat(function(data, headers) {
