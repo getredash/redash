@@ -17,6 +17,7 @@ angular.module('redash', [
   'ui.select',
   'naif.base64',
   'ui.bootstrap.showErrors',
+  'angularResizable',
   'ngSanitize'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig', '$httpProvider',
   function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig, $httpProvider) {

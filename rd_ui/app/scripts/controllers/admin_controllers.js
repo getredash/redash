@@ -4,7 +4,6 @@
     $scope.$parent.pageTitle = "System Status";
 
     var refresh = function () {
-      $scope.refresh_time = moment().add('minutes', 1);
       $http.get('/status.json').success(function (data) {
         $scope.workers = data.workers;
         delete data.workers;

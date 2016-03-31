@@ -1,7 +1,7 @@
 {% extends "signed_out_layout.html" %}
 
+{% block title %}Password Reset{% endblock %}
 {% block content %}
-
 <h2>Password Reset</h2>
 <div class="row">
   <div class="col-md-6" style="">
@@ -9,7 +9,7 @@
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-warning" role="alert">{{ message }}</div>
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}

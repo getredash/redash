@@ -92,8 +92,10 @@
             _.each($scope.dashboard.widgets, function(row) {
               _.each(row, function(widget, i) {
                 var newWidget = newWidgets[widget.id];
-                if (newWidget && newWidget[0].visualization.query.latest_query_data_id != widget.visualization.query.latest_query_data_id) {
-                  row[i] = new Widget(newWidget[0]);
+                if (newWidget.visualization) {
+                  if (newWidget && newWidget[0].visualization.query.latest_query_data_id != widget.visualization.query.latest_query_data_id) {
+                    row[i] = new Widget(newWidget[0]);
+                  }
                 }
               });
             });
@@ -131,15 +133,17 @@
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
-      Events.record(currentUser, "autorefresh", "dashboard", dashboard.id, {'enable': $scope.refreshEnabled});
+      Events.record(currentUser, "autorefresh", "dashboard", $scope.dashboard.id, {'enable': $scope.refreshEnabled});
 
       if ($scope.refreshEnabled) {
         var refreshRate = _.min(_.map(_.flatten($scope.dashboard.widgets), function(widget) {
-          var schedule = widget.visualization.query.schedule;
-          if (schedule === null || schedule.match(/\d\d:\d\d/) !== null) {
-            return 60;
+          if (widget.visualization) {
+            var schedule = widget.visualization.query.schedule;
+            if (schedule === null || schedule.match(/\d\d:\d\d/) !== null) {
+              return 60;
+            }
+            return widget.visualization.query.schedule;
           }
-          return widget.visualization.query.schedule;
         }));
 
         $scope.refreshRate = _.max([120, refreshRate * 2]) * 1000;
@@ -158,26 +162,23 @@
             $modalInstance.close();
           };
 
-          $scope.publicAccessEnabled = $scope.dashboard.public_url !== undefined;
-
           $scope.toggleSharing = function() {
-            console.log("should enable?", $scope.publicAccessEnabled);
             var url = 'api/dashboards/' + $scope.dashboard.id + '/share';
-            if ($scope.publicAccessEnabled) {
+            if ($scope.dashboard.publicAccessEnabled) {
               // disable
               $http.delete(url).success(function() {
-                $scope.publicAccessEnabled = false;
+                $scope.dashboard.publicAccessEnabled = false;
                 delete $scope.dashboard.public_url;
               }).error(function() {
-                $scope.publicAccessEnabled = true;
+                $scope.dashboard.publicAccessEnabled = true;
                 // TODO: show message
               })
             } else {
               $http.post(url).success(function(data) {
-                $scope.publicAccessEnabled = true;
+                $scope.dashboard.publicAccessEnabled = true;
                 $scope.dashboard.public_url = data.public_url;
               }).error(function() {
-                $scope.publicAccessEnabled = false;
+                $scope.dashboard.publicAccessEnabled = false;
                 // TODO: show message
               });
             }

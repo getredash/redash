@@ -1,42 +1,40 @@
-<div class="container">
-    <users-nav></users-nav>
+<settings-screen>
+  <group-name group="group"></group-name>
 
-    <group-name group="group"></group-name>
-
-    <div class="row">
-        <div class="col-lg-4">
-            <ul class="nav nav-pills">
-                <li role="presentation" class="active"><a href="groups/{{group.id}}">Members</a></li>
-                <li role="presentation" ng-if="currentUser.isAdmin"><a href="groups/{{group.id}}/data_sources">Data Sources</a></li>
-            </ul>
-        </div>
-
-        <div class="col-lg-8" ng-if="currentUser.isAdmin">
-            <ui-select ng-model="newMember.selected" on-select="addMember($item)">
-                <ui-select-match placeholder="Add New Member"></ui-select-match>
-                <ui-select-choices repeat="user in foundUsers | filter:$select.search"
-                                   refresh="findUser($select.search)"
-                                   refresh-delay="0"
-                                   ui-disable-choice="user.alreadyMember">
-                    <div>
-                        <img src="{{user.gravatar_url}}" height="24px">&nbsp;{{user.name}}
-                        <small ng-if="user.alreadyMember">(already member in this group)</small>
-                    </div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
+  <div class="row">
+    <div class="col-lg-4">
+      <ul class="tab-nav">
+        <li role="presentation" class="active"><a href="groups/{{group.id}}">Members</a></li>
+        <li role="presentation" ng-if="currentUser.isAdmin"><a href="groups/{{group.id}}/data_sources">Data Sources</a></li>
+      </ul>
     </div>
-    <div class="row voffset1">
-        <div class="col-lg-12">
 
-            <table class="table table-condensed table-hover">
-                <tbody>
-                    <tr ng-repeat="member in members">
-                        <td width="50px"><img src="{{member.gravatar_url}}" height="40px"/></td>
-                        <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin">Remove</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="col-lg-8" ng-if="currentUser.isAdmin">
+      <ui-select ng-model="newMember.selected" on-select="addMember($item)">
+        <ui-select-match placeholder="Add New Member"></ui-select-match>
+        <ui-select-choices repeat="user in foundUsers | filter:$select.search"
+                           refresh="findUser($select.search)"
+                           refresh-delay="0"
+                           ui-disable-choice="user.alreadyMember">
+          <div>
+            <img src="{{user.gravatar_url}}" height="24px">&nbsp;{{user.name}}
+            <small ng-if="user.alreadyMember">(already member in this group)</small>
+          </div>
+        </ui-select-choices>
+      </ui-select>
     </div>
-</div>
+  </div>
+  <div class="row voffset1">
+    <div class="col-lg-12">
+
+      <table class="table table-condensed table-hover">
+        <tbody>
+        <tr ng-repeat="member in members">
+          <td width="50px"><img src="{{member.gravatar_url}}" height="40px"/></td>
+          <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin">Remove</button></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</settings-screen>

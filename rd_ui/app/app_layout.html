@@ -5,12 +5,13 @@
 <!--[if gt IE 8]><!--> <html class="no-js" ng-app="redash" ng-controller='MainCtrl'> <!--<![endif]-->
 <head>
     <base href="{{base_href}}">
-    <title ng-bind="'{{name}} | ' + pageTitle"></title>
+    <title ng-bind="pageTitle + '| {{name}}'"></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <!-- build:css /styles/main.css -->
-    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/styles/superflat_redash.css">
+    <link rel="stylesheet" href="/bower_components/material-design-iconic-font/dist/css/material-design-iconic-font.css">
     <link rel="stylesheet" href="/bower_components/codemirror/lib/codemirror.css">
     <link rel="stylesheet" href="/bower_components/gridster/dist/jquery.gridster.css">
     <link rel="stylesheet" href="/bower_components/pivottable/dist/pivot.css">
@@ -20,6 +21,7 @@
     <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.css">
     <link rel="stylesheet" href="/bower_components/codemirror/addon/hint/show-hint.css">
     <link rel="stylesheet" href="/bower_components/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="/bower_components/angular-resizable/src/angular-resizable.css">
     <link rel="stylesheet" href="/styles/redash.css">
     <!-- endbuild -->
 
@@ -34,24 +36,28 @@
 {% block content %}
 {% endblock %}
 
-<div ng-view></div>
-<div ng-if="showPermissionError" class="ng-cloak container" ng-cloak>
+<section id="1">
+  <div ng-view></div>
+  <div ng-if="showPermissionError" class="ng-cloak container" ng-cloak>
     <div class="row">
-        <div class="text-center">
-            <h1><span class="glyphicon glyphicon-lock"></span></h1>
-            <p class="text-muted">
-                You do not have permission to view the requested page.
-            </p>
-        </div>
+      <div class="text-center">
+        <h1><span class="zmdi zmdi-lock"></span></h1>
+        <p class="text-muted">
+          You do not have permission to view the requested page.
+        </p>
+      </div>
     </div>
-</div>
+  </div>
 
-{% if not headless %}
-{% raw %}
-<div class="visible-print">
-  <hr>
-  Source: {{location}}
-</div>
+  {% if not headless %}
+  {% raw %}
+  <div class="visible-print">
+    <hr>
+    Source: {{location}}
+  </div>
+</section>
+
+
 {% endraw %}
 {% include 'footer.html' %}
 {% endif %}

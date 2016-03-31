@@ -97,7 +97,6 @@
         }, function () {
           growl.addErrorMessage("Error deleting visualization. Maybe it's used in a dashboard?");
         });
-
       }
     };
 
@@ -108,16 +107,6 @@
     $scope.$on('$destroy', function destroy() {
       KeyboardShortcuts.unbind(shortcuts);
     });
-
-    if (isNewQuery) {
-      // save new query when creating a visualization
-      var unbind = $scope.$watch('selectedTab == "add"', function(triggerSave) {
-        if (triggerSave) {
-          unbind();
-          $scope.saveQuery();
-        }
-      });
-    }
   }
 
   angular.module('redash.controllers').controller('QuerySourceCtrl', [

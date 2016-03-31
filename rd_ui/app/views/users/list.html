@@ -1,15 +1,13 @@
-<div class="container">
-    <users-nav></users-nav>
+<settings-screen>
+  <div class="row voffset1">
+    <div class="col-md-12">
+      <p ng-if="currentUser.hasPermission('admin')">
+        <a href="users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
+      </p>
 
-    <div class="row voffset1">
-        <div class="col-md-12">
-            <p ng-if="currentUser.hasPermission('admin')">
-                <a href="users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
-            </p>
-
-            <smart-table rows="users" columns="gridColumns"
-                         config="gridConfig"
-                         class="table table-condensed table-hover"></smart-table>
-        </div>
+      <smart-table rows="users" columns="gridColumns"
+                   config="gridConfig"
+                   class="table table-condensed table-hover"></smart-table>
     </div>
-</div>
+  </div>
+</settings-screen>
