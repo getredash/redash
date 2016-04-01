@@ -848,10 +848,6 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
                     widgets[w.id] = w.to_dict()
                 elif user and has_access(w.visualization.query.groups, user, view_only):
                     widgets[w.id] = w.to_dict()
-                else:
-                    widgets[w.id] = project(w.to_dict(),
-                                            ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
-                    widgets[w.id]['restricted'] = True
 
             # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
             # updated. This happens for users with old databases that didn't have a foreign key relationship between
@@ -884,22 +880,35 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         }
 
     @classmethod
-    def all(cls, org):
-        return cls.select().where(cls.org==org, cls.is_archived==False)
+    def all(cls, org, groups):
+        return cls.select().\
+            join(Widget, on=(Dashboard.id == Widget.dashboard), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Visualization, on=(Widget.visualization == Visualization.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
+            where(cls.org == org).\
+            where(Dashboard.is_archived == False).\
+            where((DataSourceGroup.group << groups) | (Widget.query_id >> None) | (Widget.visualization >> None)).\
+            group_by(Dashboard.id)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.get(cls.slug == slug, cls.org==org)
 
     @classmethod
-    def recent(cls, org, user_id=None, limit=20):
+    def recent(cls, org, groups, user_id=None, limit=20):
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
-            join(Event, on=(Dashboard.id == Event.object_id.cast('integer'))). \
+            join(Event, on=(Dashboard.id == Event.object_id.cast('integer')), join_type=peewee.JOIN_LEFT_OUTER). \
+            join(Widget, on=(Dashboard.id == Widget.dashboard), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Visualization, on=(Widget.visualization == Visualization.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(Query, on=(Visualization.query == Query.id), join_type=peewee.JOIN_LEFT_OUTER).\
+            join(DataSourceGroup, on=(Query.data_source == DataSourceGroup.data_source), join_type=peewee.JOIN_LEFT_OUTER).\
             where(Event.action << ('edit', 'view')).\
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
             where(Dashboard.org == org).\
+            where((DataSourceGroup.group << groups) | (Widget.query_id >> None) | (Widget.visualization >> None)).\
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
