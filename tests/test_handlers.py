@@ -89,7 +89,8 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
     def test_get_dashboard_filters_unauthorized_widgets(self):
         dashboard = self.factory.create_dashboard()
 
-        restricted_ds = self.factory.create_data_source(group=self.factory.create_group())
+        group = self.factory.create_group()
+        restricted_ds = self.factory.create_data_source(group=group)
         query = self.factory.create_query(data_source=restricted_ds)
         vis = self.factory.create_visualization(query=query)
         restricted_widget = self.factory.create_widget(visualization=vis, dashboard=dashboard)
@@ -99,9 +100,8 @@ class DashboardAPITest(BaseTestCase, AuthenticationTestMixin):
 
         rv = self.make_request('get', '/api/dashboards/{0}'.format(dashboard.slug))
         self.assertEquals(rv.status_code, 200)
-
-        self.assertTrue(rv.json['widgets'][0][1]['restricted'])
-        self.assertNotIn('restricted', rv.json['widgets'][0][0])
+        self.assertEquals(1, len(rv.json['widgets']))
+        self.assertEquals(widget.id, rv.json['widgets'][0][0]['id'])
 
     def test_get_non_existing_dashboard(self):
         rv = self.make_request('get', '/api/dashboards/not_existing')
