@@ -58,25 +58,6 @@
                     </div>
                 </div>
             </div>
-            <div class="visible-xs">
-                <p>
-                    <span class="text-muted">Last update </span>
-                    <strong>
-                    <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
-                </strong> &nbsp;
-                    <span class="text-muted">Created By </span>
-                    <strong ng-hide="isQueryOwner">{{query.user.name}}</strong>
-                    <strong ng-show="isQueryOwner">You</strong> &nbsp;
-                    <span class="text-muted">Runtime </span>
-                    <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
-                    <span ng-show="queryExecuting">Running&hellip;</span> &nbsp;
-                    <span class="text-muted">Rows </span>
-                    <strong>{{queryResult.getData().length}}</strong>
-                </p>
-                <p>
-                    <query-source-link></query-source-link>
-                </p>
-            </div>
         </div>
     </div>
     <hr>
@@ -98,7 +79,7 @@
         </div>
         <div ng-class="editorSize">
             <div>
-                <p>
+                <div class="clearfix m-b-10">
                     <button type="button" class="btn btn-primary btn-s" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
                         <span class="glyphicon glyphicon-play"></span> Execute
                     </button>
@@ -117,10 +98,10 @@
                             <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="isDirty">&#42;</span>
                         </button>
                     </span>
-                </p>
-                <p>
+                </div>
+                <div>
                     <query-editor query="query" schema="schema" syntax="dataSource.syntax" lock="queryFormatting"></query-editor>
-                </p>
+                </div>
             </div>
         </div>
     </div>
