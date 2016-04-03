@@ -59,7 +59,7 @@
 
         if (isNewQuery) {
           // redirect to new created query (keep hash)
-          $location.path(savedQuery.getSourceLink()).replace();
+          $location.path(savedQuery.getSourceLink());
         }
       });
 
