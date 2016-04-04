@@ -180,6 +180,8 @@ class DataSourceJoinListResource(BaseResource):
             cardinality=req['cardinality']
         )
 
+        refresh_schema.delay(column.table.datasource)
+
         return join.to_dict(all=True)
 
 
