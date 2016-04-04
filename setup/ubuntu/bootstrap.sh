@@ -3,15 +3,16 @@ set -eu
 
 REDASH_BASE_PATH=/opt/redash
 
-# Default version to master
-version=master
+# Default branch/version to master if not specified in REDASH_BRANCH env var
+REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
-# If a version is specified on the command line, use it instead
-if [[ -n "$1" ]]; then
-  version=$1
-fi
+# Install latest version if not specified in REDASH_VERSION env var
+REDASH_VERSION=${REDASH_VERSION-0.9.2.b1536}
+LATEST_URL="https://github.com/getredash/redash/releases/download/${REDASH_BRANCH}/redash.${REDASH_VERSION}.tar.gz"
+VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
+REDASH_TARBALL=/tmp/redash.tar.gz
 
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/$version/setup/ubuntu/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
@@ -106,12 +107,6 @@ fi
 if [ ! -f "/opt/redash/.env" ]; then
     sudo -u redash wget $FILES_BASE_URL"env" -O /opt/redash/.env
 fi
-
-# Install latest version
-REDASH_VERSION=${REDASH_VERSION-0.9.1.b1377}
-LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.$REDASH_VERSION.tar.gz"
-VERSION_DIR="/opt/redash/redash.$REDASH_VERSION"
-REDASH_TARBALL=/tmp/redash.tar.gz
 
 if [ ! -d "$VERSION_DIR" ]; then
     sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
