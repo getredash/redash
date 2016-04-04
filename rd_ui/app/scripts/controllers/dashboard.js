@@ -1,5 +1,7 @@
 (function() {
     var DashboardCtrl = function($scope, Events, Widget, FavoriteDashboards, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
+      $scope.downloadingPDF = false;
+      $scope.downloadingXLS = false;
 
       /**
       * toggleFavorite Add/Remove the current dashboard to favorite
@@ -44,6 +46,7 @@
       $scope.exportWidgetsToPdf = function() {
         var $chart,
           data = {data: []};
+        $scope.downloadingPDF = true;
         //generate data to be exported for every widget that is marked for export
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
@@ -89,8 +92,25 @@
               type: 'application/pdf;charset=utf-8'
             });
             FileSaver.saveAs(blob, $scope.dashboard.name + '.pdf');
+            $scope.downloadingPDF = false;
+          }, function() {
+            $scope.downloadingPDF = false;
           });
+        } else {
+          $scope.downloadingPDF = false;
         }
+      };
+
+      /**
+       * getColumnNames Returns columns to export for a given widget. If it is a custom
+       * table then there may be hidden columns
+       * @return {array}
+      */
+      var getColumnNames = function(widget) {
+        if(widget.visualization && widget.visualization.type==='CUSTOM TABLE') {
+          return _.pluck(_.where(widget.visualization.options.cols, {visible: true}), 'column');
+        }
+        return widget.query.queryResult.columnNames;
       };
 
       /**
@@ -122,7 +142,7 @@
        * exportWidgets For Each widget takes the data and exports that on a Sheet (xls)
        */
       $scope.exportWidgets = function() {
-
+        $scope.downloadingXLS = true;
         var data = {
           name: $scope.dashboard.name,
           data: [],
@@ -162,7 +182,7 @@
                 option: {
                   sheet: w.options.exportable.name, //title
                   description: w.query.description, //subtitle
-                  columnNames: w.query.queryResult.columnNames,
+                  columnNames: getColumnNames(w),
                   autofilter: true
                 },
                 data: w.query.queryResult.filteredData
@@ -181,15 +201,20 @@
               'Content-type': 'application/json'
             },
             responseType: 'arraybuffer'
-          }).success(function(response, status, headers, config) {
-            var blob = new Blob([response], {
+          }).then(function(response) {
+            var blob = new Blob([response.data], {
               type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8"
             });
 
             FileSaver.saveAs(blob, $scope.dashboard.name + '.xlsx');
+            $scope.downloadingXLS = false;
+          }, function() {
+            $scope.downloadingXLS = false;
           });
-    }
-  }
+        } else {
+          $scope.downloadingXLS = false;
+        }
+      }
 
   $scope.refreshEnabled = false; $scope.refreshRate = 60;
 
