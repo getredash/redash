@@ -3,8 +3,11 @@
         <li class="active">Schema Explorer</li>
     </ol>
     <div class="row">
-        <div class="col-md-12">
-            <a href="schemas/{{datasource.id}}" class="btn btn-primary" ng-repeat="datasource in dataSourcesWithSchema">{{datasource.name}}</a>
+        <h2>Data Source</h2>
+        <div class="col-xs-4 list-group">
+            <div class="list-group-item" ng-repeat="datasource in dataSourcesWithSchema| orderBy: 'name' track by datasource.id">
+                <a href="schemas/{{datasource.id}}" class="" >{{datasource.name}}</a>
+            </div>
         </div>
     </div>
 </div>
