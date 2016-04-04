@@ -8,7 +8,7 @@ REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
 # Install latest version if not specified in REDASH_VERSION env var
 REDASH_VERSION=${REDASH_VERSION-0.9.2.b1536}
-LATEST_URL="https://github.com/getredash/redash/releases/download/${REDASH_BRANCH}/redash.${REDASH_VERSION}.tar.gz"
+LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
 
