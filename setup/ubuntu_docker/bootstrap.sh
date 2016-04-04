@@ -3,15 +3,10 @@ set -eu
 
 REDASH_BASE_PATH=/opt/redash_docker
 
-# Default version to master
-version=master
+# Default branch/version to master if not specified in REDASH_BRANCH env var
+REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
-# If a version is specified on the command line, use it instead
-if [[ -n "$1" ]]; then
-  version=$1
-fi
-
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/$version/setup/ubuntu_docker/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu_docker/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
