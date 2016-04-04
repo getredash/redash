@@ -123,6 +123,11 @@
         }
       ];
 
+    $scope.cleanJoinForm = function() {
+        $scope.joinForm.$setPristine();
+        $scope.join = "";
+    };
+
     $scope.saveChanges = function() {
       var join = new Join();
       join.column_id = $scope.join.column.id;
@@ -132,6 +137,7 @@
       join.$save(function(join) {
           $growl.addSuccessMessage("New relation saved");
           $scope.table.joins.push(join);
+          $scope.cleanJoinForm();
       }, function() {
           $growl.addErrorMessage("Failed saving new relation");
       });
