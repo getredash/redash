@@ -2,8 +2,11 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash_docker
-# TODO: change this to master after merging:
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/docker/setup/ubuntu_docker/files/
+
+# Default branch/version to master if not specified in REDASH_BRANCH env var
+REDASH_BRANCH="${REDASH_BRANCH:-master}"
+
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu_docker/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
