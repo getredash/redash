@@ -88,7 +88,12 @@ class SchemaTableModelView(BaseModelView):
     form_excluded_columns = ('id', 'name', 'table', 'data_type', 'datasource', 'created_at' )
 
 class SchemaJoinModelView(BaseModelView):
-    column_choices = {'cardinality':[('1..1','1..*')]}
+    column_choices = {'cardinality':[
+                            ('1..1', 'One to One'),
+                            ('1..*', 'One to Many'),
+                            ('*..1', 'Many to One'),
+                            ('*..*', 'Many to Many')
+                    ]}
     form_excluded_columns = ('id', 'created_at' )
 
 

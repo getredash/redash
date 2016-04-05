@@ -115,7 +115,7 @@
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/alerts/userSubscribers.html',
+      templateUrl: '/views/alerts/usersubscribers.html',
       scope: {
         'alertId': '='
       },
@@ -135,7 +135,7 @@
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/alerts/destinationSubscribers.html',
+      templateUrl: '/views/alerts/destinationsubscribers.html',
       scope: {
         'alertId': '='
       },

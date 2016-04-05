@@ -113,7 +113,7 @@
         {
             'label': 'Related Table',
             'map': 'related_table',
-            "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
+            "cellTemplate": '<a href="/schemas/' + $routeParams.dataSourceId + '/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
             "headerClass": 'col-xs-3'
         },
         {
@@ -122,6 +122,11 @@
             "headerClass": 'col-xs-3'
         }
       ];
+
+    $scope.cleanJoinForm = function() {
+        $scope.joinForm.$setPristine();
+        $scope.join = "";
+    };
 
     $scope.saveChanges = function() {
       var join = new Join();
@@ -132,6 +137,7 @@
       join.$save(function(join) {
           $growl.addSuccessMessage("New relation saved");
           $scope.table.joins.push(join);
+          $scope.cleanJoinForm();
       }, function() {
           $growl.addErrorMessage("Failed saving new relation");
       });

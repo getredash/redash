@@ -130,11 +130,6 @@ class PostgreSQL(BaseSQLQueryRunner):
                     if column.data_type != c[1]:
                         column.data_type = c[1]
                         column.save()
-
-        tables_list = DataSourceTable.select(DataSourceTable)\
-            .where(DataSourceTable.datasource==datasource_id)\
-            .order_by(DataSourceTable.name.asc())
-        for table in tables_list:
             schema[table.name] = table.to_dict()
 
     def run_query(self, query):
