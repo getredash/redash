@@ -113,7 +113,7 @@
         {
             'label': 'Related Table',
             'map': 'related_table',
-            "cellTemplate": '<a href="/schemas/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
+            "cellTemplate": '<a href="/schemas/' + $routeParams.dataSourceId + '/tables/{{dataRow.related_table_id}}">{{dataRow.related_table}}</a>',
             "headerClass": 'col-xs-3'
         },
         {
