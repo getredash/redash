@@ -470,6 +470,15 @@
       return moment.utc().hour(parts[0]).minute(parts[1]).local().format('HH:mm');
     };
 
+    Query.prototype.hasResult = function() {
+      return !!(this.latest_query_data || this.latest_query_data_id);
+    };
+
+    Query.prototype.paramsRequired = function() {
+      var queryParameters = this.getParameters();
+      return !_.isEmpty(queryParameters);
+    };
+
     Query.prototype.getQueryResult = function (maxAge, parameters) {
       if (!this.query) {
         return;

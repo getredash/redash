@@ -67,7 +67,7 @@ class Hive(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Hive, self).__init__(configuration)
 
-    def _get_tables(self, schema_dict):
+    def _get_tables(self, schema):
         try:
             schemas_query = "show schemas"
 

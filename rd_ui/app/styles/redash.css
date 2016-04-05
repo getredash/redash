@@ -345,6 +345,7 @@ to add those CSS styles here. */
 
 .nav-tabs > li.rd-tab-btn {
   float: right;
+  padding-left: 10px;
 }
 
 /* light version of bootstrap's form-control */
@@ -653,20 +654,8 @@ div.edit-toggle:hover p > em {
     transition: all 0.35s ease;
 }
 
-
-/* Bootstrap Overrides */
-
-.flex-parent {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.collapsing,
-.collapse.in {
-    background: #f4f4f4;
-    padding: 5px 10px;
-    transition: all 0.35s ease;
+.m-b-10 {
+  margin-bottom: 10px;
 }
 
 #form-join {
