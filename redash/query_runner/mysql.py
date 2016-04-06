@@ -73,6 +73,10 @@ class Mysql(BaseSQLQueryRunner):
         }
 
     @classmethod
+    def name(cls):
+        return "MySQL"
+
+    @classmethod
     def enabled(cls):
         try:
             import MySQLdb
