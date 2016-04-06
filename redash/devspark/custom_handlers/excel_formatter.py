@@ -106,7 +106,7 @@ def generate_first_page(workbook, filters, reports):
     # Filters Applied
     colIdx = 2
     rowIdx = 7
-    for row in filters['data']:
+    for row in filters.get('data', []):
         for column in filters['columnNames']:
             worksheet.write(rowIdx, colIdx, row[column], font)
             colIdx += 1
@@ -114,8 +114,8 @@ def generate_first_page(workbook, filters, reports):
         colIdx = 2
 
 @app.route('/api/dashboard/generate_excel', methods=['POST'])
-def get_tasks():
-    app.logger.debug(request.json)
+def generate_excel():
+    #app.logger.debug(request.json)
 
     data = request.json
 
@@ -123,7 +123,7 @@ def get_tasks():
         workbook = xlsxwriter.Workbook(tmp_flo.name)
 
         # First page of XLS
-        generate_first_page(workbook, data['filters'], data['reports'])
+        generate_first_page(workbook, data.get('filters', {}), data['reports'])
 
         # Add a bold format to use to highlight cells.
         format1 = workbook.add_format({
@@ -166,9 +166,9 @@ def get_tasks():
                 rowIdx += 1
             rowIdx += 1
 
-             # Adds autofilter on all columns if 'option.filter' is defined as true
+            # Adds autofilter on all columns if 'option.filter' is defined as true
             if _filter:
-                worksheet.autofilter(rowIdx, 0, len(sheet['data']), len(sheet['option']['columnNames']) - 1)
+                worksheet.autofilter(rowIdx, 0, rowIdx + len(sheet['data']) + 1, len(sheet['option']['columnNames']) - 1)
 
             # Defines the header
             for column in sheet['option']['columnNames']:

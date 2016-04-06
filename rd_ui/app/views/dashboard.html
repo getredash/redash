@@ -14,22 +14,24 @@
                 <button type="button" class="btn btn-default btn-xs" data-toggle="modal"
                         href="#add_query_dialog" tooltip="Add Widget (Chart/Table/Pivot)"><span class="glyphicon glyphicon-plus"></span>
                 </button>
-                <butotn class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></butotn>
+                <button class="btn btn-danger btn-xs" ng-click="archiveDashboard()" ng-if="!dashboard.is_archived" tooltip="Archive"><i class="fa fa-archive"></i></button>
             </div>
         </span>
-        <button style="float: right; font-weight: bold" type="button" class="btn btn-default" title="Collapse all widgets." ng-click="changeCollapseValues(true)">
-            Collapse 
+        <button style="float: right;" type="button" class="btn btn-default" title="Collapse all widgets." ng-click="changeCollapseValues(true)">
+            Collapse
         </button>
-        <button style="float: right; font-weight: bold; margin-right: 5px;" type="button" class="btn btn-default" title="Expand all widgets." ng-click="changeCollapseValues(false)">
-            Expand 
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-default" title="Expand all widgets." ng-click="changeCollapseValues(false)">
+            Expand
         </button>
-        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-danger" ng-click="exportWidgetsToPdf()" title="Export Tables to PDF.">
-            <span class="glyphicon glyphicon-download" aria-hidden="true"></span> PDF
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-danger" ng-click="exportWidgetsToPdf()" title="Export Widgets to PDF." ng-disabled="downloadingPDF">
+            <i class="fa fa-spinner fa-spin" ng-show="downloadingPDF"></i>
+            <span class="fa fa-download" aria-hidden="true" ng-show="!downloadingPDF"></span> PDF
         </button>
-        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" ng-click="exportWidgets()" title="Export Tables to XLS.">
-            <span class="glyphicon glyphicon-download" aria-hidden="true"></span> XLS
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" ng-click="exportWidgets()" title="Export Widgets to XLS." ng-disabled="downloadingXLS">
+            <i class="fa fa-spinner fa-spin" ng-show="downloadingXLS"></i>
+            <i class="fa fa-download" aria-hidden="true" ng-show="!downloadingXLS"></i> XLS
         </button>
-        <span title="{{isFavorite ? 'Remove from favorites' : 'Add to favorites'}}" class="pull-left fa dashboard-favorite-icon" 
+        <span title="{{isFavorite ? 'Remove from favorites' : 'Add to favorites'}}" class="pull-left fa dashboard-favorite-icon"
               ng-click="isFavorite = !isFavorite; toggleFavorite(isFavorite)" ng-class="{'fa-star' : isFavorite, 'fa-star-o': !isFavorite}"></span>
     </h2>
 
