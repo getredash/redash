@@ -34,12 +34,22 @@ def setup_logging():
 
 def create_redis_connection():
     redis_url = urlparse.urlparse(settings.REDIS_URL)
-    if redis_url.path:
-        redis_db = redis_url.path[1]
-    else:
-        redis_db = 0
 
-    r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
+    if redis_url.scheme == 'redis+socket':
+        qs = urlparse.parse_qs(redis_url.query)
+        if 'virtual_host' in qs:
+            db = qs['virtual_host'][0]
+        else:
+            db = 0
+
+        r = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
+    else:
+        if redis_url.path:
+            redis_db = redis_url.path[1]
+        else:
+            redis_db = 0
+
+        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
 
     return r
 
