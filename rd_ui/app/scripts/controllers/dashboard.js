@@ -117,7 +117,16 @@
     $scope.toggleFullscreen = function() {
       $scope.isFullscreen = !$scope.isFullscreen;
       $('body').toggleClass('headless');
+      if ($scope.isFullscreen) {
+        $location.search('fullscreen', true);
+      } else {
+        $location.search('fullscreen', null);
+      }
     };
+
+    if (_.has($location.search(), 'fullscreen')) {
+      $scope.toggleFullscreen();
+    }
 
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
