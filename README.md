@@ -10,7 +10,7 @@ More details about the future of re:dash : http://bit.ly/journey-first-step
 </p>
 
 [![Join the chat at https://gitter.im/getredash/redash](https://badges.gitter.im/getredash/redash.svg)](https://gitter.im/getredash/redash?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Documentation](https://img.shields.io/badge/docs-redash.io-brightgreen.svg](http://docs.redash.io)
+[![Documentation](https://img.shields.io/badge/docs-redash.io-brightgreen.svg)](http://docs.redash.io)
 
 **_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
 
