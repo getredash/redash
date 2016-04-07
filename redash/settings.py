@@ -1,7 +1,7 @@
 import json
 import os
 import urlparse
-from funcy import distinct
+from funcy import distinct, remove
 
 
 def parse_db_url(url):
@@ -170,13 +170,15 @@ default_query_runners = [
     'redash.query_runner.vertica',
     'redash.query_runner.treasuredata',
     'redash.query_runner.sqlite',
+    'redash.query_runner.dynamodb_sql',
     'redash.query_runner.mssql',
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
 additional_query_runners = array_from_string(os.environ.get("REDASH_ADDITIONAL_QUERY_RUNNERS", ""))
+disabled_query_runners = array_from_string(os.environ.get("REDASH_DISABLED_QUERY_RUNNERS", ""))
 
-QUERY_RUNNERS = distinct(enabled_query_runners + additional_query_runners)
+QUERY_RUNNERS = remove(set(disabled_query_runners), distinct(enabled_query_runners + additional_query_runners))
 
 EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", ""))
 

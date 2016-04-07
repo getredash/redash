@@ -1,102 +1,69 @@
+<!-- modal for archive button -->
+<div class="modal fade" id="archive-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="archiveConfirmationModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Query Archive</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to archive this query?
+        <br/> All dashboard widgets created with its visualizations will be deleted.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+        <button type="button" class="btn btn-primary" ng-click="archiveQuery()">Yes, archive.</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end of modal for archive button -->
+
 <div class="container" style="position:relative">
     <overlay ng-if="canCreateQuery === false">
-        You don't have permission to create new queries on any of the data sources available to you.
-        You can either <a href="queries">browse existing queries</a>, or ask for additional permissions from your re:dash admin.
+        You don't have permission to create new queries on any of the data sources available to you. You can either <a href="queries">browse existing queries</a>, or ask for additional permissions from your re:dash admin.
     </overlay>
-
     <overlay ng-if="noDataSources && currentUser.isAdmin">
-        Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please create one first, and then start querying.<br/>
+        Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please create one first, and then start querying.
+        <br/>
         <a href="data_sources/new" class="btn btn-default">Create Data Source</a> <a href="groups" class="btn btn-default">Manage Group Permissions</a>
     </overlay>
-
     <overlay ng-if="noDataSources && !currentUser.isAdmin">
         Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please ask your re:dash admin to create one first.
     </overlay>
-
     <p class="alert alert-warning" ng-if="query.is_archived">This query is archived and can't be used in dashboards, and won't appear in search results.</p>
     <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
-
     <div class="row">
         <div class="col-lg-12">
             <div class="row">
-                <div class="col-lg-10">
+                <div class="col-lg-9">
                     <h2>
                         <edit-in-place editable="isQueryOwner" done="saveName" ignore-blanks='true' value="query.name"></edit-in-place>
                     </h2>
                     <p>
                         <em>
                             <edit-in-place editable="isQueryOwner"
-                                           done="saveDescription"
-                                           editor="textarea"
-                                           placeholder="No description"
-                                           ignore-blanks='false'
-                                           value="query.description"
-                                           markdown="true">
-                             </edit-in-place>
-                        </em>
+                            done="saveDescription"
+                            editor="textarea"
+                            placeholder="No description"
+                            ignore-blanks='false'
+                            value="query.description"
+                            markdown="true">
+                        </edit-in-place>
+                    </em>
                     </p>
                 </div>
-
-                <div class="col-lg-2">
+                <div class="col-lg-3">
                     <div class="pull-right">
                         <query-source-link></query-source-link>
                     </div>
                 </div>
             </div>
-
-            <div class="visible-xs">
-                <p>
-                    <span class="text-muted">Last update </span>
-                    <strong>
-                        <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
-                    </strong>
-                    &nbsp;
-                    <span class="text-muted">Created By </span>
-                    <strong ng-hide="isQueryOwner">{{query.user.name}}</strong>
-                    <strong ng-show="isQueryOwner">You</strong>
-                    &nbsp;
-                    <span class="text-muted">Runtime </span>
-                    <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
-                    <span ng-show="queryExecuting">Running&hellip;</span>
-                    &nbsp;
-                    <span class="text-muted">Rows </span>
-                    <strong>{{queryResult.getData().length}}</strong>
-                </p>
-                <p>
-                    <query-source-link></query-source-link>
-                </p>
-            </div>
         </div>
     </div>
-
     <hr>
-
     <div class="row" ng-if="sourceMode">
-        <div ng-class="editorSize">
-            <div>
-                <p>
-                    <button type="button" class="btn btn-primary btn-xs" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
-                        <span class="glyphicon glyphicon-play"></span> Execute
-                    </button>
-                    <query-formatter></query-formatter>
-                    <span class="pull-right">
-                        <button class="btn btn-xs btn-default" ng-click="duplicateQuery()">
-                            <span class="glyphicon glyphicon-share-alt"></span> Fork
-                        </button>
-
-                        <button class="btn btn-success btn-xs" ng-show="canEdit" ng-click="saveQuery()">
-                            <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="isDirty">&#42;</span>
-                        </button>
-                    </span>
-                </p>
-
-                <p>
-                    <query-editor query="query" schema="schema" syntax="dataSource.syntax" lock="queryFormatting"></query-editor>
-                </p>
-            </div>
-        </div>
-        <div class="col-md-3 schema-container" ng-show="hasSchema">
-            <div ng-show="schema.length < 200">
+        <div class="col-md-3 schema-container hidden-sm hidden-xs" ng-if="hasSchema">
+            <div ng-show="schema.length < 500">
                 <input type="text" placeholder="Search schema..." class="form-control" ng-model="schemaFilter">
             </div>
             <div class="schema-browser">
@@ -104,134 +71,119 @@
                     <div class="table-name" ng-click="table.collapsed = !table.collapsed">
                         <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span><span ng-if="table.size !== undefined"> ({{table.size}})</span></strong>
                     </div>
-                    <div collapse="table.collapsed && !schemaFilter">
+                    <div collapse="table.collapsed">
                         <div ng-repeat="column in table.columns track by column" style="padding-left:16px;">{{column}}</div>
                     </div>
                 </div>
             </div>
         </div>
-
-
+        <div ng-class="editorSize">
+            <div>
+                <div class="clearfix m-b-10">
+                    <button type="button" class="btn btn-primary btn-s" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
+                        <span class="glyphicon glyphicon-play"></span> Execute
+                    </button>
+                    <query-formatter></query-formatter>
+                    <span class="pull-right">
+                        <button class="btn btn-default" ng-show="query.id != undefined" ng-click="showApiKey()">
+                          <i class="fa fa-key" title="Show API Key"></i>
+                        </button>
+                        <a class="btn btn-warning" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal" ng-show="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+                          <i class="fa fa-archive" title="Archive Query"></i>
+                        </a>
+                        <button class="btn btn-s btn-default" ng-click="duplicateQuery()">
+                            <span class="glyphicon glyphicon-share-alt"></span> Fork
+                        </button>
+                        <button class="btn btn-success" ng-show="canEdit" ng-click="saveQuery()">
+                            <span class="glyphicon glyphicon-floppy-disk"> </span> Save<span ng-show="isDirty">&#42;</span>
+                        </button>
+                    </span>
+                </div>
+                <div>
+                    <query-editor query="query" schema="schema" syntax="dataSource.syntax" lock="queryFormatting"></query-editor>
+                </div>
+            </div>
+        </div>
     </div>
     <hr ng-if="sourceMode">
-    <div class="row">
-        <div class="col-lg-3">
-            <p>
-                <span class="glyphicon glyphicon-user"></span>
-                <span class="text-muted">Created By </span>
-                <strong>{{query.user.name}}</strong>
-            </p>
-            <p ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
-                <span class="glyphicon glyphicon-user"></span>
-                <span class="text-muted">Last Modified By </span>
-                <strong>{{query.last_modified_by.name}}</strong>
-            </p>
-            <p>
-                <span class="glyphicon glyphicon-time"></span>
-                <span class="text-muted">Last update </span>
-                <strong>
-                    <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
-                </strong>
-            </p>
-            <p>
-                <span class="glyphicon glyphicon-play"></span>
-                <span class="text-muted">Runtime </span>
-                <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
-                <span ng-show="queryExecuting">Running&hellip;</span>
-            </p>
-            <p>
-                <span class="glyphicon glyphicon-align-justify"></span>
-                <span class="text-muted">Rows </span><strong>{{queryResult.getData().length}}</strong>
-            </p>
-            <p>
-                <span class="glyphicon glyphicon-refresh"></span>
-                <span class="text-muted">Refresh Schedule</span>
-                <a ng-click="openScheduleForm()">{{query.schedule | scheduleHumanize}}</a>
-            </p>
-
-            <p>
-                <i class="fa fa-database"></i>
-                <span class="text-muted">Data Source</span>
-                <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
-            </p>
-
-            <hr>
-
-            <p>
-            <p>
-              <div class="btn-group" dropdown>
-                <button type="button" class="btn btn-primary btn-sm dropdown-toggle" ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true" dropdown-toggle
-                        aria-expanded="false">
-                  Download Dataset <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" dropdown-menu>
-                  <li>
-                    <a query-result-link target="_self">
-                        <span class="fa fa-file-o"></span> Download as CSV File
-                    </a>
-                  </li>
-                  <li>
-                    <a query-result-link file-type="xlsx" target="_self">
-                        <span class="fa fa-file-excel-o"></span> Download as Excel File
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-                <a class="btn btn-warning btn-sm" ng-disabled="queryExecuting" data-toggle="modal" data-target="#archive-confirmation-modal"
-                   ng-show="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-                    <i class="fa fa-archive" title="Archive Query"></i>
-                </a>
-
-                <button class="btn btn-default btn-sm" ng-show="query.id != undefined" ng-click="showApiKey()">
-                    <i class="fa fa-key" title="Show API Key"></i>
-                </button>
-            </p>
-
-                <div class="modal fade" id="archive-confirmation-modal" tabindex="-1" role="dialog" aria-labelledby="archiveConfirmationModal" aria-hidden="true">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h4 class="modal-title">Query Archive</h4>
-                      </div>
-                      <div class="modal-body">
-                        Are you sure you want to archive this query? <br/>
-                        All dashboard widgets created with its visualizations will be deleted.
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                        <button type="button" class="btn btn-primary" ng-click="archiveQuery()">Yes, archive.</button>
-                      </div>
-                    </div>
-                  </div>
+    <div id="queryInfo" class="row">
+        <div class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-3">
+                    <p>
+                        <span class="glyphicon glyphicon-user"></span>
+                        <span class="text-muted">Created By </span>
+                        <strong>{{query.user.name}}</strong>
+                    </p>
+                    <p style="margin-bottom: 0;" ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
+                        <span class="glyphicon glyphicon-user"></span>
+                        <span class="text-muted">Last Modified By </span>
+                        <strong>{{query.last_modified_by.name}}</strong>
+                    </p>
                 </div>
-            </p>
+                <div class="col-lg-3">
+                    <p>
+                        <span class="glyphicon glyphicon-time"></span>
+                        <span class="text-muted">Last update </span>
+                        <strong><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago></strong>
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        <span class="glyphicon glyphicon-play"></span>
+                        <span class="text-muted">Runtime </span>
+                        <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
+                        <span ng-show="queryExecuting">Running&hellip;</span>
+                    </p>
+                </div>
+                <div class="col-lg-3">
+                    <p>
+                        <span class="glyphicon glyphicon-align-justify"></span>
+                        <span class="text-muted">Rows </span><strong>{{queryResult.getData().length}}</strong>
+                    </p>
+                    <p style="margin-bottom: 0;">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                        <span class="text-muted">Refresh Schedule</span>
+                        <a ng-click="openScheduleForm()">{{query.schedule | scheduleHumanize}}</a>
+                    </p>
+                </div>
+                <div class="col-lg-3">
+                    <p>
+                        <i class="fa fa-database"></i>
+                        <span class="text-muted">Data Source</span>
+                        <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
+                    </p>
+                    <p style="margin-bottom: 0;">
+                    </p>
+                </div>
+            </div>
         </div>
-
-        <div class="col-lg-9">
+    </div>
+    <hr style="margin-top: 10px;">
+    <div class="row">
+        <div class="col-lg-12">
             <!-- alerts -->
             <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
-                Executing query&hellip; <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                Executing query&hellip;
+                <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
                 <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
             </div>
             <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
-                Query in queue&hellip; <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                Query in queue&hellip;
+                <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
                 <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel</button>
             </div>
             <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
-
             <div class="row log-container" ng-show="showLog">
                 <span ng-show="showLog">Log Information:</span>
                 <table>
-                  <tbody>
-                    <tr ng-repeat="l in queryResult.getLog()">
-                      <td>{{l}}</td>
-                    </tr>
-                  </tbody>
+                    <tbody>
+                        <tr ng-repeat="l in queryResult.getLog()">
+                            <td>{{l}}</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
             <!-- tabs and data -->
-            <div ng-show="showDataset">
+            <div ng-if="showDataset">
                 <div class="row">
                     <div class="col-lg-12">
                         <ul class="nav nav-tabs">
@@ -241,37 +193,53 @@
                                 <span class="remove" ng-click="deleteVisualization($event, vis)" ng-show="canEdit"> &times;</span>
                             </rd-tab>
                             <rd-tab tab-id="add" name="&plus; New Visualization" removeable="true" ng-show="canEdit"></rd-tab>
-                            <li ng-if="!sourceMode" class="rd-tab-btn"><button class="btn btn-sm btn-default" ng-click="executeQuery()" ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"><span class="glyphicon glyphicon-refresh"></span></button></li>
+                          <li ng-if="!sourceMode" class="rd-tab-btn">
+                            <button class="btn btn-sm btn-default" ng-click="executeQuery()" ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"><span class="glyphicon glyphicon-refresh"></span></button>
+                          </li>
+                              <li class="rd-tab-btn">
+
+                                <div class="btn-group" dropdown>
+                                  <button type="button" class="btn btn-default btn-sm dropdown-toggle" ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true" dropdown-toggle aria-expanded="false">
+                                    Download Dataset <span class="caret"></span>
+                                  </button>
+                                  <ul class="dropdown-menu" dropdown-menu>
+                                    <li>
+                                      <a query-result-link target="_self">
+                                        <span class="fa fa-file-o"></span> Download as CSV File
+                                      </a>
+                                    </li>
+                                    <li>
+                                      <a query-result-link file-type="xlsx" target="_self">
+                                        <span class="fa fa-file-excel-o"></span> Download as Excel File
+                                      </a>
+                                    </li>
+                                  </ul>
+                                </div>
+                              </li>
                         </ul>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-12">
-                        <div ng-show="selectedTab == 'table'" >
+                        <div ng-show="selectedTab == 'table'">
                             <filters></filters>
                             <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-
                             <div class="row" ng-if="vis.type=='TABLE'" ng-repeat="vis in query.visualizations">
-                                <embed-code visualization="vis" query="query"/>
+                                <embed-code visualization="vis" query="query" />
                             </div>
                         </div>
-
                         <div ng-show="selectedTab == 'pivot'">
-                          <h3>
-                            Pivot tables are now regular visualization, which you can create from the <a hash="add" hash-link>"New Visualization" tab</a> and <strong>save</strong>.
-                          </h3>
+                            <h3>
+                        Pivot tables are now regular visualization, which you can create from the <a hash="add" hash-link>"New Visualization" tab</a> and <strong>save</strong>.
+                    </h3>
                         </div>
-
                         <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                             <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-
                             <div class="row">
-                                <embed-code visualization="vis" query="query"/>
+                                <embed-code visualization="vis" query="query" />
                             </div>
-
                             <edit-visulatization-form visualization="vis" query="query" query-result="queryResult" ng-show="canEdit"></edit-visulatization-form>
                         </div>
-
                         <div ng-if="canEdit" ng-show="selectedTab == 'add'">
                             <visualization-renderer visualization="newVisualization" query-result="queryResult"></visualization-renderer>
                             <edit-visulatization-form visualization="newVisualization" query="query" query-result="queryResult" ng-show="canEdit" open-editor="true" on-new-success="setVisualizationTab"></edit-visulatization-form>

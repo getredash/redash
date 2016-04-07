@@ -164,7 +164,7 @@
       // don't create new scope to avoid ui-codemirror bug
       // seehttps://github.com/angular-ui/ui-codemirror/pull/37
       scope: false,
-      template: '<button type="button" class="btn btn-default btn-xs"\
+      template: '<button type="button" class="btn btn-default btn-s"\
                    ng-click="formatQuery()">\
                     <span class="glyphicon glyphicon-indent-left"></span>\
                      Format SQL\
