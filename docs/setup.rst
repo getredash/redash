@@ -78,7 +78,9 @@ Setup
 
 Once you created the instance with either the image or the script, you
 should have a running re:dash instance with everything you need to get
-started (e.g. if you are running on Ubuntu then go to http://localhost:9001/.Port would depend on how you have set it up). You can now login to it with the user "admin" (password:
+started (e.g. When using the script mentioned in the setup page, the user should use port 80 as we install nginx. Redash itself listens on port 5000.
+
+Port 9001 only used with the Vagrant installation). You can now login to it with the user "admin" (password:
 "admin"). But to make it useful, there are a few more steps that you
 need to manually do to complete the setup:
 
