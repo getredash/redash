@@ -75,12 +75,13 @@
       restrict: 'E',
       scope: {
         visualization: '=',
-        queryResult: '='
+        queryResult: '=',
+        hideFilters: '='
       },
       // TODO: using switch here (and in the options editor) might introduce errors and bad
       // performance wise. It's better to eventually show the correct template based on the
       // visualization type and not make the browser render all of them.
-      template: '<filters></filters>\n' + Visualization.renderVisualizationsTemplate,
+      template: '<filters ng-if="!hideFilters"></filters>\n' + Visualization.renderVisualizationsTemplate,
       replace: false,
       link: function (scope) {
         scope.$watch('queryResult && queryResult.getFilters()', function (filters) {
