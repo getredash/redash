@@ -20,7 +20,10 @@
                     <span class="label label-default">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
 
                     <span class="pull-right">
-                        <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self">
+                        <a class="btn btn-default btn-xs" ng-href="/queries/{{visualization.query.id}}#{{visualization.id}}" target="_blank" tooltip="Open in re:dash">
+                            <span class="glyphicon glyphicon-link"></span>
+                        </a>
+                        <a class="btn btn-default btn-xs" ng-disabled="!queryResult.getData()" query-result-link target="_self" tooltip="Download as CSV">
                             <span class="glyphicon glyphicon-cloud-download"></span>
                         </a>
                     </span>
@@ -29,3 +32,5 @@
         </div>
     </div>
 </div>
+
+
