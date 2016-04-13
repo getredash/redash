@@ -10,6 +10,7 @@
       templateUrl: '/views/app_header.html',
       link: function ($scope) {
         $scope.dashboards = [];
+        $scope.logoUrl = clientConfig.logoUrl;
         $scope.reloadDashboards = function () {
           Dashboard.query(function (dashboards) {
             $scope.dashboards = _.sortBy(dashboards, "name");

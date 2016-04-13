@@ -8,7 +8,7 @@ from flask_restful import abort
 from redash import models, settings
 from redash import serializers
 from redash.utils import json_dumps
-from redash.handlers import base_href, routes
+from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule
 from redash.permissions import require_access, view_only
 from authentication import current_org
@@ -41,8 +41,7 @@ def embed(query_id, visualization_id, org_slug=None):
     vis['query'] = project(vis, ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
 
     return render_template("embed.html",
-                           name=settings.NAME,
-                           base_href=base_href(),
+
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
                            query_result=json_dumps(qr))
@@ -73,8 +72,6 @@ def public_dashboard(token, org_slug=None):
                                seed_data=json_dumps({
                                  'dashboard': serializers.public_dashboard(dashboard)
                                }),
-                               base_href=base_href(),
-                               name=settings.NAME,
                                client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
 
     return response, 200, headers
