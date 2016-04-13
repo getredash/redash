@@ -53,6 +53,7 @@ def all_settings():
 
 
 NAME = os.environ.get('REDASH_NAME', 're:dash')
+LOGO_URL = os.environ.get('REDASH_LOGO_URL', '/images/redash_icon_small.png')
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0")
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -206,5 +207,6 @@ COMMON_CLIENT_CONFIG = {
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
-    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None
+    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None,
+    'logoUrl': LOGO_URL
 }

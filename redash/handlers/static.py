@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from werkzeug.exceptions import NotFound
 
 from redash import settings, __version__
-from redash.handlers import base_href, routes
+from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule
 from redash.version_check import get_latest_version
 from authentication import current_org
@@ -57,8 +57,6 @@ def index(**kwargs):
 
     response = render_template("index.html",
                                user=json.dumps(user),
-                               base_href=base_href(),
-                               name=settings.NAME,
                                org_slug=current_org.slug,
                                client_config=json.dumps(client_config))
 
