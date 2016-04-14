@@ -34,10 +34,9 @@ def status_api():
 
 @routes.app_context_processor
 def inject_variables():
-    return dict(
-        name=settings.NAME,
-        logoUrl=settings.LOGO_URL,
-        base_href=base_href())
+    return dict(name=settings.NAME,
+                logo_url=settings.LOGO_URL,
+                base_href=base_href())
 
 
 def init_app(app):
