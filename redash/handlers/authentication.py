@@ -111,7 +111,6 @@ def login(org_slug=None):
     google_auth_url = get_google_auth_url(next_path)
 
     return render_template("login.html",
-                           name=settings.NAME,
                            org_slug=org_slug,
                            next=next_path,
                            username=request.form.get('username', ''),

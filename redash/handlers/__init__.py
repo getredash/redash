@@ -32,6 +32,14 @@ def status_api():
     return jsonify(status)
 
 
+@routes.app_context_processor
+def inject_variables():
+    return dict(
+        name=settings.NAME,
+        logoUrl=settings.LOGO_URL,
+        base_href=base_href())
+
+
 def init_app(app):
     from redash.handlers import embed, queries, static, authentication
     app.register_blueprint(routes)
