@@ -9,6 +9,9 @@ More details about the future of re:dash : http://bit.ly/journey-first-step
     <img title="Build Status" src='https://circleci.com/gh/getredash/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
 </p>
 
+[![Join the chat at https://gitter.im/getredash/redash](https://badges.gitter.im/getredash/redash.svg)](https://gitter.im/getredash/redash?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Documentation](https://img.shields.io/badge/docs-redash.io-brightgreen.svg)](http://docs.redash.io)
+
 **_re:dash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
 
 Prior to **_re:dash_**, we tried to use traditional BI suites and discovered a set of bloated, technically challenged and slow tools/flows. What we were looking for was a more hacker'ish way to look at data, so we built one.
