@@ -7,6 +7,21 @@ from redash.handlers.users import invite_user
 manager = Manager(help="Users management commands. This commands assume single organization operation.")
 
 
+def build_groups(groups, is_admin):
+    org = models.Organization.get_by_slug('default')
+    if isinstance(groups, basestring):
+        groups= groups.split(',')
+        groups.remove('') # in case it was empty string
+        groups = [int(g) for g in groups]
+
+    if groups is None:
+        groups = [org.default_group.id]
+
+    if is_admin:
+        groups += [org.admin_group.id]
+
+    return groups
+
 @manager.option('email', help="email address of the user to grant admin to")
 def grant_admin(email):
     try:
@@ -79,18 +94,18 @@ def invite(email, name, inviterEmail, groups, is_admin=False):
     org = models.Organization.get_by_slug('default')
     groups = build_groups(groups, is_admin)
     try:
-        userFrom = models.User.get_by_email_and_org(inviterEmail, org)
+        user_from = models.User.get_by_email_and_org(inviterEmail, org)
         user = models.User(org=org, name=name, email=email, groups=groups)
 
         try:
             user.save()
+            invite_url = invite_user(org, user_from, user)
+            print "An invitation was sent to [%s] at [%s]." % (name, email)
         except IntegrityError as e:
             if "email" in e.message:
                 print "Cannot invite. User already exists [%s]" % email
-                return
-        invite_url = invite_user(org, userFrom, user)
-
-        print "An invitation was sent to [%s] at [%s]." % (name, email)
+            else:
+                print e
     except models.User.DoesNotExist:
         print "The inviter [%s] was not found." % inviterEmail
 
@@ -103,19 +118,3 @@ def list():
             print "-" * 20
 
         print "Id: {}\nName: {}\nEmail: {}".format(user.id, user.name.encode('utf-8'), user.email)
-
-
-def build_groups(groups, is_admin):
-    org = models.Organization.get_by_slug('default')
-    if isinstance(groups, basestring):
-        groups= groups.split(',')
-        groups.remove('') # in case it was empty string
-        groups = [int(g) for g in groups]
-
-    if groups is None:
-        groups = [models.Group.get(models.Group.name=="default", models.Group.org==org).id]
-
-    if is_admin:
-        groups += [models.Group.get(models.Group.name=="admin", models.Group.org==org).id]
-
-    return groups
