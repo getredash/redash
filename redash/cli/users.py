@@ -1,8 +1,26 @@
 from flask_script import Manager, prompt_pass
+from peewee import IntegrityError
+
 from redash import models
+from redash.handlers.users import invite_user
 
 manager = Manager(help="Users management commands. This commands assume single organization operation.")
 
+
+def build_groups(groups, is_admin):
+    org = models.Organization.get_by_slug('default')
+    if isinstance(groups, basestring):
+        groups= groups.split(',')
+        groups.remove('') # in case it was empty string
+        groups = [int(g) for g in groups]
+
+    if groups is None:
+        groups = [org.default_group.id]
+
+    if is_admin:
+        groups += [org.admin_group.id]
+
+    return groups
 
 @manager.option('email', help="email address of the user to grant admin to")
 def grant_admin(email):
@@ -34,16 +52,7 @@ def create(email, name, groups, is_admin=False, google_auth=False, password=None
     print "Login with Google Auth: %r\n" % google_auth
 
     org = models.Organization.get_by_slug('default')
-    if isinstance(groups, basestring):
-        groups= groups.split(',')
-        groups.remove('') # in case it was empty string
-        groups = [int(g) for g in groups]
-
-    if groups is None:
-        groups = [models.Group.get(models.Group.name=="default", models.Group.org==org).id]
-
-    if is_admin:
-        groups += [models.Group.get(models.Group.name=="admin", models.Group.org==org).id]
+    groups = build_groups(groups, is_admin)
 
     user = models.User(org=org, email=email, name=name, groups=groups)
     if not google_auth:
@@ -74,6 +83,31 @@ def password(email, password):
         print "User updated."
     except models.User.DoesNotExist:
         print "User [%s] not found." % email
+
+
+@manager.option('email', help="The invitee's email")
+@manager.option('name', help="The invitee's full name")
+@manager.option('inviter_email', help="The email of the inviter")
+@manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
+@manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
+def invite(email, name, inviter_email, groups, is_admin=False):
+    org = models.Organization.get_by_slug('default')
+    groups = build_groups(groups, is_admin)
+    try:
+        user_from = models.User.get_by_email_and_org(inviter_email, org)
+        user = models.User(org=org, name=name, email=email, groups=groups)
+
+        try:
+            user.save()
+            invite_url = invite_user(org, user_from, user)
+            print "An invitation was sent to [%s] at [%s]." % (name, email)
+        except IntegrityError as e:
+            if "email" in e.message:
+                print "Cannot invite. User already exists [%s]" % email
+            else:
+                print e
+    except models.User.DoesNotExist:
+        print "The inviter [%s] was not found." % inviterEmail
 
 
 @manager.command
