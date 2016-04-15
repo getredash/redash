@@ -87,14 +87,14 @@ def password(email, password):
 
 @manager.option('email', help="The invitee's email")
 @manager.option('name', help="The invitee's full name")
-@manager.option('inviterEmail', help="The email of the inviter")
+@manager.option('inviter_email', help="The email of the inviter")
 @manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
 @manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
-def invite(email, name, inviterEmail, groups, is_admin=False):
+def invite(email, name, inviter_email, groups, is_admin=False):
     org = models.Organization.get_by_slug('default')
     groups = build_groups(groups, is_admin)
     try:
-        user_from = models.User.get_by_email_and_org(inviterEmail, org)
+        user_from = models.User.get_by_email_and_org(inviter_email, org)
         user = models.User(org=org, name=name, email=email, groups=groups)
 
         try:
