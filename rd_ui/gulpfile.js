@@ -109,7 +109,7 @@ gulp.task('copy:extras', function () {
 });
 
 gulp.task('copy:fonts', function () {
-  return gulp.src([yeoman.app + '/fonts/**/*', 'app/bower_components/bootstrap/dist/fonts/**/*', 'app/bower_components/font-awesome/fonts/*'])
+  return gulp.src([yeoman.app + '/fonts/**/*', 'app/bower_components/font-awesome/fonts/*'])
     .pipe(gulp.dest(yeoman.dist + '/fonts'));
 });
 

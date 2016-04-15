@@ -1,8 +1,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top app-header" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-toggle="collapse"
-              data-target=".navbar-ex1-collapse">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -12,8 +11,13 @@
     </div>
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
-        <li class="dropdown" ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')" dropdown>
-          <a href="#" class="dropdown-toggle" dropdown-toggle>Dashboards <b class="caret"></b></a>
+        <li class="dropdown"
+            ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')"
+            dropdown>
+          <a href="#" class="dropdown-toggle" dropdown-toggle title="Dashboards">
+            <span class="visible-md visible-lg">Dashboards <b class="caret"></b></span>
+            <span class="visible-xs visible-sm"><i class="zmdi zmdi-view-dashboard"></i> <b class="caret"></b></span>
+          </a>
           <ul class="dropdown-menu" dropdown-menu>
                     <span ng-repeat="(name, group) in groupedDashboards">
                         <li class="dropdown-submenu">
@@ -28,8 +32,10 @@
             <li ng-repeat="dashboard in otherDashboards">
               <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
             </li>
-            <li class="divider" ng-show="currentUser.hasPermission('create_dashboard') && (groupedDashboards.length > 0 || otherDashboards.length > 0)"></li>
-            <li><a data-toggle="modal" href="#new_dashboard_dialog" ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
+            <li class="divider"
+                ng-show="currentUser.hasPermission('create_dashboard') && (groupedDashboards.length > 0 || otherDashboards.length > 0)"></li>
+            <li><a data-toggle="modal" href="#new_dashboard_dialog"
+                   ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
           </ul>
         </li>
         <li class="dropdown" ng-show="currentUser.hasPermission('view_query')" dropdown>
@@ -47,7 +53,7 @@
         <div class="form-group">
           <input type="text" ng-model="term" class="form-control" placeholder="Search queries...">
         </div>
-        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+        <button type="submit" class="btn btn-default"><span class="zmdi zmdi-search"></span></button>
       </form>
       <ul class="nav navbar-nav navbar-right">
         <li ng-show="currentUser.hasPermission('admin')">
@@ -57,7 +63,8 @@
           <a href="users" title="Users"><i class="fa fa-users"></i></a>
         </li>
         <li class="dropdown" dropdown>
-          <a href="#" class="dropdown-toggle" dropdown-toggle><span ng-bind="currentUser.name"></span> <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" dropdown-toggle><span ng-bind="currentUser.name"></span> <span
+            class="caret"></span></a>
           <ul class="dropdown-menu" dropdown-menu>
             <li style="width:300px">
               <a ng-href="users/{{currentUser.id}}">
@@ -71,6 +78,8 @@
                 </div>
               </a>
             </li>
+            <li class="divider" ng-if="currentUser.hasPermission('super_admin')">
+            <li ng-if="currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
             <li class="divider">
             </li>
             <li>

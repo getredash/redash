@@ -4,7 +4,7 @@
   var directives = angular.module('redash.directives');
 
   // Angular strips data- from the directive, so data-source-form becomes sourceForm...
-  directives.directive('sourceForm', ['$http', 'growl', '$q', function ($http, growl, $q) {
+  directives.directive('sourceForm', ['$http', 'growl', '$q', '$location', 'Events', function ($http, growl, $q, $location, Events) {
     return {
       restrict: 'E',
       replace: true,
@@ -75,6 +75,18 @@
             growl.addSuccessMessage("Saved.");
           }, function() {
             growl.addErrorMessage("Failed saving.");
+          });
+        }
+
+        $scope.deleteDataSource = function() {
+          Events.record(currentUser, "delete", "datasource", $scope.dataSource.id);
+
+          $scope.dataSource.$delete(function(resource) {
+            growl.addSuccessMessage("Data source deleted successfully.");
+            $location.path('/data_sources/');
+          }.bind(this), function(httpResponse) {
+            console.log("Failed to delete data source: ", httpResponse.status, httpResponse.statusText, httpResponse.data);
+            growl.addErrorMessage("Failed to delete data source.");
           });
         }
       }

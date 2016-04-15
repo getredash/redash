@@ -215,7 +215,6 @@
               $scope.saveInProgress = false;
             });
           }
-
         }
       }
     }

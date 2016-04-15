@@ -60,23 +60,6 @@
     }
   };
 
-  var usersNav = function($location) {
-    return {
-      restrict: 'E',
-      replace: true,
-      template:
-        '<ul class="nav nav-tabs">' +
-          '<li role="presentation" ng-class="{\'active\': usersPage }"><a href="users">Users</a></li>' +
-          '<li role="presentation" ng-class="{\'active\': groupsPage }" ng-if="showGroupsLink"><a href="groups">Groups</a></li>' +
-        '</ul>',
-      controller: ['$scope', function ($scope) {
-        $scope.usersPage = _.string.startsWith($location.path(), '/users');
-        $scope.groupsPage = _.string.startsWith($location.path(), '/groups');
-        $scope.showGroupsLink = currentUser.hasPermission('list_users');
-      }]
-    }
-  }
-
   var groupName = function ($location, growl) {
     return {
       restrict: 'E',
@@ -236,12 +219,14 @@
     $scope.showPasswordSettings = false;
 
     $scope.selectTab = function(tab) {
+      $scope.selectedTab = tab;
       _.each($scope.tabs, function(v, k) {
         $scope.tabs[k] = (k === tab);
       });
     };
 
     $scope.setTab = function(tab) {
+      $scope.selectedTab = tab;
       $location.hash(tab);
     }
 
@@ -349,7 +334,6 @@
   angular.module('redash.controllers')
     .controller('GroupsCtrl', ['$scope', '$location', '$modal', 'growl', 'Events', 'Group', GroupsCtrl])
     .directive('groupName', ['$location', 'growl', groupName])
-    .directive('usersNav', ['$location', usersNav])
     .controller('GroupCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'User', GroupCtrl])
     .controller('GroupDataSourcesCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'DataSource', GroupDataSourcesCtrl])
     .controller('UsersCtrl', ['$scope', '$location', 'growl', 'Events', 'User', UsersCtrl])

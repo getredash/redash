@@ -34,13 +34,16 @@
     "d3": "3.5.6",
     "angular-ui-sortable": "~0.13.4",
     "angular-plotly": "~0.1.2",
-    "plotly": "~1.4.1"
+    "plotly": "~1.4.1",
+    "angular-resizable": "^1.2.0",
+    "material-design-iconic-font": "^2.2.0"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
     "angular-scenario": "1.2.18"
   },
   "resolutions": {
-    "angular": "1.2.18"
+    "angular": "1.2.18",
+    "bootstrap": "3.3.6"
   }
 }

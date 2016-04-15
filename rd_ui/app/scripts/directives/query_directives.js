@@ -29,10 +29,10 @@
       restrict: 'E',
       template: '<span ng-show="query.id && canViewSource">\
                     <a ng-show="!sourceMode"\
-                      ng-href="queries/{{query.id}}/source#{{selectedTab}}">Show Source\
+                      ng-href="queries/{{query.id}}/source#{{selectedTab}}" class="btn btn-default">Show Source\
                     </a>\
                     <a ng-show="sourceMode"\
-                      ng-href="queries/{{query.id}}#{{selectedTab}}">Hide Source\
+                      ng-href="queries/{{query.id}}#{{selectedTab}}" class="btn btn-default">Hide Source\
                     </a>\
                 </span>'
     }
@@ -119,8 +119,6 @@
                 $scope.query.query = newValue;
               });
             }
-
-            $('.schema-container').css('height', $('.CodeMirror').css('height'));
           });
 
           $scope.$watch('query.query', function () {
@@ -166,7 +164,7 @@
       scope: false,
       template: '<button type="button" class="btn btn-default btn-s"\
                    ng-click="formatQuery()">\
-                    <span class="glyphicon glyphicon-indent-left"></span>\
+                    <span class="zmdi zmdi-format-indent-increase"></span>\
                      Format SQL\
                 </button>',
       link: function($scope) {

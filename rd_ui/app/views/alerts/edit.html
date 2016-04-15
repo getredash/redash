@@ -1,65 +1,68 @@
-    <div class="container">
-    <email-settings-warning function="alert emails"></email-settings-warning>
-    <ol class="breadcrumb">
-        <li><a href="alerts">Alerts</a></li>
-        <li class="active">{{alert.name || getDefaultName() || "New"}}</li>
-    </ol>
-    <div class="row">
-        <div class="col-md-8">
-            <form name="alertForm" ng-submit="saveChanges()" class="form">
-                <div class="form-group">
-                    <label>Query</label>
-                    <ui-select ng-model="alert.query" reset-search-input="false" on-select="onQuerySelected($item)">
-                        <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
-                        <ui-select-choices repeat="q in queries"
-                                           refresh="searchQueries($select.search)"
-                                           refresh-delay="0">
-                            <div ng-bind-html="q.name | highlight: $select.search | trustAsHtml"></div>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>
+<page-header title='{{alert.name || getDefaultName() || "New" }}'>
+</page-header>
 
-                <div class="form-group" ng-show="selectedQuery">
-                    <label>Name</label>
-                    <input type="string" placeholder="{{getDefaultName()}}" class="form-control" ng-model="alert.name">
-                </div>
+<div class="container">
+  <email-settings-warning function="alert emails"></email-settings-warning>
+  <div class="container">
+    <div class="row bg-white p-10">
+      <div class="col-md-8">
+        <form name="alertForm" ng-submit="saveChanges()" class="form">
+          <div class="form-group">
+            <label>Query</label>
+            <ui-select ng-model="alert.query" reset-search-input="false" on-select="onQuerySelected($item)">
+              <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
+              <ui-select-choices repeat="q in queries"
+                                 refresh="searchQueries($select.search)"
+                                 refresh-delay="0">
+                <div ng-bind-html="q.name | highlight: $select.search | trustAsHtml"></div>
+              </ui-select-choices>
+            </ui-select>
+          </div>
 
-                <div ng-show="queryResult" class="form-horizontal">
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Value column</label>
-                        <div class="col-md-4">
-                            <select ng-options="name for name in queryResult.getColumnNames()" ng-model="alert.options.column" class="form-control"></select>
-                        </div>
-                        <label class="control-label col-md-2">Value</label>
-                        <div class="col-md-4">
-                            <p class="form-control-static">{{queryResult.getData()[0][alert.options.column]}}</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Op</label>
-                        <div class="col-md-4">
-                            <select ng-options="name for name in ops" ng-model="alert.options.op" class="form-control"></select>
-                        </div>
-                        <label class="control-label col-md-2">Reference</label>
-                        <div class="col-md-4">
-                            <input type="number" class="form-control" ng-model="alert.options.value" placeholder="reference value" required/>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label col-md-2">Rearm seconds</label>
-                        <div class="col-md-4">
-                            <input type="number" class="form-control" ng-model="alert.rearm" />
-                        </div>
-                    </div>
-                </div>
+          <div class="form-group" ng-show="selectedQuery">
+            <label>Name</label>
+            <input type="string" placeholder="{{getDefaultName()}}" class="form-control" ng-model="alert.name">
+          </div>
 
-                <div class="form-group">
-                    <button class="btn btn-primary" ng-disabled="!alertForm.$valid">Save</button>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-4" ng-if="alert.id">
-            <alert-subscribers alert-id="alert.id"></alert-subscribers>
-        </div>
+          <div ng-show="queryResult" class="form-horizontal">
+            <div class="form-group">
+              <label class="control-label col-md-2">Value column</label>
+              <div class="col-md-4">
+                <select ng-options="name for name in queryResult.getColumnNames()" ng-model="alert.options.column"
+                        class="form-control"></select>
+              </div>
+              <label class="control-label col-md-2">Value</label>
+              <div class="col-md-4">
+                <p class="form-control-static">{{queryResult.getData()[0][alert.options.column]}}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-2">Op</label>
+              <div class="col-md-4">
+                <select ng-options="name for name in ops" ng-model="alert.options.op" class="form-control"></select>
+              </div>
+              <label class="control-label col-md-2">Reference</label>
+              <div class="col-md-4">
+                <input type="number" class="form-control" ng-model="alert.options.value" placeholder="reference value"
+                       required/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-md-2">Rearm seconds</label>
+              <div class="col-md-4">
+                <input type="number" class="form-control" ng-model="alert.rearm"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button class="btn btn-primary" ng-disabled="!alertForm.$valid">Save</button>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-4" ng-if="alert.id">
+        <alert-subscribers alert-id="alert.id"></alert-subscribers>
+      </div>
     </div>
+  </div>
 </div>

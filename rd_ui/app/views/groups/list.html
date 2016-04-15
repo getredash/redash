@@ -1,15 +1,13 @@
-<div class="container">
-    <users-nav></users-nav>
+<settings-screen>
+  <div class="row voffset1">
+    <div class="col-md-12">
+      <p ng-if="currentUser.hasPermission('admin')">
+        <a ng-click="newGroup()" class="btn btn-default"><i class="fa fa-plus"></i> New Group</a>
+      </p>
 
-    <div class="row voffset1">
-        <div class="col-md-12">
-            <p ng-if="currentUser.hasPermission('admin')">
-                <a ng-click="newGroup()" class="btn btn-default"><i class="fa fa-plus"></i> New Group</a>
-            </p>
-
-            <smart-table rows="groups" columns="gridColumns"
-                         config="gridConfig"
-                         class="table table-condensed table-hover"></smart-table>
-        </div>
+      <smart-table rows="groups" columns="gridColumns"
+                   config="gridConfig"
+                   class="table table-condensed table-hover"></smart-table>
     </div>
-</div>
+  </div>
+</settings-screen>
