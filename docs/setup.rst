@@ -6,8 +6,8 @@ script <https://raw.githubusercontent.com/getredash/redash/master/setup/ubuntu/b
 works on Ubuntu 12.04, Ubuntu 14.04 and Debian Wheezy. This script
 installs all needed dependencies and creates basic setup.
 
-To ease the process, there are also images for AWS and Google Compute
-Cloud. These images created with the same provision script using Packer.
+To ease the process, there are also images for AWS, Google Compute
+Cloud and Docker. These images created with the same provision script using Packer.
 
 Create an instance
 ==================
@@ -66,15 +66,15 @@ Now proceed to `"Setup" <#setup>`__.
 Docker Compose
 ------
 
-1. Make sure you have a docker machine up and running.
-2. Make sure your current working directory is the root of this github repository.
-3. Run `docker-compose up postgres`
-4. Run `./setup/docker/create_database.sh` (chmod +x this file if necessary).
-    * This will access the postgres container and set up the database.
-5. Run `docker compose up`
-6. Run `docker-machine ls`, take note of the ip for the docker machine you are using, and open the web browser.
-7. Visit that docker machine ip at port 80, and you should see a redash login screen.
-8. Login as admin/admin, and you should be able to add data sources! Congrats!
+1. Make sure you have a Docker machine up and running.
+2. Make sure your current working directory is the root of this GitHub repository.
+3. Run ``docker-compose up postgres``.
+4. Run ``./setup/docker/create_database.sh``. This will access the postgres container and set up the database.
+5. Run ``docker compose up``
+6. Run ``docker-machine ls``, take note of the ip for the Docker machine you are using, and open the web browser.
+7. Visit that Docker machine IP at port 80, and you should see a Re:dash login screen.
+
+Now proceed to `"Setup" <#setup>`__.
 
 
 Other
