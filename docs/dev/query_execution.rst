@@ -4,15 +4,15 @@ Query Execution Model
 Introduction
 ============
 
-The first datasource which was used with re:dash was Redshift. Because
+The first datasource which was used with Re:dash was Redshift. Because
 we had billions of records in Redshift, and some queries were costly to
 re-run, from the get go there was the idea of caching query results in
-re:dash.
+Re:dash.
 
 This was to relieve stress from the Redshift cluster and also to improve
 user experience.
 
-How queries get executed and cached in re:dash?
+How queries get executed and cached in Re:dash?
 ===============================================
 
 Server

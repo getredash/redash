@@ -1,7 +1,7 @@
 Supported Data Sources
 ######################
 
-re:dash supports several types of data sources, and if you set it up using the provided images, it should already have
+Re:dash supports several types of data sources, and if you set it up using the provided images, it should already have
 the needed dependencies to use them all. Starting from version 0.7 and newer, you can manage data sources from the UI
 by browsing to ``/data_sources`` on your instance.
 
@@ -132,7 +132,7 @@ format </dev/results_format>`.
 Very useful in situations where you want to expose the data without
 connecting directly to the database.
 
-The query itself inside re:dash will simply contain the URL to be
+The query itself inside Re:dash will simply contain the URL to be
 executed (i.e. http://myserver/path/myquery)
 
 -  **Options**:
@@ -153,7 +153,7 @@ Google Spreadsheets
 
 Notes:
 
-1. To be able to load the spreadsheet in re:dash - share your it with
+1. To be able to load the spreadsheet in Re:dash - share your it with
    your ServiceAccount's email (it can be found in the credentials json
    file, for example
    43242343247-fjdfakljr3r2@developer.gserviceaccount.com).
@@ -248,7 +248,7 @@ Microsoft SQL Server
 -  **Notes**:
 
    - Data type support is currently quite limited.
-   - Complex and new types are converted to strings in ``re:dash``
+   - Complex and new types are converted to strings in ``Re:dash``
       - Coerce into simpler types if needed using ``CAST()``
    - Known conversion issues for: 
       - DATE

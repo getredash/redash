@@ -1,4 +1,4 @@
-How To: Encrypt your re:dash installation with a free SSL certificate from Let's Encrypt
+How To: Encrypt your Re:dash installation with a free SSL certificate from Let's Encrypt
 =================
 
 **Note:** This below steps were tested on Ubuntu 14.04, but *should* work with any Debian-based distro.

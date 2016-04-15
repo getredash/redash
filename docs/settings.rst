@@ -1,11 +1,11 @@
 Settings
 ########
 
-Much of the functionality of re:dash can be changes with settings. Settings are read by `/redash/settings.py` from environment variables which (for most installs) can be set in `/opt/redash/current/.env`
+Much of the functionality of Re:dash can be changes with settings. Settings are read by `/redash/settings.py` from environment variables which (for most installs) can be set in `/opt/redash/current/.env`
 
 The follow is a list of settings and what they control:
 
-- **REDASH_NAME**: name of the site, used in page titles, *default "re:dash"*
+- **REDASH_NAME**: name of the site, used in page titles, *default "Re:dash"*
 - **REDASH_REDIS_URL**: *default "redis://localhost:6379/0"*
 - **REDASH_PROXIES_COUNT**: *default "1"*
 - **REDASH_STATSD_HOST**: *default "127.0.0.1"*

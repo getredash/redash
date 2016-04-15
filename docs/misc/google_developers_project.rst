@@ -29,8 +29,8 @@ How To: Create a Google Developers Project
       application**.
    -  In the **Authorized JavaScript origins** field, enter the origin
       for your app. You can enter multiple origins to use with multiple
-      re:dash instance. Wildcards are not allowed. In the example below,
-      we assume your re:dash instance address is *redash.example.com*:
+      Re:dash instance. Wildcards are not allowed. In the example below,
+      we assume your Re:dash instance address is *redash.example.com*:
 
    ::
 

@@ -4,11 +4,11 @@
 Open Source Data Collaboration and Visualization Platform
 ===================================
 
-**re:dash** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
+**Re:dash** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
 
-Prior to **re:dash**, we tried to use traditional BI suites and discovered a set of bloated, technically challenged and slow tools/flows. What we were looking for was a more hacker'ish way to look at data, so we built one.
+Prior to **Re:dash**, we tried to use traditional BI suites and discovered a set of bloated, technically challenged and slow tools/flows. What we were looking for was a more hacker'ish way to look at data, so we built one.
 
-**re:dash** was built to allow fast and easy access to billions of records, that we process and collect using Amazon Redshift ("petabyte scale data warehouse" that "speaks" PostgreSQL).
+**Re:dash** was built to allow fast and easy access to billions of records, that we process and collect using Amazon Redshift ("petabyte scale data warehouse" that "speaks" PostgreSQL).
 Today **_re:dash_** has support for querying multiple databases, including: Redshift, Google BigQuery,Google Spreadsheets, PostgreSQL, MySQL, Graphite and custom scripts.
 
 Features
@@ -21,7 +21,7 @@ Features
 Demo
 ####
 
-.. figure:: https://raw.github.com/getredash/redash/screenshots/screenshots.gif
+.. figure:: https://cloud.githubusercontent.com/assets/71468/12611424/1faf4d6a-c4f5-11e5-89b5-31efc1155d2c.gif
    :alt: Screenshots
 
 You can try out the demo instance: `http://demo.redash.io`_ (login with any Google account).
@@ -32,7 +32,7 @@ You can try out the demo instance: `http://demo.redash.io`_ (login with any Goog
 Getting Started
 ###############
 
-:doc:`Setting up re:dash instance </setup>` (includes links to ready made AWS/GCE images).
+:doc:`Setting up Re:dash instance </setup>` (includes links to ready made AWS/GCE images).
 
 Getting Help
 ############
