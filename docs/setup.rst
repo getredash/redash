@@ -1,4 +1,4 @@
-Setting up re:dash instance
+Setting up Re:dash instance
 ###########################
 
 The `provisioning
@@ -44,7 +44,7 @@ First, you need to add the images to your account:
     $ gcloud compute images create "redash-091-b1377" --source-uri gs://redash-images/redash.0.9.1.b1377.tar.gz
 
 Next you need to launch an instance using this image (n1-standard-1
-instance type is recommended). If you plan using re:dash with BigQuery,
+instance type is recommended). If you plan using Re:dash with BigQuery,
 you can use a dedicated image which comes with BigQuery preconfigured
 (using instance permissions):
 
@@ -90,12 +90,11 @@ Setup
 =====
 
 Once you created the instance with either the image or the script, you
-should have a running re:dash instance with everything you need to get
-started (e.g. When using the script mentioned in the setup page, the user should use port 80 as we install nginx. Redash itself listens on port 5000.
-
-Port 9001 only used with the Vagrant installation). You can now login to it with the user "admin" (password:
-"admin"). But to make it useful, there are a few more steps that you
-need to manually do to complete the setup:
+should have a running Re:dash instance with everything you need to get
+started . Re:dash should be available using the server IP or DNS name
+you assigned to it. You can point your browser to this address, and login
+with the user "admin" (password: "admin"). But to make it useful, there are
+a few more steps that you need to manually do to complete the setup:
 
 First ssh to your instance and change directory to ``/opt/redash``. If
 you're using the GCE image, switch to root (``sudo su``).
@@ -149,7 +148,7 @@ If you're passing multiple domains, separate them with commas.
 Datasources
 -----------
 
-To make re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
+To make Re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
 to create new data source connection.
 
 See :doc:`documentation </datasources>` for the different options.
@@ -159,7 +158,7 @@ Mail Configuration
 ------------------
 
 For the system to be able to send emails (for example when alerts trigger), you need to set the mail server to use and the
-host name of your re:dash server. If you're using one of our images, you can do this by editing the `.env` file:
+host name of your Re:dash server. If you're using one of our images, you can do this by editing the `.env` file:
 
 .. code::
 
@@ -173,7 +172,7 @@ host name of your re:dash server. If you're using one of our images, you can do 
    export REDASH_MAIL_PASSWORD="" # default: None
    export REDASH_MAIL_DEFAULT_SENDER="" # Email address to send from
 
-   export REDASH_HOST="" # base address of your re:dash instance, for example: "https://demo.redash.io"
+   export REDASH_HOST="" # base address of your Re:dash instance, for example: "https://demo.redash.io"
 
 - Note that not all values are required, as there are default values.
 - It's recommended to use some mail service, like `Amazon SES <https://aws.amazon.com/ses/>`__, `Mailgun <http://www.mailgun.com/>`__
@@ -184,7 +183,7 @@ To test email configuration, you can run `bin/run ./manage.py send_test_mail` (f
 How to upgrade?
 ---------------
 
-It's recommended to upgrade once in a while your re:dash instance to
+It's recommended to upgrade once in a while your Re:dash instance to
 benefit from bug fixes and new features. See :doc:`here </upgrade>` for full upgrade
 instructions (including Fabric script).
 

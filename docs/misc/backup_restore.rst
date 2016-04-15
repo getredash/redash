@@ -1,9 +1,9 @@
-How To: Backup your re:dash database and restore it on a different server
+How To: Backup your Re:dash database and restore it on a different server
 =================
 
 **Note:** This guide assumes that the default database name (redash) has not been changed.
 
-1. Check the size of your redash database. This can be done by creating a query within redash itself against the 're:dash metadata' data source.
+1. Check the size of your redash database. This can be done by creating a query within redash itself against the 'Re:dash metadata' data source.
 
 .. code::
 
@@ -28,7 +28,7 @@ How To: Backup your re:dash database and restore it on a different server
 
 4. Transfer the backup to the new server.
 
-5. `Perform a clean install of re:dash <http://docs.redash.io/en/latest/setup.html>`__ on the new server.
+5. `Perform a clean install of Re:dash <http://docs.redash.io/en/latest/setup.html>`__ on the new server.
 
 6. Check the amount of available disk space on the new server.
 
@@ -60,7 +60,7 @@ How To: Backup your re:dash database and restore it on a different server
     psql -c "ALTER ROLE redash_reader WITH PASSWORD 'yourpasswordgoeshere';"
 
 
-**Note:** Then you must navigate to the 're:dash metadata' data source (/data_sources/1) in the new re:dash installation and change the password to match the one entered above.
+**Note:** Then you must navigate to the 'Re:dash metadata' data source (/data_sources/1) in the new Re:dash installation and change the password to match the one entered above.
 
 10. Grant permissions on the redash database to the redash_reader user.
 
@@ -71,4 +71,4 @@ How To: Backup your re:dash database and restore it on a different server
     psql -c "grant select on events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
 
-Create a new query in redash (using re:dash metadata as the data source) to test that everything is working as expected.
+Create a new query in redash (using Re:dash metadata as the data source) to test that everything is working as expected.

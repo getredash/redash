@@ -40,7 +40,7 @@ Changing the Number of Workers
 ==============================
 
 By default, Celery will start a worker per CPU core. Because most of
-re:dash's tasks are IO bound, the real limit for number of workers you
+Re:dash's tasks are IO bound, the real limit for number of workers you
 can use depends on the amount of memory your machine has. It's
 recommended to increase number of workers, to support more concurrent
 queries.
@@ -57,7 +57,7 @@ queries.
 DB
 ==
 
-Backup re:dash's DB:
+Backup Re:dash's DB:
 --------------------
 
 Uncompressed backup: ``sudo -u redash pg_dump > backup_filename.sql``
