@@ -63,6 +63,19 @@ BigQuery access)
 
 Now proceed to `"Setup" <#setup>`__.
 
+Docker Compose
+------
+
+1. Make sure you have a docker machine up and running.
+2. Make sure your current working directory is the root of this github repository.
+3. Run `docker-compose up postgres`
+4. Run `./setup/docker/create_database.sh` (chmod +x this file if necessary).
+    * This will access the postgres container and set up the database.
+5. Run `docker compose up`
+6. Run `docker-machine ls`, take note of the ip for the docker machine you are using, and open the web browser.
+7. Visit that docker machine ip at port 80, and you should see a redash login screen.
+8. Login as admin/admin, and you should be able to add data sources! Congrats!
+
 
 Other
 -----
