@@ -118,18 +118,18 @@
     return value;
   }
 
-  angular.module('plotly-chart', [])
+  angular.module('plotly', [])
     .constant('ColorPalette', ColorPalette)
     .directive('plotlyChart', function () {
       return {
         restrict: 'E',
-        template: '<plotly data="data" layout="layout" options="plotlyOptions"></plotly>',
+        template: '<div></div>',
         scope: {
           options: "=",
           series: "=",
-          minHeight: "="
+          height: "="
         },
-        link: function (scope) {
+        link: function (scope, element) {
           var getScaleType = function(scale) {
             if (scale === 'datetime') {
               return 'date';
@@ -158,9 +158,7 @@
             return ColorPaletteArray[index % ColorPaletteArray.length];
           };
 
-          var bottomMargin = 50,
-              pixelsPerLegendRow = 21;
-          var redraw = function() {
+          var recalculateOptions = function() {
             scope.data.length = 0;
             scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
             delete scope.layout.barmode;
@@ -176,7 +174,6 @@
               var cellHeight = 1 / rows;
               var xPadding = 0.02;
               var yPadding = 0.05;
-              var largestXCount = 0;
               _.each(scope.series, function(series, index) {
                 var xPosition = (index % cellsInRow) * cellWidth;
                 var yPosition = Math.floor(index / cellsInRow) * cellHeight;
@@ -190,15 +187,10 @@
                   plotlySeries.labels.push(hasX ? row.x : 'Slice ' + index);
                 });
                 scope.data.push(plotlySeries);
-                largestXCount = Math.max(largestXCount, plotlySeries.labels.length);
               });
-              scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * largestXCount);
-              scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
               return;
             }
 
-            scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * scope.series.length);
-            scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
             var hasY2 = false;
             var sortX = scope.options.sortX === true || scope.options.sortX === undefined;
             var useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category';
@@ -209,7 +201,7 @@
             }
 
             _.each(scope.series, function(series, index) {
-              var seriesOptions = scope.options.seriesOptions[series.name] || {};
+              var seriesOptions = scope.options.seriesOptions[series.name] || {type: scope.options.globalSeriesType};
               var plotlySeries = {x: [],
                                   y: [],
                                   name: seriesOptions.name || series.name,
@@ -286,11 +278,26 @@
             }
           };
 
-          scope.$watch('series', redraw);
-          scope.$watch('options', redraw, true);
-          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, hovermode: 'closest'};
+          scope.$watch('series', recalculateOptions);
+          scope.$watch('options', recalculateOptions, true);
+
+          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height, autosize: true, hovermode: 'closest'};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
+
+          var element = element[0].children[0];
+          Plotly.newPlot(element, scope.data, scope.layout, scope.plotlyOptions);
+
+          scope.$watch('layout', function (layout, old) {
+            if (angular.equals(layout, old)) {
+              return;
+            }
+            Plotly.relayout(element, layout);
+          }, true);
+
+          scope.$watch('data', function (data, old) {
+            Plotly.redraw(element);
+          }, true);
         }
       };
     });
