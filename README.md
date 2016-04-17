@@ -39,11 +39,12 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 * [Documentation](http://docs.redash.io).
 
 
-## Getting help
+## Getting Help
 
-* [Google Group (mailing list)](https://groups.google.com/forum/#!forum/redash-users): the best place to get updates about new releases or ask general questions.
-* Find us [on gitter](https://gitter.im/getredash/redash#) (chat).
-* Contact Arik, the maintainer directly: arik@redash.io.
+* Issues: https://github.com/getredash/redash/issues
+* Mailing List: https://groups.google.com/forum/#!forum/redash-users
+* Slack: http://slack.redash.io/
+* Gitter (chat): https://gitter.im/getredash/redash
 
 ## Reporting Bugs and Contributing Code
 
