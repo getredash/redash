@@ -191,7 +191,7 @@
       {
         "label": "Name",
         "map": "name",
-        "cellTemplate": '<img src="{{dataRow.gravatar_url}}" height="40px"/> <a href="users/{{dataRow.id}}">{{dataRow.name}}</a>'
+        "cellTemplate": '<img ng-src="{{dataRow.gravatar_url}}" height="40px"/> <a href="users/{{dataRow.id}}">{{dataRow.name}}</a>'
       },
       {
         'label': 'Joined',
