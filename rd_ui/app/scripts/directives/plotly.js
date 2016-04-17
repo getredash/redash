@@ -201,7 +201,7 @@
             }
 
             _.each(scope.series, function(series, index) {
-              var seriesOptions = scope.options.seriesOptions[series.name] || {};
+              var seriesOptions = scope.options.seriesOptions[series.name] || {type: scope.options.globalSeriesType};
               var plotlySeries = {x: [],
                                   y: [],
                                   name: seriesOptions.name || series.name,
