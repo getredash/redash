@@ -40,8 +40,8 @@ Getting Help
 * Source: https://github.com/getredash/redash
 * Issues: https://github.com/getredash/redash/issues
 * Mailing List: https://groups.google.com/forum/#!forum/redash-users
+* Slack: http://slack.redash.io/
 * Gitter (chat): https://gitter.im/getredash/redash
-* Contact Arik, the maintainer directly: arik@redash.io.
 
 TOC
 ###
