@@ -296,7 +296,9 @@
           }, true);
 
           scope.$watch('data', function (data, old) {
-            Plotly.redraw(element);
+            if (!_.isEmpty(data)) {
+              Plotly.redraw(element);
+            }
           }, true);
         }
       };
