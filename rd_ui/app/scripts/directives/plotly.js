@@ -127,7 +127,7 @@
         scope: {
           options: "=",
           series: "=",
-          minHeight: "="
+          height: "="
         },
         link: function (scope) {
           var getScaleType = function(scale) {
@@ -158,8 +158,6 @@
             return ColorPaletteArray[index % ColorPaletteArray.length];
           };
 
-          var bottomMargin = 50,
-              pixelsPerLegendRow = 21;
           var redraw = function() {
             scope.data.length = 0;
             scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
@@ -176,7 +174,6 @@
               var cellHeight = 1 / rows;
               var xPadding = 0.02;
               var yPadding = 0.05;
-              var largestXCount = 0;
               _.each(scope.series, function(series, index) {
                 var xPosition = (index % cellsInRow) * cellWidth;
                 var yPosition = Math.floor(index / cellsInRow) * cellHeight;
@@ -190,15 +187,10 @@
                   plotlySeries.labels.push(hasX ? row.x : 'Slice ' + index);
                 });
                 scope.data.push(plotlySeries);
-                largestXCount = Math.max(largestXCount, plotlySeries.labels.length);
               });
-              scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * largestXCount);
-              scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
               return;
             }
 
-            scope.layout.height = Math.max(scope.minHeight, pixelsPerLegendRow * scope.series.length);
-            scope.layout.margin.b = scope.layout.height - (scope.minHeight - bottomMargin);
             var hasY2 = false;
             var sortX = scope.options.sortX === true || scope.options.sortX === undefined;
             var useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category';
@@ -288,7 +280,7 @@
 
           scope.$watch('series', redraw);
           scope.$watch('options', redraw, true);
-          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, hovermode: 'closest'};
+          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height, autosize: true, hovermode: 'closest'};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
         }
