@@ -311,29 +311,40 @@
 
   var NewUserCtrl = function ($scope, $location, growl, Events, User) {
     Events.record(currentUser, "view", "page", "users/new");
+  };
 
-    $scope.user = new User({});
-    $scope.saveUser = function() {
-      $scope.$broadcast('show-errors-check-validity');
+  var newUserForm = function (growl, User) {
+    return {
+      restrict: 'E',
+      scope: {},
+      templateUrl: '/views/users/new_user_form.html',
+      replace: true,
+      link: function ($scope) {
+        $scope.user = new User({});
+        $scope.saveUser = function() {
+          $scope.$broadcast('show-errors-check-validity');
 
-      if (!$scope.userForm.$valid) {
-        return;
+          if (!$scope.userForm.$valid) {
+            return;
+          }
+
+          $scope.user.$save(function(user) {
+            $scope.user = user;
+            $scope.user.created = true;
+            growl.addSuccessMessage("Saved.")
+          }, function(error) {
+            var message = error.data.message || "Failed saving.";
+            growl.addErrorMessage(message);
+          });
+        }
       }
-
-      $scope.user.$save(function(user) {
-        $scope.user = user;
-        $scope.user.created = true;
-        growl.addSuccessMessage("Saved.")
-      }, function(error) {
-        var message = error.data.message || "Failed saving.";
-        growl.addErrorMessage(message);
-      });
     }
   };
 
   angular.module('redash.controllers')
     .controller('GroupsCtrl', ['$scope', '$location', '$modal', 'growl', 'Events', 'Group', GroupsCtrl])
     .directive('groupName', ['$location', 'growl', groupName])
+    .directive('newUserForm', ['growl', 'User', newUserForm])
     .controller('GroupCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'User', GroupCtrl])
     .controller('GroupDataSourcesCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Group', 'DataSource', GroupDataSourcesCtrl])
     .controller('UsersCtrl', ['$scope', '$location', 'growl', 'Events', 'User', UsersCtrl])
