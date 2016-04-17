@@ -33,7 +33,6 @@
     "angular-sanitize": "1.2.18",
     "d3": "3.5.6",
     "angular-ui-sortable": "~0.13.4",
-    "angular-plotly": "~0.1.2",
     "angular-resizable": "^1.2.0",
     "material-design-iconic-font": "^2.2.0",
     "plotly.js": "^1.9.0"

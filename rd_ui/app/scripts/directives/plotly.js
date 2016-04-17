@@ -118,18 +118,18 @@
     return value;
   }
 
-  angular.module('plotly-chart', [])
+  angular.module('plotly', [])
     .constant('ColorPalette', ColorPalette)
     .directive('plotlyChart', function () {
       return {
         restrict: 'E',
-        template: '<plotly data="data" layout="layout" options="plotlyOptions"></plotly>',
+        template: '<div></div>',
         scope: {
           options: "=",
           series: "=",
           height: "="
         },
-        link: function (scope) {
+        link: function (scope, element) {
           var getScaleType = function(scale) {
             if (scale === 'datetime') {
               return 'date';
@@ -158,7 +158,7 @@
             return ColorPaletteArray[index % ColorPaletteArray.length];
           };
 
-          var redraw = function() {
+          var recalculateOptions = function() {
             scope.data.length = 0;
             scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
             delete scope.layout.barmode;
@@ -278,11 +278,26 @@
             }
           };
 
-          scope.$watch('series', redraw);
-          scope.$watch('options', redraw, true);
+          scope.$watch('series', recalculateOptions);
+          scope.$watch('options', recalculateOptions, true);
+
           scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height, autosize: true, hovermode: 'closest'};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
+
+          var element = element[0].children[0];
+          Plotly.newPlot(element, scope.data, scope.layout, scope.plotlyOptions);
+
+          scope.$watch('layout', function (layout, old) {
+            if (angular.equals(layout, old)) {
+              return;
+            }
+            Plotly.relayout(element, layout);
+          }, true);
+
+          scope.$watch('data', function (data, old) {
+            Plotly.redraw(element);
+          }, true);
         }
       };
     });
