@@ -43,12 +43,21 @@ angular.module('redash', [
     }
   ])
    .controller('EmbedCtrl', ['$scope', function ($scope) {} ])
-   .controller('EmbeddedVisualizationCtrl', ['$scope', 'Query', 'QueryResult',
-    function ($scope, Query, QueryResult) {
+   .controller('EmbeddedVisualizationCtrl', ['$scope', '$location', 'Query', 'QueryResult',
+    function ($scope, $location, Query, QueryResult) {
        $scope.embed = true;
        $scope.visualization = visualization;
        $scope.query = visualization.query;
        query = new Query(visualization.query);
-       $scope.queryResult = new QueryResult({query_result:query_result});
+
+       //max age from querystring, default to -1
+       maxAge = $location.search()['maxAge'];
+       if (maxAge === undefined) {
+          maxAge = -1;
+       }
+
+       qr = query.getQueryResult(maxAge, Query.collectParamsFromQueryString($location, query));
+       
+       $scope.queryResult = qr;
     } ])
    ;
