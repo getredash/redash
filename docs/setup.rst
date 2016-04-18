@@ -30,7 +30,7 @@ t2.micro should be enough):
 
 (the above AMIs are of version: 0.9.1)
 
-When launching the instance make sure to use a security group, that **only** allows incoming traffic on: port 22 (SSH), 80 (HTTP) and 443 (HTTPS).
+When launching the instance make sure to use a security group, that **only** allows incoming traffic on: port 22 (SSH), 80 (HTTP) and 443 (HTTPS). These AMIs are based on Ubuntu so you will need to use the user ``ubuntu`` when connecting to the instance via SSH.
 
 Now proceed to `"Setup" <#setup>`__.
 
