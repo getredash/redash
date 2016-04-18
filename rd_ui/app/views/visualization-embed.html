@@ -6,7 +6,7 @@
         {{query.name}}
         <small><visualization-name visualization="visualization"/></small>
       </p>
-      <small>
+      <small ng-if="showQueryDescription">
         <div class="text-muted" ng-bind-html="query.description | markdown"></div>
       </small>
     </h3>
