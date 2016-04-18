@@ -31,7 +31,7 @@
         }});
 
         resource.prototype.canEdit = function() {
-            return currentUser.hasPermission('admin') || currentUser.canEdit(this);
+          return currentUser.hasPermission('admin') || currentUser.canEdit(this);
         }
         return resource;
     }
