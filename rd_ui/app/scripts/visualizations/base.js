@@ -60,7 +60,7 @@
       scope: {
         visualization: '='
       },
-      template: '<small>{{name}}</small>',
+      template: '{{name}}',
       replace: false,
       link: function (scope) {
         if (Visualization.visualizations[scope.visualization.type].name !== scope.visualization.name) {

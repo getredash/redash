@@ -41,7 +41,6 @@ def embed(query_id, visualization_id, org_slug=None):
     vis['query'] = project(vis['query'], ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
 
     return render_template("embed.html",
-
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
                            query_result=json_dumps(qr))
