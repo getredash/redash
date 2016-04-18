@@ -6,7 +6,7 @@
 <div class="modal-body">
   <div class="checkbox">
     <label>
-      <input type="checkbox" ng-model="dashboard.publicAccessEnabled" ng-click="toggleSharing()">
+      <input type="checkbox" ng-model="dashboard.publicAccessEnabled" ng-click="toggleSharing()" ng-disabled="!dashboard.canEdit()">
       Allow public access (using a secret URL).
     </label>
   </div>
