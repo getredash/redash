@@ -28,7 +28,6 @@ def ping():
 @require_super_admin
 def status_api():
     status = get_status()
-
     return jsonify(status)
 
 
@@ -40,6 +39,6 @@ def inject_variables():
 
 
 def init_app(app):
-    from redash.handlers import embed, queries, static, authentication
+    from redash.handlers import embed, queries, static, authentication, admin
     app.register_blueprint(routes)
     api.init_app(app)
