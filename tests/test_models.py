@@ -531,3 +531,118 @@ class TestWidgetDeleteInstance(BaseTestCase):
         widget2.delete_instance()
 
         self.assertEquals("[]", widget.dashboard.layout)
+
+
+def _set_up_dashboard_test(d):
+    d.g1 = d.factory.create_group(name='First')
+    d.g2 = d.factory.create_group(name='Second')
+    d.ds1 = d.factory.create_data_source()
+    d.ds2 = d.factory.create_data_source()
+    d.u1 = d.factory.create_user(groups=[d.g1.id])
+    d.u2 = d.factory.create_user(groups=[d.g2.id])
+    models.DataSourceGroup.create(group=d.g1, data_source=d.ds1, permissions=['create', 'view'])
+    models.DataSourceGroup.create(group=d.g2, data_source=d.ds2, permissions=['create', 'view'])
+    d.q1 = d.factory.create_query(data_source=d.ds1)
+    d.q2 = d.factory.create_query(data_source=d.ds2)
+    d.v1 = d.factory.create_visualization(query=d.q1)
+    d.v2 = d.factory.create_visualization(query=d.q2)
+    d.w1 = d.factory.create_widget(visualization=d.v1)
+    d.w2 = d.factory.create_widget(visualization=d.v2)
+    d.w3 = d.factory.create_widget(visualization=d.v2, dashboard=d.w2.dashboard)
+    d.w4 = d.factory.create_widget(visualization=d.v2)
+    d.w5 = d.factory.create_widget(visualization=d.v1, dashboard=d.w4.dashboard)
+
+
+class TestDashboardAll(BaseTestCase):
+    def setUp(self):
+        super(TestDashboardAll, self).setUp()
+        _set_up_dashboard_test(self)
+
+    def test_requires_group_or_user_id(self):
+        d1 = self.factory.create_dashboard()
+
+        self.assertNotIn(d1, models.Dashboard.all(d1.user.groups, None))
+        self.assertIn(d1, models.Dashboard.all([0], d1.user.id))
+
+    def test_returns_dashboards_based_on_groups(self):
+        self.assertIn(self.w1.dashboard, models.Dashboard.all(self.u1.groups, None))
+        self.assertIn(self.w2.dashboard, models.Dashboard.all(self.u2.groups, None))
+        self.assertNotIn(self.w1.dashboard, models.Dashboard.all(self.u2.groups, None))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.all(self.u1.groups, None))
+
+    def test_returns_each_dashboard_once(self):
+        dashboards = list(models.Dashboard.all(self.u2.groups, None))
+        self.assertEqual(len(dashboards), 2)
+
+    def test_returns_dashboard_you_have_partial_access_to(self):
+        self.assertIn(self.w5.dashboard, models.Dashboard.all(self.u1.groups, None))
+
+    def test_returns_dashboards_created_by_user(self):
+        d1 = self.factory.create_dashboard(user=self.u1)
+
+        self.assertIn(d1, models.Dashboard.all(self.u1.groups, self.u1.id))
+        self.assertIn(d1, models.Dashboard.all([0], self.u1.id))
+        self.assertNotIn(d1, models.Dashboard.all(self.u2.groups, self.u2.id))
+
+    def test_returns_dashboards_with_text_widgets(self):
+        w1 = self.factory.create_widget(visualization=None)
+
+        self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.groups, None))
+        self.assertIn(w1.dashboard, models.Dashboard.all(self.u2.groups, None))
+
+
+class TestDashboardRecent(BaseTestCase):
+    def setUp(self):
+        super(TestDashboardRecent, self).setUp()
+        _set_up_dashboard_test(self)
+
+    def test_returns_recent_dashboards_basic(self):
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=self.w1.dashboard.id)
+
+        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.groups, None))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.groups, None))
+        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u2.groups, None))
+
+    def test_returns_recent_dashboards_created_by_user(self):
+        d1 = self.factory.create_dashboard(user=self.u1)
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=d1.id)
+
+        self.assertIn(d1, models.Dashboard.recent([0], self.u1.id))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent([0], self.u1.id))
+        self.assertNotIn(d1, models.Dashboard.recent([0], self.u2.id))
+
+    def test_returns_recent_dashboards_with_no_visualizations(self):
+        w1 = self.factory.create_widget(visualization=None)
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=w1.dashboard.id)
+
+        self.assertIn(w1.dashboard, models.Dashboard.recent([0], self.u1.id))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent([0], self.u1.id))
+
+    def test_restricts_dashboards_for_user(self):
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=self.w1.dashboard.id)
+        models.Event.create(org=self.factory.org, user=self.u2, action="view",
+                            object_type="dashboard", object_id=self.w2.dashboard.id)
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=self.w5.dashboard.id)
+        models.Event.create(org=self.factory.org, user=self.u2, action="view",
+                            object_type="dashboard", object_id=self.w5.dashboard.id)
+
+        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.groups, self.u1.id, for_user=True))
+        self.assertIn(self.w2.dashboard, models.Dashboard.recent(self.u2.groups, self.u2.id, for_user=True))
+        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u2.groups, self.u2.id, for_user=True))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.groups, self.u1.id, for_user=True))
+        self.assertIn(self.w5.dashboard, models.Dashboard.recent(self.u1.groups, self.u1.id, for_user=True))
+        self.assertIn(self.w5.dashboard, models.Dashboard.recent(self.u2.groups, self.u2.id, for_user=True))
+
+    def test_returns_each_dashboard_once(self):
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=self.w1.dashboard.id)
+        models.Event.create(org=self.factory.org, user=self.u1, action="view",
+                            object_type="dashboard", object_id=self.w1.dashboard.id)
+
+        dashboards = list(models.Dashboard.recent(self.u1.groups, None))
+        self.assertEqual(len(dashboards), 1)
