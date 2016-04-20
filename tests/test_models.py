@@ -90,6 +90,18 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q2, queries)
         self.assertNotIn(q3, queries)
 
+    def test_returns_each_query_only_once(self):
+        other_group = self.factory.create_group()
+        second_group = self.factory.create_group()
+        ds = self.factory.create_data_source(group=other_group)
+        ds.add_group(second_group, False)
+
+        q1 = self.factory.create_query(description="Testing search", data_source=ds)
+
+        queries = list(models.Query.search("Testing", [self.factory.default_group, other_group, second_group]))
+
+        self.assertEqual(1, len(queries))
+
     def test_save_creates_default_visualization(self):
         q = self.factory.create_query()
         self.assertEquals(q.visualizations.count(), 1)
