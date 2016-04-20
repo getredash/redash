@@ -73,6 +73,15 @@ def public_dashboard(token, org_slug=None):
         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
     }
 
+    record_event(current_org, current_user, {
+        'action': 'view',
+        'object_id': dashboard.id,
+        'object_type': 'dashboard',
+        'public': True,
+        'headless': 'embed' in request.args,
+        'referer': request.headers.get('Referer')
+    })
+
     response = render_template("public.html",
                                headless='embed' in request.args,
                                user=json.dumps(user),
