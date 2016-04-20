@@ -649,11 +649,13 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 
         where &= cls.is_archived == False
 
-        return cls.select()\
-                  .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source)) \
-                  .where(where) \
-                  .where(DataSourceGroup.group << groups)\
-                  .order_by(cls.created_at.desc())
+        query_ids = cls.select(peewee.fn.Distinct(cls.id))\
+            .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source)) \
+            .where(where) \
+            .where(DataSourceGroup.group << groups)
+
+        return cls.select().where(cls.id << query_ids)
+
 
     @classmethod
     def recent(cls, groups, user_id=None, limit=20):
