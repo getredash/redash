@@ -163,6 +163,9 @@ apt-get install -y libmysqlclient-dev
 # Microsoft SQL Server dependencies:
 apt-get install -y freetds-dev
 
+#Saml dependency
+apt-get install -y xmlsec1
+
 # Pip requirements for all data source types
 cd /opt/redash/current
 pip install -r requirements_all_ds.txt
