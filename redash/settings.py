@@ -123,6 +123,8 @@ STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_
 
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 6))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
+SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
+
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 
 # Mail settings:
