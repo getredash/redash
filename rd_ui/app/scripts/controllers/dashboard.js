@@ -108,9 +108,9 @@
       */
       var getColumnNames = function(widget) {
         var columnsUsed = widget.query.queryResult.getColumnCleanNames();
-        if(widget.visualization && widget.visualization.type==='CUSTOM TABLE' && widget.visualization.options.cols) {
+        if (widget.visualization && widget.visualization.type === 'CUSTOM TABLE' && widget.visualization.options.cols) {
           // Iterates and removes each column that should not be displayed on Custom Table options
-           _.forEach(columnsUsed, function(item) {
+          columnsUsed.forEach(function(item) {
             var idx = _.findIndex(widget.visualization.options.cols, {
               'column': item
             });
