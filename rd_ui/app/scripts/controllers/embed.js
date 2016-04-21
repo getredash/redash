@@ -1,5 +1,5 @@
 (function () {
-  var PublicVisualizationCtrl = function ($scope, Events, $location, Query) {
+  var EmbeddedVisualizationCtrl = function ($scope, Events, $location, Query) {
 
     $scope.embed = true;
     $scope.visualization = seedData.visualization;
@@ -19,5 +19,5 @@
   };
 
   angular.module('redash.controllers')
-         .controller('PublicVisualizationCtrl', ['$scope', 'Events', '$location', 'Query', PublicVisualizationCtrl])
+         .controller('EmbeddedVisualizationCtrl', ['$scope', 'Events', '$location', 'Query', EmbeddedVisualizationCtrl])
 })();

@@ -7,7 +7,6 @@ import threading
 import time
 import datetime
 import itertools
-import pystache
 from funcy import project
 
 import peewee
@@ -716,12 +715,6 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             return {}
 
         return self.data_source.groups
-
-    @property
-    def params(self):
-        parts = pystache.parse(self.query);
-        params = [part for part in parts if type(part) is _EscapeNode]
-        return params
 
     def __unicode__(self):
         return unicode(self.id)

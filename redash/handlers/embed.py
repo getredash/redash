@@ -13,12 +13,6 @@ from redash.handlers.base import org_scoped_rule, record_event
 from redash.permissions import require_access, view_only
 from authentication import current_org
 
-import logging
-import pystache
-
-
-
-
 
 @routes.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
 @login_required
@@ -27,6 +21,17 @@ def embed(query_id, visualization_id, org_slug=None):
     require_access(query.groups, current_user, view_only)
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
+
+    user = {
+        'permissions': [],
+        'apiKey': current_user.id
+    }
+
+    headers = {
+        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
+    }
+
+    
 
     if vis is not None:
         vis = vis.to_dict()
@@ -60,11 +65,16 @@ def embed(query_id, visualization_id, org_slug=None):
     else:
         vis['query'] = project(vis['query'], ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
         
+    
+    response = render_template("public.html",
+                               headless='embed' in request.args,
+                               user=json.dumps(user),
+                               seed_data=json_dumps({
+                                 'visualization': vis
+                               }),
+                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
 
-    return render_template("embed.html",
-                           client_config=json_dumps(client_config),
-                           visualization=json_dumps(vis),
-                           query_result=json_dumps(qr))
+    return response, 200, headers
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
@@ -101,37 +111,6 @@ def public_dashboard(token, org_slug=None):
                                seed_data=json_dumps({
                                  'dashboard': serializers.public_dashboard(dashboard)
                                }),
-                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
-
-    return response, 200, headers
-
-
-@routes.route(org_scoped_rule('/public/queries/<token>/<query_id>/<visualization_id>'), methods=['GET'])
-@login_required
-def public_query(token, query_id, visualization_id, org_slug=None):
-    
-    query = models.Query.get_by_id_and_org(query_id, current_org)
-    require_access(query.groups, current_user, view_only)
-    vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
-
-    user = {
-        'permissions': [],
-        'apiKey': current_user.id
-    }
-
-    headers = {
-        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
-    }
-
-    #vis = project(vis, ('description', 'name', 'id', 'options', 'query', 'type', 'updated_at'))
-    
-    response = render_template("public.html",
-                               headless='embed' in request.args,
-                               user=json.dumps(user),
-                               seed_data=json_dumps({
-                                 'visualization': vis.to_dict(with_query=True)
-                               }),
-                               visualization=json_dumps(vis.to_dict(with_query=True)),
                                client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
 
     return response, 200, headers
