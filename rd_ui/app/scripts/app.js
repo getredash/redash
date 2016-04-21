@@ -45,6 +45,11 @@ angular.module('redash', [
       controller: 'PublicDashboardCtrl',
       reloadOnSearch: false
     });
+    $routeProvider.when('/public/queries/:token/:queryId/:visualizationId', {
+      templateUrl: '/views/visualization-embed.html',
+      controller: 'PublicVisualizationCtrl',
+      reloadOnSearch: false
+    });
     $routeProvider.when('/queries', {
       templateUrl: '/views/queries.html',
       controller: 'QueriesCtrl',
