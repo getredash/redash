@@ -118,7 +118,6 @@
               columnsUsed.splice(idx, 1);
             }
           });
-          console.log(columnsUsed);
         }
         return columnsUsed;
       };
