@@ -10,7 +10,7 @@
           <button type="button" class="btn btn-sm" ng-class="{'btn-default': !isFullscreen, 'btn-primary': isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="toggleFullscreen()">
             <span class="zmdi zmdi-fullscreen"></span>
           </button>
-          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !dashboard.publicAccessEnabled, 'btn-primary': dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="openShareForm()">
+          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !dashboard.publicAccessEnabled, 'btn-primary': dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="openShareForm()" ng-if="dashboard.canEdit() || dashboard.publicAccessEnabled">
             <span class="zmdi zmdi-share"></span>
           </button>
       </span>
@@ -38,7 +38,7 @@
                         <p class="hidden-print">
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
                             <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
-                            <visualization-name visualization="widget.visualization"/>
+                            <small><visualization-name visualization="widget.visualization"/></small>
                         </p>
                         <p class="visible-print">
                           {{query.name}}
@@ -81,7 +81,7 @@
 
           <div class="tile" ng-hide="widget.width == 0" ng-if="type=='textbox'">
             <div class="t-body">
-              <div class="dropdown" dropdown ng-if="!public">
+              <div class="dropdown" dropdown ng-if="!public && dashboard.canEdit()">
                 <div class="dropdown-header">
                   <a data-toggle="dropdown" dropdown-toggle class="actions"><i class="zmdi zmdi-more"></i></a>
                 </div>

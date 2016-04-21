@@ -9,7 +9,7 @@ from redash import models, settings
 from redash import serializers
 from redash.utils import json_dumps
 from redash.handlers import routes
-from redash.handlers.base import org_scoped_rule
+from redash.handlers.base import org_scoped_rule, record_event
 from redash.permissions import require_access, view_only
 from authentication import current_org
 
@@ -23,7 +23,6 @@ import pystache
 @routes.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
 @login_required
 def embed(query_id, visualization_id, org_slug=None):
-    # TODO: add event for embed access
     query = models.Query.get_by_id_and_org(query_id, current_org)
     require_access(query.groups, current_user, view_only)
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
@@ -38,6 +37,15 @@ def embed(query_id, visualization_id, org_slug=None):
             qr = qr.to_dict()
     else:
         abort(404, message="Visualization not found.")
+
+    record_event(current_org, current_user, {
+        'action': 'view',
+        'object_id': visualization_id,
+        'object_type': 'visualization',
+        'query_id': query_id,
+        'embed': True,
+        'referer': request.headers.get('Referer')
+    })
 
     client_config = {}
     client_config.update(settings.COMMON_CLIENT_CONFIG)
@@ -54,7 +62,6 @@ def embed(query_id, visualization_id, org_slug=None):
         
 
     return render_template("embed.html",
-
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
                            query_result=json_dumps(qr))
@@ -78,6 +85,15 @@ def public_dashboard(token, org_slug=None):
     headers = {
         'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
     }
+
+    record_event(current_org, current_user, {
+        'action': 'view',
+        'object_id': dashboard.id,
+        'object_type': 'dashboard',
+        'public': True,
+        'headless': 'embed' in request.args,
+        'referer': request.headers.get('Referer')
+    })
 
     response = render_template("public.html",
                                headless='embed' in request.args,

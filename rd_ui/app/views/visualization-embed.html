@@ -1,18 +1,21 @@
-<div class="tile" ng-controller='PublicVisualizationCtrl'>
-  <div class="t-heading">
+<div class="tile m-10" ng-controller='PublicVisualizationCtrl'>
+  <div class="t-heading p-10">
     <h3 class="th-title">
       <p>
         <img src="/images/redash_icon_small.png" style="height: 24px;"/>
-        <visualization-name visualization="visualization"/>
+        {{query.name}}
+        <small><visualization-name visualization="visualization"/></small>
       </p>
-      <div class="text-muted" ng-bind-html="query.description | markdown"></div>
+      <small ng-if="showQueryDescription">
+        <div class="text-muted" ng-bind-html="query.description | markdown"></div>
+      </small>
     </h3>
   </div>
 
-  <visualization-renderer visualization="visualization" query-result="queryResult" class="t-body">
+  <visualization-renderer visualization="visualization" query-result="queryResult" class="t-body p-10">
   </visualization-renderer>
 
-  <div class="row bg-ace p-10">
+  <div class="bg-ace clearfix p-10">
     <div class="col-sm-6">
       <span class="label label-default">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
     </div>

@@ -44,7 +44,8 @@ angular.module('redash', [
   ])
    .controller('EmbedCtrl', ['$scope', function ($scope) {} ])
    .controller('EmbeddedVisualizationCtrl', ['$scope', '$location', 'Query', 'QueryResult',
-    function ($scope, $location, Query, QueryResult) {
+     function ($scope, $location, Query, QueryResult) {
+       $scope.showQueryDescription = $location.search()['showDescription'];
        $scope.embed = true;
        $scope.visualization = visualization;
        $scope.query = visualization.query;

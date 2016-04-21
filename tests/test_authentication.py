@@ -73,7 +73,7 @@ class TestHMACAuthentication(BaseTestCase):
         super(TestHMACAuthentication, self).setUp()
         self.api_key = 10
         self.query = self.factory.create_query(api_key=self.api_key)
-        self.path = '/api/queries/{0}'.format(self.query.id)
+        self.path = '/{}/api/queries/{}'.format(self.query.org.slug, self.query.id)
         self.expires = time.time() + 1800
 
     def signature(self, expires):
@@ -91,7 +91,7 @@ class TestHMACAuthentication(BaseTestCase):
 
     def test_correct_signature(self):
         with app.test_client() as c:
-            rv = c.get('/api/queries/{0}'.format(self.query.id), query_string={'signature': self.signature(self.expires), 'expires': self.expires})
+            rv = c.get(self.path, query_string={'signature': self.signature(self.expires), 'expires': self.expires})
             self.assertIsNotNone(hmac_load_user_from_request(request))
 
     def test_no_query_id(self):
