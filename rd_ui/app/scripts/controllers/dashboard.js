@@ -107,10 +107,20 @@
        * @return {array}
       */
       var getColumnNames = function(widget) {
-        if(widget.visualization && widget.visualization.type==='CUSTOM TABLE') {
-          return _.pluck(_.where(widget.visualization.options.cols, {visible: true}), 'column');
+        var columnsUsed = widget.query.queryResult.getColumnCleanNames();
+        if(widget.visualization && widget.visualization.type==='CUSTOM TABLE' && widget.visualization.options.cols) {
+          // Iterates and removes each column that should not be displayed on Custom Table options
+           _.forEach(columnsUsed, function(item) {
+            var idx = _.findIndex(widget.visualization.options.cols, {
+              'column': item
+            });
+            if (idx !== -1 && !widget.visualization.options.cols[idx].visible) {
+              columnsUsed.splice(idx, 1);
+            }
+          });
+          console.log(columnsUsed);
         }
-        return widget.query.queryResult.columnNames;
+        return columnsUsed;
       };
 
       /**
