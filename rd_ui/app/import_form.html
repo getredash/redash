@@ -1,0 +1,81 @@
+<!doctype html>
+<title>Dashboard exporting tool</title>
+<!--<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"> -->
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<div class="container">
+  <h1>Dashboard importing tool</h1>
+  <br />
+
+  <form action="/__admin/dashboard/_import" method="POST" enctype="multipart/form-data">
+
+    <div class="form-group">
+      <label for="dashboardFile">Dashboard file upload</label>
+      <input type="file" name="dashboardFile" id="dashboardFile" class="btn">
+      <p class="help-block">JSON file containing an exported dashboard and all it's related models</p>
+    </div>
+
+    <div class="form-group">
+      <label for="dashboardPolicy">Dashboard import policy:</label>
+      <select class="form-control" name="dashboardPolicy" id="dashboardPolicy">
+          {% for policy in policies %}
+            {% if policies[policy]['enabled'] %}
+              <option value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% else %}
+              <option disabled value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% endif %}
+          {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="widgetPolicy">Widget import policy:</label>
+      <select class="form-control" name="widgetPolicy" id="widgetPolicy">
+          {% for policy in policies %}
+            {% if policies[policy]['enabled'] %}
+              <option value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% else %}
+              <option disabled value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% endif %}
+          {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="visualizationPolicy">Visualization import policy:</label>
+      <select class="form-control" name="visualizationPolicy" id="visualizationPolicy">
+          {% for policy in policies %}
+            {% if policies[policy]['enabled'] %}
+              <option value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% else %}
+              <option disabled value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% endif %}
+          {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="queryPolicy">Query import policy:</label>
+      <select class="form-control" name="queryPolicy" id="queryPolicy">
+          {% for policy in policies %}
+            {% if policies[policy]['enabled'] %}
+              <option value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% else %}
+              <option disabled value="{{policy}}">{{ policies[policy]['text'] }}</option>
+            {% endif %}
+          {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-default">Submit</button>
+
+  </form>
+

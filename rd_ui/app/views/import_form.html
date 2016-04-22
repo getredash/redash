@@ -1,0 +1,125 @@
+<html ng-app="redash_xtra" ng-controller='DashboardImportCtrl'>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- build:css /styles/main.css -->
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="/styles/deit.css">
+    <!-- endbuild -->
+
+    <link rel="icon" type="image/png" sizes="32x32" href="http://www.mansionglobal.com/favicon.ico">
+    <link rel="icon" type="image/png" sizes="96x96" href="http://www.mansionglobal.com/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="http://www.mansionglobal.com/favicon.ico">
+</head>
+
+<body>
+
+<h1>Import dashboard</h1>
+
+<input type="file" name="file" onchange="angular.element(this).scope().uploadFile(this.files)"/>
+
+<div ng-if="data_status">
+    <form ng-submit="submit()">
+    <h2>Dashboards</h2>
+        <table class="table bordered" ng-if="data_status != undefined">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            <tbody>
+                <tr data-ng-repeat="dashboard in data.dashboards" class="ok-message">
+                    <td>{[dashboard.id]}</td>
+                    <td>{[dashboard.name]}</td>
+                    <td>Dashboards are always inserted, never reused.</td>
+                    <td>
+                        <input type="radio" ng-model="item_action['dashboards'][dashboard.id]" value="new" selected>Create new<br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Widgets</h2>
+        <table class="table bordered" ng-if="data_status != undefined">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            <tbody>
+                <tr data-ng-repeat="widget in data.widgets" class="ok-message">
+                    <td>{[widget.id]}</td>
+                    <td>{[widget.options.exportable.name]}</td>
+                    <td>Dashboards are always inserted, never reused.</td>
+                    <td>
+                        <input type="radio" ng-model="item_action['widgets'][widget.id]" value="new" selected>Create new<br>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Visualizations</h2>
+        <table class="table bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            <tbody>
+                <tr data-ng-repeat="visualization in data.visualizations" ng-class="get_status('visualizations', visualization.id).class">
+                    <td>{[visualization.id]}</td>
+                    <td>{[visualization.name]}</td>
+                    <td>{[get_status('visualizations', visualization.id).message]}</td>
+                    <td>
+                        <div ng-if="item_action['visualizations'][visualization.id] != 'new' &&
+                                    item_action['visualizations'][visualization.id] != 'reuse'">
+                            <input type="radio" ng-model="item_action['visualizations'][visualization.id]" value="new" checked>Create new<br>
+                            <input type="radio" ng-model="item_action['visualizations'][visualization.id]" value="overwrite">Overwrite<br>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h2>Queries</h2>
+        <table class="table bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            <tbody>
+                <tr data-ng-repeat="query in data.queries" ng-class="get_status('queries', query.id).class">
+                    <td>{[query.id]}</td>
+                    <td>{[query.name]}</td>
+                    <td>{[get_status('queries', query.id).message]}</td>
+                    <td>
+                        <div ng-if="item_action['queries'][query.id] != 'new' &&
+                                    item_action['queries'][query.id] != 'reuse'">
+                            <input type="radio" ng-model="item_action['queries'][query.id]" value="new" checked>Create new<br>
+                            <input type="radio" ng-model="item_action['queries'][query.id]" value="overwrite">Overwrite<br>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div align="center">
+            <button type="submit" class="btn btn-primary">Execute</button>
+        </div>
+    </form>
+</div>
+
+{[res]}
+<!-- Scripts -->
+<script src="/bower_components/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+<script src="dashboard_import.js"></script>
+</body>
+</html>
