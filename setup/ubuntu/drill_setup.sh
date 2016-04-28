@@ -30,6 +30,6 @@ perl -i -pe 's/DriverManagerEncoding=UTF-32/DriverManagerEncoding=UTF-16/g' /etc
 cp /opt/mapr/drillodbc/Setup/odbc.ini /etc/odbc.ini
 cp /opt/mapr/drillodbc/Setup/odbcinst.ini /etc/odbcinst.ini
 
-echo \"ODBCINI=/etc/odbc.ini\" >> /etc/environment
-echo \"MAPRDRILLINI=/etc/mapr.drillodbc.ini\" >> /etc/environment
-echo \"LD_LIBRARY_PATH=/opt/mapr/drillodbc/lib:/opt/mapr/drillodbc/lib/64\" >> /etc/environment
+echo "ODBCINI=/etc/odbc.ini" >> /etc/environment
+echo "MAPRDRILLINI=/etc/mapr.drillodbc.ini" >> /etc/environment
+echo "LD_LIBRARY_PATH=/opt/mapr/drillodbc/lib:/opt/mapr/drillodbc/lib/64" >> /etc/environment
