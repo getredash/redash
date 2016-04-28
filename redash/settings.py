@@ -176,7 +176,6 @@ default_query_runners = [
     'redash.query_runner.dynamodb_sql',
     'redash.query_runner.mssql',
     'redash.query_runner.drill',
-    'redash.query_runner.python'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
