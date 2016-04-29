@@ -8,7 +8,7 @@ function usage {
   echo
   exit -1
 }
-function setUp{
+function setUp {
     virtualenv venv
     source venv/bin/activate
     pip install -r requirements.txt
