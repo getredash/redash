@@ -2,8 +2,8 @@
   "variables": {
     "aws_access_key": "",
     "aws_secret_key": "",
-    "redash_version": "0.7.1.b1015",
-    "image_version": "071b1015"
+    "redash_version": "",
+    "image_version": ""
   },
   "builders": [
     {
@@ -12,7 +12,7 @@
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
       "region": "eu-west-1",
-      "source_ami": "ami-63a19214",
+      "source_ami": "ami-6177f712",
       "instance_type": "t2.micro",
       "ssh_username": "ubuntu",
       "ami_name": "redash-{{user `image_version`}}-eu-west-1"
