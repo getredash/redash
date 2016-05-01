@@ -130,8 +130,8 @@ class BaseElasticSearch(BaseQueryRunner):
                     "type" : mappings.get(column_name, "string")})
                 result_columns_index[friendly_name] = result_columns[-1]
 
-        def getRow(rows, row):
-            if row == None:
+        def get_row(rows, row):
+            if row is None:
                 row = {}
                 rows.append(row)
             return row
@@ -144,31 +144,31 @@ class BaseElasticSearch(BaseQueryRunner):
             add_column_if_needed(mappings, key, key, result_columns, result_columns_index)
             row[key] = value
 
-        def collect_aggregations(mappings, rows, parentKey, data, row, result_columns, result_columns_index):
+        def collect_aggregations(mappings, rows, parent_key, data, row, result_columns, result_columns_index):
 
             if isinstance(data, dict):
 
                 for key, value in data.iteritems():
-                    val = collect_aggregations(mappings, rows, parentKey if key == 'buckets' else key, value, row, result_columns, result_columns_index)
+                    val = collect_aggregations(mappings, rows, parent_key if key == 'buckets' else key, value, row, result_columns, result_columns_index)
                     if val:
-                        row = getRow(rows, row)
+                        row = get_row(rows, row)
                         collect_value(mappings, row, key, val, 'long')
 
-                for dataKey in ['value', 'doc_count']:
-                    if not dataKey in data:
+                for data_key in ['value', 'doc_count']:
+                    if data_key not in data:
                         continue
                     if 'key' in data and len(data.keys()) == 2:
-                        collect_value(mappings, row, data['key'] if not 'key_as_string' in data else data['key_as_string'], data[dataKey])
+                        collect_value(mappings, row, data['key'] if not 'key_as_string' in data else data['key_as_string'], data[data_key])
                     else:
-                        return data[dataKey]
+                        return data[data_key]
 
             elif isinstance(data, list):
 
                 for value in data:
-                    resultRow = getRow(rows, row)
-                    collect_aggregations(mappings, rows, parentKey, value, resultRow, result_columns, result_columns_index)
+                    result_row = get_row(rows, row)
+                    collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
                     if 'key' in value:
-                        collect_value(mappings, resultRow, parentKey, value['key'], 'string')
+                        collect_value(mappings, result_row, parent_key, value['key'], 'string')
 
             return None
 
@@ -221,7 +221,7 @@ class BaseElasticSearch(BaseQueryRunner):
                 result_rows.append(row)
         else:
 
-            raise Exception('Seems you\'ve hit an unsupported feature')
+            raise Exception("Redash failed to parse the results it got from ElasticSearch.")
 
 
 class Kibana(BaseElasticSearch):
