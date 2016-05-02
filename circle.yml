@@ -23,13 +23,13 @@ deployment:
   github_and_docker:
     branch: master
     codedeploy:
-          redash-artifact:
-            application_root: /
-            revision_location:
-              revision_type: S3
-              s3_location:
-                bucket: redash-artifacts
-                key_pattern: redash_{SHORT_COMMIT}_{BUILD_NUM}
+      redash-artifact:
+        application_root: /
+        revision_location:
+          revision_type: S3
+          s3_location:
+            bucket: redash-artifacts
+            key_pattern: redash_{SHORT_COMMIT}_{BUILD_NUM}
 general:
   branches:
     ignore:
