@@ -30,6 +30,7 @@ deployment:
           s3_location:
             bucket: redash-artifacts
             key_pattern: redash_{SHORT_COMMIT}_{BUILD_NUM}
+        deployment_config: CodeDeployDefault.AllAtOnce
 general:
   branches:
     ignore:
