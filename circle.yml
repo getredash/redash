@@ -25,14 +25,19 @@ deployment:
     commands:
       - make pack
       - make upload
-      - echo "rd_ui/app" >> .dockerignore
-      - docker pull redash/redash:latest
-      - docker build -t recruitingdev/redash:$(./manage.py version | sed -e "s/\+/./") .
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker push recruitingdev/redash:$(./manage.py version | sed -e "s/\+/./")
-notify:
-  webhooks:
-    - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
+#      - echo "rd_ui/app" >> .dockerignore
+#      - docker pull redash/redash:latest
+#      - docker build -t recruitingdev/redash:$(./manage.py version | sed -e "s/\+/./") .
+#      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+#      - docker push recruitingdev/redash:$(./manage.py version | sed -e "s/\+/./")
+    codedeploy:
+          redash-artifact:
+            application_root: /
+            revision_location:
+              revision_type: S3
+              s3_location:
+                bucket: redash-artifacts
+                key_pattern: redash_{SHORT_COMMIT}_{BUILD_NUM}
 general:
   branches:
     ignore:
