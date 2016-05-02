@@ -22,14 +22,6 @@ test:
 deployment:
   github_and_docker:
     branch: master
-    commands:
-      - make pack
-      - make upload
-#      - echo "rd_ui/app" >> .dockerignore
-#      - docker pull redash/redash:latest
-#      - docker build -t recruitingdev/redash:$(./manage.py version | sed -e "s/\+/./") .
-#      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-#      - docker push recruitingdev/redash:$(./manage.py version | sed -e "s/\+/./")
     codedeploy:
           redash-artifact:
             application_root: /
