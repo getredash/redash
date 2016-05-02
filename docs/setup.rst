@@ -44,8 +44,9 @@ First, you need to add the images to your account:
     $ gcloud compute images create "redash-091-b1377" --source-uri gs://redash-images/redash.0.9.1.b1377.tar.gz
 
 Next you need to launch an instance using this image (n1-standard-1
-instance type is recommended). If you plan using Re:dash with BigQuery,
-you can use a dedicated image which comes with BigQuery preconfigured
+instance type is recommended).
+
+If you plan using Re:dash with BigQuery, you can use a dedicated image which comes with BigQuery preconfigured
 (using instance permissions):
 
 .. code:: bash
@@ -61,7 +62,8 @@ Note that you need to launch this instance with BigQuery access:
 (the same can be done from the web interface, just make sure to enable
 BigQuery access)
 
-Now proceed to `"Setup" <#setup>`__.
+Please note that currently the Google Compute Engine images are for version 0.9.1. After creating the instance, please
+run the :doc:`upgrade process <upgrade>` and then proceed to `"Setup" <#setup>`__.
 
 Docker Compose
 ------
