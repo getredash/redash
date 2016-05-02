@@ -22,6 +22,17 @@ def embed(query_id, visualization_id, org_slug=None):
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
 
+    user = {
+        'permissions': [],
+        'apiKey': current_user.id
+    }
+
+    headers = {
+        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
+    }
+
+    
+
     if vis is not None:
         vis = vis.to_dict()
         qr = query.latest_query_data
@@ -46,12 +57,24 @@ def embed(query_id, visualization_id, org_slug=None):
 
     qr = project(qr, ('data', 'id', 'retrieved_at'))
     vis = project(vis, ('description', 'name', 'id', 'options', 'query', 'type', 'updated_at'))
-    vis['query'] = project(vis['query'], ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
 
-    return render_template("embed.html",
-                           client_config=json_dumps(client_config),
-                           visualization=json_dumps(vis),
-                           query_result=json_dumps(qr))
+    if settings.ALLOW_PARAMETERS_IN_EMBEDS == True:
+        #this will enable embedding parameters, but in doing so will expose the query sql
+        #the query sql will be passed to clients with the security token
+        vis['query'] = project(vis['query'], ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at', 'latest_query_data', 'data_source_id', 'query'))
+    else:
+        vis['query'] = project(vis['query'], ('created_at', 'description', 'name', 'id', 'latest_query_data_id', 'name', 'updated_at'))
+        
+    
+    response = render_template("public.html",
+                               headless='embed' in request.args,
+                               user=json.dumps(user),
+                               seed_data=json_dumps({
+                                 'visualization': vis
+                               }),
+                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
+
+    return response, 200, headers
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
