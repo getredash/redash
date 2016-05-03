@@ -25,7 +25,6 @@ deployment:
     commands:
       - make pack
       - make upload
-      - echo "rd_ui/app" >> .dockerignore
 general:
   branches:
     ignore:
