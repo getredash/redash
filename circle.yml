@@ -20,18 +20,12 @@ test:
   override:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
 deployment:
-    production:
-      branch: master
-      codedeploy:
-        redash-artifact:
-          application_root: /
-          revision_location:
-            revision_type: S3
-            s3_location:
-              bucket: redash-artifacts
-              key_pattern: redash_{SHORT_COMMIT}_{BUILD_NUM}
-          deployment_config: CodeDeployDefault.AllAtOnce
-          deployment_group: main_deployment_group
+  github_and_docker:
+    branch: master
+    commands:
+      - make pack
+      - make upload
+      - echo "rd_ui/app" >> .dockerignore
 general:
   branches:
     ignore:
