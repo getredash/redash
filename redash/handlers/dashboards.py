@@ -11,11 +11,11 @@ from redash.handlers.base import BaseResource, get_object_or_404
 class RecentDashboardsResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_user.groups, self.current_user.id, for_user=True)]
+        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.groups, self.current_user.id, for_user=True)]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_user.groups, self.current_user.id)]
+            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.groups, self.current_user.id)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -23,7 +23,7 @@ class RecentDashboardsResource(BaseResource):
 class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_user.groups, self.current_user.id)]
+        dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)]
 
         return dashboards
 
