@@ -29,12 +29,13 @@ To get started with this box:
 8.  Update database schema to the latest version:
 
     ::
-    
+
         bin/run ./manage.py database drop_tables
         bin/run ./manage.py database create_tables
         bin/run ./manage.py users create --admin --password admin "Admin" "admin"
-
-9.  Start the server and background workers with
+9.  Purging the Redis cache
+    ``redis-cli -n 1 FLUSHALL``
+10. Start the server and background workers with
     ``bin/run honcho start -f Procfile.dev``.
-10. Now the server should be available on your host on port 9001 and you
+11. Now the server should be available on your host on port 9001 and you
     can login with username admin and password admin.
