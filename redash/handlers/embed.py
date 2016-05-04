@@ -7,11 +7,34 @@ from flask_restful import abort
 
 from redash import models, settings
 from redash import serializers
-from redash.utils import json_dumps
+from redash.utils import json_dumps, collect_parameters_from_request
 from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule, record_event
 from redash.permissions import require_access, view_only
 from authentication import current_org
+
+#
+# Run a parameterized query synchronously and return the result
+# DISCLAIMER: Temporary solution to support parameters in queries. Should be
+#             removed once we refactor the query results API endpoints and handling
+#             on the client side. Please don't reuse in other API handlers.
+#
+def run_query_sync(data_source, parameter_values, query_text):
+    query_parameters = set(collect_query_parameters(query_text))
+    missing_params = set(query_parameters) - set(parameter_values.keys())
+    if missing_params:
+        raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
+
+    if query_parameters:
+        query_text = pystache.render(query_text, parameter_values)
+
+    try:
+        data, error = data_source.query_runner.run_query(query_text)
+        if error:
+            return None
+        return data
+    except Exception, e:
+        return None
 
 
 @routes.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
@@ -22,10 +45,23 @@ def embed(query_id, visualization_id, org_slug=None):
     vis = query.visualizations.where(models.Visualization.id == visualization_id).first()
     qr = {}
 
+    parameter_values = collect_parameters_from_request(request.args)
+
     if vis is not None:
         vis = vis.to_dict()
         qr = query.latest_query_data
-        if qr is None:
+        if settings.ALLOW_PARAMETERS_IN_EMBEDS == True and len(parameter_values) > 0:
+            # run parameterized query
+            #
+            # WARNING: Note that the external query parameters
+            #          are a potential risk of SQL injections.
+            #
+            results = run_query_sync(query.data_source, parameter_values, query.query)
+            if results is None:
+                abort(400, message="Unable to get results for this query")
+            else:
+                qr = {"data": json.loads(results)}
+        elif qr is None:
             abort(400, message="No Results for this query")
         else:
             qr = qr.to_dict()
@@ -52,6 +88,7 @@ def embed(query_id, visualization_id, org_slug=None):
                            client_config=json_dumps(client_config),
                            visualization=json_dumps(vis),
                            query_result=json_dumps(qr))
+
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
