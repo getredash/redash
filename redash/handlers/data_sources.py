@@ -67,7 +67,7 @@ class DataSourceListResource(BaseResource):
             d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
             response[ds.id] = d
 
-        return response.values()
+        return sorted(response.values(), key=lambda d: d['id'])
 
     @require_admin
     def post(self):
