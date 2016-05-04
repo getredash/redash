@@ -886,7 +886,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         }
 
     @classmethod
-    def all(cls, groups, user_id):
+    def all(cls, org, groups, user_id):
         query = cls.select().\
             join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
             join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
@@ -896,15 +896,13 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             where((DataSourceGroup.group << groups) |
                   (Dashboard.user == user_id) |
                   (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
+            where(Dashboard.org == org). \
             group_by(Dashboard.id)
+
         return query
 
     @classmethod
-    def get_by_slug_and_org(cls, slug, org):
-        return cls.get(cls.slug == slug, cls.org==org)
-
-    @classmethod
-    def recent(cls, groups, user_id, for_user=False, limit=20):
+    def recent(cls, org, groups, user_id, for_user=False, limit=20):
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
             join(Event, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Event.object_id.cast('integer'))). \
             join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
@@ -915,6 +913,7 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
+            where(Dashboard.org == org). \
             where((DataSourceGroup.group << groups) |
                   (Dashboard.user == user_id) |
                   (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
@@ -927,6 +926,10 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         query = query.limit(limit)
 
         return query
+
+    @classmethod
+    def get_by_slug_and_org(cls, slug, org):
+        return cls.get(cls.slug == slug, cls.org==org)
 
     def save(self, *args, **kwargs):
         if not self.slug:
