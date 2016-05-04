@@ -42,7 +42,7 @@
         return;
       }
 
-      if (Notification.permission !== "granted") {
+      if (Notification.permission === "default") {
         Notification.requestPermission(function (status) {
           if (Notification.permission !== status) {
             Notification.permission = status;
