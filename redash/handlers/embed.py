@@ -1,4 +1,5 @@
 import json
+import pystache
 
 from funcy import project
 from flask import render_template, request
@@ -10,6 +11,7 @@ from redash import serializers
 from redash.utils import json_dumps, collect_parameters_from_request
 from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule, record_event
+from redash.handlers.query_results import collect_query_parameters
 from redash.permissions import require_access, view_only
 from authentication import current_org
 
@@ -34,6 +36,7 @@ def run_query_sync(data_source, parameter_values, query_text):
             return None
         return data
     except Exception, e:
+        abort(503, message="Unable to get result from the database.")
         return None
 
 

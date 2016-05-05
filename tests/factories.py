@@ -71,6 +71,16 @@ query_factory = ModelFactory(redash.models.Query,
                              data_source=data_source_factory.create,
                              org=1)
 
+query_with_params_factory = ModelFactory(redash.models.Query,
+                             name='New Query with Params',
+                             description='',
+                             query='SELECT {{param1}}',
+                             user=user_factory.create,
+                             is_archived=False,
+                             schedule=None,
+                             data_source=data_source_factory.create,
+                             org=1)
+
 alert_factory = ModelFactory(redash.models.Alert,
                              name=Sequence('Alert {}'),
                              query=query_factory.create,
@@ -199,6 +209,15 @@ class Factory(object):
         args.update(kwargs)
         return query_factory.create(**args)
 
+    def create_query_with_params(self, **kwargs):
+        args = {
+            'user': self.user,
+            'data_source': self.data_source,
+            'org': self.org
+        }
+        args.update(kwargs)
+        return query_with_params_factory.create(**args)
+
     def create_query_result(self, **kwargs):
         args = {
             'data_source': self.data_source,
@@ -214,6 +233,13 @@ class Factory(object):
     def create_visualization(self, **kwargs):
         args = {
             'query': self.create_query()
+        }
+        args.update(kwargs)
+        return visualization_factory.create(**args)
+
+    def create_visualization_with_params(self, **kwargs):
+        args = {
+            'query': self.create_query_with_params()
         }
         args.update(kwargs)
         return visualization_factory.create(**args)
