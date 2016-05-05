@@ -279,7 +279,7 @@
       var typeSplit;
       if (column.indexOf("::") != -1) {
         typeSplit = "::";
-      } else if (column.indexOf("__" != -1)) {
+      } else if (column.indexOf("__") != -1) {
         typeSplit = "__";
       } else {
         return column;
