@@ -1,9 +1,8 @@
 import logging
 import hipchat
 
-from redash import models
+from redash import settings
 from redash.destinations import *
-from redash.utils import json_dumps
 
 
 class Hipchat(BaseDestination):
