@@ -46,7 +46,7 @@
     ];
   };
 
-  var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert) {
+  var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert, Destination) {
     $scope.$parent.pageTitle = "Alerts";
 
     $scope.alertId = $routeParams.alertId;
@@ -108,18 +108,68 @@
         growl.addErrorMessage("Failed saving alert.");
       });
     };
+
   };
 
-  angular.module('redash.directives').directive('alertSubscribers', ['AlertSubscription', function (AlertSubscription) {
+  angular.module('redash.directives').directive('userSubscribers', ['AlertSubscription', 'growl', function (AlertSubscription, growl) {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/alerts/subscribers.html',
+      templateUrl: '/views/alerts/userSubscribers.html',
       scope: {
         'alertId': '='
       },
       controller: function ($scope) {
-        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId});
+        $scope.subscription = {};
+        $scope.subscribers = [];
+        $scope.enabled = !clientConfig.mailSettingsMissing;
+
+        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
+              $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination === "undefined"; });
+        });
+      }
+    }
+  }]);
+
+  angular.module('redash.directives').directive('destinationSubscribers', ['AlertSubscription', 'Destination', 'growl', function (AlertSubscription, Destination, growl) {
+    return {
+      restrict: 'E',
+      replace: true,
+      templateUrl: '/views/alerts/destinationSubscribers.html',
+      scope: {
+        'alertId': '='
+      },
+      controller: function ($scope) {
+        $scope.subscription = {};
+        $scope.subscribers = [];
+        $scope.destinations = Destination.query();
+
+        $scope.destinationsDisplay = function(destination) {
+            return '<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name
+        };
+
+        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
+              $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination !== "undefined"; });
+        });
+        $scope.saveSubscriber = function() {
+            $scope.sub = new AlertSubscription({alert_id: $scope.alertId, destination_id: $scope.subscription.destination.id});
+            $scope.sub.$save(function() {
+              growl.addSuccessMessage("Subscribed.");
+              $scope.subscribers.push($scope.sub);
+            }, function(response) {
+              growl.addErrorMessage("Failed saving subscription.");
+            });
+        };
+
+        $scope.unsubscribe = function(subscriber) {
+            $scope.sub = new AlertSubscription({alert_id: subscriber.alert_id, id: subscriber.id});
+            $scope.sub.$delete(function() {
+              growl.addSuccessMessage("Unsubscribed");
+              $scope.subscribers = _.without($scope.subscribers, subscriber);
+            }, function() {
+              growl.addErrorMessage("Failed unsubscribing.");
+            });
+        };
       }
     }
   }]);
@@ -128,13 +178,13 @@
     return {
       restrict: 'E',
       replace: true,
-      template: '<button class="btn btn-default btn-xs" ng-click="toggleSubscription()"><i ng-class="class"></i></button>',
+      template: '<button class="btn btn-primary col-xs-4" ng-click="toggleSubscription()" ng-bind="message"></i></button>',
       controller: function ($scope) {
-        var updateClass = function() {
+        var updateMessage = function() {
           if ($scope.subscription) {
-            $scope.class = "fa fa-eye-slash";
+            $scope.message = "Unsubscribe";
           } else {
-            $scope.class = "fa fa-eye";
+            $scope.message = "Subscribe";
           }
         }
 
@@ -143,7 +193,7 @@
             return (subscription.user.email == currentUser.email);
           });
 
-          updateClass();
+          updateMessage();
         });
 
         $scope.toggleSubscription = function() {
@@ -151,7 +201,7 @@
             $scope.subscription.$delete(function() {
               $scope.subscribers = _.without($scope.subscribers, $scope.subscription);
               $scope.subscription = undefined;
-              updateClass();
+              updateMessage();
             }, function() {
               growl.addErrorMessage("Failed saving subscription.");
             });
@@ -159,7 +209,7 @@
             $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
             $scope.subscription.$save(function() {
               $scope.subscribers.push($scope.subscription);
-              updateClass();
+              updateMessage();
             }, function() {
               growl.addErrorMessage("Unsubscription failed.");
             });
@@ -171,6 +221,6 @@
 
   angular.module('redash.controllers')
     .controller('AlertsCtrl', ['$scope', 'Events', 'Alert', AlertsCtrl])
-    .controller('AlertCtrl', ['$scope', '$routeParams', '$location', 'growl', 'Query', 'Events', 'Alert', AlertCtrl])
+    .controller('AlertCtrl', ['$scope', '$routeParams', '$location', 'growl', 'Query', 'Events', 'Alert', 'Destination', AlertCtrl])
 
 })();

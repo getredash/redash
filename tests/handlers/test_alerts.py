@@ -33,23 +33,28 @@ class TestAlertResourceGet(BaseTestCase):
 class TestAlertListPost(BaseTestCase):
     def test_returns_200_if_has_access_to_query(self):
         query = self.factory.create_query()
+        destination = self.factory.create_destination()
 
-        rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id, options={}))
+        rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id,
+                                                                destination_id=destination.id, options={}))
         self.assertEqual(rv.status_code, 200)
 
     def test_fails_if_doesnt_have_access_to_query(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
+        destination = self.factory.create_destination()
 
-        rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id, options={}))
+        rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id,
+                                                                destination_id=destination.id, options={}))
         self.assertEqual(rv.status_code, 403)
 
 
 class TestAlertSubscriptionListResourcePost(BaseTestCase):
     def test_subscribers_user_to_alert(self):
         alert = self.factory.create_alert()
+        destination = self.factory.create_destination()
 
-        rv = self.make_request('post', "/api/alerts/{}/subscriptions".format(alert.id))
+        rv = self.make_request('post', "/api/alerts/{}/subscriptions".format(alert.id), data=dict(destination_id=destination.id))
         self.assertEqual(rv.status_code, 200)
         self.assertIn(self.factory.user, alert.subscribers())
 
@@ -57,8 +62,9 @@ class TestAlertSubscriptionListResourcePost(BaseTestCase):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
         alert = self.factory.create_alert(query=query)
+        destination = self.factory.create_destination()
 
-        rv = self.make_request('post', "/api/alerts/{}/subscriptions".format(alert.id))
+        rv = self.make_request('post', "/api/alerts/{}/subscriptions".format(alert.id), data=dict(destination_id=destination.id))
         self.assertEqual(rv.status_code, 403)
         self.assertNotIn(self.factory.user, alert.subscribers())
 
@@ -81,18 +87,20 @@ class TestAlertSubscriptionListResourceGet(BaseTestCase):
 
 class TestAlertSubscriptionresourceDelete(BaseTestCase):
     def test_only_subscriber_or_admin_can_unsubscribe(self):
-        alert = self.factory.create_alert()
+        subscription = self.factory.create_alert_subscription()
+        alert = subscription.alert
+        user = subscription.user
+        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, subscription.id)
+
         other_user = self.factory.create_user()
-        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, other_user.id)
 
-        AlertSubscription.create(alert=alert, user=other_user)
-
-        response = self.make_request('delete', path)
+        response = self.make_request('delete', path, user=other_user)
         self.assertEqual(response.status_code, 403)
 
-        response = self.make_request('delete', path, user=self.factory.create_admin())
+        response = self.make_request('delete', path, user=user)
         self.assertEqual(response.status_code, 200)
 
-        AlertSubscription.create(alert=alert, user=other_user)
-        response = self.make_request('delete', path, user=other_user)
+        subscription_two = AlertSubscription.create(alert=alert, user=other_user)
+        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, subscription_two.id)
+        response = self.make_request('delete', path, user=self.factory.create_admin())
         self.assertEqual(response.status_code, 200)

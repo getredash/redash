@@ -566,6 +566,7 @@ div.table-name:hover {
   padding-right: 5px;
 }
 
+<<<<<<< HEAD
 .modal-xl {
   position: fixed;
   top: 0;
@@ -656,4 +657,9 @@ div.table-name:hover {
 .t-body a.actions:hover,
 .t-body a.actions.open > a {
   background-color: rgba(0, 0, 0, 0.1);
+}
+
+hr.subscription {
+    height: 2px;
+    background: #333;
 }
