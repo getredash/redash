@@ -5,24 +5,9 @@
 
     $scope.destinations = Destination.query();
 
-    $scope.openDestination = function(destination) {
-      $location.path('/destinations/' + destination.id);
-    };
-
-    $scope.deleteDestination = function(event, destination) {
-      event.stopPropagation();
-      Events.record(currentUser, "delete", "destination", destination.id);
-      destination.$delete(function(resource) {
-        growl.addSuccessMessage("Destination deleted successfully.");
-        this.$parent.destinations = _.without(this.destinations, resource);
-      }.bind(this), function(httpResponse) {
-        console.log("Failed to delete destination: ", httpResponse.status, httpResponse.statusText, httpResponse.data);
-        growl.addErrorMessage("Failed to delete destination.");
-      });
-    }
   };
 
-  var DestinationCtrl = function ($scope, $routeParams, $http, $location, Events, Destination) {
+  var DestinationCtrl = function ($scope, $routeParams, $http, $location, growl, Events, Destination) {
     Events.record(currentUser, "view", "page", "admin/destination");
     $scope.$parent.pageTitle = "Destinations";
 
@@ -39,9 +24,21 @@
         $location.path('/destinations/' + id).replace();
       }
     });
+
+    $scope.delete = function() {
+      Events.record(currentUser, "delete", "destination", $scope.destination.id);
+
+      $scope.destination.$delete(function(resource) {
+        growl.addSuccessMessage("Destination deleted successfully.");
+        $location.path('/destinations/');
+      }.bind(this), function(httpResponse) {
+        console.log("Failed to delete destination: ", httpResponse.status, httpResponse.statusText, httpResponse.data);
+        growl.addErrorMessage("Failed to delete destination.");
+      });
+    }
   };
 
   angular.module('redash.controllers')
     .controller('DestinationsCtrl', ['$scope', '$location', 'growl', 'Events', 'Destination', DestinationsCtrl])
-    .controller('DestinationCtrl', ['$scope', '$routeParams', '$http', '$location', 'Events', 'Destination', DestinationCtrl])
+    .controller('DestinationCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'Destination', DestinationCtrl])
 })();

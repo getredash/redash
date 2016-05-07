@@ -1,18 +1,12 @@
-<div class="container">
-    <ol class="breadcrumb">
-        <li class="active">Destinations</li>
-    </ol>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="list-group">
-                <div class="list-group-item clickable" ng-repeat="destination in destinations" ng-click="openDestination(destination)">
-                    <i class="fa {{destination.icon}}"></i> {{destination.name}}
-                    <button class="btn btn-xs btn-danger pull-right" ng-click="deleteDestination($event, destination)">Delete</button>
-                </div>
-                <a ng-href="destinations/new" class="list-group-item">
-                    <i class="fa fa-plus"></i> Add Destination
-                </a>
-            </div>
-        </div>
+<settings-screen>
+  <div class="row voffset1">
+    <div class="col-md-4">
+      <p>
+        <a href="destinations/new" class="btn btn-default"><i class="fa fa-plus"></i> New Notification Destination</a>
+      </p>
+      <div class="list-group">
+        <a ng-href="destinations/{{destination.id}}" class="list-group-item" ng-repeat="destination in destinations"><i class="fa {{destination.icon}}"></i> {{destination.name}}</a>
+      </div>
     </div>
-</div>
+  </div>
+</settings-screen>

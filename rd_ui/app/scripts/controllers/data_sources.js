@@ -7,7 +7,7 @@
 
   };
 
-  var DataSourceCtrl = function ($scope, $routeParams, $http, $location, Events, DataSource) {
+  var DataSourceCtrl = function ($scope, $routeParams, $http, $location, growl, Events, DataSource) {
     Events.record(currentUser, "view", "page", "admin/data_source");
     $scope.$parent.pageTitle = "Data Sources";
 
@@ -24,9 +24,21 @@
         $location.path('/data_sources/' + id).replace();
       }
     });
+
+    $scope.delete = function () {
+      Events.record(currentUser, "delete", "datasource", $scope.dataSource.id);
+
+      $scope.dataSource.$delete(function (resource) {
+        growl.addSuccessMessage("Data source deleted successfully.");
+        $location.path('/data_sources/');
+      }.bind(this), function (httpResponse) {
+        console.log("Failed to delete data source: ", httpResponse.status, httpResponse.statusText, httpResponse.data);
+        growl.addErrorMessage("Failed to delete data source.");
+      });
+    }
   };
 
   angular.module('redash.controllers')
     .controller('DataSourcesCtrl', ['$scope', '$location', 'growl', 'Events', 'DataSource', DataSourcesCtrl])
-    .controller('DataSourceCtrl', ['$scope', '$routeParams', '$http', '$location', 'Events', 'DataSource', DataSourceCtrl])
+    .controller('DataSourceCtrl', ['$scope', '$routeParams', '$http', '$location', 'growl', 'Events', 'DataSource', DataSourceCtrl])
 })();

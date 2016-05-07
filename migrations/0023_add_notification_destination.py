@@ -52,7 +52,7 @@ if __name__ == '__main__':
                 hipchat = NotificationDestination.create(
                     org=1,
                     user=1,
-                    name="Hipchat",
+                    name="HipChat",
                     type="hipchat",
                     options=options
                 )

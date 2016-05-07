@@ -389,9 +389,8 @@
     return {
       restrict: 'E',
       replace: 'true',
-      templateUrl: function(elem, attr) {
-        return '/views/' + attr.type+ '/form.html';
-      },
+      transclude: true,
+      templateUrl: '/views/directives/dynamic_form.html',
       scope: {
         'target': '=',
         'type': '@type'
@@ -487,10 +486,12 @@
         scope.usersPage = _.string.startsWith($location.path(), '/users');
         scope.groupsPage = _.string.startsWith($location.path(), '/groups');
         scope.dsPage = _.string.startsWith($location.path(), '/data_sources');
+        scope.destinationsPage = _.string.startsWith($location.path(), '/destinations');
 
         scope.showGroupsLink = currentUser.hasPermission('list_users');
         scope.showUsersLink = currentUser.hasPermission('list_users');
         scope.showDsLink = currentUser.hasPermission('admin');
+        scope.showDestinationsLink = currentUser.hasPermission('admin');
       }
     }
   }]);
