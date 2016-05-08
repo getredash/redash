@@ -282,7 +282,7 @@
                     <a ng-click="openVisualizationEditor()">"New Visualization" screen</a> and <strong>save</strong>.
                   </h3>
                 </div>
-                <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+                <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
                   <div class="bg-ace p-5">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
