@@ -7,7 +7,7 @@ single Organization in your installation.
 
 import logging
 
-from flask import request
+from flask import request, g
 from werkzeug.local import LocalProxy
 
 from redash.models import Organization
