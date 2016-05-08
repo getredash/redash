@@ -14,7 +14,7 @@ from redash.models import Organization
 
 
 def _get_current_org():
-    slug = request.view_args.get('org_slug', 'default')
+    slug = request.view_args.get('org_slug', g.get('org_slug', 'default'))
     org = Organization.get_by_slug(slug)
     logging.debug("Current organization: %s (slug: %s)", org, slug)
     return org
