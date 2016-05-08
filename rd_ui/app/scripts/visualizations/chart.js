@@ -13,8 +13,7 @@
       xAxis: {type: 'datetime', labels: {enabled: true}},
       series: {stacking: null},
       seriesOptions: {},
-      columnMapping: {},
-       bottomMargin: 50
+      columnMapping: {}
     };
 
     VisualizationProvider.registerVisualization({
@@ -193,10 +192,6 @@
 
         if (!_.has(scope.options, 'legend')) {
           scope.options.legend = {enabled: true};
-        }
-
-        if (!_.has(scope.options, 'bottomMargin')) {
-          scope.options.bottomMargin = 50;
         }
 
         if (scope.columnNames)
