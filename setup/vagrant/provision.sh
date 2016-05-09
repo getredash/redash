@@ -10,7 +10,7 @@ cd /opt/redash/current
 #install requirements
 sudo pip install -r /opt/redash/current/requirements_dev.txt
 sudo pip install -r /opt/redash/current/requirements.txt
-sudo pip install -r /opt/redash/current/requirements_all_ds.txt
+sudo pip install pymongo==3.2.1
 
 #update database
 bin/run ./manage.py database drop_tables
