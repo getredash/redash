@@ -5,7 +5,7 @@ from flask_login import current_user, login_required
 from peewee import DoesNotExist
 
 from redash import settings
-from redash.tasks import record_event
+from redash.tasks import record_event as record_event_task
 from redash.models import ApiUser
 from redash.authentication import current_org
 
@@ -33,26 +33,30 @@ class BaseResource(Resource):
         return current_org._get_current_object()
 
     def record_event(self, options):
-        if isinstance(self.current_user, ApiUser):
-            options.update({
-                'api_key': self.current_user.name,
-                'org_id': self.current_org.id
-            })
-        else:
-            options.update({
-                'user_id': self.current_user.id,
-                'org_id': self.current_org.id
-            })
+        record_event(self.current_org, self.current_user, options)
 
+
+def record_event(org, user, options):
+    if isinstance(user, ApiUser):
         options.update({
-            'user_agent': request.user_agent.string,
-            'ip': request.remote_addr
+            'api_key': user.name,
+            'org_id': org.id
+        })
+    else:
+        options.update({
+            'user_id': user.id,
+            'org_id': org.id
         })
 
-        if 'timestamp' not in options:
-            options['timestamp'] = int(time.time())
+    options.update({
+        'user_agent': request.user_agent.string,
+        'ip': request.remote_addr
+    })
 
-        record_event.delay(options)
+    if 'timestamp' not in options:
+        options['timestamp'] = int(time.time())
+
+    record_event_task.delay(options)
 
 
 def require_fields(req, fields):

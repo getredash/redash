@@ -1,4 +1,7 @@
 import json
+
+from funcy import pairwise
+
 from tests import BaseTestCase
 from redash.models import DataSource
 
@@ -24,6 +27,12 @@ class TestDataSourceListGet(BaseTestCase):
         response = self.make_request("get", "/api/data_sources", user=self.factory.user)
 
         self.assertEqual(len(response.json), 1)
+
+    def test_returns_data_sources_ordered_by_id(self):
+        self.factory.create_data_source(group=self.factory.org.default_group)
+        self.factory.create_data_source(group=self.factory.org.default_group)
+        response = self.make_request("get", "/api/data_sources", user=self.factory.user)
+        self.assertTrue(all(left <= right for left, right in pairwise(response.json)))
 
 
 class DataSourceTypesTest(BaseTestCase):

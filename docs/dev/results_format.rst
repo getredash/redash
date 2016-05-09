@@ -1,7 +1,7 @@
 Data Source Results Format
 ==========================
 
-All data sources in re:dash return the following results in JSON format:
+All data sources in Re:dash return the following results in JSON format:
 
 .. code:: javascript
 

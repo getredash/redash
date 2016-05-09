@@ -1,4 +1,4 @@
-Setting up re:dash instance
+Setting up Re:dash instance
 ###########################
 
 The `provisioning
@@ -6,8 +6,8 @@ script <https://raw.githubusercontent.com/getredash/redash/master/setup/ubuntu/b
 works on Ubuntu 12.04, Ubuntu 14.04 and Debian Wheezy. This script
 installs all needed dependencies and creates basic setup.
 
-To ease the process, there are also images for AWS and Google Compute
-Cloud. These images created with the same provision script using Packer.
+To ease the process, there are also images for AWS, Google Compute
+Cloud and Docker. These images created with the same provision script using Packer.
 
 Create an instance
 ==================
@@ -18,19 +18,19 @@ AWS
 Launch the instance with from the pre-baked AMI (for small deployments
 t2.micro should be enough):
 
--  us-east-1: `ami-a7ddfbcd <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-a7ddfbcd>`__
--  us-west-1: `ami-269feb46 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-269feb46>`__
--  us-west-2: `ami-435fba23 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-435fba23>`__
--  eu-west-1: `ami-b4c277c7 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-b4c277c7>`__
--  eu-central-1: `ami-07ced76b <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-07ced76b>`__
--  sa-east-1: `ami-6e2eaf02 <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-6e2eaf02>`__
--  ap-northeast-1: `ami-aa5a64c4 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-aa5a64c4>`__
--  ap-southeast-1: `ami-1c45897f <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-1c45897f>`__
--  ap-southeast-2: `ami-42b79221 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-42b79221>`__
+-  us-east-1: `ami-aeed0bc3 <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-aeed0bc3>`__
+-  us-west-1: `ami-a4e799c4 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-a4e799c4>`__
+-  us-west-2: `ami-dd38cbbd <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-dd38cbbd>`__
+-  eu-west-1: `ami-bf74fdcc <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-bf74fdcc>`__
+-  eu-central-1: `ami-c8d93ba7 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-c8d93ba7>`__
+-  sa-east-1: `ami-b09a13dc <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-b09a13dc>`__
+-  ap-northeast-1: `ami-5deaf133 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-5deaf133>`__
+-  ap-southeast-1: `ami-7df7201e <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-7df7201e>`__
+-  ap-southeast-2: `ami-9f674bfc <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-9f674bfc>`__
 
-(the above AMIs are of version: 0.9.1)
+(the above AMIs are of version: 0.10.0)
 
-When launching the instance make sure to use a security group, that **only** allows incoming traffic on: port 22 (SSH), 80 (HTTP) and 443 (HTTPS).
+When launching the instance make sure to use a security group, that **only** allows incoming traffic on: port 22 (SSH), 80 (HTTP) and 443 (HTTPS). These AMIs are based on Ubuntu so you will need to use the user ``ubuntu`` when connecting to the instance via SSH.
 
 Now proceed to `"Setup" <#setup>`__.
 
@@ -44,8 +44,9 @@ First, you need to add the images to your account:
     $ gcloud compute images create "redash-091-b1377" --source-uri gs://redash-images/redash.0.9.1.b1377.tar.gz
 
 Next you need to launch an instance using this image (n1-standard-1
-instance type is recommended). If you plan using re:dash with BigQuery,
-you can use a dedicated image which comes with BigQuery preconfigured
+instance type is recommended).
+
+If you plan using Re:dash with BigQuery, you can use a dedicated image which comes with BigQuery preconfigured
 (using instance permissions):
 
 .. code:: bash
@@ -60,6 +61,20 @@ Note that you need to launch this instance with BigQuery access:
 
 (the same can be done from the web interface, just make sure to enable
 BigQuery access)
+
+Please note that currently the Google Compute Engine images are for version 0.9.1. After creating the instance, please
+run the :doc:`upgrade process <upgrade>` and then proceed to `"Setup" <#setup>`__.
+
+Docker Compose
+------
+
+1. Make sure you have a Docker machine up and running.
+2. Make sure your current working directory is the root of this GitHub repository.
+3. Run ``docker-compose up postgres``.
+4. Run ``./setup/docker/create_database.sh``. This will access the postgres container and set up the database.
+5. Run ``docker compose up``
+6. Run ``docker-machine ls``, take note of the ip for the Docker machine you are using, and open the web browser.
+7. Visit that Docker machine IP at port 80, and you should see a Re:dash login screen.
 
 Now proceed to `"Setup" <#setup>`__.
 
@@ -77,12 +92,11 @@ Setup
 =====
 
 Once you created the instance with either the image or the script, you
-should have a running re:dash instance with everything you need to get
-started (e.g. When using the script mentioned in the setup page, the user should use port 80 as we install nginx. Redash itself listens on port 5000.
-
-Port 9001 only used with the Vagrant installation). You can now login to it with the user "admin" (password:
-"admin"). But to make it useful, there are a few more steps that you
-need to manually do to complete the setup:
+should have a running Re:dash instance with everything you need to get
+started . Re:dash should be available using the server IP or DNS name
+you assigned to it. You can point your browser to this address, and login
+with the user "admin" (password: "admin"). But to make it useful, there are
+a few more steps that you need to manually do to complete the setup:
 
 First ssh to your instance and change directory to ``/opt/redash``. If
 you're using the GCE image, switch to root (``sudo su``).
@@ -136,7 +150,7 @@ If you're passing multiple domains, separate them with commas.
 Datasources
 -----------
 
-To make re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
+To make Re:dash truly useful, you need to setup your data sources in it. Browse to ``/data_sources`` on your instance,
 to create new data source connection.
 
 See :doc:`documentation </datasources>` for the different options.
@@ -146,7 +160,7 @@ Mail Configuration
 ------------------
 
 For the system to be able to send emails (for example when alerts trigger), you need to set the mail server to use and the
-host name of your re:dash server. If you're using one of our images, you can do this by editing the `.env` file:
+host name of your Re:dash server. If you're using one of our images, you can do this by editing the `.env` file:
 
 .. code::
 
@@ -160,7 +174,7 @@ host name of your re:dash server. If you're using one of our images, you can do 
    export REDASH_MAIL_PASSWORD="" # default: None
    export REDASH_MAIL_DEFAULT_SENDER="" # Email address to send from
 
-   export REDASH_HOST="" # base address of your re:dash instance, for example: "https://demo.redash.io"
+   export REDASH_HOST="" # base address of your Re:dash instance, for example: "https://demo.redash.io"
 
 - Note that not all values are required, as there are default values.
 - It's recommended to use some mail service, like `Amazon SES <https://aws.amazon.com/ses/>`__, `Mailgun <http://www.mailgun.com/>`__
@@ -171,7 +185,7 @@ To test email configuration, you can run `bin/run ./manage.py send_test_mail` (f
 How to upgrade?
 ---------------
 
-It's recommended to upgrade once in a while your re:dash instance to
+It's recommended to upgrade once in a while your Re:dash instance to
 benefit from bug fixes and new features. See :doc:`here </upgrade>` for full upgrade
 instructions (including Fabric script).
 

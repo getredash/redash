@@ -279,7 +279,7 @@
       var typeSplit;
       if (column.indexOf("::") != -1) {
         typeSplit = "::";
-      } else if (column.indexOf("__" != -1)) {
+      } else if (column.indexOf("__") != -1) {
         typeSplit = "__";
       } else {
         return column;
@@ -597,8 +597,8 @@
     var actions = {
       'get': {'method': 'GET', 'cache': false, 'isArray': false},
       'query': {'method': 'GET', 'cache': false, 'isArray': true},
-      'members': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/members'},
-      'dataSources': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/groups/:id/data_sources'}
+      'members': {'method': 'GET', 'cache': false, 'isArray': true, 'url': 'api/groups/:id/members'},
+      'dataSources': {'method': 'GET', 'cache': false, 'isArray': true, 'url': 'api/groups/:id/data_sources'}
     };
     var resource = $resource('api/groups/:id', {id: '@id'}, actions);
     return resource;

@@ -53,6 +53,7 @@ def all_settings():
 
 
 NAME = os.environ.get('REDASH_NAME', 're:dash')
+LOGO_URL = os.environ.get('REDASH_LOGO_URL', '/images/redash_icon_small.png')
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0")
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -122,6 +123,8 @@ STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_
 
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 6))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
+SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
+
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
 
 # Mail settings:
@@ -200,11 +203,16 @@ BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"
 # Enhance schema fetching
 SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS", "false"))
 
+# Allow Parameters in Embeds
+# WARNING: With this option enabled, Redash reads query parameters from the request URL (risk of SQL injection!)
+ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
+
 ### Common Client config
 COMMON_CLIENT_CONFIG = {
     'allowScriptsInUserInput': ALLOW_SCRIPTS_IN_USER_INPUT,
     'dateFormat': DATE_FORMAT,
     'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
-    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None
+    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None,
+    'logoUrl': LOGO_URL
 }

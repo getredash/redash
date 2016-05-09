@@ -10,6 +10,7 @@
       templateUrl: '/views/app_header.html',
       link: function ($scope) {
         $scope.dashboards = [];
+        $scope.logoUrl = clientConfig.logoUrl;
         $scope.reloadDashboards = function () {
           Dashboard.query(function (dashboards) {
             $scope.dashboards = _.sortBy(dashboards, "name");
@@ -110,7 +111,7 @@
   directives.directive('emailSettingsWarning', function() {
     return {
       restrict: 'E',
-      template: '<p class="alert alert-warning" ng-if="showMailWarning">It looks like your mail server isn\'t configured, make sure to configure it for the {{function}} to work.</p>',
+      template: '<p class="alert alert-danger" ng-if="showMailWarning">It looks like your mail server isn\'t configured. Make sure to configure it for the {{function}} to work.</p>',
       link: function(scope, elements, attrs) {
         scope.showMailWarning = clientConfig.mailSettingsMissing && currentUser.isAdmin;
         scope.function = attrs.function;
@@ -125,7 +126,7 @@
         tabsCollection: '=',
         selectedTab: '='
       },
-      template: '<ul class="nav nav-tabs"><li ng-class="{active: tab==selectedTab}" ng-repeat="tab in tabsCollection"><a href="{{basePath}}#{{tab.key}}">{{tab.name}}</a></li></ul>',
+      template: '<ul class="tab-nav bg-white"><li ng-class="{active: tab==selectedTab}" ng-repeat="tab in tabsCollection"><a href="{{basePath}}#{{tab.key}}">{{tab.name}}</a></li></ul>',
       replace: true,
       link: function ($scope, element, attrs) {
         $scope.basePath = $location.path().substring(1);
@@ -383,5 +384,35 @@
         '</div>'
     }
   })
+
+  directives.directive('pageHeader', function() {
+    return {
+      restrict: 'E',
+      transclude: true,
+      templateUrl: '/views/directives/page_header.html',
+      link: function(scope, elem, attrs) {
+        attrs.$observe('title', function(value){
+          scope.title = value;
+        });
+      }
+    }
+  });
+
+  directives.directive('settingsScreen', ['$location', function($location) {
+    return {
+      restrict: 'E',
+      transclude: true,
+      templateUrl: '/views/directives/settings_screen.html',
+      link: function(scope, elem, attrs) {
+        scope.usersPage = _.string.startsWith($location.path(), '/users');
+        scope.groupsPage = _.string.startsWith($location.path(), '/groups');
+        scope.dsPage = _.string.startsWith($location.path(), '/data_sources');
+
+        scope.showGroupsLink = currentUser.hasPermission('list_users');
+        scope.showUsersLink = currentUser.hasPermission('list_users');
+        scope.showDsLink = currentUser.hasPermission('admin');
+      }
+    }
+  }]);
 
 })();

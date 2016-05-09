@@ -649,11 +649,13 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 
         where &= cls.is_archived == False
 
-        return cls.select()\
-                  .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source)) \
-                  .where(where) \
-                  .where(DataSourceGroup.group << groups)\
-                  .order_by(cls.created_at.desc())
+        query_ids = cls.select(peewee.fn.Distinct(cls.id))\
+            .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source)) \
+            .where(where) \
+            .where(DataSourceGroup.group << groups)
+
+        return cls.select().where(cls.id << query_ids)
+
 
     @classmethod
     def recent(cls, groups, user_id=None, limit=20):
@@ -884,31 +886,50 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         }
 
     @classmethod
-    def all(cls, org):
-        return cls.select().where(cls.org==org, cls.is_archived==False)
+    def all(cls, org, groups, user_id):
+        query = cls.select().\
+            join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
+            join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
+            join(Query, peewee.JOIN_LEFT_OUTER, on=(Visualization.query == Query.id)). \
+            join(DataSourceGroup, peewee.JOIN_LEFT_OUTER, on=(Query.data_source == DataSourceGroup.data_source)). \
+            where(Dashboard.is_archived == False). \
+            where((DataSourceGroup.group << groups) |
+                  (Dashboard.user == user_id) |
+                  (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
+            where(Dashboard.org == org). \
+            group_by(Dashboard.id)
+
+        return query
 
     @classmethod
-    def get_by_slug_and_org(cls, slug, org):
-        return cls.get(cls.slug == slug, cls.org==org)
-
-    @classmethod
-    def recent(cls, org, user_id=None, limit=20):
+    def recent(cls, org, groups, user_id, for_user=False, limit=20):
         query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
-            join(Event, on=(Dashboard.id == Event.object_id.cast('integer'))). \
-            where(Event.action << ('edit', 'view')).\
+            join(Event, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Event.object_id.cast('integer'))). \
+            join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
+            join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
+            join(Query, peewee.JOIN_LEFT_OUTER, on=(Visualization.query == Query.id)). \
+            join(DataSourceGroup, peewee.JOIN_LEFT_OUTER, on=(Query.data_source == DataSourceGroup.data_source)). \
+            where(Event.action << ('edit', 'view')). \
             where(~(Event.object_id >> None)). \
             where(Event.object_type == 'dashboard'). \
             where(Dashboard.is_archived == False). \
-            where(Dashboard.org == org).\
+            where(Dashboard.org == org). \
+            where((DataSourceGroup.group << groups) |
+                  (Dashboard.user == user_id) |
+                  (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
             group_by(Event.object_id, Dashboard.id). \
             order_by(peewee.SQL("count(0) desc"))
 
-        if user_id:
+        if for_user:
             query = query.where(Event.user == user_id)
 
         query = query.limit(limit)
 
         return query
+
+    @classmethod
+    def get_by_slug_and_org(cls, slug, org):
+        return cls.get(cls.slug == slug, cls.org==org)
 
     def save(self, *args, **kwargs):
         if not self.slug:

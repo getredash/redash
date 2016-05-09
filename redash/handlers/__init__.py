@@ -28,11 +28,17 @@ def ping():
 @require_super_admin
 def status_api():
     status = get_status()
-
     return jsonify(status)
 
 
+@routes.app_context_processor
+def inject_variables():
+    return dict(name=settings.NAME,
+                logo_url=settings.LOGO_URL,
+                base_href=base_href())
+
+
 def init_app(app):
-    from redash.handlers import embed, queries, static, authentication
+    from redash.handlers import embed, queries, static, authentication, admin
     app.register_blueprint(routes)
     api.init_app(app)

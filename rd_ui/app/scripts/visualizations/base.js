@@ -60,7 +60,7 @@
       scope: {
         visualization: '='
       },
-      template: '<small>{{name}}</small>',
+      template: '{{name}}',
       replace: false,
       link: function (scope) {
         if (Visualization.visualizations[scope.visualization.type].name !== scope.visualization.name) {
@@ -136,11 +136,12 @@
       scope: {
         query: '=',
         queryResult: '=',
-        visualization: '=?',
-        openEditor: '@',
-        onNewSuccess: '=?'
+        originalVisualization: '=?',
+        onNewSuccess: '=?',
+        modalInstance: '=?'
       },
       link: function (scope) {
+        scope.visualization = angular.copy(scope.originalVisualization);
         scope.editRawOptions = currentUser.hasPermission('edit_raw_chart');
         scope.visTypes = Visualization.visualizationTypes;
 
@@ -186,8 +187,6 @@
           Visualization.save(scope.visualization, function success(result) {
             growl.addSuccessMessage("Visualization saved");
 
-            scope.visualization = scope.newVisualization(scope.query);
-
             var visIds = _.pluck(scope.query.visualizations, 'id');
             var index = visIds.indexOf(result.id);
             if (index > -1) {
@@ -197,38 +196,21 @@
               scope.query.visualizations.push(result);
               scope.onNewSuccess && scope.onNewSuccess(result);
             }
+            scope.modalInstance.close();
           }, function error() {
             growl.addErrorMessage("Visualization could not be saved");
           });
         };
-      }
-    };
-  };
 
-  var EmbedCode = function () {
-    return {
-      restrict: 'E',
-      scope: {
-        visualization: '=',
-        query: '='
-      },
-      template:
-        '<div class="col-lg-8 embed-code">' +
-            '<i class="fa fa-code" ng-click="showCode = showCode==true ? false : true;"></i>' +
-            '<div ng-show="showCode">' +
-                '<span class="text-muted">Embed code for this visualization: <small>(height should be adjusted)</small></span>' +
-                '<code>&lt;iframe src="{{ embedUrl }}"<br/>' +
-                          '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' +
-                          'width="720" height="391"&gt;&lt;/iframe&gt;</code>' +
-            '</div>' +
-        '</div>',
-      replace: true,
-      link: function (scope) {
-        scope.$watch('visualization', function(visualization) {
-          if (visualization) {
-            scope.embedUrl = basePath + 'embed/query/' + scope.query.id + '/visualization/' + scope.visualization.id + '?api_key=' + scope.query.api_key;
+        scope.close = function() {
+          if (scope.visForm.$dirty) {
+            if (confirm("Are you sure you want to close the editor without saving?")) {
+              scope.modalInstance.close();
+            }
+          } else {
+            scope.modalInstance.close();
           }
-        });
+        }
       }
     };
   };
@@ -238,7 +220,6 @@
       .directive('visualizationRenderer', ['$location', 'Visualization', VisualizationRenderer])
       .directive('visualizationOptionsEditor', ['Visualization', VisualizationOptionsEditor])
       .directive('visualizationName', ['Visualization', VisualizationName])
-      .directive('embedCode', EmbedCode)
       .directive('filters', Filters)
       .filter('filterValue', FilterValueFilter)
       .directive('editVisulatizationForm', ['Events', 'Visualization', 'growl', EditVisualizationForm]);

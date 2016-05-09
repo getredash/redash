@@ -1,5 +1,5 @@
 body {
-  padding-top: 70px;
+  padding-top: 50px;
 }
 
 body.headless {
@@ -116,15 +116,6 @@ a.navbar-brand img {
   text-decoration: underline;
 }
 
-.list-group-item.clickable {
-  cursor: pointer;
-}
-
-.list-group-item.clickable:focus,
-.list-group-item.clickable:hover {
-  background-color: #f5f5f5;
-}
-
 .form-group.required .control-label:after {
   content: "*";
   color: red;
@@ -217,8 +208,7 @@ li.widget:hover {
 /* CodeMirror */
 .CodeMirror {
   border: 1px solid #eee;
-  height: auto;
-  min-height: 300px;
+  height: 100%;
   margin-bottom: 10px;
 }
 
@@ -317,9 +307,10 @@ to add those CSS styles here. */
   border-radius: 50%;
 }
 
-.nav-tabs > li.rd-tab-btn {
+.tab-nav > li.rd-tab-btn {
   float: right;
-  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px;
 }
 
 /* light version of bootstrap's form-control */
@@ -353,7 +344,6 @@ counter-renderer {
 
 counter-renderer counter {
   margin: 0 auto;
-  background: #f9f9f9;
   padding: 15px 50px;
   display: block;;
 }
@@ -433,33 +423,20 @@ counter-renderer counter-name {
   display: none;
 }
 
-.rd-widget-textbox p {
-  margin-bottom: 0;
-}
-
 .iframe-container {
   height: 100%;
 }
 
 .schema-container {
-  height: 300px;
-  position: relative;
+  height: 100%;
   z-index: 10;
-  resize: both;
-  background: white;
-}
-
-.schema-container .form-control {
-  margin-bottom: 10px;
-  box-shadow: none;
+  background-color: white;
 }
 
 .schema-browser {
-  height: 100%;
+  height: calc(100% - 45px);
   overflow-y: auto;
   overflow-x: hidden;
-  background: white;
-  resize: both;
   border: 1px solid rgba(0,0,0,.15);
 }
 
@@ -532,17 +509,6 @@ div.table-name:hover {
   margin-top: 10px;
 }
 
-/* Embed Code */
-.embed-code code {
-  display: block;
-  white-space: normal;
-  width: 100%;
-}
-
-.embed-code i {
-  cursor: pointer;
-}
-
 .voffset {
   margin-top: 2px;
 }
@@ -592,7 +558,7 @@ div.table-name:hover {
   left: 0;
   padding: 0;
   z-index: 1000;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .container-fluid {
@@ -600,8 +566,58 @@ div.table-name:hover {
   padding-right: 5px;
 }
 
-.m-b-10 {
-  margin-bottom: 10px;
+.modal-xl {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+.modal-xl .modal-dialog {
+  position: fixed;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.modal-xl .modal-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 2px solid #3c7dcf;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modal-xl .modal-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 50px;
+  padding: 10px;
+  border: 0;
+}
+
+.modal-xl .modal-body {
+  position: absolute;
+  top: 50px;
+  bottom: 60px;
+  width: 100%;
+  overflow: auto;
+}
+
+.modal-xl .modal-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 60px;
+  padding: 10px;
 }
 
 /* Bootstrap Overrides */
@@ -619,3 +635,25 @@ div.table-name:hover {
     transition: all 0.35s ease;
 }
 
+/* Fixes for SuperFlat */
+
+.table-hover > tbody > tr:hover {
+  background-color: #f4f4f4;
+}
+
+.dropdown-menu {
+  z-index: 1000000000;
+}
+
+
+.t-body a.actions {
+  font-size: 24px;
+  line-height: 100%;
+  padding: 4px 10px 3px;
+  display: block;
+}
+
+.t-body a.actions:hover,
+.t-body a.actions.open > a {
+  background-color: rgba(0, 0, 0, 0.1);
+}

@@ -6,7 +6,6 @@ angular.module('redash', [
     'redash.services',
     'redash.visualization',
     'plotly',
-    'plotly-chart',
     'angular-growl',
     'angularMoment',
     'ui.bootstrap',
@@ -44,12 +43,13 @@ angular.module('redash', [
     }
   ])
    .controller('EmbedCtrl', ['$scope', function ($scope) {} ])
-   .controller('EmbeddedVisualizationCtrl', ['$scope', 'Query', 'QueryResult',
-    function ($scope, Query, QueryResult) {
+   .controller('EmbeddedVisualizationCtrl', ['$scope', '$location', 'Query', 'QueryResult',
+     function ($scope, $location, Query, QueryResult) {
+       $scope.showQueryDescription = $location.search()['showDescription'];
        $scope.embed = true;
        $scope.visualization = visualization;
        $scope.query = visualization.query;
        query = new Query(visualization.query);
-       $scope.queryResult = new QueryResult({query_result:query_result});
-    } ])
+       $scope.queryResult = new QueryResult({query_result: query_result});
+     }])
    ;

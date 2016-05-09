@@ -6,7 +6,6 @@ angular.module('redash', [
   'redash.services',
   'redash.visualization',
   'plotly',
-  'plotly-chart',
   'angular-growl',
   'angularMoment',
   'ui.bootstrap',
@@ -17,6 +16,7 @@ angular.module('redash', [
   'ui.select',
   'naif.base64',
   'ui.bootstrap.showErrors',
+  'angularResizable',
   'ngSanitize'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig', '$httpProvider',
   function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig, $httpProvider) {
@@ -35,6 +35,14 @@ angular.module('redash', [
     $locationProvider.html5Mode(true);
     growlProvider.globalTimeToLive(2000);
 
+    $routeProvider.when('/admin/queries/outdated', {
+      templateUrl: '/views/admin/outdated_queries.html',
+      controller: 'AdminOutdatedQueriesCtrl'
+    });
+    $routeProvider.when('/admin/queries/tasks', {
+      templateUrl: '/views/admin/tasks.html',
+      controller: 'AdminTasksCtrl'
+    });
     $routeProvider.when('/dashboard/:dashboardSlug', {
       templateUrl: '/views/dashboard.html',
       controller: 'DashboardCtrl',

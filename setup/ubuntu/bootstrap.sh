@@ -7,7 +7,7 @@ REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
 # Install latest version if not specified in REDASH_VERSION env var
-REDASH_VERSION=${REDASH_VERSION-0.9.2.b1536}
+REDASH_VERSION=${REDASH_VERSION-0.10.0.b1774}
 LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
@@ -26,8 +26,8 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Base packages
-apt-get update
-apt-get dist-upgrade
+apt-get -y update
+apt-get -y dist-upgrade
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
 pip install -U setuptools
 
@@ -162,6 +162,9 @@ apt-get install -y libmysqlclient-dev
 
 # Microsoft SQL Server dependencies:
 apt-get install -y freetds-dev
+
+#Saml dependency
+apt-get install -y xmlsec1
 
 # Pip requirements for all data source types
 cd /opt/redash/current

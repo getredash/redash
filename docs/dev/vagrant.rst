@@ -3,7 +3,7 @@ Setting up development environment (using Vagrant)
 
 To simplify contribution there is a `Vagrant
 box <https://vagrantcloud.com/redash/boxes/dev>`__ available with all
-the needed software to run re:dash for development (use it only for
+the needed software to run Re:dash for development (use it only for
 development, for demo purposes there is
 `redash/demo <https://vagrantcloud.com/redash/boxes/demo>`__ box and the
 AWS/GCE images).
@@ -12,7 +12,7 @@ To get started with this box:
 
 1.  Make sure you have recent version of
     `Vagrant <https://www.vagrantup.com/>`__ installed.
-2.  Clone the re:dash repository:
+2.  Clone the Re:dash repository:
     ``git clone https://github.com/getredash/redash.git``.
 3.  Change dir into the repository (``cd redash``) and run run
     ``vagrant up``. This might take some time the first time you run it,
@@ -29,12 +29,13 @@ To get started with this box:
 8.  Update database schema to the latest version:
 
     ::
-    
+
         bin/run ./manage.py database drop_tables
         bin/run ./manage.py database create_tables
         bin/run ./manage.py users create --admin --password admin "Admin" "admin"
-
-9.  Start the server and background workers with
+9.  Purging the Redis cache
+    ``redis-cli -n 1 FLUSHALL``
+10. Start the server and background workers with
     ``bin/run honcho start -f Procfile.dev``.
-10. Now the server should be available on your host on port 9001 and you
+11. Now the server should be available on your host on port 9001 and you
     can login with username admin and password admin.

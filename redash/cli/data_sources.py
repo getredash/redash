@@ -81,10 +81,10 @@ def new(name=None, type=None, options=None):
 
     print "Creating {} data source ({}) with options:\n{}".format(type, name, options.to_json())
 
-    data_source = models.DataSource.create(name=name,
-                                           type=type,
-                                           options=options,
-                                           org=models.Organization.get_by_slug('default'))
+    data_source = models.DataSource.create_with_group(name=name,
+                                                      type=type,
+                                                      options=options,
+                                                      org=models.Organization.get_by_slug('default'))
     print "Id: {}".format(data_source.id)
 
 
