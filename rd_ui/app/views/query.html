@@ -127,7 +127,9 @@
               <span class="text-muted">Data Source</span>
               <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                       ng-options="ds.id as ds.name for ds in dataSources"></select>
-
+              <span class="text-muted">Editor Theme</span>
+              <select ng-model="theme" name="theme" ng-options="name for name in themes" placeholder="Editor Theme" class="ng-valid ng-dirty">
+              </select>
               <div class="pull-right">
                 <button class="btn btn-s btn-default" ng-click="duplicateQuery()" ng-disabled="query.id === undefined">
                   <span class="zmdi zmdi-arrow-split"></span> Fork

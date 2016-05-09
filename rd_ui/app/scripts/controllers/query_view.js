@@ -4,6 +4,17 @@
   function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
+    $scope.theme = '';
+    $scope.themes = [
+      'default',
+      '3024-day',
+      '3024-night',
+      'eclipse',
+      'neat',
+      'monokai',
+      'elegant'
+    ];
+
     var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);

@@ -67,7 +67,8 @@
         'query': '=',
         'lock': '=',
         'schema': '=',
-        'syntax': '='
+        'syntax': '=',
+        'theme': '='
       },
       template: '<textarea></textarea>',
       link: {
@@ -110,6 +111,16 @@
           };
 
           var codemirror = CodeMirror.fromTextArea(textarea, editorOptions);
+
+          $scope.$watch('theme', function(newVal) {
+            if (newVal) { $scope.changeTheme(newVal); }
+          })
+
+          $scope.changeTheme = function(theme) {
+            if (codemirror) {
+              codemirror.setOption('theme', theme);
+            }
+          }
 
           codemirror.on('change', function(instance) {
             var newValue = instance.getValue();
