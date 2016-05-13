@@ -8,4 +8,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "redash/dev"
   config.vm.synced_folder "./", "/opt/redash/current"
   config.vm.network "forwarded_port", guest: 5000, host: 9001
+  config.vm.provision "shell" do |s|
+    s.inline = "/opt/redash/current/setup/vagrant/provision.sh"
+    s.privileged = false
+  end
 end
