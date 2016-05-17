@@ -276,7 +276,6 @@ class QueryArchiveTest(BaseTestCase):
 
         self.assertEqual(None, query.schedule)
 
-
 class DataSourceTest(BaseTestCase):
     def test_get_schema(self):
         return_value = [{'name': 'table', 'columns': []}]
@@ -413,6 +412,44 @@ class TestQueryAll(BaseTestCase):
         self.assertNotIn(q2, models.Query.all_queries([group1]))
         self.assertIn(q1, models.Query.all_queries([group1, group2]))
         self.assertIn(q2, models.Query.all_queries([group1, group2]))
+
+
+class TestUser(BaseTestCase):
+    def test_default_group_always_added(self):
+        user = self.factory.user
+        org1 = self.factory.create_org()
+
+        user.update_group_assignments(["g_unknown"], org1)
+        self.assertItemsEqual([org1.default_group.id], user.groups)
+
+    def test_update_group_assignments(self):
+        user = self.factory.user
+        org1 = self.factory.create_org()
+        new_group = models.Group.create(id='999', name="g1", org=org1)
+
+        user.update_group_assignments(["g1"], org1)
+        self.assertItemsEqual([org1.default_group.id, new_group.id], user.groups)
+
+
+class TestGroup(BaseTestCase):
+    def test_returns_groups_with_specified_names(self):
+        org1 = self.factory.create_org()
+        org2 = self.factory.create_org()
+
+        matching_group1 = models.Group.create(id='999', name="g1", org=org1)
+        matching_group2 = models.Group.create(id='888', name="g2", org=org1)
+        non_matching_group = models.Group.create(id='777', name="g1", org=org2)
+
+        groups = models.Group.find_by_name(org1, ["g1", "g2"])
+        self.assertIn(matching_group1, groups)
+        self.assertIn(matching_group2, groups)
+        self.assertNotIn(non_matching_group, groups)
+
+    def test_returns_no_groups(self):
+        org1 = self.factory.create_org()
+
+        models.Group.create(id='999', name="g1", org=org1)
+        self.assertEqual([], models.Group.find_by_name(org1, ["non-existing"]))
 
 
 class TestQueryResultStoreResult(BaseTestCase):

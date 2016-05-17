@@ -85,7 +85,12 @@ def idp_initiated():
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
-    create_and_login_user(current_org, name, email)
+    user = create_and_login_user(current_org, name, email)
+
+    if 'RedashGroups' in authn_response.ava:
+        group_names = authn_response.ava.get('RedashGroups')
+        user.update_group_assignments(group_names, current_org)
+
     url = url_for('redash.index')
 
     return redirect(url)
