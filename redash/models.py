@@ -244,6 +244,13 @@ class Group(BaseModel, BelongsToOrgMixin):
     def members(cls, group_id):
         return User.select().where(peewee.SQL("%s = ANY(groups)", group_id))
 
+    @classmethod
+    def find_by_name(cls, org, group_names):
+        if len(group_names) == 0:
+            return []
+        result = cls.select().where(cls.org == org, cls.name << group_names)
+        return list(result) if result.count() > 0 else []
+
     def __unicode__(self):
         return unicode(self.id)
 
@@ -329,6 +336,12 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
 
     def verify_password(self, password):
         return self.password_hash and pwd_context.verify(password, self.password_hash)
+
+    def update_group_assignments(self, group_names, org):
+        groups = Group.find_by_name(org, group_names)
+        groups.append(org.default_group)
+        self.groups = map(lambda g: g.id, groups)
+        self.save()
 
 
 class ConfigurationField(peewee.TextField):
