@@ -2,6 +2,8 @@ import json
 import logging
 import sys
 
+from pyparsing import ParseException
+
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -126,7 +128,10 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
-        except (SyntaxError, RuntimeError) as e:
+        except ParseException as e:
+            error = u"Error parsing query at line {} (column {}):\n{}".format(e.lineno, e.column, e.line)
+            json_data = None
+        except (SyntaxError, RuntimeError, ParseException) as e:
             error = e.message
             json_data = None
         except KeyboardInterrupt:
