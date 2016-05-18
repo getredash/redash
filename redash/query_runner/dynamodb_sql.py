@@ -86,8 +86,10 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         if not config.get('region'):
             config['region'] = 'us-east-1'
 
-        return engine, engine.connect(**config)
+        if config.get('host') == '':
+            config['host'] = None
 
+        return engine, engine.connect(**config)
 
     def _get_tables(self, schema):
 
