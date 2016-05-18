@@ -131,7 +131,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         except ParseException as e:
             error = u"Error parsing query at line {} (column {}):\n{}".format(e.lineno, e.column, e.line)
             json_data = None
-        except (SyntaxError, RuntimeError, ParseException) as e:
+        except (SyntaxError, RuntimeError) as e:
             error = e.message
             json_data = None
         except KeyboardInterrupt:
