@@ -2,7 +2,6 @@ import json
 import logging
 import sys
 
-from pyparsing import ParseException
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -11,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from dql import Engine, FragmentEngine
+    from pyparsing import ParseException
     enabled = True
 except ImportError, e:
     enabled = False
