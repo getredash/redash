@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 
+
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from dql import Engine, FragmentEngine
+    from pyparsing import ParseException
     enabled = True
 except ImportError, e:
     enabled = False
@@ -126,6 +128,9 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
+        except ParseException as e:
+            error = u"Error parsing query at line {} (column {}):\n{}".format(e.lineno, e.column, e.line)
+            json_data = None
         except (SyntaxError, RuntimeError) as e:
             error = e.message
             json_data = None
