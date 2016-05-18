@@ -93,7 +93,7 @@
         };
 
         scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
-        scope.yAxisScales = ['linear', 'logarithmic'];
+        scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
 
         var refreshColumns = function() {
           scope.columns = scope.queryResult.getColumns();
