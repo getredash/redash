@@ -92,13 +92,14 @@
       restrict: 'E',
       scope: {
         'tabId': '@',
-        'name': '@'
+        'name': '@',
+        'basePath': '=?'
       },
       transclude: true,
       template: '<li class="rd-tab" ng-class="{active: tabId==selectedTab}"><a href="{{basePath}}#{{tabId}}">{{name}}<span ng-transclude></span></a></li>',
       replace: true,
       link: function (scope) {
-        scope.basePath = $location.path().substring(1);
+        scope.basePath = scope.basePath || $location.path().substring(1);
         scope.$watch(function () {
           return scope.$parent.selectedTab
         }, function (tab) {
@@ -492,6 +493,43 @@
         scope.showUsersLink = currentUser.hasPermission('list_users');
         scope.showDsLink = currentUser.hasPermission('admin');
         scope.showDestinationsLink = currentUser.hasPermission('admin');
+      }
+    }
+  }]);
+
+  directives.directive('parameters', ['$location', '$modal', function($location, $modal) {
+    return {
+      restrict: 'E',
+      transclude: true,
+      scope: {
+        'parameters': '=',
+        'syncValues': '=?',
+        'editable': '=?'
+      },
+      templateUrl: '/views/directives/parameters.html',
+      link: function(scope, elem, attrs) {
+        // is this the correct location for this logic?
+        if (scope.syncValues !== false) {
+          scope.$watch('parameters', function() {
+            _.each(scope.parameters, function(param) {
+              if (param.value !== null || param.value !== '') {
+                $location.search('p_' + param.name, param.value);
+              }
+            })
+          }, true);
+        }
+
+        scope.showParameterSettings = function(param) {
+          $modal.open({
+            templateUrl: '/views/dialogs/parameter_settings.html',
+            controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
+              $scope.close = function() {
+                $modalInstance.close();
+              };
+              $scope.parameter = param;
+            }]
+          })
+        }
       }
     }
   }]);

@@ -10,29 +10,29 @@
       },
       template: '<a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
       link: function(scope, element) {
-        scope.link = 'queries/' + scope.query.id;
+        var hash = null;
         if (scope.visualization) {
           if (scope.visualization.type === 'TABLE') {
             // link to hard-coded table tab instead of the (hidden) visualization tab
-            scope.link += '#table';
+            hash = 'table';
           } else {
-            scope.link += '#' + scope.visualization.id;
+            hash = scope.visualization.id;
           }
         }
-        // element.find('a').attr('href', link);
+        scope.link = scope.query.getUrl(false, hash);
       }
     }
   }
 
-  function querySourceLink() {
+  function querySourceLink($location) {
     return {
       restrict: 'E',
       template: '<span ng-show="query.id && canViewSource">\
                     <a ng-show="!sourceMode"\
-                      ng-href="queries/{{query.id}}/source#{{selectedTab}}" class="btn btn-default">Show Source\
+                      ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default">Show Source\
                     </a>\
                     <a ng-show="sourceMode"\
-                      ng-href="queries/{{query.id}}#{{selectedTab}}" class="btn btn-default">Hide Source\
+                      ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default">Hide Source\
                     </a>\
                 </span>'
     }
@@ -285,7 +285,7 @@
 
   angular.module('redash.directives')
   .directive('queryLink', queryLink)
-  .directive('querySourceLink', querySourceLink)
+  .directive('querySourceLink', ['$location', querySourceLink])
   .directive('queryResultLink', queryResultLink)
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)

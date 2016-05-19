@@ -5,8 +5,6 @@
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
-      // Collect params, and getQueryResult with params; getQueryResult merges it into the query
-      var parameters = Query.collectParamsFromQueryString($location, $scope.query);
       if (maxAge === undefined) {
         maxAge = $location.search()['maxAge'];
       }
@@ -16,7 +14,7 @@
       }
 
       $scope.showLog = false;
-      $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
     };
 
     var getDataSourceId = function() {
@@ -127,16 +125,16 @@
       if (data) {
         data.id = $scope.query.id;
       } else {
-        data = _.clone($scope.query);
+        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options"]);
+        if ($scope.query.isNew()) {
+          data['latest_query_data_id'] = $scope.query.latest_query_data_id;
+        }
       }
 
       options = _.extend({}, {
         successMessage: 'Query saved',
         errorMessage: 'Query could not be saved'
       }, options);
-
-      delete data.latest_query_data;
-      delete data.queryResult;
 
       return Query.save(data, function() {
         growl.addSuccessMessage(options.successMessage);
