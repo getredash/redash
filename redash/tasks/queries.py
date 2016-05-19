@@ -123,7 +123,7 @@ class QueryTaskTracker(object):
 
         remove_count = count - keep_count
         keys = redis_connection.zrange(list_name, 0, remove_count - 1)
-        redis_connection.delete(keys)
+        redis_connection.delete(*keys)
         redis_connection.zremrangebyrank(list_name, 0, remove_count - 1)
 
         return remove_count
