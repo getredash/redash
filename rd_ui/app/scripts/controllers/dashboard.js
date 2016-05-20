@@ -1,7 +1,24 @@
 (function() {
-    var DashboardCtrl = function($scope, Events, Widget, FavoriteDashboards, FileSaver, $routeParams, $location, $http, $timeout, $q, Dashboard, Parameters) {
+    var DashboardCtrl = function($scope, Events, Widget, FavoriteDashboards, FileSaver, $routeParams, $location, $http, $timeout, $modal, $q, Dashboard, Parameters) {
       $scope.downloadingPDF = false;
       $scope.downloadingXLS = false;
+      //flag to know if dates are completed and enable export
+      $scope.datesCompleted = false;
+
+      var searchParams = $location.search();
+
+      $scope.openExportMoMModal = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '../../../views/modals/exportMoM.html',
+          controller: ExportMoMModalCtrl,
+          size: 'lg',
+          resolve: {
+            dateRanges: function () {
+              return $scope.dateRanges;
+            }
+          }
+        });
+      };
 
       /**
       * toggleFavorite Add/Remove the current dashboard to favorite
@@ -10,42 +27,26 @@
         FavoriteDashboards.updateFavorite({dashboardId: $scope.dashboard.id, flag: value});
       };
 
-
-      /*
-       * Some magic with dates to read querystring parameters
-       */
-
-      $scope.parseDate = function(date_str) {
-          return {
-              'y': date_str.split('-')[0],
-              'm': date_str.split('-')[1],
-              'd': date_str.split('-')[2]
-          };
+      //if user has selected dates, then enable MoM export
+      if (searchParams.p_startdate && searchParams.p_enddate) {
+          $scope.datesCompleted = true;
+          var startDateParts = searchParams.p_startdate.split('-');
+          var endDateParts = searchParams.p_enddate.split('-');
+          var startDate = new Date(startDateParts[0], startDateParts[1] - 1, startDateParts[2]);
+          var endDate = new Date(endDateParts[0], endDateParts[1] - 1, endDateParts[2]);
+          var dateRanges = [];
+          var itStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+          var itEndDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 0);
+          while (itEndDate < endDate) {
+            dateRanges.push({'start': itStartDate, 'end': itEndDate});
+            itStartDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 1);
+            // Last day of startDate's month
+            // First day of the next months
+            itEndDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 2, 0);
+          }
+          dateRanges.push({'start': itStartDate, 'end': itEndDate});
+          $scope.dateRanges = dateRanges;
       };
-              
-
-      if ('p_startdate' in $location.search() && 'p_enddate' in $location.search()) {
-
-          var startDate = new Date(Date.parse($location.search()['p_startdate']));
-          var endDate = new Date(Date.parse($location.search()['p_enddate']));
-
-          var dates = new Array();
-          itStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-          do {
-              // Last day of startDate's month
-              itEndDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 0);
-              if (itEndDate < endDate) {
-                  dates.push({'start': itStartDate, 'end': itEndDate});
-                  itStartDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 1);
-              }
-              // First day of the next month
-          } while (itEndDate < endDate);
-
-          dates.push({'start': itStartDate, 'end': endDate});
-          console.log(dates); 
-
-          $scope.dates = dates;
-      }
 
       /**
        * changeCollapseValues for each widget sets the value received by param
@@ -464,8 +465,36 @@ var WidgetCtrl = function($scope, $location, Events, Query, Parameters) {
   });
 };
 
-angular.module('redash.controllers')
-  .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
-  .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
+var ExportMoMModalCtrl = function($scope, $modalInstance, dateRanges) {
+  $scope.dateRanges = dateRanges;
+  $scope.email = '';
 
+  function getSelectedMonths() {
+    return _.filter($scope.dateRanges, {isSelected: true});
+  };
+
+  $scope.exportMoMXls = function() {
+    console.log(getSelectedMonths());
+    $scope.close();
+  };
+
+  $scope.exportMoMXlsPdf = function() {
+    console.log(getSelectedMonths());
+    $scope.close();
+  };
+
+  $scope.exportMoMBoth = function() {
+    console.log(getSelectedMonths());
+    $scope.close();
+  };
+
+  $scope.close = function() {
+    $modalInstance.dismiss('cancel');
+  };
+};
+
+angular.module('redash.controllers')
+  .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', '$http', '$timeout', '$modal', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
+  .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
+  .controller('ExportMoMModalCtrl', ['$scope', '$modalInstance', 'dateRanges', ExportMoMModalCtrl])
 })();
