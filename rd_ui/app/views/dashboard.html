@@ -31,6 +31,9 @@
             <i class="fa fa-spinner fa-spin" ng-show="downloadingXLS"></i>
             <i class="fa fa-download" aria-hidden="true" ng-show="!downloadingXLS"></i> XLS
         </button>
+        <button style="float: right; margin-right: 5px;" type="button" class="btn btn-success" title="Generate Excel & PDF reports broken by month" data-toggle="modal" data-target="#export_modal">
+            <i class="fa fa-download" aria-hidden="true"></i> Reports By Month
+        </button>
         <span title="{{isFavorite ? 'Remove from favorites' : 'Add to favorites'}}" class="pull-left fa dashboard-favorite-icon"
               ng-click="isFavorite = !isFavorite; toggleFavorite(isFavorite)" ng-class="{'fa-star' : isFavorite, 'fa-star-o': !isFavorite}"></span>
     </h2>
@@ -109,3 +112,35 @@
         </div>
     </div>
 </div>
+
+<div id="export_modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Reports broken by month</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <th>Start date</th>
+            <th>End date</th>
+            <th>-</th>
+            <th>-</th>
+          </thead>
+          <tbody>
+            <tr ng-repeat="dr in dates">
+                <td>{{dr.start.getFullYear()}}-{{dr.start.getMonth()}}-{{dr.start.getDate()}}</td>
+                <td>{{dr.end.getFullYear()}}-{{dr.end.getMonth()}}-{{dr.end.getDate()}}</td>
+                <td><a>Download XLS</a></td>
+                <td><a>Download PDF</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

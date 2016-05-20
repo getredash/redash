@@ -10,6 +10,43 @@
         FavoriteDashboards.updateFavorite({dashboardId: $scope.dashboard.id, flag: value});
       };
 
+
+      /*
+       * Some magic with dates to read querystring parameters
+       */
+
+      $scope.parseDate = function(date_str) {
+          return {
+              'y': date_str.split('-')[0],
+              'm': date_str.split('-')[1],
+              'd': date_str.split('-')[2]
+          };
+      };
+              
+
+      if ('p_startdate' in $location.search() && 'p_enddate' in $location.search()) {
+
+          var startDate = new Date(Date.parse($location.search()['p_startdate']));
+          var endDate = new Date(Date.parse($location.search()['p_enddate']));
+
+          var dates = new Array();
+          itStartDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+          do {
+              // Last day of startDate's month
+              itEndDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 0);
+              if (itEndDate < endDate) {
+                  dates.push({'start': itStartDate, 'end': itEndDate});
+                  itStartDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 1);
+              }
+              // First day of the next month
+          } while (itEndDate < endDate);
+
+          dates.push({'start': itStartDate, 'end': endDate});
+          console.log(dates); 
+
+          $scope.dates = dates;
+      }
+
       /**
        * changeCollapseValues for each widget sets the value received by param
        * @param  {boolean} value
@@ -39,6 +76,7 @@
           });
         }
       };
+
 
       /**
        * exportWidgets For Each selected visualization widget export its svg to a pdf
