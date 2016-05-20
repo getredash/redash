@@ -337,9 +337,9 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
     def verify_password(self, password):
         return self.password_hash and pwd_context.verify(password, self.password_hash)
 
-    def update_group_assignments(self, group_names, org):
-        groups = Group.find_by_name(org, group_names)
-        groups.append(org.default_group)
+    def update_group_assignments(self, group_names):
+        groups = Group.find_by_name(self.org, group_names)
+        groups.append(self.org.default_group)
         self.groups = map(lambda g: g.id, groups)
         self.save()
 
