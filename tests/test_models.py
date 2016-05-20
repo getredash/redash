@@ -416,19 +416,17 @@ class TestQueryAll(BaseTestCase):
 
 class TestUser(BaseTestCase):
     def test_default_group_always_added(self):
-        user = self.factory.user
-        org1 = self.factory.create_org()
+        user = self.factory.create_user()
 
-        user.update_group_assignments(["g_unknown"], org1)
-        self.assertItemsEqual([org1.default_group.id], user.groups)
+        user.update_group_assignments(["g_unknown"])
+        self.assertItemsEqual([user.org.default_group.id], user.groups)
 
     def test_update_group_assignments(self):
         user = self.factory.user
-        org1 = self.factory.create_org()
-        new_group = models.Group.create(id='999', name="g1", org=org1)
+        new_group = models.Group.create(id='999', name="g1", org=user.org)
 
-        user.update_group_assignments(["g1"], org1)
-        self.assertItemsEqual([org1.default_group.id, new_group.id], user.groups)
+        user.update_group_assignments(["g1"], user.org)
+        self.assertItemsEqual([user.org.default_group.id, new_group.id], user.groups)
 
 
 class TestGroup(BaseTestCase):
