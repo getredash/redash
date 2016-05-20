@@ -425,7 +425,7 @@ class TestUser(BaseTestCase):
         user = self.factory.user
         new_group = models.Group.create(id='999', name="g1", org=user.org)
 
-        user.update_group_assignments(["g1"], user.org)
+        user.update_group_assignments(["g1"])
         self.assertItemsEqual([user.org.default_group.id, new_group.id], user.groups)
 
 
