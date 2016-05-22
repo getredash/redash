@@ -72,7 +72,7 @@ Docker Compose
 2. Make sure your current working directory is the root of this GitHub repository.
 3. Run ``docker-compose up postgres``.
 4. Run ``./setup/docker/create_database.sh``. This will access the postgres container and set up the database.
-5. Run ``docker compose up``
+5. Run ``docker-compose up``
 6. Run ``docker-machine ls``, take note of the ip for the Docker machine you are using, and open the web browser.
 7. Visit that Docker machine IP at port 80, and you should see a Re:dash login screen.
 
