@@ -1,4 +1,4 @@
-from redash.utils import build_url, collect_query_parameters, collect_parameters_from_request
+from redash.utils import build_url, collect_query_parameters, collect_parameters_from_request, clean_from_html_tags
 from collections import namedtuple
 from unittest import TestCase
 
@@ -49,3 +49,15 @@ class TestCollectParametersFromRequest(TestCase):
 
     def test_takes_prefixed_values(self):
         self.assertDictEqual({'test': 1, 'something_else': 'test'}, collect_parameters_from_request({'p_test': 1, 'p_something_else': 'test'}))
+
+
+class TestCleanFromHtmlTags(TestCase):
+    def test_removes_html_tags(self):
+        dirty_string = '<a href="some/site" target="_brank">value</a>'
+        self.assertEqual('value', clean_from_html_tags(dirty_string))
+
+    def test_ignores_number(self):
+        self.assertEqual(3, clean_from_html_tags(3))
+
+    def test_ignores_string_with_no_html_tag(self):
+        self.assertEqual('value', clean_from_html_tags('value'))
