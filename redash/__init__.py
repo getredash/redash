@@ -12,7 +12,7 @@ from redash import settings
 from redash.query_runner import import_query_runners
 
 
-__version__ = '0.10.0'
+__version__ = '0.10.1'
 
 
 if settings.FEATURE_TABLES_PERMISSIONS:
