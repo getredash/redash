@@ -2,12 +2,15 @@
     <h3 class="modal-title">Reports Month over Month</h3>
 </div>
 <div class="modal-body">
-    <!--<ul>
-        <li ng-repeat="item in items">
-            <a href="#" ng-click="$event.preventDefault(); selected.item = item">{{ item }}</a>
-        </li>
-    </ul>
-    Selected: <b>{{ selected.item }}</b>-->
+    <div class="alert alert-danger alert-dismissible" role="alert" ng-show="error">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close" ng-click="closeAlert()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      There was an error when processing the request. Please try again.
+    </div>
+    <div class="alert alert-info" role="alert">
+      The selected reports will be generated and sent to the specified email address.
+    </div>
     <table class="table">
       <thead>
         <th>Start date</th>
@@ -27,8 +30,8 @@
     <input type="email" class="form-control" placeholder="Enter email" ng-model="email">
 </div>
 <div class="modal-footer">
-    <button class="btn btn-primary" type="button" ng-click="exportMoMXls()" ng-disabled="!email">XLS</button>
-    <button class="btn btn-primary" type="button" ng-click="exportMoMPdf()" ng-disabled="!email">PDF</button>
-    <button class="btn btn-primary" type="button" ng-click="exportMoMBoth()" ng-disabled="!email">XLS &amp; PDF</button>
+    <button class="btn btn-primary" type="button" ng-click="exportMoMXls()" ng-disabled="!(email  && getSelectedMonths().length)">XLS</button>
+    <button class="btn btn-primary" type="button" ng-click="exportMoMPdf()" ng-disabled="!(email  && getSelectedMonths().length)">PDF</button>
+    <button class="btn btn-primary" type="button" ng-click="exportMoMBoth()" ng-disabled="!(email  && getSelectedMonths().length)">XLS &amp; PDF</button>
     <button type="button" class="btn btn-warning" ng-click="close()">Cancel</button>
 </div>

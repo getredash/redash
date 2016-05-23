@@ -15,6 +15,12 @@
           resolve: {
             dateRanges: function () {
               return $scope.dateRanges;
+            },
+            widgets: function() {
+              return getSelectedWidgets();
+            },
+            searchParams: function() {
+              return searchParams;
             }
           }
         });
@@ -89,11 +95,7 @@
         //generate data to be exported for every widget that is marked for export
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
-            if (w.options.exportable !== undefined &&
-              w.options.exportable.isExportable &&
-              w.query !== undefined &&
-              w.query.queryResult !== undefined &&
-              w.query.queryResult.filteredData !== undefined) {
+            if (isExportable(w)) {
               //to export charts, send SVG
               if (w.visualization && w.visualization.type==='CHART') {
                 $chart = $('#' + w.id).find('div[data-highcharts-chart]');
@@ -186,6 +188,32 @@
         return null;
       };
 
+      /*
+      * Give a widget, return true if it is exportable and marked to export
+      */
+      var isExportable = function(w) {
+        return w.options.exportable !== undefined &&
+          w.options.exportable.isExportable &&
+          w.query !== undefined &&
+          w.query.queryResult !== undefined &&
+          w.query.queryResult.filteredData !== undefined;
+      };
+
+      /*
+      * Returns all widget ids that are exportable and marked to export
+      */
+      var getSelectedWidgets = function() {
+        var results = [];
+        _.forEach($scope.dashboard.widgets, function(widget) {
+          _.forEach(widget, function(w) {
+            if (isExportable(w)) {
+              results.push(w);
+            }
+          });
+        });
+        return _.pluck(results, 'id');
+      };
+
       /**
        * exportWidgets For Each widget takes the data and exports that on a Sheet (xls)
        */
@@ -216,13 +244,8 @@
         //generate data to be exported for every widget that is marked for export
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
-            if (w.options.exportable !== undefined &&
-              w.options.exportable.isExportable &&
-              w.query !== undefined &&
-              w.query.queryResult !== undefined &&
-              w.query.queryResult.filteredData !== undefined) {
+            if (isExportable(w)) {
               // Creates a new option for adding the sheet name
-              //
               if (w.options.exportable.name === undefined) {
                 w.options.exportable.name = w.query.name;
               }
@@ -465,27 +488,72 @@ var WidgetCtrl = function($scope, $location, Events, Query, Parameters) {
   });
 };
 
-var ExportMoMModalCtrl = function($scope, $modalInstance, dateRanges) {
+var ExportMoMModalCtrl = function($scope, $modalInstance, $http, $q, dateRanges, widgets, searchParams) {
   $scope.dateRanges = dateRanges;
   $scope.email = '';
 
-  function getSelectedMonths() {
+  function getExportData() {
+    return {
+      selectedMonths: $scope.getSelectedMonths(),
+      email: $scope.email,
+      widgets: widgets,
+      searchParams: searchParams
+    };
+  };
+
+  /* Set error flag to false to alert does not show up */
+  $scope.closeAlert = function() {
+    $scope.error = false;
+  };
+
+  $scope.getSelectedMonths = function() {
     return _.filter($scope.dateRanges, {isSelected: true});
   };
 
   $scope.exportMoMXls = function() {
-    console.log(getSelectedMonths());
-    $scope.close();
+    $http({
+      url: '',
+      method: 'POST',
+      data: getExportData()
+    }).then(function() {
+      console.log('report request sent');
+      $scope.close();
+    }, function() {
+      $scope.error = true;
+    });
   };
 
-  $scope.exportMoMXlsPdf = function() {
-    console.log(getSelectedMonths());
-    $scope.close();
+  $scope.exportMoMPdf = function() {
+    $http({
+      url: '',
+      method: 'POST',
+      data: getExportData()
+    }).then(function() {
+      console.log('report request sent');
+      $scope.close();
+    }, function() {
+      $scope.error = true;
+    });
   };
 
   $scope.exportMoMBoth = function() {
-    console.log(getSelectedMonths());
-    $scope.close();
+    var promises = [];
+    promises.push($http({
+      url: '',
+      method: 'POST',
+      data: getExportData()
+    }));
+    promises.push($http({
+      url: '',
+      method: 'POST',
+      data: getExportData()
+    }));
+    $q.all(promises).then(function() {
+      console.log('report request sent');
+      $scope.close();
+    }, function() {
+      $scope.error = true;
+    });
   };
 
   $scope.close = function() {
@@ -496,5 +564,5 @@ var ExportMoMModalCtrl = function($scope, $modalInstance, dateRanges) {
 angular.module('redash.controllers')
   .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', '$http', '$timeout', '$modal', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
   .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
-  .controller('ExportMoMModalCtrl', ['$scope', '$modalInstance', 'dateRanges', ExportMoMModalCtrl])
+  .controller('ExportMoMModalCtrl', ['$scope', '$modalInstance', '$http', '$q', 'dateRanges', ExportMoMModalCtrl])
 })();
