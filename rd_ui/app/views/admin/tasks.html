@@ -12,7 +12,7 @@
     <ul class="tab-nav">
       <rd-tab tab-id="in_progress" name="In Progress ({{tasks.in_progress.length}})" ng-click="setTab('in_progress')"></rd-tab>
       <rd-tab tab-id="waiting" name="Waiting ({{tasks.waiting.length}})" ng-click="setTab('waiting')"></rd-tab>
-      <rd-tab tab-id="done" name="Done ({{tasks.done.length}})" ng-click="setTab('done')"></rd-tab>
+      <rd-tab tab-id="done" name="Done" ng-click="setTab('done')"></rd-tab>
     </ul>
 
     <smart-table rows="showingTasks" columns="gridColumns"
