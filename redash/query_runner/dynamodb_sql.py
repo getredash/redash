@@ -2,6 +2,7 @@ import json
 import logging
 import sys
 
+
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from dql import Engine, FragmentEngine
+    from pyparsing import ParseException
     enabled = True
 except ImportError, e:
     enabled = False
@@ -39,32 +41,28 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             "properties": {
                 "region": {
                     "type": "string",
-                    "default": "us-west-1"
+                    "default": "us-east-1"
                 },
                 "host": {
                     "type": "string",
-                    "default": "127.0.0.1"
+                    "default": "Use for non standard endpoints."
                 },
                 "port": {
                     "type": "number",
-                    "default": 8000
+                    "default": 80
                 },
                 "access_key": {
                     "type": "string",
-                    "default": "anything"
-
                 },
                 "secret_key": {
                     "type": "string",
-                    "default": "anything"
-
                 },
                 "is_secure": {
                     "type": "boolean",
                     "default": False,
                 }
             },
-            "required": ["host"],
+            "required": ["access_key", "secret_key"],
             "secret": ["secret_key"]
         }
 
@@ -83,11 +81,22 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(DynamoDBSQL, self).__init__(configuration)
 
+    def _connect(self):
+        engine = FragmentEngine()
+        config = self.configuration.to_dict()
+
+        if not config.get('region'):
+            config['region'] = 'us-east-1'
+
+        if config.get('host') == '':
+            config['host'] = None
+
+        return engine, engine.connect(**config)
+
     def _get_tables(self, schema):
 
         try:
-            engine = FragmentEngine()
-            engine.connect(**self.configuration.to_dict())
+            engine, _ = self._connect()
 
             for table in engine.describe_all():
                 schema[table.name] = {'name': table.name, 'columns': table.attrs.keys()}
@@ -97,11 +106,9 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
     def run_query(self, query):
-
         connection = None
         try:
-            engine = FragmentEngine()
-            connection = engine.connect(**self.configuration.to_dict())
+            engine, connection = self._connect()
 
             res_dict = engine.execute(query if str(query).endswith(';') else str(query)+';')
 
@@ -121,12 +128,18 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
+        except ParseException as e:
+            error = u"Error parsing query at line {} (column {}):\n{}".format(e.lineno, e.column, e.line)
+            json_data = None
+        except (SyntaxError, RuntimeError) as e:
+            error = e.message
+            json_data = None
         except KeyboardInterrupt:
-            connection.cancel()
+            if connection:
+                connection.cancel()
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            logging.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
