@@ -13,7 +13,8 @@
       xAxis: {type: 'datetime', labels: {enabled: true}},
       series: {stacking: null},
       seriesOptions: {},
-      columnMapping: {}
+      columnMapping: {},
+      bottomMargin: 50
     };
 
     VisualizationProvider.registerVisualization({
@@ -93,7 +94,7 @@
         };
 
         scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
-        scope.yAxisScales = ['linear', 'logarithmic'];
+        scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
 
         var refreshColumns = function() {
           scope.columns = scope.queryResult.getColumns();
@@ -192,6 +193,10 @@
 
         if (!_.has(scope.options, 'legend')) {
           scope.options.legend = {enabled: true};
+        }
+
+        if (!_.has(scope.options, 'bottomMargin')) {
+          scope.options.bottomMargin = 50;
         }
 
         if (scope.columnNames)
