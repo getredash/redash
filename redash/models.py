@@ -249,7 +249,7 @@ class Group(BaseModel, BelongsToOrgMixin):
         if len(group_names) == 0:
             return []
         result = cls.select().where(cls.org == org, cls.name << group_names)
-        return list(result) if result.count() > 0 else []
+        return list(result)
 
     def __unicode__(self):
         return unicode(self.id)
