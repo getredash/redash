@@ -527,7 +527,7 @@ class DataSourceJoin(BaseModel):
             d = {
                 'column': self.column.name,
                 'related_table': self.table.name,
-                'related_table_id': self.related_table.id,
+                'related_table_id': self.table.id,
                 'related_column': self.column.name,
                 'cardinality': self.cardinality[::-1]
             }
