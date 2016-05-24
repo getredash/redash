@@ -314,8 +314,7 @@
           element.on('plotly_afterplot', function(d) {
             if(scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')){
               d3.selectAll('.legendtoggle').each(function(d, i) {
-                // override plotly's default legend item on-click behaviour
-                d3.select(this).on('click', function() {
+                d3.select(this).on('click.legend_hack', function(){
                   var maxIndex = scope.data.length - 1;
                   var itemClicked = scope.data[maxIndex  - i];
 
@@ -327,6 +326,10 @@
                    }
                   Plotly.redraw(element);
                 });
+              });
+            } else {
+              d3.selectAll('.legendtoggle').each(function(d, i) {
+                d3.select(this).on('click.legend_hack', null);
               });
             }
           });
