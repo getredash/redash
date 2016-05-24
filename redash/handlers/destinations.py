@@ -12,18 +12,15 @@ from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class DestinationTypeListResource(BaseResource):
-    @require_admin
     def get(self):
         return [q.to_dict() for q in destinations.values()]
 
 
 class DestinationResource(BaseResource):
-    @require_admin
     def get(self, destination_id):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         return destination.to_dict(all=True)
 
-    @require_admin
     def post(self, destination_id):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
         req = request.get_json(True)
@@ -67,7 +64,6 @@ class DestinationListResource(BaseResource):
 
         return response.values()
 
-    @require_admin
     def post(self):
         req = request.get_json(True)
         required_fields = ('options', 'name', 'type')
