@@ -28,15 +28,6 @@
       // If there is no source yet, then parse what we have in localStorage
       //   e.g. `null` -> `NaN`, malformed data -> `NaN`, "1" -> 1
       if (dataSourceId === undefined) {
-        dataSourceId = parseInt(localStorage.lastSelectedDataSourceId, 10);
-      }
-
-      // If we had an invalid value in localStorage (e.g. nothing, deleted source), then use the first data source
-      var isValidDataSourceId = !isNaN(dataSourceId) && _.some($scope.dataSources, function(ds) {
-        return ds.id == dataSourceId;
-      });
-
-      if (!isValidDataSourceId) {
         dataSourceId = $scope.dataSources[0].id;
       }
 
