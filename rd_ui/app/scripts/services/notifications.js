@@ -1,50 +1,76 @@
 (function () {
-    var notifications = function (Events) {
-        var notificationService = {};
+  var notifications = function (Events) {
+    var notificationService = {pageVisible: true};
 
-        notificationService.isSupported = function () {
-            if ("Notification" in window) {
-                return true;
-            } else {
-                console.log("HTML5 notifications are not supported.");
-                return false;
-            }
+    notificationService.monitorVisibility = function() {
+      var hidden, visibilityState, visibilityChange;
+
+      if (typeof document.hidden !== "undefined") {
+        hidden = "hidden", visibilityChange = "visibilitychange", visibilityState = "visibilityState";
+      } else if (typeof document.msHidden !== "undefined") {
+        hidden = "msHidden", visibilityChange = "msvisibilitychange", visibilityState = "msVisibilityState";
+      }
+
+      var documentHidden = document[hidden];
+
+      document.addEventListener(visibilityChange, function () {
+        if (documentHidden != document[hidden]) {
+          if (document[hidden]) {
+            notificationService.pageVisible = false;
+          } else {
+            notificationService.pageVisible = true;
+          }
+
+          documentHidden = document[hidden];
         }
+      });
+    };
 
-        notificationService.getPermissions = function () {
-            if (!this.isSupported()) {
-                return;
-            }
+    notificationService.monitorVisibility();
 
-            if (Notification.permission !== "granted") {
-	        Notification.requestPermission(function (status) {
-	            if (Notification.permission !== status) {
-                        Notification.permission = status;
-                    }
-                });
-            }
-        }
+    notificationService.isSupported = function () {
+      if ("Notification" in window) {
+        return true;
+      } else {
+        console.log("HTML5 notifications are not supported.");
+        return false;
+      }
+    };
 
-        notificationService.showNotification = function (title, content) {
-            if (!this.isSupported()) {
-                return;
-            }
+    notificationService.getPermissions = function () {
+      if (!this.isSupported()) {
+        return;
+      }
 
-            //using the 'tag' to avoid showing duplicate notifications
-            var notification = new Notification(title, {'tag': title+content, 'body': content});
-            setTimeout(function(){
-                 notification.close();
-                },3000);
-            notification.onclick = function () {
-                window.focus();
-                this.cancel();
-                Events.record(currentUser, 'click', 'notification');
-            };
-        }
-
-        return notificationService;
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission(function (status) {
+          if (Notification.permission !== status) {
+            Notification.permission = status;
+          }
+        });
+      }
     }
 
-    angular.module('redash.services')
-        .factory('notifications', ['Events', notifications]);
+    notificationService.showNotification = function (title, content) {
+      if (!this.isSupported() || this.pageVisible || Notification.permission !== "granted") {
+        return;
+      }
+
+      //using the 'tag' to avoid showing duplicate notifications
+      var notification = new Notification(title, {'tag': title + content, 'body': content, 'icon': '/images/redash_icon_small.png'});
+      setTimeout(function () {
+        notification.close();
+      }, 3000);
+      notification.onclick = function () {
+        window.focus();
+        this.close();
+        Events.record(currentUser, 'click', 'notification');
+      };
+    }
+
+    return notificationService;
+  }
+
+  angular.module('redash.services')
+    .factory('notifications', ['Events', notifications]);
 })();

@@ -9,11 +9,11 @@
     var getQueryResult = function(maxAge) {
       // Collect params, and getQueryResult with params; getQueryResult merges it into the query
       var parameters = Query.collectParamsFromQueryString($location, $scope.query);
-      if (maxAge == undefined) {
+      if (maxAge === undefined) {
         maxAge = $location.search()['maxAge'];
       }
 
-      if (maxAge == undefined) {
+      if (maxAge === undefined) {
         maxAge = -1;
       }
 
@@ -28,15 +28,6 @@
       // If there is no source yet, then parse what we have in localStorage
       //   e.g. `null` -> `NaN`, malformed data -> `NaN`, "1" -> 1
       if (dataSourceId === undefined) {
-        dataSourceId = parseInt(localStorage.lastSelectedDataSourceId, 10);
-      }
-
-      // If we had an invalid value in localStorage (e.g. nothing, deleted source), then use the first data source
-      var isValidDataSourceId = !isNaN(dataSourceId) && _.some($scope.dataSources, function(ds) {
-        return ds.id == dataSourceId;
-      });
-
-      if (!isValidDataSourceId) {
         dataSourceId = $scope.dataSources[0].id;
       }
 
@@ -127,7 +118,9 @@
     };
 
     Events.record(currentUser, 'view', 'query', $scope.query.id);
-    getQueryResult();
+    if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
+      getQueryResult();
+    }
     $scope.queryExecuting = false;
 
     $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
@@ -204,6 +197,8 @@
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
+
+      notifications.getPermissions();
     };
 
     $scope.cancelExecution = function() {
@@ -280,20 +275,12 @@
       }
 
       if (status == 'done') {
-        if ($scope.query.id &&
-          $scope.query.latest_query_data_id != $scope.queryResult.getId() &&
-          $scope.query.query_hash == $scope.queryResult.query_result.query_hash) {
-          Query.save({
-            'id': $scope.query.id,
-            'latest_query_data_id': $scope.queryResult.getId()
-          })
-        }
         $scope.query.latest_query_data_id = $scope.queryResult.getId();
         $scope.query.queryResult = $scope.queryResult;
 
-        notifications.showNotification("re:dash", $scope.query.name + " updated.");
+        notifications.showNotification("Re:dash", $scope.query.name + " updated.");
       } else if (status == 'failed') {
-        notifications.showNotification("re:dash", $scope.query.name + " failed to run: " + $scope.queryResult.getError());
+        notifications.showNotification("Re:dash", $scope.query.name + " failed to run: " + $scope.queryResult.getError());
       }
 
       if (status === 'done' || status === 'failed') {

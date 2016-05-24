@@ -101,7 +101,7 @@ class Impala(BaseSQLQueryRunner):
 
         connection = None
         try:
-            connection = connect(**self.configuration)
+            connection = connect(**self.configuration.to_dict())
 
             cursor = connection.cursor()
 
@@ -142,7 +142,8 @@ class Impala(BaseSQLQueryRunner):
             logging.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
-            connection.close()
+            if connection:
+                connection.close()
 
         return json_data, error
 
