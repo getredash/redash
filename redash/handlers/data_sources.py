@@ -2,6 +2,8 @@ from flask import make_response, request
 from flask_restful import abort
 from funcy import project
 
+from operator import itemgetter
+
 from redash import models
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.permissions import require_admin, require_permission, require_access, view_only
@@ -68,7 +70,10 @@ class DataSourceListResource(BaseResource):
             d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
             response[ds.id] = d
 
-        return response.values()
+        # Sorting by ID before returning makes it easier to set default source on front end -- ABD
+        sources = sorted(response.values(), key=itemgetter('id'))
+
+        return sources
 
     @require_admin
     def post(self):
