@@ -158,7 +158,8 @@ class BaseElasticSearch(BaseQueryRunner):
                     if data_key not in data:
                         continue
                     if 'key' in data and len(data.keys()) == 2:
-                        collect_value(mappings, row, data['key'] if not 'key_as_string' in data else data['key_as_string'], data[data_key])
+                        key_is_string = 'key_as_string' in data
+                        collect_value(mappings, row, data['key'] if not key_is_string else data['key_as_string'], data[data_key], 'long' if not key_is_string else 'string')
                     else:
                         return data[data_key]
 
