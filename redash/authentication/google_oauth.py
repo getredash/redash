@@ -69,6 +69,8 @@ def create_and_login_user(org, name, email):
 
     login_user(user_object, remember=True)
 
+    return user_object
+
 
 @blueprint.route('/<org_slug>/oauth/google', endpoint="authorize_org")
 def org_login(org_slug):
