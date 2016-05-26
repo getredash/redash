@@ -144,7 +144,6 @@
   angular.module('plotly', [])
     .constant('ColorPalette', ColorPalette)
     .directive('plotlyChart', function () {
-      var bottomMargin = 50;
       return {
         restrict: 'E',
         template: '<div></div>',
@@ -185,10 +184,6 @@
           var recalculateOptions = function() {
             scope.data.length = 0;
             scope.layout.showlegend = _.has(scope.options, 'legend') ? scope.options.legend.enabled : true;
-            if(_.has(scope.options, 'bottomMargin')) {
-              bottomMargin = parseInt(scope.options.bottomMargin);
-              scope.layout.margin.b = bottomMargin;
-            }
             delete scope.layout.barmode;
             delete scope.layout.xaxis;
             delete scope.layout.yaxis;
@@ -309,8 +304,7 @@
           scope.$watch('series', recalculateOptions);
           scope.$watch('options', recalculateOptions, true);
 
-
-          scope.layout = {margin: {l: 50, r: 50, b: bottomMargin, t: 20, pad: 4}, autosize: true, hovermode: 'closest'};
+          scope.layout = {margin: {l: 50, r: 50, b: 50, t: 20, pad: 4}, height: scope.height, autosize: true, hovermode: 'closest'};
           scope.plotlyOptions = {showLink: false, displaylogo: false};
           scope.data = [];
 
@@ -319,23 +313,19 @@
 
           element.on('plotly_afterplot', function(d) {
             if(scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')){
-              d3.selectAll('.legendtoggle').each(function(d, i) {
-                d3.select(this).on('click.legend_hack', function(){
-                  var maxIndex = scope.data.length - 1;
-                  var itemClicked = scope.data[maxIndex  - i];
+              $(element).find(".legendtoggle").each(function(i, rectDiv) {
+                  d3.select(rectDiv).on('click', function () {
+                    var maxIndex = scope.data.length - 1;
+                    var itemClicked = scope.data[maxIndex - i];
 
-                  itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
-                   if (scope.options.series.stacking === 'normal') {
+                    itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+                    if (scope.options.series.stacking === 'normal') {
                       normalAreaStacking(scope.data);
-                   }else if(scope.options.series.stacking === 'percent'){
+                    } else if (scope.options.series.stacking === 'percent') {
                       percentAreaStacking(scope.data);
-                   }
-                  Plotly.redraw(element);
-                });
-              });
-            } else {
-              d3.selectAll('.legendtoggle').each(function(d, i) {
-                d3.select(this).on('click.legend_hack', null);
+                    }
+                    Plotly.redraw(element);
+                  });
               });
             }
           });
