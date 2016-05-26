@@ -246,8 +246,6 @@ class Group(BaseModel, BelongsToOrgMixin):
 
     @classmethod
     def find_by_name(cls, org, group_names):
-        if len(group_names) == 0:
-            return []
         result = cls.select().where(cls.org == org, cls.name << group_names)
         return list(result)
 
