@@ -71,7 +71,8 @@ class AlertListResource(BaseResource):
 
     @require_permission('list_alerts')
     def get(self):
-        return [alert.to_dict() for alert in models.Alert.all(groups=self.current_user.groups)]
+        tmp = [alert.to_dict() for alert in models.Alert.all(groups=self.current_user.groups)]
+        return {v['id']: v for v in tmp}.values()
 
 
 class AlertSubscriptionListResource(BaseResource):
