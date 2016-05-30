@@ -106,3 +106,37 @@ class DataSourceSchemaResource(BaseResource):
 
         return schema
 
+
+class DataSourcePauseResource(BaseResource):
+    @require_admin
+    def post(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+        data = request.get_json(force=True, silent=True)
+        if data:
+            reason = data.get('reason')
+        else:
+            reason = None
+        data_source.pause(reason)
+        data_source.save()
+
+        self.record_event({
+            'action': 'pause',
+            'object_id': data_source.id,
+            'object_type': 'datasource'
+        })
+
+        return data_source.to_dict()
+
+    @require_admin
+    def delete(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+        data_source.resume()
+        data_source.save()
+
+        self.record_event({
+            'action': 'resume',
+            'object_id': data_source.id,
+            'object_type': 'datasource'
+        })
+
+        return data_source.to_dict()

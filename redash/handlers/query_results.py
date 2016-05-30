@@ -16,12 +16,23 @@ from redash.utils import collect_query_parameters, collect_parameters_from_reque
 from redash.tasks.queries import enqueue_query
 
 
+def error_response(message):
+    return {'job': {'status': 4, 'error': message}}, 400
+
+
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     query_parameters = set(collect_query_parameters(query_text))
     missing_params = set(query_parameters) - set(parameter_values.keys())
     if missing_params:
-        return {'job': {'status': 4,
-                        'error': 'Missing parameter value for: {}'.format(", ".join(missing_params))}}, 400
+        return error_response('Missing parameter value for: {}'.format(", ".join(missing_params)))
+
+    if data_source.is_paused:
+        if data_source.pause_reason:
+            message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
+        else:
+            message = '{} is paused. Please try later.'.format(data_source.name)
+
+        return error_response(message)
 
     if query_parameters:
         query_text = pystache.render(query_text, parameter_values)
