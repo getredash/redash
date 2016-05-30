@@ -25,3 +25,13 @@ class TestAlertAll(BaseTestCase):
         alerts = Alert.all(groups=[group])
         self.assertNotIn(alert1, alerts)
         self.assertIn(alert2, alerts)
+
+    def test_return_each_alert_only_once(self):
+        group = self.factory.create_group()
+        self.factory.data_source.add_group(group)
+
+        alert = self.factory.create_alert()
+
+        alerts = Alert.all(groups=[self.factory.default_group, group])
+        self.assertEqual(1, len(list(alerts)))
+        self.assertIn(alert, alerts)
