@@ -75,7 +75,6 @@ class TestQueryResultListAPI(BaseTestCase):
 
     def test_execute_on_paused_data_source(self):
         self.factory.data_source.pause()
-        self.factory.data_source.save()
 
         rv = self.make_request('post', '/api/query_results',
                                data={'data_source_id': self.factory.data_source.id,

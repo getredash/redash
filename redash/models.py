@@ -373,7 +373,8 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             'name': self.name,
             'type': self.type,
             'syntax': self.query_runner.syntax,
-            'is_paused': self.is_paused
+            'paused': self.paused,
+            'pause_reason': self.pause_reason
         }
 
         if all:
@@ -415,21 +416,22 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
         return schema
 
+    def _pause_key(self):
+        return 'ds:{}:pause'.format(self.id)
+
     @property
-    def is_paused(self):
-        return self.options.get('is_paused', False)
+    def paused(self):
+        return redis_connection.exists(self._pause_key())
 
     @property
     def pause_reason(self):
-        return self.options.get('pause_reason', None)
+        return redis_connection.get(self._pause_key())
 
     def pause(self, reason=None):
-        self.options['is_paused'] = True
-        self.options['pause_reason'] = reason
+        redis_connection.set(self._pause_key(), reason)
 
     def resume(self):
-        self.options['is_paused'] = False
-        self.options['pause_reason'] = None
+        redis_connection.delete(self._pause_key())
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)

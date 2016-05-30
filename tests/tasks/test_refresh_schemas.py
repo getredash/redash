@@ -12,8 +12,13 @@ class TestRefreshSchemas(BaseTestCase):
 
     def test_skips_paused_data_sources(self):
         self.factory.data_source.pause()
-        self.factory.data_source.save()
 
         with patch('redash.models.DataSource.get_schema') as get_schema:
             refresh_schemas()
             get_schema.assert_not_called()
+
+        self.factory.data_source.resume()
+
+        with patch('redash.models.DataSource.get_schema') as get_schema:
+            refresh_schemas()
+            get_schema.assert_called_with(refresh=True)

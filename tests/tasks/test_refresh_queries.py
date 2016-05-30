@@ -30,14 +30,12 @@ class TestRefreshQueries(BaseTestCase):
         query.save()
 
         query.data_source.pause()
-        query.data_source.save()
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
             add_job_mock.assert_not_called()
 
         query.data_source.resume()
-        query.data_source.save()
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()

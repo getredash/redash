@@ -115,7 +115,8 @@ class DataSourcePauseResource(BaseResource):
         if data:
             reason = data.get('reason')
         else:
-            reason = None
+            reason = request.args.get('reason')
+
         data_source.pause(reason)
         data_source.save()
 
