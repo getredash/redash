@@ -372,7 +372,8 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             'id': self.id,
             'name': self.name,
             'type': self.type,
-            'syntax': self.query_runner.syntax
+            'syntax': self.query_runner.syntax,
+            'is_paused': self.is_paused
         }
 
         if all:
@@ -413,6 +414,22 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             schema = json.loads(cache)
 
         return schema
+
+    @property
+    def is_paused(self):
+        return self.options.get('is_paused', False)
+
+    @property
+    def pause_reason(self):
+        return self.options.get('pause_reason', None)
+
+    def pause(self, reason=None):
+        self.options['is_paused'] = True
+        self.options['pause_reason'] = reason
+
+    def resume(self):
+        self.options['is_paused'] = False
+        self.options['pause_reason'] = None
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
