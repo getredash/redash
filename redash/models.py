@@ -755,7 +755,8 @@ class Alert(ModelTimestampsMixin, BaseModel):
             .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source))\
             .where(DataSourceGroup.group << groups)\
             .switch(Alert)\
-            .join(User)
+            .join(User)\
+            .group_by(Alert, User, Query)
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
