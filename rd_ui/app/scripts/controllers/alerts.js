@@ -47,6 +47,7 @@
   };
 
   var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert, Destination) {
+    $scope.selectedTab = 'users';
     $scope.$parent.pageTitle = "Alerts";
 
     $scope.alertId = $routeParams.alertId;
@@ -178,7 +179,7 @@
     return {
       restrict: 'E',
       replace: true,
-      template: '<button class="btn btn-primary col-xs-4" ng-click="toggleSubscription()" ng-bind="message"></i></button>',
+      template: '<button class="btn btn-primary" ng-click="toggleSubscription()" ng-bind="message"></button>',
       controller: function ($scope) {
         var updateMessage = function() {
           if ($scope.subscription) {

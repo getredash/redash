@@ -62,9 +62,13 @@
         </form>
       </div>
       <div class="col-md-4" ng-if="alert.id">
-            <h3><i>Subscriptions</i></h3>
-            <user-subscribers alert-id="alertId"></user-subscribers>
-            <destination-subscribers alert-id="alertId"></destination-subscribers>
+        <ul class="tab-nav">
+          <li ng-class="{active: selectedTab == 'users'}"><a ng-click="selectedTab = 'users'">Subscribers</a></li>
+          <li ng-class="{active: selectedTab == 'destinations'}"><a ng-click="selectedTab = 'destinations'">Notification Destinations</a></li>
+        </ul>
+
+        <user-subscribers alert-id="alertId" ng-show="selectedTab == 'users'"></user-subscribers>
+        <destination-subscribers alert-id="alertId" ng-show="selectedTab == 'destinations'"></destination-subscribers>
       </div>
     </div>
   </div>
