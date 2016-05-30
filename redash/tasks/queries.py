@@ -264,7 +264,7 @@ def refresh_queries():
 
     with statsd_client.timer('manager.outdated_queries_lookup'):
         for query in models.Query.outdated_queries():
-            if query.data_source.is_paused:
+            if query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 enqueue_query(query.query, query.data_source,
@@ -348,7 +348,7 @@ def refresh_schemas():
     Refreshes the data sources schemas.
     """
     for ds in models.DataSource.select():
-        if ds.is_paused:
+        if ds.paused:
             logger.info(u"Skipping refresh schema of %s because it is paused (%s).", ds.name, ds.pause_reason)
         else:
             logger.info(u"Refreshing schema for: {}".format(ds.name))

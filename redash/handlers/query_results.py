@@ -26,7 +26,7 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     if missing_params:
         return error_response('Missing parameter value for: {}'.format(", ".join(missing_params)))
 
-    if data_source.is_paused:
+    if data_source.paused:
         if data_source.pause_reason:
             message = '{} is paused ({}). Please try later.'.format(data_source.name, data_source.pause_reason)
         else:

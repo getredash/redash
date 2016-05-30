@@ -11,19 +11,19 @@ class TestDataSourceCreate(BaseTestCase):
 
 class TestDataSourceIsPaused(BaseTestCase):
     def test_returns_false_by_default(self):
-        self.assertFalse(self.factory.data_source.is_paused)
+        self.assertFalse(self.factory.data_source.paused)
 
     def test_persists_selection(self):
         self.factory.data_source.pause()
-        self.assertTrue(self.factory.data_source.is_paused)
+        self.assertTrue(self.factory.data_source.paused)
 
         self.factory.data_source.resume()
-        self.assertFalse(self.factory.data_source.is_paused)
+        self.assertFalse(self.factory.data_source.paused)
 
     def test_allows_setting_reason(self):
         reason = "Some good reason."
         self.factory.data_source.pause(reason)
-        self.assertTrue(self.factory.data_source.is_paused)
+        self.assertTrue(self.factory.data_source.paused)
         self.assertEqual(self.factory.data_source.pause_reason, reason)
 
     def test_resume_clears_reason(self):
