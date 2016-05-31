@@ -406,6 +406,8 @@
       }, function(error) {
         if (error.status === 403) {
           queryResult.update(error.data);
+        } else if (error.status === 400 && 'job' in error.data) {
+          queryResult.update(error.data);
         }
       });
 

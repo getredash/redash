@@ -54,7 +54,7 @@
                       <li><a ng-disabled="!queryResult.getData()" query-result-link target="_self">Download as CSV File</a></li>
                       <li><a ng-disabled="!queryResult.getData()" file-type="xlsx" query-result-link target="_self" >Download as Excel File</a></li>
                       <li><a ng-href="queries/{{query.id}}#{{widget.visualization.id}}" ng-show="currentUser.hasPermission('view_query')">View Query</a></li>
-                      <li><a ng-show="dashboard.canEdit()" ng-click="deleteWidget()">Remove From Dashbaord</a></li>
+                      <li><a ng-show="dashboard.canEdit()" ng-click="deleteWidget()">Remove From Dashboard</a></li>
                     </ul>
                   </div>
                 </div>
