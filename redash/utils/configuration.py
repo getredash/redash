@@ -63,6 +63,9 @@ class ConfigurationContainer(object):
     def get(self, *args, **kwargs):
         return self._config.get(*args, **kwargs)
 
+    def __setitem__(self, key, value):
+        self._config[key] = value
+
     def __getitem__(self, item):
         if item in self._config:
             return self._config[item]

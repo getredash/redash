@@ -21,6 +21,26 @@ class TestRefreshQueries(BaseTestCase):
             refresh_queries()
             add_job_mock.assert_called_with(query.query, query.data_source, scheduled=True, metadata=ANY)
 
+    def test_doesnt_enqueue_outdated_queries_for_paused_data_source(self):
+        query = self.factory.create_query(schedule="60")
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(retrieved_at=retrieved_at, query=query.query,
+                                                        query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query.save()
+
+        query.data_source.pause()
+
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
+            refresh_queries()
+            add_job_mock.assert_not_called()
+
+        query.data_source.resume()
+
+        with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
+            refresh_queries()
+            add_job_mock.assert_called_with(query.query, query.data_source, scheduled=True, metadata=ANY)
+
     def test_skips_fresh_queries(self):
         query = self.factory.create_query(schedule="1200")
         retrieved_at = utcnow() - datetime.timedelta(minutes=10)
