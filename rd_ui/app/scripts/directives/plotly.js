@@ -45,59 +45,82 @@
     });
   };
 
-  var normalAreaStacking = function(seriesList) {
-    fillXValues(seriesList);
+  var storeOriginalHeightForEachSeries = function(seriesList) {
+    _.each(seriesList, function(series) {
+      if(!_.has(series,'visible')){
+        series.visible = true;
+        series.original_y = series.y.slice();
+      }
+    });
+  };
+
+  var getEnabledSeries = function(seriesList){
+    return _.filter(seriesList, function(series) {
+		  return series.visible === true;
+	  });
+  };
+
+  var initializeTextAndHover = function(seriesList){
     _.each(seriesList, function(series) {
       series.text = [];
       series.hoverinfo = 'text+name';
     });
-    for (var i = 0; i < seriesList.length; i++) {
-      for (var j = 0; j < seriesList[i].y.length; j++) {
-        var sum = i > 0 ? seriesList[i-1].y[j] : 0;
-        seriesList[i].text.push('Value: ' + seriesList[i].y[j] + '<br>Sum: ' + (sum + seriesList[i].y[j]));
-        seriesList[i].y[j] += sum;
+  };
+
+  var normalAreaStacking = function(seriesList) {
+    fillXValues(seriesList);
+    storeOriginalHeightForEachSeries(seriesList);
+    initializeTextAndHover(seriesList);
+    seriesList = getEnabledSeries(seriesList);
+
+    _.each(seriesList, function(series, seriesIndex, list){
+      _.each(series.y, function(undefined, yIndex, undefined2){
+        var cumulativeHeightOfPreviousSeries = seriesIndex > 0 ? list[seriesIndex-1].y[yIndex] : 0;
+        var cumulativeHeightWithThisSeries = cumulativeHeightOfPreviousSeries + series.original_y[yIndex];
+        series.y[yIndex] = cumulativeHeightWithThisSeries;
+        series.text.push('Value: ' + series.original_y[yIndex] + '<br>Sum: ' + cumulativeHeightWithThisSeries);
+      });
+    });
+  };
+
+  var lastVisibleY = function(seriesList, lastSeriesIndex, yIndex){
+    for(; lastSeriesIndex >= 0; lastSeriesIndex--){
+      if(seriesList[lastSeriesIndex].visible === true){
+        return seriesList[lastSeriesIndex].y[yIndex];
       }
     }
-  };
+    return 0;
+  }
 
   var percentAreaStacking = function(seriesList) {
     if (seriesList.length === 0) {
       return;
     }
-
     fillXValues(seriesList);
-    _.each(seriesList, function(series) {
-      series.text = [];
-      series.hoverinfo = 'text+name';
+    storeOriginalHeightForEachSeries(seriesList);
+    initializeTextAndHover(seriesList);
+
+    _.each(seriesList[0].y, function(seriesY, yIndex, undefined){
+
+      var sumOfCorrespondingDataPoints = _.reduce(seriesList, function(total, series){
+        return total + series.original_y[yIndex];
+      }, 0);
+
+      _.each(seriesList, function(series, seriesIndex, list){
+        var percentage = (series.original_y[yIndex] / sumOfCorrespondingDataPoints ) * 100;
+        var previousVisiblePercentage = lastVisibleY(seriesList, seriesIndex-1, yIndex);
+        series.y[yIndex] = percentage + previousVisiblePercentage;
+        series.text.push('Value: ' + series.original_y[yIndex] + '<br>Relative: ' + percentage.toFixed(2) + '%');
+      });
     });
-    for (var i = 0; i < seriesList[0].y.length; i++) {
-      var sum = 0;
-      for(var j = 0; j < seriesList.length; j++) {
-        sum += seriesList[j].y[i];
-      }
-
-      for(var j = 0; j < seriesList.length; j++) {
-        var value = seriesList[j].y[i] / sum * 100;
-        seriesList[j].text.push('Value: ' + seriesList[j].y[i] + '<br>Relative: ' + value.toFixed(2) + '%');
-
-        seriesList[j].y[i] = value;
-        if (j > 0) {
-          seriesList[j].y[i] += seriesList[j-1].y[i];
-        }
-      }
-    }
   };
 
   var percentBarStacking = function(seriesList) {
     if (seriesList.length === 0) {
       return;
     }
-
     fillXValues(seriesList);
-    _.each(seriesList, function(series) {
-      series.text = [];
-      series.hoverinfo = 'text+name';
-    });
+    initializeTextAndHover(seriesList);
     for (var i = 0; i < seriesList[0].y.length; i++) {
       var sum = 0;
       for(var j = 0; j < seriesList.length; j++) {
@@ -301,6 +324,24 @@
           var element = element[0].children[0];
           Plotly.newPlot(element, scope.data, scope.layout, scope.plotlyOptions);
 
+          element.on('plotly_afterplot', function(d) {
+            if(scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')){
+              $(element).find(".legendtoggle").each(function(i, rectDiv) {
+                  d3.select(rectDiv).on('click', function () {
+                    var maxIndex = scope.data.length - 1;
+                    var itemClicked = scope.data[maxIndex - i];
+
+                    itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+                    if (scope.options.series.stacking === 'normal') {
+                      normalAreaStacking(scope.data);
+                    } else if (scope.options.series.stacking === 'percent') {
+                      percentAreaStacking(scope.data);
+                    }
+                    Plotly.redraw(element);
+                  });
+              });
+            }
+          });
           scope.$watch('layout', function (layout, old) {
             if (angular.equals(layout, old)) {
               return;
