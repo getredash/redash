@@ -4,6 +4,8 @@ Thank you for taking the time to contribute! :tada::+1:
 
 The following is a set of guidelines for contributing to Redash. These are guidelines, not rules, please use your best judgement and feel free to propose changes to this document in a pull request.
 
+:star: If you already here and love the project, please make sure to press the Star button. :smile: :+1: :star:
+
 ## Quick Links:
 
 - [Feature Roadmap](https://trello.com/b/b2LUHU7A/re-dash-roadmap)
@@ -13,23 +15,21 @@ The following is a set of guidelines for contributing to Redash. These are guide
 - [Blog](http://blog.redash.io/)
 - [Twitter](https://twitter.com/getredash)
  
---------
-:star: If you already here and love the project, please make sure to press the Star button above. :star:
-
---------
-
 ## Table of Contents
 
 [How can I Contribute?](#how-can-i-contribute)
 
 - [Reporting Bugs](#reporting-bugs)
-- [Suggesting Enhancements / Feature Requests](#suggesting-enhancements-feature-requests)
+- [Suggesting Enhancements / Feature Requests](#suggesting-enhancements--feature-requests)
 - [Pull Requests](#pull-requests)
 - [Documentation](#documentation)
 - Design?
  
-[Code of Conduct](#code-of-conduct)
+[Addtional Notes](#additional-notes)
 
+- [Release Method](#release-method)
+- [Code of Conduct](#code-of-conduct)
+ 
 ## How can I contribute?
 
 ### Reporting Bugs
@@ -55,6 +55,20 @@ If you would like to suggest an enchancement or ask for a new feature:
 - Please follow existing code style. We use PEP8 for Python and sensible style for Javascript.
  
 ### Documentation
+
+The project's documentation can be found at [docs.redash.io](http://docs.redash.io/). The [documentation sources](https://github.com/getredash/redash/tree/master/docs) are managed along with the code and to contribute edits / new pages, you can use GitHub's interface. Click the "Edit on GitHub" link on the documentation page to quickly open the edit interface.
+
+The pages are written in *reStructuredText* format, which is very similar to Markdown.
+
+## Additional Notes
+
+### Release Method
+
+We publish a stable release every ~2 months, although the goal is to get to a stable release every month. You can see the change log on [GitHub releases page](http://github.com/getredash/redash/releases).
+
+Every build of the master branch updates the latest *RC release*. These releases are usually stable, but might contain regressions and therefore recommended for "advanced users" only.
+
+When we release a new stable release, we also update the *latest* Docker image tag, the EC2 AMIs and GCE images.
 
 ## Code of Conduct
 
