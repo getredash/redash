@@ -47,9 +47,9 @@
             itStartDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 1);
             // Last day of startDate's month
             // First day of the next months
-            itEndDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 2, 0);
+            itEndDate = new Date(itStartDate.getFullYear(), itStartDate.getMonth() + 1, 0);
           }
-          dateRanges.push({'start': itStartDate, 'end': itEndDate});
+          dateRanges.push({'start': itStartDate, 'end': endDate});
           $scope.dateRanges = dateRanges;
       };
 
@@ -540,13 +540,13 @@ var ExportMoMModalCtrl = function($scope, $modalInstance, $http, $q, dateRanges,
 
 angular.module('redash.controllers')
   .controller('DashboardCtrl', [
-    '$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', 
+    '$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location',
     '$http', '$timeout', '$modal', '$q', 'Dashboard', 'Parameters', DashboardCtrl
   ])
   .controller('WidgetCtrl', [
     '$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl
   ])
-  .controller('ExportMoMModalCtrl', 
+  .controller('ExportMoMModalCtrl',
     ['$scope', '$modalInstance', '$http', '$q', 'dateRanges', ExportMoMModalCtrl
   ])
 })();
