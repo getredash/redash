@@ -2,15 +2,13 @@ import json
 import jinja2
 import shutil
 import os.path
-import zipfile
 import tempfile
 from flask.ext.mail import Message
 from celery.utils.log import get_task_logger
-from redash import models, settings, mail
+from redash import models, mail
 from redash.worker import celery
 from redash.devspark import excel_reports
 from redash.query_runner import get_query_runner
-from flask.ext.mail import Message
 
 logger = get_task_logger(__name__)
 
@@ -25,6 +23,18 @@ def dr2fn(date_range):
         date_range.get('start', '').split('T')[0].replace('-', '') + '_' +
         date_range.get('end', '').split('T')[0].replace('-', '') + '.xlsx'
     )
+
+
+def report_name(widget):
+    """
+    Returns the report name for a specific widget object.
+
+    :param widget: peewee ORM Widget object.
+    """
+    try:
+        return json.loads(widget.options)['exportable']['name']
+    except:
+        return ''
 
 
 @celery.task
@@ -68,8 +78,9 @@ def reports_by_month_task(date_ranges, start_date_param, end_date_param,
 
         report = excel_reports.ExcelReport()
         report.add_cover(
-            {}, # No filters FIXME
-            [json.loads(w.options).get('name', '') for w in db_widgets]
+            qp,  # No filters FIXME
+            ["%s_%s" % (report_name(widget), index)
+             for index, widget in enumerate(db_widgets)]
         )
 
         for index, widget in enumerate(db_widgets):
@@ -91,10 +102,10 @@ def reports_by_month_task(date_ranges, start_date_param, end_date_param,
                 logger.error(error)
 
             report.add_sheet(
-                json.loads(widget.options).get('name', '') + '_' + str(index),
+                report_name(widget),
                 next(w['columnNames'] for w in widgets if w['id'] == widget.id),
                 json.loads(data)['rows'],
-                '',
+                widget.visualization.query.description,
                 True
             )
 
@@ -123,8 +134,8 @@ def reports_by_month_task(date_ranges, start_date_param, end_date_param,
         with app.app_context():
             message = Message(
                 recipients=[email],
-                subject="Tienes un emilio",
-                html='holitas'
+                subject="Mansion Global Analytics requested reports",
+                html='Hi,<br><br>Please find attached the requested reports.'
             )
 
             # Attach all reports to message:
@@ -143,4 +154,3 @@ def reports_by_month_task(date_ranges, start_date_param, end_date_param,
         # Clear all temporary files & folders
         shutil.rmtree(tempdir)
         tf.close()
-
