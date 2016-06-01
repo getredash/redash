@@ -22,10 +22,9 @@
             searchParams: function() {
               return searchParams;
             }
-          }
-        });
-      };
-
+        }
+      });
+    };
       /**
       * toggleFavorite Add/Remove the current dashboard to favorite
       */
@@ -114,7 +113,6 @@
                   type: 'TABLE'
                 });
               }
-
             }
           });
         });
@@ -171,16 +169,12 @@
       var excelFilters = function() {
         var params = $location.search();
         var blacklist = Parameters.getBlackListParameters();
-        var parameters = [];
+        var parameters = {};
         for (var propertyName in params) {
           if (!_.contains(blacklist, propertyName)) {
-            var filter = {
-              'Filters': propertyName.slice(0, 2) === 'p_' ? propertyName.slice(2) : propertyName,
-              'Values': params[propertyName]
-            };
-            parameters.push(filter);
+            var filterName = (propertyName.slice(0, 2) === 'p_' ? propertyName.slice(2) : propertyName);
+            parameters[filterName] = params[propertyName];
           }
-
         }
         if (parameters.length !== 0) {
           return parameters;
@@ -207,11 +201,11 @@
         _.forEach($scope.dashboard.widgets, function(widget) {
           _.forEach(widget, function(w) {
             if (isExportable(w)) {
-              results.push(w);
+              results.push({id: w.id, columnNames: w.query.queryResult.columnNames});
             }
           });
         });
-        return _.pluck(results, 'id');
+        return results; //_.pluck(results, 'id');
       };
 
       /**
@@ -219,27 +213,11 @@
        */
       $scope.exportWidgets = function() {
         $scope.downloadingXLS = true;
-        var data = {
+        var report = {
           name: $scope.dashboard.name,
-          data: [],
-          reports: []
+          filters: excelFilters(),
+          sheets: [],
         };
-
-        var filtersUsed = excelFilters();
-        var worksheet,
-          option;
-
-        //first tab is for filters used, if they are defined
-        if (filtersUsed !== null) {
-          filters = {
-            columnNames: [
-                'Filters',
-                'Values'
-            ],
-            data: filtersUsed
-          };
-          data.filters = filters;
-        }
 
         //generate data to be exported for every widget that is marked for export
         _.forEach($scope.dashboard.widgets, function(widget) {
@@ -250,24 +228,23 @@
                 w.options.exportable.name = w.query.name;
               }
               worksheet = {
-                option: {
-                  sheet: w.options.exportable.name, //title
+                meta: {
+                  name: w.options.exportable.name, //title
                   description: w.query.description, //subtitle
                   columnNames: getColumnNames(w),
                   autofilter: true
                 },
-                data: w.query.queryResult.filteredData
+                rows: w.query.queryResult.filteredData
               };
-              data.reports.push(worksheet.option.sheet);
-              data.data.push(worksheet);
+              report.sheets.push(worksheet);
             }
           });
         });
-        if (data.data.length > 0) {
+        if (report.sheets.length > 0) {
           $http({
             url: '/api/dashboard/generate_excel',
             method: 'POST',
-            data: data, //this is your json data string
+            data: report,
             headers: {
               'Content-type': 'application/json'
             },
@@ -512,7 +489,7 @@ var ExportMoMModalCtrl = function($scope, $modalInstance, $http, $q, dateRanges,
 
   $scope.exportMoMXls = function() {
     $http({
-      url: '',
+      url: '/api/reports/excel_by_month',
       method: 'POST',
       data: getExportData()
     }).then(function() {
@@ -562,7 +539,14 @@ var ExportMoMModalCtrl = function($scope, $modalInstance, $http, $q, dateRanges,
 };
 
 angular.module('redash.controllers')
-  .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', '$http', '$timeout', '$modal', '$q', 'Dashboard', 'Parameters', DashboardCtrl])
-  .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl])
-  .controller('ExportMoMModalCtrl', ['$scope', '$modalInstance', '$http', '$q', 'dateRanges', ExportMoMModalCtrl])
+  .controller('DashboardCtrl', [
+    '$scope', 'Events', 'Widget', 'FavoriteDashboards', 'FileSaver', '$routeParams', '$location', 
+    '$http', '$timeout', '$modal', '$q', 'Dashboard', 'Parameters', DashboardCtrl
+  ])
+  .controller('WidgetCtrl', [
+    '$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl
+  ])
+  .controller('ExportMoMModalCtrl', 
+    ['$scope', '$modalInstance', '$http', '$q', 'dateRanges', ExportMoMModalCtrl
+  ])
 })();
