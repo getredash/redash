@@ -8,10 +8,12 @@ body {
   color:#5E5E5E;
 
 }
-h2 , h3,h4,h5,h6 {
+
+.homepage h2 , h3,h4,h5,h6 {
   font-weight:200
 }
-h2 {
+
+.homepage h2 {
   font-size: 46px;
 }
 
