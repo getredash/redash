@@ -4,8 +4,6 @@ Thank you for taking the time to contribute! :tada::+1:
 
 The following is a set of guidelines for contributing to Redash. These are guidelines, not rules, please use your best judgement and feel free to propose changes to this document in a pull request.
 
-:star: If you already here and love the project, please make sure to press the Star button. :smile: :+1: :star:
-
 ## Quick Links:
 
 - [Feature Roadmap](https://trello.com/b/b2LUHU7A/re-dash-roadmap)
@@ -14,10 +12,16 @@ The following is a set of guidelines for contributing to Redash. These are guide
 - [Documentation](http://docs.redash.io)
 - [Blog](http://blog.redash.io/)
 - [Twitter](https://twitter.com/getredash)
+
+---
+:star: If you already here and love the project, please make sure to press the Star button. :star:
+
+---
+
  
 ## Table of Contents
 
-[How can I Contribute?](#how-can-i-contribute)
+[How can I contribute?](#how-can-i-contribute)
 
 - [Reporting Bugs](#reporting-bugs)
 - [Suggesting Enhancements / Feature Requests](#suggesting-enhancements--feature-requests)
