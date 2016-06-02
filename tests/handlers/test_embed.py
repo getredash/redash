@@ -16,20 +16,28 @@ class TestEmbedVisualization(BaseTestCase):
         # set configuration
         settings.ALLOW_PARAMETERS_IN_EMBEDS = True
 
-        vis = self.factory.create_visualization_with_params()
-        param1_name = "param1"
-        param1_value = "12345"
+        try:
+            vis = self.factory.create_visualization_with_params()
+            param1_name = "param1"
+            param1_value = "12345"
 
-        res = self.make_request("get", "/embed/query/{}/visualization/{}?p_{}={}".format(vis.query.id, vis.id, param1_name, param1_value), is_json=False)
+            res = self.make_request("get", "/embed/query/{}/visualization/{}?p_{}={}".format(vis.query.id, vis.id, param1_name, param1_value), is_json=False)
 
-        # reset configuration
-        settings.ALLOW_PARAMETERS_IN_EMBEDS = previous
+            # Currently we are expecting a 503 error which indicates that
+            # the database is unavailable. This ensures that the code in embed.py
+            # reaches the point where a DB query is made, where we then fail
+            # intentionally (because DB connection is not available in the tests).
+            self.assertEqual(res.status_code, 503)
 
-        # Currently we are expecting a 503 error which indicates that
-        # the database is unavailable. This ensures that the code in embed.py
-        # reaches the point where a DB query is made, where we then fail
-        # intentionally (because DB connection is not available in the tests).
-        self.assertEqual(res.status_code, 503)
+            # run embed query with maxAge to test caching
+            res = self.make_request("get", "/embed/query/{}/visualization/{}?p_{}={}&maxAge=60".format(vis.query.id, vis.id, param1_name, param1_value), is_json=False)
+            # If the 'maxAge' parameter is set and the query fails (because DB connection
+            # is not available in the tests), we're expecting a 404 error here.
+            self.assertEqual(res.status_code, 404)
+
+        finally:
+            # reset configuration
+            settings.ALLOW_PARAMETERS_IN_EMBEDS = previous
 
 
 class TestPublicDashboard(BaseTestCase):
