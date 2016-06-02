@@ -256,7 +256,7 @@
               <div class="col-lg-12">
                 <ul class="tab-nav">
                   <rd-tab tab-id="table" name="Table"></rd-tab>
-                  <rd-tab tab-id="pivot" name="Pivot Table"></rd-tab>
+                  <rd-tab tab-id="pivot" name="Pivot Table" ng-if="sourceMode && canEdit"></rd-tab>
                   <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'"
                           ng-repeat="vis in query.visualizations">
                           <span class="remove" ng-click="deleteVisualization($event, vis)"
@@ -276,13 +276,13 @@
                     <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
                 </div>
-                <div ng-show="selectedTab == 'pivot'">
+                <div ng-show="sourceMode && canEdit && selectedTab == 'pivot'">
                   <h3>
                     Pivot tables are now regular visualization, which you can create from the
-                    <a hash="add" hash-link>"New Visualization" tab</a> and <strong>save</strong>.
+                    <a ng-click="openVisualizationEditor()">"New Visualization" screen</a> and <strong>save</strong>.
                   </h3>
                 </div>
-                <div ng-show="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+                <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
                   <div class="bg-ace p-5">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>

@@ -52,7 +52,8 @@ org_factory = ModelFactory(redash.models.Organization,
 data_source_factory = ModelFactory(redash.models.DataSource,
                                    name=Sequence('Test {}'),
                                    type='pg',
-                                   options=ConfigurationContainer.from_json('{"dbname": "test"}'),
+                                   # If we don't use lambda here it will reuse the same options between tests:
+                                   options=lambda: ConfigurationContainer.from_json('{"dbname": "test"}'),
                                    org=1)
 
 dashboard_factory = ModelFactory(redash.models.Dashboard,
