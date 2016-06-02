@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import uuid
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -21,6 +22,12 @@ types_map = {
     4: TYPE_DATETIME,
     5: TYPE_FLOAT,
 }
+
+class MSSQLJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        return super(MSSQLJSONEncoder, self).default(o)
 
 class SqlServer(BaseSQLQueryRunner):
     @classmethod
@@ -123,7 +130,7 @@ class SqlServer(BaseSQLQueryRunner):
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json.dumps(data, cls=MSSQLJSONEncoder)
                 error = None
             else:
                 error = "No data was returned."

@@ -73,6 +73,18 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         self.assertIn('job', rv.json)
 
+    def test_execute_on_paused_data_source(self):
+        self.factory.data_source.pause()
+
+        rv = self.make_request('post', '/api/query_results',
+                               data={'data_source_id': self.factory.data_source.id,
+                                     'query': 'SELECT 1',
+                                     'max_age': 0})
+
+        self.assertEquals(rv.status_code, 400)
+        self.assertNotIn('query_result', rv.json)
+        self.assertIn('job', rv.json)
+
 
 class TestQueryResultAPI(BaseTestCase):
     def test_has_no_access_to_data_source(self):

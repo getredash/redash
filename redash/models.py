@@ -245,6 +245,11 @@ class Group(BaseModel, BelongsToOrgMixin):
     def members(cls, group_id):
         return User.select().where(peewee.SQL("%s = ANY(groups)", group_id))
 
+    @classmethod
+    def find_by_name(cls, org, group_names):
+        result = cls.select().where(cls.org == org, cls.name << group_names)
+        return list(result)
+
     def __unicode__(self):
         return unicode(self.id)
 
@@ -331,6 +336,12 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
     def verify_password(self, password):
         return self.password_hash and pwd_context.verify(password, self.password_hash)
 
+    def update_group_assignments(self, group_names):
+        groups = Group.find_by_name(self.org, group_names)
+        groups.append(self.org.default_group)
+        self.groups = map(lambda g: g.id, groups)
+        self.save()
+
 
 class ConfigurationField(peewee.TextField):
     def db_value(self, value):
@@ -362,7 +373,9 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             'id': self.id,
             'name': self.name,
             'type': self.type,
-            'syntax': self.query_runner.syntax
+            'syntax': self.query_runner.syntax,
+            'paused': self.paused,
+            'pause_reason': self.pause_reason
         }
 
         if all:
@@ -403,6 +416,23 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             schema = json.loads(cache)
 
         return schema
+
+    def _pause_key(self):
+        return 'ds:{}:pause'.format(self.id)
+
+    @property
+    def paused(self):
+        return redis_connection.exists(self._pause_key())
+
+    @property
+    def pause_reason(self):
+        return redis_connection.get(self._pause_key())
+
+    def pause(self, reason=None):
+        redis_connection.set(self._pause_key(), reason)
+
+    def resume(self):
+        redis_connection.delete(self._pause_key())
 
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
@@ -745,7 +775,8 @@ class Alert(ModelTimestampsMixin, BaseModel):
             .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source))\
             .where(DataSourceGroup.group << groups)\
             .switch(Alert)\
-            .join(User)
+            .join(User)\
+            .group_by(Alert, User, Query)
 
     @classmethod
     def get_by_id_and_org(cls, id, org):

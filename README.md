@@ -42,7 +42,7 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 ## Getting Help
 
 * Issues: https://github.com/getredash/redash/issues
-* Mailing List: https://groups.google.com/forum/#!forum/redash-users
+* Discussion Forum: https://discuss.redash.io/
 * Slack: http://slack.redash.io/
 * Gitter (chat): https://gitter.im/getredash/redash
 
