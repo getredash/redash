@@ -71,7 +71,7 @@ def reports_by_month_task(date_ranges, start_date_param, end_date_param,
 
             # Add a sheet to the workbook with the widget's query results.
             report.add_sheet(
-                report_name(widget),
+                "%s_%s" % (index, report_name(widget)),
                 next(w['columnNames'] for w in widgets if w['id'] == widget.id),
                 json.loads(data)['rows'],
                 widget.visualization.query.description,
