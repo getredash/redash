@@ -70,7 +70,7 @@ _DEFAULT_FORMATTING = {
         'valign': 'vjustify',
         'font_name': 'Times New Roman'
     },
-    'formatSubtitle': {
+    'subtitle': {
         'text_wrap': True,
         'font_size': 12,
         'align': 'left',
@@ -194,7 +194,7 @@ class ExcelReport:
         if name:
             worksheet.merge_range(0, 0, 0, 2, name, self._styles['title'])
         if description:
-            worksheet.merge_range(1, 0, 1, 2, description, formatSubtitle)
+            worksheet.merge_range(1, 0, 1, 2, description, self._styles['subtitle'])
 
         # Adds autofilter on all columns if autofilter argument is true
         if autofilter:
