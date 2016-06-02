@@ -31,7 +31,7 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-primary" type="button" ng-click="exportMoMXls()" ng-disabled="!(email  && getSelectedMonths().length)">XLS</button>
-    <button class="btn btn-primary" type="button" ng-click="exportMoMPdf()" ng-disabled="!(email  && getSelectedMonths().length)">PDF</button>
-    <button class="btn btn-primary" type="button" ng-click="exportMoMBoth()" ng-disabled="!(email  && getSelectedMonths().length)">XLS &amp; PDF</button>
+    <button class="btn btn-primary" type="button" ng-click="exportMoMPdf()" disabled="True">PDF</button>
+    <button class="btn btn-primary" type="button" ng-click="exportMoMBoth()" disabled="True">XLS &amp; PDF</button>
     <button type="button" class="btn btn-warning" ng-click="close()">Cancel</button>
 </div>
