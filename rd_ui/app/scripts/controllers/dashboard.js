@@ -547,6 +547,6 @@ angular.module('redash.controllers')
     '$scope', '$location', 'Events', 'Query', 'Parameters', WidgetCtrl
   ])
   .controller('ExportMoMModalCtrl',
-    ['$scope', '$modalInstance', '$http', '$q', 'dateRanges', ExportMoMModalCtrl
+    ['$scope', '$modalInstance', '$http', '$q', 'dateRanges', 'widgets', 'searchParams', ExportMoMModalCtrl
   ])
 })();
