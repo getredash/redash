@@ -79,6 +79,44 @@ Docker Compose
 Now proceed to `"Setup" <#setup>`__.
 
 
+Heroku
+------
+
+1. Install `Heroku CLI <https://toolbelt.heroku.com/>`_.
+
+2. Create Heroku App::
+
+    $ heroku apps:create <app name>
+
+2. Set application buildpacks::
+
+    $ heroku buildpacks:set heroku/python
+    $ heroku buildpacks:add --index 1 heroku/nodejs
+
+3. Add Postgres addon::
+
+    $ heroku addons:create heroku-postgresql:hobby-dev
+
+4. Add Redis addon::
+
+    $ heroku addons:create heroku-redis:hobby-dev
+
+5. Set environment variables::
+
+    $ heroku config:set REDASH_DATABASE_URL=`heroku config:get DATABASE_URL`
+    $ heroku config:set REDASH_REDIS_URL=`heroku config:get REDIS_URL`
+    $ heroku config:set REDASH_COOKIE_SECRET='<create a secret token and put here>'
+
+6. Push the repository to Heroku::
+
+    $ git push heroku master
+
+7. Create database tables::
+
+    $ heroku run bash
+    $ python manage.py database create_tables
+
+
 Other
 -----
 

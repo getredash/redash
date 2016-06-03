@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# heroku post_compile script
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+pushd $DIR/..
+
+# heroku requires cffi to be in requirements.txt in order for libffi to be installed.
+# https://github.com/heroku/heroku-buildpack-python/blob/master/bin/steps/cryptography
+# to avoid making it a requirement for other build systems, we'll inject it now
+# into the requirements.txt file
+# remove pymssql, it doesn't compile on heroku
+grep -v '^pymssql' requirements_all_ds.txt >> requirements.txt
+
+# make the heroku Procfile the active one
+cp Procfile.heroku Procfile
+
+popd

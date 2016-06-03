@@ -9,8 +9,8 @@ var wiredep = require('wiredep').stream;
 var runSequence = require('run-sequence');
 
 var yeoman = {
-  app: 'app',
-  dist: 'dist'
+  app: 'rd_ui/app',
+  dist: 'rd_ui/dist'
 };
 
 var paths = {
