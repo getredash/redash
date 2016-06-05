@@ -126,13 +126,13 @@
         $scope.enabled = !clientConfig.mailSettingsMissing;
 
         $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
-              $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination === "undefined"; });
+          $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination === "undefined"; });
         });
       }
     }
   }]);
 
-  angular.module('redash.directives').directive('destinationSubscribers', ['AlertSubscription', 'Destination', 'growl', function (AlertSubscription, Destination, growl) {
+  angular.module('redash.directives').directive('destinationSubscribers', ['$sce', 'AlertSubscription', 'Destination', 'growl', function ($sce, AlertSubscription, Destination, growl) {
     return {
       restrict: 'E',
       replace: true,
@@ -143,15 +143,37 @@
       controller: function ($scope) {
         $scope.subscription = {};
         $scope.subscribers = [];
-        $scope.destinations = Destination.query();
+        $scope.destinations = [];
+
+        Destination.query(function(destinations) {
+          $scope.destinations = destinations;
+          destinations.unshift({name: currentUser.name + ' (Email)', icon: 'fa-envelope', type: 'user'});
+          $scope.subscription.destination = destinations[0];
+        });
 
         $scope.destinationsDisplay = function(destination) {
-            return '<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name
+          if (destination.destination) {
+            destination = destination;
+          }
+
+          if (destination.user) {
+            destination = {
+              name: destination.user.name + ' (Email)',
+              icon: 'fa-envelope',
+              type: 'user'
+            };
+          }
+
+          if (!destination) {
+            return '';
+          }
+          return $sce.trustAsHtml('<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name);
         };
 
         $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
-              $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination !== "undefined"; });
+          // $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination !== "undefined"; });
         });
+
         $scope.saveSubscriber = function() {
             $scope.sub = new AlertSubscription({alert_id: $scope.alertId, destination_id: $scope.subscription.destination.id});
             $scope.sub.$save(function() {
@@ -179,7 +201,7 @@
     return {
       restrict: 'E',
       replace: true,
-      template: '<button class="btn btn-primary" ng-click="toggleSubscription()" ng-bind="message"></button>',
+      template: '<button class="btn btn-default" ng-click="toggleSubscription()" ng-bind="message"></button>',
       controller: function ($scope) {
         var updateMessage = function() {
           if ($scope.subscription) {
@@ -210,6 +232,7 @@
             $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
             $scope.subscription.$save(function() {
               $scope.subscribers.push($scope.subscription);
+              console.log($scope.subscribers);
               updateMessage();
             }, function() {
               growl.addErrorMessage("Unsubscription failed.");

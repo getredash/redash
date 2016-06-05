@@ -6,7 +6,6 @@ from redash.destinations import *
 
 
 class Slack(BaseDestination):
-
     @classmethod
     def configuration_schema(cls):
         return {
@@ -14,7 +13,7 @@ class Slack(BaseDestination):
             'properties': {
                 'url': {
                     'type': 'string',
-                    'title': 'Slack webhook URL'
+                    'title': 'Slack Webhook URL'
                 }
             }
         }

@@ -1,4 +1,4 @@
-<form name="dataSourceForm" ng-submit="saveChanges()">
+<form name="dataSourceForm">
     <div class="form-group">
         <label for="dataSourceName">Name</label>
         <input type="string" class="form-control" name="dataSourceName" ng-model="target.name" required>
@@ -16,7 +16,7 @@
                base-sixty-four-input
                ng-if="input.type === 'file'">
     </div>
-    <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid">Save</button>
+    <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid" ng-click="saveChanges()">Save</button>
     <span ng-transclude>
 
     </span>

@@ -1,8 +1,8 @@
 <div class="p-5">
-  <div>
+  <div class="p-b-10" ng-show="subscribers.length > 0">
     <img ng-src="{{s.user.gravatar_url}}" class="img-circle" alt="{{s.id}}" ng-repeat="s in subscribers"/>
   </div>
-  <div class="p-t-20">
+  <div>
     <subscribe-button alert-id="alertId" subscribers="subscribers"></subscribe-button>
   </div>
   <div>
