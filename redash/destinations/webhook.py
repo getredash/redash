@@ -2,13 +2,11 @@ import logging
 import requests
 from requests.auth import HTTPBasicAuth
 
-from redash import models, mail
 from redash.destinations import *
 from redash.utils import json_dumps
 
 
 class Webhook(BaseDestination):
-
     @classmethod
     def configuration_schema(cls):
         return {

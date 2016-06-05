@@ -5,8 +5,7 @@ from redash import settings
 from redash.destinations import *
 
 
-class Hipchat(BaseDestination):
-
+class HipChat(BaseDestination):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -45,4 +44,4 @@ class Hipchat(BaseDestination):
             logging.exception("hipchat send ERROR.")
 
 
-register(Hipchat)
+register(HipChat)
