@@ -4,7 +4,7 @@
   wordCloudVisualization.config(['VisualizationProvider', function (VisualizationProvider) {
     VisualizationProvider.registerVisualization({
       type: 'WORD_CLOUD',
-      name: 'Word cloud',
+      name: 'Word Cloud',
       renderTemplate: '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
       editorTemplate: '<word-cloud-editor></word-cloud-editor>'
     });
@@ -18,10 +18,10 @@
         reloadCloud = function () {
           
           if (!angular.isDefined($scope.queryResult)) retun;
-          data = $scope.queryResult.getData()
-          cloud = d3.cloud 
+          data = $scope.queryResult.getData();
+          cloud = d3.cloud; 
           
-          wordsHash = {}
+          wordsHash = {};
           if($scope.visualization.options.column){
           data.map(function(d) { 
                     d[$scope.visualization.options.column]
@@ -37,9 +37,9 @@
                    })
           } 
  
-          wordList = []
+          wordList = [];
           for(var key in wordsHash) {
-            wordList.push({text: key, size: 10 + Math.pow(wordsHash[key],2)})
+            wordList.push({text: key, size: 10 + Math.pow(wordsHash[key],2)});
           }
  
           var fill = d3.scale.category20();
@@ -81,7 +81,7 @@
 
         }
 
-        $scope.$watch('queryresult && queryresult.getdata()', reloadCloud);
+        $scope.$watch('queryResult && queryResult.getData()', reloadCloud);
         $scope.$watch('visualization.options.column', reloadCloud);
       }
     }
