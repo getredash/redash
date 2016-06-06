@@ -6,17 +6,17 @@ BASE_VERSION=$(shell python ./manage.py version | cut -d + -f 1)
 FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
 deps:
-	if [ -d "./rd_ui/app" ]; then cd rd_ui && npm install; fi
-	if [ -d "./rd_ui/app" ]; then cd rd_ui && npm run bower install; fi
-	if [ -d "./rd_ui/app" ]; then cd rd_ui && npm run build; fi
+	if [ -d "./rd_ui/app" ]; then npm install; fi
+	if [ -d "./rd_ui/app" ]; then npm run bower install; fi
+	if [ -d "./rd_ui/app" ]; then npm run build; fi
 
 pack:
 	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py
-	tar -zcv -f $(FILENAME) --exclude="optipng*" --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="rd_ui/node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
+	tar -zcv -f $(FILENAME) --exclude="optipng*" --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="node_modules" --exclude="rd_ui/dist/bower_components" --exclude="rd_ui/app" *
 
 upload:
 	python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
 
 test:
 	nosetests --with-coverage --cover-package=redash tests/
-	#cd rd_ui && grunt test
+	#grunt test

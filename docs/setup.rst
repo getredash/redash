@@ -79,6 +79,42 @@ Docker Compose
 Now proceed to `"Setup" <#setup>`__.
 
 
+Heroku
+------
+
+Due to the nature of Heroku deployments, upgrading to a newer version of Redash
+requires performing the steps outlined on the `"How to Upgrade"<http://docs.redash.io/en/latest/upgrade.html>`__ page.
+
+1. Install `Heroku CLI<https://toolbelt.heroku.com/>`__.
+
+2. Create Heroku App::
+
+    $ heroku apps:create <app name>
+
+2. Set application buildpacks::
+
+    $ heroku buildpacks:set heroku/python
+    $ heroku buildpacks:add --index 1 heroku/nodejs
+
+3. Add Postgres and Redis addons::
+
+    $ heroku addons:create heroku-postgresql:hobby-dev
+    $ heroku addons:create heroku-redis:hobby-dev
+
+4. Update the cookie secret (**Important** otherwise anyone can sign new cookies and impersonate users. You may be able to run the command ``pwgen 32 -1`` to generate a random string)::
+
+    $ heroku config:set REDASH_COOKIE_SECRET='<create a secret token and put here>'
+
+5. Push the repository to Heroku::
+
+    $ git push heroku master
+
+6. Create database tables::
+
+    $ heroku run bash
+    $ python manage.py database create_tables
+
+
 Other
 -----
 
