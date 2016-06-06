@@ -34,7 +34,8 @@
   "scripts": {
     "test": "echo 'No tests.'",
     "build": "gulp build",
-    "bower": "bower"
+    "bower": "bower",
+    "heroku-postbuild": "npm install --dev && npm run bower install && npm run build && npm prune --production"
   },
   "dependencies": {
   }
