@@ -14,6 +14,7 @@ dependencies:
     - pip install pymongo==3.2.1
     - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
   cache_directories:
+    - node_modules/
     - rd_ui/node_modules/
     - rd_ui/app/bower_components/
 test:
