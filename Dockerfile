@@ -32,7 +32,7 @@ RUN pip install -r requirements_all_ds.txt && \
 RUN curl https://deb.nodesource.com/setup_4.x | bash - && \
   apt-get install -y nodejs && \
   sudo -u redash -H make deps && \
-  rm -rf rd_ui/node_modules /home/redash/.npm /home/redash/.cache && \
+  rm -rf node_modules rd_ui/node_modules /home/redash/.npm /home/redash/.cache && \
   apt-get purge -y nodejs && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
