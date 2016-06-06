@@ -2,7 +2,7 @@
 
   <div class="tile m-t-10 m-b-5">
     <div class="t-body p-5">
-      <a href="queries/new" class="btn btn-default">New Query</a>
+      <a href="queries/new" ng-show="currentUser.hasPermission('create_query')" class="btn btn-default">New Query</a>
       <button ng-show="currentUser.hasPermission('create_dashboard')" type="button" class="btn btn-default"
               data-toggle="modal" href="#new_dashboard_dialog">New Dashboard
       </button>
