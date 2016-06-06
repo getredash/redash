@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# heroku post_compile script
+# heroku pre_compile script
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 pushd $DIR/..
