@@ -112,51 +112,48 @@
 
   };
 
-  angular.module('redash.directives').directive('userSubscribers', ['AlertSubscription', 'growl', function (AlertSubscription, growl) {
+  angular.module('redash.directives').directive('alertSubscriptions', ['$q', '$sce', 'AlertSubscription', 'Destination', 'growl', function ($q, $sce, AlertSubscription, Destination, growl) {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/alerts/userSubscribers.html',
+      templateUrl: '/views/alerts/alert_subscriptions.html',
       scope: {
         'alertId': '='
       },
       controller: function ($scope) {
-        $scope.subscription = {};
-        $scope.subscribers = [];
-        $scope.enabled = !clientConfig.mailSettingsMissing;
-
-        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
-          $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination === "undefined"; });
-        });
-      }
-    }
-  }]);
-
-  angular.module('redash.directives').directive('destinationSubscribers', ['$sce', 'AlertSubscription', 'Destination', 'growl', function ($sce, AlertSubscription, Destination, growl) {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/alerts/destinationSubscribers.html',
-      scope: {
-        'alertId': '='
-      },
-      controller: function ($scope) {
-        $scope.subscription = {};
+        $scope.newSubscription = {};
         $scope.subscribers = [];
         $scope.destinations = [];
+        $scope.currentUser = currentUser;
 
-        Destination.query(function(destinations) {
-          $scope.destinations = destinations;
-          destinations.unshift({name: currentUser.name + ' (Email)', icon: 'fa-envelope', type: 'user'});
-          $scope.subscription.destination = destinations[0];
+        var destinations = Destination.query().$promise;
+        var subscribers = AlertSubscription.query({alertId: $scope.alertId}).$promise;
+
+        $q.all([destinations, subscribers]).then(function(responses) {
+          var destinations = responses[0];
+          var subscribers = responses[1];
+
+          var subscribedDestinations = _.compact(_.map(subscribers, function(s) { return s.destination && s.destination.id }));
+          var subscribedUsers = _.compact(_.map(subscribers, function(s) { if (!s.destination) { return s.user.id } }));
+
+          $scope.destinations = _.filter(destinations, function(d) { return !_.contains(subscribedDestinations, d.id); });
+
+          if (!_.contains(subscribedUsers, currentUser.id)) {
+            $scope.destinations.unshift({user: {name: currentUser.name}});
+          }
+
+          $scope.newSubscription.destination = $scope.destinations[0];
+          $scope.subscribers = subscribers;
         });
 
         $scope.destinationsDisplay = function(destination) {
-          if (destination.destination) {
-            destination = destination;
+          if (!destination) {
+            return '';
           }
 
-          if (destination.user) {
+          if (destination.destination) {
+            destination = destination.destination;
+          } else if (destination.user) {
             destination = {
               name: destination.user.name + ' (Email)',
               icon: 'fa-envelope',
@@ -164,81 +161,51 @@
             };
           }
 
-          if (!destination) {
-            return '';
-          }
           return $sce.trustAsHtml('<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name);
         };
 
-        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId}, function(subscriptions) {
-          // $scope.subscribers = _.filter(subscriptions, function(subscription) { return typeof subscription.destination !== "undefined"; });
-        });
-
         $scope.saveSubscriber = function() {
-            $scope.sub = new AlertSubscription({alert_id: $scope.alertId, destination_id: $scope.subscription.destination.id});
-            $scope.sub.$save(function() {
-              growl.addSuccessMessage("Subscribed.");
-              $scope.subscribers.push($scope.sub);
-            }, function(response) {
-              growl.addErrorMessage("Failed saving subscription.");
-            });
+          var sub = new AlertSubscription({alert_id: $scope.alertId});
+          if ($scope.newSubscription.destination.id) {
+            sub.destination_id = $scope.newSubscription.destination.id;
+          }
+
+          sub.$save(function () {
+            growl.addSuccessMessage("Subscribed.");
+            $scope.subscribers.push(sub);
+            $scope.destinations = _.without($scope.destinations, $scope.newSubscription.destination);
+            if ($scope.destinations.length > 0) {
+              $scope.newSubscription.destination = $scope.destinations[0];
+            } else {
+              $scope.newSubscription.destination = undefined;
+            }
+            console.log("dests: ", $scope.destinations);
+          }, function (response) {
+            growl.addErrorMessage("Failed saving subscription.");
+          });
         };
 
         $scope.unsubscribe = function(subscriber) {
-            $scope.sub = new AlertSubscription({alert_id: subscriber.alert_id, id: subscriber.id});
-            $scope.sub.$delete(function() {
-              growl.addSuccessMessage("Unsubscribed");
-              $scope.subscribers = _.without($scope.subscribers, subscriber);
-            }, function() {
-              growl.addErrorMessage("Failed unsubscribing.");
-            });
-        };
-      }
-    }
-  }]);
+          var destination = subscriber.destination;
+          var user = subscriber.user;
 
-  angular.module('redash.directives').directive('subscribeButton', ['AlertSubscription', 'growl', function (AlertSubscription, growl) {
-    return {
-      restrict: 'E',
-      replace: true,
-      template: '<button class="btn btn-default" ng-click="toggleSubscription()" ng-bind="message"></button>',
-      controller: function ($scope) {
-        var updateMessage = function() {
-          if ($scope.subscription) {
-            $scope.message = "Unsubscribe";
-          } else {
-            $scope.message = "Subscribe";
-          }
-        }
+          subscriber.$delete(function () {
+            growl.addSuccessMessage("Unsubscribed");
+            $scope.subscribers = _.without($scope.subscribers, subscriber);
+            if (destination) {
+              $scope.destinations.push(destination);
+            } else if (user.id == currentUser.id) {
+              $scope.destinations.push({user: {name: currentUser.name}});
+            }
 
-        $scope.subscribers.$promise.then(function() {
-          $scope.subscription = _.find($scope.subscribers, function(subscription) {
-            return (subscription.user.email == currentUser.email);
+            if ($scope.destinations.length == 1) {
+              $scope.newSubscription.destination = $scope.destinations[0];
+            }
+
+          }, function () {
+            growl.addErrorMessage("Failed unsubscribing.");
           });
-
-          updateMessage();
-        });
-
-        $scope.toggleSubscription = function() {
-          if ($scope.subscription) {
-            $scope.subscription.$delete(function() {
-              $scope.subscribers = _.without($scope.subscribers, $scope.subscription);
-              $scope.subscription = undefined;
-              updateMessage();
-            }, function() {
-              growl.addErrorMessage("Failed saving subscription.");
-            });
-          } else {
-            $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
-            $scope.subscription.$save(function() {
-              $scope.subscribers.push($scope.subscription);
-              console.log($scope.subscribers);
-              updateMessage();
-            }, function() {
-              growl.addErrorMessage("Unsubscription failed.");
-            });
-          }
-        }
+        };
       }
     }
   }]);

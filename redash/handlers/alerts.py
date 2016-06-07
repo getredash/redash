@@ -82,7 +82,8 @@ class AlertSubscriptionListResource(BaseResource):
             'action': 'subscribe',
             'timestamp': int(time.time()),
             'object_id': alert_id,
-            'object_type': 'alert'
+            'object_type': 'alert',
+            'destination': req.get('destination_id')
         })
 
         return subscription.to_dict()
