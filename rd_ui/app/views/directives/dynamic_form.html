@@ -1,0 +1,23 @@
+<form name="dataSourceForm">
+    <div class="form-group">
+        <label for="dataSourceName">Name</label>
+        <input type="string" class="form-control" name="dataSourceName" ng-model="target.name" required>
+    </div>
+    <div class="form-group">
+        <label for="type">Type</label>
+        <select name="type" class="form-control" ng-options="type.type as type.name for type in types" ng-model="target.type"></select>
+    </div>
+    <div class="form-group" ng-class='{"has-error": !inner.input.$valid}' ng-form="inner" ng-repeat="(name, input) in type.configuration_schema.properties">
+        <label>{{input.title || name | capitalize}}</label>
+        <input name="input" type="{{input.type}}" class="form-control" ng-model="target.options[name]" ng-required="input.required"
+                ng-if="input.type !== 'file'" accesskey="tab" placeholder="{{input.default}}">
+
+        <input name="input" type="file" class="form-control" ng-model="files[name]" ng-required="input.required && !target.options[name]"
+               base-sixty-four-input
+               ng-if="input.type === 'file'">
+    </div>
+    <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid" ng-click="saveChanges()">Save</button>
+    <span ng-transclude>
+
+    </span>
+</form>

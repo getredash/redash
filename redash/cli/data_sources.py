@@ -2,7 +2,7 @@ import json
 import click
 from flask_script import Manager
 from redash import models
-from redash.query_runner import query_runners, get_configuration_schema_for_type
+from redash.query_runner import query_runners, get_configuration_schema_for_query_runner_type
 from redash.utils.configuration import ConfigurationContainer
 
 manager = Manager(help="Data sources management commands.")
@@ -119,7 +119,7 @@ def edit(name, new_name=None, options=None, type=None):
         data_source = models.DataSource.get(models.DataSource.name==name)
 
         if options is not None:
-            schema = get_configuration_schema_for_type(data_source.type)
+            schema = get_configuration_schema_for_query_runner_type(data_source.type)
             options = json.loads(options)
             data_source.options.set_schema(schema)
             data_source.options.update(options)

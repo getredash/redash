@@ -111,6 +111,18 @@ widget_factory = ModelFactory(redash.models.Widget,
                               dashboard=dashboard_factory.create,
                               visualization=visualization_factory.create)
 
+destination_factory = ModelFactory(redash.models.NotificationDestination,
+                                   org=1,
+                                   user=user_factory.create,
+                                   name='Destination',
+                                   type='slack',
+                                   options=ConfigurationContainer.from_json('{"url": "https://www.slack.com"}'))
+
+alert_subscription_factory = ModelFactory(redash.models.AlertSubscription,
+                                   user=user_factory.create,
+                                   destination=destination_factory.create,
+                                   alert=alert_factory.create)
+
 
 class Factory(object):
     def __init__(self):
@@ -259,3 +271,9 @@ class Factory(object):
         }
         args.update(kwargs)
         return api_key_factory.create(**args)
+
+    def create_destination(self, **kwargs):
+        return destination_factory.create(**kwargs)
+
+    def create_alert_subscription(self, **kwargs):
+        return alert_subscription_factory.create(**kwargs)

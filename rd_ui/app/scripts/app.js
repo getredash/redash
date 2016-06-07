@@ -115,6 +115,15 @@ angular.module('redash', [
       controller: 'DataSourcesCtrl'
     });
 
+    $routeProvider.when('/destinations/:destinationId', {
+      templateUrl: '/views/destinations/edit.html',
+      controller: 'DestinationCtrl'
+    });
+    $routeProvider.when('/destinations', {
+      templateUrl: '/views/destinations/list.html',
+      controller: 'DestinationsCtrl'
+    });
+
     $routeProvider.when('/users/new', {
       templateUrl: '/views/users/new.html',
       controller: 'NewUserCtrl'

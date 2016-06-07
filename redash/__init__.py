@@ -10,6 +10,7 @@ from flask_mail import Mail
 
 from redash import settings
 from redash.query_runner import import_query_runners
+from redash.destinations import import_destinations
 
 
 __version__ = '0.11.0'
@@ -61,6 +62,7 @@ mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
 
 import_query_runners(settings.QUERY_RUNNERS)
+import_destinations(settings.DESTINATIONS)
 
 from redash.version_check import reset_new_version_status
 reset_new_version_status()

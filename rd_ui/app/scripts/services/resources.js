@@ -567,6 +567,17 @@
     return DataSourceResource;
   };
 
+  var Destination = function ($resource) {
+    var actions = {
+      'get': {'method': 'GET', 'cache': false, 'isArray': false},
+      'query': {'method': 'GET', 'cache': false, 'isArray': true}
+    };
+
+    var DestinationResource = $resource('api/destinations/:id', {id: '@id'}, actions);
+
+    return DestinationResource;
+  };
+
   var User = function ($resource, $http) {
     var transformSingle = function(user) {
       if (user.groups !== undefined) {
@@ -607,7 +618,7 @@
   };
 
   var AlertSubscription = function ($resource) {
-    var resource = $resource('api/alerts/:alertId/subscriptions/:userId', {alertId: '@alert_id', userId: '@user.id'});
+    var resource = $resource('api/alerts/:alertId/subscriptions/:subscriberId', {alertId: '@alert_id', subscriberId: '@id'});
     return resource;
   };
 
@@ -619,7 +630,9 @@
           var newData = _.extend({}, data);
           if (newData.query_id === undefined) {
             newData.query_id = newData.query.id;
+            newData.destination_id = newData.destinations;
             delete newData.query;
+            delete newData.destinations;
           }
 
           return newData;
@@ -656,6 +669,7 @@
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
       .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
       .factory('DataSource', ['$resource', DataSource])
+      .factory('Destination', ['$resource', Destination])
       .factory('Alert', ['$resource', '$http', Alert])
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])
