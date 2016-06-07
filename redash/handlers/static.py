@@ -22,7 +22,6 @@ def send_static(filename):
 
     # The following is copied from send_from_directory, and extended to support multiple directories
     for path in settings.STATIC_ASSETS_PATHS:
-        print path
         full_path = safe_join(path, filename)
         if os.path.isfile(full_path):
             return send_file(full_path, **dict(cache_timeout=cache_timeout, conditional=True))
@@ -80,6 +79,8 @@ rules = ['/admin/<anything>/<whatever>',
           '/data_sources/<pk>',
           '/users',
           '/users/<pk>',
+          '/destinations',
+          '/destinations/<pk>',
           '/groups',
           '/groups/<pk>',
           '/groups/<pk>/data_sources',

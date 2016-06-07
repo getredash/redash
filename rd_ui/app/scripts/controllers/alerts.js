@@ -46,7 +46,8 @@
     ];
   };
 
-  var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert) {
+  var AlertCtrl = function($scope, $routeParams, $location, growl, Query, Events, Alert, Destination) {
+    $scope.selectedTab = 'users';
     $scope.$parent.pageTitle = "Alerts";
 
     $scope.alertId = $routeParams.alertId;
@@ -108,69 +109,109 @@
         growl.addErrorMessage("Failed saving alert.");
       });
     };
+
   };
 
-  angular.module('redash.directives').directive('alertSubscribers', ['AlertSubscription', function (AlertSubscription) {
+  angular.module('redash.directives').directive('alertSubscriptions', ['$q', '$sce', 'AlertSubscription', 'Destination', 'growl', function ($q, $sce, AlertSubscription, Destination, growl) {
     return {
       restrict: 'E',
       replace: true,
-      templateUrl: '/views/alerts/subscribers.html',
+      templateUrl: '/views/alerts/alert_subscriptions.html',
       scope: {
         'alertId': '='
       },
       controller: function ($scope) {
-        $scope.subscribers = AlertSubscription.query({alertId: $scope.alertId});
-      }
-    }
-  }]);
+        $scope.newSubscription = {};
+        $scope.subscribers = [];
+        $scope.destinations = [];
+        $scope.currentUser = currentUser;
 
-  angular.module('redash.directives').directive('subscribeButton', ['AlertSubscription', 'growl', function (AlertSubscription, growl) {
-    return {
-      restrict: 'E',
-      replace: true,
-      template: '<button class="btn btn-default btn-xs" ng-click="toggleSubscription()"><i ng-class="class"></i></button>',
-      controller: function ($scope) {
-        var updateClass = function() {
-          if ($scope.subscription) {
-            $scope.class = "fa fa-eye-slash";
-          } else {
-            $scope.class = "fa fa-eye";
+        var destinations = Destination.query().$promise;
+        var subscribers = AlertSubscription.query({alertId: $scope.alertId}).$promise;
+
+        $q.all([destinations, subscribers]).then(function(responses) {
+          var destinations = responses[0];
+          var subscribers = responses[1];
+
+          var subscribedDestinations = _.compact(_.map(subscribers, function(s) { return s.destination && s.destination.id }));
+          var subscribedUsers = _.compact(_.map(subscribers, function(s) { if (!s.destination) { return s.user.id } }));
+
+          $scope.destinations = _.filter(destinations, function(d) { return !_.contains(subscribedDestinations, d.id); });
+
+          if (!_.contains(subscribedUsers, currentUser.id)) {
+            $scope.destinations.unshift({user: {name: currentUser.name}});
           }
-        }
 
-        $scope.subscribers.$promise.then(function() {
-          $scope.subscription = _.find($scope.subscribers, function(subscription) {
-            return (subscription.user.email == currentUser.email);
-          });
-
-          updateClass();
+          $scope.newSubscription.destination = $scope.destinations[0];
+          $scope.subscribers = subscribers;
         });
 
-        $scope.toggleSubscription = function() {
-          if ($scope.subscription) {
-            $scope.subscription.$delete(function() {
-              $scope.subscribers = _.without($scope.subscribers, $scope.subscription);
-              $scope.subscription = undefined;
-              updateClass();
-            }, function() {
-              growl.addErrorMessage("Failed saving subscription.");
-            });
-          } else {
-            $scope.subscription = new AlertSubscription({alert_id: $scope.alertId});
-            $scope.subscription.$save(function() {
-              $scope.subscribers.push($scope.subscription);
-              updateClass();
-            }, function() {
-              growl.addErrorMessage("Unsubscription failed.");
-            });
+        $scope.destinationsDisplay = function(destination) {
+          if (!destination) {
+            return '';
           }
-        }
+
+          if (destination.destination) {
+            destination = destination.destination;
+          } else if (destination.user) {
+            destination = {
+              name: destination.user.name + ' (Email)',
+              icon: 'fa-envelope',
+              type: 'user'
+            };
+          }
+
+          return $sce.trustAsHtml('<i class="fa ' + destination.icon + '"></i>&nbsp;' + destination.name);
+        };
+
+        $scope.saveSubscriber = function() {
+          var sub = new AlertSubscription({alert_id: $scope.alertId});
+          if ($scope.newSubscription.destination.id) {
+            sub.destination_id = $scope.newSubscription.destination.id;
+          }
+
+          sub.$save(function () {
+            growl.addSuccessMessage("Subscribed.");
+            $scope.subscribers.push(sub);
+            $scope.destinations = _.without($scope.destinations, $scope.newSubscription.destination);
+            if ($scope.destinations.length > 0) {
+              $scope.newSubscription.destination = $scope.destinations[0];
+            } else {
+              $scope.newSubscription.destination = undefined;
+            }
+            console.log("dests: ", $scope.destinations);
+          }, function (response) {
+            growl.addErrorMessage("Failed saving subscription.");
+          });
+        };
+
+        $scope.unsubscribe = function(subscriber) {
+          var destination = subscriber.destination;
+          var user = subscriber.user;
+
+          subscriber.$delete(function () {
+            growl.addSuccessMessage("Unsubscribed");
+            $scope.subscribers = _.without($scope.subscribers, subscriber);
+            if (destination) {
+              $scope.destinations.push(destination);
+            } else if (user.id == currentUser.id) {
+              $scope.destinations.push({user: {name: currentUser.name}});
+            }
+
+            if ($scope.destinations.length == 1) {
+              $scope.newSubscription.destination = $scope.destinations[0];
+            }
+
+          }, function () {
+            growl.addErrorMessage("Failed unsubscribing.");
+          });
+        };
       }
     }
   }]);
 
   angular.module('redash.controllers')
     .controller('AlertsCtrl', ['$scope', 'Events', 'Alert', AlertsCtrl])
-    .controller('AlertCtrl', ['$scope', '$routeParams', '$location', 'growl', 'Query', 'Events', 'Alert', AlertCtrl])
+    .controller('AlertCtrl', ['$scope', '$routeParams', '$location', 'growl', 'Query', 'Events', 'Alert', 'Destination', AlertCtrl])
 
 })();

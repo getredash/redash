@@ -148,7 +148,7 @@ def get_query_runner(query_runner_type, configuration):
     return query_runner_class(configuration)
 
 
-def get_configuration_schema_for_type(query_runner_type):
+def get_configuration_schema_for_query_runner_type(query_runner_type):
     query_runner_class = query_runners.get(query_runner_type, None)
     if query_runner_class is None:
         return None

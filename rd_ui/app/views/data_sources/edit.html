@@ -1,7 +1,9 @@
 <settings-screen>
   <div class="row">
     <div class="col-md-8">
-      <data-source-form data-data-source="dataSource" />
+      <dynamic-form target="dataSource" type="data_sources">
+        <button class="btn btn-danger" ng-if="dataSource.id" ng-click="delete()">Delete</button>
+      </dynamic-form>
     </div>
   </div>
 </settings-screen>
