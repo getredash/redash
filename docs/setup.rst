@@ -83,9 +83,9 @@ Heroku
 ------
 
 Due to the nature of Heroku deployments, upgrading to a newer version of Redash
-requires performing the steps outlined on the `"How to Upgrade"<http://docs.redash.io/en/latest/upgrade.html>`__ page.
+requires performing the steps outlined on the `"How to Upgrade" <http://docs.redash.io/en/latest/upgrade.html>`__ page.
 
-1. Install `Heroku CLI<https://toolbelt.heroku.com/>`__.
+1. Install `Heroku CLI <https://toolbelt.heroku.com/>`__.
 
 2. Create Heroku App::
 
