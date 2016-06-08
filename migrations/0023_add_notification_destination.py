@@ -43,10 +43,16 @@ if __name__ == '__main__':
             if settings.HIPCHAT_API_TOKEN:
                 # Have all existing alerts send to HipChat if already configured
                 schema = get_configuration_schema_for_destination_type('hipchat')
-                conf = {'token': settings.HIPCHAT_API_TOKEN,
-                        'room_id': settings.HIPCHAT_ROOM_ID}
+
+                conf = {}
+
                 if settings.HIPCHAT_API_URL:
-                    conf['url'] = settings.HIPCHAT_API_URL
+                    conf['url'] = '{url}/room/{room_id}/notification?auth_token={token}'.format(
+                        url=settings.HIPCHAT_API_URL, room_id=settings.HIPCHAT_ROOM_ID, token=settings.HIPCHAT_API_TOKEN)
+                else:
+                    conf['url'] = 'https://hipchat.com/v2/room/{room_id}/notification?auth_token={token}'.format(
+                        room_id=settings.HIPCHAT_ROOM_ID, token=settings.HIPCHAT_API_TOKEN)
+
                 options = ConfigurationContainer(conf, schema)
 
                 hipchat = NotificationDestination.create(
