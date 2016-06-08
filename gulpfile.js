@@ -75,7 +75,9 @@ gulp.task('client:build', ['html', 'styles'], function () {
   var cssFilter = $.filter('**/*.css');
 
   return gulp.src(paths.views.main)
+    .pipe($.print(function(p) { return "1: " + p; }))
     .pipe($.useref({searchPath: [yeoman.app, '.tmp']}))
+    .pipe($.print(function(p) { return "useref: " + p; }))
     .pipe(jsFilter)
     .pipe($.ngAnnotate())
     .pipe($.uglify())
