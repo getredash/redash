@@ -1,6 +1,6 @@
 {
-  "name": "rdUi",
-  "version": "0.1.0",
+  "name": "redash",
+  "version": "0.11.0",
   "dependencies": {
     "angular": "1.2.18",
     "angular-resource": "1.2.18",
