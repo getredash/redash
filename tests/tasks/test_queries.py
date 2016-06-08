@@ -1,6 +1,9 @@
 from redash import redis_connection
-from redash.tasks.queries import QueryTaskTracker
+from redash.tasks.queries import QueryTaskTracker, enqueue_query, execute_query
 from unittest import TestCase
+from tests import BaseTestCase
+from mock import MagicMock
+from collections import namedtuple
 
 
 class TestPrune(TestCase):
@@ -29,3 +32,19 @@ class TestPrune(TestCase):
 
         for k in self.keys[0:50]:
             self.assertFalse(redis_connection.exists(k))
+
+
+result = namedtuple('Result', 'id')
+
+
+class TestEnqueueTask(BaseTestCase):
+    def test_enqueue(self):
+        query = self.factory.create_query()
+        execute_query.apply_async = MagicMock(return_value=result('testing'))
+
+        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        
+        self.assertEqual(1, execute_query.apply_async.call_count)
+        self.assertEqual(1, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
