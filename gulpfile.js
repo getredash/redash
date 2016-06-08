@@ -7,17 +7,28 @@ var lazypipe = require('lazypipe');
 var rimraf = require('rimraf');
 var wiredep = require('wiredep').stream;
 var runSequence = require('run-sequence');
+var map = require('lodash.map');
 
 var yeoman = {
   app: 'rd_ui/app',
   dist: 'rd_ui/dist'
 };
 
+function applyAppPath(p) {
+  if (typeof p === 'string') {
+    return yeoman.app + p;
+  } else {
+    return map(p, function (path) {
+      return applyAppPath(path);
+    });
+  }
+}
+
 var paths = {
   scripts: [yeoman.app + '/scripts/**/*.js'],
   styles: [yeoman.app + '/styles/**/*.css'],
   views: {
-    main: [yeoman.app + '/index.html', 'app/vendor_scripts.html', 'app/login.html', 'app/embed.html', 'app/public.html', 'app/app_layout.html', 'app/signed_out_layout.html'],
+    main: applyAppPath(['/index.html', '/vendor_scripts.html', '/login.html', '/embed.html', '/public.html', '/app_layout.html', '/signed_out_layout.html']),
     files: [yeoman.app + '/views/**/*.html']
   }
 };
@@ -75,9 +86,7 @@ gulp.task('client:build', ['html', 'styles'], function () {
   var cssFilter = $.filter('**/*.css');
 
   return gulp.src(paths.views.main)
-    .pipe($.print(function(p) { return "1: " + p; }))
     .pipe($.useref({searchPath: [yeoman.app, '.tmp']}))
-    .pipe($.print(function(p) { return "useref: " + p; }))
     .pipe(jsFilter)
     .pipe($.ngAnnotate())
     .pipe($.uglify())
@@ -106,12 +115,12 @@ gulp.task('images', function () {
 });
 
 gulp.task('copy:extras', function () {
-  return gulp.src([yeoman.app + '/*/.*', 'app/google_login.png', 'favicon.ico', 'robots.txt'], { dot: true })
+  return gulp.src(applyAppPath(['/*/.*', '/google_login.png', '/favicon.ico', '/robots.txt']), { dot: true })
     .pipe(gulp.dest(yeoman.dist));
 });
 
 gulp.task('copy:fonts', function () {
-  return gulp.src([yeoman.app + '/fonts/**/*', 'app/bower_components/font-awesome/fonts/*', 'app/bower_components/material-design-iconic-font/dist/fonts/*'])
+  return gulp.src(applyAppPath(['/fonts/**/*', '/bower_components/font-awesome/fonts/*', '/bower_components/material-design-iconic-font/dist/fonts/*']))
     .pipe(gulp.dest(yeoman.dist + '/fonts'));
 });
 
