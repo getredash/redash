@@ -1,0 +1,29 @@
+<div class="modal-header">
+    <button type="button" class="close" aria-label="Close" ng-click="close()"><span aria-hidden="true">&times;</span></button>
+    <h4 class="modal-title">Share Edit Permissions</h4>
+</div>
+<div class="modal-body">
+  <div style="overflow: auto; height: 300px">
+    <ui-select ng-model="newMember.selected" on-select="addMember($item)">
+       <ui-select-match placeholder="Add New Member"></ui-select-match>
+       <ui-select-choices repeat="user in foundUsers | filter:$select.search"
+                         refresh="findUser($select.search)"
+                         refresh-delay="0"
+                         ui-disable-choice="user.alreadyMember">
+        <div>
+          <img ng-src="{{user.gravatar_url}}" height="24px">&nbsp;{{user.name}}
+          <small ng-if="user.alreadyMember">(already member in this group)</small>
+        </div>
+       </ui-select-choices>
+    </ui-select>
+      <br/>
+       <table class="table table-condensed table-hover">
+        <tbody>
+        <tr ng-repeat="member in members">
+          <td width="50px"><img ng-src="{{member.gravatar_url}}" height="40px"/></td>
+          <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)">Remove</button></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

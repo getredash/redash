@@ -9,7 +9,7 @@
     });
   };
 
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, $modal, Dashboard) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, $modal, Dashboard, User) {
     $scope.refreshEnabled = false;
     $scope.isFullscreen = false;
     $scope.refreshRate = 60;
@@ -114,6 +114,56 @@
           $scope.$parent.reloadDashboards();
         });
       }
+    }
+
+    $scope.showSharePermissionsModal = function(dashboard) {
+      $modal.open({
+        templateUrl: '/views/dialogs/share_permissions.html',
+        controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
+
+         // $scope.can_edit_group = Group.get({id: $routeParams.groupId});
+          $scope.members = [];
+          $scope.newMember = {};
+
+          $scope.findUser = function(search) {
+            if (search == "") {
+              return;
+            }
+
+            if ($scope.foundUsers === undefined) {
+              User.query(function(users) {
+                var existingIds = _.map($scope.members, function(m) { return m.id; });
+                _.each(users, function(user) { user.alreadyMember = _.contains(existingIds, user.id); });
+                $scope.foundUsers = users;
+              });
+            }
+          };
+
+          $scope.addMember = function(user) {
+            // Clear selection, to clear up the input control.
+            $scope.newMember.selected = undefined;
+            //$http.post('api/access/' + $routeParams.groupId + '/members', {'user_id': user.id}).success(function() {
+              $scope.members.unshift(user);
+              user.alreadyMember = true;
+
+           // });
+          };
+
+          $scope.removeMember = function(member) {
+           // $http.delete('api/access/' + $routeParams.groupId + '/members/' + member.id).success(function() {
+              $scope.members = _.filter($scope.members, function(m) {  return m != member });
+
+              if ($scope.foundUsers) {
+                _.each($scope.foundUsers, function(user) { if (user.id == member.id) { user.alreadyMember = false }; });
+              }
+           // });
+          };
+
+          $scope.close = function() {
+            $modalInstance.close();
+          }
+        }]
+      })
     }
 
     $scope.toggleFullscreen = function() {
@@ -258,7 +308,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', '$modal', 'Dashboard', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', '$modal', 'Dashboard', 'User', DashboardCtrl])
     .controller('PublicDashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', PublicDashboardCtrl])
     .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', '$modal', WidgetCtrl])
 
