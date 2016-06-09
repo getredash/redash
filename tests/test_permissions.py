@@ -24,6 +24,14 @@ class TestHasAccess(TestCase):
 
         self.assertTrue(has_access({1: not view_only}, user, not view_only))
 
+    def test_allows_if_user_member_in_multiple_groups(self):
+        user = MockUser([], [1, 2, 3])
+
+        self.assertTrue(has_access({1: not view_only, 2: view_only}, user, not view_only))
+        self.assertFalse(has_access({1: view_only, 2: view_only}, user, not view_only))
+        self.assertTrue(has_access({1: view_only, 2: view_only}, user, view_only))
+        self.assertTrue(has_access({1: not view_only, 2: not view_only}, user, view_only))
+
     def test_not_allows_if_not_enough_permission(self):
         user = MockUser([], [1])
 
