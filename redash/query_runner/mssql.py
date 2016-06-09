@@ -119,6 +119,11 @@ class SqlServer(BaseSQLQueryRunner):
                 server = server + ':' + str(port)
 
             connection = pymssql.connect(server, user, password, db)
+
+            if isinstance(query, unicode):
+                encoding = connection._conn.charset
+                query = query.encode(encoding)
+
             cursor = connection.cursor()
             logger.debug("SqlServer running query: %s", query)
 
