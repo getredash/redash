@@ -40,6 +40,3 @@ python-simple-hipchat==0.4.0
 xlsxwriter==0.8.4
 pystache==0.5.4
 parsedatetime==2.1
-sasl>=0.1.3
-thrift>=0.8.0
-thrift_sasl>=0.1.0
