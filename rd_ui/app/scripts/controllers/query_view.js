@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource, User) {
+  function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, notifications, growl, $modal, Query, DataSource, User) {
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
@@ -345,42 +345,59 @@
         templateUrl: '/views/dialogs/share_permissions.html',
         controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
 
-         // $scope.can_edit_group = Group.get({id: $routeParams.groupId});
-          $scope.members = [];
-          $scope.newMember = {};
+          /* list of users that are granted access to this query */
+          $scope.grantees = [];
+          $scope.newGrantees = {};
+
+          var loadGrantees = function() {
+            $http.get('api/access/Query/' + $routeParams.queryId).success(function(result) {
+              $scope.grantees = [];
+              for(var access_type in result) {
+                result[access_type].forEach(function(grantee) {
+                  var item = grantee;
+                  item['access_type'] = access_type;
+                  $scope.grantees.push(item);
+                })
+              }
+            });
+          };
+
+          loadGrantees();
 
           $scope.findUser = function(search) {
             if (search == "") {
               return;
             }
-
             if ($scope.foundUsers === undefined) {
               User.query(function(users) {
-                var existingIds = _.map($scope.members, function(m) { return m.id; });
-                _.each(users, function(user) { user.alreadyMember = _.contains(existingIds, user.id); });
+                var existingIds = _.map($scope.grantees, function(m) { return m.id; });
+                _.each(users, function(user) { user.alreadyGrantee = _.contains(existingIds, user.id); });
                 $scope.foundUsers = users;
               });
             }
           };
 
-          $scope.addMember = function(user) {
+          $scope.addGrantee = function(user) {
             // Clear selection, to clear up the input control.
-            $scope.newMember.selected = undefined;
-            //$http.post('api/access/' + $routeParams.groupId + '/members', {'user_id': user.id}).success(function() {
-              $scope.members.unshift(user);
-              user.alreadyMember = true;
-
-           // });
+            $scope.newGrantees.selected = undefined;
+            var body = {'access_type': 'modify', 'user_id': user.id};
+            $http.post('api/access/Query/' + $routeParams.queryId, body).success(function() {
+              $scope.grantees.unshift(user);
+              user.alreadyGrantee = true;
+            });
           };
 
-          $scope.removeMember = function(member) {
-           // $http.delete('api/access/' + $routeParams.groupId + '/members/' + member.id).success(function() {
-              $scope.members = _.filter($scope.members, function(m) {  return m != member });
+          $scope.removeGrantee = function(user) {
+            var body = {'access_type': 'modify', 'user_id': user.id};
+            $http({ url: 'api/access/Query/' + $routeParams.queryId, method: 'DELETE',
+                    data: body, headers: {"Content-Type": "application/json"}
+            }).success(function() {
+              $scope.grantees = _.filter($scope.grantees, function(m) {  return m != user });
 
               if ($scope.foundUsers) {
-                _.each($scope.foundUsers, function(user) { if (user.id == member.id) { user.alreadyMember = false }; });
+                _.each($scope.foundUsers, function(u) { if (u.id == user.id) { u.alreadyMember = false }; });
               }
-           // });
+            });
           };
 
           $scope.close = function() {
@@ -394,5 +411,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', 'User', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$routeParams', '$http', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', 'User', QueryViewCtrl]);
 })();

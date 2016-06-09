@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QuerySourceCtrl(Events, growl, $controller, $scope, $location, Query, Visualization, KeyboardShortcuts) {
+  function QuerySourceCtrl(Events, growl, $controller, $scope, $location, $http, Query, Visualization, KeyboardShortcuts) {
     // extends QueryViewCtrl
     $controller('QueryViewCtrl', {$scope: $scope});
     // TODO:
@@ -48,6 +48,21 @@
     };
 
     KeyboardShortcuts.bind(shortcuts);
+
+
+    var loadAccessPermission = function() {
+      var action = 'modify';
+      var body = {};
+      $http.post('api/access/Query/' + $scope.query.id + '/' + action, body).then(function() {
+        $scope.canEdit = true;
+      }, function() {
+        /* access denied, cannot edit this query. */
+      });
+    };
+
+    if(!$scope.canEdit) {
+      loadAccessPermission();
+    }
 
     // @override
     $scope.saveQuery = function(options, data) {
@@ -114,7 +129,7 @@
   }
 
   angular.module('redash.controllers').controller('QuerySourceCtrl', [
-    'Events', 'growl', '$controller', '$scope', '$location', 'Query',
-    'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
+    'Events', 'growl', '$controller', '$scope', '$location', '$http',
+    'Query', 'Visualization', 'KeyboardShortcuts', QuerySourceCtrl
     ]);
 })();

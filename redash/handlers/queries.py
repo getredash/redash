@@ -2,6 +2,8 @@ from flask import request
 from flask_restful import abort
 from flask_login import login_required
 import sqlparse
+import logging
+import copy
 
 from funcy import distinct, take
 from itertools import chain
@@ -93,7 +95,14 @@ class QueryResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_admin_or_owner(query.user_id)
+
+        # check access permissions
+        if self.current_user.id != query.user.id:
+            if not self.current_user.has_access(
+                    models.AccessPermission.ACCESS_TYPE_MODIFY,
+                    query.id,
+                    models.Query.__name__):
+                require_admin_or_owner(query.user_id)
 
         query_def = request.get_json(force=True)
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
@@ -107,9 +116,33 @@ class QueryResource(BaseResource):
 
         query_def['last_modified_by'] = self.current_user
 
+        # create a new Changes record to keep track of the changes
+        new_query = copy.deepcopy(query_def)
+        old_query = copy.deepcopy(query.to_dict())
+        self._save_change(query, old_query, new_query)
+
         query.update_instance(**query_def)
 
         return query.to_dict(with_visualizations=True)
+
+    def _save_change(self, query, old_query, new_query):
+        new_query['last_modified_by'] = new_query['last_modified_by'].id
+        old_query['last_modified_by'] = old_query['last_modified_by']['id']
+        old_query['user'] = old_query['user']['id']
+        if 'created_at' in old_query:
+            del old_query['created_at']
+        if 'updated_at' in old_query:
+            del old_query['updated_at']
+        change = models.Change()
+        change.object_id = query.id
+        change.object_type = query.__class__.__name__
+        change.change_type = models.Change.TYPE_UPDATE
+        change.user = self.current_user
+        change.change = {
+            "before": old_query,
+            "after": new_query
+        }
+        change.save()
 
     @require_permission('view_query')
     def get(self, query_id):

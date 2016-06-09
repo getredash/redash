@@ -140,7 +140,6 @@ class PermissionsCheckMixin(object):
 
         return has_permissions
 
-
 class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     @property
     def permissions(self):
@@ -343,6 +342,9 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
         groups.append(self.org.default_group)
         self.groups = map(lambda g: g.id, groups)
         self.save()
+
+    def has_access(self, access_type, object_id, object_type):
+        return AccessPermission.exists(self, access_type, object_id, object_type)
 
 
 class ConfigurationField(peewee.TextField):
@@ -765,6 +767,78 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     def __unicode__(self):
         return unicode(self.id)
 
+
+class AccessPermission(BaseModel):
+
+    id = peewee.PrimaryKeyField()
+    object_type = peewee.CharField()
+    object_id = peewee.IntegerField()
+    object = GFKField('object_type', 'object_id')
+    access_type = peewee.CharField()
+    grantor = peewee.ForeignKeyField(User, related_name='grantor')
+    grantee = peewee.ForeignKeyField(User, related_name='grantee')
+
+    ACCESS_TYPE_VIEW = 'view'
+    ACCESS_TYPE_MODIFY = 'modify'
+    ACCESS_TYPE_DELETE = 'delete'
+
+    class Meta:
+        db_table = 'access_permissions'
+
+    @staticmethod
+    def exists(user, access_type, object_id, object_type):
+        try:
+            q = AccessPermission.select(AccessPermission)\
+                .where(AccessPermission.object_id == object_id)\
+                .where(AccessPermission.object_type == object_type)\
+                .where(AccessPermission.access_type == access_type)\
+                .where(AccessPermission.grantee == user)
+            return q.count() > 0
+        except Exception, e:
+            logging.warn("Unable to query for AccessPermission.", e)
+            return False
+
+    @staticmethod
+    def reset(object_type, object_id, access_type):
+        q = AccessPermission.delete()\
+                .where(AccessPermission.object_id == object_id)\
+                .where(AccessPermission.object_type == object_type)\
+                .where(AccessPermission.access_type == access_type)
+
+        return q.execute()
+
+class Change(BaseModel):
+
+    id = peewee.PrimaryKeyField()
+    object_id = peewee.CharField()
+    object_type = peewee.CharField()
+    change_type = peewee.CharField()
+    user = peewee.ForeignKeyField(User, related_name='changes')
+    change = JSONField()
+    created_at = DateTimeTZField(default=datetime.datetime.now)
+
+    TYPE_CREATE = 'create'
+    TYPE_UPDATE = 'update'
+
+    class Meta:
+        db_table = 'changes'
+
+    def to_dict(self, full=True):
+        d = {
+            'id': self.id,
+            'object_id': self.object_id,
+            'object_type': self.object_type,
+            'change_type': self.change_type,
+            'change': self.change,
+            'created_at': self.created_at
+        }
+
+        if full:
+            d['user'] = self.user.to_dict()
+        else:
+            d['user_id'] = self.user_id
+
+        return d
 
 class Alert(ModelTimestampsMixin, BaseModel):
     UNKNOWN_STATE = 'unknown'
@@ -1234,7 +1308,7 @@ class QuerySnippet(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         return d
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, AccessPermission, Change)
 
 
 def init_db():
