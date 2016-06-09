@@ -65,6 +65,7 @@ class QueryTaskTracker(object):
             if l != self._get_list():
                 connection.zrem(l, key_name)
 
+    # TOOD: this is not thread/concurrency safe. In current code this is not an issue, but better to fix this.
     def update(self, **kwargs):
         self.data.update(kwargs)
         self.save()
@@ -216,12 +217,6 @@ def enqueue_query(query, data_source, scheduled=False, metadata={}):
                 logging.info("[%s] Found existing job: %s", query_hash, job_id)
 
                 job = QueryTask(job_id=job_id)
-                tracker = QueryTaskTracker.get_by_task_id(job_id, connection=pipe)
-                # tracker might not exist, if it's an old job
-                if scheduled and tracker:
-                    tracker.update(retries=tracker.retries+1)
-                elif tracker:
-                    tracker.update(scheduled_retries=tracker.scheduled_retries+1)
 
                 if job.ready():
                     logging.info("[%s] job found is ready (%s), removing lock", query_hash, job.celery_status)
