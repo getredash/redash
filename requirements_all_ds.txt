@@ -13,3 +13,6 @@ pymssql==2.1.1
 dql==0.5.16
 dynamo3==0.4.7
 botocore==1.4.4
+sasl>=0.1.3
+thrift>=0.8.0
+thrift_sasl>=0.1.0
