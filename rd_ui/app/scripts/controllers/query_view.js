@@ -340,76 +340,19 @@
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
 
-    $scope.showSharePermissionsModal = function(query) {
+    $scope.showSharePermissionsModal = function() {
+      // Create scope for share permissions dialog and pass api path to it
+      var scope = $scope.$new();
+      $scope.api_access = 'api/access/Query/' + $routeParams.queryId;
+      scope.params = {api_access: $scope.api_access};
+
       $modal.open({
+        scope: scope,
         templateUrl: '/views/dialogs/share_permissions.html',
-        controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
-
-          /* list of users that are granted access to this query */
-          $scope.grantees = [];
-          $scope.newGrantees = {};
-
-          var loadGrantees = function() {
-            $http.get('api/access/Query/' + $routeParams.queryId).success(function(result) {
-              $scope.grantees = [];
-              for(var access_type in result) {
-                result[access_type].forEach(function(grantee) {
-                  var item = grantee;
-                  item['access_type'] = access_type;
-                  $scope.grantees.push(item);
-                })
-              }
-            });
-          };
-
-          loadGrantees();
-
-          $scope.findUser = function(search) {
-            if (search == "") {
-              return;
-            }
-            if ($scope.foundUsers === undefined) {
-              User.query(function(users) {
-                var existingIds = _.map($scope.grantees, function(m) { return m.id; });
-                _.each(users, function(user) { user.alreadyGrantee = _.contains(existingIds, user.id); });
-                $scope.foundUsers = users;
-              });
-            }
-          };
-
-          $scope.addGrantee = function(user) {
-            // Clear selection, to clear up the input control.
-            $scope.newGrantees.selected = undefined;
-            var body = {'access_type': 'modify', 'user_id': user.id};
-            $http.post('api/access/Query/' + $routeParams.queryId, body).success(function() {
-              $scope.grantees.unshift(user);
-              user.alreadyGrantee = true;
-            });
-          };
-
-          $scope.removeGrantee = function(user) {
-            var body = {'access_type': 'modify', 'user_id': user.id};
-            $http({ url: 'api/access/Query/' + $routeParams.queryId, method: 'DELETE',
-                    data: body, headers: {"Content-Type": "application/json"}
-            }).success(function() {
-              $scope.grantees = _.filter($scope.grantees, function(m) {  return m != user });
-
-              if ($scope.foundUsers) {
-                _.each($scope.foundUsers, function(u) { if (u.id == user.id) { u.alreadyMember = false }; });
-              }
-            });
-          };
-
-          $scope.close = function() {
-            $modalInstance.close();
-          }
-        }]
+        controller: 'SharePermissionsCtrl'
       })
     }
-
   };
-
   angular.module('redash.controllers')
-    .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$routeParams', '$http', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', 'User', QueryViewCtrl]);
+    .controller('QueryViewCtrl', ['$scope', 'Events', '$route', '$routeParams', '$http', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', 'User', QueryViewCtrl]);
 })();
