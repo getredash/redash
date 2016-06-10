@@ -120,4 +120,11 @@ angular.module('redash.filters', []).
           filtered.push(items[i])
       return filtered;
     };
+  })
+
+  .filter('escapeHtml', function () {
+    var element = angular.element('<pre/>');
+    return function (text) {
+      return element.text(text).html();
+    };
   });
