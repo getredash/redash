@@ -807,6 +807,7 @@ class AccessPermission(BaseModel):
 
         return q.execute()
 
+
 class Change(BaseModel):
 
     id = peewee.PrimaryKeyField()
@@ -839,6 +840,21 @@ class Change(BaseModel):
             d['user_id'] = self.user_id
 
         return d
+
+    @staticmethod
+    def get_latest(object_id, object_type, change_type=None):
+        try:
+            query = Change.select(Change)\
+                .where(Change.object_id == object_id)\
+                .where(Change.object_type == object_type)
+            if change_type:
+                query = query.where(Change.change_type == change_type)
+            query = query.order_by(Change.created_at.desc())
+            for change in query:
+                return change
+        except Exception, e:
+            logging.warn("Unable to query for latest Change %s" % e)
+        return None
 
 class Alert(ModelTimestampsMixin, BaseModel):
     UNKNOWN_STATE = 'unknown'

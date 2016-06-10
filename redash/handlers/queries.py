@@ -25,6 +25,36 @@ def format_sql_query(org_slug=None):
     return sqlparse.format(query, reindent=True, keyword_case='upper')
 
 
+def _save_change(user, query, old_query, new_query, change_type=models.Change.TYPE_UPDATE):
+    if 'data_source' in new_query:
+        new_query['data_source_id'] = new_query.pop('data_source')
+    for field in ['data_source_id', 'user', 'last_modified_by', 'org']:
+        if field in new_query:
+            if isinstance(new_query[field], models.BaseModel):
+                new_query[field] = new_query[field].id
+    if old_query:
+        for field in ['last_modified_by', 'user']:
+            if field in old_query:
+                if 'id' in old_query[field]:
+                    old_query[field] = old_query[field]['id']
+    for field in ['id', 'created_at', 'updated_at', 'latest_query_data_id',
+            'latest_query_data', 'api_key', 'is_archived', 'schedule', 'query_hash']:
+        if field in new_query:
+            del new_query[field]
+        if old_query and field in old_query:
+            del old_query[field]
+    change = models.Change()
+    change.object_id = query.id
+    change.object_type = query.__class__.__name__
+    change.change_type = change_type
+    change.user = user
+    change.change = {
+        "before": old_query,
+        "after": new_query
+    }
+    change.save()
+    return change
+
 class QuerySearchResource(BaseResource):
     @require_permission('view_query')
     def get(self):
@@ -65,6 +95,9 @@ class QueryListResource(BaseResource):
         query_def['org'] = self.current_org
         query = models.Query.create(**query_def)
 
+        # add new Changes entry for the new query
+        _save_change(self.current_user, query, None, query_def, change_type=models.Change.TYPE_CREATE)
+
         self.record_event({
             'action': 'create',
             'object_id': query.id,
@@ -95,16 +128,23 @@ class QueryResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query_def = request.get_json(force=True)
 
         # check access permissions
         if self.current_user.id != query.user.id:
             if not self.current_user.has_access(
-                    models.AccessPermission.ACCESS_TYPE_MODIFY,
-                    query.id,
-                    models.Query.__name__):
+                    access_type=models.AccessPermission.ACCESS_TYPE_MODIFY,
+                    object_id=query.id,
+                    object_type=models.Query.__name__):
                 require_admin_or_owner(query.user_id)
 
-        query_def = request.get_json(force=True)
+        # Optimistic locking: figure out which user made the last
+        # change to this query, and bail out if necessary
+        last_change = models.Change.get_latest(object_id=query.id, object_type=models.Query.__name__)
+        if last_change:
+            if last_change.id > query_def['latest_version']:
+                abort(409) # HTTP 'Conflict' status code
+
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
@@ -119,30 +159,14 @@ class QueryResource(BaseResource):
         # create a new Changes record to keep track of the changes
         new_query = copy.deepcopy(query_def)
         old_query = copy.deepcopy(query.to_dict())
-        self._save_change(query, old_query, new_query)
+        new_change = _save_change(self.current_user, query, old_query, new_query)
 
         query.update_instance(**query_def)
 
-        return query.to_dict(with_visualizations=True)
+        result = query.to_dict(with_visualizations=True)
+        result['latest_version'] = new_change.id
+        return result
 
-    def _save_change(self, query, old_query, new_query):
-        new_query['last_modified_by'] = new_query['last_modified_by'].id
-        old_query['last_modified_by'] = old_query['last_modified_by']['id']
-        old_query['user'] = old_query['user']['id']
-        if 'created_at' in old_query:
-            del old_query['created_at']
-        if 'updated_at' in old_query:
-            del old_query['updated_at']
-        change = models.Change()
-        change.object_id = query.id
-        change.object_type = query.__class__.__name__
-        change.change_type = models.Change.TYPE_UPDATE
-        change.user = self.current_user
-        change.change = {
-            "before": old_query,
-            "after": new_query
-        }
-        change.save()
 
     @require_permission('view_query')
     def get(self, query_id):
@@ -150,7 +174,11 @@ class QueryResource(BaseResource):
         require_access(q.groups, self.current_user, view_only)
 
         if q:
-            return q.to_dict(with_visualizations=True)
+            result = q.to_dict(with_visualizations=True)
+            last_change = models.Change.get_latest(object_id=query_id, object_type=models.Query.__name__)
+            if last_change:
+                result['latest_version'] = last_change.id
+            return result
         else:
             abort(404, message="Query not found.")
 

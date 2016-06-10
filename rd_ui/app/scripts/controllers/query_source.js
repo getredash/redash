@@ -75,10 +75,17 @@
       savePromise.then(function(savedQuery) {
         queryText = savedQuery.query;
         $scope.isDirty = $scope.query.query !== queryText;
+        // update to latest version number
+        $scope.query.latest_version = savedQuery.latest_version;
 
         if (isNewQuery) {
           // redirect to new created query (keep hash)
           $location.path(savedQuery.getSourceLink());
+        }
+      }, function(error) {
+        if(error.status == 409) {
+          growl.addErrorMessage('It seems like the query has been modified by another user. ' +
+              'Please copy/backup your changes and reload this page.', {ttl: -1});
         }
       });
 
