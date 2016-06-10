@@ -795,7 +795,7 @@ class AccessPermission(BaseModel):
                 .where(AccessPermission.grantee == user)
             return q.count() > 0
         except Exception, e:
-            logging.warn("Unable to query for AccessPermission.", e)
+            logging.warn("Unable to query for AccessPermission: %s" % e)
             return False
 
     @staticmethod

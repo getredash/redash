@@ -1,5 +1,6 @@
 (function () {
     var Dashboard = function($resource, $http, Widget) {
+
       var transformSingle = function(dashboard) {
         dashboard.widgets = _.map(dashboard.widgets, function (row) {
           return _.map(row, function (widget) {
@@ -27,13 +28,38 @@
           isArray: true,
           url: "api/dashboards/recent",
           transformResponse: transform
+      }});
 
-        }});
+      var loadAccessPermission = function(dashboard) {
+        var action = 'modify';
+        var body = {};
+        currentUser.accessPermissions[this] = false;
+        $http.post('api/access/Dashboard/' + dashboard.id + '/' + action, body).then(function() {
+          currentUser.accessPermissions[dashboard] = true;
+        }, function() {
+          /* access denied, cannot edit this dashboard. */
+          currentUser.accessPermissions[dashboard] = false;
+        });
+      };
 
-        resource.prototype.canEdit = function() {
-          return currentUser.hasPermission('admin') || currentUser.canEdit(this);
+      resource.prototype.canEdit = function() {
+        if(!currentUser.accessPermissions) {
+          currentUser.accessPermissions = {};
         }
-        return resource;
+        if(currentUser.hasPermission('admin') 
+            || currentUser.canEdit(this)
+            || currentUser.accessPermissions[this]) {
+          return true;
+        }
+        if(this.id) {
+          if(typeof currentUser.accessPermissions[this] === 'undefined') {
+            currentUser.accessPermissions[this] = false;
+            loadAccessPermission(this);
+          }
+        }
+      };
+
+      return resource;
     }
 
     angular.module('redash.services')
