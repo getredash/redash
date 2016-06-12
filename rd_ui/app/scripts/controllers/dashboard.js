@@ -9,7 +9,7 @@
     });
   };
 
-  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, $modal, Dashboard, User) {
+  var DashboardCtrl = function($scope, Events, Widget, $routeParams, $location, $http, $timeout, $q, $modal, Dashboard) {
     $scope.refreshEnabled = false;
     $scope.isFullscreen = false;
     $scope.refreshRate = 60;
@@ -271,7 +271,7 @@
   };
 
   angular.module('redash.controllers')
-    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', '$modal', 'Dashboard', 'User', DashboardCtrl])
+    .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', '$modal', 'Dashboard', DashboardCtrl])
     .controller('PublicDashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', PublicDashboardCtrl])
     .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', '$modal', WidgetCtrl])
 

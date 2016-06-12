@@ -819,7 +819,7 @@ class Change(BaseModel):
     created_at = DateTimeTZField(default=datetime.datetime.now)
 
     TYPE_CREATE = 'create'
-    TYPE_UPDATE = 'update'
+    TYPE_MODIFY = 'modify'
 
     class Meta:
         db_table = 'changes'

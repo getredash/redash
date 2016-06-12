@@ -25,7 +25,7 @@ def format_sql_query(org_slug=None):
     return sqlparse.format(query, reindent=True, keyword_case='upper')
 
 
-def _save_change(user, query, old_query, new_query, change_type=models.Change.TYPE_UPDATE):
+def _save_change(user, query, old_query, new_query, change_type=models.Change.TYPE_MODIFY):
     if 'data_source' in new_query:
         new_query['data_source_id'] = new_query.pop('data_source')
     for field in ['data_source_id', 'user', 'last_modified_by', 'org']:
@@ -141,7 +141,7 @@ class QueryResource(BaseResource):
         # Optimistic locking: figure out which user made the last
         # change to this query, and bail out if necessary
         last_change = models.Change.get_latest(object_id=query.id, object_type=models.Query.__name__)
-        if last_change:
+        if last_change and 'latest_version' in query_def:
             if last_change.id > query_def['latest_version']:
                 abort(409) # HTTP 'Conflict' status code
 

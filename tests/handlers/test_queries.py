@@ -77,6 +77,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
         rv = self.make_request('get', '/api/queries/{}'.format(query.id), user=self.factory.create_admin())
         self.assertEquals(rv.status_code, 200)
 
+
 class QueryRefreshTest(BaseTestCase):
     def setUp(self):
         super(QueryRefreshTest, self).setUp()

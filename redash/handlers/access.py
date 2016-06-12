@@ -38,7 +38,7 @@ class AccessGrantResource(BaseResource):
                 .where(AccessPermission.access_type == access_type)
 
         if permissions.count() > 0:
-            return
+            return {'result': 'already_granted'}
 
         perm = AccessPermission()
         perm.object_type = object_type
@@ -47,6 +47,7 @@ class AccessGrantResource(BaseResource):
         perm.grantor = self.current_user
         perm.grantee = grantee
         perm.save()
+        return {'result': 'permission_added'}
 
 class AccessRevokeResource(BaseResource):
 
@@ -73,3 +74,4 @@ class AccessAttemptResource(BaseResource):
         if access:
             return {'result': 'access_granted'}
         abort(403)
+        return False
