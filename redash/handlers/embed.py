@@ -84,7 +84,7 @@ def embed(query_id, visualization_id, org_slug=None):
             # WARNING: Note that the external query parameters
             #          are a potential risk of SQL injections.
             #
-            max_age = int(request.args['maxAge']) if 'maxAge' in request.args else 0
+            max_age = int(request.args.get('maxAge', 0))
             results = run_query_sync(query.data_source, parameter_values, query.query, max_age=max_age)
             if results is None:
                 abort(400, message="Unable to get results for this query")
