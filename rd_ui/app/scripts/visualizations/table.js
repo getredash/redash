@@ -93,6 +93,7 @@
               } else {
                 columnDefinition.formatFunction = function (value) {
                   if (angular.isString(value)) {
+                    value = $filter('escapeHtml')(value);
                     value = $filter('linkify')(value);
                   }
                   return value;
