@@ -6,7 +6,7 @@ RUN apt-get update && \
   # Postgres client
   libpq-dev \
   # Additional packages required for data sources:
-  libssl-dev libmysqlclient-dev freetds-dev && \
+  libssl-dev libmysqlclient-dev freetds-dev libsasl2-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
