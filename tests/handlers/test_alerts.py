@@ -1,8 +1,5 @@
 from tests import BaseTestCase
-from tests.factories import org_factory
-from tests.handlers import authenticated_user, json_request
-from redash.wsgi import app
-from redash.models import AlertSubscription
+from redash.models import AlertSubscription, Alert
 
 
 class TestAlertResourceGet(BaseTestCase):
@@ -27,6 +24,36 @@ class TestAlertResourceGet(BaseTestCase):
         alert = self.factory.create_alert()
 
         rv = self.make_request('get', "/api/alerts/{}".format(alert.id), org=second_org, user=second_org_admin)
+        self.assertEqual(rv.status_code, 404)
+
+
+class TestAlertResourceDelete(BaseTestCase):
+    def test_removes_alert_and_subscriptions(self):
+        subscription = self.factory.create_alert_subscription()
+        alert = subscription.alert
+
+        rv = self.make_request('delete', "/api/alerts/{}".format(alert.id))
+        self.assertEqual(rv.status_code, 200)
+
+        self.assertRaises(Alert.DoesNotExist, Alert.get_by_id, subscription.alert.id)
+        self.assertRaises(AlertSubscription.DoesNotExist, AlertSubscription.get_by_id, subscription.id)
+
+    def test_returns_403_if_not_allowed(self):
+        alert = self.factory.create_alert()
+
+        user = self.factory.create_user()
+        rv = self.make_request('delete', "/api/alerts/{}".format(alert.id), user=user)
+        self.assertEqual(rv.status_code, 403)
+
+        rv = self.make_request('delete', "/api/alerts/{}".format(alert.id), user=self.factory.create_admin())
+        self.assertEqual(rv.status_code, 200)
+
+    def test_returns_404_for_unauthorized_users(self):
+        alert = self.factory.create_alert()
+
+        second_org = self.factory.create_org()
+        second_org_admin = self.factory.create_admin(org=second_org)
+        rv = self.make_request('delete', "/api/alerts/{}".format(alert.id), user=second_org_admin)
         self.assertEqual(rv.status_code, 404)
 
 
