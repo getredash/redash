@@ -377,7 +377,10 @@
             refreshStatus(queryResult, query);
           }, 3000);
         }
-      })
+      }, function(error) {
+        console.log("Connection error", error);
+        queryResult.update({job: {error: 'failed communicating with server. Please check your Internet connection and try again.', status: 4}})
+      });
     }
 
     QueryResult.getById = function (id) {
@@ -413,6 +416,9 @@
           queryResult.update(error.data);
         } else if (error.status === 400 && 'job' in error.data) {
           queryResult.update(error.data);
+        } else {
+          console.log("Unknown error", error);
+          queryResult.update({job: {error: 'unknown error occurred. Please try again later.', status: 4}})
         }
       });
 
