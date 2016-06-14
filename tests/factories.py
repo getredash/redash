@@ -187,7 +187,8 @@ class Factory(object):
 
     def create_alert_subscription(self, **kwargs):
         args = {
-            'user': self.user
+            'user': self.user,
+            'alert': self.create_alert()
         }
 
         args.update(**kwargs)
