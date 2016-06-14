@@ -67,10 +67,12 @@
 
     if ($scope.alertId === "new") {
       $scope.alert = new Alert({options: {}});
+      $scope.canEdit = true;
     } else {
       $scope.alert = Alert.get({id: $scope.alertId}, function(alert) {
         $scope.onQuerySelected(new Query($scope.alert.query));
       });
+      $scope.canEdit = currentUser.canEdit($scope.alert);
     }
 
     $scope.ops = ['greater than', 'less than', 'equals'];
@@ -109,6 +111,15 @@
         growl.addErrorMessage("Failed saving alert.");
       });
     };
+
+    $scope.delete = function() {
+      $scope.alert.$delete(function() {
+        $location.path('/alerts');
+        growl.addSuccessMessage("Alert deleted.");
+      }, function() {
+        growl.addErrorMessage("Failed deleting alert.");
+      });
+    }
 
   };
 
