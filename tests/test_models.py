@@ -276,6 +276,16 @@ class QueryArchiveTest(BaseTestCase):
 
         self.assertEqual(None, query.schedule)
 
+    def test_deletes_alerts(self):
+        subscription = self.factory.create_alert_subscription()
+        query = subscription.alert.query
+
+        query.archive()
+
+        self.assertRaises(models.Alert.DoesNotExist, models.Alert.get_by_id, subscription.alert.id)
+        self.assertRaises(models.AlertSubscription.DoesNotExist, models.AlertSubscription.get_by_id, subscription.id)
+
+
 class DataSourceTest(BaseTestCase):
     def test_get_schema(self):
         return_value = [{'name': 'table', 'columns': []}]
