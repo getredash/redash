@@ -111,8 +111,11 @@ requires performing the steps outlined on the `"How to Upgrade" <http://docs.red
 
 6. Create database tables::
 
-    $ heroku run bash
-    $ python manage.py database create_tables
+    $ heroku run ./manage.py database create_tables
+
+7. Create admin user::
+
+    $ heroku run ./manage.py users create --admin "Admin" admin
 
 
 Other
