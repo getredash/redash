@@ -174,9 +174,14 @@
               };
 
               return (memo && _.some(filter.current, function(v) {
-                // We compare with either the value or the String representation of the value,
-                // because Select2 casts true/false to "true"/"false".
-                return v == row[filter.name] || String(row[filter.name]) == v
+                var value = row[filter.name];
+                if (moment.isMoment(value)) {
+                  return value.isSame(v);
+                } else {
+                  // We compare with either the value or the String representation of the value,
+                  // because Select2 casts true/false to "true"/"false".
+                  return (v == value || String(value) == v);
+                }
               }));
             }, true);
           });
