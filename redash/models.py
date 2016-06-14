@@ -641,6 +641,9 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             for w in vis.widgets:
                 w.delete_instance()
 
+        for alert in self.alerts:
+            alert.delete_instance(recursive=True)
+
         self.save()
 
     @classmethod
