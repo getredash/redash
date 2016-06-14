@@ -211,14 +211,20 @@
 
     Events.record(currentUser, "view", "widget", $scope.widget.id);
 
+    $scope.reload = function(force) {
+      var maxAge = $location.search()['maxAge'];
+      if (force) {
+        maxAge = 0;
+      }
+      $scope.queryResult = $scope.query.getQueryResult(maxAge);
+    };
+
     if ($scope.widget.visualization) {
       Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);
       Events.record(currentUser, "view", "visualization", $scope.widget.visualization.id);
 
       $scope.query = $scope.widget.getQuery();
-      var parameters = Query.collectParamsFromQueryString($location, $scope.query);
-      var maxAge = $location.search()['maxAge'];
-      $scope.queryResult = $scope.query.getQueryResult(maxAge, parameters);
+      $scope.reload(false);
 
       $scope.type = 'visualization';
     } else if ($scope.widget.restricted) {
