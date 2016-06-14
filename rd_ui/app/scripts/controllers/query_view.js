@@ -123,6 +123,10 @@
 
     $scope.saveQuery = function(options, data) {
       if (data) {
+        // Don't save new query with partial data
+        if ($scope.query.isNew()) {
+          return;
+        }
         data.id = $scope.query.id;
       } else {
         data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options"]);
