@@ -53,6 +53,10 @@
     $scope.saveQuery = function(options, data) {
       var savePromise = saveQuery(options, data);
 
+      if (!savePromise) {
+        return;
+      }
+
       savePromise.then(function(savedQuery) {
         queryText = savedQuery.query;
         $scope.isDirty = $scope.query.query !== queryText;
