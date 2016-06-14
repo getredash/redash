@@ -115,6 +115,8 @@ class QueryResultResource(BaseResource):
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
+        else:
+            query_result = None
 
         if query_result:
             require_access(query_result.data_source.groups, self.current_user, view_only)
@@ -156,7 +158,7 @@ class QueryResultResource(BaseResource):
             return response
 
         else:
-            abort(404)
+            abort(404, message='No cached result found for this query.')
 
     def make_json_response(self, query_result):
         data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
