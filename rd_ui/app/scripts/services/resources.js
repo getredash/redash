@@ -586,7 +586,7 @@
         this.cachedQueryText = this.query.query;
         var parameterNames = this.parseQuery();
 
-        this.query.options.parameters = this.query.options.parameters || {};
+        this.query.options.parameters = this.query.options.parameters || [];
 
         var parametersMap = {};
         _.each(this.query.options.parameters, function(param) {
