@@ -221,6 +221,7 @@
     <div class="t-body">
       <div class="row">
         <div class="col-lg-12">
+          <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
           <!-- Query Execution Status -->
           <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
             Executing query&hellip;
@@ -255,9 +256,8 @@
             <div class="row">
               <div class="col-lg-12">
                 <ul class="tab-nav">
-                  <rd-tab tab-id="table" name="Table"></rd-tab>
-                  <rd-tab tab-id="pivot" name="Pivot Table" ng-if="sourceMode && canEdit"></rd-tab>
-                  <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'"
+                  <rd-tab tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
+                  <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" base-path="query.getUrl(sourceMode)"
                           ng-repeat="vis in query.visualizations">
                           <span class="remove" ng-click="deleteVisualization($event, vis)"
                                 ng-show="canEdit"> &times;</span>
@@ -275,12 +275,6 @@
                   <div class="bg-ace p-5" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
                     <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
-                </div>
-                <div ng-show="sourceMode && canEdit && selectedTab == 'pivot'">
-                  <h3>
-                    Pivot tables are now regular visualization, which you can create from the
-                    <a ng-click="openVisualizationEditor()">"New Visualization" screen</a> and <strong>save</strong>.
-                  </h3>
                 </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>

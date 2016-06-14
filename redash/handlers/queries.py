@@ -86,8 +86,6 @@ class QueryResource(BaseResource):
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
-        # TODO(@arikfr): after running a query it updates all relevant queries with the new result. So is this really
-        # needed?
         if 'latest_query_data_id' in query_def:
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
