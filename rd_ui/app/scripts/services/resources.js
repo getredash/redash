@@ -579,7 +579,7 @@
           return parameters;
         };
 
-        parameters = collectParams(parts);
+        parameters = _.uniq(collectParams(parts));
 
         return parameters;
       }
