@@ -23,9 +23,27 @@ class Slack(BaseDestination):
         return 'fa-slack'
 
     def notify(self, alert, query, user, new_state, app, host, options):
-        msg = "Check <{host}/alerts/{alert_id}|alert> / check <{host}/queries/{query_id}|query>".format(
-            host=host, alert_id=alert.id, query_id=query.id)
-        payload = {'text': msg}
+        # Documentation: https://api.slack.com/docs/attachments
+        fields = [
+            {
+                "title": "Query",
+                "value": "{host}/queries/{query_id}".format(host=host, query_id=query.id),
+                "short": True
+            },
+            {
+                "title": "Alert",
+                "value": "{host}/alerts/{alert_id}".format(host=host, alert_id=alert.id),
+                "short": True
+            }
+        ]
+        if new_state == "triggered":
+            text = alert.name + " just triggered"
+            color = "#c0392b"
+        else:
+            text = alert.name + " went back to normal"
+            color = "#27ae60"
+        
+        payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
         try:
             resp = requests.post(options.get('url'), data=json.dumps(payload))
             logging.warning(resp.text)
@@ -33,6 +51,5 @@ class Slack(BaseDestination):
                 logging.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("Slack send ERROR.")
-
 
 register(Slack)
