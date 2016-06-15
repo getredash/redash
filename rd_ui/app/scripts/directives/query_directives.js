@@ -156,7 +156,7 @@
     };
   }
 
-  function queryFormatter($http) {
+  function queryFormatter($http, growl) {
     return {
       restrict: 'E',
       // don't create new scope to avoid ui-codemirror bug
@@ -165,18 +165,29 @@
       template: '<button type="button" class="btn btn-default btn-s"\
                    ng-click="formatQuery()">\
                     <span class="zmdi zmdi-format-indent-increase"></span>\
-                     Format SQL\
+                     Format Query\
                 </button>',
       link: function($scope) {
         $scope.formatQuery = function formatQuery() {
+          if ($scope.dataSource.syntax == 'json') {
+            try {
+              $scope.query.query = JSON.stringify(JSON.parse($scope.query.query), ' ', 4);
+            } catch(err) {
+              growl.addErrorMessage(err);
+            }
+          } else if ($scope.dataSource.syntax =='sql') {
+
             $scope.queryFormatting = true;
             $http.post('api/queries/format', {
-                'query': $scope.query.query
+              'query': $scope.query.query
             }).success(function (response) {
-                $scope.query.query = response;
+              $scope.query.query = response;
             }).finally(function () {
               $scope.queryFormatting = false;
             });
+          } else {
+            growl.addInfoMessage("Query formatting is not supported for your data source syntax.");
+          }
         };
       }
     }
@@ -290,5 +301,5 @@
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
-  .directive('queryFormatter', ['$http', queryFormatter]);
+  .directive('queryFormatter', ['$http', 'growl', queryFormatter]);
 })();
