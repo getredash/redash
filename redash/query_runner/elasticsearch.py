@@ -64,7 +64,8 @@ class BaseElasticSearch(BaseQueryRunner):
                     'title': 'Basic Auth Password'
                 }
             },
-            "required" : ["server"]
+            "secret": ["basic_auth_password"],
+            "required": ["server"]
         }
 
     @classmethod
