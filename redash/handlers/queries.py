@@ -144,6 +144,7 @@ class QueryResource(BaseResource):
         if last_change and 'latest_version' in query_def:
             if last_change.id > query_def['latest_version']:
                 abort(409) # HTTP 'Conflict' status code
+                return
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
