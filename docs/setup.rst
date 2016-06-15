@@ -117,6 +117,10 @@ requires performing the steps outlined on the `"How to Upgrade" <http://docs.red
 
     $ heroku run ./manage.py users create --admin "Admin" admin
 
+7. Start worker process::
+
+    $ heroku ps:scale worker=1
+
 
 Other
 -----
