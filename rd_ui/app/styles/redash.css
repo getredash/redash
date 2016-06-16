@@ -213,7 +213,7 @@ li.widget:hover {
 }
 
 .CodeMirror-scroll {
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: auto;
 }
 
