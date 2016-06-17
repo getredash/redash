@@ -99,6 +99,10 @@ class BigQuery(BaseQueryRunner):
                 'totalMBytesProcessedLimit': {
                     "type": "number",
                     'title': 'Total MByte Processed Limit'
+                },
+                'userDefinedFunctionResourceUri': {
+                    "type": "string",
+                    'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
@@ -141,6 +145,11 @@ class BigQuery(BaseQueryRunner):
                 }
             }
         }
+
+        if "userDefinedFunctionResourceUri" in self.configuration:
+            resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
+            job_data["configuration"]["query"]["userDefinedFunctionResources"] = map(
+                lambda resource_uri: {"resourceUri": resource_uri}, resource_uris)
 
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
