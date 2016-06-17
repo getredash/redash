@@ -8,10 +8,15 @@ from redash.utils.configuration import ConfigurationContainer
 manager = Manager(help="Data sources management commands.")
 
 
-@manager.command
-def list():
+@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
+def list(organization=None):
     """List currently configured data sources."""
-    for i, ds in enumerate(models.DataSource.select()):
+    if organization:
+        org = models.Organization.get_by_slug(organization)
+        data_sources = models.DataSource.select().where(models.DataSource.org==org.id)
+    else:
+        data_sources = models.DataSource.select()
+    for i, ds in enumerate(data_sources):
         if i > 0:
             print "-" * 20
 
@@ -24,8 +29,11 @@ def validate_data_source_type(type):
         exit()
 
 
-@manager.command
-def new(name=None, type=None, options=None):
+@manager.option('name', default=None, help="name of data source to create")
+@manager.option('--type', dest='type', default=None, help="new type for the data source")
+@manager.option('--options', dest='options', default=None, help="updated options for the data source")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+def new(name=None, type=None, options=None, organization='default'):
     """Create new data source."""
     if name is None:
         name = click.prompt("Name")
@@ -84,15 +92,20 @@ def new(name=None, type=None, options=None):
     data_source = models.DataSource.create_with_group(name=name,
                                                       type=type,
                                                       options=options,
-                                                      org=models.Organization.get_by_slug('default'))
+                                                      org=models.Organization.get_by_slug(organization))
     print "Id: {}".format(data_source.id)
 
 
-@manager.command
-def delete(name):
+@manager.option('name', default=None, help="name of data source to delete")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+def delete(name, organization):
     """Delete data source by name."""
     try:
-        data_source = models.DataSource.get(models.DataSource.name==name)
+        org = models.Organization.get_by_slug(organization)
+        data_source = models.DataSource.get(
+            models.DataSource.name==name,
+            models.DataSource.org==org,
+        )
         print "Deleting data source: {} (id={})".format(name, data_source.id)
         data_source.delete_instance(recursive=True)
     except models.DataSource.DoesNotExist:
@@ -110,13 +123,17 @@ def update_attr(obj, attr, new_value):
 @manager.option('--name', dest='new_name', default=None, help="new name for the data source")
 @manager.option('--options', dest='options', default=None, help="updated options for the data source")
 @manager.option('--type', dest='type', default=None, help="new type for the data source")
-def edit(name, new_name=None, options=None, type=None):
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+def edit(name, new_name=None, options=None, type=None, organization='default'):
     """Edit data source settings (name, options, type)."""
     try:
         if type is not None:
             validate_data_source_type(type)
 
-        data_source = models.DataSource.get(models.DataSource.name==name)
+        data_source = models.DataSource.get(
+            models.DataSource.name==name,
+            models.DataSource.org==org,
+        )
 
         if options is not None:
             schema = get_configuration_schema_for_query_runner_type(data_source.type)
