@@ -4,7 +4,7 @@ from peewee import IntegrityError
 from redash import models
 from redash.handlers.users import invite_user
 
-manager = Manager(help="Users management commands. This commands assume single organization operation.")
+manager = Manager(help="Users management commands.")
 
 
 def build_groups(org, groups, is_admin):
@@ -22,7 +22,7 @@ def build_groups(org, groups, is_admin):
     return groups
 
 @manager.option('email', help="email address of the user to grant admin to")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="the organization the user belongs to, (leave blank for 'default').")
 def grant_admin(email, organization='default'):
     try:
         org = models.Organization.get_by_slug(organization)
@@ -42,7 +42,7 @@ def grant_admin(email, organization='default'):
 
 @manager.option('email', help="User's email")
 @manager.option('name', help="User's full name")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
 @manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
 @manager.option('--google', dest='google_auth', action="store_true", default=False, help="user uses Google Auth to login")
 @manager.option('--password', dest='password', default=None, help="Password for users who don't use Google Auth (leave blank for prompt).")
@@ -67,7 +67,7 @@ def create(email, name, groups, is_admin=False, google_auth=False, password=None
 
 
 @manager.option('email', help="email address of user to delete")
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations).")
 def delete(email, organization=None):
     if organization:
         org = models.Organization.get_by_slug(organization)
@@ -82,7 +82,7 @@ def delete(email, organization=None):
 
 @manager.option('password', help="new password for the user")
 @manager.option('email', help="email address of the user to change password for")
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations).")
 def password(email, password, organization=None):
     try:
         if organization:
@@ -105,7 +105,7 @@ def password(email, password, organization=None):
 @manager.option('email', help="The invitee's email")
 @manager.option('name', help="The invitee's full name")
 @manager.option('inviter_email', help="The email of the inviter")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default')")
 @manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
 @manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
 def invite(email, name, inviter_email, groups, is_admin=False, organization='default'):
@@ -128,7 +128,7 @@ def invite(email, name, inviter_email, groups, is_admin=False, organization='def
         print "The inviter [%s] was not found." % inviterEmail
 
 
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations)")
 def list(organization=None):
     """List all users"""
     if organization:

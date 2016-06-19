@@ -8,7 +8,7 @@ from redash.utils.configuration import ConfigurationContainer
 manager = Manager(help="Data sources management commands.")
 
 
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations).")
 def list(organization=None):
     """List currently configured data sources."""
     if organization:
@@ -32,7 +32,7 @@ def validate_data_source_type(type):
 @manager.option('name', default=None, help="name of data source to create")
 @manager.option('--type', dest='type', default=None, help="new type for the data source")
 @manager.option('--options', dest='options', default=None, help="updated options for the data source")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
 def new(name=None, type=None, options=None, organization='default'):
     """Create new data source."""
     if name is None:
@@ -97,7 +97,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
 
 @manager.option('name', default=None, help="name of data source to delete")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
 def delete(name, organization='default'):
     """Delete data source by name."""
     try:
@@ -123,7 +123,7 @@ def update_attr(obj, attr, new_value):
 @manager.option('--name', dest='new_name', default=None, help="new name for the data source")
 @manager.option('--options', dest='options', default=None, help="updated options for the data source")
 @manager.option('--type', dest='type', default=None, help="new type for the data source")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
 def edit(name, new_name=None, options=None, type=None, organization='default'):
     """Edit data source settings (name, options, type)."""
     try:
