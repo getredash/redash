@@ -358,7 +358,13 @@
       });
 
       _.each(filters, function(filter) {
-        filter.values = _.uniq(filter.values);
+        filter.values = _.uniq(filter.values, function(v) {
+          if (moment.isMoment(v)) {
+            return v.unix();
+          } else {
+            return v;
+          }
+        });
       });
 
       this.filters = filters;
