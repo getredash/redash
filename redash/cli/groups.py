@@ -1,10 +1,10 @@
 from flask_script import Manager, prompt_pass
 from redash import models
 
-manager = Manager(help="Groups management commands. This commands assume single organization operation.")
+manager = Manager(help="Groups management commands.")
 
 @manager.option('name', help="Group's name")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
+@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
 @manager.option('--permissions', dest='permissions', default=None, help="Comma seperated list of permissions ('create_dashboard', 'create_query', 'edit_dashboard', 'edit_query', 'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query', 'list_dashboards', 'list_alerts', 'list_data_sources') (leave blank for default).")
 def create(name, permissions=None, organization='default'):
     print "Creating group (%s)..." % (name)
