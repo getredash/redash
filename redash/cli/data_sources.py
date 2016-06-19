@@ -98,7 +98,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
 @manager.option('name', default=None, help="name of data source to delete")
 @manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
-def delete(name, organization):
+def delete(name, organization='default'):
     """Delete data source by name."""
     try:
         org = models.Organization.get_by_slug(organization)
