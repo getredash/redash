@@ -259,3 +259,21 @@ Microsoft SQL Server
 
    - ``freetds-dev`` C library
    - ``pymsssql`` python package, requires FreeTDS to be installed first
+
+Teradata Database
+-----
+
+-  **Options**:
+
+   - Database
+   - User
+   - Password
+   - Server
+   - Port
+
+-  **Notes**:
+   - Teradata returns INT as FLOAT
+
+-  **Additional requirements**:
+
+   - Install `Terada ODBC Drivers for Linux <http://downloads.teradata.com/download/connectivity/odbc-driver/linux>`
