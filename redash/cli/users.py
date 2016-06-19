@@ -23,7 +23,7 @@ def build_groups(org, groups, is_admin):
 
 @manager.option('email', help="email address of the user to grant admin to")
 @manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
-def grant_admin(email, organization):
+def grant_admin(email, organization='default'):
     try:
         org = models.Organization.get_by_slug(organization)
         admin_group = org.admin_group
@@ -47,7 +47,7 @@ def grant_admin(email, organization):
 @manager.option('--google', dest='google_auth', action="store_true", default=False, help="user uses Google Auth to login")
 @manager.option('--password', dest='password', default=None, help="Password for users who don't use Google Auth (leave blank for prompt).")
 @manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
-def create(email, name, organization, groups, is_admin=False, google_auth=False, password=None):
+def create(email, name, groups, is_admin=False, google_auth=False, password=None, organization='default'):
     print "Creating user (%s, %s) in organization %s..." % (email, name, organization)
     print "Admin: %r" % is_admin
     print "Login with Google Auth: %r\n" % google_auth
@@ -68,7 +68,7 @@ def create(email, name, organization, groups, is_admin=False, google_auth=False,
 
 @manager.option('email', help="email address of user to delete")
 @manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
-def delete(email, organization):
+def delete(email, organization=None):
     if organization:
         org = models.Organization.get_by_slug(organization)
         deleted_count = models.User.delete().where(
@@ -83,7 +83,7 @@ def delete(email, organization):
 @manager.option('password', help="new password for the user")
 @manager.option('email', help="email address of the user to change password for")
 @manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
-def password(email, password, organization):
+def password(email, password, organization=None):
     try:
         if organization:
             org = models.Organization.get_by_slug(organization)
@@ -108,7 +108,7 @@ def password(email, password, organization):
 @manager.option('--org', dest='organization', default='default', help="The organization the user belongs to")
 @manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
 @manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
-def invite(email, name, inviter_email, organization, groups, is_admin=False):
+def invite(email, name, inviter_email, groups, is_admin=False, organization='default'):
     org = models.Organization.get_by_slug(organization)
     groups = build_groups(org, groups, is_admin)
     try:
@@ -129,7 +129,7 @@ def invite(email, name, inviter_email, organization, groups, is_admin=False):
 
 
 @manager.option('--org', dest='organization', default=None, help="The organization the user belongs to")
-def list():
+def list(organization=None):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
