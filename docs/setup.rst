@@ -232,6 +232,11 @@ It's recommended to upgrade once in a while your Re:dash instance to
 benefit from bug fixes and new features. See :doc:`here </upgrade>` for full upgrade
 instructions (including Fabric script).
 
+Configuration
+-------------
+
+For a full list of environment variables, see :doc:`the settings page </settings>`.
+
 Notes
 =====
 
