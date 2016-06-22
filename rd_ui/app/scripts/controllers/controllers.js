@@ -116,7 +116,7 @@
       },
       {
         'label': 'Runtime',
-        'map': 'run_time',
+        'map': 'runtime',
         'formatFunction': function (value) {
           return $filter('durationHumanize')(value);
         }
