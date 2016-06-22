@@ -49,6 +49,11 @@ class SqlServer(BaseSQLQueryRunner):
                     "type": "number",
                     "default": 1433
                 },
+                "tds_version": {
+                    "type": "string",
+                    "default": "7.0",
+                    "title": "TDS Version"
+                },
                 "db": {
                     "type": "string",
                     "title": "Database Name"
@@ -114,11 +119,12 @@ class SqlServer(BaseSQLQueryRunner):
             password = self.configuration.get('password', '')
             db = self.configuration['db']
             port = self.configuration.get('port', 1433)
+            tds_version = self.configuration.get('tds_version', '7.0')
 
             if port != 1433:
                 server = server + ':' + str(port)
 
-            connection = pymssql.connect(server, user, password, db)
+            connection = pymssql.connect(server=server, user=user, password=password, database=db, tds_version=tds_version)
             cursor = connection.cursor()
             logger.debug("SqlServer running query: %s", query)
 
