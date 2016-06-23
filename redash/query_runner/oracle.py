@@ -70,7 +70,7 @@ class Oracle(BaseSQLQueryRunner):
                     "title": "DSN Service Name"
                 }
             },
-            "required": ["servicename"],
+            "required": ["servicename", "user", "password", "host", "port"],
             "secret": ["password"]
         }
 
