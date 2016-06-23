@@ -1,10 +1,10 @@
 <div class="tile m-10" ng-controller='EmbeddedVisualizationCtrl'>
-  <div class="t-heading p-10">
+  <div class="t-heading p-10 bg-ace">
     <h3 class="th-title">
       <p>
         <img src="/images/redash_icon_small.png" style="height: 24px;"/>
-        {{query.name}}
-        <small><visualization-name visualization="visualization"/></small>
+        <span><visualization-name visualization="visualization"/></span>
+        <small>{{query.name}}</small>
       </p>
       <small ng-if="showQueryDescription">
         <div class="text-muted" ng-bind-html="query.description | markdown"></div>

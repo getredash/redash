@@ -36,16 +36,16 @@
     <div ng-repeat="row in dashboard.widgets" class="row">
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}" ng-controller='WidgetCtrl'>
             <div class="tile" ng-if="type=='visualization'">
-                <div class="t-header widget">
+                <div class="t-header widget bg-ace">
                     <div class="th-title">
                         <p class="hidden-print">
-                            <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
-                            <query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link>
-                            <small><visualization-name visualization="widget.visualization"/></small>
+                            <span><visualization-name visualization="widget.visualization"/></span>
+                            <small ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</small>
+                            <small><query-link query="query" visualization="widget.visualization" ng-show="currentUser.hasPermission('view_query')"></query-link></small>
                         </p>
                         <p class="visible-print">
-                          {{query.name}}
-                          <visualization-name visualization="widget.visualization"/>
+                            <span><visualization-name visualization="widget.visualization"/></span>
+                            <small>{{query.name}}</small>
                         </p>
                         <div class="text-muted" ng-bind-html="query.description | markdown"></div>
                     </div>
