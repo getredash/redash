@@ -16,7 +16,7 @@ redis:
 postgres:
   image: postgres:9.3
   volumes:
-   - /opt/postgres-data:/var/lib/postgresql/data
+    - /opt/postgres-data:/var/lib/postgresql/data
 redash-nginx:
   image: redash/nginx:latest
   ports:
