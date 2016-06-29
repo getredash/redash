@@ -263,10 +263,7 @@ li.widget:hover {
 
 /* Because of ng-repeat we add span between the .dropdown-menu element and the li element, so we had
 to add those CSS styles here. */
-.dropdown-menu {
-  max-height: 80vh;
-  overflow-y: scroll;
-}
+
 
 .dropdown-menu > span > li > a {
   display: block;
