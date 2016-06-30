@@ -51,6 +51,7 @@
     </script>
 
     <script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+    <script src="/static/js/jquery.ajaxchimp.js"></script>
     <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.9/slick.min.js"></script>
     <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script>
@@ -99,9 +100,9 @@
 
       var form = document.getElementById('mc-embedded-subscribe-form');
       if (form) {
-          analytics.trackForm(form, 'Signed up to Newsletter', {
-              location: 'bottom'
-          })
+          $(form).ajaxChimp({
+            url: 'https://redash.us1.list-manage.com/subscribe/post?u=a905176d2294593084d5264e5&id=53ca028761'
+          });
       }
     });
     </script>
