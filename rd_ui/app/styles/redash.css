@@ -188,16 +188,12 @@ li.widget:hover {
   background: rgba(0, 0, 0, 0.5) !important;
 }
 
-/* CodeMirror */
-.CodeMirror {
+/* Editor */
+
+.ace_editor {
   border: 1px solid #eee;
   height: 100%;
   margin-bottom: 10px;
-}
-
-.CodeMirror-scroll {
-  overflow-y: auto;
-  overflow-x: auto;
 }
 
 /* Support for Font-Awesome in btn-xs */
