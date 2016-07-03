@@ -1,5 +1,6 @@
+import peewee
 from redash import settings
-from redash.models import db, NotificationDestination, AlertSubscription, Alert
+from redash.models import db, NotificationDestination, AlertSubscription, Alert, Organization, User
 from redash.destinations import get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer
 from playhouse.migrate import PostgresqlMigrator, migrate
@@ -16,6 +17,13 @@ if __name__ == '__main__':
                 migrator.add_column('alert_subscriptions', 'destination_id', AlertSubscription.destination)
             )
 
+            try:
+                org = Organization.get_by_slug('default')
+                user = User.select().where(User.org==org, peewee.SQL("%s = ANY(groups)", org.admin_group.id)).get()
+            except Exception:
+                print "!!! Warning: failed finding default organization or admin user, won't migrate Webhook/HipChat alert subscriptions."
+                exit()
+
             if settings.WEBHOOK_ENDPOINT:
                 # Have all existing alerts send to webhook if already configured
                 schema = get_configuration_schema_for_destination_type('webhook')
@@ -26,8 +34,8 @@ if __name__ == '__main__':
                 options = ConfigurationContainer(conf, schema)
 
                 webhook = NotificationDestination.create(
-                    org=1,
-                    user=1,
+                    org=org,
+                    user=user,
                     name="Webhook",
                     type="webhook",
                     options=options
@@ -35,7 +43,7 @@ if __name__ == '__main__':
 
                 for alert in Alert.select():
                     AlertSubscription.create(
-                        user=1,
+                        user=user,
                         destination=webhook,
                         alert=alert
                     )
@@ -56,8 +64,8 @@ if __name__ == '__main__':
                 options = ConfigurationContainer(conf, schema)
 
                 hipchat = NotificationDestination.create(
-                    org=1,
-                    user=1,
+                    org=org,
+                    user=user,
                     name="HipChat",
                     type="hipchat",
                     options=options
@@ -65,7 +73,7 @@ if __name__ == '__main__':
 
                 for alert in Alert.select():
                     AlertSubscription.create(
-                        user=1,
+                        user=user,
                         destination=hipchat,
                         alert=alert
                     )
