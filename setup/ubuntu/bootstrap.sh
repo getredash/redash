@@ -29,7 +29,7 @@ fi
 apt-get -y update
 apt-get -y dist-upgrade
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
-pip install -U setuptools
+pip install -U setuptools==23.1.0
 
 # redash user
 # TODO: check user doesn't exist yet?
