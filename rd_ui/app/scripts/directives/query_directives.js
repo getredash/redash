@@ -274,11 +274,15 @@
         });
         $scope.refreshOptions.push({
             value: String(7 * 24 * 3600),
-            name: 'Once a week'
+            name: 'Every 7 days'
+        });
+        $scope.refreshOptions.push({
+          value: String(14 * 24 * 3600),
+          name: 'Every 14 days'
         });
         $scope.refreshOptions.push({
             value: String(30 * 24 * 3600),
-            name: 'Every 30d'
+            name: 'Every 30 days'
         });
 
         $scope.$watch('refreshType', function() {
