@@ -14,7 +14,7 @@ RUN apt-get update && \
 RUN useradd --system --comment " " --create-home redash
 
 # Pip requirements for all data source types
-RUN pip install -U setuptools && \
+RUN pip install -U setuptools==23.1.0 && \
   pip install supervisor==3.1.2
 
 COPY . /opt/redash/current
