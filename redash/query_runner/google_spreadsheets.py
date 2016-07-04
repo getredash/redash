@@ -34,7 +34,7 @@ def _guess_type(value):
         return TYPE_FLOAT
     except ValueError:
         pass
-    if str(value).lower() in ('true', 'false'):
+    if unicode(value).lower() in ('true', 'false'):
         return TYPE_BOOLEAN
     try:
         val = parser.parse(value)
@@ -47,7 +47,7 @@ def _guess_type(value):
 def _value_eval_list(value):
     value_list = []
     for member in value:
-        if member == '' or member == None:
+        if member == '' or member is None:
             val = None
             value_list.append(val)
             continue
@@ -63,9 +63,11 @@ def _value_eval_list(value):
             continue
         except ValueError:
             pass
-        if str(member).lower() in ('true', 'false'):
-            val = bool(member)
-            value_list.append(val)
+        if unicode(member).lower() in ('true', 'false'):
+            if unicode(member).lower() == 'true':
+                value_list.append(True)
+            else:
+                value_list.append(False)
             continue
         try:
             val = parser.parse(member)
