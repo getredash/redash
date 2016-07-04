@@ -1,7 +1,7 @@
 from base64 import b64decode
 import json
 import logging
-import sys
+from dateutil import parser
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 try:
     import gspread
     from oauth2client.client import SignedJwtAssertionCredentials
-    from dateutil import parser
     enabled = True
 except ImportError:
     enabled = False
