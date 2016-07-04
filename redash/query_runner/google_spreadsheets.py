@@ -144,8 +144,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+        except gspread.SpreadsheetNotFound:
+            error = "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
+            json_data = None
 
         return json_data, error
 
