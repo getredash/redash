@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from unittest import TestCase
+
+from mock import Mock, MagicMock
+
 from redash.query_runner.google_spreadsheets import _guess_type, _value_eval_list, TYPE_STRING, TYPE_BOOLEAN
+from redash.query_runner.google_spreadsheets import parse_worksheet, parse_spreadsheet, WorksheetNotFoundError
 
 
 class TestGuessType(TestCase):
@@ -26,3 +30,32 @@ class TestValueEvalList(TestCase):
         values = ['true', 'false', 'True', 'False', 'TRUE', 'FALSE']
         converted_values = [True, False, True, False, True, False]
         self.assertEqual(converted_values, _value_eval_list(values))
+
+
+class TestParseSpreadsheet(TestCase):
+    def test_returns_meaningful_error_for_missing_worksheet(self):
+        spreadsheet = MagicMock()
+
+        spreadsheet.worksheets = MagicMock(return_value=[])
+        self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 0)
+
+        spreadsheet.worksheets = MagicMock(return_value=[1, 2])
+        self.assertRaises(WorksheetNotFoundError, parse_spreadsheet, spreadsheet, 2)
+
+
+empty_worksheet = []
+only_headers_worksheet = [['Column A', 'Column B']]
+regular_worksheet = [['String Column', 'Boolean Column', 'Number Column'], ['A', 'TRUE', '1'], ['B', 'FALSE', '2'], ['C', 'TRUE', '3'], ['D', 'FALSE', '4']]
+
+
+# The following test that the parse function doesn't crash. They don't test correct output.
+class TestParseWorksheet(TestCase):
+    def test_parse_empty_worksheet(self):
+        parse_worksheet(empty_worksheet)
+
+    def test_parse_only_headers_worksheet(self):
+        parse_worksheet(only_headers_worksheet)
+
+    def test_parse_regular_worksheet(self):
+        parse_worksheet(regular_worksheet)
+

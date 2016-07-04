@@ -79,9 +79,52 @@ def _value_eval_list(value):
     return value_list
 
 
-class GoogleSpreadsheet(BaseQueryRunner):
-    HEADER_INDEX = 0
+HEADER_INDEX = 0
 
+
+class WorksheetNotFoundError(Exception):
+    def __init__(self, worksheet_num, worksheet_count):
+        message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(worksheet_num, worksheet_count)
+        super(WorksheetNotFoundError, self).__init__(message)
+
+
+def parse_worksheet(worksheet):
+    if not worksheet:
+        return {'columns': [], 'rows': []}
+
+    column_names = []
+    columns = []
+
+    for j, column_name in enumerate(worksheet[HEADER_INDEX]):
+        column_names.append(column_name)
+        columns.append({
+            'name': column_name,
+            'friendly_name': column_name,
+            'type': TYPE_STRING
+        })
+
+    if len(worksheet) > 1:
+        for j, value in enumerate(worksheet[HEADER_INDEX+1]):
+            columns[j]['type'] = _guess_type(value)
+
+    rows = [dict(zip(column_names, _value_eval_list(row))) for row in worksheet[HEADER_INDEX + 1:]]
+    data = {'columns': columns, 'rows': rows}
+
+    return data
+
+
+def parse_spreadsheet(spreadsheet, worksheet_num):
+    worksheets = spreadsheet.worksheets()
+    worksheet_count = len(worksheets)
+    if worksheet_num >= worksheet_count:
+        raise WorksheetNotFoundError(worksheet_num, worksheet_count)
+
+    worksheet = worksheets[worksheet_num].get_all_values()
+
+    return parse_worksheet(worksheet)
+
+
+class GoogleSpreadsheet(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
@@ -129,19 +172,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
         try:
             spreadsheet_service = self._get_spreadsheet_service()
             spreadsheet = spreadsheet_service.open_by_key(key)
-            worksheets = spreadsheet.worksheets()
-            all_data = worksheets[worksheet_num].get_all_values()
-            column_names = []
-            columns = []
-            for j, column_name in enumerate(all_data[self.HEADER_INDEX]):
-                column_names.append(column_name)
-                columns.append({
-                    'name': column_name,
-                    'friendly_name': column_name,
-                    'type': _guess_type(all_data[self.HEADER_INDEX + 1][j])
-                })
-            rows = [dict(zip(column_names, _value_eval_list(row))) for row in all_data[self.HEADER_INDEX + 1:]]
-            data = {'columns': columns, 'rows': rows}
+
+            data = parse_spreadsheet(spreadsheet, worksheet_num)
+
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except gspread.SpreadsheetNotFound:
