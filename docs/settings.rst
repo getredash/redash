@@ -14,6 +14,7 @@ The follow is a list of settings and what they control:
 - **REDASH_DATABASE_URL**: *default "postgresql://postgres"*
 - **REDASH_CELERY_BROKER**: *default REDIS_URL*
 - **REDASH_CELERY_BACKEND**: *default CELERY_BROKER*
+- **REDASH_HEROKU_CELERY_WORKER_COUNT**: *default 2*
 - **REDASH_QUERY_RESULTS_CLEANUP_ENABLED**: *default "true"*
 - **REDASH_QUERY_RESULTS_CLEANUP_COUNT**: *default "100"*
 - **REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE**: *default "7"*
