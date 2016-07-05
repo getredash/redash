@@ -258,4 +258,4 @@ Microsoft SQL Server
 -  **Additional requirements**:
 
    - ``freetds-dev`` C library
-   - ``pymsssql`` python package, requires FreeTDS to be installed first
+   - ``pymssql`` python package, requires FreeTDS to be installed first
