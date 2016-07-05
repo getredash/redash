@@ -24,4 +24,4 @@ $run_psql -c "grant select(id,name,type) ON data_sources to redash_reader;"
 $run_psql -c "grant select(id,name) ON users to redash_reader;"
 $run_psql -c "grant select on events, queries, dashboards, widgets, visualizations, query_results to redash_reader;"
 
-$run_redash /opt/redash/current/manage.py ds new -n "re:dash metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"redash_reader\", \"host\": \"postgres\", \"dbname\": \"postgres\"}"
+$run_redash /opt/redash/current/manage.py ds new "re:dash metadata" --type "pg" --options "{\"user\": \"redash_reader\", \"password\": \"redash_reader\", \"host\": \"postgres\", \"dbname\": \"postgres\"}"
