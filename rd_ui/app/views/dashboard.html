@@ -5,7 +5,7 @@
     <page-header title="{{dashboard.name}}">
       <span ng-if="!dashboard.is_archived && !public" class="hidden-print">
           <button type="button" class="btn btn-sm" ng-class="{'btn-default': !refreshEnabled, 'btn-primary': refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()">
-            <span class="zmdi zmdi-refresh-sync"></span>
+            <span class="zmdi zmdi-refresh"></span>
           </button>
           <button type="button" class="btn btn-sm" ng-class="{'btn-default': !isFullscreen, 'btn-primary': isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="toggleFullscreen()">
             <span class="zmdi zmdi-fullscreen"></span>
@@ -28,13 +28,15 @@
   <div class="col-lg-12 p-5 m-b-10 bg-orange c-white" ng-if="dashboard.is_archived">
     This dashboard is archived and won't appear in the dashboards list or search results.
   </div>
-  
+
+  <div class="m-b-5">
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
-    
+  </div>
+
     <div ng-repeat="row in dashboard.widgets" class="row">
         <div ng-repeat="widget in row" class="col-lg-{{widget.width | colWidth}}" ng-controller='WidgetCtrl'>
             <div class="tile" ng-if="type=='visualization'">
-                <div class="t-header">
+                <div class="t-header widget">
                     <div class="th-title">
                         <p class="hidden-print">
                             <span ng-hide="currentUser.hasPermission('view_query')">{{query.name}}</span>
@@ -59,13 +61,26 @@
                   </div>
                 </div>
 
-                <visualization-renderer visualization="widget.visualization" query-result="queryResult" class="t-body"></visualization-renderer>
+                <parameters parameters="widget.query.getParametersDefs()"></parameters>
 
-                <div class="panel-footer">
-                    <span class="label label-default hidden-print">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
+                <div ng-switch="queryResult.getStatus()">
+                  <div ng-switch-when="failed">
+                    <div class="alert alert-danger m-5" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong></div>
+                  </div>
+                  <div ng-switch-when="done">
+                      <visualization-renderer visualization="widget.visualization" query-result="queryResult" class="t-body"></visualization-renderer>
+                  </div>
+                  <div ng-switch-default class="text-center">
+                    <i class="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x"></i>
+                  </div>
+                </div>
+
+                <div class="p-5 clearfix" style="line-height:28px;">
+                    <span class="small hidden-print">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
                     <span class="visible-print">
                       Updated: {{queryResult.getUpdatedAt() | dateTime}}
                     </span>
+                    <button class="btn btn-sm btn-default pull-right hidden-print" ng-click="reload(true)" ng-if="!public"><i class="zmdi zmdi-refresh"></i></button>
                 </div>
             </div>
 

@@ -6,7 +6,7 @@ RUN apt-get update && \
   # Postgres client
   libpq-dev \
   # Additional packages required for data sources:
-  libssl-dev libmysqlclient-dev freetds-dev && \
+  libssl-dev libmysqlclient-dev freetds-dev libsasl2-dev && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
@@ -14,7 +14,7 @@ RUN apt-get update && \
 RUN useradd --system --comment " " --create-home redash
 
 # Pip requirements for all data source types
-RUN pip install -U setuptools && \
+RUN pip install -U setuptools==23.1.0 && \
   pip install supervisor==3.1.2
 
 COPY . /opt/redash/current

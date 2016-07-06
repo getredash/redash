@@ -158,23 +158,6 @@ a.navbar-brand img {
 
 }
 
-/* Visualization Filters */
-
-.filters-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.filter {
-  width: 33%;
-  padding-left: 5px;
-  padding-bottom: 5px;
-}
-
-.filter > div {
-  width: 100%;
-}
-
 /* Gridster */
 
 .gridster ul {
@@ -213,7 +196,7 @@ li.widget:hover {
 }
 
 .CodeMirror-scroll {
-  overflow-y: hidden;
+  overflow-y: auto;
   overflow-x: auto;
 }
 
@@ -658,7 +641,25 @@ div.table-name:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-hr.subscription {
-    height: 2px;
-    background: #333;
+/* ui-select adjustments for SuperFlat */
+
+/* Same definition as .form-control */
+.ui-select-toggle.btn-default {
+  height: 35px;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  color: #9E9E9E;
+  background: #fff none;
+  border: 1px solid #e8e8e8;
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.t-header.widget {
+  padding: 5px;
 }

@@ -64,6 +64,10 @@ class Hive(BaseSQLQueryRunner):
     def type(cls):
         return "hive"
 
+    @classmethod
+    def enabled(cls):
+        return enabled
+
     def __init__(self, configuration):
         super(Hive, self).__init__(configuration)
 

@@ -1,17 +1,19 @@
-<div class="well well-sm filters-container" ng-show="filters">
-    <div class="filter" ng-repeat="filter in filters">
-        <ui-select ng-model="filter.current" ng-if="!filter.multiple">
-           <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$select.selected | filterValue:filter}}</ui-select-match>
-           <ui-select-choices repeat="value in filter.values | filter: $select.search">
-             {{value | filterValue:filter }}
-           </ui-select-choices>
-        </ui-select>
+<div class="container bg-white p-5" ng-show="filters">
+  <div class="row" ng-show="filters">
+    <div class="col-sm-6 m-t-5" ng-repeat="filter in filters">
+      <ui-select ng-model="filter.current" ng-if="!filter.multiple">
+        <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$select.selected | filterValue:filter}}</ui-select-match>
+        <ui-select-choices repeat="value in filter.values | filter: $select.search">
+          {{value | filterValue:filter }}
+        </ui-select-choices>
+      </ui-select>
 
-        <ui-select ng-model="filter.current" multiple ng-if="filter.multiple">
-            <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$item | filterValue:filter}}</ui-select-match>
-            <ui-select-choices repeat="value in filter.values | filter: $select.search">
-              {{value | filterValue:filter }}
-            </ui-select-choices>
-        </ui-select>
+      <ui-select ng-model="filter.current" multiple ng-if="filter.multiple">
+        <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$item | filterValue:filter}}</ui-select-match>
+        <ui-select-choices repeat="value in filter.values | filter: $select.search">
+          {{value | filterValue:filter }}
+        </ui-select-choices>
+      </ui-select>
     </div>
+  </div>
 </div>

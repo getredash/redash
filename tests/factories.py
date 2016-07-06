@@ -185,6 +185,15 @@ class Factory(object):
         args.update(**kwargs)
         return alert_factory.create(**args)
 
+    def create_alert_subscription(self, **kwargs):
+        args = {
+            'user': self.user,
+            'alert': self.create_alert()
+        }
+
+        args.update(**kwargs)
+        return alert_subscription_factory.create(**args)
+
     def create_data_source(self, **kwargs):
         args = {
             'org': self.org
@@ -274,6 +283,3 @@ class Factory(object):
 
     def create_destination(self, **kwargs):
         return destination_factory.create(**kwargs)
-
-    def create_alert_subscription(self, **kwargs):
-        return alert_subscription_factory.create(**kwargs)

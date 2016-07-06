@@ -68,7 +68,7 @@
       },
       transclude: true,
       template:
-        '<h2>'+
+        '<h2 class="p-l-5">'+
           '<edit-in-place editable="canEdit()" done="saveName" ignore-blanks=\'true\' value="group.name"></edit-in-place>&nbsp;' +
           '<button class="btn btn-xs btn-danger" ng-if="canEdit()" ng-click="deleteGroup()">Delete this group</button>' +
         '</h2>',

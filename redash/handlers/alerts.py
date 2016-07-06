@@ -34,6 +34,11 @@ class AlertResource(BaseResource):
 
         return alert.to_dict()
 
+    def delete(self, alert_id):
+        alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
+        require_admin_or_owner(alert.user.id)
+        alert.delete_instance(recursive=True)
+
 
 class AlertListResource(BaseResource):
     def post(self):

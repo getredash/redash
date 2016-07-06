@@ -17,6 +17,8 @@ except ImportError:
 
 PRESTO_TYPES_MAPPING = {
     "integer": TYPE_INTEGER,
+    "tinyint": TYPE_INTEGER,
+    "smallint": TYPE_INTEGER,
     "long": TYPE_INTEGER,
     "bigint": TYPE_INTEGER,
     "float": TYPE_FLOAT,

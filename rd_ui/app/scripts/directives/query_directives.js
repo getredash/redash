@@ -10,29 +10,29 @@
       },
       template: '<a ng-href="{{link}}" class="query-link">{{query.name}}</a>',
       link: function(scope, element) {
-        scope.link = 'queries/' + scope.query.id;
+        var hash = null;
         if (scope.visualization) {
           if (scope.visualization.type === 'TABLE') {
             // link to hard-coded table tab instead of the (hidden) visualization tab
-            scope.link += '#table';
+            hash = 'table';
           } else {
-            scope.link += '#' + scope.visualization.id;
+            hash = scope.visualization.id;
           }
         }
-        // element.find('a').attr('href', link);
+        scope.link = scope.query.getUrl(false, hash);
       }
     }
   }
 
-  function querySourceLink() {
+  function querySourceLink($location) {
     return {
       restrict: 'E',
       template: '<span ng-show="query.id && canViewSource">\
                     <a ng-show="!sourceMode"\
-                      ng-href="queries/{{query.id}}/source#{{selectedTab}}" class="btn btn-default">Show Source\
+                      ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default">Show Source\
                     </a>\
                     <a ng-show="sourceMode"\
-                      ng-href="queries/{{query.id}}#{{selectedTab}}" class="btn btn-default">Hide Source\
+                      ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default">Hide Source\
                     </a>\
                 </span>'
     }
@@ -156,7 +156,7 @@
     };
   }
 
-  function queryFormatter($http) {
+  function queryFormatter($http, growl) {
     return {
       restrict: 'E',
       // don't create new scope to avoid ui-codemirror bug
@@ -165,18 +165,29 @@
       template: '<button type="button" class="btn btn-default btn-s"\
                    ng-click="formatQuery()">\
                     <span class="zmdi zmdi-format-indent-increase"></span>\
-                     Format SQL\
+                     Format Query\
                 </button>',
       link: function($scope) {
         $scope.formatQuery = function formatQuery() {
+          if ($scope.dataSource.syntax == 'json') {
+            try {
+              $scope.query.query = JSON.stringify(JSON.parse($scope.query.query), ' ', 4);
+            } catch(err) {
+              growl.addErrorMessage(err);
+            }
+          } else if ($scope.dataSource.syntax =='sql') {
+
             $scope.queryFormatting = true;
             $http.post('api/queries/format', {
-                'query': $scope.query.query
+              'query': $scope.query.query
             }).success(function (response) {
-                $scope.query.query = response;
+              $scope.query.query = response;
             }).finally(function () {
               $scope.queryFormatting = false;
             });
+          } else {
+            growl.addInfoMessage("Query formatting is not supported for your data source syntax.");
+          }
         };
       }
     }
@@ -263,11 +274,15 @@
         });
         $scope.refreshOptions.push({
             value: String(7 * 24 * 3600),
-            name: 'Once a week'
+            name: 'Every 7 days'
+        });
+        $scope.refreshOptions.push({
+          value: String(14 * 24 * 3600),
+          name: 'Every 14 days'
         });
         $scope.refreshOptions.push({
             value: String(30 * 24 * 3600),
-            name: 'Every 30d'
+            name: 'Every 30 days'
         });
 
         $scope.$watch('refreshType', function() {
@@ -285,10 +300,10 @@
 
   angular.module('redash.directives')
   .directive('queryLink', queryLink)
-  .directive('querySourceLink', querySourceLink)
+  .directive('querySourceLink', ['$location', querySourceLink])
   .directive('queryResultLink', queryResultLink)
   .directive('queryEditor', queryEditor)
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
-  .directive('queryFormatter', ['$http', queryFormatter]);
+  .directive('queryFormatter', ['$http', 'growl', queryFormatter]);
 })();

@@ -31,6 +31,7 @@ def public_widget(widget):
                 'query': ' ',  # workaround, as otherwise the query data won't be loaded.
                 'name': widget.visualization.query.name,
                 'description': widget.visualization.query.description,
+                'options': {},
                 'latest_query_data': query_data
             }
         }
