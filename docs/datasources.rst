@@ -159,7 +159,7 @@ Notes:
    43242343247-fjdfakljr3r2@developer.gserviceaccount.com).
 2. The query format is "DOC\_UUID\|SHEET\_NUM" (for example
    "kjsdfhkjh4rsEFSDFEWR232jkddsfh\|0")
-3. Alternatively, one can create a new Google Bigquery table using the Google Spreadsheet in question as a source, and then use Redash's Bigquery connector to query the spreadsheet indirectly. This way, the SQL used to query the spreadsheet (via Bigquery table) is far more flexible than the direct query of the type ("kjsdfhkjh4rsEFSDFEWR232jkddsfh\|0") mentioned above. (`BigQuery integrates with Google Drive <https://cloud.google.com/blog/big-data/2016/05/bigquery-integrates-with-google-drive>`__). 
+3. Alternatively, one can create a new Google BigQuery table using the Google Spreadsheet in question as a source, and then use Redash's BigQuery connector to query the spreadsheet indirectly. This way, the SQL used to query the spreadsheet (via BigQuery table) is far more flexible than the direct query of the type ("kjsdfhkjh4rsEFSDFEWR232jkddsfh\|0") mentioned above. (`BigQuery integrates with Google Drive <https://cloud.google.com/blog/big-data/2016/05/bigquery-integrates-with-google-drive>`__). 
 
 
 Python
