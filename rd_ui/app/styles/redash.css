@@ -492,6 +492,10 @@ div.table-name:hover {
   margin-top: 10px;
 }
 
+.smart-table .smart-table-header-row .header-content {
+  cursor: pointer;
+}
+
 .voffset {
   margin-top: 2px;
 }
