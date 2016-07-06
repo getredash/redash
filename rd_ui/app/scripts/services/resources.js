@@ -174,9 +174,14 @@
               };
 
               return (memo && _.some(filter.current, function(v) {
-                // We compare with either the value or the String representation of the value,
-                // because Select2 casts true/false to "true"/"false".
-                return v == row[filter.name] || String(row[filter.name]) == v
+                var value = row[filter.name];
+                if (moment.isMoment(value)) {
+                  return value.isSame(v);
+                } else {
+                  // We compare with either the value or the String representation of the value,
+                  // because Select2 casts true/false to "true"/"false".
+                  return (v == value || String(value) == v);
+                }
               }));
             }, true);
           });
@@ -353,7 +358,13 @@
       });
 
       _.each(filters, function(filter) {
-        filter.values = _.uniq(filter.values);
+        filter.values = _.uniq(filter.values, function(v) {
+          if (moment.isMoment(v)) {
+            return v.unix();
+          } else {
+            return v;
+          }
+        });
       });
 
       this.filters = filters;
@@ -372,7 +383,10 @@
             refreshStatus(queryResult, query);
           }, 3000);
         }
-      })
+      }, function(error) {
+        console.log("Connection error", error);
+        queryResult.update({job: {error: 'failed communicating with server. Please check your Internet connection and try again.', status: 4}})
+      });
     }
 
     QueryResult.getById = function (id) {
@@ -408,6 +422,9 @@
           queryResult.update(error.data);
         } else if (error.status === 400 && 'job' in error.data) {
           queryResult.update(error.data);
+        } else {
+          console.log("Unknown error", error);
+          queryResult.update({job: {error: 'unknown error occurred. Please try again later.', status: 4}})
         }
       });
 
@@ -417,7 +434,7 @@
     return QueryResult;
   };
 
-  var Query = function ($resource, QueryResult, DataSource) {
+  var Query = function ($resource, $location, QueryResult) {
     var Query = $resource('api/queries/:id', {id: '@id'},
       {
         search: {
@@ -429,30 +446,17 @@
           method: 'get',
           isArray: true,
           url: "api/queries/recent"
-        }});
+        }
+      });
 
     Query.newQuery = function () {
       return new Query({
         query: "",
         name: "New Query",
         schedule: null,
-        user: currentUser
+        user: currentUser,
+        options: {}
       });
-    };
-
-    Query.collectParamsFromQueryString = function($location, query) {
-      var parameterNames = query.getParameters();
-      var parameters = {};
-
-      var queryString = $location.search();
-      _.each(parameterNames, function(param, i) {
-        var qsName = "p_" + param;
-        if (qsName in queryString) {
-          parameters[param] = queryString[qsName];
-        }
-      });
-
-      return parameters;
     };
 
     Query.prototype.getSourceLink = function () {
@@ -477,32 +481,31 @@
     };
 
     Query.prototype.paramsRequired = function() {
-      var queryParameters = this.getParameters();
-      return !_.isEmpty(queryParameters);
+      return this.getParameters().isRequired();
     };
 
-    Query.prototype.getQueryResult = function (maxAge, parameters) {
+    Query.prototype.getQueryResult = function (maxAge) {
       if (!this.query) {
         return;
       }
       var queryText = this.query;
 
-      var queryParameters = this.getParameters();
-      var paramsRequired = !_.isEmpty(queryParameters);
+      var parameters = this.getParameters();
+      var missingParams = parameters.getMissing();
 
-      var missingParams = parameters === undefined ? queryParameters : _.difference(queryParameters, _.keys(parameters));
-
-      if (paramsRequired && missingParams.length > 0) {
+      if (missingParams.length > 0) {
         var paramsWord = "parameter";
+        var valuesWord = "value";
         if (missingParams.length > 1) {
           paramsWord = "parameters";
+          valuesWord = "values";
         }
 
-        return new QueryResult({job: {error: "Missing values for " + missingParams.join(', ')  + " "+paramsWord+".", status: 4}});
+        return new QueryResult({job: {error: "missing " + valuesWord + " for " + missingParams.join(', ')  + " "+paramsWord+".", status: 4}});
       }
 
-      if (paramsRequired) {
-        queryText = Mustache.render(queryText, parameters);
+      if (parameters.isRequired()) {
+        queryText = Mustache.render(queryText, parameters.getValues());
 
         // Need to clear latest results, to make sure we don't use results for different params.
         this.latest_query_data = null;
@@ -526,34 +529,142 @@
       return this.queryResult;
     };
 
+    Query.prototype.getUrl = function(source, hash) {
+      var url = "queries/" + this.id;
+
+      if (source) {
+        url += '/source';
+      }
+
+      var params = "";
+      if (this.getParameters().isRequired()) {
+        _.each(this.getParameters().getValues(), function(value, name) {
+          if (value === null) {
+            return;
+          }
+
+          if (params !== "") {
+            params += "&";
+          }
+
+          params += 'p_' + encodeURIComponent(name) + "=" + encodeURIComponent(value);
+        });
+      }
+
+      if (params !== "") {
+        url += "?" + params;
+      }
+
+      if (hash) {
+        url += "#" + hash;
+      }
+
+      return url;
+    }
+
     Query.prototype.getQueryResultPromise = function() {
       return this.getQueryResult().toPromise();
     };
 
-    Query.prototype.getParameters = function() {
-      var parts = Mustache.parse(this.query);
-      var parameters = [];
-      var collectParams = function(parts) {
-        parameters = [];
-        _.each(parts, function(part) {
-          if (part[0] == 'name' || part[0] == '&') {
-            parameters.push(part[1]);
-          } else if (part[0] == '#') {
-            parameters = _.union(parameters, collectParams(part[4]));
+
+    var Parameters = function(query) {
+      this.query = query;
+
+      this.parseQuery = function() {
+        var parts = Mustache.parse(this.query.query);
+        var parameters = [];
+        var collectParams = function(parts) {
+          parameters = [];
+          _.each(parts, function(part) {
+            if (part[0] == 'name' || part[0] == '&') {
+              parameters.push(part[1]);
+            } else if (part[0] == '#') {
+              parameters = _.union(parameters, collectParams(part[4]));
+            }
+          });
+          return parameters;
+        };
+
+        parameters = _.uniq(collectParams(parts));
+
+        return parameters;
+      }
+
+      this.updateParameters = function() {
+        if (this.query.query === this.cachedQueryText) {
+          return;
+        }
+
+        this.cachedQueryText = this.query.query;
+        var parameterNames = this.parseQuery();
+
+        this.query.options.parameters = this.query.options.parameters || [];
+
+        var parametersMap = {};
+        _.each(this.query.options.parameters, function(param) {
+          parametersMap[param.name] = param;
+        });
+
+        _.each(parameterNames, function(param) {
+          if (!_.has(parametersMap, param)) {
+            this.query.options.parameters.push({
+              'title': param,
+              'name': param,
+              'type': 'text',
+              'value': null
+            });
+          }
+        }.bind(this));
+
+        this.query.options.parameters = _.filter(this.query.options.parameters, function(p) { return _.indexOf(parameterNames, p.name) !== -1});
+      }
+
+      this.initFromQueryString = function() {
+        var queryString = $location.search();
+        _.each(this.get(), function(param) {
+          var queryStringName = 'p_' + param.name;
+          if (_.has(queryString, queryStringName)) {
+            param.value = queryString[queryStringName];
           }
         });
-        return parameters;
-      };
+      }
 
-      parameters = collectParams(parts);
+      this.updateParameters();
+      this.initFromQueryString();
+    }
 
-      return parameters;
+    Parameters.prototype.get = function() {
+      this.updateParameters();
+      return this.query.options.parameters;
+    };
+
+    Parameters.prototype.getMissing = function() {
+      return _.pluck(_.filter(this.get(), function(p) { return p.value === null || p.value === ''; }), 'title');
+    }
+
+    Parameters.prototype.isRequired = function() {
+      return !_.isEmpty(this.get());
+    }
+
+    Parameters.prototype.getValues = function() {
+      var params = this.get();
+      return _.object(_.pluck(params, 'name'), _.pluck(params, 'value'));
+    }
+
+    Query.prototype.getParameters = function() {
+      if (!this.$parameters) {
+        this.$parameters = new Parameters(this);
+      }
+
+      return this.$parameters;
+    }
+
+    Query.prototype.getParametersDefs = function() {
+      return this.getParameters().get();
     }
 
     return Query;
   };
-
-
 
   var DataSource = function ($resource) {
     var actions = {
@@ -667,7 +778,7 @@
 
   angular.module('redash.services')
       .factory('QueryResult', ['$resource', '$timeout', '$q', QueryResult])
-      .factory('Query', ['$resource', 'QueryResult', 'DataSource', Query])
+      .factory('Query', ['$resource', '$location', 'QueryResult', Query])
       .factory('DataSource', ['$resource', DataSource])
       .factory('Destination', ['$resource', Destination])
       .factory('Alert', ['$resource', '$http', Alert])

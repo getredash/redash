@@ -17,7 +17,8 @@ def has_access(object_groups, user, need_view_only):
         return False
 
     required_level = 1 if need_view_only else 2
-    group_level = 1 if any(flatten([object_groups[group] for group in matching_groups])) else 2
+
+    group_level = 1 if all(flatten([object_groups[group] for group in matching_groups])) else 2
 
     return required_level <= group_level
 

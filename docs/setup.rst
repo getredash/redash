@@ -111,8 +111,15 @@ requires performing the steps outlined on the `"How to Upgrade" <http://docs.red
 
 6. Create database tables::
 
-    $ heroku run bash
-    $ python manage.py database create_tables
+    $ heroku run ./manage.py database create_tables
+
+7. Create admin user::
+
+    $ heroku run ./manage.py users create --admin "Admin" admin
+
+7. Start worker process::
+
+    $ heroku ps:scale worker=1
 
 
 Other
@@ -224,6 +231,11 @@ How to upgrade?
 It's recommended to upgrade once in a while your Re:dash instance to
 benefit from bug fixes and new features. See :doc:`here </upgrade>` for full upgrade
 instructions (including Fabric script).
+
+Configuration
+-------------
+
+For a full list of environment variables, see :doc:`the settings page </settings>`.
 
 Notes
 =====

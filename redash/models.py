@@ -72,6 +72,8 @@ class JSONField(peewee.TextField):
         return json.dumps(value)
 
     def python_value(self, value):
+        if not value:
+            return value
         return json.loads(value)
 
 
@@ -585,11 +587,11 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     query = peewee.TextField()
     query_hash = peewee.CharField(max_length=32)
     api_key = peewee.CharField(max_length=40)
-    user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
     schedule = peewee.CharField(max_length=10, null=True)
+    options = JSONField(default={})
 
     class Meta:
         db_table = 'queries'
@@ -607,7 +609,8 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             'is_archived': self.is_archived,
             'updated_at': self.updated_at,
             'created_at': self.created_at,
-            'data_source_id': self.data_source_id
+            'data_source_id': self.data_source_id,
+            'options': self.options
         }
 
         if with_user:
@@ -637,6 +640,9 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         for vis in self.visualizations:
             for w in vis.widgets:
                 w.delete_instance()
+
+        for alert in self.alerts:
+            alert.delete_instance(recursive=True)
 
         self.save()
 
@@ -833,7 +839,6 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     org = peewee.ForeignKeyField(Organization, related_name="dashboards")
     slug = peewee.CharField(max_length=140, index=True)
     name = peewee.CharField(max_length=100)
-    user_email = peewee.CharField(max_length=360, null=True)
     user = peewee.ForeignKeyField(User)
     layout = peewee.TextField()
     dashboard_filters_enabled = peewee.BooleanField(default=False)

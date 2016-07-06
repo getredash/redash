@@ -139,7 +139,7 @@ pip install MySQL-python==1.2.5
 
 # Microsoft SQL Server dependencies (`sudo` required):
 sudo yum install -y freetds-devel
-sudo pip install pymssql==2.1.1
+sudo pip install pymssql==2.1.2
 
 # Mongo dependencies:
 pip install pymongo==2.7.2

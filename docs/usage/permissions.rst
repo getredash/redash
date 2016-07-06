@@ -23,8 +23,7 @@ How does it work?
 
    Dashboard widget with a visualization the user doesn't have access to.
 
-In current implementation all the users see a list of all the dashboards. Once `pull request #957 <https://github.com/getredash/redash/pull/957>`__
-gets merged, we will filter out dashboards from the list that the user has no access to any of their widgets.
+If a user has access to at least one widget on a dashboard, they can see this dashboard in the list of all dashboards.
 
 
 What if I want to limit the user to only some tables?

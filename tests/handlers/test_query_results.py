@@ -16,6 +16,12 @@ class TestQueryResultsCacheHeaders(BaseTestCase):
         rv = self.make_request('get', '/api/queries/{}/results.json'.format(query.id))
         self.assertNotIn('Cache-Control', rv.headers)
 
+    def test_returns_404_if_no_cached_result_found(self):
+        query = self.factory.create_query(latest_query_data=None)
+
+        rv = self.make_request('get', '/api/queries/{}/results.json'.format(query.id))
+        self.assertEqual(404, rv.status_code)
+
 
 class TestQueryResultListAPI(BaseTestCase):
     def test_get_existing_result(self):
@@ -107,3 +113,4 @@ class TestQueryResultAPI(BaseTestCase):
 
         rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
         self.assertEquals(rv.status_code, 200)
+

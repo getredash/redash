@@ -7,10 +7,10 @@
   <div class="container">
     <div class="row bg-white p-10">
       <div class="col-md-8">
-        <form name="alertForm" ng-submit="saveChanges()" class="form">
+        <form name="alertForm" class="form">
           <div class="form-group">
             <label>Query</label>
-            <ui-select ng-model="alert.query" reset-search-input="false" on-select="onQuerySelected($item)">
+            <ui-select ng-model="alert.query" reset-search-input="false" on-select="onQuerySelected($item)" ng-disabled="!canEdit">
               <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
               <ui-select-choices repeat="q in queries"
                                  refresh="searchQueries($select.search)"
@@ -22,7 +22,7 @@
 
           <div class="form-group" ng-show="selectedQuery">
             <label>Name</label>
-            <input type="string" placeholder="{{getDefaultName()}}" class="form-control" ng-model="alert.name">
+            <input type="string" placeholder="{{getDefaultName()}}" class="form-control" ng-model="alert.name" ng-disabled="!canEdit">
           </div>
 
           <div ng-show="queryResult" class="form-horizontal">
@@ -30,7 +30,7 @@
               <label class="control-label col-md-2">Value column</label>
               <div class="col-md-4">
                 <select ng-options="name for name in queryResult.getColumnNames()" ng-model="alert.options.column"
-                        class="form-control"></select>
+                        class="form-control" ng-disabled="!canEdit"></select>
               </div>
               <label class="control-label col-md-2">Value</label>
               <div class="col-md-4">
@@ -40,29 +40,30 @@
             <div class="form-group">
               <label class="control-label col-md-2">Op</label>
               <div class="col-md-4">
-                <select ng-options="name for name in ops" ng-model="alert.options.op" class="form-control"></select>
+                <select ng-options="name for name in ops" ng-model="alert.options.op" class="form-control" ng-disabled="!canEdit"></select>
               </div>
               <label class="control-label col-md-2">Reference</label>
               <div class="col-md-4">
-                <input type="number" class="form-control" ng-model="alert.options.value" placeholder="reference value"
+                <input type="number" step="any" class="form-control" ng-model="alert.options.value" placeholder="reference value" ng-disabled="!canEdit"
                        required/>
               </div>
             </div>
             <div class="form-group">
               <label class="control-label col-md-2">Rearm seconds</label>
               <div class="col-md-4">
-                <input type="number" class="form-control" ng-model="alert.rearm"/>
+                <input type="number" class="form-control" ng-model="alert.rearm" ng-disabled="!canEdit"/>
               </div>
             </div>
           </div>
 
-          <div class="form-group">
-            <button class="btn btn-primary" ng-disabled="!alertForm.$valid">Save</button>
+          <div class="form-group" ng-if="canEdit">
+            <button class="btn btn-primary" ng-disabled="!alertForm.$valid" ng-click="saveChanges()">Save</button>
+            <button class="btn btn-danger" ng-if="alert.id" ng-click="delete()">Delete</button>
           </div>
         </form>
       </div>
       <div class="col-md-4" ng-if="alert.id">
-        <alert-subscriptions alert-id="alertId"></alert-subscriptions>
+        <alert-subscriptions alert-id="alert.id"></alert-subscriptions>
       </div>
     </div>
   </div>

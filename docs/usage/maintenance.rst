@@ -70,3 +70,43 @@ Version
 See current version:
 
 ``bin/run ./manage.py version``
+
+Monitoring
+==========
+Re:dash ships by default with a HTTP handler that gives you useful information about the
+health of your application. The endpoint is ``/status.json`` and requires a super admin
+API key to be given if you're not already logged in. This API key can be obtained from 
+the dedicated tab in your profile.
+
+You'll find below an example output of this endpoint:
+
+.. code-block:: json 
+
+    {
+      "dashboards_count": 30,
+      "manager": {
+        "last_refresh_at": "1465392784.433638",
+        "outdated_queries_count": 1,
+        "query_ids": "[34]",
+        "queues": {
+          "queries": {
+            "data_sources": "Redshift data, re:dash metadata, MySQL data, MySQL read-only, Redshift read-only",
+            "size": 1
+          },
+          "scheduled_queries": {
+            "data_sources": "Redshift data, re:dash metadata, MySQL data, MySQL read-only, Redshift read-only",
+            "size": 0
+          }
+        }
+      },
+      "queries_count": 204,
+      "query_results_count": 11161,
+      "redis_used_memory": "6.09M",
+      "unused_query_results_count": 32,
+      "version": "0.10.0+b1774",
+      "widgets_count": 176,
+      "workers": []
+    }
+
+    
+If you plan to hit this endpoint without being logged in, you'll need to provide your API key as a query parameter. Example endpoint with an API key: ``/status.json?api_key=fooBarqsLlGJQIs3maPErUxKuxwWGIpDXoSzQsx7xdv``

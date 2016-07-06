@@ -120,4 +120,10 @@ angular.module('redash.filters', []).
           filtered.push(items[i])
       return filtered;
     };
+  })
+
+  .filter('notEmpty', function() {
+    return function(collection) {
+      return !_.isEmpty(collection);
+    }
   });
