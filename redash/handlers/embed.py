@@ -17,6 +17,7 @@ from redash.handlers.query_results import collect_query_parameters
 from redash.permissions import require_access, view_only
 from authentication import current_org
 
+
 #
 # Run a parameterized query synchronously and return the result
 # DISCLAIMER: Temporary solution to support parameters in queries. Should be
@@ -41,7 +42,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
     if query_result:
         logging.info("Returning cached result for query %s" % query_hash)
-        return query_result.data
+        return query_result
 
     try:
         started_at = time.time()
@@ -55,8 +56,10 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
             query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source.id,
                                                                                   query_hash, query_text, data,
                                                                                   run_time, utils.utcnow())
+        else:
+            query_result = models.QueryResult(data=data, data_source=data_source, query_hash=query_hash)
 
-        return data
+        return query_result
     except Exception, e:
         if max_age > 0:
             abort(404, message="Unable to get result from the database, and no cached query result found.")
@@ -89,7 +92,7 @@ def embed(query_id, visualization_id, org_slug=None):
             if results is None:
                 abort(400, message="Unable to get results for this query")
             else:
-                qr = {"data": json.loads(results)}
+                qr = results.to_dict()
         elif qr is None:
             abort(400, message="No Results for this query")
         else:
