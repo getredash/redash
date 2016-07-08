@@ -35,7 +35,9 @@
     "angular-ui-sortable": "~0.13.4",
     "angular-resizable": "^1.2.0",
     "material-design-iconic-font": "^2.2.0",
-    "plotly.js": "^1.9.0"
+    "plotly.js": "^1.9.0",
+    "leaflet.markercluster": "git@github.com:Leaflet/Leaflet.markercluster.git#leaflet-0.7",
+    "ui-leaflet": "^1.0.1"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",
