@@ -17,7 +17,8 @@ angular.module('redash', [
   'naif.base64',
   'ui.bootstrap.showErrors',
   'angularResizable',
-  'ngSanitize'
+  'ngSanitize',
+  'ui-leaflet'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig', '$httpProvider',
   function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig, $httpProvider) {
     function getQuery(Query, $route) {
