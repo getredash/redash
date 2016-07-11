@@ -92,7 +92,7 @@ class SqlServer(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+                table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
 
