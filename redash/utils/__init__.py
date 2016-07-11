@@ -9,6 +9,7 @@ import re
 import hashlib
 import pytz
 import pystache
+import xml.etree.ElementTree
 
 from funcy import distinct
 
@@ -152,5 +153,12 @@ def base_url(org):
         return "https://{}/{}".format(settings.HOST, org.slug)
 
     return settings.HOST
+
+
+def clean_from_html_tags(result_cell):
+    if type(result_cell) in (str, unicode) and result_cell.strip().startswith('<'):
+        return ''.join(xml.etree.ElementTree.fromstring(result_cell).itertext())
+    else:
+        return result_cell
 
 

@@ -193,12 +193,13 @@ class QueryResultResource(BaseResource):
 
         for (r, row) in enumerate(query_data['rows']):
             for (c, name) in enumerate(column_names):
-                sheet.write(r + 1, c, row[name])
+                sheet.write(r + 1, c, utils.clean_from_html_tags(row[name]))
 
         book.close()
 
         headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
         return make_response(s.getvalue(), 200, headers)
+
 
 
 class JobResource(BaseResource):
