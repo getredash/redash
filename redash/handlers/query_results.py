@@ -193,7 +193,7 @@ class QueryResultResource(BaseResource):
 
         for (r, row) in enumerate(query_data['rows']):
             for (c, name) in enumerate(column_names):
-                sheet.write(r + 1, c, row[name])
+                sheet.write(r + 1, c, row.get(name))
 
         book.close()
 
