@@ -49,3 +49,19 @@ def extract_permissions_string(permissions):
         permissions = permissions.split(',')
         permissions = [p.strip() for p in permissions]
     return permissions
+
+
+@manager.option('--org', dest='organization', default=None, help="The organization to limit to (leave blank for all).")
+def list(organization=None):
+    """List all groups"""
+    if organization:
+        org = models.Organization.get_by_slug(organization)
+        groups = models.Group.select().where(models.Group.org == org)
+    else:
+        groups = models.Group.select()
+
+    for i, group in enumerate(groups):
+        if i > 0:
+            print "-" * 20
+
+        print "Id: {}\nName: {}\nType: {}\nOrganization: {}".format(group.id, group.name, group.type, group.org.slug)
