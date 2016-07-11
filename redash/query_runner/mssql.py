@@ -54,6 +54,11 @@ class SqlServer(BaseSQLQueryRunner):
                     "default": "7.0",
                     "title": "TDS Version"
                 },
+                "charset": {
+                    "type": "string",
+                    "default": "UTF-8",
+                    "title": "Character Set"
+                },
                 "db": {
                     "type": "string",
                     "title": "Database Name"
@@ -120,11 +125,16 @@ class SqlServer(BaseSQLQueryRunner):
             db = self.configuration['db']
             port = self.configuration.get('port', 1433)
             tds_version = self.configuration.get('tds_version', '7.0')
+            charset = self.configuration.get('charset', 'UTF-8')
 
             if port != 1433:
                 server = server + ':' + str(port)
 
-            connection = pymssql.connect(server=server, user=user, password=password, database=db, tds_version=tds_version)
+            connection = pymssql.connect(server=server, user=user, password=password, database=db, tds_version=tds_version, charset=charset)
+
+            if isinstance(query, unicode):
+                query = query.encode(charset)
+
             cursor = connection.cursor()
             logger.debug("SqlServer running query: %s", query)
 
