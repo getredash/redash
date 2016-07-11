@@ -18,3 +18,14 @@ def set_google_apps_domains(domains):
 def show_google_apps_domains():
     organization = models.Organization.select().first()
     print "Current list of Google Apps domains: {}".format(organization.google_apps_domains)
+
+
+@manager.command
+def list():
+    """List all organizations"""
+    orgs = models.Organization.select()
+    for i, org in enumerate(orgs):
+        if i > 0:
+            print "-" * 20
+
+        print "Id: {}\nName: {}\nSlug: {}".format(org.id, org.name, org.slug)
