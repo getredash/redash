@@ -133,9 +133,9 @@ def list(organization=None):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
-        users = models.Users.select().where(models.Users.org==org.id)
+        users = models.User.select().where(models.User.org==org.id)
     else:
-        users = models.DataSource.select()
+        users = models.User.select()
     for i, user in enumerate(users):
         if i > 0:
             print "-" * 20
