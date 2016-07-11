@@ -1,3 +1,4 @@
+import json
 from tests import BaseTestCase
 
 
@@ -112,5 +113,21 @@ class TestQueryResultAPI(BaseTestCase):
         query_result = self.factory.create_query_result(data_source=ds)
 
         rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
+        self.assertEquals(rv.status_code, 200)
+
+
+class TestQueryResultExcelResponse(BaseTestCase):
+    def test_renders_excel_file(self):
+        query = self.factory.create_query()
+        query_result = self.factory.create_query_result()
+
+        rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
+        self.assertEquals(rv.status_code, 200)
+
+    def test_renders_excel_file_when_rows_have_missing_columns(self):
+        query = self.factory.create_query()
+        query_result = self.factory.create_query_result(data=json.dumps({'rows': [{'test': 1}, {'test': 2, 'test2': 3}], 'columns': [{'name': 'test'}, {'name': 'test2'}]}))
+
+        rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
         self.assertEquals(rv.status_code, 200)
 
