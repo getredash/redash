@@ -72,3 +72,27 @@ Live examples on the demo instance:
 
 1. http://demo.redash.io/queries/393/source
 2. http://demo.redash.io/queries/387/source
+
+MongoDB Extended JSON Support
+=============================
+
+We support `MongoDB Extended JSON <https://docs.mongodb.com/manual/reference/mongodb-extended-json/>`__ along with our own extension - ``$humanTime``:
+
+.. code:: json
+
+     {
+         "collection": "date_test",
+         "query": {
+             "lastModified": {
+                 "$gt": {
+                     "$humanTime": "3 years ago"
+                 }
+             }
+         },
+         "limit": 100
+     }
+
+It accepts human readable string like the above ("3 years ago", "yesterday", etc) or timestamps.
+
+Live example on the demo instance: http://demo.redash.io/queries/2112/source.
+
