@@ -13,15 +13,9 @@ There you can see the names of its programs (``redash_celery``,
 Restart
 =======
 
-Restarting the Web Server
--------------------------
-
-``sudo supervisorctl restart redash_server``
-
-Restarting Celery Workers
--------------------------
-
-``sudo supervisorctl restart redash_celery``
+* **Restart all processes**: ``sudo supervisorctl restart all`.
+* **Restart the Web server**: ``sudo supervisorctl restart redash_server`.
+* **Restart Celery workers**: ``sudo supervisorctl restart redash_celery`.
 
 Restarting Celery Workers & the Queries Queue
 ---------------------------------------------
