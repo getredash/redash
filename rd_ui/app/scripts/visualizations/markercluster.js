@@ -9,8 +9,42 @@
       '></marker-cluster-renderer>';
 
       var editTemplate = '<markercluster-editor></markercluster-editor>';
-      var defaultOptions = {};
+      var defaultOptions = {
 
+        // ENABLED BY DEFAULT (BOOLEAN OPTIONS)
+
+        /*
+        ** When you mouse over a cluster it shows the bounds of its markers.
+        */
+        'showCoverageOnHover': true,
+
+        /*
+        ** When you click a cluster we zoom to its bounds.
+        */
+        'zoomToBoundsOnClick': true,
+
+        /*
+        ** When you click a cluster at the bottom zoom level we spiderfy it
+        ** so you can see all of its markers. (Note: the spiderfy occurs at
+        ** the current zoom level if all items within the cluster are still
+        ** clustered at the maximum zoom level or at zoom specified by
+        ** disableClusteringAtZoom option).
+        */
+        'spiderfyOnMaxZoom': true,
+
+        /*
+        ** Clusters and markers too far from the viewport are removed from the
+        ** map for performance.
+        */
+        'removeOutsideVisibleBounds': true
+
+        /*
+        ** Smoothly split / merge cluster children when zooming and spiderfying.
+        ** If L.DomUtil.TRANSITION is false, this option has no effect
+        ** (no animation is possible).
+        */
+        'animate': true,
+      };
       VisualizationProvider.registerVisualization({
         type: 'MARKERCLUSTER',
         name: 'Marker Cluster',
