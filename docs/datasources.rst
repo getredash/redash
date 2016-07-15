@@ -49,6 +49,8 @@ Google BigQuery
 
    -  Project ID (mandatory)
    -  JSON key file, generated when creating a service account (see `instructions <https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount>`__).
+   -  UDF Source URIs (see `more details <https://cloud.google.com/bigquery/user-defined-functions#api>`__ )
+        - References to JavaScript source files stored in Google Cloud Storage (comma separated)
 
 
 -  **Additional requirements**:
