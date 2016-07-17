@@ -1,5 +1,4 @@
 source: .
-highlighter: pygments
 baseurl: ''
 gems:
     - jekyll-redirect-from
