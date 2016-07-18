@@ -1,5 +1,12 @@
 <div class="markercluster-viz markercluster-container">
 
-  <leaflet lf-center="center" markers="markers" layers="layers" width="100%" height="480px"></leaflet>
+  <leaflet
+    lf-center="center"
+    markers="markers"
+    layers="layers"
+    defaults="visualization.options.leaflet"
+    width={{visualization.options.general.width+'%'}}
+    height={{visualization.options.general.height+'px'}}
+    ></leaflet>
 
 </div>
