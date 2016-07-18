@@ -4,49 +4,43 @@
   var module = angular.module('redash.visualization');
 
   module.config(['VisualizationProvider', function(VisualizationProvider) {
-      var renderTemplate = '<marker-cluster-renderer ' +
-      'query-result="queryResult" ' +
-      '></marker-cluster-renderer>';
-
+      var renderTemplate = '<marker-cluster-renderer></marker-cluster-renderer>';
       var editTemplate = '<markercluster-editor></markercluster-editor>';
       var defaultOptions = {
 
-        // ENABLED BY DEFAULT (BOOLEAN OPTIONS)
+        general: {
+          width: 100,
+          height: 480,
+          latColName: 'lat',
+          lonColName: 'lon'
+        },
 
-        /*
-        ** When you mouse over a cluster it shows the bounds of its markers.
-        */
-        'showCoverageOnHover': true,
+        leaflet: {
+          keyboard: true,
+          dragging: true,
+          zoomControl: true,
+          doubleClickZoom: true,
+          scrollWheelZoom: true,
+          tap: true,
+          attributionControl: true,
+          zoomAnimation: true,
+          fadeAnimation: true,
+          markerZoomAnimation: true,
+          worldCopyJump: true,
+        },
 
-        /*
-        ** When you click a cluster we zoom to its bounds.
-        */
-        'zoomToBoundsOnClick': true,
+        markercluster: {
+          doubleClickZoom: true,
+          showCoverageOnHover: true,
+          zoomToBoundsOnClick: true,
+          spiderfyOnMaxZoom: true,
+          removeOutsideVisibleBounds: true,
+          animate: true,
+        }
 
-        /*
-        ** When you click a cluster at the bottom zoom level we spiderfy it
-        ** so you can see all of its markers. (Note: the spiderfy occurs at
-        ** the current zoom level if all items within the cluster are still
-        ** clustered at the maximum zoom level or at zoom specified by
-        ** disableClusteringAtZoom option).
-        */
-        'spiderfyOnMaxZoom': true,
-
-        /*
-        ** Clusters and markers too far from the viewport are removed from the
-        ** map for performance.
-        */
-        'removeOutsideVisibleBounds': true
-
-        /*
-        ** Smoothly split / merge cluster children when zooming and spiderfying.
-        ** If L.DomUtil.TRANSITION is false, this option has no effect
-        ** (no animation is possible).
-        */
-        'animate': true,
       };
       VisualizationProvider.registerVisualization({
-        type: 'MARKERCLUSTER',
+        type: 'MAP_MARKERCLUSTER',
         name: 'Marker Cluster',
         renderTemplate: renderTemplate,
         editorTemplate: editTemplate,
@@ -57,66 +51,113 @@
   ]);
 
   module.directive('markerClusterRenderer', function() {
+
     return {
       restrict: 'E',
-      scope: {
-        queryResult: '=',
-        options: '=?'
-      },
       templateUrl: '/views/visualizations/markercluster.html',
-      replace: false,
       controller: ['$scope', function ($scope) {
 
+        var baseLayers = {
+          osm: {
+              name: 'OpenStreetMap',
+              type: 'xyz',
+              url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          },
+          osmbw: {
+              name: 'OpenStreetMap BW',
+              type: 'xyz',
+              url: 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
+          },
+          osmde: {
+              name: 'OpenStreetMap DE',
+              type: 'xyz',
+              url: 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
+          },
+          stamentoner: {
+              name: 'Stamen Toner',
+              type: 'xyz',
+              url: 'http://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png'
+          },
+          stamentonerbg: {
+              name: 'Stamen Toner Background',
+              type: 'xyz',
+              url: 'http://stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png'
+          },
+          stamentonerlite: {
+              name: 'Stamen Toner Lite',
+              type: 'xyz',
+              url: 'http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png'
+          },
+        };
 
-
+        var overlays = {
+          markers: {
+              name: "Markers",
+              type: "markercluster",
+              visible: true,
+              layerOptions: {}
+          }
+        }
 
         angular.extend($scope, {
-            center: {
-                lat: -23.64361724010785,
-                lng: -46.717244759202,
-                zoom: 12
-            },
-            layers: {
-                baselayers: {
-                    osm: {
-                        name: 'OpenStreetMap',
-                        type: 'xyz',
-                        url: 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                    }
-                },
-                overlays: {
-                    markers: {
-                        name: "Markers",
-                        type: "markercluster",
-                        visible: true
-                    }
-                }
-
-            }
+          layers: {
+            baselayers: baseLayers,
+            overlays: overlays
+          },
+          center: {
+              autoDiscover: true,
+              zoom: 6,
+          }
         });
 
 
-        function reloadData(data) {
+        var reloadOptions = function(oldValues, newValues, scope){
 
-          // https://github.com/angular-ui/ui-leaflet/issues/19 # the 10k limit
-          if (!data || data.length > 6000) {
-            return;
+          angular.extend($scope, {
+            visualization: newValues,
+            defaults: newValues.leaflet,
+          });
+
+          if (angular.isDefined($scope.layers.overlays.markers.layerOptions)){
+            angular.extend($scope.layers.overlays.markers.layerOptions, newValues.markercluster);
+          }
+
+        };
+
+
+        var reloadData = function(oldValues, newValues, scope){
+
+          if (!angular.isDefined($scope.defaults)){
+            reloadOptions();
           }
 
           if (angular.isDefined($scope.queryResult)) {
+
+
+            var data = $scope.queryResult.query_result.data.rows;
+
+            // https://github.com/angular-ui/ui-leaflet/issues/19 # the 10k limit
+            if (!data || data.length > 10000) {
+              console.log('to much points. exiting for safe');
+              return;
+            }
 
             angular.extend($scope, {
               markers: data.map(function(ap) {
                 return {
                   layer: 'markers',
                   lat: ap['lat'],
-                  lng: ap['lng']
+                  lng: ap['lng'],
+                  message: ap['msg']
                 };
               }),
             });
+
           }
+
         };
 
+        $scope.$watch('visualization.options', reloadOptions, true);
         $scope.$watch('queryResult && queryResult.getData()', reloadData);
 
       }]
