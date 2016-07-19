@@ -121,7 +121,7 @@
     $scope.setTab($location.hash() || 'in_progress');
 
     var refresh = function () {
-      $scope.refresh_time = moment().add('minutes', 1);
+      $scope.refresh_time = moment().add(1, 'minutes');
       $http.get('/api/admin/queries/tasks').success(function (data) {
         $scope.tasks = data;
         $scope.showingTasks = $scope.tasks[$scope.selectedTab];
@@ -190,7 +190,7 @@
     ];
 
     var refresh = function () {
-      $scope.refresh_time = moment().add('minutes', 1);
+      $scope.refresh_time = moment().add(1, 'minutes');
       $http.get('/api/admin/queries/outdated').success(function (data) {
         $scope.queries = data.queries;
         $scope.updatedAt = data.updated_at * 1000.0;
