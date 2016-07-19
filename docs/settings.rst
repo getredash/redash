@@ -22,6 +22,7 @@ The follow is a list of settings and what they control:
 - **REDASH_PASSWORD_LOGIN_ENABLED**: *default "true"*
 - **REDASH_ENFORCE_HTTPS**: *default "false"*
 - **REDASH_MULTI_ORG**: *default "false"*
+- **REDASH_GOOGLE_APPS_DOMAIN**: *default ""*
 - **REDASH_GOOGLE_CLIENT_ID**: *default ""*
 - **REDASH_GOOGLE_CLIENT_SECRET**: *default ""*
 - **REDASH_SAML_METADATA_URL**: *default ""*
