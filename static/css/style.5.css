@@ -149,11 +149,25 @@ nav a, .container-footer a {
   margin-right: 6px;
   border-radius: 4px;
 }
+
 #buttons a:hover {
   background-color: #ED6D5C;
 }
+
 #buttons a:last-child {
   margin-right: 0;
+}
+
+.btn-red {
+  background-color: #fd7968;
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.27);
+  border: 0;
+  margin-right: 6px;
+  border-radius: 4px;
+}
+
+.btn-red:hover {
+  background-color: #ED6D5C;
 }
 
 /* get started */
@@ -425,6 +439,10 @@ nav a, .container-footer a {
 }
 .btn{
 	border-radius:0px;
+}
+
+.price_table_cta {
+  padding-top: 15px;
 }
 
 .recommended{
