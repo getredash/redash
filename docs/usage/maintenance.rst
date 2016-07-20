@@ -1,4 +1,4 @@
-Ongoing Maintanence and Basic Operations
+Ongoing Maintenance and Basic Operations
 ########################################
 
 Configuration and logs
