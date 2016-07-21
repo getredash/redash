@@ -104,9 +104,9 @@ class BigQuery(BaseQueryRunner):
                     "type": "string",
                     'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
                 },
-                'useStandardSql(Beta)': {
+                'useStandardSql': {
                     "type": "boolean",
-                    'title': "use BigQuery's standard SQL: https://cloud.google.com/bigquery/sql-reference/",
+                    'title': "Use Standard SQL (Beta)",
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
@@ -136,7 +136,7 @@ class BigQuery(BaseQueryRunner):
         job_data = {
             "query": query,
             "dryRun": True,
-            "useLegacySql": not self.configuration.get('useStandardSql(Beta)', False),
+            "useLegacySql": not self.configuration.get('useStandardSql', False),
         }
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
@@ -147,7 +147,7 @@ class BigQuery(BaseQueryRunner):
             "configuration": {
                 "query": {
                     "query": query,
-                    "useLegacySql": not self.configuration.get('useStandardSql(Beta)', False),
+                    "useLegacySql": not self.configuration.get('useStandardSql', False),
                 }
             }
         }
