@@ -42,7 +42,7 @@
       };
       VisualizationProvider.registerVisualization({
         type: 'MAP_MARKERCLUSTER',
-        name: 'Marker Cluster',
+        name: 'Map Marker Cluster',
         renderTemplate: renderTemplate,
         editorTemplate: editTemplate,
         defaultOptions: defaultOptions
