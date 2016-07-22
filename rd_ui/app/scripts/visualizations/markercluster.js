@@ -21,7 +21,7 @@
           dragging: true,
           zoomControl: true,
           doubleClickZoom: true,
-          scrollWheelZoom: true,
+          scrollWheelZoom: false,
           tap: true,
           attributionControl: true,
           zoomAnimation: true,
