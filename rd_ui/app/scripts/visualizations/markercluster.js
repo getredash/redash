@@ -12,7 +12,8 @@
           width: 100,
           height: 480,
           latColName: 'lat',
-          lonColName: 'lon'
+          lonColName: 'lon',
+          descColName: 'msg',
         },
 
         leaflet: {
@@ -142,16 +143,18 @@
               return;
             }
 
-            angular.extend($scope, {
-              markers: data.map(function(ap) {
-                return {
-                  layer: 'markers',
-                  lat: ap['lat'],
-                  lng: ap['lng'],
-                  message: ap['msg']
-                };
-              }),
-            });
+            if (angular.isDefined($scope.visualization)) {
+              angular.extend($scope, {
+                markers: data.map(function(ap) {
+                  return {
+                    layer: 'markers',
+                    lat: ap[$scope.visualization.general.latColName],
+                    lng: ap[$scope.visualization.general.lonColName],
+                    message: ap[$scope.visualization.general.descColName]
+                  };
+                }),
+              });
+            }
 
           }
 
