@@ -188,7 +188,6 @@
       controller: ['$scope', function($scope){
 
         var setVisualizationCenter = function(event, args){
-          console.log(args);
           angular.extend($scope.$parent.visualization.options.leaflet, {
             center: args.model.lfCenter
           })
