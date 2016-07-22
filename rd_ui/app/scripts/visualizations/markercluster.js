@@ -145,7 +145,7 @@
             reloadOptions();
           }
 
-          if (angular.isDefined($scope.queryResult)) {
+          if (angular.isDefined($scope.queryResult) && $scope.queryResult.$resolved) {
 
             var data = $scope.queryResult.query_result.data.rows;
 
