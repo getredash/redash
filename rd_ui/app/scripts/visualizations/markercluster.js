@@ -106,8 +106,14 @@
             overlays: overlays
           },
           center: {
-              autoDiscover: true,
-              zoom: 6,
+            autoDiscover: true,
+            zoom: 6
+          },
+          events: {
+            map: {
+              enable: ['zoomstart', 'drag', 'click', 'mousemove'],
+              logic: 'emit'
+            }
           }
         });
 
@@ -122,6 +128,13 @@
           if (angular.isDefined($scope.layers.overlays.markers.layerOptions)){
             angular.extend($scope.layers.overlays.markers.layerOptions, newValues.markercluster);
           }
+
+          if (angular.isDefined($scope.visualization.options)){
+            if (angular.isDefined($scope.visualization.options.center)){
+              angular.extend($scope.center, $scope.visualization.options.center);
+            }
+          }
+
 
         };
 
@@ -171,7 +184,20 @@
   module.directive('markerclusterEditor', function() {
     return {
       restrict: 'E',
-      templateUrl: '/views/visualizations/markercluster_editor.html'
+      templateUrl: '/views/visualizations/markercluster_editor.html',
+      controller: ['$scope', function($scope){
+
+        var setVisualizationCenter = function(event, args){
+          console.log(args);
+          angular.extend($scope.$parent.visualization.options.leaflet, {
+            center: args.model.lfCenter
+          })
+        };
+
+        $scope.$on('leafletDirectiveMap.drag', setVisualizationCenter);
+        $scope.$on('leafletDirectiveMap.click', setVisualizationCenter);
+
+      }]
     }
   });
 
