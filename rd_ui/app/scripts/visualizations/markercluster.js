@@ -56,7 +56,7 @@
     return {
       restrict: 'E',
       templateUrl: '/views/visualizations/markercluster.html',
-      controller: ['$scope', function ($scope) {
+      controller: ['$scope', 'growl', function ($scope, growl) {
 
         var baseLayers = {
           osm: {
@@ -147,12 +147,11 @@
 
           if (angular.isDefined($scope.queryResult)) {
 
-
             var data = $scope.queryResult.query_result.data.rows;
 
             // https://github.com/angular-ui/ui-leaflet/issues/19 # the 10k limit
             if (!data || data.length > 10000) {
-              console.log('to much points. exiting for safe');
+              growl.addErrorMessage("To much points to render. Change your query to retrieve max 10000 rows", {ttl: 6000});
               return;
             }
 
