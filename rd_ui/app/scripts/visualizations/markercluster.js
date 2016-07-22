@@ -151,7 +151,7 @@
 
             // https://github.com/angular-ui/ui-leaflet/issues/19 # the 10k limit
             if (!data || data.length > 10000) {
-              growl.addErrorMessage("To much points to render. Change your query to retrieve max 10000 rows", {ttl: 6000});
+              growl.addErrorMessage("Too much points to render. Change your query to retrieve max 10000 rows", {ttl: 6000});
               return;
             }
 
