@@ -9,7 +9,6 @@
       var defaultOptions = {
 
         general: {
-          width: 100,
           height: 480,
           latColName: 'lat',
           lonColName: 'lon',
