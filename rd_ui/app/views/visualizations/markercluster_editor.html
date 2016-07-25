@@ -1,77 +1,71 @@
-<div class="form-horizontal">
-  <fieldset>
-    <legend>General Configs</legend>
+<div>
+  <ul class="tab-nav">
+    <li ng-class="{active: currentTab == 'general'}"><a ng-click="currentTab='general'">General</a></li>
+    <li ng-class="{active: currentTab == 'leaflet'}"><a ng-click="currentTab='leaflet'">Leaflet</a></li>
+    <li ng-class="{active: currentTab == 'markercluster'}"><a ng-click="currentTab='markercluster'">MarkerCluster</a></li>
+    <li ng-class="{active: currentTab == 'advanced'}"><a ng-click="currentTab='advanced'">Advanced</a></li>
+  </ul>
 
+  <div ng-show="currentTab == 'general'">
     <div class="form-group">
-        <label class="col-lg-2">Description</label>
-        <div class="col-sm-4">
+        <label class="control-label">Description</label>
+        <div>
           <textarea class='form-control' ng-model="visualization.description"></textarea>
         </div>
     </div>
 
     <div class="form-group">
-        <label class="col-lg-2">Map width (%)</label>
-        <div class="col-sm-4">
-            <input class="form-control" type="number" ng-model="visualization.options.general.width" />
-        </div>
-    </div>
-
-    <div class="form-group">
-        <label class="col-lg-2">Map height (px)</label>
-        <div class="col-sm-4">
+        <label class="control-label">Map height (px)</label>
+        <div>
             <input class="form-control" type="number" ng-model="visualization.options.general.height" />
         </div>
     </div>
 
     <div class="form-group">
-        <label class="col-lg-2">Latitude column name</label>
-        <div class="col-sm-4">
+        <label class="control-label">Latitude column name</label>
+        <div>
             <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.general.latColName" class="form-control"></select>
         </div>
     </div>
     <div class="form-group">
-        <label class="col-lg-2">Longitude column name</label>
-        <div class="col-sm-4">
+        <label class="control-label">Longitude column name</label>
+        <div>
             <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.general.lonColName" class="form-control"></select>
         </div>
     </div>
+  </div>
 
-  </fieldset>
+  <div ng-show="currentTab == 'leaflet'">
 
-  <fieldset>
-    <legend>Leaflet</legend>
-    <em>You can find the docs <a href="https://github.com/angular-ui/ui-leaflet/blob/3924aec0e755c16ce7be839089022e212e361c5e/doc/defaults-attribute.md" title="angular-ui-leaflet docs" target="new">here</a> </em>
-    <br />
-
-
+    <p class="bg-info">You can find the docs <a href="https://github.com/angular-ui/ui-leaflet/blob/3924aec0e755c16ce7be839089022e212e361c5e/doc/defaults-attribute.md" title="angular-ui-leaflet docs">here</a> </p>
 
     <div class="form-group">
-        <label class="col-lg-2">Center: Latitude</label>
-        <div class="col-sm-4">
+        <label class="control-label">Center: Latitude</label>
+        <div>
             <input class="form-control" type="number" ng-model="visualization.options.leaflet.center.lat" />
         </div>
     </div>
 
 
     <div class="form-group">
-        <label class="col-lg-2">Center: Longitude</label>
-        <div class="col-sm-4">
+        <label class="control-label">Center: Longitude</label>
+        <div>
             <input class="form-control" type="number" ng-model="visualization.options.leaflet.center.lng" />
         </div>
     </div>
 
 
     <div class="form-group">
-        <label class="col-lg-2">Center: Zoom</label>
-        <div class="col-sm-4">
+        <label class="control-label">Center: Zoom</label>
+        <div>
             <input class="form-control" type="number" ng-model="visualization.options.leaflet.center.zoom" />
         </div>
     </div>
 
 
     <div class="form-group">
-        <label class="col-lg-2">Max zoom</label>
-        <div class="col-sm-4">
+        <label class="control-label">Max zoom</label>
+        <div>
             <input class="form-control" type="number" ng-model="visualization.options.leaflet.maxZoom" min=1 max=20 />
         </div>
     </div>
@@ -79,8 +73,8 @@
 
 
     <div class="form-group">
-        <label class="col-lg-2">Min zoom</label>
-        <div class="col-sm-4">
+        <label class="control-label">Min zoom</label>
+        <div>
             <input class="form-control" type="number" ng-model="visualization.options.leaflet.minZoom" min=1 max=20 />
         </div>
     </div>
@@ -192,134 +186,113 @@
       </label>
     </div>
 
+  </div>
 
-
-
-  </fieldset>
-
-  <fieldset>
-    <legend>Marker Cluster</legend>
-    <em>You can find the docs <a href="" title="leaflet markercluster docs" target="new">here</a> </em>
+  <div ng-show="currentTab == 'markercluster'">
+    <div class="bg-info">You can find the docs <a href="https://github.com/Leaflet/Leaflet.markercluster#options" title="leaflet markercluster docs">here</a> </div>
     <br>
 
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.showCoverageOnHover">
+        <i class="input-helper"></i>showCoverageOnHover
+      </label>
+    </div>
 
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" ng-model="visualization.options.markercluster.showCoverageOnHover">
-          <i class="input-helper"></i>showCoverageOnHover
-        </label>
-      </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.zoomToBoundsOnClick">
+        <i class="input-helper"></i>zoomToBoundsOnClick
+      </label>
+    </div>
 
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" ng-model="visualization.options.markercluster.zoomToBoundsOnClick">
-          <i class="input-helper"></i>zoomToBoundsOnClick
-        </label>
-      </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.spiderfyOnMaxZoom">
+        <i class="input-helper"></i>spiderfyOnMaxZoom
+      </label>
+    </div>
 
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" ng-model="visualization.options.markercluster.spiderfyOnMaxZoom">
-          <i class="input-helper"></i>spiderfyOnMaxZoom
-        </label>
-      </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.removeOutsideVisibleBounds">
+        <i class="input-helper"></i>removeOutsideVisibleBounds
+      </label>
+    </div>
 
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" ng-model="visualization.options.markercluster.removeOutsideVisibleBounds">
-          <i class="input-helper"></i>removeOutsideVisibleBounds
-        </label>
-      </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.animate">
+        <i class="input-helper"></i>animate
+      </label>
+    </div>
 
-      <div class="checkbox">
-        <label>
-          <input type="checkbox" ng-model="visualization.options.markercluster.animate">
-          <i class="input-helper"></i>animate
-        </label>
-      </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.animateAddingMarkers">
+        <i class="input-helper"></i>animateAddingMarkers
+      </label>
+    </div>
 
-      <fieldset>
-        <legend>Other configs</legend>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.disableClusteringAtZoom">
+        <i class="input-helper"></i>disableClusteringAtZoom
+      </label>
+    </div>
 
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="visualization.options.markercluster.animateAddingMarkers">
-            <i class="input-helper"></i>animateAddingMarkers
-          </label>
-        </div>
-
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="visualization.options.markercluster.disableClusteringAtZoom">
-            <i class="input-helper"></i>disableClusteringAtZoom
-          </label>
-        </div>
-
-        <div class="form-group">
-            <label class="col-lg-2">maxClusterRadius</label>
-            <div class="col-sm-4">
-                <input class="form-control" type="number" ng-model="visualization.options.markercluster.maxClusterRadius" />
-            </div>
-        </div>
-
-
-
-
-
-
-      <fieldset>
-        <legend>Advanced</legend>
-
-        <!-- https://github.com/Leaflet/Leaflet.markercluster#other-options -->
-
-
-
-        <!-- polygonOptions -->
-
-
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="visualization.options.markercluster.singleMarkerMode">
-            <i class="input-helper"></i>singleMarkerMode
-          </label>
-        </div>
-
-        <div class="form-group">
-            <label class="col-lg-2">spiderLegPolylineOptions</label>
-            <div class="col-sm-4">
-              <textarea class='form-control' ng-model="visualization.options.markercluster.spiderLegPolylineOptions"></textarea>
-            </div>
-        </div>
-
-        <div class="form-group">
-          <label class="col-lg-2">spiderfyDistanceMultiplier</label>
-          <div class="col-sm-4">
-            <input class="form-control" type="number" ng-model="visualization.options.markercluster.spiderfyDistanceMultiplier" min=0 max=1 step=0.1 />
-          </div>
-        </div>
-
-        <div class="checkbox">
-          <label>
-            <input type="checkbox" ng-model="visualization.options.markercluster.chunkedLoading">
-            <i class="input-helper"></i>chunkedLoading
-          </label>
-        </div>
-
-        <div class="form-group">
-            <label class="col-lg-2">chunkInterval</label>
-            <div class="col-sm-4">
-                <input class="form-control" type="number" ng-model="visualization.options.markercluster.chunkInterval" />
-            </div>
-        </div>
-
+    <div class="form-group">
+        <label class="control-label">maxClusterRadius</label>
         <div>
-            <label class="col-lg-2">chunkDelay</label>
-            <div class="col-sm-4">
-                <input class="form-control" type="number" ng-model="visualization.options.markercluster.chunkDelay" />
-            </div>
+            <input class="form-control" type="number" ng-model="visualization.options.markercluster.maxClusterRadius" />
         </div>
+    </div>
 
+  </div>
 
-  </fieldset>
+  <div ng-show="currentTab == 'advanced'">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.singleMarkerMode">
+        <i class="input-helper"></i>singleMarkerMode
+      </label>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">spiderLegPolylineOptions</label>
+        <div>
+          <textarea class='form-control' ng-model="visualization.options.markercluster.spiderLegPolylineOptions"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">spiderfyDistanceMultiplier</label>
+      <div>
+        <input class="form-control" type="number" ng-model="visualization.options.markercluster.spiderfyDistanceMultiplier" min=0 max=1 step=0.1 />
+      </div>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.chunkedLoading">
+        <i class="input-helper"></i>chunkedLoading
+      </label>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">chunkInterval</label>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.markercluster.chunkInterval" />
+        </div>
+    </div>
+
+    <div>
+        <label class="control-label">chunkDelay</label>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.markercluster.chunkDelay" />
+        </div>
+    </div>
+
+  </div>
 
 </div>

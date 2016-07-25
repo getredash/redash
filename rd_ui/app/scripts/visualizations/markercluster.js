@@ -185,6 +185,8 @@
       templateUrl: '/views/visualizations/markercluster_editor.html',
       controller: ['$scope', function($scope){
 
+        $scope.currentTab = 'general';
+
         var setVisualizationCenter = function(event, args){
           angular.extend($scope.$parent.visualization.options.leaflet, {
             center: args.model.lfCenter
