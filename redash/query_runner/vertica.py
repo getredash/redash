@@ -70,7 +70,9 @@ class Vertica(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        Select table_schema, table_name, column_name from columns where is_system_table=false;
+        Select table_schema, table_name, column_name from columns where is_system_table=false
+        union all
+        select table_schema, table_name, column_name from view_columns;
         """
 
         results, error = self.run_query(query)
