@@ -59,3 +59,4 @@ The follow is a list of settings and what they control:
 - **REDASH_VERSION_CEHCK**: *default "true"*
 - **REDASH_BIGQUERY_HTTP_TIMEOUT**: *default "600"*
 - **REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS**: *default "false"*
+- **REDASH_GOOGLE_ANALYTICS_TRACKING_CODE**: code to track site usage in Google Analytics, *default ""*
