@@ -14,6 +14,16 @@ def set_google_apps_domains(domains):
     print "Updated list of allowed domains to: {}".format(organization.google_apps_domains)
 
 
+@manager.option('departments', help='comma separated list of departments to allow')
+def set_allowed_departments(departments):
+    organization = models.Organization.select().first()
+
+    organization.settings[models.Organization.SETTING_ALLOWED_DEPARTMENTS] = departments.split(',')
+    organization.save()
+
+    print "Updated list of allowed departments to: {}".format(organization.allowed_departments)
+
+
 @manager.command
 def show_google_apps_domains():
     organization = models.Organization.select().first()
