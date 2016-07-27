@@ -49,7 +49,8 @@ def verify_profile(org, profile):
     domain = email.split('@')[-1]
 
     if domain in org.google_apps_domains:
-        return verify_department_membership(org, email)
+        if verify_department_membership(org, email):
+            return True
 
     if org.has_user(email) == 1:
         return True
