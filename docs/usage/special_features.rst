@@ -33,7 +33,7 @@ Dashboards
 ==========
 It is possible to group multiple dashboards in the dashboards menu. To do this, you need to follow a naming convention by using a column (``:``) to separate the dashboard group and the actual dashboard name. For example, if you name 2 dashboards ``Foo: Bar`` and ``Foo: Baz``, they will be grouped under the ``Foo`` namespace in the dropdown menu.
 
-If you've got queries that have some filters and you want to apply filters at the dashboard level (that apply to all queries), you need to set a flag. Can you do it through the admin interface at ``/admin/dashboard`` or you can do it by manually setting the column ``dashboard_filters_enabled`` of the table ``dashboards`` to ``TRUE`` in the Re:dash database.
+If you've got queries that have some filters and you want to apply filters at the dashboard level (that apply to all queries), you need to set a flag. You can do it through the admin interface at ``/admin/dashboard`` or manually by setting the column ``dashboard_filters_enabled`` of the table ``dashboards`` to ``TRUE`` in the Re:dash database.
 
 Exporting query results to CSV or JSON
 ======================================
