@@ -1189,12 +1189,11 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
                                            app, host)
         else:
             # User email subscription, so create an email destination object
-            config = {'email': self.user.email}
+            config = {'addresses': self.user.email}
             schema = get_configuration_schema_for_destination_type('email')
-            options = ConfigurationContainer(json.dumps(config), schema)
+            options = ConfigurationContainer(config, schema)
             destination = get_destination('email', options)
-            return destination.notify(alert, query, user, new_state,
-                                           app, host, options)
+            return destination.notify(alert, query, user, new_state, app, host, options)
 
 
 all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)
