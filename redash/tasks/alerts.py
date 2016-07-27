@@ -42,5 +42,5 @@ def check_alerts_for_query(query_id):
                 try:
                     subscription.notify(alert, query, subscription.user, new_state, app, host)
                 except Exception as e:
-                    logger.warn("Exception: {}".format(e))
+                    logger.exception("Error with processing destination")
 
