@@ -24,7 +24,11 @@ class Email(BaseDestination):
         return 'fa-envelope'
 
     def notify(self, alert, query, user, new_state, app, host, options):
-        recipients = [email for email in options.get('addresses').split(',') if email]
+        recipients = [email for email in options.get('addresses', '').split(',') if email]
+
+        if not recipients:
+            logging.warning("No emails given. Skipping send.")
+
         html = """
         Check <a href="{host}/alerts/{alert_id}">alert</a> / check <a href="{host}/queries/{query_id}">query</a>.
         """.format(host=host, alert_id=alert.id, query_id=query.id)
@@ -39,6 +43,6 @@ class Email(BaseDestination):
                 )
                 mail.send(message)
         except Exception:
-            logging.exception("mail send ERROR.")
+            logging.exception("Mail send error.")
 
 register(Email)
