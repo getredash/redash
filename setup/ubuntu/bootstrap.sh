@@ -27,7 +27,7 @@ fi
 
 # Base packages
 apt-get -y update
-apt-get -y dist-upgrade
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
 pip install -U setuptools==23.1.0
 
