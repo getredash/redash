@@ -28,7 +28,7 @@ fi
 # Base packages
 apt-get -y update
 apt-get -y dist-upgrade
-apt-get install -y python-pip python-dev nginx curl build-essential pwgen
+apt-get install -y python-pip python-dev nginx curl build-essential pwgen libffi-dev
 pip install -U setuptools==23.1.0
 
 # redash user
