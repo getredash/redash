@@ -28,7 +28,7 @@ deployment:
       - make upload
       - echo "rd_ui/app" >> .dockerignore
       - docker build -t easytaxibr/redash:$(./manage.py version | sed -e "s/\+/./") .
-      - docker login -u $DOCKER_USER -p$DOCKER_PASS
+      - docker login -u $DOCKER_USER -p $DOCKER_PASS
       - docker push easytaxibr/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
   webhooks:
