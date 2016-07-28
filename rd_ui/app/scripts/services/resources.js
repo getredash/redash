@@ -368,7 +368,15 @@
       });
 
       this.filters = filters;
-    }
+    };
+
+    QueryResult.prototype.isGlobalSearchActivated = function () {
+      return _.some(this.getColumns(), function(col){
+        var name = col.name;
+        var suffix = name.split('::')[1] || name.split('__')[1];
+        return suffix === 'globalSearch';
+      });
+    };
 
     var refreshStatus = function (queryResult, query) {
       Job.get({'id': queryResult.job.id}, function (response) {
