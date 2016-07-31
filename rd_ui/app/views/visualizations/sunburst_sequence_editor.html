@@ -7,12 +7,23 @@
   </div>
   <div>
     <hr>
-    This visualization expects the query result to have rows with the following columns:
+    This visualization expects the query result to have rows in one of the following formats:
 
+    <strong>Option 1:</strong>
     <ul>
       <li><strong>sequence</strong> - sequence id</li>
       <li><strong>stage</strong> - what stage in sequence this is (1, 2, ...)</li>
       <li><strong>node</strong> - stage name</li>
+      <li><strong>value</strong> - number of times this sequence occurred</li>
+    </ul>
+
+    <strong>Option 2:</strong>
+    <ul>
+      <li><strong>stage1</strong> - stage 1 value</li>
+      <li><strong>stage1</strong> - stage 2 value (or null)</li>
+      <li><strong>stage3</strong> - stage 3 value (or null)</li>
+      <li><strong>stage4</strong> - stage 4 value (or null)</li>
+      <li><strong>stage5</strong> - stage 5 value (or null)</li>
       <li><strong>value</strong> - number of times this sequence occurred</li>
     </ul>
   </div>
