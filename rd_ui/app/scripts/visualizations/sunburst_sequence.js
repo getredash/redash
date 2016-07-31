@@ -6,7 +6,21 @@
   module.directive('sunburstSequenceRenderer', function () {
     return {
       restrict: 'E',
-      link: sunburstDraw
+      link: function(scope, element) {
+        var sunburst = new Sunburst(scope, element);
+
+        function resize() {
+          sunburst.remove();
+          sunburst = new Sunburst(scope, element);
+        }
+
+        angular.element(window).on("resize", resize);
+        scope.$watch('visualization.options.height', function(oldValue, newValue) {
+          if (oldValue !== newValue) {
+            resize();
+          }
+        });
+      }
     }
   });
 
@@ -37,9 +51,11 @@
   }
   ]);
 
-  // The following is based on @chrisrzhou's example from: http://bl.ocks.org/chrisrzhou/d5bdd8546f64ca0e4366.
 
-  function sunburstDraw(scope, element) {
+  // The following is based on @chrisrzhou's example from: http://bl.ocks.org/chrisrzhou/d5bdd8546f64ca0e4366.
+  function Sunburst(scope, element) {
+    this.element = element;
+
     var refreshData = function () {
       var queryData = scope.queryResult.getData();
       if (queryData) {
@@ -47,15 +63,16 @@
       }
     };
 
-    scope.$watch("visualization.options", refreshData, true);
-    scope.$watch("queryResult && queryResult.getData()", refreshData);
+    this.watches = [];
+    this.watches.push(scope.$watch("visualization.options", refreshData, true));
+    this.watches.push(scope.$watch("queryResult && queryResult.getData()", refreshData));
 
     /**
      * Dimensions of svg, sunburst, legend, breadcrumbs
      *
      */
     // svg dimensions
-    var width = element[0].parentElement.clientWidth; //500;
+    var width = element[0].parentElement.clientWidth;
     var height = scope.visualization.options.height;
     var radius = Math.min(width, height) / 2;
 
@@ -81,14 +98,6 @@
       bottom: 50,
       left: radius,
       right: 0
-    };
-
-    // sunburst margins
-    var sunburstMargin = {
-      top: 0, //2 * radius + b.h,
-      bottom: 0,
-      left: 0, //(width - radius*2) / 2,
-      right: radius /2 // (width - radius*2) / 2//width /2 //radius / 2
     };
 
     /**
@@ -161,21 +170,8 @@
       .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // create and position legend
-    // var legend = vis
-    //   .append("div").classed("legend-container", true)
-    //   .style("position", "absolute")
-    //   .style("top", b.h + "px")
-    //   .style("left", 2 * radius + sunburstMargin.right + "px")
-    //   .style("width", 50 + "px")
-    //   .style("height", 50 + "px")
-    //   .append("svg")
-    //   .attr("width", li.w)
-    //   .attr("height", height);
-
     // create last breadcrumb element
-    var lastCrumb = breadcrumbs
-      .append("text").classed("lastCrumb", true);
+    var lastCrumb = breadcrumbs.append("text").classed("lastCrumb", true);
 
     // create and position summary container
     var summary = vis
@@ -189,6 +185,8 @@
       .style("font-size", "11px")
       .style("color", "#666")
       .style('z-index', '1');
+
+    refreshData();
 
     /**
      * Render process:
@@ -228,7 +226,6 @@
       drawSunburst(json); // draw sunburst
       // drawLegend(); // draw legend
     };
-
 
     // helper function colorMap - color gray if "end" is detected
     function colorMap(d) {
@@ -274,43 +271,6 @@
       // Update totalSize of the tree = value of root node from partition.
       totalSize = path.node().__data__.value;
     }
-
-
-    // helper function to draw legend
-    function drawLegend() {
-      // remove "root" label from legend
-      var labels = colors.domain().splice(1, colors.domain().length);
-
-      // create legend "pills"
-      var g = legend.selectAll("g")
-        .data(labels).enter()
-        .append("g")
-        .attr("transform", function (d, i) {
-          return "translate(0," + i * (li.h + li.s) + ")";
-        });
-
-      g.append("rect").classed("legend-pills", true)
-        .attr("rx", li.r)
-        .attr("ry", li.r)
-        .attr("width", li.w)
-        .attr("height", li.h)
-        .style("fill", function (d) {
-          return colors(d);
-        });
-
-      g.append("text").classed("legend-text", true)
-        .attr("x", li.w / 2)
-        .attr("y", li.h / 2)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", "middle")
-        .attr("fill", "white")
-        .attr("font-size", "10px")
-        .attr("font-weight", 600)
-        .text(function (d) {
-          return d;
-        });
-    }
-
 
     // helper function mouseover to handle mouseover events/animations and calculation of ancestor nodes etc
     function mouseover(d) {
@@ -487,13 +447,10 @@
           }
         }
       });
-      console.log(_.pluck(root.children, 'name'));
 
       return root;
     }
 
-
-    // helper function to buildHierarchy to transform 4-column CSV into a JSON dataframe.
     function buildNodes(raw) {
       var grouped = _.groupBy(raw, 'sequence');
 
@@ -507,6 +464,11 @@
 
       return values;
     }
+  }
+
+  Sunburst.prototype.remove = function() {
+    _.each(this.watches, function(unregister) { unregister() });
+    angular.element(this.element[0]).empty('.vis-container');
   }
 
 
