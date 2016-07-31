@@ -417,6 +417,7 @@
           var nodeName = nodes[j];
           var isLeaf = j + 1 === nodes.length;
 
+
           if (!children) {
             currentNode.children = children = [];
             children.push({
@@ -455,16 +456,31 @@
     }
 
     function buildNodes(raw) {
-      var grouped = _.groupBy(raw, 'sequence');
+      var values;
 
-      var values = _.map(grouped, function(value, key) {
-        var sorted = _.sortBy(value, 'stage');
-        return {
-          size: value[0].value,
-          sequence: value[0].sequence,
-          nodes: _.pluck(sorted, 'node')
-        }
-      });
+      if (_.has(raw[0], 'sequence') && _.has(raw[0], 'stage') && _.has(raw[0], 'node') && _.has(raw[0], 'value')) {
+
+        var grouped = _.groupBy(raw, 'sequence');
+
+        var values = _.map(grouped, function(value, key) {
+          var sorted = _.sortBy(value, 'stage');
+          return {
+            size: value[0].value,
+            sequence: value[0].sequence,
+            nodes: _.pluck(sorted, 'node')
+          }
+        });
+      } else {
+        var keys = _.sortBy(_.without(_.keys(raw[0]), 'value'), _.identity);
+
+        values = _.map(raw, function(row, sequence) {
+          return {
+            size: row.value,
+            sequence: sequence,
+            nodes: _.compact(_.map(keys, function(key) { return row[key] }))
+          }
+        })
+      }
 
       return values;
     }
