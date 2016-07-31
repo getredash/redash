@@ -67,10 +67,7 @@
     this.watches.push(scope.$watch("visualization.options", refreshData, true));
     this.watches.push(scope.$watch("queryResult && queryResult.getData()", refreshData));
 
-    /**
-     * Dimensions of svg, sunburst, legend, breadcrumbs
-     *
-     */
+    var exitNode = "<<<Exit>>>";
     // svg dimensions
     var width = element[0].parentElement.clientWidth;
     var height = scope.visualization.options.height;
@@ -238,7 +235,7 @@
       // Build only nodes of a threshold "visible" sizes to improve efficiency
       var nodes = partition.nodes(json)
         .filter(function (d) {
-          return (d.dx > 0.005); // 0.005 radians = 0.29 degrees
+          return (d.dx > 0.005) && d.name !== exitNode; // 0.005 radians = 0.29 degrees
         });
 
       // this section is required to update the colors.domain() every time the data updates
@@ -418,32 +415,38 @@
         for (var j = 0; j < nodes.length; j++) {
           var children = currentNode.children;
           var nodeName = nodes[j];
-          var childNode;
+          var isLeaf = j + 1 === nodes.length;
 
-          if (j + 1 < nodes.length) {
-            // Not yet at the end of the sequence; move down the tree.
-            var foundChild = false;
-            for (var k = 0; k < children.length; k++) {
-              if (children[k].name == nodeName) {
-                childNode = children[k];
-                foundChild = true;
-                break;
-              }
-            }
-            if (!foundChild) { // If we don't already have a child node for this branch, create it.
+          if (!children) {
+            currentNode.children = children = [];
+            children.push({
+              name: exitNode,
+              size: currentNode.size
+            })
+          }
+
+          var childNode = _.find(children, function(child) { return child.name == nodeName });
+
+          if (isLeaf && childNode) {
+            childNode.children.push({
+              name: exitNode,
+              size: size
+            })
+          } else if (isLeaf) {
+            children.push({
+              name: nodeName,
+              size: size
+            })
+          } else {
+            if (!childNode) {
               childNode = {
                 name: nodeName,
                 children: []
               };
               children.push(childNode);
             }
+
             currentNode = childNode;
-          } else { // Reached the end of the sequence; create a leaf node.
-            childNode = {
-              name: nodeName,
-              size: size,
-            };
-            children.push(childNode);
           }
         }
       });
@@ -458,6 +461,7 @@
         var sorted = _.sortBy(value, 'stage');
         return {
           size: value[0].value,
+          sequence: value[0].sequence,
           nodes: _.pluck(sorted, 'node')
         }
       });
