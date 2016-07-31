@@ -5,4 +5,15 @@
       <input type="number" ng-model="visualization.options.height" min="1" class="form-control">
     </div>
   </div>
+  <div>
+    <hr>
+    This visualization expects the query result to have rows with the following columns:
+
+    <ul>
+      <li><strong>sequence</strong> - sequence id</li>
+      <li><strong>stage</strong> - what stage in sequence this is (1, 2, ...)</li>
+      <li><strong>node</strong> - stage name</li>
+      <li><strong>value</strong> - number of times this sequence occurred</li>
+    </ul>
+  </div>
 </div>
