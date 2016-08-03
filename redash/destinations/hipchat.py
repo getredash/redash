@@ -42,7 +42,7 @@ class HipChat(BaseDestination):
                 query_url=query_url)
 
             data = {
-                'message': message,
+                'message': message.encode('utf-8', 'ignore'),
                 'color': colors.get(new_state, 'green')
             }
             headers = {'Content-Type': 'application/json'}
