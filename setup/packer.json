@@ -24,6 +24,14 @@
       "script": "ubuntu/bootstrap.sh",
       "execute_command": "{{ .Vars }} sudo -E -S bash '{{ .Path }}'",
       "environment_vars": ["REDASH_VERSION={{user `redash_version`}}"]
+    },
+    {
+      "type": "shell",
+      "inline": "sudo rm /root/.ssh/authorized_keys || true"
+    },
+    {
+      "type": "shell",
+      "inline": "sudo rm /home/ubuntu/.ssh/authorized_keys || true"
     }
   ]
 }
