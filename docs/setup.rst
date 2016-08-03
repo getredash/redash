@@ -18,17 +18,17 @@ AWS
 Launch the instance with from the pre-baked AMI (for small deployments
 t2.micro should be enough):
 
--  us-east-1: `ami-52c3373f <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-52c3373f>`__
--  us-west-1: `ami-c6c5bda6 <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-c6c5bda6>`__
--  us-west-2: `ami-f0b04e90 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-f0b04e90>`__
--  eu-west-1: `ami-f3910780 <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-f3910780>`__
--  eu-central-1: `ami-00719d6f <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-00719d6f>`__
--  sa-east-1: `ami-af2fa7c3 <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-af2fa7c3>`__
--  ap-northeast-1: `ami-78967519 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-78967519>`__
--  ap-southeast-1: `ami-bdbb6ade <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-bdbb6ade>`__
--  ap-southeast-2: `ami-8edbf4ed <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-8edbf4ed>`__
+-  us-east-1: `ami-3ff16228 <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-3ff16228>`__
+-  us-west-1: `ami-fdc6869d <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-fdc6869d>`__
+-  us-west-2: `ami-670cc507 <https://console.aws.amazon.com/ec2/home?region=us-west-2#LaunchInstanceWizard:ami=ami-670cc507>`__
+-  eu-west-1: `ami-5f95fb2c <https://console.aws.amazon.com/ec2/home?region=eu-west-1#LaunchInstanceWizard:ami=ami-5f95fb2c>`__
+-  eu-central-1: `ami-8f1ee9e0 <https://console.aws.amazon.com/ec2/home?region=eu-central-1#LaunchInstanceWizard:ami=ami-8f1ee9e0>`__
+-  sa-east-1: `ami-3113845d <https://console.aws.amazon.com/ec2/home?region=sa-east-1#LaunchInstanceWizard:ami=ami-3113845d>`__
+-  ap-northeast-1: `ami-b30ec9d2 <https://console.aws.amazon.com/ec2/home?region=ap-northeast-1#LaunchInstanceWizard:ami=ami-b30ec9d2>`__
+-  ap-southeast-2: `ami-acac99cf <https://console.aws.amazon.com/ec2/home?region=ap-southeast-2#LaunchInstanceWizard:ami=ami-acac99cf>`__
+-  ap-southeast-1: `ami-b5b26cd6 <https://console.aws.amazon.com/ec2/home?region=ap-southeast-1#LaunchInstanceWizard:ami=ami-b5b26cd6>`__
 
-(the above AMIs are of version: 0.10.1)
+(the above AMIs are of version: 0.11.1)
 
 When launching the instance make sure to use a security group, that **only** allows incoming traffic on: port 22 (SSH), 80 (HTTP) and 443 (HTTPS). These AMIs are based on Ubuntu so you will need to use the user ``ubuntu`` when connecting to the instance via SSH.
 
