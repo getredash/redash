@@ -21,7 +21,7 @@ Features
 Demo
 ####
 
-.. figure:: https://cloud.githubusercontent.com/assets/71468/12611424/1faf4d6a-c4f5-11e5-89b5-31efc1155d2c.gif
+.. figure:: https://cloud.githubusercontent.com/assets/71468/17391289/8e83878e-5a1d-11e6-8938-af9054a33b19.gif
    :alt: Screenshots
 
 You can try out the demo instance: `http://demo.redash.io`_ (login with any Google account).
