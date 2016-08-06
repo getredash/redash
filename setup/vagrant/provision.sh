@@ -3,9 +3,7 @@
 
 cd /opt/redash/current
 cp /opt/redash/.env /opt/redash/current
-cd /opt/redash/current/rd_ui
 bower install
-cd /opt/redash/current
 
 #install requirements
 sudo pip install -r /opt/redash/current/requirements_dev.txt
