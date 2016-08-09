@@ -58,7 +58,7 @@
         }
 
         $scope.$on('$locationChangeStart', function (event, next, current) {
-          if (next.split("#")[0] == current.split("#")[0]) {
+          if (next.split("?")[0] == current.split("?")[0] || next.split("#")[0] == current.split("#")[0]) {
             return;
           }
 
