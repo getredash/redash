@@ -60,10 +60,6 @@ class Presto(BaseQueryRunner):
         return enabled
 
     @classmethod
-    def annotate_query(cls):
-        return False
-
-    @classmethod
     def type(cls):
         return "presto"
 
