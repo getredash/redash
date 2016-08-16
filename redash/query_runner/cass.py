@@ -43,7 +43,7 @@ class Cassandra(BaseQueryRunner):
                     'title': 'Password'
                 }
             },
-            'required': ['Keyspace', 'host']
+            'required': ['keyspace', 'host']
         }
 
     @classmethod
