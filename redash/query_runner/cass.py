@@ -7,7 +7,17 @@ from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
+try:
+    from cassandra.cluster import Cluster
+    enabled = True
+except ImportError:
+    enabled = False
+
 class Cassandra(BaseQueryRunner):
+    @classmethod
+    def enabled(cls):
+        return enabled
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -20,7 +30,7 @@ class Cassandra(BaseQueryRunner):
                     'type': 'number',
                     'default': 9042,
                 },
-                'Keyspace': {
+                'keyspace': {
                     'type': 'string',
                     'title': 'Keyspace name'
                 },
@@ -33,21 +43,12 @@ class Cassandra(BaseQueryRunner):
                     'title': 'Password'
                 }
             },
-            'required': ['Keyspace']
+            'required': ['Keyspace', 'host']
         }
 
     @classmethod
     def type(cls):
         return "Cassandra"
-
-    @classmethod
-    def enabled(cls):
-        try:
-            from cassandra.cluster import Cluster
-        except ImportError:
-            return False
-
-        return True
 
     def _get_tables(self, schema):
         query = """
@@ -69,7 +70,7 @@ class Cassandra(BaseQueryRunner):
                 connection = Cluster([self.configuration.get('host', '')])
 
             session = connection.connect()
-            logger.info("Cassandra running query: %s", query)
+            logger.debug("Cassandra running query: %s", query)
             result = session.execute(query)
 
             column_names = []
@@ -101,37 +102,13 @@ class Cassandra(BaseQueryRunner):
         return json_data, error
 
 class ScyllaDB(Cassandra):
+
+    def __init__(self, configuration):
+        super(ScyllaDB, self).__init__(configuration)
+
     @classmethod
     def type(cls):
         return "scylla"
-
-    @classmethod
-    def configuration_schema(cls):
-        return {
-           'type': 'object',
-           'properties': {
-               'host': {
-                   'type': 'string',
-               },
-               'port': {
-                   'type': 'number',
-                   'default': 9042,
-               },
-               'Keyspace': {
-                   'type': 'string',
-                   'title': 'Keyspace name'
-               },
-               'username': {
-                   'type': 'string',
-                   'title': 'Username'
-               },
-               'password': {
-                   'type': 'string',
-                   'title': 'Password'
-               }
-           },
-           'required': ['Keyspace']
-       }
 
 register(Cassandra)
 register(ScyllaDB)
