@@ -16,3 +16,4 @@ botocore==1.4.4
 sasl>=0.1.3
 thrift>=0.8.0
 thrift_sasl>=0.1.0
+cassandra-driver==3.1.1
