@@ -110,9 +110,15 @@
           },
           events: {
             map: {
-              enable: ['zoomstart', 'drag', 'click', 'mousemove'],
+              enable: ['zoomstart', 'drag', 'click', 'mousemove', 'zoomlevelschange', 'baselayerchange'],
               logic: 'emit'
             }
+          },
+          tiles: {
+            url: "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          },
+          defaults: {
+            scrollWheelZoom: false
           }
         });
 
@@ -128,9 +134,21 @@
             angular.extend($scope.layers.overlays.markers.layerOptions, newValues.markercluster);
           }
 
-          if (angular.isDefined($scope.visualization.options)){
-            if (angular.isDefined($scope.visualization.options.center)){
-              angular.extend($scope.center, $scope.visualization.options.center);
+          if (angular.isDefined($scope.visualization)){
+            if (angular.isDefined($scope.visualization.leaflet)){
+              angular.extend($scope.center, $scope.visualization.leaflet.center);
+            }
+          }
+
+          if (angular.isDefined($scope.visualization)){
+            if (angular.isDefined($scope.visualization.leaflet)){
+              angular.extend($scope.tiles, $scope.visualization.leaflet.tiles);
+            }
+          }
+
+          if (angular.isDefined($scope.visualization)){
+            if (angular.isDefined($scope.visualization.leaflet)){
+              angular.extend($scope.defaults, $scope.visualization.leaflet);
             }
           }
 
@@ -193,9 +211,26 @@
           })
         };
 
+        var setVisualizationTiles = function(event, args){
+
+          angular.extend($scope.$parent.visualization.options.leaflet, {
+            tiles: {
+              url: args.leafletEvent.layer._url
+            }
+          })
+
+          angular.extend($scope.$parent, {
+            tiles: {
+              url: args.leafletEvent.layer._url
+            }
+          })
+
+        }
+
         $scope.$on('leafletDirectiveMap.drag', setVisualizationCenter);
         $scope.$on('leafletDirectiveMap.click', setVisualizationCenter);
-
+        $scope.$on('leafletDirectiveMap.zoomlevelschange', setVisualizationCenter);
+        $scope.$on('leafletDirectiveMap.baselayerchange', setVisualizationTiles);
       }]
     }
   });
