@@ -73,6 +73,31 @@
               type: 'xyz',
               url: 'http://{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
           },
+          osmfr: {
+              name: 'OpenStreetMap FR',
+              type: 'xyz',
+              url: 'http://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png'
+          },
+          osmhot: {
+              name: 'OpenStreetMap Hot',
+              type: 'xyz',
+              url: 'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
+          },
+          thunderforest: {
+              name: 'Thunderforest',
+              type: 'xyz',
+              url: 'http://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png'
+          },
+          thunderforestspinal: {
+              name: 'Thunderforest Spinal',
+              type: 'xyz',
+              url: 'http://{s}.tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png'
+          },
+          openmapsurfer: {
+              name: 'OpenMapSurfer',
+              type: 'xyz',
+              url: 'http://korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}'
+          },
           stamentoner: {
               name: 'Stamen Toner',
               type: 'xyz',
@@ -88,6 +113,12 @@
               type: 'xyz',
               url: 'http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png'
           },
+          opentopomap: {
+              name: 'OpenTopoMap',
+              type: 'xyz',
+              url: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+          },
+
         };
 
         var overlays = {
