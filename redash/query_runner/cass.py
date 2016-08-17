@@ -73,18 +73,10 @@ class Cassandra(BaseQueryRunner):
             logger.debug("Cassandra running query: %s", query)
             result = session.execute(query)
 
-            column_names = []
-            columns = []
-            for i in result.column_names:
-                column_names.append(i)
+            column_names = result.column_names
 
-            for column_name in column_names:
+            columns = self.fetch_columns(map(lambda c: (c, 'string'), column_names))
 
-                columns.append({
-                    'name': column_name,
-                    'friendly_name': column_name,
-                    'type': 'string'
-                })
             rows = [dict(zip(column_names, row)) for row in result]
 
             data = {'columns': columns, 'rows': rows}
