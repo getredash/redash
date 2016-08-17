@@ -96,8 +96,6 @@ class Cassandra(BaseQueryRunner):
             error = e.args[1]
         except KeyboardInterrupt:
             error = "Query cancelled by user."
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 
