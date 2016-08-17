@@ -1,0 +1,4 @@
+include README.md requirements.txt
+recursive-include rd_ui *
+recursive-include redash/templates *
+recursive-include redash/migrations *
