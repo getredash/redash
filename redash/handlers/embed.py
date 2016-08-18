@@ -125,7 +125,12 @@ def embed(query_id, visualization_id, org_slug=None):
 def public_dashboard(token, org_slug=None):
     # TODO: verify object is a dashboard?
     if not isinstance(current_user, models.ApiUser):
-        api_key = models.ApiKey.get_by_api_key(token)
+        try:
+            api_key = models.ApiKey.get_by_api_key(token)
+        except models.ApiKey.DoesNotExist, e:
+            response = render_template("404.html")
+            return response, 404
+
         dashboard = api_key.object
     else:
         dashboard = current_user.object
