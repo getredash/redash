@@ -5,6 +5,7 @@ from flask_login import login_user
 from flask_oauthlib.client import OAuth
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
+from redash.authentication.department_verification import verify_department_membership
 
 logger = logging.getLogger('google_oauth')
 
@@ -48,11 +49,13 @@ def verify_profile(org, profile):
     domain = email.split('@')[-1]
 
     if domain in org.google_apps_domains:
-        return True
+        if verify_department_membership(org, email):
+            return True
 
     if org.has_user(email) == 1:
         return True
 
+    logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", email, org)
     return False
 
 
@@ -108,7 +111,6 @@ def authorized():
         org = current_org
 
     if not verify_profile(org, profile):
-        logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
         flash("Your Google Apps account ({}) isn't allowed.".format(profile['email']))
         return redirect(url_for('redash.login', org_slug=org.slug))
 
