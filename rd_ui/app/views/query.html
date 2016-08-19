@@ -98,11 +98,11 @@
       <div class="row bg-white p-b-5" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
 
         <div class="col-md-3 schema-container hidden-sm hidden-xs" ng-show="hasSchema">
-          <div ng-show="schema.length < 500" class="p-t-5 p-b-5">
+          <div class="p-t-5 p-b-5">
             <input type="text" placeholder="Search schema..." class="form-control" ng-model="schemaFilter">
           </div>
 
-          <div class="schema-browser">
+          <div class="schema-browser" vs-repeat>
             <div ng-repeat="table in schema | filter:schemaFilter track by table.name">
               <div class="table-name" ng-click="table.collapsed = !table.collapsed">
                 <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span><span
