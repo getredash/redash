@@ -36,14 +36,8 @@ class Slack(BaseDestination):
                 "short": True
             }
         ]
-        if new_state == "triggered":
-            text = alert.name + " just triggered"
-            color = "#c0392b"
-        else:
-            text = alert.name + " went back to normal"
-            color = "#27ae60"
-        
-        payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
+        color = "#c0392b" if new_state == "triggered" else "#27ae60"
+        payload = {'attachments': [{'text': alert.name, 'color': color, 'fields': fields}]}
         try:
             resp = requests.post(options.get('url'), data=json.dumps(payload))
             logging.warning(resp.text)
