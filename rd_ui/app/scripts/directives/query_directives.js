@@ -60,6 +60,21 @@
     }
   }
 
+  // By default Ace will try to load snippet files for the different modes and fail. We don't need them, so we use these
+  // placeholders until we define our own.
+  function defineDummySnippets(mode) {
+    ace.define("ace/snippets/" + mode, ["require", "exports", "module"], function(require, exports, module) {
+      "use strict";
+
+      exports.snippetText = "";
+      exports.scope = mode;
+    });
+  };
+
+  defineDummySnippets("python");
+  defineDummySnippets("sql");
+  defineDummySnippets("json");
+
   function queryEditor() {
     return {
       restrict: 'E',
@@ -69,88 +84,85 @@
         'schema': '=',
         'syntax': '='
       },
-      template: '<textarea></textarea>',
+      template: '<div ui-ace="editorOptions" ng-model="query.query"></div>',
       link: {
         pre: function ($scope, element) {
           $scope.syntax = $scope.syntax || 'sql';
 
-          var modes = {
-            'sql': 'text/x-sql',
-            'python': 'text/x-python',
-            'json': 'application/json'
-          };
+          $scope.editorOptions = {
+            mode: 'json',
+            require: ['ace/ext/language_tools'],
+            advanced: {
+              behavioursEnabled: true,
+              enableSnippets: true,
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: true,
+              autoScrollEditorIntoView: true,
+            },
+            onLoad: function(editor) {
+              // Test for snippet manager
+              editor.$blockScrolling = Infinity;
+              editor.getSession().setUseWrapMode(true);
+              editor.setShowPrintMargin(false);
 
-          var textarea = element.children()[0];
-          var editorOptions = {
-            mode: modes[$scope.syntax],
-            lineWrapping: true,
-            lineNumbers: true,
-            readOnly: false,
-            matchBrackets: true,
-            autoCloseBrackets: true,
-            extraKeys: {"Ctrl-Space": "autocomplete"}
-          };
-
-          var additionalHints = [];
-
-          CodeMirror.commands.autocomplete = function(cm) {
-            var hinter  = function(editor, options) {
-              var hints = CodeMirror.hint.anyword(editor, options);
-              var cur = editor.getCursor(), token = editor.getTokenAt(cur).string;
-
-              hints.list = _.union(hints.list, _.filter(additionalHints, function (h) {
-                return h.search(token) === 0;
-              }));
-
-              return hints;
-            };
-
-//            CodeMirror.showHint(cm, CodeMirror.hint.anyword);
-            CodeMirror.showHint(cm, hinter);
-          };
-
-          var codemirror = CodeMirror.fromTextArea(textarea, editorOptions);
-
-          codemirror.on('change', function(instance) {
-            var newValue = instance.getValue();
-
-            if (newValue !== $scope.query.query) {
-              $scope.$evalAsync(function() {
-                $scope.query.query = newValue;
+              $scope.$watch('syntax', function(syntax) {
+                var newMode = 'ace/mode/' + syntax;
+                editor.getSession().setMode(newMode);
               });
-            }
-          });
 
-          $scope.$watch('query.query', function () {
-            if ($scope.query.query !== codemirror.getValue()) {
-              codemirror.setValue($scope.query.query);
-            }
-          });
+              $scope.$watch('schema', function(newSchema, oldSchema) {
+                if (newSchema !== oldSchema) {
+                  var tokensCount = _.reduce(newSchema, function(totalLength, table) { return totalLength + table.columns.length }, 0);
+                  // If there are too many tokens we disable live autocomplete, as it makes typing slower.
+                  if (tokensCount > 5000) {
+                    editor.setOption('enableLiveAutocompletion', false);
+                  } else {
+                    editor.setOption('enableLiveAutocompletion', true);
+                  }
+                }
 
-          $scope.$watch('schema', function (schema) {
-            if (schema) {
-              var keywords = [];
-              _.each(schema, function (table) {
-                keywords.push(table.name);
-                _.each(table.columns, function (c) {
-                  keywords.push(c);
+              });
+
+              $scope.$parent.$on("angular-resizable.resizing", function (event, args) {
+                editor.resize();
+              });
+
+              editor.focus();
+            }
+          };
+
+          var langTools = ace.require("ace/ext/language_tools");
+
+          var schemaCompleter = {
+            getCompletions: function(state, session, pos, prefix, callback) {
+              if (prefix.length === 0) { callback(null, []); return }
+
+              if (!$scope.schema.keywords) {
+                var keywords = {};
+
+                _.each($scope.schema, function (table) {
+                  keywords[table.name] = 'Table';
+
+                  _.each(table.columns, function (c) {
+                    keywords[c] = 'Column';
+                    keywords[table.name + "." + c] = 'Column';
+                  });
                 });
-              });
 
-              additionalHints = _.unique(keywords);
+                $scope.schema.keywords = _.map(keywords, function(v, k) {
+                  return {
+                    name: k,
+                    value: k,
+                    score: 0,
+                    meta: v
+                  };
+                });
+              }
+              callback(null, $scope.schema.keywords);
             }
+          };
 
-            codemirror.refresh();
-          });
-
-          $scope.$watch('syntax', function(syntax) {
-            codemirror.setOption('mode', modes[syntax]);
-          });
-
-          $scope.$watch('lock', function (locked) {
-            var readOnly = locked ? 'nocursor' : false;
-            codemirror.setOption('readOnly', readOnly);
-          });
+          langTools.addCompleter(schemaCompleter);
         }
       }
     };
