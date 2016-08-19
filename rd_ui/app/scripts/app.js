@@ -14,6 +14,7 @@ angular.module('redash', [
   'ngResource',
   'ngRoute',
   'ui.select',
+  'ui.ace',
   'naif.base64',
   'ui.bootstrap.showErrors',
   'angularResizable',
