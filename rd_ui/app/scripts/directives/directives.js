@@ -488,6 +488,7 @@
         scope.groupsPage = _.string.startsWith($location.path(), '/groups');
         scope.dsPage = _.string.startsWith($location.path(), '/data_sources');
         scope.destinationsPage = _.string.startsWith($location.path(), '/destinations');
+        scope.snippetsPage = _.string.startsWith($location.path(), '/query_snippets');
 
         scope.showGroupsLink = currentUser.hasPermission('list_users');
         scope.showUsersLink = currentUser.hasPermission('list_users');
