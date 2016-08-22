@@ -17,6 +17,7 @@ from redash.handlers.widgets import WidgetResource, WidgetListResource
 from redash.handlers.groups import GroupListResource, GroupResource, GroupMemberListResource, GroupMemberResource, \
     GroupDataSourceListResource, GroupDataSourceResource
 from redash.handlers.destinations import DestinationTypeListResource, DestinationResource, DestinationListResource
+from redash.handlers.query_snippets import QuerySnippetListResource, QuerySnippetResource
 
 
 class ApiExt(Api):
@@ -90,3 +91,6 @@ api.add_org_resource(WidgetResource, '/api/widgets/<int:widget_id>', endpoint='w
 api.add_org_resource(DestinationTypeListResource, '/api/destinations/types', endpoint='destination_types')
 api.add_org_resource(DestinationResource, '/api/destinations/<destination_id>', endpoint='destination')
 api.add_org_resource(DestinationListResource, '/api/destinations', endpoint='destinations')
+
+api.add_org_resource(QuerySnippetResource, '/api/query_snippets/<snippet_id>', endpoint='query_snippet')
+api.add_org_resource(QuerySnippetListResource, '/api/query_snippets', endpoint='query_snippets')
