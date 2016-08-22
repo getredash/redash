@@ -75,7 +75,7 @@
   defineDummySnippets("sql");
   defineDummySnippets("json");
 
-  function queryEditor() {
+  function queryEditor(QuerySnippet) {
     return {
       restrict: 'E',
       scope: {
@@ -100,7 +100,19 @@
               autoScrollEditorIntoView: true,
             },
             onLoad: function(editor) {
-              // Test for snippet manager
+              QuerySnippet.query(function(snippets) {
+                var snippetManager = ace.require("ace/snippets").snippetManager;
+                var m = {
+                  snippetText: ''
+                };
+                m.snippets = snippetManager.parseSnippetFile(m.snippetText);
+                _.each(snippets, function(snippet) {
+                  m.snippets.push(snippet.getSnippet());
+                });
+
+                snippetManager.register(m.snippets || [], m.scope);
+              });
+
               editor.$blockScrolling = Infinity;
               editor.getSession().setUseWrapMode(true);
               editor.setShowPrintMargin(false);
@@ -314,7 +326,7 @@
   .directive('queryLink', queryLink)
   .directive('querySourceLink', ['$location', querySourceLink])
   .directive('queryResultLink', queryResultLink)
-  .directive('queryEditor', queryEditor)
+  .directive('queryEditor', ['QuerySnippet', queryEditor])
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
   .directive('queryFormatter', ['$http', 'growl', queryFormatter]);
