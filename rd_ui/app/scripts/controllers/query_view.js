@@ -80,6 +80,7 @@
           $scope.editorSize = "col-md-9";
           $scope.hasSchema = true;
         } else {
+          $scope.schema = undefined;
           $scope.hasSchema = false;
           $scope.editorSize = "col-md-12";
         }

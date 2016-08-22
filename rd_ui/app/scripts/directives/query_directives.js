@@ -147,7 +147,10 @@
 
           var schemaCompleter = {
             getCompletions: function(state, session, pos, prefix, callback) {
-              if (prefix.length === 0) { callback(null, []); return }
+              if (prefix.length === 0 || !$scope.schema) {
+                callback(null, []);
+                return;
+              }
 
               if (!$scope.schema.keywords) {
                 var keywords = {};
