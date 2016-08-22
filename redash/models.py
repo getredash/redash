@@ -1196,6 +1196,35 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
             return destination.notify(alert, query, user, new_state, app, host, options)
 
 
+class QuerySnippet(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
+    id = peewee.PrimaryKeyField()
+    org = peewee.ForeignKeyField(Organization, related_name="query_snippets")
+    trigger = peewee.CharField(unique=True)
+    description = peewee.TextField()
+    user = peewee.ForeignKeyField(User, related_name="query_snippets")
+    snippet = peewee.TextField()
+
+    class Meta:
+        db_table = 'query_snippets'
+
+    @classmethod
+    def all(cls, org):
+        return cls.select().where(cls.org==org)
+
+    def to_dict(self):
+        d = {
+            'id': self.id,
+            'trigger': self.trigger,
+            'description': self.description,
+            'snippet': self.snippet,
+            'user': self.user.to_dict(),
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
+        }
+
+        return d
+
+
 all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)
 
 
