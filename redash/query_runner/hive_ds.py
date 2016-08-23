@@ -119,7 +119,6 @@ class Hive(BaseSQLQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
-            cursor.close()
         except KeyboardInterrupt:
             connection.cancel()
             error = "Query cancelled by user."
