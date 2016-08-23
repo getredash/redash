@@ -63,6 +63,7 @@ class Cassandra(BaseQueryRunner):
         connection = None
         try:
             if self.configuration.get('username', '') and self.configuration.get('password', ''):
+                from cassandra.auth import PlainTextAuthProvider
                 auth_provider = PlainTextAuthProvider(username='{}'.format(self.configuration.get('username', '')),
                                                       password='{}'.format(self.configuration.get('password', '')))
                 connection = Cluster([self.configuration.get('host', '')], auth_provider=auth_provider)
