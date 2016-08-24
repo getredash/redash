@@ -12,7 +12,7 @@ from redash import models, settings, utils
 from redash import serializers
 from redash.utils import json_dumps, collect_parameters_from_request, gen_query_hash
 from redash.handlers import routes
-from redash.handlers.base import org_scoped_rule, record_event
+from redash.handlers.base import org_scoped_rule, record_event, get_object_or_404
 from redash.handlers.query_results import collect_query_parameters
 from redash.permissions import require_access, view_only
 from authentication import current_org
@@ -125,7 +125,7 @@ def embed(query_id, visualization_id, org_slug=None):
 def public_dashboard(token, org_slug=None):
     # TODO: verify object is a dashboard?
     if not isinstance(current_user, models.ApiUser):
-        api_key = models.ApiKey.get_by_api_key(token)
+        api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
         dashboard = api_key.object
     else:
         dashboard = current_user.object
