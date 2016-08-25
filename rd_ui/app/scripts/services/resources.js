@@ -755,6 +755,24 @@
     return resource;
   };
 
+  var QuerySnippet = function ($resource) {
+    var resource = $resource('api/query_snippets/:id', {id: '@id'});
+    resource.prototype.getSnippet = function() {
+      var name = this.trigger;
+      if (this.description !== "") {
+        name = this.trigger + ": " + this.description;
+      }
+
+      return {
+        "name": name,
+        "content": this.snippet,
+        "tabTrigger": this.trigger
+      };
+    }
+    
+    return resource;
+  };
+
   var Widget = function ($resource, Query) {
     var WidgetResource = $resource('api/widgets/:id', {id: '@id'});
 
@@ -785,5 +803,6 @@
       .factory('AlertSubscription', ['$resource', AlertSubscription])
       .factory('Widget', ['$resource', 'Query', Widget])
       .factory('User', ['$resource', '$http', User])
-      .factory('Group', ['$resource', Group]);
+      .factory('Group', ['$resource', Group])
+      .factory('QuerySnippet', ['$resource', QuerySnippet]);
 })();
