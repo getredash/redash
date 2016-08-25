@@ -93,7 +93,15 @@ ElasticSearch
 InfluxDB
 --------
 
-...
+- **Options**:
+
+    - Url
+        - String of format ``influxdb://username:password@localhost:8086/databasename``
+
+-  **Additional requirements**:
+
+   - ``influxdb`` python package.
+
 
 Presto
 ------
