@@ -30,7 +30,7 @@ PRESTO_TYPES_MAPPING = {
 }
 
 
-class Presto(BaseQueryRunner):
+class Presto(BaseSQLQueryRunner):
     @classmethod
     def configuration_schema(cls):
         return {
@@ -65,6 +65,19 @@ class Presto(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(Presto, self).__init__(configuration)
+
+    def _get_tables(self, schema_dict):
+        schemas_query = "show schemas"
+        tables_query = "show tables from {}"
+        columns_query = "show columns from {}"
+
+        for schema_name in filter(lambda i:i!='information_schema', map(lambda a: a['Schema'], self._run_query_internal(schemas_query))):
+            for table_name in map(lambda a: a['Table'], self._run_query_internal(tables_query.format(schema_name))):
+                table_name = '{}.{}'.format(schema_name, table_name)
+                columns = map(lambda a: a['Column'], self._run_query_internal(columns_query.format(table_name)))
+                schema_dict[table_name] = {'name': table_name, 'columns': columns}
+
+        return schema_dict.values()
 
     def run_query(self, query):
         connection = presto.connect(
