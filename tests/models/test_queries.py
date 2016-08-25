@@ -12,7 +12,7 @@ class TestApiKeyGetByObject(BaseTestCase):
         self.assertEqual(forked_q.id, forked_v.query.id)
 
 
-    def test_returns_none_if_not_exists(self):
+    def test_fork_with_visualizations(self):
         # prepare original query and visualizations
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source, description="this is description")
@@ -20,9 +20,7 @@ class TestApiKeyGetByObject(BaseTestCase):
         visualization_box = self.factory.create_visualization(query=query, description="box vis", type="BOXPLOT", options="{}")
         fork_user = self.factory.create_user()
 
-
         forked_query = Query.fork(query.id, fork_user, self.factory.org)
-
 
         forked_visualization_chart = None
         forked_visualization_box = None
@@ -48,8 +46,29 @@ class TestApiKeyGetByObject(BaseTestCase):
         self.assertEqual(forked_query.user, fork_user)
         self.assertEqual(forked_query.description, query.description)
         self.assertTrue(forked_query.name.startswith('Copy'))
-        self.assertEqual(count_table, 1)
         # num of TABLE must be 1. default table only
+        self.assertEqual(count_table, 1)
         self.assertEqual(forked_table.name, "Table")
         self.assertEqual(forked_table.description, "")
         self.assertEqual(forked_table.options, "{}")
+<<<<<<< HEAD
+=======
+
+    def test_fork_from_query_that_has_no_visualization(self):
+        # prepare original query and visualizations
+        data_source = self.factory.create_data_source(group=self.factory.create_group())
+        query = self.factory.create_query(data_source=data_source, description="this is description")
+        fork_user = self.factory.create_user()
+
+        forked_query = Query.fork(query.id, fork_user, self.factory.org)
+
+        count_table = 0
+        count_vis = 0
+        for v in forked_query.visualizations:
+            count_vis += 1
+            if v.type == "TABLE":
+                count_table += 1
+
+        self.assertEqual(count_table, 1)
+        self.assertEqual(count_vis, 1)
+>>>>>>> fix bugs
