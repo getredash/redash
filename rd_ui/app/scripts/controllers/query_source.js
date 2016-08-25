@@ -14,7 +14,8 @@
     var isNewQuery = !$scope.query.id,
         queryText = $scope.query.query,
         // ref to QueryViewCtrl.saveQuery
-        saveQuery = $scope.saveQuery;
+        saveQuery = $scope.saveQuery,
+        forkQuery = $scope.forkQuery;
 
     $scope.sourceMode = true;
     $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;// TODO: bring this back? || clientConfig.allowAllToEditQueries;
@@ -77,12 +78,28 @@
       return savePromise;
     };
 
+    $scope.forkQuery = function(options, data) {
+      var savePromise = forkQuery(options, data);
+
+      if (!savePromise) {
+        return;
+      }
+
+      savePromise.then(function(savedQuery) {
+        queryText = savedQuery.query;
+
+        if (isNewQuery) {
+          // redirect to new created query (keep hash)
+          $location.path(savedQuery.getSourceLink());
+        }
+      });
+
+      return savePromise;
+    };
+
     $scope.duplicateQuery = function() {
       Events.record(currentUser, 'fork', 'query', $scope.query.id);
-      $scope.query.name = 'Copy of (#'+$scope.query.id+') '+$scope.query.name;
-      $scope.query.id = null;
-      $scope.query.schedule = null;
-      $scope.saveQuery({
+      $scope.forkQuery({
         successMessage: 'Query forked',
         errorMessage: 'Query could not be forked'
       }).then(function redirect(savedQuery) {
