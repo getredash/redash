@@ -16,7 +16,7 @@ AWS
 ---
 
 Launch the instance with from the pre-baked AMI (for small deployments
-t2.micro should be enough):
+t2.small should be enough):
 
 -  us-east-1: `ami-3ff16228 <https://console.aws.amazon.com/ec2/home?region=us-east-1#LaunchInstanceWizard:ami=ami-3ff16228>`__
 -  us-west-1: `ami-fdc6869d <https://console.aws.amazon.com/ec2/home?region=us-west-1#LaunchInstanceWizard:ami=ami-fdc6869d>`__
