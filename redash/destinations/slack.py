@@ -14,6 +14,22 @@ class Slack(BaseDestination):
                 'url': {
                     'type': 'string',
                     'title': 'Slack Webhook URL'
+                },
+                'username': {
+                    'type': 'string',
+                    'title': 'custom username'
+                },
+                'icon_emoji': {
+                    'type': 'string',
+                    'title': 'custom icon_emoji'
+                },
+                'icon_url': {
+                    'type': 'string',
+                    'title': 'custom icon_url'
+                },
+                'channel': {
+                    'type': 'string',
+                    'title': 'custom channel'
                 }
             }
         }
@@ -44,6 +60,12 @@ class Slack(BaseDestination):
             color = "#27ae60"
         
         payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
+
+        if options.get('username'): payload['username'] = options.get('username')
+        if options.get('icon_emoji'): payload['icon_emoji'] = options.get('icon_emoji')
+        if options.get('icon_url'): payload['icon_url'] = options.get('icon_url')
+        if options.get('channel'): payload['channel'] = options.get('channel')
+
         try:
             resp = requests.post(options.get('url'), data=json.dumps(payload))
             logging.warning(resp.text)
