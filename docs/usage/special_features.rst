@@ -27,7 +27,7 @@ If you are interested in multi filters (meaning that you can select multiple val
 
 You can see this query and the rendered UI `here <http://demo.redash.io/queries/144/source#table>`_.
 
-Note that you can use ``__filter`` or ``__multiFilter`` if your database doesn't support ``::`` in column names (such as BigQuery).
+Note that you can use ``__filter`` or ``__multiFilter``, (without double quotes) if your database doesn't support ``::`` in column names (such as BigQuery).
 
 Dashboards
 ==========
