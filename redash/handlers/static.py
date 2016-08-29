@@ -57,7 +57,8 @@ def index(**kwargs):
     response = render_template("index.html",
                                user=json.dumps(user),
                                org_slug=current_org.slug,
-                               client_config=json.dumps(client_config))
+                               client_config=json.dumps(client_config),
+                               ga_tracking_code=settings.GA_TRACKING_CODE)
 
     return response, 200, headers
 

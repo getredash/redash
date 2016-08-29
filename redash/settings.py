@@ -229,3 +229,6 @@ COMMON_CLIENT_CONFIG = {
     'mailSettingsMissing': MAIL_DEFAULT_SENDER is None,
     'logoUrl': LOGO_URL
 }
+
+# Google Analytics
+GA_TRACKING_CODE = os.environ.get("REDASH_GOOGLE_ANALYTICS_TRACKING_CODE", "")
