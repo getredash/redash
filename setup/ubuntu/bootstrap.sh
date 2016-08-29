@@ -27,7 +27,7 @@ fi
 
 # Base packages
 apt-get -y update
-apt-get -y dist-upgrade
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
 # BigQuery dependencies:
 apt-get install -y libffi-dev libssl-dev
