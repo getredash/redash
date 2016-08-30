@@ -205,7 +205,8 @@
           <!-- refresh schedule -->
           <span class="zmdi zmdi-refresh"></span>
           <span class="text-muted">Refresh Schedule</span>
-          <a ng-click="openScheduleForm()">{{query.schedule | scheduleHumanize}}</a>
+          <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
+          <span ng-if="query.isNew()">Never</span>
         </li>
         <li>
           <!-- last update -->
