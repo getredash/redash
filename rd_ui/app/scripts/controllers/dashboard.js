@@ -91,10 +91,10 @@
 
             _.each($scope.dashboard.widgets, function(row) {
               _.each(row, function(widget, i) {
-                var newWidget = newWidgets[widget.id];
+                var newWidget = newWidgets[widget.id][0];
                 if (newWidget.visualization) {
-                  if (newWidget && newWidget[0].visualization.query.latest_query_data_id != widget.visualization.query.latest_query_data_id) {
-                    row[i] = new Widget(newWidget[0]);
+                  if (newWidget && newWidget.visualization.query.latest_query_data_id != widget.visualization.query.latest_query_data_id) {
+                    row[i] = new Widget(newWidget);
                   }
                 }
               });
@@ -146,7 +146,7 @@
           }
         }));
 
-        $scope.refreshRate = _.max([120, refreshRate * 2]) * 1000;
+        $scope.refreshRate = _.min([300, refreshRate]) * 1000;
 
         autoRefresh();
       }
