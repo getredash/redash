@@ -212,17 +212,18 @@ host name of your Re:dash server. If you're using one of our images, you can do 
 
    export REDASH_MAIL_SERVER="" # default: localhost
    export REDASH_MAIL_PORT="" # default: 25
-   export REDASH_MAIL_USE_TLS="" # default: False
-   export REDASH_MAIL_USE_SSL="" # default: False
+   export REDASH_MAIL_USE_TLS="" # default: false
+   export REDASH_MAIL_USE_SSL="" # default: false
    export REDASH_MAIL_USERNAME="" # default: None
    export REDASH_MAIL_PASSWORD="" # default: None
    export REDASH_MAIL_DEFAULT_SENDER="" # Email address to send from
 
    export REDASH_HOST="" # base address of your Re:dash instance, for example: "https://demo.redash.io"
 
+Once you updated the configuration, restart all services with ``sudo supervisorctl restart all``.
+
 - Note that not all values are required, as there are default values.
-- It's recommended to use some mail service, like `Amazon SES <https://aws.amazon.com/ses/>`__, `Mailgun <http://www.mailgun.com/>`__
-  or `Mandrill <http://mandrillapp.com>`__ to send emails to ensure deliverability.
+- It's recommended to use some mail service, like `Amazon SES <https://aws.amazon.com/ses/>`__ or `Mailgun <http://www.mailgun.com/>`__ to send emails to ensure deliverability.
 
 To test email configuration, you can run `bin/run ./manage.py send_test_mail` (from `/opt/redash/current`).
 
