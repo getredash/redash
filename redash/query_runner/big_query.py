@@ -119,6 +119,7 @@ class BigQuery(BaseQueryRunner):
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
+	    "https://www.googleapis.com/auth/drive"
             ]
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
@@ -230,7 +231,7 @@ class BigQueryGCE(BigQuery):
         return requests.get('http://metadata/computeMetadata/v1/project/project-id', headers={'Metadata-Flavor': 'Google'}).content
 
     def _get_bigquery_service(self):
-        credentials = gce.AppAssertionCredentials(scope='https://www.googleapis.com/auth/bigquery')
+        credentials = gce.AppAssertionCredentials(scope='https://www.googleapis.com/auth/bigquery,https://www.googleapis.com/auth/drive')
         http = httplib2.Http()
         http = credentials.authorize(http)
 
