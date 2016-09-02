@@ -1,0 +1,24 @@
+<div class="modal-header">
+  <button type="button" class="close" aria-label="Close" ng-click="close()"><span aria-hidden="true">&times;</span>
+  </button>
+  <h4 class="modal-title"><i class="fa fa-search"></i> Search</h4>
+</div>
+
+<div class="modal-body">
+
+      <ui-select autofocus ng-model="dashboardSelected.selected" on-select="openDashboard($item)">
+        <ui-select-match placeholder="start typing..."></ui-select-match>
+        <ui-select-choices
+            repeat="dashboard in dashboards | filter:$select.search"
+            refresh="findDashboard($select.search)"
+            refresh-delay="0">
+          <div>
+            {{dashboard.name}}
+          </div>
+        </ui-select-choices>
+      </ui-select>
+
+      <br>
+      <br>
+
+</div>

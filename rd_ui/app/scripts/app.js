@@ -19,7 +19,8 @@ angular.module('redash', [
   'ui.bootstrap.showErrors',
   'angularResizable',
   'ngSanitize',
-  'vs-repeat'
+  'vs-repeat',
+  'cfp.hotkeys'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig', '$httpProvider',
   function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig, $httpProvider) {
     function getQuery(Query, $route) {
