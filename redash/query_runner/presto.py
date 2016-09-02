@@ -60,6 +60,10 @@ class Presto(BaseQueryRunner):
         return enabled
 
     @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
     def type(cls):
         return "presto"
 
@@ -94,7 +98,7 @@ class Presto(BaseQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query, redash_user):
+    def run_query(self, query, redash_user=redash_user):
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),

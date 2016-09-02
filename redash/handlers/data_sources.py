@@ -35,7 +35,7 @@ class DataSourceResource(BaseResource):
             data_source.options.update(req['options'])
         except ValidationError:
             abort(400)
-        
+
         data_source.type = req['type']
         data_source.name = req['name']
         data_source.save()
