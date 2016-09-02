@@ -387,7 +387,7 @@ class QueryExecutor(object):
 
         query_runner = self.data_source.query_runner
         annotated_query = self._annotate_query(query_runner)
-        data, error = query_runner.run_query(annotated_query)
+        data, error = query_runner.run_query(annotated_query, self.metadata.get('Username', 'unknown'))
         run_time = time.time() - self.tracker.started_at
         self.tracker.update(error=error, run_time=run_time, state='saving_results')
 
