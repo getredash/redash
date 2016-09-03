@@ -167,14 +167,16 @@
         this.filterFreeze = filterFreeze;
 
         if (filters) {
+          filters = _.filter(filters, function(f){ if (f.current != '') return f})
           this.filteredData = _.filter(this.query_result.data.rows, function (row) {
             return _.reduce(filters, function (memo, filter) {
               if (!_.isArray(filter.current)) {
                 filter.current = [filter.current];
               };
-
+              // v in [filter.current] in filters
               return (memo && _.some(filter.current, function(v) {
                 var value = row[filter.name];
+                console.log(v)
                 if (moment.isMoment(value)) {
                   return value.isSame(v);
                 } else {
@@ -769,7 +771,7 @@
         "tabTrigger": this.trigger
       };
     }
-    
+
     return resource;
   };
 
