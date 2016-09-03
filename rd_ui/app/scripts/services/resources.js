@@ -173,7 +173,7 @@
               if (!_.isArray(filter.current)) {
                 filter.current = [filter.current];
               };
-              // v in [filter.current] in filters
+              
               return (memo && _.some(filter.current, function(v) {
                 var value = row[filter.name];
                 console.log(v)

@@ -38,49 +38,38 @@
 
   <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
-  <div class="row bg-white p-10 m-b-10">
+  <div class="row bg-white m-t-10 m-b-10">
     <div class="col-sm-9">
       <h3>
         <edit-in-place editable="isQueryOwner" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
       </h3>
       <p>
-        <em>
-          <edit-in-place editable="isQueryOwner"
-                         done="saveDescription"
-                         editor="textarea"
-                         placeholder="No description"
-                         ignore-blanks='false'
-                         value="query.description"
-                         markdown="true">
-          </edit-in-place>
-        </em>
-
-      <ul class="list-inline m-t-20">
-        <li>
-          <span class="zmdi zmdi-account"></span>
-          <span class="text-muted">Created By </span>
-          <strong>{{query.user.name}}</strong>
-        </li>
-        <li ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
-          <span class="zmdi zmdi-account"></span>
-          <span class="text-muted">Last Modified By </span>
-          <strong>{{query.last_modified_by.name}}</strong>
-        </li>
-        <li>
-          <span class="zmdi zmdi-time"></span>
-          <span class="text-muted">Updated at </span>
-          <strong>
-            <rd-time-ago value="query.updated_at"></rd-time-ago>
-          </strong>
-        </li>
-        <li>
-          <span class="zmdi zmdi-time"></span>
-          <span class="text-muted">Created at </span>
-          <strong>
-            <rd-time-ago value="query.created_at"></rd-time-ago>
-          </strong>
-        </li>
-      </ul>
+        <ul class="list-inline m-t-10">
+          <li>
+            <span class="zmdi zmdi-account"></span>
+            <span class="text-muted">Created By </span>
+            <strong>{{query.user.name}}</strong>
+          </li>
+          <li ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">
+            <span class="zmdi zmdi-account"></span>
+            <span class="text-muted">Last Modified By </span>
+            <strong>{{query.last_modified_by.name}}</strong>
+          </li>
+          <li>
+            <span class="zmdi zmdi-time"></span>
+            <span class="text-muted">Updated at </span>
+            <strong>
+              <rd-time-ago value="query.updated_at"></rd-time-ago>
+            </strong>
+          </li>
+          <li>
+            <span class="zmdi zmdi-time"></span>
+            <span class="text-muted">Created at </span>
+            <strong>
+              <rd-time-ago value="query.created_at"></rd-time-ago>
+            </strong>
+          </li>
+        </ul>
       </p>
     </div>
     <div class="col-sm-3 text-right">

@@ -4857,7 +4857,7 @@ fieldset[disabled] .navbar-default .btn-link:focus {
   color: #ccc;
 }
 .navbar-inverse {
-  background-color: #222;
+  background-color: #fff;
   border-color: #080808;
 }
 .navbar-inverse .navbar-brand {
@@ -4872,11 +4872,11 @@ fieldset[disabled] .navbar-default .btn-link:focus {
   color: #a8a8a8;
 }
 .navbar-inverse .navbar-nav > li > a {
-  color: #a8a8a8;
+  color: #222;
 }
 .navbar-inverse .navbar-nav > li > a:hover,
 .navbar-inverse .navbar-nav > li > a:focus {
-  color: #fff;
+  color: #7e0b80 /*#2196F3*/;
   background-color: transparent;
 }
 .navbar-inverse .navbar-nav > .active > a,
@@ -4905,12 +4905,12 @@ fieldset[disabled] .navbar-default .btn-link:focus {
 .navbar-inverse .navbar-form {
   border-color: #101010;
 }
-.navbar-inverse .navbar-nav > .open > a,
+/*.navbar-inverse .navbar-nav > .open > a,
 .navbar-inverse .navbar-nav > .open > a:hover,
 .navbar-inverse .navbar-nav > .open > a:focus {
   background-color: #080808;
   color: #fff;
-}
+}*/
 @media (max-width: 767px) {
   .navbar-inverse .navbar-nav .open .dropdown-menu > .dropdown-header {
     border-color: #080808;
@@ -7009,7 +7009,7 @@ button.close {
 /* --------------------------------------------------------
     Container
 -----------------------------------------------------------*/
-/* -------------------------------------------------------- 
+/* --------------------------------------------------------
     Template Variables
 -----------------------------------------------------------*/
 /* --------------------------------------------------------
@@ -7059,7 +7059,7 @@ button.close {
     Carousel
 -----------------------------------------------------------*/
 /* --------------------------------------------------------
-    Modal 
+    Modal
 -----------------------------------------------------------*/
 /* --------------------------------------------------------
     Tooltips
@@ -8725,7 +8725,7 @@ fieldset[disabled] .btn-inverse.active {
   line-height: 100%;
 }
 .t-header:not(.th-alt) {
-  padding: 20px 23px;
+  padding: 10px 23px;
 }
 .t-header:not(.th-alt) .th-title {
   font-size: 17px;
