@@ -122,13 +122,12 @@ class BaseElasticSearch(BaseQueryRunner):
         return mappings
 
     def _parse_results(self, mappings, result_fields, raw_result, result_columns, result_rows):
-
         def add_column_if_needed(mappings, column_name, friendly_name, result_columns, result_columns_index):
             if friendly_name not in result_columns_index:
                 result_columns.append({
-                    "name" : friendly_name,
-                    "friendly_name" : friendly_name,
-                    "type" : mappings.get(column_name, "string")})
+                    "name": friendly_name,
+                    "friendly_name": friendly_name,
+                    "type": mappings.get(column_name, "string")})
                 result_columns_index[friendly_name] = result_columns[-1]
 
         def get_row(rows, row):
@@ -170,7 +169,10 @@ class BaseElasticSearch(BaseQueryRunner):
                     result_row = get_row(rows, row)
                     collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
                     if 'key' in value:
-                        collect_value(mappings, result_row, parent_key, value['key'], 'string')
+                        if 'key_as_string' in value:
+                            collect_value(mappings, result_row, parent_key, value['key_as_string'], 'string')
+                        else:
+                            collect_value(mappings, result_row, parent_key, value['key'], 'string')
 
             return None
 
@@ -198,8 +200,8 @@ class BaseElasticSearch(BaseQueryRunner):
             for key, data in raw_result["aggregations"].iteritems():
                 collect_aggregations(mappings, result_rows, key, data, None, result_columns, result_columns_index)
 
-            logger.debug("result_rows", str(result_rows))
-            logger.debug("result_columns", str(result_columns))
+            logger.debug("result_rows %s", str(result_rows))
+            logger.debug("result_columns %s", str(result_columns))
 
         elif 'hits' in raw_result and 'hits' in raw_result['hits']:
 
@@ -233,7 +235,6 @@ class BaseElasticSearch(BaseQueryRunner):
 
 
 class Kibana(BaseElasticSearch):
-
     def __init__(self, configuration):
         super(Kibana, self).__init__(configuration)
 
@@ -378,4 +379,3 @@ class ElasticSearch(BaseElasticSearch):
 
 register(Kibana)
 register(ElasticSearch)
-
