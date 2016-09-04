@@ -4,8 +4,9 @@ body {
 }
 
 .logo-container {
-  background-color: #668899;
+  /*background-color: #668899;*/
   display: table;
+  border-left: 1px #222 solid;
   width: 100%;
   padding: 10px;
 }
@@ -66,4 +67,3 @@ img.login-button {
   margin-left: auto;
   margin-right: auto;
 }
-

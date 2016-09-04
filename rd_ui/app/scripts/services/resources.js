@@ -173,7 +173,7 @@
               if (!_.isArray(filter.current)) {
                 filter.current = [filter.current];
               };
-              
+
               return (memo && _.some(filter.current, function(v) {
                 var value = row[filter.name];
                 console.log(v)
@@ -354,7 +354,7 @@
         _.each(filters, function (filter) {
           filter.values.push(row[filter.name]);
           if (filter.values.length == 1) {
-            filter.current = row[filter.name];
+            filter.current = []; //no filter on first load -- removed row[filter.name]
           }
         })
       });
