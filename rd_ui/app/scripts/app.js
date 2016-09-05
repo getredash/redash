@@ -161,17 +161,8 @@ angular.module('redash', [
       controller: 'SnippetsCtrl'
     });
     $routeProvider.when('/', {
-        templateUrl: '/views/query.html',
-        controller: 'QuerySourceCtrl',
-        reloadOnSearch: false,
-        resolve: {
-          'query': ['Query', function newQuery(Query) {
-            return Query.newQuery();
-          }],
-          'dataSources': ['DataSource', function (DataSource) {
-            return DataSource.query().$promise
-          }]
-        }
+      templateUrl: '/views/index.html',
+      controller: 'IndexCtrl'
     });
     $routeProvider.when('/personal', {
       redirectTo: '/'
