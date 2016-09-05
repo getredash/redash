@@ -153,6 +153,7 @@
   var DashboardSearchCtrl = function($scope, $modalInstance, $http, $location, Dashboard) {
 
     Dashboard.query(function (dashboards) {
+        dashboards = _.filter(dashboards, function(d){ if (d.name != "New Query") return d})
         $scope.dashboards = _.sortBy(dashboards, "name");
     });
 
@@ -164,7 +165,7 @@
 
     $scope.openDashboard = function(dashboard){
       $scope.close();
-      $location.path('/dashboard/' + dashboard.slug).replace();
+      $location.path('/queries/' + dashboard.id).replace();
     }
 
     $scope.findDashboard = function(search){
@@ -218,7 +219,7 @@
       $scope.searchBoxModal = $modal.open({
         templateUrl: '/views/dashboard_search.html',
         scope: $scope,
-        controller: ['$scope', '$modalInstance', '$http', '$location', 'Dashboard', DashboardSearchCtrl]
+        controller: ['$scope', '$modalInstance', '$http', '$location', 'Query', DashboardSearchCtrl]
       });
 
     }

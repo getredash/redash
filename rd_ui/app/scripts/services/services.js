@@ -4,7 +4,7 @@
   function KeyboardShortcuts() {
     this.bind = function bind(keymap) {
       _.forEach(keymap, function (fn, key) {
-        Mousetrap.bindGlobal(key, function (e) {
+        Mousetrap.bind(key, function (e) {
           e.preventDefault();
           fn();
         });
