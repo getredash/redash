@@ -84,7 +84,10 @@ class TreasureData(BaseQueryRunner):
                     for table in client.tables(self.configuration.get('db')):
                         table_name = '{}.{}'.format(self.configuration.get('db'), table.name)
                         for table_schema in table.schema:
-                            schema[table_name] = {'name': table_name, 'columns': table.schema}
+                            schema[table_name] = {
+                                'name': table_name,
+                                'columns': [column[0] for column in table.schema],
+                            }
             except Exception, ex:
                 raise Exception("Failed getting schema")
         return schema.values()
