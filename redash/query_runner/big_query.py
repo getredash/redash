@@ -231,7 +231,7 @@ class BigQueryGCE(BigQuery):
         return requests.get('http://metadata/computeMetadata/v1/project/project-id', headers={'Metadata-Flavor': 'Google'}).content
 
     def _get_bigquery_service(self):
-        credentials = gce.AppAssertionCredentials(scope='https://www.googleapis.com/auth/bigquery,https://www.googleapis.com/auth/drive')
+        credentials = gce.AppAssertionCredentials(scope='https://www.googleapis.com/auth/bigquery')
         http = httplib2.Http()
         http = credentials.authorize(http)
 
