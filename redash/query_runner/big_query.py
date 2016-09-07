@@ -119,6 +119,7 @@ class BigQuery(BaseQueryRunner):
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
+	    "https://www.googleapis.com/auth/drive"
             ]
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
