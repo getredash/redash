@@ -39,3 +39,4 @@ semver==2.2.1
 xlsxwriter==0.8.4
 pystache==0.5.4
 parsedatetime==2.1
+cryptography==1.4
