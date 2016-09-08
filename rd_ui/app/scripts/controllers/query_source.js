@@ -53,7 +53,7 @@
     var loadAccessPermission = function() {
       var action = 'modify';
       var body = {};
-      $http.post('api/access/Query/' + $scope.query.id + '/' + action, body).then(function() {
+      $http.get('api/queries/' + $scope.query.id + '/acl/' + action, body).then(function() {
         $scope.canEdit = true;
       }, function() {
         /* access denied, cannot edit this query. */
@@ -76,7 +76,7 @@
         queryText = savedQuery.query;
         $scope.isDirty = $scope.query.query !== queryText;
         // update to latest version number
-        $scope.query.latest_version = savedQuery.latest_version;
+        $scope.query.version = savedQuery.version;
 
         if (isNewQuery) {
           // redirect to new created query (keep hash)

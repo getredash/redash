@@ -34,7 +34,7 @@
         var action = 'modify';
         var body = {};
         currentUser.accessPermissions[this] = false;
-        $http.post('api/access/Dashboard/' + dashboard.id + '/' + action, body).then(function() {
+        $http.get('api/dashboards/' + dashboard.id + '/acl/' + action, body).then(function() {
           currentUser.accessPermissions[dashboard] = true;
         }, function() {
           /* access denied, cannot edit this dashboard. */

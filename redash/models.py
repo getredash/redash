@@ -344,7 +344,8 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
         self.save()
 
     def has_access(self, access_type, object_id, object_type):
-        return AccessPermission.exists(self, access_type, object_id, object_type)
+        return AccessPermission.exists(grantee=self, access_type=access_type,
+            object_id=object_id, object_type=object_type)
 
 
 class ConfigurationField(peewee.TextField):
@@ -581,6 +582,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
+    version = peewee.IntegerField(default=0)
     org = peewee.ForeignKeyField(Organization, related_name="queries")
     data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
@@ -612,7 +614,8 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             'updated_at': self.updated_at,
             'created_at': self.created_at,
             'data_source_id': self.data_source_id,
-            'options': self.options
+            'options': self.options,
+            'version': self.version
         }
 
         if with_user:
@@ -738,6 +741,20 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         if created:
             self._create_default_visualizations()
 
+    def update_instance_tracked(self, changing_user, old_object=None, *args, **kwargs):
+        self.version += 1
+        self.update_instance(*args, **kwargs)
+        # save Change record
+        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
+        return new_change
+
+    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
+        self.version += 1
+        self.save(*args, **kwargs)
+        # save Change record
+        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
+        return new_change
+
     def _create_default_visualizations(self):
         table_visualization = Visualization(query=self, name="Table",
                                             description='',
@@ -771,8 +788,8 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 class AccessPermission(BaseModel):
 
     id = peewee.PrimaryKeyField()
-    object_type = peewee.CharField()
-    object_id = peewee.IntegerField()
+    object_type = peewee.CharField(index=True)
+    object_id = peewee.IntegerField(index=True)
     object = GFKField('object_type', 'object_id')
     access_type = peewee.CharField()
     grantor = peewee.ForeignKeyField(User, related_name='grantor')
@@ -786,34 +803,82 @@ class AccessPermission(BaseModel):
         db_table = 'access_permissions'
 
     @staticmethod
-    def exists(user, access_type, object_id, object_type):
+    def grant_permission(object_type, object_id, access_type, grantee, grantor):
+        perm = AccessPermission()
+        perm.object_type = object_type
+        perm.object_id = object_id
+        perm.access_type = access_type
+        perm.grantor = grantor
+        perm.grantee = grantee
+        perm.save()
+
+    @staticmethod
+    def revoke_permission(object_type, object_id, grantee, access_type=None):
+        permissions = AccessPermission.find(object_id=object_id,
+            object_type=object_type, grantee=grantee, access_type=access_type)
+
+        if permissions.count() <= 0:
+            return None
+
+        permissions_deleted = list(permissions)
+
+        for permission in permissions:
+            permission.delete_instance()
+
+        if len(permissions_deleted) == 1:
+            return permissions_deleted[0]
+
+        return permissions_deleted
+
+    @staticmethod
+    def find(object_id, object_type, grantee=None, access_type=None, grantor=None):
+        q = AccessPermission.select(AccessPermission)\
+            .where(AccessPermission.object_id == object_id)\
+            .where(AccessPermission.object_type == object_type)
+        if grantee:
+            q = q.where(AccessPermission.grantee == grantee)
+        if access_type:
+            q = q.where(AccessPermission.access_type == access_type)
+        if grantor:
+            q = q.where(AccessPermission.grantor == grantor)
+        return q
+
+    @staticmethod
+    def exists(object_id, object_type, grantee, access_type=None):
         try:
-            q = AccessPermission.select(AccessPermission)\
-                .where(AccessPermission.object_id == object_id)\
-                .where(AccessPermission.object_type == object_type)\
-                .where(AccessPermission.access_type == access_type)\
-                .where(AccessPermission.grantee == user)
-            return q.count() > 0
+            permissions = AccessPermission.find(object_id=object_id,
+                object_type=object_type, grantee=grantee, access_type=access_type)
+            return permissions.count() > 0
         except Exception, e:
             logging.warn("Unable to query for AccessPermission: %s" % e)
             return False
 
     @staticmethod
     def reset(object_type, object_id, access_type):
-        q = AccessPermission.delete()\
-                .where(AccessPermission.object_id == object_id)\
-                .where(AccessPermission.object_type == object_type)\
-                .where(AccessPermission.access_type == access_type)
+        revoke_permission(object_type=object_type, object_id=object_id, access_type=access_type)
 
-        return q.execute()
+    def delete_instance(self, *args, **kwargs):
+        super(AccessPermission, self).delete_instance(*args, **kwargs)
+
+    def to_dict(self):
+        d = {
+            'id': self.id,
+            'object_id': self.object_id,
+            'object_type': self.object_type,
+            'access_type': self.access_type,
+            'grantor': self.grantor.id,
+            'grantee': self.grantee.id
+        }
+        return d
 
 
 class Change(BaseModel):
 
     id = peewee.PrimaryKeyField()
-    object_id = peewee.CharField()
-    object_type = peewee.CharField()
+    object_id = peewee.CharField(index=True)
+    object_type = peewee.CharField(index=True)
     change_type = peewee.CharField()
+    object_version = peewee.IntegerField(default=0)
     user = peewee.ForeignKeyField(User, related_name='changes')
     change = JSONField()
     created_at = DateTimeTZField(default=datetime.datetime.now)
@@ -830,6 +895,7 @@ class Change(BaseModel):
             'object_id': self.object_id,
             'object_type': self.object_type,
             'change_type': self.change_type,
+            'object_version': self.object_version,
             'change': self.change,
             'created_at': self.created_at
         }
@@ -840,6 +906,53 @@ class Change(BaseModel):
             d['user_id'] = self.user_id
 
         return d
+
+    @staticmethod
+    def save_change(user, new_object, object_id=None, object_type=None,
+            old_object=None, change_type=None, object_version=None):
+        # determine change type
+        if not change_type:
+            if old_object is None:
+                change_type = Change.TYPE_CREATE
+            else:
+                change_type = Change.TYPE_MODIFY
+        # determine object type
+        if not object_type and new_object is not None:
+            object_type = new_object.__class__.__name__
+        # determine object id
+        if not object_id and new_object is not None:
+            object_id = new_object.id
+        if not object_version and new_object is not None:
+            object_version = new_object.version
+        # make sure objects are dicts
+        if not isinstance(new_object, dict):
+            new_object = new_object.to_dict()
+        if old_object and not isinstance(old_object, dict):
+            old_object = old_object.to_dict()
+        # remove dates from objects, convert obj references to IDs
+        for obj in [old_object, new_object]:
+            if obj:
+                for field in list(obj.keys()):
+                    val = obj[field]
+                    if isinstance(val, datetime.datetime):
+                        del obj[field]
+                    elif isinstance(val, BaseModel):
+                        obj[field] = obj[field].id
+                    elif isinstance(val, dict) and 'id' in val:
+                        obj[field] = obj[field]['id']
+        # create and save Change
+        change = Change()
+        change.object_id = object_id
+        change.object_type = object_type
+        change.change_type = change_type
+        change.object_version = object_version
+        change.user = user
+        change.change = {
+            "before": old_object,
+            "after": new_object
+        }
+        change.save()
+        return change
 
     @staticmethod
     def get_latest(object_id, object_type, change_type=None):
@@ -935,6 +1048,7 @@ class Alert(ModelTimestampsMixin, BaseModel):
 
 class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
+    version = peewee.IntegerField(default=0)
     org = peewee.ForeignKeyField(Organization, related_name="dashboards")
     slug = peewee.CharField(max_length=140, index=True)
     name = peewee.CharField(max_length=100)
@@ -995,7 +1109,8 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             'widgets': widgets_layout,
             'is_archived': self.is_archived,
             'updated_at': self.updated_at,
-            'created_at': self.created_at
+            'created_at': self.created_at,
+            'version': self.version
         }
 
     @classmethod
@@ -1043,6 +1158,13 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
         return cls.get(cls.slug == slug, cls.org==org)
+
+    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
+        self.version += 1
+        self.save(*args, **kwargs)
+        # save Change record
+        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
+        return new_change
 
     def save(self, *args, **kwargs):
         if not self.slug:

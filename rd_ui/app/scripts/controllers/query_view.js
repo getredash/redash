@@ -125,15 +125,12 @@
     $scope.saveQuery = function(options, data) {
       if (data) {
         // Don't save new query with partial data
-        data.id = $scope.query.id;
-      } else {
-        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_version"]);
         if ($scope.query.isNew()) {
           return;
         }
         data.id = $scope.query.id;
       } else {
-        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_query_data_id"]);
+        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_query_data_id", "version"]);
       }
 
       options = _.extend({}, {
@@ -346,7 +343,7 @@
     $scope.showSharePermissionsModal = function() {
       // Create scope for share permissions dialog and pass api path to it
       var scope = $scope.$new();
-      $scope.api_access = 'api/access/Query/' + $routeParams.queryId;
+      $scope.api_access = 'api/queries/' + $routeParams.queryId + '/acl';
       scope.params = {api_access: $scope.api_access};
 
       $modal.open({
@@ -354,7 +351,7 @@
         templateUrl: '/views/dialogs/share_permissions.html',
         controller: 'SharePermissionsCtrl'
       })
-    }
+    };
   };
   angular.module('redash.controllers')
     .controller('QueryViewCtrl', ['$scope', 'Events', '$route', '$routeParams', '$http', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', 'User', QueryViewCtrl]);

@@ -114,20 +114,20 @@
           $scope.$parent.reloadDashboards();
         });
       }
-    }
+    };
 
     $scope.showSharePermissionsModal = function() {
         // Create scope for share permissions dialog and pass api path to it
         var scope = $scope.$new();
-        $scope.api_access = 'api/access/Dashboard/' + $scope.dashboard.id;
+        $scope.api_access = 'api/dashboards/' + $scope.dashboard.id + '/acl';
         scope.params = {api_access: $scope.api_access};
 
         $modal.open({
           scope: scope,
           templateUrl: '/views/dialogs/share_permissions.html',
           controller: 'SharePermissionsCtrl'
-        })
-    }
+        });
+    };
 
     $scope.toggleFullscreen = function() {
       $scope.isFullscreen = !$scope.isFullscreen;

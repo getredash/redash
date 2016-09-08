@@ -27,3 +27,4 @@ node_modules
 .tmp
 .sass-cache
 rd_ui/app/bower_components
+npm-debug.log

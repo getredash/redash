@@ -82,7 +82,7 @@
 
               layout = JSON.stringify(layout);
               Dashboard.save({slug: $scope.dashboard.id, name: $scope.dashboard.name,
-                  latest_version: $scope.dashboard.latest_version, layout: layout}, function(dashboard) {
+                  version: $scope.dashboard.version, layout: layout}, function(dashboard) {
                 $scope.dashboard = dashboard;
                 $scope.saveInProgress = false;
                 $(element).modal('hide');

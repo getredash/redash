@@ -1,17 +1,38 @@
 import logging
 from redash.handlers.base import BaseResource
-from redash.models import AccessPermission
+from redash.models import AccessPermission, Query, Dashboard
+from redash.permissions import require_admin_or_owner
 from flask import request
 from flask_restful import abort
 
-class AccessListResource(BaseResource):
+
+object_types_to_classes = {
+    'queries': Query,
+    'dashboards': Dashboard
+}
+
+
+def get_class_for_object_type(object_type):
+    clazz = object_types_to_classes.get(object_type)
+    if not clazz:
+        abort(404)
+    return clazz
+
+
+def get_classname_for_object_type(object_type):
+    clazz = get_class_for_object_type(object_type)
+    return clazz.__name__
+
+
+class AccessPermissionListResource(BaseResource):
 
     def get(self, object_type, object_id):
 
-        permissions = AccessPermission.select(AccessPermission)\
-                .where(AccessPermission.object_id == object_id)\
-                .where(AccessPermission.object_type == object_type)\
-                .where(AccessPermission.grantor == self.current_user)
+        # convert API resource to model class, e.g., 'queries' to 'Query'
+        object_type = get_classname_for_object_type(object_type)
+
+        permissions = AccessPermission.find(object_id=object_id,
+            object_type=object_type, grantor=self.current_user)
 
         result = {}
         for perm in permissions:
@@ -22,56 +43,61 @@ class AccessListResource(BaseResource):
         return result
 
 
-class AccessGrantResource(BaseResource):
+class AccessPermissionResource(BaseResource):
 
     def post(self, object_type, object_id):
+
+        # convert API resource to model class, e.g., 'queries' to 'Query'
+        clazz = get_class_for_object_type(object_type)
+        object_type = get_classname_for_object_type(object_type)
+
+        # make sure the current user is permitted to perform this operation
+        target_object = clazz.select().where(clazz.id == object_id).get()
+        require_admin_or_owner(target_object.user.id)
 
         req = request.get_json(True)
         grantee = req['user_id']
         access_type = req['access_type']
 
-        permissions = AccessPermission.select(AccessPermission)\
-                .where(AccessPermission.object_id == object_id)\
-                .where(AccessPermission.object_type == object_type)\
-                .where(AccessPermission.grantee == grantee)\
-                .where(AccessPermission.grantor == self.current_user)\
-                .where(AccessPermission.access_type == access_type)
+        permissions = AccessPermission.find(grantee=grantee, object_id=object_id,
+            object_type=object_type, access_type=access_type, grantor=self.current_user)
 
         if permissions.count() > 0:
             return {'result': 'already_granted'}
 
-        perm = AccessPermission()
-        perm.object_type = object_type
-        perm.object_id = object_id
-        perm.access_type = access_type
-        perm.grantor = self.current_user
-        perm.grantee = grantee
-        perm.save()
+        AccessPermission.grant_permission(object_type=object_type,
+            object_id=object_id, access_type=access_type,
+            grantee=grantee, grantor=self.current_user)
+
         return {'result': 'permission_added'}
 
-class AccessRevokeResource(BaseResource):
-
     def delete(self, object_type, object_id):
+
+        # convert API resource to model class, e.g., 'queries' to 'Query'
+        clazz = get_class_for_object_type(object_type)
+        object_type = get_classname_for_object_type(object_type)
+
+        # make sure the current user is permitted to perform this operation
+        target_object = clazz.select().where(clazz.id == object_id).get()
+        require_admin_or_owner(target_object.user.id)
 
         req = request.get_json(True)
         grantee = req['user_id']
         access_type = req['access_type']
 
-        query = AccessPermission.delete()\
-                .where(AccessPermission.object_id == object_id)\
-                .where(AccessPermission.object_type == object_type)\
-                .where(AccessPermission.access_type == access_type)\
-                .where(AccessPermission.grantee == grantee)\
-                .where(AccessPermission.grantor == self.current_user)
-        deleted = query.execute()
+        deleted = AccessPermission.revoke_permission(object_type=object_type,
+            object_id=object_id, grantee=grantee, access_type=access_type)
+        if deleted:
+            deleted = deleted.to_dict()
         result = {'deleted': deleted}
         return result
 
-class AccessAttemptResource(BaseResource):
+    def get(self, object_type, object_id, access_type):
 
-    def post(self, object_type, object_id, access_type):
-        access = AccessPermission.exists(user=self.current_user, access_type=access_type, object_id=object_id, object_type=object_type)
+        # convert API resource to model class, e.g., 'queries' to 'Query'
+        object_type = get_classname_for_object_type(object_type)
+
+        access = AccessPermission.exists(grantee=self.current_user, access_type=access_type, object_id=object_id, object_type=object_type)
         if access:
             return {'result': 'access_granted'}
         abort(403)
-        return False
