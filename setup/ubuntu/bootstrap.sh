@@ -40,6 +40,7 @@ apt-get install -y libsasl2-dev
 #Saml dependency
 apt-get install -y xmlsec1
 
+pip install --upgrade pip
 pip install -U setuptools==23.1.0
 
 # redash user
