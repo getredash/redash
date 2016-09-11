@@ -184,7 +184,7 @@
     $scope.modalOpened = !$scope.modalOpened;
   }
 
-  var MainCtrl = function ($scope, $modal, KeyboardShortcuts, $location) {
+  var MainCtrl = function ($scope, $modal, hotkeys, $location) {
 
     $scope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
       if ($scope.showPermissionError) {
@@ -224,12 +224,11 @@
 
     }
 
-    var shortcuts = {
-        'meta+k': $scope.openSearchBox,
-        'ctrl+k': $scope.openSearchBox
-    };
-
-    KeyboardShortcuts.bind(shortcuts);
+    hotkeys.add({
+      combo: ['mod+k', 'ctrl+k'],
+      description: 'Search Dashboards',
+      callback: $scope.openSearchBox
+    });
 
 
   };
@@ -245,6 +244,6 @@
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
-    .controller('MainCtrl', ['$scope', '$modal', 'KeyboardShortcuts', '$location', MainCtrl])
+    .controller('MainCtrl', ['$scope', '$modal', 'hotkeys', '$location', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();
