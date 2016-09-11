@@ -6,9 +6,10 @@ body {
 .logo-container {
   /*background-color: #668899;*/
   display: table;
-  border-left: 1px #222 solid;
+  /*border-left: 1px #222 solid;*/
   width: 100%;
   padding: 10px;
+  box-shadow: #333333 0 0 2px;
 }
 
 .content-container {
