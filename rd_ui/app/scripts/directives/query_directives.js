@@ -220,6 +220,32 @@
     }
   }
 
+  function schemaBrowser() {
+    return {
+      restrict: 'E',
+      scope: {
+        schema: '='
+      },
+      templateUrl: '/views/directives/schema_browser.html',
+      link: function ($scope) {
+        $scope.showTable = function(table) {
+          table.collapsed = !table.collapsed;
+          $scope.$broadcast('vsRepeatTrigger');
+        }
+
+        $scope.getSize = function(table) {
+          var size = 18;
+
+          if (!table.collapsed) {
+            size += 18 * table.columns.length;
+          }
+
+          return size;
+        }
+      }
+    }
+  }
+
   function queryTimePicker() {
     return {
       restrict: 'E',
@@ -332,5 +358,6 @@
   .directive('queryEditor', ['QuerySnippet', queryEditor])
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
+  .directive('schemaBrowser', schemaBrowser)
   .directive('queryFormatter', ['$http', 'growl', queryFormatter]);
 })();
