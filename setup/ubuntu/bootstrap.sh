@@ -7,7 +7,7 @@ REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
 # Install latest version if not specified in REDASH_VERSION env var
-REDASH_VERSION=${REDASH_VERSION-0.10.1.b1834}
+REDASH_VERSION=${REDASH_VERSION-0.11.1.b2095}
 LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
@@ -27,8 +27,19 @@ fi
 
 # Base packages
 apt-get -y update
-apt-get -y dist-upgrade
+DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
 apt-get install -y python-pip python-dev nginx curl build-essential pwgen
+# BigQuery dependencies:
+apt-get install -y libffi-dev libssl-dev
+# MySQL dependencies:
+apt-get install -y libmysqlclient-dev
+# Microsoft SQL Server dependencies:
+apt-get install -y freetds-dev
+# Hive dependencies:
+apt-get install -y libsasl2-dev
+#Saml dependency
+apt-get install -y xmlsec1
+
 pip install -U setuptools==23.1.0
 
 # redash user
@@ -148,23 +159,11 @@ if [ $pg_user_exists -ne 0 ]; then
     sudo -u postgres psql -c "CREATE ROLE redash_reader WITH PASSWORD '$REDASH_READER_PASSWORD' NOCREATEROLE NOCREATEDB NOSUPERUSER LOGIN"
     sudo -u redash psql -c "grant select(id,name,type) ON data_sources to redash_reader;" redash
     sudo -u redash psql -c "grant select(id,name) ON users to redash_reader;" redash
-    sudo -u redash psql -c "grant select on events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
+    sudo -u redash psql -c "grant select on alerts, alert_subscriptions, groups, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
-    sudo -u redash bin/run ./manage.py ds new -n "re:dash metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
+    sudo -u redash bin/run ./manage.py ds new "Re:dash Metadata" --type "pg" --options "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
 fi
-
-# BigQuery dependencies:
-apt-get install -y libffi-dev libssl-dev
-
-# MySQL dependencies:
-apt-get install -y libmysqlclient-dev
-
-# Microsoft SQL Server dependencies:
-apt-get install -y freetds-dev
-
-#Saml dependency
-apt-get install -y xmlsec1
 
 # Pip requirements for all data source types
 cd /opt/redash/current

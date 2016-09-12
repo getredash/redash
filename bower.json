@@ -12,7 +12,6 @@
     "es5-shim": "2.0.8",
     "angular-moment": "0.10.3",
     "moment": "~2.8.0",
-    "codemirror": "4.8.0",
     "underscore": "1.5.1",
     "pivottable": "2.0.2",
     "cornelius": "https://github.com/restorando/cornelius.git",
@@ -35,7 +34,9 @@
     "angular-ui-sortable": "~0.13.4",
     "angular-resizable": "^1.2.0",
     "material-design-iconic-font": "^2.2.0",
-    "plotly.js": "^1.9.0"
+    "plotly.js": "^1.9.0",
+    "angular-ui-ace": "bower",
+    "angular-vs-repeat": "^1.1.7"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",

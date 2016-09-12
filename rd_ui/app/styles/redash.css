@@ -188,16 +188,12 @@ li.widget:hover {
   background: rgba(0, 0, 0, 0.5) !important;
 }
 
-/* CodeMirror */
-.CodeMirror {
+/* Editor */
+
+.ace_editor {
   border: 1px solid #eee;
   height: 100%;
   margin-bottom: 10px;
-}
-
-.CodeMirror-scroll {
-  overflow-y: auto;
-  overflow-x: auto;
 }
 
 /* Support for Font-Awesome in btn-xs */
@@ -667,3 +663,19 @@ div.table-name:hover {
 .t-header.widget {
   padding: 5px;
 }
+
+/* Sankey Visualization */
+.sankey .node rect {
+    fill-opacity: .9;
+    shape-rendering: crispEdges;
+    stroke-width: 0;
+}
+.sankey .node text {
+    text-shadow: 0 1px 0 #fff;
+}
+.sankey .link {
+    fill: none;
+    stroke: #000;
+    stroke-opacity: .2;
+}
+

@@ -82,7 +82,7 @@ class MongoDB(BaseQueryRunner):
                     'title': 'Replica Set Name'
                 },
             },
-            'required': ['connectionString']
+            'required': ['connectionString', 'dbName']
         }
 
     @classmethod

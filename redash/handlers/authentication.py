@@ -123,4 +123,4 @@ def login(org_slug=None):
 @routes.route(org_scoped_rule('/logout'))
 def logout(org_slug=None):
     logout_user()
-    return redirect(get_login_url())
+    return redirect(get_login_url(next=None))

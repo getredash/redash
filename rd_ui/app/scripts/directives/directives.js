@@ -58,7 +58,7 @@
         }
 
         $scope.$on('$locationChangeStart', function (event, next, current) {
-          if (next.split("#")[0] == current.split("#")[0]) {
+          if (next.split("?")[0] == current.split("?")[0] || next.split("#")[0] == current.split("#")[0]) {
             return;
           }
 
@@ -488,6 +488,7 @@
         scope.groupsPage = _.string.startsWith($location.path(), '/groups');
         scope.dsPage = _.string.startsWith($location.path(), '/data_sources');
         scope.destinationsPage = _.string.startsWith($location.path(), '/destinations');
+        scope.snippetsPage = _.string.startsWith($location.path(), '/query_snippets');
 
         scope.showGroupsLink = currentUser.hasPermission('list_users');
         scope.showUsersLink = currentUser.hasPermission('list_users');

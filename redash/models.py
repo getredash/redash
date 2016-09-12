@@ -1189,12 +1189,40 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
                                            app, host)
         else:
             # User email subscription, so create an email destination object
-            config = {'email': self.user.email}
+            config = {'addresses': self.user.email}
             schema = get_configuration_schema_for_destination_type('email')
-            options = ConfigurationContainer(json.dumps(config), schema)
+            options = ConfigurationContainer(config, schema)
             destination = get_destination('email', options)
-            return destination.notify(alert, query, user, new_state,
-                                           app, host, options)
+            return destination.notify(alert, query, user, new_state, app, host, options)
+
+
+class QuerySnippet(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
+    id = peewee.PrimaryKeyField()
+    org = peewee.ForeignKeyField(Organization, related_name="query_snippets")
+    trigger = peewee.CharField(unique=True)
+    description = peewee.TextField()
+    user = peewee.ForeignKeyField(User, related_name="query_snippets")
+    snippet = peewee.TextField()
+
+    class Meta:
+        db_table = 'query_snippets'
+
+    @classmethod
+    def all(cls, org):
+        return cls.select().where(cls.org==org)
+
+    def to_dict(self):
+        d = {
+            'id': self.id,
+            'trigger': self.trigger,
+            'description': self.description,
+            'snippet': self.snippet,
+            'user': self.user.to_dict(),
+            'updated_at': self.updated_at,
+            'created_at': self.created_at
+        }
+
+        return d
 
 
 all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)

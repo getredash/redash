@@ -80,6 +80,7 @@
           $scope.editorSize = "col-md-9";
           $scope.hasSchema = true;
         } else {
+          $scope.schema = undefined;
           $scope.hasSchema = false;
           $scope.editorSize = "col-md-12";
         }
@@ -129,10 +130,7 @@
         }
         data.id = $scope.query.id;
       } else {
-        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options"]);
-        if ($scope.query.isNew()) {
-          data['latest_query_data_id'] = $scope.query.latest_query_data_id;
-        }
+        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_query_data_id"]);
       }
 
       options = _.extend({}, {
