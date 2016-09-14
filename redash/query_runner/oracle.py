@@ -91,11 +91,11 @@ class Oracle(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         query = """
         SELECT
-            user_tables.TABLESPACE_NAME,
+            all_tab_cols.OWNER,
             all_tab_cols.TABLE_NAME,
             all_tab_cols.COLUMN_NAME
         FROM all_tab_cols
-        JOIN user_tables ON (all_tab_cols.TABLE_NAME = user_tables.TABLE_NAME)
+        WHERE all_tab_cols.OWNER NOT IN('SYS','SYSTEM','ORDSYS','CTXSYS','WMSYS','MDSYS','ORDDATA','XDB','OUTLN','DMSYS','DSSYS','EXFSYS','LBACSYS','TSMSYS')
         """
 
         results, error = self.run_query(query)
@@ -106,8 +106,8 @@ class Oracle(BaseSQLQueryRunner):
         results = json.loads(results)
 
         for row in results['rows']:
-            if row['TABLESPACE_NAME'] != None:
-                table_name = '{}.{}'.format(row['TABLESPACE_NAME'], row['TABLE_NAME'])
+            if row['OWNER'] != None:
+                table_name = '{}.{}'.format(row['OWNER'], row['TABLE_NAME'])
             else:
                 table_name = row['TABLE_NAME']
 
