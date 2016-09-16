@@ -87,11 +87,6 @@
 
       savePromise.then(function(savedQuery) {
         queryText = savedQuery.query;
-
-        if (isNewQuery) {
-          // redirect to new created query (keep hash)
-          $location.path(savedQuery.getSourceLink());
-        }
       });
 
       return savePromise;
