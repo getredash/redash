@@ -11,33 +11,9 @@
     </div>
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
-        <li class="dropdown"
-            ng-show="groupedDashboards.length > 0 || otherDashboards.length > 0 || currentUser.hasPermission('create_dashboard')"
-            dropdown>
-          <a href="#" class="dropdown-toggle" dropdown-toggle title="Dashboards">
-            <span class="visible-md visible-lg">Dashboards <b class="caret"></b></span>
-            <span class="visible-xs visible-sm"><i class="zmdi zmdi-view-dashboard"></i> <b class="caret"></b></span>
-          </a>
-          <ul class="dropdown-menu" dropdown-menu>
-                    <span ng-repeat="(name, group) in groupedDashboards">
-                        <li class="dropdown-submenu">
-                          <a href="#" ng-bind="name"></a>
-                          <ul class="dropdown-menu">
-                            <li ng-repeat="dashboard in group" role="presentation">
-                              <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
-                            </li>
-                          </ul>
-                        </li>
-                    </span>
-            <li ng-repeat="dashboard in otherDashboards">
-              <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
-            </li>
-            <li class="divider"
-                ng-show="currentUser.hasPermission('create_dashboard') && (groupedDashboards.length > 0 || otherDashboards.length > 0)"></li>
-            <li><a data-toggle="modal" href="#new_dashboard_dialog"
-                   ng-show="currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
-          </ul>
-        </li>
+      <li>
+        <a href="/">Home</a>
+      </li>
         <li>
             <a ng-show="currentUser.hasPermission('create_query')" href="queries/new">New Query</a>
         </li>
@@ -52,6 +28,9 @@
         <button type="submit" class="btn btn-default"><span class="zmdi zmdi-search"></span></button>
       </form>
       <ul class="nav navbar-nav navbar-right">
+        <li>
+          <a href="sisense.pubnative.net"><img src="/images/sisense-32x32.png" width="16" height="16" style="margin-bottom: 2px; margin-right: 10px;"></img>Dashboards</a>
+        </li>
         <li ng-show="currentUser.hasPermission('admin')">
           <a href="data_sources" title="Data Sources"><i class="fa fa-database"></i></a>
         </li>
