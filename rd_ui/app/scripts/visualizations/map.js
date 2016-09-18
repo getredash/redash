@@ -196,20 +196,6 @@
               $scope.map.on('blur',function(){
                 $scope.map.off('moveend', getBounds);
               });
-
-
-              // We redraw the map if it was loaded in a hidden tab
-              if ($('a[href="#'+$scope.visualization.id+'"]').length > 0) {
-
-                $('a[href="#'+$scope.visualization.id+'"]').on('click', function () {
-                  setTimeout(function() {
-                    $scope.map.invalidateSize(false);
-
-                    setBounds();
-                  },500);
-                });
-              }
-
             }
           }, true);
 
