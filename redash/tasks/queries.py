@@ -259,7 +259,9 @@ def refresh_queries():
 
     with statsd_client.timer('manager.outdated_queries_lookup'):
         for query in models.Query.outdated_queries():
-            if query.data_source.paused:
+            if settings.FEATURE_DISABLE_REFRESH_QUERIES: 
+                logging.info("Disabled refresh queries.")
+            elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 enqueue_query(query.query, query.data_source,

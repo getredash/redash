@@ -57,5 +57,6 @@ The follow is a list of settings and what they control:
 - **REDASH_FEATURE_ALLOW_ALL_TO_EDIT**: *default "true"*
 - **REDASH_FEATURE_TABLES_PERMISSIONS**: *default "false"*
 - **REDASH_VERSION_CEHCK**: *default "true"*
+- **REDASH_FEATURE_DISABLE_REFRESH_QUERIES**: disable scheduled query execution, *default "false"*
 - **REDASH_BIGQUERY_HTTP_TIMEOUT**: *default "600"*
 - **REDASH_SCHEMA_RUN_TABLE_SIZE_CALCULATIONS**: *default "false"*
