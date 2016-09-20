@@ -39,4 +39,6 @@ semver==2.2.1
 xlsxwriter==0.8.4
 pystache==0.5.4
 parsedatetime==2.1
+cffi==1.8.3
 cryptography==1.4
+oauthlib==2.0.0
