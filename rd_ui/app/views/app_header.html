@@ -18,7 +18,7 @@
             <span class="visible-md visible-lg">Dashboards <b class="caret"></b></span>
             <span class="visible-xs visible-sm"><i class="zmdi zmdi-view-dashboard"></i> <b class="caret"></b></span>
           </a>
-          <ul class="dropdown-menu" dropdown-menu>
+          <ul style="height: 1000%; overflow: auto;" class="dropdown-menu" dropdown-menu>
                     <span ng-repeat="(name, group) in groupedDashboards">
                         <li class="dropdown-submenu">
                           <a href="#" ng-bind="name"></a>
