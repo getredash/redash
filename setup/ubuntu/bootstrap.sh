@@ -7,12 +7,12 @@ REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
 # Install latest version if not specified in REDASH_VERSION env var
-REDASH_VERSION=${REDASH_VERSION-0.11.1.b2095}
-LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.${REDASH_VERSION}.tar.gz"
+REDASH_VERSION="${REDASH_VERSION:-0.1}"
+LATEST_URL="https://github.com/pubnative/redash/archive/${REDASH_VERSION:-0.1}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
 
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu/files/
+FILES_BASE_URL=https://raw.githubusercontent.com/pubnative/redash/${REDASH_BRANCH}/setup/ubuntu/files/
 
 # Verify running as root:
 if [ "$(id -u)" != "0" ]; then
@@ -122,7 +122,7 @@ fi
 if [ ! -d "$VERSION_DIR" ]; then
     sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
     sudo -u redash mkdir "$VERSION_DIR"
-    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
+    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL" --strip 1
     ln -nfs "$VERSION_DIR" /opt/redash/current
     ln -nfs /opt/redash/.env /opt/redash/current/.env
 

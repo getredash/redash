@@ -47,7 +47,7 @@ RUN chown -R redash /opt/redash
 
 # Expose ports
 EXPOSE 5000
-EXPOSE 9001
+EXPOSE 80
 
 # Startup script
 CMD ["supervisord", "-c", "/opt/redash/supervisord/supervisord.conf"]
