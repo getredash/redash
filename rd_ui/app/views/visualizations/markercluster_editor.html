@@ -1,0 +1,358 @@
+<div>
+  <ul class="tab-nav">
+    <li ng-class="{active: currentTab == 'general'}"><a ng-click="currentTab='general'">General</a></li>
+    <li ng-class="{active: currentTab == 'leaflet'}"><a ng-click="currentTab='leaflet'">Leaflet</a></li>
+    <li ng-class="{active: currentTab == 'markercluster'}"><a ng-click="currentTab='markercluster'">MarkerCluster</a></li>
+    <li ng-class="{active: currentTab == 'advanced'}"><a ng-click="currentTab='advanced'">Advanced</a></li>
+  </ul>
+
+  <div ng-show="currentTab == 'general'">
+    <div class="form-group">
+        <label class="control-label">Description</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="Not implemented" ></i>
+        <div>
+          <textarea class='form-control' ng-model="visualization.description"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Map height (px)</label>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.general.height" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">Latitude column name</label>
+        <div>
+            <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.general.latColName" class="form-control"></select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Longitude column name</label>
+        <div>
+            <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.general.lonColName" class="form-control"></select>
+        </div>
+    </div>
+  </div>
+
+  <div ng-show="currentTab == 'leaflet'">
+
+    <div class="form-group">
+        <label class="control-label">Center: Latitude</label>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.leaflet.center.lat" />
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label">Center: Longitude</label>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.leaflet.center.lng" />
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label">Center: Zoom</label>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.leaflet.center.zoom" />
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label class="control-label">Max zoom</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="Set the max value that the user will be able to zoom-in" ></i>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.leaflet.maxZoom" min=1 max=20 />
+        </div>
+    </div>
+
+
+
+    <div class="form-group">
+        <label class="control-label">Min zoom</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="Set the min value that the user will be able to zoom-out" ></i>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.leaflet.minZoom" min=1 max=20 />
+        </div>
+    </div>
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.keyboard"> keyboard
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Allows the use of the keyboard to navigate the map" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.dragging"> dragging
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Allows to drag the mouse, or make it static" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.zoomControl"> zoomControl
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Put the zoom control on the map or not" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.doubleClickZoom"> doubleClickZoom
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Allows to zoom with the double-click mouse action" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.scrollWheelZoom"> scrollWheelZoom
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Allows to zoom with the mouse wheel" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.tap"> tap
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Enables mobile hacks for supporting instant taps (fixing 200ms click delay on iOS/Android) and touch holds (fired as contextmenu events)" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.attributionControl"> attributionControl
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Shows or hides the attribution text control" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.zoomAnimation"> zoomAnimation
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Animate the zoom action or not" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.fadeAnimation"> fadeAnimation
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Enable/disable the tile fade animation" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.markerZoomAnimation"> markerZoomAnimation
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Enable/disable the marker zoom animation" ></i>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.worldCopyJump"> worldCopyJump
+      </label>
+    </div>
+
+
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.leaflet.crs"> crs
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Allows the use of the keyboard to navigate the map" ></i>
+    </div>
+
+  </div>
+
+  <div ng-show="currentTab == 'markercluster'">
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.showCoverageOnHover"> showCoverageOnHover
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="When you mouse over a cluster it shows the bounds of its markers" ></i>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.zoomToBoundsOnClick"> zoomToBoundsOnClick
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="When you click a cluster we zoom to its bounds" ></i>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.spiderfyOnMaxZoom"> spiderfyOnMaxZoom
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="When you click a cluster at the bottom zoom level we spiderfy it so you can see all of its markers. (Note: the spiderfy occurs at the current zoom level if all items within the cluster are still clustered at the maximum zoom level or at zoom specified by disableClusteringAtZoom option)" ></i>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.removeOutsideVisibleBounds"> removeOutsideVisibleBounds
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Clusters and markers too far from the viewport are removed from the map for performance." ></i>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.animate"> animate
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Smoothly split / merge cluster children when zooming and spiderfying. If L.DomUtil.TRANSITION is false, this option has no effect (no animation is possible)" ></i>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.animateAddingMarkers"> animateAddingMarkers
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="If set to true (and animate option is also true) then adding individual markers to the MarkerClusterGroup after it has been added to the map will add the marker and animate it into the cluster. Defaults to false as this gives better performance when bulk adding markers. addLayers does not support this, only addLayer with individual Markers" ></i>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.disableClusteringAtZoom"> disableClusteringAtZoom
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="If set, at this zoom level and below, markers will not be clustered. This defaults to disabled. See Example. Note: you may be interested in disabling spiderfyOnMaxZoom option when using disableClusteringAtZoom" ></i>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">maxClusterRadius</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="The maximum radius that a cluster will cover from the central marker (in pixels). Default 80. Decreasing will make more, smaller clusters. You can also use a function that accepts the current map zoom and returns the maximum cluster radius in pixels" ></i>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.markercluster.maxClusterRadius" />
+        </div>
+    </div>
+
+  </div>
+
+  <div ng-show="currentTab == 'advanced'">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.singleMarkerMode"> singleMarkerMode
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="If set to true, overrides the icon for all added markers to make them appear as a 1 size cluster. Note: the markers are not replaced by cluster objects, only their icon is replaced. Hence they still react to normal events, and option disableClusteringAtZoom does not restore their previous icon" ></i>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">spiderLegPolylineOptions</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="Allows you to specify PolylineOptions to style spider legs. By default, they are { weight: 1.5, color: '#222', opacity: 0.5 }" ></i>
+        <div>
+          <textarea class='form-control' ng-model="visualization.options.markercluster.spiderLegPolylineOptions"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">spiderfyDistanceMultiplier</label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="Increase from 1 to increase the distance away from the center that spiderfied markers are placed. Use if you are using big marker icons (Default: 1)" ></i>
+      <div>
+        <input class="form-control" type="number" ng-model="visualization.options.markercluster.spiderfyDistanceMultiplier" min=0 max=1 step=0.1 />
+      </div>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.markercluster.chunkedLoading"> chunkedLoading
+      </label>
+      <i class="fa fa-question-circle"
+        aria-hidden="true"
+        tooltip="split the addLayers processing in to small intervals so that the page does not freeze" ></i>
+
+    </div>
+
+    <div class="form-group">
+        <label class="control-label">chunkInterval</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="Time interval (in ms) during which addLayers works before pausing to let the rest of the page process. In particular, this prevents the page from freezing while adding a lot of markers. Defaults to 200ms." ></i>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.markercluster.chunkInterval" />
+        </div>
+    </div>
+
+    <div>
+        <label class="control-label">chunkDelay</label>
+        <i class="fa fa-question-circle"
+          aria-hidden="true"
+          tooltip="Time delay (in ms) between consecutive periods of processing for addLayers. Default to 50ms" ></i>
+        <div>
+            <input class="form-control" type="number" ng-model="visualization.options.markercluster.chunkDelay" />
+        </div>
+    </div>
+
+  </div>
+
+</div>

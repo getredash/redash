@@ -19,6 +19,7 @@ angular.module('redash', [
   'ui.bootstrap.showErrors',
   'angularResizable',
   'ngSanitize',
+  'ui-leaflet',
   'vs-repeat'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig', '$httpProvider',
   function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig, $httpProvider) {
