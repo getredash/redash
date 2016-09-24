@@ -12,11 +12,9 @@
     <div class="collapse navbar-collapse navbar-ex1-collapse">
       <ul class="nav navbar-nav">
       <li>
-        <a href="/">Home</a>
+          <a ng-show="currentUser.hasPermission('create_query')" href="queries/new">New Query</a>
       </li>
-        <li>
-            <a ng-show="currentUser.hasPermission('create_query')" href="queries/new">New Query</a>
-        </li>
+        <li><a href="queries">Queries</a></li>
         <li>
           <a href="alerts">Alerts</a>
         </li>
