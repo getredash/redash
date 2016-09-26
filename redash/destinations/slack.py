@@ -17,19 +17,19 @@ class Slack(BaseDestination):
                 },
                 'username': {
                     'type': 'string',
-                    'title': 'custom username'
+                    'title': 'Username'
                 },
                 'icon_emoji': {
                     'type': 'string',
-                    'title': 'custom icon_emoji'
+                    'title': 'Icon (Emoji)'
                 },
                 'icon_url': {
                     'type': 'string',
-                    'title': 'custom icon_url'
+                    'title': 'Icon (URL)'
                 },
                 'channel': {
                     'type': 'string',
-                    'title': 'custom channel'
+                    'title': 'Channel'
                 }
             }
         }
