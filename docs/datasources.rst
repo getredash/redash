@@ -63,7 +63,7 @@ Graphite
 
 -  **Options**:
 
-   -  Url (mandatory)
+   -  URL (mandatory)
    -  User
    -  Password
    -  Verify SSL certificate
@@ -270,3 +270,15 @@ Microsoft SQL Server
 
    - ``freetds-dev`` C library
    - ``pymssql`` python package, requires FreeTDS to be installed first
+
+
+JIRA (JQL)
+----------
+
+- **Options**:
+
+    - URL (your JIRA instance url)
+    - Username
+    - Password
+
+For information on how to write JIRA/JQL queries, see :doc:`documentation </usage/jira_querying>`.
