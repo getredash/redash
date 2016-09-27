@@ -90,6 +90,7 @@
           $scope.syntax = $scope.syntax || 'sql';
 
           $scope.editorOptions = {
+            theme: 'solarized_dark',
             mode: 'json',
             require: ['ace/ext/language_tools'],
             advanced: {
