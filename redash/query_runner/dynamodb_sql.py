@@ -34,6 +34,8 @@ types_map = {
 
 
 class DynamoDBSQL(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {

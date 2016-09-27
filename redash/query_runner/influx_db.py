@@ -49,6 +49,8 @@ def _transform_result(results):
 
 
 class InfluxDB(BaseQueryRunner):
+    noop_query = "show databases"
+
     @classmethod
     def configuration_schema(cls):
         return {

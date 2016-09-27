@@ -45,6 +45,8 @@ def _wait(conn, timeout=None):
 
 
 class PostgreSQL(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {

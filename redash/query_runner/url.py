@@ -5,6 +5,8 @@ from redash.query_runner import *
 
 
 class Url(BaseQueryRunner):
+    noop_query = ""
+
     @classmethod
     def configuration_schema(cls):
         return {

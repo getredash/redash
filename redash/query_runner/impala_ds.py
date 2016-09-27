@@ -35,6 +35,8 @@ types_map = {
 
 
 class Impala(BaseSQLQueryRunner):
+    noop_query = "show schemas"
+
     @classmethod
     def configuration_schema(cls):
         return {

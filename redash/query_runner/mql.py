@@ -45,6 +45,10 @@ class MQL(BaseQueryRunner):
             },
             'required': ['uri']
         }
+    def test_connection(self):
+        conn = pymongo.MongoClient(self.configuration['uri'])
+        if not conn.command("connectionStatus")["ok"]:
+            raise Exception("MongoDB connection error")
 
     def run_query(self, query):
         conn = pymongo.MongoClient(self.configuration['uri'])
