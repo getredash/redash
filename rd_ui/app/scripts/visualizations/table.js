@@ -68,7 +68,7 @@
                 columnDefinition.formatParameter = 0;
               } else if (columnType === 'float') {
                 columnDefinition.formatFunction = 'number';
-                columnDefinition.formatParameter = 2;
+                columnDefinition.formatParameter = 3;
               } else if (columnType === 'boolean') {
                 columnDefinition.formatFunction = function (value) {
                   if (value !== undefined) {
