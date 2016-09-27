@@ -1225,7 +1225,7 @@ class QuerySnippet(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         return d
 
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey)
+all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, QuerySnippet)
 
 
 def init_db():
