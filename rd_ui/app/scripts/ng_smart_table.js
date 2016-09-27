@@ -388,7 +388,7 @@ function getKeyFromObject(obj, key) {
   angular.module('smartTable.table', ['smartTable.column', 'smartTable.utilities', 'smartTable.directives', 'smartTable.filters', 'ui.bootstrap.pagination.smartTable'])
     .constant('DefaultTableConfiguration', {
       selectionMode: 'none',
-      isGlobalSearchActivated: false,
+      isGlobalSearchActivated: true,
       displaySelectionCheckbox: false,
       isPaginationEnabled: true,
       maxSize: 5,
@@ -696,7 +696,7 @@ angular.module("partials/editableCell.html", []).run(["$templateCache", function
 
 angular.module("partials/globalSearchCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/globalSearchCell.html",
-    "<label>Search :</label>\n" +
+    "<label>Global Search :</label>\n" +
     "<input type=\"text\" ng-model=\"searchValue\"/>");
 }]);
 
@@ -1007,4 +1007,3 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
       };
     }]);
 })(angular);
-
