@@ -10484,3 +10484,9 @@ a.thumbnail.active {
   font-size: 13px;
   margin: 20px 2px 0;
 }
+.header-content.sort-ascent:before {
+  content: '\25B2';
+}
+.header-content.sort-descent:before {
+  content: '\25BC';
+}
