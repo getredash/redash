@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  function QueryViewCtrl($scope, Events, $route, $location, notifications, growl, $modal, Query, DataSource) {
+  function QueryViewCtrl($scope, Events, $route, $location, $window, notifications, growl, $modal, Query, DataSource) {
     var DEFAULT_TAB = 'table';
 
     var getQueryResult = function(maxAge) {
@@ -165,6 +165,8 @@
       }
 
       getQueryResult(0);
+      //$window.location.hash = "#result"
+      $window.scrollTo(0, 1000)
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
@@ -340,5 +342,5 @@
 
   angular.module('redash.controllers')
     .controller('QueryViewCtrl',
-      ['$scope', 'Events', '$route', '$location', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
+      ['$scope', 'Events', '$route', '$location', '$window', 'notifications', 'growl', '$modal', 'Query', 'DataSource', QueryViewCtrl]);
 })();
