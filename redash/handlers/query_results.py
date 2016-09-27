@@ -162,7 +162,8 @@ class QueryResultResource(BaseResource):
 
     def make_json_response(self, query_result):
         data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
-        return make_response(data, 200, {})
+        headers = {'Content-Type': "application/json"}
+        return make_response(data, 200, headers)
 
     @staticmethod
     def make_csv_response(query_result):
