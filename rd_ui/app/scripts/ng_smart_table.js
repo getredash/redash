@@ -408,7 +408,7 @@ function getKeyFromObject(obj, key) {
       scope.itemsByPage = 10;
 
       var predicate = {},
-        lastColumnSort;
+        lastColumnsSort;
 
       function isAllSelected() {
         var i,
@@ -432,18 +432,11 @@ function getKeyFromObject(obj, key) {
         return Math.ceil(array.length / scope.itemsByPage);
       }
 
-      function sortDataRow(array, column) {
+      function sortDataRow(array, columns) {
         var sortAlgo = (scope.sortAlgorithm && angular.isFunction(scope.sortAlgorithm)) === true ? scope.sortAlgorithm : filter('orderBy');
-        if (column) {
-          var predicate = function (o) {
-            return getKeyFromObject(o, column.sortPredicate);
-          };
-          console.log(array)
-          console.log(sortAlgo)
-          console.log(predicate)
-          console.log(column.sortPredicate)
-          console.log(column.reverse)
-          return arrayUtility.sort(array, sortAlgo, ['number', '-letter'], column.reverse);
+        if (columns) {
+          console.log(columns)
+          return arrayUtility.sort(array, sortAlgo, columns, true);
         } else {
           return array;
         }
@@ -502,23 +495,31 @@ function getKeyFromObject(obj, key) {
        * @method sortBy
        * @param column
        */
-      this.sortBy = function (column) {
-        var index = scope.columns.indexOf(column);
-        if (index !== -1) {
-          if (column.isSortable === true) {
-            // reset the last column used
-            if (lastColumnSort && lastColumnSort !== column) {
-              lastColumnSort.reverse = 'none';  //changes the class
+       this.sortBy = function (column) {
+         var index = scope.columns.indexOf(column);
+         if (index !== -1) {
+           if (column.isSortable === true) {
+             column.sortPredicate = column.sortPredicate || column.map;
+             if (!lastColumnsSort) {
+               lastColumnsSort = [column.sortPredicate]
+               column.reverse = true
+             } else {
+               if ( lastColumnsSort.includes(column.sortPredicate) ) {
+                 lastColumnsSort.splice(lastColumnsSort.indexOf(column.sortPredicate), 1) //remove from list
+                 lastColumnsSort.unshift('-' + column.sortPredicate) //add back at beginning
+                 column.reverse = false
+               } else if ( lastColumnsSort.includes('-' + column.sortPredicate) ) {
+                 lastColumnsSort.splice(lastColumnsSort.indexOf('-' + column.sortPredicate), 1)
+                 column.reverse = 'none'
+               } else {
+                lastColumnsSort.unshift(column.sortPredicate)  //add at beginning of list
+                column.reverse = true
+              }
             }
-
-            column.sortPredicate = column.sortPredicate || column.map;
-            column.reverse = column.reverse !== true; //changes the class
-            lastColumnSort = column;
-          }
-        }
-
-        scope.displayedCollection = this.pipe(scope.dataCollection);
-      };
+           }
+         }
+         scope.displayedCollection = this.pipe(scope.dataCollection);
+       };
 
       /**
        * set the filter predicate used for searching
@@ -553,13 +554,13 @@ function getKeyFromObject(obj, key) {
         var filterAlgo = (scope.filterAlgorithm && angular.isFunction(scope.filterAlgorithm)) === true ? scope.filterAlgorithm : filter('filter'),
           output;
         //filter and sort are commutative
-        output = sortDataRow(arrayUtility.filter(array, filterAlgo, predicate), lastColumnSort);
+        output = sortDataRow(arrayUtility.filter(array, filterAlgo, predicate), lastColumnsSort);
         scope.numberOfPages = calculateNumberOfPages(output);
         return scope.isPaginationEnabled ? arrayUtility.fromTo(output, (scope.currentPage - 1) * scope.itemsByPage, scope.itemsByPage) : output;
       };
 
       this.resetSort = function () {
-        lastColumnSort = null;
+        lastColumnsSort = null;
         predicate = {};
         this.sortBy();
       };
