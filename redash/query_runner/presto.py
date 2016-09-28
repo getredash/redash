@@ -99,16 +99,17 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, *redash_user):
+        redash_user = redash_user[0]
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
-                username=(redash_user[0] if redash_user else 'app') + '-redash',
+                username=(redash_user if redash_user else 'app') + '-redash',
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
 
         cursor = connection.cursor()
 
-        if redash_user[4] not in ('Admin','Simon'):
+        if redash_user[0:5] not in ('Admin','Simon'):
             query = query.rstrip()
             if query.find('select ') != -1:
                 query = query + ' limit 2000'

@@ -438,7 +438,12 @@ function getKeyFromObject(obj, key) {
           var predicate = function (o) {
             return getKeyFromObject(o, column.sortPredicate);
           };
-          return arrayUtility.sort(array, sortAlgo, predicate, column.reverse);
+          console.log(array)
+          console.log(sortAlgo)
+          console.log(predicate)
+          console.log(column.sortPredicate)
+          console.log(column.reverse)
+          return arrayUtility.sort(array, sortAlgo, ['number', '-letter'], column.reverse);
         } else {
           return array;
         }
@@ -503,11 +508,11 @@ function getKeyFromObject(obj, key) {
           if (column.isSortable === true) {
             // reset the last column used
             if (lastColumnSort && lastColumnSort !== column) {
-              lastColumnSort.reverse = 'none';
+              lastColumnSort.reverse = 'none';  //changes the class
             }
 
             column.sortPredicate = column.sortPredicate || column.map;
-            column.reverse = column.reverse !== true;
+            column.reverse = column.reverse !== true; //changes the class
             lastColumnSort = column;
           }
         }
