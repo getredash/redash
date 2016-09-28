@@ -435,7 +435,6 @@ function getKeyFromObject(obj, key) {
       function sortDataRow(array, columns) {
         var sortAlgo = (scope.sortAlgorithm && angular.isFunction(scope.sortAlgorithm)) === true ? scope.sortAlgorithm : filter('orderBy');
         if (columns) {
-          console.log(columns)
           return arrayUtility.sort(array, sortAlgo, columns, true);
         } else {
           return array;
