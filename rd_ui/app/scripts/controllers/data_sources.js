@@ -36,6 +36,18 @@
         growl.addErrorMessage("Failed to delete data source.");
       });
     }
+    $scope.test = function () {
+      $scope.dataSource.$test(function (httpResponse) {
+        if (httpResponse.ok) {
+          growl.addSuccessMessage("Connection test successful.");
+        } else {
+          growl.addErrorMessage("Connection test" + httpResponse.msg);
+        }
+      }, function (httpResponse) {
+        console.log("Failed to test data source: ", httpResponse.status, httpResponse.statusText, httpResponse);
+        growl.addErrorMessage("Failed to test data source.");
+      });
+    }
   };
 
   angular.module('redash.controllers')

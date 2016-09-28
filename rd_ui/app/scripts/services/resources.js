@@ -670,6 +670,7 @@
     var actions = {
       'get': {'method': 'GET', 'cache': false, 'isArray': false},
       'query': {'method': 'GET', 'cache': false, 'isArray': true},
+      'test': {'method': 'POST', 'cache': false, 'isArray': false, 'url': 'api/data_sources/:id/test'},
       'getSchema': {'method': 'GET', 'cache': true, 'isArray': true, 'url': 'api/data_sources/:id/schema'}
     };
 
