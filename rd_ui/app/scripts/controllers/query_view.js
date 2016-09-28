@@ -166,7 +166,9 @@
 
       getQueryResult(0);
       //$window.location.hash = "#result"
-      $window.scrollTo(0, 1000)
+      if ($scope.sourceMode) {
+        $window.scrollTo(0, 1000)
+      }
       $scope.lockButton(true);
       $scope.cancelling = false;
       Events.record(currentUser, 'execute', 'query', $scope.query.id);
