@@ -110,7 +110,7 @@ class Presto(BaseQueryRunner):
 
         cursor = connection.cursor()
 
-        if redash_user[0:5] not in ('Admin','Simon'):
+        if redash_user[0:5] not in ('Admin','Simon', 'app'):
             query = query.rstrip()
             if query.find('select ') != -1:
                 query = query + ' limit 2000'
