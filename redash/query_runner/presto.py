@@ -100,11 +100,11 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, *redash_user):
-        redash_user = redash_user[0]
+        redash_user = redash_user[0] if redash_user else 'app'
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
-                username=(redash_user if redash_user else 'app') + '-redash',
+                username=redash_user + '-redash',
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
 
