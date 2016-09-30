@@ -505,13 +505,13 @@ function getKeyFromObject(obj, key) {
              } else {
                if ( lastColumnsSort.includes(column.sortPredicate) ) {
                  lastColumnsSort.splice(lastColumnsSort.indexOf(column.sortPredicate), 1) //remove from list
-                 lastColumnsSort.unshift('-' + column.sortPredicate) //add back at beginning
+                 lastColumnsSort.push('-' + column.sortPredicate) //add back at the end
                  column.reverse = false
                } else if ( lastColumnsSort.includes('-' + column.sortPredicate) ) {
                  lastColumnsSort.splice(lastColumnsSort.indexOf('-' + column.sortPredicate), 1)
                  column.reverse = 'none'
                } else {
-                lastColumnsSort.unshift(column.sortPredicate)  //add at beginning of list
+                lastColumnsSort.push(column.sortPredicate)  //add at end of list
                 column.reverse = true
               }
             }
