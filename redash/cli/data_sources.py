@@ -148,3 +148,9 @@ def edit(name, new_name=None, options=None, type=None, organization='default'):
 
     except models.DataSource.DoesNotExist:
         print "Couldn't find data source named: {}".format(name)
+
+@manager.command
+def refresh_schemas():
+    """Refresh schemas"""
+    for ds in models.DataSource.select():
+        ds.get_schema(refresh=True)
