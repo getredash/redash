@@ -155,7 +155,8 @@
                     dom.setCssClass(editor.container, "fullScreen", fullScreen)
                     editor.setAutoScrollEditorIntoView(!fullScreen)
                     document.querySelector('.navbar').classList.toggle("hide")
-                    editor.resize()
+                    editor.resize();
+                    editor.focus();
                 }
 
                 editorScope = $scope;
