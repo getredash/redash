@@ -75,6 +75,9 @@
   defineDummySnippets("sql");
   defineDummySnippets("json");
 
+  var editorScope;
+  var editorInstance;
+
   function queryEditor(QuerySnippet) {
     return {
       restrict: 'E',
@@ -84,7 +87,20 @@
         'schema': '=',
         'syntax': '='
       },
-      template: '<div ui-ace="editorOptions" ng-model="query.query"></div>',
+      template: '<style>.ace_editor.fullScreen {\
+          height: auto;\
+          width: auto;\
+          border: 0;\
+          margin: 0;\
+          position: fixed !important;\
+          top: 0;\
+          bottom: 0;\
+          left: 0;\
+          right: 0;\
+          z-index: 10;}\
+        .fullScreen {\
+          overflow: hidden;}\
+      </style><div ui-ace="editorOptions" ng-model="query.query"></div>',
       link: {
         pre: function ($scope, element) {
           $scope.syntax = $scope.syntax || 'sql';
@@ -133,6 +149,26 @@
                     editor.setOption('enableLiveAutocompletion', true);
                   }
                 }
+
+                $scope.fullScreenEditor = function fullScreenEditor(editor){
+                    var fullScreen = dom.toggleCssClass(document.body, "fullScreen")
+                    dom.setCssClass(editor.container, "fullScreen", fullScreen)
+                    editor.setAutoScrollEditorIntoView(!fullScreen)
+                    document.querySelector('.navbar').classList.toggle("hide")
+                    editor.resize()
+                }
+
+                editorScope = $scope;
+                editorInstance = editor;
+                var dom = ace.require("ace/lib/dom");
+
+                editor.commands.addCommand({
+                    name: "Toggle Fullscreen",
+                    bindKey: {win: "Esc", mac: "Esc"},
+                    exec: function(editor) {
+                        $scope.fullScreenEditor(editor)
+                    }
+                })
 
               });
 
@@ -216,6 +252,24 @@
           } else {
             growl.addInfoMessage("Query formatting is not supported for your data source syntax.");
           }
+        };
+      }
+    }
+  }
+
+  function fullScreenEditor() {
+    return {
+      restrict: 'E',
+      scope: false,
+      template: '<button type="button" class="btn btn-default btn-s"\
+                   ng-click="fullScreenEditor()">\
+                    <span class="zmdi zmdi-fullscreen"></span>\
+                     Full Screen\
+                </button>',
+      link: function($scope) {
+        $scope.fullScreenEditor = function fullScreenEditor() {
+          console.log(editorScope)
+          editorScope.fullScreenEditor(editorInstance)
         };
       }
     }
@@ -360,5 +414,6 @@
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
   .directive('schemaBrowser', schemaBrowser)
-  .directive('queryFormatter', ['$http', 'growl', queryFormatter]);
+  .directive('queryFormatter', ['$http', 'growl', queryFormatter])
+  .directive('fullScreenEditor', fullScreenEditor);
 })();
