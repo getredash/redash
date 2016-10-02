@@ -837,11 +837,10 @@ class Query(ChangeTrackingMixin, ModelTimestampsMixin, BaseVersionedModel, Belon
 
         return query
 
-    @classmethod
-    def fork(cls, id, user, org):
-        query = cls.get_by_id_and_org(id, org)
+    def fork(self, user):
+        query = self
         forked_query = Query()
-        forked_query.name = 'Copy of (#{}) {}'.format(id, query.name)
+        forked_query.name = 'Copy of (#{}) {}'.format(query.id, query.name)
         forked_query.user = user
         forked_list = ['org', 'data_source', 'latest_query_data', 'description', 'query', 'query_hash']
         for a in forked_list:
