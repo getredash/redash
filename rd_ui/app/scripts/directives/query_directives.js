@@ -275,7 +275,7 @@
     }
   }
 
-  function schemaBrowser() {
+  function schemaBrowser($filter) {
     return {
       restrict: 'E',
       scope: {
@@ -289,6 +289,7 @@
         }
 
         $scope.getSize = function(table) {
+
           var size = 18;
 
           if (!table.collapsed) {
@@ -413,7 +414,7 @@
   .directive('queryEditor', ['QuerySnippet', queryEditor])
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
-  .directive('schemaBrowser', schemaBrowser)
+  .directive('schemaBrowser', ['$filter', schemaBrowser])
   .directive('queryFormatter', ['$http', 'growl', queryFormatter])
   .directive('fullScreenEditor', fullScreenEditor);
 })();
