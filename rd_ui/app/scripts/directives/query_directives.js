@@ -269,7 +269,6 @@
                 </button>',
       link: function($scope) {
         $scope.fullScreenEditor = function fullScreenEditor() {
-          console.log(editorScope)
           editorScope.fullScreenEditor(editorInstance)
         };
       }
