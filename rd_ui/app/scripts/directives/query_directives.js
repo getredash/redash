@@ -275,7 +275,7 @@
     }
   }
 
-  function schemaBrowser($filter) {
+  function schemaBrowser() {
     return {
       restrict: 'E',
       scope: {
@@ -414,7 +414,7 @@
   .directive('queryEditor', ['QuerySnippet', queryEditor])
   .directive('queryRefreshSelect', queryRefreshSelect)
   .directive('queryTimePicker', queryTimePicker)
-  .directive('schemaBrowser', ['$filter', schemaBrowser])
+  .directive('schemaBrowser', schemaBrowser)
   .directive('queryFormatter', ['$http', 'growl', queryFormatter])
   .directive('fullScreenEditor', fullScreenEditor);
 })();
