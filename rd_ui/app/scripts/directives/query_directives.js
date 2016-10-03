@@ -138,6 +138,7 @@
               $scope.$parent.$on("angular-resizable.resizing", function (event, args) {
                 editor.resize();
               });
+              $scope.query.editor = editor;
 
               editor.focus();
             }

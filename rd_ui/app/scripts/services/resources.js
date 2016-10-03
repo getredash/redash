@@ -488,7 +488,10 @@
       if (!this.query) {
         return;
       }
-      var queryText = this.query;
+      var queryText = this.editor.getSelectedText();
+      if (queryText === "") {
+        queryText = this.query;
+      }
 
       var parameters = this.getParameters();
       var missingParams = parameters.getMissing();
@@ -769,7 +772,7 @@
         "tabTrigger": this.trigger
       };
     }
-    
+
     return resource;
   };
 
