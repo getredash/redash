@@ -713,7 +713,9 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
     "    <tbody>\n" +
     "    <tr ng-repeat=\"dataRow in displayedCollection\" ng-class=\"{selected:dataRow.isSelected}\"\n" +
     "        class=\"smart-table-data-row\">\n" +
-    "        <td ng-repeat=\"column in columns\" class=\"smart-table-data-cell {{column.cellClass}}\"></td>\n" +
+    "        <td ng-repeat=\"column in columns\">\n" +
+    "            <div class=\"smart-table-data-cell {{column.cellClass}}\"></div>\n" +
+    "        </td>\n" +
     "    </tr>\n" +
     "    </tbody>\n" +
     "    <tfoot ng-show=\"isPaginationEnabled\">\n" +
