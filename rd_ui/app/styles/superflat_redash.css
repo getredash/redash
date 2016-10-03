@@ -9142,9 +9142,6 @@ h6 .label {
 .table > tfoot > tr > td:last-child {
   padding-right: 30px;
 }
-.table tbody > tr:last-child > td {
-  padding-bottom: 20px;
-}
 .table-bordered {
   border: 0;
 }
