@@ -103,6 +103,7 @@
                 </div>
 
                 <ul class="dropdown-menu pull-right" dropdown-menu style="z-index:1000000">
+                  <li><a ng-show="dashboard.canEdit()" ng-click="editTextBox()">Edit</a></li>
                   <li><a ng-show="dashboard.canEdit()" ng-click="deleteWidget()">Remove From Dashbaord</a></li>
                 </ul>
               </div>

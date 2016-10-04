@@ -188,7 +188,41 @@
     }
   };
 
-  var WidgetCtrl = function($scope, $location, Events, Query) {
+  var WidgetCtrl = function($scope, $location, Events, Query, $modal) {
+    $scope.editTextBox = function() {
+      $modal.open({
+        templateUrl: '/views/edit_text_box_form.html',
+        scope: $scope,
+        controller: ['$scope', '$modalInstance', 'growl', function($scope, $modalInstance, growl) {
+          $scope.widgetSizes = [{
+            name: 'Regular',
+            value: 1
+          }, {
+            name: 'Double',
+            value: 2
+          }, {
+            name: 'Hidden',
+            value: 0
+          }];
+
+          $scope.close = function() {
+            $modalInstance.close();
+          };
+
+          $scope.saveWidget = function() {
+            $scope.saveInProgress = true;
+            $scope.widget.$save().then(function(response) {
+              $scope.close();
+            }).catch(function() {
+              growl.addErrorMessage("Widget can not be updated");
+            }).finally(function() {
+              $scope.saveInProgress = false;
+            });
+          };
+        }],
+      });
+    }
+
     $scope.deleteWidget = function() {
       if (!confirm('Are you sure you want to remove "' + $scope.widget.getName() + '" from the dashboard?')) {
         return;
@@ -237,6 +271,6 @@
   angular.module('redash.controllers')
     .controller('DashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', '$modal', 'Dashboard', DashboardCtrl])
     .controller('PublicDashboardCtrl', ['$scope', 'Events', 'Widget', '$routeParams', '$location', '$http', '$timeout', '$q', 'Dashboard', PublicDashboardCtrl])
-    .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', WidgetCtrl])
+    .controller('WidgetCtrl', ['$scope', '$location', 'Events', 'Query', '$modal', WidgetCtrl])
 
 })();
