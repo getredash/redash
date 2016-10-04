@@ -15,6 +15,7 @@
       </div>
       <div collapse="table.collapsed">
         <div ng-repeat="column in filtered = (table.columns | filter:schemaFilter)" style="padding-left:16px;" ng-bind-html="column | highlight:schemaFilter"></div>
+        <div ng-repeat="col in table.columns | filter:'!'+schemaFilter" style="padding-left:16px;">{{col}}</div>
       </div>
     </div>
   </div>
