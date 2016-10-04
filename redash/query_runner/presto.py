@@ -73,7 +73,7 @@ class Presto(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
         WHERE table_schema in ('bi', 'default', 'applift_api_production')
         ORDER BY table_schema, table_name, column_name asc
@@ -93,9 +93,9 @@ class Presto(BaseQueryRunner):
                 table_name = row['table_name']
 
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {'name': table_name, 'columns': {}}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'][row['column_name']] = row['data_type']
 
         return schema.values()
 

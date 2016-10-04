@@ -14,8 +14,11 @@
         <span ng-if="table.size !== undefined"> ({{table.size}})</span>
       </div>
       <div collapse="table.collapsed">
-        <div ng-repeat="column in filtered = (table.columns | filter:schemaFilter)" style="padding-left:16px;" ng-bind-html="column | highlight:schemaFilter"></div>
-        <div ng-repeat="col in table.columns | filter:'!'+schemaFilter" style="padding-left:16px;">{{col}}</div>
+        <div ng-repeat="column in filtered = ( getKeys(table.columns) | filter:schemaFilter)" style="padding-left:16px;">
+            <span ng-bind-html="(column | highlight:schemaFilter)"></span>
+            <span style="float:right; font-size: 11px;" ng-bind="(table.columns[column])"></span>
+        </div>
+        <div ng-repeat="column2 in getKeys(table.columns) | filter:'!'+schemaFilter" style="padding-left:16px;">{{column2}}<span style="float:right; font-size: 11px;">{{table.columns[column2]}}</span></div>
       </div>
     </div>
   </div>

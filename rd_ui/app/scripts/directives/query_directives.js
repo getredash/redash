@@ -288,6 +288,10 @@
           $scope.$broadcast('vsRepeatTrigger');
         }
 
+        $scope.getKeys = function(colDict) {
+          return Object.keys(colDict)
+        }
+
         $scope.getSize = function(table) {
 
           var size = 18;
