@@ -16,14 +16,6 @@ from redash.destinations import import_destinations
 __version__ = '0.12.0'
 
 
-if settings.FEATURE_TABLES_PERMISSIONS:
-    # TODO(@arikfr): remove this warning on next version release
-    print "You have table based permissions enabled, but this feature was removed."
-    print "Please use new data sources based permission model."
-    print "(re:dash won't load until you turn off this feature)"
-    exit(1)
-
-
 def setup_logging():
     handler = logging.StreamHandler()
     formatter = logging.Formatter('[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')

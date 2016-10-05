@@ -1,9 +1,17 @@
+import os
 import peewee
-from redash import settings
 from redash.models import db, NotificationDestination, AlertSubscription, Alert, Organization, User
 from redash.destinations import get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer
 from playhouse.migrate import PostgresqlMigrator, migrate
+
+HIPCHAT_API_TOKEN = os.environ.get('REDASH_HIPCHAT_API_TOKEN', None)
+HIPCHAT_API_URL = os.environ.get('REDASH_HIPCHAT_API_URL', None)
+HIPCHAT_ROOM_ID = os.environ.get('REDASH_HIPCHAT_ROOM_ID', None)
+
+WEBHOOK_ENDPOINT = os.environ.get('REDASH_WEBHOOK_ENDPOINT', None)
+WEBHOOK_USERNAME = os.environ.get('REDASH_WEBHOOK_USERNAME', None)
+WEBHOOK_PASSWORD = os.environ.get('REDASH_WEBHOOK_PASSWORD', None)
 
 if __name__ == '__main__':
     migrator = PostgresqlMigrator(db.database)
@@ -24,13 +32,13 @@ if __name__ == '__main__':
                 print "!!! Warning: failed finding default organization or admin user, won't migrate Webhook/HipChat alert subscriptions."
                 exit()
 
-            if settings.WEBHOOK_ENDPOINT:
+            if WEBHOOK_ENDPOINT:
                 # Have all existing alerts send to webhook if already configured
                 schema = get_configuration_schema_for_destination_type('webhook')
-                conf = {'url': settings.WEBHOOK_ENDPOINT}
-                if settings.WEBHOOK_USERNAME:
-                    conf['username'] = settings.WEBHOOK_USERNAME
-                    conf['password'] = settings.WEBHOOK_PASSWORD
+                conf = {'url': WEBHOOK_ENDPOINT}
+                if WEBHOOK_USERNAME:
+                    conf['username'] = WEBHOOK_USERNAME
+                    conf['password'] = WEBHOOK_PASSWORD
                 options = ConfigurationContainer(conf, schema)
 
                 webhook = NotificationDestination.create(
@@ -48,18 +56,18 @@ if __name__ == '__main__':
                         alert=alert
                     )
 
-            if settings.HIPCHAT_API_TOKEN:
+            if HIPCHAT_API_TOKEN:
                 # Have all existing alerts send to HipChat if already configured
                 schema = get_configuration_schema_for_destination_type('hipchat')
 
                 conf = {}
 
-                if settings.HIPCHAT_API_URL:
+                if HIPCHAT_API_URL:
                     conf['url'] = '{url}/room/{room_id}/notification?auth_token={token}'.format(
-                        url=settings.HIPCHAT_API_URL, room_id=settings.HIPCHAT_ROOM_ID, token=settings.HIPCHAT_API_TOKEN)
+                        url=HIPCHAT_API_URL, room_id=HIPCHAT_ROOM_ID, token=HIPCHAT_API_TOKEN)
                 else:
                     conf['url'] = 'https://hipchat.com/v2/room/{room_id}/notification?auth_token={token}'.format(
-                        room_id=settings.HIPCHAT_ROOM_ID, token=settings.HIPCHAT_API_TOKEN)
+                        room_id=HIPCHAT_ROOM_ID, token=HIPCHAT_API_TOKEN)
 
                 options = ConfigurationContainer(conf, schema)
 
