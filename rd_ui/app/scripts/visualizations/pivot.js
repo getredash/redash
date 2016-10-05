@@ -28,6 +28,7 @@
                 //delete some values which are functions
                 delete configCopy.aggregators;
                 delete configCopy.renderers;
+                delete configCopy.onRefresh;
                 //delete some bulky default values
                 delete configCopy.rendererOptions;
                 delete configCopy.localeStrings;
