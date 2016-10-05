@@ -6,7 +6,7 @@ import sqlparse
 from funcy import distinct, take
 from itertools import chain
 
-from redash.handlers.base import routes, org_scoped_rule
+from redash.handlers.base import routes, org_scoped_rule, paginate
 from redash.handlers.query_results import run_query
 from redash import models
 from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only
@@ -73,7 +73,20 @@ class QueryListResource(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        return [q.to_dict(with_stats=True) for q in models.Query.all_queries(self.current_user.groups)]
+        results = models.Query.all_queries(self.current_user.groups)
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True))
+
+
+class MyQueriesResource(BaseResource):
+    @require_permission('view_query')
+    def get(self):
+        drafts = request.args.get('drafts') is not None
+        results = models.Query.by_user(self.current_user, drafts)
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True))
 
 
 class QueryResource(BaseResource):

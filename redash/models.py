@@ -579,7 +579,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="queries")
+    org = peewee.ForeignKeyField(Organization, related_name="queries", index=True)
     data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
@@ -647,7 +647,7 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         self.save()
 
     @classmethod
-    def all_queries(cls, groups):
+    def all_queries(cls, groups, drafts=False):
         q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
             .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
             .switch(Query).join(User)\
@@ -657,7 +657,16 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)\
             .order_by(cls.created_at.desc())
 
+        if drafts:
+            q = q.where(Query.name == 'New Query')
+        else:
+            q = q.where(Query.name != 'New Query')
+
         return q
+
+    @classmethod
+    def by_user(cls, user, drafts):
+        return cls.all_queries(user.groups, drafts).where(Query.user==user)
 
     @classmethod
     def outdated_queries(cls):
