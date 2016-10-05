@@ -53,6 +53,7 @@ class WidgetListResource(BaseResource):
 class WidgetResource(BaseResource):
     @require_permission('edit_dashboard')
     def post(self, widget_id):
+        # This method currently handles Text Box widgets only.
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_admin_or_owner(widget.dashboard.user_id)
         widget_properties = request.get_json(force=True)
