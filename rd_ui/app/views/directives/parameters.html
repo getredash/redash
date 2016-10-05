@@ -2,6 +2,10 @@
   <div class="form-group" ng-repeat="param in parameters">
     <label>{{param.title}}</label>
     <button class="btn btn-default btn-xs" ng-click="showParameterSettings(param)" ng-if="editable"><i class="zmdi zmdi-settings"></i></button>
-    <input type="{{param.type}}" class="form-control" ng-model="param.value">
+    <span ng-switch="param.type">
+      <input ng-switch-when="datetime-with-seconds" type="datetime-local" step="1" class="form-control" ng-model="param.value">
+      <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.value">
+    </span>
   </div>
 </div>
+
