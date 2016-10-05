@@ -194,17 +194,6 @@
         templateUrl: '/views/edit_text_box_form.html',
         scope: $scope,
         controller: ['$scope', '$modalInstance', 'growl', function($scope, $modalInstance, growl) {
-          $scope.widgetSizes = [{
-            name: 'Regular',
-            value: 1
-          }, {
-            name: 'Double',
-            value: 2
-          }, {
-            name: 'Hidden',
-            value: 0
-          }];
-
           $scope.close = function() {
             $modalInstance.close();
           };
