@@ -23,11 +23,13 @@ types_map = {
     5: TYPE_FLOAT,
 }
 
+
 class MSSQLJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, uuid.UUID):
             return str(o)
         return super(MSSQLJSONEncoder, self).default(o)
+
 
 class SqlServer(BaseSQLQueryRunner):
     @classmethod
@@ -80,6 +82,10 @@ class SqlServer(BaseSQLQueryRunner):
     def type(cls):
         return "mssql"
 
+    @classmethod
+    def annotate_query(cls):
+        return True
+
     def __init__(self, configuration):
         super(SqlServer, self).__init__(configuration)
 
@@ -113,9 +119,7 @@ class SqlServer(BaseSQLQueryRunner):
 
         return schema.values()
 
-
     def run_query(self, query):
-
         connection = None
 
         try:
