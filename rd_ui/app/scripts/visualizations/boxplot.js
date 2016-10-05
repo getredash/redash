@@ -8,7 +8,7 @@
         '</boxplot-renderer>';
 
       var editTemplate = '<boxplot-editor></boxplot-editor>';
-      
+
       VisualizationProvider.registerVisualization({
         type: 'BOXPLOT',
         name: 'Boxplot',
@@ -37,7 +37,10 @@
         };
 
         $scope.$watch('[queryResult && queryResult.getData(), visualization.options]', function () {
-          
+          if ($scope.queryResult.getData() === null) {
+            return;
+          }
+
           var data = $scope.queryResult.getData();
           var parentWidth = d3.select(elm[0].parentNode).node().getBoundingClientRect().width;
           var margin = {top: 10, right: 50, bottom: 40, left: 50, inner: 25},
@@ -52,7 +55,7 @@
           var xAxisLabel = $scope.visualization.options.xAxisLabel;
           var yAxisLabel = $scope.visualization.options.yAxisLabel;
 
-          var columns = $scope.queryResult.columnNames;
+          var columns = $scope.queryResult.getColumnNames();
           var xscale = d3.scale.ordinal()
             .domain(columns)
             .rangeBands([0, parentWidth-margin.left-margin.right]);
@@ -82,7 +85,7 @@
               .whiskers(iqr(1.5))
               .width(boxWidth-2*margin.inner)
               .height(height)
-              .domain([min*0.99,max*1.01]);   
+              .domain([min*0.99,max*1.01]);
           var xAxis = d3.svg.axis()
             .scale(xscale)
             .orient("bottom");
@@ -132,7 +135,7 @@
           plot.append("rect")
               .attr("class", "grid-background")
               .attr("width", width)
-              .attr("height", height); 
+              .attr("height", height);
 
           plot.append("g")
               .attr("class","grid")
@@ -157,7 +160,7 @@
               .attr("width", boxWidth)
               .attr("height", height)
               .attr("transform", function(d,i) { return "translate(" + barOffset(i) + "," + 0 + ")"; } )
-              .call(chart); 
+              .call(chart);
         }, true);
       }
     }
