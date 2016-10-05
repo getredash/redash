@@ -14,10 +14,12 @@ The follow is a list of settings and what they control:
 - **REDASH_DATABASE_URL**: *default "postgresql://postgres"*
 - **REDASH_CELERY_BROKER**: *default REDIS_URL*
 - **REDASH_CELERY_BACKEND**: *default CELERY_BROKER*
+- **REDASH_CELERY_TASK_RESULT_EXPIRES**: How many seconds to keep Celery task results in cache (in seconds), *default 3600*
 - **REDASH_HEROKU_CELERY_WORKER_COUNT**: *default 2*
 - **REDASH_QUERY_RESULTS_CLEANUP_ENABLED**: *default "true"*
 - **REDASH_QUERY_RESULTS_CLEANUP_COUNT**: *default "100"*
 - **REDASH_QUERY_RESULTS_CLEANUP_MAX_AGE**: *default "7"*
+- **REDASH_SCHEMAS_REFRESH_SCHEDULE**: how often to refresh the data sources schemas (in minutes), *default 30*
 - **REDASH_AUTH_TYPE**: *default "api_key"*
 - **REDASH_PASSWORD_LOGIN_ENABLED**: *default "true"*
 - **REDASH_ENFORCE_HTTPS**: *default "false"*
