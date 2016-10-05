@@ -97,7 +97,7 @@ def parse_worksheet(worksheet):
 
     for j, column_name in enumerate(worksheet[HEADER_INDEX]):
         if column_name in column_names:
-            column_name = "{}{}".format(column_name, duplicate_counter)
+            column_name = u"{}{}".format(column_name, duplicate_counter)
             duplicate_counter += 1
 
         column_names.append(column_name)
