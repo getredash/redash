@@ -20,7 +20,7 @@ celery_schedule = {
     },
     'refresh_schemas': {
         'task': 'redash.tasks.refresh_schemas',
-        'schedule': timedelta(minutes=30)
+        'schedule': timedelta(minutes=settings.SCHEMAS_REFRESH_SCHEDULE)
     }
 }
 
@@ -40,7 +40,8 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
 
 celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
                    CELERYBEAT_SCHEDULE=celery_schedule,
-                   CELERY_TIMEZONE='UTC')
+                   CELERY_TIMEZONE='UTC',
+                   CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES)
 
 if settings.SENTRY_DSN:
     from raven import Client
