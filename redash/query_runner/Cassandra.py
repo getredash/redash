@@ -100,9 +100,9 @@ class Cassandra(BaseSQLQueryRunner):
             data = session.execute(query)
 
             # TODO - very similar to pg.py
-            if data is not None:
+            if data.current_rows:
                 ##schema = self.get_schema()
-                
+
                 logger.debug("fields: %s",data[0]._fields)
                 columns = self.fetch_columns([(i, TYPE_STRING) for i in data[0]._fields])
                 rows = []
