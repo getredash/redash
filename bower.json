@@ -34,7 +34,7 @@
     "angular-ui-sortable": "~0.13.4",
     "angular-resizable": "^1.2.0",
     "material-design-iconic-font": "^2.2.0",
-    "plotly.js": "^1.9.0",
+    "plotly.js": "~1.16.0",
     "angular-ui-ace": "bower",
     "angular-vs-repeat": "^1.1.7"
   },
