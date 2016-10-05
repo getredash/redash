@@ -73,6 +73,16 @@ angular.module('redash', [
         }]
       }
     });
+    $routeProvider.when('/queries/my', {
+      templateUrl: '/views/queries.html',
+      controller: 'QueriesCtrl',
+      reloadOnSearch: false
+    });
+    $routeProvider.when('/queries/drafts', {
+      templateUrl: '/views/queries.html',
+      controller: 'QueriesCtrl',
+      reloadOnSearch: false
+    });
     $routeProvider.when('/queries/search', {
       templateUrl: '/views/queries_search_results.html',
       controller: 'QuerySearchCtrl',

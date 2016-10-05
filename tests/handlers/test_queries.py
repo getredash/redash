@@ -50,7 +50,7 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
         rv = self.make_request('get', '/api/queries')
 
         self.assertEquals(rv.status_code, 200)
-        self.assertEquals(len(rv.json), 10)
+        self.assertEquals(len(rv.json['results']), 10)
 
     def test_query_without_data_source_should_be_available_only_by_admin(self):
         query = self.factory.create_query()

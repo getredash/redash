@@ -71,6 +71,9 @@ angular.module('redash.filters', []).
 
   .filter('dateTime', function() {
     return function(value) {
+      if (!value) {
+        return '-';
+      }
       return moment(value).format(clientConfig.dateTimeFormat);
     }
   })
