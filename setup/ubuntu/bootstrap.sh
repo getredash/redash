@@ -40,6 +40,10 @@ apt-get install -y libsasl2-dev
 #Saml dependency
 apt-get install -y xmlsec1
 
+# Upgrade pip if host is Ubuntu 16.04
+if [[ $(lsb_release -d) = *Ubuntu* ]] && [[ $(lsb_release -rs) = *16.04* ]]; then
+	pip install --upgrade pip
+fi
 pip install -U setuptools==23.1.0
 
 # redash user
