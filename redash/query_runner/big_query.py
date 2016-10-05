@@ -253,6 +253,16 @@ class BigQueryGCE(BigQuery):
         return "bigquery_gce"
 
     @classmethod
+    def enabled(cls):
+        try:
+            # check if we're on a GCE instance
+            requests.get('http://metadata.google.internal')
+        except requests.exceptions.ConnectionError:
+            return False
+
+        return True
+
+    @classmethod
     def configuration_schema(cls):
         return {}
 
