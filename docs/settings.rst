@@ -52,7 +52,7 @@ The follow is a list of settings and what they control:
 - **REDASH_ALLOW_SCRIPTS_IN_USER_INPUT**: disable sanitization of text input, allowing full HTML, *default "true"*
 - **REDASH_DATE_FORMAT**: *default "DD/MM/YY"*
 - **REDASH_FEATURE_ALLOW_ALL_TO_EDIT**: *default "true"*
-- **REDASH_FEATURE_TABLES_PERMISSIONS**: *default "false"*
+- **REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT**: disable/enable showing count of query results in status, *default "true"*
 - **REDASH_VERSION_CEHCK**: *default "true"*
 - **REDASH_FEATURE_DISABLE_REFRESH_QUERIES**: disable scheduled query execution, *default "false"*
 - **REDASH_BIGQUERY_HTTP_TIMEOUT**: *default "600"*
