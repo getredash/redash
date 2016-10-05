@@ -8,7 +8,7 @@ from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscr
 from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
 from redash.handlers.events import EventResource
-from redash.handlers.queries import QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource
+from redash.handlers.queries import QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
 from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
 from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource
 from redash.handlers.visualizations import VisualizationListResource
@@ -67,6 +67,7 @@ api.add_org_resource(EventResource, '/api/events', endpoint='events')
 api.add_org_resource(QuerySearchResource, '/api/queries/search', endpoint='queries_search')
 api.add_org_resource(QueryRecentResource, '/api/queries/recent', endpoint='recent_queries')
 api.add_org_resource(QueryListResource, '/api/queries', endpoint='queries')
+api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries')
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
 api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
 

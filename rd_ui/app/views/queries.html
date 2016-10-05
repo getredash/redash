@@ -1,8 +1,6 @@
 <div class="container">
     <page-header title="Queries"></page-header>
 
-    <rd-tabs tabs-collection='tabs' selected-tab='selectedTab'></rd-tabs>
-    <smart-table rows="queries" columns="gridColumns"
-                 config="gridConfig"
-                 class="table table-condensed table-hover"></smart-table>
+    <tab-nav tabs="tabs"></tab-nav>
+    <queries-list queries="queries" total="totalQueriesCount" page="page" select-page="selectPage" page-size="pageSize"></queries-list>
 </div>

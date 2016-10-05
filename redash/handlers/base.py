@@ -72,6 +72,28 @@ def get_object_or_404(fn, *args, **kwargs):
         abort(404)
 
 
+def paginate(query_set, page, page_size, serializer):
+    count = query_set.count()
+
+    if page < 1:
+        abort(400, message='Page must be positive integer.')
+
+    if (page-1)*page_size+1 > count > 0:
+        abort(400, message='Page is out of range.')
+
+    if page_size > 250 or page_size < 1:
+        abort(400, message='Page size is out of range (1-250).')
+
+    results = query_set.paginate(page, page_size)
+
+    return {
+        'count': count,
+        'page': page,
+        'page_size': page_size,
+        'results': [serializer(result) for result in results],
+    }
+
+
 def org_scoped_rule(rule):
     if settings.MULTI_ORG:
         return "/<org_slug:org_slug>{}".format(rule)

@@ -1,0 +1,30 @@
+<div class="bg-white">
+  <table class="table table-condensed table-hover">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created By</th>
+      <th>Created At</th>
+      <th>Runtime</th>
+      <th>Last Executed At</th>
+      <th>Update Schedule</th>
+    </tr>
+    </thead>
+    <tbody>
+      <tr ng-repeat="query in queries">
+        <td><a href="queries/{{query.id}}">{{query.name}}</a></td>
+        <td>{{query.user.name}}</td>
+        <td>{{query.created_at | dateTime}}</td>
+        <td>{{query.runtime | durationHumanize}}</td>
+        <td>{{query.retrieved_at | dateTime}}</td>
+        <td>{{query.schedule | scheduleHumanize}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="text-center">
+    <ul class="pagination">
+      <li ng-repeat="p in pages" ng-class="{active: p.active, disabled: p.disabled}"><a ng-click="selectPage(p.page)">{{p.title}}</a></li>
+    </ul>
+  </div>
+</div>

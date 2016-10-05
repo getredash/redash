@@ -63,91 +63,66 @@
   };
 
   var QueriesCtrl = function ($scope, $http, $location, $filter, Query) {
-    $scope.$parent.pageTitle = "All Queries";
-    $scope.gridConfig = {
-      isPaginationEnabled: true,
-      itemsByPage: 50,
-      maxSize: 8,
-      isGlobalSearchActivated: true};
+    var loader;
 
-    $scope.allQueries = [];
     $scope.queries = [];
+    $scope.page = parseInt($location.search().page || 1);
+    $scope.total = undefined;
+    $scope.pageSize = 25;
 
-    var filterQueries = function () {
-      $scope.queries = _.filter($scope.allQueries, function (query) {
-        if (!$scope.selectedTab) {
-          return false;
-        }
-
-        if ($scope.selectedTab.key == 'my') {
-          return query.user.id == currentUser.id && query.name != 'New Query';
-        } else if ($scope.selectedTab.key == 'drafts') {
-          return query.user.id == currentUser.id && query.name == 'New Query';
-        }
-
-        return query.name != 'New Query';
-      });
+    function loadQueries(resource, defaultOptions) {
+      return function(options) {
+        options = _.extend({}, defaultOptions, options);
+        resource(options, function (queries) {
+          $scope.totalQueriesCount = queries.count;
+          $scope.queries = _.map(queries.results, function (query) {
+            query.created_at = moment(query.created_at);
+            query.retrieved_at = moment(query.retrieved_at);
+            return query;
+          });
+        });
+      }
     }
 
-    Query.query(function (queries) {
-      $scope.allQueries = _.map(queries, function (query) {
-        query.created_at = moment(query.created_at);
-        query.retrieved_at = moment(query.retrieved_at);
-        return query;
-      });
+    switch($location.path()) {
+      case '/queries':
+        $scope.$parent.pageTitle = "Queries";
+        // page title
+        loader = loadQueries(Query.query);
+        break;
+      case '/queries/drafts':
+        $scope.$parent.pageTitle = "Drafts";
+        loader = loadQueries(Query.myQueries, {drafts: true});
+        break;
+      case '/queries/my':
+        $scope.$parent.pageTitle = "My Queries";
+        loader = loadQueries(Query.myQueries);
+        break;
+    }
 
-      filterQueries();
-    });
+    var loadAllQueries = loadQueries(Query.query);
+    var loadMyQueries = loadQueries(Query.myQueries);
 
-    $scope.gridColumns = [
-      {
-        "label": "Name",
-        "map": "name",
-        "cellTemplateUrl": "/views/queries_query_name_cell.html"
-      },
-      {
-        'label': 'Created By',
-        'map': 'user.name'
-      },
-      {
-        'label': 'Created At',
-        'map': 'created_at',
-        'formatFunction': dateFormatter
-      },
-      {
-        'label': 'Runtime',
-        'map': 'runtime',
-        'formatFunction': function (value) {
-          return $filter('durationHumanize')(value);
-        }
-      },
-      {
-        'label': 'Last Executed At',
-        'map': 'retrieved_at',
-        'formatFunction': dateFormatter
-      },
-      {
-        'label': 'Update Schedule',
-        'map': 'schedule',
-        'formatFunction': function (value) {
-          return $filter('scheduleHumanize')(value);
-        }
-      }
-    ]
+    function load() {
+      var options = {page: $scope.page, page_size: $scope.pageSize};
+      loader(options);
+    }
+
+    $scope.selectPage = function(page) {
+      $location.search('page', page);
+      $scope.page = page;
+      load();
+    }
 
     $scope.tabs = [
-      {"name": "My Queries", "key": "my"},
-      {"key": "all", "name": "All Queries"},
-      {"key": "drafts", "name": "Drafts"}
+      {"name": "My Queries", "path": "queries/my", loader: loadMyQueries},
+      {"path": "queries", "name": "All Queries", isActive: function(path) {
+        return path === '/queries';
+      }, "loader": loadAllQueries},
+      {"path": "queries/drafts", "name": "Drafts", loader: loadMyQueries},
     ];
 
-    $scope.$watch('selectedTab', function (tab) {
-      if (tab) {
-        $scope.$parent.pageTitle = tab.name;
-      }
-
-      filterQueries();
-    });
+    load();
   }
 
   var MainCtrl = function ($scope, $location, Dashboard) {

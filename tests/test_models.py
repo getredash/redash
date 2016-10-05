@@ -251,12 +251,12 @@ class QueryArchiveTest(BaseTestCase):
         query.latest_query_data = query_result
         query.save()
 
-        self.assertIn(query, models.Query.all_queries(query.groups.keys()))
+        self.assertIn(query, list(models.Query.all_queries(query.groups.keys())))
         self.assertIn(query, models.Query.outdated_queries())
 
         query.archive()
 
-        self.assertNotIn(query, models.Query.all_queries(query.groups.keys()))
+        self.assertNotIn(query, list(models.Query.all_queries(query.groups.keys())))
         self.assertNotIn(query, models.Query.outdated_queries())
 
     def test_removes_associated_widgets_from_dashboards(self):
@@ -418,10 +418,10 @@ class TestQueryAll(BaseTestCase):
         q1 = self.factory.create_query(data_source=ds1)
         q2 = self.factory.create_query(data_source=ds2)
 
-        self.assertIn(q1, models.Query.all_queries([group1]))
-        self.assertNotIn(q2, models.Query.all_queries([group1]))
-        self.assertIn(q1, models.Query.all_queries([group1, group2]))
-        self.assertIn(q2, models.Query.all_queries([group1, group2]))
+        self.assertIn(q1, list(models.Query.all_queries([group1])))
+        self.assertNotIn(q2, list(models.Query.all_queries([group1])))
+        self.assertIn(q1, list(models.Query.all_queries([group1, group2])))
+        self.assertIn(q2, list(models.Query.all_queries([group1, group2])))
 
 
 class TestUser(BaseTestCase):

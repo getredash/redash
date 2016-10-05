@@ -63,7 +63,7 @@ api_key_factory = ModelFactory(redash.models.ApiKey,
                                object=dashboard_factory.create)
 
 query_factory = ModelFactory(redash.models.Query,
-                             name='New Query',
+                             name='Query',
                              description='',
                              query='SELECT 1',
                              user=user_factory.create,
