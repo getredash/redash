@@ -10,12 +10,6 @@
     <strong>Preview:</strong>
     <p ng-bind-html="widget.text | markdown"></p>
   </div>
-
-  <div class="form-group">
-    <label for="">Widget Size</label>
-    <select class="form-control" ng-model="widget.width"
-            ng-options="c.value as c.name for c in widgetSizes"></select>
-  </div>
 </div>
 
 <div class="modal-footer">

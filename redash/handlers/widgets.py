@@ -57,7 +57,6 @@ class WidgetResource(BaseResource):
         require_admin_or_owner(widget.dashboard.user_id)
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties['text']
-        widget.width = widget_properties['width']
         widget.save()
 
         return widget.to_dict()
