@@ -1,6 +1,10 @@
+import os
 from redash.models import db, Organization, Group
 from redash import settings
 from playhouse.migrate import PostgresqlMigrator, migrate
+
+# The following is deprecated and should be defined with the Organization object
+GOOGLE_APPS_DOMAIN = settings.set_from_string(os.environ.get("REDASH_GOOGLE_APPS_DOMAIN", ""))
 
 if __name__ == '__main__':
     migrator = PostgresqlMigrator(db.database)
@@ -9,7 +13,7 @@ if __name__ == '__main__':
         Organization.create_table()
 
         default_org = Organization.create(name="Default", slug='default', settings={
-            Organization.SETTING_GOOGLE_APPS_DOMAINS: list(settings.GOOGLE_APPS_DOMAIN)
+            Organization.SETTING_GOOGLE_APPS_DOMAINS: list(GOOGLE_APPS_DOMAIN)
         })
 
         column = Group.org
