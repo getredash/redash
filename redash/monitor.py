@@ -1,4 +1,4 @@
-from redash import redis_connection, models, __version__
+from redash import redis_connection, models, __version__, settings
 
 
 def get_status():
@@ -7,8 +7,9 @@ def get_status():
     status['redis_used_memory'] = info['used_memory_human']
     status['version'] = __version__
     status['queries_count'] = models.Query.select().count()
-    status['query_results_count'] = models.QueryResult.select().count()
-    status['unused_query_results_count'] = models.QueryResult.unused().count()
+    if settings.FEATURE_SHOW_QUERY_RESULTS_COUNT:
+        status['query_results_count'] = models.QueryResult.select().count()
+        status['unused_query_results_count'] = models.QueryResult.unused().count()
     status['dashboards_count'] = models.Dashboard.select().count()
     status['widgets_count'] = models.Widget.select().count()
 
