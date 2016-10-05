@@ -107,6 +107,10 @@ class BigQuery(BaseQueryRunner):
                 'useStandardSql': {
                     "type": "boolean",
                     'title': "Use Standard SQL (Beta)",
+                },
+                'loadSchema': {
+                    "type": "boolean",
+                    "title": "Load Schema"
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
@@ -123,8 +127,8 @@ class BigQuery(BaseQueryRunner):
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
-	    "https://www.googleapis.com/auth/drive"
-            ]
+            "https://www.googleapis.com/auth/drive"
+        ]
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
 
@@ -189,6 +193,25 @@ class BigQuery(BaseQueryRunner):
         }
 
         return data
+
+    def get_schema(self, get_stats=False):
+        if not self.configuration.get('loadSchema', False):
+            return []
+
+        service = self._get_bigquery_service()
+        project_id = self._get_project_id()
+        datasets = service.datasets().list(projectId=project_id).execute()
+        schema = []
+        for dataset in datasets.get('datasets', []):
+            dataset_id = dataset['datasetReference']['datasetId']
+            tables = service.tables().list(projectId=project_id, datasetId=dataset_id).execute()
+            for table in tables.get('tables', []):
+                table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
+                print table_data
+
+                schema.append({'name': table_data['id'], 'columns': map(lambda r: r['name'], table_data['schema']['fields'])})
+
+        return schema
 
     def run_query(self, query):
         logger.debug("BigQuery got query: %s", query)
