@@ -324,6 +324,9 @@
             $modalInstance.close();
           }
           $scope.embedUrl = basePath + 'embed/query/' + query.id + '/visualization/' + visualization.id + '?api_key=' + query.api_key;
+          if (window.snapshotUrlBuilder) {
+            $scope.snapshotUrl = snapshotUrlBuilder(query, visualization);
+          }
         }]
       })
     }
