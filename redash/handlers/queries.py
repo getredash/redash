@@ -28,7 +28,7 @@ class QuerySearchResource(BaseResource):
     def get(self):
         term = request.args.get('q', '')
 
-        return [q.to_dict() for q in models.Query.search(term, self.current_user.groups)]
+        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.groups)]
 
 
 class QueryRecentResource(BaseResource):
@@ -76,7 +76,7 @@ class QueryListResource(BaseResource):
         results = models.Query.all_queries(self.current_user.groups)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True))
+        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
 
 
 class MyQueriesResource(BaseResource):
@@ -86,7 +86,7 @@ class MyQueriesResource(BaseResource):
         results = models.Query.by_user(self.current_user, drafts)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True))
+        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
 
 
 class QueryResource(BaseResource):
