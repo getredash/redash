@@ -700,7 +700,7 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             .where(where) \
             .where(DataSourceGroup.group << groups)
 
-        return cls.select().where(cls.id << query_ids)
+        return cls.select(Query, User).join(User).where(cls.id << query_ids)
 
 
     @classmethod
