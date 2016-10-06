@@ -11,6 +11,7 @@ The follow is a list of settings and what they control:
 - **REDASH_STATSD_HOST**: *default "127.0.0.1"*
 - **REDASH_STATSD_PORT**: *default "8125"*
 - **REDASH_STATSD_PREFIX**: *default "redash"*
+- **REDASH_STATSD_USE_TAGS**: whether to use tags in StatsD metrics (InfluxDB's format), *default false*
 - **REDASH_DATABASE_URL**: *default "postgresql://postgres"*
 - **REDASH_CELERY_BROKER**: *default REDIS_URL*
 - **REDASH_CELERY_BACKEND**: *default CELERY_BROKER*

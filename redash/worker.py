@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+
 from random import randint
 from celery import Celery
 from datetime import timedelta
 from celery.schedules import crontab
 from redash import settings, __version__
+from redash.metrics import celery
 
 
 celery = Celery('redash',
@@ -49,3 +52,5 @@ if settings.SENTRY_DSN:
 
     client = Client(settings.SENTRY_DSN, release=__version__)
     register_signal(client)
+
+
