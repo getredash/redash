@@ -2,7 +2,7 @@ import sys
 import json
 import logging
 
-from redash.utils import JSONEncoder
+from redash.utils import JSONEncoder,json_dumps
 from redash.query_runner import *
 
 logger = logging.getLogger(__name__)
@@ -91,15 +91,13 @@ class Cassandra(BaseSQLQueryRunner):
         from cassandra.cluster import Cluster
 
         try:
-            contacts = []
-            contacts.append(self.configuration.get('host',''))
+            contacts = self.configuration.get('host','').split(',')
             cluster = Cluster(contacts)
             session = cluster.connect(self.configuration.get('keyspace'))
 
             logger.debug("Cassandra running query: %s", query)
             data = session.execute(query)
 
-            # TODO - very similar to pg.py
             if data.current_rows:
                 ##schema = self.get_schema()
 
@@ -111,13 +109,12 @@ class Cassandra(BaseSQLQueryRunner):
                   rows.append(r._asdict())
 
                 pack = {'columns': columns, 'rows': rows}
-                json_data = json.dumps(pack, cls=JSONEncoder)
+                json_data = json_dumps(pack)
                 error = None
             else:
                 json_data = None
                 error = "No data was returned."
 
-            #cursor.close()
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
