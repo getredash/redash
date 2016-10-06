@@ -2,6 +2,9 @@ import sys
 import json
 import logging
 
+import decimal
+import datetime
+
 from redash.utils import JSONEncoder,json_dumps
 from redash.query_runner import *
 
@@ -22,6 +25,18 @@ types_map = {
     'varchar': TYPE_STRING,
     'text': TYPE_STRING,
 }
+
+class CassEncoder(JSONEncoder):
+    """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
+
+    def default(self, o):
+        from cassandra.util import Date
+
+        logger.debug("Object type: %s" % type(o))
+        if isinstance (o, Date):
+            return o.date().isoformat()
+
+        super(redash.utils.JSONEncoder, self).default(o)
 
 class Cassandra(BaseSQLQueryRunner):
     @classmethod
@@ -100,16 +115,19 @@ class Cassandra(BaseSQLQueryRunner):
 
             if data.current_rows:
                 ##schema = self.get_schema()
+                ##column_names = result.column_names
+                ##columns = self.fetch_columns(map(lambda c: (c, TYPE_STRING), column_names))
 
                 logger.debug("fields: %s",data[0]._fields)
                 columns = self.fetch_columns([(i, TYPE_STRING) for i in data[0]._fields])
+                print 'columns: %s' % columns
                 rows = []
                 for r in data:
                   logger.debug("row: %s",r)
                   rows.append(r._asdict())
 
                 pack = {'columns': columns, 'rows': rows}
-                json_data = json_dumps(pack)
+                json_data = json.dumps(pack, cls=CassEncoder)
                 error = None
             else:
                 json_data = None
