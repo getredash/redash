@@ -127,7 +127,32 @@
 
           var markers;
           if ($scope.visualization.options.clusterMarkers) {
-            markers = L.markerClusterGroup();
+            var color = $scope.visualization.options.groups[name].color;
+            var options = {};
+
+            if (classify) {
+              options.iconCreateFunction = function (cluster) {
+                var childCount = cluster.getChildCount();
+
+                var c = ' marker-cluster-';
+                if (childCount < 10) {
+                  c += 'small';
+                } else if (childCount < 100) {
+                  c += 'medium';
+                } else {
+                  c += 'large';
+                }
+
+                c = '';
+
+
+                var style = 'color: white; background-color: '+color+';';
+
+                return L.divIcon({ html: '<div style="'+style+'"><span>' + childCount + '</span></div>', className: 'marker-cluster' + c, iconSize: new L.Point(40, 40) });
+              }
+            }
+
+            markers = L.markerClusterGroup(options);
           } else {
             markers = L.layerGroup();
           }
