@@ -16,7 +16,7 @@ itsdangerous==0.24
 peewee==2.6.1
 psycopg2==2.5.2
 python-dateutil==2.4.2
-pytz==2015.7
+pytz==2016.7
 redis==2.10.5
 requests==2.11.1
 six==1.10.0
@@ -33,10 +33,10 @@ RestrictedPython==3.6.0
 wtf-peewee==0.2.3
 pysaml2==2.4.0
 pycrypto==2.6.1
-funcy==1.5
-raven==5.9.2
+funcy==1.7.1
+raven==5.27.0
 semver==2.2.1
-xlsxwriter==0.8.4
+xlsxwriter==0.9.3
 pystache==0.5.4
 parsedatetime==2.1
 cryptography==1.4
