@@ -40,6 +40,9 @@
         var map = L.map(elm[0].children[0].children[0], {scrollWheelZoom: false});
         var mapControls = L.control.layers().addTo(map);
         var layers = {};
+        var tileLayer = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
         map.on('focus',function(){
           map.on('moveend', getBounds);
@@ -53,9 +56,6 @@
         // https://github.com/Leaflet/Leaflet/issues/766#issuecomment-7741039
         L.Icon.Default.imagePath = L.Icon.Default.imagePath || "//api.tiles.mapbox.com/mapbox.js/v2.2.1/images";
 
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
 
         function resize() {
           if (!map) return;
@@ -187,6 +187,10 @@
           var queryData = $scope.queryResult.getData();
           var classify = $scope.visualization.options.classify;
 
+          $scope.visualization.options.mapTileUrl = $scope.visualization.options.mapTileUrl || '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+          tileLayer.setUrl($scope.visualization.options.mapTileUrl);
+
           if ($scope.visualization.options.clusterMarkers === undefined) {
             $scope.visualization.options.clusterMarkers = true;
           }
@@ -232,6 +236,56 @@
       link: function($scope, elm, attrs) {
         $scope.currentTab = 'general';
         $scope.classify_columns = $scope.queryResult.columnNames.concat('none');
+        $scope.mapTiles = [
+          {
+            name: 'OpenStreetMap',
+            url: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'OpenStreetMap BW',
+            url: '//{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'OpenStreetMap DE',
+            url: '//{s}.tile.openstreetmap.de/tiles/osmde/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'OpenStreetMap FR',
+            url: '//{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'OpenStreetMap Hot',
+            url: '//{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'Thunderforest',
+            url: '//{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'Thunderforest Spinal',
+            url: '//{s}.tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'OpenMapSurfer',
+            url: '//korona.geog.uni-heidelberg.de/tiles/roads/x={x}&y={y}&z={z}'
+          },
+          {
+            name: 'Stamen Toner',
+            url: '//stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'Stamen Toner Background',
+            url: '//stamen-tiles-{s}.a.ssl.fastly.net/toner-background/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'Stamen Toner Lite',
+            url: '//stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png'
+          },
+          {
+            name: 'OpenTopoMap',
+            url: '//{s}.tile.opentopomap.org/{z}/{x}/{y}.png'
+          }
+        ];
       }
     }
   });
