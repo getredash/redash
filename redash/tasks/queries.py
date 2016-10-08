@@ -57,8 +57,6 @@ class QueryTaskTracker(object):
         self.data['updated_at'] = time.time()
         key_name = self._key_name(self.data['task_id'])
         connection.set(key_name, utils.json_dumps(self.data))
-        connection.zadd('query_task_trackers', time.time(), key_name)
-
         connection.zadd(self._get_list(), time.time(), key_name)
 
         for l in self.ALL_LISTS:

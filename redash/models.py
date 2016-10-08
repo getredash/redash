@@ -579,7 +579,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="queries", index=True)
+    org = peewee.ForeignKeyField(Organization, related_name="queries")
     data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
     name = peewee.CharField(max_length=255)
