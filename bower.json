@@ -36,7 +36,8 @@
     "material-design-iconic-font": "^2.2.0",
     "plotly.js": "~1.16.0",
     "angular-ui-ace": "bower",
-    "angular-vs-repeat": "^1.1.7"
+    "angular-vs-repeat": "^1.1.7",
+    "leaflet.markercluster": "^0.5.0"
   },
   "devDependencies": {
     "angular-mocks": "1.2.18",

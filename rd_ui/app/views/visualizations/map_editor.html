@@ -1,55 +1,64 @@
-<div class="form-horizontal">
+<div>
+  <ul class="tab-nav">
+    <li ng-class="{active: currentTab == 'general'}"><a ng-click="currentTab='general'">General</a></li>
+    <li ng-class="{active: currentTab == 'groups'}"><a ng-click="currentTab='groups'">Groups</a></li>
+    <li ng-class="{active: currentTab == 'map'}"><a ng-click="currentTab='map'">Map Settings</a></li>
+  </ul>
+
+  <div ng-show="currentTab == 'general'">
     <div class="form-group">
-        <label class="col-lg-2">Map height (px)</label>
-        <div class="col-sm-4">
-            <input class="form-control" type="number" ng-model = "visualization.options.height" />
-        </div>
+      <label class="control-label">Latitude Column Name</label>
+      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.latColName"
+              class="form-control"></select>
     </div>
 
     <div class="form-group">
-        <label class="col-lg-2">Draw option</label>
-        <div class="col-sm-4">
-            <select ng-options="opt for opt in draw_options" ng-model="visualization.options.draw" class="form-control"></select>
-        </div>
+      <label class="control-label">Longitude Column Name</label>
+      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.lonColName"
+              class="form-control"></select>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">Group By</label>
+      <select ng-options="name for name in classify_columns" ng-model="visualization.options.classify"
+              class="form-control"></select>
+    </div>
+  </div>
+
+  <div ng-show="currentTab == 'groups'">
+    <table class="table table-condensed col-table">
+      <thead>
+      <th>Name</th>
+      <th>Color</th>
+      </thead>
+      <tbody>
+      <tr ng-repeat="(name, options) in visualization.options.groups">
+        <td>{{name}}</td>
+        <td>
+            <input class="form-control" type="color" ng-model="options.color"/>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div ng-show="currentTab == 'map'">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.clusterMarkers">
+        <i class="input-helper"></i> Cluster Markers
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label">Map Height (px)</label>
+      <input class="form-control" type="number" ng-model="visualization.options.height"/>
     </div>
     <div class="form-group">
-        <label class="col-lg-2">Latitude column name</label>
-        <div class="col-sm-4">
-            <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.latColName" class="form-control"></select>
-        </div>
+      <label class="control-label">Map Tiles</label>
+      <select ng-options="tile.url as tile.name for tile in mapTiles" ng-model="visualization.options.mapTileUrl"
+              class="form-control"></select>
     </div>
-    <div class="form-group">
-        <label class="col-lg-2">Longitude column name</label>
-        <div class="col-sm-4">
-            <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.lonColName" class="form-control"></select>
-        </div>
-    </div>
+  </div>
 
-    <div ng-show = "visualization.options.draw == 'Color'">
-        <div class="form-group">
-            <label class="col-lg-2">Classify by column</label>
-            <div class="col-sm-4">
-                <select ng-options="name for name in classify_columns" ng-model="visualization.options.classify" class="form-control"></select>
-            </div>
-        </div>
-
-        <div class="row" >
-            <div class="col-lg-6">
-                <div ng-repeat="element in visualization.options.classification" class="list-group">
-                    <div class="list-group-item active">
-                        {{element.value}}
-                    </div>
-
-                    <div class="list-group-item">
-                        <div class="form-group">
-                            <label class="col-lg-4">Color</label>
-                            <div class="col-sm-4">
-                                <input class="form-control" style="background-color:{{element.color}};" type="text" ng-model = "element.color" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
