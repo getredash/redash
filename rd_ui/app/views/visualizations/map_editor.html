@@ -54,6 +54,11 @@
       <label class="control-label">Map Height (px)</label>
       <input class="form-control" type="number" ng-model="visualization.options.height"/>
     </div>
+    <div class="form-group">
+      <label class="control-label">Map Tiles</label>
+      <select ng-options="tile.url as tile.name for tile in mapTiles" ng-model="visualization.options.mapTileUrl"
+              class="form-control"></select>
+    </div>
   </div>
 
 </div>
