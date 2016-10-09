@@ -140,7 +140,7 @@
     }
     return value;
   }
-  
+
   function seriesMinValue(series) {
     return _.min(_.map(series, function(s) { return _.min(series.y) }));
   }
@@ -304,7 +304,7 @@
               scope.layout.yaxis = {title: getTitle(scope.options.yAxis[0]),
                                     type: getScaleType(scope.options.yAxis[0].type)};
 
-              if (scope.options.yAxis[0].rangeMin || scope.options.yAxis[0].rangeMax) {
+              if (angular.isNumber(scope.options.yAxis[0].rangeMin) || angular.isNumber(scope.options.yAxis[0].rangeMax)) {
                 var min = scope.options.yAxis[0].rangeMin || Math.min(0, seriesMinValue(leftAxisSeries(scope.data)));
                 var max = scope.options.yAxis[0].rangeMax || seriesMaxValue(leftAxisSeries(scope.data));
 
@@ -317,7 +317,7 @@
                                      overlaying: 'y',
                                      side: 'right'};
 
-              if (scope.options.yAxis[1].rangeMin || scope.options.yAxis[0].rangeMax) {
+              if (angular.isNumber(scope.options.yAxis[1].rangeMin) || angular.isNumber(scope.options.yAxis[1].rangeMax)) {
                 var min = scope.options.yAxis[1].rangeMin || Math.min(0, seriesMinValue(rightAxisSeries(scope.data)));
                 var max = scope.options.yAxis[1].rangeMax || seriesMaxValue(rightAxisSeries(scope.data));
 
