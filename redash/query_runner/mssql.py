@@ -86,7 +86,7 @@ class SqlServer(BaseSQLQueryRunner):
 
     @classmethod
     def annotate_query(cls):
-        return True
+        return False
 
     def __init__(self, configuration):
         super(SqlServer, self).__init__(configuration)
