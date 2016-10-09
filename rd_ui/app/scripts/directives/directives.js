@@ -120,36 +120,6 @@
     }
   });
 
-  directives.directive('rdTabs', ['$location', function ($location) {
-    return {
-      restrict: 'E',
-      scope: {
-        tabsCollection: '=',
-        selectedTab: '='
-      },
-      template: '<ul class="tab-nav bg-white"><li ng-class="{active: tab==selectedTab}" ng-repeat="tab in tabsCollection"><a href="{{basePath}}#{{tab.key}}">{{tab.name}}</a></li></ul>',
-      replace: true,
-      link: function ($scope, element, attrs) {
-        $scope.basePath = $location.path().substring(1);
-        $scope.selectTab = function (tabKey) {
-          $scope.selectedTab = _.find($scope.tabsCollection, function (tab) {
-            return tab.key == tabKey;
-          });
-        }
-
-        $scope.$watch(function () {
-          return $location.hash()
-        }, function (hash) {
-          if (hash) {
-            $scope.selectTab($location.hash());
-          } else {
-            $scope.selectTab($scope.tabsCollection[0].key);
-          }
-        });
-      }
-    }
-  }]);
-
   // From: http://jsfiddle.net/joshdmiller/NDFHg/
   directives.directive('editInPlace', function () {
     return {
@@ -484,22 +454,16 @@
       transclude: true,
       templateUrl: '/views/directives/settings_screen.html',
       controller: ['$scope', function(scope) {
-        scope.tabs = [];
+        scope.usersPage = _.string.startsWith($location.path(), '/users');
+        scope.groupsPage = _.string.startsWith($location.path(), '/groups');
+        scope.dsPage = _.string.startsWith($location.path(), '/data_sources');
+        scope.destinationsPage = _.string.startsWith($location.path(), '/destinations');
+        scope.snippetsPage = _.string.startsWith($location.path(), '/query_snippets');
 
-        if (currentUser.hasPermission('admin')) {
-          scope.tabs.push({name: 'Data Sources', path: 'data_sources'});
-        }
-
-        if (currentUser.hasPermission('list_users')) {
-          scope.tabs.push({name: 'Users', path: 'users'});
-          scope.tabs.push({name: 'Groups', path: 'groups'});
-        }
-
-        if (currentUser.hasPermission('admin')) {
-          scope.tabs.push({name: 'Alert Destinations', path: 'destinations'});
-        }
-
-        scope.tabs.push({name: "Query Snippets", path: "query_snippets"});
+        scope.showGroupsLink = currentUser.hasPermission('list_users');
+        scope.showUsersLink = currentUser.hasPermission('list_users');
+        scope.showDsLink = currentUser.hasPermission('admin');
+        scope.showDestinationsLink = currentUser.hasPermission('admin');
       }]
     }
   }]);
