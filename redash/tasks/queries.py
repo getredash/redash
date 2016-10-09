@@ -401,7 +401,14 @@ class QueryExecutor(object):
 
         query_runner = self.data_source.query_runner
         annotated_query = self._annotate_query(query_runner)
-        data, error = query_runner.run_query(annotated_query)
+
+        try:
+            data, error = query_runner.run_query(annotated_query)
+        except Exception as e:
+            error = unicode(e)
+            data = None
+            logging.warning('Unexpected error while running query:', exc_info=1)
+
         run_time = time.time() - self.tracker.started_at
         self.tracker.update(error=error, run_time=run_time, state='saving_results')
 
