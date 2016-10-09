@@ -141,6 +141,22 @@
     return value;
   }
 
+  function seriesMinValue(series) {
+    return _.min(_.map(series, function(s) { return _.min(series.y) }));
+  }
+
+  function seriesMaxValue(series) {
+    return _.max(_.map(series, function(s) { return _.max(series.y) }));
+  }
+
+  function leftAxisSeries(series) {
+    return _.filter(series, function(s) { return s.yaxis !== 'y2' });
+  }
+
+  function rightAxisSeries(series) {
+    return _.filter(series, function(s) { return s.yaxis === 'y2' });
+  }
+
   angular.module('plotly', [])
     .constant('ColorPalette', ColorPalette)
     .directive('plotlyChart', function () {
@@ -278,6 +294,7 @@
               return null;
             };
 
+
             scope.layout.xaxis = {title: getTitle(scope.options.xAxis),
                                   type: getScaleType(scope.options.xAxis.type)};
             if (angular.isDefined(scope.options.xAxis.labels)) {
@@ -286,12 +303,26 @@
             if (angular.isArray(scope.options.yAxis)) {
               scope.layout.yaxis = {title: getTitle(scope.options.yAxis[0]),
                                     type: getScaleType(scope.options.yAxis[0].type)};
+
+              if (angular.isNumber(scope.options.yAxis[0].rangeMin) || angular.isNumber(scope.options.yAxis[0].rangeMax)) {
+                var min = scope.options.yAxis[0].rangeMin || Math.min(0, seriesMinValue(leftAxisSeries(scope.data)));
+                var max = scope.options.yAxis[0].rangeMax || seriesMaxValue(leftAxisSeries(scope.data));
+
+                scope.layout.yaxis.range = [min, max];
+              }
             }
             if (hasY2 && angular.isDefined(scope.options.yAxis)) {
               scope.layout.yaxis2 = {title: getTitle(scope.options.yAxis[1]),
                                      type: getScaleType(scope.options.yAxis[1].type),
                                      overlaying: 'y',
                                      side: 'right'};
+
+              if (angular.isNumber(scope.options.yAxis[1].rangeMin) || angular.isNumber(scope.options.yAxis[1].rangeMax)) {
+                var min = scope.options.yAxis[1].rangeMin || Math.min(0, seriesMinValue(rightAxisSeries(scope.data)));
+                var max = scope.options.yAxis[1].rangeMax || seriesMaxValue(rightAxisSeries(scope.data));
+
+                scope.layout.yaxis2.range = [min, max];
+              }
             } else {
               delete scope.layout.yaxis2;
             }
