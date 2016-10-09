@@ -12,15 +12,16 @@
     </h3>
   </div>
 
-  <visualization-renderer visualization="visualization" query-result="queryResult" class="t-body p-10">
+  <visualization-renderer visualization="visualization" query-result="queryResult" class="t-body">
   </visualization-renderer>
 
   <div class="bg-ace clearfix p-10">
     <div class="col-sm-6">
-      <span class="label label-default">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
+      <span class="label label-default hidden-print">Updated: <span am-time-ago="queryResult.getUpdatedAt()"></span></span>
+      <span class="label label-default visible-print">Updated: {{queryResult.getUpdatedAt() | dateTime}}</span>
     </div>
-    <div class="col-sm-6 text-right">
-      <a class="btn btn-default btn-xs" ng-href="queries/{{visualization.query.id}}#{{visualization.id}}" target="_blank" tooltip="Open in re:dash">
+    <div class="col-sm-6 text-right hidden-print">
+      <a class="btn btn-default btn-xs" ng-href="queries/{{visualization.query.id}}#{{visualization.id}}" target="_blank" tooltip="Open in Re:dash">
         <span class="glyphicon glyphicon-link"></span>
       </a>
 
@@ -45,5 +46,3 @@
     </div>
   </div>
 </div>
-
-
