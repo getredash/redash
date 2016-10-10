@@ -492,6 +492,19 @@ div.table-name:hover {
   cursor: pointer;
 }
 
+.smart-table-data-cell {
+  width: 150px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.smart-table-data-cell:active {
+  text-overflow: normal;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
 .voffset {
   margin-top: 2px;
 }
