@@ -151,6 +151,6 @@ def base_url(org):
     if settings.MULTI_ORG:
         return "https://{}/{}".format(settings.HOST, org.slug)
 
-    return settings.HOST
+    return "http://{}".format(settings.HOST)
 
 
