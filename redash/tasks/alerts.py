@@ -13,7 +13,7 @@ def base_url(org):
     if settings.MULTI_ORG:
         return "https://{}/{}".format(settings.HOST, org.slug)
 
-    return settings.HOST
+    return "http://{}".format(settings.HOST)
 
 
 @celery.task(name="redash.tasks.check_alerts_for_query", base=BaseTask)
