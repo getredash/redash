@@ -75,7 +75,7 @@ class Presto(BaseQueryRunner):
         query = """
         SELECT table_schema, table_name, column_name, data_type
         FROM information_schema.columns
-        WHERE table_schema in ('bi', 'default', 'applift_api_production')
+        WHERE table_schema in ('bi', 'default', 'applift_api_production', 'temp')
         ORDER BY table_schema, table_name, column_name asc
         """
 
@@ -111,8 +111,8 @@ class Presto(BaseQueryRunner):
         cursor = connection.cursor()
 
         if redash_user[0:5] not in ('Admin','Simon', 'app'):
-            query = query.rstrip().lower()
-            if query.find('select ') != -1:
+            query = query.rstrip()
+            if query.lower().find('select ') != -1:
                 query = query + ' limit 2000'
 
         try:
