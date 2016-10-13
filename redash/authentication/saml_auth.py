@@ -63,6 +63,9 @@ def get_saml_client():
             },
         },
     }
+    if settings.SAML_ENTITY_ID != "":
+        saml_settings['entityid'] = settings.SAML_ENTITY_ID
+
     spConfig = Saml2Config()
     spConfig.load(saml_settings)
     spConfig.allow_unknown_attributes = True

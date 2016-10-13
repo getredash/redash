@@ -10,6 +10,9 @@ needs to point to the SAML provider metadata url, eg https://app.onelogin.com/sa
 And an optional REDASH_SAML_CALLBACK_SERVER_NAME which contains the
  server name of the redash server for the callbacks from the SAML provider (eg demo.redash.io)
 
+If you want to specify entityid in AuthnRequest,
+add REDASH_SAML_ENTITY_ID config value, eg http://demo.redash.io/saml/callback
+
 On the SAML provider side, example configuration for OneLogin is:
 SAML Consumer URL: http://demo.redash.io/saml/login
 SAML Audience: http://demo.redash.io/saml/callback
