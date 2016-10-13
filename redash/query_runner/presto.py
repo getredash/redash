@@ -50,6 +50,9 @@ class Presto(BaseQueryRunner):
                 },
                 'username': {
                     'type': 'string'
+                },
+                'use_redash_username': {
+                    'type': 'boolean'
                 }
             },
             'required': ['host']
@@ -95,12 +98,21 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query):
+        query_host=self.configuration.get('host', '')
+        query_port=self.configuration.get('port', 8080)
+        if self.configuration.get('use_redash_username', False):
+            query_username=self.metadata.get('Username')
+        else:
+            query_username=self.configuration.get('username', 'redash')
+        query_catalog=self.configuration.get('catalog', 'hive')
+        query_schema=self.configuration.get('schema', 'default')
+
         connection = presto.connect(
-                host=self.configuration.get('host', ''),
-                port=self.configuration.get('port', 8080),
-                username=self.configuration.get('username', 'redash'),
-                catalog=self.configuration.get('catalog', 'hive'),
-                schema=self.configuration.get('schema', 'default'))
+                host=query_host,
+                port=query_port,
+                username=query_username,
+                catalog=query_catalog,
+                schema=query_schema)
 
         cursor = connection.cursor()
 

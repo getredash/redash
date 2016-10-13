@@ -47,6 +47,7 @@ class BaseQueryRunner(object):
     def __init__(self, configuration):
         self.syntax = 'sql'
         self.configuration = configuration
+        self.metadata = None
 
     @classmethod
     def name(cls):

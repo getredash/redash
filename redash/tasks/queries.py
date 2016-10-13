@@ -400,6 +400,8 @@ class QueryExecutor(object):
         self._log_progress('executing_query')
 
         query_runner = self.data_source.query_runner
+        query_runner.metadata = self.metadata
+
         annotated_query = self._annotate_query(query_runner)
 
         try:
