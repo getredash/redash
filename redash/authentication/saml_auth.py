@@ -79,8 +79,15 @@ def idp_initiated():
         entity.BINDING_HTTP_POST)
     authn_response.get_identity()
     user_info = authn_response.get_subject()
-    email = user_info.text
-    name = "%s %s" % (authn_response.ava['FirstName'][0], authn_response.ava['LastName'][0])
+    if 'EmailAddress' in authn_response.ava:
+        email = authn_response.ava['EmailAddress'][0]
+    else:
+        email = user_info.text
+
+    if 'FirstName' in authn_response.ava and 'LastName' in authn_response.ava:
+        name = "%s %s" % (authn_response.ava['FirstName'][0], authn_response.ava['LastName'][0])
+    else:
+        name = user_info.text
 
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion

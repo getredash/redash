@@ -21,6 +21,12 @@ Recipient URL: http://demo.redash.io/saml/callback
 Destination URL: http://demo.redash.io/saml/callback
 
 with parameters 'FirstName' and 'LastName', both configured to be included in the SAML assertion.
+It will be used as display name for redash account.
+If is not included, NameID value will be used.
+
+with parameter 'EmailAddress' in the SAML assertion,
+It will be used as email for redash account.
+If is not included, NameID value will be used.
 
 
 Authorization
