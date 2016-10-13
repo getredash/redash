@@ -7,6 +7,7 @@ from redash import settings
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
+from saml2.saml import NAMEID_FORMAT_TRANSIENT
 
 logger = logging.getLogger('saml_auth')
 
@@ -112,7 +113,11 @@ def sp_initiated():
         return redirect(url_for('redash.index'))
 
     saml_client = get_saml_client()
-    reqid, info = saml_client.prepare_for_authenticate()
+    if settings.SAML_NAMEID_FORMAT != "":
+        nameid_format = settings.SAML_NAMEID_FORMAT
+    else:
+        nameid_format = NAMEID_FORMAT_TRANSIENT
+    reqid, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format)
 
     redirect_url = None
     # Select the IdP URL to send the AuthN request to
