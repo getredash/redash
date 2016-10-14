@@ -90,7 +90,6 @@ class TestQueryResourcePost(BaseTestCase):
         self.assertEqual(rv.json['last_modified_by']['id'], user.id)
 
 
-
 class TestQueryListResourcePost(BaseTestCase):
     def test_create_query(self):
         query_data = {
@@ -110,6 +109,7 @@ class TestQueryListResourcePost(BaseTestCase):
 
         query = models.Query.get_by_id(rv.json['id'])
         self.assertEquals(len(list(query.visualizations)), 1)
+        self.assertTrue(query.is_draft)
 
 
 class QueryRefreshTest(BaseTestCase):

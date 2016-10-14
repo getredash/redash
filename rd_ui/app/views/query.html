@@ -91,6 +91,9 @@
     <div class="col-lg-12 p-5 bg-orange c-white" ng-if="query.is_archived">
       This query is archived and can't be used in dashboards, and won't appear in search results.
     </div>
+    <div class="col-lg-12 p-5 bg-orange c-white" ng-if="query.is_draft">
+      This query is a draft.
+    </div>
   </div>
 
   <! -- editor -->
@@ -126,6 +129,8 @@
                   <ul class="dropdown-menu pull-right" dropdown-menu>
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a hash-link hash="archive-confirmation-modal" data-toggle="modal">Archive Query</a></li>
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
+                    <li ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Publish Query</a></li>
+                    <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish Query</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
                   </ul>
                 </div>
