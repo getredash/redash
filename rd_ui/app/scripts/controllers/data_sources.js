@@ -37,15 +37,15 @@
       });
     }
     $scope.test = function () {
-      $scope.dataSource.$test(function (httpResponse) {
+      DataSource.test({id: $scope.dataSource.id}, function (httpResponse) {
         if (httpResponse.ok) {
-          growl.addSuccessMessage("Connection test successful.");
+          growl.addSuccessMessage('<i class="fa fa-check-circle"></i> <strong>Success.</strong>', {enableHtml: true, ttl: 3000});
         } else {
-          growl.addErrorMessage("Connection test" + httpResponse.msg);
+          growl.addErrorMessage('<i class="fa fa-exclamation-triangle"></i> <strong>Connection Test Failed:</strong><br/>' + httpResponse.message, {enableHtml: true, ttl: -1});
         }
       }, function (httpResponse) {
         console.log("Failed to test data source: ", httpResponse.status, httpResponse.statusText, httpResponse);
-        growl.addErrorMessage("Failed to test data source.");
+        growl.addErrorMessage('<i class="fa fa-exclamation-triangle"></i> <strong> Unknown error occurred while performing connection test. Please try again later.', {enableHtml: true, ttl: -1});
       });
     }
   };
