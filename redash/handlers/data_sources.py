@@ -152,9 +152,10 @@ class DataSourceTestResource(BaseResource):
     @require_admin
     def post(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+
         try:
             data_source.query_runner.test_connection()
-        except Exception, e:
-            return {"message": "failure: {}".format(e), "ok": False}
+        except Exception as e:
+            return {"message": unicode(e), "ok": False}
         else:
             return {"message": "success", "ok": True}
