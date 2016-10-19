@@ -138,7 +138,7 @@ class Oracle(BaseSQLQueryRunner):
             if scale <= 0:
                 return cursor.var(cx_Oracle.STRING, 255, outconverter=Oracle._convert_number, arraysize=cursor.arraysize)
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = cx_Oracle.connect(self.connection_string)
         connection.outputtypehandler = Oracle.output_handler
 

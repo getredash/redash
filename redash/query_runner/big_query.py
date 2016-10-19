@@ -215,7 +215,7 @@ class BigQuery(BaseQueryRunner):
 
         return schema
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         logger.debug("BigQuery got query: %s", query)
 
         bigquery_service = self._get_bigquery_service()

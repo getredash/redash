@@ -37,7 +37,7 @@ class Script(BaseQueryRunner):
     def test_connection(self):
         pass
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             json_data = None
             error = None

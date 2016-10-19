@@ -59,7 +59,7 @@ class Sqlite(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = sqlite3.connect(self._dbpath)
 
         cursor = connection.cursor()

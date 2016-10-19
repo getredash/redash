@@ -23,7 +23,7 @@ class Url(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         base_url = self.configuration.get("url", None)
 
         try:

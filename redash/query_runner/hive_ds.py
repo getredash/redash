@@ -92,7 +92,7 @@ class Hive(BaseSQLQueryRunner):
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
 
         connection = None
         try:

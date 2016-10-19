@@ -69,7 +69,7 @@ class Graphite(BaseQueryRunner):
             raise Exception("Connection test failed. Return Code: {0}"
                             "   Reason: {1}".format(r.status_code, r.text))
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         url = "%s%s" % (self.base_url, "&".join(query.split("\n")))
         error = None
         data = None
