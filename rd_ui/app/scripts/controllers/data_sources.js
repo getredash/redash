@@ -25,7 +25,7 @@
       }
     });
 
-    $scope.delete = function () {
+    function deleteDataSource() {
       Events.record(currentUser, "delete", "datasource", $scope.dataSource.id);
 
       $scope.dataSource.$delete(function (resource) {
@@ -36,7 +36,10 @@
         growl.addErrorMessage("Failed to delete data source.");
       });
     }
-    $scope.test = function () {
+
+    function testConnection () {
+      Events.record(currentUser, "test", "datasource", $scope.dataSource.id);
+
       DataSource.test({id: $scope.dataSource.id}, function (httpResponse) {
         if (httpResponse.ok) {
           growl.addSuccessMessage('<i class="fa fa-check-circle"></i> <strong>Success.</strong>', {enableHtml: true, ttl: 3000});
@@ -48,6 +51,11 @@
         growl.addErrorMessage('<i class="fa fa-exclamation-triangle"></i> <strong> Unknown error occurred while performing connection test. Please try again later.', {enableHtml: true, ttl: -1});
       });
     }
+
+    $scope.actions = [
+      {name: 'Delete', class: 'btn-danger', callback: deleteDataSource},
+      {name: 'Test Connection', class: 'btn-default', callback: testConnection, disableWhenDirty: true}
+    ]
   };
 
   angular.module('redash.controllers')

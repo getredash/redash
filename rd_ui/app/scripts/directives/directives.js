@@ -364,7 +364,8 @@
       templateUrl: '/views/directives/dynamic_form.html',
       scope: {
         'target': '=',
-        'type': '@type'
+        'type': '@type',
+        'actions': '='
       },
       link: function ($scope) {
         var setType = function(types) {
@@ -427,6 +428,7 @@
         $scope.saveChanges = function() {
           $scope.target.$save(function() {
             growl.addSuccessMessage("Saved.");
+            $scope.dataSourceForm.$setPristine()
           }, function() {
             growl.addErrorMessage("Failed saving.");
           });
