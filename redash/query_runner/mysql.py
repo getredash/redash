@@ -121,7 +121,7 @@ class Mysql(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         import MySQLdb
 
         connection = None

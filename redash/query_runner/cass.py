@@ -60,7 +60,7 @@ class Cassandra(BaseQueryRunner):
         results = self.run_query(query)
         return results, error
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         from cassandra.cluster import Cluster
         connection = None
         try:

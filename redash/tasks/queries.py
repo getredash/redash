@@ -198,7 +198,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True, signal='SIGINT')
 
 
-def enqueue_query(query, data_source, scheduled=False, metadata={}):
+def enqueue_query(query, data_source, user_id, scheduled=False, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
@@ -229,7 +229,7 @@ def enqueue_query(query, data_source, scheduled=False, metadata={}):
                 else:
                     queue_name = data_source.queue_name
 
-                result = execute_query.apply_async(args=(query, data_source.id, metadata), queue=queue_name)
+                result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id), queue=queue_name)
                 job = QueryTask(async_result=result)
                 tracker = QueryTaskTracker.create(result.id, 'created', query_hash, data_source.id, scheduled, metadata)
                 tracker.save(connection=pipe)
@@ -262,7 +262,7 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                enqueue_query(query.query, query.data_source,
+                enqueue_query(query.query, query.data_source, query.user_id,
                               scheduled=True,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 
@@ -378,12 +378,13 @@ class QueryExecutionError(Exception):
 # We could have created this as a celery.Task derived class, and act as the task itself. But this might result in weird
 # issues as the task class created once per process, so decided to have a plain object instead.
 class QueryExecutor(object):
-    def __init__(self, task, query, data_source_id, metadata):
+    def __init__(self, task, query, data_source_id, user_id, metadata):
         self.task = task
         self.query = query
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
+        self.user = models.User.get_by_id(user_id)
         self.query_hash = gen_query_hash(self.query)
         # Load existing tracker or create a new one if the job was created before code update:
         self.tracker = QueryTaskTracker.get_by_task_id(task.request.id) or QueryTaskTracker.create(task.request.id,
@@ -403,7 +404,7 @@ class QueryExecutor(object):
         annotated_query = self._annotate_query(query_runner)
 
         try:
-            data, error = query_runner.run_query(annotated_query)
+            data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
             error = unicode(e)
             data = None
@@ -456,6 +457,8 @@ class QueryExecutor(object):
         return models.DataSource.get_by_id(self.data_source_id)
 
 
+# user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
+# jobs before the upgrade to this version.
 @celery.task(name="redash.tasks.execute_query", bind=True, base=BaseTask, track_started=True)
-def execute_query(self, query, data_source_id, metadata):
-    return QueryExecutor(self, query, data_source_id, metadata).run()
+def execute_query(self, query, data_source_id, metadata, user_id=None):
+    return QueryExecutor(self, query, data_source_id, user_id, metadata).run()

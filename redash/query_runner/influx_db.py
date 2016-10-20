@@ -78,7 +78,7 @@ class InfluxDB(BaseQueryRunner):
     def __init__(self, configuration):
         super(InfluxDB, self).__init__(configuration)
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         client = InfluxDBClusterClient.from_DSN(self.configuration['url'])
 
         logger.debug("influxdb url: %s", self.configuration['url'])

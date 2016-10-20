@@ -121,7 +121,7 @@ class SqlServer(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = None
 
         try:

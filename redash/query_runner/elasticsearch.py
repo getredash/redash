@@ -262,7 +262,7 @@ class Kibana(BaseElasticSearch):
 
         return raw_result["hits"]["total"]
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             error = None
 
@@ -335,7 +335,7 @@ class ElasticSearch(BaseElasticSearch):
     def annotate_query(cls):
         return False
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             error = None
 

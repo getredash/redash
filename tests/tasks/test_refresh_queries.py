@@ -19,7 +19,7 @@ class TestRefreshQueries(BaseTestCase):
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
-            add_job_mock.assert_called_with(query.query, query.data_source, scheduled=True, metadata=ANY)
+            add_job_mock.assert_called_with(query.query, query.data_source, query.user_id, scheduled=True, metadata=ANY)
 
     def test_doesnt_enqueue_outdated_queries_for_paused_data_source(self):
         query = self.factory.create_query(schedule="60")
@@ -39,7 +39,7 @@ class TestRefreshQueries(BaseTestCase):
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
-            add_job_mock.assert_called_with(query.query, query.data_source, scheduled=True, metadata=ANY)
+            add_job_mock.assert_called_with(query.query, query.data_source, query.user_id, scheduled=True, metadata=ANY)
 
     def test_skips_fresh_queries(self):
         query = self.factory.create_query(schedule="1200")
@@ -74,7 +74,7 @@ class TestRefreshQueries(BaseTestCase):
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
-            add_job_mock.assert_called_once_with(query.query, query.data_source, scheduled=True, metadata=ANY)#{'Query ID': query.id, 'Username': 'Scheduled'})
+            add_job_mock.assert_called_once_with(query.query, query.data_source, query.user_id, scheduled=True, metadata=ANY)#{'Query ID': query.id, 'Username': 'Scheduled'})
 
     def test_enqueues_query_with_correct_data_source(self):
         query = self.factory.create_query(schedule="60", data_source=self.factory.create_data_source())
@@ -89,8 +89,8 @@ class TestRefreshQueries(BaseTestCase):
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
-            add_job_mock.assert_has_calls([call(query2.query, query2.data_source, scheduled=True, metadata=ANY),
-                                           call(query.query, query.data_source, scheduled=True, metadata=ANY)],
+            add_job_mock.assert_has_calls([call(query2.query, query2.data_source, query2.user_id, scheduled=True, metadata=ANY),
+                                           call(query.query, query.data_source, query.user_id, scheduled=True, metadata=ANY)],
                                           any_order=True)
             self.assertEquals(2, add_job_mock.call_count)
 
@@ -108,4 +108,4 @@ class TestRefreshQueries(BaseTestCase):
 
         with patch('redash.tasks.queries.enqueue_query') as add_job_mock:
             refresh_queries()
-            add_job_mock.assert_called_once_with(query.query, query.data_source, scheduled=True, metadata=ANY)
+            add_job_mock.assert_called_once_with(query.query, query.data_source, query.user_id, scheduled=True, metadata=ANY)

@@ -161,7 +161,7 @@ class MongoDB(BaseQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         db = self._get_db()
 
         logger.debug("mongodb connection string: %s", self.configuration['connectionString'])
