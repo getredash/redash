@@ -23,6 +23,14 @@
                ng-if="input.type === 'file'">
     </div>
     <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid" ng-click="saveChanges()">Save</button>
+    <span ng-repeat="action in actions">
+        <button class="btn"
+                ng-class="action.class"
+                ng-if="target.id"
+                ng-disabled="(action.disableWhenDirty && dataSourceForm.$dirty) || inProgressActions[action.name]"
+                ng-click="action.callback()" ng-bind-html="action.name"></button>
+    </span>
+
     <span ng-transclude>
 
     </span>

@@ -179,6 +179,9 @@ class Python(BaseQueryRunner):
 
         return json.loads(query.latest_query_data.data)
 
+    def test_connection(self):
+        pass
+
     def run_query(self, query):
         try:
             error = None

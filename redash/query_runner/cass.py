@@ -14,6 +14,8 @@ except ImportError:
     enabled = False
 
 class Cassandra(BaseQueryRunner):
+    noop_query = "SELECT * FROM system"
+
     @classmethod
     def enabled(cls):
         return enabled

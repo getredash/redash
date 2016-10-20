@@ -27,6 +27,8 @@ types_map = {
 }
 
 class Mysql(BaseSQLQueryRunner):
+    noop_method = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {

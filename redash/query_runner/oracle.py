@@ -36,6 +36,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 class Oracle(BaseSQLQueryRunner):
+    noop_query = "SELECT 1 FROM dual"
 
     @classmethod
     def get_col_type(cls, col_type, scale):

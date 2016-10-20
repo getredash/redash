@@ -29,6 +29,30 @@ def validate_data_source_type(type):
         exit()
 
 
+@manager.option('name', default=None, help="name of data source to test")
+@manager.option('--org', dest='organization', default='default',
+                help="The organization the user belongs to "
+                "(leave blank for 'default').")
+def test(name, organization='default'):
+    """Test connection to data source."""
+    try:
+        org = models.Organization.get_by_slug(organization)
+        data_source = models.DataSource.get(
+            models.DataSource.name == name,
+            models.DataSource.org == org,
+        )
+        print "Testing connection to data source: {} (id={})".format(
+            name, data_source.id)
+        try:
+            data_source.query_runner.test_connection()
+        except Exception, e:
+            print "Failure: {}".format(e)
+        else:
+            print "Success"
+    except models.DataSource.DoesNotExist:
+        print "Couldn't find data source named: {}".format(name)
+
+
 @manager.option('name', default=None, help="name of data source to create")
 @manager.option('--type', dest='type', default=None, help="new type for the data source")
 @manager.option('--options', dest='options', default=None, help="updated options for the data source")

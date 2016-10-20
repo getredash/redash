@@ -34,6 +34,9 @@ class Script(BaseQueryRunner):
         if self.configuration["path"].find("../") > -1:
             raise ValueError("Scripts can only be run from the configured scripts directory")
 
+    def test_connection(self):
+        pass
+
     def run_query(self, query):
         try:
             json_data = None

@@ -32,6 +32,8 @@ class MSSQLJSONEncoder(JSONEncoder):
 
 
 class SqlServer(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {

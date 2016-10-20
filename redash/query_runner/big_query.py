@@ -79,6 +79,8 @@ def _get_query_results(jobs, project_id, job_id, start_index):
 
 
 class BigQuery(BaseQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def enabled(cls):
         return enabled

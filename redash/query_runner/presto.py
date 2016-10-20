@@ -31,6 +31,8 @@ PRESTO_TYPES_MAPPING = {
 
 
 class Presto(BaseQueryRunner):
+    noop_query = 'SHOW TABLES'
+
     @classmethod
     def configuration_schema(cls):
         return {

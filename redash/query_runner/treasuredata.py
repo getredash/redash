@@ -34,6 +34,7 @@ TD_TYPES_MAPPING = {
 
 
 class TreasureData(BaseQueryRunner):
+    noop_query = "SELECT 1"
     @classmethod
     def configuration_schema(cls):
         return {

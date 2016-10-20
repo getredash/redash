@@ -364,7 +364,8 @@
       templateUrl: '/views/directives/dynamic_form.html',
       scope: {
         'target': '=',
-        'type': '@type'
+        'type': '@type',
+        'actions': '='
       },
       link: function ($scope) {
         var setType = function(types) {
@@ -378,10 +379,31 @@
           });
         };
 
+        $scope.inProgressActions = {};
+        _.each($scope.actions, function(action) {
+          var originalCallback = action.callback;
+          var name = action.name;
+          action.callback = function() {
+            action.name = '<i class="zmdi zmdi-spinner zmdi-hc-spin"></i> ' + name;
+
+            $scope.inProgressActions[action.name] = true;
+            function release() {
+              $scope.inProgressActions[action.name] = false;
+              action.name = name;
+            }
+            originalCallback(release);
+          }
+        });
+
         $scope.files = {};
 
         $scope.$watchCollection('files', function() {
           _.each($scope.files, function(v, k) {
+            // THis is needed because angular-base64-upload sets the value to null at initialization, causing the field
+            // to be marked as dirty even if it wasn't changed.
+            if (!v && $scope.target.options[k]) {
+              $scope.dataSourceForm.$setPristine();
+            }
             if (v) {
               $scope.target.options[k] = v.base64;
             }
@@ -427,6 +449,7 @@
         $scope.saveChanges = function() {
           $scope.target.$save(function() {
             growl.addSuccessMessage("Saved.");
+            $scope.dataSourceForm.$setPristine()
           }, function() {
             growl.addErrorMessage("Failed saving.");
           });
