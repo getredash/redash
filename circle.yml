@@ -15,7 +15,6 @@ dependencies:
     - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
   cache_directories:
     - node_modules/
-    - rd_ui/node_modules/
     - rd_ui/app/bower_components/
 test:
   override:
