@@ -3,7 +3,7 @@ machine:
     - docker
   node:
     version:
-      0.12.4
+      6.1.0
   python:
     version:
       2.7.3
