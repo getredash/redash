@@ -29,6 +29,7 @@ The follow is a list of settings and what they control:
 - **REDASH_GOOGLE_CLIENT_SECRET**: *default ""*
 - **REDASH_SAML_METADATA_URL**: *default ""*
 - **REDASH_SAML_CALLBACK_SERVER_NAME**: *default ""*
+- **REDASH_SAML_ENTITY_ID**: *default ""*
 - **REDASH_STATIC_ASSETS_PATH**: *default "../rd_ui/app/"*
 - **REDASH_JOB_EXPIRY_TIME**: *default 3600 * 6*
 - **REDASH_COOKIE_SECRET**: *default "c292a0a3aa32397cdb050e233733900f"*
