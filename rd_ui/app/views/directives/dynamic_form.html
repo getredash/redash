@@ -27,8 +27,8 @@
         <button class="btn"
                 ng-class="action.class"
                 ng-if="target.id"
-                ng-disabled="action.disableWhenDirty && dataSourceForm.$dirty"
-                ng-click="action.callback()">{{action.name}}</button>
+                ng-disabled="(action.disableWhenDirty && dataSourceForm.$dirty) || inProgressActions[action.name]"
+                ng-click="action.callback()" ng-bind-html="action.name"></button>
     </span>
 
     <span ng-transclude>

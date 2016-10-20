@@ -37,7 +37,7 @@
       });
     }
 
-    function testConnection () {
+    function testConnection (callback) {
       Events.record(currentUser, "test", "datasource", $scope.dataSource.id);
 
       DataSource.test({id: $scope.dataSource.id}, function (httpResponse) {
@@ -46,9 +46,11 @@
         } else {
           growl.addErrorMessage('<i class="fa fa-exclamation-triangle"></i> <strong>Connection Test Failed:</strong><br/>' + httpResponse.message, {enableHtml: true, ttl: -1});
         }
+        callback();
       }, function (httpResponse) {
         console.log("Failed to test data source: ", httpResponse.status, httpResponse.statusText, httpResponse);
         growl.addErrorMessage('<i class="fa fa-exclamation-triangle"></i> <strong> Unknown error occurred while performing connection test. Please try again later.', {enableHtml: true, ttl: -1});
+        callback();
       });
     }
 
