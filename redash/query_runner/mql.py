@@ -45,8 +45,12 @@ class MQL(BaseQueryRunner):
             },
             'required': ['uri']
         }
+    def test_connection(self):
+        conn = pymongo.MongoClient(self.configuration['uri'])
+        if not conn.command("connectionStatus")["ok"]:
+            raise Exception("MongoDB connection error")
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         conn = pymongo.MongoClient(self.configuration['uri'])
         # execute() returns a generator (that wraps a cursor)
         gen = query_to_plan(query).execute(conn)

@@ -79,6 +79,8 @@ def _get_query_results(jobs, project_id, job_id, start_index):
 
 
 class BigQuery(BaseQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def enabled(cls):
         return enabled
@@ -213,7 +215,7 @@ class BigQuery(BaseQueryRunner):
 
         return schema
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         logger.debug("BigQuery got query: %s", query)
 
         bigquery_service = self._get_bigquery_service()

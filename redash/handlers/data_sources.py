@@ -1,3 +1,4 @@
+import logging
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
@@ -63,9 +64,12 @@ class DataSourceListResource(BaseResource):
             if ds.id in response:
                 continue
 
-            d = ds.to_dict()
-            d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
-            response[ds.id] = d
+            try:
+                d = ds.to_dict()
+                d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
+                response[ds.id] = d
+            except AttributeError:
+                logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
         return sorted(response.values(), key=lambda d: d['id'])
 
@@ -142,3 +146,16 @@ class DataSourcePauseResource(BaseResource):
         })
 
         return data_source.to_dict()
+
+
+class DataSourceTestResource(BaseResource):
+    @require_admin
+    def post(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+
+        try:
+            data_source.query_runner.test_connection()
+        except Exception as e:
+            return {"message": unicode(e), "ok": False}
+        else:
+            return {"message": "success", "ok": True}

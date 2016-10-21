@@ -35,6 +35,8 @@ types_map = {
 
 
 class Impala(BaseSQLQueryRunner):
+    noop_query = "show schemas"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -93,7 +95,7 @@ class Impala(BaseSQLQueryRunner):
 
         return schema_dict.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
 
         connection = None
         try:

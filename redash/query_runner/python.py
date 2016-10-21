@@ -179,7 +179,10 @@ class Python(BaseQueryRunner):
 
         return json.loads(query.latest_query_data.data)
 
-    def run_query(self, query):
+    def test_connection(self):
+        pass
+
+    def run_query(self, query, user):
         try:
             error = None
 

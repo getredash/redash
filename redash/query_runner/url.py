@@ -5,6 +5,8 @@ from redash.query_runner import *
 
 
 class Url(BaseQueryRunner):
+    noop_query = ""
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -21,7 +23,7 @@ class Url(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         base_url = self.configuration.get("url", None)
 
         try:

@@ -44,6 +44,8 @@ class InterruptException(Exception):
 
 
 class BaseQueryRunner(object):
+    noop_query = None
+
     def __init__(self, configuration):
         self.syntax = 'sql'
         self.configuration = configuration
@@ -68,7 +70,12 @@ class BaseQueryRunner(object):
     def configuration_schema(cls):
         return {}
 
-    def run_query(self, query):
+    def test_connection(self):
+        if self.noop_query is None:
+            raise NotImplementedError()
+        self.run_query(self.noop_query)
+
+    def run_query(self, query, user):
         raise NotImplementedError()
 
     def fetch_columns(self, columns):

@@ -29,6 +29,7 @@ types_map = {
 
 
 class Vertica(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
     @classmethod
     def configuration_schema(cls):
         return {
@@ -92,7 +93,7 @@ class Vertica(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         import vertica_python
 
         if query == "":

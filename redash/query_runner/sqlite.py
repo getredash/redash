@@ -11,6 +11,8 @@ from redash.utils import JSONEncoder
 logger = logging.getLogger(__name__)
 
 class Sqlite(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -57,7 +59,7 @@ class Sqlite(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = sqlite3.connect(self._dbpath)
 
         cursor = connection.cursor()

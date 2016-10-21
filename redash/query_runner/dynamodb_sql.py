@@ -34,6 +34,8 @@ types_map = {
 
 
 class DynamoDBSQL(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -105,7 +107,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             logging.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = None
         try:
             engine, connection = self._connect()

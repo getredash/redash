@@ -6,9 +6,15 @@ Authentication
 
 Add to your .env file REDASH_SAML_METADATA_URL config value which
 needs to point to the SAML provider metadata url, eg https://app.onelogin.com/saml/metadata/
+If you don't want to communicate with IdP server to fetch a metadata,
+put a metadata file to the redash server as a local file,
+and add REDASH_SAML_LOCAL_METADATA_PATH instead of REDASH_SAML_METADATA_URL, eg /opt/redash/metadata.xml
 
 And an optional REDASH_SAML_CALLBACK_SERVER_NAME which contains the
  server name of the redash server for the callbacks from the SAML provider (eg demo.redash.io)
+
+If you want to specify entityid in AuthnRequest,
+add REDASH_SAML_ENTITY_ID config value, eg http://demo.redash.io/saml/callback
 
 On the SAML provider side, example configuration for OneLogin is:
 SAML Consumer URL: http://demo.redash.io/saml/login

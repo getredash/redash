@@ -168,7 +168,10 @@ class GoogleSpreadsheet(BaseQueryRunner):
         spreadsheetservice = gspread.authorize(credentials)
         return spreadsheetservice
 
-    def run_query(self, query):
+    def test_connection(self):
+        self._get_spreadsheet_service()
+
+    def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         values = query.split("|")
         key = values[0] #key of the spreadsheet

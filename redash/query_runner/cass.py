@@ -14,6 +14,8 @@ except ImportError:
     enabled = False
 
 class Cassandra(BaseQueryRunner):
+    noop_query = "SELECT * FROM system"
+
     @classmethod
     def enabled(cls):
         return enabled
@@ -58,7 +60,7 @@ class Cassandra(BaseQueryRunner):
         results = self.run_query(query)
         return results, error
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         from cassandra.cluster import Cluster
         connection = None
         try:

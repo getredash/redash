@@ -31,6 +31,8 @@ PRESTO_TYPES_MAPPING = {
 
 
 class Presto(BaseQueryRunner):
+    noop_query = 'SHOW TABLES'
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -94,7 +96,7 @@ class Presto(BaseQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
