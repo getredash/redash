@@ -153,7 +153,8 @@ class Python(BaseQueryRunner):
         except models.DataSource.DoesNotExist:
             raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
-        data, error = data_source.query_runner.run_query(query)
+        # TODO: pass the user here...
+        data, error = data_source.query_runner.run_query(query, None)
         if error is not None:
             raise Exception(error)
 

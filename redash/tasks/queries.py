@@ -384,7 +384,10 @@ class QueryExecutor(object):
         self.data_source_id = data_source_id
         self.metadata = metadata
         self.data_source = self._load_data_source()
-        self.user = models.User.get_by_id(user_id)
+        if user_id is not None:
+            self.user = models.User.get_by_id(user_id)
+        else:
+            self.user = None
         self.query_hash = gen_query_hash(self.query)
         # Load existing tracker or create a new one if the job was created before code update:
         self.tracker = QueryTaskTracker.get_by_task_id(task.request.id) or QueryTaskTracker.create(task.request.id,
