@@ -57,7 +57,7 @@ class Cassandra(BaseQueryRunner):
         select columnfamily_name from system.schema_columnfamilies where keyspace_name = '{}';
         """.format(self.configuration['keyspace'])
 
-        results = self.run_query(query)
+        results, error = self.run_query(query, None)
         return results, error
 
     def run_query(self, query, user):

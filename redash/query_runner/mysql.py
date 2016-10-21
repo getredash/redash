@@ -101,7 +101,7 @@ class Mysql(BaseSQLQueryRunner):
         AND tables.TABLE_NAME = col.TABLE_NAME;
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")

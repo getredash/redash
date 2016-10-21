@@ -99,7 +99,7 @@ class Oracle(BaseSQLQueryRunner):
         WHERE all_tab_cols.OWNER NOT IN('SYS','SYSTEM','ORDSYS','CTXSYS','WMSYS','MDSYS','ORDDATA','XDB','OUTLN','DMSYS','DSSYS','EXFSYS','LBACSYS','TSMSYS')
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
