@@ -39,6 +39,7 @@
             $scope.filters = [];
           } else {
             $scope.filters = $scope.queryResult.getFilters();
+            $scope.gridConfig.isGlobalSearchActivated = $scope.queryResult.isGlobalSearchActivated();
 
             var prepareGridData = function (data) {
               var gridData = _.map(data, function (row) {
