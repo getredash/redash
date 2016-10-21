@@ -13,6 +13,10 @@ and add REDASH_SAML_LOCAL_METADATA_PATH instead of REDASH_SAML_METADATA_URL, eg 
 And an optional REDASH_SAML_CALLBACK_SERVER_NAME which contains the
  server name of the redash server for the callbacks from the SAML provider (eg demo.redash.io)
 
+And if you want to specify nameid format, add REDASH_SAML_NAMEID_FORMAT config value,
+eg urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified
+default is urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+
 If you want to specify entityid in AuthnRequest,
 add REDASH_SAML_ENTITY_ID config value, eg http://demo.redash.io/saml/callback
 
