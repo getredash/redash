@@ -119,8 +119,7 @@
     $scope.showSharePermissionsModal = function() {
         // Create scope for share permissions dialog and pass api path to it
         var scope = $scope.$new();
-        $scope.api_access = 'api/dashboards/' + $scope.dashboard.id + '/acl';
-        scope.params = {api_access: $scope.api_access};
+        $scope.apiAccess = 'api/dashboards/' + $scope.dashboard.id + '/acl';
 
         $modal.open({
           scope: scope,
