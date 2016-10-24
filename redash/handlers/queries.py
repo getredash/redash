@@ -11,7 +11,8 @@ from itertools import chain
 from redash.handlers.base import routes, org_scoped_rule, paginate
 from redash.handlers.query_results import run_query
 from redash import models
-from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only, is_admin_or_owner
+from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only, is_admin_or_owner, \
+    require_object_modify_permission
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_parameters_from_request
 
@@ -65,7 +66,7 @@ class QueryListResource(BaseResource):
         query_def['org'] = self.current_org
         query = models.Query.create(**query_def)
 
-        new_change = query.tracked_save(changing_user=self.current_user)
+        # new_change = query.tracked_save(changing_user=self.current_user)
 
         self.record_event({
             'action': 'create',
@@ -99,22 +100,9 @@ class QueryResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         query_def = request.get_json(force=True)
 
-        # check access permissions
-        if not is_admin_or_owner(object_owner_id=query.user.id):
-            if not self.current_user.has_access(
-                    access_type=models.AccessPermission.ACCESS_TYPE_MODIFY,
-                    object_id=query.id,
-                    object_type=models.Query.__name__):
-                abort(403)
+        require_object_modify_permission(query, self.current_user)
 
-        # Optimistic locking: figure out which user made the last
-        # change to this query, and bail out if necessary
-        last_change = models.Change.get_latest(object_id=query.id, object_type=models.Query.__name__)
-        if last_change and 'version' in query_def:
-            if last_change.object_version > query_def['version']:
-                abort(409) # HTTP 'Conflict' status code
-
-        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org', 'version']:
+        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
         if 'latest_query_data_id' in query_def:
@@ -125,8 +113,14 @@ class QueryResource(BaseResource):
 
         query_def['last_modified_by'] = self.current_user
 
-        old_query = copy.deepcopy(query.to_dict())
-        new_change = query.update_instance_tracked(changing_user=self.current_user, old_object=old_query, **query_def)
+        try:
+            query.update_instance(**query_def)
+        except models.ConflictDetectedError:
+            abort(409)
+
+        # old_query = copy.deepcopy(query.to_dict())
+        # new_change = query.update_instance_tracked(changing_user=self.current_user, old_object=old_query, **query_def)
+        # abort(409) # HTTP 'Conflict' status code
 
         result = query.to_dict(with_visualizations=True)
         return result

@@ -118,8 +118,73 @@ class ModelTimestampsMixin(BaseModel):
 
     def pre_save(self, created):
         super(ModelTimestampsMixin, self).pre_save(created)
-
         self.updated_at = datetime.datetime.now()
+
+
+class ChangeTrackingMixin(object):
+    def prepared(self):
+        super(ChangeTrackingMixin, self).prepared()
+
+        setattr(self, '_field_names', [f.name for f in self._meta.get_fields()])
+        setattr(self, '_clean_values', {})
+
+    def __setattr__(self, key, value):
+        if hasattr(self, '_field_names') and key in self._field_names:
+            self._clean_values[key] = getattr(self, key)
+
+        super(ChangeTrackingMixin, self).__setattr__(key, value)
+
+    @property
+    def changes(self):
+        changes = {}
+
+        for k, v in self._clean_values.iteritems():
+            changes[k] = {'old': v, 'new': getattr(self, k)}
+
+        return changes
+
+
+class ConflictDetectedError(Exception):
+    pass
+
+
+class BaseVersionedModel(BaseModel):
+    version = peewee.IntegerField(default=1)
+
+    def save(self, *args, **kwargs):
+        pk_value = self._get_pk_value()
+        created = kwargs.get('force_insert', False) or not bool(pk_value)
+
+        if created:
+            # Since this is an `INSERT`, just call regular save method.
+            return super(BaseVersionedModel, self).save()
+
+        # Update any data that has changed and bump the version counter.
+        self.pre_save(False)
+
+        field_data = dict(self._data)
+        current_version = field_data.pop('version', 0)
+        field_data = self._prune_fields(field_data, self.dirty_fields)
+
+        # if not field_data:
+        #     raise ValueError('No changes have been made.')
+
+        ModelClass = type(self)
+        field_data['version'] = ModelClass.version + 1  # Atomic increment
+
+        query = ModelClass.update(**field_data).where(
+            (ModelClass.version == current_version) &
+            (ModelClass.id == self.id))
+
+        nrows = query.execute()
+        if nrows == 0:
+            # It looks like another process has updated the version number.
+            raise ConflictDetectedError()  # Raise exception? Return False?
+        else:
+            self.version += 1  # Update in-memory version number.
+            self._dirty.clear()
+            self.post_save(False)
+            return nrows
 
 
 class BelongsToOrgMixin(object):
@@ -343,9 +408,9 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
         self.groups = map(lambda g: g.id, groups)
         self.save()
 
-    def has_access(self, access_type, object_id, object_type):
+    def has_access(self, obj, access_type):
         return AccessPermission.exists(grantee=self, access_type=access_type,
-            object_id=object_id, object_type=object_type)
+            object_id=obj.id, object_type=obj.__class__.__name__)
 
 
 class ConfigurationField(peewee.TextField):
@@ -580,9 +645,8 @@ def should_schedule_next(previous_iteration, now, schedule):
     return now > next_iteration
 
 
-class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
+class Query(ModelTimestampsMixin, BaseVersionedModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
-    version = peewee.IntegerField(default=0)
     org = peewee.ForeignKeyField(Organization, related_name="queries")
     data_source = peewee.ForeignKeyField(DataSource, null=True)
     latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
@@ -786,7 +850,6 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 
 
 class AccessPermission(BaseModel):
-
     id = peewee.PrimaryKeyField()
     object_type = peewee.CharField(index=True)
     object_id = peewee.IntegerField(index=True)
@@ -794,10 +857,6 @@ class AccessPermission(BaseModel):
     access_type = peewee.CharField()
     grantor = peewee.ForeignKeyField(User, related_name='grantor')
     grantee = peewee.ForeignKeyField(User, related_name='grantee')
-
-    ACCESS_TYPE_VIEW = 'view'
-    ACCESS_TYPE_MODIFY = 'modify'
-    ACCESS_TYPE_DELETE = 'delete'
 
     class Meta:
         db_table = 'access_permissions'
@@ -1031,9 +1090,8 @@ class Alert(ModelTimestampsMixin, BaseModel):
         return self.query.groups
 
 
-class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
+class Dashboard(ModelTimestampsMixin, BaseVersionedModel, BelongsToOrgMixin):
     id = peewee.PrimaryKeyField()
-    version = peewee.IntegerField(default=0)
     org = peewee.ForeignKeyField(Organization, related_name="dashboards")
     slug = peewee.CharField(max_length=140, index=True)
     name = peewee.CharField(max_length=100)

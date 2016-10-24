@@ -1,6 +1,7 @@
 import redash.models
 from redash.utils import gen_query_hash, utcnow
 from redash.utils.configuration import ConfigurationContainer
+from redash.permissions import ACCESS_TYPE_MODIFY
 
 
 class ModelFactory(object):
@@ -85,7 +86,7 @@ query_with_params_factory = ModelFactory(redash.models.Query,
 access_permission_factory = ModelFactory(redash.models.AccessPermission,
                              object_id=query_factory.create,
                              object_type=redash.models.Query.__name__,
-                             access_type=redash.models.AccessPermission.ACCESS_TYPE_MODIFY,
+                             access_type=ACCESS_TYPE_MODIFY,
                              grantor=user_factory.create,
                              grantee=user_factory.create)
 

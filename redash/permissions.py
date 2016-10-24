@@ -1,10 +1,14 @@
 from flask_login import current_user
 from flask_restful import abort
 import functools
-from funcy import any, flatten
+from funcy import flatten
 
 view_only = True
 not_view_only = False
+
+ACCESS_TYPE_VIEW = 'view'
+ACCESS_TYPE_MODIFY = 'modify'
+ACCESS_TYPE_DELETE = 'delete'
 
 
 def has_access(object_groups, user, need_view_only):
@@ -73,3 +77,12 @@ def require_permission_or_owner(permission, object_owner_id):
 def require_admin_or_owner(object_owner_id):
     if not is_admin_or_owner(object_owner_id):
         abort(403, message="You don't have permission to edit this resource.")
+
+
+def can_modify(obj, user):
+    return is_admin_or_owner(obj.user_id) or user.has_access(obj, ACCESS_TYPE_MODIFY)
+
+
+def require_object_modify_permission(obj, user):
+    if not can_modify(obj, user):
+        abort(403)
