@@ -1,5 +1,3 @@
-import logging
-
 from flask import request, url_for
 from flask_restful import abort
 
@@ -7,7 +5,7 @@ from funcy import distinct, take
 from itertools import chain
 
 from redash import models
-from redash.permissions import require_permission, require_admin_or_owner
+from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission
 from redash.handlers.base import BaseResource, get_object_or_404
 import redash.permissions
 
@@ -63,25 +61,14 @@ class DashboardResource(BaseResource):
         # TODO: either convert all requests to use slugs or ids
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug, self.current_org)
 
-        # check access permissions
-        if not redash.permissions.is_admin_or_owner(object_owner_id=dashboard.user.id):
-            if not self.current_user.has_access(
-                    access_type=models.AccessPermission.ACCESS_TYPE_MODIFY,
-                    object_id=dashboard.id,
-                    object_type=models.Dashboard.__name__):
-                abort(403)
+        require_object_modify_permission(dashboard, self.current_user)
 
-        # Optimistic locking: figure out which user made the last
-        # change to this dashboard, and bail out if necessary
-        last_change = models.Change.get_latest(object_id=dashboard.id, object_type=models.Dashboard.__name__)
-        if last_change and 'version' in dashboard_properties:
-            if last_change.object_version > dashboard_properties['version']:
-                abort(409) # HTTP 'Conflict' status code
-
-        old_dashboard = {'name': dashboard.name, 'layout': dashboard.layout}
+        # old_dashboard = {'name': dashboard.name, 'layout': dashboard.layout}
         dashboard.layout = dashboard_properties['layout']
         dashboard.name = dashboard_properties['name']
-        new_change = dashboard.tracked_save(changing_user=self.current_user, old_object=old_dashboard)
+        # new_change = dashboard.tracked_save(changing_user=self.current_user, old_object=old_dashboard)
+
+        dashboard.save()
 
         result = dashboard.to_dict(with_widgets=True, user=self.current_user)
         return result
