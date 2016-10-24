@@ -1,4 +1,3 @@
-from redash import settings
 from redash.models import db, Change, AccessPermission, Query, Dashboard
 from playhouse.migrate import PostgresqlMigrator, migrate
 
@@ -11,11 +10,13 @@ if __name__ == '__main__':
         AccessPermission.create_table()
 
     migrator = PostgresqlMigrator(db.database)
-    for tbl, field in (('queries', Query.version), ('dashboards', Dashboard.version)):
-        try:
-            with db.database.transaction():
-                migrate(
-                    migrator.add_column(tbl, 'version', field)
-                )
-        except Exception, e:
-            print('WARNING: Unable to add column "version" to table "%s" - maybe it already exists?' % tbl)
+
+    try:
+        migrate(
+            migrator.add_column('queries', 'version', Query.version),
+            migrator.add_column('dashboards', 'version', Dashboard.version)
+        )
+    except Exception as ex:
+        print "Error while adding version column to queries/dashboards. Maybe it already exists?"
+        print ex
+
