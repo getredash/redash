@@ -1,4 +1,3 @@
-import logging
 from redash.handlers.base import BaseResource
 from redash.models import AccessPermission, Query, Dashboard
 from redash.permissions import require_admin_or_owner
@@ -12,22 +11,20 @@ object_types_to_classes = {
 }
 
 
-def get_class_for_object_type(object_type):
-    clazz = object_types_to_classes.get(object_type)
-    if not clazz:
+def get_model_for_object_type(object_type):
+    model = object_types_to_classes.get(object_type)
+    if not model:
         abort(404)
-    return clazz
+    return model
 
 
 def get_classname_for_object_type(object_type):
-    clazz = get_class_for_object_type(object_type)
-    return clazz.__name__
+    model = get_model_for_object_type(object_type)
+    return model.__name__
 
 
-class AccessPermissionListResource(BaseResource):
-
+class ObjectPermissionsListResource(BaseResource):
     def get(self, object_type, object_id):
-
         # convert API resource to model class, e.g., 'queries' to 'Query'
         object_type = get_classname_for_object_type(object_type)
 
@@ -42,17 +39,13 @@ class AccessPermissionListResource(BaseResource):
 
         return result
 
-
-class AccessPermissionResource(BaseResource):
-
     def post(self, object_type, object_id):
-
         # convert API resource to model class, e.g., 'queries' to 'Query'
-        clazz = get_class_for_object_type(object_type)
+        model = get_model_for_object_type(object_type)
         object_type = get_classname_for_object_type(object_type)
 
         # make sure the current user is permitted to perform this operation
-        target_object = clazz.select().where(clazz.id == object_id).get()
+        target_object = model.select().where(model.id == object_id).get()
         require_admin_or_owner(target_object.user.id)
 
         req = request.get_json(True)
@@ -72,13 +65,12 @@ class AccessPermissionResource(BaseResource):
         return {'result': 'permission_added'}
 
     def delete(self, object_type, object_id):
-
         # convert API resource to model class, e.g., 'queries' to 'Query'
-        clazz = get_class_for_object_type(object_type)
+        model = get_model_for_object_type(object_type)
         object_type = get_classname_for_object_type(object_type)
 
         # make sure the current user is permitted to perform this operation
-        target_object = clazz.select().where(clazz.id == object_id).get()
+        target_object = model.select().where(model.id == object_id).get()
         require_admin_or_owner(target_object.user.id)
 
         req = request.get_json(True)
@@ -87,13 +79,16 @@ class AccessPermissionResource(BaseResource):
 
         deleted = AccessPermission.revoke_permission(object_type=object_type,
             object_id=object_id, grantee=grantee, access_type=access_type)
+
         if deleted:
             deleted = deleted.to_dict()
+
         result = {'deleted': deleted}
         return result
 
-    def get(self, object_type, object_id, access_type):
 
+class CheckPermissionResource(BaseResource):
+    def get(self, object_type, object_id, access_type):
         # convert API resource to model class, e.g., 'queries' to 'Query'
         object_type = get_classname_for_object_type(object_type)
 
