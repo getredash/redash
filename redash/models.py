@@ -845,20 +845,13 @@ class AccessPermission(BaseModel):
 
     @staticmethod
     def exists(object_id, object_type, grantee, access_type=None):
-        try:
-            permissions = AccessPermission.find(object_id=object_id,
-                object_type=object_type, grantee=grantee, access_type=access_type)
-            return permissions.count() > 0
-        except Exception, e:
-            logging.warn("Unable to query for AccessPermission: %s" % e)
-            return False
+        permissions = AccessPermission.find(object_id=object_id,
+            object_type=object_type, grantee=grantee, access_type=access_type)
+        return permissions.count() > 0
 
     @staticmethod
     def reset(object_type, object_id, access_type):
         revoke_permission(object_type=object_type, object_id=object_id, access_type=access_type)
-
-    def delete_instance(self, *args, **kwargs):
-        super(AccessPermission, self).delete_instance(*args, **kwargs)
 
     def to_dict(self):
         d = {
@@ -866,8 +859,8 @@ class AccessPermission(BaseModel):
             'object_id': self.object_id,
             'object_type': self.object_type,
             'access_type': self.access_type,
-            'grantor': self.grantor.id,
-            'grantee': self.grantee.id
+            'grantor': self.grantor_id,
+            'grantee': self.grantee_id
         }
         return d
 
@@ -956,18 +949,15 @@ class Change(BaseModel):
 
     @staticmethod
     def get_latest(object_id, object_type, change_type=None):
-        try:
-            query = Change.select(Change)\
-                .where(Change.object_id == object_id)\
-                .where(Change.object_type == object_type)
-            if change_type:
-                query = query.where(Change.change_type == change_type)
-            query = query.order_by(Change.created_at.desc())
-            for change in query:
-                return change
-        except Exception, e:
-            logging.warn("Unable to query for latest Change %s" % e)
-        return None
+        query = Change.select(Change)\
+            .where(Change.object_id == object_id)\
+            .where(Change.object_type == object_type)
+        if change_type:
+            query = query.where(Change.change_type == change_type)
+        query = query.order_by(Change.created_at.desc())
+
+        return query.limit(1).first()
+
 
 class Alert(ModelTimestampsMixin, BaseModel):
     UNKNOWN_STATE = 'unknown'
