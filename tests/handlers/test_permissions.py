@@ -37,3 +37,35 @@ class QueryAccessPermissionsTest(BaseTestCase, AuthenticationTestMixin):
 
         rv = self.make_request('get', '/api/queries/%s/acl/%s' % (object_id, access_type), user=admin)
         self.assertEquals(rv.status_code, 403)
+
+
+class TestObjectPermissionsListGet(BaseTestCase):
+    # returns empty list when no permissions available
+    # returns relevant permissions when they exist
+    # returns 404 for users outside of organization
+    # returns 404? for users who don't have access to this query
+    pass
+
+
+class TestObjectPermissionsListPost(BaseTestCase):
+    # creates permission
+    # returns 403 if user isn't owner or admin
+    # returns 404 for users outside of organization
+    # returns 404? for users who don't have access to this query
+    pass
+
+
+class TestObjectPermissionsListDelete(BaseTestCase):
+    # deletes permission
+    # deletes permission created by someone else
+    # returns 404 for users outside of org
+    # returns 404? for users who don't have access to this query
+    pass
+
+
+class TestCheckPermissionsGet(BaseTestCase):
+    # returns true for existing,
+    # false for not...
+    # returns 404 for users outside of org
+    # returns 404? for users who don't have access to this query
+    pass
