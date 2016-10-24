@@ -156,14 +156,14 @@
     $scope.recentDashboards = Dashboard.recent();
   };
 
-  // Controller for modal window share_permissions, works for both query and dashboards, needs api_access set in scope
+  // Controller for modal window share_permissions, works for both query and dashboards, needs apiAccess set in scope
   var SharePermissionsCtrl = function ($scope, $http, $modalInstance, User) {
       $scope.grantees = [];
       $scope.newGrantees = {};
 
       // List users that are granted permissions
       var loadGrantees = function() {
-          $http.get($scope.api_access).success(function(result) {
+        $http.get($scope.apiAccess).success(function(result) {
           $scope.grantees = [];
           for(var access_type in result) {
             result[access_type].forEach(function(grantee) {
@@ -196,7 +196,7 @@
       $scope.addGrantee = function(user) {
         $scope.newGrantees.selected = undefined;
         var body = {'access_type': 'modify', 'user_id': user.id};
-          $http.post($scope.api_access, body).success(function() {
+        $http.post($scope.apiAccess, body).success(function() {
           user.alreadyGrantee = true;
           loadGrantees();
         });
@@ -205,7 +205,7 @@
       // Remove user from grantees list
       $scope.removeGrantee = function(user) {
         var body = {'access_type': 'modify', 'user_id': user.id};
-        $http({ url: $scope.api_access, method: 'DELETE',
+        $http({ url: $scope.apiAccess, method: 'DELETE',
                 data: body, headers: {"Content-Type": "application/json"}
         }).success(function() {
           $scope.grantees = _.filter($scope.grantees, function(m) {  return m != user });
