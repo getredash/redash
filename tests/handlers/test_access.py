@@ -2,6 +2,7 @@ from redash import models
 from tests import BaseTestCase
 from tests.test_handlers import AuthenticationTestMixin
 
+
 class QueryAccessPermissionsTest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
         self.paths = ['/api/queries/1/acl']

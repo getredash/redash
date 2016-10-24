@@ -849,10 +849,6 @@ class AccessPermission(BaseModel):
             object_type=object_type, grantee=grantee, access_type=access_type)
         return permissions.count() > 0
 
-    @staticmethod
-    def reset(object_type, object_id, access_type):
-        revoke_permission(object_type=object_type, object_id=object_id, access_type=access_type)
-
     def to_dict(self):
         d = {
             'id': self.id,
@@ -866,7 +862,6 @@ class AccessPermission(BaseModel):
 
 
 class Change(BaseModel):
-
     id = peewee.PrimaryKeyField()
     object_id = peewee.CharField(index=True)
     object_type = peewee.CharField(index=True)
