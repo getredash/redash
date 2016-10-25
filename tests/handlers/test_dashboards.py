@@ -1,9 +1,10 @@
 import json
 from tests import BaseTestCase
-from redash.models import ApiKey, Dashboard ,AccessPermission
+from redash.models import ApiKey, Dashboard, AccessPermission
+from redash.permissions import ACCESS_TYPE_MODIFY
 
 
-class TestDasboardListResource(BaseTestCase):
+class TestDashboardListResource(BaseTestCase):
     def test_create_new_dashboard(self):
         dashboard_name = 'Test Dashboard'
         rv = self.make_request('post', '/api/dashboards', data={'name': dashboard_name})
@@ -87,9 +88,8 @@ class TestDashboardResourcePost(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
         AccessPermission.grant_permission(object_type='Dashboard',
-                                                 object_id=dashboard.id, access_type=ACCESS_TYPE_MODIFY,
-                                                 grantee=user, grantor=d.user)
-
+                                          object_id=d.id, access_type=ACCESS_TYPE_MODIFY,
+                                          grantee=user, grantor=d.user)
 
         rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
                                data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)

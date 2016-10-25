@@ -1,13 +1,13 @@
 from flask import request, url_for
 from flask_restful import abort
 
-from funcy import distinct, take
+from funcy import distinct, take, project
 from itertools import chain
 
 from redash import models
+from redash.models import ConflictDetectedError
 from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission
 from redash.handlers.base import BaseResource, get_object_or_404
-import redash.permissions
 
 
 class RecentDashboardsResource(BaseResource):
@@ -64,11 +64,14 @@ class DashboardResource(BaseResource):
         require_object_modify_permission(dashboard, self.current_user)
 
         # old_dashboard = {'name': dashboard.name, 'layout': dashboard.layout}
-        dashboard.layout = dashboard_properties['layout']
-        dashboard.name = dashboard_properties['name']
         # new_change = dashboard.tracked_save(changing_user=self.current_user, old_object=old_dashboard)
 
-        dashboard.save()
+        updates = project(dashboard_properties, ('name', 'layout', 'version'))
+
+        try:
+            dashboard.update_instance(**updates)
+        except ConflictDetectedError:
+            abort(409)
 
         result = dashboard.to_dict(with_widgets=True, user=self.current_user)
         return result
