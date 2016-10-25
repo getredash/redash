@@ -1,9 +1,19 @@
 import json
 from tests import BaseTestCase
-from redash.models import ApiKey, Dashboard
+from redash.models import ApiKey, Dashboard ,AccessPermission
 
 
-class DashboardAPITest(BaseTestCase):
+class TestDasboardListResource(BaseTestCase):
+    def test_create_new_dashboard(self):
+        dashboard_name = 'Test Dashboard'
+        rv = self.make_request('post', '/api/dashboards', data={'name': dashboard_name})
+        self.assertEquals(rv.status_code, 200)
+        self.assertEquals(rv.json['name'], 'Test Dashboard')
+        self.assertEquals(rv.json['user_id'], self.factory.user.id)
+        self.assertEquals(rv.json['layout'], [])
+
+
+class TestDashboardResourceGet(BaseTestCase):
     def test_get_dashboard(self):
         d1 = self.factory.create_dashboard()
         rv = self.make_request('get', '/api/dashboards/{0}'.format(d1.slug))
@@ -35,14 +45,8 @@ class DashboardAPITest(BaseTestCase):
         rv = self.make_request('get', '/api/dashboards/not_existing')
         self.assertEquals(rv.status_code, 404)
 
-    def test_create_new_dashboard(self):
-        dashboard_name = 'Test Dashboard'
-        rv = self.make_request('post', '/api/dashboards', data={'name': dashboard_name})
-        self.assertEquals(rv.status_code, 200)
-        self.assertEquals(rv.json['name'], 'Test Dashboard')
-        self.assertEquals(rv.json['user_id'], self.factory.user.id)
-        self.assertEquals(rv.json['layout'], [])
 
+class TestDashboardResourcePost(BaseTestCase):
     def test_update_dashboard(self):
         d = self.factory.create_dashboard()
         new_name = 'New Name'
@@ -51,6 +55,50 @@ class DashboardAPITest(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         self.assertEquals(rv.json['name'], new_name)
 
+    def test_raises_error_in_case_of_conflict(self):
+        d = self.factory.create_dashboard()
+        d.name = 'Updated'
+        d.save()
+
+        new_name = 'New Name'
+        rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
+                               data={'name': new_name, 'layout': '[]', 'version': d.version - 1})
+
+        self.assertEqual(rv.status_code, 409)
+
+    def test_overrides_existing_if_no_version_specified(self):
+        d = self.factory.create_dashboard()
+        d.name = 'Updated'
+        d.save()
+
+        new_name = 'New Name'
+        rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
+                               data={'name': new_name, 'layout': '[]'})
+
+        self.assertEqual(rv.status_code, 200)
+
+    def test_works_for_non_owner_with_permission(self):
+        d = self.factory.create_dashboard()
+        user = self.factory.create_user()
+
+        new_name = 'New Name'
+        rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
+                               data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)
+        self.assertEqual(rv.status_code, 403)
+
+        AccessPermission.grant_permission(object_type='Dashboard',
+                                                 object_id=dashboard.id, access_type=ACCESS_TYPE_MODIFY,
+                                                 grantee=user, grantor=d.user)
+
+
+        rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
+                               data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], new_name)
+
+
+class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
         d = self.factory.create_dashboard()
 
