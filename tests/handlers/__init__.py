@@ -1,10 +1,12 @@
 import json
+import logging
 from contextlib import contextmanager
 
 from tests.factories import user_factory
 from redash.utils import json_dumps
 from redash.wsgi import app
 
+app.config['TESTING'] = True
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
