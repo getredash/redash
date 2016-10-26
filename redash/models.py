@@ -876,6 +876,10 @@ class AccessPermission(BaseModel):
 
     @classmethod
     def exists(cls, obj, access_type, grantee):
+        # TODO: this will wrongly return False for a user ApiUser who has permission to edit the query...
+        if isinstance(grantee, ApiUser):
+            return False
+
         return cls.find(obj, access_type, grantee).count() > 0
 
     @classmethod

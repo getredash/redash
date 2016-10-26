@@ -3,6 +3,7 @@ from redash import models
 
 from redash.permissions import ACCESS_TYPE_MODIFY
 
+
 class TestQueryResourceGet(BaseTestCase):
     def test_get_query(self):
         query = self.factory.create_query()
@@ -10,7 +11,9 @@ class TestQueryResourceGet(BaseTestCase):
         rv = self.make_request('get', '/api/queries/{0}'.format(query.id))
 
         self.assertEquals(rv.status_code, 200)
-        self.assertResponseEqual(rv.json, query.to_dict(with_visualizations=True))
+        expected = query.to_dict(with_visualizations=True)
+        expected['can_edit'] = True
+        self.assertResponseEqual(expected, rv.json)
 
     def test_get_all_queries(self):
         queries = [self.factory.create_query() for _ in range(10)]
@@ -79,9 +82,7 @@ class TestQueryResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=user)
         self.assertEqual(rv.status_code, 403)
 
-        models.AccessPermission.grant_permission(object_type='Query',
-                                          object_id=query.id, access_type=ACCESS_TYPE_MODIFY,
-                                          grantee=user, grantor=query.user)
+        models.AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY, grantee=user, grantor=query.user)
 
         rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=user)
         self.assertEqual(rv.status_code, 200)

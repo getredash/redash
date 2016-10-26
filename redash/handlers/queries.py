@@ -9,8 +9,8 @@ from itertools import chain
 from redash.handlers.base import routes, org_scoped_rule, paginate
 from redash.handlers.query_results import run_query
 from redash import models
-from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only, is_admin_or_owner, \
-    require_object_modify_permission, ACCESS_TYPE_MODIFY
+from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only, \
+    require_object_modify_permission, can_modify
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_parameters_from_request
 
@@ -129,7 +129,7 @@ class QueryResource(BaseResource):
         require_access(q.groups, self.current_user, view_only)
 
         result = q.to_dict(with_visualizations=True)
-        result['can_edit'] = models.AccessPermission.exists(q, ACCESS_TYPE_MODIFY, self.current_user)
+        result['can_edit'] = can_modify(q, self.current_user)
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)

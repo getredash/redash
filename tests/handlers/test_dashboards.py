@@ -87,9 +87,7 @@ class TestDashboardResourcePost(BaseTestCase):
                                data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)
         self.assertEqual(rv.status_code, 403)
 
-        AccessPermission.grant_permission(object_type='Dashboard',
-                                          object_id=d.id, access_type=ACCESS_TYPE_MODIFY,
-                                          grantee=user, grantor=d.user)
+        AccessPermission.grant(obj=d, access_type=ACCESS_TYPE_MODIFY, grantee=user, grantor=d.user)
 
         rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
                                data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)
