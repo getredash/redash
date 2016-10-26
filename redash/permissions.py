@@ -10,6 +10,8 @@ ACCESS_TYPE_VIEW = 'view'
 ACCESS_TYPE_MODIFY = 'modify'
 ACCESS_TYPE_DELETE = 'delete'
 
+ACCESS_TYPES = (ACCESS_TYPE_VIEW, ACCESS_TYPE_MODIFY, ACCESS_TYPE_DELETE)
+
 
 def has_access(object_groups, user, need_view_only):
     if 'admin' in user.permissions:

@@ -861,52 +861,39 @@ class AccessPermission(BaseModel):
     class Meta:
         db_table = 'access_permissions'
 
-    @staticmethod
-    def grant_permission(object_type, object_id, access_type, grantee, grantor):
-        perm = AccessPermission()
-        perm.object_type = object_type
-        perm.object_id = object_id
-        perm.access_type = access_type
-        perm.grantor = grantor
-        perm.grantee = grantee
-        perm.save()
+    @classmethod
+    def grant(cls, obj, access_type, grantee, grantor):
+        return cls.get_or_create(object_type=obj._meta.db_table, object_id=obj.id, access_type=access_type, grantee=grantee, grantor=grantor)[0]
 
-    @staticmethod
-    def revoke_permission(object_type, object_id, grantee, access_type=None):
-        permissions = AccessPermission.find(object_id=object_id,
-            object_type=object_type, grantee=grantee, access_type=access_type)
+    @classmethod
+    def revoke(cls, obj, grantee, access_type=None):
+        query = cls._query(cls.delete(), obj, access_type, grantee)
 
-        if permissions.count() <= 0:
-            return None
+        return query.execute()
 
-        permissions_deleted = list(permissions)
+    @classmethod
+    def find(cls, obj, access_type=None, grantee=None, grantor=None):
+        return cls._query(cls.select(cls), obj, access_type, grantee, grantor)
 
-        for permission in permissions:
-            permission.delete_instance()
+    @classmethod
+    def exists(cls, obj, access_type, grantee):
+        return cls.find(obj, access_type, grantee).count() > 0
 
-        if len(permissions_deleted) == 1:
-            return permissions_deleted[0]
+    @classmethod
+    def _query(cls, base_query, obj, access_type=None, grantee=None, grantor=None):
+        q = base_query.where(cls.object_type == obj._meta.db_table) \
+            .where(cls.object_id == obj.id)
 
-        return permissions_deleted
-
-    @staticmethod
-    def find(object_id, object_type, grantee=None, access_type=None, grantor=None):
-        q = AccessPermission.select(AccessPermission)\
-            .where(AccessPermission.object_id == object_id)\
-            .where(AccessPermission.object_type == object_type)
-        if grantee:
-            q = q.where(AccessPermission.grantee == grantee)
         if access_type:
             q = q.where(AccessPermission.access_type == access_type)
+
+        if grantee:
+            q = q.where(AccessPermission.grantee == grantee)
+
         if grantor:
             q = q.where(AccessPermission.grantor == grantor)
-        return q
 
-    @staticmethod
-    def exists(object_id, object_type, grantee, access_type=None):
-        permissions = AccessPermission.find(object_id=object_id,
-            object_type=object_type, grantee=grantee, access_type=access_type)
-        return permissions.count() > 0
+        return q
 
     def to_dict(self):
         d = {

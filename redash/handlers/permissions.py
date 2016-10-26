@@ -1,98 +1,80 @@
-from redash.handlers.base import BaseResource
-from redash.models import AccessPermission, Query, Dashboard
-from redash.permissions import require_admin_or_owner
+from collections import defaultdict
+
+from redash.handlers.base import BaseResource, get_object_or_404
+from redash.models import AccessPermission, Query, Dashboard, User
+from redash.permissions import require_admin_or_owner, ACCESS_TYPES
 from flask import request
 from flask_restful import abort
 
 
-object_types_to_classes = {
+model_to_types = {
     'queries': Query,
     'dashboards': Dashboard
 }
 
 
-def get_model_for_object_type(object_type):
-    model = object_types_to_classes.get(object_type)
-    if not model:
+def get_model_from_type(type):
+    model = model_to_types.get(type)
+    if model is None:
         abort(404)
     return model
 
 
-def get_classname_for_object_type(object_type):
-    model = get_model_for_object_type(object_type)
-    return model.__name__
-
-
 class ObjectPermissionsListResource(BaseResource):
     def get(self, object_type, object_id):
-        # convert API resource to model class, e.g., 'queries' to 'Query'
-        object_type = get_classname_for_object_type(object_type)
+        model = get_model_from_type(object_type)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
 
-        permissions = AccessPermission.find(object_id=object_id,
-            object_type=object_type, grantor=self.current_user)
+        # TODO: include grantees in search to avoid N+1 queries
+        permissions = AccessPermission.find(obj)
 
-        result = {}
+        result = defaultdict(list)
+
         for perm in permissions:
-            if perm.access_type not in result:
-                result[perm.access_type] = []
             result[perm.access_type].append(perm.grantee.to_dict())
 
         return result
 
     def post(self, object_type, object_id):
-        # convert API resource to model class, e.g., 'queries' to 'Query'
-        model = get_model_for_object_type(object_type)
-        object_type = get_classname_for_object_type(object_type)
+        model = get_model_from_type(object_type)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
 
-        # make sure the current user is permitted to perform this operation
-        target_object = model.select().where(model.id == object_id).get()
-        require_admin_or_owner(target_object.user.id)
+        require_admin_or_owner(obj.user_id)
 
         req = request.get_json(True)
-        grantee = req['user_id']
+
         access_type = req['access_type']
 
-        permissions = AccessPermission.find(grantee=grantee, object_id=object_id,
-            object_type=object_type, access_type=access_type, grantor=self.current_user)
+        if access_type not in ACCESS_TYPES:
+            abort(400, message='Unknown access type.')
 
-        if permissions.count() > 0:
-            return {'result': 'already_granted'}
+        try:
+            grantee = User.get_by_id_and_org(req['user_id'], self.current_org)
+        except User.DoesNotExist:
+            abort(400, message='User not found.')
 
-        AccessPermission.grant_permission(object_type=object_type,
-            object_id=object_id, access_type=access_type,
-            grantee=grantee, grantor=self.current_user)
+        permission = AccessPermission.grant(obj, access_type, grantee, self.current_user)
 
-        return {'result': 'permission_added'}
+        return permission.to_dict()
 
     def delete(self, object_type, object_id):
-        # convert API resource to model class, e.g., 'queries' to 'Query'
-        model = get_model_for_object_type(object_type)
-        object_type = get_classname_for_object_type(object_type)
+        model = get_model_from_type(object_type)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
 
-        # make sure the current user is permitted to perform this operation
-        target_object = model.select().where(model.id == object_id).get()
-        require_admin_or_owner(target_object.user.id)
+        require_admin_or_owner(obj.user_id)
 
         req = request.get_json(True)
         grantee = req['user_id']
         access_type = req['access_type']
 
-        deleted = AccessPermission.revoke_permission(object_type=object_type,
-            object_id=object_id, grantee=grantee, access_type=access_type)
-
-        if deleted:
-            deleted = deleted.to_dict()
-
-        result = {'deleted': deleted}
-        return result
+        AccessPermission.revoke(obj, grantee, access_type)
 
 
 class CheckPermissionResource(BaseResource):
     def get(self, object_type, object_id, access_type):
-        # convert API resource to model class, e.g., 'queries' to 'Query'
-        object_type = get_classname_for_object_type(object_type)
+        model = get_model_from_type(object_type)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
 
-        access = AccessPermission.exists(grantee=self.current_user, access_type=access_type, object_id=object_id, object_type=object_type)
-        if access:
-            return {'result': 'access_granted'}
-        abort(403)
+        has_access = AccessPermission.exists(obj, access_type, self.current_user)
+
+        return {'response': has_access}
