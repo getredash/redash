@@ -31,6 +31,8 @@ PRESTO_TYPES_MAPPING = {
 
 
 class Presto(BaseQueryRunner):
+    noop_query = 'SHOW TABLES'
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -74,7 +76,7 @@ class Presto(BaseQueryRunner):
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -94,7 +96,7 @@ class Presto(BaseQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),

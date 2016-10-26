@@ -7,6 +7,7 @@ from redash import settings
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
+from saml2.saml import NAMEID_FORMAT_TRANSIENT
 
 logger = logging.getLogger('saml_auth')
 
@@ -31,17 +32,21 @@ def get_saml_client():
     #
     #   SAML metadata changes very rarely. On a production system,
     #   this data should be cached as approprate for your production system.
-    rv = requests.get(settings.SAML_METADATA_URL)
-    import tempfile
-    tmp = tempfile.NamedTemporaryFile()
-    f = open(tmp.name, 'w')
-    f.write(rv.text)
-    f.close()
+    if settings.SAML_METADATA_URL != "":
+        rv = requests.get(settings.SAML_METADATA_URL)
+        import tempfile
+        tmp = tempfile.NamedTemporaryFile()
+        f = open(tmp.name, 'w')
+        f.write(rv.text)
+        f.close()
+        metadata_path = tmp.name
+    else:
+        metadata_path = settings.SAML_LOCAL_METADATA_PATH
 
     saml_settings = {
         'metadata': {
             # 'inline': metadata,
-            "local": [tmp.name]
+            "local": [metadata_path]
         },
         'service': {
             'sp': {
@@ -63,11 +68,16 @@ def get_saml_client():
             },
         },
     }
+    if settings.SAML_ENTITY_ID != "":
+        saml_settings['entityid'] = settings.SAML_ENTITY_ID
+
     spConfig = Saml2Config()
     spConfig.load(saml_settings)
     spConfig.allow_unknown_attributes = True
     saml_client = Saml2Client(config=spConfig)
-    tmp.close()
+    if settings.SAML_METADATA_URL != "":
+        tmp.close()
+
     return saml_client
 
 
@@ -98,12 +108,16 @@ def idp_initiated():
 
 @blueprint.route("/saml/login")
 def sp_initiated():
-    if not settings.SAML_METADATA_URL:
+    if not settings.SAML_METADATA_URL and not settings.SAML_LOCAL_METADATA_PATH:
         logger.error("Cannot invoke saml endpoint without metadata url in settings.")
         return redirect(url_for('redash.index'))
 
     saml_client = get_saml_client()
-    reqid, info = saml_client.prepare_for_authenticate()
+    if settings.SAML_NAMEID_FORMAT != "":
+        nameid_format = settings.SAML_NAMEID_FORMAT
+    else:
+        nameid_format = NAMEID_FORMAT_TRANSIENT
+    reqid, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format)
 
     redirect_url = None
     # Select the IdP URL to send the AuthN request to

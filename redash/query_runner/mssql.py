@@ -32,6 +32,8 @@ class MSSQLJSONEncoder(JSONEncoder):
 
 
 class SqlServer(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -99,7 +101,7 @@ class SqlServer(BaseSQLQueryRunner):
                                   );
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -119,7 +121,7 @@ class SqlServer(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = None
 
         try:

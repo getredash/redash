@@ -14,6 +14,8 @@ except ImportError:
     enabled = False
 
 class Cassandra(BaseQueryRunner):
+    noop_query = "SELECT * FROM system"
+
     @classmethod
     def enabled(cls):
         return enabled
@@ -55,10 +57,10 @@ class Cassandra(BaseQueryRunner):
         select columnfamily_name from system.schema_columnfamilies where keyspace_name = '{}';
         """.format(self.configuration['keyspace'])
 
-        results = self.run_query(query)
+        results, error = self.run_query(query, None)
         return results, error
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         from cassandra.cluster import Cluster
         connection = None
         try:

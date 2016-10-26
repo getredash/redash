@@ -45,6 +45,8 @@ def _wait(conn, timeout=None):
 
 
 class PostgreSQL(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -93,7 +95,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -113,7 +115,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = psycopg2.connect(self.connection_string, async=True)
         _wait(connection, timeout=10)
 

@@ -227,6 +227,12 @@ class BaseElasticSearch(BaseQueryRunner):
 
             raise Exception("Redash failed to parse the results it got from ElasticSearch.")
 
+    def test_connection(self):
+        r = requests.get("{0}/_cluster/health", auth=self.auth)
+        if r.status_code != 200:
+            raise Exception("Connection test failed.. Return Code: {0}"
+                            "   Reason: {1}".format(r.status_code, r.text))
+
 
 class Kibana(BaseElasticSearch):
     def __init__(self, configuration):
@@ -256,7 +262,7 @@ class Kibana(BaseElasticSearch):
 
         return raw_result["hits"]["total"]
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             error = None
 
@@ -329,7 +335,7 @@ class ElasticSearch(BaseElasticSearch):
     def annotate_query(cls):
         return False
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             error = None
 

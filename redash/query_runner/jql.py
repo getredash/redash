@@ -101,11 +101,11 @@ class JiraJQL(BaseQueryRunner):
         super(JiraJQL, self).__init__(configuration)
         self.syntax = 'json'
 
-    def run_query(self, query_string):
+    def run_query(self, query, user):
         jql_url = '{}/rest/api/2/search'.format(self.configuration["url"])
 
         try:
-            query = json.loads(query_string)
+            query = json.loads(query)
             query_type = query.pop('queryType', 'select')
 
             if query_type == 'count':

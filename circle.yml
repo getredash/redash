@@ -3,7 +3,7 @@ machine:
     - docker
   node:
     version:
-      0.12.4
+      6.1.0
   python:
     version:
       2.7.3
@@ -15,7 +15,6 @@ dependencies:
     - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
   cache_directories:
     - node_modules/
-    - rd_ui/node_modules/
     - rd_ui/app/bower_components/
 test:
   override:

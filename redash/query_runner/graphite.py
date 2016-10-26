@@ -63,7 +63,13 @@ class Graphite(BaseQueryRunner):
         self.verify = self.configuration.get("verify", True)
         self.base_url = "%s/render?format=json&" % self.configuration['url']
 
-    def run_query(self, query):
+    def test_connection(self):
+        r = requests.get("{0}/_cluster/health", auth=self.auth, verify=self.verify)
+        if r.status_code != 200:
+            raise Exception("Connection test failed. Return Code: {0}"
+                            "   Reason: {1}".format(r.status_code, r.text))
+
+    def run_query(self, query, user):
         url = "%s%s" % (self.base_url, "&".join(query.split("\n")))
         error = None
         data = None
