@@ -30,33 +30,8 @@
           transformResponse: transform
       }});
 
-      var loadAccessPermission = function(dashboard) {
-        var action = 'modify';
-        var body = {};
-        currentUser.accessPermissions[this] = false;
-        $http.get('api/dashboards/' + dashboard.id + '/acl/' + action, body).then(function() {
-          currentUser.accessPermissions[dashboard] = true;
-        }, function() {
-          /* access denied, cannot edit this dashboard. */
-          currentUser.accessPermissions[dashboard] = false;
-        });
-      };
-
       resource.prototype.canEdit = function() {
-        if(!currentUser.accessPermissions) {
-          currentUser.accessPermissions = {};
-        }
-        if(currentUser.hasPermission('admin') 
-            || currentUser.canEdit(this)
-            || currentUser.accessPermissions[this]) {
-          return true;
-        }
-        if(this.id) {
-          if(typeof currentUser.accessPermissions[this] === 'undefined') {
-            currentUser.accessPermissions[this] = false;
-            loadAccessPermission(this);
-          }
-        }
+        return currentUser.canEdit(this) || this.can_edit;
       };
 
       return resource;

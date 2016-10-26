@@ -6,7 +6,7 @@ from itertools import chain
 
 from redash import models
 from redash.models import ConflictDetectedError
-from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission
+from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission, ACCESS_TYPE_MODIFY
 from redash.handlers.base import BaseResource, get_object_or_404
 
 
@@ -52,6 +52,8 @@ class DashboardResource(BaseResource):
         if api_key:
             response['public_url'] = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
             response['api_key'] = api_key.api_key
+
+        response['can_edit'] = models.AccessPermission.exists(dashboard, ACCESS_TYPE_MODIFY, self.current_user)
 
         return response
 
