@@ -103,7 +103,7 @@
           </div>
 
           <div class="schema-browser">
-            <div ng-repeat="table in schema | filter:schemaFilter track by table.name">
+            <div ng-repeat="table in schema | filter:filterPrivateTables | filter:schemaFilter track by table.name">
               <div class="table-name" ng-click="table.collapsed = !table.collapsed">
                 <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span><span
                 ng-if="table.size !== undefined"> ({{table.size}})</span></strong>
