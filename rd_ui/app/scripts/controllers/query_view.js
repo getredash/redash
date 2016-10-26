@@ -129,6 +129,7 @@
           return;
         }
         data.id = $scope.query.id;
+        data.version = $scope.query.version;
       } else {
         data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_query_data_id", "version"]);
       }
@@ -138,10 +139,16 @@
         errorMessage: 'Query could not be saved'
       }, options);
 
-      return Query.save(data, function() {
+      return Query.save(data, function(updatedQuery) {
         growl.addSuccessMessage(options.successMessage);
-      }, function(httpResponse) {
-        growl.addErrorMessage(options.errorMessage);
+        $scope.query.version = updatedQuery.version;
+      }, function(error) {
+        if(error.status == 409) {
+          growl.addErrorMessage('It seems like the query has been modified by another user. ' +
+            'Please copy/backup your changes and reload this page.', {ttl: -1});
+        } else {
+          growl.addErrorMessage(options.errorMessage);
+        }
       }).$promise;
     }
 

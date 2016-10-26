@@ -991,7 +991,6 @@ class Change(BaseModel):
         return cls.select().where(cls.object_type==obj._meta.db_table, cls.object_id==obj.id).limit(1).first()
 
 
-
 class Alert(ModelTimestampsMixin, BaseModel):
     UNKNOWN_STATE = 'unknown'
     OK_STATE = 'ok'
