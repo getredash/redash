@@ -125,7 +125,7 @@
                   </button>
                   <ul class="dropdown-menu pull-right" dropdown-menu>
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a hash-link hash="archive-confirmation-modal" data-toggle="modal">Archive Query</a></li>
-                    <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showSharePermissionsModal()">Manage Permissions</a></li>
+                    <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
                   </ul>
                 </div>

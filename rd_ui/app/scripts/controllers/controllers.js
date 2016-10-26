@@ -157,7 +157,7 @@
   };
 
   // Controller for modal window share_permissions, works for both query and dashboards, needs apiAccess set in scope
-  var SharePermissionsCtrl = function ($scope, $http, $modalInstance, User) {
+  var ManagePermissionsCtrl = function ($scope, $http, $modalInstance, User) {
       $scope.grantees = [];
       $scope.newGrantees = {};
 
@@ -227,5 +227,5 @@
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl])
-    .controller('SharePermissionsCtrl', ['$scope', '$http', '$modalInstance', 'User', SharePermissionsCtrl]);
+    .controller('ManagePermissionsCtrl', ['$scope', '$http', '$modalInstance', 'User', ManagePermissionsCtrl]);
 })();

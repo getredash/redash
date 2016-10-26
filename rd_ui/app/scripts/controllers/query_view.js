@@ -348,15 +348,15 @@
       $scope.selectedTab = hash || DEFAULT_TAB;
     });
 
-    $scope.showSharePermissionsModal = function() {
+    $scope.showManagePermissionsModal = function() {
       // Create scope for share permissions dialog and pass api path to it
       var scope = $scope.$new();
       $scope.apiAccess = 'api/queries/' + $routeParams.queryId + '/acl';
 
       $modal.open({
         scope: scope,
-        templateUrl: '/views/dialogs/share_permissions.html',
-        controller: 'SharePermissionsCtrl'
+        templateUrl: '/views/dialogs/manage_permissions.html',
+        controller: 'ManagePermissionsCtrl'
       })
     };
   };
