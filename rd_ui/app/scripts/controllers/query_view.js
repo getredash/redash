@@ -66,6 +66,7 @@
 
     $scope.dataSource = {};
     $scope.query = $route.current.locals.query;
+    $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
     var updateSchema = function() {
       $scope.hasSchema = false;
