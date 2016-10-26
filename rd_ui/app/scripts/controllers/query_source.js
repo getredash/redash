@@ -17,7 +17,7 @@
         saveQuery = $scope.saveQuery;
 
     $scope.sourceMode = true;
-    $scope.canEdit = currentUser.canEdit($scope.query);// TODO: bring this back? || clientConfig.allowAllToEditQueries;
+    $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;// TODO: bring this back? || clientConfig.allowAllToEditQueries;
     $scope.isDirty = false;
     $scope.base_url = $location.protocol()+"://"+$location.host()+":"+$location.port();
 
@@ -49,21 +49,6 @@
 
     KeyboardShortcuts.bind(shortcuts);
 
-
-    var loadAccessPermission = function() {
-      var action = 'modify';
-      var body = {};
-      $http.get('api/queries/' + $scope.query.id + '/acl/' + action, body).then(function() {
-        $scope.canEdit = true;
-      }, function() {
-        /* access denied, cannot edit this query. */
-      });
-    };
-
-    if(!$scope.canEdit) {
-      loadAccessPermission();
-    }
-
     // @override
     $scope.saveQuery = function(options, data) {
       var savePromise = saveQuery(options, data);
@@ -85,7 +70,7 @@
       }, function(error) {
         if(error.status == 409) {
           growl.addErrorMessage('It seems like the query has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.', {ttl: -1});
+            'Please copy/backup your changes and reload this page.', {ttl: -1});
         }
       });
 

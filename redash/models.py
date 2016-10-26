@@ -409,8 +409,7 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
         self.save()
 
     def has_access(self, obj, access_type):
-        return AccessPermission.exists(grantee=self, access_type=access_type,
-            object_id=obj.id, object_type=obj.__class__.__name__)
+        return AccessPermission.exists(obj, access_type, grantee=self)
 
 
 class ConfigurationField(peewee.TextField):
