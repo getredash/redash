@@ -55,6 +55,14 @@ class ObjectPermissionsListResource(BaseResource):
 
         permission = AccessPermission.grant(obj, access_type, grantee, self.current_user)
 
+        self.record_event({
+            'action': 'grant_permission',
+            'object_id': object_id,
+            'object_type': object_type,
+            'access_type': access_type,
+            'grantee': grantee.id
+        })
+
         return permission.to_dict()
 
     def delete(self, object_type, object_id):
@@ -68,6 +76,14 @@ class ObjectPermissionsListResource(BaseResource):
         access_type = req['access_type']
 
         AccessPermission.revoke(obj, grantee, access_type)
+
+        self.record_event({
+            'action': 'revoke_permission',
+            'object_id': object_id,
+            'object_type': object_type,
+            'access_type': access_type,
+            'grantee': grantee.id
+        })
 
 
 class CheckPermissionResource(BaseResource):
