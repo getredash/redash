@@ -519,7 +519,7 @@ class QueryResult(BaseModel, BelongsToOrgMixin):
                                        cls.data_source == data_source).order_by(cls.retrieved_at.desc())
         else:
             query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
-                                       peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'",
+                                       peewee.SQL("retrieved_at at time zone 'utc' + interval '%s second' >= now() at time zone 'utc'",
                                                   max_age)).order_by(cls.retrieved_at.desc())
 
         return query.first()
