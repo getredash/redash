@@ -31,12 +31,10 @@ class DashboardListResource(BaseResource):
     @require_permission('create_dashboard')
     def post(self):
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard(name=dashboard_properties['name'],
-                                     org=self.current_org,
-                                     user=self.current_user,
-                                     layout='[]')
-
-        new_change = dashboard.tracked_save(changing_user=self.current_user)
+        dashboard = models.Dashboard.create(name=dashboard_properties['name'],
+                                            org=self.current_org,
+                                            user=self.current_user,
+                                            layout='[]')
 
         result = dashboard.to_dict()
         return result
@@ -65,10 +63,8 @@ class DashboardResource(BaseResource):
 
         require_object_modify_permission(dashboard, self.current_user)
 
-        # old_dashboard = {'name': dashboard.name, 'layout': dashboard.layout}
-        # new_change = dashboard.tracked_save(changing_user=self.current_user, old_object=old_dashboard)
-
         updates = project(dashboard_properties, ('name', 'layout', 'version'))
+        updates['changed_by'] = self.current_user
 
         try:
             dashboard.update_instance(**updates)
@@ -82,7 +78,7 @@ class DashboardResource(BaseResource):
     def delete(self, dashboard_slug):
         dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
         dashboard.is_archived = True
-        dashboard.save()
+        dashboard.save(changed_by=self.current_user)
 
         return dashboard.to_dict(with_widgets=True, user=self.current_user)
 
@@ -94,6 +90,12 @@ class DashboardShareResource(BaseResource):
         api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
         public_url = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
 
+        self.record_event({
+            'action': 'activate_api_key',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return {'public_url': public_url, 'api_key': api_key.api_key}
 
     def delete(self, dashboard_id):
@@ -104,5 +106,11 @@ class DashboardShareResource(BaseResource):
         if api_key:
             api_key.active = False
             api_key.save()
+
+        self.record_event({
+            'action': 'deactivate_api_key',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
 
 

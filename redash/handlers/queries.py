@@ -64,8 +64,6 @@ class QueryListResource(BaseResource):
         query_def['org'] = self.current_org
         query = models.Query.create(**query_def)
 
-        # new_change = query.tracked_save(changing_user=self.current_user)
-
         self.record_event({
             'action': 'create',
             'object_id': query.id,
@@ -110,6 +108,7 @@ class QueryResource(BaseResource):
             query_def['data_source'] = query_def.pop('data_source_id')
 
         query_def['last_modified_by'] = self.current_user
+        query_def['changed_by'] = self.current_user
 
         try:
             query.update_instance(**query_def)
@@ -136,7 +135,7 @@ class QueryResource(BaseResource):
     def delete(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_admin_or_owner(query.user_id)
-        query.archive()
+        query.archive(self.current_user)
 
 
 class QueryRefreshResource(BaseResource):

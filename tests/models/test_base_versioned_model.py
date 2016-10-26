@@ -5,7 +5,7 @@ from tests import BaseTestCase
 from redash.models import ChangeTrackingMixin, BaseVersionedModel, ConflictDetectedError
 
 
-class TestModel(ChangeTrackingMixin, BaseVersionedModel):
+class TestModel(BaseVersionedModel):
     value = peewee.IntegerField()
 
     class Meta:
@@ -46,29 +46,15 @@ class TestBaseVersionedModel(TestModelTestCase):
     def test_calls_save_hooks(self):
         t = TestModel(value=123)
 
-        with patch(__name__ +  '.TestModel.pre_save') as pre_save_mock, patch(__name__ + '.TestModel.post_save') as post_save_mock:
+        with patch(__name__ + '.TestModel.pre_save') as pre_save_mock, patch(__name__ + '.TestModel.post_save') as post_save_mock:
             t.save()
 
             pre_save_mock.assert_called_once_with(True)
             post_save_mock.assert_called_once_with(True)
 
         t.value = 124
-        with patch(__name__ +  '.TestModel.pre_save') as pre_save_mock, patch(__name__ + '.TestModel.post_save') as post_save_mock:
+        with patch(__name__ + '.TestModel.pre_save') as pre_save_mock, patch(__name__ + '.TestModel.post_save') as post_save_mock:
             t.save()
 
             pre_save_mock.assert_called_once_with(False)
             post_save_mock.assert_called_once_with(False)
-
-
-class TestChangeTracking(TestModelTestCase):
-    def test_returns_changed_fields_with_original_value(self):
-        t = TestModel(value=123)
-        t.save()
-
-        t = TestModel.get(TestModel.id == t.id)
-
-        t.value = 124
-        t.save()
-        self.assertIn('value', t.changes)
-        self.assertEqual(124, t.changes['value']['new'])
-        self.assertEqual(123, t.changes['value']['old'])

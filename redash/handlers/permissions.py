@@ -82,7 +82,7 @@ class ObjectPermissionsListResource(BaseResource):
             'object_id': object_id,
             'object_type': object_type,
             'access_type': access_type,
-            'grantee': grantee.id
+            'grantee': grantee
         })
 
 
