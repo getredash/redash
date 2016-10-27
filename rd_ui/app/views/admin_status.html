@@ -39,7 +39,7 @@
         <li class="list-group-item active">Queues</li>
         <li class="list-group-item" ng-repeat="(name, value) in manager.queues">
           <span class="badge">{{value.size}}</span>
-          {{name}} ({{value.data_sources}})
+          {{name}} <span popover="{{value.data_sources}}" popover-trigger="mouseenter"><i class="fa fa-question-circle"></i></span>
         </li>
       </ul>
     </div>
