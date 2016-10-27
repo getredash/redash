@@ -233,7 +233,7 @@ class Python(BaseQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            error = str(e)
+            error = str(type(e)) + " " + str(e)
             json_data = None
 
         return json_data, error
