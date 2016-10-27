@@ -202,8 +202,7 @@
         });
       }
 
-      // var timer = $timeout(refresh, 59 * 1000);
-      var timer = $timeout(refresh, 10 * 1000);
+      var timer = $timeout(refresh, 59 * 1000);
 
       $scope.$on("$destroy", function () {
         if (timer) {
