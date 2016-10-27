@@ -43,6 +43,7 @@
   var AdminTasksCtrl = function ($scope, $location, Events, $http, $timeout, $filter) {
     Events.record(currentUser, "view", "page", "admin/tasks");
     $scope.$parent.pageTitle = "Running Queries";
+    $scope.autoUpdate = true;
 
     $scope.gridConfig = {
       isPaginationEnabled: true,
@@ -121,11 +122,13 @@
     $scope.setTab($location.hash() || 'in_progress');
 
     var refresh = function () {
-      $scope.refresh_time = moment().add(1, 'minutes');
-      $http.get('/api/admin/queries/tasks').success(function (data) {
-        $scope.tasks = data;
-        $scope.showingTasks = $scope.tasks[$scope.selectedTab];
-      });
+      if ($scope.autoUpdate) {
+        $scope.refresh_time = moment().add(1, 'minutes');
+        $http.get('/api/admin/queries/tasks').success(function (data) {
+          $scope.tasks = data;
+          $scope.showingTasks = $scope.tasks[$scope.selectedTab];
+        });
+      }
 
       var timer = $timeout(refresh, 5 * 1000);
 
@@ -142,6 +145,7 @@
   var AdminOutdatedQueriesCtrl = function ($scope, Events, $http, $timeout, $filter) {
     Events.record(currentUser, "view", "page", "admin/outdated_queries");
     $scope.$parent.pageTitle = "Outdated Queries";
+    $scope.autoUpdate = true;
 
     $scope.gridConfig = {
       isPaginationEnabled: true,
@@ -190,13 +194,16 @@
     ];
 
     var refresh = function () {
-      $scope.refresh_time = moment().add(1, 'minutes');
-      $http.get('/api/admin/queries/outdated').success(function (data) {
-        $scope.queries = data.queries;
-        $scope.updatedAt = data.updated_at * 1000.0;
-      });
+      if ($scope.autoUpdate) {
+        $scope.refresh_time = moment().add(1, 'minutes');
+        $http.get('/api/admin/queries/outdated').success(function (data) {
+          $scope.queries = data.queries;
+          $scope.updatedAt = data.updated_at * 1000.0;
+        });
+      }
 
-      var timer = $timeout(refresh, 59 * 1000);
+      // var timer = $timeout(refresh, 59 * 1000);
+      var timer = $timeout(refresh, 10 * 1000);
 
       $scope.$on("$destroy", function () {
         if (timer) {
