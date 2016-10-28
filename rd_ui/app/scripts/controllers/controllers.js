@@ -125,7 +125,37 @@
     load();
   }
 
-  var MainCtrl = function ($scope, $location, Dashboard) {
+  var DashboardSearchCtrl = function($scope, $modalInstance, $http, $location, Dashboard) {
+    $scope.dashboardSelected = {};
+
+    Dashboard.query(function (dashboards) {
+        $scope.dashboards = _.sortBy(dashboards, "name");
+    });
+
+    $scope.close = function() {
+      $modalInstance.close();
+    };
+
+    $scope.openSelectedDashboard = function(dashboard){
+      $scope.close();
+      $location.path('/dashboard/' + dashboard.slug).replace();
+    }
+
+    $scope.findDashboard = function(search){
+      if (search == "") {
+        return;
+      }
+
+      if ($scope.dashboards === undefined) {
+        Dashboard.query(function(dashboards) {
+          $scope.dashboards = _.sortBy(dashboards, ["name"]);
+        });
+      }
+    }
+
+  }
+
+  var MainCtrl = function ($scope, $modal, KeyboardShortcuts, $location) {
     $scope.$on("$routeChangeSuccess", function (event, current, previous, rejection) {
       if ($scope.showPermissionError) {
         $scope.showPermissionError = false;
@@ -146,6 +176,28 @@
       'name': null,
       'layout': null
     }
+
+    $scope.openSearchBox = function(event, key) {
+      if(angular.isDefined($scope.searchBoxModal)){
+        $scope.searchBoxModal.close(key);
+        delete $scope.searchBoxModal;
+        return;
+      }
+
+      $scope.searchBoxModal = $modal.open({
+        templateUrl: '/views/dashboard_search.html',
+        scope: $scope,
+        controller: ['$scope', '$modalInstance', '$http', '$location', 'Dashboard', DashboardSearchCtrl]
+      });
+    }
+
+    var shortcuts = {
+      'meta+k': $scope.openSearchBox,
+      'ctrl+k': $scope.openSearchBox
+    };
+
+    KeyboardShortcuts.bind(shortcuts);
+
   };
 
   var IndexCtrl = function ($scope, Events, Dashboard, Query) {
@@ -159,6 +211,6 @@
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
-    .controller('MainCtrl', ['$scope', '$location', 'Dashboard', MainCtrl])
+    .controller('MainCtrl', ['$scope', '$modal', 'KeyboardShortcuts', '$location', MainCtrl])
     .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
 })();
