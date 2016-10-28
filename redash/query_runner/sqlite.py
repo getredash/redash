@@ -10,6 +10,7 @@ from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
+
 class Sqlite(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
