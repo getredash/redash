@@ -228,7 +228,7 @@ class BaseElasticSearch(BaseQueryRunner):
             raise Exception("Redash failed to parse the results it got from ElasticSearch.")
 
     def test_connection(self):
-        r = requests.get("{0}/_cluster/health", auth=self.auth)
+        r = requests.get("{0}/_cluster/health".format(self.server_url), auth=self.auth)
         if r.status_code != 200:
             raise Exception("Connection test failed.. Return Code: {0}"
                             "   Reason: {1}".format(r.status_code, r.text))
