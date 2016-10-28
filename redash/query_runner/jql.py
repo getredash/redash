@@ -69,6 +69,8 @@ def parse_count(data):
 
 
 class JiraJQL(BaseQueryRunner):
+    noop_query = '{"queryType": "count"}'
+
     @classmethod
     def configuration_schema(cls):
         return {
