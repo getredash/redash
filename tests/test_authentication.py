@@ -96,7 +96,7 @@ class TestHMACAuthentication(BaseTestCase):
 
     def test_no_query_id(self):
         with app.test_client() as c:
-            rv = c.get('/api/queries', query_string={'api_key': self.api_key})
+            rv = c.get('/{}/api/queries'.format(self.query.org.slug), query_string={'api_key': self.api_key})
             self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_user_api_key(self):

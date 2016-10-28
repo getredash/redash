@@ -156,9 +156,76 @@
     $scope.recentDashboards = Dashboard.recent();
   };
 
+  // Controller for modal window share_permissions, works for both query and dashboards, needs apiAccess set in scope
+  var ManagePermissionsCtrl = function ($scope, $http, $modalInstance, User) {
+      $scope.grantees = [];
+      $scope.newGrantees = {};
+
+      // List users that are granted permissions
+      var loadGrantees = function() {
+        $http.get($scope.apiAccess).success(function(result) {
+          $scope.grantees = [];
+          for(var access_type in result) {
+            result[access_type].forEach(function(grantee) {
+              var item = grantee;
+              item['access_type'] = access_type;
+              $scope.grantees.push(item);
+            })
+          }
+        });
+      };
+
+      loadGrantees();
+
+      // Search for user
+      $scope.findUser = function(search) {
+        if (search == "") {
+          return;
+        }
+
+        if ($scope.foundUsers === undefined) {
+          User.query(function(users) {
+            var existingIds = _.map($scope.grantees, function(m) { return m.id; });
+            _.each(users, function(user) { user.alreadyGrantee = _.contains(existingIds, user.id); });
+            $scope.foundUsers = users;
+          });
+        }
+      };
+
+      // Add new user to grantees list
+      $scope.addGrantee = function(user) {
+        $scope.newGrantees.selected = undefined;
+        var body = {'access_type': 'modify', 'user_id': user.id};
+        $http.post($scope.apiAccess, body).success(function() {
+          user.alreadyGrantee = true;
+          loadGrantees();
+        });
+      };
+
+      // Remove user from grantees list
+      $scope.removeGrantee = function(user) {
+        var body = {'access_type': 'modify', 'user_id': user.id};
+        $http({ url: $scope.apiAccess, method: 'DELETE',
+                data: body, headers: {"Content-Type": "application/json"}
+        }).success(function() {
+          $scope.grantees = _.filter($scope.grantees, function(m) {  return m != user });
+
+          if ($scope.foundUsers) {
+            _.each($scope.foundUsers, function(u) { if (u.id == user.id) { u.alreadyGrantee = false }; });
+          }
+        });
+      };
+
+      $scope.close = function() {
+        $modalInstance.close();
+      }
+  };
+
+
   angular.module('redash.controllers', [])
     .controller('QueriesCtrl', ['$scope', '$http', '$location', '$filter', 'Query', QueriesCtrl])
     .controller('IndexCtrl', ['$scope', 'Events', 'Dashboard', 'Query', IndexCtrl])
     .controller('MainCtrl', ['$scope', '$location', 'Dashboard', MainCtrl])
-    .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl]);
+    .controller('QuerySearchCtrl', ['$scope', '$location', '$filter', 'Events', 'Query',  QuerySearchCtrl])
+    .controller('ManagePermissionsCtrl', ['$scope', '$http', '$modalInstance', 'User', ManagePermissionsCtrl]);
 })();

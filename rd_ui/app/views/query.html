@@ -41,11 +41,11 @@
   <div class="row bg-white p-10 m-b-10">
     <div class="col-sm-9">
       <h3>
-        <edit-in-place editable="isQueryOwner" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
+        <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
       </h3>
       <p>
         <em>
-          <edit-in-place editable="isQueryOwner"
+          <edit-in-place editable="canEdit"
                          done="saveDescription"
                          editor="textarea"
                          placeholder="No description"
@@ -125,6 +125,7 @@
                   </button>
                   <ul class="dropdown-menu pull-right" dropdown-menu>
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a hash-link hash="archive-confirmation-modal" data-toggle="modal">Archive Query</a></li>
+                    <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
                   </ul>
                 </div>

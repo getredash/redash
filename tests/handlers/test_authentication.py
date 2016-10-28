@@ -52,6 +52,6 @@ class TestInvitePost(BaseTestCase):
         password = 'test1234'
         response = post_request('/invite/{}'.format(token), data={'password': password}, org=self.factory.org)
         self.assertEqual(response.status_code, 302)
-        self.factory.user = User.get_by_id(self.factory.user.id)
-        self.assertTrue(self.factory.user.verify_password(password))
+        user = User.get_by_id(self.factory.user.id)
+        self.assertTrue(user.verify_password(password))
 

@@ -1,6 +1,7 @@
 import redash.models
 from redash.utils import gen_query_hash, utcnow
 from redash.utils.configuration import ConfigurationContainer
+from redash.permissions import ACCESS_TYPE_MODIFY
 
 
 class ModelFactory(object):
@@ -82,6 +83,13 @@ query_with_params_factory = ModelFactory(redash.models.Query,
                              data_source=data_source_factory.create,
                              org=1)
 
+access_permission_factory = ModelFactory(redash.models.AccessPermission,
+                             object_id=query_factory.create,
+                             object_type=redash.models.Query.__name__,
+                             access_type=ACCESS_TYPE_MODIFY,
+                             grantor=user_factory.create,
+                             grantee=user_factory.create)
+
 alert_factory = ModelFactory(redash.models.Alert,
                              name=Sequence('Alert {}'),
                              query=query_factory.create,
@@ -127,12 +135,28 @@ alert_subscription_factory = ModelFactory(redash.models.AlertSubscription,
 class Factory(object):
     def __init__(self):
         self.org, self.admin_group, self.default_group = redash.models.init_db()
-        self.org.domain = "org0.example.org"
-        self.org.save()
+        self._data_source = None
+        self._user = None
 
-        self.data_source = data_source_factory.create(org=self.org)
-        self.user = self.create_user()
-        redash.models.DataSourceGroup.create(group=self.default_group, data_source=self.data_source)
+    @property
+    def user(self):
+        if self._user is None:
+            self._user = self.create_user()
+
+        return self._user
+
+    @property
+    def data_source(self):
+        if self._data_source is None:
+            self._data_source = data_source_factory.create(org=self.org)
+            redash.models.DataSourceGroup.create(group=self.default_group, data_source=self._data_source)
+
+        return self._data_source
+
+    def _init_org(self):
+        if self._org is None:
+            self._org, self._admin_group, self._default_group = redash.models.init_db()
+            self.org.update_instance(domain='org0.example.org')
 
     def create_org(self, **kwargs):
         org = org_factory.create(**kwargs)
@@ -239,6 +263,13 @@ class Factory(object):
         }
         args.update(kwargs)
         return query_with_params_factory.create(**args)
+
+    def create_access_permission(self, **kwargs):
+        args = {
+            'grantor': self.user
+        }
+        args.update(kwargs)
+        return access_permission_factory.create(**args)
 
     def create_query_result(self, **kwargs):
         args = {

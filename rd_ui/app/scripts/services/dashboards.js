@@ -1,5 +1,6 @@
 (function () {
     var Dashboard = function($resource, $http, Widget) {
+
       var transformSingle = function(dashboard) {
         dashboard.widgets = _.map(dashboard.widgets, function (row) {
           return _.map(row, function (widget) {
@@ -27,13 +28,13 @@
           isArray: true,
           url: "api/dashboards/recent",
           transformResponse: transform
+      }});
 
-        }});
+      resource.prototype.canEdit = function() {
+        return currentUser.canEdit(this) || this.can_edit;
+      };
 
-        resource.prototype.canEdit = function() {
-          return currentUser.hasPermission('admin') || currentUser.canEdit(this);
-        }
-        return resource;
+      return resource;
     }
 
     angular.module('redash.services')

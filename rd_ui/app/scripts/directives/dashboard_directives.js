@@ -3,8 +3,8 @@
 
   var directives = angular.module('redash.directives');
 
-  directives.directive('editDashboardForm', ['Events', '$http', '$location', '$timeout', 'Dashboard',
-    function(Events, $http, $location, $timeout, Dashboard) {
+  directives.directive('editDashboardForm', ['Events', '$http', '$location', '$timeout', 'Dashboard', 'growl',
+    function(Events, $http, $location, $timeout, Dashboard, growl) {
       return {
         restrict: 'E',
         scope: {
@@ -81,10 +81,19 @@
               $scope.dashboard.layout = layout;
 
               layout = JSON.stringify(layout);
-              Dashboard.save({slug: $scope.dashboard.id, name: $scope.dashboard.name, layout: layout}, function(dashboard) {
+              Dashboard.save({slug: $scope.dashboard.id, name: $scope.dashboard.name,
+                  version: $scope.dashboard.version, layout: layout}, function(dashboard) {
                 $scope.dashboard = dashboard;
                 $scope.saveInProgress = false;
                 $(element).modal('hide');
+              }, function(error) {
+                $scope.saveInProgress = false;
+                if(error.status == 403) {
+                  growl.addErrorMessage("Unable to save dashboard: Permission denied.");
+                } else if(error.status == 409) {
+                  growl.addErrorMessage('It seems like the dashboard has been modified by another user. ' +
+                      'Please copy/backup your changes and reload this page.', {ttl: -1});
+                }
               });
               Events.record(currentUser, 'edit', 'dashboard', $scope.dashboard.id);
             } else {

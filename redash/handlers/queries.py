@@ -9,7 +9,8 @@ from itertools import chain
 from redash.handlers.base import routes, org_scoped_rule, paginate
 from redash.handlers.query_results import run_query
 from redash import models
-from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only
+from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only, \
+    require_object_modify_permission, can_modify
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_parameters_from_request
 
@@ -93,9 +94,10 @@ class QueryResource(BaseResource):
     @require_permission('edit_query')
     def post(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_admin_or_owner(query.user_id)
-
         query_def = request.get_json(force=True)
+
+        require_object_modify_permission(query, self.current_user)
+
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
@@ -106,26 +108,34 @@ class QueryResource(BaseResource):
             query_def['data_source'] = query_def.pop('data_source_id')
 
         query_def['last_modified_by'] = self.current_user
+        query_def['changed_by'] = self.current_user
 
-        query.update_instance(**query_def)
+        try:
+            query.update_instance(**query_def)
+        except models.ConflictDetectedError:
+            abort(409)
 
-        return query.to_dict(with_visualizations=True)
+        # old_query = copy.deepcopy(query.to_dict())
+        # new_change = query.update_instance_tracked(changing_user=self.current_user, old_object=old_query, **query_def)
+        # abort(409) # HTTP 'Conflict' status code
+
+        result = query.to_dict(with_visualizations=True)
+        return result
 
     @require_permission('view_query')
     def get(self, query_id):
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(q.groups, self.current_user, view_only)
 
-        if q:
-            return q.to_dict(with_visualizations=True)
-        else:
-            abort(404, message="Query not found.")
+        result = q.to_dict(with_visualizations=True)
+        result['can_edit'] = can_modify(q, self.current_user)
+        return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
     def delete(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_admin_or_owner(query.user_id)
-        query.archive()
+        query.archive(self.current_user)
 
 
 class QueryRefreshResource(BaseResource):

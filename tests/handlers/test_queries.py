@@ -1,48 +1,19 @@
-from redash import models
 from tests import BaseTestCase
-from tests.test_handlers import AuthenticationTestMixin
+from redash import models
+
+from redash.permissions import ACCESS_TYPE_MODIFY
 
 
-class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
-    def setUp(self):
-        self.paths = ['/api/queries']
-        super(QueryAPITest, self).setUp()
-
-    def test_update_query(self):
-        admin = self.factory.create_admin()
-        query = self.factory.create_query()
-
-        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=admin)
-        self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.json['name'], 'Testing')
-        self.assertEqual(rv.json['last_modified_by']['id'], admin.id)
-
-    def test_create_query(self):
-        query_data = {
-            'name': 'Testing',
-            'query': 'SELECT 1',
-            'schedule': "3600",
-            'data_source_id': self.factory.data_source.id
-        }
-
-        rv = self.make_request('post', '/api/queries', data=query_data)
-
-        self.assertEquals(rv.status_code, 200)
-        self.assertDictContainsSubset(query_data, rv.json)
-        self.assertEquals(rv.json['user']['id'], self.factory.user.id)
-        self.assertIsNotNone(rv.json['api_key'])
-        self.assertIsNotNone(rv.json['query_hash'])
-
-        query = models.Query.get_by_id(rv.json['id'])
-        self.assertEquals(len(list(query.visualizations)), 1)
-
+class TestQueryResourceGet(BaseTestCase):
     def test_get_query(self):
         query = self.factory.create_query()
 
         rv = self.make_request('get', '/api/queries/{0}'.format(query.id))
 
         self.assertEquals(rv.status_code, 200)
-        self.assertResponseEqual(rv.json, query.to_dict(with_visualizations=True))
+        expected = query.to_dict(with_visualizations=True)
+        expected['can_edit'] = True
+        self.assertResponseEqual(expected, rv.json)
 
     def test_get_all_queries(self):
         queries = [self.factory.create_query() for _ in range(10)]
@@ -76,6 +47,69 @@ class QueryAPITest(BaseTestCase, AuthenticationTestMixin):
 
         rv = self.make_request('get', '/api/queries/{}'.format(query.id), user=self.factory.create_admin())
         self.assertEquals(rv.status_code, 200)
+
+
+class TestQueryResourcePost(BaseTestCase):
+    def test_update_query(self):
+        admin = self.factory.create_admin()
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=admin)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], 'Testing')
+        self.assertEqual(rv.json['last_modified_by']['id'], admin.id)
+
+    def test_raises_error_in_case_of_conflict(self):
+        q = self.factory.create_query()
+        q.name = "Another Name"
+        q.save()
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(q.id), data={'name': 'Testing', 'version': q.version - 1}, user=self.factory.user)
+        self.assertEqual(rv.status_code, 409)
+
+    def test_overrides_existing_if_no_version_specified(self):
+        q = self.factory.create_query()
+        q.name = "Another Name"
+        q.save()
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(q.id), data={'name': 'Testing'}, user=self.factory.user)
+        self.assertEqual(rv.status_code, 200)
+
+    def test_works_for_non_owner_with_permission(self):
+        query = self.factory.create_query()
+        user = self.factory.create_user()
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=user)
+        self.assertEqual(rv.status_code, 403)
+
+        models.AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY, grantee=user, grantor=query.user)
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=user)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], 'Testing')
+        self.assertEqual(rv.json['last_modified_by']['id'], user.id)
+
+
+
+class TestQueryListResourcePost(BaseTestCase):
+    def test_create_query(self):
+        query_data = {
+            'name': 'Testing',
+            'query': 'SELECT 1',
+            'schedule': "3600",
+            'data_source_id': self.factory.data_source.id
+        }
+
+        rv = self.make_request('post', '/api/queries', data=query_data)
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertDictContainsSubset(query_data, rv.json)
+        self.assertEquals(rv.json['user']['id'], self.factory.user.id)
+        self.assertIsNotNone(rv.json['api_key'])
+        self.assertIsNotNone(rv.json['query_hash'])
+
+        query = models.Query.get_by_id(rv.json['id'])
+        self.assertEquals(len(list(query.visualizations)), 1)
 
 
 class QueryRefreshTest(BaseTestCase):

@@ -4,6 +4,7 @@ from flask import make_response
 
 from redash.utils import json_dumps
 from redash.handlers.base import org_scoped_rule
+from redash.handlers.permissions import ObjectPermissionsListResource, CheckPermissionResource
 from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscriptionListResource, AlertSubscriptionResource
 from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
@@ -70,6 +71,9 @@ api.add_org_resource(QueryListResource, '/api/queries', endpoint='queries')
 api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries')
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
 api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
+
+api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_id>/acl', endpoint='object_permissions')
+api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/acl/<access_type>', endpoint='check_permissions')
 
 api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='query_results')
 api.add_org_resource(QueryResultResource,

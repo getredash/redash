@@ -13,6 +13,7 @@
     $scope.refreshEnabled = false;
     $scope.isFullscreen = false;
     $scope.refreshRate = 60;
+    $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
     var renderDashboard = function (dashboard) {
       $scope.$parent.pageTitle = dashboard.name;
@@ -114,7 +115,19 @@
           $scope.$parent.reloadDashboards();
         });
       }
-    }
+    };
+
+    $scope.showManagePermissionsModal = function() {
+        // Create scope for share permissions dialog and pass api path to it
+        var scope = $scope.$new();
+        $scope.apiAccess = 'api/dashboards/' + $scope.dashboard.id + '/acl';
+
+        $modal.open({
+          scope: scope,
+          templateUrl: '/views/dialogs/manage_permissions.html',
+          controller: 'ManagePermissionsCtrl'
+        });
+    };
 
     $scope.toggleFullscreen = function() {
       $scope.isFullscreen = !$scope.isFullscreen;
