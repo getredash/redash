@@ -1,0 +1,681 @@
+body {
+  padding-top: 50px;
+}
+
+body.headless {
+  padding-top: 0px;
+}
+
+body.headless nav.app-header {
+  display: none;
+}
+
+a[ng-click] {
+  cursor: pointer;
+}
+
+a.link {
+  cursor: pointer;
+}
+
+a.page-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
+}
+
+a.navbar-brand {
+  padding: 5px 5px 0px 0px;
+  margin-left: 0px !important;
+}
+
+.navbar .fa {
+  font-size: 18px;
+}
+
+a.navbar-brand img {
+  height: 40px;
+}
+
+.avatar {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.avatar img {
+  width: 40px;
+  height: 40px;
+}
+
+#logout {
+  color: white;
+  position: relative;
+  left: -9px;
+  bottom: -11px;
+}
+
+.details-toggle {
+  cursor: pointer;
+}
+
+.details-toggle::before {
+  content: '▸';
+  margin-right: 5px;
+}
+
+.details-toggle.open::before {
+  content: '▾';
+  margin-right: 5px;
+}
+
+.edit-in-place span {
+  white-space: pre-line;
+}
+
+.edit-in-place span.editable {
+  cursor: pointer;
+}
+
+.edit-in-place span.editable:hover {
+  background: #FCFCA2;
+}
+
+.edit-in-place input,
+.edit-in-place textarea {
+  display: none;
+}
+
+.edit-in-place.active span {
+  display: none;
+}
+
+.edit-in-place.active input,
+.edit-in-place.active textarea {
+  display: inline-block;
+}
+
+.delete-button {
+  float: none !important;
+}
+
+.list-group-item.active button {
+  color: white;
+}
+
+.panel-heading > p:last-child {
+  margin-bottom: 0px;
+}
+
+.panel-heading > a,
+.panel-heading .query-link {
+  color: inherit;
+}
+
+.panel-heading .query-link:hover {
+  text-decoration: underline;
+}
+
+.form-group.required .control-label:after {
+  content: "*";
+  color: red;
+}
+
+.form-group .help-block.error {
+  display: none;
+}
+
+.form-group.has-error .help-block.error {
+  display: block;
+}
+
+/* angular-growl */
+.growl {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  float: right;
+  width: 250px;
+  z-index: 10000;
+}
+
+.growl-item.ng-enter,
+.growl-item.ng-leave {
+  -webkit-transition: 0.5s linear all;
+  -moz-transition: 0.5s linear all;
+  -o-transition: 0.5s linear all;
+  transition: 0.5s linear all;
+}
+
+.growl-item.ng-enter,
+.growl-item.ng-leave.ng-leave-active {
+  opacity: 0;
+}
+
+.growl-item.ng-leave,
+.growl-item.ng-enter.ng-enter-active {
+  opacity: 1;
+
+}
+
+/* Gridster */
+
+.gridster ul {
+  list-style-type: none;
+}
+
+li.widget {
+  /*background-color:grey;*/
+  border-width: 1px;
+  border-style: solid;
+  border-color: grey;
+  opacity: 0.7;
+}
+
+li.widget:hover {
+  opacity: 1.0 !important;
+
+  -webkit-transition: opacity .6s;
+  -moz-transition: opacity .6s;
+  -o-transition: opacity .6s;
+  -ms-transition: opacity .6s;
+  transition: opacity .6s;
+}
+
+.gridster .preview-holder {
+  border: none !important;
+  border-radius: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Editor */
+
+.ace_editor {
+  border: 1px solid #eee;
+  height: 100%;
+  margin-bottom: 10px;
+}
+
+/* Support for Font-Awesome in btn-xs */
+
+.btn-xs > .fa {
+  font-size: 14px;
+  top: 1px;
+  position: relative;
+}
+
+/* Because of ng-repeat we add span between the .dropdown-menu element and the li element, so we had
+to add those CSS styles here. */
+
+.dropdown-menu > span > li > a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: normal;
+  line-height: 1.428571429;
+  color: #333333;
+  white-space: nowrap;
+}
+
+.dropdown-menu > span > li > a:hover,
+.dropdown-menu > span > li > a:focus {
+  color: #ffffff;
+  text-decoration: none;
+  background-color: #428bca;
+}
+
+/* Dropdown submenus */
+.dropdown-submenu {
+  position: relative;
+}
+
+.dropdown-submenu > .dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  -webkit-border-radius: 0 6px 6px 6px;
+  -moz-border-radius: 0 6px 6px 6px;
+  border-radius: 0 6px 6px 6px;
+}
+
+.dropdown-submenu:hover > .dropdown-menu {
+  display: block;
+}
+
+.dropdown-submenu > a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+
+.dropdown-submenu:hover > a:after {
+  /*border-left-color: #ffffff;*/
+}
+
+.dropdown-submenu.pull-left {
+  float: none;
+}
+
+.dropdown-submenu.pull-left > .dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  -webkit-border-radius: 6px 0 6px 6px;
+  -moz-border-radius: 6px 0 6px 6px;
+  border-radius: 6px 0 6px 6px;
+}
+
+.rd-tab .remove {
+  cursor: pointer;
+  color: #A09797;
+  padding: 0 3px 1px 4px;
+  font-size: 11px;
+}
+
+.rd-tab .remove:hover {
+  color: white;
+  background-color: #FF8080;
+  border-radius: 50%;
+}
+
+.tab-nav > li.rd-tab-btn {
+  float: right;
+  padding-right: 10px;
+  padding-top: 10px;
+}
+
+/* light version of bootstrap's form-control */
+.rd-form-control {
+  display: block;
+  padding: 6px 12px;
+  line-height: 1.428571429;
+  color: #555555;
+  vertical-align: middle;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+
+.rd-form-control {
+  width: 100%;
+}
+
+pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+  overflow: auto;
+}
+
+counter-renderer {
+  display: block;
+  text-align: center;
+}
+
+counter-renderer counter {
+  margin: 0 auto;
+  padding: 15px 50px;
+  display: block;;
+}
+
+counter-renderer value,
+counter-renderer counter-target {
+  font-size: 80px;
+  display: block;
+}
+
+counter-renderer counter-target {
+  color: #ccc;
+}
+
+counter-renderer counter.positive value {
+  color: #5cb85c;
+}
+
+counter-renderer counter.negative value {
+  color: #d9534f;
+  margin-right: 15px;
+}
+
+counter-renderer counter-name {
+  font-size: 40px;
+  display: block;
+}
+
+.box {
+  font: 10px sans-serif;
+}
+
+.box line,
+.box rect,
+.box circle {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.box .center {
+  stroke-dasharray: 3, 3;
+}
+
+.box .outlier {
+  fill: none;
+  stroke: #000;
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.grid-background {
+  fill: #ddd;
+}
+
+.grid path,
+.grid line {
+  fill: none;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.grid .minor line {
+  stroke-opacity: .5;
+}
+
+.grid text {
+  display: none;
+}
+
+.iframe-container {
+  height: 100%;
+}
+
+.schema-container {
+  height: 100%;
+  z-index: 10;
+  background-color: white;
+}
+
+.schema-browser {
+  height: calc(100% - 45px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid rgba(0,0,0,.15);
+}
+
+div.table-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 0 10px;
+}
+
+div.table-name:hover {
+  background: #f4f4f4;
+}
+
+.blankslate {
+  text-align: center;
+  padding: 30px;
+}
+
+.log-container {
+  margin-bottom: 50px;
+}
+
+/* Footer */
+
+.footer {
+  color: #818d9f;
+  padding-bottom: 30px;
+}
+
+.footer a {
+  color: #818d9f;
+  margin-left: 20px;
+}
+
+.col-table .missing-value {
+  color: #b94a48;
+}
+
+.col-table .super-small-input {
+  padding-left: 3px;
+  height: 24px;
+}
+
+.col-table .ui-select-toggle, .col-table .ui-select-search {
+  padding: 2px;
+  padding-left: 5px;
+  height: 24px;
+}
+
+.clearable button {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Immediately apply ng-cloak, instead of waiting for angular.js to load: */
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+/* Smart Table */
+
+.smart-table {
+  margin-bottom: 0px;
+}
+
+.smart-table .pagination {
+  margin-bottom: 5px;
+  margin-top: 10px;
+}
+
+.smart-table .smart-table-header-row .header-content {
+  cursor: pointer;
+}
+
+.voffset {
+  margin-top: 2px;
+}
+
+.voffset1 {
+  margin-top: 5px;
+}
+
+.voffset2 {
+  margin-top: 10px;
+}
+
+.voffset3 {
+  margin-top: 15px;
+}
+
+.voffset4 {
+  margin-top: 30px;
+}
+
+.voffset5 {
+  margin-top: 40px;
+}
+
+.voffset6 {
+  margin-top: 60px;
+}
+
+.voffset7 {
+  margin-top: 80px;
+}
+
+.voffset8 {
+  margin-top: 100px;
+}
+
+.voffset9 {
+  margin-top: 150px;
+}
+
+.overlay {
+  background-color: #808080;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0;
+  z-index: 1000;
+  opacity: 0.8;
+}
+
+.container-fluid {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.modal-xl {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+}
+.modal-xl .modal-dialog {
+  position: fixed;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.modal-xl .modal-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 2px solid #3c7dcf;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.modal-xl .modal-header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 50px;
+  padding: 10px;
+  border: 0;
+}
+
+.modal-xl .modal-body {
+  position: absolute;
+  top: 50px;
+  bottom: 60px;
+  width: 100%;
+  overflow: auto;
+}
+
+.modal-xl .modal-footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 60px;
+  padding: 10px;
+}
+
+/* Bootstrap Overrides */
+
+.flex-parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.collapsing,
+.collapse.in {
+    background: #f4f4f4;
+    padding: 5px 10px;
+    transition: all 0.35s ease;
+}
+
+/* Fixes for SuperFlat */
+
+.table-hover > tbody > tr:hover {
+  background-color: #f4f4f4;
+}
+
+.dropdown-menu {
+  z-index: 1000000000;
+}
+
+
+.t-body a.actions {
+  font-size: 24px;
+  line-height: 100%;
+  padding: 4px 10px 3px;
+  display: block;
+}
+
+.t-body a.actions:hover,
+.t-body a.actions.open > a {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ui-select adjustments for SuperFlat */
+
+/* Same definition as .form-control */
+.ui-select-toggle.btn-default {
+  height: 35px;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  color: #9E9E9E;
+  background: #fff none;
+  border: 1px solid #e8e8e8;
+  border-radius: 5px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.t-header.widget {
+  padding: 5px;
+}
+
+/* Sankey Visualization */
+.sankey .node rect {
+    fill-opacity: .9;
+    shape-rendering: crispEdges;
+    stroke-width: 0;
+}
+.sankey .node text {
+    text-shadow: 0 1px 0 #fff;
+}
+.sankey .link {
+    fill: none;
+    stroke: #000;
+    stroke-opacity: .2;
+}
+
