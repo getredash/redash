@@ -7,6 +7,9 @@ import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import { each } from 'underscore';
 
+import './assets/css/superflat_redash.css';
+import './assets/css/redash.css';
+
 import * as pages from './pages';
 import * as components from './components';
 import * as filters from './filters';
