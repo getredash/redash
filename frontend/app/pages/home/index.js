@@ -4,7 +4,7 @@ function controller() {
 
 export default function (ngModule) {
   ngModule.component('pageHome', {
-    template: '<div>Home</div>',
+    template: '<div>Home {{1923 | durationHumanize}} </div>',
     controller,
   });
 
