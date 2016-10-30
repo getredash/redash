@@ -4,6 +4,8 @@ import { each } from 'underscore';
 
 import * as pages from './pages';
 import * as components from './components';
+import * as filters from './filters';
+import markdownFilter from './filters/markdown';
 
 const ngModule = angular.module('app', [ngRoute]);
 
@@ -25,5 +27,15 @@ function registerPages() {
   });
 }
 
-registerPages();
+function registerFilters() {
+  each(filters, (filter, name) => {
+    ngModule.filter(name, () => filter);
+  });
+}
+
+registerFilters();
+markdownFilter(ngModule);
 registerComponents();
+registerPages();
+
+export default ngModule;

@@ -29,10 +29,13 @@
     "extract-text-webpack-plugin": "^1.0.1",
     "file-loader": "^0.9.0",
     "html-webpack-plugin": "^2.24.0",
+    "marked": "^0.3.6",
+    "moment": "^2.15.2",
     "ng-annotate": "^1.2.1",
     "ng-annotate-loader": "^0.2.0",
     "raw-loader": "^0.5.1",
     "underscore": "^1.8.3",
+    "underscore.string": "^3.3.4",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.3",
     "webpack-dev-server": "^1.16.2"
