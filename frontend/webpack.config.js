@@ -3,6 +3,7 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var path = require('path');
 
 
 var config = {
@@ -17,6 +18,26 @@ var config = {
   plugins: [
     new webpack.DefinePlugin({
       ON_TEST: process.env.NODE_ENV === 'test'
+    }),
+    new webpack.optimize.DedupePlugin(),
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'vendor',
+      minChunks: function (module, count) {
+        // any required modules inside node_modules are extracted to vendor
+        return (
+          module.resource &&
+          /\.js$/.test(module.resource) &&
+          module.resource.indexOf(
+            path.join(__dirname, './node_modules')
+          ) === 0
+        )
+      }
+    }),
+    // extract webpack runtime and module manifest to its own file in order to
+    // prevent vendor hash from being updated whenever app bundle is updated
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'manifest',
+      chunks: ['vendor']
     }),
     new HtmlWebpackPlugin({
       // template: __dirname + '/app/' + 'index.html'
@@ -37,7 +58,7 @@ var config = {
         loader: 'url',
         query: {
           limit: 10000,
-          // name: utils.assetsPath('img/[name].[hash:7].[ext]')
+          name: 'img/[name].[hash:7].[ext]'
         }
       },
       {
@@ -45,7 +66,7 @@ var config = {
         loader: 'url',
         query: {
           limit: 10000,
-          // name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
+          name: 'fonts/[name].[hash:7].[ext]'
         }
       }
 
