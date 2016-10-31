@@ -5,6 +5,7 @@ import angular from 'angular';
 import ngRoute from 'angular-route';
 import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
+import { ngTable } from 'ng-table';
 import { each } from 'underscore';
 
 import './assets/css/superflat_redash.css';
@@ -16,7 +17,7 @@ import * as filters from './filters';
 import * as services from './services';
 import markdownFilter from './filters/markdown';
 
-const ngModule = angular.module('app', [ngRoute, ngResource, uiBootstrap]);
+const ngModule = angular.module('app', [ngRoute, ngResource, uiBootstrap, ngTable.name]);
 
 // stub for currentUser until we have something real.
 const user = {
