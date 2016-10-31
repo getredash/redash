@@ -7,11 +7,9 @@ function controller($scope, $location, currentUser, Dashboard) {
   this.dashboards = [];
   // TODO: logoUrl should come from clientconfig
   this.logoUrl = logoUrl;
-  console.log(currentUser);
   this.showQueriesMenu = currentUser.hasPermission('view_query');
   this.showNewQueryMenu = currentUser.hasPermission('create_query');
   this.showSettingsMenu = currentUser.hasPermission('list_users');
-  console.log('showSettingsMenu', this.showSettingsMenu);
   this.currentUser = currentUser;
 
   this.reloadDashboards = () => {

@@ -18,6 +18,7 @@ import markdownFilter from './filters/markdown';
 
 const ngModule = angular.module('app', [ngRoute, ngResource, uiBootstrap]);
 
+// stub for currentUser until we have something real.
 const user = {
   name: 'Arik Fraimovich',
   gravatar_url: 'https://www.gravatar.com/avatar/ca410c2e27337c8d7075bb1b098ac70f?s=40',
@@ -87,5 +88,15 @@ registerFilters();
 markdownFilter(ngModule);
 registerComponents();
 registerPages();
+
+ngModule.config(($routeProvider, $locationProvider, $compileProvider) => {
+  // TODO:
+  // if (false) { // currentUser.apiKey) {
+  //   $httpProvider.defaults.headers.common.Authorization = `Key ${currentUser.apiKey}`;
+  // }
+
+  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
+  $locationProvider.html5Mode(true);
+});
 
 export default ngModule;
