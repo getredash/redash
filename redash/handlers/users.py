@@ -74,6 +74,10 @@ class UserResetPasswordResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         reset_link = send_password_reset_email(user)
 
+        return {
+            'reset_link': reset_link,
+        }
+
 
 class UserResource(BaseResource):
     def get(self, user_id):

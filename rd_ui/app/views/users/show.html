@@ -27,6 +27,16 @@
       <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
         Password Reset Email
       </button>
+
+      <div ng-if="passwordResetLink && !disablePasswordResetButton" class="alert alert-success">
+        <p>
+          <strong>The user should receive a link to reset his password by email soon.</strong>
+        </p>
+        <p ng-if="clientConfig.mailSettingsMissing">
+          You can use the following link to reset the password yourself:<br/>
+          {{passwordResetLink}}
+        </p>
+      </div>
     </div>
   </div>
   <div ng-show="selectedTab == 'apiKey'" class="p-10">
