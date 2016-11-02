@@ -228,8 +228,9 @@ function QueryResultService($resource, $timeout, $q) {
         let xValue = 0;
         const yValues = {};
 
-        each(row, (value, definition) => {
+        each(row, (v, definition) => {
           const name = definition.split('::')[0] || definition.split('__')[0];
+          let value = v;
           let type = definition.split('::')[1] || definition.split('__')[1];
           if (mapping) {
             type = mapping[definition];

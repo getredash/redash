@@ -1,10 +1,15 @@
 import 'material-design-iconic-font/dist/css/material-design-iconic-font.css';
 import 'font-awesome/css/font-awesome.css';
+import 'ui-select/dist/select.css';
+import 'angular-toastr/dist/angular-toastr.css';
 
 import angular from 'angular';
 import ngRoute from 'angular-route';
 import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
+import uiSelect from 'ui-select';
+import toastr from 'angular-toastr';
+import 'angular-moment';
 import { ngTable } from 'ng-table';
 import { each } from 'underscore';
 
@@ -17,7 +22,7 @@ import * as filters from './filters';
 import * as services from './services';
 import markdownFilter from './filters/markdown';
 
-const ngModule = angular.module('app', [ngRoute, ngResource, uiBootstrap, ngTable.name]);
+const ngModule = angular.module('app', [ngRoute, ngResource, uiBootstrap, uiSelect, ngTable.name, 'angularMoment', toastr]);
 
 // stub for currentUser until we have something real.
 const user = {
@@ -52,7 +57,11 @@ const user = {
 };
 
 user.hasPermission = () => true;
+user.canEdit = () => true;
 ngModule.constant('currentUser', user);
+ngModule.constant('clientConfig', {
+  // mailSettingsMissing: true,
+});
 
 function registerComponents() {
   each(components, (register) => {
@@ -90,7 +99,11 @@ markdownFilter(ngModule);
 registerComponents();
 registerPages();
 
-ngModule.config(($routeProvider, $locationProvider, $compileProvider) => {
+ngModule.config(($routeProvider,
+  $locationProvider,
+  $compileProvider,
+  uiSelectConfig,
+  toastrConfig) => {
   // TODO:
   // if (false) { // currentUser.apiKey) {
   //   $httpProvider.defaults.headers.common.Authorization = `Key ${currentUser.apiKey}`;
@@ -98,6 +111,12 @@ ngModule.config(($routeProvider, $locationProvider, $compileProvider) => {
 
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
   $locationProvider.html5Mode(true);
+  uiSelectConfig.theme = 'bootstrap';
+
+  Object.assign(toastrConfig, {
+    positionClass: 'toast-bottom-right',
+    timeOut: 2000,
+  });
 });
 
 export default ngModule;

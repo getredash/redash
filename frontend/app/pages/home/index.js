@@ -13,14 +13,14 @@ function HomeCtrl($scope, currentUser, Events, Dashboard, Query) {
 }
 
 export default function (ngModule) {
-  ngModule.component('pageHome', {
+  ngModule.component('homePage', {
     template,
     controller: HomeCtrl,
   });
 
   return {
     '/': {
-      template: '<page-home></page-home>',
+      template: '<home-page></home-page>',
     },
   };
 }
