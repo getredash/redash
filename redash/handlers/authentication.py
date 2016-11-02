@@ -2,7 +2,7 @@ import logging
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import current_user, login_user, logout_user
 
-from redash import models, settings
+from redash import models, settings, limiter
 from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule
 from redash.authentication import current_org, get_login_url
@@ -81,6 +81,7 @@ def forgot_password(org_slug=None):
 
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
+@limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
 def login(org_slug=None):
     index_url = url_for("redash.index", org_slug=org_slug)
     next_path = request.args.get('next', index_url)

@@ -7,6 +7,8 @@ from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter, ValidationError
 from statsd import StatsClient
 from flask_mail import Mail
+from flask_limiter import Limiter
+from flask_limiter.util import get_ipaddr
 
 from redash import settings
 from redash.query_runner import import_query_runners
@@ -52,6 +54,7 @@ redis_connection = create_redis_connection()
 mail = Mail()
 mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
+limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.REDIS_URL)
 
 import_query_runners(settings.QUERY_RUNNERS)
 import_destinations(settings.DESTINATIONS)
@@ -112,5 +115,6 @@ def create_app():
     mail.init_app(app)
     setup_authentication(app)
     handlers.init_app(app)
+    limiter.init_app(app)
 
     return app
