@@ -84,7 +84,7 @@ class QueryResultResource(BaseResource):
         if 'Origin' in request.headers:
             origin = request.headers['Origin']
 
-            if origin in settings.ACCESS_CONTROL_ALLOW_ORIGIN:
+            if set(['*', origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
                 headers['Access-Control-Allow-Origin'] = origin
                 headers['Access-Control-Allow-Credentials'] = str(settings.ACCESS_CONTROL_ALLOW_CREDENTIALS).lower()
 
