@@ -24,9 +24,11 @@
     </p>
     <div ng-if="currentUser.isAdmin">
       <hr/>
-      <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
-        Password Reset Email
-      </button>
+      <div class="form-group">
+        <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
+          Password Reset Email
+        </button>
+      </div>
 
       <div ng-if="passwordResetLink && !disablePasswordResetButton" class="alert alert-success">
         <p>
