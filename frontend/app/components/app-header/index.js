@@ -1,6 +1,6 @@
 import { omit, groupBy, sortBy } from 'underscore';
 
-import template from './app_header.html';
+import template from './app-header.html';
 import logoUrl from '../../assets/images/redash_icon_small.png';
 
 function controller($scope, $location, currentUser, Dashboard) {

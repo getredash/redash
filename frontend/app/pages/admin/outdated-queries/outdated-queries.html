@@ -1,0 +1,32 @@
+<page-header title="Admin">
+</page-header>
+
+<div class="container">
+  <div class="container bg-white p-5">
+    <ul class="tab-nav">
+      <li><a href="admin/status">System Status</a></li>
+      <li><a href="admin/queries/tasks">Queries Queue</a></li>
+      <li class="active"><a href="admin/queries/outdated">Outdated Queries</a></li>
+    </ul>
+    <table class="table table-condensed table-hover" ng-table="$ctrl.tableParams">
+      <tr ng-repeat="row in $data">
+        <td data-title="'Data Source ID'">
+          {{row.data_source_id}}
+        </td>
+        <td data-title="'Name'">
+          <a ng-href="queries/{{row.id}}">{{row.name}}</a>
+        </td>
+        <td data-title="'Created By'">{{row.user.name}}</td>
+        <td data-title="'Runtime'">{{row.runtime | durationHumanize}}</td>
+        <td data-title="'Last Executed At'">{{row.retrieved_at | dateTime}}</td>
+        <td data-title="'Created At'">{{row.created_at | dateTime }}</td>
+        <td data-title="'Updated Schedule'">{{row.schedule | scheduleHumanize}}</td>
+      </tr>
+    </table>
+
+    <div class="badge">
+      Last update: <span am-time-ago="updatedAt"></span>
+    </div>
+    (<label><input type="checkbox" ng-model="autoUpdate"> Auto Update</label>)
+  </div>
+</div>

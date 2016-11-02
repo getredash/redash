@@ -1,5 +1,5 @@
 import moment from 'moment';
-import template from './queries_list.html';
+import template from './queries-list.html';
 
 class QueriesListCtrl {
   constructor($scope, $location, NgTableParams, Query) {
@@ -16,7 +16,9 @@ class QueriesListCtrl {
 
         $location.search('page', options.page);
 
-        const request = Object.assign({}, self.defaultOptions, { page: options.page, page_size: options.count });
+        const request = Object.assign({}, self.defaultOptions,
+          { page: options.page, page_size: options.count });
+
         return self.resource(request).$promise.then((data) => {
           params.total(data.count);
           return data.results.map((query) => {

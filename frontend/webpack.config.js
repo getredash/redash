@@ -72,10 +72,19 @@ var config = {
 
     ]
   },
+  devtool: 'cheap-eval-source-map',
   devServer: {
     inline: true,
     historyApiFallback: true,
     proxy: {
+      '/status.json': {
+        target: 'http://localhost:5000/',
+        secure: false
+      },
+      '/api/admin': {
+        target: 'http://localhost:5000/',
+        secure: false
+      },
       '/api': {
         target: 'http://localhost:5000/default',
         secure: false

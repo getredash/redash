@@ -1,0 +1,42 @@
+<page-header title="Admin">
+</page-header>
+
+<div class="container">
+  <div class="container bg-white p-5">
+    <ul class="tab-nav">
+      <li><a href="admin/status">System Status</a></li>
+      <li class="active"><a href="admin/queries/tasks">Queries Queue</a></li>
+      <li><a href="admin/queries/outdated">Outdated Queries</a></li>
+    </ul>
+
+    <ul class="tab-nav">
+      <rd-tab tab-id="in_progress" name="In Progress ({{tasks.in_progress.length}})" ng-click="setTab('in_progress')"></rd-tab>
+      <rd-tab tab-id="waiting" name="Waiting ({{tasks.waiting.length}})" ng-click="setTab('waiting')"></rd-tab>
+      <rd-tab tab-id="done" name="Done" ng-click="setTab('done')"></rd-tab>
+    </ul>
+
+    <table class="table table-condensed table-hover" ng-table="$ctrl.tableParams">
+      <tr ng-repeat="row in $data">
+        <td data-title="'Data Source ID'">{{row.data_source_id}}</td>
+        <td data-title="'Username'">{{row.username}}</td>
+        <td data-title="'State'">{{row.state}} <span ng-if="row.state === 'failed'" uib-popover="{{row.error}}" popover-trigger="mouseenter" class="zmdi zmdi-help"></span></td>
+        <td data-title="'Query ID'">{{row.query_id}}</td>
+        <td data-title="'Query Hash'">{{row.query_hash}}</td>
+        <td data-title="'Runtime'">{{row.run_time | durationHumanize}}</td>
+        <td data-title="'Created At'">{{row.created_at | dateTime }}</td>
+        <td data-title="'Started At'">{{row.started_at | dateTime }}</td>
+        <td data-title="'Updated At'">{{row.updated_at | dateTime }}</td>
+        <td data-title="''" ng-if="selectedTab === 'in_progress'">
+          <cancel-query-button query-id="dataRow.query_id" task-id="dataRow.task_id"></cancel-query-button>
+        </td>
+      </tr>
+    </table>
+
+
+    <smart-table rows="showingTasks" columns="gridColumns"
+                 config="gridConfig"
+                 class="table table-condensed table-hover"></smart-table>
+
+    <label><input type="checkbox" ng-model="autoUpdate"> Auto Update</label>
+  </div>
+</div>

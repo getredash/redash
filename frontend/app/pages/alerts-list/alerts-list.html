@@ -1,0 +1,18 @@
+<div>
+  <page-header title="Alerts">
+    <a href="alerts/new" class="btn btn-default"><i class="fa fa-plus"></i> New Alert</a>
+  </page-header>
+
+  <div class="container">
+    <div class="container bg-white">
+      <table class="table table-condensed table-hover" ng-table="$ctrl.tableParams">
+        <tr ng-repeat="alert in $data">
+          <td data-title="'Name'"><a href="alerts/{{alert.id}}">{{alert.name}}</a></td>
+          <td data-title="'Created By'">{{alert.user.name}}</td>
+          <td data-title="'State'"><span ng-class="alert.class">{{alert.state | uppercase}}</span> since <span am-time-ago="alert.updated_at"></span></td>
+          <td data-title="'Created At'"><span am-time-ago="alert.created_at"></span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
