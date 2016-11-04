@@ -1,0 +1,12 @@
+<div class="form-inline bg-white p-5" ng-if="parameters | notEmpty" ui-sortable="{ 'ui-floating': true, 'disabled': !editable }" ng-model="parameters">
+  <div class="form-group" ng-repeat="param in parameters">
+    <label>{{param.title}}</label>
+    <button class="btn btn-default btn-xs" ng-click="showParameterSettings(param)" ng-if="editable"><i class="zmdi zmdi-settings"></i></button>
+    <span ng-switch="param.type">
+      <input ng-switch-when="datetime-with-seconds" type="datetime-local" step="1" class="form-control" ng-model="param.value">
+      <input ng-switch-when="datetime" type="text" class="form-control" ng-model="param.value">
+      <input ng-switch-when="date" type="text" class="form-control" ng-model="param.value">
+      <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.value">
+    </span>
+  </div>
+</div>

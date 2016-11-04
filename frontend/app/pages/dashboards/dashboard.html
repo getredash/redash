@@ -1,0 +1,37 @@
+<div class="container">
+    <page-header title="{{$ctrl.dashboard.name}}">
+      <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
+          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.refreshEnabled, 'btn-primary': $ctrl.refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="$ctrl.triggerRefresh()">
+            <span class="zmdi zmdi-refresh"></span>
+          </button>
+          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()">
+            <span class="zmdi zmdi-fullscreen"></span>
+          </button>
+          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="$ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled">
+            <span class="zmdi zmdi-share"></span>
+          </button>
+      </span>
+      <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown>
+        <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
+          <span class="zmdi zmdi-more"></span>
+        </button>
+        <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+          <li><a data-toggle="modal" hash-link hash="edit_dashboard_dialog">Edit Dashboard</a></li>
+          <li><a data-toggle="modal" hash-link hash="add_query_dialog">Add Widget</a></li>
+          <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
+          <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive Dashboard</a></li>
+        </ul>
+      </div>
+    </page-header>
+  <div class="col-lg-12 p-5 m-b-10 bg-orange c-white" ng-if="$ctrl.dashboard.is_archived">
+    This dashboard is archived and won't appear in the dashboards list or search results.
+  </div>
+
+  <div class="m-b-5">
+    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
+  </div>
+
+    <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
+      <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard"></dashboard-widget>
+    </div>
+</div>
