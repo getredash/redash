@@ -23,6 +23,7 @@
     "angular-moment": "^1.0.0",
     "angular-resource": "^1.5.8",
     "angular-route": "^1.5.8",
+    "angular-sanitize": "^1.5.8",
     "angular-toastr": "^2.1.1",
     "angular-ui-bootstrap": "^2.2.0",
     "babel-core": "^6.18.0",
