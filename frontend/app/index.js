@@ -4,6 +4,7 @@ import 'ui-select/dist/select.css';
 import 'angular-toastr/dist/angular-toastr.css';
 
 import angular from 'angular';
+import ngSanitize from 'angular-sanitize';
 import ngRoute from 'angular-route';
 import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
@@ -20,9 +21,14 @@ import * as pages from './pages';
 import * as components from './components';
 import * as filters from './filters';
 import * as services from './services';
+import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 
-const ngModule = angular.module('app', [ngRoute, ngResource, uiBootstrap, uiSelect, ngTable.name, 'angularMoment', toastr]);
+const requirements = [
+  ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, ngTable.name, 'angularMoment', toastr,
+];
+
+const ngModule = angular.module('app', requirements);
 
 // stub for currentUser until we have something real.
 const user = {
@@ -60,6 +66,7 @@ user.hasPermission = () => true;
 user.canEdit = () => true;
 ngModule.constant('currentUser', user);
 ngModule.constant('clientConfig', {
+  showPermissionsControl: true,
   // mailSettingsMissing: true,
 });
 
@@ -98,6 +105,7 @@ registerFilters();
 markdownFilter(ngModule);
 registerComponents();
 registerPages();
+registerVisualizations(ngModule);
 
 ngModule.config(($routeProvider,
   $locationProvider,

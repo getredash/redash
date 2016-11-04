@@ -1,6 +1,10 @@
 module.exports = {
   root: true,
   extends: 'airbnb-base',
+  env: {
+    "browser": true,
+    "node": true
+  },
   rules: {
     // allow debugger during development
     'no-param-reassign': ['error', { "props": false }],

@@ -6,3 +6,4 @@ export { default as Events } from './events';
 export { default as Alert } from './alert';
 export { default as AlertSubscription } from './alert-subscription';
 export { default as Destination } from './destination';
+export { default as User } from './user';

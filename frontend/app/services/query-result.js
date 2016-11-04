@@ -21,9 +21,8 @@ function getColumnNameWithoutType(column) {
   return parts[0];
 }
 
-function getColumnCleanName(column) {
+export function getColumnCleanName(column) {
   const name = getColumnNameWithoutType(column);
-
   return name;
 }
 

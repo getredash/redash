@@ -72,7 +72,7 @@ var config = {
 
     ]
   },
-  devtool: 'cheap-eval-source-map',
+  devtool: 'eval-source-map',
   devServer: {
     inline: true,
     historyApiFallback: true,

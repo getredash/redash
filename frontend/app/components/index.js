@@ -4,3 +4,7 @@ export { default as pageHeader } from './page-header';
 export { default as tabNav } from './tab-nav';
 export { default as emailSettingsWarning } from './email-settings-warning';
 export { default as rdTab } from './rd-tab';
+export { default as queryLink } from './query-link';
+export { default as parameters } from './parameters';
+export { default as permissionsEditor } from './permissions-editor';
+export { default as dynamicTable } from './dynamic-table';

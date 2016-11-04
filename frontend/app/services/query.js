@@ -72,7 +72,7 @@ class Parameters {
     });
 
     parameterNames.forEach((param) => {
-      if (has(parametersMap, param)) {
+      if (!has(parametersMap, param)) {
         this.query.options.parameters.push({
           title: param,
           name: param,
