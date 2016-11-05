@@ -52,7 +52,7 @@
           if (scope.queryResult.getId() == null) {
             element.attr('href', '');
           } else {
-            element.attr('href', 'api/queries/' + scope.query.id + '/results/' + scope.queryResult.getId() + '.' + fileType + (scope.embed ? '?api_key=' + scope.api_key : ''));
+            element.attr('href', 'api/queries/' + scope.query.id + '/results/' + scope.queryResult.getId() + '.' + fileType + (scope.embed ? '?api_key=' + scope.apiKey : ''));
             element.attr('download', scope.query.name.replace(" ", "_") + moment(scope.queryResult.getUpdatedAt()).format("_YYYY_MM_DD") + "." + fileType);
           }
         });
