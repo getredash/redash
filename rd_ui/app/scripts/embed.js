@@ -49,7 +49,7 @@ angular.module('redash', [
        $scope.embed = true;
        $scope.visualization = visualization;
        $scope.query = visualization.query;
-       $scope.api_key = $location.search()['api_key'];
+       $scope.apiKey = $location.search()['api_key'];
        query = new Query(visualization.query);
        $scope.queryResult = new QueryResult({query_result: query_result});
      }])
