@@ -32,6 +32,19 @@ function getColumnFriendlyName(column) {
   );
 }
 
+function addPointToSeries(point, seriesCollection, seriesName) {
+  if (seriesCollection[seriesName] === undefined) {
+    seriesCollection[seriesName] = {
+      name: seriesName,
+      type: 'column',
+      data: [],
+    };
+  }
+
+  seriesCollection[seriesName].data.push(point);
+}
+
+
 function QueryResultService($resource, $timeout, $q) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const Job = $resource('api/jobs/:id', { id: '@id' });
@@ -203,21 +216,6 @@ function QueryResultService($resource, $timeout, $q) {
       return this.filteredData;
     }
 
-    /**
-     * Helper function to add a point into a series
-     */
-    static _addPointToSeries(point, seriesCollection, seriesName) {
-      if (seriesCollection[seriesName] === undefined) {
-        seriesCollection[seriesName] = {
-          name: seriesName,
-          type: 'column',
-          data: [],
-        };
-      }
-
-      seriesCollection[seriesName].data.push(point);
-    }
-
     getChartData(mapping) {
       const series = {};
 
@@ -262,10 +260,10 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
-            this._addPointToSeries({ x: xValue, y: yValue }, series, ySeriesName);
+            addPointToSeries({ x: xValue, y: yValue }, series, ySeriesName);
           });
         } else {
-          this._addPointToSeries(point, series, seriesName);
+          addPointToSeries(point, series, seriesName);
         }
       });
 
