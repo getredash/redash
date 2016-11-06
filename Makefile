@@ -19,4 +19,3 @@ upload:
 
 test:
 	nosetests --with-coverage --cover-package=redash tests/
-	#grunt test
