@@ -7,6 +7,7 @@ import editVisualizationTemplate from './edit-visualization.html';
 
 import counterVisualization from './counter';
 import tableVisualization from './table';
+import chartVisualization from './chart';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -239,4 +240,5 @@ export default function (ngModule) {
   ngModule.directive('editVisulatizationForm', EditVisualizationForm);
   counterVisualization(ngModule);
   tableVisualization(ngModule);
+  chartVisualization(ngModule);
 }
