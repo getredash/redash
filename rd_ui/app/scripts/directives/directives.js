@@ -413,39 +413,6 @@
     }
   }]);
 
-  directives.directive('pageHeader', function() {
-    return {
-      restrict: 'E',
-      transclude: true,
-      templateUrl: '/views/directives/page_header.html',
-      link: function(scope, elem, attrs) {
-        attrs.$observe('title', function(value){
-          scope.title = value;
-        });
-      }
-    }
-  });
-
-  directives.directive('settingsScreen', ['$location', function($location) {
-    return {
-      restrict: 'E',
-      transclude: true,
-      templateUrl: '/views/directives/settings_screen.html',
-      controller: ['$scope', function(scope) {
-        scope.usersPage = _.string.startsWith($location.path(), '/users');
-        scope.groupsPage = _.string.startsWith($location.path(), '/groups');
-        scope.dsPage = _.string.startsWith($location.path(), '/data_sources');
-        scope.destinationsPage = _.string.startsWith($location.path(), '/destinations');
-        scope.snippetsPage = _.string.startsWith($location.path(), '/query_snippets');
-
-        scope.showGroupsLink = currentUser.hasPermission('list_users');
-        scope.showUsersLink = currentUser.hasPermission('list_users');
-        scope.showDsLink = currentUser.hasPermission('admin');
-        scope.showDestinationsLink = currentUser.hasPermission('admin');
-      }]
-    }
-  }]);
-
   directives.directive('tabNav', ['$location', function($location) {
     return {
       restrict: 'E',

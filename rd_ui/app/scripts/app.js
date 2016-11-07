@@ -31,33 +31,9 @@ angular.module('redash', [
       $httpProvider.defaults.headers.common.Authorization = 'Key ' + currentUser.apiKey;
     }
 
-    uiSelectConfig.theme = "bootstrap";
-
-    $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
-    $locationProvider.html5Mode(true);
-    growlProvider.globalTimeToLive(2000);
-
-    $routeProvider.when('/admin/queries/outdated', {
-      templateUrl: '/views/admin/outdated_queries.html',
-      controller: 'AdminOutdatedQueriesCtrl'
-    });
-    $routeProvider.when('/admin/queries/tasks', {
-      templateUrl: '/views/admin/tasks.html',
-      controller: 'AdminTasksCtrl'
-    });
-    $routeProvider.when('/dashboard/:dashboardSlug', {
-      templateUrl: '/views/dashboard.html',
-      controller: 'DashboardCtrl',
-      reloadOnSearch: false
-    });
     $routeProvider.when('/public/dashboards/:token', {
       templateUrl: '/views/dashboard.html',
       controller: 'PublicDashboardCtrl',
-      reloadOnSearch: false
-    });
-    $routeProvider.when('/queries', {
-      templateUrl: '/views/queries.html',
-      controller: 'QueriesCtrl',
       reloadOnSearch: false
     });
     $routeProvider.when('/queries/new', {
@@ -72,16 +48,6 @@ angular.module('redash', [
           return DataSource.query().$promise
         }]
       }
-    });
-    $routeProvider.when('/queries/my', {
-      templateUrl: '/views/queries.html',
-      controller: 'QueriesCtrl',
-      reloadOnSearch: false
-    });
-    $routeProvider.when('/queries/drafts', {
-      templateUrl: '/views/queries.html',
-      controller: 'QueriesCtrl',
-      reloadOnSearch: false
     });
     $routeProvider.when('/queries/search', {
       templateUrl: '/views/queries_search_results.html',
@@ -104,20 +70,6 @@ angular.module('redash', [
         'query': ['Query', '$route', getQuery]
       }
     });
-    $routeProvider.when('/admin/status', {
-      templateUrl: '/views/admin_status.html',
-      controller: 'AdminStatusCtrl'
-    });
-
-    $routeProvider.when('/alerts', {
-      templateUrl: '/views/alerts/list.html',
-      controller: 'AlertsCtrl'
-    });
-    $routeProvider.when('/alerts/:alertId', {
-      templateUrl: '/views/alerts/edit.html',
-      controller: 'AlertCtrl'
-    });
-
     $routeProvider.when('/data_sources/:dataSourceId', {
       templateUrl: '/views/data_sources/edit.html',
       controller: 'DataSourceCtrl'
@@ -145,10 +97,6 @@ angular.module('redash', [
       reloadOnSearch: false,
       controller: 'UserCtrl'
     });
-    $routeProvider.when('/users', {
-      templateUrl: '/views/users/list.html',
-      controller: 'UsersCtrl'
-    });
     $routeProvider.when('/groups/:groupId/data_sources', {
       templateUrl: '/views/groups/show_data_sources.html',
       controller: 'GroupDataSourcesCtrl'
@@ -160,21 +108,6 @@ angular.module('redash', [
     $routeProvider.when('/groups', {
       templateUrl: '/views/groups/list.html',
       controller: 'GroupsCtrl'
-    });
-    $routeProvider.when('/query_snippets/:snippetId', {
-      templateUrl: '/views/query_snippets/show.html',
-      controller: 'SnippetCtrl'
-    });
-    $routeProvider.when('/query_snippets', {
-      templateUrl: '/views/query_snippets/list.html',
-      controller: 'SnippetsCtrl'
-    });
-    $routeProvider.when('/', {
-      templateUrl: '/views/index.html',
-      controller: 'IndexCtrl'
-    });
-    $routeProvider.when('/personal', {
-      redirectTo: '/'
     });
     $routeProvider.otherwise({
       redirectTo: '/'
