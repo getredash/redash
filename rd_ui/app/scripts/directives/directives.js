@@ -3,40 +3,6 @@
 
   var directives = angular.module('redash.directives', []);
 
-  directives.directive('appHeader', ['$location', 'Dashboard', 'notifications', function ($location, Dashboard) {
-    return {
-      restrict: 'E',
-      replace: true,
-      templateUrl: '/views/app_header.html',
-      link: function ($scope) {
-        $scope.dashboards = [];
-        $scope.logoUrl = clientConfig.logoUrl;
-        $scope.reloadDashboards = function () {
-          Dashboard.query(function (dashboards) {
-            $scope.dashboards = _.sortBy(dashboards, "name");
-            $scope.allDashboards = _.groupBy($scope.dashboards, function (d) {
-              var parts = d.name.split(":");
-              if (parts.length == 1) {
-                return "Other";
-              }
-              return parts[0];
-            });
-            $scope.otherDashboards = $scope.allDashboards['Other'] || [];
-            $scope.groupedDashboards = _.omit($scope.allDashboards, 'Other');
-          });
-        };
-
-        $scope.searchQueries = function() {
-          $location.path('/queries/search').search({q: $scope.term});
-        };
-
-        $scope.reloadDashboards();
-
-        $scope.currentUser = currentUser;
-      }
-    }
-  }]);
-
   directives.directive('alertUnsavedChanges', ['$window', function ($window) {
     return {
       restrict: 'E',
@@ -108,17 +74,6 @@
       }
     }
   }]);
-
-  directives.directive('emailSettingsWarning', function() {
-    return {
-      restrict: 'E',
-      template: '<p class="alert alert-danger" ng-if="showMailWarning">It looks like your mail server isn\'t configured. Make sure to configure it for the {{function}} to work.</p>',
-      link: function(scope, elements, attrs) {
-        scope.showMailWarning = clientConfig.mailSettingsMissing && currentUser.isAdmin;
-        scope.function = attrs.function;
-      }
-    }
-  });
 
   // From: http://jsfiddle.net/joshdmiller/NDFHg/
   directives.directive('editInPlace', function () {
@@ -583,43 +538,4 @@
       }
     }
   }]);
-
-
-  directives.directive('parameters', ['$location', '$modal', function($location, $modal) {
-    return {
-      restrict: 'E',
-      transclude: true,
-      scope: {
-        'parameters': '=',
-        'syncValues': '=?',
-        'editable': '=?'
-      },
-      templateUrl: '/views/directives/parameters.html',
-      link: function(scope, elem, attrs) {
-        // is this the correct location for this logic?
-        if (scope.syncValues !== false) {
-          scope.$watch('parameters', function() {
-            _.each(scope.parameters, function(param) {
-              if (param.value !== null || param.value !== '') {
-                $location.search('p_' + param.name, param.value);
-              }
-            })
-          }, true);
-        }
-
-        scope.showParameterSettings = function(param) {
-          $modal.open({
-            templateUrl: '/views/dialogs/parameter_settings.html',
-            controller: ['$scope', '$modalInstance', function($scope, $modalInstance) {
-              $scope.close = function() {
-                $modalInstance.close();
-              };
-              $scope.parameter = param;
-            }]
-          })
-        }
-      }
-    }
-  }]);
-
 })();
