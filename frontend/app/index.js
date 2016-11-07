@@ -11,6 +11,10 @@ import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
 import toastr from 'angular-toastr';
 import 'angular-moment';
+
+import 'brace';
+import 'angular-ui-ace';
+
 import { ngTable } from 'ng-table';
 import { each } from 'underscore';
 
@@ -25,7 +29,7 @@ import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 
 const requirements = [
-  ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, ngTable.name, 'angularMoment', toastr,
+  ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
 ];
 
 const ngModule = angular.module('app', requirements);
@@ -88,6 +92,7 @@ function registerPages() {
 
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
+        console.log('Route: ', path);
         $routeProvider.when(path, route);
       });
     });

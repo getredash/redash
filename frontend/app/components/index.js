@@ -8,3 +8,5 @@ export { default as queryLink } from './query-link';
 export { default as parameters } from './parameters';
 export { default as permissionsEditor } from './permissions-editor';
 export { default as dynamicTable } from './dynamic-table';
+export { default as paginator } from './paginator';
+export { default as settingsScreen } from './settings-screen';
