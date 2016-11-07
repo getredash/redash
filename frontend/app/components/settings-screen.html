@@ -1,0 +1,18 @@
+<page-header title="Settings">
+</page-header>
+
+<div class="container">
+  <div class="container bg-white p-5">
+    <ul class="tab-nav">
+      <li ng-class="{'active': dsPage }" ng-if="showDsLink"><a href="data_sources">Data Sources</a></li>
+      <li ng-class="{'active': usersPage }" ng-if="showUsersLink"><a href="users">Users</a></li>
+      <li ng-class="{'active': groupsPage }" ng-if="showGroupsLink"><a href="groups">Groups</a></li>
+      <li ng-class="{'active': destinationsPage }" ng-if="showDestinationsLink"><a href="destinations">Alert Destinations</a></li>
+      <li ng-class="{'active': snippetsPage }"><a href="query_snippets">Query Snippets</a></li>
+    </ul>
+
+    <div ng-transclude>
+
+    </div>
+  </div>
+</div>
