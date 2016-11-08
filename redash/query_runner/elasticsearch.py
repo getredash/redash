@@ -45,31 +45,32 @@ PYTHON_TYPES_MAPPING = {
 
 class BaseElasticSearch(BaseQueryRunner):
     DEBUG_ENABLED = False
+    configuration_properties = {
+        'server': {
+            'type': 'string',
+            'title': 'Base URL'
+        },
+        'basic_auth_user': {
+            'type': 'string',
+            'title': 'Basic Auth User'
+        },
+        'basic_auth_password': {
+            'type': 'string',
+            'title': 'Basic Auth Password'
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'server': {
-                    'type': 'string',
-                    'title': 'Base URL'
-                },
-                'basic_auth_user': {
-                    'type': 'string',
-                    'title': 'Basic Auth User'
-                },
-                'basic_auth_password': {
-                    'type': 'string',
-                    'title': 'Basic Auth Password'
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            'properties': cls.configuration_properties,
             "secret": ["basic_auth_password"],
             "required": ["server"]
         }

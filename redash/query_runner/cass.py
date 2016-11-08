@@ -27,6 +27,43 @@ class CassandraJSONEncoder(JSONEncoder):
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
+    configuration_properties = {
+        'host': {
+            'type': 'string',
+        },
+        'port': {
+            'type': 'number',
+            'default': 9042,
+        },
+        'keyspace': {
+            'type': 'string',
+            'title': 'Keyspace name'
+        },
+        'username': {
+            'type': 'string',
+            'title': 'Username'
+        },
+        'password': {
+            'type': 'string',
+            'title': 'Password'
+        },
+        'protocol': {
+            'type': 'number',
+            'title': 'Protocol Version',
+            'default': 3
+        },
+        'timeout': {
+            'type': 'number',
+            'title': 'Timeout',
+            'default': 10
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def enabled(cls):
@@ -36,43 +73,7 @@ class Cassandra(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string',
-                },
-                'port': {
-                    'type': 'number',
-                    'default': 9042,
-                },
-                'keyspace': {
-                    'type': 'string',
-                    'title': 'Keyspace name'
-                },
-                'username': {
-                    'type': 'string',
-                    'title': 'Username'
-                },
-                'password': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'protocol': {
-                    'type': 'number',
-                    'title': 'Protocol Version',
-                    'default': 3
-                },
-                'timeout': {
-                    'type': 'number',
-                    'title': 'Timeout',
-                    'default': 10
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['keyspace', 'host']
         }
 

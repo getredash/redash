@@ -83,6 +83,47 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 
 class BigQuery(BaseQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'projectId': {
+            'type': 'string',
+            'title': 'Project ID'
+        },
+        'jsonKeyFile': {
+            "type": "string",
+            'title': 'JSON Key File'
+        },
+        'totalMBytesProcessedLimit': {
+            "type": "number",
+            'title': 'Scanned Data Limit (MB)'
+        },
+        'userDefinedFunctionResourceUri': {
+            "type": "string",
+            'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
+        },
+        'useStandardSql': {
+            "type": "boolean",
+            'title': "Use Standard SQL (Beta)",
+        },
+        'location': {
+            "type": "string",
+            "title": "Processing Location",
+            "default": "US",
+        },
+        'loadSchema': {
+            "type": "boolean",
+            "title": "Load Schema"
+        },
+        'maximumBillingTier': {
+            "type": "number",
+            "title": "Maximum Billing Tier"
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def enabled(cls):
@@ -92,46 +133,7 @@ class BigQuery(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'projectId': {
-                    'type': 'string',
-                    'title': 'Project ID'
-                },
-                'jsonKeyFile': {
-                    "type": "string",
-                    'title': 'JSON Key File'
-                },
-                'totalMBytesProcessedLimit': {
-                    "type": "number",
-                    'title': 'Scanned Data Limit (MB)'
-                },
-                'userDefinedFunctionResourceUri': {
-                    "type": "string",
-                    'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
-                },
-                'useStandardSql': {
-                    "type": "boolean",
-                    'title': "Use Standard SQL (Beta)",
-                },
-                'location': {
-                    "type": "string",
-                    "title": "Processing Location",
-                },
-                'loadSchema': {
-                    "type": "boolean",
-                    "title": "Load Schema"
-                },
-                'maximumBillingTier': {
-                    "type": "number",
-                    "title": "Maximum Billing Tier"
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['jsonKeyFile', 'projectId'],
             "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'location', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']

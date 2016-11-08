@@ -29,6 +29,33 @@ types_map = {
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'host': {
+            'type': 'string',
+            'default': '127.0.0.1'
+        },
+        'user': {
+            'type': 'string'
+        },
+        'passwd': {
+            'type': 'string',
+            'title': 'Password'
+        },
+        'db': {
+            'type': 'string',
+            'title': 'Database name'
+        },
+        'port': {
+            'type': 'number',
+            'default': 3306,
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
@@ -36,33 +63,7 @@ class Mysql(BaseSQLQueryRunner):
 
         schema = {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string',
-                    'default': '127.0.0.1'
-                },
-                'user': {
-                    'type': 'string'
-                },
-                'passwd': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'db': {
-                    'type': 'string',
-                    'title': 'Database name'
-                },
-                'port': {
-                    'type': 'number',
-                    'default': 3306,
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            'properties': cls.configuration_properties,
             "order": ['host', 'port', 'user', 'passwd', 'db'],
             'required': ['db'],
             'secret': ['passwd']
@@ -85,7 +86,7 @@ class Mysql(BaseSQLQueryRunner):
                 'ssl_key': {
                     'type': 'string',
                     'title': 'Path to private key file (SSL)'
-                }
+                },
             })
 
         return schema

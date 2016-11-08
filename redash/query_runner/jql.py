@@ -143,6 +143,8 @@ class JiraJQL(BaseHTTPQueryRunner):
     url_title = 'JIRA URL'
     username_title = 'Username'
     password_title = 'Password'
+    default_doc_url = ("https://confluence.atlassian.com/jirasoftwarecloud/"
+                       "advanced-searching-764478330.html")
 
     @classmethod
     def name(cls):

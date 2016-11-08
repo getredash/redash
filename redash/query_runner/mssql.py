@@ -35,47 +35,48 @@ class MSSQLJSONEncoder(JSONEncoder):
 
 class SqlServer(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        "user": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "server": {
+            "type": "string",
+            "default": "127.0.0.1"
+        },
+        "port": {
+            "type": "number",
+            "default": 1433
+        },
+        "tds_version": {
+            "type": "string",
+            "default": "7.0",
+            "title": "TDS Version"
+        },
+        "charset": {
+            "type": "string",
+            "default": "UTF-8",
+            "title": "Character Set"
+        },
+        "db": {
+            "type": "string",
+            "title": "Database Name"
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "server": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 1433
-                },
-                "tds_version": {
-                    "type": "string",
-                    "default": "7.0",
-                    "title": "TDS Version"
-                },
-                "charset": {
-                    "type": "string",
-                    "default": "UTF-8",
-                    "title": "Character Set"
-                },
-                "db": {
-                    "type": "string",
-                    "title": "Database Name"
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["db"],
             "secret": ["password"]
         }

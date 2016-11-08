@@ -676,6 +676,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
         db.session.add(dsg)
         return dsg
 
+        setattr(self, 'data_source_groups', dsg)
+
     def remove_group(self, group):
         db.session.query(DataSourceGroup).filter(
             DataSourceGroup.group == group,
