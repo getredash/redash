@@ -46,6 +46,7 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://www.postgresql.org/docs/current/"
 
     @classmethod
     def configuration_schema(cls):
@@ -69,6 +70,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["dbname"],
@@ -83,8 +89,10 @@ class PostgreSQL(BaseSQLQueryRunner):
         super(PostgreSQL, self).__init__(configuration)
 
         values = []
-        for k, v in self.configuration.iteritems():
-            values.append("{}={}".format(k, v))
+        for k in 'user password host port dbname'.split():
+            v = self.configuration.get(k)
+            if v is not None:
+                values.append("{}={}".format(k, v))
 
         self.connection_string = " ".join(values)
 
@@ -156,6 +164,9 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    default_doc_url = ("http://docs.aws.amazon.com/redshift/latest/"
+                       "dg/cm_chap_SQLCommandRef.html")
+
     @classmethod
     def type(cls):
         return "redshift"
@@ -180,6 +191,11 @@ class Redshift(PostgreSQL):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["dbname", "user", "password", "host", "port"],

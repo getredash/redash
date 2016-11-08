@@ -80,6 +80,7 @@ def _get_query_results(jobs, project_id, job_id, start_index):
 
 class BigQuery(BaseQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://cloud.google.com/bigquery/docs/reference/legacy-sql"
 
     @classmethod
     def enabled(cls):
@@ -113,6 +114,11 @@ class BigQuery(BaseQueryRunner):
                 'loadSchema': {
                     "type": "boolean",
                     "title": "Load Schema"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],

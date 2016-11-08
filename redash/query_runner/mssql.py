@@ -33,6 +33,7 @@ class MSSQLJSONEncoder(JSONEncoder):
 
 class SqlServer(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://msdn.microsoft.com/en-us/library/bb510741.aspx"
 
     @classmethod
     def configuration_schema(cls):
@@ -66,6 +67,11 @@ class SqlServer(BaseSQLQueryRunner):
                 "db": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["db"],

@@ -102,7 +102,7 @@
               <span class="text-muted">Data Source</span>
               <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                       ng-options="ds.id as ds.name for ds in dataSources"></select>
-
+              <a ng-if="dataSource.options.doc_url" ng-href={{dataSource.options.doc_url}}>{{dataSource.type_name}} documentation</a>
               <div class="pull-right">
                 <button class="btn btn-s btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <span class="fa fa-paper-plane"></span> Publish

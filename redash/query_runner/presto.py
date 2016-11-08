@@ -33,6 +33,7 @@ PRESTO_TYPES_MAPPING = {
 
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
+    default_doc_url = 'https://prestodb.io/docs/current/'
 
     @classmethod
     def configuration_schema(cls):
@@ -53,6 +54,11 @@ class Presto(BaseQueryRunner):
                 },
                 'username': {
                     'type': 'string'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['host']

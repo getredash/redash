@@ -62,7 +62,8 @@ class TestDataSourceResourcePost(BaseTestCase):
         new_name = 'New Name'
         new_options = {"dbname": "newdb"}
         rv = self.make_request('post', self.path,
-                               data={'name': new_name, 'type': 'pg', 'options': new_options},
+                               data={'name': new_name, 'type': 'pg', 'options': new_options,
+                                     'doc_url': None},
                                user=admin)
 
         self.assertEqual(rv.status_code, 200)
@@ -125,7 +126,9 @@ class TestDataSourceListResourcePost(BaseTestCase):
     def test_creates_data_source(self):
         admin = self.factory.create_admin()
         rv = self.make_request('post', '/api/data_sources',
-                               data={'name': 'DS 1', 'type': 'pg', 'options': {"dbname": "redash"}}, user=admin)
+                               data={'name': 'DS 1', 'type': 'pg',
+                                     'options': {"dbname": "redash"},
+                                     'doc_url': None}, user=admin)
 
         self.assertEqual(rv.status_code, 200)
 
