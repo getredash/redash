@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Sqlite(BaseSQLQueryRunner):
     noop_query = "pragma quick_check"
+    default_doc_url = "http://sqlite.org/lang.html"
 
     @classmethod
     def configuration_schema(cls):
@@ -22,6 +23,11 @@ class Sqlite(BaseSQLQueryRunner):
                 "dbpath": {
                     "type": "string",
                     "title": "Database Path"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["dbpath"],

@@ -45,6 +45,7 @@ class InterruptException(Exception):
 
 class BaseQueryRunner(object):
     noop_query = None
+    default_doc_url = None
 
     def __init__(self, configuration):
         self.syntax = 'sql'

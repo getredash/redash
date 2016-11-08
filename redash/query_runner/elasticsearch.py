@@ -42,9 +42,10 @@ PYTHON_TYPES_MAPPING = {
     float: TYPE_FLOAT
 }
 
-class BaseElasticSearch(BaseQueryRunner):
 
+class BaseElasticSearch(BaseQueryRunner):
     DEBUG_ENABLED = True
+    default_doc_url = "https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html"
 
     @classmethod
     def configuration_schema(cls):
@@ -62,6 +63,11 @@ class BaseElasticSearch(BaseQueryRunner):
                 'basic_auth_password': {
                     'type': 'string',
                     'title': 'Basic Auth Password'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "secret": ["basic_auth_password"],
