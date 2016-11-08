@@ -12,23 +12,24 @@ logger = logging.getLogger(__name__)
 
 class Sqlite(BaseSQLQueryRunner):
     noop_query = "pragma quick_check"
+    configuration_properties = {
+        "dbpath": {
+            "type": "string",
+            "title": "Database Path"
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "dbpath": {
-                    "type": "string",
-                    "title": "Database Path"
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["dbpath"],
         }
 

@@ -31,42 +31,43 @@ PRESTO_TYPES_MAPPING = {
 
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
+    configuration_properties = {
+        'host': {
+            'type': 'string'
+        },
+        'protocol': {
+            'type': 'string',
+            'default': 'http'
+        },
+        'port': {
+            'type': 'number'
+        },
+        'schema': {
+            'type': 'string'
+        },
+        'catalog': {
+            'type': 'string'
+        },
+        'username': {
+            'type': 'string'
+        },
+        'password': {
+            'type': 'string'
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string'
-                },
-                'protocol': {
-                    'type': 'string',
-                    'default': 'http'
-                },
-                'port': {
-                    'type': 'number'
-                },
-                'schema': {
-                    'type': 'string'
-                },
-                'catalog': {
-                    'type': 'string'
-                },
-                'username': {
-                    'type': 'string'
-                },
-                'password': {
-                    'type': 'string'
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                },
-            },
-            'order': ['host', 'protocol', 'port', 'username', 'password', 'schema', 'catalog'],
+            'properties': cls.configuration_properties,
+            'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
             'required': ['host']
         }
 

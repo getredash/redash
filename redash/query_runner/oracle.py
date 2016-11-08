@@ -29,8 +29,33 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
+    configuration_properties = {
+        "user": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "host": {
+            "type": "string"
+        },
+        "port": {
+            "type": "number"
+        },
+        "servicename": {
+            "type": "string",
+            "title": "DSN Service Name"
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def get_col_type(cls, col_type, scale):
@@ -47,30 +72,7 @@ class Oracle(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                },
-                "servicename": {
-                    "type": "string",
-                    "title": "DSN Service Name"
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["servicename", "user", "password", "host", "port"],
             "secret": ["password"]
         }

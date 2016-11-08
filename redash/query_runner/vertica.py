@@ -29,44 +29,45 @@ types_map = {
 
 class Vertica(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'host': {
+            'type': 'string'
+        },
+        'user': {
+            'type': 'string'
+        },
+        'password': {
+            'type': 'string',
+            'title': 'Password'
+        },
+        'database': {
+            'type': 'string',
+            'title': 'Database name'
+        },
+        "port": {
+            "type": "number"
+        },
+        "read_timeout": {
+            "type": "number",
+            "title": "Read Timeout"
+        },
+        "connection_timeout": {
+            "type": "number",
+            "title": "Connection Timeout"
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string'
-                },
-                'user': {
-                    'type': 'string'
-                },
-                'password': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'database': {
-                    'type': 'string',
-                    'title': 'Database name'
-                },
-                "port": {
-                    "type": "number"
-                },
-                "read_timeout": {
-                    "type": "number",
-                    "title": "Read Timeout"
-                },
-                "connection_timeout": {
-                    "type": "number",
-                    "title": "Connection Timeout"
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                },
-            },
+            'properties': cls.configuration_properties,
             'required': ['database'],
             'order': ['host', 'port', 'user', 'password', 'database', 'read_timeout', 'connection_timeout'],
             'secret': ['password']
