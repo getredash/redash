@@ -51,8 +51,6 @@ class TestApiKeyGetByObject(BaseTestCase):
         self.assertEqual(forked_table.name, "Table")
         self.assertEqual(forked_table.description, "")
         self.assertEqual(forked_table.options, "{}")
-<<<<<<< HEAD
-=======
 
     def test_fork_from_query_that_has_no_visualization(self):
         # prepare original query and visualizations
@@ -71,4 +69,4 @@ class TestApiKeyGetByObject(BaseTestCase):
 
         self.assertEqual(count_table, 1)
         self.assertEqual(count_vis, 1)
->>>>>>> fix bugs
+
