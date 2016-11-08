@@ -29,6 +29,23 @@ def run_script(script, shell):
 
 
 class Script(BaseQueryRunner):
+    configuration_properties = {
+        'path': {
+            'type': 'string',
+            'title': 'Scripts path'
+        },
+        'shell': {
+            'type': 'boolean',
+            'title': 'Execute command through the shell'
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
+
     @classmethod
     def annotate_query(cls):
         return False
@@ -41,22 +58,7 @@ class Script(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'path': {
-                    'type': 'string',
-                    'title': 'Scripts path'
-                },
-                'shell': {
-                    'type': 'boolean',
-                    'title': 'Execute command through the shell'
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['path']
         }
 
