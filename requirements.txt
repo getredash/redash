@@ -61,4 +61,4 @@ disposable-email-domains
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
 gevent==1.4.0
-redash-stmo>=2018.8.1
+redash-stmo>=2018.9.1
