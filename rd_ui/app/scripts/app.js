@@ -88,15 +88,6 @@ angular.module('redash', [
       controller: 'DestinationsCtrl'
     });
 
-    $routeProvider.when('/users/new', {
-      templateUrl: '/views/users/new.html',
-      controller: 'NewUserCtrl'
-    });
-    $routeProvider.when('/users/:userId', {
-      templateUrl: '/views/users/show.html',
-      reloadOnSearch: false,
-      controller: 'UserCtrl'
-    });
     $routeProvider.when('/groups/:groupId/data_sources', {
       templateUrl: '/views/groups/show_data_sources.html',
       controller: 'GroupDataSourcesCtrl'

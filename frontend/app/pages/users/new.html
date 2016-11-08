@@ -1,0 +1,42 @@
+<settings-screen>
+  <email-settings-warning function="'invite emails'"></email-settings-warning>
+  {{$ctrl.test}}
+  <form class="form" name="$ctrl.userForm" ng-submit="saveUser()" novalidate>
+  {{$ctrl.test}}
+    <div class="form-group required" ng-class="{ 'has-error': $ctrl.userForm.name.$touched && $ctrl.userForm.name.$invalid }">
+      <label class="control-label">Name</label>
+      <input type="text" name="name" class="form-control" ng-model="user.name" ng-disabled="user.created" required/>
+
+      <div class="help-block" ng-messages="$ctrl.userForm.name.$error" ng-show="$ctrl.userForm.name.$touched">
+        <span class="error" ng-message="required">This field is required.</span>
+        <span class="error" ng-message="minlength">This field is too short.</span>
+        <span class="error" ng-message="email">This needs to be a valid email.</span>
+      </div>
+    </div>
+
+    <div class="form-group required" ng-class="{ 'has-error': $ctrl.userForm.email.$touched && $ctrl.userForm.email.$invalid }">
+      <label class="control-label">Email</label>
+      <input name="email" type="email" class="form-control" ng-model="user.email" ng-disabled="user.created" required/>
+
+      <div class="help-block" ng-messages="$ctrl.userForm.email.$error" ng-show="$ctrl.userForm.email.$touched">
+        <span class="error" ng-message="required">This field is required.</span>
+        <span class="error" ng-message="minlength">This field is too short.</span>
+        <span class="error" ng-message="email">This needs to be a valid email.</span>
+      </div>
+    </div>
+
+    <div class="form-group" ng-if="!user.created">
+      <button class="btn btn-primary">Create</button>
+    </div>
+
+    <div ng-if="user.created" class="alert alert-success">
+      <p>
+        <strong>The user has been created and should receive an invite email soon.</strong>
+      </p>
+      <p>
+        You can use the following link to invite them yourself:<br/>
+        {{user.invite_link}}
+      </p>
+    </div>
+  </form>
+</settings-screen>
