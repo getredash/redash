@@ -35,37 +35,38 @@ TD_TYPES_MAPPING = {
 
 class TreasureData(BaseQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'endpoint': {
+            'type': 'string'
+        },
+        'apikey': {
+            'type': 'string'
+        },
+        'type': {
+            'type': 'string'
+        },
+        'db': {
+            'type': 'string',
+            'title': 'Database Name'
+        },
+        'get_schema': {
+            'type': 'boolean',
+            'title': 'Auto Schema Retrieval',
+            'default': False
+        },
+        "toggle_table_string": {
+            "type": "string",
+            "title": "Toggle Table String",
+            "default": "_v",
+            "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'endpoint': {
-                    'type': 'string'
-                },
-                'apikey': {
-                    'type': 'string'
-                },
-                'type': {
-                    'type': 'string'
-                },
-                'db': {
-                    'type': 'string',
-                    'title': 'Database Name'
-                },
-                'get_schema': {
-                    'type': 'boolean',
-                    'title': 'Auto Schema Retrieval',
-                    'default': False
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['apikey','db']
         }
 
