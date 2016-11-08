@@ -9,6 +9,7 @@ import ngRoute from 'angular-route';
 import ngResource from 'angular-resource';
 import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
+import ngMessages from 'angular-messages';
 import toastr from 'angular-toastr';
 import 'angular-moment';
 
@@ -29,7 +30,7 @@ import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 
 const requirements = [
-  ngRoute, ngResource, ngSanitize, uiBootstrap, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
+  ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
 ];
 
 const ngModule = angular.module('app', requirements);

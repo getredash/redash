@@ -5,6 +5,7 @@ function UsersCtrl($location, toastr, currentUser, Events, User) {
   Events.record(currentUser, 'view', 'page', 'users');
   // $scope.$parent.pageTitle = 'Users';
 
+  this.currentUser = currentUser;
   this.users = new Paginator([], { itemsPerPage: 20 });
   User.query((users) => {
     this.users.updateRows(users);
