@@ -42,6 +42,11 @@ class Graphite(BaseQueryRunner):
                 'verify': {
                     'type': 'boolean',
                     'title': 'Verify SSL certificate'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['url'],

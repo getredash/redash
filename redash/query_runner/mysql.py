@@ -29,6 +29,9 @@ types_map = {
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = 'https://dev.mysql.com/doc/refman/5.7/en/'
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "none"
 
     @classmethod
     def configuration_schema(cls):
@@ -79,6 +82,11 @@ class Mysql(BaseSQLQueryRunner):
                 'ssl_key': {
                     'type': 'string',
                     'title': 'Path to private key file (SSL)'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             })
 

@@ -192,3 +192,16 @@ class DataSourceTestResource(BaseResource):
             return {"message": unicode(e), "ok": False}
         else:
             return {"message": "success", "ok": True}
+
+class DataSourceVersionResource(BaseResource):
+    def get(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+        require_access(data_source.groups, self.current_user, view_only)
+        try:
+            version_info = data_source.query_runner.get_data_source_version()
+        except Exception as e:
+            return {"message": unicode(e), "ok": False}
+        else:
+            return {"message": version_info, "ok": True}
+
+

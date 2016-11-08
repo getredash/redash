@@ -36,6 +36,8 @@ types_map = {
 
 class Impala(BaseSQLQueryRunner):
     noop_query = "show schemas"
+    default_doc_url = ("http://www.cloudera.com/documentation/enterprise/"
+                       "latest/topics/impala_langref.html")
 
     @classmethod
     def configuration_schema(cls):
@@ -66,6 +68,11 @@ class Impala(BaseSQLQueryRunner):
                 },
                 "timeout": {
                     "type": "number"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["host"],

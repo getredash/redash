@@ -81,6 +81,9 @@
             {{ds.name}}
           </ui-select-choices>
         </ui-select>
+        <a ng-if="dataSource.options.doc_url != '' && dataSource.options.doc_url" ng-href={{dataSource.options.doc_url}}>{{dataSource.type_name}} documentation</a>
+        <span ng-if="dataSource.options.doc_url == '' || !dataSource.options.doc_url">{{ dataSource.type_name }} documentation</span>
+        <get-data-source-version id='data-source-version'></get-data-source-version>
       </div>
 
       <div class="editor__left__schema" ng-if="sourceMode">
@@ -159,6 +162,9 @@
 
                     <select class="form-control datasource-small flex-fill w-100" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id"
                       ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
+
+                    <a ng-if="dataSource.options.doc_url != ''" ng-href={{dataSource.options.doc_url}}>{{dataSource.type_name}} documentation</a>
+                    <span ng-if="dataSource.options.doc_url == ''">{{dataSource.type_name}}</span>
 
                     <button class="btn btn-default m-l-5" ng-show="canEdit" ng-click="saveQuery()" title="Save" uib-tooltip-html="modKey + ' + S'"
                       tooltip-append-to-body="true">

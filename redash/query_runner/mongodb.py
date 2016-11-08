@@ -118,6 +118,9 @@ def parse_results(results):
 
 
 class MongoDB(BaseQueryRunner):
+    default_doc_url = ("https://docs.mongodb.com/manual/reference/operator/"
+                       "query/")
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -135,6 +138,11 @@ class MongoDB(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Replica Set Name'
                 },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                }
             },
             'required': ['connectionString', 'dbName']
         }

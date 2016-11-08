@@ -27,6 +27,7 @@ class CassandraJSONEncoder(JSONEncoder):
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
+    default_doc_url = "http://cassandra.apache.org/doc/latest/cql/index.html"
 
     @classmethod
     def enabled(cls):
@@ -65,6 +66,11 @@ class Cassandra(BaseQueryRunner):
                     'type': 'number',
                     'title': 'Timeout',
                     'default': 10
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['keyspace', 'host']

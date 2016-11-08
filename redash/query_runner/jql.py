@@ -139,6 +139,8 @@ class FieldMapping:
 
 class JiraJQL(BaseQueryRunner):
     noop_query = '{"queryType": "count"}'
+    default_doc_url = ("https://confluence.atlassian.com/jirasoftwarecloud/"
+                       "advanced-searching-764478330.html")
 
     @classmethod
     def configuration_schema(cls):
@@ -154,6 +156,11 @@ class JiraJQL(BaseQueryRunner):
                 },
                 'password': {
                     'type': 'string'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['url', 'username', 'password'],
