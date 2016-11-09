@@ -22,10 +22,6 @@ angular.module('redash', [
   'vs-repeat'
 ]).config(['$routeProvider', '$locationProvider', '$compileProvider', 'growlProvider', 'uiSelectConfig', '$httpProvider',
   function ($routeProvider, $locationProvider, $compileProvider, growlProvider, uiSelectConfig, $httpProvider) {
-    function getQuery(Query, $route) {
-      var query = Query.get({'id': $route.current.params.queryId});
-      return query.$promise;
-    };
 
     if (currentUser.apiKey) {
       $httpProvider.defaults.headers.common.Authorization = 'Key ' + currentUser.apiKey;
@@ -36,39 +32,11 @@ angular.module('redash', [
       controller: 'PublicDashboardCtrl',
       reloadOnSearch: false
     });
-    $routeProvider.when('/queries/new', {
-      templateUrl: '/views/query.html',
-      controller: 'QuerySourceCtrl',
-      reloadOnSearch: false,
-      resolve: {
-        'query': ['Query', function newQuery(Query) {
-          return Query.newQuery();
-        }],
-        'dataSources': ['DataSource', function (DataSource) {
-          return DataSource.query().$promise
-        }]
-      }
-    });
+
     $routeProvider.when('/queries/search', {
       templateUrl: '/views/queries_search_results.html',
       controller: 'QuerySearchCtrl',
       reloadOnSearch: true,
-    });
-    $routeProvider.when('/queries/:queryId', {
-      templateUrl: '/views/query.html',
-      controller: 'QueryViewCtrl',
-      reloadOnSearch: false,
-      resolve: {
-        'query': ['Query', '$route', getQuery]
-      }
-    });
-    $routeProvider.when('/queries/:queryId/source', {
-      templateUrl: '/views/query.html',
-      controller: 'QuerySourceCtrl',
-      reloadOnSearch: false,
-      resolve: {
-        'query': ['Query', '$route', getQuery]
-      }
     });
     $routeProvider.otherwise({
       redirectTo: '/'
