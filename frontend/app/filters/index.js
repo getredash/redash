@@ -110,3 +110,7 @@ export function remove(items, item) {
 export function notEmpty(collection) {
   return !isEmpty(collection);
 }
+
+export function showError(field, form) {
+  return (field.$touched && field.$invalid) || form.$submitted;
+}
