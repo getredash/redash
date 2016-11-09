@@ -257,17 +257,6 @@
     };
   });
 
-  directives.directive('inputErrors', function () {
-    return {
-      restrict: "E",
-      templateUrl: "/views/directives/input_errors.html",
-      replace: true,
-      scope: {
-        errors: "="
-      }
-    };
-  });
-
   directives.directive('onDestroy', function () {
     /* This directive can be used to invoke a callback when an element is destroyed,
     A useful example is the following:
