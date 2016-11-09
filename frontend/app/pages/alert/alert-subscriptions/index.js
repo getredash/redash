@@ -28,16 +28,17 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
       $scope.subscribers = subscribers;
     });
 
-  $scope.destinationsDisplay = (destination) => {
-    if (!destination) {
+  $scope.destinationsDisplay = (d) => {
+    if (!d) {
       return '';
     }
 
-    if (destination.destination) {
+    let destination = d;
+    if (d.destination) {
       destination = destination.destination;
     } else if (destination.user) {
       destination = {
-        name: `${destination.user.name} (Email)`,
+        name: `${d.user.name} (Email)`,
         icon: 'fa-envelope',
         type: 'user',
       };

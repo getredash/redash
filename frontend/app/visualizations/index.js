@@ -122,22 +122,23 @@ function Filters() {
 
 function FilterValueFilter(clientConfig) {
   return (value, filter) => {
+    let firstValue = value;
     if (isArray(value)) {
-      value = value[0];
+      firstValue = value[0];
     }
 
     // TODO: deduplicate code with table.js:
     if (filter.column.type === 'date') {
-      if (value && moment.isMoment(value)) {
-        return value.format(clientConfig.dateFormat);
+      if (firstValue && moment.isMoment(firstValue)) {
+        return firstValue.format(clientConfig.dateFormat);
       }
     } else if (filter.column.type === 'datetime') {
-      if (value && moment.isMoment(value)) {
-        return value.format(clientConfig.dateTimeFormat);
+      if (firstValue && moment.isMoment(firstValue)) {
+        return firstValue.format(clientConfig.dateTimeFormat);
       }
     }
 
-    return value;
+    return firstValue;
   };
 }
 
@@ -184,7 +185,8 @@ function EditVisualizationForm($window, currentUser, Events, Visualization, toas
         }
 
         if (type && oldType !== type && scope.visualization) {
-          scope.visualization.options = Visualization.visualizations[scope.visualization.type].defaultOptions;
+          scope.visualization.options =
+            Visualization.visualizations[scope.visualization.type].defaultOptions;
         }
       });
 

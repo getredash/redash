@@ -1,0 +1,24 @@
+<settings-screen>
+  <div class="row voffset1">
+    <div class="col-md-12">
+      <p ng-if="currentUser.hasPermission('admin')">
+        <a ng-click="newGroup()" class="btn btn-default"><i class="fa fa-plus"></i> New Group</a>
+      </p>
+      <table class="table table-condensed table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="row in groups.getPageRows()">
+            <td>
+              <a href="groups/{{row.id}}">{{row.name}}</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <paginator paginator="groups"></paginator>
+    </div>
+  </div>
+</settings-screen>
