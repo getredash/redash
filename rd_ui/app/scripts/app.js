@@ -70,16 +70,6 @@ angular.module('redash', [
         'query': ['Query', '$route', getQuery]
       }
     });
-    $routeProvider.when('/data_sources/:dataSourceId', {
-      templateUrl: '/views/data_sources/edit.html',
-      controller: 'DataSourceCtrl'
-    });
-    $routeProvider.when('/data_sources', {
-      templateUrl: '/views/data_sources/list.html',
-      controller: 'DataSourcesCtrl'
-    });
-
-
     $routeProvider.otherwise({
       redirectTo: '/'
     });
