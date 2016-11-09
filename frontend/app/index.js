@@ -17,6 +17,7 @@ import 'angular-moment';
 
 import 'brace';
 import 'angular-ui-ace';
+import 'angular-resizable';
 
 import { ngTable } from 'ng-table';
 import { each } from 'underscore';
@@ -35,7 +36,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
-  ngUpload,
+  ngUpload, 'angularResizable',
 ];
 
 const ngModule = angular.module('app', requirements);

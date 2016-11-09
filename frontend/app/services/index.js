@@ -10,3 +10,5 @@ export { default as User } from './user';
 export { default as Group } from './group';
 export { default as DataSource } from './data-source';
 export { default as QuerySnippet } from './query-snippet';
+export { default as Notifications } from './notifications';
+export { default as KeyboardShortcuts } from './keyboard-shortcuts';

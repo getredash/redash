@@ -1,0 +1,17 @@
+<div class="schema-container">
+  <div class="p-t-5 p-b-5">
+    <input type="text" placeholder="Search schema..." class="form-control" ng-model="schemaFilter">
+  </div>
+
+  <div class="schema-browser" vs-repeat vs-size="getSize(table)">
+    <div ng-repeat="table in schema | filter:schemaFilter track by table.name">
+      <div class="table-name" ng-click="showTable(table)">
+        <i class="fa fa-table"></i> <strong><span title="{{table.name}}">{{table.name}}</span><span
+        ng-if="table.size !== undefined"> ({{table.size}})</span></strong>
+      </div>
+      <div collapse="table.collapsed">
+        <div ng-repeat="column in table.columns track by column" style="padding-left:16px;">{{column}}</div>
+      </div>
+    </div>
+  </div>
+</div>

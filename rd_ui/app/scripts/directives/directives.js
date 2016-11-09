@@ -99,43 +99,7 @@
     };
   });
 
-  directives.directive('rdTimer', [function () {
-    return {
-      restrict: 'E',
-      scope: { timestamp: '=' },
-      template: '{{currentTime}}',
-      controller: ['$scope' , function ($scope) {
-        $scope.currentTime = "00:00:00";
 
-        // We're using setInterval directly instead of $timeout, to avoid using $apply, to
-        // prevent the digest loop being run every second.
-        var currentTimer = setInterval(function () {
-          $scope.currentTime = moment(moment() - moment($scope.timestamp)).utc().format("HH:mm:ss");
-          $scope.$digest();
-        }, 1000);
-
-        $scope.$on('$destroy', function () {
-          if (currentTimer) {
-            clearInterval(currentTimer);
-            currentTimer = null;
-          }
-        });
-      }]
-    };
-  }]);
-
-  directives.directive('rdTimeAgo', function () {
-    return {
-      restrict: 'E',
-      scope: {
-        value: '='
-      },
-      template: '<span>' +
-        '<span ng-show="value" am-time-ago="value"></span>' +
-        '<span ng-hide="value">-</span>' +
-        '</span>'
-    }
-  });
 
   // Used instead of autofocus attribute, which doesn't work in Angular as there is no real page load.
   directives.directive('autofocus',
