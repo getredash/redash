@@ -25,11 +25,8 @@ function GroupsCtrl($scope, $location, $uibModal, toastr, currentUser, Events, G
 }
 
 export default function (ngModule) {
-    // $routeProvider.when('/groups', {
-    //   templateUrl: '/views/groups/list.html',
-    //   controller: 'GroupsCtrl'
-    // });
   ngModule.controller('GroupsCtrl', GroupsCtrl);
+
   return {
     '/groups': {
       template,
