@@ -20,6 +20,7 @@
   "homepage": "https://redash.io/",
   "dependencies": {
     "angular": "^1.5.8",
+    "angular-base64-upload": "^0.1.19",
     "angular-messages": "^1.5.8",
     "angular-moment": "^1.0.0",
     "angular-resource": "^1.5.8",

@@ -17,7 +17,6 @@ function DynamicForm($http, toastr, $q) {
       function setType(types) {
         if ($scope.target.type === undefined) {
           $scope.target.type = types[0].type;
-          return types[0];
         }
 
         $scope.type = find(types, t => t.type === $scope.target.type);

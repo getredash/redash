@@ -12,6 +12,7 @@ import uiBootstrap from 'angular-ui-bootstrap';
 import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
 import toastr from 'angular-toastr';
+import ngUpload from 'angular-base64-upload';
 import 'angular-moment';
 
 import 'brace';
@@ -34,6 +35,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
+  ngUpload,
 ];
 
 const ngModule = angular.module('app', requirements);
