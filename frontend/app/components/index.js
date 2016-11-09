@@ -12,3 +12,4 @@ export { default as paginator } from './paginator';
 export { default as settingsScreen } from './settings-screen';
 export { default as errorMessages } from './error-messages';
 export { default as editInPlace } from './edit-in-place';
+export { default as dynamicForm } from './dynamic-form';
