@@ -26,8 +26,7 @@
   </div>
   <div class="row voffset1">
     <div class="col-lg-12">
-
-      <table class="table table-condensed table-hover">
+      <table class="table table-condensed table-hover" ng-show="members">
         <tbody>
         <tr ng-repeat="member in members">
           <td width="50px"><img ng-src="{{member.gravatar_url}}" height="40px"/></td>
@@ -35,6 +34,10 @@
         </tr>
         </tbody>
       </table>
+
+      <div ng-hide="members.length">
+        No members.
+      </div>
     </div>
   </div>
 </settings-screen>

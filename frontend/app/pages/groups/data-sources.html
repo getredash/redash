@@ -30,16 +30,16 @@
         <tr ng-repeat="dataSource in dataSources">
           <td> {{dataSource.name}}</td>
           <td width="280px" class="text-right">
-            <div class="btn-group" dropdown>
-              <button type="button" class="btn btn-sm btn-default dropdown-toggle" dropdown-toggle ng-if="dataSource.view_only">
+            <div class="btn-group" uib-dropdown>
+              <button type="button" class="btn btn-sm btn-default dropdown-toggle" uib-dropdown-toggle ng-if="dataSource.view_only">
                 View Only <span class="caret"></span>
               </button>
 
-              <button type="button" class="btn btn-sm btn-success dropdown-toggle" dropdown-toggle ng-if="!dataSource.view_only">
+              <button type="button" class="btn btn-sm btn-success dropdown-toggle" uib-dropdown-toggle ng-if="!dataSource.view_only">
                 Full Access <span class="caret"></span>
               </button>
 
-              <ul class="dropdown-menu" role="menu">
+              <ul class="dropdown-menu" role="menu" uib-dropdown-menu>
                 <li><a ng-click="changePermission(dataSource, false)"><small ng-if="!dataSource.view_only"><span class="fa fa-check"/></small> Full Access<br/></a></li>
                 <li><a ng-click="changePermission(dataSource, true)"><small ng-if="dataSource.view_only"><span class="fa fa-check"/></small> View Only</a></li>
               </ul>

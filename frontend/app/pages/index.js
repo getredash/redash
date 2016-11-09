@@ -6,3 +6,4 @@ export { default as admin } from './admin';
 export { default as dashboards } from './dashboards';
 export { default as querySnippets } from './query-snippets';
 export { default as users } from './users';
+export { default as groups } from './groups';

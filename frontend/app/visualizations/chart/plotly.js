@@ -92,9 +92,9 @@ function normalAreaStacking(seriesList) {
 }
 
 function lastVisibleY(seriesList, lastSeriesIndex, yIndex) {
-  for (; lastSeriesIndex >= 0; lastSeriesIndex -= 1) {
-    if (seriesList[lastSeriesIndex].visible === true) {
-      return seriesList[lastSeriesIndex].y[yIndex];
+  for (let i = lastSeriesIndex; i >= 0; i -= 1) {
+    if (seriesList[i].visible === true) {
+      return seriesList[i].y[yIndex];
     }
   }
   return 0;
@@ -387,10 +387,10 @@ function PlotlyChart() {
       scope.plotlyOptions = { showLink: false, displaylogo: false };
       scope.data = [];
 
-      element = element[0].children[0];
-      Plotly.newPlot(element, scope.data, scope.layout, scope.plotlyOptions);
+      const plotlyElement = element[0].children[0];
+      Plotly.newPlot(plotlyElement, scope.data, scope.layout, scope.plotlyOptions);
 
-      element.on('plotly_afterplot', () => {
+      plotlyElement.on('plotly_afterplot', () => {
         if (scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')) {
           document.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
             d3.select(rectDiv).on('click', () => {
@@ -403,7 +403,7 @@ function PlotlyChart() {
               } else if (scope.options.series.stacking === 'percent') {
                 percentAreaStacking(scope.data);
               }
-              Plotly.redraw(element);
+              Plotly.redraw(plotlyElement);
             });
           });
         }
@@ -412,12 +412,12 @@ function PlotlyChart() {
         if (isEqual(layout, old)) {
           return;
         }
-        Plotly.relayout(element, layout);
+        Plotly.relayout(plotlyElement, layout);
       }, true);
 
       scope.$watch('data', (data) => {
         if (!isEmpty(data)) {
-          Plotly.redraw(element);
+          Plotly.redraw(plotlyElement);
         }
       }, true);
     },

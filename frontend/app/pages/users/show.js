@@ -100,7 +100,7 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr, currentUser, E
 
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
-    $http.post(`api/users/${$scope.user.id}/reset_password`).success((user) => {
+    $http.post(`api/users/${$scope.user.id}/reset_password`).success(() => {
       $scope.disablePasswordResetButton = false;
       toastr.success('The user should receive a link to reset his password by email soon.');
     });

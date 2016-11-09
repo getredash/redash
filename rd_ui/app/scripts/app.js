@@ -88,18 +88,6 @@ angular.module('redash', [
       controller: 'DestinationsCtrl'
     });
 
-    $routeProvider.when('/groups/:groupId/data_sources', {
-      templateUrl: '/views/groups/show_data_sources.html',
-      controller: 'GroupDataSourcesCtrl'
-    });
-    $routeProvider.when('/groups/:groupId', {
-      templateUrl: '/views/groups/show.html',
-      controller: 'GroupCtrl'
-    });
-    $routeProvider.when('/groups', {
-      templateUrl: '/views/groups/list.html',
-      controller: 'GroupsCtrl'
-    });
     $routeProvider.otherwise({
       redirectTo: '/'
     });

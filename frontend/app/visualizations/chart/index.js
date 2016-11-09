@@ -87,7 +87,9 @@ function ChartEditor(ColorPalette) {
 
       function refreshColumnsAndForm() {
         refreshColumns();
-        if (!scope.queryResult.getData() || scope.queryResult.getData().length === 0 || scope.columns.length === 0) {
+        if (!scope.queryResult.getData() ||
+            scope.queryResult.getData().length === 0 ||
+            scope.columns.length === 0) {
           return;
         }
         scope.form.yAxisColumns = intersection(scope.form.yAxisColumns, scope.columnNames);

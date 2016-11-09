@@ -3,6 +3,7 @@ import 'font-awesome/css/font-awesome.css';
 import 'ui-select/dist/select.css';
 import 'angular-toastr/dist/angular-toastr.css';
 
+import debug from 'debug';
 import angular from 'angular';
 import ngSanitize from 'angular-sanitize';
 import ngRoute from 'angular-route';
@@ -28,6 +29,8 @@ import * as filters from './filters';
 import * as services from './services';
 import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
+
+const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
@@ -93,7 +96,7 @@ function registerPages() {
 
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
-        console.log('Route: ', path);
+        logger('Route: ', path);
         $routeProvider.when(path, route);
       });
     });
