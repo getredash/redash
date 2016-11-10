@@ -19,8 +19,9 @@ class TestApiKeyGetByObject(BaseTestCase):
         visualization_chart = self.factory.create_visualization(query=query, description="chart vis", type="CHART", options="""{"yAxis": [{"type": "linear"}, {"type": "linear", "opposite": true}], "series": {"stacking": null}, "globalSeriesType": "line", "sortX": true, "seriesOptions": {"count": {"zIndex": 0, "index": 0, "type": "line", "yAxis": 0}}, "xAxis": {"labels": {"enabled": true}, "type": "datetime"}, "columnMapping": {"count": "y", "created_at": "x"}, "bottomMargin": 50, "legend": {"enabled": true}}""")
         visualization_box = self.factory.create_visualization(query=query, description="box vis", type="BOXPLOT", options="{}")
         fork_user = self.factory.create_user()
+        
+        forked_query = query.fork(fork_user)
 
-        forked_query = Query.fork(query.id, fork_user, self.factory.org)
 
         forked_visualization_chart = None
         forked_visualization_box = None
@@ -58,7 +59,7 @@ class TestApiKeyGetByObject(BaseTestCase):
         query = self.factory.create_query(data_source=data_source, description="this is description")
         fork_user = self.factory.create_user()
 
-        forked_query = Query.fork(query.id, fork_user, self.factory.org)
+        forked_query = query.fork(fork_user)
 
         count_table = 0
         count_vis = 0
