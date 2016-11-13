@@ -2,6 +2,7 @@ import 'material-design-iconic-font/dist/css/material-design-iconic-font.css';
 import 'font-awesome/css/font-awesome.css';
 import 'ui-select/dist/select.css';
 import 'angular-toastr/dist/angular-toastr.css';
+import 'angular-resizable/src/angular-resizable.css';
 
 import debug from 'debug';
 import angular from 'angular';
@@ -13,12 +14,11 @@ import uiSelect from 'ui-select';
 import ngMessages from 'angular-messages';
 import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
+import vsRepeat from 'angular-vs-repeat';
 import 'angular-moment';
-
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
-
 import { ngTable } from 'ng-table';
 import { each } from 'underscore';
 
@@ -29,6 +29,7 @@ import * as pages from './pages';
 import * as components from './components';
 import * as filters from './filters';
 import * as services from './services';
+import registerDirectives from './directives';
 import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 
@@ -36,7 +37,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable',
+  ngUpload, 'angularResizable', vsRepeat,
 ];
 
 const ngModule = angular.module('app', requirements);
@@ -112,6 +113,7 @@ function registerFilters() {
   });
 }
 
+registerDirectives(ngModule);
 registerServices();
 registerFilters();
 markdownFilter(ngModule);
