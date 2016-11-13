@@ -203,8 +203,15 @@ function ChartEditor(ColorPalette) {
   };
 }
 
+const ColorBox = {
+  bindings: {
+    color: '<',
+  },
+  template: "<span style='width: 12px; height: 12px; background-color: {{$ctrl.color}}; display: inline-block; margin-right: 5px;'></span>",
+};
 
 export default function (ngModule) {
+  ngModule.component('colorBox', ColorBox);
   ngModule.directive('chartRenderer', ChartRenderer);
   ngModule.directive('chartEditor', ChartEditor);
   ngModule.config((VisualizationProvider) => {

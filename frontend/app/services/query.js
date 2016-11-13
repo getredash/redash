@@ -114,7 +114,7 @@ class Parameters {
   }
 }
 
-function QueryResource($resource, $location, currentUser, QueryResult) {
+function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
   const Query = $resource('api/queries/:id', { id: '@id' },
     {
       search: {
@@ -145,6 +145,23 @@ function QueryResource($resource, $location, currentUser, QueryResult) {
       user: currentUser,
       options: {},
     });
+  };
+
+  Query.format = function formatQuery(syntax, query) {
+    if (syntax === 'json') {
+      try {
+        const formatted = JSON.stringify(JSON.parse(query), ' ', 4);
+        return $q.resolve(formatted);
+      } catch (err) {
+        return $q.reject(String(err));
+      }
+    } else if (syntax === 'sql') {
+      return $http.post('api/queries/format', { query }).then(response =>
+         response.data
+      );
+    } else {
+      return $q.reject('Query formatting is not supported for your data source syntax.');
+    }
   };
 
   Query.prototype.getSourceLink = function getSourceLink() {

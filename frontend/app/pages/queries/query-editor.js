@@ -23,7 +23,6 @@ function queryEditor(QuerySnippet) {
     restrict: 'E',
     scope: {
       query: '=',
-      lock: '=',
       schema: '=',
       syntax: '=',
     },
