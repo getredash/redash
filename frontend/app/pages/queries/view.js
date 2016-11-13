@@ -1,8 +1,8 @@
 import { pick, any, some, find } from 'underscore';
 import template from './query.html';
 
-function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $window,
-  Notifications, clientConfig, toastr, $uibModal, currentUser, Query, DataSource) {
+function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $window, $q,
+  AlertDialog, Notifications, clientConfig, toastr, $uibModal, currentUser, Query, DataSource) {
   const DEFAULT_TAB = 'table';
 
   function getQueryResult(maxAge) {
@@ -123,24 +123,26 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     $window.alert(`API Key for this query:\n${$scope.query.api_key}`);
   };
 
-  $scope.saveQuery = (options, data) => {
-    if (data) {
+  $scope.saveQuery = (customOptions, data) => {
+    let request = data;
+
+    if (request) {
       // Don't save new query with partial data
       if ($scope.query.isNew()) {
-        return;
+        return $q.reject();
       }
-      data.id = $scope.query.id;
-      data.version = $scope.query.version;
+      request.id = $scope.query.id;
+      request.version = $scope.query.version;
     } else {
-      data = pick($scope.query, ['schedule', 'query', 'id', 'description', 'name', 'data_source_id', 'options', 'latest_query_data_id', 'version']);
+      request = pick($scope.query, ['schedule', 'query', 'id', 'description', 'name', 'data_source_id', 'options', 'latest_query_data_id', 'version']);
     }
 
-    options = Object.assign({}, {
+    const options = Object.assign({}, {
       successMessage: 'Query saved',
       errorMessage: 'Query could not be saved',
-    }, options);
+    }, customOptions);
 
-    return Query.save(data, (updatedQuery) => {
+    return Query.save(request, (updatedQuery) => {
       toastr.success(options.successMessage);
       $scope.query.version = updatedQuery.version;
     }, (error) => {
@@ -186,29 +188,22 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
   };
 
-  $scope.archiveQuery = (options, data) => {
-    if (data) {
-      data.id = $scope.query.id;
-    } else {
-      data = $scope.query;
+  $scope.archiveQuery = () => {
+    function archive() {
+      Query.delete({ id: $scope.query.id }, () => {
+        $scope.query.is_archived = true;
+        $scope.query.schedule = null;
+        toastr.success('Query archived.');
+      }, () => {
+        toastr.error('Query could not be archived.');
+      });
     }
 
-    $scope.isDirty = false;
+    const title = 'Archive Query';
+    const message = 'Are you sure you want to archive this query?<br/> All alerts and dashboard widgets created with its visualizations will be deleted.';
+    const actions = [{ class: 'btn-warning', title: 'Archive', callback: archive }];
 
-    options = Object.assign({}, {
-      successMessage: 'Query archived',
-      errorMessage: 'Query could not be archived',
-    }, options);
-
-    return Query.delete({ id: data.id }, () => {
-      $scope.query.is_archived = true;
-      $scope.query.schedule = null;
-      toastr.success(options.successMessage);
-        // This feels dirty.
-      $('#archive-confirmation-modal').modal('hide');
-    }, (httpResponse) => {
-      toastr.error(options.errorMessage);
-    }).$promise;
+    AlertDialog.open(title, message, actions);
   };
 
   $scope.updateDataSource = () => {
@@ -274,16 +269,14 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   $scope.openVisualizationEditor = (visualization) => {
     function openModal() {
       $uibModal.open({
-        templateUrl: '/views/directives/visualization_editor.html',
         windowClass: 'modal-xl',
-        scope: $scope,
-        controller: ['$scope', '$modalInstance', function ($scope, $modalInstance) {
-          $scope.modalInstance = $modalInstance;
-          $scope.visualization = visualization;
-          $scope.close = function () {
-            $modalInstance.close();
-          };
-        }],
+        component: 'editVisualizationDialog',
+        resolve: {
+          query: $scope.query,
+          visualization,
+          queryResult: $scope.queryResult,
+          onNewSuccess: () => $scope.setVisualizationTab,
+        },
       });
     }
 
@@ -303,61 +296,43 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     $scope.openVisualizationEditor();
   }
 
-  $scope.openScheduleForm = function () {
+  $scope.openScheduleForm = () => {
     if (!$scope.isQueryOwner || !$scope.canScheduleQuery) {
       return;
     }
 
     $uibModal.open({
-      templateUrl: '/views/schedule_form.html',
+      component: 'scheduleDialog',
       size: 'sm',
-      scope: $scope,
-      controller($scope, $modalInstance) {
-        $scope.close = function () {
-          $modalInstance.close();
-        };
-        if ($scope.query.hasDailySchedule()) {
-          $scope.refreshType = 'daily';
-        } else {
-          $scope.refreshType = 'periodic';
-        }
+      resolve: {
+        query: $scope.query,
+        saveQuery: () => $scope.saveQuery,
       },
     });
   };
 
-  $scope.showEmbedDialog = function (query, visualization) {
-    $modal.open({
-      templateUrl: '/views/dialogs/embed_code.html',
-      controller: ['$scope', '$modalInstance', function ($scope, $modalInstance) {
-        $scope.close = function () {
-          $modalInstance.close();
-        };
-        $scope.embedUrl = `${basePath}embed/query/${query.id}/visualization/${visualization.id}?api_key=${query.api_key}`;
-        if (window.snapshotUrlBuilder) {
-          $scope.snapshotUrl = snapshotUrlBuilder(query, visualization);
-        }
-      }],
+  $scope.showEmbedDialog = (query, visualization) => {
+    $uibModal.open({
+      component: 'embedCodeDialog',
+      resolve: {
+        query,
+        visualization,
+      },
     });
   };
 
   $scope.$watch(() =>
      $location.hash()
   , (hash) => {
-    if (hash === 'pivot') {
-      Events.record(currentUser, 'pivot', 'query', $scope.query && $scope.query.id);
-    }
     $scope.selectedTab = hash || DEFAULT_TAB;
   });
 
-  $scope.showManagePermissionsModal = function () {
-    // Create scope for share permissions dialog and pass api path to it
-    const scope = $scope.$new();
-    $scope.apiAccess = `api/queries/${$routeParams.queryId}/acl`;
-
-    $modal.open({
-      scope,
-      templateUrl: '/views/dialogs/manage_permissions.html',
-      controller: 'ManagePermissionsCtrl',
+  $scope.showManagePermissionsModal = () => {
+    $uibModal.open({
+      component: 'permissionsEditor',
+      resolve: {
+        aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
+      },
     });
   };
 }

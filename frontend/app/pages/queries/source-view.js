@@ -1,6 +1,6 @@
 import template from './query.html';
 
-function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http,
+function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, $q,
   currentUser, Query, Visualization, KeyboardShortcuts) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
@@ -13,7 +13,6 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http,
 
   const isNewQuery = !$scope.query.id;
   let queryText = $scope.query.query;
-      // ref to QueryViewCtrl.saveQuery
   const saveQuery = $scope.saveQuery;
 
   $scope.sourceMode = true;
@@ -53,10 +52,6 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http,
   $scope.saveQuery = (options, data) => {
     const savePromise = saveQuery(options, data);
 
-    if (!savePromise) {
-      return;
-    }
-
     savePromise.then((savedQuery) => {
       queryText = savedQuery.query;
       $scope.isDirty = $scope.query.query !== queryText;
@@ -67,14 +62,15 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http,
         // redirect to new created query (keep hash)
         $location.path(savedQuery.getSourceLink());
       }
-    }, (error) => {
-      if (error.status == 409) {
-        toastr.error('It seems like the query has been modified by another user. ' +
-          'Please copy/backup your changes and reload this page.', { autoDismiss: false });
-      }
     });
 
     return savePromise;
+  };
+
+  $scope.formatQuery = () => {
+    Query.format($scope.dataSource.syntax, $scope.query.query)
+      .then((query) => { $scope.query.query = query; })
+      .catch(error => toastr.error(error));
   };
 
   $scope.duplicateQuery = () => {
@@ -97,14 +93,11 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http,
       Events.record(currentUser, 'delete', 'visualization', vis.id);
 
       Visualization.delete(vis, () => {
-        if ($scope.selectedTab == vis.id) {
+        if ($scope.selectedTab === vis.id) {
           $scope.selectedTab = DEFAULT_TAB;
           $location.hash($scope.selectedTab);
         }
-        $scope.query.visualizations =
-          $scope.query.visualizations.filter(v =>
-             vis.id !== v.id
-          );
+        $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
       }, () => {
         toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
       });
