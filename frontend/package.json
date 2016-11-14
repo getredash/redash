@@ -21,6 +21,7 @@
   "dependencies": {
     "angular": "^1.5.8",
     "angular-base64-upload": "^0.1.19",
+    "angular-legacy-sortablejs": "git+https://github.com/SortableJS/angular-legacy-sortablejs.git",
     "angular-messages": "^1.5.8",
     "angular-moment": "^1.0.0",
     "angular-resizable": "^1.2.0",

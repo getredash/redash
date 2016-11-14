@@ -154,7 +154,7 @@ export default function (ngModule) {
   ngModule.directive('filters', Filters);
   ngModule.filter('filterValue', FilterValueFilter);
   registerEditVisualizationDialog(ngModule);
+  chartVisualization(ngModule);
   counterVisualization(ngModule);
   tableVisualization(ngModule);
-  chartVisualization(ngModule);
 }
