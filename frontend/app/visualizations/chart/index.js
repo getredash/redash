@@ -149,9 +149,7 @@ function ChartEditor(ColorPalette) {
         ),
       };
 
-      console.log(scope.form.seriesList);
       scope.$watchCollection('form.seriesList', (value) => {
-        console.log('w: ', scope.form.seriesList, scope.options.seriesOptions);
         each(value, (name, index) => {
           scope.options.seriesOptions[name].zIndex = index;
           scope.options.seriesOptions[name].index = 0; // is this needed?
