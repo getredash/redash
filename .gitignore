@@ -1,3 +1,6 @@
+# Custom
+.tags
+
 setup/ubuntu/bootstrap.sh
 .env
 .gitignore.swp
