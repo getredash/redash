@@ -193,7 +193,6 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
       Query.delete({ id: $scope.query.id }, () => {
         $scope.query.is_archived = true;
         $scope.query.schedule = null;
-        toastr.success('Query archived.');
       }, () => {
         toastr.error('Query could not be archived.');
       });
@@ -201,9 +200,9 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
 
     const title = 'Archive Query';
     const message = 'Are you sure you want to archive this query?<br/> All alerts and dashboard widgets created with its visualizations will be deleted.';
-    const actions = [{ class: 'btn-warning', title: 'Archive', callback: archive }];
+    const confirm = { class: 'btn-warning', title: 'Archive' };
 
-    AlertDialog.open(title, message, actions);
+    AlertDialog.open(title, message, confirm).then(archive);
   };
 
   $scope.updateDataSource = () => {

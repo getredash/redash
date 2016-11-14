@@ -17,8 +17,8 @@ function findMinRefreshRate(dashboard) {
   return _.min([300, refreshRate]) * 1000;
 }
 
-function DashboardCtrl($window, $routeParams, $location, $timeout, $q, $uibModal,
-  Dashboard, currentUser, clientConfig, Events, Widget) {
+function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
+  AlertDialog, Dashboard, currentUser, clientConfig, Events, Widget) {
   this.refreshEnabled = false;
   this.isFullscreen = false;
   this.refreshRate = 60;
@@ -119,13 +119,19 @@ function DashboardCtrl($window, $routeParams, $location, $timeout, $q, $uibModal
   };
 
   this.archiveDashboard = () => {
-    if ($window.confirm(`Are you sure you want to archive the "${this.dashboard.name}" dashboard?`)) {
+    const archive = () => {
       Events.record(currentUser, 'archive', 'dashboard', this.dashboard.id);
       this.dashboard.$delete(() => {
         // TODO:
         // this.$parent.reloadDashboards();
       });
-    }
+    };
+
+    const title = 'Archive Dashboard';
+    const message = `Are you sure you want to archive the "${this.dashboard.name}" dashboard?`;
+    const confirm = { class: 'btn-warning', title: 'Archive' };
+
+    AlertDialog.open(title, message, confirm).then(archive);
   };
 
   this.showManagePermissionsModal = () => {
@@ -133,6 +139,24 @@ function DashboardCtrl($window, $routeParams, $location, $timeout, $q, $uibModal
       component: 'permissionsEditor',
       resolve: {
         aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
+      },
+    });
+  };
+
+  this.editDashboard = () => {
+    $uibModal.open({
+      component: 'editDashboardDialog',
+      resolve: {
+        dashboard: () => this.dashboard,
+      },
+    }).result.then((dashboard) => { this.dashboard = dashboard; });
+  };
+
+  this.addWidget = () => {
+    $uibModal.open({
+      component: 'addWidgetDialog',
+      resolve: {
+        dashboard: () => this.dashboard,
       },
     });
   };
