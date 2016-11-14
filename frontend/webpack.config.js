@@ -72,7 +72,8 @@ var config = {
 
     ]
   },
-  devtool: 'eval-source-map',
+  // devtool: 'eval-source-map',
+  devtool: 'source-map',
   devServer: {
     inline: true,
     historyApiFallback: true,
