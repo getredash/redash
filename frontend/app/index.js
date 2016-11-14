@@ -21,6 +21,7 @@ import 'angular-ui-ace';
 import 'angular-resizable';
 import { ngTable } from 'ng-table';
 import { each } from 'underscore';
+import './sortable';
 
 import './assets/css/superflat_redash.css';
 import './assets/css/redash.css';
@@ -37,7 +38,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable', vsRepeat,
+  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable',
 ];
 
 const ngModule = angular.module('app', requirements);
