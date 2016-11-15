@@ -208,6 +208,7 @@
             widget.$save().then(function(response) {
               // update dashboard layout
               $scope.dashboard.layout = response['layout'];
+              $scope.dashboard.version = response['version'];
               var newWidget = new Widget(response['widget']);
               if (response['new_row']) {
                 $scope.dashboard.widgets.push([newWidget]);

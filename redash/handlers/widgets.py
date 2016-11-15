@@ -47,7 +47,7 @@ class WidgetListResource(BaseResource):
         widget.dashboard.layout = json.dumps(layout)
         widget.dashboard.save()
 
-        return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row}
+        return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row, 'version': dashboard.version}
 
 
 class WidgetResource(BaseResource):
