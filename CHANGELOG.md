@@ -5,7 +5,7 @@
 ### Added
 
 61fe16e #1374: Add: allow '*' in REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN (Allen Short)  
-2f09043 #1113: Add: share modify/access permissions for queries and dashboard (Arik Fraimovich)  
+2f09043 #1113: Add: share modify/access permissions for queries and dashboard (whummer)  
 3db0eea #1341: Add: support for specifying SAML nameid-format (zoetrope)  
 b0ecd0e #1343: Add: support for local SAML metadata file (zoetrope)  
 0235d37 #1335: Add: allow changing alert email subject. (Arik Fraimovich)  
