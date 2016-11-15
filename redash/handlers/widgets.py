@@ -1,10 +1,11 @@
 import json
 
 from flask import request
-
 from redash import models
-from redash.permissions import require_permission, require_admin_or_owner, require_access, view_only
 from redash.handlers.base import BaseResource
+from redash.permissions import (require_access, require_admin_or_owner,
+                                require_object_modify_permission,
+                                require_permission, view_only)
 
 
 class WidgetListResource(BaseResource):
@@ -12,7 +13,7 @@ class WidgetListResource(BaseResource):
     def post(self):
         widget_properties = request.get_json(force=True)
         dashboard = models.Dashboard.get_by_id_and_org(widget_properties.pop('dashboard_id'), self.current_org)
-        require_admin_or_owner(dashboard.user_id)
+        require_object_modify_permission(dashboard, self.current_user)
 
         widget_properties['options'] = json.dumps(widget_properties['options'])
         widget_properties.pop('id', None)
@@ -55,7 +56,7 @@ class WidgetResource(BaseResource):
     def post(self, widget_id):
         # This method currently handles Text Box widgets only.
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
-        require_admin_or_owner(widget.dashboard.user_id)
+        require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties['text']
         widget.save()
@@ -65,7 +66,7 @@ class WidgetResource(BaseResource):
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
-        require_admin_or_owner(widget.dashboard.user_id)
+        require_object_modify_permission(widget.dashboard, self.current_user)
         widget.delete_instance()
 
         return {'layout': widget.dashboard.layout}
