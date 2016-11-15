@@ -3,7 +3,7 @@ import json
 from flask import request
 from redash import models
 from redash.handlers.base import BaseResource
-from redash.permissions import (require_access, require_admin_or_owner,
+from redash.permissions import (require_access,
                                 require_object_modify_permission,
                                 require_permission, view_only)
 
@@ -69,4 +69,4 @@ class WidgetResource(BaseResource):
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget.delete_instance()
 
-        return {'layout': widget.dashboard.layout}
+        return {'layout': widget.dashboard.layout, 'version': widget.dashboard.version}

@@ -242,6 +242,7 @@
         $scope.dashboard.widgets = _.filter($scope.dashboard.widgets, function(row) { return row.length > 0 });
 
         $scope.dashboard.layout = response.layout;
+        $scope.dashboard.version = response.version;
       });
     };
 
