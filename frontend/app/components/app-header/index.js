@@ -13,7 +13,7 @@ function controller($scope, $location, currentUser, Dashboard) {
   this.currentUser = currentUser;
 
   this.reloadDashboards = () => {
-    Dashboard.query((dashboards) => {
+    Dashboard.recent((dashboards) => {
       this.dashboards = sortBy(dashboards, 'name');
       this.allDashboards = groupBy(this.dashboards, (d) => {
         const parts = d.name.split(':');
