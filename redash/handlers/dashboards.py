@@ -26,10 +26,7 @@ class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
         results = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-        dashboards = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)
-        return paginate(results, page, page_size, lambda q: q.to_dict())
+        return [q.to_dict() for q in results]
 
     @require_permission('create_dashboard')
     def post(self):

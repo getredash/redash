@@ -18,15 +18,12 @@ function Dashboard($resource, $http, currentUser, Widget) {
   const resource = $resource('api/dashboards/:slug', { slug: '@slug' }, {
     get: { method: 'GET', transformResponse: transform },
     save: { method: 'POST', transformResponse: transform },
-    query: { method: 'GET', isArray: false, transformResponse: transform },
+    query: { method: 'GET', isArray: true, transformResponse: transform },
     recent: {
       method: 'get',
       isArray: true,
       url: 'api/dashboards/recent',
       transformResponse: transform,
-    },
-    dashboards: {
-        isArray: false,
     }
   });
   resource.prototype.canEdit = () => currentUser.canEdit(this) || this.can_edit;

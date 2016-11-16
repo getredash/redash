@@ -4,19 +4,23 @@ import {_} from 'underscore';
 function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConfig, NgTableParams) {
   const self = this;
 
-  self.logoUrl = clientConfig.logoUrl;
+  this.logoUrl = clientConfig.logoUrl;
   const page = parseInt($location.search().page || 1, 10);
   const count = 25;
 
   this.defaultOptions = {};
-  self.dashboards = Dashboard.query({}); // shared promise
+  this.dashboards = Dashboard.query({}); // shared promise
 
   $scope.selectedTags = []; // in scope because it needs to be accessed inside a table refresh
   $scope.searchText = "";
 
   $scope.$watch(function(){
     return $scope.searchText;
-  }, function(){this.defaultOptions.reload()})
+  }, function(){
+    if(this){
+      this.defaultOptions.reload()
+    }
+  });
 
   this.tagIsSelected = (tag) => {
     return $scope.selectedTags.indexOf(tag) > -1;
@@ -33,7 +37,7 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
 
   this.allTags = [];
   self.dashboards.$promise.then((data) => {
-    const out = data.results.map((dashboard) => {
+    const out = data.map((dashboard) => {
       return dashboard.name.match(/(^\w+):|(#\w+)/ig);
     });
     this.allTags = _.unique(_.flatten(out)).filter((e) => e);
@@ -48,7 +52,7 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
 
       return self.dashboards.$promise.then((data) => {
         params.total(data.count);
-        return data.results.map((dashboard) => {
+        return data.map((dashboard) => {
           dashboard.tags = dashboard.name.match(/(^\w+):|(#\w+)/ig);
           dashboard.untagged_name = dashboard.name.replace(/(\w+):|(#\w+)/ig, '').trim();
           return dashboard;
