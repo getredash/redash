@@ -2,8 +2,7 @@
   <div class="tile m-t-10 m-b-5">
     <div class="t-body p-5">
       <a href="queries/new" ng-show="$ctrl.canCreateQuery" class="btn btn-default">New Query</a>
-      <button ng-show="$ctrl.canCreateDashboard" type="button" class="btn btn-default"
-              data-toggle="modal" href="#new_dashboard_dialog">New Dashboard
+      <button ng-show="$ctrl.canCreateDashboard" class="btn btn-default" ng-click="$ctrl.newDashboard()">New Dashboard
       </button>
       <a href="alerts/new" class="btn btn-default">New Alert</a>
     </div>

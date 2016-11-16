@@ -1,6 +1,6 @@
 import template from './home.html';
 
-function HomeCtrl($scope, currentUser, Events, Dashboard, Query) {
+function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
   Events.record(currentUser, 'view', 'page', 'personal_homepage');
   // $scope.$parent.pageTitle = 'Home';
 
@@ -10,6 +10,17 @@ function HomeCtrl($scope, currentUser, Events, Dashboard, Query) {
 
   this.recentQueries = Query.recent();
   this.recentDashboards = Dashboard.recent();
+
+  this.newDashboard = () => {
+    $uibModal.open({
+      component: 'editDashboardDialog',
+      resolve: {
+        dashboard: () => ({ name: null, layout: null }),
+      },
+    }).result.then((dashboard) => {
+
+    });
+  };
 }
 
 export default function (ngModule) {
