@@ -679,3 +679,14 @@ div.table-name:hover {
     stroke-opacity: .2;
 }
 
+/*Dashboard list view */
+.no-margin{
+  margin:0px;
+}
+.two-px-margin{
+  margin:2px;
+}
+
+.taglist{
+  margin-top:20px;
+}
