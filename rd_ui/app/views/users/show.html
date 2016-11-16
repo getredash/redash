@@ -30,11 +30,11 @@
         </button>
       </div>
 
-      <div ng-if="passwordResetLink && !disablePasswordResetButton" class="alert alert-success">
-        <p>
+      <div ng-if="passwordResetLink" class="alert alert-success">
+        <p ng-if="!clientConfig.mailSettingMissing">
           <strong>The user should receive a link to reset his password by email soon.</strong>
         </p>
-        <p ng-if="!clientConfig.mailSettingsMissing">
+        <p ng-if="clientConfig.mailSettingsMissing">
           You don't have mail server configured, please send the following link
           to {{user.name}} to reset their password:<br/>
           <a ng-href="passwordResetLink">{{passwordResetLink}}</a>
