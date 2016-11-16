@@ -24,8 +24,8 @@ function Dashboard($resource, $http, currentUser, Widget) {
       isArray: true,
       url: 'api/dashboards/recent',
       transformResponse: transform,
-    } });
-
+    }
+  });
   resource.prototype.canEdit = () => currentUser.canEdit(this) || this.can_edit;
 
   return resource;
