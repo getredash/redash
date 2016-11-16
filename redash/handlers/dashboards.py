@@ -7,7 +7,7 @@ from itertools import chain
 from redash import models
 from redash.models import ConflictDetectedError
 from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission, can_modify
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, paginate
 
 
 class RecentDashboardsResource(BaseResource):
@@ -25,8 +25,11 @@ class RecentDashboardsResource(BaseResource):
 class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)]
-        return dashboards
+        results = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        dashboards = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)
+        return paginate(results, page, page_size, lambda q: q.to_dict())
 
     @require_permission('create_dashboard')
     def post(self):
