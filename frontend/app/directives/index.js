@@ -21,6 +21,17 @@ function compareTo() {
   };
 }
 
+function autofocus($timeout) {
+  return {
+    link(scope, element) {
+      $timeout(() => {
+        element[0].focus();
+      });
+    },
+  };
+}
+
 export default function (ngModule) {
   ngModule.directive('compareTo', compareTo);
+  ngModule.directive('autofocus', autofocus);
 }
