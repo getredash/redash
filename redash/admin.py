@@ -54,6 +54,7 @@ class QueryResultModelView(BaseModelView):
 
 class QueryModelView(BaseModelView):
     column_exclude_list = ('latest_query_data',)
+    form_excluded_columns = ('tsv',)
 
 
 class DashboardModelView(BaseModelView):

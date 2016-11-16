@@ -9,7 +9,7 @@ from funcy import project
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy.dialects import postgresql
-from sqlalchemy.event import listens_for
+from sqlalchemy.event import listen, listens_for
 from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.ext.mutable import Mutable
@@ -675,8 +675,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     schedule = Column(db.String(10), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
+    tsv = Column(postgresql.TSVECTOR, nullable=True, index=True)
 
     __tablename__ = 'queries'
+    __table_args__ = (db.Index('query_tsv', 'tsv', postgres_using='gin'),)
     __mapper_args__ = {
         "version_id_col": version
         }
@@ -789,8 +791,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def search(cls, term, group_ids):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
-        where = (Query.name.ilike(u"%{}%".format(term)) |
-                 Query.description.ilike(u"%{}%".format(term)))
+
+        where = Query.tsv.match(term)
 
         if term.isdigit():
             where |= Query.id == term
@@ -889,6 +891,23 @@ def gen_query_hash(target, val, oldval, initiator):
 @listens_for(Query.user_id, 'set')
 def query_last_modified_by(target, val, oldval, initiator):
     target.last_modified_by_id = val
+
+
+query_tsvector_update = db.DDL("""
+    CREATE OR REPLACE FUNCTION query_search_trigger() RETURNS trigger AS $f$
+begin
+  new.tsv :=
+      setweight(to_tsvector(coalesce(new.name, '')), 'A') ||
+      setweight(to_tsvector(coalesce(new.description, '')), 'B') ||
+      setweight(to_tsvector(coalesce(new.query, '')), 'C');
+  return new;
+end
+$f$ LANGUAGE plpgsql;
+
+CREATE TRIGGER query_tsvectorupdate BEFORE INSERT OR UPDATE ON queries
+    FOR EACH ROW EXECUTE PROCEDURE query_search_trigger();
+""")
+listen(Query.__table__, 'after_create', query_tsvector_update)
 
 
 class AccessPermission(GFKBase, db.Model):
