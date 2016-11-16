@@ -36,6 +36,7 @@
                 ng-show="$ctrl.currentUser.hasPermission('create_dashboard') && ($ctrl.groupedDashboards.length > 0 || $ctrl.otherDashboards.length > 0)"></li>
             <li><a data-toggle="modal" href="#new_dashboard_dialog"
                    ng-show="$ctrl.currentUser.hasPermission('create_dashboard')">New Dashboard</a></li>
+            <li><a href="dashboards">Dashboards</a></li>
           </ul>
         </li>
         <li class="dropdown" ng-show="$ctrl.showQueriesMenu" uib-dropdown>
