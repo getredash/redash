@@ -35,7 +35,7 @@ if settings.VERSION_CHECK:
 if settings.QUERY_RESULTS_CLEANUP_ENABLED:
     celery_schedule['cleanup_query_results'] = {
         'task': 'redash.tasks.cleanup_query_results',
-        'schedule': timedelta(minutes=5)
+        'schedule': timedelta(days=7)
     }
 
 celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
