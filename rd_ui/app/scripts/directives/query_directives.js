@@ -269,7 +269,7 @@
       template: '<button type="button" class="btn btn-default btn-s"\
                    ng-click="fullScreenEditor()">\
                     <span class="zmdi zmdi-fullscreen"></span>\
-                     Full Screen\
+                     Toggle Width\
                 </button>',
       link: function($scope) {
         $scope.fullScreenEditor = function fullScreenEditor() {
