@@ -97,9 +97,8 @@
           bottom: 0;\
           left: 0;\
           right: 0;\
-          z-index: 10;}\
-        .fullScreen {\
-          overflow: hidden;}\
+          z-index: -10;}\
+          .remove-t-padding { padding-top: 0 !important}\
       </style><div ui-ace="editorOptions" ng-model="query.query"></div>',
       link: {
         pre: function ($scope, element) {
@@ -150,23 +149,19 @@
                   }
                 }
 
-                $scope.fullScreenEditor = function fullScreenEditor(editor, resize_height){
+                $scope.fullScreenEditor = function fullScreenEditor(editor){
 
-                    var fullScreen = dom.toggleCssClass(document.body, "fullScreen")
-                    angular.element('.ace_editor.fullScreen').css('height', '');
-                    dom.setCssClass(editor.container, "fullScreen", fullScreen)
-                    editor.setAutoScrollEditorIntoView(!fullScreen)
                     document.querySelector('.navbar').classList.toggle("hide")
-
-                    if (angular.element('.ace_editor.fullScreen')){
-                        angular.element('.ace_editor.fullScreen').css('height', $scope.resize_height);
-                    }
+                    document.querySelector('.container .row.bg-white.m-t-10').classList.toggle("hide")
+                    document.querySelector('.schema-container').classList.toggle("hide")
+                    angular.element('.pace-done').toggleClass('remove-t-padding')
+                    angular.element('.container .editor-box').removeClass('col-md-9')
+                    angular.element('.container .editor-box').toggleClass('col-md-12')
 
                     editor.resize();
                     editor.focus();
                 }
 
-                var resize_height;
                 editorScope = $scope;
                 editorInstance = editor;
                 var dom = ace.require("ace/lib/dom");
@@ -175,25 +170,20 @@
                     name: "Toggle Fullscreen",
                     bindKey: {win: "Esc", mac: "Esc"},
                     exec: function(editor) {
-                        $scope.fullScreenEditor(editor, resize_height)
+                        $scope.fullScreenEditor(editor)
                     }
                 })
 
               });
 
               $scope.$parent.$on("angular-resizable.resizing", function (event, args) {
-
                 editor.resize();
-
-                $scope.resize_height = (448 + args.height - 300).toString();
-                angular.element('.ace_editor.fullScreen').css('height', $scope.resize_height);
-
               });
               $scope.query.editor = editor;
 
               editor.focus();
             }
-          };
+          };\
 
           var langTools = ace.require("ace/ext/language_tools");
 
