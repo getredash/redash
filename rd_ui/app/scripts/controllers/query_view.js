@@ -88,7 +88,7 @@
     }
 
     Events.record(currentUser, 'view', 'query', $scope.query.id);
-    if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
+    if ($scope.query.hasResult()) {
       getQueryResult();
     }
     $scope.queryExecuting = false;
