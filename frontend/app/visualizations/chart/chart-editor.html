@@ -1,9 +1,17 @@
 <div>
   <ul class="tab-nav">
-    <li ng-class="{active: currentTab == 'general'}"><a ng-click="currentTab='general'">General</a></li>
-    <li ng-class="{active: currentTab == 'xAxis'}"><a ng-click="currentTab='xAxis'">X Axis</a></li>
-    <li ng-class="{active: currentTab == 'yAxis'}"><a ng-click="currentTab='yAxis'">Y Axis</a></li>
-    <li ng-class="{active: currentTab == 'series'}"><a ng-click="currentTab='series'">Series</a></li>
+    <li ng-class="{active: currentTab == 'general'}">
+      <a ng-click="currentTab='general'">General</a>
+    </li>
+    <li ng-class="{active: currentTab == 'xAxis'}" ng-if="options.globalSeriesType != 'custom'">
+      <a ng-click="currentTab='xAxis'">X Axis</a>
+    </li>
+    <li ng-class="{active: currentTab == 'yAxis'}" ng-if="options.globalSeriesType != 'custom'">
+      <a ng-click="currentTab='yAxis'">Y Axis</a>
+    </li>
+    <li ng-class="{active: currentTab == 'series'}" ng-if="options.globalSeriesType != 'custom'">
+      <a ng-click="currentTab='series'">Series</a>
+    </li>
   </ul>
   <div ng-show="currentTab == 'general'">
     <div class="form-group">
