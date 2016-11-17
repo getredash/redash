@@ -1,0 +1,33 @@
+<div class="container">
+    <div class="bg-white p-5 m-t-10 m-b-10">
+      <form class="form-inline" role="form" ng-submit="$ctrl.search()">
+          <div class="form-group">
+              <input class="form-control" placeholder="Search..." ng-model="$ctrl.term" autofocus>
+          </div>
+          <button type="submit" class="btn btn-primary">
+              <span class="zmdi zmdi-search"></span>
+          </button>
+      </form>
+    </div>
+    <div class="bg-white">
+      <table class="table table-condensed table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Created By</th>
+            <th>Created At</th>
+            <th>Update Schedule</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
+            <td><a href="queries/{{query.id}}">{{query.name}}</a></td>
+            <td>{{query.user.name}}</td>
+            <td>{{query.created_at | dateTime}}</td>
+            <td>{{query.schedule | scheduleHumanize}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <paginator paginator="$ctrl.paginator"></paginator>
+    </div>
+</div>
