@@ -282,6 +282,7 @@ function PlotlyChart() {
           const plotlySeries = {
             x: [],
             y: [],
+            error_y: { array: [] },
             name: seriesOptions.name || series.name,
             marker: { color: seriesOptions.color ? seriesOptions.color : getColor(index) },
           };
@@ -299,17 +300,23 @@ function PlotlyChart() {
 
           if (useUnifiedXaxis && index === 0) {
             const yValues = {};
+            const eValues = {};
 
-            data.forEach((row) => { yValues[row.x] = row.y; });
+            data.forEach((row) => {
+              yValues[row.x] = row.y;
+              eValues[row.x] = row.error_y;
+            });
 
             unifiedX.forEach((x) => {
               plotlySeries.x.push(normalizeValue(x));
               plotlySeries.y.push(normalizeValue(yValues[x] || null));
+              plotlySeries.error_y.array.push(normalizeValue(eValues[row.x] || null));
             });
           } else {
             data.forEach((row) => {
               plotlySeries.x.push(normalizeValue(row.x));
               plotlySeries.y.push(normalizeValue(row.y));
+              plotlySeries.error_y.array.push(normalizeValue(row.error_y));
             });
           }
 

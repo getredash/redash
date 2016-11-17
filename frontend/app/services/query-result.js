@@ -218,12 +218,14 @@ function QueryResultService($resource, $timeout, $q) {
 
     getChartData(mapping) {
       const series = {};
+      const errors = [];
 
       this.getData().forEach((row) => {
         const point = {};
         let seriesName;
         let xValue = 0;
         const yValues = {};
+        let eValue = 0;
 
         each(row, (v, definition) => {
           const name = definition.split('::')[0] || definition.split('__')[0];
@@ -248,6 +250,10 @@ function QueryResultService($resource, $timeout, $q) {
             yValues[name] = value;
             point[type] = value;
           }
+          if (type == 'error_y'){
+            eValue = value;
+            point[type] = value;
+          }
 
           if (type === 'series') {
             seriesName = String(value);
@@ -260,13 +266,13 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
-            addPointToSeries({ x: xValue, y: yValue }, series, ySeriesName);
+            errors.push(eValue);
+            addPointToSeries({ x: xValue, y: yValue, error_y: eValue }, series, ySeriesName);
           });
         } else {
           addPointToSeries(point, series, seriesName);
         }
       });
-
       return values(series);
     }
 

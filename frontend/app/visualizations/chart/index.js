@@ -167,6 +167,17 @@ function ChartEditor(ColorPalette) {
         if (value !== undefined) { setColumnRole('x', value); }
       });
 
+      scope.$watch('form.errorColumn', (value, old) => {
+        if (old !== undefined) {
+          unsetColumn(old);
+        }
+        if (value !== undefined) { 
+          console.log(value);
+          setColumnRole('error_y', value); 
+        }
+      });
+
+
       scope.$watch('form.groupby', (value, old) => {
         if (old !== undefined) {
           unsetColumn(old);
@@ -215,7 +226,8 @@ export default function (ngModule) {
       legend: { enabled: true },
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
       xAxis: { type: 'datetime', labels: { enabled: true } },
-      series: { stacking: null },
+      error_y: { type: 'data', visible: true },
+      series: { stacking: null, error_y: { type: 'data', visible: true } },
       seriesOptions: {},
       columnMapping: {},
       bottomMargin: 50,
