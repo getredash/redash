@@ -88,7 +88,7 @@
         'syntax': '='
       },
       template: '<style>.ace_editor.fullScreen {\
-          height: auto;\
+          height: 448px;\
           width: auto;\
           border: 0;\
           margin: 0;\
@@ -150,15 +150,23 @@
                   }
                 }
 
-                $scope.fullScreenEditor = function fullScreenEditor(editor){
+                $scope.fullScreenEditor = function fullScreenEditor(editor, resize_height){
+
                     var fullScreen = dom.toggleCssClass(document.body, "fullScreen")
+                    angular.element('.ace_editor.fullScreen').css('height', '');
                     dom.setCssClass(editor.container, "fullScreen", fullScreen)
                     editor.setAutoScrollEditorIntoView(!fullScreen)
                     document.querySelector('.navbar').classList.toggle("hide")
+
+                    if (angular.element('.ace_editor.fullScreen')){
+                        angular.element('.ace_editor.fullScreen').css('height', $scope.resize_height);
+                    }
+
                     editor.resize();
                     editor.focus();
                 }
 
+                var resize_height;
                 editorScope = $scope;
                 editorInstance = editor;
                 var dom = ace.require("ace/lib/dom");
@@ -167,14 +175,19 @@
                     name: "Toggle Fullscreen",
                     bindKey: {win: "Esc", mac: "Esc"},
                     exec: function(editor) {
-                        $scope.fullScreenEditor(editor)
+                        $scope.fullScreenEditor(editor, resize_height)
                     }
                 })
 
               });
 
               $scope.$parent.$on("angular-resizable.resizing", function (event, args) {
+
                 editor.resize();
+
+                $scope.resize_height = (448 + args.height - 300).toString();
+                angular.element('.ace_editor.fullScreen').css('height', $scope.resize_height);
+
               });
               $scope.query.editor = editor;
 
