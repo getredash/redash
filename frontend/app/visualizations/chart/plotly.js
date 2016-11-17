@@ -4,7 +4,6 @@ import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
-import scatter from 'plotly.js/lib/scatter';
 
 import moment from 'moment';
 
