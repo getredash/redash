@@ -110,11 +110,6 @@ class Presto(BaseQueryRunner):
 
         cursor = connection.cursor()
 
-        if redash_user[0:5] not in ('Admin','Simon', 'app'):
-            query = query.rstrip()
-            if query.lower().find('select ') != -1:
-                query = query + ' limit 2000'
-
         try:
             cursor.execute(query)
             column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
