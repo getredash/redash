@@ -3,9 +3,12 @@ import d3 from 'd3';
 import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
+import histogram from 'plotly.js/lib/histogram';
+import scatter from 'plotly.js/lib/scatter';
+
 import moment from 'moment';
 
-Plotly.register([bar, pie]);
+Plotly.register([bar, pie, histogram]);
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
@@ -179,7 +182,7 @@ function getColor(index) {
   return ColorPaletteArray[index % ColorPaletteArray.length];
 }
 
-function PlotlyChart() {
+const PlotlyChart = () => {
   let bottomMargin = 50;
   return {
     restrict: 'E',
@@ -424,7 +427,51 @@ function PlotlyChart() {
   };
 }
 
+const CustomPlotlyChart = () => {
+  let bottomMargin = 50;
+  return {
+    restrict: 'E',
+    template: '<div></div>',
+    scope: {
+      series: '=',
+      options: '=',
+      height: '=',
+    },
+    link(scope, element) {
+      const refresh = () => {
+        const codeCall = eval("codeCall = function(x, ys, element, Plotly){" + scope.options.customCode + "}");
+        codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
+      };
+      const timeSeriesToPlotlySeries = () => {
+        scope.x = [];
+        scope.ys = {};
+        each(scope.series, (series, index) => {
+          scope.ys[series.name] = [];
+          each(series.data, (point, index) => {
+            scope.x.push(normalizeValue(point.x));
+            scope.ys[series.name].push(normalizeValue(point.y));
+          });
+        });
+      }
+      scope.$watch('options.customCode', () => {
+        try{
+          refresh();
+        }catch(err){
+          if(options.enableConsoleLogs){
+            console.log("Error while executing custom graph: ", err);
+          }
+        }
+      }, true);
+      scope.$watch('series', () => {
+        timeSeriesToPlotlySeries();
+        refresh();
+      }, true);
+    }
+  }
+}
+
 export default function (ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
+  ngModule.directive('customPlotlyChart', CustomPlotlyChart);
 }
