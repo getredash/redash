@@ -456,7 +456,7 @@ const CustomPlotlyChart = () => {
         try{
           refresh();
         }catch(err){
-          if(options.enableConsoleLogs){
+          if(scope.options.enableConsoleLogs){
             console.log("Error while executing custom graph: ", err);
           }
         }
