@@ -6,6 +6,7 @@ import registerSchemaBrowser from './schema-browser';
 import registerEmbedCodeDialog from './embed-code-dialog';
 import registerScheduleDialog from './schedule-dialog';
 import registerAlertUnsavedChanges from './alert-unsaved-changes';
+import registerQuerySearchResultsPage from './queries-search-results-page';
 
 export default function (ngModule) {
   registerQueryResultsLink(ngModule);
@@ -14,5 +15,8 @@ export default function (ngModule) {
   registerEmbedCodeDialog(ngModule);
   registerScheduleDialog(ngModule);
   registerAlertUnsavedChanges(ngModule);
-  return Object.assign({}, registerSourceView(ngModule), registerView(ngModule));
+
+  return Object.assign({}, registerQuerySearchResultsPage(ngModule),
+                           registerSourceView(ngModule),
+                           registerView(ngModule));
 }
