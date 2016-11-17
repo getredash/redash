@@ -183,7 +183,7 @@
 
               editor.focus();
             }
-          };\
+          };
 
           var langTools = ace.require("ace/ext/language_tools");
 
