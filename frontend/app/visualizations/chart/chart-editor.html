@@ -48,7 +48,7 @@
 
     </div>
 
-    <div class="form-group">
+    <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Group by</label>
       <ui-select name="groupby" ng-model="form.groupby" class="clearable">
         <ui-select-match allow-clear="true" placeholder="Choose column...">{{$select.selected}}</ui-select-match>
@@ -59,14 +59,14 @@
       </ui-select>
     </div>
 
-    <div class="checkbox">
+    <div class="checkbox" ng-if="options.globalSeriesType != 'custom'">
       <label>
         <input type="checkbox" ng-model="options.legend.enabled">
         <i class="input-helper"></i> Show Legend
       </label>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Stacking</label>
 
       <div ng-if="stackingOptions"><!--the if is a weird workaround-->
@@ -80,6 +80,19 @@
       </div>
     </div>
   </div>
+
+  <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
+    <label class="control-label">Custom code</label>
+    <textarea ng-model="options.customCode" class="form-control" rows="10">
+    </textarea>
+  </div>
+
+  <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
+      <label>
+        <input type="checkbox" ng-model="options.enableConsoleLogs">
+        <i class="input-helper"></i> Enable Console Logs
+      </label>
+    </div>
 
 
   <div ng-show="currentTab == 'xAxis'">
