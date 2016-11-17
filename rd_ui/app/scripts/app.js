@@ -33,11 +33,6 @@ angular.module('redash', [
       reloadOnSearch: false
     });
 
-    $routeProvider.when('/queries/search', {
-      templateUrl: '/views/queries_search_results.html',
-      controller: 'QuerySearchCtrl',
-      reloadOnSearch: true,
-    });
     $routeProvider.otherwise({
       redirectTo: '/'
     });
