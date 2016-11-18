@@ -10490,3 +10490,9 @@ a.thumbnail.active {
 .header-content.sort-descent:before {
   content: '\25BC';
 }
+.ellipsis {
+overflow: hidden;
+white-space: nowrap;
+text-overflow: ellipsis;
+display: inline-block;
+}

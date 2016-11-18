@@ -294,7 +294,7 @@
         }
 
         $scope.getKeys = function(colDict) {
-          return Object.keys(colDict)
+          return Object.keys(colDict).sort()
         }
 
         $scope.getSize = function(table) {
@@ -305,14 +305,28 @@
           return size;
         }
 
-        $scope.search = function(item) {
-          console.log(item)
+        $scope.searchSchema = function(table) {
+
+          if (!$scope.schemaFilter) {return true}
+
+          if ( table.name.toLowerCase().indexOf($scope.schemaFilter) != -1 ) {
+            return true
+          };
+
+          var columns = Object.keys(table.columns)
+          for (var i = 0; i < columns.length; i++) {
+            var index = i;
+            if ( columns[index].toLowerCase().indexOf($scope.schemaFilter) != -1 ) {
+              return true
+            }
+          };
+
+          return false
         }
-
-
       }
     }
   }
+
 
   function queryTimePicker() {
     return {
