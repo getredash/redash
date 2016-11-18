@@ -218,7 +218,6 @@ function QueryResultService($resource, $timeout, $q) {
 
     getChartData(mapping) {
       const series = {};
-      const errors = [];
 
       this.getData().forEach((row) => {
         const point = {};
@@ -250,7 +249,7 @@ function QueryResultService($resource, $timeout, $q) {
             yValues[name] = value;
             point[type] = value;
           }
-          if (type == 'error_y'){
+          if (type === 'error_y') {
             eValue = value;
             point[type] = value;
           }
@@ -266,8 +265,7 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
-            errors.push(eValue);
-            addPointToSeries({ x: xValue, y: yValue, error_y: eValue }, series, ySeriesName);
+            addPointToSeries({ x: xValue, y: yValue, yError: eValue }, series, ySeriesName);
           });
         } else {
           addPointToSeries(point, series, seriesName);

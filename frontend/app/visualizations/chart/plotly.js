@@ -304,19 +304,19 @@ function PlotlyChart() {
 
             data.forEach((row) => {
               yValues[row.x] = row.y;
-              eValues[row.x] = row.error_y;
+              eValues[row.x] = row.yError;
             });
 
             unifiedX.forEach((x) => {
               plotlySeries.x.push(normalizeValue(x));
               plotlySeries.y.push(normalizeValue(yValues[x] || null));
-              plotlySeries.error_y.array.push(normalizeValue(eValues[row.x] || null));
+              plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
             });
           } else {
             data.forEach((row) => {
               plotlySeries.x.push(normalizeValue(row.x));
               plotlySeries.y.push(normalizeValue(row.y));
-              plotlySeries.error_y.array.push(normalizeValue(row.error_y));
+              plotlySeries.error_y.array.push(normalizeValue(row.yError));
             });
           }
 
