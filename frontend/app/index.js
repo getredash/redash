@@ -78,8 +78,9 @@ const user = {
 user.hasPermission = () => true;
 user.canEdit = () => true;
 ngModule.constant('currentUser', user);
-ngModule.constant('clientConfig', {
+ngModule.constant('clientConfig', { // TODO: make me a service.
   showPermissionsControl: true,
+  allowCustomJSVisualizations: true,
   // mailSettingsMissing: true,
 });
 
