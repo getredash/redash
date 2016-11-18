@@ -11,24 +11,24 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
   this.defaultOptions = {};
   this.dashboards = Dashboard.query({}); // shared promise
 
-  self.selectedTags = []; // in scope because it needs to be accessed inside a table refresh
-  self.searchText = "";
+  this.selectedTags = []; // in scope because it needs to be accessed inside a table refresh
+  this.searchText = "";
 
   this.tagIsSelected = (tag) => {
-    return self.selectedTags.indexOf(tag) > -1;
+    return this.selectedTags.indexOf(tag) > -1;
   }
 
   this.toggleTag = (tag) => {
     if(this.tagIsSelected(tag)){
-      self.selectedTags = self.selectedTags.filter((e) => e!=tag);
+      this.selectedTags = this.selectedTags.filter((e) => e!=tag);
     }else{
-      self.selectedTags.push(tag);
+      this.selectedTags.push(tag);
     }
     this.tableParams.reload();
   }
 
   this.allTags = [];
-  self.dashboards.$promise.then((data) => {
+  this.dashboards.$promise.then((data) => {
     const out = data.map((dashboard) => {
       return dashboard.name.match(/(^\w+):|(#\w+)/ig);
     });
@@ -41,7 +41,7 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
       $location.search('page', options.page);
 
       const request = {};
-
+      
       return self.dashboards.$promise.then((data) => {
         params.total(data.count);
         return data.map((dashboard) => {
@@ -72,7 +72,7 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
     { name: 'All Dashboards', path: 'dashboards' },
   ];
 
-  self.currentUser = currentUser;
+  this.currentUser = currentUser;
 }
 
 export default function (ngModule) {
