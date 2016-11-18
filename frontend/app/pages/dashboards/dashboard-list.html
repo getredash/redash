@@ -3,8 +3,8 @@
   <div class="col-lg-3">
     <input type='text' class='form-control' placeholder="Search Dashboards..." 
       ng-change="$ctrl.tableParams.reload()" ng-model="searchText"/>
-    <div class='list-group taglist'>
-      <h3 class='list-group-item no-margin'>Tags</h3>
+    <div class='list-group m-t-20'>
+      <h3 class='list-group-item m-0'>Tags</h3>
       <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}' 
       class='list-group-item' ng-click='$ctrl.toggleTag(tag)'>
         {{ tag }}
@@ -21,7 +21,7 @@
               {{ dashboard.untagged_name }}
             </a>
           </td>
-          <td data-title="'Tags'"><span class="label label-primary two-px-margin" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span></td>
+          <td data-title="'Tags'"><span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span></td>
           <td data-title="'Created At'">{{ dashboard.created_at | dateTime }}</td>
         </tr>
       </table>

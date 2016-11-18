@@ -680,13 +680,6 @@ div.table-name:hover {
 }
 
 /*Dashboard list view */
-.no-margin{
-  margin:0px;
-}
-.two-px-margin{
+.m-2{
   margin:2px;
-}
-
-.taglist{
-  margin-top:20px;
 }
