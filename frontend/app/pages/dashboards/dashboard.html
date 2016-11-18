@@ -2,7 +2,7 @@
   <page-header title="{{$ctrl.dashboard.name}}">
     <div class='row'>
       <div class='col-lg-6'>
-        <ui-select ng-model="$ctrl.refreshRate" on-select="$ctrl.loadDashboard(true) && $ctrl.autoRefresh()">
+        <ui-select ng-model="$ctrl.refreshRate" on-select="$ctrl.loadDashboard(true); $ctrl.autoRefresh()">
           <ui-select-match>
               <span><i class="zmdi zmdi-refresh"></i>&nbsp; {{$select.selected.name}}</span>
           </ui-select-match>
