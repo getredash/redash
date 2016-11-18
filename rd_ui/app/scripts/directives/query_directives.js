@@ -98,7 +98,7 @@
           left: 0;\
           right: 0;\
           z-index: -10;}\
-          .remove-t-padding { padding-top: 0 !important}\
+          .change-t-padding { padding-top: 10px ! important}\
       </style><div ui-ace="editorOptions" ng-model="query.query"></div>',
       link: {
         pre: function ($scope, element) {
@@ -154,7 +154,7 @@
                     document.querySelector('.navbar').classList.toggle("hide")
                     document.querySelector('.container .row.bg-white.m-t-10').classList.toggle("hide")
                     document.querySelector('.schema-container').classList.toggle("hide")
-                    angular.element('.pace-done').toggleClass('remove-t-padding')
+                    angular.element('.pace-done').toggleClass('change-t-padding')
                     angular.element('.container .editor-box').removeClass('col-md-9')
                     angular.element('.container .editor-box').toggleClass('col-md-12')
 
@@ -287,6 +287,7 @@
       },
       templateUrl: '/views/directives/schema_browser.html',
       link: function ($scope) {
+
         $scope.showTable = function(table) {
           table.collapsed = !table.collapsed;
           $scope.$broadcast('vsRepeatTrigger');
@@ -297,15 +298,18 @@
         }
 
         $scope.getSize = function(table) {
-
           var size = 18;
-
           if (!table.collapsed) {
             size += 18 * table.columns.length;
           }
-
           return size;
         }
+
+        $scope.search = function(item) {
+          console.log(item)
+        }
+
+
       }
     }
   }
