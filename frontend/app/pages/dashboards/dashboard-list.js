@@ -11,26 +11,18 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
   this.defaultOptions = {};
   this.dashboards = Dashboard.query({}); // shared promise
 
-  $scope.selectedTags = []; // in scope because it needs to be accessed inside a table refresh
-  $scope.searchText = "";
-
-  $scope.$watch(function(){
-    return $scope.searchText;
-  }, function(){
-    if(this){
-      this.defaultOptions.reload()
-    }
-  });
+  self.selectedTags = []; // in scope because it needs to be accessed inside a table refresh
+  self.searchText = "";
 
   this.tagIsSelected = (tag) => {
-    return $scope.selectedTags.indexOf(tag) > -1;
+    return self.selectedTags.indexOf(tag) > -1;
   }
 
   this.toggleTag = (tag) => {
     if(this.tagIsSelected(tag)){
-      $scope.selectedTags = $scope.selectedTags.filter((e) => e!=tag);
+      self.selectedTags = self.selectedTags.filter((e) => e!=tag);
     }else{
-      $scope.selectedTags.push(tag);
+      self.selectedTags.push(tag);
     }
     this.tableParams.reload();
   }
@@ -57,16 +49,16 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
           dashboard.untagged_name = dashboard.name.replace(/(\w+):|(#\w+)/ig, '').trim();
           return dashboard;
         }).filter((value) => {
-          if($scope.selectedTags.length){
+          if(self.selectedTags.length){
             const value_tags = new Set(value.tags);
-            const tag_match = $scope.selectedTags;
+            const tag_match = self.selectedTags;
             const filtered_match = tag_match.filter(x => value_tags.has(x));
             if(tag_match.length != filtered_match.length){
               return false;
             }
           }
-          if($scope.searchText && $scope.searchText.length){
-            if(!value.untagged_name.toLowerCase().includes($scope.searchText)){
+          if(self.searchText && self.searchText.length){
+            if(!value.untagged_name.toLowerCase().includes(self.searchText)){
               return false;
             }
           }
