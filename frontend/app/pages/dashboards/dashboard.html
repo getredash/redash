@@ -2,16 +2,22 @@
   <page-header title="{{$ctrl.dashboard.name}}">
     <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
         <div class="btn-group" uib-dropdown>
-          <button id="split-button" type="button" class="btn btn-default" ng-click="$ctrl.loadDashboard(true)">
+          <button id="split-button" type="button" 
+          ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}" 
+          class="btn" ng-click="$ctrl.loadDashboard(true)">
             {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
           </button>
-          <button type="button" class="btn btn-default" uib-dropdown-toggle>
+          <button type="button" class="btn" uib-dropdown-toggle
+          ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}">
             <span class="caret"></span>
             <span class="sr-only">Split button!</span>
           </button>
           <ul class="dropdown-menu" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
             <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates">
               <a href="#" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+            </li>
+            <li role="menuitem" ng-if="$ctrl.refreshRate !== null">
+              <a href="#" ng-click="$ctrl.setRefreshRate(null)">Stop auto refresh</a>
             </li>
           </ul>
         </div>
