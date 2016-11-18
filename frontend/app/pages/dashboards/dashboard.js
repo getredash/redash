@@ -2,37 +2,34 @@ import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
-function findMinRefreshRate(dashboard) {
-  const refreshRate = _.min(_.compact(_.map(_.flatten(dashboard.widgets), (widget) => {
-    if (widget.visualization) {
-      const schedule = widget.visualization.query.schedule;
-      if (schedule === null || schedule.match(/\d\d:\d\d/) !== null) {
-        return 60;
-      }
-      return widget.visualization.query.schedule;
-    }
-    return null;
-  })));
-
-  return _.min([300, refreshRate]) * 1000;
-}
-
 function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
-  AlertDialog, Dashboard, currentUser, clientConfig, Events, Widget) {
+  AlertDialog, Dashboard, currentUser, clientConfig, Events) {
   this.refreshEnabled = false;
   this.isFullscreen = false;
-  this.refreshRate = 60;
+  this.refreshRate = { name: 'no auto refresh', rate: 0 };
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
+  this.refreshRates = [
+    { name: 'no auto refresh', rate: 0 },
+    { name: '10 seconds', rate: 10 },
+    { name: '30 seconds', rate: 30 },
+    { name: '1 minute', rate: 60 },
+    { name: '5 minutes', rate: 60 * 5 },
+    { name: '10 minutes', rate: 60 * 10 },
+    { name: '30 minutes', rate: 60 * 30 },
+    { name: '1 hour', rate: 60 * 60 },
+  ];
 
-  const renderDashboard = (dashboard) => {
+
+  const renderDashboard = (dashboard, force) => {
     // $scope.$parent.pageTitle = dashboard.name;
     const promises = [];
 
     this.dashboard.widgets.forEach(row =>
        row.forEach((widget) => {
          if (widget.visualization) {
-           const queryResult = widget.getQuery().getQueryResult();
+           const maxAge = force ? 0 : undefined;
+           const queryResult = widget.getQuery().getQueryResult(maxAge);
            if (!_.isUndefined(queryResult)) {
              promises.push(queryResult.toPromise());
            }
@@ -77,45 +74,26 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
     });
   };
 
-  const loadDashboard = _.throttle(() => {
+  this.loadDashboard = _.throttle((force) => {
     this.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, (dashboard) => {
       Events.record(currentUser, 'view', 'dashboard', dashboard.id);
-      renderDashboard(dashboard);
+      renderDashboard(dashboard, force);
     }, () => {
         // error...
         // try again. we wrap loadDashboard with throttle so it doesn't happen too often.
         // we might want to consider exponential backoff and also move this as a general
         // solution in $http/$resource for all AJAX calls.
-      loadDashboard();
-    }
-    );
+      this.loadDashboard();
+    });
   }, 1000);
 
-  loadDashboard();
+  this.loadDashboard();
 
-  const autoRefresh = () => {
-    if (this.refreshEnabled) {
-      $timeout(() => {
-        Dashboard.get({ slug: $routeParams.dashboardSlug }, (dashboard) => {
-          const newWidgets = _.groupBy(_.flatten(dashboard.widgets), 'id');
-
-          _.each(this.dashboard.widgets, (row) => {
-            _.each(row, (widget, i) => {
-              const newWidget = newWidgets[widget.id][0];
-              if (newWidget.visualization) {
-                const previousResultId = widget.visualization.query.latest_query_data_id;
-                const newResultId = newWidget.visualization.query.latest_query_data_id;
-                if (newWidget && newResultId !== previousResultId) {
-                  row[i] = new Widget(newWidget);
-                }
-              }
-            });
-          });
-
-          autoRefresh();
-        });
-      }, this.refreshRate);
-    }
+  this.autoRefresh = () => {
+    $timeout(() => {
+      this.loadDashboard(true);
+    }, this.refreshRate.rate * 1000
+    ).then(() => this.autoRefresh());
   };
 
   this.archiveDashboard = () => {
@@ -175,17 +153,6 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
   if (_.has($location.search(), 'fullscreen')) {
     this.toggleFullscreen();
   }
-
-  this.triggerRefresh = () => {
-    this.refreshEnabled = !this.refreshEnabled;
-
-    Events.record(currentUser, 'autorefresh', 'dashboard', this.dashboard.id, { enable: this.refreshEnabled });
-
-    if (this.refreshEnabled) {
-      this.refreshRate = findMinRefreshRate(this.dashboard);
-      autoRefresh();
-    }
-  };
 
   this.openShareForm = () => {
     $uibModal.open({
