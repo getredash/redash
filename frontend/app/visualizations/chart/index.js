@@ -76,10 +76,10 @@ function ChartEditor(ColorPalette) {
         });
       };
 
-      scope.options.customCode = "// Available variables are x, ys, element, and Plotly.\n";
-      scope.options.customCode += "// Type `console.log(x, ys);` for more info about x and ys.\n";
-      scope.options.customCode += "// To plot your graph call Plotly.plot(element, ...);\n";
-      scope.options.customCode += "// Plotly examples and docs: https://plot.ly/javascript/\n";
+      scope.options.customCode = `// Available variables are x, ys, element, and Plotly
+// Type console.log(x, ys); for more info about x and ys
+// To plot your graph call Plotly.plot(element, ...)
+// Plotly examples and docs: https://plot.ly/javascript/`;
 
       function refreshColumns() {
         scope.columns = scope.queryResult.getColumns();
