@@ -7,7 +7,7 @@ from itertools import chain
 from redash import models
 from redash.models import ConflictDetectedError
 from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission, can_modify
-from redash.handlers.base import BaseResource, get_object_or_404, paginate
+from redash.handlers.base import BaseResource, get_object_or_404
 
 
 class RecentDashboardsResource(BaseResource):
