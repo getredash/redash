@@ -21,8 +21,10 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
 
   this.setRefreshRate = (rate) => {
     this.refreshRate = rate;
-    this.loadDashboard(true);
-    this.autoRefresh();
+    if (rate !== null) {
+      this.loadDashboard(true);
+      this.autoRefresh();
+    }
   };
 
   const renderDashboard = (dashboard, force) => {
