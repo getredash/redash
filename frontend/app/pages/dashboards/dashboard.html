@@ -1,40 +1,37 @@
 <div class="container">
   <page-header title="{{$ctrl.dashboard.name}}">
-    <div class='row'>
-      <div class='col-lg-6'>
-        <ui-select ng-model="$ctrl.refreshRate" on-select="$ctrl.loadDashboard(true); $ctrl.autoRefresh()">
-          <ui-select-match>
-              <span><i class="zmdi zmdi-refresh"></i>&nbsp; {{$select.selected.name}}</span>
-          </ui-select-match>
-          <ui-select-choices repeat="item in ($ctrl.refreshRates | filter: $select.search) track by item.name">
-              <span><i class="zmdi zmdi-refresh"></i>&nbsp; {{item.name}}</span>
-          </ui-select-choices>
-        </ui-select>
-      </div>
-      <div class='col-lg-6'>
-        <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
-            <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Refresh all once" ng-click="$ctrl.loadDashboard(true)">
-              <span class="zmdi zmdi-refresh"></span>
-            </button>
-            <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()">
-              <span class="zmdi zmdi-fullscreen"></span>
-            </button>
-            <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="$ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled">
-              <span class="zmdi zmdi-share"></span>
-            </button>
-        </span>
-        <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown>
-          <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
-            <span class="zmdi zmdi-more"></span>
+    <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
+        <div class="btn-group" uib-dropdown>
+          <button id="split-button" type="button" class="btn btn-default" ng-click="$ctrl.loadDashboard(true)">
+            {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
           </button>
-          <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-            <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.editDashboard()">Edit Dashboard</a></li>
-            <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.addWidget()">Add Widget</a></li>
-            <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
-            <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive Dashboard</a></li>
+          <button type="button" class="btn btn-default" uib-dropdown-toggle>
+            <span class="caret"></span>
+            <span class="sr-only">Split button!</span>
+          </button>
+          <ul class="dropdown-menu" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
+            <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates">
+              <a href="#" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+            </li>
           </ul>
         </div>
-      </div>
+        <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()">
+          <span class="zmdi zmdi-fullscreen"></span>
+        </button>
+        <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="$ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled">
+          <span class="zmdi zmdi-share"></span>
+        </button>
+    </span>
+    <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown>
+      <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
+        <span class="zmdi zmdi-more"></span>
+      </button>
+      <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+        <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.editDashboard()">Edit Dashboard</a></li>
+        <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.addWidget()">Add Widget</a></li>
+        <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
+        <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive Dashboard</a></li>
+      </ul>
     </div>
   </page-header>
 

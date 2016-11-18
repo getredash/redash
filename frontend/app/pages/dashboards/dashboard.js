@@ -6,11 +6,10 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
   AlertDialog, Dashboard, currentUser, clientConfig, Events) {
   this.refreshEnabled = false;
   this.isFullscreen = false;
-  this.refreshRate = { name: 'no auto refresh', rate: 0 };
+  this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
   this.refreshRates = [
-    { name: 'no auto refresh', rate: 0 },
     { name: '10 seconds', rate: 10 },
     { name: '30 seconds', rate: 30 },
     { name: '1 minute', rate: 60 },
@@ -20,6 +19,11 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
     { name: '1 hour', rate: 60 * 60 },
   ];
 
+  this.setRefreshRate = (rate) => {
+    this.refreshRate = rate;
+    this.loadDashboard(true);
+    this.autoRefresh();
+  };
 
   const renderDashboard = (dashboard, force) => {
     // $scope.$parent.pageTitle = dashboard.name;
