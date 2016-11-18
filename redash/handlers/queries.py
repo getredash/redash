@@ -123,5 +123,3 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query, query.id)
-
-

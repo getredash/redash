@@ -209,4 +209,3 @@ class JobResource(BaseResource):
     def delete(self, job_id):
         job = QueryTask(job_id=job_id)
         job.cancel()
-
