@@ -249,7 +249,7 @@ function QueryResultService($resource, $timeout, $q) {
             yValues[name] = value;
             point[type] = value;
           }
-          if (type === 'error_y') {
+          if (type === 'yError') {
             eValue = value;
             point[type] = value;
           }

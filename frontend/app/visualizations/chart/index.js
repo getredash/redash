@@ -173,9 +173,8 @@ function ChartEditor(ColorPalette) {
         if (old !== undefined) {
           unsetColumn(old);
         }
-        if (value !== undefined) { 
-          console.log(value);
-          setColumnRole('error_y', value); 
+        if (value !== undefined) {
+          setColumnRole('yError', value);
         }
       });
 
@@ -208,8 +207,11 @@ function ChartEditor(ColorPalette) {
             scope.form.yAxisColumns.push(key);
           } else if (value === 'series') {
             scope.form.groupby = key;
+          } else if (value === 'yError') {
+            scope.form.errorColumn = key;
           }
-        }); }
+        });
+      }
     },
   };
 }
