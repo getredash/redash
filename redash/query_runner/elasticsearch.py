@@ -17,27 +17,27 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 ELASTICSEARCH_TYPES_MAPPING = {
-    "integer" : TYPE_INTEGER,
-    "long" : TYPE_INTEGER,
-    "float" : TYPE_FLOAT,
-    "double" : TYPE_FLOAT,
-    "boolean" : TYPE_BOOLEAN,
-    "string" : TYPE_STRING,
-    "date" : TYPE_DATE,
-    "object" : TYPE_STRING,
+    "integer": TYPE_INTEGER,
+    "long": TYPE_INTEGER,
+    "float": TYPE_FLOAT,
+    "double": TYPE_FLOAT,
+    "boolean": TYPE_BOOLEAN,
+    "string": TYPE_STRING,
+    "date": TYPE_DATE,
+    "object": TYPE_STRING,
     # "geo_point" TODO: Need to split to 2 fields somehow
 }
 
 ELASTICSEARCH_BUILTIN_FIELDS_MAPPING = {
-    "_id" : "Id",
-    "_score" : "Score"
+    "_id": "Id",
+    "_score": "Score"
 }
 
 PYTHON_TYPES_MAPPING = {
     str: TYPE_STRING,
     unicode: TYPE_STRING,
-    bool : TYPE_BOOLEAN,
-    int : TYPE_INTEGER,
+    bool: TYPE_BOOLEAN,
+    int: TYPE_INTEGER,
     long: TYPE_INTEGER,
     float: TYPE_FLOAT
 }
@@ -145,9 +145,7 @@ class BaseElasticSearch(BaseQueryRunner):
             row[key] = value
 
         def collect_aggregations(mappings, rows, parent_key, data, row, result_columns, result_columns_index):
-
             if isinstance(data, dict):
-
                 for key, value in data.iteritems():
                     val = collect_aggregations(mappings, rows, parent_key if key == 'buckets' else key, value, row, result_columns, result_columns_index)
                     if val:
@@ -164,7 +162,6 @@ class BaseElasticSearch(BaseQueryRunner):
                         return data[data_key]
 
             elif isinstance(data, list):
-
                 for value in data:
                     result_row = get_row(rows, row)
                     collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
@@ -176,7 +173,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
             return None
 
-        result_columns_index = {c["name"] : c for c in result_columns}
+        result_columns_index = {c["name"]: c for c in result_columns}
 
         result_fields_index = {}
         if result_fields:
@@ -184,15 +181,12 @@ class BaseElasticSearch(BaseQueryRunner):
                 result_fields_index[r] = None
 
         if 'error' in raw_result:
-
             error = raw_result['error']
             if len(error) > 10240:
                 error = error[:10240] + '... continues'
 
             raise Exception(error)
-
         elif 'aggregations' in raw_result:
-
             if result_fields:
                 for field in result_fields:
                     add_column_if_needed(mappings, field, field, result_columns, result_columns_index)
@@ -202,9 +196,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
             logger.debug("result_rows %s", str(result_rows))
             logger.debug("result_columns %s", str(result_columns))
-
         elif 'hits' in raw_result and 'hits' in raw_result['hits']:
-
             if result_fields:
                 for field in result_fields:
                     add_column_if_needed(mappings, field, field, result_columns, result_columns_index)
@@ -224,7 +216,6 @@ class BaseElasticSearch(BaseQueryRunner):
 
                 result_rows.append(row)
         else:
-
             raise Exception("Redash failed to parse the results it got from ElasticSearch.")
 
     def test_connection(self):
@@ -310,8 +301,8 @@ class Kibana(BaseElasticSearch):
                 raise Exception("Advanced queries are not supported")
 
             json_data = json.dumps({
-                "columns" : result_columns,
-                "rows" : result_rows
+                "columns": result_columns,
+                "rows": result_rows
             })
         except KeyboardInterrupt:
             error = "Query cancelled by user."
@@ -365,8 +356,8 @@ class ElasticSearch(BaseElasticSearch):
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
             json_data = json.dumps({
-                "columns" : result_columns,
-                "rows" : result_rows
+                "columns": result_columns,
+                "rows": result_rows
             })
         except KeyboardInterrupt:
             error = "Query cancelled by user."
