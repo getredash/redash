@@ -101,25 +101,37 @@ class BaseElasticSearch(BaseQueryRunner):
 
     def _get_mappings(self, url):
         mappings = {}
+        error = None
 
-        r = requests.get(url, auth=self.auth)
-        mappings_data = r.json()
+        try:
+            r = requests.get(url, auth=self.auth)
+            r.raise_for_status()
 
-        for index_name in mappings_data:
-            index_mappings = mappings_data[index_name]
-            for m in index_mappings.get("mappings", {}):
-                for property_name in index_mappings["mappings"][m]["properties"]:
-                    property_data = index_mappings["mappings"][m]["properties"][property_name]
-                    if not property_name in mappings:
-                        property_type = property_data.get("type", None)
-                        if property_type:
-                            if property_type in ELASTICSEARCH_TYPES_MAPPING:
-                                mappings[property_name] = ELASTICSEARCH_TYPES_MAPPING[property_type]
-                            else:
-                                mappings[property_name] = TYPE_STRING
-                                #raise Exception("Unknown property type: {0}".format(property_type))
+            mappings_data = r.json()
 
-        return mappings
+            for index_name in mappings_data:
+                index_mappings = mappings_data[index_name]
+                for m in index_mappings.get("mappings", {}):
+                    for property_name in index_mappings["mappings"][m]["properties"]:
+                        property_data = index_mappings["mappings"][m]["properties"][property_name]
+                        if property_name not in mappings:
+                            property_type = property_data.get("type", None)
+                            if property_type:
+                                if property_type in ELASTICSEARCH_TYPES_MAPPING:
+                                    mappings[property_name] = ELASTICSEARCH_TYPES_MAPPING[property_type]
+                                else:
+                                    mappings[property_name] = TYPE_STRING
+                                    #raise Exception("Unknown property type: {0}".format(property_type))
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            mappings = None
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
+            mappings = None
+
+        return mappings, error
 
     def _parse_results(self, mappings, result_fields, raw_result, result_columns, result_rows):
         def add_column_if_needed(mappings, column_name, friendly_name, result_columns, result_columns_index):
@@ -219,10 +231,15 @@ class BaseElasticSearch(BaseQueryRunner):
             raise Exception("Redash failed to parse the results it got from ElasticSearch.")
 
     def test_connection(self):
-        r = requests.get("{0}/_cluster/health".format(self.server_url), auth=self.auth)
-        if r.status_code != 200:
-            raise Exception("Connection test failed.. Return Code: {0}"
-                            "   Reason: {1}".format(r.status_code, r.text))
+        try:
+            r = requests.get("{0}/_cluster/health".format(self.server_url), auth=self.auth)
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
 
 
 class Kibana(BaseElasticSearch):
@@ -240,8 +257,7 @@ class Kibana(BaseElasticSearch):
     def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
         url += "&from={0}".format(_from)
         r = requests.get(url, auth=self.auth)
-        if r.status_code != 200:
-            raise Exception("Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text))
+        r.raise_for_status()
 
         raw_result = r.json()
 
@@ -274,9 +290,10 @@ class Kibana(BaseElasticSearch):
             url = "{0}/{1}/_search?".format(self.server_url, index_name)
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
-            mappings = self._get_mappings(mapping_url)
-
-            logger.debug(json.dumps(mappings, indent=4))
+            mappings, error = self._get_mappings(mapping_url)
+            if error:
+                return None, error
+            #logger.debug(json.dumps(mappings, indent=4))
 
             if sort:
                 url += "&sort={0}".format(urllib.quote_plus(sort))
@@ -307,7 +324,16 @@ class Kibana(BaseElasticSearch):
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            json_data = None
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
+            json_data = None
         except Exception as e:
+            logger.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
@@ -344,11 +370,14 @@ class ElasticSearch(BaseElasticSearch):
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
             mappings = self._get_mappings(mapping_url)
+            if error:
+                return None, error
 
             params = {"source": json.dumps(query_dict)}
             logger.debug("Using URL: %s", url)
             logger.debug("Using params : %s", params)
             r = requests.get(url, params=params, auth=self.auth)
+            r.raise_for_status()
             logger.debug("Result: %s", r.json())
 
             result_columns = []
@@ -360,9 +389,19 @@ class ElasticSearch(BaseElasticSearch):
                 "rows": result_rows
             })
         except KeyboardInterrupt:
+            logger.exception(e)
             error = "Query cancelled by user."
             json_data = None
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            json_data = None
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
+            json_data = None
         except Exception as e:
+            logger.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
