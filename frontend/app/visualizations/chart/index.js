@@ -40,7 +40,7 @@ function ChartRenderer() {
   };
 }
 
-function ChartEditor(ColorPalette) {
+function ChartEditor(clientConfig) {
   return {
     restrict: 'E',
     template: editorTemplate,
@@ -50,7 +50,6 @@ function ChartEditor(ColorPalette) {
     },
     link(scope) {
       scope.currentTab = 'general';
-      scope.colors = Object.assign({ Automatic: null }, ColorPalette);
 
       scope.stackingOptions = {
         Disabled: null,
@@ -64,8 +63,12 @@ function ChartEditor(ColorPalette) {
         area: { name: 'Area', icon: 'area-chart' },
         pie: { name: 'Pie', icon: 'pie-chart' },
         scatter: { name: 'Scatter', icon: 'circle-o' },
-        custom: { name: 'Custom', icon: 'code' },
       };
+
+      console.log(clientConfig);
+      if (clientConfig.allowCustomJSVisualizations) {
+        scope.chartTypes.custom = { name: 'Custom', icon: 'code' };
+      }
 
       scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
       scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
@@ -204,7 +207,8 @@ function ChartEditor(ColorPalette) {
           } else if (value === 'series') {
             scope.form.groupby = key;
           }
-        }); }
+        });
+      }
     },
   };
 }
@@ -219,7 +223,7 @@ const ColorBox = {
 export default function (ngModule) {
   ngModule.component('colorBox', ColorBox);
   ngModule.directive('chartRenderer', ChartRenderer);
-  ngModule.directive('chartEditor', ChartEditor);
+  ngModule.directive('chartEditor', ['clientConfig', ChartEditor]);
   ngModule.config((VisualizationProvider) => {
     const renderTemplate = '<chart-renderer options="visualization.options" query-result="queryResult"></chart-renderer>';
     const editTemplate = '<chart-editor options="visualization.options" query-result="queryResult"></chart-editor>';
