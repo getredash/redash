@@ -424,11 +424,10 @@ const PlotlyChart = () => {
       }, true);
     },
   };
-}
+};
 
 const CustomPlotlyChart = () => {
-  let bottomMargin = 50;
-  return {
+  const customChart = {
     restrict: 'E',
     template: '<div></div>',
     scope: {
@@ -438,26 +437,26 @@ const CustomPlotlyChart = () => {
     },
     link(scope, element) {
       const refresh = () => {
-        const codeCall = eval("codeCall = function(x, ys, element, Plotly){" + scope.options.customCode + "}");
+        const codeCall = eval(`codeCall = function(x, ys, element, Plotly){ ${scope.options.customCode} }`);
         codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
       };
       const timeSeriesToPlotlySeries = () => {
         scope.x = [];
         scope.ys = {};
-        each(scope.series, (series, index) => {
+        each(scope.series, (series) => {
           scope.ys[series.name] = [];
-          each(series.data, (point, index) => {
+          each(series.data, (point) => {
             scope.x.push(normalizeValue(point.x));
             scope.ys[series.name].push(normalizeValue(point.y));
           });
         });
-      }
+      };
       scope.$watch('options.customCode', () => {
-        try{
+        try {
           refresh();
-        }catch(err){
-          if(scope.options.enableConsoleLogs){
-            console.log("Error while executing custom graph: ", err);
+        } catch (err) {
+          if (scope.options.enableConsoleLogs) {
+            console.log(`Error while executing custom graph: ${err}`);
           }
         }
       }, true);
@@ -465,9 +464,10 @@ const CustomPlotlyChart = () => {
         timeSeriesToPlotlySeries();
         refresh();
       }, true);
-    }
-  }
-}
+    },
+  };
+  return customChart;
+};
 
 export default function (ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
