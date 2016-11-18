@@ -65,7 +65,6 @@ function ChartEditor(clientConfig) {
         scatter: { name: 'Scatter', icon: 'circle-o' },
       };
 
-      console.log(clientConfig);
       if (clientConfig.allowCustomJSVisualizations) {
         scope.chartTypes.custom = { name: 'Custom', icon: 'code' };
       }
