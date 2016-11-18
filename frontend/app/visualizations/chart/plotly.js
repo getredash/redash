@@ -426,7 +426,7 @@ const PlotlyChart = () => {
   };
 };
 
-const CustomPlotlyChart = () => {
+const CustomPlotlyChart = (clientConfig) => {
   const customChart = {
     restrict: 'E',
     template: '<div></div>',
@@ -436,6 +436,9 @@ const CustomPlotlyChart = () => {
       height: '=',
     },
     link(scope, element) {
+      if (!clientConfig.allowCustomJSVisualizations) {
+        return;
+      }
       const refresh = () => {
         const codeCall = eval(`codeCall = function(x, ys, element, Plotly){ ${scope.options.customCode} }`);
         codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
@@ -472,5 +475,5 @@ const CustomPlotlyChart = () => {
 export default function (ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
-  ngModule.directive('customPlotlyChart', CustomPlotlyChart);
+  ngModule.directive('customPlotlyChart', ['clientConfig', CustomPlotlyChart]);
 }
