@@ -169,6 +169,7 @@ default_query_runners = [
     'redash.query_runner.hive_ds',
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
+    'redash.query_runner.clickhouse',
     'redash.query_runner.treasuredata',
     'redash.query_runner.sqlite',
     'redash.query_runner.dynamodb_sql',
