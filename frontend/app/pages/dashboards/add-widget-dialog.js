@@ -38,9 +38,7 @@ const AddWidgetDialog = {
       }
     };
 
-    this.onQuerySelect = (item) => {
-      console.log('onSelect', this.query.selected);
-
+    this.onQuerySelect = () => {
       if (!this.query.selected) {
         return;
       }
