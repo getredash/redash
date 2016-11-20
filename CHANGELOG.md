@@ -35,6 +35,8 @@ b410410 #1166: Add: "every 14 days" refresh option (Arik Fraimovich)
 
 ### Changed
 
+2de4aa2 #1395: Change: switch to requests in URL query runner (Arik Fraimovich)
+db1a941 #1392: Change: Update documentation links to point at the new location. (Arik Fraimovich)
 002f794 #1368: Change: added ability to disable auto update in admin views (Arik Fraimovich)  
 aa5d14e #1366: Change: improve error message for exception in the Python query runner (deecay)  
 880627c #1355: Change: pass the user object to the run_query method (Arik Fraimovich)  
