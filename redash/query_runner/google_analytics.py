@@ -4,10 +4,8 @@ import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 from urlparse import urlparse, parse_qs
-import pprint
+from datetime import datetime
 logger = logging.getLogger(__name__)
-
-pp = pprint.PrettyPrinter()
 
 try:
     import gspread
@@ -25,7 +23,11 @@ def _load_key(filename):
         return json.loads(f.read())
 
 
-types_conv = dict(STRING='string', INTEGER='integer', FLOAT='float', )
+types_conv = dict(
+    STRING=TYPE_STRING,
+    INTEGER=TYPE_INTEGER,
+    FLOAT=TYPE_FLOAT,
+)
 
 
 class GoogleAnalytics(BaseQueryRunner):
@@ -63,25 +65,6 @@ class GoogleAnalytics(BaseQueryRunner):
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
         credentials = SignedJwtAssertionCredentials(key['client_email'], key["private_key"], scope=scope)
         return build('analytics', 'v3', http=credentials.authorize(httplib2.Http()))
-
-    def _analytics_query(self, line):
-        params = parse_qs(urlparse(line).query, keep_blank_values=True)
-        for key in params.keys():
-            params[key] = ','.join(params[key])
-            if '-' in key:
-                params[key.replace('-', '_')] = params.pop(key)
-        if len(params) > 0:
-            response = self._get_analytics_service().data().ga().get(**params).execute()
-            columns = [{'name': h['name'], 'friendly_name': h['name'].split(':')[1],
-                        'type': types_conv.get(h['dataType'], 'string')} for h in response['columnHeaders']]
-            rows = []
-            for r in response['rows']:
-                d = {}
-                for c, value in enumerate(r):
-                    d[response['columnHeaders'][c]['name']] = value
-                rows.append(d)
-            data = {'columns': columns, 'rows': rows}
-        return data
 
     def run_query(self, query, user):
         logger.info("Analytics is about to execute query: %s", query)
