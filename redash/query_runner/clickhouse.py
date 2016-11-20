@@ -2,10 +2,7 @@ import json
 import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
-import pprint
 logger = logging.getLogger(__name__)
-
-pp = pprint.PrettyPrinter()
 
 try:
     import requests
