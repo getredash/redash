@@ -302,9 +302,9 @@
 
     $scope.sendPasswordReset = function() {
       $scope.disablePasswordResetButton = true;
-      $http.post('api/users/' + $scope.user.id + '/reset_password').success(function(user) {
+      $http.post('api/users/' + $scope.user.id + '/reset_password').success(function(data) {
         $scope.disablePasswordResetButton = false;
-        growl.addSuccessMessage("The user should receive a link to reset his password by email soon.")
+        $scope.passwordResetLink = data.reset_link;
       });
     };
   };

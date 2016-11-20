@@ -24,9 +24,22 @@
     </p>
     <div ng-if="currentUser.isAdmin">
       <hr/>
-      <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
-        Password Reset Email
-      </button>
+      <div class="form-group">
+        <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
+          Password Reset Email
+        </button>
+      </div>
+
+      <div ng-if="passwordResetLink" class="alert alert-success">
+        <p ng-if="!clientConfig.mailSettingMissing">
+          <strong>The user should receive a link to reset his password by email soon.</strong>
+        </p>
+        <p ng-if="clientConfig.mailSettingsMissing">
+          You don't have mail server configured, please send the following link
+          to {{user.name}} to reset their password:<br/>
+          <a ng-href="passwordResetLink">{{passwordResetLink}}</a>
+        </p>
+      </div>
     </div>
   </div>
   <div ng-show="selectedTab == 'apiKey'" class="p-10">
