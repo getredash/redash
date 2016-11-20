@@ -3,6 +3,7 @@ import 'font-awesome/css/font-awesome.css';
 import 'ui-select/dist/select.css';
 import 'angular-toastr/dist/angular-toastr.css';
 import 'angular-resizable/src/angular-resizable.css';
+import 'angular-gridster/dist/angular-gridster.css';
 
 import debug from 'debug';
 import angular from 'angular';
@@ -19,8 +20,10 @@ import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
+import ngGridster from 'angular-gridster';
 import { ngTable } from 'ng-table';
 import { each } from 'underscore';
+
 import './sortable';
 
 import './assets/css/superflat_redash.css';
@@ -38,7 +41,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable',
+  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name,
 ];
 
 const ngModule = angular.module('app', requirements);

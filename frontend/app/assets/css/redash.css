@@ -160,16 +160,13 @@ a.navbar-brand img {
 
 /* Gridster */
 
-.gridster ul {
-  list-style-type: none;
-}
-
 li.widget {
   /*background-color:grey;*/
   border-width: 1px;
   border-style: solid;
   border-color: grey;
   opacity: 0.7;
+  cursor: move;
 }
 
 li.widget:hover {
@@ -186,6 +183,12 @@ li.widget:hover {
   border: none !important;
   border-radius: 0 !important;
   background: rgba(0, 0, 0, 0.5) !important;
+}
+
+.gridster li .heading {
+  border: #ddd;
+  background-color: #f5f5f5;
+  padding: 5px;
 }
 
 /* Editor */
