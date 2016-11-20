@@ -1,7 +1,7 @@
 import template from './query.html';
 
 function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, $q,
-  currentUser, Query, Visualization, KeyboardShortcuts) {
+  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
   // TODO:
@@ -89,7 +89,12 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
 
   $scope.deleteVisualization = ($e, vis) => {
     $e.preventDefault();
-    if (confirm(`Are you sure you want to delete ${vis.name} ?`)) {
+
+    const title = undefined;
+    const message = `Are you sure you want to delete ${vis.name} ?`;
+    const confirm = { class: 'btn-danger', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(() => {
       Events.record(currentUser, 'delete', 'visualization', vis.id);
 
       Visualization.delete(vis, () => {
@@ -101,7 +106,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
       }, () => {
         toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
       });
-    }
+    });
   };
 
   $scope.$watch('query.query', (newQueryText) => {

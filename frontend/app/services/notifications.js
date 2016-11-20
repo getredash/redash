@@ -1,3 +1,7 @@
+import debug from 'debug';
+
+const logger = debug('redash:notifications');
+
 function Notifications(currentUser, Events) {
   const notificationService = { pageVisible: true };
 
@@ -34,7 +38,8 @@ function Notifications(currentUser, Events) {
     if ('Notification' in window) {
       return true;
     }
-    console.log('HTML5 notifications are not supported.');
+
+    logger('HTML5 notifications are not supported.');
     return false;
   };
 

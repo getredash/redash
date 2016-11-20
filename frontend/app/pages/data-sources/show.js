@@ -1,6 +1,10 @@
+import debug from 'debug';
 import template from './show.html';
 
-function DataSourceCtrl($scope, $routeParams, $http, $location, toastr, currentUser, Events, DataSource) {
+const logger = debug('redash:http');
+
+function DataSourceCtrl($scope, $routeParams, $http, $location, toastr,
+  currentUser, Events, DataSource) {
   Events.record(currentUser, 'view', 'page', 'admin/data_source');
   // $scope.$parent.pageTitle = 'Data Sources';
 
@@ -25,7 +29,7 @@ function DataSourceCtrl($scope, $routeParams, $http, $location, toastr, currentU
       toastr.success('Data source deleted successfully.');
       $location.path('/data_sources/');
     }, (httpResponse) => {
-      console.log('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
+      logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
       toastr.error('Failed to delete data source.');
     });
   }
@@ -41,7 +45,7 @@ function DataSourceCtrl($scope, $routeParams, $http, $location, toastr, currentU
       }
       callback();
     }, (httpResponse) => {
-      console.log('Failed to test data source: ', httpResponse.status, httpResponse.statusText, httpResponse);
+      logger('Failed to test data source: ', httpResponse.status, httpResponse.statusText, httpResponse);
       toastr.error('Unknown error occurred while performing connection test. Please try again later.', 'Connection Test Failed:', { timeOut: 10000 });
       callback();
     });
