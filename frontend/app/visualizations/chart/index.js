@@ -222,7 +222,7 @@ const ColorBox = {
 export default function (ngModule) {
   ngModule.component('colorBox', ColorBox);
   ngModule.directive('chartRenderer', ChartRenderer);
-  ngModule.directive('chartEditor', ['clientConfig', ChartEditor]);
+  ngModule.directive('chartEditor', ChartEditor);
   ngModule.config((VisualizationProvider) => {
     const renderTemplate = '<chart-renderer options="visualization.options" query-result="queryResult"></chart-renderer>';
     const editTemplate = '<chart-editor options="visualization.options" query-result="queryResult"></chart-editor>';

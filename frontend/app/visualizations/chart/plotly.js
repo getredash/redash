@@ -475,5 +475,5 @@ const CustomPlotlyChart = (clientConfig) => {
 export default function (ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
-  ngModule.directive('customPlotlyChart', ['clientConfig', CustomPlotlyChart]);
+  ngModule.directive('customPlotlyChart', CustomPlotlyChart);
 }
