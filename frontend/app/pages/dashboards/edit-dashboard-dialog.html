@@ -7,8 +7,12 @@
     <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name">
   </p>
 
-  <div class="gridster">
-    <ul></ul>
+  <div gridster="$ctrl.gridsterOptions" ng-if="$ctrl.items | notEmpty">
+    <ul>
+      <li gridster-item="item" ng-repeat="item in $ctrl.items" class="widget panel panel-default gs-w">
+        <div class="heading">{{item.name}}</div>
+      </li>
+    </ul>
   </div>
 </div>
 <div class="modal-footer">
