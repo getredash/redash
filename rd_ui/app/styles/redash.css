@@ -232,6 +232,8 @@ to add those CSS styles here. */
 .dropdown-submenu > .dropdown-menu {
   top: 0;
   left: 100%;
+  overflow: auto;
+  max-height: 300px;
   margin-top: -6px;
   margin-left: -1px;
   -webkit-border-radius: 0 6px 6px 6px;
