@@ -17,8 +17,6 @@ function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
       resolve: {
         dashboard: () => ({ name: null, layout: null }),
       },
-    }).result.then((dashboard) => {
-
     });
   };
 }

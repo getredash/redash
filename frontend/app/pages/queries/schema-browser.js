@@ -8,12 +8,12 @@ function schemaBrowser() {
     },
     template,
     link($scope) {
-      $scope.showTable = function (table) {
+      $scope.showTable = (table) => {
         table.collapsed = !table.collapsed;
         $scope.$broadcast('vsRepeatTrigger');
       };
 
-      $scope.getSize = function (table) {
+      $scope.getSize = (table) => {
         let size = 18;
 
         if (!table.collapsed) {

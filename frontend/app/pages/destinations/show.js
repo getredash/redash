@@ -1,4 +1,8 @@
+import debug from 'debug';
+
 import template from './show.html';
+
+const logger = debug('redash:http');
 
 function DestinationCtrl($scope, $routeParams, $http, $location, toastr,
                          currentUser, Events, Destination) {
@@ -26,7 +30,7 @@ function DestinationCtrl($scope, $routeParams, $http, $location, toastr,
       toastr.success('Destination deleted successfully.');
       $location.path('/destinations/');
     }, (httpResponse) => {
-      console.log('Failed to delete destination: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
+      logger('Failed to delete destination: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
       toastr.error('Failed to delete destination.');
     });
   };
