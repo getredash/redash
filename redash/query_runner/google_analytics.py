@@ -27,6 +27,8 @@ types_conv = dict(
     STRING=TYPE_STRING,
     INTEGER=TYPE_INTEGER,
     FLOAT=TYPE_FLOAT,
+    DATE=TYPE_DATE,
+    DATETIME=TYPE_DATETIME
 )
 
 
@@ -75,13 +77,29 @@ class GoogleAnalytics(BaseQueryRunner):
                 params[key.replace('-', '_')] = params.pop(key)
         if len(params) > 0:
             response = self._get_analytics_service().data().ga().get(**params).execute()
-            columns = [{'name': h['name'], 'friendly_name': h['name'].split(':')[1],
-                        'type': types_conv.get(h['dataType'], 'string')} for h in response['columnHeaders']]
+            columns = []
+            for h in response['columnHeaders']:
+                if h['name'] == 'ga:date':
+                    h['dataType'] = 'DATE'
+                elif h['name'] == 'ga:dateHour':
+                    h['dataType'] = 'DATETIME'
+                columns.append({
+                    'name': h['name'],
+                    'friendly_name': h['name'].split(':', 1)[1],
+                    'type': types_conv.get(h['dataType'], 'string')
+                })
             rows = []
             for r in response['rows']:
                 d = {}
                 for c, value in enumerate(r):
-                    d[response['columnHeaders'][c]['name']] = value
+                    column_name = response['columnHeaders'][c]['name']
+                    column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
+                    if column_type == TYPE_DATE:
+                        value = datetime.strptime(value, '%Y%m%d')
+                    elif column_type == TYPE_DATETIME:
+                        if len(value) == 10:
+                            value = datetime.strptime(value, '%Y%m%d%H')
+                    d[column_name] = value
                 rows.append(d)
             data = {'columns': columns, 'rows': rows}
             error = None
