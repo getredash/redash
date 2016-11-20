@@ -23,11 +23,6 @@
     $scope.location = String(document.location);
     $scope.version = clientConfig.version;
     $scope.newVersionAvailable = clientConfig.newVersionAvailable && currentUser.hasPermission("admin");
-
-    $scope.newDashboard = {
-      'name': null,
-      'layout': null
-    }
   };
 
   angular.module('redash.controllers', [])
