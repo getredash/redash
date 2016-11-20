@@ -1,3 +1,4 @@
+import { sortBy } from 'underscore';
 import template from './edit-dashboard-dialog.html';
 
 const EditDashboardDialog = {
@@ -9,79 +10,63 @@ const EditDashboardDialog = {
   template,
   controller($location, $http, toastr, Events, currentUser, Dashboard) {
     this.dashboard = this.resolve.dashboard;
-    // const gridster = element.find('.gridster ul').gridster({
-    //   widget_margins: [5, 5],
-    //   widget_base_dimensions: [260, 100],
-    //   min_cols: 2,
-    //   max_cols: 2,
-    //   serialize_params($w, wgd) {
-    //     return {
-    //       col: wgd.col,
-    //       row: wgd.row,
-    //       id: $w.data('widget-id'),
-    //     };
-    //   },
-    // }).data('gridster');
-    //
-    // const gsItemTemplate = '<li data-widget-id="{id}" class="widget panel panel-default gs-w">' +
-    //   '<div class="panel-heading">{name}' +
-    //   '</div></li>';
+    this.gridsterOptions = {
+      margins: [5, 5],
+      rowHeight: 100,
+      colWidth: 260,
+      columns: 2,
+      mobileModeEnabled: false,
+      swapping: true,
+      minRows: 1,
+      draggable: {
+        enabled: true,
+      },
+      resizable: {
+        enabled: false,
+      },
+    };
 
-    // $scope.$watch('dashboard.layout', () => {
-    //   $timeout(() => {
-    //     gridster.remove_all_widgets();
-    //
-    //     if ($scope.dashboard.widgets && $scope.dashboard.widgets.length) {
-    //       const layout = [];
-    //
-    //       _.each($scope.dashboard.widgets, (row, rowIndex) => {
-    //         _.each(row, (widget, colIndex) => {
-    //           layout.push({
-    //             id: widget.id,
-    //             col: colIndex + 1,
-    //             row: rowIndex + 1,
-    //             ySize: 1,
-    //             xSize: widget.width,
-    //             name: widget.getName(), // visualization.query.name
-    //           });
-    //         });
-    //       });
-    //
-    //       _.each(layout, (item) => {
-    //         const el = gsItemTemplate.replace('{id}', item.id).replace('{name}', item.name);
-    //         gridster.add_widget(el, item.xSize, item.ySize, item.col, item.row);
-    //       });
-    //     }
-    //   });
-    // }, true);
+    this.items = [];
+
+    if (this.dashboard.widgets) {
+      this.dashboard.widgets.forEach((row, rowIndex) => {
+        row.forEach((widget, colIndex) => {
+          this.items.push({
+            id: widget.id,
+            col: colIndex,
+            row: rowIndex,
+            sizeY: 1,
+            sizeX: widget.width,
+            name: widget.getName(), // visualization.query.name
+          });
+        });
+      });
+    }
 
     this.saveDashboard = () => {
       this.saveInProgress = true;
-      // TODO: we should use the dashboard service here.
+
       if (this.dashboard.id) {
-        // const positions = $(element).find('.gridster ul').data('gridster').serialize();
-        // let layout = [];
-        // _.each(_.sortBy(positions, pos =>
-        //    pos.row * 10 + pos.col
-        // ), (pos) => {
-        //   const row = pos.row - 1;
-        //   const col = pos.col - 1;
-        //   layout[row] = layout[row] || [];
-        //   if (col > 0 && layout[row][col - 1] == undefined) {
-        //     layout[row][col - 1] = pos.id;
-        //   } else {
-        //     layout[row][col] = pos.id;
-        //   }
-        // });
-        // $scope.dashboard.layout = layout;
+        const layout = [];
+        const sortedItems = sortBy(this.items, item => item.row * 10 + item.col);
 
-        // layout = JSON.stringify(layout);
-        const layout = JSON.stringify(this.dashboard.layout);
+        sortedItems.forEach((item) => {
+          layout[item.row] = layout[item.row] || [];
+          if (item.col > 0 && layout[item.row][item.col - 1] === undefined) {
+            layout[item.row][item.col - 1] = item.id;
+          } else {
+            layout[item.row][item.col] = item.id;
+          }
+        });
 
-        Dashboard.save({ slug: this.dashboard.id,
+        const request = {
+          slug: this.dashboard.id,
           name: this.dashboard.name,
           version: this.dashboard.version,
-          layout }, (dashboard) => {
+          layout: JSON.stringify(layout),
+        };
+
+        Dashboard.save(request, (dashboard) => {
           this.dashboard = dashboard;
           this.saveInProgress = false;
           this.close({ $value: this.dashboard });
