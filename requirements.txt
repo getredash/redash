@@ -40,3 +40,4 @@ xlsxwriter==0.9.3
 pystache==0.5.4
 parsedatetime==2.1
 cryptography==1.4
+Flask-Limiter==0.9.3
