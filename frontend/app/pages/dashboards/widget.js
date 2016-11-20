@@ -50,6 +50,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
       this.dashboard.widgets = this.dashboard.widgets.filter(row => row.length > 0);
 
       this.dashboard.layout = response.layout;
+      this.dashboard.version = response.version;
     });
   };
 

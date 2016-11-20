@@ -1,11 +1,12 @@
 import { each } from 'underscore';
 import template from './show.html';
 
-function UserCtrl($scope, $routeParams, $http, $location, toastr, currentUser, Events, User) {
+function UserCtrl($scope, $routeParams, $http, $location, toastr, clientConfig, currentUser, Events, User) {
   // $scope.$parent.pageTitle = 'Users';
 
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
+  $scope.clientConfig = clientConfig;
 
   if ($scope.userId === 'me') {
     $scope.userId = currentUser.id;
@@ -100,9 +101,9 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr, currentUser, E
 
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
-    $http.post(`api/users/${$scope.user.id}/reset_password`).success(() => {
+    $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
       $scope.disablePasswordResetButton = false;
-      toastr.success('The user should receive a link to reset his password by email soon.');
+      $scope.passwordResetLink = data.reset_link;
     });
   };
 }

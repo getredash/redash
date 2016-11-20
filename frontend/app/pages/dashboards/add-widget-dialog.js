@@ -76,6 +76,7 @@ const AddWidgetDialog = {
       widget.$save().then((response) => {
         // update dashboard layout
         this.dashboard.layout = response.layout;
+        this.dashboard.version = response.version;
         const newWidget = new Widget(response.widget);
         if (response.new_row) {
           this.dashboard.widgets.push([newWidget]);
