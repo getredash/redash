@@ -7,6 +7,7 @@ import registerEditVisualizationDialog from './edit-visualization-dialog';
 import counterVisualization from './counter';
 import tableVisualization from './table';
 import chartVisualization from './chart';
+import sunburstVisualization from './sunburst';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -156,5 +157,6 @@ export default function (ngModule) {
   registerEditVisualizationDialog(ngModule);
   chartVisualization(ngModule);
   counterVisualization(ngModule);
+  sunburstVisualization(ngModule);
   tableVisualization(ngModule);
 }
