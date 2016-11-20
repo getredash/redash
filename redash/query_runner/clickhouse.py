@@ -88,11 +88,15 @@ class ClickHouse(BaseSQLQueryRunner):
     def _define_column_type(column):
         c = column.lower()
         if 'int' in c:
-            return 'integer'
+            return TYPE_INTEGER
         elif 'float' in c:
-            return 'float'
+            return TYPE_FLOAT
+        elif 'datetime' == c:
+            return TYPE_DATETIME
+        elif 'date' == c:
+            return TYPE_DATE
         else:
-            return 'string'
+            return TYPE_STRING
 
     def _clickhouse_query(self, query):
         query += ' FORMAT JSON'
