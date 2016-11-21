@@ -371,7 +371,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     __tablename__ = 'data_sources'
     __table_args__ = (db.Index('data_sources_org_id_name', 'org_id', 'name'),)
 
-    def to_dict(self, all=False, with_permissions=False):
+    def to_dict(self, all=False, with_permissions_for=None):
         d = {
             'id': self.id,
             'name': self.name,
@@ -389,8 +389,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
 
-        if with_permissions:
-            d['view_only'] = self.data_source_groups.view_only
+        if with_permissions_for is not None:
+            d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
+                DataSourceGroup.group == with_permissions_for,
+                DataSourceGroup.data_source == self).get()
 
         return d
 
@@ -438,17 +440,20 @@ class DataSource(BelongsToOrgMixin, db.Model):
         redis_connection.delete(self._pause_key())
 
     def add_group(self, group, view_only=False):
-        dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
-        setattr(self, 'data_source_groups', dsg)
+        dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
+        db.session.add(dsg)
 
     def remove_group(self, group):
-        DataSourceGroup.delete().where(DataSourceGroup.group==group, DataSourceGroup.data_source==self).execute()
+        db.session.query(DataSourceGroup).filter(
+            DataSourceGroup.group == group,
+            DataSourceGroup.data_source == self).delete()
 
     def update_group_permission(self, group, view_only):
-        dsg = DataSourceGroup.get(DataSourceGroup.group==group, DataSourceGroup.data_source==self)
+        dsg = db.session.query(DataSourceGroup).filter(
+            DataSourceGroup.group == group,
+            DataSourceGroup.data_source == self)
         dsg.view_only = view_only
-        dsg.save()
-        setattr(self, 'data_source_groups', dsg)
+        db.session.add(dsg)
 
     @property
     def query_runner(self):
