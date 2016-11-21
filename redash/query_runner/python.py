@@ -4,6 +4,7 @@ import logging
 import sys
 
 from redash.query_runner import *
+from redash.utils import json_dumps
 from redash import models
 
 import importlib
@@ -228,7 +229,7 @@ class Python(BaseQueryRunner):
 
             result = self._script_locals['result']
             result['log'] = self._custom_print.lines
-            json_data = json.dumps(result)
+            json_data = json_dumps(result)
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
