@@ -1,7 +1,8 @@
 import { each } from 'underscore';
 import template from './show.html';
 
-function UserCtrl($scope, $routeParams, $http, $location, toastr, clientConfig, currentUser, Events, User) {
+function UserCtrl($scope, $routeParams, $http, $location, toastr,
+  clientConfig, currentUser, Events, User) {
   // $scope.$parent.pageTitle = 'Users';
 
   $scope.userId = $routeParams.userId;
