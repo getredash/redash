@@ -440,6 +440,7 @@ const CustomPlotlyChart = (clientConfig) => {
         return;
       }
       const refresh = () => {
+        // eslint-disable-next-line no-eval
         const codeCall = eval(`codeCall = function(x, ys, element, Plotly){ ${scope.options.customCode} }`);
         codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
       };
@@ -459,6 +460,7 @@ const CustomPlotlyChart = (clientConfig) => {
           refresh();
         } catch (err) {
           if (scope.options.enableConsoleLogs) {
+            // eslint-disable-next-line no-console
             console.log(`Error while executing custom graph: ${err}`);
           }
         }

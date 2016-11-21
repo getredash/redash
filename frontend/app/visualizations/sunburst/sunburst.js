@@ -2,22 +2,32 @@ import d3 from 'd3';
 import _ from 'underscore';
 import angular from 'angular';
 
+const exitNode = '<<<Exit>>>';
+const colors = d3.scale.category10();
+
+// helper function colorMap - color gray if "end" is detected
+function colorMap(d) {
+  return colors(d.name);
+}
+
+
+// Return array of ancestors of nodes, highest first, but excluding the root.
+function getAncestors(node) {
+  const path = [];
+  let current = node;
+
+  while (current.parent) {
+    path.unshift(current);
+    current = current.parent;
+  }
+  return path;
+}
+
 // The following is based on @chrisrzhou's example from: http://bl.ocks.org/chrisrzhou/d5bdd8546f64ca0e4366.
 export default function Sunburst(scope, element) {
   this.element = element;
-
-  const refreshData = () => {
-    const queryData = scope.queryResult.getData();
-    if (queryData) {
-      render(queryData);
-    }
-  };
-
   this.watches = [];
-  this.watches.push(scope.$watch('visualization.options', refreshData, true));
-  this.watches.push(scope.$watch('queryResult && queryResult.getData()', refreshData));
 
-  const exitNode = '<<<Exit>>>';
   // svg dimensions
   const width = element[0].parentElement.clientWidth;
   const height = scope.visualization.options.height;
@@ -45,7 +55,6 @@ export default function Sunburst(scope, element) {
    * e.g. colors, totalSize, partitions, arcs
    */
   // Mapping of nodes to colorscale.
-  const colors = d3.scale.category10();
 
   // Total size of all nodes, to be used later when data is loaded
   let totalSize = 0;
@@ -125,9 +134,69 @@ export default function Sunburst(scope, element) {
     .style('color', '#666')
     .style('z-index', '1');
 
-  refreshData();
+  // Generate a string representation for drawing a breadcrumb polygon.
+  function breadcrumbPoints(d, i) {
+    const points = [];
+    points.push('0,0');
+    points.push(`${b.w},0`);
+    points.push(`${b.w + b.t},${b.h / 2}`);
+    points.push(`${b.w},${b.h}`);
+    points.push(`0,${b.h}`);
 
-  // helper function mouseover to handle mouseover events/animations and calculation of ancestor nodes etc
+    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+      points.push(`${b.t},${b.h / 2}`);
+    }
+    return points.join(' ');
+  }
+
+  // Update the breadcrumb breadcrumbs to show the current sequence and percentage.
+  function updateBreadcrumbs(ancestors, percentageString) {
+    // Data join, where primary key = name + depth.
+    const g = breadcrumbs.selectAll('g')
+      .data(ancestors, d =>
+         d.name + d.depth
+      );
+
+    // Add breadcrumb and label for entering nodes.
+    const breadcrumb = g.enter().append('g');
+
+    breadcrumb
+      .append('polygon').classed('breadcrumbs-shape', true)
+      .attr('points', breadcrumbPoints)
+      .attr('fill', colorMap);
+
+    breadcrumb
+      .append('text').classed('breadcrumbs-text', true)
+      .attr('x', (b.w + b.t) / 2)
+      .attr('y', b.h / 2)
+      .attr('dy', '0.35em')
+      .attr('font-size', '10px')
+      .attr('text-anchor', 'middle')
+      .text(d =>
+         d.name
+      );
+
+    // Set position for entering and updating nodes.
+    g.attr('transform', (d, i) =>
+       `translate(${i * (b.w + b.s)}, 0)`
+    );
+
+    // Remove exiting nodes.
+    g.exit().remove();
+
+    // Update percentage at the lastCrumb.
+    lastCrumb
+      .attr('x', (ancestors.length + 0.5) * (b.w + b.s))
+      .attr('y', b.h / 2)
+      .attr('dy', '0.35em')
+      .attr('text-anchor', 'middle')
+      .attr('fill', 'black')
+      .attr('font-weight', 600)
+      .text(percentageString);
+  }
+
+  // helper function mouseover to handle mouseover events/animations and calculation
+  // of ancestor nodes etc
   function mouseover(d) {
     // build percentage string
     const percentage = (100 * d.value / totalSize).toPrecision(3);
@@ -170,7 +239,7 @@ export default function Sunburst(scope, element) {
       .transition()
       .duration(1000)
       .attr('opacity', 1)
-      .each('end', function () {
+      .each('end', function endClick() {
         d3.select(this).on('mouseover', mouseover);
       });
 
@@ -188,7 +257,7 @@ export default function Sunburst(scope, element) {
       );
 
     // this section is required to update the colors.domain() every time the data updates
-    const uniqueNames = (function (a) {
+    const uniqueNames = (function uniqueNames(a) {
       const output = [];
       a.forEach((d) => {
         if (output.indexOf(d.name) === -1) output.push(d.name);
@@ -200,10 +269,9 @@ export default function Sunburst(scope, element) {
     // create path based on nodes
     const path = sunburst.data([json]).selectAll('path')
       .data(nodes).enter()
-      .append('path').classed('nodePath', true)
-      .attr('display', d =>
-         d.depth ? null : 'none'
-      )
+      .append('path')
+      .classed('nodePath', true)
+      .attr('display', d => (d.depth ? null : 'none'))
       .attr('d', arc)
       .attr('fill', colorMap)
       .attr('opacity', 1)
@@ -321,85 +389,16 @@ export default function Sunburst(scope, element) {
     createVisualization(json); // visualize json tree
   }
 
-
-  // helper function colorMap - color gray if "end" is detected
-  function colorMap(d) {
-    return colors(d.name);
-  }
-
-
-  // Return array of ancestors of nodes, highest first, but excluding the root.
-  function getAncestors(node) {
-    const path = [];
-    let current = node;
-
-    while (current.parent) {
-      path.unshift(current);
-      current = current.parent;
+  function refreshData() {
+    const queryData = scope.queryResult.getData();
+    if (queryData) {
+      render(queryData);
     }
-    return path;
   }
 
-  // Generate a string representation for drawing a breadcrumb polygon.
-  function breadcrumbPoints(d, i) {
-    const points = [];
-    points.push('0,0');
-    points.push(`${b.w},0`);
-    points.push(`${b.w + b.t},${b.h / 2}`);
-    points.push(`${b.w},${b.h}`);
-    points.push(`0,${b.h}`);
-
-    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-      points.push(`${b.t},${b.h / 2}`);
-    }
-    return points.join(' ');
-  }
-
-  // Update the breadcrumb breadcrumbs to show the current sequence and percentage.
-  function updateBreadcrumbs(ancestors, percentageString) {
-    // Data join, where primary key = name + depth.
-    const g = breadcrumbs.selectAll('g')
-      .data(ancestors, d =>
-         d.name + d.depth
-      );
-
-    // Add breadcrumb and label for entering nodes.
-    const breadcrumb = g.enter().append('g');
-
-    breadcrumb
-      .append('polygon').classed('breadcrumbs-shape', true)
-      .attr('points', breadcrumbPoints)
-      .attr('fill', colorMap);
-
-    breadcrumb
-      .append('text').classed('breadcrumbs-text', true)
-      .attr('x', (b.w + b.t) / 2)
-      .attr('y', b.h / 2)
-      .attr('dy', '0.35em')
-      .attr('font-size', '10px')
-      .attr('text-anchor', 'middle')
-      .text(d =>
-         d.name
-      );
-
-    // Set position for entering and updating nodes.
-    g.attr('transform', (d, i) =>
-       `translate(${i * (b.w + b.s)}, 0)`
-    );
-
-    // Remove exiting nodes.
-    g.exit().remove();
-
-    // Update percentage at the lastCrumb.
-    lastCrumb
-      .attr('x', (ancestors.length + 0.5) * (b.w + b.s))
-      .attr('y', b.h / 2)
-      .attr('dy', '0.35em')
-      .attr('text-anchor', 'middle')
-      .attr('fill', 'black')
-      .attr('font-weight', 600)
-      .text(percentageString);
-  }
+  refreshData();
+  this.watches.push(scope.$watch('visualization.options', refreshData, true));
+  this.watches.push(scope.$watch('queryResult && queryResult.getData()', refreshData));
 }
 
 Sunburst.prototype.remove = function remove() {
