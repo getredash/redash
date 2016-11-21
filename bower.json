@@ -3,7 +3,6 @@
   "version": "0.11.0",
   "dependencies": {
     "pivottable": "2.0.2",
-    "cornelius": "https://github.com/restorando/cornelius.git",
     "pace": "~0.5.1",
     "canvg": "gabelerner/canvg",
     "leaflet": "~0.7.3",
