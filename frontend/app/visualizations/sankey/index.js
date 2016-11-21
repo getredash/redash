@@ -187,7 +187,7 @@ function createSankey(element, sankeyHeight, data) {
   node.append('rect')
     .attr('height', d => d.dy)
     .attr('width', sankey.nodeWidth())
-    .style('fill', d => d.color = color(d.name.replace(/ .*/, '')))
+    .style('fill', d => (d.color = color(d.name.replace(/ .*/, ''))))
     .style('stroke', d => d3.rgb(d.color).darker(2))
     .append('title')
     .text(d => `${d.name}\n${format(d.value)}`);

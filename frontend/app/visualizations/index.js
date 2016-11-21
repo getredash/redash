@@ -12,6 +12,7 @@ import sankeyVisualization from './sankey';
 import wordCloudVisualization from './word-cloud';
 import boxPlotVisualization from './box-plot';
 import cohortVisualization from './cohort';
+import mapVisualization from './map';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -166,5 +167,6 @@ export default function (ngModule) {
   wordCloudVisualization(ngModule);
   boxPlotVisualization(ngModule);
   cohortVisualization(ngModule);
+  mapVisualization(ngModule);
   tableVisualization(ngModule);
 }

@@ -48,6 +48,8 @@
     "html-webpack-plugin": "^2.24.0",
     "jquery": "^3.1.1",
     "jquery-ui": "^1.12.1",
+    "leaflet": "^1.0.2",
+    "leaflet.markercluster": "^1.0.0",
     "marked": "^0.3.6",
     "material-design-iconic-font": "^2.2.0",
     "moment": "^2.15.2",
