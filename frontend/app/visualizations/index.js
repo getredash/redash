@@ -11,6 +11,7 @@ import sunburstVisualization from './sunburst';
 import sankeyVisualization from './sankey';
 import wordCloudVisualization from './word-cloud';
 import boxPlotVisualization from './box-plot';
+import cohortVisualization from './cohort';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -164,5 +165,6 @@ export default function (ngModule) {
   sankeyVisualization(ngModule);
   wordCloudVisualization(ngModule);
   boxPlotVisualization(ngModule);
+  cohortVisualization(ngModule);
   tableVisualization(ngModule);
 }
