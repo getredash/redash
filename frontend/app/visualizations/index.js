@@ -8,6 +8,7 @@ import counterVisualization from './counter';
 import tableVisualization from './table';
 import chartVisualization from './chart';
 import sunburstVisualization from './sunburst';
+import sankeyVisualization from './sankey';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -158,5 +159,6 @@ export default function (ngModule) {
   chartVisualization(ngModule);
   counterVisualization(ngModule);
   sunburstVisualization(ngModule);
+  sankeyVisualization(ngModule);
   tableVisualization(ngModule);
 }
