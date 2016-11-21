@@ -1,7 +1,7 @@
 from sys import exit
 
 from click import BOOL, Group, argument, option, prompt
-from peewee import IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from redash import models
 from redash.handlers.users import invite_user

@@ -105,13 +105,12 @@ def create_app():
         logging.getLogger().addHandler(sentry_handler)
 
     # configure our database
-    settings.DATABASE_CONFIG.update({'threadlocals': True})
-    app.config['DATABASE'] = settings.DATABASE_CONFIG
+    app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
     app.config.update(settings.all_settings())
 
     provision_app(app)
-    init_admin(app)
     db.init_app(app)
+    init_admin(app)
     mail.init_app(app)
     setup_authentication(app)
     handlers.init_app(app)

@@ -65,7 +65,8 @@ STATSD_PREFIX = os.environ.get('REDASH_STATSD_PREFIX', "redash")
 STATSD_USE_TAGS = parse_boolean(os.environ.get('REDASH_STATSD_USE_TAGS', "false"))
 
 # Connection settings for re:dash's own database (where we store the queries, results, etc)
-DATABASE_CONFIG = parse_db_url(os.environ.get("REDASH_DATABASE_URL", os.environ.get('DATABASE_URL', "postgresql://postgres")))
+SQLALCHEMY_DATABASE_URI = os.environ.get("REDASH_DATABASE_URL", os.environ.get('DATABASE_URL', "postgresql://postgres"))
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)

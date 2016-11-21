@@ -2,7 +2,6 @@ from functools import wraps
 import time
 import logging
 from playhouse.gfk import Model
-import peewee
 from playhouse.postgres_ext import PostgresqlExtDatabase
 from redash import statsd_client
 
@@ -62,8 +61,6 @@ def patch_query_execute():
 
     peewee.Query._execute = metered_execute
     peewee.Query.clone = extended_clone
-
-patch_query_execute()
 
 
 class MeteredModel(Model):

@@ -6,6 +6,7 @@ from funcy import project
 from redash import models
 from redash.permissions import require_access, require_admin_or_owner, view_only, require_permission
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
+from sqlalchemy.exc import DataError
 
 
 class AlertResource(BaseResource):

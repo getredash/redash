@@ -11,7 +11,7 @@ os.environ['REDASH_MULTI_ORG'] = "true"
 import logging
 from unittest import TestCase
 import datetime
-from redash import settings
+from redash import create_app, settings
 from factories import Factory
 
 settings.DATABASE_CONFIG = {
@@ -25,17 +25,20 @@ from tests.handlers import make_request
 
 logging.disable("INFO")
 logging.getLogger("metrics").setLevel("ERROR")
-logging.getLogger('peewee').setLevel(logging.INFO)
 
 
 class BaseTestCase(TestCase):
     def setUp(self):
+        self.app = create_app()
+        self.app_ctx = self.app.app_context()
+        self.app_ctx.push()
         redash.models.create_db(True, True)
         self.factory = Factory()
 
+
     def tearDown(self):
-        redash.models.db.close_db(None)
         redash.models.create_db(False, True)
+        self.app_ctx.pop()
         redis_connection.flushdb()
 
     def make_request(self, method, path, org=None, user=None, data=None, is_json=True):

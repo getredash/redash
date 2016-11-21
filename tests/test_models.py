@@ -6,18 +6,22 @@ import mock
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
 from redash import models
+from redash.models import db
 from redash.utils import gen_query_hash, utcnow
 
 
 class DashboardTest(BaseTestCase):
     def test_appends_suffix_to_slug_when_duplicate(self):
         d1 = self.factory.create_dashboard()
+        db.session.flush()
         self.assertEquals(d1.slug, 'test')
 
         d2 = self.factory.create_dashboard(user=d1.user)
+        db.session.flush()
         self.assertNotEquals(d1.slug, d2.slug)
 
         d3 = self.factory.create_dashboard(user=d1.user)
+        db.session.flush()
         self.assertNotEquals(d1.slug, d3.slug)
         self.assertNotEquals(d2.slug, d3.slug)
 
@@ -25,19 +29,18 @@ class DashboardTest(BaseTestCase):
 class QueryTest(BaseTestCase):
     def test_changing_query_text_changes_hash(self):
         q = self.factory.create_query()
-
         old_hash = q.query_hash
-        q.update_instance(query="SELECT 2;")
 
-        q = models.Query.get_by_id(q.id)
-
+        q.query = "SELECT 2;"
+        #q = db.session.query(models.Query).get(q.id)
+        db.session.flush()
         self.assertNotEquals(old_hash, q.query_hash)
 
     def test_search_finds_in_name(self):
         q1 = self.factory.create_query(name=u"Testing seåřċħ")
         q2 = self.factory.create_query(name=u"Testing seåřċħing")
         q3 = self.factory.create_query(name=u"Testing seå řċħ")
-
+        db.session.flush()
         queries = models.Query.search(u"seåřċħ", [self.factory.default_group])
 
         self.assertIn(q1, queries)
@@ -599,8 +602,8 @@ def _set_up_dashboard_test(d):
     d.g2 = d.factory.create_group(name='Second')
     d.ds1 = d.factory.create_data_source()
     d.ds2 = d.factory.create_data_source()
-    d.u1 = d.factory.create_user(groups=[d.g1.id])
-    d.u2 = d.factory.create_user(groups=[d.g2.id])
+    d.u1 = d.factory.create_user(group_ids=[d.g1.id])
+    d.u2 = d.factory.create_user(group_ids=[d.g2.id])
     models.DataSourceGroup.create(group=d.g1, data_source=d.ds1, permissions=['create', 'view'])
     models.DataSourceGroup.create(group=d.g2, data_source=d.ds2, permissions=['create', 'view'])
     d.q1 = d.factory.create_query(data_source=d.ds1)

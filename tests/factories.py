@@ -1,4 +1,5 @@
 import redash.models
+from redash.models import db
 from redash.utils import gen_query_hash, utcnow
 from redash.utils.configuration import ConfigurationContainer
 from redash.permissions import ACCESS_TYPE_MODIFY
@@ -19,14 +20,11 @@ class ModelFactory(object):
 
         return kwargs
 
-    def instance(self, **override_kwargs):
-        kwargs = self._get_kwargs(override_kwargs)
-
-        return self.model(**kwargs)
-
     def create(self, **override_kwargs):
         kwargs = self._get_kwargs(override_kwargs)
-        return self.model.create(**kwargs)
+        obj = self.model(**kwargs)
+        db.session.add(obj)
+        return obj
 
 
 class Sequence(object):
@@ -42,8 +40,8 @@ class Sequence(object):
 
 user_factory = ModelFactory(redash.models.User,
                             name='John Doe', email=Sequence('test{}@example.com'),
-                            groups=[2],
-                            org=1)
+                            group_ids=[2],
+                            org_id=1)
 
 org_factory = ModelFactory(redash.models.Organization,
                            name=Sequence("Org {}"),
@@ -151,31 +149,33 @@ class Factory(object):
     def data_source(self):
         if self._data_source is None:
             self._data_source = data_source_factory.create(org=self.org)
-            redash.models.DataSourceGroup.create(group=self.default_group, data_source=self._data_source)
+            db.session.add(redash.models.DataSourceGroup(
+                group=self.default_group,
+                data_source=self._data_source))
 
         return self._data_source
 
     def _init_org(self):
         if self._org is None:
             self._org, self._admin_group, self._default_group = redash.models.init_db()
-            self.org.update_instance(domain='org0.example.org')
+            self.org.domain = 'org0.example.org'
 
     def create_org(self, **kwargs):
         org = org_factory.create(**kwargs)
-
         self.create_group(org=org, type=redash.models.Group.BUILTIN_GROUP, name="default")
-        self.create_group(org=org, type=redash.models.Group.BUILTIN_GROUP, name="admin", permissions=["admin"])
+        self.create_group(org=org, type=redash.models.Group.BUILTIN_GROUP, name="admin",
+                          permissions=["admin"])
 
         return org
 
     def create_user(self, **kwargs):
         args = {
             'org': self.org,
-            'groups': [self.default_group.id]
+            'group_ids': [self.default_group.id]
         }
 
         if 'org' in kwargs:
-            args['groups'] = [kwargs['org'].default_group.id]
+            args['group_ids'] = [kwargs['org'].default_group.id]
 
         args.update(kwargs)
         return user_factory.create(**args)
@@ -183,11 +183,11 @@ class Factory(object):
     def create_admin(self, **kwargs):
         args = {
             'org': self.org,
-            'groups': [self.admin_group.id, self.default_group.id]
+            'group_ids': [self.admin_group.id, self.default_group.id]
         }
 
         if 'org' in kwargs:
-            args['groups'] = [kwargs['org'].default_group.id, kwargs['org'].admin_group.id]
+            args['group_ids'] = [kwargs['org'].default_group.id, kwargs['org'].admin_group.id]
 
         args.update(kwargs)
         return user_factory.create(**args)
@@ -200,7 +200,19 @@ class Factory(object):
 
         args.update(kwargs)
 
-        return redash.models.Group.create(**args)
+        g = redash.models.Group(**args)
+        return g
+
+    def create_group_hack(self, **kwargs):
+        args = {
+            'name': 'Group',
+            'org': self.org
+        }
+
+        args.update(kwargs)
+
+        g_id = redash.models.create_group_hack(**args)
+        return g_id
 
     def create_alert(self, **kwargs):
         args = {
@@ -231,12 +243,13 @@ class Factory(object):
 
         data_source = data_source_factory.create(**args)
 
-        if 'group' in kwargs:
+        if 'group_id' in kwargs:
             view_only = kwargs.pop('view_only', False)
 
-            redash.models.DataSourceGroup.create(group=kwargs['group'],
-                                                 data_source=data_source,
-                                                 view_only=view_only)
+            db.session.add(redash.models.DataSourceGroup(
+                group_id=kwargs['group_id'],
+                data_source=data_source,
+                view_only=view_only))
 
         return data_source
 
