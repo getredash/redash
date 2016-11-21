@@ -9,6 +9,8 @@ import tableVisualization from './table';
 import chartVisualization from './chart';
 import sunburstVisualization from './sunburst';
 import sankeyVisualization from './sankey';
+import wordCloudVisualization from './word-cloud';
+import boxPlotVisualization from './box-plot';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -160,5 +162,7 @@ export default function (ngModule) {
   counterVisualization(ngModule);
   sunburstVisualization(ngModule);
   sankeyVisualization(ngModule);
+  wordCloudVisualization(ngModule);
+  boxPlotVisualization(ngModule);
   tableVisualization(ngModule);
 }
