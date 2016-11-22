@@ -157,7 +157,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
       }
     } else if (syntax === 'sql') {
       return $http.post('api/queries/format', { query }).then(response =>
-         response.data
+         response.data.query
       );
     } else {
       return $q.reject('Query formatting is not supported for your data source syntax.');

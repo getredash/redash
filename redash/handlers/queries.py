@@ -1,17 +1,18 @@
-from flask import request
-from flask_restful import abort
-from flask_login import login_required
-import sqlparse
-
-from funcy import distinct, take
 from itertools import chain
 
-from redash.handlers.base import routes, org_scoped_rule, paginate
-from redash.handlers.query_results import run_query
+import sqlparse
+from flask import jsonify, request
+from flask_login import login_required
+from flask_restful import abort
+from funcy import distinct, take
 from redash import models
-from redash.permissions import require_permission, require_access, require_admin_or_owner, not_view_only, view_only, \
-    require_object_modify_permission, can_modify
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import (BaseResource, get_object_or_404,
+                                  org_scoped_rule, paginate, routes)
+from redash.handlers.query_results import run_query
+from redash.permissions import (can_modify, not_view_only, require_access,
+                                require_admin_or_owner,
+                                require_object_modify_permission,
+                                require_permission, view_only)
 from redash.utils import collect_parameters_from_request
 
 
@@ -21,7 +22,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return sqlparse.format(query, reindent=True, keyword_case='upper')
+    return jsonify({'query': sqlparse.format(query, reindent=True, keyword_case='upper')})
 
 
 class QuerySearchResource(BaseResource):
@@ -155,5 +156,3 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query, query.id)
-
-
