@@ -1,16 +1,15 @@
-import os
 import hashlib
 import json
+import os
 
-from flask import render_template, safe_join, send_file, current_app
+from authentication import current_org
+from flask import current_app, render_template, safe_join, send_file
 from flask_login import current_user, login_required
-from werkzeug.exceptions import NotFound
-
-from redash import settings, __version__
+from redash import __version__, settings
 from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule
 from redash.version_check import get_latest_version
-from authentication import current_org
+from werkzeug.exceptions import NotFound
 
 
 @routes.route('/<path:filename>')
