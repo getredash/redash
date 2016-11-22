@@ -58,6 +58,7 @@
     "ng-annotate": "^1.2.1",
     "ng-annotate-loader": "^0.2.0",
     "ng-table": "^2.1.0",
+    "pivottable": "^2.3.0",
     "plotly.js": "^1.16.0",
     "raw-loader": "^0.5.1",
     "ui-select": "^0.19.6",

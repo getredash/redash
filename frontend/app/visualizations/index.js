@@ -13,6 +13,7 @@ import wordCloudVisualization from './word-cloud';
 import boxPlotVisualization from './box-plot';
 import cohortVisualization from './cohort';
 import mapVisualization from './map';
+import pivotVisualization from './pivot';
 
 function VisualizationProvider() {
   this.visualizations = {};
@@ -168,5 +169,6 @@ export default function (ngModule) {
   boxPlotVisualization(ngModule);
   cohortVisualization(ngModule);
   mapVisualization(ngModule);
+  pivotVisualization(ngModule);
   tableVisualization(ngModule);
 }
