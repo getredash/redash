@@ -31,13 +31,12 @@ class DashboardListResource(BaseResource):
     @require_permission('create_dashboard')
     def post(self):
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard.create(name=dashboard_properties['name'],
-                                            org=self.current_org,
-                                            user=self.current_user,
-                                            layout='[]')
-
-        result = dashboard.to_dict()
-        return result
+        dashboard = models.Dashboard(name=dashboard_properties['name'],
+                                     org=self.current_org,
+                                     user=self.current_user,
+                                     is_draft=True,
+                                     layout='[]')
+        return dashboard.to_dict()
 
 
 class DashboardResource(BaseResource):
@@ -63,7 +62,8 @@ class DashboardResource(BaseResource):
 
         require_object_modify_permission(dashboard, self.current_user)
 
-        updates = project(dashboard_properties, ('name', 'layout', 'version'))
+        updates = project(dashboard_properties, ('name', 'layout', 'version',
+                                                 'is_draft'))
         updates['changed_by'] = self.current_user
 
         try:

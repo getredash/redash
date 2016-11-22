@@ -132,7 +132,7 @@
         data.id = $scope.query.id;
         data.version = $scope.query.version;
       } else {
-        data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_query_data_id", "version"]);
+          data = _.pick($scope.query, ["schedule", "query", "id", "description", "name", "data_source_id", "options", "latest_query_data_id", "version", "is_draft"]);
       }
 
       options = _.extend({}, {
@@ -161,6 +161,12 @@
     $scope.saveName = function() {
       Events.record(currentUser, 'edit_name', 'query', $scope.query.id);
       $scope.saveQuery(undefined, {'name': $scope.query.name});
+    };
+
+    $scope.togglePublished = function() {
+      Events.record(currentUser, 'toggle_published', 'query', $scope.query.id);
+      $scope.query.is_draft = !$scope.query.is_draft;
+      $scope.saveQuery(undefined, {'is_draft': $scope.query.is_draft});
     };
 
     $scope.executeQuery = function() {
