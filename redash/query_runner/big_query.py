@@ -147,8 +147,11 @@ class BigQuery(BaseQueryRunner):
         job_data = {
             "query": query,
             "dryRun": True,
-            "useLegacySql": not self.configuration.get('useStandardSql', False),
         }
+        
+        if self.configuration.get('useStandardSql', False):
+            job_data['useLegacySql'] = False
+            
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
@@ -158,10 +161,13 @@ class BigQuery(BaseQueryRunner):
             "configuration": {
                 "query": {
                     "query": query,
-                    "useLegacySql": not self.configuration.get('useStandardSql', False),
                 }
             }
         }
+        
+        if self.configuration.get('useStandardSql', False):
+            job_data['configuration']['query']['useLegacySql'] = False
+
 
         if "userDefinedFunctionResourceUri" in self.configuration:
             resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
