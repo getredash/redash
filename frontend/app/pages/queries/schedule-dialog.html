@@ -3,16 +3,38 @@
     <h4 class="modal-title">Refresh Schedule</h4>
 </div>
 <div class="modal-body">
-    <div class="radio">
-        <label>
-            <input type="radio" value="periodic" ng-model="$ctrl.refreshType">
-            <query-refresh-select refresh-type="$ctrl.refreshType" query="$ctrl.query" save-query="$ctrl.saveQuery"></query-refresh-select>
-        </label>
+    <div class='row'>
+        <div class="col-lg-4">
+            <label>
+                <input type="radio" value="null" ng-model="$ctrl.refreshType" ng-change="$ctrl.resetRefresh()">
+                No Refresh
+            </label>
+        </div>
+        <div class="col-lg-4">
+            <label>
+                <input type="radio" value="basic" ng-model="$ctrl.refreshType">
+                Simple Refresh
+            </label>
+        </div>
+        <div class="col-lg-4">
+            <label>
+                <input type="radio" value="advanced" ng-model="$ctrl.refreshType">
+                Advanced Refresh
+            </label>
+        </div>
     </div>
-    <div class="radio">
-        <label>
-            <input type="radio" value="daily" ng-model="$ctrl.refreshType">
-            <query-time-picker refresh-type="$ctrl.refreshType" query="$ctrl.query" save-query="$ctrl.saveQuery"></query-time-picker>
-        </label>
+    <div class='row m-t-20 m-l-0'>
+        <advanced-refresh 
+            refresh-type="$ctrl.refreshType" 
+            query="$ctrl.query" 
+            ng-if="$ctrl.refreshType === 'advanced'" 
+            save-query="$ctrl.saveQuery">
+        </advanced-refresh>
+        <basic-refresh 
+            refresh-type="$ctrl.refreshType" 
+            ng-if="$ctrl.refreshType === 'basic'"
+            query="$ctrl.query" 
+            save-query="$ctrl.saveQuery">
+        </basic-refresh>
     </div>
 </div>
