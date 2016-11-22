@@ -1,4 +1,4 @@
-{% extends "signed_out_layout.html" %}
+{% extends "layouts/signed_out.html" %}
 {% block title %}Login | Redash{% endblock %}
 {% block content %}
   {% with messages = get_flashed_messages() %}
@@ -10,7 +10,7 @@
   {% endwith %}
   {% if show_google_openid %}
   <div class="row">
-    <a href="{{ google_auth_url }}"><img src="/google_login.png" class="login-button"/></a>
+    <a href="{{ google_auth_url }}"><img src="/images/google_login.png" class="login-button"/></a>
   </div>
 
   <div class="login-or">
