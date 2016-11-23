@@ -843,6 +843,31 @@ class Query(ChangeTrackingMixin, ModelTimestampsMixin, BaseVersionedModel, Belon
 
         return query
 
+    def fork(self, user):
+        query = self
+        forked_query = Query()
+        forked_query.name = 'Copy of (#{}) {}'.format(query.id, query.name)
+        forked_query.user = user
+        forked_list = ['org', 'data_source', 'latest_query_data', 'description', 'query', 'query_hash']
+        for a in forked_list:
+            setattr(forked_query, a, getattr(query, a))
+        forked_query.save()
+
+        forked_visualizations = []
+        for v in query.visualizations:
+            if v.type == 'TABLE':
+                continue
+            forked_v = v.to_dict()
+            forked_v['options'] = v.options
+            forked_v['query'] = forked_query
+            forked_v.pop('id')
+            forked_visualizations.append(forked_v)
+        
+        if len(forked_visualizations) > 0:
+            with db.database.atomic():
+                Visualization.insert_many(forked_visualizations).execute()
+        return forked_query
+
     def pre_save(self, created):
         super(Query, self).pre_save(created)
         self.query_hash = utils.gen_query_hash(self.query)

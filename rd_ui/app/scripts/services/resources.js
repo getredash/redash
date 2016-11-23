@@ -454,6 +454,12 @@
           method: 'get',
           isArray: false,
           url: "api/queries/my"
+        },
+        fork: {
+          method: 'post',
+          isArray: false,
+          url: "api/queries/:id/fork",
+          params: {id: '@id'}
         }
       });
 

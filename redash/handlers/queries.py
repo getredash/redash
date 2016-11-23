@@ -139,6 +139,14 @@ class QueryResource(BaseResource):
         query.archive(self.current_user)
 
 
+class QueryForkResource(BaseResource):
+    @require_permission('edit_query')
+    def post(self, query_id):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        forked_query = query.fork(self.current_user)
+        return forked_query.to_dict(with_visualizations=True)
+
+
 class QueryRefreshResource(BaseResource):
     def post(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
