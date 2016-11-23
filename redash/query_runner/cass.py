@@ -88,8 +88,10 @@ class Cassandra(BaseQueryRunner):
             error = None
         except DriverException as e:
             error = e
+            json_data = None
         except KeyboardInterrupt:
             error = "Query cancelled by user."
+            json_data = None
 
         return json_data, error
 
