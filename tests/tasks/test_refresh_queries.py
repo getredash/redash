@@ -98,7 +98,7 @@ class TestRefreshQueries(BaseTestCase):
         query = self.factory.create_query(schedule="60")
         query2 = self.factory.create_query(schedule="3600", query=query.query, query_hash=query.query_hash)
         import psycopg2
-        retrieved_at = utcnow().replace(tzinfo=psycopg2.tz.FixedOffsetTimezone(offset=0, name=None)) - datetime.timedelta(minutes=10)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
         query_result = self.factory.create_query_result(retrieved_at=retrieved_at, query=query.query,
                                                    query_hash=query.query_hash)
         query.latest_query_data = query_result

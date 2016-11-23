@@ -70,7 +70,7 @@ query_factory = ModelFactory(redash.models.Query,
                              is_draft=False,
                              schedule=None,
                              data_source=data_source_factory.create,
-                             org=1)
+                             org_id=1)
 
 query_with_params_factory = ModelFactory(redash.models.Query,
                              name='New Query with Params',
@@ -81,7 +81,7 @@ query_with_params_factory = ModelFactory(redash.models.Query,
                              is_draft=False,
                              schedule=None,
                              data_source=data_source_factory.create,
-                             org=1)
+                             org_id=1)
 
 access_permission_factory = ModelFactory(redash.models.AccessPermission,
                              object_id=query_factory.create,
@@ -103,7 +103,7 @@ query_result_factory = ModelFactory(redash.models.QueryResult,
                                     query="SELECT 1",
                                     query_hash=gen_query_hash('SELECT 1'),
                                     data_source=data_source_factory.create,
-                                    org=1)
+                                    org_id=1)
 
 visualization_factory = ModelFactory(redash.models.Visualization,
                                      type='CHART',
@@ -120,7 +120,7 @@ widget_factory = ModelFactory(redash.models.Widget,
                               visualization=visualization_factory.create)
 
 destination_factory = ModelFactory(redash.models.NotificationDestination,
-                                   org=1,
+                                   org_id=1,
                                    user=user_factory.create,
                                    name='Destination',
                                    type='slack',
@@ -233,21 +233,23 @@ class Factory(object):
         return alert_subscription_factory.create(**args)
 
     def create_data_source(self, **kwargs):
+        group = None
+        if 'group' in kwargs:
+            group = kwargs.pop('group')
         args = {
             'org': self.org
         }
         args.update(kwargs)
 
-        if 'group' in kwargs and 'org' not in kwargs:
-            args['org'] = kwargs['group'].org
+        if group and 'org' not in kwargs:
+            args['org'] = group.org
 
         data_source = data_source_factory.create(**args)
 
-        if 'group_id' in kwargs:
+        if group:
             view_only = kwargs.pop('view_only', False)
-
             db.session.add(redash.models.DataSourceGroup(
-                group_id=kwargs['group_id'],
+                group=group,
                 data_source=data_source,
                 view_only=view_only))
 
@@ -294,7 +296,7 @@ class Factory(object):
         args.update(kwargs)
 
         if 'data_source' in args and 'org' not in args:
-            args['org'] = args['data_source'].org_id
+            args['org'] = args['data_source'].org
 
         return query_result_factory.create(**args)
 
