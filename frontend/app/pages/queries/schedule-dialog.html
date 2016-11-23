@@ -28,18 +28,21 @@
             refresh-type="$ctrl.refreshType" 
             query="$ctrl.query" 
             ng-if="$ctrl.refreshType === 'advanced'" 
+            modal="$ctrl"
             save-query="$ctrl.saveQuery">
         </advanced-refresh>
         <basic-refresh 
             refresh-type="$ctrl.refreshType" 
             ng-if="$ctrl.refreshType === 'basic'"
-            query="$ctrl.query" 
+            query="$ctrl.query"
+            modal="$ctrl"
             save-query="$ctrl.saveQuery">
         </basic-refresh>
         <div ng-if="!$ctrl.refreshType">
-            <button class='btn btn-primary' ng-click='$ctrl.resetRefresh()'>
-                Save
-            </button>
+            <div class="modal-footer">
+                <button class="btn btn-default" ng-click="$ctrl.close()">Cancel</button>
+                <button class="btn btn-primary" ng-click="$ctrl.resetRefresh();$ctrl.close();">Save</button>
+            </div>
         </div>
     </div>
 </div>
