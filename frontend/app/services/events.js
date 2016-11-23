@@ -10,9 +10,8 @@ function Events($http) {
     $http.post('api/events', events);
   }, 1000);
 
-  this.record = function record(user, action, objectType, objectId, additionalProperties) {
+  this.record = function record(action, objectType, objectId, additionalProperties) {
     const event = {
-      user_id: user.id,
       action,
       object_type: objectType,
       object_id: objectId,

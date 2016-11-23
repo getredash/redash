@@ -1,12 +1,16 @@
+import hashlib
 import logging
-from flask import render_template, request, redirect, url_for, flash
-from flask_login import current_user, login_user, logout_user
 
-from redash import models, settings, limiter
-from redash.handlers import routes
-from redash.handlers.base import org_scoped_rule
+from flask import flash, redirect, render_template, request, url_for
+from flask_login import current_user, login_user, logout_user
+from redash import __version__, models, settings, limiter
 from redash.authentication import current_org, get_login_url
-from redash.authentication.account import validate_token, BadSignature, SignatureExpired, send_password_reset_email
+from redash.authentication.account import (BadSignature, SignatureExpired,
+                                           send_password_reset_email,
+                                           validate_token)
+from redash.handlers import routes
+from redash.handlers.base import json_response, org_scoped_rule
+from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
 
@@ -125,3 +129,31 @@ def login(org_slug=None):
 def logout(org_slug=None):
     logout_user()
     return redirect(get_login_url(next=None))
+
+
+@routes.route(org_scoped_rule('/api/session'), methods=['GET'])
+def session(org_slug=None):
+    email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
+    gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
+
+    user = {
+        'gravatar_url': gravatar_url,
+        'id': current_user.id,
+        'name': current_user.name,
+        'email': current_user.email,
+        'groups': current_user.groups,
+        'permissions': current_user.permissions
+    }
+
+    client_config = {
+        'newVersionAvailable': get_latest_version(),
+        'version': __version__
+    }
+
+    client_config.update(settings.COMMON_CLIENT_CONFIG)
+
+    return json_response({
+        'user': user,
+        'org_slug': current_org.slug,
+        'client_config': client_config
+    })

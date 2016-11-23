@@ -1,16 +1,11 @@
 import json
-from flask import current_app
-from flask_login import login_required
 
+from flask_login import login_required
 from redash import models, redis_connection
-from redash.utils import json_dumps
 from redash.handlers import routes
+from redash.handlers.base import json_response
 from redash.permissions import require_super_admin
 from redash.tasks.queries import QueryTaskTracker
-
-
-def json_response(response):
-    return current_app.response_class(json_dumps(response), mimetype='application/json')
 
 
 @routes.route('/api/admin/queries/outdated', methods=['GET'])
@@ -45,4 +40,3 @@ def queries_tasks():
     }
 
     return json_response(response)
-

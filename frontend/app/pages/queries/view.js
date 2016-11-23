@@ -90,7 +90,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
 
-  Events.record(currentUser, 'view', 'query', $scope.query.id);
+  Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
     getQueryResult();
   }
@@ -156,12 +156,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   };
 
   $scope.saveDescription = () => {
-    Events.record(currentUser, 'edit_description', 'query', $scope.query.id);
+    Events.record('edit_description', 'query', $scope.query.id);
     $scope.saveQuery(undefined, { description: $scope.query.description });
   };
 
   $scope.saveName = () => {
-    Events.record(currentUser, 'edit_name', 'query', $scope.query.id);
+    Events.record('edit_name', 'query', $scope.query.id);
     $scope.saveQuery(undefined, { name: $scope.query.name });
   };
 
@@ -177,7 +177,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     getQueryResult(0);
     $scope.lockButton(true);
     $scope.cancelling = false;
-    Events.record(currentUser, 'execute', 'query', $scope.query.id);
+    Events.record('execute', 'query', $scope.query.id);
 
     Notifications.getPermissions();
   };
@@ -185,7 +185,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   $scope.cancelExecution = () => {
     $scope.cancelling = true;
     $scope.queryResult.cancelExecution();
-    Events.record(currentUser, 'cancel_execute', 'query', $scope.query.id);
+    Events.record('cancel_execute', 'query', $scope.query.id);
   };
 
   $scope.archiveQuery = () => {
@@ -206,7 +206,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   };
 
   $scope.updateDataSource = () => {
-    Events.record(currentUser, 'update_data_source', 'query', $scope.query.id);
+    Events.record('update_data_source', 'query', $scope.query.id);
     localStorage.lastSelectedDataSourceId = $scope.query.data_source_id;
 
     $scope.query.latest_query_data = null;

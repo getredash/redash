@@ -1,7 +1,7 @@
 import template from './list.html';
 
 function DestinationsCtrl($scope, $location, toastr, currentUser, Events, Destination) {
-  Events.record(currentUser, 'view', 'page', 'admin/destinations');
+  Events.record('view', 'page', 'admin/destinations');
   // $scope.$parent.pageTitle = 'Destinations';
 
   $scope.destinations = Destination.query();

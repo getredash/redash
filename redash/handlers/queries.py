@@ -117,10 +117,6 @@ class QueryResource(BaseResource):
         except models.ConflictDetectedError:
             abort(409)
 
-        # old_query = copy.deepcopy(query.to_dict())
-        # new_change = query.update_instance_tracked(changing_user=self.current_user, old_object=old_query, **query_def)
-        # abort(409) # HTTP 'Conflict' status code
-
         result = query.to_dict(with_visualizations=True)
         return result
 

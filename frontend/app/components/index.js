@@ -16,3 +16,4 @@ export { default as dynamicForm } from './dynamic-form';
 export { default as rdTimer } from './rd-timer';
 export { default as rdTimeAgo } from './rd-time-ago';
 export { default as overlay } from './overlay';
+export { default as routeStatus } from './route-status';

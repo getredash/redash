@@ -20,7 +20,7 @@ function cancelQueryButton() {
           queryId = null;
         }
 
-        Events.record(currentUser, 'cancel_execute', 'query', queryId, { admin: true });
+        Events.record('cancel_execute', 'query', queryId, { admin: true });
         $scope.inProgress = true;
       };
     },

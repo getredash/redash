@@ -3,7 +3,7 @@ import template from './show.html';
 
 function GroupCtrl($scope, $routeParams, $http, $location, toastr,
                    currentUser, Events, Group, User) {
-  Events.record(currentUser, 'view', 'group', $scope.groupId);
+  Events.record('view', 'group', $scope.groupId);
 
   $scope.currentUser = currentUser;
   $scope.group = Group.get({ id: $routeParams.groupId });

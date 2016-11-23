@@ -11,7 +11,6 @@
 
     <!-- build:css /styles/main.css -->
     <link rel="stylesheet" href="/bower_components/pace/themes/pace-theme-minimal.css">
-    <link rel="stylesheet" href="/styles/redash.css">
     <!-- endbuild -->
 
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
@@ -72,20 +71,7 @@
 
 <script>
     // TODO: move currentUser & features to be an Angular service
-    var clientConfig = {{ client_config|safe }};
     var basePath = "{{base_href}}";
-    var currentUser = {{ user|safe }};
-
-    currentUser.canEdit = function(object) {
-        var user_id = object.user_id || (object.user && object.user.id);
-        return this.hasPermission('admin') || (user_id && (user_id == currentUser.id));
-    };
-
-    currentUser.hasPermission = function(permission) {
-        return this.permissions.indexOf(permission) != -1;
-    };
-
-    currentUser.isAdmin = currentUser.hasPermission('admin');
 </script>
 {% include '_includes/tail.html' %}
 

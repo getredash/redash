@@ -4,7 +4,7 @@ import template from './edit.html';
 function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, Events, QuerySnippet) {
   // $scope.$parent.pageTitle = 'Query Snippets';
   this.snippetId = $routeParams.snippetId;
-  Events.record(currentUser, 'view', 'query_snippet', this.snippetId);
+  Events.record('view', 'query_snippet', this.snippetId);
 
   this.editorOptions = {
     mode: 'snippets',

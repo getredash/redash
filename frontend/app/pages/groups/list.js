@@ -2,7 +2,7 @@ import { Paginator } from '../../utils';
 import template from './list.html';
 
 function GroupsCtrl($scope, $location, $uibModal, toastr, currentUser, Events, Group) {
-  Events.record(currentUser, 'view', 'page', 'groups');
+  Events.record('view', 'page', 'groups');
   // $scope.$parent.pageTitle = 'Groups';
 
   $scope.currentUser = currentUser;
