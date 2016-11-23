@@ -1,17 +1,18 @@
 import json
-import sys
 import logging
 
-from redash.query_runner import *
+from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
 try:
-    from cassandra.cluster import Cluster
+    from cassandra.cluster import Cluster, Error
+    from cassandra.auth import PlainTextAuthProvider
     enabled = True
 except ImportError:
     enabled = False
+
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT * FROM system"
@@ -61,11 +62,9 @@ class Cassandra(BaseQueryRunner):
         return results, error
 
     def run_query(self, query, user):
-        from cassandra.cluster import Cluster
         connection = None
         try:
             if self.configuration.get('username', '') and self.configuration.get('password', ''):
-                from cassandra.auth import PlainTextAuthProvider
                 auth_provider = PlainTextAuthProvider(username='{}'.format(self.configuration.get('username', '')),
                                                       password='{}'.format(self.configuration.get('password', '')))
                 connection = Cluster([self.configuration.get('host', '')], auth_provider=auth_provider)
@@ -86,22 +85,22 @@ class Cassandra(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
 
             error = None
-
-        except cassandra.cluster.Error, e:
+        except Error as e:
             error = e.args[1]
         except KeyboardInterrupt:
             error = "Query cancelled by user."
 
         return json_data, error
 
-class ScyllaDB(Cassandra):
 
+class ScyllaDB(Cassandra):
     def __init__(self, configuration):
         super(ScyllaDB, self).__init__(configuration)
 
     @classmethod
     def type(cls):
         return "scylla"
+
 
 register(Cassandra)
 register(ScyllaDB)
