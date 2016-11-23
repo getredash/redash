@@ -62,7 +62,6 @@ def parse_query_json(query):
     query_data = json.loads(query, object_hook=datetime_parser)
     return query_data
 
-
 class MongoDB(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
@@ -81,6 +80,10 @@ class MongoDB(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Replica Set Name'
                 },
+                'readPreference': {
+                    'type': 'string',
+                    'title': 'Read preference (when replica set exists): primary, primaryPreferred, secondary, secondaryPreferred, or nearest'
+                }
             },
             'required': ['connectionString', 'dbName']
         }
@@ -101,6 +104,7 @@ class MongoDB(BaseQueryRunner):
         self.db_name = self.configuration["dbName"]
 
         self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
+        self.read_preference = "" if not self.configuration or not self.configuration.get("readPreference", "") else self.configuration["readPreference"]
 
     def _get_column_by_name(self, columns, column_name):
         for c in columns:
@@ -110,10 +114,14 @@ class MongoDB(BaseQueryRunner):
         return None
 
     def _get_db(self):
+        kwargs = {}
         if self.is_replica_set:
-            db_connection = pymongo.MongoReplicaSetClient(self.configuration["connectionString"], replicaSet=self.configuration["replicaSetName"])
-        else:
-            db_connection = pymongo.MongoClient(self.configuration["connectionString"])
+            kwargs["replicaSet"] = self.configuration["replicaSetName"]
+
+        if self.read_preference:
+            kwargs["readPreference"] = self.read_preference
+
+        db_connection = pymongo.MongoClient(self.configuration["connectionString"], **kwargs)
 
         return db_connection[self.db_name]
 
@@ -121,6 +129,9 @@ class MongoDB(BaseQueryRunner):
         db = self._get_db()
         if not db.command("connectionStatus")["ok"]:
             raise Exception("MongoDB connection error")
+
+        return db_connection[self.db_name]
+
 
     def _merge_property_names(self, columns, document):
         for property in document:
@@ -135,7 +146,7 @@ class MongoDB(BaseQueryRunner):
         # For now, the logic is to take the first and last documents (last is determined
         # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
         # as we don't know the correct order. In most single server installations it would be
-        # find. In replicaset when reading from non master it might not return the really last
+        # fine. In replicaset when reading from non master it might not return the really last
         # document written.
         first_document = None
         last_document = None
