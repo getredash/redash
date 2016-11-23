@@ -2,14 +2,8 @@ import json
 import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
+import requests
 logger = logging.getLogger(__name__)
-
-try:
-    import requests
-    enabled = True
-except ImportError as e:
-    logger.info(str(e))
-    enabled = False
 
 
 class ClickHouse(BaseSQLQueryRunner):
@@ -20,20 +14,16 @@ class ClickHouse(BaseSQLQueryRunner):
         return {
             "type": "object",
             "properties": {
+                "url": {
+                    "type": "string",
+                    "default": "http://127.0.0.1:8123"
+                },
                 "user": {
                     "type": "string",
                     "default": "default"
                 },
                 "password": {
                     "type": "string"
-                },
-                "host": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 8123
                 },
                 "dbname": {
                     "type": "string",
@@ -72,8 +62,7 @@ class ClickHouse(BaseSQLQueryRunner):
         return schema.values()
 
     def _send_query(self, data, stream=False):
-        url = 'http://{host}:{port}'.format(host=self.configuration['host'], port=self.configuration['port'])
-        r = requests.post(url, data=data, stream=stream, params={
+        r = requests.post(self.configuration['url'], data=data, stream=stream, params={
             'user': self.configuration['user'], 'password':  self.configuration['password'],
             'database': self.configuration['dbname']
         })
@@ -103,7 +92,7 @@ class ClickHouse(BaseSQLQueryRunner):
         return {'columns': columns, 'rows': result['data']}
 
     def run_query(self, query, user):
-        logger.info("Clickhouse is about to execute query: %s", query)
+        logger.debug("Clickhouse is about to execute query: %s", query)
         if query == "":
             json_data = None
             error = "Query is empty"
@@ -112,9 +101,10 @@ class ClickHouse(BaseSQLQueryRunner):
             q = self._clickhouse_query(query)
             data = json.dumps(q, cls=JSONEncoder)
             error = None
-        except Exception as exc:
+        except Exception as e:
             data = None
-            error = str(exc)
+            logging.exception(e)
+            error = str(e)
         return data, error
 
 register(ClickHouse)
