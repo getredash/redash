@@ -6,7 +6,7 @@
     <div class='row'>
         <div class="col-lg-4">
             <label>
-                <input type="radio" value="null" ng-model="$ctrl.refreshType" ng-change="$ctrl.resetRefresh()">
+                <input type="radio" value="" ng-model="$ctrl.refreshType">
                 No Refresh
             </label>
         </div>
@@ -36,5 +36,10 @@
             query="$ctrl.query" 
             save-query="$ctrl.saveQuery">
         </basic-refresh>
+        <div ng-if="!$ctrl.refreshType">
+            <button class='btn btn-primary' ng-click='$ctrl.resetRefresh()'>
+                Save
+            </button>
+        </div>
     </div>
 </div>

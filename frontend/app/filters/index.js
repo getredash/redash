@@ -32,6 +32,8 @@ export function durationHumanize(duration) {
 export function scheduleHumanize(schedule) {
   if (schedule === null) {
     return 'Never';
+  } else if (schedule.split(' ').length === 5) {
+    return `CRON tab: ${schedule}`;
   } else if (schedule.match(/\d\d:\d\d/) !== null) {
     const parts = schedule.split(':');
     const localTime = moment.utc()

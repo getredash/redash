@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { filter, map, range, partial, sortBy, unique } from 'underscore';
 import template from './schedule-dialog.html';
 import periodicRefreshTemplate from './periodic-refresh-template.html';
@@ -26,13 +25,18 @@ function basicRefresh() {
       query: '=',
       saveQuery: '=',
     },
-    template: `<select
-                ng-disabled="refreshType != 'periodic'"
+    template: ` <select
                 ng-model="query.schedule"
-                ng-change="saveQuery()"
                 ng-options="c.value as c.name for c in refreshOptions">
-                <option value="">No Refresh</option>
-                </select>`,
+                    <option value="" disabled selected>No refresh</option>
+                </select>
+                <div class='m-t-20'>
+                  <button class='btn btn-primary' 
+                      ng-show='query.schedule !== ""'
+                      ng-click='saveQuery()'>
+                      Save
+                  </button>
+                </div>`,
     link($scope) {
       $scope.refreshOptions = [
         {
@@ -118,8 +122,6 @@ function advancedRefresh() {
             newTime.minute = padWithZeros(2, minute);
             $scope.params.schedules.push(newTime);
           });
-          console.log(hours, $scope.params.schedules);
-
           $scope.params.scheduleType = 'weekly';
         }
         if (dom.length && dom !== '*') {
@@ -174,13 +176,12 @@ function advancedRefresh() {
         const hourString = unique(sortBy($scope.params.schedules.map(e => upadTrailingZero(e.hour)))).join(',');
         const minuteString = upadTrailingZero($scope.params.schedules[0].minute);
         let [dowString, domString] = ['', ''];
-        if ($scope.params.scheduleType === 'weekly') {
-          console.log($scope.params.daysOfTheWeek);
+        if ($scope.params.daysOfTheWeek.length) {
           dowString = $scope.params.daysOfTheWeek.map(e => e + 1).join(',');
         } else {
           dowString = '*';
         }
-        if ($scope.params.scheduleType === 'monthly' && $scope.params.daysOfTheMonth.length) {
+        if ($scope.params.daysOfTheMonth.length) {
           let errorFound = false;
           $scope.params.daysOfTheMonth.split(',').forEach((e) => {
             if (!/\d{1,2}/.test(e) || (/\d{1,2}/.test(e) && parseInt(e, 10) > 31)) {
