@@ -302,7 +302,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
 
     $uibModal.open({
       component: 'scheduleDialog',
-      size: 'sm',
+      size: 'md',
       resolve: {
         query: $scope.query,
         saveQuery: () => $scope.saveQuery,

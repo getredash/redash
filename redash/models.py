@@ -1,4 +1,6 @@
 import json
+import re
+
 from flask_login import UserMixin, AnonymousUserMixin
 import hashlib
 import logging
@@ -10,6 +12,7 @@ import itertools
 from funcy import project
 
 import peewee
+from croniter import croniter
 from passlib.apps import custom_app_context as pwd_context
 from playhouse.gfk import GFKField, BaseModel
 from playhouse.postgres_ext import ArrayField, DateTimeTZField
@@ -672,7 +675,7 @@ def should_schedule_next(previous_iteration, now, schedule):
     if schedule.isdigit():
         ttl = int(schedule)
         next_iteration = previous_iteration + datetime.timedelta(seconds=ttl)
-    else:
+    elif ":" in schedule:
         hour, minute = schedule.split(':')
         hour, minute = int(hour), int(minute)
 
@@ -685,6 +688,9 @@ def should_schedule_next(previous_iteration, now, schedule):
             previous_iteration = normalized_previous_iteration - datetime.timedelta(days=1)
 
         next_iteration = (previous_iteration + datetime.timedelta(days=1)).replace(hour=hour, minute=minute)
+    else:
+        future_dates = croniter(schedule, previous_iteration)
+        next_iteration = future_dates.get_next(datetime.datetime)
 
     return now > next_iteration
 
@@ -702,7 +708,7 @@ class Query(ChangeTrackingMixin, ModelTimestampsMixin, BaseVersionedModel, Belon
     user = peewee.ForeignKeyField(User)
     last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
-    schedule = peewee.CharField(max_length=10, null=True)
+    schedule = peewee.TextField(null=True)
     options = JSONField(default={})
 
     class Meta:
