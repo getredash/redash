@@ -82,7 +82,7 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
 
   this.loadDashboard = _.throttle((force) => {
     this.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, (dashboard) => {
-      Events.record(currentUser, 'view', 'dashboard', dashboard.id);
+      Events.record('view', 'dashboard', dashboard.id);
       renderDashboard(dashboard, force);
     }, () => {
         // error...
@@ -104,7 +104,7 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
 
   this.archiveDashboard = () => {
     const archive = () => {
-      Events.record(currentUser, 'archive', 'dashboard', this.dashboard.id);
+      Events.record('archive', 'dashboard', this.dashboard.id);
       this.dashboard.$delete(() => {
         // TODO:
         // this.$parent.reloadDashboards();

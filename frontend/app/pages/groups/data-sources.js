@@ -3,7 +3,7 @@ import template from './data-sources.html';
 
 function GroupDataSourcesCtrl($scope, $routeParams, $http, $location, toastr,
                               currentUser, Events, Group, DataSource) {
-  Events.record(currentUser, 'view', 'group_data_sources', $scope.groupId);
+  Events.record('view', 'group_data_sources', $scope.groupId);
   $scope.group = Group.get({ id: $routeParams.groupId });
   $scope.dataSources = Group.dataSources({ id: $routeParams.groupId });
   $scope.newDataSource = {};

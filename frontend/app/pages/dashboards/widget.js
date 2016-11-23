@@ -41,7 +41,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
       return;
     }
 
-    Events.record(currentUser, 'delete', 'widget', this.widget.id);
+    Events.record('delete', 'widget', this.widget.id);
 
     this.widget.$delete((response) => {
       this.dashboard.widgets =
@@ -54,7 +54,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
     });
   };
 
-  Events.record(currentUser, 'view', 'widget', this.widget.id);
+  Events.record('view', 'widget', this.widget.id);
 
   this.reload = (force) => {
     let maxAge = $location.search().maxAge;
@@ -65,8 +65,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   };
 
   if (this.widget.visualization) {
-    Events.record(currentUser, 'view', 'query', this.widget.visualization.query.id);
-    Events.record(currentUser, 'view', 'visualization', this.widget.visualization.id);
+    Events.record('view', 'query', this.widget.visualization.query.id);
+    Events.record('view', 'visualization', this.widget.visualization.id);
 
     this.query = this.widget.getQuery();
     this.reload(false);

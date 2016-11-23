@@ -2,7 +2,7 @@ import moment from 'moment';
 import template from './outdated-queries.html';
 
 function OutdatedQueriesCtrl($scope, NgTableParams, currentUser, Events, $http, $timeout) {
-  Events.record(currentUser, 'view', 'page', 'admin/outdated_queries');
+  Events.record('view', 'page', 'admin/outdated_queries');
   // $scope.$parent.pageTitle = 'Outdated Queries';
   $scope.autoUpdate = true;
 

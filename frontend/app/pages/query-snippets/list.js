@@ -2,7 +2,7 @@ import { Paginator } from '../../utils';
 import template from './list.html';
 
 function SnippetsCtrl($location, currentUser, Events, QuerySnippet) {
-  Events.record(currentUser, 'view', 'page', 'query_snippets');
+  Events.record('view', 'page', 'query_snippets');
   // $scope.$parent.pageTitle = 'Query Snippets';
 
   this.snippets = new Paginator([], { itemsPerPage: 20 });

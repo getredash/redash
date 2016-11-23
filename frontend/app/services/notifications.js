@@ -70,7 +70,7 @@ function Notifications(currentUser, Events) {
     notification.onclick = function onClick() {
       window.focus();
       this.close();
-      Events.record(currentUser, 'click', 'notification');
+      Events.record('click', 'notification');
     };
   };
 

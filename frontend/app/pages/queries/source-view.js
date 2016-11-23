@@ -9,7 +9,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   // Obviously it shouldn't be repeated, but we got bigger fish to fry.
   const DEFAULT_TAB = 'table';
 
-  Events.record(currentUser, 'view_source', 'query', $scope.query.id);
+  Events.record('view_source', 'query', $scope.query.id);
 
   const isNewQuery = !$scope.query.id;
   let queryText = $scope.query.query;
@@ -74,7 +74,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   };
 
   $scope.duplicateQuery = () => {
-    Events.record(currentUser, 'fork', 'query', $scope.query.id);
+    Events.record('fork', 'query', $scope.query.id);
     $scope.query.name = `Copy of (#${$scope.query.id}) ${$scope.query.name}`;
     $scope.query.id = null;
     $scope.query.schedule = null;
@@ -95,7 +95,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
     const confirm = { class: 'btn-danger', title: 'Delete' };
 
     AlertDialog.open(title, message, confirm).then(() => {
-      Events.record(currentUser, 'delete', 'visualization', vis.id);
+      Events.record('delete', 'visualization', vis.id);
 
       Visualization.delete(vis, () => {
         if ($scope.selectedTab === vis.id) {

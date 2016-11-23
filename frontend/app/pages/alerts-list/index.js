@@ -2,7 +2,7 @@ import template from './alerts-list.html';
 
 class AlertsListCtrl {
   constructor(NgTableParams, currentUser, Events, Alert) {
-    Events.record(currentUser, 'view', 'page', 'alerts');
+    Events.record('view', 'page', 'alerts');
     // $scope.$parent.pageTitle = "Alerts";
 
     this.tableParams = new NgTableParams({ count: 50 }, {});

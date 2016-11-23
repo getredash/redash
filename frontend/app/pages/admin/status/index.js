@@ -2,7 +2,7 @@ import template from './status.html';
 
 // TODO: switch to $ctrl instead of $scope.
 function AdminStatusCtrl($scope, $http, $timeout, currentUser, Events) {
-  Events.record(currentUser, 'view', 'page', 'admin/status');
+  Events.record('view', 'page', 'admin/status');
   // $scope.$parent.pageTitle = 'System Status';
 
   const refresh = () => {

@@ -3,7 +3,7 @@ import template from './tasks.html';
 import registerCancelQueryButton from './cancel-query-button';
 
 function TasksCtrl($scope, $location, $http, $timeout, NgTableParams, currentUser, Events) {
-  Events.record(currentUser, 'view', 'page', 'admin/tasks');
+  Events.record('view', 'page', 'admin/tasks');
   // $scope.$parent.pageTitle = 'Running Queries';
   $scope.autoUpdate = true;
 

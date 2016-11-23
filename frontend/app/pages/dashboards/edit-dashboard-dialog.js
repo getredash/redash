@@ -79,7 +79,7 @@ const EditDashboardDialog = {
                 'Please copy/backup your changes and reload this page.', { autoDismiss: false });
           }
         });
-        Events.record(currentUser, 'edit', 'dashboard', this.dashboard.id);
+        Events.record('edit', 'dashboard', this.dashboard.id);
       } else {
         $http.post('api/dashboards', {
           name: this.dashboard.name,
@@ -87,7 +87,7 @@ const EditDashboardDialog = {
           this.close();
           $location.path(`/dashboard/${response.slug}`).replace();
         });
-        Events.record(currentUser, 'create', 'dashboard');
+        Events.record('create', 'dashboard');
       }
     };
   },

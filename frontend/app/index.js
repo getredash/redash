@@ -46,47 +46,6 @@ const requirements = [
 
 const ngModule = angular.module('app', requirements);
 
-// stub for currentUser until we have something real.
-const user = {
-  name: 'Arik Fraimovich',
-  gravatar_url: 'https://www.gravatar.com/avatar/ca410c2e27337c8d7075bb1b098ac70f?s=40',
-  id: 1,
-  groups: [
-    3,
-    1,
-  ],
-  email: 'arik@redash.io',
-  permissions: [
-    'admin',
-    'super_admin',
-    'create_dashboard',
-    'create_query',
-    'edit_dashboard',
-    'edit_query',
-    'view_query',
-    'view_source',
-    'list_users',
-    'execute_query',
-    'schedule_query',
-    'list_dashboards',
-    'list_alerts',
-    'create_alerts',
-    'list_dashboards',
-    'list_alerts',
-    'list_data_sources',
-  ],
-  isAdmin: true,
-};
-
-user.hasPermission = () => true;
-user.canEdit = () => true;
-ngModule.constant('currentUser', user);
-ngModule.constant('clientConfig', { // TODO: make me a service.
-  showPermissionsControl: true,
-  allowCustomJSVisualizations: true,
-  // mailSettingsMissing: true,
-});
-
 function registerComponents() {
   each(components, (register) => {
     register(ngModule);
@@ -103,9 +62,14 @@ function registerPages() {
   each(pages, (registerPage) => {
     const routes = registerPage(ngModule);
 
+    function session(Auth) {
+      return Auth.loadSession();
+    }
+
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
         logger('Route: ', path);
+        route.resolve = Object.assign(route.resolve || {}, { session });
         $routeProvider.when(path, route);
       });
     });
@@ -144,6 +108,12 @@ ngModule.config(($routeProvider,
     positionClass: 'toast-bottom-right',
     timeOut: 2000,
   });
+});
+
+ngModule.run(($location, Auth) => {
+  if (!Auth.isAuthenticated()) {
+    Auth.login();
+  }
 });
 
 export default ngModule;

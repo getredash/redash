@@ -2,7 +2,7 @@ import { Paginator } from '../../utils';
 import template from './list.html';
 
 function UsersCtrl($location, toastr, currentUser, Events, User) {
-  Events.record(currentUser, 'view', 'page', 'users');
+  Events.record('view', 'page', 'users');
   // $scope.$parent.pageTitle = 'Users';
 
   this.currentUser = currentUser;

@@ -1,7 +1,7 @@
 import template from './new.html';
 
 function NewUserCtrl($scope, $location, toastr, currentUser, Events, User) {
-  Events.record(currentUser, 'view', 'page', 'users/new');
+  Events.record('view', 'page', 'users/new');
 
   $scope.user = new User({});
   $scope.saveUser = () => {

@@ -1,13 +1,14 @@
 import time
-from flask import request, Blueprint
-from flask_restful import Resource, abort
-from flask_login import current_user, login_required
-from peewee import DoesNotExist
 
+from flask import Blueprint, current_app, request
+from flask_login import current_user, login_required
+from flask_restful import Resource, abort
+from peewee import DoesNotExist
 from redash import settings
-from redash.tasks import record_event as record_event_task
-from redash.models import ApiUser
 from redash.authentication import current_org
+from redash.models import ApiUser
+from redash.tasks import record_event as record_event_task
+from redash.utils import json_dumps
 
 routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
@@ -99,3 +100,7 @@ def org_scoped_rule(rule):
         return "/<org_slug:org_slug>{}".format(rule)
 
     return rule
+
+
+def json_response(response):
+    return current_app.response_class(json_dumps(response), mimetype='application/json')

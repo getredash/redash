@@ -8,9 +8,9 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
   this.alertId = $routeParams.alertId;
 
   if (this.alertId === 'new') {
-    Events.record(currentUser, 'view', 'page', 'alerts/new');
+    Events.record('view', 'page', 'alerts/new');
   } else {
-    Events.record(currentUser, 'view', 'alert', this.alertId);
+    Events.record('view', 'alert', this.alertId);
   }
 
   this.trustAsHtml = html => $sce.trustAsHtml(html);
