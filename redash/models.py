@@ -708,7 +708,7 @@ class Query(ChangeTrackingMixin, ModelTimestampsMixin, BaseVersionedModel, Belon
     user = peewee.ForeignKeyField(User)
     last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
     is_archived = peewee.BooleanField(default=False, index=True)
-    schedule = peewee.TextField()
+    schedule = peewee.TextField(null=True)
     options = JSONField(default={})
 
     class Meta:
