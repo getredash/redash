@@ -104,7 +104,7 @@ class ClickHouse(BaseSQLQueryRunner):
         except Exception as e:
             data = None
             logging.exception(e)
-            error = str(e)
+            error = unicode(e)
         return data, error
 
 register(ClickHouse)
