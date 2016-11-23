@@ -69,12 +69,15 @@ class GoogleAnalytics(BaseQueryRunner):
         return build('analytics', 'v3', http=credentials.authorize(httplib2.Http()))
 
     def run_query(self, query, user):
-        logger.info("Analytics is about to execute query: %s", query)
-        params = parse_qs(urlparse(query).query, keep_blank_values=True)
-        for key in params.keys():
-            params[key] = ','.join(params[key])
-            if '-' in key:
-                params[key.replace('-', '_')] = params.pop(key)
+        logger.debug("Analytics is about to execute query: %s", query)
+        try:
+            params = json.loads(query)
+        except:
+            params = parse_qs(urlparse(query).query, keep_blank_values=True)
+            for key in params.keys():
+                params[key] = ','.join(params[key])
+                if '-' in key:
+                    params[key.replace('-', '_')] = params.pop(key)
         if len(params) > 0:
             response = self._get_analytics_service().data().ga().get(**params).execute()
             columns = []
@@ -99,6 +102,10 @@ class GoogleAnalytics(BaseQueryRunner):
                     elif column_type == TYPE_DATETIME:
                         if len(value) == 10:
                             value = datetime.strptime(value, '%Y%m%d%H')
+                        elif len(value) == 12:
+                            value = datetime.strptime(value, '%Y%m%d%H%M')
+                        else:
+                            raise Exception('Wrong datetime format')
                     d[column_name] = value
                 rows.append(d)
             data = {'columns': columns, 'rows': rows}
