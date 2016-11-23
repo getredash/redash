@@ -7,7 +7,7 @@ from redash.utils import JSONEncoder
 logger = logging.getLogger(__name__)
 
 try:
-    from cassandra.cluster import Cluster, Error
+    from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
     enabled = True
 except ImportError:
@@ -85,10 +85,9 @@ class Cassandra(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
 
             error = None
-        except Error as e:
-            error = e.args[1]
         except KeyboardInterrupt:
             error = "Query cancelled by user."
+            json_data = None
 
         return json_data, error
 
