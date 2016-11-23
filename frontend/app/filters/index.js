@@ -4,9 +4,6 @@ import { isEmpty } from 'underscore';
 
 // eslint-disable-next-line
 const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
-const clientConfig = {
-  dateTimeFormat: '',
-};
 
 export function durationHumanize(duration) {
   let humanized = '';
@@ -69,14 +66,6 @@ export function capitalize(text) {
   }
 
   return null;
-}
-
-export function dateTime(value) {
-  if (!value) {
-    return '-';
-  }
-
-  return moment(value).format(clientConfig.dateTimeFormat);
 }
 
 export function linkify(text) {

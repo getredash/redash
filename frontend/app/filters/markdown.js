@@ -1,11 +1,7 @@
 import marked from 'marked';
 
-const clientConfig = {
-  allowScriptsInUserInput: false,
-};
-
 export default function (ngModule) {
-  ngModule.filter('markdown', $sce =>
+  ngModule.filter('markdown', ($sce, clientConfig) =>
      function markdown(text) {
        if (!text) {
          return '';

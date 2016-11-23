@@ -36,6 +36,7 @@ import * as services from './services';
 import registerDirectives from './directives';
 import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
+import dateTimeFilter from './filters/datetime';
 
 const logger = debug('redash');
 
@@ -86,6 +87,7 @@ registerDirectives(ngModule);
 registerServices();
 registerFilters();
 markdownFilter(ngModule);
+dateTimeFilter(ngModule);
 registerComponents();
 registerPages();
 registerVisualizations(ngModule);
