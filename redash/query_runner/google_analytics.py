@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from base64 import b64decode
 import json
 import logging
@@ -32,7 +34,7 @@ types_conv = dict(
 )
 
 
-class GoogleAnalytics(BaseQueryRunner):
+class GoogleAnalytics(BaseSQLQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
@@ -61,6 +63,21 @@ class GoogleAnalytics(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(GoogleAnalytics, self).__init__(configuration)
+
+    def _get_tables(self, schema):
+        accounts = self._get_analytics_service().management().accounts().list().execute().get('items')
+        if accounts is None:
+            raise Exception("Failed getting accounts.")
+        else:
+            for account in accounts:
+                schema[account['name']] = {'name': account['name'], 'columns': []}
+                properties = self._get_analytics_service().management().webproperties().list(
+                    accountId=account['id']).execute().get('items', [])
+                for property_ in properties:
+                    schema[account['name']]['columns'].append(
+                        u'{0} (ga:{1})'.format(property_['name'], property_['defaultProfileId'])
+                    )
+        return schema.values()
 
     def _get_analytics_service(self):
         scope = ['https://www.googleapis.com/auth/analytics.readonly']
