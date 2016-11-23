@@ -69,7 +69,7 @@ const humanizeCron = (schedule) => {
   });
   let dowsHuman = '';
   if (dows !== '*') {
-    dowsHuman = `every ${englishWordsJoin(dowsPieces)}`;
+    dowsHuman = `Every ${englishWordsJoin(dowsPieces)}`;
   }
   // Hour of the day
   const hoursPieces = [];
