@@ -304,22 +304,30 @@ function PlotlyChart() {
 
             data.forEach((row) => {
               yValues[row.x] = row.y;
-              eValues[row.x] = row.yError;
+              if (row.yError) {
+                eValues[row.x] = row.yError;
+              }
             });
 
             unifiedX.forEach((x) => {
               plotlySeries.x.push(normalizeValue(x));
               plotlySeries.y.push(normalizeValue(yValues[x] || null));
-              plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
+              if (eValues[x]) {
+                plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
+              }
             });
           } else {
             data.forEach((row) => {
               plotlySeries.x.push(normalizeValue(row.x));
               plotlySeries.y.push(normalizeValue(row.y));
-              plotlySeries.error_y.array.push(normalizeValue(row.yError));
+              if (row.yError) {
+                plotlySeries.error_y.array.push(normalizeValue(row.yError));
+              }
             });
           }
-
+          if (!plotlySeries.error_y.length) {
+            delete plotlySeries.error_y.length;
+          }
           scope.data.push(plotlySeries);
         });
 
