@@ -5,7 +5,7 @@ influxdb==2.7.1
 MySQL-python==1.2.5
 oauth2client==1.2
 pyhive==0.1.6
-pymongo==3.2.1
+pymongo==3.3.1
 pyOpenSSL==0.14
 vertica-python==0.5.1
 td-client==0.4.1
