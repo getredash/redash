@@ -369,7 +369,7 @@ class ElasticSearch(BaseElasticSearch):
             url = "{0}/{1}/_search".format(self.server_url, index_name)
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
-            mappings = self._get_mappings(mapping_url)
+            mappings, error = self._get_mappings(mapping_url)
             if error:
                 return None, error
 
