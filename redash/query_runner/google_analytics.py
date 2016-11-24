@@ -10,7 +10,6 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 try:
-    import gspread
     from oauth2client.client import SignedJwtAssertionCredentials
     from apiclient.discovery import build
     import httplib2
@@ -122,7 +121,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                         elif len(value) == 12:
                             value = datetime.strptime(value, '%Y%m%d%H%M')
                         else:
-                            raise Exception('Wrong datetime format')
+                            raise Exception("Unknown date/time format in results: '{}'".format(value))
                     d[column_name] = value
                 rows.append(d)
             data = {'columns': columns, 'rows': rows}
