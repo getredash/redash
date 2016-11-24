@@ -3,6 +3,7 @@
 var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
+var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 var path = require('path');
 
 
@@ -17,6 +18,7 @@ var config = {
   },
 
   plugins: [
+    new WebpackBuildNotifierPlugin({title: 'Redash'}),
     new webpack.DefinePlugin({
       ON_TEST: process.env.NODE_ENV === 'test'
     }),
