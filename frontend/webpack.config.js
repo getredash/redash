@@ -11,8 +11,9 @@ var config = {
     app: './app/index.js'
   },
   output: {
+    // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
     path: './dist',
-    filename: '[name].js'
+    filename: '[name].js',
   },
 
   plugins: [
@@ -78,6 +79,10 @@ var config = {
     inline: true,
     historyApiFallback: true,
     proxy: {
+      '/login': {
+        target: 'http://localhost:5000/default/',
+        secure: false
+      },
       '/status.json': {
         target: 'http://localhost:5000/',
         secure: false

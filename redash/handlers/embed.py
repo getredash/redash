@@ -1,21 +1,22 @@
 import json
-import pystache
-import time
 import logging
+import time
 
-from funcy import project
-from flask import render_template, request
-from flask_login import login_required, current_user
+import pystache
+from authentication import current_org
+from flask import current_app, render_template, request, safe_join, send_file
+from flask_login import current_user, login_required
 from flask_restful import abort
-
-from redash import models, settings, utils
-from redash import serializers
-from redash.utils import json_dumps, collect_parameters_from_request, gen_query_hash
+from funcy import project
+from redash import models, serializers, settings, utils
 from redash.handlers import routes
-from redash.handlers.base import org_scoped_rule, record_event, get_object_or_404
+from redash.handlers.base import (get_object_or_404, org_scoped_rule,
+                                  record_event)
 from redash.handlers.query_results import collect_query_parameters
 from redash.permissions import require_access, view_only
-from authentication import current_org
+from redash.utils import (collect_parameters_from_request, gen_query_hash,
+                          json_dumps)
+
 
 #
 # Run a parameterized query synchronously and return the result
@@ -119,41 +120,8 @@ def embed(query_id, visualization_id, org_slug=None):
                            query_result=json_dumps(qr))
 
 
-
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
 @login_required
 def public_dashboard(token, org_slug=None):
-    # TODO: verify object is a dashboard?
-    if not isinstance(current_user, models.ApiUser):
-        api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
-        dashboard = api_key.object
-    else:
-        dashboard = current_user.object
-
-    user = {
-        'permissions': [],
-        'apiKey': current_user.id
-    }
-
-    headers = {
-        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
-    }
-
-    record_event(current_org, current_user, {
-        'action': 'view',
-        'object_id': dashboard.id,
-        'object_type': 'dashboard',
-        'public': True,
-        'headless': 'embed' in request.args,
-        'referer': request.headers.get('Referer')
-    })
-
-    response = render_template("public.html",
-                               headless='embed' in request.args,
-                               user=json.dumps(user),
-                               seed_data=json_dumps({
-                                 'dashboard': serializers.public_dashboard(dashboard)
-                               }),
-                               client_config=json.dumps(settings.COMMON_CLIENT_CONFIG))
-
-    return response, 200, headers
+    full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
+    return send_file(full_path, **dict(cache_timeout=0, conditional=True))

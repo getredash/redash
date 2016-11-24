@@ -1,14 +1,10 @@
-import hashlib
-import json
 import os
 
-from authentication import current_org
-from flask import current_app, render_template, safe_join, send_file
-from flask_login import current_user, login_required
-from redash import __version__, settings
+from flask import current_app, safe_join, send_file
+from flask_login import login_required
+from redash import settings
 from redash.handlers import routes
 from redash.handlers.base import org_scoped_rule
-from redash.version_check import get_latest_version
 from werkzeug.exceptions import NotFound
 
 
@@ -30,35 +26,8 @@ def send_static(filename):
 
 @login_required
 def index(**kwargs):
-    email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
-    gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
-
-    user = {
-        'gravatar_url': gravatar_url,
-        'id': current_user.id,
-        'name': current_user.name,
-        'email': current_user.email,
-        'groups': current_user.groups,
-        'permissions': current_user.permissions
-    }
-
-    client_config = {
-        'newVersionAvailable': get_latest_version(),
-        'version': __version__
-    }
-
-    client_config.update(settings.COMMON_CLIENT_CONFIG)
-
-    headers = {
-        'Cache-Control': 'no-cache, no-store, max-age=0, must-revalidate'
-    }
-
-    response = render_template("index.html",
-                               user=json.dumps(user),
-                               org_slug=current_org.slug,
-                               client_config=json.dumps(client_config))
-
-    return response, 200, headers
+    full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
+    return send_file(full_path, **dict(cache_timeout=0, conditional=True))
 
 
 def register_static_routes(rules):
@@ -69,24 +38,24 @@ def register_static_routes(rules):
         routes.add_url_rule(org_scoped_rule(rule), None, index)
 
 rules = ['/admin/<anything>/<whatever>',
-          '/admin/<anything>',
-          '/dashboard/<anything>',
-          '/alerts',
-          '/alerts/<pk>',
-          '/queries',
-          '/data_sources',
-          '/data_sources/<pk>',
-          '/users',
-          '/users/<pk>',
-          '/destinations',
-          '/destinations/<pk>',
-          '/query_snippets',
-          '/query_snippets/<pk>',
-          '/groups',
-          '/groups/<pk>',
-          '/groups/<pk>/data_sources',
-          '/queries/<query_id>',
-          '/queries/<query_id>/<anything>',
-          '/personal']
+         '/admin/<anything>',
+         '/dashboard/<anything>',
+         '/alerts',
+         '/alerts/<pk>',
+         '/queries',
+         '/data_sources',
+         '/data_sources/<pk>',
+         '/users',
+         '/users/<pk>',
+         '/destinations',
+         '/destinations/<pk>',
+         '/query_snippets',
+         '/query_snippets/<pk>',
+         '/groups',
+         '/groups/<pk>',
+         '/groups/<pk>/data_sources',
+         '/queries/<query_id>',
+         '/queries/<query_id>/<anything>',
+         '/personal']
 
 register_static_routes(rules)

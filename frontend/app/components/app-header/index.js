@@ -3,7 +3,7 @@ import { omit, groupBy, sortBy } from 'underscore';
 import template from './app-header.html';
 import logoUrl from '../../assets/images/redash_icon_small.png';
 
-function controller($scope, $location, currentUser, Dashboard) {
+function controller($scope, $location, Auth, currentUser, Dashboard) {
   this.dashboards = [];
   // TODO: logoUrl should come from clientconfig
   this.logoUrl = logoUrl;
@@ -33,8 +33,11 @@ function controller($scope, $location, currentUser, Dashboard) {
     $location.path('/queries/search').search({ q: $scope.term });
   };
 
+  this.logout = () => {
+    Auth.logout();
+  };
+
   this.reloadDashboards();
-  // $scope.currentUser = currentUser;
 }
 
 export default function (ngModule) {
