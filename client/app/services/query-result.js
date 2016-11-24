@@ -378,6 +378,18 @@ function QueryResultService($resource, $timeout, $q) {
       });
     }
 
+    getLink(queryId, fileType, apiKey) {
+      let link = `/api/queries/${queryId}/results/${this.getId()}.${fileType}`;
+      if (apiKey) {
+        link = `${link}?api_key=${apiKey}`;
+      }
+      return link;
+    }
+
+    getName(queryName, fileType) {
+      return `${queryName.replace(' ', '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
+    }
+
     static get(dataSourceId, query, maxAge, queryId) {
       const queryResult = new QueryResult();
 
