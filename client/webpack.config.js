@@ -80,7 +80,7 @@ var config = {
     historyApiFallback: true,
     proxy: {
       '/login': {
-        target: 'http://localhost:5000/default/',
+        target: 'http://localhost:5000/',
         secure: false
       },
       '/status.json': {
@@ -92,7 +92,7 @@ var config = {
         secure: false
       },
       '/api': {
-        target: 'http://localhost:5000/default',
+        target: 'http://localhost:5000',
         secure: false
       }
     }

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "NODE_ENV=test karma start",
     "start": "webpack-dev-server --content-base app",
-    "build": "NODE_ENV=production node node_modules/.bin/webpack"
+    "build": "NODE_ENV=production node node_modules/.bin/webpack",
+    "watch": "webpack --watch --progress --colors -d"
   },
   "repository": {
     "type": "git",
