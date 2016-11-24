@@ -117,13 +117,11 @@ ngModule.config(($routeProvider,
 });
 
 ngModule.run(($location, $rootScope, Auth) => {
-  // $rootScope.$on('$routeChangeStart', (event, to, from) => {
-  //   console.log('to', to);
-  // });
-
-  // if (!Auth.isAuthenticated()) {
-  //   Auth.login();
-  // }
+  $rootScope.$on('$routeChangeStart', (event, to) => {
+    if (!Auth.isAuthenticated()) {
+      console.log('need to login', to);
+    }
+  });
 });
 
 export default ngModule;
