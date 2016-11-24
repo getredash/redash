@@ -2,7 +2,7 @@ import hashlib
 import logging
 
 from flask import flash, redirect, render_template, request, url_for
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, models, settings, limiter
 from redash.authentication import current_org, get_login_url
 from redash.authentication.account import (BadSignature, SignatureExpired,
@@ -132,23 +132,32 @@ def logout(org_slug=None):
 
 
 @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
+@login_required
 def session(org_slug=None):
-    email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
-    gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
+    if not isinstance(current_user._get_current_object(), models.ApiUser):
+        email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
+        gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
-    user = {
-        'gravatar_url': gravatar_url,
-        'id': current_user.id,
-        'name': current_user.name,
-        'email': current_user.email,
-        'groups': current_user.groups,
-        'permissions': current_user.permissions
-    }
+        user = {
+            'gravatar_url': gravatar_url,
+            'id': current_user.id,
+            'name': current_user.name,
+            'email': current_user.email,
+            'groups': current_user.groups,
+            'permissions': current_user.permissions
+        }
 
-    client_config = {
-        'newVersionAvailable': get_latest_version(),
-        'version': __version__
-    }
+        client_config = {
+            'newVersionAvailable': get_latest_version(),
+            'version': __version__
+        }
+    else:
+        user = {
+            'permissions': [],
+            'apiKey': current_user.id
+        }
+
+        client_config = {}
 
     client_config.update(settings.COMMON_CLIENT_CONFIG)
 

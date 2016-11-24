@@ -1,5 +1,7 @@
+const SESSION_ITEM = 'session';
+
 function getLocalSessionData() {
-  const sessionData = window.sessionStorage.getItem('session');
+  const sessionData = window.sessionStorage.getItem(SESSION_ITEM);
   if (sessionData) {
     return JSON.parse(sessionData);
   }
@@ -9,12 +11,16 @@ function getLocalSessionData() {
 function AuthService($window, $location, $q, $http) {
   const Auth = {
     isAuthenticated() {
-      return getLocalSessionData() !== null;
+      const sessionData = getLocalSessionData();
+      return sessionData !== null;
     },
     login() {
-      // const next = encodeURI($location.url());
-      console.log('do the login manually!');
-      // $window.location.href = `http://localhost:5000/default/login?next=${next}`;
+      const next = encodeURI($location.url());
+      window.location.href = `/login?next=${next}`;
+    },
+    logout() {
+      window.sessionStorage.removeItem(SESSION_ITEM);
+      $window.location.href = '/logout';
     },
     loadSession() {
       const sessionData = getLocalSessionData();
@@ -27,13 +33,20 @@ function AuthService($window, $location, $q, $http) {
         return response.data;
       });
     },
+    setApiKey(apiKey) {
+      this.apiKey = apiKey;
+    },
+    getApiKey() {
+      return this.apiKey;
+    },
   };
 
   return Auth;
 }
 
 function CurrentUserService() {
-  Object.assign(this, getLocalSessionData().user);
+  const sessionData = getLocalSessionData();
+  Object.assign(this, sessionData.user);
 
   this.canEdit = (object) => {
     const userId = object.user_id || (object.user && object.user.id);
@@ -49,8 +62,27 @@ function ClientConfigService() {
   Object.assign(this, getLocalSessionData().client_config);
 }
 
+function apiKeyHttpInterceptor($injector) {
+  return {
+    request(config) {
+      const Auth = $injector.get('Auth');
+      const apiKey = Auth.getApiKey();
+      if (apiKey) {
+        config.headers.Authorization = `Key ${apiKey}`;
+      }
+
+      return config;
+    },
+  };
+}
+
 export default function (ngModule) {
   ngModule.factory('Auth', AuthService);
   ngModule.service('currentUser', CurrentUserService);
   ngModule.service('clientConfig', ClientConfigService);
+  ngModule.factory('apiKeyHttpInterceptor', apiKeyHttpInterceptor);
+
+  ngModule.config(($httpProvider) => {
+    $httpProvider.interceptors.push('apiKeyHttpInterceptor');
+  });
 }

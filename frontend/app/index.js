@@ -70,7 +70,11 @@ function registerPages() {
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
         logger('Route: ', path);
+        // Make sure session is resolved before loading the page.
         route.resolve = Object.assign(route.resolve || {}, { session });
+        // This is a workaround, to make sure app-header and footer are loaded
+        // after the session is resovled.
+        route.template = `<app-header></app-header><route-status></route-status>${route.template}<footer></footer>`;
         $routeProvider.when(path, route);
       });
     });
@@ -112,10 +116,14 @@ ngModule.config(($routeProvider,
   });
 });
 
-ngModule.run(($location, Auth) => {
-  if (!Auth.isAuthenticated()) {
-    Auth.login();
-  }
+ngModule.run(($location, $rootScope, Auth) => {
+  // $rootScope.$on('$routeChangeStart', (event, to, from) => {
+  //   console.log('to', to);
+  // });
+
+  // if (!Auth.isAuthenticated()) {
+  //   Auth.login();
+  // }
 });
 
 export default ngModule;

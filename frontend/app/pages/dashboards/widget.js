@@ -86,6 +86,7 @@ export default function (ngModule) {
     controller: DashboardWidgetCtrl,
     bindings: {
       widget: '<',
+      public: '<',
       dashboard: '<',
     },
   });

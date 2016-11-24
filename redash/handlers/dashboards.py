@@ -1,13 +1,14 @@
-from flask import request, url_for
-from flask_restful import abort
-
-from funcy import distinct, take, project
 from itertools import chain
 
-from redash import models
-from redash.models import ConflictDetectedError
-from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission, can_modify
+from flask import request, url_for
+from flask_restful import abort
+from funcy import distinct, project, take
+from redash import models, serializers
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.models import ConflictDetectedError
+from redash.permissions import (can_modify, require_admin_or_owner,
+                                require_object_modify_permission,
+                                require_permission)
 
 
 class RecentDashboardsResource(BaseResource):
@@ -83,6 +84,17 @@ class DashboardResource(BaseResource):
         return dashboard.to_dict(with_widgets=True, user=self.current_user)
 
 
+class PublicDashboardResource(BaseResource):
+    def get(self, token):
+        if not isinstance(self.current_user, models.ApiUser):
+            api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
+            dashboard = api_key.object
+        else:
+            dashboard = self.current_user.object
+
+        return serializers.public_dashboard(dashboard)
+
+
 class DashboardShareResource(BaseResource):
     def post(self, dashboard_id):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
@@ -112,5 +124,3 @@ class DashboardShareResource(BaseResource):
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
-
-
