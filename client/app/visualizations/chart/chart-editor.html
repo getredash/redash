@@ -67,7 +67,7 @@
       </ui-select>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Errors column</label>
 
       <ui-select name="errorColumn" ng-model="form.errorColumn">
