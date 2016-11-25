@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import abort
 from flask_login import login_required
+import cgi
 import sqlparse
 
 from funcy import distinct, take
@@ -21,7 +22,7 @@ def format_sql_query(org_slug=None):
     arguments = request.get_json(force=True)
     query = arguments.get("query", "")
 
-    return sqlparse.format(query, reindent=True, keyword_case='upper')
+    return cgi.escape(sqlparse.format(query, reindent=True, keyword_case='upper'))
 
 
 class QuerySearchResource(BaseResource):
