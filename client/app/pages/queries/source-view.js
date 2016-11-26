@@ -75,15 +75,9 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
 
   $scope.duplicateQuery = () => {
     Events.record('fork', 'query', $scope.query.id);
-    $scope.query.name = `Copy of (#${$scope.query.id}) ${$scope.query.name}`;
-    $scope.query.id = null;
-    $scope.query.schedule = null;
-    $scope.saveQuery({
-      successMessage: 'Query forked',
-      errorMessage: 'Query could not be forked',
-    }).then((savedQuery) => {
-      // redirect to forked query (clear hash)
-      $location.url(savedQuery.getSourceLink()).replace();
+
+    Query.fork({ id: $scope.query.id }, (newQuery) => {
+      $location.url(newQuery.getSourceLink()).replace();
     });
   };
 

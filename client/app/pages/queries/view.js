@@ -134,7 +134,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
       request.id = $scope.query.id;
       request.version = $scope.query.version;
     } else {
-      request = pick($scope.query, ['schedule', 'query', 'id', 'description', 'name', 'data_source_id', 'options', 'latest_query_data_id', 'version']);
+      request = pick($scope.query, ['schedule', 'query', 'id', 'description', 'name', 'data_source_id', 'options', 'latest_query_data_id', 'version', 'is_draft']);
     }
 
     const options = Object.assign({}, {
@@ -153,6 +153,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
         toastr.error(options.errorMessage);
       }
     }).$promise;
+  };
+
+  $scope.togglePublished = () => {
+    Events.record(currentUser, 'toggle_published', 'query', $scope.query.id);
+    $scope.query.is_draft = !$scope.query.is_draft;
+    $scope.saveQuery(undefined, { is_draft: $scope.query.is_draft });
   };
 
   $scope.saveDescription = () => {

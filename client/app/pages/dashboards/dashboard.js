@@ -156,6 +156,21 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
     }
   };
 
+  this.togglePublished = () => {
+    Events.record(currentUser, 'toggle_published', 'dashboard', this.dashboard.id);
+    this.dashboard.is_draft = !this.dashboard.is_draft;
+    this.saveInProgress = true;
+    Dashboard.save({
+      slug: this.dashboard.id,
+      name: this.dashboard.name,
+      layout: JSON.stringify(this.dashboard.layout),
+      is_draft: this.dashboard.is_draft,
+    }, (dashboard) => {
+      this.saveInProgress = false;
+      this.dashboard.version = dashboard.version;
+    });
+  };
+
   if (_.has($location.search(), 'fullscreen')) {
     this.toggleFullscreen();
   }

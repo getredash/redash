@@ -135,6 +135,12 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         isArray: false,
         url: 'api/queries/my',
       },
+      fork: {
+        method: 'post',
+        isArray: false,
+        url: 'api/queries/:id/fork',
+        params: { id: '@id' },
+      },
     });
 
   Query.newQuery = function newQuery() {
