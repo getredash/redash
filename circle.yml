@@ -13,9 +13,10 @@ dependencies:
     - pip install -r requirements.txt
     - pip install pymongo==3.2.1
     - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
+    - if [ "$CIRCLE_BRANCH" = "webpack" ]; then make deps; fi
   cache_directories:
     - node_modules/
-    - rd_ui/app/bower_components/
+    - client/node_modules/
 test:
   override:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
@@ -24,8 +25,9 @@ deployment:
     branch: master
     commands:
       - make pack
-      - make upload
-      - echo "rd_ui/app" >> .dockerignore
+      # Skipping uploads for now, until master is stable.
+      # - make upload
+      - echo "client/app" >> .dockerignore
       - docker pull redash/redash:latest
       - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
