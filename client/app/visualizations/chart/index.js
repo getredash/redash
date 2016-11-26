@@ -177,6 +177,16 @@ function ChartEditor(clientConfig) {
         if (value !== undefined) { setColumnRole('x', value); }
       });
 
+      scope.$watch('form.errorColumn', (value, old) => {
+        if (old !== undefined) {
+          unsetColumn(old);
+        }
+        if (value !== undefined) {
+          setColumnRole('yError', value);
+        }
+      });
+
+
       scope.$watch('form.groupby', (value, old) => {
         if (old !== undefined) {
           unsetColumn(old);
@@ -205,6 +215,8 @@ function ChartEditor(clientConfig) {
             scope.form.yAxisColumns.push(key);
           } else if (value === 'series') {
             scope.form.groupby = key;
+          } else if (value === 'yError') {
+            scope.form.errorColumn = key;
           }
         });
       }
@@ -233,7 +245,8 @@ export default function (ngModule) {
       legend: { enabled: true },
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
       xAxis: { type: 'datetime', labels: { enabled: true } },
-      series: { stacking: null },
+      error_y: { type: 'data', visible: true },
+      series: { stacking: null, error_y: { type: 'data', visible: true } },
       seriesOptions: {},
       columnMapping: {},
       bottomMargin: 50,
