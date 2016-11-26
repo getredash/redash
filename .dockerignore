@@ -1,4 +1,4 @@
-rd_ui/.tmp/
-rd_ui/node_modules/
+client/.tmp/
+client/node_modules/
 .git/
 .vagrant/

@@ -2,7 +2,7 @@
 .idea
 *.pyc
 .coverage
-rd_ui/dist
+client/dist
 .DS_Store
 celerybeat-schedule*
 .#*
@@ -26,5 +26,4 @@ docker-compose.yml
 node_modules
 .tmp
 .sass-cache
-rd_ui/app/bower_components
 npm-debug.log
