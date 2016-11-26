@@ -49,15 +49,15 @@
   <div ng-show="selectedTab == 'settings'" class="p-10">
     <div class="col-md-6">
       <form class="form" name="userSettingsForm" ng-submit="updateUser(userSettingsForm)" novalidate>
-        <div class="form-group required" show-errors>
+        <div class="form-group required" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
           <label class="control-label">Name</label>
           <input name="name" type="text" class="form-control" ng-model="user.name" required/>
-          <input-errors errors="userSettingsForm.name.$error"/>
+          <error-messages input="userSettingsForm.name" form="userSettingsForm"></error-messages>
         </div>
-        <div class="form-group required" show-errors>
+        <div class="form-group required" ng-class="{ 'has-error':  (userSettingsForm.email | showError:userSettingsForm )}">
           <label class="control-label">Email</label>
           <input name="email" type="email" class="form-control" ng-model="user.email" required/>
-          <input-errors errors="userSettingsForm.email.$error"/>
+          <error-messages input="userSettingsForm.email" form="userSettingsForm"></error-messages>
         </div>
         <div class="form-group">
           <button class="btn btn-primary">Save</button>
@@ -68,18 +68,18 @@
   <div ng-show="selectedTab == 'password'" class="p-10">
     <div class="col-md-6">
       <form class="form" name="userPasswordForm" ng-submit="savePassword(userPasswordForm)" novalidate>
-        <div class="form-group required" show-errors>
+        <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.currentPassword | showError:userPasswordForm )}">
           <label class="control-label">Current Password</label>
           <input name="currentPassword" class="form-control" type="password" ng-model="password.current" required/>
-          <input-errors name="Password" errors="userPasswordForm.currentPassword.$error"/>
+          <error-messages input="userPasswordForm.currentPassword" form="userPasswordForm"></error-messages>
         </div>
-        <div class="form-group required" show-errors>
+        <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.newPassword | showError:userPasswordForm )}">
           <label class="control-label">New Password</label>
           <input name="newPassword" class="form-control" type="password" ng-model="password.new" ng-minlength="6"
                  required/>
-          <input-errors name="Password" errors="userPasswordForm.newPassword.$error"/>
+          <error-messages input="userPasswordForm.newPassword" form="userPasswordForm"></error-messages>
         </div>
-        <div class="form-group required" show-errors>
+        <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.passwordRepeat | showError:userPasswordForm )}">
           <label class="control-label">Repeat New Password</label>
           <input name="passwordRepeat" class="form-control" type="password" ng-model="password.newRepeat"
                  compare-to="password.new"/>

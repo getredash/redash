@@ -53,8 +53,6 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr,
   };
 
   $scope.savePassword = (form) => {
-    $scope.$broadcast('show-errors-check-validity');
-
     if (!form.$valid) {
       return;
     }
@@ -79,8 +77,6 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr,
   };
 
   $scope.updateUser = (form) => {
-    $scope.$broadcast('show-errors-check-validity');
-
     if (!form.$valid) {
       return;
     }
