@@ -314,7 +314,7 @@ function QueryResultService($resource, $timeout, $q) {
           // filter found
           const filter = {
             name,
-            friendlyName: this.getColumnFriendlyName(name),
+            friendlyName: getColumnFriendlyName(name),
             column: col,
             values: [],
             multiple: (type === 'multiFilter') || (type === 'multi-filter'),
