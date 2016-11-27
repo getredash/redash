@@ -3,7 +3,7 @@ import { omit, groupBy, sortBy } from 'underscore';
 import template from './app-header.html';
 import logoUrl from '../../assets/images/redash_icon_small.png';
 
-function controller($scope, $location, Auth, currentUser, Dashboard) {
+function controller($scope, $location, $uibModal, Auth, currentUser, Dashboard) {
   this.dashboards = [];
   // TODO: logoUrl should come from clientconfig
   this.logoUrl = logoUrl;
@@ -11,6 +11,15 @@ function controller($scope, $location, Auth, currentUser, Dashboard) {
   this.showNewQueryMenu = currentUser.hasPermission('create_query');
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.currentUser = currentUser;
+
+  this.newDashboard = () => {
+    $uibModal.open({
+      component: 'editDashboardDialog',
+      resolve: {
+        dashboard: () => ({ name: null, layout: null }),
+      },
+    });
+  };
 
   this.reloadDashboards = () => {
     Dashboard.recent((dashboards) => {

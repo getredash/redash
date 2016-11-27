@@ -55,7 +55,7 @@
     <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
   </div>
 
-    <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
-      <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard"></dashboard-widget>
-    </div>
+  <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
+    <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard"></dashboard-widget>
+  </div>
 </div>
