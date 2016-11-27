@@ -1,8 +1,8 @@
 <table class="table table-condensed table-hover">
   <thead>
     <tr>
-      <th ng-repeat="column in $ctrl.columns">
-        {{column}}
+      <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.orderBy(column)" class="sortable-column">
+        {{column}} <span ng-if="$ctrl.sortIcon(column)"><i class="fa fa-sort-{{$ctrl.sortIcon(column)}}"></i></span>
       </th>
     </tr>
 

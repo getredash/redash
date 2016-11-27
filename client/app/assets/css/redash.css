@@ -480,21 +480,6 @@ div.table-name:hover {
   display: none !important;
 }
 
-/* Smart Table */
-
-.smart-table {
-  margin-bottom: 0px;
-}
-
-.smart-table .pagination {
-  margin-bottom: 5px;
-  margin-top: 10px;
-}
-
-.smart-table .smart-table-header-row .header-content {
-  cursor: pointer;
-}
-
 .voffset {
   margin-top: 2px;
 }
