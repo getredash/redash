@@ -9,8 +9,8 @@
   </thead>
   <tbody>
     <tr ng-repeat="row in $ctrl.rows">
-      <td ng-repeat="(name, value) in row">
-        {{value}}
+      <td ng-repeat="column in $ctrl.columns">
+        {{row[column]}}
       </td>
     </tr>
   </tbody>
