@@ -3,8 +3,6 @@ import template from './alert.html';
 import alertSubscriptions from './alert-subscriptions';
 
 function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
-  // $scope.$parent.pageTitle = 'Alerts';
-
   this.alertId = $routeParams.alertId;
 
   if (this.alertId === 'new') {
@@ -91,6 +89,7 @@ export default function (ngModule) {
   return {
     '/alerts/:alertId': {
       template: '<alert-page></alert-page>',
+      title: 'Alerts',
     },
   };
 }

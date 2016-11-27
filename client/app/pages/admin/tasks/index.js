@@ -4,7 +4,6 @@ import registerCancelQueryButton from './cancel-query-button';
 
 function TasksCtrl($scope, $location, $http, $timeout, NgTableParams, currentUser, Events) {
   Events.record('view', 'page', 'admin/tasks');
-  // $scope.$parent.pageTitle = 'Running Queries';
   $scope.autoUpdate = true;
 
   $scope.selectedTab = 'in_progress';
@@ -60,6 +59,7 @@ export default function (ngModule) {
   return {
     '/admin/queries/tasks': {
       template: '<tasks-page></tasks-page>',
+      title: 'Running Queries',
     },
   };
 }

@@ -3,8 +3,6 @@ import template from './list.html';
 
 function GroupsCtrl($scope, $location, $uibModal, toastr, currentUser, Events, Group) {
   Events.record('view', 'page', 'groups');
-  // $scope.$parent.pageTitle = 'Groups';
-
   $scope.currentUser = currentUser;
   $scope.groups = new Paginator([], { itemsPerPage: 20 });
   Group.query((groups) => {
@@ -31,6 +29,7 @@ export default function (ngModule) {
     '/groups': {
       template,
       controller: 'GroupsCtrl',
+      title: 'Groups',
     },
   };
 }

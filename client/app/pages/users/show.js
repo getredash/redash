@@ -3,8 +3,6 @@ import template from './show.html';
 
 function UserCtrl($scope, $routeParams, $http, $location, toastr,
   clientConfig, currentUser, Events, User) {
-  // $scope.$parent.pageTitle = 'Users';
-
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
   $scope.clientConfig = clientConfig;
@@ -113,6 +111,7 @@ export default function (ngModule) {
       template,
       reloadOnSearch: false,
       controller: 'UserCtrl',
+      title: 'Users',
     },
   };
 }

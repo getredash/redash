@@ -3,8 +3,6 @@ import template from './alerts-list.html';
 class AlertsListCtrl {
   constructor(NgTableParams, currentUser, Events, Alert) {
     Events.record('view', 'page', 'alerts');
-    // $scope.$parent.pageTitle = "Alerts";
-
     this.tableParams = new NgTableParams({ count: 50 }, {});
 
     Alert.query((alerts) => {
@@ -34,6 +32,7 @@ export default function (ngModule) {
   return {
     '/alerts': {
       template: '<alerts-list-page></alerts-list-page>',
+      title: 'Alerts',
     },
   };
 }

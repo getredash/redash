@@ -2,7 +2,7 @@ import moment from 'moment';
 import template from './queries-list.html';
 
 class QueriesListCtrl {
-  constructor($scope, $location, NgTableParams, Query) {
+  constructor($scope, $location, NgTableParams, Title, Query) {
     const page = parseInt($location.search().page || 1, 10);
     const count = 25;
 
@@ -32,17 +32,16 @@ class QueriesListCtrl {
 
     switch ($location.path()) {
       case '/queries':
-        // $scope.$parent.pageTitle = 'Queries';
-        // page title
+        Title.set('Queries');
         this.resource = Query.query;
         break;
       case '/queries/drafts':
-        // $scope.$parent.pageTitle = 'Drafts';
+        Title.set('Draft Queries');
         this.resource = Query.myQueries;
         this.defaultOptions.drafts = true;
         break;
       case '/queries/my':
-        // $scope.$parent.pageTitle = 'My Queries';
+        Title.set('My Queries');
         this.resource = Query.myQueries;
         break;
       default:

@@ -3,7 +3,7 @@ import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
 function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
-  AlertDialog, Dashboard, currentUser, clientConfig, Events) {
+  Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
   this.refreshEnabled = false;
   this.isFullscreen = false;
   this.refreshRate = null;
@@ -28,7 +28,7 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
   };
 
   const renderDashboard = (dashboard, force) => {
-    // $scope.$parent.pageTitle = dashboard.name;
+    Title.set(dashboard.name);
     const promises = [];
 
     this.dashboard.widgets.forEach(row =>

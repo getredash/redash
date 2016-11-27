@@ -7,7 +7,6 @@ const logger = debug('redash:http');
 function DestinationCtrl($scope, $routeParams, $http, $location, toastr,
                          currentUser, Events, Destination) {
   Events.record('view', 'page', 'admin/destination');
-  $scope.$parent.pageTitle = 'Destinations';
 
   $scope.destinationId = $routeParams.destinationId;
 
@@ -43,10 +42,7 @@ export default function (ngModule) {
     '/destinations/:destinationId': {
       template,
       controller: 'DestinationCtrl',
+      title: 'Destinations',
     },
   };
-  // $routeProvider.when('/destinations/:destinationId', {
-  //   templateUrl: '/views/destinations/edit.html',
-  //   controller: 'DestinationCtrl',
-  // });
 }

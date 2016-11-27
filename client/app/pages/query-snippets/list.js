@@ -3,7 +3,6 @@ import template from './list.html';
 
 function SnippetsCtrl($location, currentUser, Events, QuerySnippet) {
   Events.record('view', 'page', 'query_snippets');
-  // $scope.$parent.pageTitle = 'Query Snippets';
 
   this.snippets = new Paginator([], { itemsPerPage: 20 });
   QuerySnippet.query((snippets) => {
@@ -20,6 +19,7 @@ export default function (ngModule) {
   return {
     '/query_snippets': {
       template: '<snippets-list-page></snippets-list-page>',
+      title: 'Query Snippets',
     },
   };
 }

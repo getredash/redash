@@ -3,7 +3,6 @@ import template from './outdated-queries.html';
 
 function OutdatedQueriesCtrl($scope, NgTableParams, currentUser, Events, $http, $timeout) {
   Events.record('view', 'page', 'admin/outdated_queries');
-  // $scope.$parent.pageTitle = 'Outdated Queries';
   $scope.autoUpdate = true;
 
   this.tableParams = new NgTableParams({ count: 50 }, {});
@@ -40,6 +39,7 @@ export default function (ngModule) {
   return {
     '/admin/queries/outdated': {
       template: '<outdated-queries-page></outdated-queries-page>',
+      title: 'Outdated Queries',
     },
   };
 }

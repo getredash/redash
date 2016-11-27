@@ -5,8 +5,6 @@ import { Paginator } from '../../utils';
 import template from './queries-search-results-page.html';
 
 function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
-  // $scope.$parent.pageTitle = 'Queries Search';
-
   this.term = $location.search().q;
   this.paginator = new Paginator([], { itemsPerPage: 20 });
 
@@ -40,6 +38,7 @@ export default function (ngModule) {
     '/queries/search': {
       template: '<queries-search-results-page></queries-search-results-page>',
       reloadOnSearch: true,
+      title: 'Queries Search',
     },
   };
 }

@@ -6,7 +6,6 @@ const logger = debug('redash:http');
 function DataSourceCtrl($scope, $routeParams, $http, $location, toastr,
   currentUser, Events, DataSource) {
   Events.record('view', 'page', 'admin/data_source');
-  // $scope.$parent.pageTitle = 'Data Sources';
 
   $scope.dataSourceId = $routeParams.dataSourceId;
 
@@ -64,6 +63,7 @@ export default function (ngModule) {
     '/data_sources/:dataSourceId': {
       template,
       controller: 'DataSourceCtrl',
+      title: 'Datasources',
     },
   };
 }

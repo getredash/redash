@@ -2,7 +2,6 @@ import template from './list.html';
 
 function DataSourcesCtrl($scope, $location, currentUser, Events, DataSource) {
   Events.record('view', 'page', 'admin/data_sources');
-  $scope.$parent.pageTitle = 'Data Sources';
 
   $scope.dataSources = DataSource.query();
 }
@@ -14,6 +13,7 @@ export default function (ngModule) {
     '/data_sources': {
       template,
       controller: 'DataSourcesCtrl',
+      title: 'Data Sources',
     },
   };
 }

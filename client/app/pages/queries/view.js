@@ -2,7 +2,8 @@ import { pick, any, some, find } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $window, $q,
-  AlertDialog, Notifications, clientConfig, toastr, $uibModal, currentUser, Query, DataSource) {
+  Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal, currentUser,
+  Query, DataSource) {
   const DEFAULT_TAB = 'table';
 
   function getQueryResult(maxAge) {
@@ -237,7 +238,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   };
 
   $scope.$watch('query.name', () => {
-    $scope.$parent.pageTitle = $scope.query.name;
+    Title.set($scope.query.name);
   });
 
   $scope.$watch('queryResult && queryResult.getData()', (data) => {
