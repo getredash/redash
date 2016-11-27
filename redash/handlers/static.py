@@ -39,7 +39,9 @@ def register_static_routes(rules):
 
 rules = ['/admin/<anything>/<whatever>',
          '/admin/<anything>',
+         '/dashboards',
          '/dashboard/<anything>',
+         '/dashboards/<anything>',
          '/alerts',
          '/alerts/<pk>',
          '/queries',
