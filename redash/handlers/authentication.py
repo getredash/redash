@@ -3,7 +3,7 @@ import logging
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
-from redash import __version__, models, settings, limiter
+from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
@@ -131,6 +131,15 @@ def logout(org_slug=None):
     return redirect(get_login_url(next=None))
 
 
+def base_href():
+    if settings.MULTI_ORG:
+        base_href = url_for('redash.index', _external=True, org_slug=current_org.slug)
+    else:
+        base_href = url_for('redash.index', _external=True)
+
+    return base_href
+
+
 @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
 @login_required
 def session(org_slug=None):
@@ -160,6 +169,9 @@ def session(org_slug=None):
         client_config = {}
 
     client_config.update(settings.COMMON_CLIENT_CONFIG)
+    client_config.update({
+        'basePath': base_href()
+    })
 
     return json_response({
         'user': user,
