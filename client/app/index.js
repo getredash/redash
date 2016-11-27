@@ -116,10 +116,16 @@ ngModule.config(($routeProvider,
   });
 });
 
-ngModule.run(($location, $rootScope, Auth) => {
+ngModule.run(($location, $rootScope, $route, Auth) => {
   $rootScope.$on('$routeChangeStart', (event, to) => {
     if (!Auth.isAuthenticated()) {
-      console.log('need to login', to);
+      event.preventDefault();
+      // maybe we only miss the session? try to load session
+      Auth.loadSession().then(() => {
+        $route.reload();
+      }).catch(() => {
+        Auth.login();
+      });
     }
   });
 });
