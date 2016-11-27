@@ -1,6 +1,6 @@
 function QuerySnippet($resource) {
   const resource = $resource('api/query_snippets/:id', { id: '@id' });
-  resource.prototype.getSnippet = () => {
+  resource.prototype.getSnippet = function getSnippet() {
     let name = this.trigger;
     if (this.description !== '') {
       name = `${this.trigger}: ${this.description}`;
