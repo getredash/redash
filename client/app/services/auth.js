@@ -1,39 +1,66 @@
+import debug from 'debug';
+
+const logger = debug('redash:auth');
 const SESSION_ITEM = 'session';
+const session = { loaded: false };
+
+function storeSession(sessionData) {
+  logger('Updating session to be:', sessionData);
+  Object.assign(session, sessionData, { loaded: true });
+}
 
 function getLocalSessionData() {
+  if (session.loaded) {
+    return session;
+  }
+
   const sessionData = window.sessionStorage.getItem(SESSION_ITEM);
   if (sessionData) {
-    return JSON.parse(sessionData);
+    storeSession(JSON.parse(sessionData));
   }
-  return null;
+
+  return session;
 }
 
 function AuthService($window, $location, $q, $http) {
   const Auth = {
     isAuthenticated() {
       const sessionData = getLocalSessionData();
-      return sessionData !== null;
+      return sessionData.loaded && sessionData.user.id;
     },
     login() {
       const next = encodeURI($location.url());
+      logger('Calling login with next = %s', next);
       window.location.href = `/login?next=${next}`;
     },
     logout() {
+      logger('Logout.');
       window.sessionStorage.removeItem(SESSION_ITEM);
       $window.location.href = '/logout';
     },
     loadSession() {
+      logger('Loading session');
       const sessionData = getLocalSessionData();
-      if (sessionData) {
+      if (sessionData.loaded && sessionData.user.id) {
+        logger('Resolving with local value.');
         return $q.resolve(sessionData);
       }
 
+      this.setApiKey(null);
       return $http.get('/api/session').then((response) => {
-        window.sessionStorage.setItem('session', JSON.stringify(response.data));
+        storeSession(response.data);
+        return session;
+      });
+    },
+    loadConfig() {
+      logger('Loading config');
+      return $http.get('/api/config').then((response) => {
+        storeSession({ client_config: response.data.client_config, user: { permissions: [] } });
         return response.data;
       });
     },
     setApiKey(apiKey) {
+      logger('Set API key to: %s', apiKey);
       this.apiKey = apiKey;
     },
     getApiKey() {
@@ -84,5 +111,22 @@ export default function (ngModule) {
 
   ngModule.config(($httpProvider) => {
     $httpProvider.interceptors.push('apiKeyHttpInterceptor');
+  });
+
+  ngModule.run(($location, $window, $rootScope, $route, Auth) => {
+    $rootScope.$on('$routeChangeStart', (event, to) => {
+      if (to.authenticated && !Auth.isAuthenticated()) {
+        logger('Requested authenticated route: ', to);
+        event.preventDefault();
+        // maybe we only miss the session? try to load session
+        Auth.loadSession().then(() => {
+          logger('Loaded session');
+          $route.reload();
+        }).catch(() => {
+          logger('Need to login, redirecting');
+          Auth.login();
+        });
+      }
+    });
   });
 }

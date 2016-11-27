@@ -140,6 +140,31 @@ def base_href():
     return base_href
 
 
+def client_config():
+    if not isinstance(current_user._get_current_object(), models.ApiUser) and current_user.is_authenticated:
+        client_config = {
+            'newVersionAvailable': get_latest_version(),
+            'version': __version__
+        }
+    else:
+        client_config = {}
+
+    client_config.update(settings.COMMON_CLIENT_CONFIG)
+    client_config.update({
+        'basePath': base_href()
+    })
+
+    return client_config
+
+
+@routes.route(org_scoped_rule('/api/config'), methods=['GET'])
+def config(org_slug=None):
+    return json_response({
+        'org_slug': current_org.slug,
+        'client_config': client_config()
+    })
+
+
 @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
 @login_required
 def session(org_slug=None):
@@ -155,26 +180,14 @@ def session(org_slug=None):
             'groups': current_user.groups,
             'permissions': current_user.permissions
         }
-
-        client_config = {
-            'newVersionAvailable': get_latest_version(),
-            'version': __version__
-        }
     else:
         user = {
             'permissions': [],
             'apiKey': current_user.id
         }
 
-        client_config = {}
-
-    client_config.update(settings.COMMON_CLIENT_CONFIG)
-    client_config.update({
-        'basePath': base_href()
-    })
-
     return json_response({
         'user': user,
         'org_slug': current_org.slug,
-        'client_config': client_config
+        'client_config': client_config()
     })

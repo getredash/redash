@@ -35,8 +35,7 @@ export default function (ngModule) {
   function session($http, $route, Auth) {
     const token = $route.current.params.token;
     Auth.setApiKey(token);
-
-    return Auth.loadSession();
+    return Auth.loadConfig();
   }
 
   ngModule.config(($routeProvider) => {

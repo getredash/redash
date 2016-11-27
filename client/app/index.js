@@ -63,18 +63,15 @@ function registerPages() {
   each(pages, (registerPage) => {
     const routes = registerPage(ngModule);
 
-    function session(Auth) {
-      return Auth.loadSession();
-    }
-
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
         logger('Route: ', path);
-        // Make sure session is resolved before loading the page.
-        route.resolve = Object.assign(route.resolve || {}, { session });
-        // This is a workaround, to make sure app-header and footer are loaded
-        // after the session is resovled.
+        // This is a workaround, to make sure app-header and footer are loaded only
+        // for the authenticated routes.
+        // We should look into switching to ui-router, that has built in support for
+        // such things.
         route.template = `<app-header></app-header><route-status></route-status>${route.template}<footer></footer>`;
+        route.authenticated = true;
         $routeProvider.when(path, route);
       });
     });
@@ -96,16 +93,8 @@ registerComponents();
 registerPages();
 registerVisualizations(ngModule);
 
-ngModule.config(($routeProvider,
-  $locationProvider,
-  $compileProvider,
-  uiSelectConfig,
-  toastrConfig) => {
-  // TODO:
-  // if (false) { // currentUser.apiKey) {
-  //   $httpProvider.defaults.headers.common.Authorization = `Key ${currentUser.apiKey}`;
-  // }
-
+ngModule.config(($routeProvider, $locationProvider, $compileProvider,
+  uiSelectConfig, toastrConfig) => {
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
   $locationProvider.html5Mode(true);
   uiSelectConfig.theme = 'bootstrap';
@@ -113,20 +102,6 @@ ngModule.config(($routeProvider,
   Object.assign(toastrConfig, {
     positionClass: 'toast-bottom-right',
     timeOut: 2000,
-  });
-});
-
-ngModule.run(($location, $rootScope, $route, Auth) => {
-  $rootScope.$on('$routeChangeStart', (event, to) => {
-    if (!Auth.isAuthenticated()) {
-      event.preventDefault();
-      // maybe we only miss the session? try to load session
-      Auth.loadSession().then(() => {
-        $route.reload();
-      }).catch(() => {
-        Auth.login();
-      });
-    }
   });
 });
 

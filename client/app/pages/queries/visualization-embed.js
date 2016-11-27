@@ -26,9 +26,7 @@ export default function (ngModule) {
   function session($http, $route, Auth) {
     const apiKey = $route.current.params.api_key;
     Auth.setApiKey(apiKey);
-    console.log('TODO');
-    // TODO: need to make sure that the session is not saved to localSession.
-    return Auth.loadSession();
+    return Auth.loadConfig();
   }
 
   function loadData($http, $route, $q, Auth) {
