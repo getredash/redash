@@ -32,11 +32,11 @@ class DashboardListResource(BaseResource):
     @require_permission('create_dashboard')
     def post(self):
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard(name=dashboard_properties['name'],
-                                     org=self.current_org,
-                                     user=self.current_user,
-                                     is_draft=True,
-                                     layout='[]')
+        dashboard = models.Dashboard.create(name=dashboard_properties['name'],
+                                            org=self.current_org,
+                                            user=self.current_user,
+                                            is_draft=True,
+                                            layout='[]')
         return dashboard.to_dict()
 
 
