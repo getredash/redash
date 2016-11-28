@@ -146,6 +146,8 @@ class QueryResultResource(BaseResource):
                 response = self.make_json_response(query_result)
             elif filetype == 'xlsx':
                 response = self.make_excel_response(query_result)
+            elif filetype == 'tsv':
+                response = self.make_csv_response(query_result, dialec="excel-tab")
             else:
                 response = self.make_csv_response(query_result)
 
@@ -166,17 +168,24 @@ class QueryResultResource(BaseResource):
         return make_response(data, 200, headers)
 
     @staticmethod
-    def make_csv_response(query_result):
+    def make_csv_response(query_result, dialec="excel"):
         s = cStringIO.StringIO()
 
         query_data = json.loads(query_result.data)
+        if dialec == "excel-tab":
+            dialec = csv.excel_tab
+        else:
+            dialec = csv.excel
         writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
-        writer.writer = utils.UnicodeWriter(s)
+        writer.writer = utils.UnicodeWriter(s, dialect=dialec)
         writer.writeheader()
         for row in query_data['rows']:
             writer.writerow(row)
 
-        headers = {'Content-Type': "text/csv; charset=UTF-8"}
+        if dialec == "excel":
+            headers = {'Content-Type': "text/csv; charset=UTF-8"}
+        else:
+            headers = {'Content-Type': "text/tsv; charset=UTF-8"}
         return make_response(s.getvalue(), 200, headers)
 
     @staticmethod
