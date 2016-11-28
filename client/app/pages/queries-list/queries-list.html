@@ -1,0 +1,17 @@
+<div class="container">
+  <page-header title="Queries"></page-header>
+  <tab-nav tabs="$ctrl.tabs"></tab-nav>
+
+  <div class="bg-white">
+    <table class="table table-condensed table-hover" ng-table="$ctrl.tableParams">
+      <tr ng-repeat="query in $data">
+        <td data-title="'Name'"><a href="queries/{{query.id}}">{{query.name}}</a></td>
+        <td data-title="'Created By'">{{query.user.name}}</td>
+        <td data-title="'Created At'">{{query.created_at | dateTime}}</td>
+        <td data-title="'Runtime'">{{query.runtime | durationHumanize}}</td>
+        <td data-title="'Last Executed At'">{{query.retrieved_at | dateTime}}</td>
+        <td data-title="'Update Schedule'">{{query.schedule | scheduleHumanize}}</td>
+      </tr>
+    </table>
+  </div>
+</div>

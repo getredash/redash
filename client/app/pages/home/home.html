@@ -1,0 +1,34 @@
+<div class="container">
+  <div class="tile m-t-10 m-b-5">
+    <div class="t-body p-5">
+      <a href="queries/new" ng-show="$ctrl.canCreateQuery" class="btn btn-default">New Query</a>
+      <button ng-show="$ctrl.canCreateDashboard" class="btn btn-default" ng-click="$ctrl.newDashboard()">New Dashboard
+      </button>
+      <a href="alerts/new" class="btn btn-default">New Alert</a>
+    </div>
+  </div>
+
+  <div class="tile">
+    <div class="t-body tb-padding">
+      <div class="row">
+          <div class="col-md-6">
+            <p class="f-500 m-b-20 c-black">Recent Dashboards</p>
+            <div class="list-group">
+              <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.recentDashboards">
+                {{dashboard.name}}
+              </a>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <p class="f-500 m-b-20 c-black">Recent Queries</p>
+            <div class="list-group">
+              <a ng-href="queries/{{query.id}}" class="list-group-item"
+                 ng-repeat="query in $ctrl.recentQueries">{{query.name}}</a>
+            </div>
+          </div>
+      </div>
+
+    </div>
+  </div>
+</div>

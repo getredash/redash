@@ -1,0 +1,61 @@
+<div class="container">
+  <page-header title="{{$ctrl.dashboard.name}}">
+    <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
+        <div class="btn-group" uib-dropdown>
+          <button id="split-button" type="button"
+          ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}"
+          class="btn" ng-click="$ctrl.loadDashboard(true)">
+            {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
+          </button>
+          <button type="button" class="btn" uib-dropdown-toggle
+          ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}">
+            <span class="caret"></span>
+            <span class="sr-only">Split button!</span>
+          </button>
+          <ul class="dropdown-menu" ng-model="$ctrl.refreshRate" uib-dropdown-menu role="menu" aria-labelledby="split-button">
+            <li role="menuitem" ng-repeat="refreshRate in $ctrl.refreshRates">
+              <a href="#" ng-click="$ctrl.setRefreshRate(refreshRate)">{{refreshRate.name}}</a>
+            </li>
+            <li role="menuitem" ng-if="$ctrl.refreshRate !== null">
+              <a href="#" ng-click="$ctrl.setRefreshRate(null)">Stop auto refresh</a>
+            </li>
+          </ul>
+        </div>
+        <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()">
+          <span class="zmdi zmdi-fullscreen"></span>
+        </button>
+        <button type="button" class="btn btn-sm" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="$ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled">
+          <span class="zmdi zmdi-share"></span>
+        </button>
+    </span>
+    <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown>
+      <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
+        <span class="zmdi zmdi-more"></span>
+      </button>
+      <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+        <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.editDashboard()">Edit Dashboard</a></li>
+        <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.addWidget()">Add Widget</a></li>
+        <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
+        <li ng-if="!$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish Dashboard</a></li>
+        <li ng-if="$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Publish Dashboard</a></li>
+        <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive Dashboard</a></li>
+      </ul>
+    </div>
+  </page-header>
+
+  <div class="col-lg-12 p-5 m-b-10 bg-orange c-white" ng-if="$ctrl.dashboard.is_archived">
+    This dashboard is archived and won't appear in the dashboards list or search results.
+  </div>
+
+  <div class="col-lg-12 p-5 m-b-10 bg-orange c-white" ng-if="$ctrl.dashboard.is_draft">
+    This dashboard is a draft.
+  </div>
+
+  <div class="m-b-5">
+    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
+  </div>
+
+  <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
+    <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard"></dashboard-widget>
+  </div>
+</div>

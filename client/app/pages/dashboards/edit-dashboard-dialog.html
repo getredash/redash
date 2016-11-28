@@ -1,0 +1,21 @@
+<div class="modal-header">
+  <button type="button" class="close" ng-click="$ctrl.dismiss()" ng-disabled="$ctrl.saveInProgress" aria-hidden="true">&times;</button>
+  <h4 class="modal-title">Edit: {{$ctrl.dashboard.name}}</h4>
+</div>
+<div class="modal-body">
+  <p>
+    <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name">
+  </p>
+
+  <div gridster="$ctrl.gridsterOptions" ng-if="$ctrl.items | notEmpty">
+    <ul>
+      <li gridster-item="item" ng-repeat="item in $ctrl.items" class="widget panel panel-default gs-w">
+        <div class="heading">{{item.name}}</div>
+      </li>
+    </ul>
+  </div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.dismiss()">Close</button>
+  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.saveDashboard()">Save</button>
+</div>

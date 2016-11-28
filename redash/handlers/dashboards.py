@@ -1,13 +1,14 @@
-from flask import request, url_for
-from flask_restful import abort
-
-from funcy import distinct, take, project
 from itertools import chain
 
-from redash import models
-from redash.models import ConflictDetectedError
-from redash.permissions import require_permission, require_admin_or_owner, require_object_modify_permission, can_modify
+from flask import request, url_for
+from flask_restful import abort
+from funcy import distinct, project, take
+from redash import models, serializers
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.models import ConflictDetectedError
+from redash.permissions import (can_modify, require_admin_or_owner,
+                                require_object_modify_permission,
+                                require_permission)
 
 
 class RecentDashboardsResource(BaseResource):
@@ -25,17 +26,17 @@ class RecentDashboardsResource(BaseResource):
 class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        dashboards = [d.to_dict() for d in models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)]
-        return dashboards
+        results = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)
+        return [q.to_dict() for q in results]
 
     @require_permission('create_dashboard')
     def post(self):
         dashboard_properties = request.get_json(force=True)
-        dashboard = models.Dashboard(name=dashboard_properties['name'],
-                                     org=self.current_org,
-                                     user=self.current_user,
-                                     is_draft=True,
-                                     layout='[]')
+        dashboard = models.Dashboard.create(name=dashboard_properties['name'],
+                                            org=self.current_org,
+                                            user=self.current_user,
+                                            is_draft=True,
+                                            layout='[]')
         return dashboard.to_dict()
 
 
@@ -83,6 +84,17 @@ class DashboardResource(BaseResource):
         return dashboard.to_dict(with_widgets=True, user=self.current_user)
 
 
+class PublicDashboardResource(BaseResource):
+    def get(self, token):
+        if not isinstance(self.current_user, models.ApiUser):
+            api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
+            dashboard = api_key.object
+        else:
+            dashboard = self.current_user.object
+
+        return serializers.public_dashboard(dashboard)
+
+
 class DashboardShareResource(BaseResource):
     def post(self, dashboard_id):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
@@ -112,5 +124,3 @@ class DashboardShareResource(BaseResource):
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
-
-
