@@ -26,9 +26,87 @@ export function durationHumanize(duration) {
   return humanized;
 }
 
+const englishWordsJoin = (list) => {
+  if (list.length === 1) {
+    return list[0];
+  } else if (list.length === 2) {
+    return list.join(' and ');
+  }
+  return `${list.slice(0, list.length - 1).join(', ')}, and ${list[list.length - 1]}`;
+};
+
+const padWithZeros = (size, v) => {
+  let str = String(v);
+  if (str.length < size) {
+    str = `0${str}`;
+  }
+  return str;
+};
+
+const humanizeCron = (schedule) => {
+  if (schedule === '* * * * *') {
+    return 'Every minute';
+  } else if (schedule === '0 0 * * *') {
+    return 'Every day';
+  }
+  const [minute, hours, doms, , dows] = schedule.split(' ');
+  // Day of the week
+  const daysOfTheWeek = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+  const dowsPieces = [];
+  dows.split(',').forEach((dow) => {
+    dowsPieces.push(daysOfTheWeek[parseInt(dow, 10)]);
+  });
+  let dowsHuman = '';
+  if (dows !== '*') {
+    dowsHuman = `Every ${englishWordsJoin(dowsPieces)}`;
+  }
+  // Hour of the day
+  const hoursPieces = [];
+  if (hours.indexOf('*') === -1) {
+    hours.split(',').forEach((hour) => {
+      hoursPieces.push(`${padWithZeros(2, hour)}:${padWithZeros(2, minute)}`);
+    });
+  } else if (hours.indexOf('/') > -1) {
+    return `Every ${hours.split('/')[1]} hours`;
+  } else if (minute.indexOf('/') > -1) {
+    return `Every ${minute.split('/')[1]} minutes`;
+  }
+  const hoursHuman = `at ${englishWordsJoin(hoursPieces)}`;
+  // Day of the month
+  const domsPieces = [];
+  doms.split(',').forEach((dom) => {
+    if (dom[dom.length] === '1') {
+      domsPieces.push(`${dom}st`);
+    } else if (dom[dom.length] === '2') {
+      domsPieces.push(`${dom}nd`);
+    } else if (dom[dom.length] === '3') {
+      domsPieces.push(`${dom}rd`);
+    } else {
+      domsPieces.push(`${dom}th`);
+    }
+  });
+
+  let domsHuman = '';
+  if (doms !== '*') {
+    domsHuman = `on the ${englishWordsJoin(domsPieces)} day of every month`;
+  }
+
+  return `${dowsHuman} ${hoursHuman} ${domsHuman}`;
+};
+
 export function scheduleHumanize(schedule) {
-  if (schedule === null) {
+  if (schedule === '') {
     return 'Never';
+  } else if (schedule.split(' ').length === 5) {
+    return humanizeCron(schedule);
   } else if (schedule.match(/\d\d:\d\d/) !== null) {
     const parts = schedule.split(':');
     const localTime = moment.utc()
