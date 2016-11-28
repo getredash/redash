@@ -29,7 +29,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
     },
   });
 
-  const shortcuts = {
+  $scope.shortcuts = {
     'meta+s': function save() {
       if ($scope.canEdit) {
         $scope.saveQuery();
@@ -46,7 +46,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
     'ctrl+enter': $scope.executeQuery,
   };
 
-  KeyboardShortcuts.bind(shortcuts);
+  KeyboardShortcuts.bind($scope.shortcuts);
 
   // @override
   $scope.saveQuery = (options, data) => {
@@ -108,7 +108,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   });
 
   $scope.$on('$destroy', () => {
-    KeyboardShortcuts.unbind(shortcuts);
+    KeyboardShortcuts.unbind($scope.shortcuts);
   });
 }
 
