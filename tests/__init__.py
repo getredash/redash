@@ -43,16 +43,18 @@ def authenticated_user(c, user=None):
 class BaseTestCase(TestCase):
     def setUp(self):
         self.app = create_app()
+        self.db = db
         self.app.config['TESTING'] = True
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
+        db.drop_all()
         db.create_all()
         self.factory = Factory()
         self.client = self.app.test_client()
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()
+        db.get_engine(self.app).dispose()
         self.app_ctx.pop()
         redis_connection.flushdb()
 
