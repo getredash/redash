@@ -338,6 +338,23 @@ function getKeyFromObject(obj, key) {
           });
         }
       };
+    }])
+    .directive('changeItemsByPage', ['templateUrlList', function (templateUrlList) {
+      return {
+        restrict: 'EA',
+        require: '^smartTable',
+        scope: {
+          itemsByPage: '='
+        },
+        templateUrl: templateUrlList.changeItemsByPage,
+        replace: true,
+        link: function (scope, element, attrs, ctrl) {
+          scope.nums = [ 10, 15, 20, 50 ];
+          scope.$watch('itemsByPage', function () {
+            ctrl.refresh();
+          });
+        }
+      };
     }]);
 })(angular);
 
@@ -374,7 +391,6 @@ function getKeyFromObject(obj, key) {
       isGlobalSearchActivated: false,
       displaySelectionCheckbox: false,
       isPaginationEnabled: true,
-      itemsByPage: 10,
       maxSize: 5,
 
       //just to remind available option
@@ -389,6 +405,7 @@ function getKeyFromObject(obj, key) {
       scope.numberOfPages = calculateNumberOfPages(scope.dataCollection);
       scope.currentPage = 1;
       scope.holder = {isAllSelected: false};
+      scope.itemsByPage = 10;
 
       var predicate = {},
         lastColumnSort;
@@ -542,6 +559,11 @@ function getKeyFromObject(obj, key) {
         this.sortBy();
       };
 
+      this.refresh = function () {
+          this.changePage({ page: 1 });
+          scope.displayedCollection = this.pipe(scope.dataCollection);
+      };
+
       /*////////////
        Column API
        ///////////*/
@@ -649,7 +671,7 @@ function getKeyFromObject(obj, key) {
 })(angular);
 
 
-angular.module('smartTable.templates', ['partials/defaultCell.html', 'partials/defaultHeader.html', 'partials/editableCell.html', 'partials/globalSearchCell.html', 'partials/pagination.html', 'partials/selectAllCheckbox.html', 'partials/selectionCheckbox.html', 'partials/smartTable.html']);
+angular.module('smartTable.templates', ['partials/defaultCell.html', 'partials/defaultHeader.html', 'partials/editableCell.html', 'partials/globalSearchCell.html', 'partials/pagination.html', 'partials/changeItemsByPage.html', 'partials/selectAllCheckbox.html', 'partials/selectionCheckbox.html', 'partials/smartTable.html']);
 
 angular.module("partials/defaultCell.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/defaultCell.html",
@@ -686,6 +708,15 @@ angular.module("partials/pagination.html", []).run(["$templateCache", function (
     "</ul> ");
 }]);
 
+angular.module("partials/changeItemsByPage.html", []).run(["$templateCache", function ($templateCache) {
+  $templateCache.put("partials/changeItemsByPage.html",
+    "<span>\n" +
+    "        Show\n" +
+    "        <select ng-model=\"itemsByPage\" ng-options=\"num for num in nums\"></select>\n" +
+    "        items per page\n" +
+    "</span>");
+}]);
+
 angular.module("partials/selectAllCheckbox.html", []).run(["$templateCache", function ($templateCache) {
   $templateCache.put("partials/selectAllCheckbox.html",
     "<input class=\"smart-table-select-all\"  type=\"checkbox\" ng-model=\"holder.isAllSelected\"/>");
@@ -720,6 +751,7 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
     "    <tr class=\"smart-table-footer-row\">\n" +
     "        <td class=\"text-center\" colspan=\"{{columns.length}}\">\n" +
     "            <div pagination-smart-table=\"\" num-pages=\"numberOfPages\" max-size=\"maxSize\" current-page=\"currentPage\"></div>\n" +
+    "            <div change-items-by-page=\"\" items-by-page=\"itemsByPage\"></div>\n" +
     "        </td>\n" +
     "    </tr>\n" +
     "    </tfoot>\n" +
@@ -739,7 +771,8 @@ angular.module("partials/smartTable.html", []).run(["$templateCache", function (
       selectionCheckbox: 'partials/selectionCheckbox.html',
       selectAllCheckbox: 'partials/selectAllCheckbox.html',
       defaultHeader: 'partials/defaultHeader.html',
-      pagination: 'partials/pagination.html'
+      pagination: 'partials/pagination.html',
+      changeItemsByPage: 'partials/changeItemsByPage.html'
     });
 })(angular);
 
