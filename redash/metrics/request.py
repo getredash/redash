@@ -27,8 +27,8 @@ def calculate_metrics(response):
                         response.content_type,
                         response.content_length,
                         request_duration,
-                        db.database.query_count,
-                        db.database.query_duration)
+                        # XXX instrument SQLA for metrics
+                        None, None)
 
     statsd_client.timing('requests.{}.{}'.format(request.endpoint, request.method.lower()), request_duration)
 

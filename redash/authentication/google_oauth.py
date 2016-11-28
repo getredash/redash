@@ -3,6 +3,8 @@ import requests
 from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_login import login_user
 from flask_oauthlib.client import OAuth
+from sqlalchemy.orm.exc import NoResultFound
+
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
 
@@ -63,9 +65,10 @@ def create_and_login_user(org, name, email):
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
             user_object.save()
-    except models.User.DoesNotExist:
+    except NoResultFound:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User.create(org=org, name=name, email=email, group_ids=[org.default_group.id])
+        user_object = models.User(org=org, name=name, email=email, group_ids=[org.default_group.id])
+        models.db.session.add(user_object)
 
     login_user(user_object, remember=True)
 

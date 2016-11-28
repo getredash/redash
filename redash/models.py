@@ -128,7 +128,7 @@ class ConflictDetectedError(Exception):
 class BelongsToOrgMixin(object):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return cls.query.filter(cls.id == object_id, cls.org == org).one_or_none()
+        return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one_or_none()
 
 
 class PermissionsCheckMixin(object):
@@ -265,7 +265,7 @@ def create_group_hack(*a, **kw):
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
-    org = db.relationship(Organization, backref="users")
+    org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
     email = Column(db.String(320))
     password_hash = Column(db.String(128), nullable=True)
@@ -287,7 +287,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'name': self.name,
             'email': self.email,
             'gravatar_url': self.gravatar_url,
-            'groups': self.groups,
+            'groups': self.group_ids,
             'updated_at': self.updated_at,
             'created_at': self.created_at
         }
@@ -311,15 +311,15 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def permissions(self):
         # TODO: this should be cached.
         return list(itertools.chain(*[g.permissions for g in
-                                      Group.select().where(Group.id << self.groups)]))
+                                      Group.query.filter(Group.id.in_(self.group_ids))]))
 
     @classmethod
     def get_by_email_and_org(cls, email, org):
-        return cls.get(cls.email == email, cls.org == org)
+        return cls.query.filter(cls.email == email, cls.org == org).one()
 
     @classmethod
     def get_by_api_key_and_org(cls, api_key, org):
-        return cls.get(cls.api_key == api_key, cls.org == org)
+        return cls.query.filter(cls.api_key == api_key, cls.org == org).one()
 
     @classmethod
     def all(cls, org):
@@ -566,7 +566,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         for q in queries:
             q.latest_query_data = query_result
             db.session.add(q)
-        query_ids = [q.id for q in queries] 
+        query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
 
         return query_result, query_ids
@@ -618,7 +618,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     latest_query_data = db.relationship(QueryResult)
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
-    query = Column(db.Text)
+    query_text = Column("query", db.Text)
     query_hash = Column(db.String(32))
     api_key = Column(db.String(40), default=generate_query_api_key)
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
@@ -639,10 +639,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
         d = {
             'id': self.id,
-            'latest_query_data_id': self._data.get('latest_query_data', None),
+            'latest_query_data_id': self.latest_query_data,
             'name': self.name,
             'description': self.description,
-            'query': self.query,
+            'query': self.query_text,
             'query_hash': self.query_hash,
             'schedule': self.schedule,
             'api_key': self.api_key,
@@ -666,8 +666,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             d['last_modified_by_id'] = self.last_modified_by_id
 
         if with_stats:
-            d['retrieved_at'] = self.retrieved_at
-            d['runtime'] = self.runtime
+            if self.latest_query_data is not None:
+                d['retrieved_at'] = self.retrieved_at
+                d['runtime'] = self.runtime
+            else:
+                d['retrieved_at'] = None
+                d['runtime'] = None
 
         if with_visualizations:
             d['visualizations'] = [vis.to_dict(with_query=False)
@@ -692,9 +696,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_queries(cls, groups, drafts=False):
-        q = (db.session.query(Query)
+        q = (cls.query.join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
-            .join(User, Query.user_id == User.id)
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(Query.is_archived == False)
             .filter(DataSourceGroup.group_id.in_([g.id for g in groups]))\
@@ -714,7 +717,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
-        queries = (db.session.query(Query)
+        queries = (cls.query(Query)
                    .join(QueryResult)
                    .join(DataSource)
                    .filter(Query.schedule != None))
@@ -740,7 +743,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         where &= Query.is_archived == False
         where &= DataSourceGroup.group_id.in_([g.id for g in groups])
         query_ids = (
-            db.session.query(Query.id).join(
+            cls.query(Query.id).join(
                 DataSourceGroup,
                 Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(where)).distinct()
@@ -750,7 +753,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def recent(cls, groups, user_id=None, limit=20):
-        query = (db.session.query(Query).join(User, Query.user_id == User.id)
+        query = (cls.query(Query).join(User, Query.user_id == User.id)
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
                  .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -852,7 +855,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def __unicode__(self):
         return unicode(self.id)
 
-@listens_for(Query.query, 'set')
+@listens_for(Query.query_text, 'set')
 def gen_query_hash(target, val, oldval, initiator):
     target.query_hash = utils.gen_query_hash(val)
 
@@ -1051,7 +1054,7 @@ class Alert(TimestampMixin, db.Model):
 def generate_slug(ctx):
     slug = utils.slugify(ctx.current_parameters['name'])
     tries = 1
-    while db.session.query(Dashboard).filter(Dashboard.slug == slug).first() is not None:
+    while Dashboard.query.filter(Dashboard.slug == slug).first() is not None:
         slug = utils.slugify(ctx.current_parameters['name']) + "_" + str(tries)
         tries += 1
     return slug
@@ -1134,7 +1137,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def all(cls, org, group_ids, user_id):
         query = (
-            db.session.query(Dashboard)
+            Dashboard.query
             .outerjoin(Widget)
             .outerjoin(Visualization)
             .outerjoin(Query)
@@ -1151,7 +1154,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def recent(cls, org, group_ids, user_id, for_user=False, limit=20):
-        query = (db.session.query(Dashboard)
+        query = (Dashboard.query
                  .outerjoin(Event, Dashboard.id == Event.object_id.cast(db.Integer))
                  .outerjoin(Widget)
                  .outerjoin(Visualization)
@@ -1331,7 +1334,7 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 
     @classmethod
     def get_by_api_key(cls, api_key):
-        return cls.get(cls.api_key==api_key, cls.active==True)
+        return cls.query.filter(cls.api_key==api_key, cls.active==True).one()
 
     @classmethod
     def get_by_object(cls, object):

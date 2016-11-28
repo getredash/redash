@@ -76,7 +76,8 @@ class QueryListResource(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        results = models.Query.all_queries(self.current_user.groups)
+        results = models.Query.all_queries([models.Group.query.get(g_id)
+                                            for g_id in self.current_user.group_ids])
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))

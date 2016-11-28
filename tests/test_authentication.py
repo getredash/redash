@@ -16,8 +16,9 @@ class TestApiKeyAuthentication(BaseTestCase):
     #
     def setUp(self):
         super(TestApiKeyAuthentication, self).setUp()
-        self.api_key = 10
+        self.api_key = '10'
         self.query = self.factory.create_query(api_key=self.api_key)
+        models.db.session.flush()
         self.query_url = '/{}/api/queries/{}'.format(self.factory.org.slug, self.query.id)
         self.queries_url = '/{}/api/queries'.format(self.factory.org.slug)
 
@@ -43,6 +44,7 @@ class TestApiKeyAuthentication(BaseTestCase):
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
+        models.db.session.flush()
         with app.test_client() as c:
             rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
             self.assertEqual(user.id, api_key_load_user_from_request(request).id)
@@ -71,8 +73,9 @@ class TestHMACAuthentication(BaseTestCase):
     #
     def setUp(self):
         super(TestHMACAuthentication, self).setUp()
-        self.api_key = 10
+        self.api_key = '10'
         self.query = self.factory.create_query(api_key=self.api_key)
+        models.db.session.flush()
         self.path = '/{}/api/queries/{}'.format(self.query.org.slug, self.query.id)
         self.expires = time.time() + 1800
 
@@ -102,10 +105,11 @@ class TestHMACAuthentication(BaseTestCase):
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         path = '/api/queries/'
+        models.db.session.flush()
         with app.test_client() as c:
             signature = sign(user.api_key, path, self.expires)
             rv = c.get(path, query_string={'signature': signature, 'expires': self.expires, 'user_id': user.id})
-            self.assertEqual(user.id, hmac_load_user_from_request(request).id)
+            self.assertEqual(user, hmac_load_user_from_request(request))
 
 
 class TestCreateAndLoginUser(BaseTestCase):
@@ -124,8 +128,8 @@ class TestCreateAndLoginUser(BaseTestCase):
             create_and_login_user(self.factory.org, name, email)
 
             self.assertTrue(login_user_mock.called)
-            user = models.User.get(models.User.email == email)
-
+            user = models.User.query.filter(models.User.email == email).one()
+            self.assertEqual(user.email, email)
 
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
@@ -135,29 +139,24 @@ class TestVerifyProfile(BaseTestCase):
     def test_domain_not_in_org_domains_list(self):
         profile = dict(email='arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
-        self.factory.org.save()
         self.assertFalse(verify_profile(self.factory.org, profile))
 
     def test_domain_in_org_domains_list(self):
         profile = dict(email='arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.com']
-        self.factory.org.save()
         self.assertTrue(verify_profile(self.factory.org, profile))
 
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org', 'example.com']
-        self.factory.org.save()
         self.assertTrue(verify_profile(self.factory.org, profile))
 
     def test_org_in_public_mode_accepts_any_domain(self):
         profile = dict(email='arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_IS_PUBLIC] = True
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = []
-        self.factory.org.save()
         self.assertTrue(verify_profile(self.factory.org, profile))
 
     def test_user_not_in_domain_but_account_exists(self):
         profile = dict(email='arik@example.com')
         self.factory.create_user(email='arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
-        self.factory.org.save()
         self.assertTrue(verify_profile(self.factory.org, profile))

@@ -93,7 +93,7 @@ def paginate(query_set, page, page_size, serializer):
         'count': count,
         'page': page,
         'page_size': page_size,
-        'results': [serializer(result) for result in results],
+        'results': [serializer(result) for result in results.items],
     }
 
 

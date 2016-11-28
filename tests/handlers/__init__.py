@@ -2,6 +2,7 @@ import json
 from contextlib import contextmanager
 
 from tests.factories import user_factory
+from redash.models import db
 from redash.utils import json_dumps
 from redash.wsgi import app
 
@@ -10,6 +11,8 @@ app.config['TESTING'] = True
 
 def authenticate_request(c, user):
     with c.session_transaction() as sess:
+        if user.id is None:
+            db.session.flush()
         sess['user_id'] = user.id
 
 
