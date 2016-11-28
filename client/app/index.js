@@ -4,7 +4,9 @@ import 'ui-select/dist/select.css';
 import 'angular-toastr/dist/angular-toastr.css';
 import 'angular-resizable/src/angular-resizable.css';
 import 'angular-gridster/dist/angular-gridster.css';
+import 'pace-progress/themes/blue/pace-theme-minimal.css';
 
+import 'pace-progress';
 import debug from 'debug';
 import angular from 'angular';
 import ngSanitize from 'angular-sanitize';
