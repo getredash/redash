@@ -1470,8 +1470,6 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
 
 _gfk_types = {'queries': Query, 'dashboards': Dashboard}
 
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, AccessPermission, Change)
-
 
 def init_db():
     default_org = Organization(name="Default", slug='default', settings={})

@@ -1,7 +1,9 @@
 import os
 import logging
 import datetime
+import json
 from unittest import TestCase
+from contextlib import contextmanager
 
 os.environ['REDASH_REDIS_URL'] = "redis://localhost:6379/5"
 # Use different url for Celery to avoid DB being cleaned up:
@@ -15,19 +17,37 @@ os.environ['REDASH_MULTI_ORG'] = "true"
 import redash.models
 from redash import create_app
 from redash import redis_connection
-from factories import Factory
-from tests.handlers import make_request
+from redash.utils import json_dumps
+from tests.factories import Factory, user_factory
+
 
 logging.disable("INFO")
 logging.getLogger("metrics").setLevel("ERROR")
 
 
+def authenticate_request(c, user):
+    with c.session_transaction() as sess:
+        sess['user_id'] = user.id
+
+
+@contextmanager
+def authenticated_user(c, user=None):
+    if not user:
+        user = user_factory.create()
+
+    authenticate_request(c, user)
+
+    yield user
+
+
 class BaseTestCase(TestCase):
     def setUp(self):
-        redash.models.db.session.close()
         self.app = create_app()
+        self.app.config['TESTING'] = True
+        self.client = self.app.test_client()
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
+        redash.models.db.session.remove()
         redash.models.create_db(True, True)
         self.factory = Factory()
 
@@ -46,7 +66,38 @@ class BaseTestCase(TestCase):
         if org is not False:
             path = "/{}{}".format(org.slug, path)
 
-        return make_request(method, path, user, data, is_json)
+        if user:
+            authenticate_request(self.client, user)
+
+        method_fn = getattr(self.client, method.lower())
+        headers = {}
+
+        if data and is_json:
+            data = json_dumps(data)
+
+        if is_json:
+            content_type = 'application/json'
+        else:
+            content_type = None
+
+        response = method_fn(path, data=data, headers=headers, content_type=content_type)
+
+        if response.data and is_json:
+            response.json = json.loads(response.data)
+
+        return response
+
+    def get_request(self, path, org=None):
+        if org:
+            path = "/{}{}".format(org.slug, path)
+
+        return self.client.get(path)
+
+    def post_request(self, path, data=None, org=None):
+        if org:
+            path = "/{}{}".format(org.slug, path)
+
+        return self.client.post(path, data=data)
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():

@@ -1,20 +1,18 @@
-import json
 from unittest import TestCase
+
 from flask import url_for
 from flask_login import current_user
 from mock import patch
-from tests import BaseTestCase
-from tests.handlers import authenticated_user
 from redash import models, settings
-from redash.wsgi import app
+from tests import BaseTestCase
+from tests import authenticated_user
 
 
 class AuthenticationTestMixin(object):
     def test_returns_404_when_not_unauthenticated(self):
-        with app.test_client() as c:
-            for path in self.paths:
-                rv = c.get(path)
-                self.assertEquals(404, rv.status_code)
+        for path in self.paths:
+            rv = self.client.get(path)
+            self.assertEquals(404, rv.status_code)
 
     def test_returns_content_when_authenticated(self):
         for path in self.paths:
@@ -24,17 +22,15 @@ class AuthenticationTestMixin(object):
 
 class TestAuthentication(BaseTestCase):
     def test_redirects_for_nonsigned_in_user(self):
-        with app.test_client() as c:
-            rv = c.get("/default/")
-            self.assertEquals(302, rv.status_code)
+        rv = self.client.get("/default/")
+        self.assertEquals(302, rv.status_code)
 
 
 class PingTest(TestCase):
     def test_ping(self):
-        with app.test_client() as c:
-            rv = c.get('/ping')
-            self.assertEquals(200, rv.status_code)
-            self.assertEquals('PONG.', rv.data)
+        rv = self.client.get('/ping')
+        self.assertEquals(200, rv.status_code)
+        self.assertEquals('PONG.', rv.data)
 
 
 class IndexTest(BaseTestCase):
@@ -43,10 +39,9 @@ class IndexTest(BaseTestCase):
         super(IndexTest, self).setUp()
 
     def test_redirect_to_login_when_not_authenticated(self):
-        with app.test_client() as c:
-            for path in self.paths:
-                rv = c.get(path)
-                self.assertEquals(302, rv.status_code)
+        for path in self.paths:
+            rv = self.client.get(path)
+            self.assertEquals(302, rv.status_code)
 
     def test_returns_content_when_authenticated(self):
         for path in self.paths:
@@ -66,9 +61,8 @@ class StatusTest(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
     def test_redirects_non_authenticated_user(self):
-        with app.test_client() as c:
-            rv = c.get('/status.json')
-            self.assertEqual(rv.status_code, 302)
+        rv = self.client.get('/status.json')
+        self.assertEqual(rv.status_code, 302)
 
 
 class VisualizationResourceTest(BaseTestCase):
@@ -77,7 +71,7 @@ class VisualizationResourceTest(BaseTestCase):
         data = {
             'query_id': query.id,
             'name': 'Chart',
-            'description':'',
+            'description': '',
             'options': {},
             'type': 'CHART'
         }
@@ -110,7 +104,7 @@ class VisualizationResourceTest(BaseTestCase):
         data = {
             'query_id': query.id,
             'name': 'Chart',
-            'description':'',
+            'description': '',
             'options': {},
             'type': 'CHART'
         }
@@ -131,7 +125,7 @@ class VisualizationResourceTest(BaseTestCase):
     def test_only_owner_or_admin_can_edit_visualization(self):
         vis = self.factory.create_visualization()
         path = '/api/visualizations/{}'.format(vis.id)
-        data={'name': 'After Update'}
+        data = {'name': 'After Update'}
 
         other_user = self.factory.create_user()
         admin = self.factory.create_admin()
@@ -190,19 +184,18 @@ class TestLogin(BaseTestCase):
         settings.ORG_RESOLVING = "multi_org"
 
     def test_redirects_to_google_login_if_password_disabled(self):
-        with app.test_client() as c, patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False):
-            rv = c.get('/default/login')
+        with patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False):
+            rv = self.client.get('/default/login')
             self.assertEquals(rv.status_code, 302)
             self.assertTrue(rv.location.endswith(url_for('google_oauth.authorize', next='/default/')))
 
     def test_get_login_form(self):
-        with app.test_client() as c:
-            rv = c.get('/default/login')
-            self.assertEquals(rv.status_code, 200)
+        rv = self.client.get('/default/login')
+        self.assertEquals(rv.status_code, 200)
 
     def test_submit_non_existing_user(self):
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login', data={'email': 'arik', 'password': 'password'})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': 'arik', 'password': 'password'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -211,8 +204,8 @@ class TestLogin(BaseTestCase):
         user.hash_password('password')
         user.save()
 
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login', data={'email': user.email, 'password': 'password'})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': user.email, 'password': 'password'})
             self.assertEquals(rv.status_code, 302)
             login_user_mock.assert_called_with(user, remember=False)
 
@@ -221,8 +214,8 @@ class TestLogin(BaseTestCase):
         user.hash_password('password')
         user.save()
 
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login', data={'email': user.email, 'password': 'password', 'remember': True})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': user.email, 'password': 'password', 'remember': True})
             self.assertEquals(rv.status_code, 302)
             login_user_mock.assert_called_with(user, remember=True)
 
@@ -231,16 +224,16 @@ class TestLogin(BaseTestCase):
         user.hash_password('password')
         user.save()
 
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login?next=/test',
-                        data={'email': user.email, 'password': 'password'})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login?next=/test',
+                                  data={'email': user.email, 'password': 'password'})
             self.assertEquals(rv.status_code, 302)
             self.assertEquals(rv.location, 'http://localhost/test')
             login_user_mock.assert_called_with(user, remember=False)
 
     def test_submit_incorrect_user(self):
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login', data={'email': 'non-existing', 'password': 'password'})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': 'non-existing', 'password': 'password'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -249,39 +242,36 @@ class TestLogin(BaseTestCase):
         user.hash_password('password')
         user.save()
 
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login', data={'email': user.email, 'password': 'badbadpassword'})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': user.email, 'password': 'badbadpassword'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
-    def test_submit_incorrect_password(self):
+    def test_submit_empty_password(self):
         user = self.factory.user
 
-        with app.test_client() as c, patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.post('/default/login', data={'email': user.email, 'password': ''})
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': user.email, 'password': ''})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
     def test_user_already_loggedin(self):
-        with app.test_client() as c, authenticated_user(c), patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = c.get('/default/login')
+        with authenticated_user(self.client), patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.get('/default/login')
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(login_user_mock.called)
-
-    # TODO: brute force protection?
 
 
 class TestLogout(BaseTestCase):
     def test_logout_when_not_loggedin(self):
-        with app.test_client() as c:
-            rv = c.get('/default/logout')
-            self.assertEquals(rv.status_code, 302)
-            self.assertFalse(current_user.is_authenticated)
+        rv = self.client.get('/default/logout')
+        self.assertEquals(rv.status_code, 302)
+        self.assertFalse(current_user.is_authenticated)
 
     def test_logout_when_loggedin(self):
-        with app.test_client() as c, authenticated_user(c, user=self.factory.user):
-            rv = c.get('/default/')
+        with authenticated_user(self.client, user=self.factory.user):
+            rv = self.client.get('/default/')
             self.assertTrue(current_user.is_authenticated)
-            rv = c.get('/default/logout')
+            rv = self.client.get('/default/logout')
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(current_user.is_authenticated)

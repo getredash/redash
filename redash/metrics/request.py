@@ -1,8 +1,8 @@
-from collections import namedtuple
-import time
 import logging
+import time
+from collections import namedtuple
 
-from flask import request, g
+from flask import g, request
 from redash import statsd_client
 from redash.models import db
 
@@ -43,6 +43,7 @@ def calculate_metrics_on_exception(error):
 
 
 def provision_app(app):
-    app.before_request(record_requets_start_time)
-    app.after_request(calculate_metrics)
-    app.teardown_request(calculate_metrics_on_exception)
+    # app.before_request(record_requets_start_time)
+    # app.after_request(calculate_metrics)
+    # app.teardown_request(calculate_metrics_on_exception)
+    pass

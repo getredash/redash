@@ -1,7 +1,5 @@
-from tests import BaseTestCase
-from tests.handlers import authenticated_user, json_request
-from redash.wsgi import app
 from redash import models
+from tests import BaseTestCase
 
 
 class TestUserListResourcePost(BaseTestCase):

@@ -2,12 +2,12 @@ import time
 
 from flask import request
 from mock import patch
-
-from tests import BaseTestCase
 from redash import models
-from redash.authentication.google_oauth import create_and_login_user, verify_profile
-from redash.authentication import api_key_load_user_from_request, hmac_load_user_from_request, sign
-from redash.wsgi import app
+from redash.authentication import (api_key_load_user_from_request,
+                                   hmac_load_user_from_request, sign)
+from redash.authentication.google_oauth import (create_and_login_user,
+                                                verify_profile)
+from tests import BaseTestCase
 
 
 class TestApiKeyAuthentication(BaseTestCase):
@@ -23,48 +23,40 @@ class TestApiKeyAuthentication(BaseTestCase):
         self.queries_url = '/{}/api/queries'.format(self.factory.org.slug)
 
     def test_no_api_key(self):
-        with app.test_client() as c:
-            rv = c.get(self.query_url)
-            self.assertIsNone(api_key_load_user_from_request(request))
+        rv = self.client.get(self.query_url)
+        self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_wrong_api_key(self):
-        with app.test_client() as c:
-            rv = c.get(self.query_url, query_string={'api_key': 'whatever'})
-            self.assertIsNone(api_key_load_user_from_request(request))
+        rv = self.client.get(self.query_url, query_string={'api_key': 'whatever'})
+        self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_correct_api_key(self):
-        with app.test_client() as c:
-            rv = c.get(self.query_url, query_string={'api_key': self.api_key})
-            self.assertIsNotNone(api_key_load_user_from_request(request))
+        rv = self.client.get(self.query_url, query_string={'api_key': self.api_key})
+        self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_no_query_id(self):
-        with app.test_client() as c:
-            rv = c.get(self.queries_url, query_string={'api_key': self.api_key})
-            self.assertIsNone(api_key_load_user_from_request(request))
+        rv = self.client.get(self.queries_url, query_string={'api_key': self.api_key})
+        self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         models.db.session.flush()
-        with app.test_client() as c:
-            rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
-            self.assertEqual(user.id, api_key_load_user_from_request(request).id)
+        rv = self.client.get(self.queries_url, query_string={'api_key': user.api_key})
+        self.assertEqual(user.id, api_key_load_user_from_request(request).id)
 
     def test_api_key_header(self):
-        with app.test_client() as c:
-            rv = c.get(self.query_url, headers={'Authorization': "Key {}".format(self.api_key)})
-            self.assertIsNotNone(api_key_load_user_from_request(request))
+        rv = self.client.get(self.query_url, headers={'Authorization': "Key {}".format(self.api_key)})
+        self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_api_key_header_with_wrong_key(self):
-        with app.test_client() as c:
-            rv = c.get(self.query_url, headers={'Authorization': "Key oops"})
-            self.assertIsNone(api_key_load_user_from_request(request))
+        rv = self.client.get(self.query_url, headers={'Authorization': "Key oops"})
+        self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_api_key_for_wrong_org(self):
         other_user = self.factory.create_admin(org=self.factory.create_org())
 
-        with app.test_client() as c:
-            rv = c.get(self.query_url, headers={'Authorization': "Key {}".format(other_user.api_key)})
-            self.assertEqual(404, rv.status_code)
+        rv = self.client.get(self.query_url, headers={'Authorization': "Key {}".format(other_user.api_key)})
+        self.assertEqual(404, rv.status_code)
 
 
 class TestHMACAuthentication(BaseTestCase):
@@ -83,33 +75,29 @@ class TestHMACAuthentication(BaseTestCase):
         return sign(self.query.api_key, self.path, expires)
 
     def test_no_signature(self):
-        with app.test_client() as c:
-            rv = c.get(self.path)
-            self.assertIsNone(hmac_load_user_from_request(request))
+        rv = self.client.get(self.path)
+        self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_wrong_signature(self):
-        with app.test_client() as c:
-            rv = c.get(self.path, query_string={'signature': 'whatever', 'expires': self.expires})
-            self.assertIsNone(hmac_load_user_from_request(request))
+        rv = self.client.get(self.path, query_string={'signature': 'whatever', 'expires': self.expires})
+        self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_correct_signature(self):
-        with app.test_client() as c:
-            rv = c.get(self.path, query_string={'signature': self.signature(self.expires), 'expires': self.expires})
-            self.assertIsNotNone(hmac_load_user_from_request(request))
+        rv = self.client.get(self.path, query_string={'signature': self.signature(self.expires), 'expires': self.expires})
+        self.assertIsNotNone(hmac_load_user_from_request(request))
 
     def test_no_query_id(self):
-        with app.test_client() as c:
-            rv = c.get('/{}/api/queries'.format(self.query.org.slug), query_string={'api_key': self.api_key})
-            self.assertIsNone(hmac_load_user_from_request(request))
+        rv = self.client.get('/{}/api/queries'.format(self.query.org.slug), query_string={'api_key': self.api_key})
+        self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         path = '/api/queries/'
         models.db.session.flush()
-        with app.test_client() as c:
-            signature = sign(user.api_key, path, self.expires)
-            rv = c.get(path, query_string={'signature': signature, 'expires': self.expires, 'user_id': user.id})
-            self.assertEqual(user, hmac_load_user_from_request(request))
+
+        signature = sign(user.api_key, path, self.expires)
+        rv = self.client.get(path, query_string={'signature': signature, 'expires': self.expires, 'user_id': user.id})
+        self.assertEqual(user.id, hmac_load_user_from_request(request).id)
 
 
 class TestCreateAndLoginUser(BaseTestCase):
