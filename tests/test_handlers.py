@@ -26,7 +26,7 @@ class TestAuthentication(BaseTestCase):
         self.assertEquals(302, rv.status_code)
 
 
-class PingTest(TestCase):
+class PingTest(BaseTestCase):
     def test_ping(self):
         rv = self.client.get('/ping')
         self.assertEquals(200, rv.status_code)
@@ -202,7 +202,9 @@ class TestLogin(BaseTestCase):
     def test_submit_correct_user_and_password(self):
         user = self.factory.user
         user.hash_password('password')
-        user.save()
+
+        self.db.session.add(user)
+        self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
             rv = self.client.post('/default/login', data={'email': user.email, 'password': 'password'})
@@ -212,7 +214,9 @@ class TestLogin(BaseTestCase):
     def test_submit_correct_user_and_password_and_remember_me(self):
         user = self.factory.user
         user.hash_password('password')
-        user.save()
+
+        self.db.session.add(user)
+        self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
             rv = self.client.post('/default/login', data={'email': user.email, 'password': 'password', 'remember': True})
@@ -222,7 +226,9 @@ class TestLogin(BaseTestCase):
     def test_submit_correct_user_and_password_with_next(self):
         user = self.factory.user
         user.hash_password('password')
-        user.save()
+
+        self.db.session.add(user)
+        self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
             rv = self.client.post('/default/login?next=/test',
@@ -240,7 +246,9 @@ class TestLogin(BaseTestCase):
     def test_submit_incorrect_password(self):
         user = self.factory.user
         user.hash_password('password')
-        user.save()
+
+        self.db.session.add(user)
+        self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
             rv = self.client.post('/default/login', data={'email': user.email, 'password': 'badbadpassword'})

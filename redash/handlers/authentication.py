@@ -110,7 +110,7 @@ def login(org_slug=None):
                 return redirect(next_path)
             else:
                 flash("Wrong email or password.")
-        except models.User.DoesNotExist:
+        except models.NoResultFound:
             flash("Wrong email or password.")
 
     google_auth_url = get_google_auth_url(next_path)

@@ -5,7 +5,6 @@ import time
 import logging
 
 from flask import redirect, request, jsonify, url_for
-from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
@@ -40,7 +39,7 @@ def load_user(user_id):
     org = current_org._get_current_object()
     try:
         return models.User.get_by_id_and_org(user_id, org)
-    except NoResultFound:
+    except models.NoResultFound:
         return None
 
 
@@ -79,11 +78,11 @@ def get_user_from_api_key(api_key, query_id):
     org = current_org._get_current_object()
     try:
         user = models.User.get_by_api_key_and_org(api_key, org)
-    except NoResultFound:
+    except models.NoResultFound:
         try:
             api_key = models.ApiKey.get_by_api_key(api_key)
             user = models.ApiUser(api_key, api_key.org, [])
-        except NoResultFound:
+        except models.NoResultFound:
             if query_id:
                 query = models.Query.get_by_id_and_org(query_id, org)
                 if query and query.api_key == api_key:

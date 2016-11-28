@@ -24,6 +24,7 @@ class ModelFactory(object):
         kwargs = self._get_kwargs(override_kwargs)
         obj = self.model(**kwargs)
         db.session.add(obj)
+        db.session.commit()
         return obj
 
 
@@ -53,7 +54,7 @@ data_source_factory = ModelFactory(redash.models.DataSource,
                                    type='pg',
                                    # If we don't use lambda here it will reuse the same options between tests:
                                    options=lambda: ConfigurationContainer.from_json('{"dbname": "test"}'),
-                                   org=1)
+                                   org_id=1)
 
 dashboard_factory = ModelFactory(redash.models.Dashboard,
                                  name='test', user=user_factory.create, layout='[]', org=1)
@@ -107,7 +108,7 @@ query_result_factory = ModelFactory(redash.models.QueryResult,
 
 visualization_factory = ModelFactory(redash.models.Visualization,
                                      type='CHART',
-                                     query_text=query_factory.create,
+                                     query_rel=query_factory.create,
                                      name='Chart',
                                      description='',
                                      options='{}')

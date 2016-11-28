@@ -4,28 +4,23 @@ import hashlib
 import itertools
 import json
 import logging
-import os
-import threading
 import time
 
 from funcy import project
-
 from flask_sqlalchemy import SQLAlchemy
 from flask.ext.sqlalchemy import SignallingSession
 from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.types import TypeDecorator
+from sqlalchemy.orm import object_session
+# noinspection PyUnresolvedReferences
+from sqlalchemy.orm.exc import NoResultFound
 
 from passlib.apps import custom_app_context as pwd_context
-from playhouse.gfk import GFKField, BaseModel
-from playhouse.postgres_ext import ArrayField, DateTimeTZField
 
-
-
-from redash import redis_connection, settings, utils
+from redash import redis_connection, utils
 from redash.destinations import get_destination, get_configuration_schema_for_destination_type
-from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
 from redash.permissions import has_access, view_only
 from redash.query_runner import get_query_runner, get_configuration_schema_for_query_runner_type
 from redash.utils import generate_token, json_dumps
@@ -38,6 +33,7 @@ Column = functools.partial(db.Column, nullable=False)
 # either queries or dashboards.
 # TODO replace this with association tables.
 _gfk_types = {}
+
 
 class GFKBase(object):
     """
@@ -121,14 +117,14 @@ class ChangeTrackingMixin(object):
                            change=changes))
 
 
-
 class ConflictDetectedError(Exception):
     pass
+
 
 class BelongsToOrgMixin(object):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one_or_none()
+        return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one()
 
 
 class PermissionsCheckMixin(object):
@@ -142,6 +138,7 @@ class PermissionsCheckMixin(object):
                                  True)
 
         return has_permissions
+
 
 class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     @property
@@ -826,12 +823,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
         return new_change
 
-    def _create_default_visualizations(self):
-        table_visualization = Visualization(query=self, name="Table",
-                                            description='',
-                                            type="TABLE", options="{}")
-        table_visualization.save()
-
     def _set_api_key(self):
         if not self.api_key:
             self.api_key = hashlib.sha1(
@@ -863,11 +854,12 @@ def gen_query_hash(target, val, oldval, initiator):
 def query_last_modified_by(target, val, oldval, initiator):
     target.last_modified_by_id = val
 
+# Create default (table) visualization:
 @listens_for(SignallingSession, 'before_flush')
 def create_defaults(session, ctx, *a):
     for obj in session.new:
         if isinstance(obj, Query):
-            session.add(Visualization(query=obj, name="Table",
+            session.add(Visualization(query_rel=obj, name="Table",
                                       description='',
                                       type="TABLE", options="{}"))
 
@@ -1194,7 +1186,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
         return new_change
 
-
     def __unicode__(self):
         return u"%s=%s" % (self.id, self.name)
 
@@ -1203,7 +1194,8 @@ class Visualization(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     type = Column(db.String(100))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
-    query = db.relationship(Query, backref='visualizations')
+    # query_rel and not query, because db.Model already has query defined.
+    query_rel = db.relationship(Query, backref='visualizations')
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     options = Column(db.Text)
@@ -1222,14 +1214,18 @@ class Visualization(TimestampMixin, db.Model):
         }
 
         if with_query:
-            d['query'] = self.query.to_dict()
+            d['query'] = self.query_rel.to_dict()
 
         return d
 
     @classmethod
     def get_by_id_and_org(cls, visualization_id, org):
-        return cls.select(Visualization, Query).join(Query).where(cls.id == visualization_id,
-                                                                  Query.org == org).get()
+        if isinstance(org, Organization):
+            org_id = org.id
+        else:
+            org_id = org
+
+        return cls.query.join(Query).filter(cls.id == visualization_id, Query.org_id == org_id).one()
 
     def __unicode__(self):
         return u"%s %s" % (self.id, self.type)

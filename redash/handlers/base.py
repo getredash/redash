@@ -37,6 +37,11 @@ class BaseResource(Resource):
     def record_event(self, options):
         record_event(self.current_org, self.current_user, options)
 
+    # TODO: this should probably be somewhere else
+    def update_model(self, model, updates):
+        for k, v in updates.items():
+            setattr(model, k, v)
+
 
 def record_event(org, user, options):
     if isinstance(user, ApiUser):

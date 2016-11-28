@@ -35,7 +35,7 @@ class VisualizationResource(BaseResource):
         kwargs.pop('id', None)
         kwargs.pop('query_id', None)
 
-        vis.update_instance(**kwargs)
+        self.update_model(vis, kwargs)
 
         return vis.to_dict(with_query=False)
 
