@@ -31,7 +31,7 @@ a02edda #1222: Add: additional results format for sunburst visualization (Arik 
 9a6d2d7 #1204: Add: show views in schema browser for Vertica data sources (Matthew Carter)  
 600afa5 #1138: Add: ability to register user defined function (UDF) resources for BigQuery DataSource/Query (fabito)  
 b410410 #1166: Add: "every 14 days" refresh option (Arik Fraimovich)  
-
+906365f #967: Add: extend ElasticSearch query_runner to support aggregations (lloydw)
 
 ### Changed
 
