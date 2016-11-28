@@ -224,6 +224,7 @@ function QueryResultService($resource, $timeout, $q) {
         let seriesName;
         let xValue = 0;
         const yValues = {};
+        let eValue = 0;
 
         each(row, (v, definition) => {
           const name = definition.split('::')[0] || definition.split('__')[0];
@@ -248,6 +249,10 @@ function QueryResultService($resource, $timeout, $q) {
             yValues[name] = value;
             point[type] = value;
           }
+          if (type === 'yError') {
+            eValue = value;
+            point[type] = value;
+          }
 
           if (type === 'series') {
             seriesName = String(value);
@@ -260,13 +265,12 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
-            addPointToSeries({ x: xValue, y: yValue }, series, ySeriesName);
+            addPointToSeries({ x: xValue, y: yValue, yError: eValue }, series, ySeriesName);
           });
         } else {
           addPointToSeries(point, series, seriesName);
         }
       });
-
       return values(series);
     }
 
