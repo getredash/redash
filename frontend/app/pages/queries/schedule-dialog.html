@@ -26,17 +26,17 @@
     <div class='row m-t-20 m-l-0'>
         <advanced-refresh 
             refresh-type="$ctrl.refreshType" 
-            query="$ctrl.query" 
+            schedule="$ctrl.schedule" 
             ng-if="$ctrl.refreshType === 'advanced'" 
             modal="$ctrl"
-            save-query="$ctrl.saveQuery">
+            callback="$ctrl.callback">
         </advanced-refresh>
         <basic-refresh 
             refresh-type="$ctrl.refreshType" 
             ng-if="$ctrl.refreshType === 'basic'"
-            query="$ctrl.query"
+            schedule="$ctrl.schedule"
             modal="$ctrl"
-            save-query="$ctrl.saveQuery">
+            callback="$ctrl.callback">
         </basic-refresh>
         <div ng-if="!$ctrl.refreshType">
             <div class="modal-footer">

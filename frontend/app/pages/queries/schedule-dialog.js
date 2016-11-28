@@ -22,12 +22,12 @@ function basicRefresh() {
     restrict: 'E',
     scope: {
       refreshType: '=',
-      query: '=',
-      saveQuery: '=',
+      schedule: '=',
+      callback: '<',
       modal: '=',
     },
     template: ` <select
-                  ng-model="query.schedule"
+                  ng-model="schedule"
                   ng-options="c.value as c.name for c in refreshOptions">
                   <option value="" disabled selected>No refresh</option>
                 </select>
@@ -39,7 +39,7 @@ function basicRefresh() {
                     </button>
                 </div>`,
     link($scope) {
-      $scope.query.schedule = $scope.query.schedule ? $scope.query.schedule : '';
+      $scope.schedule = $scope.schedule ? $scope.schedule : '';
 
       $scope.refreshOptions = [
         {
@@ -67,11 +67,15 @@ function basicRefresh() {
         name: 'Every day',
       });
 
+      $scope.save = () => {
+        $scope.callback($scope.schedule);
+      };
+
       $scope.$watch('refreshType', () => {
         if ($scope.refreshType === 'advanced') {
           if ($scope.query.hasDailySchedule()) {
-            $scope.query.schedule = '';
-            $scope.saveQuery();
+            $scope.schedule = '';
+            $scope.callback('');
           }
         }
       });
@@ -86,14 +90,13 @@ function advancedRefresh() {
     restrict: 'E',
     scope: {
       refreshType: '=',
-      query: '=',
-      saveQuery: '=',
+      schedule: '=',
+      callback: '<',
       modal: '=',
     },
     template: periodicRefreshTemplate,
     link($scope) {
-      $scope.query.schedule = $scope.query.schedule ? $scope.query.schedule : '';
-
+      $scope.schedule = $scope.schedule ? $scope.schedule : '';
       $scope.pushOrRemoveDay = (x) => {
         if ($scope.params.daysOfTheWeek.indexOf(x) > -1) {
           $scope.params.daysOfTheWeek = filter(
@@ -105,10 +108,10 @@ function advancedRefresh() {
       };
 
       $scope.loadCronParameters = () => {
-        if ($scope.query.schedule === '' || $scope.query.schedule.split(' ').length !== 5) {
+        if ($scope.schedule === '' || $scope.schedule.split(' ').length !== 5) {
           return false;
         }
-        const [minute, hours, dom, , dow] = $scope.query.schedule.split(' ');
+        const [minute, hours, dom, , dow] = $scope.schedule.split(' ');
         if (hours.length && hours !== '*') {
           $scope.params.schedules = [];
           hours.split(',').forEach((hour) => {
@@ -151,17 +154,9 @@ function advancedRefresh() {
 
       $scope.loadCronParameters();
 
+      $scope.range = range;
       $scope.hourOptions = map(range(0, 24), partial(padWithZeros, 2));
       $scope.minuteOptions = map(range(0, 60, 5), partial(padWithZeros, 2));
-
-      if ($scope.query.hasDailySchedule()) {
-        const parts = $scope.query.scheduleInLocalTime().split(':');
-        $scope.minute = parts[1];
-        $scope.hour = parts[0];
-      } else {
-        $scope.minute = '15';
-        $scope.hour = '00';
-      }
 
       $scope.updateCron = () => {
         // Syntax: minute hour dom month dow
@@ -177,13 +172,15 @@ function advancedRefresh() {
           dowString = '*';
         }
         if ($scope.params.daysOfTheMonth.length) {
-          let errorFound = false;
-          $scope.params.daysOfTheMonth.split(',').forEach((e) => {
-            if (!/\d{1,2}/.test(e) || (/\d{1,2}/.test(e) && parseInt(e, 10) > 31)) {
-              errorFound = true;
-            }
-          });
-          $scope.errors.daysOfTheMonth = errorFound;
+          if ($scope.params.daysOfTheMonth !== '*') {
+            let errorFound = false;
+            $scope.params.daysOfTheMonth.split(',').forEach((e) => {
+              if (!/\d{1,2}/.test(e) || (/\d{1,2}/.test(e) && parseInt(e, 10) > 31)) {
+                errorFound = true;
+              }
+            });
+            $scope.errors.daysOfTheMonth = errorFound;
+          }
           domString = $scope.params.daysOfTheMonth;
         } else {
           domString = '*';
@@ -196,8 +193,8 @@ function advancedRefresh() {
       $scope.$watch('params', $scope.updateCron, true);
 
       $scope.save = () => {
-        $scope.query.schedule = $scope.updateCron();
-        $scope.saveQuery();
+        $scope.schedule = $scope.updateCron();
+        $scope.callback($scope.schedule);
       };
     },
 
@@ -206,19 +203,24 @@ function advancedRefresh() {
 
 const ScheduleForm = {
   controller() {
-    this.query = this.resolve.query;
-    this.saveQuery = this.resolve.saveQuery;
-    if (this.query.schedule === '') {
+    if (!this.schedule) {
+      this.schedule = '';
+    }
+
+    this.schedule = this.resolve.schedule;
+    this.callback = this.resolve.callback;
+
+    if (this.schedule === '' || typeof this.schedule !== 'string') {
       this.refreshType = '';
-    } else if (this.query.schedule.indexOf('* * *') > -1) {
+    } else if (this.schedule.indexOf('* * *') > -1) {
       this.refreshType = 'basic';
     } else {
       this.refreshType = 'advanced';
     }
 
     this.resetRefresh = () => {
-      this.query.schedule = '';
-      this.saveQuery();
+      this.schedule = '';
+      this.callback(this.schedule);
     };
   },
   bindings: {
