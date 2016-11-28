@@ -1,16 +1,16 @@
 <div>
   <ul class="tab-nav">
     <li ng-class="{active: currentTab == 'general'}">
-      <a ng-click="currentTab='general'">General</a>
+      <a ng-click="changeTab('general')">General</a>
     </li>
     <li ng-class="{active: currentTab == 'xAxis'}" ng-if="options.globalSeriesType != 'custom'">
-      <a ng-click="currentTab='xAxis'">X Axis</a>
+      <a ng-click="changeTab('xAxis')">X Axis</a>
     </li>
     <li ng-class="{active: currentTab == 'yAxis'}" ng-if="options.globalSeriesType != 'custom'">
-      <a ng-click="currentTab='yAxis'">Y Axis</a>
+      <a ng-click="changeTab('yAxis')">Y Axis</a>
     </li>
     <li ng-class="{active: currentTab == 'series'}" ng-if="options.globalSeriesType != 'custom'">
-      <a ng-click="currentTab='series'">Series</a>
+      <a ng-click="changeTab('series')">Series</a>
     </li>
   </ul>
   <div ng-show="currentTab == 'general'">
@@ -65,6 +65,7 @@
           <small class="text-muted" ng-bind="columns[column].type"></small>
         </ui-select-choices>
       </ui-select>
+      <button class='btn btn-default m-t-10' ng-disabled='!form.groupby' ng-click='clearGroupBy()'>Clear</button>
     </div>
 
     <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
@@ -77,6 +78,7 @@
           <small class="text-muted" ng-bind="columns[column].type"></small>
         </ui-select-choices>
       </ui-select>
+      <button class='btn btn-default m-t-10' ng-disabled='!form.errorColumn' ng-click='clearErrorColumn()'>Clear</button>
     </div>
 
     <div class="checkbox" ng-if="options.globalSeriesType != 'custom'">

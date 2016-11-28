@@ -51,10 +51,17 @@ function ChartEditor(clientConfig) {
     link(scope) {
       scope.currentTab = 'general';
 
+      scope.clearGroupBy = () => { delete scope.form.groupby; };
+      scope.clearErrorColumn = () => { delete scope.form.errorColumn; };
+
       scope.stackingOptions = {
         Disabled: null,
         Enabled: 'normal',
         Percent: 'percent',
+      };
+
+      scope.changeTab = (tab) => {
+        scope.currentTab = tab;
       };
 
       scope.chartTypes = {
@@ -73,8 +80,8 @@ function ChartEditor(clientConfig) {
       scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
 
       scope.chartTypeChanged = () => {
-        scope.options.seriesOptions.forEach((options) => {
-          options.type = scope.options.globalSeriesType;
+        keys(scope.options.seriesOptions).forEach((key) => {
+          scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
       };
 
