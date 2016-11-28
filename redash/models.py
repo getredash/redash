@@ -1483,6 +1483,7 @@ def init_db():
 
 
 def create_db(create_tables, drop_tables):
+    # TODO: use these methods directly
     if drop_tables:
         db.session.rollback()
         db.drop_all()

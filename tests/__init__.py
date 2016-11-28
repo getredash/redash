@@ -14,9 +14,9 @@ os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"
 os.environ['REDASH_GOOGLE_CLIENT_SECRET'] = "dummy"
 os.environ['REDASH_MULTI_ORG'] = "true"
 
-import redash.models
 from redash import create_app
 from redash import redis_connection
+from redash.models import db
 from redash.utils import json_dumps
 from tests.factories import Factory, user_factory
 
@@ -44,15 +44,15 @@ class BaseTestCase(TestCase):
     def setUp(self):
         self.app = create_app()
         self.app.config['TESTING'] = True
-        self.client = self.app.test_client()
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
-        redash.models.db.session.remove()
-        redash.models.create_db(True, True)
+        db.create_all()
         self.factory = Factory()
+        self.client = self.app.test_client()
 
     def tearDown(self):
-        redash.models.create_db(False, True)
+        db.session.remove()
+        db.drop_all()
         self.app_ctx.pop()
         redis_connection.flushdb()
 
