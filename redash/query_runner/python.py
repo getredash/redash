@@ -38,6 +38,11 @@ class CustomPrint(object):
 
 
 class Python(BaseQueryRunner):
+    safe_builtins = (
+        'sorted', 'reversed', 'min', 'max',
+        'sum', 'set',
+    )
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -190,17 +195,23 @@ class Python(BaseQueryRunner):
 
             code = compile_restricted(query, '<string>', 'exec')
 
-            safe_builtins["_write_"] = self.custom_write
-            safe_builtins["__import__"] = self.custom_import
-            safe_builtins["_getattr_"] = getattr
-            safe_builtins["getattr"] = getattr
-            safe_builtins["_setattr_"] = setattr
-            safe_builtins["setattr"] = setattr
-            safe_builtins["_getitem_"] = self.custom_get_item
-            safe_builtins["_getiter_"] = self.custom_get_iter
-            safe_builtins["_print_"] = self._custom_print
+            builtins = safe_builtins.copy()
+            builtins["_write_"] = self.custom_write
+            builtins["__import__"] = self.custom_import
+            builtins["_getattr_"] = getattr
+            builtins["getattr"] = getattr
+            builtins["_setattr_"] = setattr
+            builtins["setattr"] = setattr
+            builtins["_getitem_"] = self.custom_get_item
+            builtins["_getiter_"] = self.custom_get_iter
+            builtins["_print_"] = self._custom_print
 
-            restricted_globals = dict(__builtins__=safe_builtins)
+            # Layer in our own additional set of builtins that we have
+            # considered safe.
+            for key in self.safe_builtins:
+                builtins[key] = __builtins__[key]
+
+            restricted_globals = dict(__builtins__=builtins)
             restricted_globals["get_query_result"] = self.get_query_result
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
@@ -216,10 +227,6 @@ class Python(BaseQueryRunner):
             restricted_globals["TYPE_DATE"] = TYPE_DATE
             restricted_globals["TYPE_FLOAT"] = TYPE_FLOAT
 
-            restricted_globals["sorted"] = sorted
-            restricted_globals["reversed"] = reversed
-            restricted_globals["min"] = min
-            restricted_globals["max"] = max
 
             # TODO: Figure out the best way to have a timeout on a script
             #       One option is to use ETA with Celery + timeouts on workers
