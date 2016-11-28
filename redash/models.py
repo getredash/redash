@@ -597,13 +597,6 @@ def should_schedule_next(previous_iteration, now, schedule):
     return now > next_iteration
 
 
-def generate_query_api_key(ctx):
-    return hashlib.sha1(u''.join((
-        str(time.time()), ctx.current_parameters['query'],
-        str(ctx.current_parameters['user_id']),
-        ctx.current_parameters['name'])).encode('utf-8')).hexdigest()
-
-
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
@@ -617,7 +610,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     description = Column(db.String(4096), nullable=True)
     query_text = Column("query", db.Text)
     query_hash = Column(db.String(32))
-    api_key = Column(db.String(40), default=generate_query_api_key)
+    api_key = Column(db.String(40), default=lambda: generate_token(40))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, foreign_keys=[user_id])
     last_modified_by_id = Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
@@ -800,7 +793,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def pre_save(self, created):
         super(Query, self).pre_save(created)
         self.query_hash = utils.gen_query_hash(self.query)
-        self._set_api_key()
 
         if self.last_modified_by is None:
             self.last_modified_by = self.user
@@ -822,11 +814,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         # save Change record
         new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
         return new_change
-
-    def _set_api_key(self):
-        if not self.api_key:
-            self.api_key = hashlib.sha1(
-                u''.join((str(time.time()), self.query, str(self.user_id), self.name)).encode('utf-8')).hexdigest()
 
     @property
     def runtime(self):
