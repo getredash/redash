@@ -448,7 +448,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
         data_source_group = DataSourceGroup(
             data_source=data_source,
             group=data_source.org.default_group)
-
         db.session.add_all([data_source, data_source_group])
         return data_source
 
