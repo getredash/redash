@@ -97,7 +97,7 @@ access_permission_factory = ModelFactory(redash.models.AccessPermission,
 
 alert_factory = ModelFactory(redash.models.Alert,
                              name=Sequence('Alert {}'),
-                             query=query_factory.create,
+                             query_rel=query_factory.create,
                              user=user_factory.create,
                              options={})
 
@@ -224,7 +224,7 @@ class Factory(object):
     def create_alert(self, **kwargs):
         args = {
             'user': self.user,
-            'query': self.create_query()
+            'query_rel': self.create_query()
         }
 
         args.update(**kwargs)

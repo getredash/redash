@@ -3,7 +3,8 @@ import time
 from flask import Blueprint, current_app, request
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
-from sqlalchemy.exc import DataError
+
+from sqlalchemy.orm.exc import NoResultFound
 
 from redash import settings
 from redash.authentication import current_org
@@ -73,11 +74,13 @@ def require_fields(req, fields):
 
 
 def get_object_or_404(fn, *args, **kwargs):
-    rv = fn(*args, **kwargs)
-    if rv is None:
+    try:
+        rv = fn(*args, **kwargs)
+        if rv is None:
+            abort(404)
+    except NoResultFound:
         abort(404)
-    else:
-        return rv
+    return rv
 
 
 def paginate(query_set, page, page_size, serializer):

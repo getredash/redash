@@ -621,6 +621,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
+    visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(PseudoJSON, default={})
 
     __tablename__ = 'queries'
@@ -973,12 +974,12 @@ class Alert(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
-    query = db.relationship(Query, backref='alerts')
+    query_rel = db.relationship(Query, backref='alerts', cascade="all")
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='alerts')
     options = Column(PseudoJSON)
     state = Column(db.String(255), default=UNKNOWN_STATE)
-    subscriptions = db.relationship("AlertSubscription", cascade="delete")
+    subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
     rearm = Column(db.Integer, nullable=True)
 
@@ -995,7 +996,7 @@ class Alert(TimestampMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
-        return cls.select(Alert, User, Query).join(Query).switch(Alert).join(User).where(cls.id==id, Query.org==org).get()
+        return db.session.query(Alert).join(Query).filter(Alert.id==id, Query.org==org).one()
 
     def to_dict(self, full=True):
         d = {
@@ -1010,7 +1011,7 @@ class Alert(TimestampMixin, db.Model):
         }
 
         if full:
-            d['query'] = self.query.to_dict()
+            d['query'] = self.query_rel.to_dict()
             d['user'] = self.user.to_dict()
         else:
             d['query_id'] = self.query_id
@@ -1019,7 +1020,7 @@ class Alert(TimestampMixin, db.Model):
         return d
 
     def evaluate(self):
-        data = json.loads(self.query.latest_query_data.data)
+        data = json.loads(self.query_rel.latest_query_data.data)
         # todo: safe guard for empty
         value = data['rows'][0][self.options['column']]
         op = self.options['op']
@@ -1036,11 +1037,11 @@ class Alert(TimestampMixin, db.Model):
         return new_state
 
     def subscribers(self):
-        return User.select().join(AlertSubscription).where(AlertSubscription.alert==self)
+        return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
     @property
     def groups(self):
-        return self.query.groups
+        return self.query_rel.groups
 
 
 def generate_slug(ctx):
@@ -1193,7 +1194,7 @@ class Visualization(TimestampMixin, db.Model):
     type = Column(db.String(100))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
     # query_rel and not query, because db.Model already has query defined.
-    query_rel = db.relationship(Query, backref='visualizations')
+    query_rel = db.relationship(Query, back_populates='visualizations')
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     options = Column(db.Text)
@@ -1416,7 +1417,7 @@ class AlertSubscription(TimestampMixin, db.Model):
 
     @classmethod
     def all(cls, alert_id):
-        return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
+        return AlertSubscription.query.join(User).filter(AlertSubscription.alert_id == alert_id)
 
     def notify(self, alert, query, user, new_state, app, host):
         if self.destination:
