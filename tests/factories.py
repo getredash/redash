@@ -57,7 +57,11 @@ data_source_factory = ModelFactory(redash.models.DataSource,
                                    org_id=1)
 
 dashboard_factory = ModelFactory(redash.models.Dashboard,
-                                 name='test', user=user_factory.create, layout='[]', org=1)
+                                 name='test',
+                                 user=user_factory.create,
+                                 layout='[]',
+                                 is_draft=False,
+                                 org=1)
 
 api_key_factory = ModelFactory(redash.models.ApiKey,
                                object=dashboard_factory.create)
