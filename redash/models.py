@@ -871,13 +871,26 @@ class AccessPermission(GFKBase, db.Model):
 
     @classmethod
     def grant(cls, obj, access_type, grantee, grantor):
-        return cls.get_or_create(object_type=obj._meta.db_table, object_id=obj.id, access_type=access_type, grantee=grantee, grantor=grantor)[0]
+        grant = cls.query.filter(cls.object_type==obj.__tablename__,
+                                 cls.object_id==obj.id,
+                                 cls.access_type==access_type,
+                                 cls.grantee==grantee,
+                                 cls.grantor==grantor).one_or_none()
+
+        if not grant:
+            grant = cls(object_type=obj.__tablename__,
+                        object_id=obj.id,
+                        access_type=access_type,
+                        grantee=grantee,
+                        grantor=grantor)
+            db.session.add(grant)
+
+        return grant
 
     @classmethod
     def revoke(cls, obj, grantee, access_type=None):
-        query = cls._query(cls.delete(), obj, access_type, grantee)
-
-        return query.execute()
+        permissions = cls._query(obj, access_type, grantee)
+        return permissions.delete()
 
     @classmethod
     def find(cls, obj, access_type=None, grantee=None, grantor=None):
@@ -888,18 +901,17 @@ class AccessPermission(GFKBase, db.Model):
         return cls.find(obj, access_type, grantee).count() > 0
 
     @classmethod
-    def _query(cls, base_query, obj, access_type=None, grantee=None, grantor=None):
-        q = base_query.where(cls.object_type == obj._meta.db_table) \
-            .where(cls.object_id == obj.id)
+    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
+        q = cls.query.filter(cls.object_id==obj.id, cls.object_type==obj.__tablename__)
 
         if access_type:
-            q = q.where(AccessPermission.access_type == access_type)
+            q.filter(AccessPermission.access_type == access_type)
 
         if grantee:
-            q = q.where(AccessPermission.grantee == grantee)
+            q.filter(AccessPermission.grantee_id == grantee.id)
 
         if grantor:
-            q = q.where(AccessPermission.grantor == grantor)
+            q.filter(AccessPermission.grantor_id == grantor.id)
 
         return q
 
