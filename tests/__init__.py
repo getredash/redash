@@ -34,7 +34,7 @@ def authenticate_request(c, user):
 def authenticated_user(c, user=None):
     if not user:
         user = user_factory.create()
-
+        db.session.commit()
     authenticate_request(c, user)
 
     yield user
@@ -47,6 +47,7 @@ class BaseTestCase(TestCase):
         self.app.config['TESTING'] = True
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
+        db.session.close()
         db.drop_all()
         db.create_all()
         self.factory = Factory()
@@ -58,7 +59,8 @@ class BaseTestCase(TestCase):
         self.app_ctx.pop()
         redis_connection.flushdb()
 
-    def make_request(self, method, path, org=None, user=None, data=None, is_json=True):
+    def make_request(self, method, path, org=None, user=None, data=None,
+                     is_json=True):
         if user is None:
             user = self.factory.user
 

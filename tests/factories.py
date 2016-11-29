@@ -143,7 +143,9 @@ class Factory(object):
     def user(self):
         if self._user is None:
             self._user = self.create_user()
-
+            # Test setup creates users, they need to be in the db by the time
+            # the handler's db transaction starts.
+            db.session.commit()
         return self._user
 
     @property
@@ -303,14 +305,14 @@ class Factory(object):
 
     def create_visualization(self, **kwargs):
         args = {
-            'query': self.create_query()
+            'query_rel': self.create_query()
         }
         args.update(kwargs)
         return visualization_factory.create(**args)
 
     def create_visualization_with_params(self, **kwargs):
         args = {
-            'query': self.create_query_with_params()
+            'query_rel': self.create_query_with_params()
         }
         args.update(kwargs)
         return visualization_factory.create(**args)

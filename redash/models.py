@@ -707,7 +707,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def outdated_queries(cls):
-        queries = (cls.query(Query)
+        queries = (db.session.query(Query)
                    .join(QueryResult)
                    .join(DataSource)
                    .filter(Query.schedule != None))
@@ -1207,12 +1207,9 @@ class Visualization(TimestampMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, visualization_id, org):
-        if isinstance(org, Organization):
-            org_id = org.id
-        else:
-            org_id = org
-
-        return cls.query.join(Query).filter(cls.id == visualization_id, Query.org_id == org_id).one()
+        return db.session.query(Visualization).join(Query).filter(
+            cls.id == visualization_id,
+            Query.org == org).one()
 
     def __unicode__(self):
         return u"%s %s" % (self.id, self.type)

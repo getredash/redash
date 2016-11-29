@@ -52,7 +52,7 @@ class IndexTest(BaseTestCase):
 class StatusTest(BaseTestCase):
     def test_returns_data_for_super_admin(self):
         admin = self.factory.create_admin()
-
+        models.db.session.commit()
         rv = self.make_request('get', '/status.json', org=False, user=admin, is_json=False)
         self.assertEqual(rv.status_code, 200)
 
@@ -68,6 +68,7 @@ class StatusTest(BaseTestCase):
 class VisualizationResourceTest(BaseTestCase):
     def test_create_visualization(self):
         query = self.factory.create_query()
+        models.db.session.commit()
         data = {
             'query_id': query.id,
             'name': 'Chart',
@@ -84,16 +85,16 @@ class VisualizationResourceTest(BaseTestCase):
 
     def test_delete_visualization(self):
         visualization = self.factory.create_visualization()
-
+        models.db.session.commit()
         rv = self.make_request('delete', '/api/visualizations/{}'.format(visualization.id))
 
         self.assertEquals(rv.status_code, 200)
         # =1 because each query has a default table visualization.
-        self.assertEquals(models.Visualization.select().count(), 1)
+        self.assertEquals(models.db.session.query(models.Visualization).count(), 1)
 
     def test_update_visualization(self):
         visualization = self.factory.create_visualization()
-
+        models.db.session.commit()
         rv = self.make_request('post', '/api/visualizations/{0}'.format(visualization.id), data={'name': 'After Update'})
 
         self.assertEquals(rv.status_code, 200)
@@ -101,6 +102,13 @@ class VisualizationResourceTest(BaseTestCase):
 
     def test_only_owner_or_admin_can_create_visualization(self):
         query = self.factory.create_query()
+        other_user = self.factory.create_user()
+        admin = self.factory.create_admin()
+        admin_from_diff_org = self.factory.create_admin(org=self.factory.create_org())
+        models.db.session.commit()
+        models.db.session.refresh(admin)
+        models.db.session.refresh(other_user)
+        models.db.session.refresh(admin_from_diff_org)
         data = {
             'query_id': query.id,
             'name': 'Chart',
@@ -109,9 +117,6 @@ class VisualizationResourceTest(BaseTestCase):
             'type': 'CHART'
         }
 
-        other_user = self.factory.create_user()
-        admin = self.factory.create_admin()
-        admin_from_diff_org = self.factory.create_admin(org=self.factory.create_org())
 
         rv = self.make_request('post', '/api/visualizations', data=data, user=admin)
         self.assertEquals(rv.status_code, 200)
@@ -124,12 +129,17 @@ class VisualizationResourceTest(BaseTestCase):
 
     def test_only_owner_or_admin_can_edit_visualization(self):
         vis = self.factory.create_visualization()
+        models.db.session.flush()
         path = '/api/visualizations/{}'.format(vis.id)
         data = {'name': 'After Update'}
 
         other_user = self.factory.create_user()
         admin = self.factory.create_admin()
         admin_from_diff_org = self.factory.create_admin(org=self.factory.create_org())
+        models.db.session.commit()
+        models.db.session.refresh(admin)
+        models.db.session.refresh(other_user)
+        models.db.session.refresh(admin_from_diff_org)
 
         rv = self.make_request('post', path, user=admin, data=data)
         self.assertEquals(rv.status_code, 200)
@@ -142,22 +152,29 @@ class VisualizationResourceTest(BaseTestCase):
 
     def test_only_owner_or_admin_can_delete_visualization(self):
         vis = self.factory.create_visualization()
+        models.db.session.flush()
         path = '/api/visualizations/{}'.format(vis.id)
 
         other_user = self.factory.create_user()
         admin = self.factory.create_admin()
         admin_from_diff_org = self.factory.create_admin(org=self.factory.create_org())
 
+        models.db.session.commit()
+        models.db.session.refresh(admin)
+        models.db.session.refresh(other_user)
+        models.db.session.refresh(admin_from_diff_org)
         rv = self.make_request('delete', path, user=admin)
         self.assertEquals(rv.status_code, 200)
 
         vis = self.factory.create_visualization()
+        models.db.session.commit()
         path = '/api/visualizations/{}'.format(vis.id)
 
         rv = self.make_request('delete', path, user=other_user)
         self.assertEquals(rv.status_code, 403)
 
         vis = self.factory.create_visualization()
+        models.db.session.commit()
         path = '/api/visualizations/{}'.format(vis.id)
 
         rv = self.make_request('delete', path, user=admin_from_diff_org)
@@ -184,7 +201,7 @@ class TestLogin(BaseTestCase):
         settings.ORG_RESOLVING = "multi_org"
 
     def test_redirects_to_google_login_if_password_disabled(self):
-        with patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False):
+        with patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False), self.app.test_request_context('/default/login'):
             rv = self.client.get('/default/login')
             self.assertEquals(rv.status_code, 302)
             self.assertTrue(rv.location.endswith(url_for('google_oauth.authorize', next='/default/')))
@@ -251,7 +268,8 @@ class TestLogin(BaseTestCase):
         self.db.session.commit()
 
         with patch('redash.handlers.authentication.login_user') as login_user_mock:
-            rv = self.client.post('/default/login', data={'email': user.email, 'password': 'badbadpassword'})
+            rv = self.client.post('/default/login', data={
+                'email': user.email, 'password': 'badbadpassword'})
             self.assertEquals(rv.status_code, 200)
             self.assertFalse(login_user_mock.called)
 
@@ -272,14 +290,15 @@ class TestLogin(BaseTestCase):
 
 class TestLogout(BaseTestCase):
     def test_logout_when_not_loggedin(self):
-        rv = self.client.get('/default/logout')
-        self.assertEquals(rv.status_code, 302)
-        self.assertFalse(current_user.is_authenticated)
+        with self.app.test_client() as c:
+            rv = c.get('/default/logout')
+            self.assertEquals(rv.status_code, 302)
+            self.assertFalse(current_user.is_authenticated)
 
     def test_logout_when_loggedin(self):
-        with authenticated_user(self.client, user=self.factory.user):
-            rv = self.client.get('/default/')
+        with self.app.test_client() as c, authenticated_user(c, user=self.factory.user):
+            rv = c.get('/default/')
             self.assertTrue(current_user.is_authenticated)
-            rv = self.client.get('/default/logout')
+            rv = c.get('/default/logout')
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(current_user.is_authenticated)
