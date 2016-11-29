@@ -894,7 +894,7 @@ class AccessPermission(GFKBase, db.Model):
 
     @classmethod
     def find(cls, obj, access_type=None, grantee=None, grantor=None):
-        return cls._query(cls.select(cls), obj, access_type, grantee, grantor)
+        return cls._query(obj, access_type, grantee, grantor)
 
     @classmethod
     def exists(cls, obj, access_type, grantee):
@@ -902,7 +902,8 @@ class AccessPermission(GFKBase, db.Model):
 
     @classmethod
     def _query(cls, obj, access_type=None, grantee=None, grantor=None):
-        q = cls.query.filter(cls.object_id==obj.id, cls.object_type==obj.__tablename__)
+        q = cls.query.filter(cls.object_id == obj.id,
+                             cls.object_type == obj.__tablename__)
 
         if access_type:
             q.filter(AccessPermission.access_type == access_type)
@@ -1076,18 +1077,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widget_list = Widget.select(Widget, Visualization, Query, User)\
-                .where(Widget.dashboard == self.id)\
-                .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
-                .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
-                .join(User, join_type=peewee.JOIN_LEFT_OUTER)
+            widget_list = Widget.query.filter(Widget.dashboard == self)
 
             widgets = {}
 
             for w in widget_list:
                 if w.visualization_id is None:
                     widgets[w.id] = w.to_dict()
-                elif user and has_access(w.visualization.query.groups, user, view_only):
+                elif user and has_access(w.visualization.query_rel.groups, user, view_only):
                     widgets[w.id] = w.to_dict()
                 else:
                     widgets[w.id] = project(w.to_dict(),
@@ -1175,7 +1172,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
-        return cls.get(cls.slug == slug, cls.org==org)
+        return cls.query.filter(cls.slug == slug, cls.org==org).one()
 
     def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
         self.version += 1
@@ -1330,11 +1327,13 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 
     @classmethod
     def get_by_object(cls, object):
-        return cls.select().where(cls.object_type==object._meta.db_table, cls.object_id==object.id, cls.active==True).first()
+        return cls.query.filter(cls.object_type==object.__class__.__tablename__, cls.object_id==object.id, cls.active==True).first()
 
     @classmethod
     def create_for_object(cls, object, user):
-        return cls.create(org=user.org, object=object, created_by=user)
+        k = cls(org=user.org, object=object, created_by=user)
+        db.session.add(k)
+        return k
 
 
 class NotificationDestination(BelongsToOrgMixin, db.Model):
