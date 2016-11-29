@@ -402,8 +402,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @classmethod
     def create_with_group(cls, *args, **kwargs):
-        data_source = cls.create(*args, **kwargs)
-        DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
+        data_source = cls(*args, **kwargs)
+        data_source_group = DataSourceGroup(data_source=data_source, group=data_source.org.default_group)
+
+        db.session.add_all([data_source, data_source_group])
         return data_source
 
     def get_schema(self, refresh=False):
