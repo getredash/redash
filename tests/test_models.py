@@ -31,8 +31,7 @@ class QueryTest(BaseTestCase):
         q = self.factory.create_query()
         old_hash = q.query_hash
 
-        q.query = "SELECT 2;"
-        #q = db.session.query(models.Query).get(q.id)
+        q.query_text = "SELECT 2;"
         db.session.flush()
         self.assertNotEquals(old_hash, q.query_hash)
 
@@ -136,13 +135,14 @@ class QueryRecentTest(BaseTestCase):
         q1 = self.factory.create_query()
         q2 = self.factory.create_query(is_draft=True)
 
-        models.Event.create(org=self.factory.org, user=self.factory.user,
-                            action="edit", object_type="query",
-                            object_id=q1.id)
-        models.Event.create(org=self.factory.org, user=self.factory.user,
-                            action="edit", object_type="query",
-                            object_id=q2.id)
-
+        models.db.session.add_all([
+            models.Event(org=self.factory.org, user=self.factory.user,
+                         action="edit", object_type="query",
+                         object_id=q1.id),
+            models.Event(org=self.factory.org, user=self.factory.user,
+                         action="edit", object_type="query",
+                         object_id=q2.id)
+        ])
         recent = models.Query.recent([self.factory.default_group])
 
         self.assertIn(q1, recent)
@@ -222,7 +222,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
     def test_outdated_queries_works_with_ttl_based_schedule(self):
         two_hours_ago = utcnow() - datetime.timedelta(hours=2)
         query = self.factory.create_query(schedule="3600")
-        query_result = self.factory.create_query_result(query=query.query, retrieved_at=two_hours_ago)
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
         query.latest_query_data = query_result
 
         queries = models.Query.outdated_queries()
@@ -231,7 +231,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
     def test_skips_fresh_queries(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
         query = self.factory.create_query(schedule="3600")
-        query_result = self.factory.create_query_result(query=query.query, retrieved_at=half_an_hour_ago)
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=half_an_hour_ago)
         query.latest_query_data = query_result
 
         queries = models.Query.outdated_queries()
@@ -240,7 +240,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
     def test_outdated_queries_works_with_specific_time_schedule(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
         query = self.factory.create_query(schedule=half_an_hour_ago.strftime('%H:%M'))
-        query_result = self.factory.create_query_result(query=query.query, retrieved_at=half_an_hour_ago - datetime.timedelta(days=1))
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=half_an_hour_ago - datetime.timedelta(days=1))
         query.latest_query_data = query_result
 
         queries = models.Query.outdated_queries()
@@ -262,7 +262,7 @@ class QueryArchiveTest(BaseTestCase):
         query = self.factory.create_query(schedule="1")
         yesterday = utcnow() - datetime.timedelta(days=1)
         query_result, _ = models.QueryResult.store_result(
-            query.org, query.data_source, query.query_hash, query.query,
+            query.org, query.data_source, query.query_hash, query.query_text,
             "1", 123, yesterday)
 
         query.latest_query_data = query_result
@@ -277,7 +277,7 @@ class QueryArchiveTest(BaseTestCase):
 
     def test_removes_associated_widgets_from_dashboards(self):
         widget = self.factory.create_widget()
-        query = widget.visualization.query
+        query = widget.visualization.query_rel
         db.session.commit()
         query.archive()
         db.session.flush()
@@ -292,7 +292,7 @@ class QueryArchiveTest(BaseTestCase):
 
     def test_deletes_alerts(self):
         subscription = self.factory.create_alert_subscription()
-        query = subscription.alert.query
+        query = subscription.alert.query_rel
         db.session.commit()
         query.archive()
         db.session.flush()
@@ -497,9 +497,9 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.assertEqual(query_result.data_source, self.data_source)
 
     def test_updates_existing_queries(self):
-        query1 = self.factory.create_query(query=self.query)
-        query2 = self.factory.create_query(query=self.query)
-        query3 = self.factory.create_query(query=self.query)
+        query1 = self.factory.create_query(query_text=self.query)
+        query2 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query)
 
         query_result, _ = models.QueryResult.store_result(
             self.data_source.org, self.data_source, self.query_hash,
@@ -510,22 +510,22 @@ class TestQueryResultStoreResult(BaseTestCase):
         self.assertEqual(query3.latest_query_data, query_result)
 
     def test_doesnt_update_queries_with_different_hash(self):
-        query1 = self.factory.create_query(query=self.query)
-        query2 = self.factory.create_query(query=self.query)
-        query3 = self.factory.create_query(query=self.query + "123")
+        query1 = self.factory.create_query(query_text=self.query)
+        query2 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query + "123")
 
         query_result, _ = models.QueryResult.store_result(
             self.data_source.org, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
-
+        
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
         self.assertNotEqual(query3.latest_query_data, query_result)
 
     def test_doesnt_update_queries_with_different_data_source(self):
-        query1 = self.factory.create_query(query=self.query)
-        query2 = self.factory.create_query(query=self.query)
-        query3 = self.factory.create_query(query=self.query, data_source=self.factory.create_data_source())
+        query1 = self.factory.create_query(query_text=self.query)
+        query2 = self.factory.create_query(query_text=self.query)
+        query3 = self.factory.create_query(query_text=self.query, data_source=self.factory.create_data_source())
 
         query_result, _ = models.QueryResult.store_result(
             self.data_source.org, self.data_source, self.query_hash,
@@ -608,14 +608,16 @@ def _set_up_dashboard_test(d):
     ])
     d.q1 = d.factory.create_query(data_source=d.ds1)
     d.q2 = d.factory.create_query(data_source=d.ds2)
-    d.v1 = d.factory.create_visualization(query=d.q1)
-    d.v2 = d.factory.create_visualization(query=d.q2)
+    d.v1 = d.factory.create_visualization(query_rel=d.q1)
+    d.v2 = d.factory.create_visualization(query_rel=d.q2)
     d.w1 = d.factory.create_widget(visualization=d.v1)
     d.w2 = d.factory.create_widget(visualization=d.v2)
     d.w3 = d.factory.create_widget(visualization=d.v2, dashboard=d.w2.dashboard)
     d.w4 = d.factory.create_widget(visualization=d.v2)
     d.w5 = d.factory.create_widget(visualization=d.v1, dashboard=d.w4.dashboard)
-
+    d.w1.dashboard.is_draft = False
+    d.w2.dashboard.is_draft = False
+    d.w4.dashboard.is_draft = False
 
 class TestDashboardAll(BaseTestCase):
     def setUp(self):
@@ -675,25 +677,28 @@ class TestDashboardRecent(BaseTestCase):
         _set_up_dashboard_test(self)
 
     def test_returns_recent_dashboards_basic(self):
-        db.session.flush()
         db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
                                     object_type="dashboard", object_id=self.w1.dashboard.id))
+        db.session.flush()
         self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u2.group_ids, None))
 
     def test_recent_excludes_drafts(self):
-        models.Event.create(org=self.factory.org, user=self.u1, action="view",
-                            object_type="dashboard", object_id=self.w1.dashboard.id)
-        models.Event.create(org=self.factory.org, user=self.u1, action="view",
-                            object_type="dashboard", object_id=self.w2.dashboard.id)
+        models.db.session.add_all([
+        models.Event(org=self.factory.org, user=self.u1, action="view",
+                     object_type="dashboard", object_id=self.w1.dashboard.id),
+        models.Event(org=self.factory.org, user=self.u1, action="view",
+                     object_type="dashboard", object_id=self.w2.dashboard.id)])
 
-        self.w2.dashboard.update_instance(is_draft=True)
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups, None))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups, None))
+        self.w2.dashboard.is_draft = True
+        self.assertIn(self.w1.dashboard, models.Dashboard.recent(
+            self.u1.org, self.u1.group_ids, None))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(
+            self.u1.org, self.u1.group_ids, None))
 
     def test_returns_recent_dashboards_created_by_user(self):
-        d1 = self.factory.create_dashboard(user=self.u1)
+        d1 = self.factory.create_dashboard(user=self.u1, is_draft=False)
         db.session.flush()
         db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
                                     object_type="dashboard", object_id=d1.id))
@@ -703,6 +708,7 @@ class TestDashboardRecent(BaseTestCase):
 
     def test_returns_recent_dashboards_with_no_visualizations(self):
         w1 = self.factory.create_widget(visualization=None)
+        w1.dashboard.is_draft = False
         db.session.flush()
         db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
                                     object_type="dashboard", object_id=w1.dashboard.id))
@@ -744,6 +750,7 @@ class TestDashboardRecent(BaseTestCase):
 
     def test_returns_dashboards_from_current_org_only(self):
         w1 = self.factory.create_widget(visualization=None)
+        w1.dashboard.is_draft = False
         db.session.flush()
         db.session.add(models.Event(
             org=self.factory.org, user=self.u1, action="view",

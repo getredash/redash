@@ -557,7 +557,6 @@ class QueryResult(db.Model, BelongsToOrgMixin):
                            data=data)
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
-
         # TODO: Investigate how big an impact this select-before-update makes.
         queries = db.session.query(Query).filter(
             Query.query_hash == query_hash,
@@ -736,17 +735,17 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         where &= Query.is_archived == False
         where &= DataSourceGroup.group_id.in_([g.id for g in groups])
         query_ids = (
-            cls.query(Query.id).join(
+            db.session.query(Query.id).join(
                 DataSourceGroup,
                 Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(where)).distinct()
 
-        return db.session.query(Query).join(User, Query.user_id == User.id).filter(
+        return Query.query.join(User, Query.user_id == User.id).filter(
             Query.id.in_(query_ids))
 
     @classmethod
     def recent(cls, groups, user_id=None, limit=20):
-        query = (cls.query(Query).join(User, Query.user_id == User.id)
+        query = (cls.query.join(User, Query.user_id == User.id)
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
                  .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
