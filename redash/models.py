@@ -971,14 +971,13 @@ class Alert(TimestampMixin, db.Model):
     __tablename__ = 'alerts'
 
     @classmethod
-    def all(cls, groups):
-        return cls.select(Alert, User, Query)\
+    def all(cls, group_ids):
+        # TODO: there was a join with user here to prevent N+1 queries. need to revisit this.
+        return db.session.query(Alert)\
             .join(Query)\
-            .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source))\
-            .where(DataSourceGroup.group << groups)\
-            .switch(Alert)\
-            .join(User)\
-            .group_by(Alert, User, Query)
+            .join(DataSourceGroup, DataSourceGroup.data_source_id==Query.data_source_id)\
+            .filter(DataSourceGroup.group_id.in_(group_ids))\
+            .group_by(Alert)
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
@@ -1145,7 +1144,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                      Event.object_id != None,
                      Event.object_type == 'dashboard',
                      Dashboard.org == org,
-                     Dashboard.is_draft == False,
                      Dashboard.is_archived == False,
                      Dashboard.is_draft == False,
                      DataSourceGroup.group_id.in_(group_ids) |
@@ -1153,7 +1151,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                      ((Widget.dashboard != None) & (Widget.visualization == None)))
                  .group_by(Event.object_id, Dashboard.id)
                  .order_by(db.desc(db.func.count(0))))
-
 
         if for_user:
             query = query.filter(Event.user_id == user_id)

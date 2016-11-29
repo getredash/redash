@@ -14,15 +14,15 @@ class TestAlertAll(BaseTestCase):
         alert1 = self.factory.create_alert(query=query1)
         alert2 = self.factory.create_alert(query=query2)
 
-        alerts = Alert.all(groups=[group, self.factory.default_group])
+        alerts = Alert.all(group_ids=[group.id, self.factory.default_group.id])
         self.assertIn(alert1, alerts)
         self.assertIn(alert2, alerts)
 
-        alerts = Alert.all(groups=[self.factory.default_group])
+        alerts = Alert.all(group_ids=[self.factory.default_group.id])
         self.assertIn(alert1, alerts)
         self.assertNotIn(alert2, alerts)
 
-        alerts = Alert.all(groups=[group])
+        alerts = Alert.all(group_ids=[group.id])
         self.assertNotIn(alert1, alerts)
         self.assertIn(alert2, alerts)
 
@@ -32,6 +32,6 @@ class TestAlertAll(BaseTestCase):
 
         alert = self.factory.create_alert()
 
-        alerts = Alert.all(groups=[self.factory.default_group, group])
+        alerts = Alert.all(group_ids=[self.factory.default_group.id, group.id])
         self.assertEqual(1, len(list(alerts)))
         self.assertIn(alert, alerts)
