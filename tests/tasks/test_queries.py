@@ -47,9 +47,9 @@ class TestEnqueueTask(BaseTestCase):
         query = self.factory.create_query()
         execute_query.apply_async = MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
 
         self.assertEqual(1, execute_query.apply_async.call_count)
         self.assertEqual(1, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
@@ -60,9 +60,9 @@ class TestEnqueueTask(BaseTestCase):
         query = self.factory.create_query()
         execute_query.apply_async = MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query + '2', query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query + '3', query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text + '2', query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text + '3', query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
 
         self.assertEqual(3, execute_query.apply_async.call_count)
         self.assertEqual(3, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
