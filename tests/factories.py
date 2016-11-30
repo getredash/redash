@@ -251,10 +251,10 @@ class Factory(object):
         if group and 'org' not in kwargs:
             args['org'] = group.org
 
+        view_only = args.pop('view_only', False)
         data_source = data_source_factory.create(**args)
 
         if group:
-            view_only = kwargs.pop('view_only', False)
             db.session.add(redash.models.DataSourceGroup(
                 group=group,
                 data_source=data_source,

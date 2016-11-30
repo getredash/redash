@@ -1,5 +1,6 @@
 import json
 from tests import BaseTestCase
+from redash.models import db
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -31,7 +32,7 @@ class TestQueryResultListAPI(BaseTestCase):
 
         rv = self.make_request('post', '/api/query_results',
                                data={'data_source_id': self.factory.data_source.id,
-                                     'query': query.query})
+                                     'query': query.query_text})
         self.assertEquals(rv.status_code, 200)
         self.assertEquals(query_result.id, rv.json['query_result']['id'])
 
@@ -41,7 +42,7 @@ class TestQueryResultListAPI(BaseTestCase):
 
         rv = self.make_request('post', '/api/query_results',
                                data={'data_source_id': self.factory.data_source.id,
-                                     'query': query.query,
+                                     'query': query.query_text,
                                      'max_age': 0})
 
         self.assertEquals(rv.status_code, 200)
@@ -49,12 +50,14 @@ class TestQueryResultListAPI(BaseTestCase):
         self.assertIn('job', rv.json)
 
     def test_execute_query_without_access(self):
-        user = self.factory.create_user(groups=[self.factory.create_group().id])
+        group = self.factory.create_group()
+        db.session.commit()
+        user = self.factory.create_user(group_ids=[group.id])
         query = self.factory.create_query()
 
         rv = self.make_request('post', '/api/query_results',
                                data={'data_source_id': self.factory.data_source.id,
-                                     'query': query.query,
+                                     'query': query.query_text,
                                      'max_age': 0},
                                user=user)
 
