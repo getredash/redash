@@ -23,40 +23,48 @@ class TestApiKeyAuthentication(BaseTestCase):
         self.queries_url = '/{}/api/queries'.format(self.factory.org.slug)
 
     def test_no_api_key(self):
-        rv = self.client.get(self.query_url)
-        self.assertIsNone(api_key_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.query_url)
+            self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_wrong_api_key(self):
-        rv = self.client.get(self.query_url, query_string={'api_key': 'whatever'})
-        self.assertIsNone(api_key_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.query_url, query_string={'api_key': 'whatever'})
+            self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_correct_api_key(self):
-        rv = self.client.get(self.query_url, query_string={'api_key': self.api_key})
-        self.assertIsNotNone(api_key_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.query_url, query_string={'api_key': self.api_key})
+            self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_no_query_id(self):
-        rv = self.client.get(self.queries_url, query_string={'api_key': self.api_key})
-        self.assertIsNone(api_key_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.queries_url, query_string={'api_key': self.api_key})
+            self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
         models.db.session.flush()
-        rv = self.client.get(self.queries_url, query_string={'api_key': user.api_key})
-        self.assertEqual(user.id, api_key_load_user_from_request(request).id)
+        with self.app.test_client() as c:
+            rv = c.get(self.queries_url, query_string={'api_key': user.api_key})
+            self.assertEqual(user.id, api_key_load_user_from_request(request).id)
 
     def test_api_key_header(self):
-        rv = self.client.get(self.query_url, headers={'Authorization': "Key {}".format(self.api_key)})
-        self.assertIsNotNone(api_key_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.query_url, headers={'Authorization': "Key {}".format(self.api_key)})
+            self.assertIsNotNone(api_key_load_user_from_request(request))
 
     def test_api_key_header_with_wrong_key(self):
-        rv = self.client.get(self.query_url, headers={'Authorization': "Key oops"})
-        self.assertIsNone(api_key_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.query_url, headers={'Authorization': "Key oops"})
+            self.assertIsNone(api_key_load_user_from_request(request))
 
     def test_api_key_for_wrong_org(self):
         other_user = self.factory.create_admin(org=self.factory.create_org())
 
-        rv = self.client.get(self.query_url, headers={'Authorization': "Key {}".format(other_user.api_key)})
-        self.assertEqual(404, rv.status_code)
+        with self.app.test_client() as c:
+            rv = c.get(self.query_url, headers={'Authorization': "Key {}".format(other_user.api_key)})
+            self.assertEqual(404, rv.status_code)
 
 
 class TestHMACAuthentication(BaseTestCase):
@@ -75,20 +83,24 @@ class TestHMACAuthentication(BaseTestCase):
         return sign(self.query.api_key, self.path, expires)
 
     def test_no_signature(self):
-        rv = self.client.get(self.path)
-        self.assertIsNone(hmac_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.path)
+            self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_wrong_signature(self):
-        rv = self.client.get(self.path, query_string={'signature': 'whatever', 'expires': self.expires})
-        self.assertIsNone(hmac_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.path, query_string={'signature': 'whatever', 'expires': self.expires})
+            self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_correct_signature(self):
-        rv = self.client.get(self.path, query_string={'signature': self.signature(self.expires), 'expires': self.expires})
-        self.assertIsNotNone(hmac_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get(self.path, query_string={'signature': self.signature(self.expires), 'expires': self.expires})
+            self.assertIsNotNone(hmac_load_user_from_request(request))
 
     def test_no_query_id(self):
-        rv = self.client.get('/{}/api/queries'.format(self.query.org.slug), query_string={'api_key': self.api_key})
-        self.assertIsNone(hmac_load_user_from_request(request))
+        with self.app.test_client() as c:
+            rv = c.get('/{}/api/queries'.format(self.query.org.slug), query_string={'api_key': self.api_key})
+            self.assertIsNone(hmac_load_user_from_request(request))
 
     def test_user_api_key(self):
         user = self.factory.create_user(api_key="user_key")
@@ -96,8 +108,9 @@ class TestHMACAuthentication(BaseTestCase):
         models.db.session.flush()
 
         signature = sign(user.api_key, path, self.expires)
-        rv = self.client.get(path, query_string={'signature': signature, 'expires': self.expires, 'user_id': user.id})
-        self.assertEqual(user.id, hmac_load_user_from_request(request).id)
+        with self.app.test_client() as c:
+            rv = c.get(path, query_string={'signature': signature, 'expires': self.expires, 'user_id': user.id})
+            self.assertEqual(user.id, hmac_load_user_from_request(request).id)
 
 
 class TestCreateAndLoginUser(BaseTestCase):
@@ -118,6 +131,7 @@ class TestCreateAndLoginUser(BaseTestCase):
             self.assertTrue(login_user_mock.called)
             user = models.User.query.filter(models.User.email == email).one()
             self.assertEqual(user.email, email)
+
 
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
