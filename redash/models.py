@@ -218,6 +218,8 @@ class Group(db.Model, BelongsToOrgMixin):
     REGULAR_GROUP = 'regular'
 
     id = Column(db.Integer, primary_key=True)
+    data_sources = db.relationship("DataSourceGroup", back_populates="group",
+                                         cascade="all")
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
@@ -368,7 +370,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
 
-    data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source")
+    data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source",
+                                         cascade="all")
     __tablename__ = 'data_sources'
     __table_args__ = (db.Index('data_sources_org_id_name', 'org_id', 'name'),)
 
@@ -486,7 +489,7 @@ class DataSourceGroup(db.Model):
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
     data_source = db.relationship(DataSource, back_populates="data_source_groups")
     group_id = Column(db.Integer, db.ForeignKey("groups.id"))
-    group = db.relationship(Group, backref="data_sources")
+    group = db.relationship(Group, back_populates="data_sources")
     view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "data_source_groups"

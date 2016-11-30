@@ -47,4 +47,4 @@ class TestGroupResourceDelete(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.assertEqual(data_source, DataSource.get_by_id(data_source.id))
+        self.assertEqual(data_source, DataSource.query.get(data_source.id))
