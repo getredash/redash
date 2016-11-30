@@ -1,12 +1,12 @@
 from tests import BaseTestCase
 
-from redash.models import Query, Change, ChangeTrackingMixin
+from redash.models import db, Query, Change, ChangeTrackingMixin
 
 
 def create_object(factory):
     obj = Query(name='Query',
                 description='',
-                query='SELECT 1',
+                query_text='SELECT 1',
                 user=factory.user,
                 data_source=factory.data_source,
                 org=factory.org)
@@ -23,7 +23,7 @@ class TestChangesProperty(BaseTestCase):
 
     def test_returns_no_changes_after_save(self):
         obj = create_object(self.factory)
-        obj.save()
+        db.session.add(obj)
 
         self.assertEqual({}, obj.changes)
 
@@ -32,7 +32,7 @@ class TestLogChange(BaseTestCase):
     def obj(self):
         obj = Query(name='Query',
                     description='',
-                    query='SELECT 1',
+                    query_text='SELECT 1',
                     user=self.factory.user,
                     data_source=self.factory.data_source,
                     org=self.factory.org)
@@ -72,7 +72,7 @@ class TestLogChange(BaseTestCase):
         self.assertIn('description', change.change)
 
     def test_logs_create_method(self):
-        q = Query.create(name='Query', description='', query='', user=self.factory.user,
+        q = Query.create(name='Query', description='', query_text='', user=self.factory.user,
                          data_source=self.factory.data_source, org=self.factory.org)
 
         change = Change.last_change(q)

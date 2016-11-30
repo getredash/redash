@@ -320,7 +320,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def all(cls, org):
-        return cls.select().where(cls.org == org)
+        return cls.query.filter(cls.org == org)
 
     @classmethod
     def find_by_email(cls, email):

@@ -34,7 +34,8 @@ class UserListResource(BaseResource):
                            group_ids=[self.current_org.default_group.id])
 
         try:
-            user.save()
+            models.db.session.add(user)
+            models.db.session.commit()
         except IntegrityError as e:
             if "email" in e.message:
                 abort(400, message='Email already taken.')
@@ -108,7 +109,7 @@ class UserResource(BaseResource):
             abort(403, message="Must be admin to change groups membership.")
 
         try:
-            user.update_instance(**params)
+            self.update_model(user, params)
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."

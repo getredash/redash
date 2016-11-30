@@ -349,7 +349,7 @@ def refresh_schemas():
 
     logger.info(u"task=refresh_schemas state=start")
 
-    for ds in models.DataSource.select():
+    for ds in models.DataSource.query:
         if ds.paused:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
         elif ds.id in blacklist:

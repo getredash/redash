@@ -26,6 +26,14 @@ class TestUserListResourcePost(BaseTestCase):
         self.assertEqual(rv.json['name'], test_user['name'])
         self.assertEqual(rv.json['email'], test_user['email'])
 
+    def test_returns_400_when_email_taken(self):
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': admin.email, 'password': 'test'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 400)
+
 
 class TestUserListGet(BaseTestCase):
     def test_returns_users_for_given_org_only(self):
@@ -97,10 +105,10 @@ class TestUserResourcePost(BaseTestCase):
         old_password = "old password"
 
         self.factory.user.hash_password(old_password)
-        self.factory.user.save()
+        models.db.session.add(self.factory.user)
 
         rv = self.make_request('post', "/api/users/{}".format(self.factory.user.id), data={"password": new_password, "old_password": old_password})
         self.assertEqual(rv.status_code, 200)
 
-        user = models.User.get_by_id(self.factory.user.id)
+        user = models.User.query.get(self.factory.user.id)
         self.assertTrue(user.verify_password(new_password))
