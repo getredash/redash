@@ -1,6 +1,5 @@
 from tests import BaseTestCase
-from tests.factories import org_factory
-from redash.models import Group, DataSource
+from redash.models import Group, DataSource, NoResultFound
 
 
 class TestGroupDataSourceListResource(BaseTestCase):
@@ -21,7 +20,7 @@ class TestGroupResourcePost(BaseTestCase):
                                      data={'name': 'Another Name'})
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(current_name, Group.get_by_id(self.factory.default_group.id).name)
+        self.assertEqual(current_name, Group.query.get(self.factory.default_group.id).name)
 
 
 class TestGroupResourceDelete(BaseTestCase):
@@ -33,8 +32,7 @@ class TestGroupResourceDelete(BaseTestCase):
 
         response = self.make_request('delete', '/api/groups/{}'.format(group.id), user=self.factory.create_admin())
         self.assertEqual(response.status_code, 200)
-
-        self.assertRaises(Group.DoesNotExist, Group.get_by_id, group.id)
+        self.assertIsNone(Group.query.get(group.id))
 
     def test_cant_delete_builtin_group(self):
         for group in [self.factory.default_group, self.factory.admin_group]:

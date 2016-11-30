@@ -64,7 +64,8 @@ class GroupResource(BaseResource):
         if group.type == models.Group.BUILTIN_GROUP:
             abort(400, message="Can't delete built-in groups.")
 
-        group.delete_instance(recursive=True)
+        models.db.session.delete(group)
+        models.db.session.commit()
 
 
 class GroupMemberListResource(BaseResource):
