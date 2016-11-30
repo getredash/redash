@@ -344,7 +344,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         db.session.add(self)
 
     def has_access(self, obj, access_type):
-        return AccessPermission.exists(obj, access_type, grantee=self)
+        return AccessPermission.exists(obj, access_type, grantee_id=self.id)
 
 
 class Configuration(TypeDecorator):

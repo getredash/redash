@@ -5,6 +5,8 @@ from flask import jsonify, request
 from flask_login import login_required
 from flask_restful import abort
 from funcy import distinct, take
+from sqlalchemy.orm.exc import StaleDataError
+
 from redash import models
 from redash.handlers.base import (BaseResource, get_object_or_404,
                                   org_scoped_rule, paginate, routes)
@@ -115,11 +117,16 @@ class QueryResource(BaseResource):
 
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user
+        # SQLAlchemy handles the case where a concurrent transaction beats us
+        # to the update. But we still have to make sure that we're not starting
+        # out behind.
+        if 'version' in query_def and query_def['version'] != query.version:
+            abort(409)
 
         try:
             self.update_model(query, query_def)
             models.db.session.commit()
-        except models.ConflictDetectedError:
+        except StaleDataError:
             abort(409)
 
         result = query.to_dict(with_visualizations=True)
