@@ -1280,7 +1280,6 @@ class Event(db.Model):
     user_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     user = db.relationship(User, backref="events")
     action = Column(db.String(255))
-    # XXX replace with association table
     object_type = Column(db.String(255))
     object_id = Column(db.String(255), nullable=True)
     additional_properties = Column(db.Text, nullable=True)

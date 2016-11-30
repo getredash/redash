@@ -60,11 +60,14 @@ class QueryListResource(BaseResource):
         if 'latest_query_data_id' in query_def:
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
+        query_def['query_text'] = query_def.pop('query')
         query_def['user'] = self.current_user
         query_def['data_source'] = data_source
         query_def['org'] = self.current_org
         query_def['is_draft'] = True
-        query = models.Query.create(**query_def)
+        query = models.Query(**query_def)
+        models.db.session.add(query)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'create',
@@ -114,7 +117,8 @@ class QueryResource(BaseResource):
         query_def['changed_by'] = self.current_user
 
         try:
-            query.update_instance(**query_def)
+            self.update_model(query, query_def)
+            models.db.session.commit()
         except models.ConflictDetectedError:
             abort(409)
 
@@ -152,4 +156,4 @@ class QueryRefreshResource(BaseResource):
 
         parameter_values = collect_parameters_from_request(request.args)
 
-        return run_query(query.data_source, parameter_values, query.query, query.id)
+        return run_query(query.data_source, parameter_values, query.query_text, query.id)
