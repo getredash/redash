@@ -363,7 +363,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(Configuration)
+    options = Column(ConfigurationContainer.as_mutable(Configuration))
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
@@ -463,11 +463,12 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return get_query_runner(self.type, self.options)
 
     @classmethod
-    def all(cls, org, groups=None):
-        data_sources = cls.select().where(cls.org==org).order_by(cls.id.asc())
+    def all(cls, org, group_ids=None):
+        data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
 
-        if groups:
-            data_sources = data_sources.join(DataSourceGroup).where(DataSourceGroup.group << groups)
+        if group_ids:
+            data_sources = data_sources.join(DataSourceGroup).filter(
+                DataSourceGroup.group_id.in_(group_ids))
 
         return data_sources
 
