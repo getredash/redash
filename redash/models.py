@@ -1068,6 +1068,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
+    widgets = db.relationship('Widget', backref='dashboard', lazy='dynamic')
 
     __tablename__ = 'dashboards'
     __mapper_args__ = {
@@ -1232,7 +1233,6 @@ class Widget(TimestampMixin, db.Model):
     width = Column(db.Integer)
     options = Column(db.Text)
     dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id"), index=True)
-    dashboard = db.relationship(Dashboard)
 
     # unused; kept for backward compatability:
     type = Column(db.String(100), nullable=True)
@@ -1261,7 +1261,7 @@ class Widget(TimestampMixin, db.Model):
 
     @classmethod
     def get_by_id_and_org(cls, widget_id, org):
-        return cls.select(cls, Dashboard).join(Dashboard).where(cls.id == widget_id, Dashboard.org == org).get()
+        return db.session.query(cls).join(Dashboard).filter(cls.id == widget_id, Dashboard.org== org).one()
 
 #XXX produces SQLA warning, replace with association table
 @listens_for(Widget, 'before_delete')
