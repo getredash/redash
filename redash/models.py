@@ -892,31 +892,31 @@ class AccessPermission(GFKBase, db.Model):
         return grant
 
     @classmethod
-    def revoke(cls, obj, grantee, access_type=None):
-        permissions = cls._query(obj, access_type, grantee)
+    def revoke(cls, obj, grantee_id, access_type=None):
+        permissions = cls._query(obj, access_type, grantee_id)
         return permissions.delete()
 
     @classmethod
-    def find(cls, obj, access_type=None, grantee=None, grantor=None):
-        return cls._query(obj, access_type, grantee, grantor)
+    def find(cls, obj, access_type=None, grantee_id=None, grantor_id=None):
+        return cls._query(obj, access_type, grantee_id, grantor_id)
 
     @classmethod
-    def exists(cls, obj, access_type, grantee):
-        return cls.find(obj, access_type, grantee).count() > 0
+    def exists(cls, obj, access_type, grantee_id):
+        return cls.find(obj, access_type, grantee_id).count() > 0
 
     @classmethod
-    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
+    def _query(cls, obj, access_type=None, grantee_id=None, grantor_id=None):
         q = cls.query.filter(cls.object_id == obj.id,
                              cls.object_type == obj.__tablename__)
 
         if access_type:
             q.filter(AccessPermission.access_type == access_type)
 
-        if grantee:
-            q.filter(AccessPermission.grantee_id == grantee.id)
+        if grantee_id:
+            q.filter(AccessPermission.grantee_id == grantee_id)
 
-        if grantor:
-            q.filter(AccessPermission.grantor_id == grantor.id)
+        if grantor_id:
+            q.filter(AccessPermission.grantor_id == grantor_id)
 
         return q
 

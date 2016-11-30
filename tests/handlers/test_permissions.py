@@ -47,7 +47,7 @@ class TestObjectPermissionsListPost(BaseTestCase):
         rv = self.make_request('post', '/api/queries/{}/acl'.format(query.id), user=query.user, data=data)
 
         self.assertEqual(200, rv.status_code)
-        self.assertTrue(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
+        self.assertTrue(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user.id))
 
     def test_returns_403_if_the_user_isnt_owner(self):
         query = self.factory.create_query()
@@ -116,7 +116,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
-        self.assertFalse(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
+        self.assertFalse(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user.id))
 
     def test_removes_permission_created_by_another_user(self):
         query = self.factory.create_query()
@@ -134,7 +134,7 @@ class TestObjectPermissionsListDelete(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
-        self.assertFalse(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
+        self.assertFalse(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user.id))
 
     def test_returns_404_for_outside_of_organization_users(self):
         query = self.factory.create_query()
