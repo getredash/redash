@@ -1,5 +1,5 @@
 from tests import BaseTestCase
-from redash.models import Alert
+from redash.models import Alert, db
 
 
 class TestAlertAll(BaseTestCase):
@@ -11,8 +11,9 @@ class TestAlertAll(BaseTestCase):
         query1 = self.factory.create_query(data_source=ds1)
         query2 = self.factory.create_query(data_source=ds2)
 
-        alert1 = self.factory.create_alert(query=query1)
-        alert2 = self.factory.create_alert(query=query2)
+        alert1 = self.factory.create_alert(query_rel=query1)
+        alert2 = self.factory.create_alert(query_rel=query2)
+        db.session.flush()
 
         alerts = Alert.all(group_ids=[group.id, self.factory.default_group.id])
         self.assertIn(alert1, alerts)
