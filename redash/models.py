@@ -156,7 +156,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
             self.id = api_key.api_key
             self.name = "ApiKey: {}".format(api_key.id)
             self.object = api_key.object
-        self.groups = groups
+        self.group_ids = groups
         self.org = org
 
     def __repr__(self):
