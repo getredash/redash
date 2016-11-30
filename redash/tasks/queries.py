@@ -262,7 +262,7 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                enqueue_query(query.query, query.data_source, query.user_id,
+                enqueue_query(query.query_text, query.data_source, query.user_id,
                               scheduled=True,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 

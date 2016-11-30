@@ -499,7 +499,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
     data_source = db.relationship(DataSource)
     query_hash = Column(db.String(32), index=True)
-    query = Column(db.Text)
+    query_text = Column(db.Text)
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
@@ -510,7 +510,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return {
             'id': self.id,
             'query_hash': self.query_hash,
-            'query': self.query,
+            'query': self.query_text,
             'data': json.loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
@@ -551,7 +551,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
         query_result = cls(org=org,
                            query_hash=query_hash,
-                           query=query,
+                           query_text=query,
                            runtime=run_time,
                            data_source=data_source,
                            retrieved_at=retrieved_at,
