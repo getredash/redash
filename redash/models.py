@@ -1368,7 +1368,7 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all(cls, org):
-        notification_destinations = cls.select().where(cls.org==org).order_by(cls.id.asc())
+        notification_destinations = cls.query.filter(cls.org==org).order_by(cls.id.asc())
 
         return notification_destinations
 

@@ -1,14 +1,11 @@
-import json
-
 from flask import make_response, request
 from flask.ext.restful import abort
-from funcy import project
 
 from redash import models
 from redash.permissions import require_admin
 from redash.destinations import destinations, get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource
 
 
 class DestinationTypeListResource(BaseResource):
@@ -88,6 +85,7 @@ class DestinationListResource(BaseResource):
                                                      type=req['type'],
                                                      options=config,
                                                      user=self.current_user)
-        destination.save()
+
+        models.db.session.add(destination)
 
         return destination.to_dict(all=True)
