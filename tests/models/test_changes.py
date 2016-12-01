@@ -18,14 +18,8 @@ class TestChangesProperty(BaseTestCase):
     def test_returns_initial_state(self):
         obj = create_object(self.factory)
 
-        for k, change in obj.changes.iteritems():
-            self.assertIsNone(change['previous'])
-
-    def test_returns_no_changes_after_save(self):
-        obj = create_object(self.factory)
-        db.session.add(obj)
-
-        self.assertEqual({}, obj.changes)
+        for change in Change.query.filter(Change.object == obj):
+            self.assertIsNone(change.change['previous'])
 
 
 class TestLogChange(BaseTestCase):
@@ -41,7 +35,7 @@ class TestLogChange(BaseTestCase):
 
     def test_properly_logs_first_creation(self):
         obj = create_object(self.factory)
-        obj.save(changed_by=self.factory.user)
+        obj.record_changes(changed_by=self.factory.user)
         change = Change.last_change(obj)
 
         self.assertIsNotNone(change)
@@ -49,7 +43,7 @@ class TestLogChange(BaseTestCase):
 
     def test_skips_unnecessary_fields(self):
         obj = create_object(self.factory)
-        obj.save(changed_by=self.factory.user)
+        obj.record_changes(changed_by=self.factory.user)
         change = Change.last_change(obj)
 
         self.assertIsNotNone(change)
@@ -59,9 +53,11 @@ class TestLogChange(BaseTestCase):
 
     def test_properly_log_modification(self):
         obj = create_object(self.factory)
-        obj.save(changed_by=self.factory.user)
-
-        obj.update_instance(name='Query 2', description='description', changed_by=self.factory.user)
+        obj.record_changes(changed_by=self.factory.user)
+        obj.name = 'Query 2'
+        obj.description = 'description'
+        db.session.flush()
+        obj.record_changes(changed_by=self.factory.user)
 
         change = Change.last_change(obj)
 
@@ -72,9 +68,9 @@ class TestLogChange(BaseTestCase):
         self.assertIn('description', change.change)
 
     def test_logs_create_method(self):
-        q = Query.create(name='Query', description='', query_text='', user=self.factory.user,
-                         data_source=self.factory.data_source, org=self.factory.org)
-
+        q = Query(name='Query', description='', query_text='',
+                  user=self.factory.user, data_source=self.factory.data_source,
+                  org=self.factory.org)
         change = Change.last_change(q)
 
         self.assertIsNotNone(change)

@@ -12,6 +12,7 @@ from flask.ext.sqlalchemy import SignallingSession
 from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
+from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import object_session
 # noinspection PyUnresolvedReferences
@@ -90,28 +91,37 @@ class ChangeTrackingMixin(object):
     skipped_fields = ('id', 'created_at', 'updated_at', 'version')
     _clean_values = None
 
+    def __init__(self, *a, **kw):
+        super(ChangeTrackingMixin, self).__init__(*a, **kw)
+        self.record_changes(self.user)
+
     def prep_cleanvalues(self):
         self.__dict__['_clean_values'] = {}
-        for c in self.__class__.__table__.c:
-            self._clean_values[c.name] = None
+        for attr in inspect(self.__class__).column_attrs:
+            col, = attr.columns
+            # 'query' is col name but not attr name
+            self._clean_values[col.name] = None
 
     def __setattr__(self, key, value):
         if self._clean_values is None:
             self.prep_cleanvalues()
-        if key in self._clean_values:
-            previous = getattr(self, key)
-            self._clean_values[key] = previous
+        for attr in inspect(self.__class__).column_attrs:
+            col, = attr.columns
+            previous = getattr(self, attr.key, None)
+            self._clean_values[col.name] = previous
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 
     def record_changes(self, changed_by):
-        changes = {}
-        for k, v in self._clean_values.iteritems():
-            if k not in self.skipped_fields:
-                changes[k] = {'previous': v, 'current': getattr(self, k)}
+        db.session.add(self)
         db.session.flush()
-        db.session.add(Change(object_type=self.__class__.__tablename__,
-                           object=self,
+        changes = {}
+        for attr in inspect(self.__class__).column_attrs:
+            col, = attr.columns
+            if attr.key not in self.skipped_fields:
+                changes[col.name] = {'previous': self._clean_values[col.name],
+                                'current': getattr(self, attr.key)}
+        db.session.add(Change(object=self,
                            object_version=self.version,
                            user=changed_by,
                            change=changes))
@@ -344,7 +354,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         db.session.add(self)
 
     def has_access(self, obj, access_type):
-        return AccessPermission.exists(obj, access_type, grantee_id=self.id)
+        return AccessPermission.exists(obj, access_type, grantee=self)
 
 
 class Configuration(TypeDecorator):
@@ -772,40 +782,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     def fork(self, user):
-        query = self
-        forked_query = Query()
-        forked_query.name = 'Copy of (#{}) {}'.format(query.id, query.name)
-        forked_query.user = user
-        forked_list = ['org', 'data_source', 'latest_query_data', 'description', 'query', 'query_hash']
-        for a in forked_list:
-            setattr(forked_query, a, getattr(query, a))
-        forked_query.save()
+        forked_list = ['org', 'data_source', 'latest_query_data', 'description',
+                       'query_text', 'query_hash']
+        kwargs = {a: getattr(self, a) for a in forked_list}
+        forked_query = Query(name='Copy of (#{}) {}'.format(self.id, self.name),
+                             user=user, **kwargs)
 
-        forked_visualizations = []
-        for v in query.visualizations:
+        for v in self.visualizations:
             if v.type == 'TABLE':
                 continue
             forked_v = v.to_dict()
             forked_v['options'] = v.options
-            forked_v['query'] = forked_query
+            forked_v['query_rel'] = forked_query
             forked_v.pop('id')
-            forked_visualizations.append(forked_v)
-        
-        if len(forked_visualizations) > 0:
-            with db.database.atomic():
-                Visualization.insert_many(forked_visualizations).execute()
+            forked_query.visualizations.append(Visualization(**forked_v))
+        db.session.add(forked_query)
         return forked_query
-
-    def pre_save(self, created):
-        super(Query, self).pre_save(created)
-        self.query_hash = utils.gen_query_hash(self.query)
-
-        if self.last_modified_by is None:
-            self.last_modified_by = self.user
-
-    def post_save(self, created):
-        if created:
-            self._create_default_visualizations()
 
     def update_instance_tracked(self, changing_user, old_object=None, *args, **kwargs):
         self.version += 1
@@ -856,11 +848,6 @@ def create_defaults(session, ctx, *a):
                                       description='',
                                       type="TABLE", options="{}"))
 
-@listens_for(ChangeTrackingMixin, 'init')
-def create_first_change(obj, args, kwargs):
-    obj.record_changes(obj.user)
-
-
 
 class AccessPermission(GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
@@ -892,31 +879,31 @@ class AccessPermission(GFKBase, db.Model):
         return grant
 
     @classmethod
-    def revoke(cls, obj, grantee_id, access_type=None):
-        permissions = cls._query(obj, access_type, grantee_id)
+    def revoke(cls, obj, grantee, access_type=None):
+        permissions = cls._query(obj, access_type, grantee)
         return permissions.delete()
 
     @classmethod
-    def find(cls, obj, access_type=None, grantee_id=None, grantor_id=None):
-        return cls._query(obj, access_type, grantee_id, grantor_id)
+    def find(cls, obj, access_type=None, grantee=None, grantor=None):
+        return cls._query(obj, access_type, grantee, grantor)
 
     @classmethod
-    def exists(cls, obj, access_type, grantee_id):
-        return cls.find(obj, access_type, grantee_id).count() > 0
+    def exists(cls, obj, access_type, grantee):
+        return cls.find(obj, access_type, grantee).count() > 0
 
     @classmethod
-    def _query(cls, obj, access_type=None, grantee_id=None, grantor_id=None):
+    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
         q = cls.query.filter(cls.object_id == obj.id,
                              cls.object_type == obj.__tablename__)
 
         if access_type:
             q.filter(AccessPermission.access_type == access_type)
 
-        if grantee_id:
-            q.filter(AccessPermission.grantee_id == grantee_id)
+        if grantee:
+            q.filter(AccessPermission.grantee == grantee)
 
-        if grantor_id:
-            q.filter(AccessPermission.grantor_id == grantor_id)
+        if grantor:
+            q.filter(AccessPermission.grantor == grantor)
 
         return q
 
@@ -967,7 +954,10 @@ class Change(GFKBase, db.Model):
 
     @classmethod
     def last_change(cls, obj):
-        return cls.select().where(cls.object_type==obj._meta.db_table, cls.object_id==obj.id).limit(1).first()
+        return db.session.query(cls).filter(
+            cls.object_id == obj.id,
+            cls.object_type == obj.__class__.__tablename__).order_by(
+                cls.object_version.desc()).first()
 
 
 class Alert(TimestampMixin, db.Model):

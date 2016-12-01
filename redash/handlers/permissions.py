@@ -77,7 +77,10 @@ class ObjectPermissionsListResource(BaseResource):
         grantee_id = req['user_id']
         access_type = req['access_type']
 
-        AccessPermission.revoke(obj, grantee_id, access_type)
+        grantee = User.query.get(req['user_id'])
+        if grantee is None:
+            abort(400, message='User not found.')
+        AccessPermission.revoke(obj, grantee, access_type)
 
         self.record_event({
             'action': 'revoke_permission',
@@ -96,6 +99,6 @@ class CheckPermissionResource(BaseResource):
                                 self.current_org)
 
         has_access = AccessPermission.exists(obj, access_type,
-                                             self.current_user.id)
+                                             self.current_user)
 
         return {'response': has_access}
