@@ -7,7 +7,7 @@ REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}"
 
 # Install latest version if not specified in REDASH_VERSION env var
-REDASH_VERSION=${REDASH_VERSION-0.12.0.b2449}
+REDASH_VERSION=${REDASH_VERSION-0.11.1.b2095}
 LATEST_URL="https://github.com/getredash/redash/releases/download/v${REDASH_VERSION}/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
@@ -121,6 +121,7 @@ fi
 # Default config file
 if [ ! -f "/opt/redash/.env" ]; then
     sudo -u redash wget $FILES_BASE_URL"env" -O /opt/redash/.env
+    echo 'export REDASH_STATIC_ASSETS_PATH="../rd_ui/dist/"' >> /opt/redash/.env
 fi
 
 if [ ! -d "$VERSION_DIR" ]; then
@@ -166,7 +167,7 @@ if [ $pg_user_exists -ne 0 ]; then
     sudo -u redash psql -c "grant select on alerts, alert_subscriptions, groups, events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
-    sudo -u redash bin/run ./manage.py ds new "Re:dash Metadata" --type "pg" --options "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
+    sudo -u redash bin/run ./manage.py ds new "Redash Metadata" --type "pg" --options "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
 fi
 
 # Pip requirements for all data source types
@@ -188,3 +189,7 @@ rm /etc/nginx/sites-enabled/default
 wget -O /etc/nginx/sites-available/redash $FILES_BASE_URL"nginx_redash_site"
 ln -nfs /etc/nginx/sites-available/redash /etc/nginx/sites-enabled/redash
 service nginx restart
+
+# Hotfix: missing query snippets table:
+cd /opt/redash/current
+sudo -u redash bin/run python -c "from redash import models; models.QuerySnippet.create_table()"
