@@ -314,7 +314,7 @@ const PlotlyChart = () => {
             unifiedX.forEach((x) => {
               plotlySeries.x.push(normalizeValue(x));
               plotlySeries.y.push(normalizeValue(yValues[x] || null));
-              if (isUndefined(eValues[x])) {
+              if (!isUndefined(eValues[x])) {
                 plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
               }
             });
