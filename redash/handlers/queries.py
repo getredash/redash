@@ -109,11 +109,8 @@ class QueryResource(BaseResource):
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
-        if 'latest_query_data_id' in query_def:
-            query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
-
-        if 'data_source_id' in query_def:
-            query_def['data_source'] = query_def.pop('data_source_id')
+        if 'query' in query_def:
+            query_def['query_text'] = query_def.pop('query')
 
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user

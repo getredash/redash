@@ -72,8 +72,10 @@ class GFKBase(object):
 
 class PseudoJSON(TypeDecorator):
     impl = db.Text
+
     def process_bind_param(self, value, dialect):
         return json_dumps(value)
+
     def process_result_value(self, value, dialect):
         if not value:
             return value
@@ -120,15 +122,12 @@ class ChangeTrackingMixin(object):
             col, = attr.columns
             if attr.key not in self.skipped_fields:
                 changes[col.name] = {'previous': self._clean_values[col.name],
-                                'current': getattr(self, attr.key)}
+                                     'current': getattr(self, attr.key)}
+
         db.session.add(Change(object=self,
-                           object_version=self.version,
-                           user=changed_by,
-                           change=changes))
-
-
-class ConflictDetectedError(Exception):
-    pass
+                              object_version=self.version,
+                              user=changed_by,
+                              change=changes))
 
 
 class BelongsToOrgMixin(object):
@@ -645,7 +644,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
         d = {
             'id': self.id,
-            'latest_query_data_id': self.latest_query_data,
+            'latest_query_data_id': self.latest_query_data_id,
             'name': self.name,
             'description': self.description,
             'query': self.query_text,
@@ -831,13 +830,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def __unicode__(self):
         return unicode(self.id)
 
+
 @listens_for(Query.query_text, 'set')
 def gen_query_hash(target, val, oldval, initiator):
     target.query_hash = utils.gen_query_hash(val)
 
+
 @listens_for(Query.user_id, 'set')
 def query_last_modified_by(target, val, oldval, initiator):
     target.last_modified_by_id = val
+
 
 # Create default (table) visualization:
 @listens_for(SignallingSession, 'before_flush')
@@ -1056,7 +1058,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     name = Column(db.String(100))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
-    # XXX replace with association table
+    # TODO: The layout should dynamically be built from position and size information on each widget.
+    # Will require update in the frontend code to support this.
     layout = Column(db.Text)
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)

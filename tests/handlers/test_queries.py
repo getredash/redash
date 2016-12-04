@@ -55,10 +55,23 @@ class TestQueryResourcePost(BaseTestCase):
         admin = self.factory.create_admin()
         query = self.factory.create_query()
 
-        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=admin)
+        new_ds = self.factory.create_data_source()
+        new_qr = self.factory.create_query_result()
+
+        data = {
+            'name': 'Testing',
+            'query': 'select 2',
+            'latest_query_data_id': new_qr.id,
+            'data_source_id': new_ds.id
+        }
+
+        rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data=data, user=admin)
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(rv.json['name'], 'Testing')
+        self.assertEqual(rv.json['name'], data['name'])
         self.assertEqual(rv.json['last_modified_by']['id'], admin.id)
+        self.assertEqual(rv.json['query'], data['query'])
+        self.assertEqual(rv.json['data_source_id'], data['data_source_id'])
+        self.assertEqual(rv.json['latest_query_data_id'], data['latest_query_data_id'])
 
     def test_raises_error_in_case_of_conflict(self):
         q = self.factory.create_query()
