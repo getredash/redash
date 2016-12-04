@@ -65,3 +65,9 @@ class TestLogin(BaseTestCase):
 
         response = self.get_request('/login', org=self.factory.org)
         self.assertEqual(response.status_code, 429)
+
+
+class TestSession(BaseTestCase):
+    # really simple test just to trigger this route
+    def test_get(self):
+        self.make_request('get', '/api/session', user=self.factory.user)

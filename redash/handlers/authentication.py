@@ -179,7 +179,7 @@ def session(org_slug=None):
             'id': current_user.id,
             'name': current_user.name,
             'email': current_user.email,
-            'groups': current_user.groups,
+            'groups': current_user.group_ids,
             'permissions': current_user.permissions
         }
     else:
