@@ -1,4 +1,5 @@
 from tests import BaseTestCase
+from redash.models import NotificationDestination
 
 
 class TestDestinationListResource(BaseTestCase):
@@ -35,3 +36,29 @@ class TestDestinationListResource(BaseTestCase):
         }
         rv = self.make_request('post', '/api/destinations', user=self.factory.user, data=data)
         self.assertEqual(rv.status_code, 403)
+
+
+class TestDestinationResource(BaseTestCase):
+    def test_get(self):
+        d = self.factory.create_destination()
+        rv = self.make_request('get', '/api/destinations/{}'.format(d.id), user=self.factory.create_admin())
+        self.assertEqual(rv.status_code, 200)
+
+    def test_delete(self):
+        d = self.factory.create_destination()
+        rv = self.make_request('delete', '/api/destinations/{}'.format(d.id), user=self.factory.create_admin())
+        self.assertEqual(rv.status_code, 204)
+        self.assertIsNone(NotificationDestination.query.get(d.id))
+
+    def test_post(self):
+        d = self.factory.create_destination()
+        data = {
+            'name': 'updated',
+            'type': d.type,
+            'options': d.options.to_dict()
+        }
+        rv = self.make_request('post', '/api/destinations/{}'.format(d.id), user=self.factory.create_admin(), data=data)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(NotificationDestination.query.get(d.id).name, data['name'])
+
+

@@ -38,14 +38,15 @@ class DestinationResource(BaseResource):
         destination.type = req['type']
         destination.name = req['name']
 
-        destination.save()
+        models.db.session.add(destination)
 
         return destination.to_dict(all=True)
 
     @require_admin
     def delete(self, destination_id):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
-        destination.delete_instance(recursive=True)
+        models.db.session.delete(destination)
+        models.db.session.commit()
 
         return make_response('', 204)
 
