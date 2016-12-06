@@ -8,7 +8,9 @@ const EditDashboardDialog = {
     dismiss: '&',
   },
   template,
-  controller($location, $http, toastr, Events, currentUser, Dashboard) {
+  controller($location, $http, toastr, Events, Dashboard) {
+    'ngInject';
+
     this.dashboard = this.resolve.dashboard;
     this.gridsterOptions = {
       margins: [5, 5],
