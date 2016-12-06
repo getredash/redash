@@ -32,7 +32,7 @@ class ConfigurationContainer(object):
         jsonschema.validate(self._config, self._schema)
 
     def to_json(self):
-        return json.dumps(self._config)
+        return json.dumps(self._config, sort_keys=True)
 
     def iteritems(self):
         return self._config.iteritems()

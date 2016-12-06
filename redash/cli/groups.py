@@ -1,11 +1,22 @@
-from flask_script import Manager, prompt_pass
+from sys import exit
+
+from click import Group, argument, option
 from redash import models
 
-manager = Manager(help="Groups management commands.")
+manager = Group(help="Groups management commands.")
 
-@manager.option('name', help="Group's name")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
-@manager.option('--permissions', dest='permissions', default=None, help="Comma seperated list of permissions ('create_dashboard', 'create_query', 'edit_dashboard', 'edit_query', 'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query', 'list_dashboards', 'list_alerts', 'list_data_sources') (leave blank for default).")
+
+@manager.command()
+@argument('name')
+@option('--org', 'organization', default='default',
+        help="The organization the user belongs to (leave blank for "
+        "'default').")
+@option('--permissions', default=None,
+        help="Comma separated list of permissions ('create_dashboard',"
+        " 'create_query', 'edit_dashboard', 'edit_query', "
+        "'view_query', 'view_source', 'execute_query', 'list_users',"
+        " 'schedule_query', 'list_dashboards', 'list_alerts',"
+        " 'list_data_sources') (leave blank for default).")
 def create(name, permissions=None, organization='default'):
     print "Creating group (%s)..." % (name)
 
@@ -19,20 +30,29 @@ def create(name, permissions=None, organization='default'):
         models.Group.create(name=name, org=org, permissions=permissions)
     except Exception, e:
         print "Failed create group: %s" % e.message
+        exit(1)
 
-@manager.option('id', help="Group's id")
-@manager.option('--permissions', dest='permissions', default=None, help="Comma seperated list of permissions ('create_dashboard', 'create_query', 'edit_dashboard', 'edit_query', 'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query', 'list_dashboards', 'list_alerts', 'list_data_sources') (leave blank for default).")
-def change_permissions(id, permissions=None):
-    print "Change permissions of group %s ..." % id
+
+@manager.command()
+@argument('group_id')
+@option('--permissions', default=None,
+        help="Comma separated list of permissions ('create_dashboard',"
+        " 'create_query', 'edit_dashboard', 'edit_query',"
+        " 'view_query', 'view_source', 'execute_query', 'list_users',"
+        " 'schedule_query', 'list_dashboards', 'list_alerts',"
+        " 'list_data_sources') (leave blank for default).")
+def change_permissions(group_id, permissions=None):
+    print "Change permissions of group %s ..." % group_id
 
     try:
-        group = models.Group.get_by_id(id)
+        group = models.Group.get_by_id(group_id)
     except models.Group.DoesNotExist:
-        print "User [%s] not found." % id
-        return
+        print "User [%s] not found." % group_id
+        exit(1)
 
     permissions = extract_permissions_string(permissions)
-    print "current permissions [%s] will be modify to [%s]" % (",".join(group.permissions), ",".join(permissions))
+    print "current permissions [%s] will be modify to [%s]" % (
+        ",".join(group.permissions), ",".join(permissions))
 
     group.permissions = permissions
 
@@ -40,6 +60,7 @@ def change_permissions(id, permissions=None):
         group.save()
     except Exception, e:
         print "Failed change permission: %s" % e.message
+        exit(1)
 
 
 def extract_permissions_string(permissions):
@@ -51,7 +72,9 @@ def extract_permissions_string(permissions):
     return permissions
 
 
-@manager.option('--org', dest='organization', default=None, help="The organization to limit to (leave blank for all).")
+@manager.command()
+@option('--org', 'organization', default=None,
+        help="The organization to limit to (leave blank for all).")
 def list(organization=None):
     """List all groups"""
     if organization:
@@ -64,4 +87,5 @@ def list(organization=None):
         if i > 0:
             print "-" * 20
 
-        print "Id: {}\nName: {}\nType: {}\nOrganization: {}".format(group.id, group.name, group.type, group.org.slug)
+        print "Id: {}\nName: {}\nType: {}\nOrganization: {}".format(
+            group.id, group.name, group.type, group.org.slug)

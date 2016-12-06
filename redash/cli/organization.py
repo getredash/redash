@@ -1,26 +1,32 @@
-from flask_script import Manager
+from click import Group, argument
 from redash import models
 
-manager = Manager(help="Organization management commands.")
+manager = Group(help="Organization management commands.")
 
 
-@manager.option('domains', help="comma separated list of domains to allow")
+@manager.command()
+@argument('domains')
 def set_google_apps_domains(domains):
+    """
+    Sets the allowable domains to the comma separated list DOMAINS.
+    """
     organization = models.Organization.select().first()
-
-    organization.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = domains.split(',')
+    k = models.Organization.SETTING_GOOGLE_APPS_DOMAINS
+    organization.settings[k] = domains.split(',')
     organization.save()
 
-    print "Updated list of allowed domains to: {}".format(organization.google_apps_domains)
+    print "Updated list of allowed domains to: {}".format(
+        organization.google_apps_domains)
 
 
-@manager.command
+@manager.command()
 def show_google_apps_domains():
     organization = models.Organization.select().first()
-    print "Current list of Google Apps domains: {}".format(organization.google_apps_domains)
+    print "Current list of Google Apps domains: {}".format(
+        ', '.join(organization.google_apps_domains))
 
 
-@manager.command
+@manager.command()
 def list():
     """List all organizations"""
     orgs = models.Organization.select()
