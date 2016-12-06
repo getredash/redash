@@ -346,18 +346,17 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
 export default function (ngModule) {
   ngModule.controller('QueryViewCtrl', QueryViewCtrl);
 
-  function getQuery(Query, $route) {
-    const query = Query.get({ id: $route.current.params.queryId });
-    return query.$promise;
-  }
-
   return {
     '/queries/:queryId': {
       template,
       controller: 'QueryViewCtrl',
       reloadOnSearch: false,
       resolve: {
-        query: getQuery,
+        query: (Query, $route) => {
+          'ngInject';
+
+          return Query.get({ id: $route.current.params.queryId }).$promise;
+        },
       },
     },
   };

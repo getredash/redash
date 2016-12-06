@@ -115,11 +115,6 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
 export default function (ngModule) {
   ngModule.controller('QuerySourceCtrl', QuerySourceCtrl);
 
-  function getQuery(Query, $route) {
-    const query = Query.get({ id: $route.current.params.queryId });
-    return query.$promise;
-  }
-
   return {
     '/queries/new': {
       template,
@@ -127,9 +122,13 @@ export default function (ngModule) {
       reloadOnSearch: false,
       resolve: {
         query: function newQuery(Query) {
+          'ngInject';
+
           return Query.newQuery();
         },
         dataSources(DataSource) {
+          'ngInject';
+
           return DataSource.query().$promise;
         },
       },
@@ -139,7 +138,11 @@ export default function (ngModule) {
       controller: 'QuerySourceCtrl',
       reloadOnSearch: false,
       resolve: {
-        query: getQuery,
+        query: (Query, $route) => {
+          'ngInject';
+
+          return Query.get({ id: $route.current.params.queryId }).$promise;
+        },
       },
     },
   };
