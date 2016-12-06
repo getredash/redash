@@ -55,7 +55,9 @@ class QuerySnippetListResource(BaseResource):
             user=self.current_user,
             org=self.current_org
         )
+
         models.db.session.add(snippet)
+
         self.record_event({
             'action': 'create',
             'object_id': snippet.id,
