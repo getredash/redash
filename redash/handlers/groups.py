@@ -128,7 +128,7 @@ class GroupDataSourceListResource(BaseResource):
             'member_id': data_source.id
         })
 
-        return data_source.to_dict(with_permissions=True)
+        return data_source.to_dict(with_permissions_for=group)
 
     @require_admin
     def get(self, group_id):
@@ -139,7 +139,7 @@ class GroupDataSourceListResource(BaseResource):
             .join(models.DataSourceGroup)\
             .where(models.DataSourceGroup.group == group)
 
-        return [ds.to_dict(with_permissions=True) for ds in data_sources]
+        return [ds.to_dict(with_permissions_for=group) for ds in data_sources]
 
 
 class GroupDataSourceResource(BaseResource):
@@ -160,7 +160,7 @@ class GroupDataSourceResource(BaseResource):
             'view_only': view_only
         })
 
-        return data_source.to_dict(with_permissions=True)
+        return data_source.to_dict(with_permissions_for=group)
 
     @require_admin
     def delete(self, group_id, data_source_id):

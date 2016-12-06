@@ -482,7 +482,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             (('org', 'name'), True),
         )
 
-    def to_dict(self, all=False, with_permissions=False):
+    def to_dict(self, all=False, with_permissions_for=None):
         d = {
             'id': self.id,
             'name': self.name,
@@ -500,8 +500,10 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
 
-        if with_permissions:
-            d['view_only'] = self.data_source_groups.view_only
+        if with_permissions_for is not None:
+            d['view_only'] = DataSourceGroup.get(
+                DataSourceGroup.group == with_permissions_for,
+                DataSourceGroup.data_source == self).view_only
 
         return d
 
@@ -549,8 +551,7 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         redis_connection.delete(self._pause_key())
 
     def add_group(self, group, view_only=False):
-        dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
-        setattr(self, 'data_source_groups', dsg)
+        DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
 
     def remove_group(self, group):
         DataSourceGroup.delete().where(DataSourceGroup.group==group, DataSourceGroup.data_source==self).execute()
@@ -559,7 +560,6 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         dsg = DataSourceGroup.get(DataSourceGroup.group==group, DataSourceGroup.data_source==self)
         dsg.view_only = view_only
         dsg.save()
-        setattr(self, 'data_source_groups', dsg)
 
     @property
     def query_runner(self):
