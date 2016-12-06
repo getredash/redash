@@ -438,8 +438,6 @@ class TestQueryAll(BaseTestCase):
         self.assertIn(q2, list(models.Query.all_queries([group1, group2])))
 
 
-
-
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):
         org1 = self.factory.create_org()
@@ -565,8 +563,7 @@ class TestWidgetDeleteInstance(BaseTestCase):
         widget2 = self.factory.create_widget(dashboard=widget.dashboard)
         db.session.flush()
         widget.dashboard.layout = json.dumps([[widget.id, widget2.id]])
-        db.session.delete(widget)
-        db.session.flush()
+        widget.delete()
         self.assertEquals(json.dumps([[widget2.id]]), widget.dashboard.layout)
 
     def test_delete_removes_empty_rows(self):
@@ -575,9 +572,8 @@ class TestWidgetDeleteInstance(BaseTestCase):
         db.session.flush()
         widget.dashboard.layout = json.dumps([[widget.id, widget2.id]])
         db.session.flush()
-        db.session.delete(widget)
-        db.session.delete(widget2)
-        db.session.flush()
+        widget.delete()
+        widget2.delete()
         self.assertEquals("[]", widget.dashboard.layout)
 
 

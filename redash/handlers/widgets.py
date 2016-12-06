@@ -70,6 +70,6 @@ class WidgetResource(BaseResource):
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
 
-        models.db.session.delete(widget)
+        widget.delete()
 
         return {'layout': widget.dashboard.layout, 'version': widget.dashboard.version}

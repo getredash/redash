@@ -1271,21 +1271,21 @@ class Widget(TimestampMixin, db.Model):
 
         return d
 
+    def delete(self):
+        layout = json.loads(self.dashboard.layout)
+        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
+        layout = filter(lambda row: len(row) > 0, layout)
+        self.dashboard.layout = json.dumps(layout)
+
+        db.session.add(self.dashboard)
+        db.session.delete(self)
+
     def __unicode__(self):
         return u"%s" % self.id
 
     @classmethod
     def get_by_id_and_org(cls, widget_id, org):
         return db.session.query(cls).join(Dashboard).filter(cls.id == widget_id, Dashboard.org== org).one()
-
-#XXX produces SQLA warning, replace with association table
-@listens_for(Widget, 'before_delete')
-def widget_delete(mapper, connection, self):
-    layout = json.loads(self.dashboard.layout)
-    layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
-    layout = filter(lambda row: len(row) > 0, layout)
-    self.dashboard.layout = json.dumps(layout)
-    db.session.add(self.dashboard)
 
 
 class Event(db.Model):
