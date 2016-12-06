@@ -132,6 +132,13 @@ class TestCreateAndLoginUser(BaseTestCase):
             user = models.User.query.filter(models.User.email == email).one()
             self.assertEqual(user.email, email)
 
+    def test_updates_user_name(self):
+        user = self.factory.create_user(email='test@example.com')
+
+        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+            create_and_login_user(self.factory.org, "New Name", user.email)
+            login_user_mock.assert_called_once_with(user, remember=True)
+
 
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
