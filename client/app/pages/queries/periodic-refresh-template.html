@@ -1,0 +1,53 @@
+<hr>
+<p>Days of the week:</p>
+<div class='btn-group'>
+    <button 
+        class='btn btn-default' 
+        ng-class='{"active": params.daysOfTheWeek.indexOf($index) > -1}'
+        ng-repeat='dow in daysOfTheWeek'
+        ng-click='pushOrRemoveDay($index)'>
+        {{ dow }}
+    </button>
+</div>
+<hr>
+<p>Days of the month (leave emtpy for all):</p>
+<input type="text" class="form-control" ng-model="params.daysOfTheMonth" placeholder="e.g. 1,2,5">
+<small ng-show='params.daysOfTheMonth.length && errors.daysOfTheMonth'>
+    warning: this doesn't seem like a valid month expression
+</small>
+<hr>
+<p>Time of execution</p>
+<div ng-repeat='schedule in params.schedules track by $index'>
+    <select 
+        ng-model='params.schedules[$index].hour'
+        ng-options='i as i for i in hourOptions'>
+    </select> :
+    <select 
+        ng-if='$index === 0'
+        ng-model='params.schedules[$index].minute'
+        ng-options='i as i for i in minuteOptions'>
+    </select>
+    <select 
+        ng-if='$index > 0'
+        disabled="disabled"
+        ng-model='params.schedules[0].minute'
+        ng-options='i as i for i in minuteOptions'>
+    </select>
+    <div class='btn-group'>
+        <button 
+            ng-click='params.schedules.push({hour: "00", minute: "00"})'
+            class='btn btn-default'>
+            <i class='fa fa-plus'></i>
+        </button>
+        <button 
+            ng-disabled="$index === 0"
+            ng-click='params.schedules.splice($index, 1)' 
+            class='btn btn-default'>
+            <i class='fa fa-minus'></i>
+        </button>
+    </div>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-default" ng-click="modal.close()">Cancel</button>
+    <button class="btn btn-primary" ng-click="save();modal.close();">Save</button>
+</div>

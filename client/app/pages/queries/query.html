@@ -185,8 +185,16 @@
           <!-- refresh schedule -->
           <span class="zmdi zmdi-refresh"></span>
           <span class="text-muted">Refresh Schedule</span>
-          <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
-          <span ng-if="query.isNew()">Never</span>
+          <a 
+            ng-click="openScheduleForm()" 
+            ng-if="!query.isNew() && query.schedule && query.schedule.length">
+            {{query.schedule | scheduleHumanize}}
+          </a>
+          <a
+            ng-click="openScheduleForm()" 
+            ng-if="!(!query.isNew() && query.schedule && query.schedule.length)">
+            Never
+          </a>
         </li>
         <li>
           <!-- last update -->
