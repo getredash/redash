@@ -215,17 +215,6 @@ class Factory(object):
         g = redash.models.Group(**args)
         return g
 
-    def create_group_hack(self, **kwargs):
-        args = {
-            'name': 'Group',
-            'org': self.org
-        }
-
-        args.update(kwargs)
-
-        g_id = redash.models.create_group_hack(**args)
-        return g_id
-
     def create_alert(self, **kwargs):
         args = {
             'user': self.user,

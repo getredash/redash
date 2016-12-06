@@ -294,11 +294,6 @@ class Group(db.Model, BelongsToOrgMixin):
     def __unicode__(self):
         return unicode(self.id)
 
-def create_group_hack(*a, **kw):
-    g = Group(*a, **kw)
-    db.session.add(g)
-    db.commit()
-    return g.id
 
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
