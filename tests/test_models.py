@@ -104,11 +104,6 @@ class QueryTest(BaseTestCase):
 
         self.assertEqual(1, len(queries))
 
-    def test_save_creates_default_visualization(self):
-        q = self.factory.create_query()
-        db.session.flush()
-        self.assertEquals(len(q.visualizations), 1)
-
     def test_save_updates_updated_at_field(self):
         # This should be a test of ModelTimestampsMixin, but it's easier to test in context of existing model... :-\
         one_day_ago = utcnow().date() - datetime.timedelta(days=1)

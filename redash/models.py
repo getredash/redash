@@ -726,6 +726,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             self.record_changes(user)
 
     @classmethod
+    def create(cls, **kwargs):
+        query = cls(**kwargs)
+        db.session.add(Visualization(query_rel=query,
+                                     name="Table",
+                                     description='',
+                                     type="TABLE",
+                                     options="{}"))
+        return query
+
+    @classmethod
     def all_queries(cls, groups, drafts=False):
         q = (cls.query.join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
@@ -810,8 +820,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash']
         kwargs = {a: getattr(self, a) for a in forked_list}
-        forked_query = Query(name='Copy of (#{}) {}'.format(self.id, self.name),
-                             user=user, **kwargs)
+        forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
+                                    user=user, **kwargs)
 
         for v in self.visualizations:
             if v.type == 'TABLE':
@@ -865,16 +875,6 @@ def gen_query_hash(target, val, oldval, initiator):
 @listens_for(Query.user_id, 'set')
 def query_last_modified_by(target, val, oldval, initiator):
     target.last_modified_by_id = val
-
-
-# Create default (table) visualization:
-@listens_for(SignallingSession, 'before_flush')
-def create_defaults(session, ctx, *a):
-    for obj in session.new:
-        if isinstance(obj, Query):
-            session.add(Visualization(query_rel=obj, name="Table",
-                                      description='',
-                                      type="TABLE", options="{}"))
 
 
 class AccessPermission(GFKBase, db.Model):

@@ -89,8 +89,7 @@ class VisualizationResourceTest(BaseTestCase):
         rv = self.make_request('delete', '/api/visualizations/{}'.format(visualization.id))
 
         self.assertEquals(rv.status_code, 200)
-        # =1 because each query has a default table visualization.
-        self.assertEquals(models.db.session.query(models.Visualization).count(), 1)
+        self.assertEquals(models.db.session.query(models.Visualization).count(), 0)
 
     def test_update_visualization(self):
         visualization = self.factory.create_visualization()
