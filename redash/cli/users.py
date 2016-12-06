@@ -1,6 +1,8 @@
 from sys import exit
 
 from click import BOOL, Group, argument, option, prompt
+from flask.cli import with_appcontext
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
@@ -25,6 +27,7 @@ def build_groups(org, groups, is_admin):
 
 
 @manager.command()
+@with_appcontext
 @argument('email')
 @option('--org', 'organization', default='default',
         help="the organization the user belongs to, (leave blank for "
@@ -38,18 +41,19 @@ def grant_admin(email, organization='default'):
         admin_group = org.admin_group
         user = models.User.get_by_email_and_org(email, org)
 
-        if admin_group.id in user.groups:
+        if admin_group.id in user.group_ids:
             print "User is already an admin."
         else:
-            user.groups.append(org.admin_group.id)
-            user.save()
-
+            user.group_ids = user.group_ids + [org.admin_group.id]
+            models.db.session.add(user)
+            models.db.session.commit()
             print "User updated."
-    except models.User.DoesNotExist:
+    except NoResultFound:
         print "User [%s] not found." % email
 
 
 @manager.command()
+@with_appcontext
 @argument('email')
 @argument('name')
 @option('--org', 'organization', default='default',
@@ -78,7 +82,7 @@ def create(email, name, groups, is_admin=False, google_auth=False,
     org = models.Organization.get_by_slug(organization)
     groups = build_groups(org, groups, is_admin)
 
-    user = models.User(org=org, email=email, name=name, groups=groups)
+    user = models.User(org=org, email=email, name=name, group_ids=groups)
     if not password and not google_auth:
         password = prompt("Password", hide_input=True,
                           confirmation_prompt=True)
@@ -86,13 +90,15 @@ def create(email, name, groups, is_admin=False, google_auth=False,
         user.hash_password(password)
 
     try:
-        user.save()
+        models.db.session.add(user)
+        models.db.session.commit()
     except Exception, e:
         print "Failed creating user: %s" % e.message
         exit(1)
 
 
 @manager.command()
+@with_appcontext
 @argument('email')
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
@@ -103,16 +109,17 @@ def delete(email, organization=None):
     """
     if organization:
         org = models.Organization.get_by_slug(organization)
-        deleted_count = models.User.delete().where(
+        deleted_count = models.User.query.filter(
             models.User.email == email,
             models.User.org == org.id,
-        ).execute()
+        ).delete()
     else:
-        deleted_count = models.User.delete().where(models.User.email == email).execute()
+        deleted_count = models.User.query.filter(models.User.email == email).delete()
     print "Deleted %d users." % deleted_count
 
 
 @manager.command()
+@with_appcontext
 @argument('email')
 @argument('password')
 @option('--org', 'organization', default=None,
@@ -124,16 +131,17 @@ def password(email, password, organization=None):
     """
     if organization:
         org = models.Organization.get_by_slug(organization)
-        user = models.User.select().where(
+        user = models.User.query.filter(
             models.User.email == email,
-            models.User.org == org.id,
+            models.User.org == org,
         ).first()
     else:
-        user = models.User.select().where(models.User.email == email).first()
+        user = models.User.query.filter(models.User.email == email).first()
 
     if user is not None:
         user.hash_password(password)
-        user.save()
+        models.db.session.add(user)
+        models.db.session.commit()
         print "User updated."
     else:
         print "User [%s] not found." % email
@@ -141,6 +149,7 @@ def password(email, password, organization=None):
 
 
 @manager.command()
+@with_appcontext
 @argument('email')
 @argument('name')
 @argument('inviter_email')
@@ -159,22 +168,23 @@ def invite(email, name, inviter_email, groups, is_admin=False,
     groups = build_groups(org, groups, is_admin)
     try:
         user_from = models.User.get_by_email_and_org(inviter_email, org)
-        user = models.User(org=org, name=name, email=email, groups=groups)
-
+        user = models.User(org=org, name=name, email=email, group_ids=groups)
+        models.db.session.add(user)
         try:
-            user.save()
-            invite_url = invite_user(org, user_from, user)
+            models.db.session.commit()
+            invite_user(org, user_from, user)
             print "An invitation was sent to [%s] at [%s]." % (name, email)
         except IntegrityError as e:
             if "email" in e.message:
                 print "Cannot invite. User already exists [%s]" % email
             else:
                 print e
-    except models.User.DoesNotExist:
+    except NoResultFound:
         print "The inviter [%s] was not found." % inviter_email
 
 
 @manager.command()
+@with_appcontext
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
         " organizations)")
@@ -182,9 +192,9 @@ def list(organization=None):
     """List all users"""
     if organization:
         org = models.Organization.get_by_slug(organization)
-        users = models.User.select().where(models.User.org==org.id)
+        users = models.User.query.filter(models.User.org == org)
     else:
-        users = models.User.select()
+        users = models.User.query
     for i, user in enumerate(users):
         if i > 0:
             print "-" * 20

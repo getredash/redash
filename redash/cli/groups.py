@@ -1,12 +1,16 @@
 from sys import exit
 
+from sqlalchemy.orm.exc import NoResultFound
+from flask.cli import with_appcontext
 from click import Group, argument, option
+
 from redash import models
 
 manager = Group(help="Groups management commands.")
 
 
 @manager.command()
+@with_appcontext
 @argument('name')
 @option('--org', 'organization', default='default',
         help="The organization the user belongs to (leave blank for "
@@ -27,13 +31,17 @@ def create(name, permissions=None, organization='default'):
     print "permissions: [%s]" % ",".join(permissions)
 
     try:
-        models.Group.create(name=name, org=org, permissions=permissions)
+        models.db.session.add(models.Group(
+            name=name, org=org,
+            permissions=permissions))
+        models.db.session.commit()
     except Exception, e:
         print "Failed create group: %s" % e.message
         exit(1)
 
 
 @manager.command()
+@with_appcontext
 @argument('group_id')
 @option('--permissions', default=None,
         help="Comma separated list of permissions ('create_dashboard',"
@@ -45,8 +53,8 @@ def change_permissions(group_id, permissions=None):
     print "Change permissions of group %s ..." % group_id
 
     try:
-        group = models.Group.get_by_id(group_id)
-    except models.Group.DoesNotExist:
+        group = models.Group.query.get(group_id)
+    except NoResultFound:
         print "User [%s] not found." % group_id
         exit(1)
 
@@ -57,7 +65,8 @@ def change_permissions(group_id, permissions=None):
     group.permissions = permissions
 
     try:
-        group.save()
+        models.db.session.add(group)
+        models.db.session.commit()
     except Exception, e:
         print "Failed change permission: %s" % e.message
         exit(1)
@@ -73,15 +82,16 @@ def extract_permissions_string(permissions):
 
 
 @manager.command()
+@with_appcontext
 @option('--org', 'organization', default=None,
         help="The organization to limit to (leave blank for all).")
 def list(organization=None):
     """List all groups"""
     if organization:
         org = models.Organization.get_by_slug(organization)
-        groups = models.Group.select().where(models.Group.org == org)
+        groups = models.Group.query.filter(models.Group.org == org)
     else:
-        groups = models.Group.select()
+        groups = models.Group.query
 
     for i, group in enumerate(groups):
         if i > 0:

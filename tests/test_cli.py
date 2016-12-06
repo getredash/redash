@@ -14,7 +14,7 @@ from redash.cli.organization import (list as list_org, set_google_apps_domains,
                                      show_google_apps_domains)
 from redash.cli.users import (create as create_user, delete as delete_user,
                               grant_admin, invite, list as list_user, password)
-from redash.models import DataSource, Group, Organization, User
+from redash.models import DataSource, Group, Organization, User, db
 
 
 class DataSourceCommandTests(BaseTestCase):
@@ -26,8 +26,8 @@ class DataSourceCommandTests(BaseTestCase):
             input="test\n%s\n\n\nexample.com\n\ntestdb\n" % (pg_i,))
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(DataSource.select().count(), 1)
-        ds = DataSource.select().first()
+        self.assertEqual(DataSource.query.count(), 1)
+        ds = DataSource.query.first()
         self.assertEqual(ds.name, 'test')
         self.assertEqual(ds.type, 'pg')
         self.assertEqual(ds.options['dbname'], 'testdb')
@@ -40,8 +40,8 @@ class DataSourceCommandTests(BaseTestCase):
                   '--type', 'pg'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(DataSource.select().count(), 1)
-        ds = DataSource.select().first()
+        self.assertEqual(DataSource.query.count(), 1)
+        ds = DataSource.query.first()
         self.assertEqual(ds.name, 'test')
         self.assertEqual(ds.type, 'pg')
         self.assertEqual(ds.options['host'], 'example.com')
@@ -54,7 +54,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('not supported', result.output)
-        self.assertEqual(DataSource.select().count(), 0)
+        self.assertEqual(DataSource.query.count(), 0)
 
     def test_bad_options_new(self):
         runner = CliRunner()
@@ -65,7 +65,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('invalid configuration', result.output)
-        self.assertEqual(DataSource.select().count(), 0)
+        self.assertEqual(DataSource.query.count(), 0)
 
     def test_list(self):
         self.factory.create_data_source(
@@ -122,7 +122,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertIn('Deleting', result.output)
-        self.assertEqual(DataSource.select().count(), 0)
+        self.assertEqual(DataSource.query.count(), 0)
 
     def test_connection_bad_delete(self):
         self.factory.create_data_source(
@@ -133,7 +133,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn("Couldn't find", result.output)
-        self.assertEqual(DataSource.select().count(), 1)
+        self.assertEqual(DataSource.query.count(), 1)
 
     def test_options_edit(self):
         self.factory.create_data_source(
@@ -147,8 +147,8 @@ class DataSourceCommandTests(BaseTestCase):
                    '--type', 'pg'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(DataSource.select().count(), 1)
-        ds = DataSource.select().first()
+        self.assertEqual(DataSource.query.count(), 1)
+        ds = DataSource.query.first()
         self.assertEqual(ds.name, 'test2')
         self.assertEqual(ds.type, 'pg')
         self.assertEqual(ds.options['host'], 'example.com')
@@ -164,7 +164,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('not supported', result.output)
-        ds = DataSource.select().first()
+        ds = DataSource.query.first()
         self.assertEqual(ds.type, 'sqlite')
 
     def test_bad_options_edit(self):
@@ -179,7 +179,7 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('invalid configuration', result.output)
-        ds = DataSource.select().first()
+        ds = DataSource.query.first()
         self.assertEqual(ds.type, 'sqlite')
         self.assertEqual(ds.options._config, {"dbpath": "/tmp/test.db"})
 
@@ -187,21 +187,21 @@ class DataSourceCommandTests(BaseTestCase):
 class GroupCommandTests(BaseTestCase):
 
     def test_create(self):
-        gcount = Group.select().count()
+        gcount = Group.query.count()
         perms = ['create_query', 'edit_query', 'view_query']
         runner = CliRunner()
         result = runner.invoke(
             create_group, ['test', '--permissions', ','.join(perms)])
-        print result.output
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(Group.select().count(), gcount + 1)
-        g = Group.select().order_by(Group.id.desc()).first()
+        self.assertEqual(Group.query.count(), gcount + 1)
+        g = Group.query.order_by(Group.id.desc()).first()
         self.assertEqual(g.org, self.factory.org)
         self.assertEqual(g.permissions, perms)
 
     def test_change_permissions(self):
         g = self.factory.create_group(permissions=['list_dashboards'])
+        db.session.flush()
         g_id = g.id
         perms = ['create_query', 'edit_query', 'view_query']
         runner = CliRunner()
@@ -209,7 +209,7 @@ class GroupCommandTests(BaseTestCase):
             change_permissions, [str(g_id), '--permissions', ','.join(perms)])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        g = Group.select().where(Group.id == g_id).first()
+        g = Group.query.filter(Group.id == g_id).first()
         self.assertEqual(g.permissions, perms)
 
     def test_list(self):
@@ -245,14 +245,15 @@ class OrganizationCommandTests(BaseTestCase):
         result = runner.invoke(set_google_apps_domains, [','.join(domains)])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        o = Organization.select().where(
-            Organization.id == self.factory.org.id).first()
-        self.assertEqual(o.google_apps_domains, domains)
+        #db.session.
+        db.session.refresh(self.factory.org)
+        self.assertEqual(self.factory.org.google_apps_domains, domains)
 
     def test_show_google_apps_domains(self):
         self.factory.org.settings[Organization.SETTING_GOOGLE_APPS_DOMAINS] = [
             'example.org', 'example.com']
-        self.factory.org.save()
+        db.session.add(self.factory.org)
+        db.session.commit()
         runner = CliRunner()
         result = runner.invoke(show_google_apps_domains, [])
         self.assertFalse(result.exception)
@@ -290,10 +291,10 @@ class UserCommandTests(BaseTestCase):
             input="password1\npassword1\n")
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.select().where(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
-        self.assertEqual(u.groups, [self.factory.default_group.id])
+        self.assertEqual(u.group_ids, [self.factory.default_group.id])
 
     def test_create_admin(self):
         runner = CliRunner()
@@ -302,10 +303,10 @@ class UserCommandTests(BaseTestCase):
                           '--password', 'password1', '--admin'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.select().where(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
-        self.assertEqual(u.groups, [self.factory.default_group.id,
+        self.assertEqual(u.group_ids, [self.factory.default_group.id,
                                     self.factory.admin_group.id])
 
     def test_create_googleauth(self):
@@ -314,10 +315,10 @@ class UserCommandTests(BaseTestCase):
             create_user, ['foobar@example.com', 'Fred Foobar', '--google'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.select().where(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertIsNone(u.password_hash)
-        self.assertEqual(u.groups, [self.factory.default_group.id])
+        self.assertEqual(u.group_ids, [self.factory.default_group.id])
 
     def test_create_bad(self):
         self.factory.create_user(email='foobar@example.com')
@@ -331,23 +332,23 @@ class UserCommandTests(BaseTestCase):
 
     def test_delete(self):
         self.factory.create_user(email='foobar@example.com')
-        ucount = User.select().count()
+        ucount = User.query.count()
         runner = CliRunner()
         result = runner.invoke(
             delete_user, ['foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertEqual(User.select().where(User.email ==
+        self.assertEqual(User.query.filter(User.email ==
                                              "foobar@example.com").count(), 0)
-        self.assertEqual(User.select().count(), ucount - 1)
+        self.assertEqual(User.query.count(), ucount - 1)
 
     def test_delete_bad(self):
-        ucount = User.select().count()
+        ucount = User.query.count()
         runner = CliRunner()
         result = runner.invoke(
             delete_user, ['foobar@example.com'])
         self.assertIn('Deleted 0 users', result.output)
-        self.assertEqual(User.select().count(), ucount)
+        self.assertEqual(User.query.count(), ucount)
 
     def test_password(self):
         self.factory.create_user(email='foobar@example.com')
@@ -356,7 +357,7 @@ class UserCommandTests(BaseTestCase):
             password, ['foobar@example.com', 'xyzzy'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.select().where(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertTrue(u.verify_password('xyzzy'))
 
     def test_password_bad(self):
@@ -394,7 +395,7 @@ class UserCommandTests(BaseTestCase):
     def test_list(self):
         self.factory.create_user(name='Fred Foobar',
                                  email='foobar@example.com',
-                                 organization=self.factory.org)
+                                 org=self.factory.org)
         runner = CliRunner()
         result = runner.invoke(list_user, [])
         self.assertFalse(result.exception)
@@ -409,15 +410,15 @@ class UserCommandTests(BaseTestCase):
                                   textwrap.dedent(output).lstrip())
 
     def test_grant_admin(self):
-        self.factory.create_user(name='Fred Foobar',
+        u = self.factory.create_user(name='Fred Foobar',
                                      email='foobar@example.com',
                                      org=self.factory.org,
-                                     groups=[self.factory.default_group.id])
+                                     group_ids=[self.factory.default_group.id])
         runner = CliRunner()
         result = runner.invoke(
             grant_admin, ['foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.select().order_by(User.id.desc()).first()
-        self.assertEqual(u.groups, [self.factory.default_group.id,
-                                    self.factory.admin_group.id])
+        db.session.refresh(u)
+        self.assertEqual(u.group_ids, [self.factory.default_group.id,
+                                       self.factory.admin_group.id])

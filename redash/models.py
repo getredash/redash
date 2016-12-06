@@ -14,6 +14,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
+from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import object_session
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
@@ -70,6 +71,8 @@ class GFKBase(object):
 #     return peewee.Expression(self, '::', peewee.SQL(as_type))
 
 
+# XXX replace PseudoJSON and MutableDict with real JSON field
+
 class PseudoJSON(TypeDecorator):
     impl = db.Text
 
@@ -80,6 +83,33 @@ class PseudoJSON(TypeDecorator):
         if not value:
             return value
         return json.loads(value)
+
+
+class MutableDict(Mutable, dict):
+    @classmethod
+    def coerce(cls, key, value):
+        "Convert plain dictionaries to MutableDict."
+
+        if not isinstance(value, MutableDict):
+            if isinstance(value, dict):
+                return MutableDict(value)
+
+            # this call will raise ValueError
+            return Mutable.coerce(key, value)
+        else:
+            return value
+
+    def __setitem__(self, key, value):
+        "Detect dictionary set events and emit change events."
+
+        dict.__setitem__(self, key, value)
+        self.changed()
+
+    def __delitem__(self, key):
+        "Detect dictionary del events and emit change events."
+
+        dict.__delitem__(self, key)
+        self.changed()
 
 
 class TimestampMixin(object):
@@ -186,7 +216,7 @@ class Organization(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     slug = Column(db.String(255), unique=True)
-    settings = Column(PseudoJSON)
+    settings = Column(MutableDict.as_mutable(PseudoJSON))
     groups = db.relationship("Group", lazy="dynamic")
 
     __tablename__ = 'organizations'
@@ -415,7 +445,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
     @classmethod
     def create_with_group(cls, *args, **kwargs):
         data_source = cls(*args, **kwargs)
-        data_source_group = DataSourceGroup(data_source=data_source, group=data_source.org.default_group)
+        data_source_group = DataSourceGroup(
+            data_source=data_source,
+            group=data_source.org.default_group)
 
         db.session.add_all([data_source, data_source_group])
         return data_source
@@ -634,7 +666,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
-    options = Column(PseudoJSON, default={})
+    options = Column(MutableDict.as_mutable(PseudoJSON), default={})
 
     __tablename__ = 'queries'
     __mapper_args__ = {
@@ -973,7 +1005,7 @@ class Alert(TimestampMixin, db.Model):
     query_rel = db.relationship(Query, backref='alerts', cascade="all")
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='alerts')
-    options = Column(PseudoJSON)
+    options = Column(MutableDict.as_mutable(PseudoJSON))
     state = Column(db.String(255), default=UNKNOWN_STATE)
     subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
