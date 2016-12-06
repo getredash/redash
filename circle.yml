@@ -12,8 +12,7 @@ dependencies:
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
     - pip install pymongo==3.2.1
-    - if [ "$CIRCLE_BRANCH" = "master" ]; then make deps; fi
-    - if [ "$CIRCLE_BRANCH" = "webpack" ]; then make deps; fi
+    - make deps
   cache_directories:
     - node_modules/
     - client/node_modules/
