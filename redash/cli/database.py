@@ -1,8 +1,9 @@
-from flask_script import Manager
+from click import Group
 
-manager = Manager(help="Manage the database (create/drop tables).")
+manager = Group(help="Manage the database (create/drop tables).")
 
-@manager.command
+
+@manager.command()
 def create_tables():
     """Create the database tables."""
     from redash.models import create_db, init_db
@@ -10,7 +11,8 @@ def create_tables():
     create_db(True, False)
     init_db()
 
-@manager.command
+
+@manager.command()
 def drop_tables():
     """Drop the database tables."""
     from redash.models import create_db

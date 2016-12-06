@@ -1,16 +1,18 @@
-from flask_script import Manager, prompt_pass
+from sys import exit
+
+from click import BOOL, Group, argument, option, prompt
 from peewee import IntegrityError
 
 from redash import models
 from redash.handlers.users import invite_user
 
-manager = Manager(help="Users management commands.")
+manager = Group(help="Users management commands.")
 
 
 def build_groups(org, groups, is_admin):
     if isinstance(groups, basestring):
-        groups= groups.split(',')
-        groups.remove('') # in case it was empty string
+        groups = groups.split(',')
+        groups.remove('')  # in case it was empty string
         groups = [int(g) for g in groups]
 
     if groups is None:
@@ -21,9 +23,16 @@ def build_groups(org, groups, is_admin):
 
     return groups
 
-@manager.option('email', help="email address of the user to grant admin to")
-@manager.option('--org', dest='organization', default='default', help="the organization the user belongs to, (leave blank for 'default').")
+
+@manager.command()
+@argument('email')
+@option('--org', 'organization', default='default',
+        help="the organization the user belongs to, (leave blank for "
+        "'default').")
 def grant_admin(email, organization='default'):
+    """
+    Grant admin access to user EMAIL.
+    """
     try:
         org = models.Organization.get_by_slug(organization)
         admin_group = org.admin_group
@@ -40,15 +49,29 @@ def grant_admin(email, organization='default'):
         print "User [%s] not found." % email
 
 
-@manager.option('email', help="User's email")
-@manager.option('name', help="User's full name")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default').")
-@manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
-@manager.option('--google', dest='google_auth', action="store_true", default=False, help="user uses Google Auth to login")
-@manager.option('--password', dest='password', default=None, help="Password for users who don't use Google Auth (leave blank for prompt).")
-@manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
-def create(email, name, groups, is_admin=False, google_auth=False, password=None, organization='default'):
-    print "Creating user (%s, %s) in organization %s..." % (email, name, organization)
+@manager.command()
+@argument('email')
+@argument('name')
+@option('--org', 'organization', default='default',
+        help="The organization the user belongs to (leave blank for "
+        "'default').")
+@option('--admin', 'is_admin', is_flag=True, default=False,
+        help="set user as admin")
+@option('--google', 'google_auth', is_flag=True,
+        default=False, help="user uses Google Auth to login")
+@option('--password', 'password', default=None,
+        help="Password for users who don't use Google Auth "
+        "(leave blank for prompt).")
+@option('--groups', 'groups', default=None,
+        help="Comma separated list of groups (leave blank for "
+        "default).")
+def create(email, name, groups, is_admin=False, google_auth=False,
+           password=None, organization='default'):
+    """
+    Create user EMAIL with display name NAME.
+    """
+    print "Creating user (%s, %s) in organization %s..." % (email, name,
+                                                            organization)
     print "Admin: %r" % is_admin
     print "Login with Google Auth: %r\n" % google_auth
 
@@ -56,19 +79,28 @@ def create(email, name, groups, is_admin=False, google_auth=False, password=None
     groups = build_groups(org, groups, is_admin)
 
     user = models.User(org=org, email=email, name=name, groups=groups)
+    if not password and not google_auth:
+        password = prompt("Password", hide_input=True,
+                          confirmation_prompt=True)
     if not google_auth:
-        password = password or prompt_pass("Password")
         user.hash_password(password)
 
     try:
         user.save()
     except Exception, e:
         print "Failed creating user: %s" % e.message
+        exit(1)
 
 
-@manager.option('email', help="email address of user to delete")
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations).")
+@manager.command()
+@argument('email')
+@option('--org', 'organization', default=None,
+        help="The organization the user belongs to (leave blank for all"
+        " organizations).")
 def delete(email, organization=None):
+    """
+    Delete user EMAIL.
+    """
     if organization:
         org = models.Organization.get_by_slug(organization)
         deleted_count = models.User.delete().where(
@@ -80,35 +112,49 @@ def delete(email, organization=None):
     print "Deleted %d users." % deleted_count
 
 
-@manager.option('password', help="new password for the user")
-@manager.option('email', help="email address of the user to change password for")
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations).")
+@manager.command()
+@argument('email')
+@argument('password')
+@option('--org', 'organization', default=None,
+        help="The organization the user belongs to (leave blank for all "
+        "organizations).")
 def password(email, password, organization=None):
-    try:
-        if organization:
-            org = models.Organization.get_by_slug(organization)
-            user = models.User.select().where(
-                models.User.email == email,
-                models.User.org == org.id,
-            ).first()
-        else:
-            user = models.User.select().where(models.User.email == email).first()
+    """
+    Resets password for EMAIL to PASSWORD.
+    """
+    if organization:
+        org = models.Organization.get_by_slug(organization)
+        user = models.User.select().where(
+            models.User.email == email,
+            models.User.org == org.id,
+        ).first()
+    else:
+        user = models.User.select().where(models.User.email == email).first()
 
+    if user is not None:
         user.hash_password(password)
         user.save()
-
         print "User updated."
-    except models.User.DoesNotExist:
+    else:
         print "User [%s] not found." % email
+        exit(1)
 
 
-@manager.option('email', help="The invitee's email")
-@manager.option('name', help="The invitee's full name")
-@manager.option('inviter_email', help="The email of the inviter")
-@manager.option('--org', dest='organization', default='default', help="The organization the user belongs to (leave blank for 'default')")
-@manager.option('--admin', dest='is_admin', action="store_true", default=False, help="set user as admin")
-@manager.option('--groups', dest='groups', default=None, help="Comma seperated list of groups (leave blank for default).")
-def invite(email, name, inviter_email, groups, is_admin=False, organization='default'):
+@manager.command()
+@argument('email')
+@argument('name')
+@argument('inviter_email')
+@option('--org', 'organization', default='default',
+        help="The organization the user belongs to (leave blank for 'default')")
+@option('--admin', 'is_admin', type=BOOL, default=False,
+        help="set user as admin")
+@option('--groups', 'groups', default=None,
+        help="Comma seperated list of groups (leave blank for default).")
+def invite(email, name, inviter_email, groups, is_admin=False,
+           organization='default'):
+    """
+    Sends an invitation to the given NAME and EMAIL from INVITER_EMAIL.
+    """
     org = models.Organization.get_by_slug(organization)
     groups = build_groups(org, groups, is_admin)
     try:
@@ -125,10 +171,13 @@ def invite(email, name, inviter_email, groups, is_admin=False, organization='def
             else:
                 print e
     except models.User.DoesNotExist:
-        print "The inviter [%s] was not found." % inviterEmail
+        print "The inviter [%s] was not found." % inviter_email
 
 
-@manager.option('--org', dest='organization', default=None, help="The organization the user belongs to (leave blank for all organizations)")
+@manager.command()
+@option('--org', 'organization', default=None,
+        help="The organization the user belongs to (leave blank for all"
+        " organizations)")
 def list(organization=None):
     """List all users"""
     if organization:
@@ -140,4 +189,5 @@ def list(organization=None):
         if i > 0:
             print "-" * 20
 
-        print "Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(user.id, user.name.encode('utf-8'), user.email, user.org.name)
+        print "Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(
+            user.id, user.name.encode('utf-8'), user.email, user.org.name)
