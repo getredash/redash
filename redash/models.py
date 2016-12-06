@@ -1199,13 +1199,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org==org).one()
 
-    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.save(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
     def __unicode__(self):
         return u"%s=%s" % (self.id, self.name)
 
