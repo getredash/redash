@@ -1272,6 +1272,11 @@ class Visualization(ModelTimestampsMixin, BaseModel):
         return cls.select(Visualization, Query).join(Query).where(cls.id == visualization_id,
                                                                   Query.org == org).get()
 
+    @classmethod
+    def get_by_query_id_and_org(cls, query_id, org):
+        return cls.select(Visualization, Query).join(Query).where(Query.id == query_id,
+                                                                  Query.org == org).execute()
+
     def __unicode__(self):
         return u"%s %s" % (self.id, self.type)
 
