@@ -438,19 +438,6 @@ class TestQueryAll(BaseTestCase):
         self.assertIn(q2, list(models.Query.all_queries([group1, group2])))
 
 
-class TestUser(BaseTestCase):
-    def test_default_group_always_added(self):
-        user = self.factory.create_user()
-
-        user.update_group_assignments(["g_unknown"])
-        self.assertItemsEqual([user.org.default_group.id], user.group_ids)
-
-    def test_update_group_assignments(self):
-        user = self.factory.user
-        new_group = models.Group(id=999, name="g1", org=user.org)
-
-        user.update_group_assignments(["g1"])
-        self.assertItemsEqual([user.org.default_group.id, new_group.id], user.group_ids)
 
 
 class TestGroup(BaseTestCase):

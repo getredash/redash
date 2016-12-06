@@ -358,6 +358,10 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def all(cls, org):
         return cls.query.filter(cls.org == org)
 
+    @classmethod
+    def find_by_email(cls, email):
+        return cls.query.filter(cls.email == email)
+
     def __unicode__(self):
         return u'%s (%s)' % (self.name, self.email)
 
