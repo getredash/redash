@@ -27,6 +27,12 @@ class TestAlertResourceGet(BaseTestCase):
         self.assertEqual(rv.status_code, 404)
 
 
+class TestAlertResourcePost(BaseTestCase):
+    def test_updates_alert(self):
+        alert = self.factory.create_alert()
+        rv = self.make_request('post', '/api/alerts/{}'.format(alert.id), data={"name": "Testing"})
+
+
 class TestAlertResourceDelete(BaseTestCase):
     def test_removes_alert_and_subscriptions(self):
         subscription = self.factory.create_alert_subscription()

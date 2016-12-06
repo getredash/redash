@@ -6,7 +6,6 @@ from funcy import project
 from redash import models
 from redash.permissions import require_access, require_admin_or_owner, view_only, require_permission
 from redash.handlers.base import BaseResource, require_fields, get_object_or_404
-from sqlalchemy.exc import DataError
 
 
 class AlertResource(BaseResource):
@@ -21,7 +20,7 @@ class AlertResource(BaseResource):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_admin_or_owner(alert.user.id)
 
-        alert.update_instance(**params)
+        self.update_model(alert, params)
 
         self.record_event({
             'action': 'edit',
@@ -30,9 +29,7 @@ class AlertResource(BaseResource):
             'object_type': 'alert'
         })
 
-        d = alert.to_dict()
-        models.db.session.commit()
-        return d
+        return alert.to_dict()
 
     def delete(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id,

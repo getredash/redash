@@ -1324,6 +1324,7 @@ class Event(db.Model):
         db.session.add(event)
         return event
 
+
 class ApiKey(TimestampMixin, GFKBase, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -1353,7 +1354,6 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
 
 
 class NotificationDestination(BelongsToOrgMixin, db.Model):
-
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="notification_destinations")
