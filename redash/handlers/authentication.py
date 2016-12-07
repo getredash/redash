@@ -29,7 +29,8 @@ def get_google_auth_url(next_path):
 def render_token_login_page(template, org_slug, token):
     try:
         user_id = validate_token(token)
-        user = models.User.get_by_id_and_org(user_id, current_org)
+        org = current_org._get_current_object()
+        user = models.User.get_by_id_and_org(user_id, org)
     except NoResultFound:
         logger.exception("Bad user id in token. Token= , User id= %s, Org=%s", user_id, token, org_slug)
         return render_template("error.html", error_message="Invalid invite link. Please ask for a new one."), 400
@@ -79,7 +80,8 @@ def forgot_password(org_slug=None):
         submitted = True
         email = request.form['email']
         try:
-            user = models.User.get_by_email_and_org(email, current_org)
+            org = current_org._get_current_object()
+            user = models.User.get_by_email_and_org(email, org)
             send_password_reset_email(user)
         except NoResultFound:
             logging.error("No user found for forgot password: %s", email)
@@ -105,7 +107,8 @@ def login(org_slug=None):
 
     if request.method == 'POST':
         try:
-            user = models.User.get_by_email_and_org(request.form['email'], current_org)
+            org = current_org._get_current_object()
+            user = models.User.get_by_email_and_org(request.form['email'], org)
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
