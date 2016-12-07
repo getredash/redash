@@ -1,16 +1,15 @@
 from sys import exit
 
 from sqlalchemy.orm.exc import NoResultFound
-from flask.cli import with_appcontext
-from click import Group, argument, option
+from flask.cli import AppGroup
+from click import argument, option
 
 from redash import models
 
-manager = Group(help="Groups management commands.")
+manager = AppGroup(help="Groups management commands.")
 
 
 @manager.command()
-@with_appcontext
 @argument('name')
 @option('--org', 'organization', default='default',
         help="The organization the user belongs to (leave blank for "
@@ -41,7 +40,6 @@ def create(name, permissions=None, organization='default'):
 
 
 @manager.command()
-@with_appcontext
 @argument('group_id')
 @option('--permissions', default=None,
         help="Comma separated list of permissions ('create_dashboard',"
@@ -82,7 +80,6 @@ def extract_permissions_string(permissions):
 
 
 @manager.command()
-@with_appcontext
 @option('--org', 'organization', default=None,
         help="The organization to limit to (leave blank for all).")
 def list(organization=None):

@@ -1,13 +1,12 @@
-from click import Group, argument
-from flask.cli import with_appcontext
+from click import argument
+from flask.cli import AppGroup
 
 from redash import models
 
-manager = Group(help="Organization management commands.")
+manager = AppGroup(help="Organization management commands.")
 
 
 @manager.command()
-@with_appcontext
 @argument('domains')
 def set_google_apps_domains(domains):
     """
@@ -23,7 +22,6 @@ def set_google_apps_domains(domains):
 
 
 @manager.command()
-@with_appcontext
 def show_google_apps_domains():
     organization = models.Organization.query.first()
     print "Current list of Google Apps domains: {}".format(
@@ -31,7 +29,6 @@ def show_google_apps_domains():
 
 
 @manager.command()
-@with_appcontext
 def list():
     """List all organizations"""
     orgs = models.Organization.query

@@ -2,7 +2,7 @@ from sys import exit
 import json
 
 import click
-from flask.cli import with_appcontext
+from flask.cli import AppGroup
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
@@ -10,11 +10,10 @@ from redash.query_runner import query_runners
 from redash.query_runner import get_configuration_schema_for_query_runner_type
 from redash.utils.configuration import ConfigurationContainer
 
-manager = click.Group(help="Data sources management commands.")
+manager = AppGroup(help="Data sources management commands.")
 
 
 @manager.command()
-@with_appcontext
 @click.option('--org', 'organization', default=None,
               help="The organization the user belongs to (leave blank for "
               "all organizations).")
@@ -43,7 +42,6 @@ def validate_data_source_type(type):
 
 
 @manager.command()
-@with_appcontext
 @click.argument('name')
 @click.option('--org', 'organization', default='default',
               help="The organization the user belongs to "
@@ -70,7 +68,6 @@ def test(name, organization='default'):
 
 
 @manager.command()
-@with_appcontext
 @click.argument('name', default=None, required=False)
 @click.option('--type', default=None,
               help="new type for the data source")
@@ -147,7 +144,6 @@ def new(name=None, type=None, options=None, organization='default'):
 
 
 @manager.command()
-@with_appcontext
 @click.argument('name')
 @click.option('--org', 'organization', default='default',
               help="The organization the user belongs to (leave blank for "
@@ -175,7 +171,6 @@ def update_attr(obj, attr, new_value):
 
 
 @manager.command()
-@with_appcontext
 @click.argument('name')
 @click.option('--name', 'new_name', default=None,
               help="new name for the data source")

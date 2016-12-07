@@ -1,14 +1,14 @@
 from sys import exit
 
-from click import BOOL, Group, argument, option, prompt
-from flask.cli import with_appcontext
+from click import BOOL, argument, option, prompt
+from flask.cli import AppGroup
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
 from redash.handlers.users import invite_user
 
-manager = Group(help="Users management commands.")
+manager = AppGroup(help="Users management commands.")
 
 
 def build_groups(org, groups, is_admin):
@@ -27,7 +27,6 @@ def build_groups(org, groups, is_admin):
 
 
 @manager.command()
-@with_appcontext
 @argument('email')
 @option('--org', 'organization', default='default',
         help="the organization the user belongs to, (leave blank for "
@@ -53,7 +52,6 @@ def grant_admin(email, organization='default'):
 
 
 @manager.command()
-@with_appcontext
 @argument('email')
 @argument('name')
 @option('--org', 'organization', default='default',
@@ -98,7 +96,6 @@ def create(email, name, groups, is_admin=False, google_auth=False,
 
 
 @manager.command()
-@with_appcontext
 @argument('email')
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
@@ -115,12 +112,11 @@ def delete(email, organization=None):
         ).delete()
     else:
         deleted_count = models.User.query.filter(models.User.email == email).delete()
-    db.session.commit()
+    models.db.session.commit()
     print "Deleted %d users." % deleted_count
 
 
 @manager.command()
-@with_appcontext
 @argument('email')
 @argument('password')
 @option('--org', 'organization', default=None,
@@ -150,7 +146,6 @@ def password(email, password, organization=None):
 
 
 @manager.command()
-@with_appcontext
 @argument('email')
 @argument('name')
 @argument('inviter_email')
@@ -185,7 +180,6 @@ def invite(email, name, inviter_email, groups, is_admin=False,
 
 
 @manager.command()
-@with_appcontext
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
         " organizations)")

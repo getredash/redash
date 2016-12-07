@@ -1,11 +1,9 @@
-from click import Group
-from flask.cli import with_appcontext
+from flask.cli import AppGroup
 
-manager = Group(help="Manage the database (create/drop tables).")
+manager = AppGroup(help="Manage the database (create/drop tables).")
 
 
 @manager.command()
-@with_appcontext
 def create_tables():
     """Create the database tables."""
     from redash.models import db, create_db, init_db
@@ -15,7 +13,6 @@ def create_tables():
 
 
 @manager.command()
-@with_appcontext
 def drop_tables():
     """Drop the database tables."""
     from redash.models import create_db
