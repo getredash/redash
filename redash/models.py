@@ -535,7 +535,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
     data_source = db.relationship(DataSource)
     query_hash = Column(db.String(32), index=True)
-    query_text = Column(db.Text)
+    query_text = Column('query', db.Text)
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
