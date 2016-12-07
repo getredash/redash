@@ -4,11 +4,9 @@ import hashlib
 import itertools
 import json
 import logging
-import time
 
 from funcy import project
 from flask_sqlalchemy import SQLAlchemy
-from flask.ext.sqlalchemy import SignallingSession
 from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for

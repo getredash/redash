@@ -1,6 +1,6 @@
 import requests
 from celery.utils.log import get_task_logger
-from flask.ext.mail import Message
+from flask_mail import Message
 from redash.worker import celery
 from redash.version_check import run_version_check
 from redash import models, mail, settings

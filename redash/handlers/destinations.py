@@ -1,5 +1,5 @@
 from flask import make_response, request
-from flask.ext.restful import abort
+from flask_restful import abort
 
 from redash import models
 from redash.permissions import require_admin
