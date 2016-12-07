@@ -4,14 +4,13 @@ import codecs
 import decimal
 import datetime
 import json
-import random
 import re
 import hashlib
 import pytz
 import pystache
 
 from funcy import distinct
-
+from Crypto.Random import random
 from .human_time import parse_human_time
 from redash import settings
 
@@ -48,9 +47,7 @@ def generate_token(length):
     chars = ('abcdefghijklmnopqrstuvwxyz'
              'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
              '0123456789')
-
-    rand = random.SystemRandom()
-    return ''.join(rand.choice(chars) for x in range(length))
+    return ''.join(random.choice(chars) for x in range(length))
 
 
 class JSONEncoder(json.JSONEncoder):
