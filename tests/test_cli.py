@@ -1,19 +1,10 @@
-import textwrap
-
-from click.testing import CliRunner
 import mock
+import textwrap
+from click.testing import CliRunner
 
 from tests import BaseTestCase
 from redash.utils.configuration import ConfigurationContainer
 from redash.query_runner import query_runners
-# from redash.cli.data_sources import (edit, delete as delete_ds,
-#                                      list as list_ds, new, test)
-# from redash.cli.groups import (change_permissions, create as create_group,
-#                                list as list_group)
-# from redash.cli.organization import (list as list_org, set_google_apps_domains,
-#                                      show_google_apps_domains)
-# from redash.cli.users import (create as create_user, delete as delete_user,
-#                               grant_admin, invite, list as list_user, password)
 from redash.cli import manager
 from redash.models import DataSource, Group, Organization, User, db
 
@@ -295,7 +286,7 @@ class UserCommandTests(BaseTestCase):
         u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
-        self.assertEqual(u.group_ids, [self.factory.default_group.id])
+        self.assertEqual(u.group_ids, [u.org.default_group.id])
 
     def test_create_admin(self):
         runner = CliRunner()
@@ -307,8 +298,8 @@ class UserCommandTests(BaseTestCase):
         u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
-        self.assertEqual(u.group_ids, [self.factory.default_group.id,
-                                       self.factory.admin_group.id])
+        self.assertEqual(u.group_ids, [u.org.default_group.id,
+                                       u.org.admin_group.id])
 
     def test_create_googleauth(self):
         runner = CliRunner()
@@ -319,13 +310,13 @@ class UserCommandTests(BaseTestCase):
         u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertIsNone(u.password_hash)
-        self.assertEqual(u.group_ids, [self.factory.default_group.id])
+        self.assertEqual(u.group_ids, [u.org.default_group.id])
 
     def test_create_bad(self):
         self.factory.create_user(email='foobar@example.com')
         runner = CliRunner()
         result = runner.invoke(
-            manager, ['users', 'create' 'foobar@example.com', 'Fred Foobar'],
+            manager, ['users', 'create', 'foobar@example.com', 'Fred Foobar'],
             input="password1\npassword1\n")
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
@@ -411,6 +402,5 @@ class UserCommandTests(BaseTestCase):
         result = runner.invoke(manager, ['users', 'grant_admin', 'foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        db.session.refresh(u)
-        self.assertEqual(u.group_ids, [self.factory.default_group.id,
-                                       self.factory.admin_group.id])
+        self.assertEqual(u.group_ids, [u.org.default_group.id,
+                                       u.org.admin_group.id])
