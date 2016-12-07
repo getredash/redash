@@ -42,10 +42,10 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(dashboard.to_dict(), ('name', 'layout', 'dashboard_filters_enabled', 'updated_at', 'created_at'))
 
-    widget_list = models.Widget.select(models.Widget, models.Visualization, models.Query) \
-        .where(models.Widget.dashboard == dashboard.id) \
-        .join(models.Visualization, join_type=models.peewee.JOIN_LEFT_OUTER) \
-        .join(models.Query, join_type=models.peewee.JOIN_LEFT_OUTER)
+    widget_list = (models.Widget.query
+                   .filter(models.Widget.dashboard_id == dashboard.id)
+                   .outerjoin(models.Visualization)
+                   .outerjoin(models.Query))
     widgets = {w.id: public_widget(w) for w in widget_list}
 
     widgets_layout = []

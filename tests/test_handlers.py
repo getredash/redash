@@ -1,4 +1,4 @@
-from unittest import TestCase
+from funcy import project
 
 from flask import url_for
 from flask_login import current_user
@@ -302,3 +302,93 @@ class TestLogout(BaseTestCase):
             rv = c.get('/default/logout')
             self.assertEquals(rv.status_code, 302)
             self.assertFalse(current_user.is_authenticated)
+
+
+class TestQuerySnippet(BaseTestCase):
+    def test_create(self):
+        res = self.make_request(
+            'post',
+            '/api/query_snippets',
+            data={'trigger': 'x', 'description': 'y', 'snippet': 'z'},
+            user=self.factory.user)
+        self.assertEqual(
+            project(res.json, ['id', 'trigger', 'description', 'snippet']), {
+                'id': 1,
+                'trigger': 'x',
+                'description': 'y',
+                'snippet': 'z',
+            })
+        qs = models.QuerySnippet.query.one()
+        self.assertEqual(qs.trigger, 'x')
+        self.assertEqual(qs.description, 'y')
+        self.assertEqual(qs.snippet, 'z')
+
+    def test_edit(self):
+        qs = models.QuerySnippet(
+            trigger='a',
+            description='b',
+            snippet='c',
+            user=self.factory.user,
+            org=self.factory.org
+        )
+        models.db.session.add(qs)
+        models.db.session.commit()
+        res = self.make_request(
+            'post',
+            '/api/query_snippets/1',
+            data={'trigger': 'x', 'description': 'y', 'snippet': 'z'},
+            user=self.factory.user)
+        self.assertEqual(
+            project(res.json, ['id', 'trigger', 'description', 'snippet']), {
+                'id': 1,
+                'trigger': 'x',
+                'description': 'y',
+                'snippet': 'z',
+            })
+        self.assertEqual(qs.trigger, 'x')
+        self.assertEqual(qs.description, 'y')
+        self.assertEqual(qs.snippet, 'z')
+
+    def test_list(self):
+        qs = models.QuerySnippet(
+            trigger='x',
+            description='y',
+            snippet='z',
+            user=self.factory.user,
+            org=self.factory.org
+        )
+        models.db.session.add(qs)
+        models.db.session.commit()
+        res = self.make_request(
+            'get',
+            '/api/query_snippets',
+            user=self.factory.user)
+        self.assertEqual(res.status_code, 200)
+        data = res.json
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            project(data[0], ['id', 'trigger', 'description', 'snippet']), {
+                'id': 1,
+                'trigger': 'x',
+                'description': 'y',
+                'snippet': 'z',
+            })
+        self.assertEqual(qs.trigger, 'x')
+        self.assertEqual(qs.description, 'y')
+        self.assertEqual(qs.snippet, 'z')
+
+    def test_delete(self):
+        qs = models.QuerySnippet(
+            trigger='a',
+            description='b',
+            snippet='c',
+            user=self.factory.user,
+            org=self.factory.org
+        )
+        models.db.session.add(qs)
+        models.db.session.commit()
+        self.make_request(
+            'delete',
+            '/api/query_snippets/1',
+            user=self.factory.user)
+        self.assertEqual(models.QuerySnippet.query.count(), 0)

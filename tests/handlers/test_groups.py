@@ -1,15 +1,61 @@
+from funcy import project
+
 from tests import BaseTestCase
-from redash.models import Group, DataSource, NoResultFound
+from redash.models import Group, DataSource, NoResultFound, db
 
 
 class TestGroupDataSourceListResource(BaseTestCase):
     def test_returns_only_groups_for_current_org(self):
         group = self.factory.create_group(org=self.factory.create_org())
         data_source = self.factory.create_data_source(group=group)
-
+        db.session.flush()
         response = self.make_request('get', '/api/groups/{}/data_sources'.format(group.id), user=self.factory.create_admin())
         self.assertEqual(response.status_code, 404)
 
+    def test_list(self):
+        group = self.factory.create_group()
+        ds = self.factory.create_data_source(group=group)
+        db.session.flush()
+        response = self.make_request(
+            'get', '/api/groups/{}/data_sources'.format(group.id),
+            user=self.factory.create_admin())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json), 1)
+        self.assertEqual(response.json[0]['id'], ds.id)
+
+
+class TestGroupResourceList(BaseTestCase):
+
+    def test_list_admin(self):
+        self.factory.create_group(org=self.factory.create_org())
+        response = self.make_request('get', '/api/groups',
+                                     user=self.factory.create_admin())
+        g_keys = ['type', 'id', 'name', 'permissions']
+
+        def filtergroups(gs):
+            return [project(g, g_keys) for g in gs]
+        self.assertEqual(filtergroups(response.json),
+                         filtergroups(g.to_dict() for g in [
+                             self.factory.admin_group,
+                             self.factory.default_group]))
+
+    def test_list(self):
+        group1 = self.factory.create_group(org=self.factory.create_org(),
+                                           permissions=['view_dashboard'])
+        db.session.flush()
+        u = self.factory.create_user(group_ids=[self.factory.default_group.id,
+                                                group1.id])
+        db.session.flush()
+        response = self.make_request('get', '/api/groups',
+                                     user=u)
+        g_keys = ['type', 'id', 'name', 'permissions']
+
+        def filtergroups(gs):
+            return [project(g, g_keys) for g in gs]
+        self.assertEqual(filtergroups(response.json),
+                         filtergroups(g.to_dict() for g in [
+                             self.factory.default_group,
+                             group1]))
 
 class TestGroupResourcePost(BaseTestCase):
     def test_doesnt_change_builtin_groups(self):

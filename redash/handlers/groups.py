@@ -25,7 +25,8 @@ class GroupListResource(BaseResource):
         if self.current_user.has_permission('admin'):
             groups = models.Group.all(self.current_org)
         else:
-            groups = models.Group.select().where(models.Group.id << self.current_user.groups)
+            groups = models.Group.query.filter(
+                models.Group.id.in_(self.current_user.group_ids))
 
         return [g.to_dict() for g in groups]
 
@@ -133,12 +134,12 @@ class GroupDataSourceListResource(BaseResource):
 
     @require_admin
     def get(self, group_id):
-        group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
-
+        group = get_object_or_404(models.Group.get_by_id_and_org, group_id,
+                                  self.current_org)
         # TOOD: move to models
-        data_sources = models.DataSource.select(models.DataSource, models.DataSourceGroup.view_only)\
-            .join(models.DataSourceGroup)\
-            .where(models.DataSourceGroup.group == group)
+        data_sources = (models.DataSource.query
+                        .join(models.DataSourceGroup)
+                        .filter(models.DataSourceGroup.group == group))
 
         return [ds.to_dict(with_permissions_for=group) for ds in data_sources]
 

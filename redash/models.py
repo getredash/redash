@@ -363,10 +363,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def all(cls, org):
         return cls.query.filter(cls.org == org)
 
-    @classmethod
-    def find_by_email(cls, email):
-        return cls.select().where(cls.email == email)
-
     def __unicode__(self):
         return u'%s (%s)' % (self.name, self.email)
 
@@ -435,7 +431,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         if with_permissions_for is not None:
             d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
                 DataSourceGroup.group == with_permissions_for,
-                DataSourceGroup.data_source == self).get()
+                DataSourceGroup.data_source == self).one()
 
         return d
 
@@ -1470,7 +1466,7 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
 
     @classmethod
     def all(cls, org):
-        return cls.select().where(cls.org==org)
+        return cls.query.filter(cls.org == org)
 
     def to_dict(self):
         d = {
