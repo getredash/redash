@@ -975,10 +975,6 @@ class Change(GFKBase, db.Model):
         return d
 
     @classmethod
-    def log_change(cls, changed_by, obj):
-        return cls.create(object=obj, object_version=obj.version, user=changed_by, change=obj.changes)
-
-    @classmethod
     def last_change(cls, obj):
         return db.session.query(cls).filter(
             cls.object_id == obj.id,
