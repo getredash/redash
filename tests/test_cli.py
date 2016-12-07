@@ -193,13 +193,12 @@ class GroupCommandTests(BaseTestCase):
         gcount = Group.query.count()
         perms = ['create_query', 'edit_query', 'view_query']
         runner = CliRunner()
-        result = runner.invoke(
-            manager, ['groups', 'create', 'test', '--permissions', ','.join(perms)])
+        result = runner.invoke(manager, ['groups', 'create', 'test', '--permissions', ','.join(perms)])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(Group.query.count(), gcount + 1)
         g = Group.query.order_by(Group.id.desc()).first()
-        self.assertEqual(g.org, self.factory.org)
+        self.assertEqual(g.org_id, self.factory.org.id)
         self.assertEqual(g.permissions, perms)
 
     def test_change_permissions(self):
@@ -248,7 +247,6 @@ class OrganizationCommandTests(BaseTestCase):
         result = runner.invoke(manager, ['org', 'set_google_apps_domains', ','.join(domains)])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        # db.session.
         db.session.refresh(self.factory.org)
         self.assertEqual(self.factory.org.google_apps_domains, domains)
 

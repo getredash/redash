@@ -3,6 +3,7 @@ import json
 
 import click
 from flask.cli import FlaskGroup, run_command
+from flask import current_app
 
 from redash import create_app, settings, __version__
 from redash.cli import users, groups, database, data_sources, organization
@@ -10,7 +11,7 @@ from redash.monitor import get_status
 
 
 def create(group):
-    app = create_app()
+    app = current_app or create_app()
     group.app = app
     return app
 

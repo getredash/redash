@@ -142,6 +142,7 @@ def new(name=None, type=None, options=None, organization='default'):
     data_source = models.DataSource.create_with_group(
         name=name, type=type, options=options,
         org=models.Organization.get_by_slug(organization))
+    models.db.session.commit()
     print "Id: {}".format(data_source.id)
 
 
@@ -160,6 +161,7 @@ def delete(name, organization='default'):
             models.DataSource.org == org).one()
         print "Deleting data source: {} (id={})".format(name, data_source.id)
         models.db.session.delete(data_source)
+        models.db.session.commit()
     except NoResultFound:
         print "Couldn't find data source named: {}".format(name)
         exit(1)

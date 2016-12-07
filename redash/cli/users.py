@@ -115,6 +115,7 @@ def delete(email, organization=None):
         ).delete()
     else:
         deleted_count = models.User.query.filter(models.User.email == email).delete()
+    db.session.commit()
     print "Deleted %d users." % deleted_count
 
 
