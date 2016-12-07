@@ -189,6 +189,7 @@ class GroupCommandTests(BaseTestCase):
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(Group.query.count(), gcount + 1)
         g = Group.query.order_by(Group.id.desc()).first()
+        db.session.add(self.factory.org)
         self.assertEqual(g.org_id, self.factory.org.id)
         self.assertEqual(g.permissions, perms)
 
@@ -238,7 +239,7 @@ class OrganizationCommandTests(BaseTestCase):
         result = runner.invoke(manager, ['org', 'set_google_apps_domains', ','.join(domains)])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        db.session.refresh(self.factory.org)
+        db.session.add(self.factory.org)
         self.assertEqual(self.factory.org.google_apps_domains, domains)
 
     def test_show_google_apps_domains(self):
@@ -372,6 +373,7 @@ class UserCommandTests(BaseTestCase):
             self.assertEqual(result.exit_code, 0)
             self.assertTrue(iu.called)
             c = iu.call_args[0]
+            db.session.add_all(c)
             self.assertEqual(c[0].id, self.factory.org.id)
             self.assertEqual(c[1].id, admin.id)
             self.assertEqual(c[2].email, 'foobar@example.com')
@@ -402,5 +404,6 @@ class UserCommandTests(BaseTestCase):
         result = runner.invoke(manager, ['users', 'grant_admin', 'foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
+        db.session.add(u)
         self.assertEqual(u.group_ids, [u.org.default_group.id,
                                        u.org.admin_group.id])
