@@ -61,7 +61,6 @@ class WidgetResource(BaseResource):
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties['text']
-        widget.save()
 
         return widget.to_dict()
 

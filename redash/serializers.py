@@ -19,7 +19,7 @@ def public_widget(widget):
     }
 
     if widget.visualization and widget.visualization.id:
-        query_data = models.QueryResult.get_by_id(widget.visualization.query.latest_query_data_id).to_dict()
+        query_data = models.QueryResult.query.get(widget.visualization.query.latest_query_data_id).to_dict()
         res['visualization'] = {
             'type': widget.visualization.type,
             'name': widget.visualization.name,

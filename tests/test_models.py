@@ -262,12 +262,12 @@ class QueryArchiveTest(BaseTestCase):
 
         query.latest_query_data = query_result
         groups = list(models.Group.query.filter(models.Group.id.in_(query.groups)))
-        self.assertIn(query, list(models.Query.all_queries(groups)))
+        self.assertIn(query, list(models.Query.all_queries([g.id for g in groups])))
         self.assertIn(query, models.Query.outdated_queries())
         db.session.flush()
         query.archive()
 
-        self.assertNotIn(query, list(models.Query.all_queries(groups)))
+        self.assertNotIn(query, list(models.Query.all_queries([g.id for g in groups])))
         self.assertNotIn(query, models.Query.outdated_queries())
 
     def test_removes_associated_widgets_from_dashboards(self):
@@ -428,10 +428,10 @@ class TestQueryAll(BaseTestCase):
             models.DataSourceGroup(group=group2, data_source=ds2)
             ])
         db.session.flush()
-        self.assertIn(q1, list(models.Query.all_queries([group1])))
-        self.assertNotIn(q2, list(models.Query.all_queries([group1])))
-        self.assertIn(q1, list(models.Query.all_queries([group1, group2])))
-        self.assertIn(q2, list(models.Query.all_queries([group1, group2])))
+        self.assertIn(q1, list(models.Query.all_queries([group1.id])))
+        self.assertNotIn(q2, list(models.Query.all_queries([group1.id])))
+        self.assertIn(q1, list(models.Query.all_queries([group1.id, group2.id])))
+        self.assertIn(q2, list(models.Query.all_queries([group1.id, group2.id])))
 
 
 class TestGroup(BaseTestCase):
