@@ -1473,12 +1473,3 @@ def init_db():
     db.session.commit()
     return default_org, admin_group, default_group
 
-
-def create_db(create_tables, drop_tables):
-    # TODO: use these methods directly
-    if drop_tables:
-        db.session.rollback()
-        db.drop_all()
-
-    if create_tables:
-        db.create_all()
