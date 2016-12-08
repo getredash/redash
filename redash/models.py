@@ -557,7 +557,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def unused(cls, days=7):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
 
-        unused_results = (db.session.query(QueryResult).filter(
+        unused_results = (db.session.query(QueryResult.id).filter(
             Query.id == None, QueryResult.retrieved_at < age_threshold)
             .outerjoin(Query))
 

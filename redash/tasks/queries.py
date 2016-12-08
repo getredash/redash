@@ -332,7 +332,9 @@ def cleanup_query_results():
 
     unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
     total_unused_query_results = models.QueryResult.unused().count()
-    deleted_count = unused_query_results.delete()
+    deleted_count = models.Query.query.filter(
+        models.Query.id.in_(unused_query_results.subquery())
+    ).delete(synchronize_session=False)
     models.db.session.commit()
     logger.info("Deleted %d unused query results out of total of %d." % (deleted_count, total_unused_query_results))
 

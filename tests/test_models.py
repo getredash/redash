@@ -393,18 +393,19 @@ class TestUnusedQueryResults(BaseTestCase):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
         qr = self.factory.create_query_result()
         query = self.factory.create_query(latest_query_data=qr)
+        db.session.flush()
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
-
-        self.assertIn(unused_qr, models.QueryResult.unused())
-        self.assertNotIn(qr, models.QueryResult.unused())
+        self.assertIn((unused_qr.id,), models.QueryResult.unused())
+        self.assertNotIn((qr.id,), list(models.QueryResult.unused()))
 
     def test_returns_only_over_a_week_old_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
         unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
+        db.session.flush()
         new_unused_qr = self.factory.create_query_result()
 
-        self.assertIn(unused_qr, models.QueryResult.unused())
-        self.assertNotIn(new_unused_qr, models.QueryResult.unused())
+        self.assertIn((unused_qr.id,), models.QueryResult.unused())
+        self.assertNotIn((new_unused_qr.id,), models.QueryResult.unused())
 
 
 class TestQueryAll(BaseTestCase):
