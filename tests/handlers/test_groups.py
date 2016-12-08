@@ -57,6 +57,7 @@ class TestGroupResourceList(BaseTestCase):
                              self.factory.default_group,
                              group1]))
 
+
 class TestGroupResourcePost(BaseTestCase):
     def test_doesnt_change_builtin_groups(self):
         current_name = self.factory.default_group.name
@@ -94,3 +95,15 @@ class TestGroupResourceDelete(BaseTestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertEqual(data_source, DataSource.query.get(data_source.id))
+
+
+class TestGroupResourceGet(BaseTestCase):
+    def test_returns_group(self):
+        rv = self.make_request('get', '/api/groups/{}'.format(self.factory.default_group.id))
+        self.assertEqual(rv.status_code, 200)
+
+    def test_doesnt_return_if_user_not_member_or_admin(self):
+        rv = self.make_request('get', '/api/groups/{}'.format(self.factory.admin_group.id))
+        self.assertEqual(rv.status_code, 403)
+
+

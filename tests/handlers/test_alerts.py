@@ -63,6 +63,29 @@ class TestAlertResourceDelete(BaseTestCase):
         self.assertEqual(rv.status_code, 404)
 
 
+class TestAlertListGet(BaseTestCase):
+    def test_returns_all_alerts(self):
+        alert = self.factory.create_alert()
+        rv = self.make_request('get', "/api/alerts")
+
+        self.assertEqual(rv.status_code, 200)
+
+        alert_ids = [a['id'] for a in rv.json]
+        self.assertIn(alert.id, alert_ids)
+
+    def test_returns_alerts_only_from_users_groups(self):
+        alert = self.factory.create_alert()
+        query = self.factory.create_query(data_source=self.factory.create_data_source(group=self.factory.create_group()))
+        alert2 = self.factory.create_alert(query_rel=query)
+        rv = self.make_request('get', "/api/alerts")
+
+        self.assertEqual(rv.status_code, 200)
+
+        alert_ids = [a['id'] for a in rv.json]
+        self.assertIn(alert.id, alert_ids)
+        self.assertNotIn(alert2.id, alert_ids)
+
+
 class TestAlertListPost(BaseTestCase):
     def test_returns_200_if_has_access_to_query(self):
         query = self.factory.create_query()

@@ -15,11 +15,11 @@ from redash.permissions import (can_modify, require_admin_or_owner,
 class RecentDashboardsResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.groups, self.current_user.id, for_user=True)]
+        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.groups, self.current_user.id)]
+            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -27,7 +27,7 @@ class RecentDashboardsResource(BaseResource):
 class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        results = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user)
+        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user)
         return [q.to_dict() for q in results]
 
     @require_permission('create_dashboard')
@@ -41,6 +41,7 @@ class DashboardListResource(BaseResource):
         models.db.session.add(dashboard)
         models.db.session.commit()
         return dashboard.to_dict()
+
 
 class DashboardResource(BaseResource):
     @require_permission('list_dashboards')

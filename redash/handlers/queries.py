@@ -32,18 +32,18 @@ class QuerySearchResource(BaseResource):
     def get(self):
         term = request.args.get('q', '')
 
-        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.groups)]
+        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.group_ids)]
 
 
 class QueryRecentResource(BaseResource):
     @require_permission('view_query')
     def get(self):
-        queries = models.Query.recent(self.current_user.groups, self.current_user.id)
+        queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
         recent = [d.to_dict(with_last_modified_by=False) for d in queries]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.groups)]
+            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.group_ids)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -81,8 +81,7 @@ class QueryListResource(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        results = models.Query.all_queries([models.Group.query.get(g_id)
-                                            for g_id in self.current_user.group_ids])
+        results = models.Query.all_queries(self.current_user.group_ids)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))

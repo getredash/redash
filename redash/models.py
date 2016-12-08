@@ -727,12 +727,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     @classmethod
-    def all_queries(cls, groups, drafts=False):
+    def all_queries(cls, group_ids, drafts=False):
         q = (cls.query.join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(Query.is_archived == False)
-            .filter(DataSourceGroup.group_id.in_([g.id for g in groups]))\
+            .filter(DataSourceGroup.group_id.in_(group_ids))\
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)
             .order_by(Query.created_at.desc()))
 
@@ -745,7 +745,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def by_user(cls, user, drafts):
-        return cls.all_queries(user.groups, drafts).filter(Query.user == user)
+        return cls.all_queries(user.group_ids, drafts).filter(Query.user == user)
 
     @classmethod
     def outdated_queries(cls):

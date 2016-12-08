@@ -2,8 +2,39 @@ from tests import BaseTestCase
 from redash.models import Query, db
 
 
-class TestApiKeyGetByObject(BaseTestCase):
+class TestQueryByUser(BaseTestCase):
+    def test_returns_only_users_queries(self):
+        q = self.factory.create_query(user=self.factory.user)
+        q2 = self.factory.create_query(user=self.factory.create_user())
 
+        queries = Query.by_user(self.factory.user, False)
+
+        # not using self.assertIn/NotIn because otherwise this fails :O
+        self.assertTrue(q in queries)
+        self.assertFalse(q2 in queries)
+
+    def test_returns_drafts_if_asked_to(self):
+        q = self.factory.create_query(is_draft=True)
+        q2 = self.factory.create_query(is_draft=False)
+
+        queries = Query.by_user(self.factory.user, True)
+
+        # not using self.assertIn/NotIn because otherwise this fails :O
+        self.assertTrue(q in queries)
+        self.assertFalse(q2 in queries)
+
+    def test_returns_only_queries_from_groups_the_user_is_member_in(self):
+        q = self.factory.create_query()
+        q2 = self.factory.create_query(data_source=self.factory.create_data_source(group=self.factory.create_group()))
+
+        queries = Query.by_user(self.factory.user, False)
+
+        # not using self.assertIn/NotIn because otherwise this fails :O
+        self.assertTrue(q in queries)
+        self.assertFalse(q2 in queries)
+
+
+class TestQueryFork(BaseTestCase):
     def assert_visualizations(self, origin_q, origin_v, forked_q, forked_v):
         self.assertEqual(origin_v.options, forked_v.options)
         self.assertEqual(origin_v.type, forked_v.type)

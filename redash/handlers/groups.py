@@ -10,7 +10,8 @@ class GroupListResource(BaseResource):
     @require_admin
     def post(self):
         name = request.json['name']
-        group = models.Group.create(name=name, org=self.current_org)
+        group = models.Group(name=name, org=self.current_org)
+        models.db.session.add(group)
 
         self.record_event({
             'action': 'create',
@@ -40,7 +41,6 @@ class GroupResource(BaseResource):
             abort(400, message="Can't modify built-in groups.")
 
         group.name = request.json['name']
-        group.save()
 
         self.record_event({
             'action': 'edit',
@@ -52,7 +52,7 @@ class GroupResource(BaseResource):
         return group.to_dict()
 
     def get(self, group_id):
-        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.groups):
+        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.group_ids):
             abort(403)
 
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
@@ -75,8 +75,7 @@ class GroupMemberListResource(BaseResource):
         user_id = request.json['user_id']
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
-        user.groups.append(group.id)
-        user.save()
+        user.group_ids.append(group.id)
 
         self.record_event({
             'action': 'add_member',
@@ -90,7 +89,7 @@ class GroupMemberListResource(BaseResource):
 
     @require_permission('list_users')
     def get(self, group_id):
-        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.groups):
+        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.group_ids):
             abort(403)
 
         members = models.Group.members(group_id)
@@ -101,8 +100,7 @@ class GroupMemberResource(BaseResource):
     @require_admin
     def delete(self, group_id, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        user.groups.remove(int(group_id))
-        user.save()
+        user.group_ids.remove(int(group_id))
 
         self.record_event({
             'action': 'remove_member',
