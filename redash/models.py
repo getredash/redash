@@ -63,14 +63,7 @@ class GFKBase(object):
         self.object_id = value.id
 
 
-# # Support for cast operation on database fields
-# @peewee.Node.extend()
-# def cast(self, as_type):
-#     return peewee.Expression(self, '::', peewee.SQL(as_type))
-
-
 # XXX replace PseudoJSON and MutableDict with real JSON field
-
 class PseudoJSON(TypeDecorator):
     impl = db.Text
 
