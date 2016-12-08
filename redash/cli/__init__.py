@@ -13,6 +13,12 @@ from redash.monitor import get_status
 def create(group):
     app = current_app or create_app()
     group.app = app
+
+    @app.shell_context_processor
+    def shell_context():
+        from redash import models
+        return dict(models=models)
+
     return app
 
 
