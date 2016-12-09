@@ -25,6 +25,7 @@ from redash.permissions import has_access, view_only
 from redash.query_runner import get_query_runner, get_configuration_schema_for_query_runner_type
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
+from redash.metrics import database
 
 db = SQLAlchemy()
 Column = functools.partial(db.Column, nullable=False)
