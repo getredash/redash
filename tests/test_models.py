@@ -122,7 +122,7 @@ class QueryRecentTest(BaseTestCase):
         e = models.Event(org=self.factory.org, user=self.factory.user, action="edit",
                          object_type="query", object_id=q1.id)
         db.session.add(e)
-        recent = models.Query.recent([self.factory.default_group])
+        recent = models.Query.recent([self.factory.default_group.id])
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
 
@@ -138,7 +138,7 @@ class QueryRecentTest(BaseTestCase):
                          action="edit", object_type="query",
                          object_id=q2.id)
         ])
-        recent = models.Query.recent([self.factory.default_group])
+        recent = models.Query.recent([self.factory.default_group.id])
 
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
@@ -150,12 +150,12 @@ class QueryRecentTest(BaseTestCase):
         e = models.Event(org=self.factory.org, user=self.factory.user, action="edit",
                          object_type="query", object_id=q1.id)
         db.session.add(e)
-        recent = models.Query.recent([self.factory.default_group], user_id=self.factory.user.id)
+        recent = models.Query.recent([self.factory.default_group.id], user_id=self.factory.user.id)
 
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
 
-        recent = models.Query.recent([self.factory.default_group], user_id=self.factory.user.id + 1)
+        recent = models.Query.recent([self.factory.default_group.id], user_id=self.factory.user.id + 1)
         self.assertNotIn(q1, recent)
         self.assertNotIn(q2, recent)
 
@@ -169,7 +169,7 @@ class QueryRecentTest(BaseTestCase):
         models.Event(org=self.factory.org, user=self.factory.user, action="edit",
                      object_type="query", object_id=q2.id)
 
-        recent = models.Query.recent([self.factory.default_group])
+        recent = models.Query.recent([self.factory.default_group.id])
 
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
