@@ -19,7 +19,7 @@ def public_widget(widget):
     }
 
     if widget.visualization and widget.visualization.id:
-        query_data = models.QueryResult.get_by_id(widget.visualization.query.latest_query_data_id).to_dict()
+        query_data = models.QueryResult.query.get(widget.visualization.query.latest_query_data_id).to_dict()
         res['visualization'] = {
             'type': widget.visualization.type,
             'name': widget.visualization.name,
@@ -42,10 +42,10 @@ def public_widget(widget):
 def public_dashboard(dashboard):
     dashboard_dict = project(dashboard.to_dict(), ('name', 'layout', 'dashboard_filters_enabled', 'updated_at', 'created_at'))
 
-    widget_list = models.Widget.select(models.Widget, models.Visualization, models.Query) \
-        .where(models.Widget.dashboard == dashboard.id) \
-        .join(models.Visualization, join_type=models.peewee.JOIN_LEFT_OUTER) \
-        .join(models.Query, join_type=models.peewee.JOIN_LEFT_OUTER)
+    widget_list = (models.Widget.query
+                   .filter(models.Widget.dashboard_id == dashboard.id)
+                   .outerjoin(models.Visualization)
+                   .outerjoin(models.Query))
     widgets = {w.id: public_widget(w) for w in widget_list}
 
     widgets_layout = []

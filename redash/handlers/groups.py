@@ -10,7 +10,8 @@ class GroupListResource(BaseResource):
     @require_admin
     def post(self):
         name = request.json['name']
-        group = models.Group.create(name=name, org=self.current_org)
+        group = models.Group(name=name, org=self.current_org)
+        models.db.session.add(group)
 
         self.record_event({
             'action': 'create',
@@ -25,7 +26,8 @@ class GroupListResource(BaseResource):
         if self.current_user.has_permission('admin'):
             groups = models.Group.all(self.current_org)
         else:
-            groups = models.Group.select().where(models.Group.id << self.current_user.groups)
+            groups = models.Group.query.filter(
+                models.Group.id.in_(self.current_user.group_ids))
 
         return [g.to_dict() for g in groups]
 
@@ -39,7 +41,6 @@ class GroupResource(BaseResource):
             abort(400, message="Can't modify built-in groups.")
 
         group.name = request.json['name']
-        group.save()
 
         self.record_event({
             'action': 'edit',
@@ -51,7 +52,7 @@ class GroupResource(BaseResource):
         return group.to_dict()
 
     def get(self, group_id):
-        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.groups):
+        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.group_ids):
             abort(403)
 
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
@@ -64,7 +65,8 @@ class GroupResource(BaseResource):
         if group.type == models.Group.BUILTIN_GROUP:
             abort(400, message="Can't delete built-in groups.")
 
-        group.delete_instance(recursive=True)
+        models.db.session.delete(group)
+        models.db.session.commit()
 
 
 class GroupMemberListResource(BaseResource):
@@ -73,8 +75,7 @@ class GroupMemberListResource(BaseResource):
         user_id = request.json['user_id']
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
-        user.groups.append(group.id)
-        user.save()
+        user.group_ids.append(group.id)
 
         self.record_event({
             'action': 'add_member',
@@ -88,7 +89,7 @@ class GroupMemberListResource(BaseResource):
 
     @require_permission('list_users')
     def get(self, group_id):
-        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.groups):
+        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.group_ids):
             abort(403)
 
         members = models.Group.members(group_id)
@@ -99,8 +100,7 @@ class GroupMemberResource(BaseResource):
     @require_admin
     def delete(self, group_id, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        user.groups.remove(int(group_id))
-        user.save()
+        user.group_ids.remove(int(group_id))
 
         self.record_event({
             'action': 'remove_member',
@@ -128,18 +128,18 @@ class GroupDataSourceListResource(BaseResource):
             'member_id': data_source.id
         })
 
-        return data_source.to_dict(with_permissions=True)
+        return data_source.to_dict(with_permissions_for=group)
 
     @require_admin
     def get(self, group_id):
-        group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
-
+        group = get_object_or_404(models.Group.get_by_id_and_org, group_id,
+                                  self.current_org)
         # TOOD: move to models
-        data_sources = models.DataSource.select(models.DataSource, models.DataSourceGroup.view_only)\
-            .join(models.DataSourceGroup)\
-            .where(models.DataSourceGroup.group == group)
+        data_sources = (models.DataSource.query
+                        .join(models.DataSourceGroup)
+                        .filter(models.DataSourceGroup.group == group))
 
-        return [ds.to_dict(with_permissions=True) for ds in data_sources]
+        return [ds.to_dict(with_permissions_for=group) for ds in data_sources]
 
 
 class GroupDataSourceResource(BaseResource):
@@ -160,7 +160,7 @@ class GroupDataSourceResource(BaseResource):
             'view_only': view_only
         })
 
-        return data_source.to_dict(with_permissions=True)
+        return data_source.to_dict(with_permissions_for=group)
 
     @require_admin
     def delete(self, group_id, data_source_id):

@@ -22,15 +22,15 @@ class WidgetAPITest(BaseTestCase):
         rv = self.create_widget(dashboard, vis)
         self.assertEquals(rv.status_code, 200)
 
-        dashboard = models.Dashboard.get(models.Dashboard.id == dashboard.id)
+        dashboard = models.Dashboard.query.get(dashboard.id)
         self.assertEquals(unicode(rv.json['layout']), dashboard.layout)
 
-        self.assertEquals(dashboard.widgets, 1)
+        self.assertEquals(dashboard.widgets.count(), 1)
         self.assertEquals(rv.json['layout'], [[rv.json['widget']['id']]])
         self.assertEquals(rv.json['new_row'], True)
 
         rv2 = self.create_widget(dashboard, vis)
-        self.assertEquals(dashboard.widgets, 2)
+        self.assertEquals(dashboard.widgets.count(), 2)
         self.assertEquals(rv2.json['layout'],
                           [[rv.json['widget']['id'], rv2.json['widget']['id']]])
         self.assertEquals(rv2.json['new_row'], False)
@@ -48,8 +48,9 @@ class WidgetAPITest(BaseTestCase):
         dashboard = self.factory.create_dashboard()
         vis = self.factory.create_visualization()
         ds = self.factory.create_data_source(group=self.factory.create_group())
-        vis.query.data_source = ds
-        vis.query.save()
+        vis.query_rel.data_source = ds
+
+        models.db.session.add(vis.query_rel)
 
         data = {
             'visualization_id': vis.id,

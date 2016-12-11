@@ -2,13 +2,15 @@ from sys import exit
 import json
 
 import click
+from flask.cli import AppGroup
+from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 from redash.query_runner import query_runners
 from redash.query_runner import get_configuration_schema_for_query_runner_type
 from redash.utils.configuration import ConfigurationContainer
 
-manager = click.Group(help="Data sources management commands.")
+manager = AppGroup(help="Data sources management commands.")
 
 
 @manager.command()
@@ -19,9 +21,10 @@ def list(organization=None):
     """List currently configured data sources."""
     if organization:
         org = models.Organization.get_by_slug(organization)
-        data_sources = models.DataSource.select().where(models.DataSource.org==org.id)
+        data_sources = models.DataSource.query.filter(
+            models.DataSource.org == org)
     else:
-        data_sources = models.DataSource.select()
+        data_sources = models.DataSource.query
     for i, ds in enumerate(data_sources):
         if i > 0:
             print "-" * 20
@@ -34,7 +37,8 @@ def validate_data_source_type(type):
     if type not in query_runners.keys():
         print ("Error: the type \"{}\" is not supported (supported types: {})."
                .format(type, ", ".join(query_runners.keys())))
-        exit()
+        print "OJNK"
+        exit(1)
 
 
 @manager.command()
@@ -46,10 +50,9 @@ def test(name, organization='default'):
     """Test connection to data source by issuing a trivial query."""
     try:
         org = models.Organization.get_by_slug(organization)
-        data_source = models.DataSource.get(
+        data_source = models.DataSource.query.filter(
             models.DataSource.name == name,
-            models.DataSource.org == org,
-        )
+            models.DataSource.org == org).one()
         print "Testing connection to data source: {} (id={})".format(
             name, data_source.id)
         try:
@@ -59,7 +62,7 @@ def test(name, organization='default'):
             exit(1)
         else:
             print "Success"
-    except models.DataSource.DoesNotExist:
+    except NoResultFound:
         print "Couldn't find data source named: {}".format(name)
         exit(1)
 
@@ -136,6 +139,7 @@ def new(name=None, type=None, options=None, organization='default'):
     data_source = models.DataSource.create_with_group(
         name=name, type=type, options=options,
         org=models.Organization.get_by_slug(organization))
+    models.db.session.commit()
     print "Id: {}".format(data_source.id)
 
 
@@ -148,13 +152,13 @@ def delete(name, organization='default'):
     """Delete data source by name."""
     try:
         org = models.Organization.get_by_slug(organization)
-        data_source = models.DataSource.get(
-            models.DataSource.name==name,
-            models.DataSource.org==org,
-        )
+        data_source = models.DataSource.query.filter(
+            models.DataSource.name == name,
+            models.DataSource.org == org).one()
         print "Deleting data source: {} (id={})".format(name, data_source.id)
-        data_source.delete_instance(recursive=True)
-    except models.DataSource.DoesNotExist:
+        models.db.session.delete(data_source)
+        models.db.session.commit()
+    except NoResultFound:
         print "Couldn't find data source named: {}".format(name)
         exit(1)
 
@@ -183,10 +187,9 @@ def edit(name, new_name=None, options=None, type=None, organization='default'):
         if type is not None:
             validate_data_source_type(type)
         org = models.Organization.get_by_slug(organization)
-        data_source = models.DataSource.get(
-            models.DataSource.name==name,
-            models.DataSource.org==org,
-        )
+        data_source = models.DataSource.query.filter(
+            models.DataSource.name == name,
+            models.DataSource.org == org).one()
         update_attr(data_source, "name", new_name)
         update_attr(data_source, "type", type)
 
@@ -197,7 +200,8 @@ def edit(name, new_name=None, options=None, type=None, organization='default'):
             data_source.options.set_schema(schema)
             data_source.options.update(options)
 
-        data_source.save()
+        models.db.session.add(data_source)
+        models.db.session.commit()
 
-    except models.DataSource.DoesNotExist:
+    except NoResultFound:
         print "Couldn't find data source named: {}".format(name)

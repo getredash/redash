@@ -5,6 +5,8 @@ from flask import jsonify, request
 from flask_login import login_required
 from flask_restful import abort
 from funcy import distinct, take
+from sqlalchemy.orm.exc import StaleDataError
+
 from redash import models
 from redash.handlers.base import (BaseResource, get_object_or_404,
                                   org_scoped_rule, paginate, routes)
@@ -30,18 +32,18 @@ class QuerySearchResource(BaseResource):
     def get(self):
         term = request.args.get('q', '')
 
-        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.groups)]
+        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.group_ids)]
 
 
 class QueryRecentResource(BaseResource):
     @require_permission('view_query')
     def get(self):
-        queries = models.Query.recent(self.current_user.groups, self.current_user.id)
+        queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
         recent = [d.to_dict(with_last_modified_by=False) for d in queries]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.groups)]
+            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.group_ids)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -60,11 +62,14 @@ class QueryListResource(BaseResource):
         if 'latest_query_data_id' in query_def:
             query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
 
+        query_def['query_text'] = query_def.pop('query')
         query_def['user'] = self.current_user
         query_def['data_source'] = data_source
         query_def['org'] = self.current_org
         query_def['is_draft'] = True
         query = models.Query.create(**query_def)
+        models.db.session.add(query)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'create',
@@ -76,7 +81,7 @@ class QueryListResource(BaseResource):
 
     @require_permission('view_query')
     def get(self):
-        results = models.Query.all_queries(self.current_user.groups)
+        results = models.Query.all_queries(self.current_user.group_ids)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
@@ -103,18 +108,21 @@ class QueryResource(BaseResource):
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by', 'org']:
             query_def.pop(field, None)
 
-        if 'latest_query_data_id' in query_def:
-            query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
-
-        if 'data_source_id' in query_def:
-            query_def['data_source'] = query_def.pop('data_source_id')
+        if 'query' in query_def:
+            query_def['query_text'] = query_def.pop('query')
 
         query_def['last_modified_by'] = self.current_user
         query_def['changed_by'] = self.current_user
+        # SQLAlchemy handles the case where a concurrent transaction beats us
+        # to the update. But we still have to make sure that we're not starting
+        # out behind.
+        if 'version' in query_def and query_def['version'] != query.version:
+            abort(409)
 
         try:
-            query.update_instance(**query_def)
-        except models.ConflictDetectedError:
+            self.update_model(query, query_def)
+            models.db.session.commit()
+        except StaleDataError:
             abort(409)
 
         result = query.to_dict(with_visualizations=True)
@@ -151,4 +159,4 @@ class QueryRefreshResource(BaseResource):
 
         parameter_values = collect_parameters_from_request(request.args)
 
-        return run_query(query.data_source, parameter_values, query.query, query.id)
+        return run_query(query.data_source, parameter_values, query.query_text, query.id)

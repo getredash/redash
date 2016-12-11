@@ -111,7 +111,7 @@ class QueryResultResource(BaseResource):
         if query_result_id is None and query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
             if query:
-                query_result_id = query._data['latest_query_data']
+                query_result_id = query.latest_query_data_id
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)

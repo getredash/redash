@@ -262,7 +262,7 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                enqueue_query(query.query, query.data_source, query.user_id,
+                enqueue_query(query.query_text, query.data_source, query.user_id,
                               scheduled=True,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 
@@ -332,8 +332,10 @@ def cleanup_query_results():
 
     unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
     total_unused_query_results = models.QueryResult.unused().count()
-    deleted_count = models.QueryResult.delete().where(models.QueryResult.id << unused_query_results).execute()
-
+    deleted_count = models.Query.query.filter(
+        models.Query.id.in_(unused_query_results.subquery())
+    ).delete(synchronize_session=False)
+    models.db.session.commit()
     logger.info("Deleted %d unused query results out of total of %d." % (deleted_count, total_unused_query_results))
 
 
@@ -349,7 +351,7 @@ def refresh_schemas():
 
     logger.info(u"task=refresh_schemas state=start")
 
-    for ds in models.DataSource.select():
+    for ds in models.DataSource.query:
         if ds.paused:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
         elif ds.id in blacklist:
@@ -385,7 +387,7 @@ class QueryExecutor(object):
         self.metadata = metadata
         self.data_source = self._load_data_source()
         if user_id is not None:
-            self.user = models.User.get_by_id(user_id)
+            self.user = models.User.query.get(user_id)
         else:
             self.user = None
         self.query_hash = gen_query_hash(self.query)
@@ -424,16 +426,17 @@ class QueryExecutor(object):
             self.tracker.update(state='failed')
             result = QueryExecutionError(error)
         else:
-            query_result, updated_query_ids = models.QueryResult.store_result(self.data_source.org_id, self.data_source.id,
-                                                                              self.query_hash, self.query, data,
-                                                                              run_time, utils.utcnow())
+            query_result, updated_query_ids = models.QueryResult.store_result(
+                self.data_source.org, self.data_source,
+                self.query_hash, self.query, data,
+                run_time, utils.utcnow())
             self._log_progress('checking_alerts')
             for query_id in updated_query_ids:
                 check_alerts_for_query.delay(query_id)
             self._log_progress('finished')
 
             result = query_result.id
-
+        models.db.session.commit()
         return result
 
     def _annotate_query(self, query_runner):
@@ -457,7 +460,7 @@ class QueryExecutor(object):
 
     def _load_data_source(self):
         logger.info("task=execute_query state=load_ds ds_id=%d", self.data_source_id)
-        return models.DataSource.get_by_id(self.data_source_id)
+        return models.DataSource.query.get(self.data_source_id)
 
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted

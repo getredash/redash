@@ -36,9 +36,10 @@ def sign(key, path, expires):
 
 @login_manager.user_loader
 def load_user(user_id):
+    org = current_org._get_current_object()
     try:
-        return models.User.get_by_id_and_org(user_id, current_org.id)
-    except models.User.DoesNotExist:
+        return models.User.get_by_id_and_org(user_id, org)
+    except models.NoResultFound:
         return None
 
 
@@ -51,14 +52,14 @@ def hmac_load_user_from_request(request):
     # TODO: 3600 should be a setting
     if signature and time.time() < expires <= time.time() + 3600:
         if user_id:
-            user = models.User.get_by_id(user_id)
+            user = models.User.query.get(user_id)
             calculated_signature = sign(user.api_key, request.path, expires)
 
             if user.api_key and signature == calculated_signature:
                 return user
 
         if query_id:
-            query = models.Query.get(models.Query.id == query_id)
+            query = models.db.session.query(models.Query).filter(models.Query.id == query_id).one()
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
@@ -74,15 +75,16 @@ def get_user_from_api_key(api_key, query_id):
     user = None
 
     # TODO: once we switch all api key storage into the ApiKey model, this code will be much simplified
+    org = current_org._get_current_object()
     try:
-        user = models.User.get_by_api_key_and_org(api_key, current_org.id)
-    except models.User.DoesNotExist:
+        user = models.User.get_by_api_key_and_org(api_key, org)
+    except models.NoResultFound:
         try:
             api_key = models.ApiKey.get_by_api_key(api_key)
             user = models.ApiUser(api_key, api_key.org, [])
-        except models.ApiKey.DoesNotExist:
+        except models.NoResultFound:
             if query_id:
-                query = models.Query.get_by_id_and_org(query_id, current_org.id)
+                query = models.Query.get_by_id_and_org(query_id, org)
                 if query and query.api_key == api_key:
                     user = models.ApiUser(api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
 
@@ -105,7 +107,6 @@ def get_api_key_from_request(request):
 def api_key_load_user_from_request(request):
     api_key = get_api_key_from_request(request)
     query_id = request.view_args.get('query_id', None)
-
     user = get_user_from_api_key(api_key, query_id)
     return user
 

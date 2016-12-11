@@ -1,10 +1,9 @@
-from collections import namedtuple
-import time
 import logging
+import time
+from collections import namedtuple
 
-from flask import request, g
+from flask import g, request
 from redash import statsd_client
-from redash.models import db
 
 metrics_logger = logging.getLogger("metrics")
 
@@ -18,6 +17,8 @@ def calculate_metrics(response):
         return response
 
     request_duration = (time.time() - g.start_time) * 1000
+    queries_duration = g.get('queries_duration', 0.0)
+    queries_count = g.get('queries_count', 0.0)
 
     metrics_logger.info("method=%s path=%s endpoint=%s status=%d content_type=%s content_length=%d duration=%.2f query_count=%d query_duration=%.2f",
                         request.method,
@@ -27,8 +28,8 @@ def calculate_metrics(response):
                         response.content_type,
                         response.content_length,
                         request_duration,
-                        db.database.query_count,
-                        db.database.query_duration)
+                        queries_count,
+                        queries_duration)
 
     statsd_client.timing('requests.{}.{}'.format(request.endpoint, request.method.lower()), request_duration)
 

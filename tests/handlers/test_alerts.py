@@ -1,5 +1,5 @@
 from tests import BaseTestCase
-from redash.models import AlertSubscription, Alert
+from redash.models import AlertSubscription, Alert, db
 
 
 class TestAlertResourceGet(BaseTestCase):
@@ -12,8 +12,8 @@ class TestAlertResourceGet(BaseTestCase):
     def test_returns_403_if_not_allowed(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
-        alert = self.factory.create_alert(query=query)
-
+        alert = self.factory.create_alert(query_rel=query)
+        db.session.commit()
         rv = self.make_request('get', "/api/alerts/{}".format(alert.id))
         self.assertEqual(rv.status_code, 403)
 
@@ -27,16 +27,22 @@ class TestAlertResourceGet(BaseTestCase):
         self.assertEqual(rv.status_code, 404)
 
 
+class TestAlertResourcePost(BaseTestCase):
+    def test_updates_alert(self):
+        alert = self.factory.create_alert()
+        rv = self.make_request('post', '/api/alerts/{}'.format(alert.id), data={"name": "Testing"})
+
+
 class TestAlertResourceDelete(BaseTestCase):
     def test_removes_alert_and_subscriptions(self):
         subscription = self.factory.create_alert_subscription()
         alert = subscription.alert
-
+        db.session.commit()
         rv = self.make_request('delete', "/api/alerts/{}".format(alert.id))
         self.assertEqual(rv.status_code, 200)
 
-        self.assertRaises(Alert.DoesNotExist, Alert.get_by_id, subscription.alert.id)
-        self.assertRaises(AlertSubscription.DoesNotExist, AlertSubscription.get_by_id, subscription.id)
+        self.assertEqual(Alert.query.get(subscription.alert.id), None)
+        self.assertEqual(AlertSubscription.query.get(subscription.id), None)
 
     def test_returns_403_if_not_allowed(self):
         alert = self.factory.create_alert()
@@ -57,11 +63,34 @@ class TestAlertResourceDelete(BaseTestCase):
         self.assertEqual(rv.status_code, 404)
 
 
+class TestAlertListGet(BaseTestCase):
+    def test_returns_all_alerts(self):
+        alert = self.factory.create_alert()
+        rv = self.make_request('get', "/api/alerts")
+
+        self.assertEqual(rv.status_code, 200)
+
+        alert_ids = [a['id'] for a in rv.json]
+        self.assertIn(alert.id, alert_ids)
+
+    def test_returns_alerts_only_from_users_groups(self):
+        alert = self.factory.create_alert()
+        query = self.factory.create_query(data_source=self.factory.create_data_source(group=self.factory.create_group()))
+        alert2 = self.factory.create_alert(query_rel=query)
+        rv = self.make_request('get', "/api/alerts")
+
+        self.assertEqual(rv.status_code, 200)
+
+        alert_ids = [a['id'] for a in rv.json]
+        self.assertIn(alert.id, alert_ids)
+        self.assertNotIn(alert2.id, alert_ids)
+
+
 class TestAlertListPost(BaseTestCase):
     def test_returns_200_if_has_access_to_query(self):
         query = self.factory.create_query()
         destination = self.factory.create_destination()
-
+        db.session.commit()
         rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id,
                                                                 destination_id=destination.id, options={}))
         self.assertEqual(rv.status_code, 200)
@@ -70,7 +99,7 @@ class TestAlertListPost(BaseTestCase):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
         destination = self.factory.create_destination()
-
+        db.session.commit()
         rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id,
                                                                 destination_id=destination.id, options={}))
         self.assertEqual(rv.status_code, 403)
@@ -88,7 +117,7 @@ class TestAlertSubscriptionListResourcePost(BaseTestCase):
     def test_doesnt_subscribers_user_to_alert_without_access(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
-        alert = self.factory.create_alert(query=query)
+        alert = self.factory.create_alert(query_rel=query)
         destination = self.factory.create_destination()
 
         rv = self.make_request('post', "/api/alerts/{}/subscriptions".format(alert.id), data=dict(destination_id=destination.id))
@@ -106,7 +135,7 @@ class TestAlertSubscriptionListResourceGet(BaseTestCase):
     def test_doesnt_return_subscribers_when_not_allowed(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=data_source)
-        alert = self.factory.create_alert(query=query)
+        alert = self.factory.create_alert(query_rel=query)
 
         rv = self.make_request('get', "/api/alerts/{}/subscriptions".format(alert.id))
         self.assertEqual(rv.status_code, 403)
@@ -117,7 +146,8 @@ class TestAlertSubscriptionresourceDelete(BaseTestCase):
         subscription = self.factory.create_alert_subscription()
         alert = subscription.alert
         user = subscription.user
-        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, subscription.id)
+        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id,
+                                                        subscription.id)
 
         other_user = self.factory.create_user()
 
@@ -127,7 +157,11 @@ class TestAlertSubscriptionresourceDelete(BaseTestCase):
         response = self.make_request('delete', path, user=user)
         self.assertEqual(response.status_code, 200)
 
-        subscription_two = AlertSubscription.create(alert=alert, user=other_user)
-        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id, subscription_two.id)
-        response = self.make_request('delete', path, user=self.factory.create_admin())
+        subscription_two = AlertSubscription(alert=alert, user=other_user)
+        admin_user = self.factory.create_admin()
+        db.session.add_all([subscription_two, admin_user])
+        db.session.commit()
+        path = '/api/alerts/{}/subscriptions/{}'.format(alert.id,
+                                                        subscription_two.id)
+        response = self.make_request('delete', path, user=admin_user)
         self.assertEqual(response.status_code, 200)

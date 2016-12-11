@@ -3,6 +3,9 @@ import logging
 
 from flask import flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+
+from sqlalchemy.orm.exc import NoResultFound
+
 from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url
 from redash.authentication.account import (BadSignature, SignatureExpired,
@@ -26,8 +29,9 @@ def get_google_auth_url(next_path):
 def render_token_login_page(template, org_slug, token):
     try:
         user_id = validate_token(token)
-        user = models.User.get_by_id_and_org(user_id, current_org)
-    except models.User.DoesNotExist:
+        org = current_org._get_current_object()
+        user = models.User.get_by_id_and_org(user_id, org)
+    except NoResultFound:
         logger.exception("Bad user id in token. Token= , User id= %s, Org=%s", user_id, token, org_slug)
         return render_template("error.html", error_message="Invalid invite link. Please ask for a new one."), 400
     except (SignatureExpired, BadSignature):
@@ -48,9 +52,9 @@ def render_token_login_page(template, org_slug, token):
         else:
             # TODO: set active flag
             user.hash_password(request.form['password'])
-            user.save()
-
+            models.db.session.add(user)
             login_user(user)
+            models.db.session.commit()
             return redirect(url_for('redash.index', org_slug=org_slug))
     if settings.GOOGLE_OAUTH_ENABLED:
         google_auth_url = get_google_auth_url(url_for('redash.index', org_slug=org_slug))
@@ -76,9 +80,10 @@ def forgot_password(org_slug=None):
         submitted = True
         email = request.form['email']
         try:
-            user = models.User.get_by_email_and_org(email, current_org)
+            org = current_org._get_current_object()
+            user = models.User.get_by_email_and_org(email, org)
             send_password_reset_email(user)
-        except models.User.DoesNotExist:
+        except NoResultFound:
             logging.error("No user found for forgot password: %s", email)
 
     return render_template("forgot.html", submitted=submitted)
@@ -89,7 +94,6 @@ def forgot_password(org_slug=None):
 def login(org_slug=None):
     index_url = url_for("redash.index", org_slug=org_slug)
     next_path = request.args.get('next', index_url)
-
     if current_user.is_authenticated:
         return redirect(next_path)
 
@@ -103,14 +107,15 @@ def login(org_slug=None):
 
     if request.method == 'POST':
         try:
-            user = models.User.get_by_email_and_org(request.form['email'], current_org.id)
+            org = current_org._get_current_object()
+            user = models.User.get_by_email_and_org(request.form['email'], org)
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(next_path)
             else:
                 flash("Wrong email or password.")
-        except models.User.DoesNotExist:
+        except NoResultFound:
             flash("Wrong email or password.")
 
     google_auth_url = get_google_auth_url(next_path)
@@ -177,7 +182,7 @@ def session(org_slug=None):
             'id': current_user.id,
             'name': current_user.name,
             'email': current_user.email,
-            'groups': current_user.groups,
+            'groups': current_user.group_ids,
             'permissions': current_user.permissions
         }
     else:

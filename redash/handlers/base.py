@@ -3,7 +3,9 @@ import time
 from flask import Blueprint, current_app, request
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
-from peewee import DoesNotExist
+
+from sqlalchemy.orm.exc import NoResultFound
+
 from redash import settings
 from redash.authentication import current_org
 from redash.models import ApiUser
@@ -35,6 +37,11 @@ class BaseResource(Resource):
 
     def record_event(self, options):
         record_event(self.current_org, self.current_user, options)
+
+    # TODO: this should probably be somewhere else
+    def update_model(self, model, updates):
+        for k, v in updates.items():
+            setattr(model, k, v)
 
 
 def record_event(org, user, options):
@@ -68,9 +75,12 @@ def require_fields(req, fields):
 
 def get_object_or_404(fn, *args, **kwargs):
     try:
-        return fn(*args, **kwargs)
-    except DoesNotExist:
+        rv = fn(*args, **kwargs)
+        if rv is None:
+            abort(404)
+    except NoResultFound:
         abort(404)
+    return rv
 
 
 def paginate(query_set, page, page_size, serializer):
@@ -91,7 +101,7 @@ def paginate(query_set, page, page_size, serializer):
         'count': count,
         'page': page,
         'page_size': page_size,
-        'results': [serializer(result) for result in results],
+        'results': [serializer(result) for result in results.items],
     }
 
 
