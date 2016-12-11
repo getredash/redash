@@ -39,7 +39,7 @@ class QueryTest(BaseTestCase):
         q1 = self.factory.create_query(name=u"Testing seåřċħ")
         q2 = self.factory.create_query(name=u"Testing seåřċħing")
         q3 = self.factory.create_query(name=u"Testing seå řċħ")
-        queries = list(models.Query.search(u"seåřċħ", [self.factory.default_group]))
+        queries = list(models.Query.search(u"seåřċħ", [self.factory.default_group.id]))
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -50,7 +50,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description=u"Testing seåřċħing")
         q3 = self.factory.create_query(description=u"Testing seå řċħ")
 
-        queries = models.Query.search(u"seåřċħ", [self.factory.default_group])
+        queries = models.Query.search(u"seåřċħ", [self.factory.default_group.id])
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -61,7 +61,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing searching")
         q3 = self.factory.create_query(description="Testing sea rch")
         db.session.flush()
-        queries = models.Query.search(str(q3.id), [self.factory.default_group])
+        queries = models.Query.search(str(q3.id), [self.factory.default_group.id])
 
         self.assertIn(q3, queries)
         self.assertNotIn(q1, queries)
@@ -76,18 +76,18 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing searching")
         q3 = self.factory.create_query(description="Testing sea rch")
 
-        queries = list(models.Query.search("Testing", [self.factory.default_group]))
+        queries = list(models.Query.search("Testing", [self.factory.default_group.id]))
 
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
 
-        queries = list(models.Query.search("Testing", [other_group, self.factory.default_group]))
+        queries = list(models.Query.search("Testing", [other_group.id, self.factory.default_group.id]))
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
 
-        queries = list(models.Query.search("Testing", [other_group]))
+        queries = list(models.Query.search("Testing", [other_group.id]))
         self.assertIn(q1, queries)
         self.assertNotIn(q2, queries)
         self.assertNotIn(q3, queries)
@@ -100,7 +100,7 @@ class QueryTest(BaseTestCase):
 
         q1 = self.factory.create_query(description="Testing search", data_source=ds)
         db.session.flush()
-        queries = list(models.Query.search("Testing", [self.factory.default_group, other_group, second_group]))
+        queries = list(models.Query.search("Testing", [self.factory.default_group.id, other_group.id, second_group.id]))
 
         self.assertEqual(1, len(queries))
 

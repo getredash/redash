@@ -765,7 +765,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, groups):
+    def search(cls, term, group_ids):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
         where = (Query.name.like(u"%{}%".format(term)) |
                  Query.description.like(u"%{}%".format(term)))
@@ -774,7 +774,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             where |= Query.id == term
 
         where &= Query.is_archived == False
-        where &= DataSourceGroup.group_id.in_([g.id for g in groups])
+        where &= DataSourceGroup.group_id.in_(group_ids)
         query_ids = (
             db.session.query(Query.id).join(
                 DataSourceGroup,
@@ -785,7 +785,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             Query.id.in_(query_ids))
 
     @classmethod
-    def recent(cls, groups, user_id=None, limit=20):
+    def recent(cls, group_ids, user_id=None, limit=20):
         query = (cls.query.join(User, Query.user_id == User.id)
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
@@ -795,7 +795,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                                        'edit_description', 'view_source']),
                      Event.object_id != None,
                      Event.object_type == 'query',
-                     DataSourceGroup.group_id.in_([g.id for g in groups]),
+                     DataSourceGroup.group_id.in_(group_ids),
                      Query.is_draft == False,
                      Query.is_archived == False)
                  .group_by(Event.object_id, Query.id, User.id)
