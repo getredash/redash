@@ -1110,6 +1110,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             # to the widget).
             widgets_layout = []
             for row in layout:
+                if not row:
+                    continue
                 new_row = []
                 for widget_id in row:
                     widget = widgets.get(widget_id, None)
