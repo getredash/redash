@@ -62,7 +62,7 @@ class ClickHouse(BaseSQLQueryRunner):
         return schema.values()
 
     def _send_query(self, data, stream=False):
-        r = requests.post(self.configuration['url'], data=data, stream=stream, params={
+        r = requests.post(self.configuration['url'], data=data.encode("utf-8"), stream=stream, params={
             'user': self.configuration['user'], 'password':  self.configuration['password'],
             'database': self.configuration['dbname']
         })
