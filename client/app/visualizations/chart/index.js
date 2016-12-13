@@ -51,10 +51,17 @@ function ChartEditor(clientConfig) {
     link(scope) {
       scope.currentTab = 'general';
 
+      scope.clearGroupBy = () => { delete scope.form.groupby; };
+      scope.clearErrorColumn = () => { delete scope.form.errorColumn; };
+
       scope.stackingOptions = {
         Disabled: null,
         Enabled: 'normal',
         Percent: 'percent',
+      };
+
+      scope.changeTab = (tab) => {
+        scope.currentTab = tab;
       };
 
       scope.chartTypes = {
@@ -73,8 +80,8 @@ function ChartEditor(clientConfig) {
       scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
 
       scope.chartTypeChanged = () => {
-        scope.options.seriesOptions.forEach((options) => {
-          options.type = scope.options.globalSeriesType;
+        keys(scope.options.seriesOptions).forEach((key) => {
+          scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
       };
 
@@ -177,6 +184,16 @@ function ChartEditor(clientConfig) {
         if (value !== undefined) { setColumnRole('x', value); }
       });
 
+      scope.$watch('form.errorColumn', (value, old) => {
+        if (old !== undefined) {
+          unsetColumn(old);
+        }
+        if (value !== undefined) {
+          setColumnRole('yError', value);
+        }
+      });
+
+
       scope.$watch('form.groupby', (value, old) => {
         if (old !== undefined) {
           unsetColumn(old);
@@ -205,6 +222,8 @@ function ChartEditor(clientConfig) {
             scope.form.yAxisColumns.push(key);
           } else if (value === 'series') {
             scope.form.groupby = key;
+          } else if (value === 'yError') {
+            scope.form.errorColumn = key;
           }
         });
       }
@@ -233,7 +252,8 @@ export default function (ngModule) {
       legend: { enabled: true },
       yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
       xAxis: { type: 'datetime', labels: { enabled: true } },
-      series: { stacking: null },
+      error_y: { type: 'data', visible: true },
+      series: { stacking: null, error_y: { type: 'data', visible: true } },
       seriesOptions: {},
       columnMapping: {},
       bottomMargin: 50,
