@@ -19,10 +19,11 @@ class TestDataSourceGetSchema(BaseTestCase):
 
 class TestDataSourceListGet(BaseTestCase):
     def test_returns_each_data_source_once(self):
+        ds = self.factory.create_data_source(org=self.factory.org)
         group = self.factory.create_group()
         self.factory.user.groups.append(group)
-        self.factory.data_source.add_group(group)
-        self.factory.data_source.add_group(self.factory.org.default_group)
+        ds.add_group(group)
+        ds.add_group(self.factory.org.default_group)
         response = self.make_request("get", "/api/data_sources", user=self.factory.user)
 
         self.assertEqual(len(response.json), 1)

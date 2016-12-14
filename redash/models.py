@@ -9,9 +9,11 @@ from funcy import project
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.engine import reflection
 from sqlalchemy.event import listens_for
 from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import object_session, backref
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -19,6 +21,8 @@ from sqlalchemy.orm import object_session, query
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
+from sqlalchemy.schema import (MetaData, Table, DropTable,
+                               ForeignKeyConstraint, DropConstraint)
 
 from passlib.apps import custom_app_context as pwd_context
 
@@ -428,8 +432,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
     queue_name = Column(db.String(255), default="queries")
     scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
     created_at = Column(db.DateTime(True), default=db.func.now())
-
-    data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source",
+    data_source_groups = db.relationship("DataSourceGroup",
+                                         back_populates="data_source",
                                          cascade="all")
     groups = association_proxy("data_source_groups", "group")
     group_ids = association_proxy("data_source_groups", "group_id")
@@ -551,11 +555,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
 
 class DataSourceGroup(db.Model):
-    #XXX drop id, use datasource/group as PK
-    id = Column(db.Integer, primary_key=True)
-    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"),
+                            primary_key=True)
     data_source = db.relationship(DataSource, back_populates="data_source_groups")
-    group_id = Column(db.Integer, db.ForeignKey("groups.id"))
+    group_id = Column(db.Integer, db.ForeignKey("groups.id"),
+                      primary_key=True)
     group = db.relationship(Group, back_populates="data_sources")
     view_only = Column(db.Boolean, default=False)
 
@@ -1513,3 +1517,33 @@ def init_db():
 
     db.session.add_all([default_org, admin_group, default_group])
     return default_org, admin_group, default_group
+
+
+def drop_everything():
+    """
+    From http://www.sqlalchemy.org/trac/wiki/UsageRecipes/DropEverything
+    Drops constraints and then tables, to prevent dependency errors.
+    """
+    conn = db.engine.connect()
+    trans = conn.begin()
+    inspector = reflection.Inspector.from_engine(db.engine)
+    metadata = MetaData()
+
+    tbs = []
+    all_fks = []
+
+    for table_name in inspector.get_table_names():
+        fks = []
+        for fk in inspector.get_foreign_keys(table_name):
+            if not fk['name']:
+                continue
+            fks.append(ForeignKeyConstraint((), (), name=fk['name']))
+        t = Table(table_name, metadata, *fks)
+        tbs.append(t)
+        all_fks.extend(fks)
+
+    for fkc in all_fks:
+        conn.execute(DropConstraint(fkc))
+    for table in tbs:
+        conn.execute(DropTable(table))
+    trans.commit()
