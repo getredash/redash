@@ -174,8 +174,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
             error = None
             json_data = json.dumps(data, cls=JSONEncoder)
         else:
-            error = params
-            # error = 'Wrong query format'
+            error = 'Wrong query format'
             json_data = None
         return json_data, error
 
