@@ -78,11 +78,40 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                     )
         return schema.values()
 
-    def _get_analytics_service(self):
+    def _get_analytics_service(self, version='v3'):
         scope = ['https://www.googleapis.com/auth/analytics.readonly']
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
         credentials = SignedJwtAssertionCredentials(key['client_email'], key["private_key"], scope=scope)
-        return build('analytics', 'v3', http=credentials.authorize(httplib2.Http()))
+        return build('analytics', version, http=credentials.authorize(httplib2.Http()))
+
+    @staticmethod
+    def _define_type(_h):
+        _name = _h.get('name') if isinstance(_h, dict) else _h
+        if _name == 'ga:date':
+            type_ = 'DATE'
+        elif _name == 'ga:dateHour':
+            type_ = 'DATETIME'
+        elif 'type' in _h:
+            type_ = _h['type']
+        elif 'dataType' in _h:
+            type_ = _h['dataType']
+        else:
+            type_ = 'STRING'
+        return types_conv.get(type_, 'string')
+
+    @staticmethod
+    def _convert_value(_type, _value):
+        if _type == TYPE_DATE:
+            return datetime.strptime(_value, '%Y%m%d')
+        elif _type == TYPE_DATETIME:
+            if len(_value) == 10:
+                return datetime.strptime(_value, '%Y%m%d%H')
+            elif len(_value) == 12:
+                return datetime.strptime(_value, '%Y%m%d%H%M')
+            else:
+                raise Exception("Unknown date/time format in results: '{}'".format(_value))
+        else:
+            return _value
 
     def run_query(self, query, user):
         logger.debug("Analytics is about to execute query: %s", query)
@@ -95,40 +124,58 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 if '-' in key:
                     params[key.replace('-', '_')] = params.pop(key)
         if len(params) > 0:
-            response = self._get_analytics_service().data().ga().get(**params).execute()
+            version = 'v4' if 'reportRequests' in params else 'v3'
             columns = []
-            for h in response['columnHeaders']:
-                if h['name'] == 'ga:date':
-                    h['dataType'] = 'DATE'
-                elif h['name'] == 'ga:dateHour':
-                    h['dataType'] = 'DATETIME'
-                columns.append({
-                    'name': h['name'],
-                    'friendly_name': h['name'].split(':', 1)[1],
-                    'type': types_conv.get(h['dataType'], 'string')
-                })
             rows = []
-            for r in response['rows']:
-                d = {}
-                for c, value in enumerate(r):
-                    column_name = response['columnHeaders'][c]['name']
-                    column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
-                    if column_type == TYPE_DATE:
-                        value = datetime.strptime(value, '%Y%m%d')
-                    elif column_type == TYPE_DATETIME:
-                        if len(value) == 10:
-                            value = datetime.strptime(value, '%Y%m%d%H')
-                        elif len(value) == 12:
-                            value = datetime.strptime(value, '%Y%m%d%H%M')
-                        else:
-                            raise Exception("Unknown date/time format in results: '{}'".format(value))
-                    d[column_name] = value
-                rows.append(d)
+            if version == 'v3':
+                response = self._get_analytics_service(version).data().ga().get(**params).execute()
+                for h in response['columnHeaders']:
+                    columns.append({
+                        'name': h['name'],
+                        'friendly_name': h['name'].split(':', 1)[1],
+                        'type': self._define_type(h)
+                    })
+                for r in response['rows']:
+                    d = {}
+                    for c, value in enumerate(r):
+                        column_name = response['columnHeaders'][c]['name']
+                        column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
+                        d[column_name] = self._convert_value(column_type, value)
+                    rows.append(d)
+            else:
+                response = self._get_analytics_service(version).reports().batchGet(body=params).execute()
+                for h in response['reports'][0]['columnHeader']['dimensions']:
+                    columns.append({
+                        'name': h,
+                        'friendly_name': h.split(':', 1)[1],
+                        'type': self._define_type(h)
+                    })
+                for h in response['reports'][0]['columnHeader']['metricHeader']['metricHeaderEntries']:
+                    columns.append({
+                        'name': h['name'],
+                        'friendly_name': h['name'].split(':', 1)[1],
+                        'type': self._define_type(h)
+                    })
+                for r in response['reports'][0]['data']['rows']:
+                    d = {}
+                    for c, value in enumerate(r['dimensions']):
+                        column_name = response['reports'][0]['columnHeader']['dimensions'][c]
+                        column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
+                        d[column_name] = self._convert_value(column_type, value)
+                    rows.append(d)
+                    for rw in r['metrics']:
+                        for c, value in enumerate(rw['values']):
+                            column_name = response['reports'][0]['columnHeader'][
+                                'metricHeader']['metricHeaderEntries'][c]['name']
+                            column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
+                            d[column_name] = self._convert_value(column_type, value)
+                        rows.append(d)
             data = {'columns': columns, 'rows': rows}
             error = None
             json_data = json.dumps(data, cls=JSONEncoder)
         else:
-            error = 'Wrong query format'
+            error = params
+            # error = 'Wrong query format'
             json_data = None
         return json_data, error
 
