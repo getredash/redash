@@ -61,7 +61,7 @@ def get_saml_client():
                 'allow_unsolicited': True,
                 # Don't sign authn requests, since signed requests only make
                 # sense in a situation where you control both the SP and IdP
-                'authn_requests_signed': False,
+                'auth_requests_signed': False,
                 'logout_requests_signed': True,
                 'want_assertions_signed': True,
                 'want_response_signed': False,
