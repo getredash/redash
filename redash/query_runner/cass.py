@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 try:
     from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
-    from cassandra import DriverException
+    from cassandra import ReadTimeout
     enabled = True
 except ImportError:
     enabled = False
@@ -86,7 +86,7 @@ class Cassandra(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
 
             error = None
-        except DriverException as e:
+        except ReadTimeout as e:
             error = e
             json_data = None
         except KeyboardInterrupt:
