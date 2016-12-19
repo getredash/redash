@@ -9,13 +9,14 @@ logger = logging.getLogger(__name__)
 try:
     from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
+    from cassandra import ReadTimeout
     enabled = True
 except ImportError:
     enabled = False
 
 
 class Cassandra(BaseQueryRunner):
-    noop_query = "SELECT * FROM system"
+    noop_query = "SELECT * FROM system.compactions_in_progress"
 
     @classmethod
     def enabled(cls):
@@ -85,6 +86,9 @@ class Cassandra(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
 
             error = None
+        except ReadTimeout as e:
+            error = e
+            json_data = None
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
