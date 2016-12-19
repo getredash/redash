@@ -31,7 +31,7 @@ class UserListResource(BaseResource):
         user = models.User(org=self.current_org,
                            name=req['name'],
                            email=req['email'],
-                           group_ids=[self.current_org.default_group.id])
+                           groups=[self.current_org.default_group])
 
         try:
             models.db.session.add(user)

@@ -112,13 +112,12 @@ class QueryArchiveTest(BaseTestCase):
             "1", 123, yesterday)
 
         query.latest_query_data = query_result
-        groups = list(models.Group.query.filter(models.Group.id.in_(query.groups)))
-        self.assertIn(query, list(models.Query.all_queries([g.id for g in groups])))
+        self.assertIn(query, list(models.Query.all_queries(query.group_ids)))
         self.assertIn(query, models.Query.outdated_queries())
         db.session.flush()
         query.archive()
 
-        self.assertNotIn(query, list(models.Query.all_queries([g.id for g in groups])))
+        self.assertNotIn(query, list(models.Query.all_queries(query.group_ids)))
         self.assertNotIn(query, models.Query.outdated_queries())
 
     def test_removes_associated_widgets_from_dashboards(self):
@@ -438,8 +437,8 @@ def _set_up_dashboard_test(d):
     d.ds1 = d.factory.create_data_source()
     d.ds2 = d.factory.create_data_source()
     db.session.flush()
-    d.u1 = d.factory.create_user(group_ids=[d.g1.id])
-    d.u2 = d.factory.create_user(group_ids=[d.g2.id])
+    d.u1 = d.factory.create_user(groups=[d.g1])
+    d.u2 = d.factory.create_user(groups=[d.g2])
     db.session.add_all([
         models.DataSourceGroup(group=d.g1, data_source=d.ds1),
         models.DataSourceGroup(group=d.g2, data_source=d.ds2)

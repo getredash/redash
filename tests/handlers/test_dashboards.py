@@ -119,7 +119,7 @@ class TestDashboardShareResourcePost(BaseTestCase):
         res = self.make_request('post', '/api/dashboards/{}/share'.format(dashboard.id), user=user)
         self.assertEqual(res.status_code, 403)
 
-        user.group_ids.append(self.factory.org.admin_group.id)
+        user.groups.append(self.factory.org.admin_group)
 
         res = self.make_request('post', '/api/dashboards/{}/share'.format(dashboard.id), user=user)
         self.assertEqual(res.status_code, 200)
@@ -147,7 +147,7 @@ class TestDashboardShareResourceDelete(BaseTestCase):
         res = self.make_request('delete', '/api/dashboards/{}/share'.format(dashboard.id), user=user)
         self.assertEqual(res.status_code, 403)
 
-        user.group_ids.append(self.factory.org.admin_group.id)
+        user.groups.append(self.factory.org.admin_group)
 
         res = self.make_request('delete', '/api/dashboards/{}/share'.format(dashboard.id), user=user)
         self.assertEqual(res.status_code, 200)

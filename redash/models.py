@@ -14,6 +14,8 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import object_session, backref
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import object_session, query
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
@@ -207,7 +209,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
             self.id = api_key.api_key
             self.name = "ApiKey: {}".format(api_key.id)
             self.object = api_key.object
-        self.group_ids = groups
+        self.groups = groups
         self.org = org
 
     def __repr__(self):
@@ -306,22 +308,34 @@ class Group(db.Model, BelongsToOrgMixin):
     def __unicode__(self):
         return unicode(self.id)
 
+user_group = db.Table(
+    'user_group', db.Model.metadata,
+    Column('user_id', db.Integer,
+           db.ForeignKey('users.id', ondelete="CASCADE"),
+           primary_key=True),
+    Column('group_id', db.Integer,
+           db.ForeignKey('groups.id', ondelete="CASCADE"),
+           primary_key=True))
 
-class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
+
+class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin,
+           PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
-    org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
+    org = db.relationship(Organization, backref=db.backref("users",
+                                                           lazy="dynamic"))
     name = Column(db.String(320))
     email = Column(db.String(320))
     password_hash = Column(db.String(128), nullable=True)
-    #XXX replace with association table
-    group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
+    groups = db.relationship("Group", secondary=user_group)
+    group_ids = association_proxy("groups", "id")
     api_key = Column(db.String(40),
                      default=lambda: generate_token(40),
                      unique=True)
 
     __tablename__ = 'users'
-    __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
+    __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email',
+                               unique=True),)
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
@@ -332,7 +346,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'name': self.name,
             'email': self.email,
             'gravatar_url': self.gravatar_url,
-            'groups': self.group_ids,
+            'groups': [g.id for g in self.groups],
             'updated_at': self.updated_at,
             'created_at': self.created_at
         }
@@ -355,8 +369,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     @property
     def permissions(self):
         # TODO: this should be cached.
-        return list(itertools.chain(*[g.permissions for g in
-                                      Group.query.filter(Group.id.in_(self.group_ids))]))
+        return list(itertools.chain(*[g.permissions for g in self.groups]))
 
     @classmethod
     def get_by_email_and_org(cls, email, org):
@@ -386,7 +399,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def update_group_assignments(self, group_names):
         groups = Group.find_by_name(self.org, group_names)
         groups.append(self.org.default_group)
-        self.group_ids = [g.id for g in groups]
+        self.groups = groups
         db.session.add(self)
 
     def has_access(self, obj, access_type):
@@ -418,6 +431,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source",
                                          cascade="all")
+    groups = association_proxy("data_source_groups", "group")
+    group_ids = association_proxy("data_source_groups", "group_id")
+
     __tablename__ = 'data_sources'
     __table_args__ = (db.Index('data_sources_org_id_name', 'org_id', 'name'),)
 
@@ -437,7 +453,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
-            d['groups'] = self.groups
+            d['groups'] = list(self.group_ids)
 
         if with_permissions_for is not None:
             d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
@@ -498,10 +514,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return dsg
 
     def remove_group(self, group):
-        db.session.query(DataSourceGroup).filter(
-            DataSourceGroup.group == group,
-            DataSourceGroup.data_source == self).delete()
-        db.session.commit()
+        self.groups.remove(group)
 
     def update_group_permission(self, group, view_only):
         dsg = DataSourceGroup.query.filter(
@@ -533,12 +546,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return data_sources
 
-    #XXX examine call sites to see if a regular SQLA collection would work better
-    @property
-    def groups(self):
-        groups = db.session.query(DataSourceGroup).filter(
-            DataSourceGroup.data_source == self)
-        return dict(map(lambda g: (g.group_id, g.view_only), groups))
+    def group_info(self):
+        return {dg.group_id: dg.view_only for dg in self.data_source_groups}
 
 
 class DataSourceGroup(db.Model):
@@ -634,9 +643,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def __unicode__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
-    @property
-    def groups(self):
-        return self.data_source.groups
+    def group_info(self):
+        return self.data_source.group_info()
 
 
 def should_schedule_next(previous_iteration, now, schedule):
@@ -684,6 +692,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     schedule = Column(db.String(10), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
+    groups = association_proxy("data_source", "groups")
+    group_ids = association_proxy("data_source", "group_ids")
 
     __tablename__ = 'queries'
     __mapper_args__ = {
@@ -872,12 +882,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def retrieved_at(self):
         return self.latest_query_data.retrieved_at
 
-    @property
-    def groups(self):
+    def group_info(self):
         if self.data_source is None:
             return {}
 
-        return self.data_source.groups
+        return self.data_source.group_info()
 
     def __unicode__(self):
         return unicode(self.id)
@@ -1073,9 +1082,8 @@ class Alert(TimestampMixin, db.Model):
     def subscribers(self):
         return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
-    @property
-    def groups(self):
-        return self.query_rel.groups
+    def group_info(self):
+        return self.query_rel.group_info()
 
 
 def generate_slug(ctx):
@@ -1120,7 +1128,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             for w in widget_list:
                 if w.visualization_id is None:
                     widgets[w.id] = w.to_dict()
-                elif user and has_access(w.visualization.query_rel.groups, user, view_only):
+                elif user and has_access(w.visualization.query_rel.group_info(), user, view_only):
                     widgets[w.id] = w.to_dict()
                 else:
                     widgets[w.id] = project(w.to_dict(),
@@ -1498,6 +1506,4 @@ def init_db():
     default_group = Group(name='default', permissions=Group.DEFAULT_PERMISSIONS, org=default_org, type=Group.BUILTIN_GROUP)
 
     db.session.add_all([default_org, admin_group, default_group])
-    #XXX remove after fixing User.group_ids
-    db.session.commit()
     return default_org, admin_group, default_group

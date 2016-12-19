@@ -11,7 +11,7 @@ from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 class AlertResource(BaseResource):
     def get(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
-        require_access(alert.groups, self.current_user, view_only)
+        require_access(alert.group_info(), self.current_user, view_only)
         return alert.to_dict()
 
     def post(self, alert_id):
@@ -46,7 +46,7 @@ class AlertListResource(BaseResource):
 
         query = models.Query.get_by_id_and_org(req['query_id'],
                                                self.current_org)
-        require_access(query.groups, self.current_user, view_only)
+        require_access(query.group_info(), self.current_user, view_only)
 
         alert = models.Alert(
             name=req['name'],
@@ -76,9 +76,8 @@ class AlertListResource(BaseResource):
 class AlertSubscriptionListResource(BaseResource):
     def post(self, alert_id):
         req = request.get_json(True)
-
         alert = models.Alert.get_by_id_and_org(alert_id, self.current_org)
-        require_access(alert.groups, self.current_user, view_only)
+        require_access(alert.group_info(), self.current_user, view_only)
         kwargs = {'alert': alert, 'user': self.current_user}
 
         if 'destination_id' in req:
@@ -103,7 +102,7 @@ class AlertSubscriptionListResource(BaseResource):
     def get(self, alert_id):
         alert_id = int(alert_id)
         alert = models.Alert.get_by_id_and_org(alert_id, self.current_org)
-        require_access(alert.groups, self.current_user, view_only)
+        require_access(alert.group_info(), self.current_user, view_only)
 
         subscriptions = models.AlertSubscription.all(alert_id)
         return [s.to_dict() for s in subscriptions]

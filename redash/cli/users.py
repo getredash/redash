@@ -15,13 +15,13 @@ def build_groups(org, groups, is_admin):
     if isinstance(groups, basestring):
         groups = groups.split(',')
         groups.remove('')  # in case it was empty string
-        groups = [int(g) for g in groups]
+        groups = [models.Group.query.get(int(g)) for g in groups]
 
     if groups is None:
-        groups = [org.default_group.id]
+        groups = [org.default_group]
 
     if is_admin:
-        groups += [org.admin_group.id]
+        groups.append(org.admin_group)
 
     return groups
 
@@ -40,10 +40,10 @@ def grant_admin(email, organization='default'):
         admin_group = org.admin_group
         user = models.User.get_by_email_and_org(email, org)
 
-        if admin_group.id in user.group_ids:
+        if admin_group in user.groups:
             print "User is already an admin."
         else:
-            user.group_ids = user.group_ids + [org.admin_group.id]
+            user.groups.append(org.admin_group)
             models.db.session.add(user)
             models.db.session.commit()
             print "User updated."
@@ -80,7 +80,7 @@ def create(email, name, groups, is_admin=False, google_auth=False,
     org = models.Organization.get_by_slug(organization)
     groups = build_groups(org, groups, is_admin)
 
-    user = models.User(org=org, email=email, name=name, group_ids=groups)
+    user = models.User(org=org, email=email, name=name, groups=groups)
     if not password and not google_auth:
         password = prompt("Password", hide_input=True,
                           confirmation_prompt=True)
@@ -161,10 +161,10 @@ def invite(email, name, inviter_email, groups, is_admin=False,
     Sends an invitation to the given NAME and EMAIL from INVITER_EMAIL.
     """
     org = models.Organization.get_by_slug(organization)
-    groups = build_groups(org, groups, is_admin)
     try:
         user_from = models.User.get_by_email_and_org(inviter_email, org)
-        user = models.User(org=org, name=name, email=email, group_ids=groups)
+        user = models.User(org=org, name=name, email=email,
+                           groups=build_groups(org, groups, is_admin))
         models.db.session.add(user)
         try:
             models.db.session.commit()

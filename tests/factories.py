@@ -40,8 +40,10 @@ class Sequence(object):
 
 
 user_factory = ModelFactory(redash.models.User,
-                            name='John Doe', email=Sequence('test{}@example.com'),
-                            group_ids=[2],
+                            name='John Doe',
+                            email=Sequence('test{}@example.com'),
+                            groups=lambda: list(redash.models.Group.query.filter(
+                                redash.models.Group.name == "default")),
                             org_id=1)
 
 org_factory = ModelFactory(redash.models.Organization,
@@ -183,11 +185,11 @@ class Factory(object):
     def create_user(self, **kwargs):
         args = {
             'org': self.org,
-            'group_ids': [self.default_group.id]
+            'groups': [self.default_group]
         }
 
         if 'org' in kwargs:
-            args['group_ids'] = [kwargs['org'].default_group.id]
+            args['groups'] = [kwargs['org'].default_group]
 
         args.update(kwargs)
         return user_factory.create(**args)
@@ -195,11 +197,12 @@ class Factory(object):
     def create_admin(self, **kwargs):
         args = {
             'org': self.org,
-            'group_ids': [self.admin_group.id, self.default_group.id]
+            'groups': [self.admin_group, self.default_group]
         }
 
         if 'org' in kwargs:
-            args['group_ids'] = [kwargs['org'].default_group.id, kwargs['org'].admin_group.id]
+            args['groups'] = [kwargs['org'].default_group,
+                              kwargs['org'].admin_group]
 
         args.update(kwargs)
         return user_factory.create(**args)

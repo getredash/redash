@@ -7,14 +7,14 @@ class TestUserUpdateGroupAssignments(BaseTestCase):
         user = self.factory.create_user()
 
         user.update_group_assignments(["g_unknown"])
-        self.assertItemsEqual([user.org.default_group.id], user.group_ids)
+        self.assertItemsEqual([user.org.default_group], user.groups)
 
     def test_update_group_assignments(self):
         user = self.factory.user
         new_group = self.factory.create_group(name="g1")
 
         user.update_group_assignments(["g1"])
-        self.assertItemsEqual([user.org.default_group.id, new_group.id], user.group_ids)
+        self.assertItemsEqual([user.org.default_group, new_group], user.groups)
 
 
 class TestUserFindByEmail(BaseTestCase):

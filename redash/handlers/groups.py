@@ -27,8 +27,7 @@ class GroupListResource(BaseResource):
         if self.current_user.has_permission('admin'):
             groups = models.Group.all(self.current_org)
         else:
-            groups = models.Group.query.filter(
-                models.Group.id.in_(self.current_user.group_ids))
+            groups = self.current_user.groups
 
         return [g.to_dict() for g in groups]
 
@@ -54,7 +53,8 @@ class GroupResource(BaseResource):
         return group.to_dict()
 
     def get(self, group_id):
-        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.group_ids):
+        if not (self.current_user.has_permission('admin') or
+                int(group_id) in self.current_user.group_ids):
             abort(403)
 
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
@@ -77,7 +77,7 @@ class GroupMemberListResource(BaseResource):
         user_id = request.json['user_id']
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
-        user.group_ids.append(group.id)
+        user.groups.append(group)
         models.db.session.commit()
 
         self.record_event({
@@ -91,7 +91,8 @@ class GroupMemberListResource(BaseResource):
 
     @require_permission('list_users')
     def get(self, group_id):
-        if not (self.current_user.has_permission('admin') or int(group_id) in self.current_user.group_ids):
+        if not (self.current_user.has_permission('admin') or
+                int(group_id) in self.current_user.group_ids):
             abort(403)
 
         members = models.Group.members(group_id)

@@ -287,7 +287,7 @@ class UserCommandTests(BaseTestCase):
         u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
-        self.assertEqual(u.group_ids, [u.org.default_group.id])
+        self.assertEqual(list(u.groups), [u.org.default_group])
 
     def test_create_admin(self):
         runner = CliRunner()
@@ -299,8 +299,8 @@ class UserCommandTests(BaseTestCase):
         u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
-        self.assertEqual(u.group_ids, [u.org.default_group.id,
-                                       u.org.admin_group.id])
+        self.assertEqual(list(u.groups), [u.org.admin_group,
+                                    u.org.default_group])
 
     def test_create_googleauth(self):
         runner = CliRunner()
@@ -311,7 +311,7 @@ class UserCommandTests(BaseTestCase):
         u = User.query.filter(User.email == "foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertIsNone(u.password_hash)
-        self.assertEqual(u.group_ids, [u.org.default_group.id])
+        self.assertEqual(list(u.groups), [u.org.default_group])
 
     def test_create_bad(self):
         self.factory.create_user(email='foobar@example.com')
@@ -399,11 +399,11 @@ class UserCommandTests(BaseTestCase):
         u = self.factory.create_user(name='Fred Foobar',
                                      email='foobar@example.com',
                                      org=self.factory.org,
-                                     group_ids=[self.factory.default_group.id])
+                                     groups=[self.factory.default_group])
         runner = CliRunner()
         result = runner.invoke(manager, ['users', 'grant_admin', 'foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         db.session.add(u)
-        self.assertEqual(u.group_ids, [u.org.default_group.id,
-                                       u.org.admin_group.id])
+        self.assertEqual(list(u.groups), [u.org.admin_group,
+                                    u.org.default_group])

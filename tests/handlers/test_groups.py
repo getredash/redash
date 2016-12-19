@@ -43,8 +43,8 @@ class TestGroupResourceList(BaseTestCase):
         group1 = self.factory.create_group(org=self.factory.create_org(),
                                            permissions=['view_dashboard'])
         db.session.flush()
-        u = self.factory.create_user(group_ids=[self.factory.default_group.id,
-                                                group1.id])
+        u = self.factory.create_user(groups=[self.factory.default_group,
+                                             group1])
         db.session.flush()
         response = self.make_request('get', '/api/groups',
                                      user=u)
@@ -61,7 +61,7 @@ class TestGroupResourceList(BaseTestCase):
 class TestGroupResourcePost(BaseTestCase):
     def test_doesnt_change_builtin_groups(self):
         current_name = self.factory.default_group.name
-
+        db.session.flush()
         response = self.make_request('post', '/api/groups/{}'.format(self.factory.default_group.id),
                                      user=self.factory.create_admin(),
                                      data={'name': 'Another Name'})
@@ -82,6 +82,7 @@ class TestGroupResourceDelete(BaseTestCase):
         self.assertIsNone(Group.query.get(group.id))
 
     def test_cant_delete_builtin_group(self):
+        db.session.flush()
         for group in [self.factory.default_group, self.factory.admin_group]:
             response = self.make_request('delete', '/api/groups/{}'.format(group.id), user=self.factory.create_admin())
             self.assertEqual(response.status_code, 400)
@@ -99,10 +100,12 @@ class TestGroupResourceDelete(BaseTestCase):
 
 class TestGroupResourceGet(BaseTestCase):
     def test_returns_group(self):
+        db.session.flush()
         rv = self.make_request('get', '/api/groups/{}'.format(self.factory.default_group.id))
         self.assertEqual(rv.status_code, 200)
 
     def test_doesnt_return_if_user_not_member_or_admin(self):
+        db.session.flush()
         rv = self.make_request('get', '/api/groups/{}'.format(self.factory.admin_group.id))
         self.assertEqual(rv.status_code, 403)
 

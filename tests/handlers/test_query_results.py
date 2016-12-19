@@ -52,7 +52,7 @@ class TestQueryResultListAPI(BaseTestCase):
     def test_execute_query_without_access(self):
         group = self.factory.create_group()
         db.session.commit()
-        user = self.factory.create_user(group_ids=[group.id])
+        user = self.factory.create_user(groups=[group])
         query = self.factory.create_query()
 
         rv = self.make_request('post', '/api/query_results',

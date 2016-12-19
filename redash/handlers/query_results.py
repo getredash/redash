@@ -69,7 +69,7 @@ class QueryResultListResource(BaseResource):
 
         data_source = models.DataSource.get_by_id_and_org(params.get('data_source_id'), self.current_org)
 
-        if not has_access(data_source.groups, self.current_user, not_view_only):
+        if not has_access(data_source.group_info(), self.current_user, not_view_only):
             return {'job': {'status': 4, 'error': 'You do not have permission to run queries with this data source.'}}, 403
 
         self.record_event({
@@ -136,12 +136,15 @@ class QueryResultResource(BaseResource):
                 query_result_id = query.latest_query_data_id
 
         if query_result_id:
-            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
+            query_result = get_object_or_404(
+                models.QueryResult.get_by_id_and_org,
+                query_result_id, self.current_org)
         else:
             query_result = None
 
         if query_result:
-            require_access(query_result.data_source.groups, self.current_user, view_only)
+            require_access(query_result.data_source.group_info(),
+                           self.current_user, view_only)
 
             if isinstance(self.current_user, models.ApiUser):
                 event = {

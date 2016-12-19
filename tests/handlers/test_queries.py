@@ -155,6 +155,6 @@ class QueryRefreshTest(BaseTestCase):
         group = self.factory.create_group()
         db.session.add(group)
         db.session.commit()
-        user = self.factory.create_user(group_ids=[group.id])
+        user = self.factory.create_user(groups=[group])
         response = self.make_request('post', self.path, user=user)
         self.assertEqual(403, response.status_code)

@@ -17,7 +17,8 @@ def has_access(object_groups, user, need_view_only):
     if 'admin' in user.permissions:
         return True
 
-    matching_groups = set(object_groups.keys()).intersection(user.group_ids)
+    matching_groups = set(object_groups.keys()).intersection(
+        [g.id for g in user.groups])
 
     if not matching_groups:
         return False

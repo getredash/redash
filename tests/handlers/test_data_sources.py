@@ -20,7 +20,7 @@ class TestDataSourceGetSchema(BaseTestCase):
 class TestDataSourceListGet(BaseTestCase):
     def test_returns_each_data_source_once(self):
         group = self.factory.create_group()
-        self.factory.user.group_ids.append(group.id)
+        self.factory.user.groups.append(group)
         self.factory.data_source.add_group(group)
         self.factory.data_source.add_group(self.factory.org.default_group)
         response = self.make_request("get", "/api/data_sources", user=self.factory.user)

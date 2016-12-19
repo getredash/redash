@@ -104,7 +104,8 @@ class QueryListResource(BaseResource):
         """
         query_def = request.get_json(force=True)
         data_source = models.DataSource.get_by_id_and_org(query_def.pop('data_source_id'), self.current_org)
-        require_access(data_source.groups, self.current_user, not_view_only)
+        require_access(data_source.group_info(), self.current_user,
+                       not_view_only)
 
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:
             query_def.pop(field, None)
@@ -214,7 +215,7 @@ class QueryResource(BaseResource):
         Responds with the :ref:`query <query-response-label>` contents.
         """
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(q.groups, self.current_user, view_only)
+        require_access(q.group_info(), self.current_user, view_only)
 
         result = q.to_dict(with_visualizations=True)
         result['can_edit'] = can_modify(q, self.current_user)
@@ -259,7 +260,7 @@ class QueryRefreshResource(BaseResource):
         Responds with query task details.
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_access(query.groups, self.current_user, not_view_only)
+        require_access(query.group_info(), self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)
 
