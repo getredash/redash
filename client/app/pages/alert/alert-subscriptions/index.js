@@ -2,6 +2,8 @@ import { contains, without, compact } from 'underscore';
 import template from './alert-subscriptions.html';
 
 function controller($scope, $q, $sce, currentUser, AlertSubscription, Destination, toastr) {
+  'ngInject';
+
   $scope.newSubscription = {};
   $scope.subscribers = [];
   $scope.destinations = [];
