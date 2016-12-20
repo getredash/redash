@@ -8,6 +8,8 @@ const AddWidgetDialog = {
     dismiss: '&',
   },
   controller($sce, toastr, Query, Widget) {
+    'ngInject';
+
     this.dashboard = this.resolve.dashboard;
     this.saveInProgress = false;
     this.widgetSize = 1;

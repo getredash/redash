@@ -2,6 +2,8 @@ import template from './embed-code-dialog.html';
 
 const EmbedCodeDialog = {
   controller(clientConfig) {
+    'ngInject';
+
     this.query = this.resolve.query;
     this.visualization = this.resolve.visualization;
 

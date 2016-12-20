@@ -1,8 +1,7 @@
 import { contains } from 'underscore';
 import template from './show.html';
 
-function GroupCtrl($scope, $routeParams, $http, $location, toastr,
-                   currentUser, Events, Group, User) {
+function GroupCtrl($scope, $routeParams, $http, currentUser, Events, Group, User) {
   Events.record('view', 'group', $scope.groupId);
 
   $scope.currentUser = currentUser;

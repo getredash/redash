@@ -8,6 +8,8 @@ const EditGroupDialogComponent = {
     dismiss: '&',
   },
   controller($location) {
+    'ngInject';
+
     this.group = this.resolve.group;
     const newGroup = this.group.id === undefined;
 

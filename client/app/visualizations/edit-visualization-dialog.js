@@ -10,6 +10,8 @@ const EditVisualizationDialog = {
     dismiss: '&',
   },
   controller($window, currentUser, Events, Visualization, toastr) {
+    'ngInject';
+
     this.query = this.resolve.query;
     this.queryResult = this.resolve.queryResult;
     this.originalVisualization = this.resolve.visualization;
