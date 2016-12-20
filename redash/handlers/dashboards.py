@@ -27,7 +27,7 @@ class RecentDashboardsResource(BaseResource):
 class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
-        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user)
+        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
         return [q.to_dict() for q in results]
 
     @require_permission('create_dashboard')
