@@ -72,7 +72,7 @@ class Cassandra(BaseQueryRunner):
                 connection = Cluster([self.configuration.get('host', '')])
 
             session = connection.connect()
-            session.set_keyspace('{}'.format(self.configuration['keyspace']))
+            session.set_keyspace(self.configuration['keyspace'])
             logger.debug("Cassandra running query: %s", query)
             result = session.execute(query)
 
