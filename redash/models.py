@@ -537,12 +537,12 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return cls.query.filter(cls.name == name).one()
 
     @classmethod
-    def all(cls, org, group_ids=None):
+    def all(cls, org, groups=None):
         data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
 
-        if group_ids:
-            data_sources = data_sources.join(DataSourceGroup).filter(
-                DataSourceGroup.group_id.in_(group_ids))
+        if groups:
+            data_sources = restrict_to_groups(
+                groups, data_sources.join(DataSourceGroup))
 
         return data_sources
 
@@ -668,6 +668,13 @@ def should_schedule_next(previous_iteration, now, schedule):
     return now > next_iteration
 
 
+def restrict_to_groups(groups, q):
+    if isinstance(groups, query.Query):
+        return q.join(groups.subquery())
+    else:
+        return q.filter(DataSourceGroup.group_id.in_([g.id for g in groups]))
+
+
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
@@ -770,23 +777,21 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     @classmethod
-    def all_queries(cls, group_ids, user_id=None, drafts=False):
+    def all_queries(cls, groups, user=None, drafts=False):
         q = (cls.query.join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(Query.is_archived == False)
-            .filter(DataSourceGroup.group_id.in_(group_ids))\
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)
             .order_by(Query.created_at.desc()))
 
         if not drafts:
-            q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
-
-        return q
+            q = q.filter(or_(Query.is_draft == False, Query.user == user))
+        return restrict_to_groups(q, groups)
 
     @classmethod
     def by_user(cls, user):
-        return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
+        return cls.all_queries(user.groups, user).filter(Query.user == user)
 
     @classmethod
     def outdated_queries(cls):
@@ -805,48 +810,48 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids, include_drafts=False):
+    def search(cls, term, groups, include_drafts=False):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
         where = (Query.name.ilike(u"%{}%".format(term)) |
                  Query.description.ilike(u"%{}%".format(term)))
 
         if term.isdigit():
             where |= Query.id == term
-
         where &= Query.is_archived == False
 
         if not include_drafts:
             where &= Query.is_draft == False
 
-        where &= DataSourceGroup.group_id.in_(group_ids)
-        query_ids = (
+        query_ids = restrict_to_groups(
+            groups,
             db.session.query(Query.id).join(
                 DataSourceGroup,
                 Query.data_source_id == DataSourceGroup.data_source_id)
-            .filter(where)).distinct()
+            .filter(where).distinct())
 
         return Query.query.join(User, Query.user_id == User.id).filter(
             Query.id.in_(query_ids))
 
     @classmethod
-    def recent(cls, group_ids, user_id=None, limit=20):
-        query = (cls.query.join(User, Query.user_id == User.id)
-                 .filter(Event.created_at > (db.func.current_date() - 7))
-                 .join(Event, Query.id == Event.object_id.cast(db.Integer))
-                 .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-                 .filter(
-                     Event.action.in_(['edit', 'execute', 'edit_name',
-                                       'edit_description', 'view_source']),
-                     Event.object_id != None,
-                     Event.object_type == 'query',
-                     DataSourceGroup.group_id.in_(group_ids),
-                     or_(Query.is_draft == False, Query.user_id == user_id),
-                     Query.is_archived == False)
-                 .group_by(Event.object_id, Query.id, User.id)
+    def recent(cls, groups, user=None, limit=20):
+        query = (restrict_to_groups(
+            groups,
+            cls.query
+            .filter(Event.created_at > (db.func.current_date() - 7))
+            .join(Event, Query.id == Event.object_id.cast(db.Integer))
+            .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .filter(
+                Event.action.in_(['edit', 'execute', 'edit_name',
+                                  'edit_description', 'view_source']),
+                Event.object_id != None,
+                Event.object_type == 'query',
+                or_(Query.is_draft == False, Query.user == user),
+                Query.is_archived == False))
+                 .group_by(Event.object_id, Query.id, Query.user_id)
                  .order_by(db.desc(db.func.count(0))))
 
-        if user_id:
-            query = query.filter(Event.user_id == user_id)
+        if user:
+            query = query.filter(Event.user == user)
 
         query = query.limit(limit)
 
@@ -1170,7 +1175,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         }
 
     @classmethod
-    def all(cls, org, group_ids, user_id):
+    def all(cls, org, groups, user):
         query = (
             Dashboard.query
             .outerjoin(Widget)
@@ -1179,8 +1184,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(
                 Dashboard.is_archived == False,
-                (DataSourceGroup.group_id.in_(group_ids) |
-                 (Dashboard.user_id == user_id) |
+                (DataSourceGroup.group_id.in_([g.id for g in groups]) |
+                 (Dashboard.user == user) |
                  ((Widget.dashboard != None) & (Widget.visualization == None))),
                 Dashboard.org == org)
             .group_by(Dashboard.id))
@@ -1190,7 +1195,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query
 
     @classmethod
-    def recent(cls, org, group_ids, user_id, for_user=False, limit=20):
+    def recent(cls, org, groups, user, for_user=False, limit=20):
         query = (Dashboard.query
                  .outerjoin(Event, Dashboard.id == Event.object_id.cast(db.Integer))
                  .outerjoin(Widget)
@@ -1204,15 +1209,15 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                      Event.object_type == 'dashboard',
                      Dashboard.org == org,
                      Dashboard.is_archived == False,
-                     or_(Dashboard.is_draft == False, Dashboard.user_id == user_id),
-                     DataSourceGroup.group_id.in_(group_ids) |
-                     (Dashboard.user_id == user_id) |
+                     or_(Dashboard.is_draft == False, Dashboard.user == user),
+                     DataSourceGroup.group_id.in_([g.id for g in groups]) |
+                     (Dashboard.user == user) |
                      ((Widget.dashboard != None) & (Widget.visualization == None)))
                  .group_by(Event.object_id, Dashboard.id)
                  .order_by(db.desc(db.func.count(0))))
 
         if for_user:
-            query = query.filter(Event.user_id == user_id)
+            query = query.filter(Event.user == user)
 
         query = query.limit(limit)
 
@@ -1496,6 +1501,7 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
         }
 
         return d
+
 
 _gfk_types = {'queries': Query, 'dashboards': Dashboard}
 

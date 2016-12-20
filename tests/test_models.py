@@ -112,12 +112,12 @@ class QueryArchiveTest(BaseTestCase):
             "1", 123, yesterday)
 
         query.latest_query_data = query_result
-        self.assertIn(query, list(models.Query.all_queries(query.group_ids)))
+        self.assertIn(query, list(models.Query.all_queries(query.groups)))
         self.assertIn(query, models.Query.outdated_queries())
         db.session.flush()
         query.archive()
 
-        self.assertNotIn(query, list(models.Query.all_queries(query.group_ids)))
+        self.assertNotIn(query, list(models.Query.all_queries(query.groups)))
         self.assertNotIn(query, models.Query.outdated_queries())
 
     def test_removes_associated_widgets_from_dashboards(self):
@@ -278,10 +278,10 @@ class TestQueryAll(BaseTestCase):
             models.DataSourceGroup(group=group2, data_source=ds2)
             ])
         db.session.flush()
-        self.assertIn(q1, list(models.Query.all_queries([group1.id])))
-        self.assertNotIn(q2, list(models.Query.all_queries([group1.id])))
-        self.assertIn(q1, list(models.Query.all_queries([group1.id, group2.id])))
-        self.assertIn(q2, list(models.Query.all_queries([group1.id, group2.id])))
+        self.assertIn(q1, list(models.Query.all_queries([group1])))
+        self.assertNotIn(q2, list(models.Query.all_queries([group1])))
+        self.assertIn(q1, list(models.Query.all_queries([group1, group2])))
+        self.assertIn(q2, list(models.Query.all_queries([group1, group2])))
 
     def test_skips_drafts(self):
         q = self.factory.create_query(is_draft=True)
@@ -461,51 +461,51 @@ class TestDashboardAll(BaseTestCase):
         super(TestDashboardAll, self).setUp()
         _set_up_dashboard_test(self)
 
-    def test_requires_group_or_user_id(self):
+    def test_requires_group_or_user(self):
         d1 = self.factory.create_dashboard()
         self.assertNotIn(d1, list(models.Dashboard.all(
-           d1.user.org, d1.user.group_ids, None)))
+           d1.user.org, d1.user.groups, None)))
         l2 = list(models.Dashboard.all(
-            d1.user.org, [0], d1.user.id))
+            d1.user.org, self.u1.groups, d1.user))
         self.assertIn(d1, l2)
 
     def test_returns_dashboards_based_on_groups(self):
         self.assertIn(self.w1.dashboard, list(models.Dashboard.all(
-            self.u1.org, self.u1.group_ids, None)))
+            self.u1.org, self.u1.groups, None)))
         self.assertIn(self.w2.dashboard, list(models.Dashboard.all(
-            self.u2.org, self.u2.group_ids, None)))
+            self.u2.org, self.u2.groups, None)))
         self.assertNotIn(self.w1.dashboard, list(models.Dashboard.all(
-            self.u2.org, self.u2.group_ids, None)))
+            self.u2.org, self.u2.groups, None)))
         self.assertNotIn(self.w2.dashboard, list(models.Dashboard.all(
-            self.u1.org, self.u1.group_ids, None)))
+            self.u1.org, self.u1.groups, None)))
 
     def test_returns_each_dashboard_once(self):
-        dashboards = list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None))
+        dashboards = list(models.Dashboard.all(self.u2.org, self.u2.groups, None))
         self.assertEqual(len(dashboards), 2)
 
     def test_returns_dashboard_you_have_partial_access_to(self):
-        self.assertIn(self.w5.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
+        self.assertIn(self.w5.dashboard, models.Dashboard.all(self.u1.org, self.u1.groups, None))
 
     def test_returns_dashboards_created_by_user(self):
         d1 = self.factory.create_dashboard(user=self.u1)
         db.session.flush()
-        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)))
-        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, [0], self.u1.id)))
-        self.assertNotIn(d1, list(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id)))
+        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, self.u1.groups, self.u1)))
+        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, [self.factory.default_group], self.u1)))
+        self.assertNotIn(d1, list(models.Dashboard.all(self.u2.org, self.u2.groups, self.u2)))
 
     def test_returns_dashboards_with_text_widgets(self):
         w1 = self.factory.create_widget(visualization=None)
 
-        self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
-        self.assertIn(w1.dashboard, models.Dashboard.all(self.u2.org, self.u2.group_ids, None))
+        self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.groups, None))
+        self.assertIn(w1.dashboard, models.Dashboard.all(self.u2.org, self.u2.groups, None))
 
     def test_returns_dashboards_from_current_org_only(self):
         w1 = self.factory.create_widget(visualization=None)
 
         user = self.factory.create_user(org=self.factory.create_org())
 
-        self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.group_ids, None))
+        self.assertIn(w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.groups, None))
+        self.assertNotIn(w1.dashboard, models.Dashboard.all(user.org, user.groups, None))
 
 
 class TestDashboardRecent(BaseTestCase):
@@ -517,9 +517,9 @@ class TestDashboardRecent(BaseTestCase):
         db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
                                     object_type="dashboard", object_id=self.w1.dashboard.id))
         db.session.flush()
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u2.group_ids, None))
+        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups, None))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups, None))
+        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u2.groups, None))
 
     def test_recent_excludes_drafts(self):
         models.db.session.add_all([
@@ -529,19 +529,21 @@ class TestDashboardRecent(BaseTestCase):
                      object_type="dashboard", object_id=self.w2.dashboard.id)])
 
         self.w2.dashboard.is_draft = True
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(
-            self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(
-            self.u1.org, self.u1.group_ids, None))
+        self.assertIn(self.w1.dashboard, list(models.Dashboard.recent(
+            self.u1.org, self.u1.groups, None)))
+        self.assertNotIn(self.w2.dashboard, list(models.Dashboard.recent(
+            self.u1.org, self.u1.groups, None)))
 
     def test_returns_recent_dashboards_created_by_user(self):
         d1 = self.factory.create_dashboard(user=self.u1, is_draft=False)
         db.session.flush()
         db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
                                     object_type="dashboard", object_id=d1.id))
-        self.assertIn(d1, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(d1, models.Dashboard.recent(self.u2.org, [0], self.u2.id))
+        self.assertIn(d1, models.Dashboard.recent(self.u1.org, self.u1.groups, self.u1))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups,
+                                                                    self.u1))
+        self.assertNotIn(d1, models.Dashboard.recent(self.u2.org, self.u1.groups,
+                                                     self.u2))
 
     def test_returns_recent_dashboards_with_no_visualizations(self):
         w1 = self.factory.create_widget(visualization=None)
@@ -550,8 +552,9 @@ class TestDashboardRecent(BaseTestCase):
         db.session.add(models.Event(org=self.factory.org, user=self.u1, action="view",
                                     object_type="dashboard", object_id=w1.dashboard.id))
         db.session.flush()
-        self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, [0], self.u1.id))
+        self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups, self.u1))
+        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(
+            self.u1.org, self.u1.groups, self.u1))
 
     def test_restricts_dashboards_for_user(self):
         db.session.flush()
@@ -566,12 +569,12 @@ class TestDashboardRecent(BaseTestCase):
                          object_type="dashboard", object_id=self.w5.dashboard.id)
         ])
         db.session.flush()
-        self.assertIn(self.w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, self.u1.id, for_user=True))
-        self.assertIn(self.w2.dashboard, models.Dashboard.recent(self.u2.org, self.u2.group_ids, self.u2.id, for_user=True))
-        self.assertNotIn(self.w1.dashboard, models.Dashboard.recent(self.u2.org, self.u2.group_ids, self.u2.id, for_user=True))
-        self.assertNotIn(self.w2.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, self.u1.id, for_user=True))
-        self.assertIn(self.w5.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, self.u1.id, for_user=True))
-        self.assertIn(self.w5.dashboard, models.Dashboard.recent(self.u2.org, self.u2.group_ids, self.u2.id, for_user=True))
+        self.assertIn(self.w1.dashboard, list(models.Dashboard.recent(self.u1.org, self.u1.groups, self.u1, for_user=True)))
+        self.assertIn(self.w2.dashboard, list(models.Dashboard.recent(self.u2.org, self.u2.groups, self.u2, for_user=True)))
+        self.assertNotIn(self.w1.dashboard, list(models.Dashboard.recent(self.u2.org, self.u2.groups, self.u2, for_user=True)))
+        self.assertNotIn(self.w2.dashboard, list(models.Dashboard.recent(self.u1.org, self.u1.groups, self.u1, for_user=True)))
+        self.assertIn(self.w5.dashboard, list(models.Dashboard.recent(self.u1.org, self.u1.groups, self.u1, for_user=True)))
+        self.assertIn(self.w5.dashboard, list(models.Dashboard.recent(self.u2.org, self.u2.groups, self.u2, for_user=True)))
 
     def test_returns_each_dashboard_once(self):
         db.session.flush()
@@ -582,7 +585,7 @@ class TestDashboardRecent(BaseTestCase):
                          object_type="dashboard", object_id=self.w1.dashboard.id)
             ])
         db.session.flush()
-        dashboards = list(models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
+        dashboards = list(models.Dashboard.recent(self.u1.org, self.u1.groups, None))
         self.assertEqual(len(dashboards), 1)
 
     def test_returns_dashboards_from_current_org_only(self):
@@ -595,5 +598,5 @@ class TestDashboardRecent(BaseTestCase):
         db.session.flush()
         user = self.factory.create_user(org=self.factory.create_org())
 
-        self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(w1.dashboard, models.Dashboard.recent(user.org, user.group_ids, None))
+        self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.groups, None))
+        self.assertNotIn(w1.dashboard, models.Dashboard.recent(user.org, user.groups, None))

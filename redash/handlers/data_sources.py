@@ -58,7 +58,9 @@ class DataSourceListResource(BaseResource):
         if self.current_user.has_permission('admin'):
             data_sources = models.DataSource.all(self.current_org)
         else:
-            data_sources = models.DataSource.all(self.current_org, group_ids=self.current_user.group_ids)
+            data_sources = models.DataSource.all(
+                self.current_org,
+                groups=self.current_user.groups)
 
         response = {}
         for ds in data_sources:

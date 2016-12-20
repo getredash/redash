@@ -19,7 +19,7 @@ class QueryTest(BaseTestCase):
         q1 = self.factory.create_query(name=u"Testing seåřċħ")
         q2 = self.factory.create_query(name=u"Testing seåřċħing")
         q3 = self.factory.create_query(name=u"Testing seå řċħ")
-        queries = list(Query.search(u"seåřċħ", [self.factory.default_group.id]))
+        queries = list(Query.search(u"seåřċħ", [self.factory.default_group]))
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -30,7 +30,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description=u"Testing seåřċħing")
         q3 = self.factory.create_query(description=u"Testing seå řċħ")
 
-        queries = Query.search(u"seåřċħ", [self.factory.default_group.id])
+        queries = Query.search(u"seåřċħ", [self.factory.default_group])
 
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
@@ -41,7 +41,7 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing searching")
         q3 = self.factory.create_query(description="Testing sea rch")
         db.session.flush()
-        queries = Query.search(str(q3.id), [self.factory.default_group.id])
+        queries = Query.search(str(q3.id), [self.factory.default_group])
 
         self.assertIn(q3, queries)
         self.assertNotIn(q1, queries)
@@ -56,18 +56,18 @@ class QueryTest(BaseTestCase):
         q2 = self.factory.create_query(description="Testing searching")
         q3 = self.factory.create_query(description="Testing sea rch")
 
-        queries = list(Query.search("Testing", [self.factory.default_group.id]))
+        queries = list(Query.search("Testing", [self.factory.default_group]))
 
         self.assertNotIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
 
-        queries = list(Query.search("Testing", [other_group.id, self.factory.default_group.id]))
+        queries = list(Query.search("Testing", [other_group, self.factory.default_group]))
         self.assertIn(q1, queries)
         self.assertIn(q2, queries)
         self.assertIn(q3, queries)
 
-        queries = list(Query.search("Testing", [other_group.id]))
+        queries = list(Query.search("Testing", [other_group]))
         self.assertIn(q1, queries)
         self.assertNotIn(q2, queries)
         self.assertNotIn(q3, queries)
@@ -76,11 +76,12 @@ class QueryTest(BaseTestCase):
         other_group = self.factory.create_group()
         second_group = self.factory.create_group()
         ds = self.factory.create_data_source(group=other_group)
+        u = self.factory.create_user(groups=[self.factory.default_group, other_group, second_group])
         ds.add_group(second_group, False)
 
         q1 = self.factory.create_query(description="Testing search", data_source=ds)
         db.session.flush()
-        queries = list(Query.search("Testing", [self.factory.default_group.id, other_group.id, second_group.id]))
+        queries = list(Query.search("Testing", u.groups))
 
         self.assertEqual(1, len(queries))
 
@@ -93,11 +94,6 @@ class QueryTest(BaseTestCase):
         db.session.flush()
         self.assertNotEqual(q.updated_at, one_day_ago)
 
-    def test_search_is_case_insensitive(self):
-        q = self.factory.create_query(name="Testing search")
-
-        self.assertIn(q, Query.search('testing', [self.factory.default_group.id]))
-
 
 class QueryRecentTest(BaseTestCase):
     def test_global_recent(self):
@@ -105,9 +101,9 @@ class QueryRecentTest(BaseTestCase):
         q2 = self.factory.create_query()
         db.session.flush()
         e = Event(org=self.factory.org, user=self.factory.user, action="edit",
-                  object_type="query", object_id=q1.id)
+                         object_type="query", object_id=q1.id)
         db.session.add(e)
-        recent = Query.recent([self.factory.default_group.id])
+        recent = Query.recent([self.factory.default_group])
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
 
@@ -117,13 +113,13 @@ class QueryRecentTest(BaseTestCase):
 
         db.session.add_all([
             Event(org=self.factory.org, user=self.factory.user,
-                  action="edit", object_type="query",
-                  object_id=q1.id),
+                         action="edit", object_type="query",
+                         object_id=q1.id),
             Event(org=self.factory.org, user=self.factory.user,
-                  action="edit", object_type="query",
-                  object_id=q2.id)
+                         action="edit", object_type="query",
+                         object_id=q2.id)
         ])
-        recent = Query.recent([self.factory.default_group.id])
+        recent = Query.recent([self.factory.default_group])
 
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
@@ -133,14 +129,16 @@ class QueryRecentTest(BaseTestCase):
         q2 = self.factory.create_query()
         db.session.flush()
         e = Event(org=self.factory.org, user=self.factory.user, action="edit",
-                  object_type="query", object_id=q1.id)
+                         object_type="query", object_id=q1.id)
         db.session.add(e)
-        recent = Query.recent([self.factory.default_group.id], user_id=self.factory.user.id)
+        recent = list(Query.recent([self.factory.default_group], user=self.factory.user))
 
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)
 
-        recent = Query.recent([self.factory.default_group.id], user_id=self.factory.user.id + 1)
+        u2 = self.factory.create_user()
+        recent = list(Query.recent([self.factory.default_group],
+                                          user=u2))
         self.assertNotIn(q1, recent)
         self.assertNotIn(q2, recent)
 
@@ -150,11 +148,11 @@ class QueryRecentTest(BaseTestCase):
         q2 = self.factory.create_query(data_source=ds)
         db.session.flush()
         Event(org=self.factory.org, user=self.factory.user, action="edit",
-              object_type="query", object_id=q1.id)
+                     object_type="query", object_id=q1.id)
         Event(org=self.factory.org, user=self.factory.user, action="edit",
-              object_type="query", object_id=q2.id)
+                     object_type="query", object_id=q2.id)
 
-        recent = Query.recent([self.factory.default_group.id])
+        recent = Query.recent([self.factory.default_group])
 
         self.assertIn(q1, recent)
         self.assertNotIn(q2, recent)

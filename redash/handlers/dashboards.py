@@ -18,11 +18,16 @@ class RecentDashboardsResource(BaseResource):
         """
         Lists dashboards modified in the last 7 days.
         """
-        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
+        recent = [d.to_dict() for d in models.Dashboard.recent(
+            self.current_org,
+            self.current_user.groups,
+            self.current_user, for_user=True)]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id)]
+            global_recent = [d.to_dict() for d in models.Dashboard.recent(
+                self.current_org, self.current_user.groups,
+                self.current_user)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -33,7 +38,9 @@ class DashboardListResource(BaseResource):
         """
         Lists all accessible dashboards.
         """
-        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+        results = models.Dashboard.all(
+            self.current_org, self.current_user.groups,
+            self.current_user)
         return [q.to_dict() for q in results]
 
     @require_permission('create_dashboard')

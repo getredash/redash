@@ -46,7 +46,7 @@ class QuerySearchResource(BaseResource):
         term = request.args.get('q', '')
         include_drafts = request.args.get('include_drafts') is not None
 
-        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts)]
+        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.groups, include_drafts=include_drafts)]
 
 
 class QueryRecentResource(BaseResource):
@@ -57,12 +57,12 @@ class QueryRecentResource(BaseResource):
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
-        queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
+        queries = models.Query.recent(self.current_user.groups, self.current_user)
         recent = [d.to_dict(with_last_modified_by=False) for d in queries]
 
         global_recent = []
         if len(recent) < 10:
-            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.group_ids)]
+            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.groups)]
 
         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
@@ -137,8 +137,7 @@ class QueryListResource(BaseResource):
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        
-        results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+        results = models.Query.all_queries(self.current_user.groups)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
