@@ -75,7 +75,8 @@ class GroupMemberListResource(BaseResource):
         user_id = request.json['user_id']
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
-        user.group_ids.append(group.id)
+        # Need to do it this way, as otherwise SQLAlchemy doesn't pick up the change :\
+        user.group_ids = user.group_ids + [group.id]
 
         self.record_event({
             'action': 'add_member',

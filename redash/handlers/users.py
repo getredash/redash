@@ -110,6 +110,7 @@ class UserResource(BaseResource):
 
         try:
             self.update_model(user, params)
+        # TODO: this won't be triggered at this point. Need to call db.session.commit?
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."
