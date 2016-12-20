@@ -112,7 +112,7 @@ class Python(BaseQueryRunner):
         return iter(obj)
 
     def add_result_column(self, result, column_name, friendly_name, column_type):
-        """Helper function to add columns inside a Python script running in re:dash in an easier way
+        """Helper function to add columns inside a Python script running in Redash in an easier way
 
         Parameters:
         :result dict: The result dict
