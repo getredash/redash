@@ -276,7 +276,7 @@ class Group(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def members(cls, group_id):
-        return User.query.filter(group_id == db.func.any_(User.c.groups))
+        return User.query.filter(User.group_ids.any(group_id))
 
     @classmethod
     def find_by_name(cls, org, group_names):
