@@ -58,10 +58,6 @@ class QueryListResource(BaseResource):
         for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:
             query_def.pop(field, None)
 
-        # If we already executed this query, save the query result reference
-        if 'latest_query_data_id' in query_def:
-            query_def['latest_query_data'] = query_def.pop('latest_query_data_id')
-
         query_def['query_text'] = query_def.pop('query')
         query_def['user'] = self.current_user
         query_def['data_source'] = data_source
