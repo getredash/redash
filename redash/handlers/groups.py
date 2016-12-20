@@ -12,6 +12,7 @@ class GroupListResource(BaseResource):
         name = request.json['name']
         group = models.Group(name=name, org=self.current_org)
         models.db.session.add(group)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'create',
@@ -75,8 +76,9 @@ class GroupMemberListResource(BaseResource):
         user_id = request.json['user_id']
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
-        # Need to do it this way, as otherwise SQLAlchemy doesn't pick up the change :\
-        user.group_ids = user.group_ids + [group.id]
+        user.group_ids.append(group.id)
+
+        models.db.session.commit()
 
         self.record_event({
             'action': 'add_member',
@@ -103,6 +105,8 @@ class GroupMemberResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         user.group_ids.remove(int(group_id))
 
+        models.db.session.commit()
+
         self.record_event({
             'action': 'remove_member',
             'timestamp': int(time.time()),
@@ -112,6 +116,12 @@ class GroupMemberResource(BaseResource):
         })
 
 
+def serialize_data_source_with_group(data_source, data_source_group):
+    d = data_source.to_dict()
+    d['view_only'] = data_source_group.view_only
+    return d
+
+
 class GroupDataSourceListResource(BaseResource):
     @require_admin
     def post(self, group_id):
@@ -119,7 +129,9 @@ class GroupDataSourceListResource(BaseResource):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
-        data_source.add_group(group)
+        data_source_group = data_source.add_group(group)
+
+        models.db.session.commit()
 
         self.record_event({
             'action': 'add_data_source',
@@ -129,12 +141,13 @@ class GroupDataSourceListResource(BaseResource):
             'member_id': data_source.id
         })
 
-        return data_source.to_dict(with_permissions_for=group)
+        return serialize_data_source_with_group(data_source, data_source_group)
 
     @require_admin
     def get(self, group_id):
         group = get_object_or_404(models.Group.get_by_id_and_org, group_id,
                                   self.current_org)
+
         # TOOD: move to models
         data_sources = (models.DataSource.query
                         .join(models.DataSourceGroup)
@@ -150,7 +163,9 @@ class GroupDataSourceResource(BaseResource):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         view_only = request.json['view_only']
 
-        data_source.update_group_permission(group, view_only)
+        data_source_group = data_source.update_group_permission(group, view_only)
+
+        models.db.session.commit()
 
         self.record_event({
             'action': 'change_data_source_permission',
@@ -161,7 +176,7 @@ class GroupDataSourceResource(BaseResource):
             'view_only': view_only
         })
 
-        return data_source.to_dict(with_permissions_for=group)
+        return serialize_data_source_with_group(data_source, data_source_group)
 
     @require_admin
     def delete(self, group_id, data_source_id):

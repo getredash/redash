@@ -104,6 +104,25 @@ class MutableDict(Mutable, dict):
         self.changed()
 
 
+class MutableList(Mutable, list):
+    def append(self, value):
+        list.append(self, value)
+        self.changed()
+
+    def remove(self, value):
+        list.remove(self, value)
+        self.changed()
+
+    @classmethod
+    def coerce(cls, key, value):
+        if not isinstance(value, MutableList):
+            if isinstance(value, list):
+                return MutableList(value)
+            return Mutable.coerce(key, value)
+        else:
+            return value
+
+
 class TimestampMixin(object):
     updated_at = Column(db.DateTime(True), default=db.func.now(),
                            onupdate=db.func.now(), nullable=False)
@@ -295,7 +314,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     email = Column(db.String(320))
     password_hash = Column(db.String(128), nullable=True)
     #XXX replace with association table
-    group_ids = Column('groups', postgresql.ARRAY(db.Integer), nullable=True)
+    group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
     api_key = Column(db.String(40),
                      default=lambda: generate_token(40),
                      unique=True)
@@ -422,7 +441,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         if with_permissions_for is not None:
             d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
                 DataSourceGroup.group == with_permissions_for,
-                DataSourceGroup.data_source == self).one()
+                DataSourceGroup.data_source == self).one()[0]
 
         return d
 
@@ -475,18 +494,21 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
         db.session.add(dsg)
+        return dsg
 
     def remove_group(self, group):
         db.session.query(DataSourceGroup).filter(
             DataSourceGroup.group == group,
             DataSourceGroup.data_source == self).delete()
+        db.session.commit()
 
     def update_group_permission(self, group, view_only):
-        dsg = db.session.query(DataSourceGroup).filter(
+        dsg = DataSourceGroup.query.filter(
             DataSourceGroup.group == group,
-            DataSourceGroup.data_source == self)
+            DataSourceGroup.data_source == self).one()
         dsg.view_only = view_only
         db.session.add(dsg)
+        return dsg
 
     @property
     def query_runner(self):
