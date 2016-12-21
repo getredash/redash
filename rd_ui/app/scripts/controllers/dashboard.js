@@ -14,14 +14,27 @@
     $scope.isFullscreen = false;
     $scope.refreshRate = 60;
     $scope.showPermissionsControl = clientConfig.showPermissionsControl;
+    $scope.globalParams = [];
+    $scope.reloadChildren = [];
 
     var renderDashboard = function (dashboard) {
       $scope.$parent.pageTitle = dashboard.name;
 
       var promises = [];
+      var globalParams = {};
 
       _.each($scope.dashboard.widgets, function (row) {
         return _.each(row, function (widget) {
+          _.each(widget.getQuery().getParametersDefs(), function (param) {
+            if (param.name[0] === '$') {
+              // TODO: Check if the types are different
+              var defaults = {};
+              defaults[param.name] = _.clone(param);
+              defaults[param.name].locals = [];
+              var globals = _.defaults(globalParams, defaults);
+              globals[param.name].locals.push(param);
+            }
+          });
           if (widget.visualization) {
             var queryResult = widget.getQuery().getQueryResult();
             if (angular.isDefined(queryResult))
@@ -29,6 +42,15 @@
           }
         });
       });
+
+      $scope.globalParams = _.values(globalParams);
+      $scope.$watch('globalParams', function (newVal, oldVal) {
+        _.each(newVal, function (global) {
+          _.each(global.locals, function (local) {
+            local.value = global.value;
+          });
+        });
+      }, true);
 
       $q.all(promises).then(function(queryResults) {
         var filters = {};
@@ -143,6 +165,12 @@
       $scope.toggleFullscreen();
     }
 
+    $scope.reload = function() {
+      _.each($scope.reloadChildren, function (reload) {
+        reload(true);
+      });
+    };
+
     $scope.triggerRefresh = function() {
       $scope.refreshEnabled = !$scope.refreshEnabled;
 
@@ -255,6 +283,8 @@
       }
       $scope.queryResult = $scope.query.getQueryResult(maxAge);
     };
+
+    $scope.reloadChildren.push($scope.reload);
 
     if ($scope.widget.visualization) {
       Events.record(currentUser, "view", "query", $scope.widget.visualization.query.id);

@@ -4,6 +4,9 @@
 <div class="container">
     <page-header title="{{dashboard.name}}">
       <span ng-if="!dashboard.is_archived && !public" class="hidden-print">
+          <button type="button" class="btn btn-sm" ng-class="{'btn-default': !refreshEnabled, 'btn-primary': refreshEnabled}" tooltip="Manual Refresh" ng-click="reload()">
+            <span class="zmdi zmdi-refresh-sync-alert"></span>
+          </button>
           <button type="button" class="btn btn-sm" ng-class="{'btn-default': !refreshEnabled, 'btn-primary': refreshEnabled}" tooltip="Enable/Disable Auto Refresh" ng-click="triggerRefresh()">
             <span class="zmdi zmdi-refresh"></span>
           </button>
@@ -32,6 +35,10 @@
 
   <div class="m-b-5">
     <filters ng-if="dashboard.dashboard_filters_enabled"></filters>
+  </div>
+
+  <div class="m-b-5">
+    <parameters parameters="globalParams"></parameters>
   </div>
 
     <div ng-repeat="row in dashboard.widgets" class="row">
