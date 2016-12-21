@@ -236,10 +236,10 @@ class BaseElasticSearch(BaseQueryRunner):
             r.raise_for_status()
         except requests.HTTPError as e:
             logger.exception(e)
-            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            raise Exception("Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text))
         except requests.exceptions.RequestException as e:
             logger.exception(e)
-            error = "Connection refused"
+            raise Exception("Connection refused")
 
 
 class Kibana(BaseElasticSearch):
