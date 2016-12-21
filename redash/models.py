@@ -234,7 +234,7 @@ class Organization(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     slug = Column(db.String(255), unique=True)
-    settings = Column(MutableDict.as_mutable(PseudoJSON))
+    settings = Column(MutableDict.as_mutable(postgresql.JSON))
     groups = db.relationship("Group", lazy="dynamic")
 
     __tablename__ = 'organizations'
@@ -702,7 +702,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
-    options = Column(MutableDict.as_mutable(PseudoJSON), default={})
+    options = Column(MutableDict.as_mutable(postgresql.JSON), default={})
     groups = association_proxy("data_source", "groups")
     group_ids = association_proxy("data_source", "group_ids")
 
@@ -987,7 +987,7 @@ class Change(GFKBase, db.Model):
     object_version = Column(db.Integer, default=0)
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='changes')
-    change = Column(PseudoJSON)
+    change = Column(postgresql.JSON)
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = 'changes'
@@ -1029,7 +1029,7 @@ class Alert(TimestampMixin, db.Model):
     query_rel = db.relationship(Query, backref=backref('alerts', cascade="all"))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='alerts')
-    options = Column(MutableDict.as_mutable(PseudoJSON))
+    options = Column(MutableDict.as_mutable(postgresql.JSON))
     state = Column(db.String(255), default=UNKNOWN_STATE)
     subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
@@ -1044,7 +1044,7 @@ class Alert(TimestampMixin, db.Model):
             .join(Query)\
             .join(DataSourceGroup, DataSourceGroup.data_source_id==Query.data_source_id)\
             .filter(DataSourceGroup.group_id.in_(group_ids))\
-            .group_by(Alert)
+            .group_by(Alert.id)
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
