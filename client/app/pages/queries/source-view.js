@@ -91,7 +91,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
     AlertDialog.open(title, message, confirm).then(() => {
       Events.record('delete', 'visualization', vis.id);
 
-      Visualization.delete(vis, () => {
+      Visualization.delete({ id: vis.id }, () => {
         if ($scope.selectedTab === vis.id) {
           $scope.selectedTab = DEFAULT_TAB;
           $location.hash($scope.selectedTab);
