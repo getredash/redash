@@ -43,9 +43,7 @@ function DynamicTable($sanitize) {
     }
   };
 
-  this.sanitize = (value) => {
-    return $sanitize(value);
-  }
+  this.sanitize = value => $sanitize(value);
 
   this.sortIcon = (column) => {
     if (column !== this.orderByField) {
