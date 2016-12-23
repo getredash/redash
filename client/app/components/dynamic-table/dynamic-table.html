@@ -10,8 +10,7 @@
     </thead>
     <tbody>
     <tr ng-repeat="row in $ctrl.rows">
-      <td ng-repeat="column in $ctrl.columns">
-        {{column.formatFunction(row[column.name])}}
+      <td ng-repeat="column in $ctrl.columns" ng-bind-html="$ctrl.sanitize(column.formatFunction(row[column.name]))">
       </td>
     </tr>
     </tbody>

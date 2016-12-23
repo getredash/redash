@@ -2,7 +2,9 @@ import { sortBy } from 'underscore';
 import template from './dynamic-table.html';
 import './dynamic-table.css';
 
-function DynamicTable() {
+function DynamicTable($sanitize) {
+  'ngInject';
+
   this.itemsPerPage = this.count = 15;
   this.page = 1;
   this.rowsCount = 0;
@@ -40,6 +42,10 @@ function DynamicTable() {
       this.pageChanged();
     }
   };
+
+  this.sanitize = (value) => {
+    return $sanitize(value);
+  }
 
   this.sortIcon = (column) => {
     if (column !== this.orderByField) {
