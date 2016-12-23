@@ -33,7 +33,7 @@ function DynamicTable() {
     }
 
     if (this.orderByField) {
-      this.allRows = sortBy(this.allRows, this.orderByField);
+      this.allRows = sortBy(this.allRows, this.orderByField.name);
       if (this.orderByReverse) {
         this.allRows = this.allRows.reverse();
       }

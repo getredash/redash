@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { each, isString, object, pluck } from 'underscore';
+import { _, partial, isString } from 'underscore';
 import { getColumnCleanName } from '../../services/query-result';
 import template from './table.html';
 
@@ -62,23 +62,13 @@ function GridRenderer(clientConfig) {
           $scope.filters = $scope.queryResult.getFilters();
 
           const columns = $scope.queryResult.getColumns();
-          const columnsMap = object(pluck(columns, 'name'), pluck(columns, 'type'));
+          columns.forEach((col) => {
+            col.title = getColumnCleanName(col.name);
+            col.formatFunction = partial(formatValue, $filter, clientConfig, _, col.type);
+          });
 
-          const prepareGridData = (data) => {
-            const gridData = data.map((row) => {
-              const newRow = {};
-              each(row, (val, key) => {
-                const formattedValue = formatValue($filter, clientConfig, val, columnsMap[key]);
-                newRow[getColumnCleanName(key)] = formattedValue;
-              });
-              return newRow;
-            });
-
-            return gridData;
-          };
-
-          $scope.gridRows = prepareGridData($scope.queryResult.getData());
-          $scope.gridColumns = $scope.queryResult.getColumnCleanNames();
+          $scope.gridRows = $scope.queryResult.getData();
+          $scope.gridColumns = columns;
         }
       });
     },
