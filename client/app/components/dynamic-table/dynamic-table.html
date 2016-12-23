@@ -3,7 +3,7 @@
     <thead>
     <tr>
       <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.orderBy(column)" class="sortable-column">
-        {{column}} <span ng-if="$ctrl.sortIcon(column)"><i class="fa fa-sort-{{$ctrl.sortIcon(column)}}"></i></span>
+        {{column.title}} <span ng-if="$ctrl.sortIcon(column)"><i class="fa fa-sort-{{$ctrl.sortIcon(column)}}"></i></span>
       </th>
     </tr>
 
@@ -11,7 +11,7 @@
     <tbody>
     <tr ng-repeat="row in $ctrl.rows">
       <td ng-repeat="column in $ctrl.columns">
-        {{row[column]}}
+        {{column.formatFunction(row[column.name])}}
       </td>
     </tr>
     </tbody>
