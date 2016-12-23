@@ -54,24 +54,18 @@ class Cassandra(BaseSQLQueryRunner):
         return "Cassandra"
 
     def _get_tables(self, schema):
-        CF_query = """
-        select columnfamily_name from system.schema_columnfamilies where keyspace_name = '{}';
+        query = """
+        SELECT columnfamily_name, column_name FROM system.schema_columns where keyspace_name ='{}';
         """.format(self.configuration['keyspace'])
 
-        results, error = self.run_query(CF_query, None)
+        results, error = self.run_query(query, None)
         results = json.loads(results)
         for row in results['rows']:
             table_name = row['columnfamily_name']
+            column_name = row['column_name']
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
-            CN_query = """
-            SELECT column_name FROM system.schema_columns where keyspace_name ='{}' and columnfamily_name ='{}';
-            """.format(self.configuration['keyspace'], table_name)
-            columns, error = self.run_query(CN_query, None)
-            columns = json.loads(columns)
-            for col in columns['rows']:
-                column_name = col['column_name']
-                schema[table_name]['columns'].append(col['column_name'])
+            schema[table_name]['columns'].append(column_name)
 
         return schema.values()
 
