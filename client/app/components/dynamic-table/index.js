@@ -12,8 +12,8 @@ function DynamicTable($sanitize) {
   this.orderByReverse = false;
 
   this.pageChanged = () => {
-    const first = this.count * (this.page - 1);
-    const last = this.count * (this.page);
+    const first = this.itemsPerPage * (this.page - 1);
+    const last = this.itemsPerPage * (this.page);
 
     this.rows = this.allRows.slice(first, last);
   };
