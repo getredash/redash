@@ -1,7 +1,12 @@
 from __future__ import absolute_import
 import json
 
-import snowflake.connector
+try:
+    import snowflake.connector
+    enabled = True
+except ImportError:
+    enabled = False
+
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
@@ -46,6 +51,10 @@ class Snowflake(BaseQueryRunner):
             "required": ["user", "password", "account", "database", "warehouse"],
             "secret": ["password"]
         }
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     def run_query(self, query, user):
         connection = snowflake.connector.connect(
