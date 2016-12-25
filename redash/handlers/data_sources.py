@@ -57,9 +57,7 @@ class DataSourceListResource(BaseResource):
         if self.current_user.has_permission('admin'):
             data_sources = models.DataSource.all(self.current_org)
         else:
-            data_sources = models.DataSource.all(
-                self.current_org,
-                group_ids=self.current_user.group_ids)
+            data_sources = models.DataSource.all(self.current_org, group_ids=self.current_user.group_ids)
 
         response = {}
         for ds in data_sources:
@@ -95,6 +93,9 @@ class DataSourceListResource(BaseResource):
                                                          name=req['name'],
                                                          type=req['type'],
                                                          options=config)
+
+        models.db.session.commit()
+
         self.record_event({
             'action': 'create',
             'object_id': datasource.id,
