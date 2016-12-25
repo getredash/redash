@@ -96,6 +96,8 @@ class TestDataSourceListAPIPost(BaseTestCase):
 
         self.assertEqual(rv.status_code, 200)
 
+        self.assertIsNotNone(DataSource.query.get(rv.json['id']))
+
 
 class TestDataSourcePausePost(BaseTestCase):
     def test_pauses_data_source(self):
