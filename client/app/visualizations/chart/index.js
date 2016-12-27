@@ -23,7 +23,7 @@ function ChartRenderer() {
       }
 
       function reloadData() {
-        if (!isUndefined($scope.queryResult)) {
+        if (!isUndefined($scope.queryResult) && $scope.queryResult.getData()) {
           const data = $scope.queryResult.getChartData($scope.options.columnMapping);
           $scope.chartSeries = sortBy(data, zIndexCompare);
         }
