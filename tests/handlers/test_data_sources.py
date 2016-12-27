@@ -3,7 +3,7 @@ import json
 from funcy import pairwise
 
 from tests import BaseTestCase
-from redash.models import DataSource
+from redash.models import DataSource, Query
 
 
 class TestDataSourceGetSchema(BaseTestCase):
@@ -45,9 +45,9 @@ class DataSourceTypesTest(BaseTestCase):
         self.assertEqual(rv.status_code, 403)
 
 
-class TestDataSourceAPIPost(BaseTestCase):
+class TestDataSourceResourcePost(BaseTestCase):
     def setUp(self):
-        super(TestDataSourceAPIPost, self).setUp()
+        super(TestDataSourceResourcePost, self).setUp()
         self.path = "/api/data_sources/{}".format(self.factory.data_source.id)
 
     def test_returns_400_when_configuration_invalid(self):
@@ -72,7 +72,40 @@ class TestDataSourceAPIPost(BaseTestCase):
         self.assertEqual(data_source.options.to_dict(), new_options)
 
 
-class TestDataSourceListAPIPost(BaseTestCase):
+class TestDataSourceResourceDelete(BaseTestCase):
+    def test_deletes_the_data_source(self):
+        data_source = self.factory.create_data_source()
+        admin = self.factory.create_admin()
+
+        rv = self.make_request('delete', '/api/data_sources/{}'.format(data_source.id), user=admin)
+
+        self.assertEqual(204, rv.status_code)
+        self.assertIsNone(DataSource.query.get(data_source.id))
+
+    def test_sets_queries_data_source_to_null(self):
+        data_source = self.factory.create_data_source()
+        admin = self.factory.create_admin()
+        query = self.factory.create_query(data_source=data_source)
+
+        rv = self.make_request('delete', '/api/data_sources/{}'.format(data_source.id), user=admin)
+
+        self.assertEqual(204, rv.status_code)
+        self.assertIsNone(DataSource.query.get(data_source.id))
+
+        self.assertIsNone(Query.query.get(query.id).data_source_id)
+
+    def test_deletes_child_models(self):
+        data_source = self.factory.create_data_source()
+        admin = self.factory.create_admin()
+        query_result = self.factory.create_query_result(data_source=data_source)
+
+        rv = self.make_request('delete', '/api/data_sources/{}'.format(data_source.id), user=admin)
+
+        self.assertEqual(204, rv.status_code)
+        self.assertIsNone(DataSource.query.get(data_source.id))
+
+
+class TestDataSourceListResourcePost(BaseTestCase):
     def test_returns_400_when_missing_fields(self):
         admin = self.factory.create_admin()
         rv = self.make_request('post', "/api/data_sources", user=admin)
