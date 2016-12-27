@@ -46,7 +46,8 @@ class DataSourceResource(BaseResource):
     @require_admin
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        data_source.delete_instance(recursive=True)
+        models.db.session.delete(data_source)
+        models.db.session.commit()
 
         return make_response('', 204)
 

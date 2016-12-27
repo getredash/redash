@@ -13,7 +13,7 @@ from sqlalchemy.event import listens_for
 from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.orm import object_session
+from sqlalchemy.orm import object_session, backref
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -549,7 +549,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization)
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
-    data_source = db.relationship(DataSource)
+    data_source = db.relationship(DataSource, backref=backref('query_results', cascade="all, delete-orphan"))
     query_hash = Column(db.String(32), index=True)
     query_text = Column('query', db.Text)
     data = Column(db.Text)
@@ -657,7 +657,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
-    data_source = db.relationship(DataSource)
+    data_source = db.relationship(DataSource, backref='queries')
     latest_query_data_id = Column(db.Integer, db.ForeignKey("query_results.id"), nullable=True)
     latest_query_data = db.relationship(QueryResult)
     name = Column(db.String(255))

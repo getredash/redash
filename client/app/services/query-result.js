@@ -312,6 +312,10 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     prepareFilters() {
+      if (!this.getColumns()) {
+        return;
+      }
+
       const filters = [];
       const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
 
