@@ -65,14 +65,13 @@ class QueryListResource(BaseResource):
         query_def['is_draft'] = True
         query = models.Query.create(**query_def)
         models.db.session.add(query)
-        models.db.session.commit()
 
         self.record_event({
             'action': 'create',
             'object_id': query.id,
             'object_type': 'query'
         })
-
+        models.db.session.commit()
         return query.to_dict()
 
     @require_permission('view_query')
@@ -121,8 +120,7 @@ class QueryResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = query.to_dict(with_visualizations=True)
-        return result
+        return query.to_dict(with_visualizations=True)
 
     @require_permission('view_query')
     def get(self, query_id):
@@ -138,6 +136,7 @@ class QueryResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_admin_or_owner(query.user_id)
         query.archive(self.current_user)
+        models.db.session.commit()
 
 
 class QueryForkResource(BaseResource):
@@ -145,6 +144,7 @@ class QueryForkResource(BaseResource):
     def post(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         forked_query = query.fork(self.current_user)
+        models.db.session.commit()
         return forked_query.to_dict(with_visualizations=True)
 
 

@@ -39,7 +39,7 @@ class DestinationResource(BaseResource):
         destination.name = req['name']
 
         models.db.session.add(destination)
-
+        models.db.session.commit()
         return destination.to_dict(all=True)
 
     @require_admin
@@ -88,5 +88,5 @@ class DestinationListResource(BaseResource):
                                                      user=self.current_user)
 
         models.db.session.add(destination)
-
+        models.db.session.commit()
         return destination.to_dict(all=True)

@@ -60,10 +60,10 @@ class ObjectPermissionsListResource(BaseResource):
             'action': 'grant_permission',
             'object_id': object_id,
             'object_type': object_type,
+            'grantee': grantee.id,
             'access_type': access_type,
-            'grantee': grantee.id
         })
-
+        db.session.commit()
         return permission.to_dict()
 
     def delete(self, object_type, object_id):

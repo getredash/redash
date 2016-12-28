@@ -13,6 +13,7 @@ logger = get_task_logger(__name__)
 def record_event(event):
     original_event = event.copy()
     models.Event.record(event)
+    models.db.session.commit()
     for hook in settings.EVENT_REPORTING_WEBHOOKS:
         logger.debug("Forwarding event to: %s", hook)
         try:

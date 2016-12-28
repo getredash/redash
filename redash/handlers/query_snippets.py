@@ -35,13 +35,13 @@ class QuerySnippetResource(BaseResource):
                                     snippet_id, self.current_org)
         require_admin_or_owner(snippet.user.id)
         models.db.session.delete(snippet)
-        models.db.session.commit()
 
         self.record_event({
             'action': 'delete',
             'object_id': snippet.id,
             'object_type': 'query_snippet'
         })
+        models.db.session.commit()
 
 
 class QuerySnippetListResource(BaseResource):

@@ -28,7 +28,7 @@ class AlertResource(BaseResource):
             'object_id': alert.id,
             'object_type': 'alert'
         })
-
+        models.db.session.commit()
         return alert.to_dict()
 
     def delete(self, alert_id):

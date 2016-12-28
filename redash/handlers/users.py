@@ -108,17 +108,6 @@ class UserResource(BaseResource):
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
 
-        try:
-            self.update_model(user, params)
-        # TODO: this won't be triggered at this point. Need to call db.session.commit?
-        except IntegrityError as e:
-            if "email" in e.message:
-                message = "Email already taken."
-            else:
-                message = "Error updating record"
-
-            abort(400, message=message)
-
         self.record_event({
             'action': 'edit',
             'timestamp': int(time.time()),
@@ -126,6 +115,16 @@ class UserResource(BaseResource):
             'object_type': 'user',
             'updated_fields': params.keys()
         })
+        try:
+            self.update_model(user, params)
+            models.db.session.commit()
+        except IntegrityError as e:
+            if "email" in e.message:
+                message = "Email already taken."
+            else:
+                message = "Error updating record"
+
+            abort(400, message=message)
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 

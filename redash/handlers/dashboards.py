@@ -123,7 +123,7 @@ class DashboardShareResource(BaseResource):
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
-
+        models.db.session.commit()
         return {'public_url': public_url, 'api_key': api_key.api_key}
 
     def delete(self, dashboard_id):

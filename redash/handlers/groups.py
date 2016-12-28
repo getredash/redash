@@ -20,7 +20,7 @@ class GroupListResource(BaseResource):
             'object_id': group.id,
             'object_type': 'group'
         })
-
+        models.db.session.commit()
         return group.to_dict()
 
     def get(self):
@@ -49,7 +49,7 @@ class GroupResource(BaseResource):
             'object_id': group.id,
             'object_type': 'group'
         })
-
+        models.db.session.commit()
         return group.to_dict()
 
     def get(self, group_id):
@@ -78,8 +78,6 @@ class GroupMemberListResource(BaseResource):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         user.group_ids.append(group.id)
 
-        models.db.session.commit()
-
         self.record_event({
             'action': 'add_member',
             'timestamp': int(time.time()),
@@ -87,7 +85,7 @@ class GroupMemberListResource(BaseResource):
             'object_type': 'group',
             'member_id': user.id
         })
-
+        models.db.session.commit()
         return user.to_dict()
 
     @require_permission('list_users')
@@ -105,8 +103,6 @@ class GroupMemberResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         user.group_ids.remove(int(group_id))
 
-        models.db.session.commit()
-
         self.record_event({
             'action': 'remove_member',
             'timestamp': int(time.time()),
@@ -114,6 +110,7 @@ class GroupMemberResource(BaseResource):
             'object_type': 'group',
             'member_id': user.id
         })
+        models.db.session.commit()
 
 
 def serialize_data_source_with_group(data_source, data_source_group):
@@ -131,7 +128,6 @@ class GroupDataSourceListResource(BaseResource):
 
         data_source_group = data_source.add_group(group)
 
-        models.db.session.commit()
 
         self.record_event({
             'action': 'add_data_source',
@@ -140,7 +136,7 @@ class GroupDataSourceListResource(BaseResource):
             'object_type': 'group',
             'member_id': data_source.id
         })
-
+        models.db.session.commit()
         return serialize_data_source_with_group(data_source, data_source_group)
 
     @require_admin
@@ -165,8 +161,6 @@ class GroupDataSourceResource(BaseResource):
 
         data_source_group = data_source.update_group_permission(group, view_only)
 
-        models.db.session.commit()
-
         self.record_event({
             'action': 'change_data_source_permission',
             'timestamp': int(time.time()),
@@ -175,6 +169,7 @@ class GroupDataSourceResource(BaseResource):
             'member_id': data_source.id,
             'view_only': view_only
         })
+        models.db.session.commit()
 
         return serialize_data_source_with_group(data_source, data_source_group)
 
@@ -192,3 +187,4 @@ class GroupDataSourceResource(BaseResource):
             'object_type': 'group',
             'member_id': data_source.id
         })
+        models.db.session.commit()
