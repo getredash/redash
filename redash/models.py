@@ -12,6 +12,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import object_session, backref
 # noinspection PyUnresolvedReferences
@@ -26,6 +27,8 @@ from redash.query_runner import get_query_runner, get_configuration_schema_for_q
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
 from redash.metrics import database
+
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 db = SQLAlchemy()
 Column = functools.partial(db.Column, nullable=False)
@@ -130,6 +133,45 @@ class TimestampMixin(object):
                            nullable=False)
 
 
+class ChangeBase(object):
+    id = Column(db.Integer, primary_key=True)
+    # 'object' defined in subclasses
+    object_version = Column(db.Integer, default=0)
+    @declared_attr
+    def user_id(cls):
+        return Column(db.Integer, db.ForeignKey("users.id"))
+    @declared_attr
+    def user(cls):
+        return db.relationship("User")
+    change = Column(PseudoJSON)
+    created_at = Column(db.DateTime(True), default=db.func.now())
+
+    def to_dict(self, full=True):
+        d = {
+            'id': self.id,
+            'object_id': self.object_id,
+            'object_type': self.object_type,
+            'change_type': self.change_type,
+            'object_version': self.object_version,
+            'change': self.change,
+            'created_at': self.created_at
+        }
+
+        if full:
+            d['user'] = self.user.to_dict()
+        else:
+            d['user_id'] = self.user_id
+
+        return d
+
+    @classmethod
+    def last_change(cls, obj):
+        return db.session.query(cls).filter(
+            cls.object_id == obj.id,
+            cls.object_type == obj.__class__.__tablename__).order_by(
+                cls.object_version.desc()).first()
+
+
 class ChangeTrackingMixin(object):
     skipped_fields = ('id', 'created_at', 'updated_at', 'version')
     _clean_values = None
@@ -137,6 +179,16 @@ class ChangeTrackingMixin(object):
     def __init__(self, *a, **kw):
         super(ChangeTrackingMixin, self).__init__(*a, **kw)
         self.record_changes(self.user)
+
+    @declared_attr
+    def changes(cls):
+        class Change(ChangeBase, db.Model):
+            object_id = Column(db.Integer, db.ForeignKey(cls.__tablename__ + ".id"))
+            object = db.relationship(cls)
+            object_type = cls.__tablename__
+            __tablename__ = cls.__tablename__ + "_changes"
+        cls.Change = Change
+        return db.relationship(cls.Change, cascade="all,delete,delete-orphan")
 
     def prep_cleanvalues(self):
         self.__dict__['_clean_values'] = {}
@@ -164,11 +216,10 @@ class ChangeTrackingMixin(object):
             if attr.key not in self.skipped_fields:
                 changes[col.name] = {'previous': self._clean_values[col.name],
                                      'current': getattr(self, attr.key)}
-
-        db.session.add(Change(object=self,
-                              object_version=self.version,
-                              user=changed_by,
-                              change=changes))
+        db.session.add(self.Change(object=self,
+                                   object_version=self.version,
+                                   user=changed_by,
+                                   change=changes))
 
 
 class BelongsToOrgMixin(object):
@@ -848,20 +899,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         db.session.add(forked_query)
         return forked_query
 
-    def update_instance_tracked(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.update_instance(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
-    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.save(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
     @property
     def runtime(self):
         return self.latest_query_data.runtime
@@ -960,44 +997,6 @@ class AccessPermission(GFKBase, db.Model):
         }
         return d
 
-
-class Change(GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    # 'object' defined in GFKBase
-    object_version = Column(db.Integer, default=0)
-    user_id = Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship(User, backref='changes')
-    change = Column(PseudoJSON)
-    created_at = Column(db.DateTime(True), default=db.func.now())
-
-    __tablename__ = 'changes'
-
-    def to_dict(self, full=True):
-        d = {
-            'id': self.id,
-            'object_id': self.object_id,
-            'object_type': self.object_type,
-            'change_type': self.change_type,
-            'object_version': self.object_version,
-            'change': self.change,
-            'created_at': self.created_at
-        }
-
-        if full:
-            d['user'] = self.user.to_dict()
-        else:
-            d['user_id'] = self.user_id
-
-        return d
-
-    @classmethod
-    def last_change(cls, obj):
-        return db.session.query(cls).filter(
-            cls.object_id == obj.id,
-            cls.object_type == obj.__class__.__tablename__).order_by(
-                cls.object_version.desc()).first()
-
-
 class Alert(TimestampMixin, db.Model):
     UNKNOWN_STATE = 'unknown'
     OK_STATE = 'ok'
@@ -1006,12 +1005,12 @@ class Alert(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
-    query_rel = db.relationship(Query, backref=backref('alerts', cascade="all"))
+    query_rel = db.relationship(Query, backref=backref('alerts', cascade="all,delete,delete-orphan"))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='alerts')
     options = Column(MutableDict.as_mutable(PseudoJSON))
     state = Column(db.String(255), default=UNKNOWN_STATE)
-    subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
+    subscriptions = db.relationship("AlertSubscription", cascade="all,delete,delete-orphan")
     last_triggered_at = Column(db.DateTime(True), nullable=True)
     rearm = Column(db.Integer, nullable=True)
 
