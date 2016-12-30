@@ -148,11 +148,11 @@ class ChangeTrackingMixin(object):
     def __setattr__(self, key, value):
         if self._clean_values is None:
             self.prep_cleanvalues()
-        for attr in inspect(self.__class__).column_attrs:
-            col, = attr.columns
-            previous = getattr(self, attr.key, None)
-            self._clean_values[col.name] = previous
-
+        key_cols = {attr.key: attr.columns[0] for attr in
+                    inspect(self.__class__).column_attrs}
+        if key in key_cols:
+            previous = getattr(self, key, None)
+            self._clean_values[key_cols[key]] = previous
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 
     def record_changes(self, changed_by):
