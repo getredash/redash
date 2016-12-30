@@ -9,6 +9,8 @@ const ParameterSettingsComponent = {
     dismiss: '&',
   },
   controller() {
+    'ngInject';
+
     this.parameter = this.resolve.parameter;
   },
 };

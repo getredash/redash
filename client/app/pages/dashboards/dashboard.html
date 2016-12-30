@@ -55,7 +55,7 @@
   </div>
 
   <div class="m-b-5">
-    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
+    <new-filters ng-if="$ctrl.dashboard.dashboard_filters_enabled" filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></new-filters>
   </div>
 
   <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
