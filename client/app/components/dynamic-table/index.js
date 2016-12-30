@@ -19,8 +19,14 @@ function DynamicTable($sanitize) {
   };
 
   this.$onChanges = (changes) => {
-    this.columns = changes.columns.currentValue;
-    this.allRows = changes.rows.currentValue;
+    if (changes.columns) {
+      this.columns = changes.columns.currentValue;
+    }
+
+    if (changes.rows) {
+      this.allRows = changes.rows.currentValue;
+    }
+
     this.rowsCount = this.allRows.length;
 
     this.pageChanged();
