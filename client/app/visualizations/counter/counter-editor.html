@@ -2,7 +2,7 @@
   <div class="form-group">
     <label class="col-lg-6">Counter Value Column Name</label>
     <div class="col-lg-6">
-      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.counterColName" class="form-control"></select>
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.counterColName" class="form-control"></select>
     </div>
   </div>
   <div class="form-group">
@@ -14,7 +14,7 @@
   <div class="form-group">
     <label class="col-lg-6">Target Value Column Name</label>
     <div class="col-lg-6">
-      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.targetColName" class="form-control">
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.targetColName" class="form-control">
         <option value="">No target value</option>
       </select>
     </div>
