@@ -1,6 +1,6 @@
 import template from './filters.html';
 
-const NewFiltersComponent = {
+const FiltersComponent = {
   template,
   bindings: {
     onChange: '&',
@@ -17,5 +17,5 @@ const NewFiltersComponent = {
 
 
 export default function (ngModule) {
-  ngModule.component('newFilters', NewFiltersComponent);
+  ngModule.component('filters', FiltersComponent);
 }

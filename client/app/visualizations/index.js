@@ -1,8 +1,6 @@
 import moment from 'moment';
 import { isEmpty, isArray, reduce } from 'underscore';
 
-import filtersTemplate from './filters.html';
-
 import registerEditVisualizationDialog from './edit-visualization-dialog';
 import counterVisualization from './counter';
 import tableVisualization from './table';
@@ -99,7 +97,7 @@ function VisualizationRenderer(Visualization) {
     // TODO: using switch here (and in the options editor) might introduce errors and bad
     // performance wise. It's better to eventually show the correct template based on the
     // visualization type and not make the browser render all of them.
-    template: `<filters></filters>\n${Visualization.renderVisualizationsTemplate}`,
+    template: `<filters filters="filters"></filters>\n${Visualization.renderVisualizationsTemplate}`,
     replace: false,
     link(scope) {
       scope.$watch('queryResult && queryResult.getFilters()', (filters) => {
@@ -121,13 +119,6 @@ function VisualizationOptionsEditor(Visualization) {
       query: '=',
       queryResult: '=',
     },
-  };
-}
-
-function Filters() {
-  return {
-    restrict: 'E',
-    template: filtersTemplate,
   };
 }
 
@@ -158,7 +149,6 @@ export default function (ngModule) {
   ngModule.directive('visualizationRenderer', VisualizationRenderer);
   ngModule.directive('visualizationOptionsEditor', VisualizationOptionsEditor);
   ngModule.directive('visualizationName', VisualizationName);
-  ngModule.directive('filters', Filters);
   ngModule.filter('filterValue', FilterValueFilter);
   registerEditVisualizationDialog(ngModule);
   chartVisualization(ngModule);
