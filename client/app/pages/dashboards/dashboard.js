@@ -4,7 +4,6 @@ import shareDashboardTemplate from './share-dashboard.html';
 
 function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
-  this.refreshEnabled = false;
   this.isFullscreen = false;
   this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
@@ -63,12 +62,6 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
             if (hasQueryStringValue) {
               filter.current = $location.search()[filter.name];
             }
-
-            // $scope.$watch(() => filter.current, (value) => {
-            //   _.each(filter.originFilters, (originFilter) => {
-            //     originFilter.current = value;
-            //   });
-            // });
           }
 
           // TODO: merge values.
@@ -77,6 +70,11 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
       });
 
       this.filters = _.values(filters);
+      this.filtersOnChange = (filter) => {
+        _.each(filter.originFilters, (originFilter) => {
+          originFilter.current = filter.current;
+        });
+      };
     });
   };
 

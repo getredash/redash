@@ -17,3 +17,4 @@ export { default as rdTimer } from './rd-timer';
 export { default as rdTimeAgo } from './rd-time-ago';
 export { default as overlay } from './overlay';
 export { default as routeStatus } from './route-status';
+export { default as filters } from './filters';
