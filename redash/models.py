@@ -222,6 +222,100 @@ class ChangeTrackingMixin(object):
                                    change=changes))
 
 
+class AccessPermissionBase(object):
+    id = Column(db.Integer, primary_key=True)
+    # 'object' defined in GFKBase
+    access_type = Column(db.String(255))
+
+    @declared_attr
+    def grantor_id(cls):
+        return Column(db.Integer, db.ForeignKey("users.id"))
+
+    @declared_attr
+    def grantor(cls):
+        return db.relationship("User", foreign_keys=[cls.grantor_id])
+
+    @declared_attr
+    def grantee_id(cls):
+        return Column(db.Integer, db.ForeignKey("users.id"))
+
+    @declared_attr
+    def grantee(cls):
+        return db.relationship("User", foreign_keys=[cls.grantee_id])
+
+    @classmethod
+    def grant(cls, obj, access_type, grantee, grantor):
+        grant = cls.query.filter(
+            cls.object == obj,
+            cls.access_type == access_type,
+            cls.grantee == grantee,
+            cls.grantor == grantor).one_or_none()
+
+        if not grant:
+            grant = cls(
+                object=obj,
+                access_type=access_type,
+                grantee=grantee,
+                grantor=grantor)
+            db.session.add(grant)
+
+        return grant
+
+    @classmethod
+    def revoke(cls, obj, grantee, access_type=None):
+        permissions = cls._query(obj, access_type, grantee)
+        return permissions.delete()
+
+    @classmethod
+    def find(cls, obj, access_type=None, grantee=None, grantor=None):
+        return cls._query(obj, access_type, grantee, grantor)
+
+    @classmethod
+    def exists(cls, obj, access_type, grantee):
+        return cls.find(obj, access_type, grantee).count() > 0
+
+    @classmethod
+    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
+        q = cls.query.filter(cls.object == obj)
+
+        if access_type:
+            q.filter(cls.access_type == access_type)
+
+        if grantee:
+            q.filter(cls.grantee == grantee)
+
+        if grantor:
+            q.filter(cls.grantor == grantor)
+
+        return q
+
+    def to_dict(self):
+        d = {
+            'id': self.id,
+            'object_id': self.object_id,
+            'object_type': self.object_type,
+            'access_type': self.access_type,
+            'grantor': self.grantor_id,
+            'grantee': self.grantee_id
+        }
+        return d
+
+
+class HasAccessPermissionsMixin(object):
+    @declared_attr
+    def permissions(cls):
+
+        class AccessPermission(AccessPermissionBase, db.Model):
+            object_id = Column(db.Integer,
+                               db.ForeignKey(cls.__tablename__ + ".id"))
+            object = db.relationship(cls)
+            object_type = cls.__tablename__
+            __tablename__ = cls.__tablename__ + "_accesspermission"
+        cls.AccessPermission = AccessPermission
+        return db.relationship(cls.AccessPermission,
+                               cascade="all,delete,delete-orphan")
+
+
 class BelongsToOrgMixin(object):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
@@ -440,7 +534,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         db.session.add(self)
 
     def has_access(self, obj, access_type):
-        return AccessPermission.exists(obj, access_type, grantee=self)
+        return obj.AccessPermission.exists(obj, access_type, grantee=self)
 
 
 class Configuration(TypeDecorator):
@@ -702,7 +796,8 @@ def should_schedule_next(previous_iteration, now, schedule):
     return now > next_iteration
 
 
-class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin,
+            HasAccessPermissionsMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
@@ -928,75 +1023,6 @@ def query_last_modified_by(target, val, oldval, initiator):
     target.last_modified_by_id = val
 
 
-class AccessPermission(GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    # 'object' defined in GFKBase
-    access_type = Column(db.String(255))
-    grantor_id = Column(db.Integer, db.ForeignKey("users.id"))
-    grantor = db.relationship(User, backref='grantor', foreign_keys=[grantor_id])
-    grantee_id = Column(db.Integer, db.ForeignKey("users.id"))
-    grantee = db.relationship(User, backref='grantee', foreign_keys=[grantee_id])
-
-    __tablename__ = 'access_permissions'
-
-    @classmethod
-    def grant(cls, obj, access_type, grantee, grantor):
-        grant = cls.query.filter(cls.object_type==obj.__tablename__,
-                                 cls.object_id==obj.id,
-                                 cls.access_type==access_type,
-                                 cls.grantee==grantee,
-                                 cls.grantor==grantor).one_or_none()
-
-        if not grant:
-            grant = cls(object_type=obj.__tablename__,
-                        object_id=obj.id,
-                        access_type=access_type,
-                        grantee=grantee,
-                        grantor=grantor)
-            db.session.add(grant)
-
-        return grant
-
-    @classmethod
-    def revoke(cls, obj, grantee, access_type=None):
-        permissions = cls._query(obj, access_type, grantee)
-        return permissions.delete()
-
-    @classmethod
-    def find(cls, obj, access_type=None, grantee=None, grantor=None):
-        return cls._query(obj, access_type, grantee, grantor)
-
-    @classmethod
-    def exists(cls, obj, access_type, grantee):
-        return cls.find(obj, access_type, grantee).count() > 0
-
-    @classmethod
-    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
-        q = cls.query.filter(cls.object_id == obj.id,
-                             cls.object_type == obj.__tablename__)
-
-        if access_type:
-            q.filter(AccessPermission.access_type == access_type)
-
-        if grantee:
-            q.filter(AccessPermission.grantee == grantee)
-
-        if grantor:
-            q.filter(AccessPermission.grantor == grantor)
-
-        return q
-
-    def to_dict(self):
-        d = {
-            'id': self.id,
-            'object_id': self.object_id,
-            'object_type': self.object_type,
-            'access_type': self.access_type,
-            'grantor': self.grantor_id,
-            'grantee': self.grantee_id
-        }
-        return d
-
 class Alert(TimestampMixin, db.Model):
     UNKNOWN_STATE = 'unknown'
     OK_STATE = 'ok'
@@ -1084,7 +1110,8 @@ def generate_slug(ctx):
     return slug
 
 
-class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin,
+                HasAccessPermissionsMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))

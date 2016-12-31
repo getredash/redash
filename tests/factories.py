@@ -88,13 +88,6 @@ query_with_params_factory = ModelFactory(redash.models.Query,
                              data_source=data_source_factory.create,
                              org_id=1)
 
-access_permission_factory = ModelFactory(redash.models.AccessPermission,
-                             object_id=query_factory.create,
-                             object_type=redash.models.Query.__name__,
-                             access_type=ACCESS_TYPE_MODIFY,
-                             grantor=user_factory.create,
-                             grantee=user_factory.create)
-
 alert_factory = ModelFactory(redash.models.Alert,
                              name=Sequence('Alert {}'),
                              query_rel=query_factory.create,
@@ -281,13 +274,6 @@ class Factory(object):
         }
         args.update(kwargs)
         return query_with_params_factory.create(**args)
-
-    def create_access_permission(self, **kwargs):
-        args = {
-            'grantor': self.user
-        }
-        args.update(kwargs)
-        return access_permission_factory.create(**args)
 
     def create_query_result(self, **kwargs):
         args = {

@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.models import AccessPermission, Query, Dashboard, User, db
+from redash.models import Query, Dashboard, User, db
 from redash.permissions import require_admin_or_owner, ACCESS_TYPES
 from flask import request
 from flask_restful import abort
@@ -27,7 +27,7 @@ class ObjectPermissionsListResource(BaseResource):
         obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
 
         # TODO: include grantees in search to avoid N+1 queries
-        permissions = AccessPermission.find(obj)
+        permissions = model.AccessPermission.find(obj)
 
         result = defaultdict(list)
 
@@ -54,7 +54,7 @@ class ObjectPermissionsListResource(BaseResource):
         except NoResultFound:
             abort(400, message='User not found.')
 
-        permission = AccessPermission.grant(obj, access_type, grantee, self.current_user)
+        permission = model.AccessPermission.grant(obj, access_type, grantee, self.current_user)
         db.session.commit()
 
         self.record_event({
@@ -81,8 +81,7 @@ class ObjectPermissionsListResource(BaseResource):
         grantee = User.query.get(req['user_id'])
         if grantee is None:
             abort(400, message='User not found.')
-
-        AccessPermission.revoke(obj, grantee, access_type)
+        model.AccessPermission.revoke(obj, grantee, access_type)
         db.session.commit()
 
         self.record_event({
@@ -100,7 +99,7 @@ class CheckPermissionResource(BaseResource):
         obj = get_object_or_404(model.get_by_id_and_org, object_id,
                                 self.current_org)
 
-        has_access = AccessPermission.exists(obj, access_type,
-                                             self.current_user)
+        has_access = model.AccessPermission.exists(
+            obj, access_type, self.current_user)
 
         return {'response': has_access}

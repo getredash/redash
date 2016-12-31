@@ -1,6 +1,6 @@
 from tests import BaseTestCase
 
-from redash.models import AccessPermission
+from redash.models import Query
 from redash.permissions import ACCESS_TYPE_MODIFY
 
 
@@ -17,8 +17,9 @@ class TestObjectPermissionsListGet(BaseTestCase):
         query = self.factory.create_query()
         user = self.factory.user
 
-        AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY,
-                               grantor=self.factory.user, grantee=self.factory.user)
+        Query.AccessPermission.grant(
+            obj=query, access_type=ACCESS_TYPE_MODIFY,
+            grantor=self.factory.user, grantee=self.factory.user)
 
         rv = self.make_request('get', '/api/queries/{}/acl'.format(query.id), user=user)
 
@@ -47,7 +48,8 @@ class TestObjectPermissionsListPost(BaseTestCase):
         rv = self.make_request('post', '/api/queries/{}/acl'.format(query.id), user=query.user, data=data)
 
         self.assertEqual(200, rv.status_code)
-        self.assertTrue(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
+        self.assertTrue(Query.AccessPermission.exists(
+            query, ACCESS_TYPE_MODIFY, other_user))
 
     def test_returns_403_if_the_user_isnt_owner(self):
         query = self.factory.create_query()
@@ -110,13 +112,16 @@ class TestObjectPermissionsListDelete(BaseTestCase):
             'user_id': other_user.id
         }
 
-        AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY, grantor=self.factory.user, grantee=other_user)
+        Query.AccessPermission.grant(
+            obj=query, access_type=ACCESS_TYPE_MODIFY,
+            grantor=self.factory.user, grantee=other_user)
 
         rv = self.make_request('delete', '/api/queries/{}/acl'.format(query.id), user=user, data=data)
 
         self.assertEqual(rv.status_code, 200)
 
-        self.assertFalse(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
+        self.assertFalse(Query.AccessPermission.exists(
+            query, ACCESS_TYPE_MODIFY, other_user))
 
     def test_removes_permission_created_by_another_user(self):
         query = self.factory.create_query()
@@ -127,14 +132,17 @@ class TestObjectPermissionsListDelete(BaseTestCase):
             'user_id': other_user.id
         }
 
-        AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY, grantor=self.factory.user, grantee=other_user)
+        Query.AccessPermission.grant(
+            obj=query, access_type=ACCESS_TYPE_MODIFY,
+            grantor=self.factory.user, grantee=other_user)
 
         rv = self.make_request('delete', '/api/queries/{}/acl'.format(query.id), user=self.factory.create_admin(),
                                data=data)
 
         self.assertEqual(rv.status_code, 200)
 
-        self.assertFalse(AccessPermission.exists(query, ACCESS_TYPE_MODIFY, other_user))
+        self.assertFalse(Query.AccessPermission.exists(
+            query, ACCESS_TYPE_MODIFY, other_user))
 
     def test_returns_404_for_outside_of_organization_users(self):
         query = self.factory.create_query()
@@ -178,7 +186,9 @@ class TestCheckPermissionsGet(BaseTestCase):
         query = self.factory.create_query()
         other_user = self.factory.create_user()
 
-        AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY, grantor=self.factory.user, grantee=other_user)
+        Query.AccessPermission.grant(
+            obj=query, access_type=ACCESS_TYPE_MODIFY,
+            grantor=self.factory.user, grantee=other_user)
 
         rv = self.make_request('get', '/api/queries/{}/acl/{}'.format(query.id, ACCESS_TYPE_MODIFY), user=other_user)
 
