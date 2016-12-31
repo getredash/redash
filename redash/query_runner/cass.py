@@ -15,7 +15,7 @@ except ImportError:
 
 
 class Cassandra(BaseSQLQueryRunner):
-    noop_query = "SELECT * FROM system.compactions_in_progress"
+    noop_query = "SELECT dateof(now()) FROM system.local"
 
     @classmethod
     def enabled(cls):
