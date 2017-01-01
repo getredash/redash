@@ -8,7 +8,7 @@ const EditDashboardDialog = {
     dismiss: '&',
   },
   template,
-  controller($location, $http, toastr, Events, Dashboard) {
+  controller($rootScope, $location, $http, toastr, Events, Dashboard) {
     'ngInject';
 
     this.dashboard = this.resolve.dashboard;
@@ -72,6 +72,7 @@ const EditDashboardDialog = {
           this.dashboard = dashboard;
           this.saveInProgress = false;
           this.close({ $value: this.dashboard });
+          $rootScope.$broadcast('reloadDashboards');
         }, (error) => {
           this.saveInProgress = false;
           if (error.status === 403) {

@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
-function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
+function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
   this.isFullscreen = false;
   this.refreshRate = null;
@@ -104,8 +104,7 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
       this.dashboard.$delete(() => {
-        // TODO:
-        // this.$parent.reloadDashboards();
+        $rootScope.$broadcast('reloadDashboards');
       });
     };
 
@@ -166,6 +165,7 @@ function DashboardCtrl($routeParams, $location, $timeout, $q, $uibModal,
     }, (dashboard) => {
       this.saveInProgress = false;
       this.dashboard.version = dashboard.version;
+      $rootScope.$broadcast('reloadDashboards');
     });
   };
 
