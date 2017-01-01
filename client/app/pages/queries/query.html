@@ -218,20 +218,16 @@
           </div>
           <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong>
           </div>
-          <div class="row log-container" ng-show="showLog">
-            <span ng-show="showLog">Log Information:</span>
-            <table>
-              <tbody>
-              <tr ng-repeat="l in queryResult.getLog()">
-                <td>{{l}}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
           <!-- End of Query Execution Status -->
 
           <!-- tabs and data -->
           <div ng-if="showDataset">
+            <div class="row p-10" ng-show="showLog">
+              <div class="col-lg-12">
+                <p>Log Information:</p>
+                <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
+              </div>
+            </div>
             <div class="row">
               <div class="col-lg-12">
                 <ul class="tab-nav">
