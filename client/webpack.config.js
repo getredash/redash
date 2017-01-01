@@ -14,7 +14,7 @@ var config = {
   output: {
     // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
     path: './dist',
-    filename: '[name].js',
+    filename: '[name].[chunkhash].js',
   },
 
   plugins: [
@@ -46,7 +46,7 @@ var config = {
       // template: __dirname + '/app/' + 'index.html'
       template: './app/index.html'
     }),
-    new ExtractTextPlugin('styles.css')
+    new ExtractTextPlugin('styles.[chunkhash].css')
   ],
 
   module: {
