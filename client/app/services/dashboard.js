@@ -26,8 +26,8 @@ function Dashboard($resource, $http, currentUser, Widget) {
       transformResponse: transform,
     },
   });
-  resource.prototype.canEdit = () => currentUser.canEdit(this) || this.can_edit;
 
+  resource.prototype.canEdit = () => currentUser.canEdit(this) || this.can_edit;
   return resource;
 }
 

@@ -17,23 +17,12 @@
             <span class="visible-xs visible-sm"><i class="zmdi zmdi-view-dashboard"></i> <b class="caret"></b></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
-                    <span ng-repeat="(name, group) in $ctrl.groupedDashboards">
-                        <li class="dropdown-submenu">
-                          <a href="#" ng-bind="name"></a>
-                          <ul class="dropdown-menu">
-                            <li ng-repeat="dashboard in group" role="presentation">
-                              <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
-                            </li>
-                          </ul>
-                        </li>
-                    </span>
-            <li ng-repeat="dashboard in $ctrl.otherDashboards">
-              <a role="menu-item" ng-href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
-            </li>
-            <li class="divider"
-                ng-show="$ctrl.currentUser.hasPermission('create_dashboard') && ($ctrl.groupedDashboards.length > 0 || $ctrl.otherDashboards.length > 0)"></li>
             <li><a ng-show="$ctrl.currentUser.hasPermission('create_dashboard')" ng-click="$ctrl.newDashboard()">New Dashboard</a></li>
             <li><a href="dashboards">Dashboards</a></li>
+            <li class="divider" ng-if="$ctrl.dashboards | notEmpty"></li>
+            <li ng-repeat="dashboard in $ctrl.dashboards">
+              <a href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+            </li>
           </ul>
         </li>
         <li class="dropdown" ng-show="$ctrl.showQueriesMenu" uib-dropdown>
@@ -49,7 +38,7 @@
       </ul>
       <form class="navbar-form navbar-left" role="search" ng-submit="$ctrl.searchQueries()">
         <div class="form-group">
-          <input type="text" ng-model="term" class="form-control" placeholder="Search queries...">
+          <input type="text" ng-model="$ctrl.term" class="form-control" placeholder="Search queries...">
         </div>
         <button type="submit" class="btn btn-default"><span class="zmdi zmdi-search"></span></button>
       </form>
