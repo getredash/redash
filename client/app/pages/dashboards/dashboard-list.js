@@ -1,12 +1,13 @@
 import _ from 'underscore';
+
+import { Paginator } from '../../utils';
 import template from './dashboard-list.html';
 
-function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConfig, NgTableParams) {
+function DashboardListCtrl(Dashboard, $location, clientConfig) {
   const self = this;
 
   this.logoUrl = clientConfig.logoUrl;
   const page = parseInt($location.search().page || 1, 10);
-  const count = 25;
 
   this.defaultOptions = {};
   this.dashboards = Dashboard.query({}); // shared promise
@@ -22,7 +23,7 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
     } else {
       this.selectedTags.push(tag);
     }
-    this.tableParams.reload();
+    this.update();
   };
 
   this.allTags = [];
@@ -31,36 +32,36 @@ function DashboardListCtrl($scope, Dashboard, $location, currentUser, clientConf
     this.allTags = _.unique(_.flatten(out)).filter(e => e);
   });
 
-  this.tableParams = new NgTableParams({ page, count }, {
-    getData(params) {
-      const options = params.url();
-      $location.search('page', options.page);
+  this.paginator = new Paginator([], { page });
 
-      return self.dashboards.$promise.then((data) => {
-        params.total(data.count);
-        return data.map((dashboard) => {
-          dashboard.tags = dashboard.name.match(/(^\w+):|(#\w+)/ig);
-          dashboard.untagged_name = dashboard.name.replace(/(\w+):|(#\w+)/ig, '').trim();
-          return dashboard;
-        }).filter((value) => {
-          if (self.selectedTags.length) {
-            const valueTags = new Set(value.tags);
-            const tagMatch = self.selectedTags;
-            const filteredMatch = tagMatch.filter(x => valueTags.has(x));
-            if (tagMatch.length !== filteredMatch.length) {
-              return false;
-            }
+  this.update = () => {
+    self.dashboards.$promise.then((data) => {
+      const filteredDashboards = data.map((dashboard) => {
+        dashboard.tags = dashboard.name.match(/(^\w+):|(#\w+)/ig);
+        dashboard.untagged_name = dashboard.name.replace(/(\w+):|(#\w+)/ig, '').trim();
+        return dashboard;
+      }).filter((value) => {
+        if (self.selectedTags.length) {
+          const valueTags = new Set(value.tags);
+          const tagMatch = self.selectedTags;
+          const filteredMatch = tagMatch.filter(x => valueTags.has(x));
+          if (tagMatch.length !== filteredMatch.length) {
+            return false;
           }
-          if (self.searchText && self.searchText.length) {
-            if (!value.untagged_name.toLowerCase().includes(self.searchText)) {
-              return false;
-            }
+        }
+        if (self.searchText && self.searchText.length) {
+          if (!value.untagged_name.toLowerCase().includes(self.searchText)) {
+            return false;
           }
-          return true;
-        });
+        }
+        return true;
       });
-    },
-  });
+
+      this.paginator.updateRows(filteredDashboards, data.count);
+    });
+  };
+
+  this.update();
 }
 
 export default function (ngModule) {

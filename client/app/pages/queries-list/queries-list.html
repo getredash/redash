@@ -3,15 +3,28 @@
   <tab-nav tabs="$ctrl.tabs"></tab-nav>
 
   <div class="bg-white">
-    <table class="table table-condensed table-hover" ng-table="$ctrl.tableParams">
-      <tr ng-repeat="query in $data">
-        <td data-title="'Name'"><a href="queries/{{query.id}}">{{query.name}}</a></td>
-        <td data-title="'Created By'">{{query.user.name}}</td>
-        <td data-title="'Created At'">{{query.created_at | dateTime}}</td>
-        <td data-title="'Runtime'">{{query.runtime | durationHumanize}}</td>
-        <td data-title="'Last Executed At'">{{query.retrieved_at | dateTime}}</td>
-        <td data-title="'Update Schedule'">{{query.schedule | scheduleHumanize}}</td>
+    <table class="table table-condensed table-hover">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Created By</th>
+        <th>Created At</th>
+        <th>Runtime</th>
+        <th>Last Executed At</th>
+        <th>Update Schedule</th>
       </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
+        <td><a href="queries/{{query.id}}">{{query.name}}</a></td>
+        <td>{{query.user.name}}</td>
+        <td>{{query.created_at | dateTime}}</td>
+        <td>{{query.runtime | durationHumanize}}</td>
+        <td>{{query.retrieved_at | dateTime}}</td>
+        <td>{{query.schedule | scheduleHumanize}}</td>
+      </tr>
+      </tbody>
     </table>
+    <paginator paginator="$ctrl.paginator"></paginator>
   </div>
 </div>

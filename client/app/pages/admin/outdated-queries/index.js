@@ -1,19 +1,19 @@
 import moment from 'moment';
+
+import { Paginator } from '../../../utils';
 import template from './outdated-queries.html';
 
-function OutdatedQueriesCtrl($scope, NgTableParams, currentUser, Events, $http, $timeout) {
+function OutdatedQueriesCtrl($scope, Events, $http, $timeout) {
   Events.record('view', 'page', 'admin/outdated_queries');
   $scope.autoUpdate = true;
 
-  this.tableParams = new NgTableParams({ count: 50 }, {});
+  this.queries = new Paginator([], { itemsPerPage: 50 });
 
   const refresh = () => {
     if ($scope.autoUpdate) {
       $scope.refresh_time = moment().add(1, 'minutes');
       $http.get('/api/admin/queries/outdated').success((data) => {
-        this.tableParams.settings({
-          dataset: data.queries,
-        });
+        this.queries.updateRows(data.queries);
         $scope.updatedAt = data.updated_at * 1000.0;
       });
     }
