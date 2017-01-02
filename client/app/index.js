@@ -23,7 +23,6 @@ import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
-import { ngTable } from 'ng-table';
 import { each } from 'underscore';
 
 import './sortable';
@@ -43,7 +42,7 @@ import dateTimeFilter from './filters/datetime';
 const logger = debug('redash');
 
 const requirements = [
-  ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, ngTable.name, 'angularMoment', toastr, 'ui.ace',
+  ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, 'angularMoment', toastr, 'ui.ace',
   ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name,
 ];
 

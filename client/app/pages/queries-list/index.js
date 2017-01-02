@@ -1,34 +1,15 @@
 import moment from 'moment';
+
+import { LivePaginator } from '../../utils';
 import template from './queries-list.html';
 
 class QueriesListCtrl {
-  constructor($scope, $location, NgTableParams, Title, Query) {
+  constructor($location, Title, Query) {
     const page = parseInt($location.search().page || 1, 10);
-    const count = 25;
 
     this.defaultOptions = {};
 
     const self = this;
-
-    this.tableParams = new NgTableParams({ page, count }, {
-      getData(params) {
-        const options = params.url();
-
-        $location.search('page', options.page);
-
-        const request = Object.assign({}, self.defaultOptions,
-          { page: options.page, page_size: options.count });
-
-        return self.resource(request).$promise.then((data) => {
-          params.total(data.count);
-          return data.results.map((query) => {
-            query.created_at = moment(query.created_at);
-            query.retrieved_at = moment(query.retrieved_at);
-            return query;
-          });
-        });
-      },
-    });
 
     switch ($location.path()) {
       case '/queries':
@@ -47,6 +28,25 @@ class QueriesListCtrl {
       default:
         break;
     }
+
+    function queriesFetcher(requestedPage, itemsPerPage, paginator) {
+      $location.search('page', requestedPage);
+
+      const request = Object.assign({}, self.defaultOptions,
+        { page: requestedPage, page_size: itemsPerPage });
+
+      return self.resource(request).$promise.then((data) => {
+        const rows = data.results.map((query) => {
+          query.created_at = moment(query.created_at);
+          query.retrieved_at = moment(query.retrieved_at);
+          return query;
+        });
+
+        paginator.updateRows(rows, data.count);
+      });
+    }
+
+    this.paginator = new LivePaginator(queriesFetcher, { page });
 
     this.tabs = [
       { name: 'My Queries', path: 'queries/my' },

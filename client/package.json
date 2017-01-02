@@ -6,7 +6,7 @@
   "scripts": {
     "test": "NODE_ENV=test karma start",
     "start": "webpack-dev-server --content-base app",
-    "build": "NODE_ENV=production node node_modules/.bin/webpack",
+    "build": "rm -rf dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
   },
   "repository": {
@@ -58,7 +58,6 @@
     "mustache": "^2.2.1",
     "ng-annotate": "^1.2.1",
     "ng-annotate-loader": "^0.2.0",
-    "ng-table": "^2.1.0",
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.3.0",
     "plotly.js": "^1.16.0",

@@ -1,9 +1,11 @@
+import { Paginator } from '../../utils';
 import template from './alerts-list.html';
 
 class AlertsListCtrl {
-  constructor(NgTableParams, currentUser, Events, Alert) {
+  constructor(Events, Alert) {
     Events.record('view', 'page', 'alerts');
-    this.tableParams = new NgTableParams({ count: 50 }, {});
+
+    this.alerts = new Paginator([], { itemsPerPage: 20 });
 
     Alert.query((alerts) => {
       const stateClass = {
@@ -16,9 +18,7 @@ class AlertsListCtrl {
         alert.class = stateClass[alert.state];
       });
 
-      this.tableParams.settings({
-        dataset: alerts,
-      });
+      this.alerts.updateRows(alerts);
     });
   }
 }

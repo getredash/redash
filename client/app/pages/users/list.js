@@ -1,7 +1,7 @@
 import { Paginator } from '../../utils';
 import template from './list.html';
 
-function UsersCtrl($location, toastr, currentUser, Events, User) {
+function UsersCtrl(currentUser, Events, User) {
   Events.record('view', 'page', 'users');
 
   this.currentUser = currentUser;

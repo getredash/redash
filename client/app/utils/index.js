@@ -1,2 +1,2 @@
-// eslint-disable-next-line import/prefer-default-export
 export { default as Paginator } from './paginator';
+export { default as LivePaginator } from './live-paginator';
