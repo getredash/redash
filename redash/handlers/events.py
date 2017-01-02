@@ -9,4 +9,3 @@ class EventResource(BaseResource):
         for event in events_list:
             self.record_event(event)
 
-

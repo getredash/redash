@@ -55,13 +55,14 @@ class ObjectPermissionsListResource(BaseResource):
             abort(400, message='User not found.')
 
         permission = AccessPermission.grant(obj, access_type, grantee, self.current_user)
+        db.session.commit()
 
         self.record_event({
             'action': 'grant_permission',
             'object_id': object_id,
             'object_type': object_type,
+            'grantee': grantee.id,
             'access_type': access_type,
-            'grantee': grantee.id
         })
 
         return permission.to_dict()
@@ -80,7 +81,9 @@ class ObjectPermissionsListResource(BaseResource):
         grantee = User.query.get(req['user_id'])
         if grantee is None:
             abort(400, message='User not found.')
+
         AccessPermission.revoke(obj, grantee, access_type)
+        db.session.commit()
 
         self.record_event({
             'action': 'revoke_permission',
@@ -89,7 +92,6 @@ class ObjectPermissionsListResource(BaseResource):
             'access_type': access_type,
             'grantee_id': grantee_id
         })
-        db.session.commit()
 
 
 class CheckPermissionResource(BaseResource):

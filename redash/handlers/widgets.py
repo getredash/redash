@@ -49,7 +49,7 @@ class WidgetListResource(BaseResource):
 
         widget.dashboard.layout = json.dumps(layout)
         models.db.session.add(widget.dashboard)
-
+        models.db.session.commit()
         return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row, 'version': dashboard.version}
 
 
@@ -61,14 +61,13 @@ class WidgetResource(BaseResource):
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties['text']
-
+        models.db.session.commit()
         return widget.to_dict()
 
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
-
         widget.delete()
-
+        models.db.session.commit()
         return {'layout': widget.dashboard.layout, 'version': widget.dashboard.version}

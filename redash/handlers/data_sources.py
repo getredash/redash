@@ -127,30 +127,24 @@ class DataSourcePauseResource(BaseResource):
             reason = request.args.get('reason')
 
         data_source.pause(reason)
-        models.db.session.add(data_source)
-        models.db.session.commit()
 
         self.record_event({
             'action': 'pause',
             'object_id': data_source.id,
             'object_type': 'datasource'
         })
-
         return data_source.to_dict()
 
     @require_admin
     def delete(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         data_source.resume()
-        models.db.session.add(data_source)
-        models.db.session.commit()
 
         self.record_event({
             'action': 'resume',
             'object_id': data_source.id,
             'object_type': 'datasource'
         })
-
         return data_source.to_dict()
 
 

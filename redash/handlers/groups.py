@@ -42,6 +42,7 @@ class GroupResource(BaseResource):
             abort(400, message="Can't modify built-in groups.")
 
         group.name = request.json['name']
+        models.db.session.commit()
 
         self.record_event({
             'action': 'edit',
@@ -77,7 +78,6 @@ class GroupMemberListResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         user.group_ids.append(group.id)
-
         models.db.session.commit()
 
         self.record_event({
@@ -87,7 +87,6 @@ class GroupMemberListResource(BaseResource):
             'object_type': 'group',
             'member_id': user.id
         })
-
         return user.to_dict()
 
     @require_permission('list_users')
@@ -104,7 +103,6 @@ class GroupMemberResource(BaseResource):
     def delete(self, group_id, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         user.group_ids.remove(int(group_id))
-
         models.db.session.commit()
 
         self.record_event({
@@ -130,7 +128,6 @@ class GroupDataSourceListResource(BaseResource):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
         data_source_group = data_source.add_group(group)
-
         models.db.session.commit()
 
         self.record_event({
@@ -164,7 +161,6 @@ class GroupDataSourceResource(BaseResource):
         view_only = request.json['view_only']
 
         data_source_group = data_source.update_group_permission(group, view_only)
-
         models.db.session.commit()
 
         self.record_event({
@@ -184,6 +180,7 @@ class GroupDataSourceResource(BaseResource):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
 
         data_source.remove_group(group)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'remove_data_source',

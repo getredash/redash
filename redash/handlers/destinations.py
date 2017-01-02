@@ -32,13 +32,13 @@ class DestinationResource(BaseResource):
         try:
             destination.options.set_schema(schema)
             destination.options.update(req['options'])
+            models.db.session.add(destination)
+            models.db.session.commit()
         except ValidationError:
             abort(400)
 
         destination.type = req['type']
         destination.name = req['name']
-
-        models.db.session.add(destination)
 
         return destination.to_dict(all=True)
 
@@ -88,5 +88,5 @@ class DestinationListResource(BaseResource):
                                                      user=self.current_user)
 
         models.db.session.add(destination)
-
+        models.db.session.commit()
         return destination.to_dict(all=True)

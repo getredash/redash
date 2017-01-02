@@ -57,6 +57,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
                                                                                   query_hash, query_text, data,
                                                                                   run_time, utils.utcnow())
 
+            models.db.session.commit()
         return data
     except Exception, e:
         if max_age > 0:
@@ -79,6 +80,7 @@ def embed(query_id, visualization_id, org_slug=None):
     })
 
     full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
+    models.db.session.commit()
     return send_file(full_path, **dict(cache_timeout=0, conditional=True))
 
 
@@ -94,6 +96,6 @@ def public_dashboard(token, org_slug=None):
     #     'headless': 'embed' in request.args,
     #     'referer': request.headers.get('Referer')
     # })
-
+    # models.db.session.commit()
     full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
     return send_file(full_path, **dict(cache_timeout=0, conditional=True))

@@ -71,7 +71,6 @@ class QueryResultListResource(BaseResource):
             'object_type': 'data_source',
             'query': query
         })
-
         return run_query(data_source, parameter_values, query, query_id, max_age)
 
 
