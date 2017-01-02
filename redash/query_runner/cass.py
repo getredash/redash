@@ -1,7 +1,7 @@
 import json
 import logging
 
-from redash.query_runner import BaseSQLQueryRunner, register
+from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ except ImportError:
     enabled = False
 
 
-class Cassandra(BaseSQLQueryRunner):
+class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
 
     @classmethod
@@ -53,13 +53,15 @@ class Cassandra(BaseSQLQueryRunner):
     def type(cls):
         return "Cassandra"
 
-    def _get_tables(self, schema):
+    def get_schema(self, get_stats=False):
         query = """
         SELECT columnfamily_name, column_name FROM system.schema_columns where keyspace_name ='{}';
         """.format(self.configuration['keyspace'])
 
         results, error = self.run_query(query, None)
         results = json.loads(results)
+
+        schema = {}
         for row in results['rows']:
             table_name = row['columnfamily_name']
             column_name = row['column_name']
