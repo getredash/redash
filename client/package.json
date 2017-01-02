@@ -20,7 +20,7 @@
   },
   "homepage": "https://redash.io/",
   "dependencies": {
-    "angular": "^1.5.8",
+    "angular": "~1.5.8",
     "angular-base64-upload": "^0.1.19",
     "angular-gridster": "^0.13.14",
     "angular-messages": "^1.5.8",
