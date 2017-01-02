@@ -21,13 +21,13 @@ class QuerySnippetResource(BaseResource):
         require_admin_or_owner(snippet.user.id)
 
         self.update_model(snippet, params)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'edit',
             'object_id': snippet.id,
             'object_type': 'query_snippet'
         })
-        models.db.session.commit()
         return snippet.to_dict()
 
     def delete(self, snippet_id):
@@ -35,13 +35,13 @@ class QuerySnippetResource(BaseResource):
                                     snippet_id, self.current_org)
         require_admin_or_owner(snippet.user.id)
         models.db.session.delete(snippet)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'delete',
             'object_id': snippet.id,
             'object_type': 'query_snippet'
         })
-        models.db.session.commit()
 
 
 class QuerySnippetListResource(BaseResource):
@@ -58,13 +58,14 @@ class QuerySnippetListResource(BaseResource):
         )
 
         models.db.session.add(snippet)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'create',
             'object_id': snippet.id,
             'object_type': 'query_snippet'
         })
-        models.db.session.commit()
+
         return snippet.to_dict()
 
     def get(self):

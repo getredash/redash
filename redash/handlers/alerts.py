@@ -21,6 +21,7 @@ class AlertResource(BaseResource):
         require_admin_or_owner(alert.user.id)
 
         self.update_model(alert, params)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'edit',
@@ -28,7 +29,7 @@ class AlertResource(BaseResource):
             'object_id': alert.id,
             'object_type': 'alert'
         })
-        models.db.session.commit()
+
         return alert.to_dict()
 
     def delete(self, alert_id):
@@ -57,6 +58,8 @@ class AlertListResource(BaseResource):
 
         models.db.session.add(alert)
         models.db.session.flush()
+        models.db.session.commit()
+
         self.record_event({
             'action': 'create',
             'timestamp': int(time.time()),
@@ -64,9 +67,7 @@ class AlertListResource(BaseResource):
             'object_type': 'alert'
         })
 
-        a = alert.to_dict()
-        models.db.session.commit()
-        return a
+        return alert.to_dict()
 
     @require_permission('list_alerts')
     def get(self):
@@ -87,6 +88,8 @@ class AlertSubscriptionListResource(BaseResource):
 
         subscription = models.AlertSubscription(**kwargs)
         models.db.session.add(subscription)
+        models.db.session.commit()
+
         self.record_event({
             'action': 'subscribe',
             'timestamp': int(time.time()),
@@ -96,7 +99,6 @@ class AlertSubscriptionListResource(BaseResource):
         })
 
         d = subscription.to_dict()
-        models.db.session.commit()
         return d
 
     def get(self, alert_id):
@@ -113,10 +115,11 @@ class AlertSubscriptionResource(BaseResource):
         subscription = models.AlertSubscription.query.get_or_404(subscriber_id)
         require_admin_or_owner(subscription.user.id)
         models.db.session.delete(subscription)
+        models.db.session.commit()
+
         self.record_event({
             'action': 'unsubscribe',
             'timestamp': int(time.time()),
             'object_id': alert_id,
             'object_type': 'alert'
         })
-        models.db.session.commit()

@@ -65,13 +65,14 @@ class QueryListResource(BaseResource):
         query_def['is_draft'] = True
         query = models.Query.create(**query_def)
         models.db.session.add(query)
+        models.db.session.commit()
 
         self.record_event({
             'action': 'create',
             'object_id': query.id,
             'object_type': 'query'
         })
-        models.db.session.commit()
+
         return query.to_dict()
 
     @require_permission('view_query')

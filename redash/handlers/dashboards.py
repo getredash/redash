@@ -66,7 +66,6 @@ class DashboardResource(BaseResource):
 
         require_object_modify_permission(dashboard, self.current_user)
 
-
         updates = project(dashboard_properties, ('name', 'layout', 'version',
                                                  'is_draft'))
 
@@ -116,6 +115,8 @@ class DashboardShareResource(BaseResource):
         require_admin_or_owner(dashboard.user_id)
         api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
         models.db.session.flush()
+        models.db.session.commit()
+
         public_url = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
 
         self.record_event({
@@ -123,7 +124,7 @@ class DashboardShareResource(BaseResource):
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
-        models.db.session.commit()
+
         return {'public_url': public_url, 'api_key': api_key.api_key}
 
     def delete(self, dashboard_id):
@@ -134,10 +135,10 @@ class DashboardShareResource(BaseResource):
         if api_key:
             api_key.active = False
             models.db.session.add(api_key)
+            models.db.session.commit()
 
         self.record_event({
             'action': 'deactivate_api_key',
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
-        models.db.session.commit()

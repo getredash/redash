@@ -108,13 +108,6 @@ class UserResource(BaseResource):
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
 
-        self.record_event({
-            'action': 'edit',
-            'timestamp': int(time.time()),
-            'object_id': user.id,
-            'object_type': 'user',
-            'updated_fields': params.keys()
-        })
         try:
             self.update_model(user, params)
             models.db.session.commit()
@@ -125,6 +118,14 @@ class UserResource(BaseResource):
                 message = "Error updating record"
 
             abort(400, message=message)
+
+        self.record_event({
+            'action': 'edit',
+            'timestamp': int(time.time()),
+            'object_id': user.id,
+            'object_type': 'user',
+            'updated_fields': params.keys()
+        })
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
