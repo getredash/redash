@@ -3,7 +3,7 @@ machine:
     - docker
   node:
     version:
-      6.1.0
+      6.9.1
   python:
     version:
       2.7.3
@@ -15,7 +15,6 @@ dependencies:
     - pip install pymongo==3.2.1
     - make deps
   cache_directories:
-    - node_modules/
     - client/node_modules/
 test:
   override:
