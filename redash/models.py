@@ -789,8 +789,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def search(cls, term, group_ids):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
-        where = (Query.name.like(u"%{}%".format(term)) |
-                 Query.description.like(u"%{}%".format(term)))
+        where = (Query.name.ilike(u"%{}%".format(term)) |
+                 Query.description.ilike(u"%{}%".format(term)))
 
         if term.isdigit():
             where |= Query.id == term
