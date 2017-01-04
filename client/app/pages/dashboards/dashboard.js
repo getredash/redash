@@ -31,27 +31,25 @@ function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q
     let globalParams = {};
     this.dashboard.widgets.forEach(row =>
       row.forEach((widget) => {
-        widget.getQuery().getParametersDefs().forEach((param) => {
-          if (param.name[0] === '$') {
-            const defaults = {};
-            defaults[param.name] = _.clone(param);
-            defaults[param.name].locals = [];
-            globalParams = _.defaults(globalParams, defaults);
-            globalParams[param.name].locals.push(param);
-          }
+        widget.getQuery().getGlobalParametersDefs().forEach((param) => {
+          const defaults = {};
+          defaults[param.name] = _.clone(param);
+          defaults[param.name].locals = [];
+          globalParams = _.defaults(globalParams, defaults);
+          globalParams[param.name].locals.push(param);
         });
       })
     );
     this.globalParameters = _.values(globalParams);
   };
 
-  $scope.$watch(() => this.globalParameters, (parameters) => {
-    _.each(parameters, (global) => {
+  this.onGlobalParametersChange = () => {
+    _.each(this.globalParameters, (global) => {
       _.each(global.locals, (local) => {
         local.value = global.value;
       });
     });
-  }, true);
+  };
 
   $scope.$on('deleteDashboardWidget', extractGlobalParameters);
 
