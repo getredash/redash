@@ -24,7 +24,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser) {
+function DashboardWidgetCtrl($location, $uibModal, $window, $scope, Events, currentUser) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -51,6 +51,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
       this.dashboard.layout = response.layout;
       this.dashboard.version = response.version;
+
+      $scope.$emit('deleteDashboardWidget');
     });
   };
 

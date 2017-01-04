@@ -2,12 +2,13 @@ import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
-function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibModal,
+function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
   this.isFullscreen = false;
   this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
+  this.globalParameters = [];
   this.refreshRates = [
     { name: '10 seconds', rate: 10 },
     { name: '30 seconds', rate: 30 },
@@ -26,6 +27,34 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     }
   };
 
+  const extractGlobalParameters = () => {
+    let globalParams = {};
+    this.dashboard.widgets.forEach(row =>
+      row.forEach((widget) => {
+        widget.getQuery().getParametersDefs().forEach((param) => {
+          if (param.name[0] === '$') {
+            const defaults = {};
+            defaults[param.name] = _.clone(param);
+            defaults[param.name].locals = [];
+            globalParams = _.defaults(globalParams, defaults);
+            globalParams[param.name].locals.push(param);
+          }
+        });
+      })
+    );
+    this.globalParameters = _.values(globalParams);
+  };
+
+  $scope.$watch(() => this.globalParameters, (parameters) => {
+    _.each(parameters, (global) => {
+      _.each(global.locals, (local) => {
+        local.value = global.value;
+      });
+    });
+  }, true);
+
+  $scope.$on('deleteDashboardWidget', extractGlobalParameters);
+
   const renderDashboard = (dashboard, force) => {
     Title.set(dashboard.name);
     const promises = [];
@@ -41,6 +70,8 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
          }
        })
     );
+
+    extractGlobalParameters();
 
     $q.all(promises).then((queryResults) => {
       const filters = {};
@@ -139,7 +170,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
       resolve: {
         dashboard: () => this.dashboard,
       },
-    });
+    }).result.then(() => extractGlobalParameters());
   };
 
   this.toggleFullscreen = () => {
