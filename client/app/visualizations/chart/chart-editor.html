@@ -18,8 +18,11 @@
       <label class="control-label">Chart Type</label>
       <div ng-if="chartTypes"><!--the if is a weird workaround-->
         <ui-select ng-model="options.globalSeriesType" on-select="chartTypeChanged()">
-          <ui-select-match placeholder="Choose chart type..."><i class="fa fa-{{$select.selected.value.icon}}"></i>
-            {{$select.selected.value.name}}
+          <ui-select-match placeholder="Choose chart type...">
+            <div>
+              <i class="fa fa-{{$select.selected.value.icon}}"></i>
+              {{$select.selected.value.name}}
+            </div>
           </ui-select-match>
           <ui-select-choices repeat="info.chartType as (chartType, info) in chartTypes">
             <div><i class="fa fa-{{info.value.icon}}"></i><span> </span><span
@@ -218,8 +221,11 @@
         </td>
         <td style="padding: 3px; width: 105px;">
           <ui-select ng-model="options.seriesOptions[name].type">
-            <ui-select-match placeholder="Chart Type"><i class="fa fa-{{$select.selected.value.icon}}"></i>
-              {{$select.selected.value.name}}
+            <ui-select-match placeholder="Chart Type">
+              <div>
+                <i class="fa fa-{{$select.selected.value.icon}}"></i>
+                {{$select.selected.value.name}}
+              </div>
             </ui-select-match>
             <ui-select-choices repeat="info.chartType as (chartType, info) in chartTypes">
               <div><i class="fa fa-{{info.value.icon}}"></i><span> </span><span
