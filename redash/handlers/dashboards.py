@@ -49,7 +49,7 @@ class DashboardResource(BaseResource):
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
         response = dashboard.to_dict(with_widgets=True, user=self.current_user)
 
-        api_key = models.ApiKey.get_by_object(dashboard)
+        api_key = dashboard.api_key
         if api_key:
             response['public_url'] = url_for('redash.public_dashboard', token=api_key.api_key, org_slug=self.current_org.slug, _external=True)
             response['api_key'] = api_key.api_key
@@ -101,7 +101,7 @@ class DashboardResource(BaseResource):
 class PublicDashboardResource(BaseResource):
     def get(self, token):
         if not isinstance(self.current_user, models.ApiUser):
-            api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
+            api_key = get_object_or_404(models.Dashboard.get_by_api_key, token)
             dashboard = api_key.object
         else:
             dashboard = self.current_user.object
@@ -113,7 +113,7 @@ class DashboardShareResource(BaseResource):
     def post(self, dashboard_id):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         require_admin_or_owner(dashboard.user_id)
-        api_key = models.ApiKey.create_for_object(dashboard, self.current_user)
+        api_key = dashboard.create_api_key(self.current_user)
         models.db.session.flush()
         models.db.session.commit()
 
@@ -130,7 +130,7 @@ class DashboardShareResource(BaseResource):
     def delete(self, dashboard_id):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         require_admin_or_owner(dashboard.user_id)
-        api_key = models.ApiKey.get_by_object(dashboard)
+        api_key = dashboard.api_key
 
         if api_key:
             api_key.active = False

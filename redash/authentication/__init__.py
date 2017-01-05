@@ -74,13 +74,14 @@ def get_user_from_api_key(api_key, query_id):
 
     user = None
 
-    # TODO: once we switch all api key storage into the ApiKey model, this code will be much simplified
     org = current_org._get_current_object()
     try:
         user = models.User.get_by_api_key_and_org(api_key, org)
     except models.NoResultFound:
         try:
-            api_key = models.ApiKey.get_by_api_key(api_key)
+            # XXX This code is only valid until things other than dashboards can
+            # be shared publically by api key.
+            api_key = models.Dashboard.get_by_api_key(api_key)
             user = models.ApiUser(api_key, api_key.org, [])
         except models.NoResultFound:
             if query_id:

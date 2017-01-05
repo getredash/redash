@@ -1,5 +1,5 @@
 from tests import BaseTestCase
-from redash.models import db
+from redash.models import Dashboard, db
 
 
 class TestEmbedVisualization(BaseTestCase):
@@ -45,14 +45,16 @@ class TestEmbedVisualization(BaseTestCase):
 class TestPublicDashboard(BaseTestCase):
     def test_success(self):
         dashboard = self.factory.create_dashboard()
-        api_key = self.factory.create_api_key(object=dashboard)
-
+        api_key = Dashboard.ApiKey(org=self.factory.org, active=True,
+                                   object=dashboard)
+        db.session.add(api_key)
+        db.session.flush()
         res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 200)
 
     def test_works_for_logged_in_user(self):
         dashboard = self.factory.create_dashboard()
-        api_key = self.factory.create_api_key(object=dashboard)
+        api_key = dashboard.create_api_key(self.factory.user)
 
         res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), is_json=False)
         self.assertEqual(res.status_code, 200)
@@ -63,7 +65,10 @@ class TestPublicDashboard(BaseTestCase):
 
     def test_inactive_token(self):
         dashboard = self.factory.create_dashboard()
-        api_key = self.factory.create_api_key(object=dashboard, active=False)
+        api_key = Dashboard.ApiKey(org=self.factory.org, active=False,
+                                   object=dashboard)
+        db.session.add(api_key)
+        db.session.flush()
         res = self.make_request('get', '/public/dashboards/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 302)
 
@@ -75,15 +80,15 @@ class TestPublicDashboard(BaseTestCase):
 class TestAPIPublicDashboard(BaseTestCase):
     def test_success(self):
         dashboard = self.factory.create_dashboard()
-        api_key = self.factory.create_api_key(object=dashboard)
-
+        api_key = dashboard.create_api_key(self.factory.user)
+        db.session.flush()
         res = self.make_request('get', '/api/dashboards/public/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 200)
 
     def test_works_for_logged_in_user(self):
         dashboard = self.factory.create_dashboard()
-        api_key = self.factory.create_api_key(object=dashboard)
-
+        api_key = dashboard.create_api_key(self.factory.user)
+        db.session.flush()
         res = self.make_request('get', '/api/dashboards/public/{}'.format(api_key.api_key), is_json=False)
         self.assertEqual(res.status_code, 200)
 
@@ -93,7 +98,9 @@ class TestAPIPublicDashboard(BaseTestCase):
 
     def test_inactive_token(self):
         dashboard = self.factory.create_dashboard()
-        api_key = self.factory.create_api_key(object=dashboard, active=False)
+        api_key = dashboard.create_api_key(self.factory.user)
+        api_key.active = False
+        db.session.flush()
         res = self.make_request('get', '/api/dashboards/public/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 404)
 

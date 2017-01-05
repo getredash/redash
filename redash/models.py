@@ -300,6 +300,62 @@ class AccessPermissionBase(object):
         }
         return d
 
+class ApiKeyBase(object):
+
+    @declared_attr
+    def org_id(cls):
+        return Column(db.Integer, db.ForeignKey("organizations.id"))
+
+    @declared_attr
+    def org(cls):
+        return db.relationship(Organization)
+
+    api_key = Column(db.String(255), index=True, primary_key=True,
+                     default=lambda: generate_token(40))
+    active = Column(db.Boolean, default=True)
+
+    @declared_attr
+    def created_by_id(cls):
+        return Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+
+    @declared_attr
+    def created_by(cls):
+        return db.relationship(User)
+
+
+class HasApiKeyMixin(object):
+    @declared_attr
+    def api_keys(cls):
+
+        class ApiKey(ApiKeyBase, TimestampMixin, db.Model):
+            object_id = Column(db.Integer,
+                               db.ForeignKey(cls.__tablename__ + ".id"),
+                               index=True)
+            object = db.relationship(cls)
+            object_type = cls.__tablename__
+            __tablename__ = cls.__tablename__ + "_api_keys"
+
+        cls.ApiKey = ApiKey
+        return db.relationship(cls.ApiKey,
+                               cascade="all,delete,delete-orphan")
+
+    @classmethod
+    def get_by_api_key(cls, api_key):
+        return cls.ApiKey.query.filter(cls.ApiKey.api_key == api_key,
+                                       cls.ApiKey.active == True).one()
+
+    @property
+    def api_key(self):
+        return self.__class__.ApiKey.query.filter(
+            self.__class__.ApiKey.object == self,
+            self.__class__.ApiKey.active == True).first()
+
+    def create_api_key(self, user=None, active=True):
+        k = self.__class__.ApiKey(org=user.org, object=self, created_by=user,
+                                  active=active)
+        db.session.add(k)
+        return k
+
 
 class HasAccessPermissionsMixin(object):
     @declared_attr
@@ -349,7 +405,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
             self.name = name
         else:
             self.id = api_key.api_key
-            self.name = "ApiKey: {}".format(api_key.id)
+            self.name = "ApiKey: {}".format(api_key.api_key[:8])
             self.object = api_key.object
         self.group_ids = groups
         self.org = org
@@ -1111,7 +1167,7 @@ def generate_slug(ctx):
 
 
 class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin,
-                HasAccessPermissionsMixin, db.Model):
+                HasAccessPermissionsMixin, HasApiKeyMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -1360,34 +1416,6 @@ class Event(db.Model):
                     created_at=created_at)
         db.session.add(event)
         return event
-
-
-class ApiKey(TimestampMixin, GFKBase, db.Model):
-    id = Column(db.Integer, primary_key=True)
-    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
-    org = db.relationship(Organization)
-    api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
-    active = Column(db.Boolean, default=True)
-    #'object' provided by GFKBase
-    created_by_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    created_by = db.relationship(User)
-
-    __tablename__ = 'api_keys'
-    __table_args__ = (db.Index('api_keys_object_type_object_id', 'object_type', 'object_id'),)
-
-    @classmethod
-    def get_by_api_key(cls, api_key):
-        return cls.query.filter(cls.api_key==api_key, cls.active==True).one()
-
-    @classmethod
-    def get_by_object(cls, object):
-        return cls.query.filter(cls.object_type==object.__class__.__tablename__, cls.object_id==object.id, cls.active==True).first()
-
-    @classmethod
-    def create_for_object(cls, object, user):
-        k = cls(org=user.org, object=object, created_by=user)
-        db.session.add(k)
-        return k
 
 
 class NotificationDestination(BelongsToOrgMixin, db.Model):

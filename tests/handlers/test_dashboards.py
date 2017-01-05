@@ -1,6 +1,6 @@
 import json
 from tests import BaseTestCase
-from redash.models import ApiKey, Dashboard, AccessPermission, db
+from redash.models import Dashboard, db
 from redash.permissions import ACCESS_TYPE_MODIFY
 
 
@@ -84,7 +84,8 @@ class TestDashboardResourcePost(BaseTestCase):
                                data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)
         self.assertEqual(rv.status_code, 403)
 
-        AccessPermission.grant(obj=d, access_type=ACCESS_TYPE_MODIFY, grantee=user, grantor=d.user)
+        Dashboard.AccessPermission.grant(obj=d, access_type=ACCESS_TYPE_MODIFY,
+                                         grantee=user, grantor=d.user)
 
         rv = self.make_request('post', '/api/dashboards/{0}'.format(d.id),
                                data={'name': new_name, 'layout': '[]', 'version': d.version}, user=user)
@@ -110,7 +111,7 @@ class TestDashboardShareResourcePost(BaseTestCase):
 
         res = self.make_request('post', '/api/dashboards/{}/share'.format(dashboard.id))
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json['api_key'], ApiKey.get_by_object(dashboard).api_key)
+        self.assertEqual(res.json['api_key'], dashboard.api_key.api_key)
 
     def test_requires_admin_or_owner(self):
         dashboard = self.factory.create_dashboard()
@@ -128,11 +129,11 @@ class TestDashboardShareResourcePost(BaseTestCase):
 class TestDashboardShareResourceDelete(BaseTestCase):
     def test_disables_api_key(self):
         dashboard = self.factory.create_dashboard()
-        ApiKey.create_for_object(dashboard, self.factory.user)
+        dashboard.create_api_key(self.factory.user)
 
         res = self.make_request('delete', '/api/dashboards/{}/share'.format(dashboard.id))
         self.assertEqual(res.status_code, 200)
-        self.assertIsNone(ApiKey.get_by_object(dashboard))
+        self.assertIsNone(dashboard.api_key)
 
     def test_ignores_when_no_api_key_exists(self):
         dashboard = self.factory.create_dashboard()

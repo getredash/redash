@@ -96,7 +96,9 @@ class TestQueryResourcePost(BaseTestCase):
         rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=user)
         self.assertEqual(rv.status_code, 403)
 
-        models.AccessPermission.grant(obj=query, access_type=ACCESS_TYPE_MODIFY, grantee=user, grantor=query.user)
+        models.Query.AccessPermission.grant(
+            obj=query, access_type=ACCESS_TYPE_MODIFY, grantee=user,
+            grantor=query.user)
 
         rv = self.make_request('post', '/api/queries/{0}'.format(query.id), data={'name': 'Testing'}, user=user)
         self.assertEqual(rv.status_code, 200)
