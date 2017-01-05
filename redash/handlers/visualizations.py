@@ -19,9 +19,10 @@ class VisualizationListResource(BaseResource):
 
         vis = models.Visualization(**kwargs)
         models.db.session.add(vis)
-        d = vis.to_dict(with_query=False)
         models.db.session.commit()
+        d = vis.to_dict(with_query=False)
         return d
+
 
 class VisualizationResource(BaseResource):
     @require_permission('edit_query')
