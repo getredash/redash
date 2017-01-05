@@ -10,7 +10,7 @@
               <button id="split-button" type="button"
                       ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}"
                       class="btn" ng-click="$ctrl.loadDashboard(true)">
-                {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
+                <i class="zmdi zmdi-refresh"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
               </button>
               <button type="button" class="btn" uib-dropdown-toggle
                       ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}">
