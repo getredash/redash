@@ -34,11 +34,13 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
   this.ops = ['greater than', 'less than', 'equals'];
   this.selectedQuery = null;
 
+  const defaultNameBuilder = templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>');
+
   this.getDefaultName = () => {
     if (!this.alert.query) {
       return undefined;
     }
-    return templateBuilder('<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>', this.alert);
+    return defaultNameBuilder(this.alert);
   };
 
   this.searchQueries = (term) => {

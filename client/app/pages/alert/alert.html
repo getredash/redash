@@ -58,7 +58,7 @@
 
           <div class="form-group" ng-if="$ctrl.canEdit">
             <button class="btn btn-primary" ng-disabled="!alertForm.$valid" ng-click="$ctrl.saveChanges()">Save</button>
-            <button class="btn btn-danger" ng-if="$ctrl.alert.id" ng-click="delete()">Delete</button>
+            <button class="btn btn-danger" ng-if="$ctrl.alert.id" ng-click="$ctrl.delete()">Delete</button>
           </div>
         </form>
       </div>

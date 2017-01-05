@@ -1006,7 +1006,7 @@ class Alert(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     name = Column(db.String(255))
     query_id = Column(db.Integer, db.ForeignKey("queries.id"))
-    query_rel = db.relationship(Query, backref='alerts', cascade="all")
+    query_rel = db.relationship(Query, backref=backref('alerts', cascade="all"))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='alerts')
     options = Column(MutableDict.as_mutable(PseudoJSON))
