@@ -1,4 +1,4 @@
-import { has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
+import { extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
 import plotly from './plotly';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
@@ -40,7 +40,7 @@ function ChartRenderer() {
   };
 }
 
-function ChartEditor(clientConfig) {
+function ChartEditor(ColorPalette, clientConfig) {
   return {
     restrict: 'E',
     template: editorTemplate,
@@ -50,6 +50,7 @@ function ChartEditor(clientConfig) {
     },
     link(scope) {
       scope.currentTab = 'general';
+      scope.colors = extend({ Automatic: null }, ColorPalette);
 
       scope.stackingOptions = {
         Disabled: null,
