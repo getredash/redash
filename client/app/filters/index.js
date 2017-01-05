@@ -103,3 +103,4 @@ export function notEmpty(collection) {
 export function showError(field, form) {
   return (field.$touched && field.$invalid) || form.$submitted;
 }
+

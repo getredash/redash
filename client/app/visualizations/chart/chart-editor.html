@@ -62,26 +62,26 @@
     <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Group by</label>
       <ui-select name="groupby" ng-model="form.groupby" class="clearable">
-        <ui-select-match allow-clear="true" placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-match allow-clear="true" placeholder="Choose column...">
+          {{$select.selected}}
+        </ui-select-match>
         <ui-select-choices repeat="column in columnNames | remove:form.yAxisColumns | remove:form.xAxisColumn">
           <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
           <small class="text-muted" ng-bind="columns[column].type"></small>
         </ui-select-choices>
       </ui-select>
-      <button class='btn btn-default m-t-10' ng-disabled='!form.groupby' ng-click='clearGroupBy()'>Clear</button>
     </div>
 
     <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Errors column</label>
 
       <ui-select name="errorColumn" ng-model="form.errorColumn">
-        <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-match allow-clear="true" placeholder="Choose column...">{{$select.selected}}</ui-select-match>
         <ui-select-choices repeat="column in columnNames | remove:form.yAxisColumns | remove:form.groupby">
           <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
           <small class="text-muted" ng-bind="columns[column].type"></small>
         </ui-select-choices>
       </ui-select>
-      <button class='btn btn-default m-t-10' ng-disabled='!form.errorColumn' ng-click='clearErrorColumn()'>Clear</button>
     </div>
 
     <div class="checkbox" ng-if="options.globalSeriesType != 'custom'">

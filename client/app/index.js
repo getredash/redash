@@ -106,4 +106,12 @@ ngModule.config(($routeProvider, $locationProvider, $compileProvider,
   });
 });
 
+// Update ui-select's template to use Font-Awesome instead of glyphicon.
+ngModule.run(($templateCache) => {
+  const templateName = 'bootstrap/match.tpl.html';
+  let template = $templateCache.get(templateName);
+  template = template.replace('glyphicon glyphicon-remove', 'fa fa-remove');
+  $templateCache.put(templateName, template);
+});
+
 export default ngModule;

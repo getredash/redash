@@ -51,9 +51,6 @@ function ChartEditor(clientConfig) {
     link(scope) {
       scope.currentTab = 'general';
 
-      scope.clearGroupBy = () => { delete scope.form.groupby; };
-      scope.clearErrorColumn = () => { delete scope.form.errorColumn; };
-
       scope.stackingOptions = {
         Disabled: null,
         Enabled: 'normal',
