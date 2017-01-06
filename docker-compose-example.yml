@@ -11,7 +11,7 @@ redash:
     REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
     REDASH_COOKIE_SECRET: veryverysecret
 redis:
-  image: redis:2.8
+  image: redis:latest
 postgres:
   image: postgres:9.3
   volumes:
