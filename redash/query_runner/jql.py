@@ -26,15 +26,33 @@ class ResultSet(object):
         return json.dumps({'rows': self.rows, 'columns': self.columns.values()})
 
 
-def parse_issue(issue):
+def parse_issue(issue, fieldMapping):
     result = OrderedDict()
     result['key'] = issue['key']
 
     for k, v in issue['fields'].iteritems():
-        if k.startswith('customfield_'):
-            continue
 
-        if isinstance(v, dict):
+        # if field mapping is defined optionally change output key and parsing rules for value
+        if k in fieldMapping:
+            mapping = fieldMapping[k]
+            output_key = k
+            if 'name' in mapping:
+                output_key = mapping['name']
+            put_value(result, output_key, v, mapping)
+
+        else:
+            put_value(result, k, v, {})
+
+    return result
+
+
+def put_value(result, k, v, mapping):
+    if isinstance(v, dict):
+        if 'member' in mapping:
+            result[k] = v[mapping['member']]
+
+        else:
+            # these special mapping rules are kept for backwards compatibility
             if 'key' in v:
                 result['{}_key'.format(k)] = v['key']
             if 'name' in v:
@@ -45,19 +63,27 @@ def parse_issue(issue):
 
             if 'watchCount' in v:
                 result[k] = v['watchCount']
-        # elif isinstance(v, list):
-        #     pass
-        else:
-            result[k] = v
+    
+    elif isinstance(v, list):
+        listValues = []
+        for listItem in v:
+            if isinstance(listItem, dict):
+                if 'member' in mapping:
+                    listValues.append(listItem[mapping['member']])
+            else:
+                listValues.append(listItem)
 
-    return result
+        result[k] = ','.join(listValues)
+
+    else:
+        result[k] = v
 
 
-def parse_issues(data):
+def parse_issues(data, fieldMapping):
     results = ResultSet()
 
     for issue in data['issues']:
-        results.add_row(parse_issue(issue))
+        results.add_row(parse_issue(issue, fieldMapping))
 
     return results
 
@@ -109,6 +135,7 @@ class JiraJQL(BaseQueryRunner):
         try:
             query = json.loads(query)
             query_type = query.pop('queryType', 'select')
+            fieldMapping = query.pop('fieldMapping', {})
 
             if query_type == 'count':
                 query['maxResults'] = 1
@@ -127,7 +154,7 @@ class JiraJQL(BaseQueryRunner):
             if query_type == 'count':
                 results = parse_count(data)
             else:
-                results = parse_issues(data)
+                results = parse_issues(data, fieldMapping)
 
             return results.to_json(), None
         except KeyboardInterrupt:
