@@ -830,6 +830,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         return query
 
+    @classmethod
+    def get_by_id(cls, _id):
+        return db.session.query(cls).filter(cls.id == _id).one()
+
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
                        'query_text', 'query_hash']
