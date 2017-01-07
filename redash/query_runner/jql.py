@@ -72,8 +72,8 @@ def put_value(result, k, v, mapping):
                     listValues.append(listItem[mapping['member']])
             else:
                 listValues.append(listItem)
-
-        result[k] = ','.join(listValues)
+        if len(listValues) > 0:
+            result[k] = ','.join(listValues)
 
     else:
         result[k] = v
