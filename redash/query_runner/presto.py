@@ -84,11 +84,8 @@ class Presto(BaseQueryRunner):
         results = json.loads(results)
 
         for row in results['rows']:
-            if row['table_schema'] != 'public':
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            else:
-                table_name = row['table_name']
-
+            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+            
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
