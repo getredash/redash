@@ -7,7 +7,6 @@ from redash.query_runner import BaseQueryRunner, register
 
 PROXY_URL = os.environ.get('ATHENA_PROXY_URL')
 
-
 class Athena(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
@@ -61,10 +60,7 @@ class Athena(BaseQueryRunner):
         results = json.loads(results)
 
         for row in results['rows']:
-            if row['table_schema'] != 'public':
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            else:
-                table_name = row['table_name']
+            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
