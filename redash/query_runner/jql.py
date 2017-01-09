@@ -26,15 +26,15 @@ class ResultSet(object):
         return json.dumps({'rows': self.rows, 'columns': self.columns.values()})
 
 
-def parse_issue(issue, fieldMapping):
+def parse_issue(issue, field_mapping):
     result = OrderedDict()
     result['key'] = issue['key']
 
     for k, v in issue['fields'].iteritems():
 
         # if field mapping is defined optionally change output key and parsing rules for value
-        if k in fieldMapping:
-            mapping = fieldMapping[k]
+        if k in field_mapping:
+            mapping = field_mapping[k]
             output_key = k
             if 'name' in mapping:
                 output_key = mapping['name']
@@ -79,11 +79,11 @@ def put_value(result, k, v, mapping):
         result[k] = v
 
 
-def parse_issues(data, fieldMapping):
+def parse_issues(data, field_mapping):
     results = ResultSet()
 
     for issue in data['issues']:
-        results.add_row(parse_issue(issue, fieldMapping))
+        results.add_row(parse_issue(issue, field_mapping))
 
     return results
 
@@ -135,7 +135,7 @@ class JiraJQL(BaseQueryRunner):
         try:
             query = json.loads(query)
             query_type = query.pop('queryType', 'select')
-            fieldMapping = query.pop('fieldMapping', {})
+            field_mapping = query.pop('fieldMapping', {})
 
             if query_type == 'count':
                 query['maxResults'] = 1
@@ -154,7 +154,7 @@ class JiraJQL(BaseQueryRunner):
             if query_type == 'count':
                 results = parse_count(data)
             else:
-                results = parse_issues(data, fieldMapping)
+                results = parse_issues(data, field_mapping)
 
             return results.to_json(), None
         except KeyboardInterrupt:
