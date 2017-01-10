@@ -1,5 +1,59 @@
 # Change Log
 
+## v1.0.0 - Unreleased
+
+This version has two big behind the scenes changes:
+ 
+* Refactor the frontend to use latest (at the time) Angular version (1.5) along with better frontend pipeline based on
+  WebPack.
+* Refactor the backend code to use SQLAlchemy and Alembic, for easier migrations/upgrades.
+
+Along with that we have many fixes, additions, new data sources (Google Analytics, ClickHouse, Amazon Athena, Snowflake)
+and fixes to the existing ones (mainly ElasticSearch and Cassandra).
+
+### Added
+
+- [#1482](https://github.com/getredash/redash/pull/1482) [Cassandra] Add: schema browser support & explicit protocol version (@yershalom)
+- [#1488](https://github.com/getredash/redash/pull/1488) [Data Sources] Add: Snowflake query runner (@arikfr)
+- [#1479](https://github.com/getredash/redash/pull/1479) [ElasticSearch] Add: enable schema browser (@adamlwgriffiths)
+- [#1475](https://github.com/getredash/redash/pull/1475) [Cassnadra] Added set_keyspace for easier query cassandra (@yershalom)
+- [#1468](https://github.com/getredash/redash/pull/1468) [Datasources] Add: Amazon Athena query runner (@arikfr)
+- [#1433](https://github.com/getredash/redash/pull/1433) [Charts] Add: errors bands in graphs (@luke14free)
+- [#1405](https://github.com/getredash/redash/pull/1405) [Datasources] Add: simple Google Analytics query runner (@denisov-vlad)
+- [#1409](https://github.com/getredash/redash/pull/1409) [Datasources] Add: Add query runner for Yandex ClickHouse (@denisov-vlad)
+- [#1373](https://github.com/getredash/redash/pull/1373) Add: rate limit the login page (@AntoineAugusti)
+
+### Changed
+
+- [#1509](https://github.com/getredash/redash/pull/1509) [Presto/Athena] Change: remove special rule around public schema (@GAwadhwalAtlassian)
+- [#1485](https://github.com/getredash/redash/pull/1485) Close #1453: more minimal notification of draft status for query/dashboard (@arikfr)
+- [#1474](https://github.com/getredash/redash/pull/1474) [Cassandra] Change: test connection query (@yershalom)
+- [#1464](https://github.com/getredash/redash/pull/1464) [Clickhouse] Change: use UTF-8 encoding for POST data (@jaykelin)
+- [#1417](https://github.com/getredash/redash/pull/1417) Change: Replace Peewee with SQLAlchemy/Alembic (@arikfr, @washort)
+- [#1458](https://github.com/getredash/redash/pull/1458) Change: switch from flask_script to click, add CLI unit tests and upgrade Flask version (@washort)
+- [#1438](https://github.com/getredash/redash/pull/1438) [ElasticSearch] Change: use simplejson for better error descriptions (@adamlwgriffiths)
+- [#1435](https://github.com/getredash/redash/pull/1435) Whitelisting more builtin primitives (@mattrobenolt)
+- [#1376](https://github.com/getredash/redash/pull/1376) Change: upgrade the frontend stack (@arikfr, @luke14free)
+- [#1429](https://github.com/getredash/redash/pull/1429) Add missing error check from #1402 (@adamlwgriffiths)
+- [#1256](https://github.com/getredash/redash/pull/1256) Change: when forking a query, copy all visualizations (@ninneko)
+- [#1421](https://github.com/getredash/redash/pull/1421) Change: [BigQuery] only specify useLegacySQL is it's True (@arikfr)
+- [#1353](https://github.com/getredash/redash/pull/1353) Change: make draft status for queries and dashboards toggleable (@washort)
+- [#1419](https://github.com/getredash/redash/pull/1419) Change: use redash.utils.json_dumps instead of json.dumps in Python query runner (@ehfeng)
+- [#1402](https://github.com/getredash/redash/pull/1402) Change: correctly propagate ElasticSearch errors to the UI (@adamlwgriffiths)
+- [#1371](https://github.com/getredash/redash/pull/1371) Change: display user's password reset link to the admin when mail server disabled (@vitorbaptista)
+
+### Fixed
+
+- [#1497](https://github.com/getredash/redash/pull/1497) Fix #16: when updating dashboard name refresh dashboards dropdown (@arikfr)
+- [#1491](https://github.com/getredash/redash/pull/1491) Fix: DynamoDB test connection was broken (@arikfr)
+- [#1487](https://github.com/getredash/redash/pull/1487) Fix #1432: delete visualization sends full visualization body instead‚Ä¶ (@arikfr)
+- [#1484](https://github.com/getredash/redash/pull/1484) Fix #1457: sort was using the string value (@arikfr)
+- [#1478](https://github.com/getredash/redash/pull/1478) [ElasticSearch] Fix: connection test was always succesfful (@adamlwgriffiths)
+- [#1440](https://github.com/getredash/redash/pull/1440) Fix: API errors for dashboards with invalid layout data (@whummer)
+- [#1427](https://github.com/getredash/redash/pull/1427) [Cassandra] Fix: remove reference to non existing Error class (@arikfr)
+- [#1423](https://github.com/getredash/redash/pull/1423) [Cassandra] Fix: cassandra.cluster.Error wasn't imported (@arikfr)
+- Fix #1001: queries with a column named "length" were not rendered.
+
 ## v0.12.0 - 2016-11-20
 
 ### Added
