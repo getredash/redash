@@ -78,6 +78,7 @@ class Parameters {
           name: param,
           type: 'text',
           value: null,
+          global: false,
         });
       }
     });
@@ -295,7 +296,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 
   Query.prototype.getLocalParametersDefs = function getLocalParametersDefs() {
     if (!this.$localParameters) {
-      this.$localParameters = this.getParametersDefs().filter(p => p.name[0] !== '$');
+      this.$localParameters = this.getParametersDefs().filter(p => !p.global);
     }
 
     return this.$localParameters;
@@ -303,7 +304,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 
   Query.prototype.getGlobalParametersDefs = function getGlobalParametersDefs() {
     if (!this.$globalParameters) {
-      this.$globalParameters = this.getParametersDefs().filter(p => p.name[0] === '$');
+      this.$globalParameters = this.getParametersDefs().filter(p => p.global);
     }
     return this.$globalParameters;
   };
