@@ -52,7 +52,9 @@ function DashboardWidgetCtrl($location, $uibModal, $window, $scope, Events, curr
       this.dashboard.layout = response.layout;
       this.dashboard.version = response.version;
 
-      $scope.$emit('deleteDashboardWidget');
+      if (this.deleted) {
+        this.deleted({});
+      }
     });
   };
 
@@ -90,6 +92,7 @@ export default function (ngModule) {
       widget: '<',
       public: '<',
       dashboard: '<',
+      deleted: '&onDelete',
     },
   });
 }

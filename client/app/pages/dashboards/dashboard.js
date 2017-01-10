@@ -27,7 +27,7 @@ function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q
     }
   };
 
-  const extractGlobalParameters = () => {
+  this.extractGlobalParameters = () => {
     let globalParams = {};
     this.dashboard.widgets.forEach(row =>
       row.forEach((widget) => {
@@ -44,14 +44,12 @@ function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q
   };
 
   this.onGlobalParametersChange = () => {
-    _.each(this.globalParameters, (global) => {
-      _.each(global.locals, (local) => {
+    this.globalParameters.forEach((global) => {
+      global.locals.forEach((local) => {
         local.value = global.value;
       });
     });
   };
-
-  $scope.$on('deleteDashboardWidget', extractGlobalParameters);
 
   const renderDashboard = (dashboard, force) => {
     Title.set(dashboard.name);
@@ -69,7 +67,7 @@ function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q
        })
     );
 
-    extractGlobalParameters();
+    this.extractGlobalParameters();
 
     $q.all(promises).then((queryResults) => {
       const filters = {};
@@ -168,7 +166,7 @@ function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q
       resolve: {
         dashboard: () => this.dashboard,
       },
-    }).result.then(() => extractGlobalParameters());
+    }).result.then(() => this.extractGlobalParameters());
   };
 
   this.toggleFullscreen = () => {
