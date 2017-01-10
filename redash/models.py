@@ -515,6 +515,14 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return get_query_runner(self.type, self.options)
 
     @classmethod
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
+
+    @classmethod
+    def get_by_name(cls, name):
+        return cls.query.filter(cls.name == name).one()
+
+    @classmethod
     def all(cls, org, group_ids=None):
         data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
 
@@ -829,6 +837,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         query = query.limit(limit)
 
         return query
+
+    @classmethod
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
 
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
@@ -1497,4 +1509,3 @@ def init_db():
     #XXX remove after fixing User.group_ids
     db.session.commit()
     return default_org, admin_group, default_group
-
