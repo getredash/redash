@@ -151,13 +151,16 @@ class Python(BaseQueryRunner):
         :data_source_name_or_id string|integer: Name or ID of the data source
         :query string: Query to run
         """
-        try:
-            if type(data_source_name_or_id) == int:
+        if type(data_source_name_or_id) == int:
+            try:
                 data_source = models.DataSource.get_by_id(data_source_name_or_id)
-            else:
-                data_source = models.DataSource.get(models.DataSource.name==data_source_name_or_id)
-        except models.DataSource.DoesNotExist:
-            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+            except IndexError:
+                Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+        else:
+            try:
+                data_source = models.DataSource.get_by_name(data_source_name_or_id)
+            except models.NoResultFound:
+                raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
         # TODO: pass the user here...
         data, error = data_source.query_runner.run_query(query, None)
@@ -175,7 +178,7 @@ class Python(BaseQueryRunner):
         """
         try:
             query = models.Query.get_by_id(query_id)
-        except models.Query.DoesNotExist:
+        except IndexError:
             raise Exception("Query id %s does not exist." % query_id)
 
         if query.latest_query_data is None:
