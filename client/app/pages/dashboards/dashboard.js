@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
-function DashboardCtrl($rootScope, $scope, $routeParams, $location, $timeout, $q, $uibModal,
+function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
   this.isFullscreen = false;
   this.refreshRate = null;
