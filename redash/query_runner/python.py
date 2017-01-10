@@ -39,8 +39,11 @@ class CustomPrint(object):
 
 class Python(BaseQueryRunner):
     safe_builtins = (
-        'sorted', 'reversed', 'min', 'max',
-        'sum', 'set',
+        'sorted', 'reversed', 'map', 'reduce', 'any', 'all',
+        'slice', 'filter', 'len', 'next', 'enumerate'
+        'sum', 'abs', 'min', 'max', 'round', 'cmp', 'divmod'
+        'str', 'unicode', 'int', 'float', 'complex',
+        'tuple', 'set', 'list', 'dict', 'bool',
     )
 
     @classmethod
