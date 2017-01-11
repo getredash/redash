@@ -160,7 +160,7 @@ class Python(BaseQueryRunner):
             else:
                 data_source = models.DataSource.get_by_name(data_source_name_or_id)
         except models.NoResultFound:
-                raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
 
         # TODO: pass the user here...
         data, error = data_source.query_runner.run_query(query, None)
@@ -169,6 +169,22 @@ class Python(BaseQueryRunner):
 
         # TODO: allow avoiding the json.dumps/loads in same process
         return json.loads(data)
+
+    def get_source_schema(self, data_source_name_or_id):
+        """Get schema from specific data source.
+
+        :param data_source_name_or_id: string|integer: Name or ID of the data source
+        :return:
+        """
+        try:
+            if type(data_source_name_or_id) == int:
+                data_source = models.DataSource.get_by_id(data_source_name_or_id)
+            else:
+                data_source = models.DataSource.get_by_name(data_source_name_or_id)
+        except models.NoResultFound:
+            raise Exception("Wrong data source name/id: %s." % data_source_name_or_id)
+        schema = data_source.query_runner.get_schema()
+        return schema
 
     def get_query_result(self, query_id):
         """Get result of an existing query.
@@ -216,6 +232,7 @@ class Python(BaseQueryRunner):
 
             restricted_globals = dict(__builtins__=builtins)
             restricted_globals["get_query_result"] = self.get_query_result
+            restricted_globals["get_source_schema"] = self.get_source_schema
             restricted_globals["execute_query"] = self.execute_query
             restricted_globals["add_result_column"] = self.add_result_column
             restricted_globals["add_result_row"] = self.add_result_row
