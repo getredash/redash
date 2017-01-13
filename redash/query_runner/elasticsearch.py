@@ -123,8 +123,8 @@ class BaseElasticSearch(BaseQueryRunner):
         if error:
             return mappings, error
 
-        for index_name in mappings_data:
-            index_mappings = mappings_data[index_name]
+        for index_name in mappings:
+            index_mappings = mappings[index_name]
             for m in index_mappings.get("mappings", {}):
                 for property_name in index_mappings["mappings"][m]["properties"]:
                     property_data = index_mappings["mappings"][m]["properties"][property_name]
