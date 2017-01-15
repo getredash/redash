@@ -53,7 +53,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         # update cache
         if max_age > 0:
             run_time = time.time() - started_at
-            query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source.id,
+            query_result, updated_query_ids = models.QueryResult.store_result(data_source.org, data_source,
                                                                                   query_hash, query_text, data,
                                                                                   run_time, utils.utcnow())
 
@@ -82,6 +82,49 @@ def embed(query_id, visualization_id, org_slug=None):
     full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
     models.db.session.commit()
     return send_file(full_path, **dict(cache_timeout=0, conditional=True))
+
+
+@routes.route(org_scoped_rule('/embed/query/<query_id>/json'), methods=['GET'])
+@login_required
+def embedjson(query_id,  org_slug=None):
+    visualizations=1
+    query = models.Query.get_by_id_and_org(query_id, current_org)
+    require_access(query.groups, current_user, view_only)
+    qr = {}
+
+    parameter_values = collect_parameters_from_request(request.args)
+
+    qr = query.latest_query_data
+    if len(parameter_values) > 0:
+            # run parameterized query
+            #
+            # WARNING: Note that the external query parameters
+            #          are a potential risk of SQL injections.
+            #
+        max_age = int(request.args.get('maxAge', 0))
+        results = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+
+        if results is None:
+            abort(400, message="Unable to get results for this query")
+        else:
+            qr = {"data": json.loads(results)}
+    elif qr is None:
+        abort(400, message="No Results for this query")
+    else:
+        qr = qr.to_dict()
+
+    record_event(current_org, current_user, {
+        'action': 'view',
+        'query_id': query_id,
+        'embed': True,
+        'referer': request.headers.get('Referer')
+    })
+
+    client_config = {}
+    client_config.update(settings.COMMON_CLIENT_CONFIG)
+    qr = project(qr, ('data', 'id', 'retrieved_at'))
+    return json_dumps(qr),200,{'Content-Type': 'application/json; charset=utf-8'}
+
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
