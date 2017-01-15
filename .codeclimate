@@ -8,8 +8,8 @@ engines:
       config: client/.eslintrc.js
 ratings:
   paths:
-  - "redash/**"
-  - "client/**"
+  - "redash/**/*.py"
+  - "client/**/*.js"
 exclude_paths:
 - tests/**/*.py
 - migrations/**/*.py
