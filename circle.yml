@@ -15,7 +15,7 @@ dependencies:
     - pip install pymongo==3.2.1
     - make deps
   cache_directories:
-    - client/node_modules/
+    - node_modules/
 test:
   override:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
