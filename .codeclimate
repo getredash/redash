@@ -2,10 +2,10 @@ engines:
   pep8:
     enabled: true
   eslint:
-    enabled: false
+    enabled: true
     channel: "eslint-3"
-    config:
-      config: client/.eslintrc.js
+    #config:
+    #  config: client/.eslintrc.js
 ratings:
   paths:
   - "redash/**/*.py"
