@@ -2,7 +2,7 @@ engines:
   pep8:
     enabled: true
   eslint:
-    enabled: true
+    enabled: false
     channel: "eslint-3"
     config:
       config: client/.eslintrc.js
