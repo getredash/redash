@@ -6,8 +6,8 @@ BASE_VERSION=$(shell python ./manage.py version | cut -d + -f 1)
 FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
 
 deps:
-	if [ -d "./client/app" ]; npm install; fi
-	if [ -d "./client/app" ]; npm run build; fi
+	if [ -d "./client/app" ]; then npm install; fi
+	if [ -d "./client/app" ]; then npm run build; fi
 
 pack:
 	sed -ri "s/^__version__ = '([0-9.]*)'/__version__ = '$(FULL_VERSION)'/" redash/__init__.py
