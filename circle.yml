@@ -12,7 +12,6 @@ dependencies:
     - pip install --upgrade setuptools
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
-    - pip install pymongo==3.2.1
     - make deps
   cache_directories:
     - node_modules/
