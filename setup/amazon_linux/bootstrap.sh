@@ -180,7 +180,7 @@ if [ $pg_user_exists -ne 0 ]; then
     sudo -u redash psql -c "grant select on events, queries, dashboards, widgets, visualizations, query_results to redash_reader;" redash
 
     cd /opt/redash/current
-    sudo -u redash bin/run ./manage.py ds new -n "Redash Metadata" -t "pg" -o "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
+    sudo -u redash bin/run ./manage.py ds new "Redash Metadata" --type "pg" --options "{\"user\": \"redash_reader\", \"password\": \"$REDASH_READER_PASSWORD\", \"host\": \"localhost\", \"dbname\": \"redash\"}"
 fi
 
 
