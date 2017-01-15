@@ -1,4 +1,5 @@
 import csv
+import logging
 import json
 import cStringIO
 import time
@@ -12,13 +13,62 @@ from redash import models, settings, utils
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import collect_query_parameters, collect_parameters_from_request
+from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash
 from redash.tasks.queries import enqueue_query
 
 
 def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
 
+
+#
+# Run a parameterized query synchronously and return the result
+# DISCLAIMER: Temporary solution to support parameters in queries. Should be
+#             removed once we refactor the query results API endpoints and handling
+#             on the client side. Please don't reuse in other API handlers.
+#
+def run_query_sync(data_source, parameter_values, query_text, max_age=0):
+    query_parameters = set(collect_query_parameters(query_text))
+    missing_params = set(query_parameters) - set(parameter_values.keys())
+    if missing_params:
+        raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
+
+    if query_parameters:
+        query_text = pystache.render(query_text, parameter_values)
+
+    if max_age <= 0:
+        query_result = None
+    else:
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+
+    query_hash = gen_query_hash(query_text)
+
+    if query_result:
+        logging.info("Returning cached result for query %s" % query_hash)
+        return query_result
+
+    try:
+        started_at = time.time()
+        data, error = data_source.query_runner.run_query(query_text, current_user)
+
+        if error:
+            logging.info('got bak error')
+            logging.info(error)
+            return None
+
+        run_time = time.time() - started_at
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org, data_source,
+                                                                              query_hash, query_text, data,
+                                                                              run_time, utils.utcnow())
+
+        models.db.session.commit()
+        return query_result
+    except Exception, e:
+        if max_age > 0:
+            abort(404, message="Unable to get result from the database, and no cached query result found.")
+        else:
+            abort(503, message="Unable to get result from the database.")
+        return None
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     query_parameters = set(collect_query_parameters(query_text))
@@ -99,6 +149,28 @@ class QueryResultResource(BaseResource):
             headers['Access-Control-Allow-Headers'] = settings.ACCESS_CONTROL_ALLOW_HEADERS
 
         return make_response("", 200, headers)
+
+    @require_permission('view_query')
+    def post(self, query_id=None, filetype='json'):
+        # This method gets a cached version of query, or runs it in sync with params
+        if query_id is not None:
+            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+            require_access(query.groups, current_user, view_only)
+
+            parameter_values = collect_parameters_from_request(request.args)
+            max_age = int(request.args.get('maxAge', 0))
+            query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+
+            if filetype == 'json':
+                response = self.make_json_response(query_result)
+            elif filetype == 'xlsx':
+                response = self.make_excel_response(query_result)
+            else:
+                response = self.make_csv_response(query_result)
+
+            return response
+        else:
+            abort(404, message='Query not given.')
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
@@ -209,4 +281,3 @@ class JobResource(BaseResource):
     def delete(self, job_id):
         job = QueryTask(job_id=job_id)
         job.cancel()
-
