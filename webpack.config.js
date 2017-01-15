@@ -9,11 +9,11 @@ var path = require('path');
 
 var config = {
   entry: {
-    app: './app/index.js'
+    app: './client/app/index.js'
   },
   output: {
     // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
-    path: './dist',
+    path: './client/dist',
     filename: '[name].[chunkhash].js',
   },
 
@@ -44,7 +44,7 @@ var config = {
     }),
     new HtmlWebpackPlugin({
       // template: __dirname + '/app/' + 'index.html'
-      template: './app/index.html'
+      template: './client/app/index.html'
     }),
     new ExtractTextPlugin('styles.[chunkhash].css')
   ],
@@ -102,7 +102,7 @@ var config = {
 };
 
 if (process.env.NODE_ENV === 'production') {
-  config.output.path = __dirname + '/dist';
+  config.output.path = __dirname + '/client/dist';
   config.plugins.push(new webpack.optimize.UglifyJsPlugin());
   config.devtool = 'source-map';
 }
