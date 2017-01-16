@@ -53,6 +53,9 @@ class Vertica(BaseSQLQueryRunner):
                 "port": {
                     "type": "number"
                 },
+                "read_timeout": {
+                    "type": "number"
+                },                                
             },
             'required': ['database'],
             'secret': ['password']
@@ -110,7 +113,7 @@ class Vertica(BaseSQLQueryRunner):
                 'user': self.configuration.get('user', ''),
                 'password': self.configuration.get('password', ''),
                 'database': self.configuration.get('database', ''),
-                'read_timeout': self.configuration.get('read_timeout', 60000)
+                'read_timeout': self.configuration.get('read_timeout', 600)
             }
             connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()
