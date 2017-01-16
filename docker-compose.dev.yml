@@ -1,0 +1,50 @@
+version: '2'
+services:
+  api:
+    build: .
+    command: dev_server
+    volumes_from:
+      - webpack
+    depends_on:
+      - webpack
+      - postgres
+      - redis
+    ports:
+      - "5002:5000"
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+  worker:
+    build: .
+    command: scheduler
+    volumes_from:
+      - webpack
+    depends_on:
+      - postgres
+      - redis
+      - api
+    environment:
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      QUEUES: "queries,scheduled_queries,celery"
+      WORKERS_COUNT: 2
+  webpack:
+    build: .
+    command: run start
+    entrypoint: /usr/bin/npm
+    environment:
+      DEV_SERVER_HOST: '0.0.0.0'
+      REDASH_BACKEND: 'http://api:5000'
+    ports:
+      - "8080:8080"
+    volumes:
+      - ".:/app"
+      - "/app/client/dist"
+      - "/app/node_modules"
+  redis:
+    image: redis:2.8
+  postgres:
+    image: postgres:9.3

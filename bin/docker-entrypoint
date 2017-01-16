@@ -1,0 +1,61 @@
+#!/bin/bash
+set -e
+
+worker() {
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery}
+
+  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
+  exec sudo -E -u redash /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+}
+
+scheduler() {
+  WORKERS_COUNT=${WORKERS_COUNT:-1}
+  QUEUES=${QUEUES:-celery}
+
+  echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec sudo -E -u redash /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+}
+
+api() {
+  exec sudo -E -u redash /usr/local/bin/gunicorn -b 0.0.0.0:5000 -k gevent --name redash -w5 redash_saas:app
+}
+
+dev_server() {
+  exec sudo -E -u redash /app/manage.py runserver --debugger --reload -h 0.0.0.0
+}
+
+create_db() {
+  exec sudo -E -u redash /app/manage.py database create_tables
+}
+
+help() {
+  echo "Usage: "
+  echo "`basename "$0"` {worker, scheduler, api, shell}"
+}
+
+case "$1" in
+  worker)
+    shift
+    worker
+    ;;
+  api)
+    shift
+    api
+    ;;
+  scheduler)
+    shift
+    scheduler
+    ;;
+  dev_server)
+    shift
+    dev_server
+    ;;
+  shell)
+    exec sudo -E -u redash ./manage.py shell
+    ;;
+  *)
+    help
+    ;;
+esac
