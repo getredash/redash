@@ -6,6 +6,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 var path = require('path');
 
+var redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
 var config = {
   entry: {
@@ -82,24 +83,40 @@ var config = {
     historyApiFallback: true,
     proxy: {
       '/login': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/images': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/js': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/styles': {
+        target: redashBackend + '/',
         secure: false
       },
       '/status.json': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
         secure: false
       },
       '/api/admin': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
         secure: false
       },
       '/api': {
-        target: 'http://localhost:5000',
+        target: redashBackend,
         secure: false
       }
     }
   }
 };
+
+if (process.env.DEV_SERVER_HOST) {
+  config.devServer.host = process.env.DEV_SERVER_HOST;
+}
 
 if (process.env.NODE_ENV === 'production') {
   config.output.path = __dirname + '/client/dist';
