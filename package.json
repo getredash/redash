@@ -4,7 +4,7 @@
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server --content-base app",
+    "start": "webpack-dev-server --content-base client/app",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
   },
