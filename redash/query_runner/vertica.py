@@ -54,7 +54,8 @@ class Vertica(BaseSQLQueryRunner):
                     "type": "number"
                 },
                 "read_timeout": {
-                    "type": "number"
+                    "type": "number",
+                    "title": "Read Timeout"
                 },                                
             },
             'required': ['database'],
