@@ -12,5 +12,6 @@ export { default as DataSource } from './data-source';
 export { default as QuerySnippet } from './query-snippet';
 export { default as Notifications } from './notifications';
 export { default as KeyboardShortcuts } from './keyboard-shortcuts';
+export { default as OfflineListener } from './offline-listener';
 export { default as AlertDialog } from './alert-dialog';
 export { default as Auth } from './auth';
