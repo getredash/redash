@@ -1,3 +1,5 @@
+# This configuration file is for **development** setup. For production, refer to
+# docker-compose.production.yml.
 version: '2'
 services:
   server:
