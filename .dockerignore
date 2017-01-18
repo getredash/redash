@@ -1,4 +1,4 @@
 client/.tmp/
-client/node_modules/
+node_modules/
+.tmp/
 .git/
-.vagrant/
