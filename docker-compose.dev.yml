@@ -1,6 +1,6 @@
 version: '2'
 services:
-  api:
+  server:
     build: .
     command: dev_server
     depends_on:
@@ -19,11 +19,9 @@ services:
     build: .
     command: scheduler
     volumes_from:
-      - api
+      - server
     depends_on:
-      - api
-      - postgres
-      - redis
+      - server
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"

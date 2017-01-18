@@ -18,21 +18,23 @@ scheduler() {
   exec sudo -E -u redash /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
 }
 
-api() {
-  exec sudo -E -u redash /usr/local/bin/gunicorn -b 0.0.0.0:5000 -k gevent --name redash -w5 redash_saas:app
-}
-
-dev_server() {
-  exec sudo -E -u redash /app/manage.py runserver --debugger --reload -h 0.0.0.0
-}
-
-create_db() {
-  exec sudo -E -u redash /app/manage.py database create_tables
+server() {
+  exec sudo -E -u redash /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w4 redash:app
 }
 
 help() {
-  echo "Usage: "
-  echo "`basename "$0"` {worker, scheduler, api, shell}"
+  echo "Redash Docker."
+  echo ""
+  echo "Usage:"
+  echo ""
+
+  echo "server -- start Redash server (with gunicorn)"
+  echo "worker -- start Celery worker"
+  echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo ""
+  echo "shell -- open shell"
+  echo "dev_server -- start Flask development server with debugger and auto reload"
+  echo "create_db -- create database tables"
 }
 
 case "$1" in
@@ -40,20 +42,22 @@ case "$1" in
     shift
     worker
     ;;
-  api)
+  server)
     shift
-    api
+    server
     ;;
   scheduler)
     shift
     scheduler
     ;;
   dev_server)
-    shift
-    dev_server
+    exec sudo -E -u redash /app/manage.py runserver --debugger --reload -h 0.0.0.0
     ;;
   shell)
-    exec sudo -E -u redash ./manage.py shell
+    exec sudo -E -u redash /app/manage.py shell
+    ;;
+  create_db)
+    exec sudo -E -u redash /app/manage.py database create_tables
     ;;
   *)
     help
