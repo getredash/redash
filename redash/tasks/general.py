@@ -29,6 +29,12 @@ def version_check():
     run_version_check()
 
 
+@celery.task(name="redash.tasks.subscribe")
+def subscribe(form):
+    logger.info("Subscribing to: [security notifications=%s], [newsletter=%s]", form['security_notifications'], form['newsletter'])
+    # TOOD: implement actual subscription
+
+
 @celery.task(name="redash.tasks.send_mail", base=BaseTask)
 def send_mail(to, subject, html, text):
     from redash.wsgi import app

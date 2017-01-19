@@ -92,6 +92,13 @@ def forgot_password(org_slug=None):
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
 def login(org_slug=None):
+    # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
+    # noinspection PyComparisonWithNone
+    if current_org == None and not settings.MULTI_ORG:
+        return redirect('/setup')
+    elif current_org == None:
+        return redirect('/')
+
     index_url = url_for("redash.index", org_slug=org_slug)
     next_path = request.args.get('next', index_url)
     if current_user.is_authenticated:
