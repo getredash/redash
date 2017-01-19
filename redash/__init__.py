@@ -25,7 +25,12 @@ def setup_logging():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
-    logging.getLogger("passlib").setLevel("ERROR")
+
+    # Make noisy libraries less noisy
+    if settings.LOG_LEVEL != "DEBUG":
+        logging.getLogger("passlib").setLevel("ERROR")
+        logging.getLogger("requests.packages.urllib3").setLevel("ERROR")
+        logging.getLogger("snowflake.connector").setLevel("ERROR")
 
 
 def create_redis_connection():
