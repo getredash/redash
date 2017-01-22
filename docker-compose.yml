@@ -35,3 +35,7 @@ services:
     image: redis:2.8
   postgres:
     image: postgres:9.3
+    # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
+    # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
+    # tests.
+    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
