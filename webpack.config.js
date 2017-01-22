@@ -86,6 +86,10 @@ var config = {
         target: redashBackend + '/',
         secure: false
       },
+      '/setup': {
+        target: redashBackend + '/',
+        secure: false
+      },
       '/images': {
         target: redashBackend + '/',
         secure: false
