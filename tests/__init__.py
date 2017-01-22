@@ -5,9 +5,9 @@ import json
 from unittest import TestCase
 from contextlib import contextmanager
 
-os.environ['REDASH_REDIS_URL'] = "redis://localhost:6379/5"
+os.environ['REDASH_REDIS_URL'] = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0").replace("/0", "/5")
 # Use different url for Celery to avoid DB being cleaned up:
-os.environ['REDASH_CELERY_BROKER'] = "redis://localhost:6379/6"
+os.environ['REDASH_CELERY_BROKER'] = os.environ.get('REDASH_REDIS_URL', "redis://localhost:6379/0").replace("/5", "/6")
 
 # Dummy values for oauth login
 os.environ['REDASH_GOOGLE_CLIENT_ID'] = "dummy"

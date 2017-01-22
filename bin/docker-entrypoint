@@ -37,6 +37,11 @@ help() {
   echo "create_db -- create database tables"
 }
 
+tests() {
+  export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
+  exec sudo -E -u redash make test
+}
+
 case "$1" in
   worker)
     shift
@@ -58,6 +63,9 @@ case "$1" in
     ;;
   create_db)
     exec sudo -E -u redash /app/manage.py database create_tables
+    ;;
+  tests)
+    tests
     ;;
   *)
     help
