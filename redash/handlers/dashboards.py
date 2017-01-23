@@ -78,6 +78,19 @@ class DashboardResource(BaseResource):
         :>json boolean is_draft: Whether this dashboard is a draft or not.
         :>json array layout: Array of arrays containing widget IDs, corresponding to the rows and columns the widgets are displayed in
         :>json array widgets: Array of arrays containing :ref:`widget <widget-response-label>` data
+
+        .. _widget-response-label:
+
+        Widget structure:
+
+        :>json number widget.id: Widget ID
+        :>json number widget.width: Widget size
+        :>json object widget.options: Widget options
+        :>json number widget.dashboard_id: ID of dashboard containing this widget
+        :>json string widget.text: Widget contents, if this is a text-box widget
+        :>json object widget.visualization: Widget contents, if this is a visualization widget
+        :>json string widget.created_at: ISO format timestamp for widget creation
+        :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
         response = dashboard.to_dict(with_widgets=True, user=self.current_user)
