@@ -93,12 +93,7 @@ class Mysql(BaseSQLQueryRunner):
                col.table_name,
                col.column_name
         FROM `information_schema`.`columns` col
-        INNER JOIN
-          (SELECT table_schema,
-                  TABLE_NAME
-           FROM information_schema.tables
-           WHERE table_type <> 'SYSTEM VIEW' AND table_schema NOT IN ('performance_schema', 'mysql')) tables ON tables.table_schema = col.table_schema
-        AND tables.TABLE_NAME = col.TABLE_NAME;
+        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
         """
 
         results, error = self.run_query(query, None)
