@@ -68,6 +68,7 @@ class ClickHouse(BaseSQLQueryRunner):
         })
         if r.status_code != 200:
             raise Exception(r.text)
+        # logging.warning(r.json())
         return r.json()
 
     @staticmethod
@@ -89,7 +90,13 @@ class ClickHouse(BaseSQLQueryRunner):
         result = self._send_query(query)
         columns = [{'name': r['name'], 'friendly_name': r['name'],
                     'type': self._define_column_type(r['type'])} for r in result['meta']]
-        return {'columns': columns, 'rows': result['data']}
+        # db converts value to string if its type equals UInt64
+        columns_uint64 = [r['name'] for r in result['meta'] if r['type'] == 'UInt64']
+        rows = result['data']
+        for row in rows:
+            for column in columns_uint64:
+                row[column] = int(row[column])
+        return {'columns': columns, 'rows': rows}
 
     def run_query(self, query, user):
         logger.debug("Clickhouse is about to execute query: %s", query)
