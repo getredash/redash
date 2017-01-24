@@ -1,0 +1,58 @@
+*, button, input, i, a {
+    -webkit-font-smoothing: antialiased;
+}
+
+*,
+*:active,
+*:hover {
+    outline: none !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+}
+
+html {
+    overflow-x: ~"hidden\0/";
+    -ms-overflow-style: none;
+}
+
+html, body {
+    min-height: 100vh;
+}
+
+body {
+    padding-top: @header-height;
+    position: relative;
+    padding-bottom: @footer-height;
+}
+
+strong {
+    font-weight: 500;
+}
+
+#content {
+    position: relative;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    
+    @media (min-width: (@screen-sm-min + 1)) {
+        padding-right: 15px;
+        padding-left: 15px;
+    }
+    
+    @media (min-width: (@screen-lg-min + 80px)) { 
+        margin-left: @sidebar-left-width;
+    }
+    
+    @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) { 
+        margin-left: @sidebar-left-mid-width;
+    }
+       
+    @media (max-width: (@screen-sm-min)) { 
+        margin-left: 0;
+    } 
+}
+
+.container {
+    &.c-boxed {
+        max-width: @boxed-width;
+    }
+}

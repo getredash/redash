@@ -1,0 +1,75 @@
+.tile {
+    background-color: #fff;
+    margin-bottom: @grid-gutter-width;
+    position: relative;
+    box-shadow: @tile-shadow;
+    
+    &[class*="bg-"] {
+        color: #fff;
+    }
+    
+    @media (max-width: @screen-sm-min) {
+        margin-bottom: @grid-gutter-width/2;
+    }
+}
+
+.t-header {
+    .th-title {
+        line-height: 100%;
+    }
+    
+    &:not(.th-alt) {
+        padding: 20px 23px;
+        
+        .th-title {
+            font-size: 17px;
+            font-weight: 400;
+            color: #333;
+            
+            small {
+                font-size: 12px;
+                color: #9C9C9C;
+                margin-top: 3px;
+                display: block;
+            }
+        }
+    }
+    
+    &.th-alt {
+        padding: 10px 15px 9px;
+        
+        .actions {
+            & > a {
+                color: #fff;
+            }
+        }
+        
+        &[class*="bg-"] {
+            .th-title {
+                color: #fff;
+            }
+        }
+    }
+    
+    .actions {
+        right: 0;
+        top: 0; 
+        
+        & > a {
+            font-size: 24px;
+            line-height: 100%;
+            padding: 4px 10px 3px;
+            display: block;
+        }
+        
+        & > a:hover,
+        &.open > a {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+    }
+}
+
+.tb-padding {
+    padding: 20px 23px 30px;
+}
+

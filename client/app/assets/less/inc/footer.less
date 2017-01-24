@@ -1,0 +1,37 @@
+#footer {
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+    height: @footer-height;
+    color: #a2a2a2;
+    padding-top: 10px;
+    padding-bottom: 15px;
+    
+    .f-menu {
+        display: block;
+        width: 100%;
+        .list-inline();
+        margin-top: 8px;
+        
+        & > li > a {
+            color: #a2a2a2;
+            
+            &:hover {
+                color: #777;
+            }
+        } 
+    }
+    
+    @media (min-width: (@screen-lg-min + 80px)) { 
+        padding-left: (@sidebar-left-width + @grid-gutter-width);
+    }
+    
+    @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) {
+        padding-left: (@sidebar-left-mid-width + @grid-gutter-width);
+    }
+       
+    @media (max-width: (@screen-sm-min)) {
+        padding-left: @grid-gutter-width/2;
+    }
+}

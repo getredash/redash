@@ -1,0 +1,151 @@
+/* --------------------------------------------------------
+    Generate Margin Classes (0px - 25px)
+    margin, margin-top, margin-bottom, margin-left, margin-right
+-----------------------------------------------------------*/
+.margin (@label, @size: 1, @key:1) when (@size =< 30){
+    .m-@{key} {
+        margin: @size !important;
+    }
+    
+    .m-t-@{key} {
+        margin-top: @size !important;
+    }
+    
+    .m-b-@{key} {
+        margin-bottom: @size !important;
+    }
+    
+    .m-l-@{key} {
+        margin-left: @size !important;
+    }
+    
+    .m-r-@{key} {
+        margin-right: @size !important;
+    }
+    
+    .margin(@label - 5; @size + 5; @key + 5);
+}
+
+.margin(25, 0px, 0);
+
+
+/* --------------------------------------------------------
+    Generate Padding Classes (0px - 25px)
+    padding, padding-top, padding-bottom, padding-left, padding-right
+-----------------------------------------------------------*/
+.padding (@label, @size: 1, @key:1) when (@size =< 30){
+    .p-@{key} {
+        padding: @size !important;
+    }
+    
+    .p-t-@{key} {
+        padding-top: @size !important;
+    }
+    
+    .p-b-@{key} {
+        padding-bottom: @size !important;
+    }
+    
+    .p-l-@{key} {
+        padding-left: @size !important;
+    }
+    
+    .p-r-@{key} {
+        padding-right: @size !important; 
+    }
+    
+    .padding(@label - 5; @size + 5; @key + 5);
+} 
+
+.padding(25, 0px, 0);
+
+
+/* --------------------------------------------------------
+    Generate Font-Size Classes (8px - 20px)
+-----------------------------------------------------------*/
+.font-size (@label, @size: 8, @key:10) when (@size =< 20){
+    .f-@{key} {
+        font-size: @size !important;
+    }
+    
+    .font-size(@label - 1; @size + 1; @key + 1);
+} 
+
+.font-size(20, 8px, 8);
+
+
+/* --------------------------------------------------------
+    Font Weight
+-----------------------------------------------------------*/
+.f-300 { font-weight: 300 !important; }
+.f-400 { font-weight: 400 !important; }
+.f-500 { font-weight: 500 !important; }
+.f-700 { font-weight: 700 !important; }
+
+
+/* --------------------------------------------------------
+    Position
+-----------------------------------------------------------*/
+.p-relative { position: relative !important; }
+.p-absolute { position: absolute !important; }
+.p-fixed { position: fixed !important; }
+.p-static { position: static !important; }
+
+
+/* --------------------------------------------------------
+    Overflow
+-----------------------------------------------------------*/
+.o-hidden { overflow: hidden !important; }
+.o-visible { overflow: visible !important; }
+.o-auto { overflow: auto !important; }
+
+
+/* --------------------------------------------------------
+    Display
+-----------------------------------------------------------*/
+.di-block { display: inline-block !important; } 
+.d-block { display: block; }
+
+/* --------------------------------------------------------
+    Background Colors and Colors
+-----------------------------------------------------------*/
+@array: c-white bg-white @white, c-ace bg-ace @ace, c-black bg-black @black, c-brown bg-brown @brown, c-pink bg-pink @pink, c-red bg-red @red, c-blue bg-blue @blue, c-purple bg-purple @purple, c-deeppurple bg-deeppurple @deeppurple, c-lightblue bg-lightblue @lightblue, c-cyan bg-cyan @cyan, c-teal bg-teal @teal, c-green bg-green @green, c-lightgreen bg-lightgreen @lightgreen, c-lime bg-lime @lime, c-yellow bg-yellow @yellow, c-amber bg-amber @amber, c-orange bg-orange @orange, c-deeporange bg-deeporange @deeporange, c-gray bg-gray @gray, c-bluegray bg-bluegray @bluegray, c-indigo bg-indigo @indigo;
+
+.for(@array); .-each(@value) {
+    @name:  extract(@value, 1);
+    @name2:  extract(@value, 2);
+    @color: extract(@value, 3); 
+    &.@{name2} {
+        background-color: @color !important;
+    }
+    
+    &.@{name} {
+        color: @color !important;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Background Colors
+-----------------------------------------------------------*/
+.bg-brand { background-color: @brand-bg; }
+.bg-black-trp { background-color: rgba(0,0,0,0.12) !important; }
+
+
+
+/* --------------------------------------------------------
+    Borders
+-----------------------------------------------------------*/
+.b-0 { border: 0 !important; }
+
+
+/* --------------------------------------------------------
+    Width
+-----------------------------------------------------------*/
+.w-100 { width: 100% !important; }
+
+
+/* --------------------------------------------------------
+    Border Radius
+-----------------------------------------------------------*/
+.brd-2 { border-radius: 2px; }

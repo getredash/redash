@@ -1,0 +1,93 @@
+.panel {
+    box-shadow: none;
+    border: 0;
+}
+
+.panel-heading {
+    padding: 0;
+}
+
+.panel-title {
+    & > a {
+        padding: 10px 15px;
+        display: block;
+        font-size: 13px;
+    }
+}
+ 
+.panel-collapse {
+    .panel-heading {
+        position: relative;
+        
+        .panel-title {
+            & > a {
+                padding: 8px 5px 16px 30px;
+                color: #000;
+                position: relative;
+                border-bottom: 2px solid #eee;
+            }
+        }
+        
+        &:before {
+            font-family: @font-icon;
+            font-size: 17px;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            content: "\f278";
+        }
+        
+        &.active {
+            &:before {
+                content: "\f273";
+            }
+        }
+    }
+    
+    
+    .panel-body {
+        border-top: 0 !important;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+}
+
+.panel-collapse-color(@color) {
+    .panel-collapse {
+        .panel-heading {
+            &.active .panel-title > a {
+                border-bottom-color: @color;
+            }
+        }
+    }
+}
+
+.panel-group {
+    &:not([data-collapse-color]) {
+        .panel-collapse-color(@blue);
+    }
+    
+    &[data-collapse-color="red"] {
+        .panel-collapse-color(@red);
+    }
+    
+    &[data-collapse-color="green"] {
+        .panel-collapse-color(@green);
+    }
+    
+    &[data-collapse-color="amber"] {
+        .panel-collapse-color(@amber);
+    }
+    
+    &[data-collapse-color="teal"] {
+        .panel-collapse-color(@teal);
+    }
+    
+    &[data-collapse-color="black"] {
+        .panel-collapse-color(@black);
+    }
+    
+    &[data-collapse-color="cyan"] {
+        .panel-collapse-color(@cyan);
+    }
+}

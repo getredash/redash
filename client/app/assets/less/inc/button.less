@@ -1,0 +1,118 @@
+.btn {
+    &:not(.btn-alt) {
+        border: 0;
+    }
+    
+    &[class*="bg-"]:not(.bg-white) {
+        color: #fff;
+    }
+
+    .caret {
+        margin-top: -3px;
+    }
+     
+    &:not(.btn-link) {
+        &:active,
+        &.active,
+        &:hover {
+            
+        }
+    }
+}
+
+.btn-default {
+    .button-variant(#333, #eee, transparent);
+}
+
+.btn-inverse {
+    .button-variant(#fff, #454545, transparent);
+}
+
+.btn-link {
+    color: #333;
+}
+
+.btn-icon {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    text-align: center;
+    
+    .zmdi {
+        font-size: 17px;
+    }
+}
+
+.btn-icon-text {
+    & > .zmdi {
+        font-size: 15px;
+        vertical-align: top;
+        display: inline-block;
+        margin-top: 2px;
+        line-height: 100%;
+        margin-right: 5px;
+    }
+}
+
+.open .btn {
+    outline: none !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+    
+    &:focus, &:active {
+        outline: none !important;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+    }
+}
+
+/** ALTERNATIVE BUTTONS **/
+.btn-alt(@color) {
+    border-color: @color;
+    color: @color;
+    
+    &:not(.btn-white) {
+        &:hover,
+        &:active,
+        &:focus {
+            color: #fff;
+            background: @color;
+        }
+    }
+    
+    &.btn-white {
+        &:hover,
+        &:active,
+        &:focus {
+            color: #333;
+            background: @color;
+        }
+    }
+}
+
+.btn-alt {
+    background: transparent;
+    
+    &.btn-default {
+        .btn-alt(darken(@brand-default, 30%));
+    }
+    
+    &.btn-info {
+        .btn-alt(@brand-info);
+    }
+    
+    &.btn-primary {
+        .btn-alt(@brand-primary);
+    }
+    
+    &.btn-success {
+        .btn-alt(@brand-success);
+    }
+    
+    &.btn-warning {
+        .btn-alt(@brand-warning);
+    }
+     
+    &.btn-danger {
+        .btn-alt(@brand-danger);
+    }
+}
