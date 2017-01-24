@@ -29,7 +29,7 @@ import './sortable';
 
 import './assets/css/superflat_redash.css';
 import './assets/css/redash.css';
-import './assets/css/main.scss';
+import './assets/css/main.less';
 
 import * as pages from './pages';
 import * as components from './components';

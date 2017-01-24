@@ -57,8 +57,8 @@ var config = {
       // {test: /\.css$/, loader: 'style!css', exclude: /node_modules/},
       {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader")},
       {
-        test: /\.scss$/,
-        loader: ExtractTextPlugin.extract(["css-loader", "sass-loader"])
+        test: /\.less$/,
+        loader: ExtractTextPlugin.extract(["css-loader", "less-loader"])
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
