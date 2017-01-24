@@ -29,6 +29,7 @@ import './sortable';
 
 import './assets/css/superflat_redash.css';
 import './assets/css/redash.css';
+import './assets/css/main.scss';
 
 import * as pages from './pages';
 import * as components from './components';
