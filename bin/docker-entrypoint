@@ -19,7 +19,7 @@ scheduler() {
 }
 
 server() {
-  exec sudo -E -u redash /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w4 redash:app
+  exec sudo -E -u redash /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w4 redash.wsgi:app
 }
 
 help() {
