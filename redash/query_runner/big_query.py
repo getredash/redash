@@ -270,7 +270,27 @@ class BigQueryGCE(BigQuery):
 
     @classmethod
     def configuration_schema(cls):
-        return {}
+        return {
+            'type': 'object',
+            'properties': {
+                'totalMBytesProcessedLimit': {
+                    "type": "number",
+                    'title': 'Total MByte Processed Limit'
+                },
+                'userDefinedFunctionResourceUri': {
+                    "type": "string",
+                    'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
+                },
+                'useStandardSql': {
+                    "type": "boolean",
+                    'title': "Use Standard SQL (Beta)",
+                },
+                'loadSchema': {
+                    "type": "boolean",
+                    "title": "Load Schema"
+                }
+            }
+        }
 
     def _get_project_id(self):
         return requests.get('http://metadata/computeMetadata/v1/project/project-id', headers={'Metadata-Flavor': 'Google'}).content
