@@ -16,6 +16,7 @@ from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import object_session, backref
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import or_
 
 from passlib.apps import custom_app_context as pwd_context
 
@@ -758,7 +759,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     @classmethod
-    def all_queries(cls, group_ids, drafts=False):
+    def all_queries(cls, group_ids, user_id=None, drafts=False):
         q = (cls.query.join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -767,10 +768,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)
             .order_by(Query.created_at.desc()))
 
-        if drafts:
-            q = q.filter(Query.is_draft == True)
-        else:
-            q = q.filter(Query.is_draft == False)
+        if not drafts:
+            q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
 
         return q
 
@@ -795,7 +794,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids):
+    def search(cls, term, group_ids, include_drafts=False):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
         where = (Query.name.ilike(u"%{}%".format(term)) |
                  Query.description.ilike(u"%{}%".format(term)))
@@ -804,6 +803,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             where |= Query.id == term
 
         where &= Query.is_archived == False
+
+        if not include_drafts:
+            where &= Query.is_draft == False
+
         where &= DataSourceGroup.group_id.in_(group_ids)
         query_ids = (
             db.session.query(Query.id).join(
