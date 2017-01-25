@@ -28,7 +28,6 @@ import { each } from 'underscore';
 import './sortable';
 
 import './assets/less/main.less';
-import './assets/css/redash.css';
 
 import * as pages from './pages';
 import * as components from './components';

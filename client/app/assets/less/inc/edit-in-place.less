@@ -1,0 +1,37 @@
+
+.ace_editor {
+  border: 1px solid #eee;
+  height: 100%;
+  margin-bottom: 10px;
+}
+
+
+.edit-in-place span {
+  white-space: pre-line;
+}
+
+.edit-in-place span.editable {
+  cursor: pointer;
+}
+
+.edit-in-place span.editable:hover {
+  background: #FCFCA2;
+}
+
+.edit-in-place input,
+.edit-in-place textarea {
+  display: none;
+}
+
+.edit-in-place.active span {
+  display: none;
+}
+
+.edit-in-place.active input,
+.edit-in-place.active textarea {
+  display: inline-block;
+}
+
+.delete-button {
+  float: none !important;
+}

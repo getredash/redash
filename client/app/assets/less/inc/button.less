@@ -2,7 +2,7 @@
     &:not(.btn-alt) {
         border: 0;
     }
-    
+
     &[class*="bg-"]:not(.bg-white) {
         color: #fff;
     }
@@ -10,12 +10,12 @@
     .caret {
         margin-top: -3px;
     }
-     
+
     &:not(.btn-link) {
         &:active,
         &.active,
         &:hover {
-            
+
         }
     }
 }
@@ -38,7 +38,7 @@
     height: 40px;
     padding: 0;
     text-align: center;
-    
+
     .zmdi {
         font-size: 17px;
     }
@@ -58,7 +58,7 @@
 .open .btn {
     outline: none !important;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
-    
+
     &:focus, &:active {
         outline: none !important;
         -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
@@ -69,7 +69,7 @@
 .btn-alt(@color) {
     border-color: @color;
     color: @color;
-    
+
     &:not(.btn-white) {
         &:hover,
         &:active,
@@ -78,7 +78,7 @@
             background: @color;
         }
     }
-    
+
     &.btn-white {
         &:hover,
         &:active,
@@ -91,28 +91,34 @@
 
 .btn-alt {
     background: transparent;
-    
+
     &.btn-default {
         .btn-alt(darken(@brand-default, 30%));
     }
-    
+
     &.btn-info {
         .btn-alt(@brand-info);
     }
-    
+
     &.btn-primary {
         .btn-alt(@brand-primary);
     }
-    
+
     &.btn-success {
         .btn-alt(@brand-success);
     }
-    
+
     &.btn-warning {
         .btn-alt(@brand-warning);
     }
-     
+
     &.btn-danger {
         .btn-alt(@brand-danger);
     }
+}
+
+.btn-xs > .fa {
+  font-size: 14px;
+  top: 1px;
+  position: relative;
 }

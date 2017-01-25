@@ -22,6 +22,12 @@ body {
     padding-top: @header-height;
     position: relative;
     padding-bottom: @footer-height;
+    &.headless {
+      padding-top: 0px;
+      .nav.app-header {
+        display: none;
+      }
+    }
 }
 
 strong {
@@ -32,27 +38,42 @@ strong {
     position: relative;
     padding-top: 30px;
     padding-bottom: 30px;
-    
+
     @media (min-width: (@screen-sm-min + 1)) {
         padding-right: 15px;
         padding-left: 15px;
     }
-    
-    @media (min-width: (@screen-lg-min + 80px)) { 
+
+    @media (min-width: (@screen-lg-min + 80px)) {
         margin-left: @sidebar-left-width;
     }
-    
-    @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) { 
+
+    @media (min-width: @screen-sm-min) and (max-width: (@screen-md-max + 80px)) {
         margin-left: @sidebar-left-mid-width;
     }
-       
-    @media (max-width: (@screen-sm-min)) { 
+
+    @media (max-width: (@screen-sm-min)) {
         margin-left: 0;
-    } 
+    }
 }
 
 .container {
     &.c-boxed {
         max-width: @boxed-width;
     }
+}
+
+a[ng-click] {
+  cursor: pointer;
+}
+
+a.link {
+  cursor: pointer;
+}
+
+a.page-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 400px;
 }

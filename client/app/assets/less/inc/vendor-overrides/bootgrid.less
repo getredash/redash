@@ -1,3 +1,8 @@
+.container-fluid {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
 .bootgrid-table {
     margin: 0;
     box-shadow: none;
@@ -5,7 +10,7 @@
 
 .bootgrid-footer .infoBar,
 .bootgrid-header .actionBar {
-    text-align: left; 
+    text-align: left;
 }
 
 .bootgrid-footer .search,
@@ -16,14 +21,14 @@
 .bootgrid-header {
     margin: 0;
     padding: 25px;
-    
-    .search { 
+
+    .search {
         border: 1px solid @input-border;
-        
+
         .form-control, .input-group-addon {
             border: 0;
         }
-        
+
         .input-group-addon {
             font-size: 18px;
             color: #333;
@@ -31,57 +36,57 @@
             min-width: 26px;
             text-align: right;
         }
-        
+
         @media (min-width: @screen-xs-min) {
-            width: 300px;   
+            width: 300px;
         }
-        
+
         @media (max-width: @screen-xs-min) {
             width: 100%;
             padding-right: 90px;
         }
-        
-        
+
+
     }
-    
+
     .actions {
         box-shadow: none;
-        
-        .btn-group {            
+
+        .btn-group {
             .btn {
                 height: 37px;
                 background: #fff;
                 border-radius: 0;
                 border: 1px solid @input-border;
             }
-            
-            .dropdown-menu {                
+
+            .dropdown-menu {
                 @media (min-width: @screen-sm-min) {
                     left: 0;
                     margin-top: 1px;
                 }
-                
+
                 .dropdown-item {
                     padding: 5px 10px;
-                    
+
                     .input-helper {
                         top: 5px;
                     }
                 }
-            } 
-            
+            }
+
             .caret {
                 display: none;
             }
-            
+
             .zmdi {
                 line-height: 100%;
                 font-size: 18px;
                 vertical-align: top;
             }
-            
+
         }
-        
+
         @media (max-width: @screen-xs-min) {
             position: absolute;
             top: 0;
@@ -93,20 +98,20 @@
 .bootgrid-footer {
     border-top: 1px solid @table-border-color;
     margin-top: 0;
-    
+
     .col-sm-6 {
         padding: 25px;
-        
+
         @media (max-width: @screen-sm-min) {
             text-align: center;
         }
     }
-    
+
     .infoBar {
         @media (max-width: @screen-sm-min) {
             display: none;
         }
-        
+
             .infos {
                 border: 1px solid #EEE;
                 display: inline-block;
@@ -120,5 +125,58 @@
 
 .select-cell .checkbox {
     margin: 0px 0 0 -19px;
-    top: 3px; 
+    top: 3px;
+}
+
+.flex-parent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.collapsing,
+.collapse.in {
+    background: #f4f4f4;
+    padding: 5px 10px;
+    transition: all 0.35s ease;
+}
+
+.col-table .missing-value {
+  color: #b94a48;
+}
+
+.col-table .super-small-input {
+  padding-left: 3px;
+  height: 24px;
+}
+
+.col-table .ui-select-toggle, .col-table .ui-select-search {
+  padding: 2px;
+  padding-left: 5px;
+  height: 24px;
+}
+
+
+.iframe-container {
+  height: 100%;
+}
+
+.schema-container {
+  height: 100%;
+  z-index: 10;
+  background-color: white;
+}
+
+.schema-browser {
+  height: calc(100% - 45px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid rgba(0,0,0,.15);
+}
+
+
+
+.blankslate {
+  text-align: center;
+  padding: 30px;
 }

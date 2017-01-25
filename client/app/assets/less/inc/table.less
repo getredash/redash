@@ -1,22 +1,22 @@
 .table {
     margin-bottom: 0;
-    
+
     &:not(.table-striped) > thead > tr > th {
         background-color: #FAFAFA;
     }
-    
+
     [class*="bg-"] {
         & > tr > th {
             color: #fff;
             border-bottom: 0;
             background: transparent !important;
         }
-        
-        & + tbody > tr:first-child > td { 
+
+        & + tbody > tr:first-child > td {
             border-top: 0;
         }
     }
-    
+
     & > thead > tr > th {
         vertical-align: middle;
         font-weight: 500;
@@ -25,24 +25,24 @@
         text-transform: uppercase;
         padding: 15px 10px;
     }
-    
+
     & > thead > tr,
     & > tbody > tr,
     & > tfoot > tr {
-        
+
         & > th, & > td {
-            
+
             &:first-child {
                 padding-left: 30px;
             }
-            
+
             &:last-child {
                 padding-right: 30px;
             }
-            
+
         }
     }
-    
+
     tbody > tr:last-child > td {
         padding-bottom: 20px;
     }
@@ -50,21 +50,21 @@
 
 .table-bordered {
     border: 0;
-    
+
     & > tbody > tr {
         & > td, & > th {
             border-bottom: 0;
             border-left: 0;
-            
+
             &:last-child {
                 border-right: 0;
             }
         }
     }
-    
+
     & > thead > tr > th {
         border-left: 0;
-        
+
         &:last-child {
             border-right: 0;
         }
@@ -82,9 +82,39 @@
 }
 
 .tile .table  {
-    
+
     & > thead:not([class*="bg-"]) > tr > th {
         border-top: 1px solid @table-border-color;
 
     }
+}
+
+.table-hover > tbody > tr:hover {
+  background-color: #f4f4f4;
+}
+
+pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+  overflow: auto;
+}
+
+div.table-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 0 10px;
+  &:hover {
+    background: #f4f4f4;
+  }
+}
+.t-body a.actions {
+  font-size: 24px;
+  line-height: 100%;
+  padding: 4px 10px 3px;
+  display: block;
+}
+
+.t-body a.actions:hover,
+.t-body a.actions.open > a {
+  background-color: rgba(0, 0, 0, 0.1);
 }
