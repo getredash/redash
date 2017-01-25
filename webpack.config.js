@@ -89,6 +89,10 @@ var config = {
         target: redashBackend + '/',
         secure: false
       },
+      '/invite': {
+        target: redashBackend + '/',
+        secure: false
+      },
       '/setup': {
         target: redashBackend + '/',
         secure: false
