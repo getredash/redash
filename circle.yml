@@ -1,6 +1,7 @@
 machine:
   services:
     - docker
+    - redis
   node:
     version:
       6.9.1
