@@ -829,7 +829,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                      Event.object_id != None,
                      Event.object_type == 'query',
                      DataSourceGroup.group_id.in_(group_ids),
-                     Query.is_draft == False,
+                     or_(Query.is_draft == False, Query.user_id == user_id),
                      Query.is_archived == False)
                  .group_by(Event.object_id, Query.id, User.id)
                  .order_by(db.desc(db.func.count(0))))
@@ -1209,7 +1209,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                      Event.object_type == 'dashboard',
                      Dashboard.org == org,
                      Dashboard.is_archived == False,
-                     Dashboard.is_draft == False,
+                     or_(Dashboard.is_draft == False, Dashboard.user_id == user_id),
                      DataSourceGroup.group_id.in_(group_ids) |
                      (Dashboard.user_id == user_id) |
                      ((Widget.dashboard != None) & (Widget.visualization == None)))
