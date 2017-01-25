@@ -17,7 +17,7 @@
     .th-title {
         line-height: 100%;
     }
-    
+
     &:not(.th-alt) {
         padding: 20px 23px;
         
@@ -34,7 +34,12 @@
             }
         }
     }
-    
+
+    &.widget {
+        padding: 5px;
+    }
+
+
     &.th-alt {
         padding: 10px 15px 9px;
         
@@ -73,3 +78,14 @@
     padding: 20px 23px 30px;
 }
 
+.t-body a.actions {
+    font-size: 24px;
+    line-height: 100%;
+    padding: 4px 10px 3px;
+    display: block;
+}
+
+.t-body a.actions:hover,
+.t-body a.actions.open > a {
+    background-color: rgba(0, 0, 0, 0.1);
+}
