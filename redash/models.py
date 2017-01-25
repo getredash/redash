@@ -774,8 +774,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return q
 
     @classmethod
-    def by_user(cls, user, drafts):
-        return cls.all_queries(user.group_ids, drafts).filter(Query.user == user)
+    def by_user(cls, user):
+        return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
 
     @classmethod
     def outdated_queries(cls):
