@@ -1190,6 +1190,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 Dashboard.org == org)
             .group_by(Dashboard.id))
 
+        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
+
         return query
 
     @classmethod
