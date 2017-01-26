@@ -863,20 +863,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         db.session.add(forked_query)
         return forked_query
 
-    def update_instance_tracked(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.update_instance(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
-    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.save(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
     @property
     def runtime(self):
         return self.latest_query_data.runtime
