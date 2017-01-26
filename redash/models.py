@@ -662,7 +662,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    version = Column(db.Integer)
+    version = Column(db.Integer, default=1)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
@@ -687,8 +687,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     __tablename__ = 'queries'
     __mapper_args__ = {
-        "version_id_col": version
-        }
+        "version_id_col": version,
+        'version_id_generator': False
+    }
 
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
         d = {
@@ -862,20 +863,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             forked_query.visualizations.append(Visualization(**forked_v))
         db.session.add(forked_query)
         return forked_query
-
-    def update_instance_tracked(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.update_instance(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
-    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.save(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
 
     @property
     def runtime(self):
