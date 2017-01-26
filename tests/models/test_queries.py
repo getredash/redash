@@ -165,17 +165,17 @@ class TestQueryByUser(BaseTestCase):
         q = self.factory.create_query(user=self.factory.user)
         q2 = self.factory.create_query(user=self.factory.create_user())
 
-        queries = Query.by_user(self.factory.user, False)
+        queries = Query.by_user(self.factory.user)
 
         # not using self.assertIn/NotIn because otherwise this fails :O
-        self.assertTrue(q in queries)
-        self.assertFalse(q2 in queries)
+        self.assertTrue(q in list(queries))
+        self.assertFalse(q2 in list(queries))
 
-    def test_returns_drafts_if_asked_to(self):
+    def test_returns_drafts_by_the_user(self):
         q = self.factory.create_query(is_draft=True)
-        q2 = self.factory.create_query(is_draft=False)
+        q2 = self.factory.create_query(is_draft=True, user=self.factory.create_user())
 
-        queries = Query.by_user(self.factory.user, True)
+        queries = Query.by_user(self.factory.user)
 
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(q in queries)
@@ -185,7 +185,7 @@ class TestQueryByUser(BaseTestCase):
         q = self.factory.create_query()
         q2 = self.factory.create_query(data_source=self.factory.create_data_source(group=self.factory.create_group()))
 
-        queries = Query.by_user(self.factory.user, False)
+        queries = Query.by_user(self.factory.user)
 
         # not using self.assertIn/NotIn because otherwise this fails :O
         self.assertTrue(q in queries)

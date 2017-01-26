@@ -44,8 +44,9 @@ class QuerySearchResource(BaseResource):
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
         term = request.args.get('q', '')
+        include_drafts = request.args.get('include_drafts') is not None
 
-        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.group_ids)]
+        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts)]
 
 
 class QueryRecentResource(BaseResource):
@@ -135,7 +136,8 @@ class QueryListResource(BaseResource):
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        results = models.Query.all_queries(self.current_user.group_ids)
+        
+        results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
@@ -153,7 +155,7 @@ class MyQueriesResource(BaseResource):
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
         drafts = request.args.get('drafts') is not None
-        results = models.Query.by_user(self.current_user, drafts)
+        results = models.Query.by_user(self.current_user)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))

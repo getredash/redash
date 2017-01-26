@@ -119,10 +119,11 @@ class BaseElasticSearch(BaseQueryRunner):
         return mappings, error
 
     def _get_query_mappings(self, url):
-        mappings, error = self._get_mappings(url)
+        mappings_data, error = self._get_mappings(url)
         if error:
-            return mappings, error
+            return mappings_data, error
 
+        mappings = {}
         for index_name in mappings_data:
             index_mappings = mappings_data[index_name]
             for m in index_mappings.get("mappings", {}):

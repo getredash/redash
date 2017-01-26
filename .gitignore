@@ -20,9 +20,6 @@ venv
 
 dump.rdb
 
-# Docker related
-docker-compose.yml
-
 node_modules
 .tmp
 .sass-cache

@@ -1,5 +1,5 @@
 {
-  "name": "redash-frontend",
+  "name": "redash-client",
   "version": "1.0.0",
   "dependencies": {
     "3d-view": {

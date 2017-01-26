@@ -15,7 +15,7 @@
             <p class="f-500 m-b-20 c-black">Recent Dashboards</p>
             <div class="list-group">
               <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.recentDashboards">
-                {{dashboard.name}}
+                {{dashboard.name}} <span class="label label-warning" ng-if="dashboard.is_draft">Unpublished</span>
               </a>
             </div>
           </div>
@@ -24,7 +24,7 @@
             <p class="f-500 m-b-20 c-black">Recent Queries</p>
             <div class="list-group">
               <a ng-href="queries/{{query.id}}" class="list-group-item"
-                 ng-repeat="query in $ctrl.recentQueries">{{query.name}}</a>
+                 ng-repeat="query in $ctrl.recentQueries">{{query.name}} <span class="label label-warning" ng-if="query.is_draft">Unpublished</span></a>
             </div>
           </div>
       </div>

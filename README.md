@@ -1,5 +1,5 @@
 <p align="center">
-  <img title="Redash" src='http://redash.io/static/old_img/redash_logo.png' width="200px"/>
+  <img title="Redash" src='https://redash.io/assets/images/logo.png' width="200px"/>
 </p>
 <p align="center">
     <img title="Build Status" src='https://circleci.com/gh/getredash/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>

@@ -6,14 +6,15 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 var path = require('path');
 
+var redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
 var config = {
   entry: {
-    app: './app/index.js'
+    app: './client/app/index.js'
   },
   output: {
     // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
-    path: './dist',
+    path: './client/dist',
     filename: '[name].[chunkhash].js',
   },
 
@@ -44,7 +45,7 @@ var config = {
     }),
     new HtmlWebpackPlugin({
       // template: __dirname + '/app/' + 'index.html'
-      template: './app/index.html'
+      template: './client/app/index.html'
     }),
     new ExtractTextPlugin('styles.[chunkhash].css')
   ],
@@ -52,10 +53,13 @@ var config = {
   module: {
     loaders: [
       {test: /\.js$/, loader: 'ng-annotate!babel!eslint', exclude: /node_modules/},
-      {test: /\.html$/, loader: 'raw', exclude: [/node_modules/,/index\.html/]},
+      {test: /\.html$/, loader: 'raw', exclude: [/node_modules/, /index\.html/]},
       // {test: /\.css$/, loader: 'style!css', exclude: /node_modules/},
-      {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader") },
-      {test: /\.styl$/, loader: 'style!css!stylus', exclude: /node_modules/},
+      {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader")},
+      {
+        test: /\.scss$/,
+        loader: ExtractTextPlugin.extract(["css-loader", "sass-loader"])
+      },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url',
@@ -82,27 +86,51 @@ var config = {
     historyApiFallback: true,
     proxy: {
       '/login': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/invite': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/setup': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/images': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/js': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/styles': {
+        target: redashBackend + '/',
         secure: false
       },
       '/status.json': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
         secure: false
       },
       '/api/admin': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
         secure: false
       },
       '/api': {
-        target: 'http://localhost:5000',
+        target: redashBackend,
         secure: false
       }
     }
   }
 };
 
+if (process.env.DEV_SERVER_HOST) {
+  config.devServer.host = process.env.DEV_SERVER_HOST;
+}
+
 if (process.env.NODE_ENV === 'production') {
-  config.output.path = __dirname + '/dist';
+  config.output.path = __dirname + '/client/dist';
   config.plugins.push(new webpack.optimize.UglifyJsPlugin());
   config.devtool = 'source-map';
 }

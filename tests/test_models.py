@@ -284,6 +284,14 @@ class TestQueryAll(BaseTestCase):
         self.assertIn(q1, list(models.Query.all_queries([group1.id, group2.id])))
         self.assertIn(q2, list(models.Query.all_queries([group1.id, group2.id])))
 
+    def test_skips_drafts(self):
+        q = self.factory.create_query(is_draft=True)
+        self.assertNotIn(q, models.Query.all_queries([self.factory.default_group.id]))
+
+    def test_includes_drafts_of_given_user(self):
+        q = self.factory.create_query(is_draft=True)
+        self.assertIn(q, models.Query.all_queries([self.factory.default_group.id], user_id=q.user_id))
+
 
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):

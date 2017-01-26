@@ -69,6 +69,7 @@ def create_and_login_user(org, name, email):
         logger.debug("Creating user object (%r)", name)
         user_object = models.User(org=org, name=name, email=email, group_ids=[org.default_group.id])
         models.db.session.add(user_object)
+        models.db.session.commit()
 
     login_user(user_object, remember=True)
 
