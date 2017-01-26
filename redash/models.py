@@ -662,7 +662,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    version = Column(db.Integer)
+    version = Column(db.Integer, default=1)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
