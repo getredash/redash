@@ -687,8 +687,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     __tablename__ = 'queries'
     __mapper_args__ = {
-        "version_id_col": version
-        }
+        "version_id_col": version,
+        'version_id_generator': False
+    }
 
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
         d = {
