@@ -294,21 +294,6 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     return this.getParameters().get();
   };
 
-  Query.prototype.getLocalParametersDefs = function getLocalParametersDefs() {
-    if (!this.$localParameters) {
-      this.$localParameters = this.getParametersDefs().filter(p => !p.global);
-    }
-
-    return this.$localParameters;
-  };
-
-  Query.prototype.getGlobalParametersDefs = function getGlobalParametersDefs() {
-    if (!this.$globalParameters) {
-      this.$globalParameters = this.getParametersDefs().filter(p => p.global);
-    }
-    return this.$globalParameters;
-  };
-
   return Query;
 }
 

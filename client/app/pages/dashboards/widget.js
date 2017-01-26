@@ -36,6 +36,13 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
     });
   };
 
+  this.localParametersDefs = () => {
+    if (!this.localParameters) {
+      this.localParameters = this.widget.query.getParametersDefs().filter(p => !p.global);
+    }
+    return this.localParameters;
+  };
+
   this.deleteWidget = () => {
     if (!$window.confirm(`Are you sure you want to remove "${this.widget.getName()}" from the dashboard?`)) {
       return;

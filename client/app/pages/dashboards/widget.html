@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <parameters parameters="$ctrl.widget.query.getLocalParametersDefs()"></parameters>
+        <parameters parameters="$ctrl.localParametersDefs()"></parameters>
 
         <div ng-switch="$ctrl.queryResult.getStatus()">
           <div ng-switch-when="failed">

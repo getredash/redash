@@ -31,7 +31,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     let globalParams = {};
     this.dashboard.widgets.forEach(row =>
       row.forEach((widget) => {
-        widget.getQuery().getGlobalParametersDefs().forEach((param) => {
+        widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
           const defaults = {};
           defaults[param.name] = _.clone(param);
           defaults[param.name].locals = [];
