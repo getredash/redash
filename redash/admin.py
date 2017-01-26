@@ -42,6 +42,7 @@ class JSONTextAreaField(fields.TextAreaField):
 class BaseModelView(ModelView):
     column_display_pk = True
     model_form_converter = AdminModelConverter
+    form_excluded_columns = ('created_at', 'updated_at')
 
     @require_super_admin
     def is_accessible(self):
@@ -54,10 +55,13 @@ class QueryResultModelView(BaseModelView):
 
 class QueryModelView(BaseModelView):
     column_exclude_list = ('latest_query_data',)
+    form_excluded_columns = ('version', 'visualizations', 'alerts', 'org', 'created_at', 'updated_at', 'latest_query_data')
 
 
 class DashboardModelView(BaseModelView):
     column_searchable_list = ('name', 'slug')
+    column_exclude_list = ('version', )
+    form_excluded_columns = ('version', 'widgets', 'org', 'created_at', 'updated_at')
 
 
 def init_admin(app):
