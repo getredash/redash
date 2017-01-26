@@ -23,12 +23,16 @@ function ParametersDirective($location, $uibModal) {
       parameters: '=',
       syncValues: '=?',
       editable: '=?',
+      changed: '&onChange',
     },
     template,
     link(scope) {
       // is this the correct location for this logic?
       if (scope.syncValues !== false) {
         scope.$watch('parameters', () => {
+          if (scope.changed) {
+            scope.changed({});
+          }
           scope.parameters.forEach((param) => {
             if (param.value !== null || param.value !== '') {
               $location.search(`p_${param.name}`, param.value);

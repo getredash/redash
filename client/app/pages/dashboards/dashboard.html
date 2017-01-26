@@ -55,10 +55,14 @@
   </div>
 
   <div class="m-b-5">
+    <parameters parameters="$ctrl.globalParameters" on-change="$ctrl.onGlobalParametersChange()"></parameters>
+  </div>
+
+  <div class="m-b-5">
     <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled" filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
   </div>
 
   <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
-    <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard"></dashboard-widget>
+    <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.extractGlobalParameters()"></dashboard-widget>
   </div>
 </div>

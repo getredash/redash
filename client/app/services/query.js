@@ -78,6 +78,7 @@ class Parameters {
           name: param,
           type: 'text',
           value: null,
+          global: false,
         });
       }
     });
