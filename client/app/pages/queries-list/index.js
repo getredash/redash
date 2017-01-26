@@ -16,11 +16,6 @@ class QueriesListCtrl {
         Title.set('Queries');
         this.resource = Query.query;
         break;
-      case '/queries/drafts':
-        Title.set('Draft Queries');
-        this.resource = Query.myQueries;
-        this.defaultOptions.drafts = true;
-        break;
       case '/queries/my':
         Title.set('My Queries');
         this.resource = Query.myQueries;
@@ -51,7 +46,6 @@ class QueriesListCtrl {
     this.tabs = [
       { name: 'My Queries', path: 'queries/my' },
       { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
-      { path: 'queries/drafts', name: 'Drafts' },
     ];
   }
 }
@@ -70,6 +64,5 @@ export default function (ngModule) {
   return {
     '/queries': route,
     '/queries/my': route,
-    '/queries/drafts': route,
   };
 }
