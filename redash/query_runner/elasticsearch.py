@@ -127,6 +127,8 @@ class BaseElasticSearch(BaseQueryRunner):
         for index_name in mappings_data:
             index_mappings = mappings_data[index_name]
             for m in index_mappings.get("mappings", {}):
+                if "properties" not in index_mappings["mappings"][m]:
+                    continue
                 for property_name in index_mappings["mappings"][m]["properties"]:
                     property_data = index_mappings["mappings"][m]["properties"][property_name]
                     if property_name not in mappings:
