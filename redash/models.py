@@ -236,6 +236,9 @@ class Organization(TimestampMixin, db.Model):
     def __repr__(self):
         return u"<Organization: {}, {}>".format(self.id, self.name)
 
+    def __unicode__(self):
+        return u'%s (%s)' % (self.name, self.id)
+
     @classmethod
     def get_by_slug(cls, slug):
         return cls.query.filter(cls.slug == slug).first()
