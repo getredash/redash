@@ -42,11 +42,50 @@ class QueryResultError {
   }
 }
 
+class Parameter {
+  constructor(name) {
+    this.title = name;
+    this.name = name;
+    this.type = 'text';
+    this.value = null;
+    this.global = false;
+  }
+
+  static fromObject(obj) {
+    if (obj instanceof Parameter) {
+      return obj;
+    }
+    return Parameter.copyFrom(obj);
+  }
+
+  static copyFrom(obj) {
+    const result = new Parameter(obj.name);
+    result.title = obj.title;
+    result.type = obj.type;
+    result.value = obj.value;
+    result.global = obj.global;
+    return result;
+  }
+
+  copy() {
+    return Parameter.copyFrom(this);
+  }
+
+  getValue() {
+    switch (this.type) {
+      case 'datetime-local':
+        return moment(this.value).format('YYYY-MM-DD HH:mm');
+      case 'datetime-with-seconds':
+        return moment(this.value).format('YYYY-MM-DD HH:mm:ss');
+      default:
+        return this.value;
+    }
+  }
+}
 
 class Parameters {
   constructor(query, queryString) {
     this.query = query;
-    this.updateParameters();
     this.initFromQueryString(queryString);
   }
 
@@ -64,7 +103,8 @@ class Parameters {
     this.cachedQueryText = this.query.query;
     const parameterNames = this.parseQuery();
 
-    this.query.options.parameters = this.query.options.parameters || [];
+    const params = this.query.options.parameters || [];
+    this.query.options.parameters = params.map(Parameter.fromObject);
 
     const parametersMap = {};
     this.query.options.parameters.forEach((param) => {
@@ -73,13 +113,7 @@ class Parameters {
 
     parameterNames.forEach((param) => {
       if (!has(parametersMap, param)) {
-        this.query.options.parameters.push({
-          title: param,
-          name: param,
-          type: 'text',
-          value: null,
-          global: false,
-        });
+        this.query.options.parameters.push(new Parameter(param));
       }
     });
 
@@ -91,7 +125,36 @@ class Parameters {
     this.get().forEach((param) => {
       const queryStringName = `p_${param.name}`;
       if (has(queryString, queryStringName)) {
-        param.value = queryString[queryStringName];
+        const value = queryString[queryStringName];
+        switch (param.type) {
+          case 'number':
+            try {
+              param.value = parseInt(value, 10);
+            } catch (e) {
+              param.value = null;
+            }
+            break;
+          case 'datetime-local':
+          case 'datetime-with-seconds':
+            try {
+              const dateValue = moment(value);
+              if (dateValue.isValid()) {
+                if (param.type === 'datetime-local') {
+                  // We strip off the seconds
+                  dateValue.seconds(0);
+                }
+                param.value = dateValue.toDate();
+              } else {
+                param.value = null;
+              }
+            } catch (e) {
+              param.value = null;
+            }
+            break;
+          default:
+            param.value = value;
+            break;
+        }
       }
     });
   }
@@ -111,7 +174,8 @@ class Parameters {
 
   getValues() {
     const params = this.get();
-    return object(pluck(params, 'name'), pluck(params, 'value'));
+    const values = params.map(param => param.getValue());
+    return object(pluck(params, 'name'), values);
   }
 }
 

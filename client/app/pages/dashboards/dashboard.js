@@ -33,7 +33,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
       row.forEach((widget) => {
         widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
           const defaults = {};
-          defaults[param.name] = _.clone(param);
+          defaults[param.name] = param.copy();
           defaults[param.name].locals = [];
           globalParams = _.defaults(globalParams, defaults);
           globalParams[param.name].locals.push(param);

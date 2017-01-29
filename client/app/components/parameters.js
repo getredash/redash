@@ -35,7 +35,7 @@ function ParametersDirective($location, $uibModal) {
           }
           scope.parameters.forEach((param) => {
             if (param.value !== null || param.value !== '') {
-              $location.search(`p_${param.name}`, param.value);
+              $location.search(`p_${param.name}`, param.getValue());
             }
           });
         }, true);
