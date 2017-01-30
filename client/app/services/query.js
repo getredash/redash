@@ -43,40 +43,42 @@ class QueryResultError {
 }
 
 class Parameter {
-  constructor(name) {
+  constructor(name, config) {
     this.title = name;
     this.name = name;
     this.type = 'text';
     this.value = null;
     this.global = false;
+    this.config = config;
   }
 
-  static fromObject(obj) {
+  static fromObject(obj, config) {
     if (obj instanceof Parameter) {
       return obj;
     }
-    return Parameter.copyFrom(obj);
+    return Parameter.copyFrom(obj, config);
   }
 
-  static copyFrom(obj) {
+  static copyFrom(obj, config) {
     const result = new Parameter(obj.name);
     result.title = obj.title;
     result.type = obj.type;
     result.value = obj.value;
     result.global = obj.global;
+    result.config = config;
     return result;
   }
 
   copy() {
-    return Parameter.copyFrom(this);
+    return Parameter.copyFrom(this, this.config);
   }
 
   getValue() {
     switch (this.type) {
       case 'datetime-local':
-        return moment(this.value).format('YYYY-MM-DD HH:mm');
+        return moment(this.value).format(this.config.dateTimeFormat);
       case 'datetime-with-seconds':
-        return moment(this.value).format('YYYY-MM-DD HH:mm:ss');
+        return moment(this.value).format(`${this.config.dateTimeFormat}:ss`);
       default:
         return this.value;
     }
@@ -84,8 +86,9 @@ class Parameter {
 }
 
 class Parameters {
-  constructor(query, queryString) {
+  constructor(query, queryString, clientConfig) {
     this.query = query;
+    this.config = clientConfig;
     this.initFromQueryString(queryString);
   }
 
@@ -104,7 +107,7 @@ class Parameters {
     const parameterNames = this.parseQuery();
 
     const params = this.query.options.parameters || [];
-    this.query.options.parameters = params.map(Parameter.fromObject);
+    this.query.options.parameters = params.map(p => Parameter.fromObject(p, this.config));
 
     const parametersMap = {};
     this.query.options.parameters.forEach((param) => {
@@ -113,7 +116,7 @@ class Parameters {
 
     parameterNames.forEach((param) => {
       if (!has(parametersMap, param)) {
-        this.query.options.parameters.push(new Parameter(param));
+        this.query.options.parameters.push(new Parameter(param, this.config));
       }
     });
 
@@ -137,7 +140,12 @@ class Parameters {
           case 'datetime-local':
           case 'datetime-with-seconds':
             try {
-              const dateValue = moment(value);
+              let format = this.config.dateTimeFormat;
+              if (param.type === 'datetime-with-seconds') {
+                // Add on the seconds
+                format += ':ss';
+              }
+              const dateValue = moment(value, [format, moment.ISO_8601]);
               if (dateValue.isValid()) {
                 if (param.type === 'datetime-local') {
                   // We strip off the seconds
@@ -179,7 +187,7 @@ class Parameters {
   }
 }
 
-function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
+function QueryResource($resource, $http, $q, $location, currentUser, clientConfig, QueryResult) {
   const Query = $resource('api/queries/:id', { id: '@id' },
     {
       search: {
@@ -348,7 +356,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 
   Query.prototype.getParameters = function getParameters() {
     if (!this.$parameters) {
-      this.$parameters = new Parameters(this, $location.search());
+      this.$parameters = new Parameters(this, $location.search(), clientConfig);
     }
 
     return this.$parameters;
