@@ -8,7 +8,7 @@ function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
   this.term = $location.search().q;
   this.paginator = new Paginator([], { itemsPerPage: 20 });
 
-  Query.search({ q: this.term }, (results) => {
+  Query.search({ q: this.term, include_drafts: true }, (results) => {
     const queries = results.map((query) => {
       query.created_at = moment(query.created_at);
       return query;

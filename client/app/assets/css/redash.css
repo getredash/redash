@@ -597,7 +597,7 @@ div.table-name:hover {
 
 .collapsing,
 .collapse.in {
-    background: #f4f4f4;
+    background: #222;
     padding: 5px 10px;
     transition: all 0.35s ease;
 }

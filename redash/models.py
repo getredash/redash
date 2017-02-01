@@ -16,6 +16,7 @@ from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.orm import object_session, backref
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import or_
 
 from passlib.apps import custom_app_context as pwd_context
 
@@ -234,6 +235,9 @@ class Organization(TimestampMixin, db.Model):
 
     def __repr__(self):
         return u"<Organization: {}, {}>".format(self.id, self.name)
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.name, self.id)
 
     @classmethod
     def get_by_slug(cls, slug):
@@ -661,7 +665,7 @@ def should_schedule_next(previous_iteration, now, schedule):
 
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    version = Column(db.Integer)
+    version = Column(db.Integer, default=1)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
@@ -686,8 +690,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     __tablename__ = 'queries'
     __mapper_args__ = {
-        "version_id_col": version
-        }
+        "version_id_col": version,
+        'version_id_generator': False
+    }
 
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
         d = {
@@ -758,7 +763,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return query
 
     @classmethod
-    def all_queries(cls, group_ids, drafts=False):
+    def all_queries(cls, group_ids, user_id=None, drafts=False):
         q = (cls.query.join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -767,16 +772,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)
             .order_by(Query.created_at.desc()))
 
-        if drafts:
-            q = q.filter(Query.is_draft == True)
-        else:
-            q = q.filter(Query.is_draft == False)
+        if not drafts:
+            q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
 
         return q
 
     @classmethod
-    def by_user(cls, user, drafts):
-        return cls.all_queries(user.group_ids, drafts).filter(Query.user == user)
+    def by_user(cls, user):
+        return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
 
     @classmethod
     def outdated_queries(cls):
@@ -795,7 +798,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids):
+    def search(cls, term, group_ids, include_drafts=False):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
         where = (Query.name.ilike(u"%{}%".format(term)) |
                  Query.description.ilike(u"%{}%".format(term)))
@@ -804,6 +807,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             where |= Query.id == term
 
         where &= Query.is_archived == False
+
+        if not include_drafts:
+            where &= Query.is_draft == False
+
         where &= DataSourceGroup.group_id.in_(group_ids)
         query_ids = (
             db.session.query(Query.id).join(
@@ -826,7 +833,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                      Event.object_id != None,
                      Event.object_type == 'query',
                      DataSourceGroup.group_id.in_(group_ids),
-                     Query.is_draft == False,
+                     or_(Query.is_draft == False, Query.user_id == user_id),
                      Query.is_archived == False)
                  .group_by(Event.object_id, Query.id, User.id)
                  .order_by(db.desc(db.func.count(0))))
@@ -859,20 +866,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             forked_query.visualizations.append(Visualization(**forked_v))
         db.session.add(forked_query)
         return forked_query
-
-    def update_instance_tracked(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.update_instance(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
-
-    def tracked_save(self, changing_user, old_object=None, *args, **kwargs):
-        self.version += 1
-        self.save(*args, **kwargs)
-        # save Change record
-        new_change = Change.save_change(user=changing_user, old_object=old_object, new_object=self)
-        return new_change
 
     @property
     def runtime(self):
@@ -1187,6 +1180,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 Dashboard.org == org)
             .group_by(Dashboard.id))
 
+        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
+
         return query
 
     @classmethod
@@ -1204,7 +1199,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                      Event.object_type == 'dashboard',
                      Dashboard.org == org,
                      Dashboard.is_archived == False,
-                     Dashboard.is_draft == False,
+                     or_(Dashboard.is_draft == False, Dashboard.user_id == user_id),
                      DataSourceGroup.group_id.in_(group_ids) |
                      (Dashboard.user_id == user_id) |
                      ((Widget.dashboard != None) & (Widget.visualization == None)))
