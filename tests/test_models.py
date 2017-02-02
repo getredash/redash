@@ -30,31 +30,37 @@ class ShouldScheduleNextTest(TestCase):
     def test_interval_schedule_that_needs_reschedule(self):
         now = utcnow()
         two_hours_ago = now - datetime.timedelta(hours=2)
-        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600"))
+        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600",
+                                                    0))
 
     def test_interval_schedule_that_doesnt_need_reschedule(self):
         now = utcnow()
         half_an_hour_ago = now - datetime.timedelta(minutes=30)
-        self.assertFalse(models.should_schedule_next(half_an_hour_ago, now, "3600"))
+        self.assertFalse(models.should_schedule_next(half_an_hour_ago, now,
+                                                     "3600", 0))
 
     def test_exact_time_that_needs_reschedule(self):
         now = utcnow()
         yesterday = now - datetime.timedelta(days=1)
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
-        self.assertTrue(models.should_schedule_next(yesterday, now, scheduled_time))
+        self.assertTrue(models.should_schedule_next(yesterday, now,
+                                                    scheduled_time, 0))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
         now = date_parse("2015-10-16 20:10")
         yesterday = date_parse("2015-10-15 23:07")
         schedule = "23:00"
-        self.assertFalse(models.should_schedule_next(yesterday, now, schedule))
+        self.assertFalse(models.should_schedule_next(yesterday, now, schedule,
+                                                     0))
 
     def test_exact_time_with_day_change(self):
         now = utcnow().replace(hour=0, minute=1)
-        previous = (now - datetime.timedelta(days=2)).replace(hour=23, minute=59)
+        previous = (now - datetime.timedelta(days=2)).replace(hour=23,
+                                                              minute=59)
         schedule = "23:59".format(now.hour + 3)
-        self.assertTrue(models.should_schedule_next(previous, now, schedule))
+        self.assertTrue(models.should_schedule_next(previous, now, schedule,
+                                                    0))
 
 
 class QueryOutdatedQueriesTest(BaseTestCase):
@@ -91,6 +97,79 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
+
+    def test_enqueues_query_only_once(self):
+        """
+        Only one query per data source with the same text will be reported by
+        Query.outdated_queries().
+        """
+        query = self.factory.create_query(schedule="60")
+        query2 = self.factory.create_query(
+            schedule="60", query_text=query.query_text,
+            query_hash=query.query_hash)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query2.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()), [query2])
+
+    def test_enqueues_query_with_correct_data_source(self):
+        """
+        Queries from different data sources will be reported by
+        Query.outdated_queries() even if they have the same query text.
+        """
+        query = self.factory.create_query(
+            schedule="60", data_source=self.factory.create_data_source())
+        query2 = self.factory.create_query(
+            schedule="60", query_text=query.query_text,
+            query_hash=query.query_hash)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query2.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()),
+                         [query2, query])
+
+    def test_enqueues_only_for_relevant_data_source(self):
+        """
+        If multiple queries with the same text exist, only ones that are
+        scheduled to be refreshed are reported by Query.outdated_queries().
+        """
+        query = self.factory.create_query(schedule="60")
+        query2 = self.factory.create_query(
+            schedule="3600", query_text=query.query_text,
+            query_hash=query.query_hash)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query2.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
+
+    def test_failure_extends_schedule(self):
+        """
+        Execution failures recorded for a query result in exponential backoff
+        for scheduling future execution.
+        """
+        query = self.factory.create_query(schedule="60", schedule_failures=4)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=14)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()), [])
+
+        query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=15)
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
 
 
 class QueryArchiveTest(BaseTestCase):
