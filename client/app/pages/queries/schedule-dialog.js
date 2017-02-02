@@ -74,12 +74,12 @@ function queryRefreshSelect() {
                 </select>`,
     link($scope) {
       $scope.refreshOptions = [
-        {
+        /*{
           value: '60',
           name: 'Every minute',
-        },
+        },*/
       ];
-
+      /*
       [5, 10, 15, 30].forEach((i) => {
         $scope.refreshOptions.push({
           value: String(i * 60),
@@ -92,7 +92,7 @@ function queryRefreshSelect() {
           value: String(i * 3600),
           name: `Every ${i}h`,
         });
-      });
+      });*/
 
       $scope.refreshOptions.push({
         value: String(24 * 3600),
