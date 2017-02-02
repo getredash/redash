@@ -218,7 +218,9 @@ function mapEditor() {
     template: editorTemplate,
     link($scope) {
       $scope.currentTab = 'general';
-      $scope.classify_columns = $scope.queryResult.columnNames.concat('none');
+      $scope.columns = $scope.queryResult.getColumns();
+      $scope.columnNames = _.pluck($scope.columns, 'name');
+      $scope.classify_columns = $scope.columnNames.concat('none');
       $scope.mapTiles = [
         {
           name: 'OpenStreetMap',
