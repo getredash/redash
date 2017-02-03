@@ -62,6 +62,14 @@ class ShouldScheduleNextTest(TestCase):
         self.assertTrue(models.should_schedule_next(previous, now, schedule,
                                                     0))
 
+    def test_backoff(self):
+        now = utcnow()
+        two_hours_ago = now - datetime.timedelta(hours=2)
+        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600",
+                                                    5))
+        self.assertFalse(models.should_schedule_next(two_hours_ago, now,
+                                                     "3600", 10))
+
 
 class QueryOutdatedQueriesTest(BaseTestCase):
     # TODO: this test can be refactored to use mock version of should_schedule_next to simplify it.
@@ -160,7 +168,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         for scheduling future execution.
         """
         query = self.factory.create_query(schedule="60", schedule_failures=4)
-        retrieved_at = utcnow() - datetime.timedelta(minutes=14)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=16)
         query_result = self.factory.create_query_result(
             retrieved_at=retrieved_at, query_text=query.query_text,
             query_hash=query.query_hash)
@@ -168,7 +176,7 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         self.assertEqual(list(models.Query.outdated_queries()), [])
 
-        query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=15)
+        query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=17)
         self.assertEqual(list(models.Query.outdated_queries()), [query])
 
 

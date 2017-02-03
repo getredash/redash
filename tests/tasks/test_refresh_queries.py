@@ -21,9 +21,9 @@ class TestRefreshQuery(BaseTestCase):
             self.assertEqual(add_job_mock.call_count, 2)
             add_job_mock.assert_has_calls([
                 call(query1.query_text, query1.data_source, query1.user_id,
-                     scheduled=True, metadata=ANY),
+                     scheduled_query=query1, metadata=ANY),
                 call(query2.query_text, query2.data_source, query2.user_id,
-                     scheduled=True, metadata=ANY)], any_order=True)
+                     scheduled_query=query2, metadata=ANY)], any_order=True)
 
     def test_doesnt_enqueue_outdated_queries_for_paused_data_source(self):
         """
@@ -44,4 +44,4 @@ class TestRefreshQuery(BaseTestCase):
                 refresh_queries()
                 add_job_mock.assert_called_with(
                     query.query_text, query.data_source, query.user_id,
-                    scheduled=True, metadata=ANY)
+                    scheduled_query=query, metadata=ANY)
