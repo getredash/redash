@@ -151,43 +151,28 @@ class QueryResultResource(BaseResource):
         return make_response("", 200, headers)
 
     @require_permission('view_query')
-    def post(self, query_id=None, filetype='json'):
-        # This method gets a cached version of query, or runs it in sync with params
-        if query_id is not None:
-            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-            require_access(query.groups, current_user, view_only)
-
-            parameter_values = collect_parameters_from_request(request.args)
-            max_age = int(request.args.get('maxAge', 0))
-            query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
-
-            if filetype == 'json':
-                response = self.make_json_response(query_result)
-            elif filetype == 'xlsx':
-                response = self.make_excel_response(query_result)
-            else:
-                response = self.make_csv_response(query_result)
-
-            return response
-        else:
-            abort(404, message='Query not given.')
-
-    @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
         # TODO:
         # This method handles two cases: retrieving result by id & retrieving result by query id.
         # They need to be split, as they have different logic (for example, retrieving by query id
         # should check for query parameters and shouldn't cache the result).
         should_cache = query_result_id is not None
-        if query_result_id is None and query_id is not None:
-            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-            if query:
-                query_result_id = query.latest_query_data_id
+
+        parameter_values = collect_parameters_from_request(request.args)
+        max_age = int(request.args.get('maxAge', 0))
+
+        query_result = None
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
-        else:
-            query_result = None
+        elif query_id is not None:
+            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+
+            if query is not None:
+                if settings.ALLOW_PARAMETERS_IN_EMBEDS:
+                    query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+                elif query.latest_query_data_id is not None:
+                    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
 
         if query_result:
             require_access(query_result.data_source.groups, self.current_user, view_only)
