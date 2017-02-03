@@ -10,13 +10,13 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   this.currentUser = currentUser;
   this.globalParameters = [];
   this.refreshRates = [
-    { name: '10 seconds', rate: 10 },
+    /*{ name: '10 seconds', rate: 10 },
     { name: '30 seconds', rate: 30 },
     { name: '1 minute', rate: 60 },
     { name: '5 minutes', rate: 60 * 5 },
     { name: '10 minutes', rate: 60 * 10 },
     { name: '30 minutes', rate: 60 * 30 },
-    { name: '1 hour', rate: 60 * 60 },
+    { name: '1 hour', rate: 60 * 60 }, */
   ];
 
   this.setRefreshRate = (rate) => {
