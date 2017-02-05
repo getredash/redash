@@ -1316,13 +1316,24 @@ class Event(db.Model):
     action = Column(db.String(255))
     object_type = Column(db.String(255))
     object_id = Column(db.String(255), nullable=True)
-    additional_properties = Column(db.Text, nullable=True)
+    additional_properties = Column(MutableDict.as_mutable(PseudoJSON), nullable=True, default={})
     created_at = Column(db.DateTime(True), default=db.func.now())
 
     __tablename__ = 'events'
 
     def __unicode__(self):
         return u"%s,%s,%s,%s" % (self.user_id, self.action, self.object_type, self.object_id)
+
+    def to_dict(self):
+        return {
+            'org_id': self.org_id,
+            'user_id': self.user_id,
+            'action': self.action,
+            'object_type': self.object_type,
+            'object_id': self.object_id,
+            'additional_properties': self.additional_properties,
+            'created_at': self.created_at.isoformat()
+        }
 
     @classmethod
     def record(cls, event):
@@ -1333,11 +1344,10 @@ class Event(db.Model):
         object_id = event.pop('object_id', None)
 
         created_at = datetime.datetime.utcfromtimestamp(event.pop('timestamp'))
-        additional_properties = json.dumps(event)
 
         event = cls(org_id=org_id, user_id=user_id, action=action,
                     object_type=object_type, object_id=object_id,
-                    additional_properties=additional_properties,
+                    additional_properties=event,
                     created_at=created_at)
         db.session.add(event)
         return event

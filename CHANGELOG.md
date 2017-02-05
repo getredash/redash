@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.0.0-rc.2 - Unreleased
+
+### Changed
+
+- [#1563](https://github.com/getredash/redash/pull/1563) Send events to webhook as JSON with a schema.
+
 ## v1.0.0-rc.1 - 2017-01-31
 
 This version has two big changes behind the scenes:
