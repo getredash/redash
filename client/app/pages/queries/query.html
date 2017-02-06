@@ -75,6 +75,22 @@
             </a>
         </span>
       </h3>
+      <div class="compare-query-version">
+        <span class="zmdi zmdi-archive"></span>
+        <span class="text-muted">Version</span>
+        <strong>{{query.version}}</strong>
+        &gt;
+        <span>Compare to</span>
+        <select id="version-choice">
+          <option ng-repeat="version in versions" value="{{version.object_version}}">
+            {{version.object_version}}
+          </option>
+        </select>
+        <button class="btn btn-s btn-default" ng-click="compareQueryVersion()">
+          <span class="zmdi zmdi-play"></span>
+          Compare
+        </button>
+      </div>
     </div>
   </div>
 

@@ -1,0 +1,20 @@
+<div class="modal-header">
+    <button type="button" class="close" aria-label="Close" ng-click="$ctrl.close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Compare Query</h4>
+</div>
+<div class="modal-body query-diff-container">
+    <div>
+        <h5>Current Version {{$ctrl.currentQuery.version}}</h5>
+        <pre>
+            <code id="current-query-diff"></code>
+        </pre>
+    </div>
+    <div>
+        <h5>Previous Version {{$ctrl.previousQueryVersion}}</h5>
+        <pre>
+            <code id="previous-query-diff"></code>
+        </pre>
+    </div>
+</div>

@@ -9,6 +9,7 @@ import registerScheduleDialog from './schedule-dialog';
 import registerAlertUnsavedChanges from './alert-unsaved-changes';
 import registerQuerySearchResultsPage from './queries-search-results-page';
 import registerVisualizationEmbed from './visualization-embed';
+import registerCompareQueryDialog from './compare-query-dialog';
 
 export default function (ngModule) {
   registerQueryResultsLink(ngModule);
@@ -19,6 +20,7 @@ export default function (ngModule) {
   registerAlertUnsavedChanges(ngModule);
   registerVisualizationEmbed(ngModule);
   registerApiKeyDialog(ngModule);
+  registerCompareQueryDialog(ngModule);
 
   return Object.assign({}, registerQuerySearchResultsPage(ngModule),
                            registerSourceView(ngModule),
