@@ -1,0 +1,54 @@
+/* Compare Query Version container */
+/* Offers slight visual improvement (alignment) to modern UAs */
+.compare-query-version {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.diff-removed {
+  background-color: rgba(208, 2, 27, 0.3);
+}
+
+.diff-added {
+  background-color: rgba(65, 117, 5, 0.3);
+}
+
+.query-diff-container span {
+  display: inline-block;
+  border-radius: 3px;
+  line-height: 20px;
+  vertical-align: middle;
+  margin: 0 5px 0 0;
+}
+
+.query-diff-container > div:not(.compare-query-version-controls) {
+  float: left;
+  width: calc(50% - 5px);
+  margin: 0 10px 0 0;
+}
+
+.compare-query-version {
+  background-color: #f5f5f5;
+  padding: 5px;
+  border: 1px solid #ccc;
+  margin-right: 15px;
+  border-radius: 3px;
+}
+
+.diff-content {
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  border-radius: 3px;
+  padding: 15px;
+}
+
+.query-diff-container > div:last-child {
+  margin: 0;
+}
+
+.compare-query-version-controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+}

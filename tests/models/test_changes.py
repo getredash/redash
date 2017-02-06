@@ -56,23 +56,12 @@ class TestLogChange(BaseTestCase):
         obj.record_changes(changed_by=self.factory.user)
         obj.name = 'Query 2'
         obj.description = 'description'
-        db.session.flush()
         obj.record_changes(changed_by=self.factory.user)
 
         change = Change.last_change(obj)
 
         self.assertIsNotNone(change)
-        # TODO: https://github.com/getredash/redash/issues/1550
-        # self.assertEqual(change.object_version, 2)
+        self.assertEqual(change.object_version, 2)
         self.assertEqual(change.object_version, obj.version)
         self.assertIn('name', change.change)
         self.assertIn('description', change.change)
-
-    def test_logs_create_method(self):
-        q = Query(name='Query', description='', query_text='',
-                  user=self.factory.user, data_source=self.factory.data_source,
-                  org=self.factory.org)
-        change = Change.last_change(q)
-
-        self.assertIsNotNone(change)
-        self.assertEqual(q.user, change.user)

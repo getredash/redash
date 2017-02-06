@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <button type="button" class="close" aria-label="Close" ng-click="$ctrl.close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Compare Query</h4>
+</div>
+<div class="modal-body query-diff-container">
+    <div class="compare-query-version-controls">
+        <div class="compare-query-version">
+            <span>Compare current version to</span>
+            <select id="version-choice" ng-model="compareQueryVersion" ng-change="$ctrl.compareQueries()">
+                <option ng-repeat="version in $ctrl.versions.slice(0, $ctrl.versions.length-1)" value="{{version.object_version}}">Version {{version.object_version}}</option>
+            </select>
+        </div>
+        <div class="compare-query-revert-wrapper hidden"><a ng-click="$ctrl.revertQuery()" class="btn btn-default">Revert to version {{$ctrl.previousQueryVersion + 1}}</a></div>
+    </div>
+    <div>
+        <h5>Current Version {{$ctrl.currentQuery.version}}</h5>
+        <div class="diff-content">
+            <p id="current-query-diff">
+                <span ng-class="{'diff-added': part.added, 'diff-removed': part.removed}" ng-repeat="part in $ctrl.currentDiff">
+                    {{part.value}}
+                </span>
+            </p>
+        </div>
+    </div>
+    <div>
+        <h5>Previous Version {{$ctrl.previousQueryVersion + 1}}</h5>
+        <div class="diff-content">
+            <p>{{$ctrl.previousQuery}}</p>
+        </div>
+    </div>
+</div>
