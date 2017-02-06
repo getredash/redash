@@ -686,15 +686,15 @@ div.table-name:hover {
 }
 
 /*Dashboard list view */
-.m-2{
-  margin:2px;
+.m-2 {
+  margin: 2px;
 }
 
-.dropdown-menu > .disabled{
- cursor: not-allowed;
+.dropdown-menu > .disabled {
+  cursor: not-allowed;
 }
 
 /* The real magic ;) */
-.dropdown-menu > .disabled > a{
- pointer-events: none;
+.dropdown-menu > .disabled > a {
+  pointer-events: none;
 }

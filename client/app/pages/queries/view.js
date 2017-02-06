@@ -256,6 +256,29 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
     $location.hash(visualization.id);
   };
 
+  $scope.versions = {};
+  let versions = [];
+
+  $http.get(`/api/queries/${$scope.query.id}/version`).then((response) => {
+    versions = response.data.results;
+    // We don't need the last element of the returned versions.
+    $scope.versions = versions.slice(0, versions.length - 1);
+  });
+
+  $scope.compareQueryVersion = () => {
+    if (!$scope.query.query) {
+      return;
+    }
+
+    $uibModal.open({
+      windowClass: 'modal-xl',
+      component: 'compareQueryDialog',
+      resolve: {
+        query: $scope.query,
+      },
+    });
+  };
+
   $scope.$watch('query.name', () => {
     Title.set($scope.query.name);
   });

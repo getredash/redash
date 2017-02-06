@@ -138,7 +138,7 @@ class QueryListResource(BaseResource):
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        
+
         results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
@@ -200,6 +200,7 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            query.record_changes(self.current_user)
             models.db.session.commit()
         except StaleDataError:
             abort(409)
@@ -266,3 +267,23 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query_text, query.id)
+
+
+class QueryVersionListResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id):
+        results = models.Change.query.filter(
+            models.Change.object_type == 'queries',
+            models.Change.object_id == query_id)
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        return paginate(results, page, page_size, lambda c: c.to_dict(full=False))
+
+
+class QueryVersionResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id, version_id):
+        return models.Change.query.filter(
+            models.Change.object_type == 'queries',
+            models.Change.object_id == query_id,
+            models.Change.object_version == version_id).one().to_dict()
