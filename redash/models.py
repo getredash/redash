@@ -1095,7 +1095,6 @@ class Change(GFKBase, db.Model):
 
     def to_dict(self, full=True):
         d = {
-            'id': self.id,
             'object_id': self.object_id,
             'object_type': self.object_type,
             'object_version': self.object_version,
