@@ -67,6 +67,9 @@
             <li ng-if="query.id != undefined">
               <a ng-click="showApiKey()">Show API Key</a>
             </li>
+            <li ng-show="canEdit" ng-if="query.id && (query.version > 1)">
+              <a ng-click="compareQueryVersion()">Query Versions</a>
+            </li>
           </ul>
         </div>
       </div>
