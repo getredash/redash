@@ -142,6 +142,7 @@ class QueryListResource(BaseResource):
         query_def['org'] = self.current_org
         query_def['is_draft'] = True
         query = models.Query.create(**query_def)
+        query.record_changes(changed_by=self.current_user)
         models.db.session.add(query)
         models.db.session.commit()
 
@@ -275,6 +276,7 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            query.record_changes(self.current_user)
             models.db.session.commit()
         except StaleDataError:
             abort(409)
@@ -353,3 +355,15 @@ class QueryRefreshResource(BaseResource):
 class QueryTagsResource(BaseResource):
     def get(self):
         return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}
+
+class QueryVersionListResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id):
+        results = models.Change.list_versions(models.Query.get_by_id(query_id))
+        return [q.to_dict() for q in results]
+
+
+class ChangeResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, change_id):
+        return models.Change.query.get(change_id).to_dict()
