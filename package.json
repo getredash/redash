@@ -57,6 +57,7 @@
     "d3": "^3.5.17",
     "d3-cloud": "^1.2.4",
     "debug": "^3.1.0",
+    "diff": "^3.3.0",
     "font-awesome": "^4.7.0",
     "gridstack": "^0.3.0",
     "hoist-non-react-statics": "^3.3.0",

@@ -397,7 +397,7 @@ def should_schedule_next(previous_iteration, now, interval, time=None, day_of_we
               'is_archived', 'is_draft', 'schedule', 'schedule_failures')
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    version = Column(db.Integer, default=1)
+    version = Column(db.Integer, default=0)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
@@ -643,6 +643,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         # Query.create will add default TABLE visualization, so use constructor to create bare copy of query
         forked_query = Query(name=u'Copy of (#{}) {}'.format(self.id, self.name), user=user, **kwargs)
+        forked_query.record_changes(changed_by=user)
 
         for v in self.visualizations:
             forked_v = v.copy()

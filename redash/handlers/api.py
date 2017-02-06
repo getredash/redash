@@ -35,6 +35,7 @@ from redash.handlers.queries import (MyQueriesResource, QueryArchiveResource,
                                      QueryForkResource, QueryListResource,
                                      QueryRecentResource, QueryRefreshResource,
                                      QueryResource, QuerySearchResource,
+                                     QueryVersionListResource, ChangeResource,
                                      QueryTagsResource)
 from redash.handlers.query_results import (JobResource,
                                            QueryResultDropdownResource,
@@ -115,6 +116,8 @@ api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries'
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
 api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
 api.add_org_resource(QueryForkResource, '/api/queries/<query_id>/fork', endpoint='query_fork')
+api.add_org_resource(QueryVersionListResource, '/api/queries/<query_id>/version', endpoint='query_versions')
+api.add_org_resource(ChangeResource, '/api/changes/<change_id>', endpoint='changes')
 
 api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_id>/acl', endpoint='object_permissions')
 api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/acl/<access_type>', endpoint='check_permissions')
