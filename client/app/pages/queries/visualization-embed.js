@@ -33,8 +33,7 @@ export default function (ngModule) {
     return session($http, $route, Auth).then(() => {
       const queryId = $route.current.params.queryId;
       const query = $http.get(`/api/queries/${queryId}`).then(response => response.data);
-      // pass down any params from the top level url
-      const queryResult = $http.post(`/api/queries/${queryId}/results.json${location.search}`).then(response => response.data);
+      const queryResult = $http.get(`/api/queries/${queryId}/results.json${location.search}`).then(response => response.data);
       return $q.all([query, queryResult]);
     });
   }

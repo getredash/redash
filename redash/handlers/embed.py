@@ -33,7 +33,6 @@ def embed(query_id, visualization_id, org_slug=None):
     models.db.session.commit()
     return send_file(full_path, **dict(cache_timeout=0, conditional=True))
 
-
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
 @login_required
 def public_dashboard(token, org_slug=None):
