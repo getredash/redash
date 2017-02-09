@@ -42,5 +42,5 @@ services:
       - "80:80"
     depends_on:
       - server
-    external_links:
+    links:
       - server:redash
