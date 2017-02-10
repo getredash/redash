@@ -94,6 +94,22 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr,
     });
   };
 
+  $scope.deactivateUser = () => {
+    const data = {
+      id: $scope.user.id,
+      is_active: false,
+    };
+
+    User.save(data, (user) => {
+      toastr.success('Deactivated.');
+      $scope.user = user;
+    }, (error) => {
+      const message = error.data.message || 'Failed deactivating.';
+      toastr.error(message);
+    });
+  };
+
+
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {

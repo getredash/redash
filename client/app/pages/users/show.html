@@ -25,6 +25,11 @@
     <div ng-if="currentUser.isAdmin">
       <hr/>
       <div class="form-group">
+        <button class="btn btn-default" ng-click="deactivateUser()" ng-disabled="!user.is_active">Deactivate User
+        </button>
+      </div>
+
+      <div class="form-group">
         <button class="btn btn-default" ng-click="sendPasswordReset()" ng-disabled="disablePasswordResetButton">Send
           Password Reset Email
         </button>

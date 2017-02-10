@@ -359,12 +359,17 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     api_key = Column(db.String(40),
                      default=lambda: generate_token(40),
                      unique=True)
+    is_active = Column(db.Boolean, default=True)
 
     __tablename__ = 'users'
     __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
+
+    @property
+    def is_authenticated(self):
+        return self.is_active
 
     def to_dict(self, with_api_key=False):
         d = {
@@ -374,7 +379,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'gravatar_url': self.gravatar_url,
             'groups': self.group_ids,
             'updated_at': self.updated_at,
-            'created_at': self.created_at
+            'created_at': self.created_at,
+            'is_active': self.is_active
         }
 
         if self.password_hash is None:

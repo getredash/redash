@@ -93,7 +93,7 @@ class UserResource(BaseResource):
 
         req = request.get_json(True)
 
-        params = project(req, ('email', 'name', 'password', 'old_password', 'groups'))
+        params = project(req, ('email', 'name', 'password', 'old_password', 'groups', 'is_active'))
 
         if 'password' in params and 'old_password' not in params:
             abort(403, message="Must provide current password to update password.")
@@ -107,6 +107,10 @@ class UserResource(BaseResource):
 
         if 'groups' in params and not self.current_user.has_permission('admin'):
             abort(403, message="Must be admin to change groups membership.")
+
+        if ('is_active' in params and params['is_active'] != user.is_active and
+                not self.current_user.has_permission('admin')):
+            abort(403, message="Must be admin to activate/deactivate users.")
 
         try:
             self.update_model(user, params)
