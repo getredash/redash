@@ -249,7 +249,6 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
     updateSchema();
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
-    $scope.executeQuery();
   };
 
   $scope.setVisualizationTab = (visualization) => {
