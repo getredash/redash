@@ -121,6 +121,7 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
+  $scope.dataSourceChanged = false;
   $scope.selectedTab = DEFAULT_TAB;
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
@@ -321,7 +322,7 @@ function QueryViewCtrl(
 
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
     getSchema();
-    $scope.executeQuery();
+    $scope.dataSourceChanged = true;
   };
 
   $scope.setVisualizationTab = (visualization) => {
