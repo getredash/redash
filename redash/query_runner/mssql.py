@@ -94,7 +94,7 @@ class SqlServer(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
+        FROM INFORMATION_SCHEMA.COLUMNS
         WHERE table_schema NOT IN ('guest','INFORMATION_SCHEMA','sys','db_owner','db_accessadmin'
                                   ,'db_securityadmin','db_ddladmin','db_backupoperator','db_datareader'
                                   ,'db_datawriter','db_denydatareader','db_denydatawriter'
