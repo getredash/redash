@@ -1960,12 +1960,12 @@
     "mapbox-gl-shaders": {
       "version": "1.0.0",
       "from": "mapbox/mapbox-gl-shaders#de2ab007455aa2587c552694c68583f94c9f2747",
-      "resolved": "git://github.com/mapbox/mapbox-gl-shaders.git#de2ab007455aa2587c552694c68583f94c9f2747"
+      "resolved": "https://github.com/mapbox/mapbox-gl-shaders.git#de2ab007455aa2587c552694c68583f94c9f2747"
     },
     "mapbox-gl-style-spec": {
       "version": "8.8.0",
       "from": "mapbox/mapbox-gl-style-spec#83b1a3e5837d785af582efd5ed1a212f2df6a4ae",
-      "resolved": "git://github.com/mapbox/mapbox-gl-style-spec.git#83b1a3e5837d785af582efd5ed1a212f2df6a4ae"
+      "resolved": "https://github.com/mapbox/mapbox-gl-style-spec.git#83b1a3e5837d785af582efd5ed1a212f2df6a4ae"
     },
     "mapbox-gl-supported": {
       "version": "1.2.0",
