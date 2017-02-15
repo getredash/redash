@@ -181,7 +181,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.togglePublished = () => {
-    Events.record(currentUser, 'toggle_published', 'dashboard', this.dashboard.id);
+    Events.record('toggle_published', 'dashboard', this.dashboard.id);
     this.dashboard.is_draft = !this.dashboard.is_draft;
     this.saveInProgress = true;
     Dashboard.save({
