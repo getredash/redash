@@ -8,6 +8,9 @@ import histogram from 'plotly.js/lib/histogram';
 import moment from 'moment';
 
 Plotly.register([bar, pie, histogram]);
+Plotly.setPlotConfig({
+  modeBarButtonsToRemove: ['sendDataToCloud']
+});
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
