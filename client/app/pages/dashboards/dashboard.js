@@ -218,6 +218,8 @@ const ShareDashboardComponent = {
     dismiss: '&',
   },
   controller($http) {
+    'ngInject';
+
     this.dashboard = this.resolve.dashboard;
 
     this.toggleSharing = () => {
