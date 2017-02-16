@@ -403,8 +403,13 @@ function QueryResultService($resource, $timeout, $q) {
         }
       }, (error) => {
         logger('Connection error', error);
-        // TODO: use QueryResultError, or better yet: exception/reject of promise.
-        this.update({ job: { error: 'failed communicating with server. Please check your Internet connection and try again.', status: 4 } });
+        this.update({ job: {
+          error: 'Failed communicating with server. Retrying...',
+          status: 4,
+          id: this.job.id } })
+        $timeout(() => {
+          this.refreshStatus(query);
+        }, 3000);
       });
     }
 
