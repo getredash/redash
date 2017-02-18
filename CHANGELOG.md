@@ -10,6 +10,7 @@
 - Move the query runner unavailable log message to be DEBUG level instead of WARNING, as it was mainly confusing people.
 - Remove "Send to Cloud" button from Plotly based visualizations.
 - Change Plotly's default hover mode to "Compare".
+- [#1612] Change: Improvements to the dashboards list page.
 
 ### Fixed
 
