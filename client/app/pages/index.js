@@ -1,3 +1,7 @@
+import ObjectAssign from 'es6-object-assign';
+
+ObjectAssign.polyfill();
+
 export { default as home } from './home';
 export { default as queriesList } from './queries-list';
 export { default as alertsList } from './alerts-list';

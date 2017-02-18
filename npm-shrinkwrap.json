@@ -614,6 +614,11 @@
       "from": "es6-promise@>=3.0.2 <4.0.0",
       "resolved": "https://registry.npmjs.org/es6-promise/-/es6-promise-3.3.1.tgz"
     },
+    "es6-object-assign": {
+      "version": "1.0.3",
+      "from": "es6-object-assign@>=1.0.3 <2.0.0",
+      "resolved": "https://registry.npmjs.org/es6-object-assign/-/es6-object-assign-1.0.3.tgz"
+    },
     "escape-string-regexp": {
       "version": "1.0.5",
       "from": "escape-string-regexp@>=1.0.2 <2.0.0",
