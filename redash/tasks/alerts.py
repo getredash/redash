@@ -21,7 +21,7 @@ def notify_subscriptions(alert, new_state):
     host = base_url(alert.query_rel.org)
     for subscription in alert.subscriptions:
         try:
-            subscription.notify(alert, alert.query, subscription.user, new_state, current_app, host)
+            subscription.notify(alert, alert.query_rel, subscription.user, new_state, current_app, host)
         except Exception as e:
             logger.exception("Error with processing destination")
 
