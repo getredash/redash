@@ -31,13 +31,15 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     let globalParams = {};
     this.dashboard.widgets.forEach(row =>
       row.forEach((widget) => {
-        widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
-          const defaults = {};
-          defaults[param.name] = _.clone(param);
-          defaults[param.name].locals = [];
-          globalParams = _.defaults(globalParams, defaults);
-          globalParams[param.name].locals.push(param);
-        });
+        if (widget.getQuery()) {
+          widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
+            const defaults = {};
+            defaults[param.name] = _.clone(param);
+            defaults[param.name].locals = [];
+            globalParams = _.defaults(globalParams, defaults);
+            globalParams[param.name].locals.push(param);
+          });
+        }
       })
     );
     this.globalParameters = _.values(globalParams);
@@ -181,7 +183,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.togglePublished = () => {
-    Events.record(currentUser, 'toggle_published', 'dashboard', this.dashboard.id);
+    Events.record('toggle_published', 'dashboard', this.dashboard.id);
     this.dashboard.is_draft = !this.dashboard.is_draft;
     this.saveInProgress = true;
     Dashboard.save({
@@ -218,6 +220,8 @@ const ShareDashboardComponent = {
     dismiss: '&',
   },
   controller($http) {
+    'ngInject';
+
     this.dashboard = this.resolve.dashboard;
 
     this.toggleSharing = () => {

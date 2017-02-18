@@ -331,12 +331,11 @@ def cleanup_query_results():
                  settings.QUERY_RESULTS_CLEANUP_COUNT, settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
 
     unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
-    total_unused_query_results = models.QueryResult.unused().count()
-    deleted_count = models.Query.query.filter(
-        models.Query.id.in_(unused_query_results.subquery())
+    deleted_count = models.QueryResult.query.filter(
+        models.QueryResult.id.in_(unused_query_results.subquery())
     ).delete(synchronize_session=False)
     models.db.session.commit()
-    logger.info("Deleted %d unused query results out of total of %d." % (deleted_count, total_unused_query_results))
+    logger.info("Deleted %d unused query results.", deleted_count)
 
 
 @celery.task(name="redash.tasks.refresh_schemas", base=BaseTask)

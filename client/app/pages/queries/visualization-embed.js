@@ -8,6 +8,8 @@ const VisualizationEmbed = {
     data: '<',
   },
   controller($routeParams, Query, QueryResult) {
+    'ngInject';
+
     document.querySelector('body').classList.add('headless');
     const visualizationId = parseInt($routeParams.visualizationId, 10);
     this.showQueryDescription = $routeParams.showDescription;
@@ -24,6 +26,8 @@ export default function (ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
 
   function session($http, $route, Auth) {
+    'ngInject';
+
     const apiKey = $route.current.params.api_key;
     Auth.setApiKey(apiKey);
     return Auth.loadConfig();
