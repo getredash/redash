@@ -3,10 +3,9 @@
   <div class="col-lg-3">
     <input type='text' class='form-control' placeholder="Search Dashboards..." 
       ng-change="$ctrl.update()" ng-model="$ctrl.searchText"/>
-    <div class='list-group m-t-20'>
-      <h3 class='list-group-item m-0'>Tags</h3>
-      <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}' 
-      class='list-group-item' ng-click='$ctrl.toggleTag(tag)'>
+    <div class='list-group m-t-20 tags-list'>
+      <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
+      class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
         {{ tag }}
       </a>
     </div>
