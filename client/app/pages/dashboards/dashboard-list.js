@@ -46,7 +46,7 @@ function DashboardListCtrl(Dashboard, $location, clientConfig) {
   this.update = () => {
     this.dashboards.$promise.then((data) => {
       const filteredDashboards = data.map((dashboard) => {
-        dashboard.tags = dashboard.name.match(TAGS_REGEX).map(tag => tag.replace(/:$/, ''));
+        dashboard.tags = (dashboard.name.match(TAGS_REGEX) || []).map(tag => tag.replace(/:$/, ''));
         dashboard.untagged_name = dashboard.name.replace(TAGS_REGEX, '').trim();
         return dashboard;
       }).filter((value) => {
