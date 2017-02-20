@@ -155,23 +155,25 @@ class QueryTask(object):
         return self._async_result.id
 
     def to_dict(self):
-        if self._async_result.status == 'STARTED':
-            updated_at = self._async_result.result.get('start_time', 0)
+        task_info = self._async_result._get_task_meta()
+        result, task_status = task_info['result'], task_info['status']
+        if task_status == 'STARTED':
+            updated_at = result.get('start_time', 0)
         else:
             updated_at = 0
 
-        status = self.STATUSES[self._async_result.status]
+        status = self.STATUSES[task_status]
 
-        if isinstance(self._async_result.result, Exception):
-            error = self._async_result.result.message
+        if isinstance(result, Exception):
+            error = result.message
             status = 4
-        elif self._async_result.status == 'REVOKED':
+        elif task_status == 'REVOKED':
             error = 'Query execution cancelled.'
         else:
             error = ''
 
-        if self._async_result.successful() and not error:
-            query_result_id = self._async_result.result
+        if task_status == 'SUCCESS' and not error:
+            query_result_id = result
         else:
             query_result_id = None
 
