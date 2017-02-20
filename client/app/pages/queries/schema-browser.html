@@ -1,6 +1,11 @@
 <div class="schema-container">
-  <div class="p-t-5 p-b-5">
+  <div class="schema-control">
     <input type="text" placeholder="Search schema..." class="form-control" ng-model="$ctrl.schemaFilter">
+    <button class="btn btn-default"
+            title="Refresh Schema"
+            ng-click="$ctrl.onRefresh()">
+      <span class="zmdi zmdi-refresh"></span>
+    </button>
   </div>
 
   <div class="schema-browser" vs-repeat vs-size="$ctrl.getSize(table)">

@@ -20,6 +20,7 @@ function SchemaBrowserCtrl($scope) {
 const SchemaBrowser = {
   bindings: {
     schema: '<',
+    onRefresh: '&',
   },
   controller: SchemaBrowserCtrl,
   template,
