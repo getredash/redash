@@ -597,9 +597,16 @@ div.table-name:hover {
 
 .collapsing,
 .collapse.in {
-    background: #222;
-    padding: 5px 10px;
-    transition: all 0.35s ease;
+  padding: 5px 10px;
+  transition: all 0.35s ease;
+}
+
+.schema-browser .collapse.in {
+  background: #f4f4f4;
+}
+
+.navbar .collapse.in {
+  background: #222;
 }
 
 /* Fixes for SuperFlat */

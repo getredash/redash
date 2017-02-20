@@ -409,7 +409,7 @@ class TestEvents(BaseTestCase):
 
         event = models.Event.record(raw_event)
 
-        self.assertDictEqual(json.loads(event.additional_properties), additional_properties)
+        self.assertDictEqual(event.additional_properties, additional_properties)
 
 
 class TestWidgetDeleteInstance(BaseTestCase):

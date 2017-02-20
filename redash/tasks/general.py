@@ -10,14 +10,18 @@ logger = get_task_logger(__name__)
 
 
 @celery.task(name="redash.tasks.record_event", base=BaseTask)
-def record_event(event):
-    original_event = event.copy()
-    models.Event.record(event)
+def record_event(raw_event):
+    event = models.Event.record(raw_event)
     models.db.session.commit()
+
     for hook in settings.EVENT_REPORTING_WEBHOOKS:
         logger.debug("Forwarding event to: %s", hook)
         try:
-            response = requests.post(hook, original_event)
+            data = {
+              "schema": "iglu:io.redash.webhooks/event/jsonschema/1-0-0",
+              "data": event.to_dict()
+            }
+            response = requests.post(hook, json=data)
             if response.status_code != 200:
                 logger.error("Failed posting to %s: %s", hook, response.content)
         except Exception:

@@ -157,7 +157,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   };
 
   $scope.togglePublished = () => {
-    Events.record(currentUser, 'toggle_published', 'query', $scope.query.id);
+    Events.record('toggle_published', 'query', $scope.query.id);
     $scope.query.is_draft = !$scope.query.is_draft;
     $scope.saveQuery(undefined, { is_draft: $scope.query.is_draft });
   };

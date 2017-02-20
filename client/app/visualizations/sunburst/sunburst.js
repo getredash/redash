@@ -311,7 +311,8 @@ export default function Sunburst(scope, element) {
         };
       });
     } else {
-      const keys = _.sortBy(_.without(_.keys(raw[0]), 'value'), _.identity);
+      const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
+      const keys = _.sortBy(_.filter(_.keys(raw[0]), validKey), _.identity);
 
       values = _.map(raw, (row, sequence) =>
          ({

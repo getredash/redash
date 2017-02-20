@@ -1,5 +1,44 @@
 # Change Log
 
+## v1.0.0-rc.2 - Unreleased
+
+
+### Changed
+
+- [#1563](https://github.com/getredash/redash/pull/1563) Send events to webhook as JSON with a schema.
+- [#1601] [Presto] friendlier error messages. (@aslotnick)
+- Move the query runner unavailable log message to be DEBUG level instead of WARNING, as it was mainly confusing people.
+- Remove "Send to Cloud" button from Plotly based visualizations.
+- Change Plotly's default hover mode to "Compare".
+- [#1612] Change: Improvements to the dashboards list page.
+
+### Fixed
+
+- [#1564] Fix: map visualization column picker wasn't populated. (@janusd)
+- [#1597] [SQL Server] Fix: schema wasn't loading on case sensitive servers. (@deecay)
+- Fix: dashbonard owner couldn't edit his dashboard.
+- Fix: toggle_publish event wasn't logged properly.
+- Fix: events with API keys were not logged.
+- Fix: share dashboard dialog was broken after code minification.
+- Fix: public dashboard endpoint was broken.
+- Fix: public dashboard page was broken after code minification.
+- Fix: visualization embed page was broken after code minification.
+- Fix: schema browser has dark background.
+- Fix: Google button missing on invite page.
+- Fix: global parameters don't render on dashboards with text boxes.
+- Fix: sunburst / Sankey visualizations have bad data.
+- Fix: extra whitespace created by the filters component.
+- Fix: query results cleanup task was trying to delete query objects.
+- Fix: alert subscriptions were not triggered.
+
+### Other
+
+- [#1555] Change sourcemaps to generate a sourcemap per module. (@44px)
+- [#1570] Fix Docker Compose configuration for nginx. (@btmc)
+- [#1582] Update Dockerfile to build frontend assets and update the folder ownership.
+- Dockerfile: change the uid of the redash user to match host user uid.
+- Update npm-shrinkwrap.json file to use http proctocol instead of git. (@deecay)
+
 ## v1.0.0-rc.1 - 2017-01-31
 
 This version has two big changes behind the scenes:

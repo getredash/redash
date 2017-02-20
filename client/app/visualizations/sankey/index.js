@@ -20,7 +20,8 @@ function graph(data) {
   const links = {};
   const nodes = [];
 
-  const keys = _.sortBy(_.without(_.keys(data[0]), 'value'), _.identity);
+  const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
+  const keys = _.sortBy(_.filter(_.keys(data[0]), validKey), _.identity);
 
   function normalizeName(name) {
     if (name) {

@@ -1,4 +1,4 @@
-<div class="container bg-white p-5" ng-show="$ctrl.filters">
+<div class="container bg-white p-5" ng-show="$ctrl.filters | notEmpty">
   <div class="row">
     <div class="col-sm-6 m-t-5" ng-repeat="filter in $ctrl.filters">
       <ui-select ng-model="filter.current" ng-if="!filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)">
