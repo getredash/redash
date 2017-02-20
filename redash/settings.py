@@ -185,7 +185,8 @@ default_query_runners = [
     'redash.query_runner.mssql',
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
-    'redash.query_runner.snowflake'
+    'redash.query_runner.snowflake',
+    'redash.query_runner.axibase_tsd'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -241,7 +242,7 @@ COMMON_CLIENT_CONFIG = {
     'showPermissionsControl': FEATURE_SHOW_PERMISSIONS_CONTROL,
     'allowCustomJSVisualizations': FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
     'dateFormat': DATE_FORMAT,
-    'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
+    'dateTimeFormat': "{0} HH:mm:ss".format(DATE_FORMAT),
     'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
     'mailSettingsMissing': MAIL_DEFAULT_SENDER is None,
     'logoUrl': LOGO_URL
