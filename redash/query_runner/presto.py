@@ -121,6 +121,8 @@ class Presto(BaseQueryRunner):
         except Exception, ex:
             json_data = None
             error = ex.message
+            if not isinstance(error, basestring):
+                error = unicode(error)
 
         return json_data, error
 
