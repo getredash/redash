@@ -102,6 +102,8 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
             columns = []
             rows = []
+            if isinstance(result, basestring):
+                result = [{"value": result}]
             for item in res_dict:
 
                 if not columns:
