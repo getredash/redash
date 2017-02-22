@@ -216,6 +216,10 @@ function QueryResultService($resource, $timeout, $q) {
       return this.filteredData;
     }
 
+    isEmpty() {
+      return this.getData() === null || this.getData().length === 0;
+    }
+
     getChartData(mapping) {
       const series = {};
 
