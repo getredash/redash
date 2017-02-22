@@ -4,12 +4,11 @@ from flask_mail import Message
 from redash.worker import celery
 from redash.version_check import run_version_check
 from redash import models, mail, settings
-from .base import BaseTask
 
 logger = get_task_logger(__name__)
 
 
-@celery.task(name="redash.tasks.record_event", base=BaseTask)
+@celery.task(name="redash.tasks.record_event")
 def record_event(raw_event):
     event = models.Event.record(raw_event)
     models.db.session.commit()
@@ -28,7 +27,7 @@ def record_event(raw_event):
             logger.exception("Failed posting to %s", hook)
 
 
-@celery.task(name="redash.tasks.version_check", base=BaseTask)
+@celery.task(name="redash.tasks.version_check")
 def version_check():
     run_version_check()
 
@@ -46,7 +45,7 @@ def subscribe(form):
     requests.post('https://beacon.redash.io/subscribe', json=data)
 
 
-@celery.task(name="redash.tasks.send_mail", base=BaseTask)
+@celery.task(name="redash.tasks.send_mail")
 def send_mail(to, subject, html, text):
     from redash.wsgi import app
 
