@@ -216,6 +216,10 @@ function QueryResultService($resource, $timeout, $q) {
       return this.filteredData;
     }
 
+    isEmpty() {
+      return this.getData() === null || this.getData().length === 0;
+    }
+
     getChartData(mapping) {
       const series = {};
 
@@ -339,7 +343,11 @@ function QueryResultService($resource, $timeout, $q) {
         filters.forEach((filter) => {
           filter.values.push(row[filter.name]);
           if (filter.values.length === 1) {
-            filter.current = row[filter.name];
+            if (filter.multiple) {
+              filter.current = [row[filter.name]];
+            } else {
+              filter.current = row[filter.name];
+            }
           }
         });
       });
