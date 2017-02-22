@@ -1,6 +1,6 @@
 # Change Log
 
-## v1.0.0-rc.2 - Unreleased
+## v1.0.0-rc.2 - 2017-02-22
 
 
 ### Changed
