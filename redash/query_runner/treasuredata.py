@@ -35,6 +35,7 @@ TD_TYPES_MAPPING = {
 
 class TreasureData(BaseQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://docs.treasuredata.com/categories/hive"
 
     @classmethod
     def configuration_schema(cls):
@@ -58,6 +59,11 @@ class TreasureData(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Auto Schema Retrieval',
                     'default': False
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['apikey','db']

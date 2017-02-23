@@ -50,6 +50,8 @@ def _transform_result(results):
 
 class InfluxDB(BaseQueryRunner):
     noop_query = "show databases"
+    default_doc_url = ("https://docs.influxdata.com/influxdb/v1.0/"
+                       "query_language/spec/")
 
     @classmethod
     def configuration_schema(cls):
@@ -58,6 +60,11 @@ class InfluxDB(BaseQueryRunner):
             'properties': {
                 'url': {
                     'type': 'string'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             'required': ['url']

@@ -33,6 +33,9 @@ types_map = {
 
 
 class DynamoDBSQL(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+    default_doc_url = "https://dql.readthedocs.io/en/latest/"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -47,6 +50,11 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 },
                 "secret_key": {
                     "type": "string",
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["access_key", "secret_key"],

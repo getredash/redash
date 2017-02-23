@@ -89,7 +89,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
-
+  $scope.showDataSourceDoc = clientConfig.showDataSourceDoc;
 
   Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {

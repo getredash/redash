@@ -434,11 +434,12 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'type': self.type,
             'syntax': self.query_runner.syntax,
             'paused': self.paused,
-            'pause_reason': self.pause_reason
+            'pause_reason': self.pause_reason,
+            'type_name': self.query_runner.name(),
         }
 
+        schema = get_configuration_schema_for_query_runner_type(self.type)
         if all:
-            schema = get_configuration_schema_for_query_runner_type(self.type)
             self.options.set_schema(schema)
             d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
@@ -449,6 +450,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
             d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
                 DataSourceGroup.group == with_permissions_for,
                 DataSourceGroup.data_source == self).one()[0]
+
+        doc_url = self.options.get('doc_url', schema['properties'].get(
+            'doc_url', {}).get('default'))
+        if doc_url:
+            d['options'] = {'doc_url': doc_url}
 
         return d
 
@@ -502,6 +508,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
         dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
         db.session.add(dsg)
         return dsg
+
+        setattr(self, 'data_source_groups', dsg)
 
     def remove_group(self, group):
         db.session.query(DataSourceGroup).filter(
