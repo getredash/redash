@@ -2,7 +2,10 @@ import json
 import time
 import logging
 import signal
+
+import pystache
 import redis
+
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from redash import redis_connection, models, statsd_client, settings, utils
@@ -270,7 +273,13 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                enqueue_query(query.query_text, query.data_source, query.user_id,
+                if query.options and 'parameters' in query.options:
+                    query_params = {p['name']: p['value']
+                                    for p in query.options['parameters']}
+                    query_text = pystache.render(query.query_text, query_params)
+                else:
+                    query_text = query.query_text
+                enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 
