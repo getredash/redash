@@ -7,6 +7,8 @@ const PublicDashboardPage = {
     dashboard: '<',
   },
   controller($routeParams, Widget) {
+    'ngInject';
+
     // embed in params == headless
     this.logoUrl = logoUrl;
     this.headless = $routeParams.embed;
@@ -26,6 +28,8 @@ export default function (ngModule) {
   ngModule.component('publicDashboardPage', PublicDashboardPage);
 
   function loadPublicDashboard($http, $route) {
+    'ngInject';
+
     const token = $route.current.params.token;
     return $http.get(`/api/dashboards/public/${token}`).then(response =>
        response.data

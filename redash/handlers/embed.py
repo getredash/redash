@@ -70,7 +70,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 @routes.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
 @login_required
 def embed(query_id, visualization_id, org_slug=None):
-    record_event(current_org, current_user, {
+    record_event(current_org, current_user._get_current_object(), {
         'action': 'view',
         'object_id': visualization_id,
         'object_type': 'visualization',

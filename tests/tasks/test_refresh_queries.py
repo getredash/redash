@@ -29,6 +29,7 @@ class TestRefreshQueries(BaseTestCase):
                                                         query_hash=query.query_hash)
         query.latest_query_data = query_result
         db.session.add(query)
+        db.session.commit()
 
         query.data_source.pause()
 

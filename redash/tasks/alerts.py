@@ -4,7 +4,6 @@ import datetime
 from redash.worker import celery
 from redash import utils
 from redash import models, settings
-from .base import BaseTask
 
 
 logger = get_task_logger(__name__)
@@ -21,7 +20,7 @@ def notify_subscriptions(alert, new_state):
     host = base_url(alert.query_rel.org)
     for subscription in alert.subscriptions:
         try:
-            subscription.notify(alert, alert.query, subscription.user, new_state, current_app, host)
+            subscription.notify(alert, alert.query_rel, subscription.user, new_state, current_app, host)
         except Exception as e:
             logger.exception("Error with processing destination")
 
@@ -34,7 +33,7 @@ def should_notify(alert, new_state):
     return new_state != alert.state or (alert.state == models.Alert.TRIGGERED_STATE and passed_rearm_threshold)
 
 
-@celery.task(name="redash.tasks.check_alerts_for_query", base=BaseTask)
+@celery.task(name="redash.tasks.check_alerts_for_query")
 def check_alerts_for_query(query_id):
     logger.debug("Checking query %d for alerts", query_id)
 

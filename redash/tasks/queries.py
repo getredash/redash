@@ -9,7 +9,6 @@ from redash import redis_connection, models, statsd_client, settings, utils
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.query_runner import InterruptException
-from .base import BaseTask
 from .alerts import check_alerts_for_query
 
 logger = get_task_logger(__name__)
@@ -248,7 +247,7 @@ def enqueue_query(query, data_source, user_id, scheduled=False, metadata={}):
     return job
 
 
-@celery.task(name="redash.tasks.refresh_queries", base=BaseTask)
+@celery.task(name="redash.tasks.refresh_queries")
 def refresh_queries():
     logger.info("Refreshing queries...")
 
@@ -285,7 +284,7 @@ def refresh_queries():
     statsd_client.gauge('manager.seconds_since_refresh', now - float(status.get('last_refresh_at', now)))
 
 
-@celery.task(name="redash.tasks.cleanup_tasks", base=BaseTask)
+@celery.task(name="redash.tasks.cleanup_tasks")
 def cleanup_tasks():
     in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST)
     for tracker in in_progress:
@@ -317,7 +316,7 @@ def cleanup_tasks():
     QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
 
 
-@celery.task(name="redash.tasks.cleanup_query_results", base=BaseTask)
+@celery.task(name="redash.tasks.cleanup_query_results")
 def cleanup_query_results():
     """
     Job to cleanup unused query results -- such that no query links to them anymore, and older than
@@ -331,15 +330,14 @@ def cleanup_query_results():
                  settings.QUERY_RESULTS_CLEANUP_COUNT, settings.QUERY_RESULTS_CLEANUP_MAX_AGE)
 
     unused_query_results = models.QueryResult.unused(settings.QUERY_RESULTS_CLEANUP_MAX_AGE).limit(settings.QUERY_RESULTS_CLEANUP_COUNT)
-    total_unused_query_results = models.QueryResult.unused().count()
-    deleted_count = models.Query.query.filter(
-        models.Query.id.in_(unused_query_results.subquery())
+    deleted_count = models.QueryResult.query.filter(
+        models.QueryResult.id.in_(unused_query_results.subquery())
     ).delete(synchronize_session=False)
     models.db.session.commit()
-    logger.info("Deleted %d unused query results out of total of %d." % (deleted_count, total_unused_query_results))
+    logger.info("Deleted %d unused query results.", deleted_count)
 
 
-@celery.task(name="redash.tasks.refresh_schemas", base=BaseTask)
+@celery.task(name="redash.tasks.refresh_schemas")
 def refresh_schemas():
     """
     Refreshes the data sources schemas.
@@ -465,6 +463,6 @@ class QueryExecutor(object):
 
 # user_id is added last as a keyword argument for backward compatability -- to support executing previously submitted
 # jobs before the upgrade to this version.
-@celery.task(name="redash.tasks.execute_query", bind=True, base=BaseTask, track_started=True)
+@celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
 def execute_query(self, query, data_source_id, metadata, user_id=None):
     return QueryExecutor(self, query, data_source_id, user_id, metadata).run()

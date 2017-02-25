@@ -147,7 +147,7 @@ def register(query_runner_class):
         logger.debug("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
         query_runners[query_runner_class.type()] = query_runner_class
     else:
-        logger.warning("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
+        logger.debug("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
 
 
 def get_query_runner(query_runner_type, configuration):
