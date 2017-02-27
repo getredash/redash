@@ -1,6 +1,7 @@
 import logging
 import json
 
+from collections import OrderedDict
 from redash import settings
 
 logger = logging.getLogger(__name__)
@@ -111,13 +112,16 @@ class BaseQueryRunner(object):
 
     @classmethod
     def to_dict(cls):
+        schema = cls.configuration_schema()
+        schema_properties = schema['properties']
+        ordered_properties = sorted(schema_properties.items(),
+                                    key=lambda (k, v): ("propertyOrder" not in v, v.get("propertyOrder", None)))
+        schema['properties'] = OrderedDict(ordered_properties)
         return {
             'name': cls.name(),
             'type': cls.type(),
-            'configuration_schema': cls.configuration_schema()
+            'configuration_schema': schema
         }
-
-
 class BaseSQLQueryRunner(BaseQueryRunner):
     def __init__(self, configuration):
         super(BaseSQLQueryRunner, self).__init__(configuration)
