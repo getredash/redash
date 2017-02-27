@@ -1,3 +1,4 @@
+import sys
 import logging
 import json
 
@@ -42,6 +43,13 @@ SUPPORTED_COLUMN_TYPES = set([
 
 class InterruptException(Exception):
     pass
+
+
+def index(l, x):  # Allow non-full key list to be used in sorting
+    try:
+        return l.index(x)
+    except ValueError:
+        return sys.maxint, x
 
 
 class BaseQueryRunner(object):
@@ -113,15 +121,17 @@ class BaseQueryRunner(object):
     @classmethod
     def to_dict(cls):
         schema = cls.configuration_schema()
-        schema_properties = schema['properties']
-        ordered_properties = sorted(schema_properties.items(),
-                                    key=lambda (k, v): ("propertyOrder" not in v, v.get("propertyOrder", None)))
-        schema['properties'] = OrderedDict(ordered_properties)
+        if 'order' in schema.keys():
+            order = schema['order']
+            schema_properties = schema['properties']
+            schema['properties'] = OrderedDict(sorted(schema_properties.items(), key=lambda t: index(order, t[0])))
         return {
             'name': cls.name(),
             'type': cls.type(),
             'configuration_schema': schema
         }
+
+
 class BaseSQLQueryRunner(BaseQueryRunner):
     def __init__(self, configuration):
         super(BaseSQLQueryRunner, self).__init__(configuration)
@@ -142,6 +152,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
                 res = self._run_query_internal('select count(*) as cnt from %s' % t)
                 tables_dict[t]['size'] = res[0]['cnt']
 
+
 query_runners = {}
 
 
@@ -151,7 +162,8 @@ def register(query_runner_class):
         logger.debug("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
         query_runners[query_runner_class.type()] = query_runner_class
     else:
-        logger.debug("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
+        logger.debug("%s query runner enabled but not supported, not registering. Either disable or install missing "
+                     "dependencies.", query_runner_class.name())
 
 
 def get_query_runner(query_runner_type, configuration):
