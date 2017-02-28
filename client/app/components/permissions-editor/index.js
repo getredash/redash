@@ -9,6 +9,8 @@ const PermissionsEditorComponent = {
     dismiss: '&',
   },
   controller($http, User) {
+    'ngInject';
+
     this.grantees = [];
     this.newGrantees = {};
     this.aclUrl = this.resolve.aclUrl.url;
