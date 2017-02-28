@@ -3,16 +3,20 @@ import json
 import logging
 import sys
 import uuid
-
-import pandas as pd
-import atsd_client
-from atsd_client.exceptions import SQLException
-from atsd_client.services import SQLService, MetricsService
+import csv
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
+
+try:
+    import atsd_client
+    from atsd_client.exceptions import SQLException
+    from atsd_client.services import SQLService, MetricsService
+    enabled = True
+except ImportError:
+    enabled = False
 
 types_map = {
     'long': TYPE_INTEGER,
@@ -58,18 +62,24 @@ def generate_rows_and_columns(csv_response):
     meta_json = json.loads(meta_decoded)
     meta_columns = meta_json['tableSchema']['columns']
 
-    df = pd.read_csv(StringIO(data), sep=',')
+    reader = csv.reader(data.splitlines())
+    next(reader)
+
     columns = [{'friendly_name': i['titles'],
                 'type': resolve_redash_type(i['datatype']),
                 'name': i['name']}
                for i in meta_columns]
     column_names = [c['name'] for c in columns]
-    rows = [dict(zip(column_names, row)) for row in df.values]
+    rows = [dict(zip(column_names, row)) for row in reader]
     return columns, rows
 
 
 class AxibaseTSD(BaseQueryRunner):
     noop_query = "SELECT 1"
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     @classmethod
     def name(cls):
