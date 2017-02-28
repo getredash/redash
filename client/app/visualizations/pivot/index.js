@@ -1,3 +1,4 @@
+import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
@@ -20,7 +21,7 @@ function pivotTableRenderer() {
         if ($scope.queryResult.getData() !== null) {
           // We need to give the pivot table its own copy of the data, because it changes
           // it which interferes with other visualizations.
-          data = $.extend(true, [], $scope.queryResult.getRawData());
+          data = angular.copy($scope.queryResult.getRawData());
           const options = {
             renderers: $.pivotUtilities.renderers,
             onRefresh(config) {
