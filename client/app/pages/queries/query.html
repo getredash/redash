@@ -21,7 +21,8 @@
     <div class="col-sm-9">
       <h3>
         <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
-        <span class="label label-warning" ng-if="query.is_draft">Unpublished</span>
+        <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
+        <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       </h3>
       <p>
         <em>
@@ -75,9 +76,6 @@
         </span>
       </h3>
     </div>
-    <div class="col-lg-12 p-5 bg-orange c-white" ng-if="query.is_archived">
-      This query is archived and can't be used in dashboards, and won't appear in search results.
-    </div>
   </div>
 
   <!-- editor -->
@@ -128,8 +126,7 @@
             <p style="height:calc(100% - 40px);">
               <query-editor query="query"
                             schema="schema"
-                            syntax="dataSource.syntax"
-                            shortcuts="shortcuts"></query-editor>
+                            syntax="dataSource.syntax"></query-editor>
             </p>
         </div>
       </div>

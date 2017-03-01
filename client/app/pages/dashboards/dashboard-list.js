@@ -39,6 +39,7 @@ function DashboardListCtrl(Dashboard, $location, clientConfig) {
   this.dashboards.$promise.then((data) => {
     const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
     this.allTags = _.unique(_.flatten(out)).filter(e => e).map(tag => tag.replace(/:$/, ''));
+    this.allTags.sort();
   });
 
   this.paginator = new Paginator([], { page });
@@ -82,6 +83,7 @@ export default function (ngModule) {
   const route = {
     template: '<page-dashboard-list></page-dashboard-list>',
     reloadOnSearch: false,
+    title: 'Dashboards',
   };
 
   return {

@@ -24,7 +24,7 @@
           <td>
             <a href="dashboard/{{ dashboard.slug }}">
               <span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
-              <span class="label label-warning" ng-if="dashboard.is_draft">Unpublished</span>
+              <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
             </a>
           </td>
           <td>{{ dashboard.created_at | dateTime }}</td>

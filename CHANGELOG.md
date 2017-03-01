@@ -1,6 +1,6 @@
 # Change Log
 
-## v1.0.0-rc.2 - Unreleased
+## v1.0.0-rc.2 - 2017-02-22
 
 
 ### Changed
@@ -30,6 +30,10 @@
 - Fix: extra whitespace created by the filters component.
 - Fix: query results cleanup task was trying to delete query objects.
 - Fix: alert subscriptions were not triggered.
+- [DynamoDB] Fix: count(*) queries were broken. (@kopanitsa)
+- Fix: Redash is using too many database connections.
+- Fix: download links were not working in dashboards.
+- Fix: the first selection in multi filters was broken in dashboards.
 
 ### Other
 

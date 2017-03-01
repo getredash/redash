@@ -2,13 +2,13 @@
   <div class="form-group">
     <label class="col-lg-6">Counter Value Column Name</label>
     <div class="col-lg-6">
-      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.counterColName" class="form-control"></select>
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.counterColName" class="form-control" ng-disabled="visualization.options.countRow"></select>
     </div>
   </div>
   <div class="form-group">
     <label class="col-lg-6">Counter Value Row Number</label>
     <div class="col-lg-6">
-      <input type="number" ng-model="visualization.options.rowNumber" min="1" class="form-control">
+      <input type="number" ng-model="visualization.options.rowNumber" min="1" class="form-control" ng-disabled="visualization.options.countRow">
     </div>
   </div>
   <div class="form-group">
@@ -23,6 +23,12 @@
     <label class="col-lg-6">Target Value Row Number</label>
     <div class="col-lg-6">
       <input type="number" ng-model="visualization.options.targetRowNumber" min="1" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-lg-6">
+      <input type="checkbox" ng-model="visualization.options.countRow">
+      <i class="input-helper"></i> Count Rows
     </div>
   </div>
 </div>
