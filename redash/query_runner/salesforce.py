@@ -3,6 +3,9 @@
 import re
 import logging
 from collections import OrderedDict
+from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
+from redash.utils import json_dumps
 logger = logging.getLogger(__name__)
 
 try:
@@ -12,10 +15,6 @@ try:
 except ImportError as e:
     logger.info(str(e))
     enabled = False
-
-from redash.query_runner import BaseQueryRunner, register
-from redash.query_runner import TYPE_STRING, TYPE_DATE, TYPE_DATETIME, TYPE_INTEGER, TYPE_FLOAT, TYPE_BOOLEAN
-from redash.utils import json_dumps
 
 # See https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/field_types.htm
 TYPES_MAP = dict(
