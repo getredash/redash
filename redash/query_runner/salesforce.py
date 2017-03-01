@@ -49,6 +49,8 @@ TYPES_MAP = dict(
 # Query Runner for Salesforce SOQL Queries
 # For example queries, see:
 # https://developer.salesforce.com/docs/atlas.en-us.soql_sosl.meta/soql_sosl/sforce_api_calls_soql_select_examples.htm
+
+
 class Salesforce(BaseQueryRunner):
 
     @classmethod
@@ -85,15 +87,15 @@ class Salesforce(BaseQueryRunner):
         pass
 
     def _get_sf(self):
-        sf = SimpleSalesforce(username=self.configuration['username'], 
-            password=self.configuration['password'], 
-            security_token=self.configuration['token'],
-            sandbox=self.configuration['sandbox'],
-            client_id='Redash')
+        sf = SimpleSalesforce(username=self.configuration['username'],
+                              password=self.configuration['password'],
+                              security_token=self.configuration['token'],
+                              sandbox=self.configuration['sandbox'],
+                              client_id='Redash')
         return sf
 
     def _clean_value(self, value):
-        if type(value) == OrderedDict and 'records' in value:
+        if isinstance(value, OrderedDict) and 'records' in value:
             value = value['records']
             for row in value:
                 row.pop('attributes', None)
@@ -104,21 +106,21 @@ class Salesforce(BaseQueryRunner):
             dct = dct.get(key)
         return dct
 
-    def _get_column_name(self, key, parents = []):
+    def _get_column_name(self, key, parents=[]):
         return '.'.join(parents + [key])
 
-    def _build_columns(self, sf, child, parents = []):
+    def _build_columns(self, sf, child, parents=[]):
         child_type = child['attributes']['type']
         child_desc = sf.__getattr__(child_type).describe()
         child_type_map = dict((f['name'], f['type'])for f in child_desc['fields'])
         columns = []
         for key in child.keys():
             if key != 'attributes':
-                if type(child[key]) == OrderedDict and 'attributes' in child[key]:
+                if isinstance(child[key], OrderedDict) and 'attributes' in child[key]:
                     columns.extend(self._build_columns(sf, child[key], parents + [key]))
                 else:
                     column_name = self._get_column_name(key, parents)
-                    key_type    = child_type_map.get(key, 'string')
+                    key_type = child_type_map.get(key, 'string')
                     column_type = TYPES_MAP.get(key_type, TYPE_STRING)
                     columns.append((column_name, column_type))
         return columns
@@ -146,7 +148,7 @@ class Salesforce(BaseQueryRunner):
             records = response['records']
             if response['totalSize'] > 0 and len(records) == 0:
                 columns = self.fetch_columns([('Count', TYPE_INTEGER)])
-                rows = [{ 'Count': response['totalSize'] }]
+                rows = [{'Count': response['totalSize']}]
             elif len(records) > 0:
                 cols = self._build_columns(sf, records[0])
                 rows = self._build_rows(cols, records)
