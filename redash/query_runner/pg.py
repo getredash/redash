@@ -77,6 +77,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                     "default": cls.default_doc_url
                 }
             },
+            "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname"],
             "secret": ["password"]
         }
