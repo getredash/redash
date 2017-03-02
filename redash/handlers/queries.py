@@ -78,6 +78,7 @@ class QueryListResource(BaseResource):
         :<json string name:
         :<json string description:
         :<json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json string schedule_until: Time in ISO format to stop scheduling this query (may be null to run indefinitely)
         :<json object options: Query options
 
         .. _query-response-label:
@@ -89,6 +90,7 @@ class QueryListResource(BaseResource):
         :>json string query: Query text
         :>json string query_hash: Hash of query text
         :>json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json string schedule_until: Time in ISO format to stop scheduling this query (may be null to run indefinitely)
         :>json string api_key: Key for public access to this query's results.
         :>json boolean is_archived: Whether this query is displayed in indexes and search results or not.
         :>json boolean is_draft: Whether this query is a draft or not

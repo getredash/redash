@@ -735,6 +735,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
     schedule_failures = Column(db.Integer, default=0)
+    schedule_until = Column(db.DateTime(True), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
 
@@ -753,6 +754,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             'query': self.query_text,
             'query_hash': self.query_hash,
             'schedule': self.schedule,
+            'schedule_until': self.schedule_until,
             'api_key': self.api_key,
             'is_archived': self.is_archived,
             'is_draft': self.is_draft,
@@ -835,7 +837,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (db.session.query(Query)
                    .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
-                   .filter(Query.schedule != None)
+                   .filter(Query.schedule != None,
+                           (Query.schedule_until == None) |
+                           (Query.schedule_until > db.func.now()))
                    .order_by(Query.id))
 
         now = utils.utcnow()
