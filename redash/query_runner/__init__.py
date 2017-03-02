@@ -120,15 +120,10 @@ class BaseQueryRunner(object):
 
     @classmethod
     def to_dict(cls):
-        schema = cls.configuration_schema()
-        if 'order' in schema.keys():
-            order = schema['order']
-            schema_properties = schema['properties']
-            schema['properties'] = OrderedDict(sorted(schema_properties.items(), key=lambda t: index(order, t[0])))
         return {
             'name': cls.name(),
             'type': cls.type(),
-            'configuration_schema': schema
+            'configuration_schema': cls.configuration_schema()
         }
 
 
