@@ -185,7 +185,8 @@ default_query_runners = [
     'redash.query_runner.mssql',
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
-    'redash.query_runner.snowflake'
+    'redash.query_runner.snowflake',
+    'redash.query_runner.salesforce'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))

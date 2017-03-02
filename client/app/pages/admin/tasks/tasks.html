@@ -38,9 +38,9 @@
         <td>{{row.query_id}}</td>
         <td>{{row.query_hash}}</td>
         <td>{{row.run_time | durationHumanize}}</td>
-        <td>{{row.created_at | dateTime }}</td>
-        <td>{{row.started_at | dateTime }}</td>
-        <td>{{row.updated_at | dateTime }}</td>
+        <td>{{row.created_at | toMilliseconds | dateTime }}</td>
+        <td>{{row.started_at | toMilliseconds | dateTime }}</td>
+        <td>{{row.updated_at | toMilliseconds | dateTime }}</td>
         <td ng-if="selectedTab === 'in_progress'">
           <cancel-query-button query-id="dataRow.query_id" task-id="dataRow.task_id"></cancel-query-button>
         </td>

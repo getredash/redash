@@ -14,10 +14,11 @@ function CounterRenderer() {
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
 
-          if (counterColName) {
+          if ($scope.visualization.options.countRow) {
+            $scope.counterValue = queryData.length;
+          } else if (counterColName) {
             $scope.counterValue = queryData[rowNumber][counterColName];
           }
-
           if (targetColName) {
             $scope.targetValue = queryData[targetRowNumber][targetColName];
 
