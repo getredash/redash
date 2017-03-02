@@ -404,6 +404,10 @@ function QueryResource(
       .format('HH:mm');
   };
 
+  Query.prototype.hasScheduleExpiry = function hasScheduleExpiry() {
+    return (this.schedule && this.schedule_until);
+  };
+
   Query.prototype.hasResult = function hasResult() {
     return !!(this.latest_query_data || this.latest_query_data_id);
   };

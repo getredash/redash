@@ -192,6 +192,34 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=17)
         self.assertEqual(list(models.Query.outdated_queries()), [query])
 
+    def test_schedule_until_after(self):
+        """
+        Queries with non-null ``schedule_until`` are not reported by
+        Query.outdated_queries() after the given time is past.
+        """
+        three_hours_ago = utcnow() - datetime.timedelta(hours=3)
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule="3600", schedule_until=three_hours_ago)
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        queries = models.Query.outdated_queries()
+        self.assertNotIn(query, queries)
+
+    def test_schedule_until_before(self):
+        """
+        Queries with non-null ``schedule_until`` are reported by
+        Query.outdated_queries() before the given time is past.
+        """
+        one_hour_from_now = utcnow() + datetime.timedelta(hours=1)
+        two_hours_ago = utcnow() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule="3600", schedule_until=one_hour_from_now)
+        query_result = self.factory.create_query_result(query=query.query_text, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        queries = models.Query.outdated_queries()
+        self.assertIn(query, queries)
+
 
 class QueryArchiveTest(BaseTestCase):
     def setUp(self):
