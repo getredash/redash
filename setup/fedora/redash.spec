@@ -15,7 +15,7 @@ License:	BSD
 URL:		http://redash.io
 Source0:	https://github.com/getredash/redash/archive/v%{redash_version}.tar.gz
 Source1:    %{name}-runner.py
-Source2:    %{name}.conf
+Source2:    %{name}.cfg
 Source3:    %{name}-supervisor.conf
 BuildRequires: python-virtualenv cyrus-sasl-devel openssl-devel
 BuildRequires: postgresql-devel python-devel mariadb-devel freetds-devel
@@ -56,9 +56,9 @@ perl -p -i -e "s|%{_builddir}/%{name}-%{redash_version}|%{redash_installdir}|g" 
 mkdir -p %{buildroot}/%{_bindir}
 cp %{SOURCE1} %{buildroot}/%{_bindir}/redash
 mkdir -p %{buildroot}/%{_sysconfdir}/
-cp %{SOURCE2} %{buildroot}/%{_sysconfdir}/%{name}.conf
-mkdir -p %{buildroot}/etc/supervisord.d/
-cp %{SOURCE3} %{buildroot}/etc/supervisord.d/%{name}.conf
+cp %{SOURCE2} %{buildroot}/%{_sysconfdir}/%{name}.cfg
+mkdir -p %{buildroot}/%{_sysconfdir}/supervisord.d/
+cp %{SOURCE3} %{buildroot}/%{_sysconfdir}/supervisord.d/%{name}.ini
 mkdir -p %{buildroot}/%{_var}/log/%{name}
 
 %pre
@@ -71,10 +71,11 @@ exit 0
 %files
 %defattr(-,redash,redash)
 %attr(755,redash,redash) %{_bindir}/%{name}
-%config %{_sysconfdir}/%{name}.conf
+%config %{_sysconfdir}/%{name}.cfg
+%config %{_sysconfdir}/supervisord.d/%{name}.ini
 /opt/redash
 %{_var}/log/redash/
 
 %changelog
-* 2017-03-03 Izhar Firdaus <kagesenshi.87@gmail.com> 1.0.0rc1-1
+* Fri Mar 3 2017 Izhar Firdaus <kagesenshi.87@gmail.com> 1.0.0rc1-1
 - Initial package
