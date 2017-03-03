@@ -84,9 +84,9 @@ class Impala(BaseSQLQueryRunner):
         tables_query = "show tables in %s;"
         columns_query = "show column stats %s.%s;"
 
-        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['name']), self._run_query_internal(schemas_query))):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['name']), self._run_query_internal(tables_query % schema_name))):
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Column']), self._run_query_internal(columns_query % (schema_name, table_name))))
+        for schema_name in map(lambda a: unicode(a['name']), self._run_query_internal(schemas_query)):
+            for table_name in map(lambda a: unicode(a['name']), self._run_query_internal(tables_query % schema_name)):
+                columns = map(lambda a: unicode(a['Column']), self._run_query_internal(columns_query % (schema_name, table_name)))
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
