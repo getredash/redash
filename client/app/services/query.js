@@ -65,11 +65,14 @@ class Parameter {
   }
 
   set ngModel(value) {
-    if (this.type === 'date') {
+    if (value && this.type === 'date') {
       this.value = moment(value).format('YYYY-MM-DD');
       this.$$value = moment(this.value).toDate();
-    } else if (this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
-      this.value = moment(value).toISOString();
+    } else if (value && this.type === 'datetime-local') {
+      this.value = moment(value).format('YYYY-MM-DDTHH:mm');
+      this.$$value = moment(this.value).toDate();
+    } else if (value && this.type === 'datetime-with-seconds') {
+      this.value = moment(value).format('YYYY-MM-DDTHH:mm:ss');
       this.$$value = moment(this.value).toDate();
     } else {
       this.value = this.$$value = value;
