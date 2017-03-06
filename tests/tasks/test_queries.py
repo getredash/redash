@@ -102,7 +102,7 @@ class QueryExecutorTests(BaseTestCase):
                 "SELECT 1, 2",
                 self.factory.data_source.id, {},
                 scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
             result = models.QueryResult.query.get(result_id)
             self.assertEqual(q.latest_query_data, result)
@@ -116,14 +116,10 @@ class QueryExecutorTests(BaseTestCase):
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.exception = ValueError("broken")
-            execute_query("SELECT 1, 2",
-                          self.factory.data_source.id, {},
-                          scheduled_query_id=q.id)
+            execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
             self.assertEqual(q.schedule_failures, 1)
-            execute_query("SELECT 1, 2",
-                          self.factory.data_source.id, {},
-                          scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 2)
 
     def test_success_after_failure(self):
@@ -138,12 +134,13 @@ class QueryExecutorTests(BaseTestCase):
             execute_query("SELECT 1, 2",
                           self.factory.data_source.id, {},
                           scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
+
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             execute_query("SELECT 1, 2",
                           self.factory.data_source.id, {},
                           scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
