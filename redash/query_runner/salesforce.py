@@ -10,10 +10,9 @@ logger = logging.getLogger(__name__)
 
 try:
     from simple_salesforce import Salesforce as SimpleSalesforce
-    from simple_salesforce.api import (SalesforceError)
+    from simple_salesforce.api import SalesforceError
     enabled = True
 except ImportError as e:
-    logger.info(str(e))
     enabled = False
 
 # See https://developer.salesforce.com/docs/atlas.en-us.api.meta/api/field_types.htm
