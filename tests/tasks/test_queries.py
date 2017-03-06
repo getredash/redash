@@ -50,9 +50,9 @@ class TestEnqueueTask(BaseTestCase):
         query = self.factory.create_query()
         execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, query, {'Username': 'Arik', 'Query ID': query.id})
 
         self.assertEqual(1, execute_query.apply_async.call_count)
         self.assertEqual(1, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
@@ -63,9 +63,9 @@ class TestEnqueueTask(BaseTestCase):
         query = self.factory.create_query()
         execute_query.apply_async = mock.MagicMock(side_effect=gen_hash)
 
-        enqueue_query(query.query_text, query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text + '2', query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
-        enqueue_query(query.query_text + '3', query.data_source, True, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text, query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text + '2', query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
+        enqueue_query(query.query_text + '3', query.data_source, query.user_id, None, {'Username': 'Arik', 'Query ID': query.id})
 
         self.assertEqual(3, execute_query.apply_async.call_count)
         self.assertEqual(3, redis_connection.zcard(QueryTaskTracker.WAITING_LIST))
@@ -79,12 +79,10 @@ class QueryExecutorTests(BaseTestCase):
         """
         ``execute_query`` invokes the query runner and stores a query result.
         """
-        cm = mock.patch("celery.app.task.Context.delivery_info",
-                        {'routing_key': 'test'})
+        cm = mock.patch("celery.app.task.Context.delivery_info", {'routing_key': 'test'})
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
-            result_id = execute_query("SELECT 1, 2",
-                                      self.factory.data_source.id, {})
+            result_id = execute_query("SELECT 1, 2", self.factory.data_source.id, {})
             self.assertEqual(1, qr.call_count)
             result = models.QueryResult.query.get(result_id)
             self.assertEqual(result.data, '{1,2}')
@@ -102,7 +100,7 @@ class QueryExecutorTests(BaseTestCase):
                 "SELECT 1, 2",
                 self.factory.data_source.id, {},
                 scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
             result = models.QueryResult.query.get(result_id)
             self.assertEqual(q.latest_query_data, result)
@@ -116,14 +114,10 @@ class QueryExecutorTests(BaseTestCase):
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.exception = ValueError("broken")
-            execute_query("SELECT 1, 2",
-                          self.factory.data_source.id, {},
-                          scheduled_query_id=q.id)
+            execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
             self.assertEqual(q.schedule_failures, 1)
-            execute_query("SELECT 1, 2",
-                          self.factory.data_source.id, {},
-                          scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 2)
 
     def test_success_after_failure(self):
@@ -138,12 +132,13 @@ class QueryExecutorTests(BaseTestCase):
             execute_query("SELECT 1, 2",
                           self.factory.data_source.id, {},
                           scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
+
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.return_value = ([1, 2], None)
             execute_query("SELECT 1, 2",
                           self.factory.data_source.id, {},
                           scheduled_query_id=q.id)
-            models.db.session.refresh(q)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)

@@ -28,7 +28,9 @@ from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
 from redash.metrics import database
 
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={
+    'expire_on_commit': False
+})
 Column = functools.partial(db.Column, nullable=False)
 
 # AccessPermission and Change use a 'generic foreign key' approach to refer to

@@ -199,8 +199,7 @@ class QueryTask(object):
         return self._async_result.revoke(terminate=True, signal='SIGINT')
 
 
-def enqueue_query(query, data_source, user_id, scheduled_query=None,
-                  metadata={}):
+def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
     try_count = 0
