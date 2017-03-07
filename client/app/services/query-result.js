@@ -406,7 +406,7 @@ function QueryResultService($resource, $timeout, $q) {
         this.update({ job: {
           error: 'Failed communicating with server. Retrying...',
           status: 4,
-          id: this.job.id } })
+          id: this.job.id } });
         $timeout(() => {
           this.refreshStatus(query);
         }, 3000);
