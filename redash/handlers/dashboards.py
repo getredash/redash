@@ -51,6 +51,7 @@ class DashboardListResource(BaseResource):
                                      user=self.current_user,
                                      is_draft=True,
                                      layout='[]')
+        dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
         models.db.session.commit()
         return dashboard.to_dict()
