@@ -1,9 +1,10 @@
-import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
+import { formatValue } from '../table';
+import { getColumnCleanName } from '../../services/query-result';
 
-function pivotTableRenderer() {
+function pivotTableRenderer(clientConfig, $filter) {
   return {
     restrict: 'E',
     scope: {
@@ -21,7 +22,19 @@ function pivotTableRenderer() {
         if ($scope.queryResult.getData() !== null) {
           // We need to give the pivot table its own copy of the data, because it changes
           // it which interferes with other visualizations.
-          data = angular.copy($scope.queryResult.getRawData());
+          data = [];
+          const columns = $scope.queryResult.getColumns();
+          const rows = $scope.queryResult.getData();
+          rows.forEach((row) => {
+            const rowObj = {};
+            columns.forEach((col) => {
+              const colName = getColumnCleanName(col.name);
+              const value = formatValue($filter, clientConfig, row[col.name], col.type);
+              rowObj[colName] = value;
+            });
+            data.push(rowObj);
+          });
+
           const options = {
             renderers: $.pivotUtilities.renderers,
             onRefresh(config) {
