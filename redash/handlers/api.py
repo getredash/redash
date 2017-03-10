@@ -12,7 +12,7 @@ from redash.handlers.events import EventResource
 from redash.handlers.queries import (
     MyQueriesResource, QueryForkResource, QueryListResource,
     QueryRecentResource, QueryRefreshResource, QueryResource,
-    QuerySearchResource, QueryVersionListResource, QueryVersionResource)
+    QuerySearchResource, QueryVersionListResource, ChangeResource)
 from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
 from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource
 from redash.handlers.visualizations import VisualizationListResource
@@ -77,7 +77,7 @@ api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', en
 api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
 api.add_org_resource(QueryForkResource, '/api/queries/<query_id>/fork', endpoint='query_fork')
 api.add_org_resource(QueryVersionListResource, '/api/queries/<query_id>/version', endpoint='query_versions')
-api.add_org_resource(QueryVersionResource, '/api/queries/<query_id>/version/<version_id>', endpoint='query_version')
+api.add_org_resource(ChangeResource, '/api/changes/<change_id>', endpoint='changes')
 
 api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_id>/acl', endpoint='object_permissions')
 api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/acl/<access_type>', endpoint='check_permissions')

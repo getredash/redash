@@ -49,7 +49,7 @@
         </li>
         <li>
           <span class="zmdi zmdi-time"></span>
-          <span class="text-muted">Updated at </span>
+          <span class="text-muted">Updated at</span>
           <strong>
             <rd-time-ago value="query.updated_at"></rd-time-ago>
           </strong>
@@ -75,22 +75,6 @@
             </a>
         </span>
       </h3>
-      <div class="compare-query-version">
-        <span class="zmdi zmdi-archive"></span>
-        <span class="text-muted">Version</span>
-        <strong>{{query.version}}</strong>
-        &gt;
-        <span>Compare to</span>
-        <select id="version-choice">
-          <option ng-repeat="version in versions" value="{{version.object_version}}">
-            {{version.object_version}}
-          </option>
-        </select>
-        <button class="btn btn-s btn-default" ng-click="compareQueryVersion()">
-          <span class="zmdi zmdi-play"></span>
-          Compare
-        </button>
-      </div>
     </div>
   </div>
 
@@ -139,12 +123,15 @@
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
                     <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish Query</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
+                    <li ng-if="query.id && (isQueryOwner || currentUser.hasPermission('admin'))">
+                      <a ng-click="compareQueryVersion()">Query Versions</a>
+                    </li>
                   </ul>
                 </div>
               </div>
             </div>
             <p style="height:calc(100% - 40px);">
-              <query-editor query="query"
+              <query-editor id="query-source" query="query"
                             schema="schema"
                             syntax="dataSource.syntax"></query-editor>
             </p>

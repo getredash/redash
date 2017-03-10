@@ -259,22 +259,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
     updateSchema();
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
-    $scope.executeQuery();
   };
 
   $scope.setVisualizationTab = (visualization) => {
     $scope.selectedTab = visualization.id;
     $location.hash(visualization.id);
   };
-
-  $scope.versions = {};
-  let versions = [];
-
-  $http.get(`/api/queries/${$scope.query.id}/version`).then((response) => {
-    versions = response.data.results;
-    // We don't need the last element of the returned versions.
-    $scope.versions = versions.slice(0, versions.length - 1);
-  });
 
   $scope.compareQueryVersion = () => {
     if (!$scope.query.query) {
@@ -286,6 +276,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
       component: 'compareQueryDialog',
       resolve: {
         query: $scope.query,
+        saveQuery: () => $scope.saveQuery,
       },
     });
   };

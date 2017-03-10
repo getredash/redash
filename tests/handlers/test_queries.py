@@ -158,3 +158,30 @@ class QueryRefreshTest(BaseTestCase):
         user = self.factory.create_user(group_ids=[group.id])
         response = self.make_request('post', self.path, user=user)
         self.assertEqual(403, response.status_code)
+
+
+class ChangeResourceTests(BaseTestCase):
+    def test_list(self):
+        query = self.factory.create_query()
+        query.name = 'version A'
+        query.record_changes(self.factory.user)
+        query.name = 'version B'
+        query.record_changes(self.factory.user)
+        rv = self.make_request('get', '/api/queries/{0}/version'.format(query.id))
+        self.assertEquals(rv.status_code, 200)
+        self.assertEquals(len(rv.json['results']), 2)
+        self.assertEquals(rv.json['results'][0]['change']['name']['current'], 'version A')
+        self.assertEquals(rv.json['results'][1]['change']['name']['current'], 'version B')
+
+    def test_get(self):
+        query = self.factory.create_query()
+        query.name = 'version A'
+        ch1 = query.record_changes(self.factory.user)
+        query.name = 'version B'
+        ch2 = query.record_changes(self.factory.user)
+        rv1 = self.make_request('get', '/api/changes/' + str(ch1.id))
+        self.assertEqual(rv1.status_code, 200)
+        self.assertEqual(rv1.json['change']['name']['current'], 'version A')
+        rv2 = self.make_request('get', '/api/changes/' + str(ch2.id))
+        self.assertEqual(rv2.status_code, 200)
+        self.assertEqual(rv2.json['change']['name']['current'], 'version B')
