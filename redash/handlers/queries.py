@@ -280,18 +280,11 @@ class QueryRefreshResource(BaseResource):
 class QueryVersionListResource(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
-        results = models.Change.query.filter(
-            models.Change.object_type == 'queries',
-            models.Change.object_id == query_id)
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda c: c.to_dict(full=False))
+        results = models.Change.list_versions(models.Query.get_by_id(query_id))
+        return [q.to_dict() for q in results]
 
 
-class QueryVersionResource(BaseResource):
+class ChangeResource(BaseResource):
     @require_permission('view_query')
-    def get(self, query_id, version_id):
-        return models.Change.query.filter(
-            models.Change.object_type == 'queries',
-            models.Change.object_id == query_id,
-            models.Change.object_version == version_id).one().to_dict()
+    def get(self, change_id):
+        return models.Change.query.get(change_id).to_dict()
