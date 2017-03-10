@@ -84,13 +84,15 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
             return;
           }
 
+          if ((hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
+            // Sets query filters to match dashboard fiters when present
+            queryFilter.current = $location.search()[queryFilter.name];
+          }
+
           if (!_.has(filters, queryFilter.name)) {
             const filter = _.extend({}, queryFilter);
             filters[filter.name] = filter;
             filters[filter.name].originFilters = [];
-            if (hasQueryStringValue) {
-              filter.current = $location.search()[filter.name];
-            }
           }
 
           // TODO: merge values.
