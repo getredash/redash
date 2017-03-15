@@ -45,13 +45,6 @@ class InterruptException(Exception):
     pass
 
 
-def index(l, x):  # Allow non-full key list to be used in sorting
-    try:
-        return l.index(x)
-    except ValueError:
-        return sys.maxint, x
-
-
 class BaseQueryRunner(object):
     noop_query = None
 
