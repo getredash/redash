@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import gspread
-    from oauth2client.client import SignedJwtAssertionCredentials
+    from oauth2client.service_account import ServiceAccountCredentials
     enabled = True
 except ImportError:
     enabled = False
@@ -164,7 +164,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
         ]
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
-        credentials = SignedJwtAssertionCredentials(key['client_email'], key["private_key"], scope=scope)
+        credentials = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         spreadsheetservice = gspread.authorize(credentials)
         return spreadsheetservice
 

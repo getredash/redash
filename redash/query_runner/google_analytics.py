@@ -10,7 +10,7 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 try:
-    from oauth2client.client import SignedJwtAssertionCredentials
+    from oauth2client.service_account import ServiceAccountCredentials
     from apiclient.discovery import build
     import httplib2
     enabled = True
@@ -81,7 +81,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def _get_analytics_service(self):
         scope = ['https://www.googleapis.com/auth/analytics.readonly']
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
-        credentials = SignedJwtAssertionCredentials(key['client_email'], key["private_key"], scope=scope)
+        credentials = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         return build('analytics', 'v3', http=credentials.authorize(httplib2.Http()))
 
     def run_query(self, query, user):
