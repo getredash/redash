@@ -81,8 +81,8 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def _get_analytics_service(self):
         scope = ['https://www.googleapis.com/auth/analytics.readonly']
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
-        credentials = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        return build('analytics', 'v3', http=credentials.authorize(httplib2.Http()))
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        return build('analytics', 'v3', http=creds.authorize(httplib2.Http()))
 
     def run_query(self, query, user):
         logger.debug("Analytics is about to execute query: %s", query)

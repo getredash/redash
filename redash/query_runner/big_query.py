@@ -134,9 +134,9 @@ class BigQuery(BaseQueryRunner):
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
 
-        credentials = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
-        http = credentials.authorize(http)
+        http = creds.authorize(http)
 
         return build("bigquery", "v2", http=http)
 

@@ -164,8 +164,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
         ]
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
-        credentials = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        spreadsheetservice = gspread.authorize(credentials)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        spreadsheetservice = gspread.authorize(creds)
         return spreadsheetservice
 
     def test_connection(self):
