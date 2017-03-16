@@ -1,19 +1,12 @@
 #!/bin/bash
 set -e
 
-# When the /app folder is a host volume, on Linux machines the redash user can't 
-# change files in the mounted volume if it has a different uid than the host user.
-#
-# In most cases the host uid will be 1000...
-# This feels hackish, if anyone got a better solution I'll be happy to hear.
-usermod -u 1000 redash
-
 worker() {
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery}
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec sudo -E -u redash /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
 }
 
 scheduler() {
@@ -22,11 +15,11 @@ scheduler() {
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec sudo -E -u redash /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
 }
 
 server() {
-  exec sudo -E -u redash /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w4 redash.wsgi:app
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w4 redash.wsgi:app
 }
 
 help() {
@@ -42,11 +35,12 @@ help() {
   echo "shell -- open shell"
   echo "dev_server -- start Flask development server with debugger and auto reload"
   echo "create_db -- create database tables"
+  echo "manage -- CLI to manage redash"
 }
 
 tests() {
   export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
-  exec sudo -E -u redash make test
+  exec make test
 }
 
 case "$1" in
@@ -63,13 +57,17 @@ case "$1" in
     scheduler
     ;;
   dev_server)
-    exec sudo -E -u redash /app/manage.py runserver --debugger --reload -h 0.0.0.0
+    exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
     ;;
   shell)
-    exec sudo -E -u redash /app/manage.py shell
+    exec /app/manage.py shell
     ;;
   create_db)
-    exec sudo -E -u redash /app/manage.py database create_tables
+    exec /app/manage.py database create_tables
+    ;;
+  manage)
+    shift
+    exec /app/manage.py $*
     ;;
   tests)
     tests

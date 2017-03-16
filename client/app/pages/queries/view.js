@@ -1,9 +1,9 @@
 import { pick, any, some, find } from 'underscore';
 import template from './query.html';
 
-function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $window, $q,
-  Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal, currentUser,
-  Query, DataSource) {
+function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window, $q,
+  KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
+  currentUser, Query, DataSource) {
   const DEFAULT_TAB = 'table';
 
   function getQueryResult(maxAge) {
@@ -90,11 +90,38 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     updateSchema();
   }
 
+  $scope.executeQuery = () => {
+    if (!$scope.canExecuteQuery()) {
+      return;
+    }
+
+    if (!$scope.query.query) {
+      return;
+    }
+
+    getQueryResult(0);
+    $scope.lockButton(true);
+    $scope.cancelling = false;
+    Events.record('execute', 'query', $scope.query.id);
+
+    Notifications.getPermissions();
+  };
+
+
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
+  const shortcuts = {
+    'mod+enter': $scope.executeQuery,
+  };
+
+  KeyboardShortcuts.bind(shortcuts);
+
+  $scope.$on('$destroy', () => {
+    KeyboardShortcuts.unbind(shortcuts);
+  });
 
   Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
@@ -175,23 +202,6 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   $scope.saveName = () => {
     Events.record('edit_name', 'query', $scope.query.id);
     $scope.saveQuery(undefined, { name: $scope.query.name });
-  };
-
-  $scope.executeQuery = () => {
-    if (!$scope.canExecuteQuery()) {
-      return;
-    }
-
-    if (!$scope.query.query) {
-      return;
-    }
-
-    getQueryResult(0);
-    $scope.lockButton(true);
-    $scope.cancelling = false;
-    Events.record('execute', 'query', $scope.query.id);
-
-    Notifications.getPermissions();
   };
 
   $scope.cancelExecution = () => {

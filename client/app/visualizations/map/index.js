@@ -204,7 +204,7 @@ function mapRenderer() {
         }
       }
 
-      $scope.$watch('queryResult && queryResult.getData()', render, true);
+      $scope.$watch('queryResult && queryResult.getData()', render);
       $scope.$watch('visualization.options', render, true);
       angular.element(window).on('resize', resize);
       $scope.$watch('visualization.options.height', resize);
