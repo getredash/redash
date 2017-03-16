@@ -153,8 +153,8 @@ def collect_parameters_from_request(args):
 
 def base_url(org):
     if settings.MULTI_ORG:
-        return "https://{}/{}".format(settings.HOST, org.slug)
+        return "http://{}/{}".format(settings.HOST, org.slug)
 
-    return "https://{}".format(settings.HOST)
+    return "http://{}".format(settings.HOST)
 
 
