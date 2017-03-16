@@ -6430,7 +6430,7 @@ a {
 }
 html {
   overflow-x: hidden\0/;
-  -ms-overflow-style: none;
+  -ms-overflow-style: auto;
 }
 html,
 body {
