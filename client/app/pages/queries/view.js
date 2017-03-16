@@ -50,14 +50,19 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
   function getSchema(refresh = undefined) {
     DataSource.getSchema({ id: $scope.query.data_source_id, refresh }, (data) => {
+      const hasPrevSchema = refresh ? ($scope.schema && ($scope.schema.length > 0)) : false;
       const hasSchema = data && (data.length > 0);
+
       if (hasSchema) {
         $scope.schema = data;
         data.forEach((table) => {
           table.collapsed = true;
         });
+      } else if (hasPrevSchema) {
+        toastr.error('Schema refresh failed. Please try again later.');
       }
-      toggleSchemaBrowser(hasSchema);
+
+      toggleSchemaBrowser(hasSchema || hasPrevSchema);
     });
   }
 
