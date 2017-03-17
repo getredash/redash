@@ -1,5 +1,5 @@
 import template from './public-dashboard-page.html';
-import logoUrl from '../../assets/images/redash_icon_small.png';
+import logoUrl from '../../assets/images/logo_small.png';
 
 const PublicDashboardPage = {
   template,

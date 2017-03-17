@@ -1,7 +1,7 @@
 import debug from 'debug';
 
 import template from './app-header.html';
-import logoUrl from '../../assets/images/redash_icon_small.png';
+import logoUrl from '../../assets/images/logo_small.png';
 import './app-header.css';
 
 const logger = debug('redash:appHeader');
