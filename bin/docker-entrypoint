@@ -42,6 +42,8 @@ help() {
   echo "dev_server -- start Flask development server with debugger and auto reload"
   echo "create_db -- create database tables"
   echo "manage -- CLI to manage redash"
+  echo ""
+  echo "bash -- open bash shell"
 }
 
 tests() {
@@ -77,6 +79,9 @@ case "$1" in
     shift
     exec /app/manage.py $*
     ;;
+  bash)
+    shift
+    exec /bin/bash
   tests)
     tests
     ;;
