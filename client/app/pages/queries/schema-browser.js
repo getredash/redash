@@ -1,6 +1,8 @@
 import template from './schema-browser.html';
 
 function SchemaBrowserCtrl($scope) {
+  'ngInject';
+
   this.showTable = (table) => {
     table.collapsed = !table.collapsed;
     $scope.$broadcast('vsRepeatTrigger');
