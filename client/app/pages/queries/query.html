@@ -81,7 +81,11 @@
   <!-- editor -->
   <div class="container">
       <div class="row bg-white p-b-5" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
-        <schema-browser schema="schema" class="col-md-3 hidden-sm hidden-xs schema-container" ng-show="hasSchema"></schema-browser>
+        <schema-browser class="col-md-3 hidden-sm hidden-xs schema-container"
+                        schema="schema"
+                        on-refresh="refreshSchema()"
+                        ng-show="hasSchema">
+        </schema-browser>
 
         <div ng-class="editorSize" style="height:100%;">
             <div class="p-5">

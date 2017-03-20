@@ -415,6 +415,16 @@ counter-renderer counter-name {
   background-color: white;
 }
 
+.schema-control {
+  display: flex;
+  padding: 5px 0;
+}
+
+.schema-control .form-control {
+  height: 30px;
+  margin-right: 5px;
+}
+
 .schema-browser {
   height: calc(100% - 45px);
   overflow-y: auto;
