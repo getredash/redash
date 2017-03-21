@@ -10,6 +10,7 @@ from collections import defaultdict
 
 try:
     from pyhive import presto
+    from pyhive.exc import DatabaseError
     enabled = True
 
 except ImportError:
@@ -112,9 +113,16 @@ class Presto(BaseQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
+        except DatabaseError, db:
+            json_data = None
+            default_message = 'Unspecified DatabaseError: {0}'.format(db.message)
+            message = db.message.get('failureInfo', {'message', None}).get('message')
+            error = default_message if message is None else message
         except Exception, ex:
             json_data = None
             error = ex.message
+            if not isinstance(error, basestring):
+                error = unicode(error)
 
         return json_data, error
 

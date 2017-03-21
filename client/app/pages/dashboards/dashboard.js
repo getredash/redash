@@ -8,6 +8,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
+  this.globalParameters = [];
   this.refreshRates = [
     { name: '10 seconds', rate: 10 },
     { name: '30 seconds', rate: 30 },
@@ -26,6 +27,32 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     }
   };
 
+  this.extractGlobalParameters = () => {
+    let globalParams = {};
+    this.dashboard.widgets.forEach(row =>
+      row.forEach((widget) => {
+        if (widget.getQuery()) {
+          widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
+            const defaults = {};
+            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name].locals = [];
+            globalParams = _.defaults(globalParams, defaults);
+            globalParams[param.name].locals.push(param);
+          });
+        }
+      })
+    );
+    this.globalParameters = _.values(globalParams);
+  };
+
+  this.onGlobalParametersChange = () => {
+    this.globalParameters.forEach((global) => {
+      global.locals.forEach((local) => {
+        local.value = global.value;
+      });
+    });
+  };
+
   const renderDashboard = (dashboard, force) => {
     Title.set(dashboard.name);
     const promises = [];
@@ -41,6 +68,8 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
          }
        })
     );
+
+    this.extractGlobalParameters();
 
     $q.all(promises).then((queryResults) => {
       const filters = {};
@@ -139,7 +168,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
       resolve: {
         dashboard: () => this.dashboard,
       },
-    });
+    }).result.then(() => this.extractGlobalParameters());
   };
 
   this.toggleFullscreen = () => {
@@ -154,7 +183,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.togglePublished = () => {
-    Events.record(currentUser, 'toggle_published', 'dashboard', this.dashboard.id);
+    Events.record('toggle_published', 'dashboard', this.dashboard.id);
     this.dashboard.is_draft = !this.dashboard.is_draft;
     this.saveInProgress = true;
     Dashboard.save({
@@ -191,6 +220,8 @@ const ShareDashboardComponent = {
     dismiss: '&',
   },
   controller($http) {
+    'ngInject';
+
     this.dashboard = this.resolve.dashboard;
 
     this.toggleSharing = () => {

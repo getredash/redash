@@ -1,31 +1,33 @@
 import template from './schema-browser.html';
 
-function schemaBrowser() {
-  return {
-    restrict: 'E',
-    scope: {
-      schema: '=',
-    },
-    template,
-    link($scope) {
-      $scope.showTable = (table) => {
-        table.collapsed = !table.collapsed;
-        $scope.$broadcast('vsRepeatTrigger');
-      };
+function SchemaBrowserCtrl($scope) {
+  'ngInject';
 
-      $scope.getSize = (table) => {
-        let size = 18;
+  this.showTable = (table) => {
+    table.collapsed = !table.collapsed;
+    $scope.$broadcast('vsRepeatTrigger');
+  };
 
-        if (!table.collapsed) {
-          size += 18 * table.columns.length;
-        }
+  this.getSize = (table) => {
+    let size = 18;
 
-        return size;
-      };
-    },
+    if (!table.collapsed) {
+      size += 18 * table.columns.length;
+    }
+
+    return size;
   };
 }
 
+const SchemaBrowser = {
+  bindings: {
+    schema: '<',
+    onRefresh: '&',
+  },
+  controller: SchemaBrowserCtrl,
+  template,
+};
+
 export default function (ngModule) {
-  ngModule.directive('schemaBrowser', schemaBrowser);
+  ngModule.component('schemaBrowser', SchemaBrowser);
 }

@@ -29,6 +29,7 @@ import './sortable';
 
 import './assets/css/superflat_redash.css';
 import './assets/css/redash.css';
+import './assets/css/main.scss';
 
 import * as pages from './pages';
 import * as components from './components';
@@ -107,7 +108,7 @@ ngModule.config(($routeProvider, $locationProvider, $compileProvider,
 });
 
 // Update ui-select's template to use Font-Awesome instead of glyphicon.
-ngModule.run(($templateCache) => {
+ngModule.run(($templateCache, OfflineListener) => { // eslint-disable-line no-unused-vars
   const templateName = 'bootstrap/match.tpl.html';
   let template = $templateCache.get(templateName);
   template = template.replace('glyphicon glyphicon-remove', 'fa fa-remove');

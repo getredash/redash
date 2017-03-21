@@ -8,20 +8,35 @@
   <div ng-show="currentTab == 'general'">
     <div class="form-group">
       <label class="control-label">Latitude Column Name</label>
-      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.latColName"
-              class="form-control"></select>
+      <ui-select name="form-control" required ng-model="visualization.options.latColName">
+        <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-choices repeat="column in columnNames | remove:visualization.options.classify | remove:visualization.options.lonColName">
+          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+          <small class="text-muted" ng-bind="columns[column].type"></small>
+        </ui-select-choices>
+      </ui-select>
     </div>
 
     <div class="form-group">
       <label class="control-label">Longitude Column Name</label>
-      <select ng-options="name for name in queryResult.columnNames" ng-model="visualization.options.lonColName"
-              class="form-control"></select>
+      <ui-select name="form-control" required ng-model="visualization.options.lonColName">
+        <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-choices repeat="column in columnNames | remove:visualization.options.classify | remove:visualization.options.latColName">
+          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+          <small class="text-muted" ng-bind="columns[column].type"></small>
+        </ui-select-choices>
+      </ui-select>
     </div>
 
     <div class="form-group">
       <label class="control-label">Group By</label>
-      <select ng-options="name for name in classify_columns" ng-model="visualization.options.classify"
-              class="form-control"></select>
+      <ui-select name="form-control" required ng-model="visualization.options.classify">
+        <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-choices repeat="column in classify_columns | remove:visualization.options.lonColName | remove:visualization.options.latColName">
+          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+          <small class="text-muted" ng-bind="columns[column].type"></small>
+        </ui-select-choices>
+      </ui-select>
     </div>
   </div>
 

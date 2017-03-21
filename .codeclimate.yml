@@ -6,6 +6,9 @@ engines:
     channel: "eslint-3"
     config:
       config: client/.eslintrc.js
+    checks:
+      import/no-unresolved:
+        enabled: false
 ratings:
   paths:
   - "redash/**/*.py"

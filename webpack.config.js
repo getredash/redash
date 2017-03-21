@@ -6,6 +6,7 @@ var ExtractTextPlugin = require("extract-text-webpack-plugin");
 var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 var path = require('path');
 
+var redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
 var config = {
   entry: {
@@ -52,10 +53,13 @@ var config = {
   module: {
     loaders: [
       {test: /\.js$/, loader: 'ng-annotate!babel!eslint', exclude: /node_modules/},
-      {test: /\.html$/, loader: 'raw', exclude: [/node_modules/,/index\.html/]},
+      {test: /\.html$/, loader: 'raw', exclude: [/node_modules/, /index\.html/]},
       // {test: /\.css$/, loader: 'style!css', exclude: /node_modules/},
-      {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader") },
-      {test: /\.styl$/, loader: 'style!css!stylus', exclude: /node_modules/},
+      {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader")},
+      {
+        test: /\.scss$/,
+        loader: ExtractTextPlugin.extract(["css-loader", "sass-loader"])
+      },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         loader: 'url',
@@ -75,31 +79,54 @@ var config = {
 
     ]
   },
-  // devtool: 'eval-source-map',
-  devtool: 'cheap-eval-source-map',
+  devtool: 'cheap-eval-module-source-map',
   devServer: {
     inline: true,
     historyApiFallback: true,
     proxy: {
       '/login': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/invite': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/setup': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/images': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/js': {
+        target: redashBackend + '/',
+        secure: false
+      },
+      '/styles': {
+        target: redashBackend + '/',
         secure: false
       },
       '/status.json': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
         secure: false
       },
       '/api/admin': {
-        target: 'http://localhost:5000/',
+        target: redashBackend + '/',
         secure: false
       },
       '/api': {
-        target: 'http://localhost:5000',
+        target: redashBackend,
         secure: false
       }
     }
   }
 };
+
+if (process.env.DEV_SERVER_HOST) {
+  config.devServer.host = process.env.DEV_SERVER_HOST;
+}
 
 if (process.env.NODE_ENV === 'production') {
   config.output.path = __dirname + '/client/dist';

@@ -1,8 +1,51 @@
 # Change Log
 
-## v1.0.0 - Unreleased
+## v1.0.0-rc.2 - 2017-02-22
 
-This version has two big behind the scenes changes:
+
+### Changed
+
+- [#1563](https://github.com/getredash/redash/pull/1563) Send events to webhook as JSON with a schema.
+- [#1601] [Presto] friendlier error messages. (@aslotnick)
+- Move the query runner unavailable log message to be DEBUG level instead of WARNING, as it was mainly confusing people.
+- Remove "Send to Cloud" button from Plotly based visualizations.
+- Change Plotly's default hover mode to "Compare".
+- [#1612] Change: Improvements to the dashboards list page.
+
+### Fixed
+
+- [#1564] Fix: map visualization column picker wasn't populated. (@janusd)
+- [#1597] [SQL Server] Fix: schema wasn't loading on case sensitive servers. (@deecay)
+- Fix: dashbonard owner couldn't edit his dashboard.
+- Fix: toggle_publish event wasn't logged properly.
+- Fix: events with API keys were not logged.
+- Fix: share dashboard dialog was broken after code minification.
+- Fix: public dashboard endpoint was broken.
+- Fix: public dashboard page was broken after code minification.
+- Fix: visualization embed page was broken after code minification.
+- Fix: schema browser has dark background.
+- Fix: Google button missing on invite page.
+- Fix: global parameters don't render on dashboards with text boxes.
+- Fix: sunburst / Sankey visualizations have bad data.
+- Fix: extra whitespace created by the filters component.
+- Fix: query results cleanup task was trying to delete query objects.
+- Fix: alert subscriptions were not triggered.
+- [DynamoDB] Fix: count(*) queries were broken. (@kopanitsa)
+- Fix: Redash is using too many database connections.
+- Fix: download links were not working in dashboards.
+- Fix: the first selection in multi filters was broken in dashboards.
+
+### Other
+
+- [#1555] Change sourcemaps to generate a sourcemap per module. (@44px)
+- [#1570] Fix Docker Compose configuration for nginx. (@btmc)
+- [#1582] Update Dockerfile to build frontend assets and update the folder ownership.
+- Dockerfile: change the uid of the redash user to match host user uid.
+- Update npm-shrinkwrap.json file to use http proctocol instead of git. (@deecay)
+
+## v1.0.0-rc.1 - 2017-01-31
+
+This version has two big changes behind the scenes:
  
 * Refactor the frontend to use latest (at the time) Angular version (1.5) along with better frontend pipeline based on
   WebPack.
@@ -11,8 +54,24 @@ This version has two big behind the scenes changes:
 Along with that we have many fixes, additions, new data sources (Google Analytics, ClickHouse, Amazon Athena, Snowflake)
 and fixes to the existing ones (mainly ElasticSearch and Cassandra).
 
+When upgrading make sure to upgrade from version 0.12.0 and update your .env file:
+
+1. If you have local PostreSQL database, you will need to update the URL from `postgresql://redash` to `postgresql:///redash`.
+2. Remove the `REDASH_STATIC_ASSETS_PATH` definition.
+
+Make sure to make these changes before running upgrade as otherwise it will fail.
+
+We're releasing a new upgrade script -- see [here](https://redash.io/help-onpremise/maintenance/how-to-upgrade-redash.html) for details.
+
 ### Added
 
+- [#1546](https://github.com/getredash/redash/pull/1546) Add: API docstrings (@washort)
+- [#1504](https://github.com/getredash/redash/pull/1504) Add: global parameters for dashboards (Tyler Rockwood)
+- [#1508](https://github.com/getredash/redash/pull/1508) [Jira JQL] Add: support custom JIRA fields and enhance value mapping (@sseifert)
+- [#1530](https://github.com/getredash/redash/pull/1530) Add: Docker based developer workflow (Arik Fraimovich)
+- [#1515](https://github.com/getredash/redash/pull/1515) [Python] Add: get_source_schema method (Vladislav Denisov)
+- [#1512](https://github.com/getredash/redash/pull/1512) [Python] Add: define more safe_builtins (Vladislav Denisov)
+- [#1513](https://github.com/getredash/redash/pull/1513) Add: get_by_id & get_by_name methods for Query and DataSource classes (Vladislav Denisov)
 - [#1482](https://github.com/getredash/redash/pull/1482) [Cassandra] Add: schema browser support & explicit protocol version (@yershalom)
 - [#1488](https://github.com/getredash/redash/pull/1488) [Data Sources] Add: Snowflake query runner (@arikfr)
 - [#1479](https://github.com/getredash/redash/pull/1479) [ElasticSearch] Add: enable schema browser (@adamlwgriffiths)
@@ -25,6 +84,15 @@ and fixes to the existing ones (mainly ElasticSearch and Cassandra).
 
 ### Changed
 
+- [#1549](https://github.com/getredash/redash/pull/1549) Change: disable version counter for queries: (Arik Fraimovich)
+- [#1548](https://github.com/getredash/redash/pull/1548) Change: improve UI in small resolution: (Arik Fraimovich)
+- [#1547](https://github.com/getredash/redash/pull/1547) Change: Improve drafts UX (Arik Fraimovich)
+- [#1540](https://github.com/getredash/redash/pull/1540) [MySQL] Change: faster retrieval of schema (Yaning Zhu)
+- [#1517](https://github.com/getredash/redash/pull/1517) [ClickHouse] Change: convert UInt64 columns to integer type (Vladislav Denisov)
+- [#1528](https://github.com/getredash/redash/pull/1528) [Vertica] Change: set longer read_timeout (lab79)
+- [#1522](https://github.com/getredash/redash/pull/1522) Change: move package.json/webpack.config to root directory (Arik Fraimovich)
+- [#1514](https://github.com/getredash/redash/pull/1514) [Athena] Change: enable query annotations (Gaurav Awadhwal)
+- [#1525](https://github.com/getredash/redash/pull/1525) Change: update amazon linux bootstrap.sh (Karri Niemelä)
 - [#1509](https://github.com/getredash/redash/pull/1509) [Presto/Athena] Change: remove special rule around public schema (@GAwadhwalAtlassian)
 - [#1485](https://github.com/getredash/redash/pull/1485) Close #1453: more minimal notification of draft status for query/dashboard (@arikfr)
 - [#1474](https://github.com/getredash/redash/pull/1474) [Cassandra] Change: test connection query (@yershalom)
@@ -44,6 +112,10 @@ and fixes to the existing ones (mainly ElasticSearch and Cassandra).
 
 ### Fixed
 
+- [#1551](https://github.com/getredash/redash/pull/1551) Fix: flask-admin - exclude created_at/updated_at so models can be saved (Arik Fraimovich)
+- [#1545](https://github.com/getredash/redash/pull/1545) [ElasticSearch] Fix: query fails when properties key is missing (hgs847825)
+- [#1526](https://github.com/getredash/redash/pull/1526) [ElasticSearch] Fix for #1521 (Adam Griffiths)
+- [#1521](https://github.com/getredash/redash/pull/1521) [ElasticSearch] Fix: wrong variable name. (Arik Fraimovich)
 - [#1497](https://github.com/getredash/redash/pull/1497) Fix #16: when updating dashboard name refresh dashboards dropdown (@arikfr)
 - [#1491](https://github.com/getredash/redash/pull/1491) Fix: DynamoDB test connection was broken (@arikfr)
 - [#1487](https://github.com/getredash/redash/pull/1487) Fix #1432: delete visualization sends full visualization body instead‚Ä¶ (@arikfr)
@@ -53,6 +125,8 @@ and fixes to the existing ones (mainly ElasticSearch and Cassandra).
 - [#1427](https://github.com/getredash/redash/pull/1427) [Cassandra] Fix: remove reference to non existing Error class (@arikfr)
 - [#1423](https://github.com/getredash/redash/pull/1423) [Cassandra] Fix: cassandra.cluster.Error wasn't imported (@arikfr)
 - Fix #1001: queries with a column named "length" were not rendered.
+- Fix #578: dashboard list not scrollable.
+- Fix #137: add direction indicators when sorting query results.
 
 ## v0.12.0 - 2016-11-20
 

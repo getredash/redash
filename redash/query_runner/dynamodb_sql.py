@@ -2,7 +2,6 @@ import json
 import logging
 import sys
 
-
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -98,12 +97,17 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         try:
             engine = self._connect()
 
-            res_dict = engine.execute(query if str(query).endswith(';') else str(query)+';')
+            result = engine.execute(query if str(query).endswith(';') else str(query)+';')
 
             columns = []
             rows = []
-            for item in res_dict:
 
+            # When running a count query it returns the value as a string, in which case
+            # we transform it into a dictionary to be the same as regular queries.
+            if isinstance(result, basestring):
+                result = [{"value": result}]
+
+            for item in result:
                 if not columns:
                     for k, v in item.iteritems():
                         columns.append({

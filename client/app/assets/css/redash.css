@@ -415,6 +415,16 @@ counter-renderer counter-name {
   background-color: white;
 }
 
+.schema-control {
+  display: flex;
+  padding: 5px 0;
+}
+
+.schema-control .form-control {
+  height: 30px;
+  margin-right: 5px;
+}
+
 .schema-browser {
   height: calc(100% - 45px);
   overflow-y: auto;
@@ -597,9 +607,16 @@ div.table-name:hover {
 
 .collapsing,
 .collapse.in {
-    background: #f4f4f4;
-    padding: 5px 10px;
-    transition: all 0.35s ease;
+  padding: 5px 10px;
+  transition: all 0.35s ease;
+}
+
+.schema-browser .collapse.in {
+  background: #f4f4f4;
+}
+
+.navbar .collapse.in {
+  background: #222;
 }
 
 /* Fixes for SuperFlat */
@@ -666,4 +683,13 @@ div.table-name:hover {
 /*Dashboard list view */
 .m-2{
   margin:2px;
+}
+
+.dropdown-menu > .disabled{
+ cursor: not-allowed;
+}
+
+/* The real magic ;) */
+.dropdown-menu > .disabled > a{
+ pointer-events: none;
 }

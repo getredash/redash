@@ -1,9 +1,9 @@
 import { pick, any, some, find } from 'underscore';
 import template from './query.html';
 
-function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $window, $q,
-  Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal, currentUser,
-  Query, DataSource) {
+function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window, $q,
+  KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
+  currentUser, Query, DataSource) {
   const DEFAULT_TAB = 'table';
 
   function getQueryResult(maxAge) {
@@ -43,25 +43,35 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     return dataSourceId;
   }
 
-  function updateSchema() {
-    $scope.hasSchema = false;
-    $scope.editorSize = 'col-md-12';
-    DataSource.getSchema({ id: $scope.query.data_source_id }, (data) => {
-      if (data && data.length > 0) {
+  function toggleSchemaBrowser(hasSchema) {
+    $scope.hasSchema = hasSchema;
+    $scope.editorSize = hasSchema ? 'col-md-9' : 'col-md-12';
+  }
+
+  function getSchema(refresh = undefined) {
+    DataSource.getSchema({ id: $scope.query.data_source_id, refresh }, (data) => {
+      const hasPrevSchema = refresh ? ($scope.schema && ($scope.schema.length > 0)) : false;
+      const hasSchema = data && (data.length > 0);
+
+      if (hasSchema) {
         $scope.schema = data;
         data.forEach((table) => {
           table.collapsed = true;
         });
-
-        $scope.editorSize = 'col-md-9';
-        $scope.hasSchema = true;
-      } else {
-        $scope.schema = undefined;
-        $scope.hasSchema = false;
-        $scope.editorSize = 'col-md-12';
+      } else if (hasPrevSchema) {
+        toastr.error('Schema refresh failed. Please try again later.');
       }
+
+      toggleSchemaBrowser(hasSchema || hasPrevSchema);
     });
   }
+
+  function updateSchema() {
+    toggleSchemaBrowser(false);
+    getSchema();
+  }
+
+  $scope.refreshSchema = () => getSchema(true);
 
   function updateDataSources(dataSources) {
     // Filter out data sources the user can't query (or used by current query):
@@ -85,11 +95,38 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
     updateSchema();
   }
 
+  $scope.executeQuery = () => {
+    if (!$scope.canExecuteQuery()) {
+      return;
+    }
+
+    if (!$scope.query.query) {
+      return;
+    }
+
+    getQueryResult(0);
+    $scope.lockButton(true);
+    $scope.cancelling = false;
+    Events.record('execute', 'query', $scope.query.id);
+
+    Notifications.getPermissions();
+  };
+
+
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
   $scope.showPermissionsControl = clientConfig.showPermissionsControl;
 
+  const shortcuts = {
+    'mod+enter': $scope.executeQuery,
+  };
+
+  KeyboardShortcuts.bind(shortcuts);
+
+  $scope.$on('$destroy', () => {
+    KeyboardShortcuts.unbind(shortcuts);
+  });
 
   Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
@@ -157,7 +194,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   };
 
   $scope.togglePublished = () => {
-    Events.record(currentUser, 'toggle_published', 'query', $scope.query.id);
+    Events.record('toggle_published', 'query', $scope.query.id);
     $scope.query.is_draft = !$scope.query.is_draft;
     $scope.saveQuery(undefined, { is_draft: $scope.query.is_draft });
   };
@@ -170,23 +207,6 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $http, $location, $
   $scope.saveName = () => {
     Events.record('edit_name', 'query', $scope.query.id);
     $scope.saveQuery(undefined, { name: $scope.query.name });
-  };
-
-  $scope.executeQuery = () => {
-    if (!$scope.canExecuteQuery()) {
-      return;
-    }
-
-    if (!$scope.query.query) {
-      return;
-    }
-
-    getQueryResult(0);
-    $scope.lockButton(true);
-    $scope.cancelling = false;
-    Events.record('execute', 'query', $scope.query.id);
-
-    Notifications.getPermissions();
   };
 
   $scope.cancelExecution = () => {

@@ -8,6 +8,9 @@ import histogram from 'plotly.js/lib/histogram';
 import moment from 'moment';
 
 Plotly.register([bar, pie, histogram]);
+Plotly.setPlotConfig({
+  modeBarButtonsToRemove: ['sendDataToCloud'],
+});
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
@@ -208,6 +211,8 @@ const PlotlyChart = () => {
         } else if (type === 'scatter') {
           series.type = 'scatter';
           series.mode = 'markers';
+        } else if (type === 'bubble') {
+          series.mode = 'markers';
         }
       }
 
@@ -330,6 +335,12 @@ const PlotlyChart = () => {
           if (!plotlySeries.error_y.length) {
             delete plotlySeries.error_y.length;
           }
+
+          if (seriesOptions.type === 'bubble') {
+            plotlySeries.marker = {
+              size: pluck(data, 'size'),
+            };
+          }
           scope.data.push(plotlySeries);
         });
 
@@ -400,7 +411,11 @@ const PlotlyChart = () => {
       scope.$watch('series', recalculateOptions);
       scope.$watch('options', recalculateOptions, true);
 
-      scope.layout = { margin: { l: 50, r: 50, b: bottomMargin, t: 20, pad: 4 }, height: calculateHeight(), autosize: true, hovermode: 'closest' };
+      scope.layout = {
+        margin: { l: 50, r: 50, b: bottomMargin, t: 20, pad: 4 },
+        height: calculateHeight(),
+        autosize: true,
+      };
       scope.plotlyOptions = { showLink: false, displaylogo: false };
       scope.data = [];
 

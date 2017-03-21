@@ -43,6 +43,43 @@ class QueryResultError {
 }
 
 
+class Parameter {
+  constructor(parameter) {
+    this.title = parameter.title;
+    this.name = parameter.name;
+    this.type = parameter.type;
+    this.value = parameter.value;
+    this.global = parameter.global;
+  }
+
+  get ngModel() {
+    if (this.type === 'date' || this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
+      this.$$value = this.$$value || moment(this.value).toDate();
+      return this.$$value;
+    } else if (this.type === 'number') {
+      this.$$value = this.$$value || parseInt(this.value, 10);
+      return this.$$value;
+    }
+
+    return this.value;
+  }
+
+  set ngModel(value) {
+    if (value && this.type === 'date') {
+      this.value = moment(value).format('YYYY-MM-DD');
+      this.$$value = moment(this.value).toDate();
+    } else if (value && this.type === 'datetime-local') {
+      this.value = moment(value).format('YYYY-MM-DD HH:mm');
+      this.$$value = moment(this.value).toDate();
+    } else if (value && this.type === 'datetime-with-seconds') {
+      this.value = moment(value).format('YYYY-MM-DD HH:mm:ss');
+      this.$$value = moment(this.value).toDate();
+    } else {
+      this.value = this.$$value = value;
+    }
+  }
+}
+
 class Parameters {
   constructor(query, queryString) {
     this.query = query;
@@ -78,12 +115,14 @@ class Parameters {
           name: param,
           type: 'text',
           value: null,
+          global: false,
         });
       }
     });
 
     const parameterExists = p => contains(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists);
+    this.query.options.parameters =
+      this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
   }
 
   initFromQueryString(queryString) {

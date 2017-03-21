@@ -25,7 +25,12 @@ def setup_logging():
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
-    logging.getLogger("passlib").setLevel("ERROR")
+
+    # Make noisy libraries less noisy
+    if settings.LOG_LEVEL != "DEBUG":
+        logging.getLogger("passlib").setLevel("ERROR")
+        logging.getLogger("requests.packages.urllib3").setLevel("ERROR")
+        logging.getLogger("snowflake.connector").setLevel("ERROR")
 
 
 def create_redis_connection():
@@ -77,7 +82,7 @@ class SlugConverter(BaseConverter):
         return value
 
 
-def create_app():
+def create_app(load_admin=True):
     from redash import handlers
     from redash.admin import init_admin
     from redash.models import db
@@ -113,10 +118,11 @@ def create_app():
     provision_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
-    init_admin(app)
+    if load_admin:
+        init_admin(app)
     mail.init_app(app)
     setup_authentication(app)
-    handlers.init_app(app)
     limiter.init_app(app)
+    handlers.init_app(app)
 
     return app
