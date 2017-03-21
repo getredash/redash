@@ -72,6 +72,18 @@
       </ui-select>
     </div>
 
+    <div class="form-group" ng-if="showSizeColumnPicker()">
+      <label class="control-label">Bubble size column</label>
+
+      <ui-select name="sizeColumn" ng-model="form.sizeColumn">
+        <ui-select-match allow-clear="true" placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-choices repeat="column in columnNames | remove:form.yAxisColumns | remove:form.groupby">
+          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+          <small class="text-muted" ng-bind="columns[column].type"></small>
+        </ui-select-choices>
+      </ui-select>
+    </div>
+
     <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Errors column</label>
 
