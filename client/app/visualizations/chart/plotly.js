@@ -211,6 +211,8 @@ const PlotlyChart = () => {
         } else if (type === 'scatter') {
           series.type = 'scatter';
           series.mode = 'markers';
+        } else if (type === 'bubble') {
+          series.mode = 'markers';
         }
       }
 
@@ -332,6 +334,12 @@ const PlotlyChart = () => {
           }
           if (!plotlySeries.error_y.length) {
             delete plotlySeries.error_y.length;
+          }
+
+          if (seriesOptions.type === 'bubble') {
+            plotlySeries.marker = {
+              size: pluck(data, 'size'),
+            };
           }
           scope.data.push(plotlySeries);
         });
