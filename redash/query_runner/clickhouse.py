@@ -74,13 +74,13 @@ class ClickHouse(BaseSQLQueryRunner):
     @staticmethod
     def _define_column_type(column):
         c = column.lower()
-        if 'int' in c:
+        if c.startswith('int') or c.startswith('uint'):
             return TYPE_INTEGER
-        elif 'float' in c:
+        elif c.startswith('float'):
             return TYPE_FLOAT
-        elif 'datetime' == c:
+        elif c.startswith('datetime'):
             return TYPE_DATETIME
-        elif 'date' == c:
+        elif c.startswith('date'):
             return TYPE_DATE
         else:
             return TYPE_STRING
