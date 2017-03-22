@@ -176,6 +176,7 @@ default_query_runners = [
     'redash.query_runner.elasticsearch',
     'redash.query_runner.presto',
     'redash.query_runner.hive_ds',
+    'redash.query_runner.hive_kerberos',
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
     'redash.query_runner.clickhouse',
