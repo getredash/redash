@@ -3,7 +3,7 @@ import { _, partial, isString } from 'underscore';
 import { getColumnCleanName } from '../../services/query-result';
 import template from './table.html';
 
-export function formatValue($filter, clientConfig, value, type) {
+function formatValue($filter, clientConfig, value, type) {
   let formattedValue = value;
   switch (type) {
     case 'integer':
