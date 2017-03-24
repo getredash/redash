@@ -1,13 +1,13 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
-
 import json
 import logging
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ types_map = {
 }
 
 
-class Hive(BaseSQLQueryRunner):
+class HiveKerberos(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
@@ -93,7 +93,7 @@ class Hive(BaseSQLQueryRunner):
         return enabled
 
     def __init__(self, configuration):
-        super(Hive, self).__init__(configuration)
+        super(HiveKerberos, self).__init__(configuration)
 
     def _get_tables(self, schema):
         try:
