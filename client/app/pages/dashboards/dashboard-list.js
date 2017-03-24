@@ -6,7 +6,7 @@ import './dashboard-list.css';
 
 
 function DashboardListCtrl(Dashboard, $location, clientConfig) {
-  const TAGS_REGEX = /(^[\w\s]+):|(#[\w-]+)/ig;
+  const TAGS_REGEX = /(^[\w\s/]+):|(#[\w-]+)/ig;
 
   this.logoUrl = clientConfig.logoUrl;
   const page = parseInt($location.search().page || 1, 10);
