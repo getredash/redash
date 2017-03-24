@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from impala.dbapi import connect
-    from impala.error import DatabaseError, RPCError
+    from impala.error import DatabaseError, RPCError, HiveServer2Error
     enabled = True
 except ImportError, e:
     enabled = False
@@ -98,9 +98,7 @@ class Hive(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         try:
             schemas_query = "show schemas"
-
             tables_query = "show tables in %s"
-
             columns_query = "show columns in %s.%s"
 
             for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
@@ -143,6 +141,10 @@ class Hive(BaseSQLQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
+        except HiveServer2Error as e:
+            logging.exception(e)
+            json_data = None
+            error = e.message
         except DatabaseError as e:
             logging.exception(e)
             json_data = None
