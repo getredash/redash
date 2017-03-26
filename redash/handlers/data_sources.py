@@ -1,13 +1,15 @@
 import logging
-from flask import make_response, request
+from flask import make_response, request, url_for, redirect, render_template
 from flask_restful import abort
 from funcy import project
+from oauth2client.client import OAuth2WebServerFlow
 
 from redash import models
+from redash import settings
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 from redash.permissions import require_admin, require_permission, require_access, view_only
 from redash.query_runner import query_runners, get_configuration_schema_for_query_runner_type
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, routes
 
 
 class DataSourceTypeListResource(BaseResource):
@@ -159,3 +161,51 @@ class DataSourceTestResource(BaseResource):
             return {"message": unicode(e), "ok": False}
         else:
             return {"message": "success", "ok": True}
+
+
+def get_oauth_flow():
+    scopes = [
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://spreadsheets.google.com/feeds'
+    ]
+    flow = OAuth2WebServerFlow(
+        client_id=settings.GOOGLE_DATASOURCE_CLIENT_ID,
+        client_secret=settings.GOOGLE_DATASOURCE_CLIENT_SECRET,
+        scope=scopes,
+        redirect_uri=url_for('redash.datasource_google_connected_callback', _external=True),
+        access_type='offline',
+        prompt='consent'
+    )
+    return flow
+
+
+@require_admin
+@routes.route('/data_sources/google_oauth', methods=['GET'])
+def data_source_google_oauth():
+    if not settings.GOOGLE_DATASOURCE_OAUTH_ENABLED:
+        logging.info("data_source google_oauth skipped.")
+        abort(400)
+
+    flow = get_oauth_flow()
+
+    return redirect(flow.step1_get_authorize_url())
+
+
+@require_admin
+@routes.route('/data_sources/google_oauth/callback', methods=['GET'], endpoint='datasource_google_connected_callback')
+def data_source_google_oauth_callback():
+    if not settings.GOOGLE_DATASOURCE_OAUTH_ENABLED:
+        logging.info("data_source google_oauth skipped.")
+        abort(400)
+
+    code = request.args.get('code')
+    flow = get_oauth_flow()
+
+    credentials = flow.step2_exchange(code)
+    credential_json = credentials.to_json()
+    email = credentials.id_token['email']
+
+    return render_template("google_account_connected.html",
+                           credential=credential_json,
+                           email=email)
