@@ -1,0 +1,16 @@
+{% extends "layouts/signed_out.html" %}
+
+{% block content %}
+    <script src="https://use.fontawesome.com/a0913aa907.js"></script>
+    <h2>Redash</h2>
+    <p>Connected Google Account: {{ email }} <i class="fa fa-spinner fa-spin" aria-hidden="true"></i></p>
+    <div style="display: none;">
+        <textarea id="credential">{{ credential }}</textarea>
+        <script>
+            window.onload = function() {
+                var credential = JSON.parse(document.getElementById('credential').value);
+                window.opener.oauthCallback(credential);
+            };
+        </script>
+    </div>
+{% endblock %}

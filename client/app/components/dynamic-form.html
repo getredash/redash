@@ -9,13 +9,19 @@
     </div>
     <div class="form-group" ng-class='{"has-error": !inner.input.$valid}' ng-form="inner" ng-repeat="(name, input) in type.configuration_schema.properties">
         <label ng-if="input.type !== 'checkbox'">{{input.title || name | capitalize}}</label>
-        <input name="input" type="{{input.type}}" class="form-control" ng-model="target.options[name]" ng-required="input.required"
-                ng-if="input.type !== 'file' && input.type !== 'checkbox'" accesskey="tab" placeholder="{{input.default}}">
+        <input name="input" type="{{input.type}}" class="form-control" ng-model="target.options[name]" ng-required="input.required" ng-disabled="input.disabled"
+                ng-if="input.type !== 'file' && input.type !== 'checkbox' && input.type !== 'google_oauth'" accesskey="tab" placeholder="{{input.default}}">
 
         <label ng-if="input.type=='checkbox'">
           <input name="input" type="{{input.type}}" ng-model="target.options[name]" ng-required="input.required"
                   ng-if="input.type !== 'file'" accesskey="tab" placeholder="{{input.default}}">
           {{input.title || name | capitalize}}
+        </label>
+
+        <label ng-if="input.type=='google_oauth'">
+          <button class="btn" ng-class="input.class" ng-click="input.callback(); $event.preventDefault();">
+            Connect Google Account
+          </button>
         </label>
 
         <input name="input" type="file" class="form-control" ng-model="files[name]" ng-required="input.required && !target.options[name]"

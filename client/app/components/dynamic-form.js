@@ -73,6 +73,23 @@ function DynamicForm($http, toastr, $q) {
               prop.type = 'file';
             }
 
+            if (name === 'google_oauth') {
+              prop.type = 'google_oauth';
+              prop.class = 'btn-default';
+              prop.callback = () => {
+                const popup = window.open('/data_sources/google_oauth', '', 'width=600,height=600');
+                window.oauthCallback = (payload) => {
+                  if (payload && payload.id_token) {
+                    $scope.target.options.google_oauth = JSON.stringify(payload);
+                    $scope.target.options['google_oauth.email'] = payload.id_token.email;
+                  } else {
+                    toastr.error('Failed connecting.');
+                  }
+                  popup.close();
+                };
+              };
+            }
+
             if (prop.type === 'boolean') {
               prop.type = 'checkbox';
             }
