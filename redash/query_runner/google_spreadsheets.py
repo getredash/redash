@@ -4,6 +4,8 @@ import logging
 from dateutil import parser
 from redash.query_runner import *
 from redash.utils import JSONEncoder
+from redash import settings
+from oauth2client.client import OAuth2Credentials
 
 logger = logging.getLogger(__name__)
 
@@ -190,4 +192,47 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
         return json_data, error
 
+
+class GoogleSpreadsheetPersonalUser(GoogleSpreadsheet):
+    @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
+    def name(cls):
+        return "GoogleSpreadsheet (by Personal User)"
+
+    @classmethod
+    def type(cls):
+        return "google_spreadsheets_oauth"
+
+    @classmethod
+    def enabled(cls):
+        return enabled and settings.GOOGLE_DATASOURCE_OAUTH_ENABLED
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'google_oauth': {
+                    'type': 'string',
+                    'title': 'OAuth Access Token'
+                },
+                'google_oauth.email': {
+                    'type': 'string',
+                    'title': 'OAuth Access Token (Email)',
+                    'disabled': True
+                }
+            },
+            'required': ['google_oauth'],
+            'secret': ['google_oauth']
+        }
+
+    def _get_spreadsheet_service(self):
+        credentials = OAuth2Credentials.from_json(self.configuration['google_oauth'])
+        spreadsheetservice = gspread.authorize(credentials)
+        return spreadsheetservice
+
 register(GoogleSpreadsheet)
+register(GoogleSpreadsheetPersonalUser)
