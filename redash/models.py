@@ -4,6 +4,9 @@ import hashlib
 import itertools
 import json
 import logging
+import cStringIO
+import csv
+import xlsxwriter
 
 from funcy import project
 from flask_sqlalchemy import SQLAlchemy
@@ -645,6 +648,38 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     @property
     def groups(self):
         return self.data_source.groups
+
+    def make_csv_content(self):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(self.data)
+        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
+        writer.writer = utils.UnicodeWriter(s)
+        writer.writeheader()
+        for row in query_data['rows']:
+            writer.writerow(row)
+
+        return s.getvalue()
+
+    def make_excel_content(self):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(self.data)
+        book = xlsxwriter.Workbook(s)
+        sheet = book.add_worksheet("result")
+
+        column_names = []
+        for (c, col) in enumerate(query_data['columns']):
+            sheet.write(0, c, col['name'])
+            column_names.append(col['name'])
+
+        for (r, row) in enumerate(query_data['rows']):
+            for (c, name) in enumerate(column_names):
+                sheet.write(r + 1, c, row.get(name))
+
+        book.close()
+
+        return s.getvalue()
 
 
 def should_schedule_next(previous_iteration, now, schedule, failures):
