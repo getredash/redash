@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased] - 2017-02-22
+## [Unreleased]
 
 ### Added
 
