@@ -84,8 +84,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
             return;
           }
 
-          if ((hasQueryStringValue || dashboard.dashboard_filters_enabled)) {
-            // Sets query filters to match dashboard fiters when present
+          if (hasQueryStringValue) {
             queryFilter.current = $location.search()[queryFilter.name];
           }
 
