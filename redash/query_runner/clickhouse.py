@@ -3,6 +3,7 @@ import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 import requests
+import re
 logger = logging.getLogger(__name__)
 
 
@@ -74,13 +75,16 @@ class ClickHouse(BaseSQLQueryRunner):
     @staticmethod
     def _define_column_type(column):
         c = column.lower()
-        if 'int' in c:
+        f = re.search(r'^nullable\((.*)\)$', c)
+        if f is not None:
+            c = f.group(1)
+        if c.startswith('int') or c.startswith('uint'):
             return TYPE_INTEGER
-        elif 'float' in c:
+        elif c.startswith('float'):
             return TYPE_FLOAT
-        elif 'datetime' == c:
+        elif c == 'datetime':
             return TYPE_DATETIME
-        elif 'date' == c:
+        elif c == 'date':
             return TYPE_DATE
         else:
             return TYPE_STRING
