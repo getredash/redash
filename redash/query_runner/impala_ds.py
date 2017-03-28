@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 import logging
 import sys
@@ -5,11 +6,14 @@ import sys
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 logger = logging.getLogger(__name__)
 
 try:
     from impala.dbapi import connect
-    from impala.error import DatabaseError, RPCError
+    from impala.error import DatabaseError, RPCError, HiveServer2Error
     enabled = True
 except ImportError, e:
     enabled = False
@@ -124,6 +128,10 @@ class Impala(BaseSQLQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()
+        except HiveServer2Error or DatabaseError as e:
+            logging.exception(e)
+            json_data = None
+            error = e.message
         except DatabaseError as e:
             logging.exception(e)
             json_data = None
@@ -145,4 +153,67 @@ class Impala(BaseSQLQueryRunner):
 
         return json_data, error
 
+class HiveKerberos(Impala):
+    @classmethod
+    def type(cls):
+        return "hive_kerberos"
+
+    @classmethod
+    def name(cls):
+        return "Hive (with Kerberos)"
+
+    @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            "type": "object",
+            "properties": {
+                "host": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "number"
+                },
+                "database": {
+                    "type": "string"
+                },
+                "auth_mechanism": {
+                    "type": "string",
+                    "title": "Auth Mechanism (NOSASL, PLAIN, GSSAPI, LDAP)"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "kerberos_service_name": {
+                    "type": "string",
+                    "title": "Kerberos Service Name",
+                }
+            },
+            "required": ["host", "auth_mechanism", "kerberos_service_name"],
+            "secret": ["password"]
+        }
+
+    def _get_tables(self, schema_dict):
+        schemas_query = "show schemas"
+        tables_query = "show tables in %s"
+        columns_query = "show columns in %s.%s"
+
+        for schema_name in map(lambda a: a['database_name'], self._run_query_internal(schemas_query)):
+            for table_name in map(lambda a: a['tab_name'], self._run_query_internal(tables_query % schema_name)):
+                columns = map(lambda a: a['field'], self._run_query_internal(columns_query % (schema_name, table_name)))
+
+                if schema_name != 'default':
+                    table_name = '{}.{}'.format(schema_name, table_name)
+
+                schema_dict[table_name] = {'name': table_name, 'columns': columns}
+
+        return schema_dict.values()
+
 register(Impala)
+register(HiveKerberos)
