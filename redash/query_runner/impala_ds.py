@@ -153,6 +153,7 @@ class Impala(BaseSQLQueryRunner):
 
         return json_data, error
 
+
 class HiveKerberos(Impala):
     @classmethod
     def type(cls):
