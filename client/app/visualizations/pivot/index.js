@@ -2,6 +2,7 @@ import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
+import './pivot-ext.css';
 
 import editorTemplate from './pivottable-editor.html';
 

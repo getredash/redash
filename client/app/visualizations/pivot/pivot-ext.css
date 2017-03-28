@@ -1,0 +1,11 @@
+
+/* pivot-ext.css */
+/* match body */
+table.pvtTable { font-size: 13px; }
+
+/* match table visualization header */
+table.pvtTable thead tr th, table.pvtTable tbody tr th { background-color: #FAFAFA; font-size: 13px; }
+
+/* match table visualization value */
+table.pvtTable tbody tr td { color: #767676; }
+
