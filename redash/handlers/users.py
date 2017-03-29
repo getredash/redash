@@ -27,7 +27,7 @@ class UserListResource(BaseResource):
     def post(self):
         req = request.get_json(force=True)
         require_fields(req, ('name', 'email'))
-
+        req['email'] = req['email'].lower()
         user = models.User(org=self.current_org,
                            name=req['name'],
                            email=req['email'],
