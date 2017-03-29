@@ -140,7 +140,7 @@ function percentBarStacking(seriesList) {
       sum += seriesList[j].y[i];
     }
     for (let j = 0; j < seriesList.length; j += 1) {
-      const value = seriesList[j].y[i] / (sum * 100);
+      const value = seriesList[j].y[i] / sum * 100;
       seriesList[j].text.push(`Value: ${seriesList[j].y[i]}<br>Relative: ${value.toFixed(2)}%`);
       seriesList[j].y[i] = value;
     }
