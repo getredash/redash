@@ -20,5 +20,6 @@ cassandra-driver==3.1.1
 snowflake_connector_python==1.3.7
 atsd_client==2.0.11
 simple_salesforce==0.72.2
+ibm_db==2.0.7
 # certifi is needed to support MongoDB and SSL:
 certifi
