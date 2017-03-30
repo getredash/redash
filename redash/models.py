@@ -807,14 +807,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def all_queries(cls, group_ids, user_id=None, drafts=False):
         select_columns = [
-            Query.id
-            , Query.name
-            , Query.created_at
-            , Query.schedule
-            , Query.is_draft
-            , User.name.label("created_by")
-            , QueryResult.retrieved_at
-            , QueryResult.runtime
+            Query.id,
+            Query.name,
+            Query.created_at,
+            Query.schedule,
+            Query.is_draft,
+            User.name.label("created_by"),
+            QueryResult.retrieved_at,
+            QueryResult.runtime
             ]
         q = (db.Query(select_columns, session=SignallingSession(db))
             .join(User, Query.user_id == User.id)
