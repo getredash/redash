@@ -136,11 +136,11 @@ class QueryListResource(BaseResource):
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        
+
         results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+        return paginate(results, page, page_size, lambda q: q._asdict())
 
 
 class MyQueriesResource(BaseResource):
@@ -158,7 +158,7 @@ class MyQueriesResource(BaseResource):
         results = models.Query.by_user(self.current_user)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+        return paginate(results, page, page_size, lambda q: q._asdict())
 
 
 class QueryResource(BaseResource):
