@@ -128,13 +128,13 @@ if [ ! -d "$VERSION_DIR" ]; then
     sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
     sudo -u redash mkdir "$VERSION_DIR"
     sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
-    ln -nfs "$VERSION_DIR" /opt/redash/current
-    ln -nfs /opt/redash/.env /opt/redash/current/.env
+    sudo ln -nfs "$VERSION_DIR" /opt/redash/current
+    sudo ln -nfs /opt/redash/.env /opt/redash/current/.env
 
     cd /opt/redash/current
 
     # TODO: venv?
-    pip install -r requirements.txt
+    sudo pip install -r requirements.txt
 fi
 
 # Create database / tables
