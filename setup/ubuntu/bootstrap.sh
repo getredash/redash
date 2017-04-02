@@ -25,6 +25,11 @@ if [ "$(id -u)" != "0" ]; then
     exit 0
 fi
 
+# Set locale if not set
+if [ -z "$LC_ALL" ]; then
+    export LC_ALL=C
+fi
+
 # Base packages
 apt-get -y update
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade
