@@ -9,7 +9,7 @@ import csv
 import xlsxwriter
 
 from funcy import project
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, SignallingSession
 from flask_login import UserMixin, AnonymousUserMixin
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
@@ -806,7 +806,18 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_queries(cls, group_ids, user_id=None, drafts=False):
-        q = (cls.query.join(User, Query.user_id == User.id)
+        select_columns = [
+            Query.id,
+            Query.name,
+            Query.created_at,
+            Query.schedule,
+            Query.is_draft,
+            User.name.label("created_by"),
+            QueryResult.retrieved_at,
+            QueryResult.runtime
+            ]
+        q = (db.Query(select_columns, session=SignallingSession(db))
+            .join(User, Query.user_id == User.id)
             .outerjoin(QueryResult)
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(Query.is_archived == False)
