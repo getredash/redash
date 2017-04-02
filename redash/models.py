@@ -833,8 +833,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         now = utils.utcnow()
         outdated_queries = {}
         for query in queries:
-            if should_schedule_next(query.latest_query_data.retrieved_at, now,
-                                    query.schedule, query.schedule_failures):
+            if query.latest_query_data:
+                retrieved_at = query.latest_query_data.retrieved_at
+            else:
+                retrieved_at = now
+
+            if should_schedule_next(retrieved_at, now, query.schedule, query.schedule_failures):
                 key = "{}:{}".format(query.query_hash, query.data_source_id)
                 outdated_queries[key] = query
 
