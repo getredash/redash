@@ -85,10 +85,10 @@ def org_login(org_slug):
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
     callback = url_for('.callback', _external=True)
-    next = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
+    next_path = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
     logger.debug("Callback url: %s", callback)
-    logger.debug("Next is: %s", next)
-    return google_remote_app().authorize(callback=callback, state=next)
+    logger.debug("Next is: %s", next_path)
+    return google_remote_app().authorize(callback=callback, state=next_path)
 
 
 @blueprint.route('/oauth/google_callback', endpoint="callback")
@@ -118,6 +118,6 @@ def authorized():
 
     create_and_login_user(org, profile['name'], profile['email'])
 
-    next = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
+    next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
 
-    return redirect(next)
+    return redirect(next_path)
