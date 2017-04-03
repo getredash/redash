@@ -11,11 +11,11 @@ try:
     import ibm_db
 
     types_map = {
-       ibm_db_dbi.FLOAT: TYPE_FLOAT,
-       ibm_db_dbi.NUMBER: TYPE_INTEGER,
-       ibm_db_dbi.STRING: TYPE_STRING,
-       ibm_db_dbi.DATE: TYPE_DATE,
-       ibm_db_dbi.DATETIME: TYPE_DATETIME,
+        ibm_db_dbi.FLOAT: TYPE_FLOAT,
+        ibm_db_dbi.NUMBER: TYPE_INTEGER,
+        ibm_db_dbi.STRING: TYPE_STRING,
+        ibm_db_dbi.DATE: TYPE_DATE,
+        ibm_db_dbi.DATETIME: TYPE_DATETIME,
     }
     ENABLED = True
 except ImportError:
@@ -33,7 +33,7 @@ class Db2(BaseSQLQueryRunner):
 
     @classmethod
     def name(cls):
-        return "IBM DB2"        
+        return "IBM DB2"
 
     @classmethod
     def configuration_schema(cls):
@@ -60,13 +60,11 @@ class Db2(BaseSQLQueryRunner):
                 "read_timeout": {
                     "type": "number",
                     "title": "Read Timeout"
-                },                                
+                },
             },
             'required': ['database'],
             'secret': ['password']
         }
-
-
 
     def __init__(self, configuration):
         super(Db2, self).__init__(configuration)
@@ -82,7 +80,8 @@ class Db2(BaseSQLQueryRunner):
         results = json.loads(results)
 
         for row in results['rows']:
-            table_name = '{}.{}'.format(row['TBCREATOR'].strip(), row['TBNAME'])
+            table_name = '{}.{}'.format(
+                row['TBCREATOR'].strip(), row['TBNAME'])
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
@@ -108,7 +107,7 @@ class Db2(BaseSQLQueryRunner):
                 self.configuration.get('user', ''),
                 self.configuration.get('password', ''))
 
-            connection = ibm_db_dbi.connect(conn_info,"","")
+            connection = ibm_db_dbi.connect(conn_info, "", "")
 
             logger.debug("DB2 running query: %s", query)
             cursor = connection.cursor()
@@ -116,7 +115,8 @@ class Db2(BaseSQLQueryRunner):
             if cursor.description is not None:
                 columns_data = [(i[0], i[1]) for i in cursor.description]
 
-                rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor.fetchall()]
+                rows = [dict(zip((c[0] for c in columns_data), row))
+                        for row in cursor.fetchall()]
                 columns = [{'name': col[0],
                             'friendly_name': col[0],
                             'type': types_map.get(col[1], None)} for col in columns_data]
@@ -136,7 +136,6 @@ class Db2(BaseSQLQueryRunner):
         finally:
             if connection:
                 connection.close()
-
         return json_data, error
 
 register(Db2)
