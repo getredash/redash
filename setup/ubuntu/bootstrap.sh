@@ -17,6 +17,8 @@ VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
 FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu/files
 
+cd /tmp/
+
 verify_root() {
     # Verify running as root:
     if [ "$(id -u)" != "0" ]; then
@@ -43,8 +45,8 @@ install_system_packages() {
     # SAML dependency
     apt install -y xmlsec1
     # Storage servers
-    apt install postgresql redis-server
-    apt install supervisor
+    apt install -y postgresql redis-server
+    apt install -y supervisor
 }
 
 create_directories() {
@@ -57,7 +59,7 @@ create_directories() {
     fi
 
     COOKIE_SECRET=$(pwgen -1s 32)
-    echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" > /opt/redash/.env
+    echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> /opt/redash/.env
 }
 
 extract_redash_sources() {
@@ -70,10 +72,8 @@ extract_redash_sources() {
 
 install_python_packages() {
     pip install --upgrade pip
-    # pip install -U setuptools==23.1.0
     # TODO: venv?
-    # setproctitle is used by Celery for "pretty" process titles
-    pip install setproctitle
+    pip install setproctitle # setproctitle is used by Celery for "pretty" process titles
     pip install -r /opt/redash/current/requirements.txt
     pip install -r /opt/redash/current/requirements_all_ds.txt
 }
