@@ -213,6 +213,11 @@
       "from": "boom@>=2.0.0 <3.0.0",
       "resolved": "https://registry.npmjs.org/boom/-/boom-2.10.1.tgz"
     },
+    "bootstrap": {
+      "version": "3.3.7",
+      "from": "bootstrap@latest",
+      "resolved": "https://registry.npmjs.org/bootstrap/-/bootstrap-3.3.7.tgz"
+    },
     "bops": {
       "version": "0.0.6",
       "from": "bops@0.0.6",

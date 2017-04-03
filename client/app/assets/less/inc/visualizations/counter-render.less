@@ -1,0 +1,34 @@
+counter-renderer {
+  display: block;
+  text-align: center;
+}
+
+counter-renderer counter {
+  margin: 0 auto;
+  padding: 15px 50px;
+  display: block;;
+}
+
+counter-renderer value,
+counter-renderer counter-target {
+  font-size: 80px;
+  display: block;
+}
+
+counter-renderer counter-target {
+  color: #ccc;
+}
+
+counter-renderer counter.positive value {
+  color: #5cb85c;
+}
+
+counter-renderer counter.negative value {
+  color: #d9534f;
+  margin-right: 15px;
+}
+
+counter-renderer counter-name {
+  font-size: 40px;
+  display: block;
+}

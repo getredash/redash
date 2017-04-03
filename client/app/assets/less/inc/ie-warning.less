@@ -1,0 +1,53 @@
+.ie-warning {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 9999;
+	background: @black;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	color: #fff;
+	font-family: "Courier New", Courier, monospace;
+	padding: 50px 0;
+
+	p {
+		font-size: 17px;
+	}
+    
+    .iew-container {
+        min-width: 1024px;
+        width: 100%;
+        height: 200px;
+        background: #fff;
+        margin: 50px 0;
+    }
+
+	.iew-download {
+		list-style: none;
+		padding: 30px 0;
+		margin: 0 auto;
+        width: 720px;
+
+		& > li {
+			float: left;
+			vertical-align: top;
+
+			& > a {
+				display: block;
+				color: #000;
+				width: 140px;
+				font-size: 15px;
+				padding: 15px 0;
+
+				& > div {
+					margin-top: 10px;
+				}
+
+				&:hover {
+					background-color: #eee;
+				}
+			}
+		}
+	}
+}
