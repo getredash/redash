@@ -7,7 +7,7 @@
 version: '2'
 services:
   server:
-    build: .
+    image: redash/redash:latest
     command: server
     depends_on:
       - postgres
@@ -21,7 +21,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_COOKIE_SECRET: veryverysecret
   worker:
-    build: .
+    image: redash/redash:latest
     command: scheduler
     environment:
       PYTHONUNBUFFERED: 0
@@ -31,9 +31,9 @@ services:
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
   redis:
-    image: redis:2.8
+    image: redis:3.0-alpine
   postgres:
-    image: postgres:9.3
+    image: postgres:9.5.6-alpine
     # volumes:
     #   - /opt/postgres-data:/var/lib/postgresql/data
   nginx:
