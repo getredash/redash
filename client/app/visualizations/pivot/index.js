@@ -25,7 +25,7 @@ function pivotTableRenderer() {
           if ($scope.queryResult.getData() !== null) {
             // We need to give the pivot table its own copy of the data, because it changes
             // it which interferes with other visualizations.
-            data = $.extend(true, [], $scope.queryResult.getRawData());
+            data = angular.copy($scope.queryResult.getData());
             const options = {
               renderers: $.pivotUtilities.renderers,
               onRefresh(config) {
@@ -48,7 +48,7 @@ function pivotTableRenderer() {
               Object.assign(options, $scope.visualization.options);
             }
             $(element).pivotUI(data, options, true);
-            if ($scope.visualization.options.controls.enabled) {
+            if (options.controls && options.controls.enabled) {
               const controls = $('.pvtAxisContainer, .pvtRenderer, .pvtVals');
               for (let i = 0; i < controls.length; i += 1) { controls[i].style.display = 'none'; }
             }
