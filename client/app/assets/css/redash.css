@@ -4,9 +4,14 @@ body {
 
 body.headless {
   padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 body.headless nav.app-header {
+  display: none;
+}
+
+body.headless div#footer {
   display: none;
 }
 
