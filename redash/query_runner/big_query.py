@@ -119,6 +119,10 @@ class BigQuery(BaseQueryRunner):
                     "type": "string",
                     "title": "Documentation URL",
                     "default": cls.default_doc_url
+                },
+                'maximumBillingTier': {
+                    "type": "number",
+                    "title": "Maximum Billing Tier"
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
@@ -179,6 +183,9 @@ class BigQuery(BaseQueryRunner):
             resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
             job_data["configuration"]["query"]["userDefinedFunctionResources"] = map(
                 lambda resource_uri: {"resourceUri": resource_uri}, resource_uris)
+
+        if "maximumBillingTier" in self.configuration:
+            job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
 
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
