@@ -1,7 +1,7 @@
 import sys
 import json
 import logging
-
+import re
 from redash.utils import JSONEncoder
 from redash.query_runner import *
 
@@ -26,8 +26,8 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class Db2(BaseSQLQueryRunner):
-    noop_query = "SELECT 1 FROM sysibm.sysdummy1 "
+class Db2zOS(BaseSQLQueryRunner):
+    noop_query = "SELECT 1 FROM SYSIBM.SYSDUMMY1 "
 
     @classmethod
     def enabled(cls):
@@ -35,7 +35,7 @@ class Db2(BaseSQLQueryRunner):
 
     @classmethod
     def name(cls):
-        return "IBM DB2"
+        return "IBM DB2 for z/OS"
 
     @classmethod
     def configuration_schema(cls):
@@ -56,19 +56,29 @@ class Db2(BaseSQLQueryRunner):
                     'type': 'string',
                     'title': 'Database name'
                 },
-                "port": {
+                'schema': {
+                    'type': 'string',
+                    'title': 'Schema'
+                },
+                'maxrows': {
+                    'type': 'number',
+                    'title': 'Max Rows Returned'
+                },
+                'port': {
                     "type": "number"
                 },
             },
-            'required': ['database', 'host', 'port'],
+            'required': ['database', 'host', 'user', 'password', 'port', 'schema'],
             'secret': ['password']
         }
 
     def __init__(self, configuration):
-        super(Db2, self).__init__(configuration)
+        super(Db2zOS, self).__init__(configuration)
 
     def _get_tables(self, schema):
-        query = "select NAME,TBNAME,TBCREATOR from sysibm.syscolumns WHERE TBCREATOR NOT LIKE 'SYS%'"
+        query = "SELECT NAME,TBNAME,TBCREATOR FROM SYSIBM.SYSCOLUMNS WHERE TBCREATOR NOT LIKE 'SYS%' AND TBCREATOR = " + \
+            "'" + self.configuration.get(
+                'schema', self.configuration.get('user', '')).strip() + "'"
 
         results, error = self.run_query(query, None)
 
@@ -95,6 +105,14 @@ class Db2(BaseSQLQueryRunner):
             json_data = None
             error = "Query is empty"
             return json_data, error
+# If the user has an fetch first x rows limit in the query use that instead of the default . if there is no limit in the user query
+# use the default
+        regex = r"FETCH[\s]*FIRST[\s]*[\d]*[\s]*ROWS[\s]*ONLY"
+        if re.search(regex, query, re.IGNORECASE):
+            logger.info("Using the limt from user query")
+        else:
+            query = query + " FETCH FIRST " + \
+                str(self.configuration.get('maxrows', 500)) + " ROWS ONLY "
 
         connection = None
         try:
@@ -105,9 +123,8 @@ class Db2(BaseSQLQueryRunner):
                 self.configuration.get('user', ''),
                 self.configuration.get('password', ''))
 
-            connection = ibm_db_dbi.connect(conn_info, "", "")
-
-            logger.debug("DB2 running query: %s", query)
+            connection = ibm_db_dbi.pconnect(conn_info, "", "")
+            logger.info("DB2 running query: %s", query)
             cursor = connection.cursor()
             cursor.execute(query)
             if cursor.description is not None:
@@ -136,4 +153,4 @@ class Db2(BaseSQLQueryRunner):
                 connection.close()
         return json_data, error
 
-register(Db2)
+register(Db2zOS)
