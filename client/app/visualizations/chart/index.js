@@ -69,6 +69,7 @@ function ChartEditor(ColorPalette, clientConfig) {
         pie: { name: 'Pie', icon: 'pie-chart' },
         scatter: { name: 'Scatter', icon: 'circle-o' },
         bubble: { name: 'Bubble', icon: 'circle-o' },
+        box: { name: 'Box', icon: 'square-o' },
       };
 
       if (clientConfig.allowCustomJSVisualizations) {
