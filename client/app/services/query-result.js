@@ -224,11 +224,12 @@ function QueryResultService($resource, $timeout, $q) {
       const series = {};
 
       this.getData().forEach((row) => {
-        const point = {};
+        let point = {};
         let seriesName;
         let xValue = 0;
         const yValues = {};
         let eValue = null;
+        let sizeValue = null;
 
         each(row, (v, definition) => {
           const name = definition.split('::')[0] || definition.split('__')[0];
@@ -262,6 +263,11 @@ function QueryResultService($resource, $timeout, $q) {
             seriesName = String(value);
           }
 
+          if (type === 'size') {
+            point[type] = value;
+            sizeValue = value;
+          }
+
           if (type === 'multiFilter' || type === 'multi-filter') {
             seriesName = String(value);
           }
@@ -269,11 +275,15 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
+            point = { x: xValue, y: yValue };
             if (eValue !== null) {
-              addPointToSeries({ x: xValue, y: yValue, yError: eValue }, series, ySeriesName);
-            } else {
-              addPointToSeries({ x: xValue, y: yValue }, series, ySeriesName);
+              point.yError = eValue;
             }
+
+            if (sizeValue !== null) {
+              point.size = sizeValue;
+            }
+            addPointToSeries(point, series, ySeriesName);
           });
         } else {
           addPointToSeries(point, series, seriesName);

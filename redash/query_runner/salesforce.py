@@ -56,6 +56,10 @@ class Salesforce(BaseQueryRunner):
         return enabled
 
     @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
@@ -74,7 +78,7 @@ class Salesforce(BaseQueryRunner):
                     "type": "boolean"
                 }
             },
-            "required": ["username", "password", "token", "sandbox"],
+            "required": ["username", "password", "token"],
             "secret": ["password", "token"]
         }
 

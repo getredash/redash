@@ -140,7 +140,7 @@ function percentBarStacking(seriesList) {
       sum += seriesList[j].y[i];
     }
     for (let j = 0; j < seriesList.length; j += 1) {
-      const value = seriesList[j].y[i] / (sum * 100);
+      const value = seriesList[j].y[i] / sum * 100;
       seriesList[j].text.push(`Value: ${seriesList[j].y[i]}<br>Relative: ${value.toFixed(2)}%`);
       seriesList[j].y[i] = value;
     }
@@ -210,6 +210,8 @@ const PlotlyChart = () => {
           series.mode = 'lines';
         } else if (type === 'scatter') {
           series.type = 'scatter';
+          series.mode = 'markers';
+        } else if (type === 'bubble') {
           series.mode = 'markers';
         }
       }
@@ -332,6 +334,12 @@ const PlotlyChart = () => {
           }
           if (!plotlySeries.error_y.length) {
             delete plotlySeries.error_y.length;
+          }
+
+          if (seriesOptions.type === 'bubble') {
+            plotlySeries.marker = {
+              size: pluck(data, 'size'),
+            };
           }
           scope.data.push(plotlySeries);
         });

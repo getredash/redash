@@ -79,6 +79,12 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         self.assertNotIn(query, queries)
 
+    def test_outdated_queries_skips_unscheduled_queries(self):
+        query = self.factory.create_query(schedule='60')
+        queries = models.Query.outdated_queries()
+
+        self.assertNotIn(query, queries)
+
     def test_outdated_queries_works_with_ttl_based_schedule(self):
         two_hours_ago = utcnow() - datetime.timedelta(hours=2)
         query = self.factory.create_query(schedule="3600")

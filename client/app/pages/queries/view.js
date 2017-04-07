@@ -43,25 +43,35 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
     return dataSourceId;
   }
 
-  function updateSchema() {
-    $scope.hasSchema = false;
-    $scope.editorSize = 'col-md-12';
-    DataSource.getSchema({ id: $scope.query.data_source_id }, (data) => {
-      if (data && data.length > 0) {
+  function toggleSchemaBrowser(hasSchema) {
+    $scope.hasSchema = hasSchema;
+    $scope.editorSize = hasSchema ? 'col-md-9' : 'col-md-12';
+  }
+
+  function getSchema(refresh = undefined) {
+    DataSource.getSchema({ id: $scope.query.data_source_id, refresh }, (data) => {
+      const hasPrevSchema = refresh ? ($scope.schema && ($scope.schema.length > 0)) : false;
+      const hasSchema = data && (data.length > 0);
+
+      if (hasSchema) {
         $scope.schema = data;
         data.forEach((table) => {
           table.collapsed = true;
         });
-
-        $scope.editorSize = 'col-md-9';
-        $scope.hasSchema = true;
-      } else {
-        $scope.schema = undefined;
-        $scope.hasSchema = false;
-        $scope.editorSize = 'col-md-12';
+      } else if (hasPrevSchema) {
+        toastr.error('Schema refresh failed. Please try again later.');
       }
+
+      toggleSchemaBrowser(hasSchema || hasPrevSchema);
     });
   }
+
+  function updateSchema() {
+    toggleSchemaBrowser(false);
+    getSchema();
+  }
+
+  $scope.refreshSchema = () => getSchema(true);
 
   function updateDataSources(dataSources) {
     // Filter out data sources the user can't query (or used by current query):

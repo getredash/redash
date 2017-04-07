@@ -1,4 +1,4 @@
-import { extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
+import { some, extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
 import plotly from './plotly';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
@@ -68,6 +68,7 @@ function ChartEditor(ColorPalette, clientConfig) {
         area: { name: 'Area', icon: 'area-chart' },
         pie: { name: 'Pie', icon: 'pie-chart' },
         scatter: { name: 'Scatter', icon: 'circle-o' },
+        bubble: { name: 'Bubble', icon: 'circle-o' },
       };
 
       if (clientConfig.allowCustomJSVisualizations) {
@@ -82,6 +83,8 @@ function ChartEditor(ColorPalette, clientConfig) {
           scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
       };
+
+      scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
 
       scope.options.customCode = `// Available variables are x, ys, element, and Plotly
 // Type console.log(x, ys); for more info about x and ys
@@ -191,6 +194,15 @@ function ChartEditor(ColorPalette, clientConfig) {
         }
       });
 
+      scope.$watch('form.sizeColumn', (value, old) => {
+        if (old !== undefined) {
+          unsetColumn(old);
+        }
+        if (value !== undefined) {
+          setColumnRole('size', value);
+        }
+      });
+
 
       scope.$watch('form.groupby', (value, old) => {
         if (old !== undefined) {
@@ -222,6 +234,8 @@ function ChartEditor(ColorPalette, clientConfig) {
             scope.form.groupby = key;
           } else if (value === 'yError') {
             scope.form.errorColumn = key;
+          } else if (value === 'size') {
+            scope.form.sizeColumn = key;
           }
         });
       }

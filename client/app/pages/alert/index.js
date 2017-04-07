@@ -27,8 +27,8 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
   } else {
     this.alert = Alert.get({ id: this.alertId }, (alert) => {
       this.onQuerySelected(new Query(alert.query));
+      this.canEdit = currentUser.canEdit(this.alert);
     });
-    this.canEdit = currentUser.canEdit(this.alert);
   }
 
   this.ops = ['greater than', 'less than', 'equals'];

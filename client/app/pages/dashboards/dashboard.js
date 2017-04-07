@@ -34,7 +34,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
         if (widget.getQuery()) {
           widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
             const defaults = {};
-            defaults[param.name] = _.clone(param);
+            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
             defaults[param.name].locals = [];
             globalParams = _.defaults(globalParams, defaults);
             globalParams[param.name].locals.push(param);
@@ -84,13 +84,14 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
             return;
           }
 
+          if (hasQueryStringValue) {
+            queryFilter.current = $location.search()[queryFilter.name];
+          }
+
           if (!_.has(filters, queryFilter.name)) {
             const filter = _.extend({}, queryFilter);
             filters[filter.name] = filter;
             filters[filter.name].originFilters = [];
-            if (hasQueryStringValue) {
-              filter.current = $location.search()[filter.name];
-            }
           }
 
           // TODO: merge values.
