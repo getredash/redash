@@ -15,7 +15,7 @@ function DynamicTable($sanitize) {
     const first = this.count * (this.page - 1);
     const last = this.count * (this.page);
 
-    this.rows = this.allRows.slice(first, last);
+    this.rowsToDisplay = this.rows.slice(first, last);
   };
 
   this.$onChanges = (changes) => {
@@ -24,10 +24,10 @@ function DynamicTable($sanitize) {
     }
 
     if (changes.rows) {
-      this.allRows = changes.rows.currentValue;
+      this.rows = changes.rows.currentValue;
     }
 
-    this.rowsCount = this.allRows.length;
+    this.rowsCount = this.rows.length;
 
     this.pageChanged();
   };
