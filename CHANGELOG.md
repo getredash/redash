@@ -1,5 +1,50 @@
 # Change Log
 
+## UNRELEASED
+
+### Fixed
+
+- Fix: chart embeds were not rendering in PhantomJS.
+
+## v1.0.1 - 2017-04-02
+
+### Added
+
+- Add: bubble charts support.
+- Add "Refresh Schema" button to the datasource @44px
+- [Data Sources] Add: ATSD query runner @rmakulov
+- [Data Sources] Add: SalesForce query runner @msnider
+- Add: scheduled query backoff in case of errors @washort
+- Add: use results row count as the value for the counter visualization. @deecay
+
+### Changed
+
+- Moved CSV/Excel query results generation code to models. @akiray03
+- Add support for filtered data in Pivot table visualization @deecay
+- Friendlier labels for archived state of dashboard/query
+
+### Fixed
+
+- Fix: optimize queries to avoid N+1 queries.
+- Fix: percent stacking math was wrong. @spasovski
+- Fix: set query filter to match value from URL query string. @benmargo
+- [Clickhouse] Fix: detection of various data types. @denisov-vlad
+- Fix: user can't edit their own alert.
+- Fix: angular minification issue in textbox editor and schema browser.
+- Fixes to better support IE11 (add polyfill for Object.assign and show vertical scrollbar). @deecay
+- Fix: datetime parameters were not using a date picker.
+- Fix: Impala schema wasn't loading.
+- Fix: query embed dialog close button wasn't working @r0fls
+- Fix: make errors from Presto runner JSON-serializable @washort
+- Fix: race condition in query task status reporting @washort
+- Fix: remove $$hashKey from Pivot table
+- Fix: map visualization had severe performance issue.
+- Fix: pemrission dialog wasn't rendering.
+- Fix: word cloud visualization didn't show column names.
+- Fix: wrong timestamps in admin tasks page.
+- Fix: page header wasn't updating on dashboards page @MichaelJAndy
+- Fix: keyboard shortcuts didn't work in parameter inputs
+
 ## v1.0.0-rc.2 - 2017-02-22
 
 

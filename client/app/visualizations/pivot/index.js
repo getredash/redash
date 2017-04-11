@@ -21,7 +21,7 @@ function pivotTableRenderer() {
         if ($scope.queryResult.getData() !== null) {
           // We need to give the pivot table its own copy of the data, because it changes
           // it which interferes with other visualizations.
-          data = angular.copy($scope.queryResult.getRawData());
+          data = angular.copy($scope.queryResult.getData());
           const options = {
             renderers: $.pivotUtilities.renderers,
             onRefresh(config) {

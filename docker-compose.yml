@@ -32,9 +32,9 @@ services:
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
   redis:
-    image: redis:2.8
+    image: redis:3.0-alpine
   postgres:
-    image: postgres:9.3
+    image: postgres:9.5.6-alpine
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.

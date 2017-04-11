@@ -4,6 +4,9 @@ import hashlib
 import itertools
 import json
 import logging
+import cStringIO
+import csv
+import xlsxwriter
 
 from funcy import project
 from flask_sqlalchemy import SQLAlchemy
@@ -13,7 +16,7 @@ from sqlalchemy.event import listens_for
 from sqlalchemy.inspection import inspect
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.orm import object_session, backref
+from sqlalchemy.orm import object_session, backref, joinedload, subqueryload
 # noinspection PyUnresolvedReferences
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import or_
@@ -646,6 +649,38 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def groups(self):
         return self.data_source.groups
 
+    def make_csv_content(self):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(self.data)
+        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
+        writer.writer = utils.UnicodeWriter(s)
+        writer.writeheader()
+        for row in query_data['rows']:
+            writer.writerow(row)
+
+        return s.getvalue()
+
+    def make_excel_content(self):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(self.data)
+        book = xlsxwriter.Workbook(s)
+        sheet = book.add_worksheet("result")
+
+        column_names = []
+        for (c, col) in enumerate(query_data['columns']):
+            sheet.write(0, c, col['name'])
+            column_names.append(col['name'])
+
+        for (r, row) in enumerate(query_data['rows']):
+            for (c, name) in enumerate(column_names):
+                sheet.write(r + 1, c, row.get(name))
+
+        book.close()
+
+        return s.getvalue()
+
 
 def should_schedule_next(previous_iteration, now, schedule, failures):
     if schedule.isdigit():
@@ -771,12 +806,12 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_queries(cls, group_ids, user_id=None, drafts=False):
-        q = (cls.query.join(User, Query.user_id == User.id)
-            .outerjoin(QueryResult)
+        q = (cls.query
+            .options(joinedload(Query.user),
+                     joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
             .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(Query.is_archived == False)
             .filter(DataSourceGroup.group_id.in_(group_ids))\
-            .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)
             .order_by(Query.created_at.desc()))
 
         if not drafts:
@@ -791,17 +826,20 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def outdated_queries(cls):
         queries = (db.session.query(Query)
-                   .join(QueryResult)
-                   .join(DataSource)
+                   .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
                    .filter(Query.schedule != None)
                    .order_by(Query.id))
 
         now = utils.utcnow()
         outdated_queries = {}
         for query in queries:
-            if should_schedule_next(query.latest_query_data.retrieved_at, now,
-                                    query.schedule, query.schedule_failures):
-                key = "{}:{}".format(query.query_hash, query.data_source.id)
+            if query.latest_query_data:
+                retrieved_at = query.latest_query_data.retrieved_at
+            else:
+                retrieved_at = now
+
+            if should_schedule_next(retrieved_at, now, query.schedule, query.schedule_failures):
+                key = "{}:{}".format(query.query_hash, query.data_source_id)
                 outdated_queries[key] = query
 
         return outdated_queries.values()
@@ -827,12 +865,11 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 Query.data_source_id == DataSourceGroup.data_source_id)
             .filter(where)).distinct()
 
-        return Query.query.join(User, Query.user_id == User.id).filter(
-            Query.id.in_(query_ids))
+        return Query.query.options(joinedload(Query.user)).filter(Query.id.in_(query_ids))
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
-        query = (cls.query.join(User, Query.user_id == User.id)
+        query = (cls.query.options(subqueryload(Query.user))
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
                  .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -844,7 +881,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                      DataSourceGroup.group_id.in_(group_ids),
                      or_(Query.is_draft == False, Query.user_id == user_id),
                      Query.is_archived == False)
-                 .group_by(Event.object_id, Query.id, User.id)
+                 .group_by(Event.object_id, Query.id)
                  .order_by(db.desc(db.func.count(0))))
 
         if user_id:
@@ -1034,12 +1071,11 @@ class Alert(TimestampMixin, db.Model):
 
     @classmethod
     def all(cls, group_ids):
-        # TODO: there was a join with user here to prevent N+1 queries. need to revisit this.
         return db.session.query(Alert)\
+            .options(joinedload(Alert.user), joinedload(Alert.query_rel))\
             .join(Query)\
             .join(DataSourceGroup, DataSourceGroup.data_source_id==Query.data_source_id)\
-            .filter(DataSourceGroup.group_id.in_(group_ids))\
-            .group_by(Alert)
+            .filter(DataSourceGroup.group_id.in_(group_ids))
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
