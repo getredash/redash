@@ -2,33 +2,38 @@
 set -e
 
 scheduler() {
+  /app/manage.py db upgrade
   echo "Starting RQ scheduler..."
 
   exec /app/manage.py rq scheduler
 }
 
 dev_scheduler() {
+  /app/manage.py db upgrade
   echo "Starting dev RQ scheduler..."
 
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq scheduler
 }
 
 worker() {
+  /app/manage.py db upgrade
   echo "Starting RQ worker..."
 
   export WORKERS_COUNT=${WORKERS_COUNT:-2}
   export QUEUES=${QUEUES:-}
-  
+
   supervisord -c worker.conf
 }
 
 dev_worker() {
+  /app/manage.py db upgrade
   echo "Starting dev RQ worker..."
 
   exec watchmedo auto-restart --directory=./redash/ --pattern=*.py --recursive -- ./manage.py rq worker $QUEUES
 }
 
 server() {
+  /app/manage.py db upgrade
   # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
