@@ -9,7 +9,7 @@
 
     </thead>
     <tbody>
-    <tr ng-repeat="row in $ctrl.rows">
+    <tr ng-repeat="row in $ctrl.rowsToDisplay">
       <td ng-repeat="column in $ctrl.columns" ng-bind-html="$ctrl.sanitize(column.formatFunction(row[column.name]))">
       </td>
     </tr>
