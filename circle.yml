@@ -25,7 +25,7 @@ deployment:
       # - make upload
       #- echo "client/app" >> .dockerignore
       #- docker pull redash/redash:latest
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER
       - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
       - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
