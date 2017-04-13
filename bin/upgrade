@@ -74,7 +74,7 @@ class Release(namedtuple('Release', ('version', 'download_url', 'filename', 'des
 
 
 def get_latest_release_from_ci():
-    response = requests.get('https://circleci.com/api/v1.1/project/github/getredash/redash/latest/artifacts')
+    response = requests.get('https://circleci.com/api/v1.1/project/github/atlassian/redash/latest/artifacts')
 
     if response.status_code != 200:
         exit("Failed getting releases (status code: %s)." % response.status_code)
