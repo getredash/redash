@@ -112,6 +112,11 @@
       "from": "angular-ui-bootstrap@latest",
       "resolved": "https://registry.npmjs.org/angular-ui-bootstrap/-/angular-ui-bootstrap-2.2.0.tgz"
     },
+    "angular-ui-grid": {
+      "version": "4.0.4",
+      "from": "angular-ui-grid@>=4.0.2 <5.0.0",
+      "resolved": "https://registry.npmjs.org/angular-ui-grid/-/angular-ui-grid-4.0.4.tgz"
+    },
     "angular-vs-repeat": {
       "version": "1.1.7",
       "from": "angular-vs-repeat@latest",

@@ -8,6 +8,7 @@ import 'angular-toastr/dist/angular-toastr.css';
 import 'angular-resizable/src/angular-resizable.css';
 import 'angular-gridster/dist/angular-gridster.css';
 import 'pace-progress/themes/blue/pace-theme-minimal.css';
+import 'angular-ui-grid/ui-grid.css';
 
 import 'pace-progress';
 import debug from 'debug';
@@ -27,6 +28,7 @@ import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
 import { each } from 'underscore';
+import 'angular-ui-grid';
 
 import './sortable';
 
@@ -47,7 +49,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name,
+  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name, 'ui.grid', 'ui.grid.pinning', 'ui.grid.resizeColumns',
 ];
 
 const ngModule = angular.module('app', requirements);
