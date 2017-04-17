@@ -31,8 +31,8 @@ function UiGridRenderer() {
             pinRight = true;
           }
           let minw = 50;
-          if( $scope.visualization.options.uigridMinColWidths && $scope.visualization.options.uigridMinColWidths[col.name] > 0){
-            minw = $scope.visualization.options.uigridMinColWidths[col.name];
+          if( $scope.visualization.options.uiGridMinColWidths && $scope.visualization.options.uiGridMinColWidths[col.name] > 0){
+            minw = $scope.visualization.options.uiGridMinColWidths[col.name];
           }
         if(col.type == 'integer' || col.type == 'float'){
           columnDefs.push({field: getColumnCleanName(col.name), pinnedLeft: pinLeft, pinnedRight: pinRight, aggregationType: uiGridConstants.aggregationTypes.sum, minWidth: minw});
@@ -93,10 +93,10 @@ export default function (ngModule) {
         '</uigrid-renderer>';
     const editTemplate = '<uigrid-editor></uigrid-editor>';
     const defaultOptions = {
-      uigridShowColumnFooter: true,
-      uigridShowGridFooter: true,
-      uigridEnableFiltering: true,
-      uigridMinColWidths: {},
+      uiGridShowColumnFooter: true,
+      uiGridShowGridFooter: true,
+      uiGridEnableFiltering: true,
+      uiGridMinColWidths: {},
     };
 
     VisualizationProvider.registerVisualization({
