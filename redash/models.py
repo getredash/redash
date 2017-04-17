@@ -31,7 +31,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session
+from sqlalchemy.orm import backref, joinedload, object_session, aliased
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
@@ -522,7 +522,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     @classmethod
     def all(cls, org):
         return cls.query.filter(cls.org == org)
-    
+
     @classmethod
     def all_not_disabled(cls, org):
         return cls.all(org).filter(cls.disabled_at == None)
@@ -864,7 +864,7 @@ def should_schedule_next(previous_iteration, now, schedule, failures):
     return now > next_iteration
 
 
-class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+class Query(ChangeTrackingMixin, TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
@@ -984,6 +984,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 .filter(cls.id.in_(query_ids))
                 .order_by(Query.created_at.desc()))
 
+        q = AccessPermission.apply_view_permission_to_query(q, Query, user_id)
+
         if not drafts:
             q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
 
@@ -1019,7 +1021,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids, include_drafts=False, limit=20):
+    def search(cls, term, group_ids, include_drafts=False, user_id=None, limit=20):
         where = cls.is_archived == False
 
         if not include_drafts:
@@ -1027,7 +1029,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         where &= DataSourceGroup.group_id.in_(group_ids)
 
-        return cls.query.join(
+        queries = cls.query.join(
             DataSourceGroup,
             cls.data_source_id == DataSourceGroup.data_source_id
         ).options(
@@ -1037,6 +1039,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             # sort the result using the weight as defined in the search vector column
             sort=True
         ).distinct().limit(limit)
+
+        return AccessPermission.apply_view_permission_to_query(queries, Query, user_id).distinct()
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
@@ -1055,6 +1059,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                  .group_by(Event.object_id, Query.id)
                  .order_by(db.desc(db.func.count(0))))
 
+        query = AccessPermission.apply_view_permission_to_query(query, Query, user_id)
+
         if user_id:
             query = query.filter(Event.user_id == user_id)
 
@@ -1065,6 +1071,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
+
+    @classmethod
+    def get_by_id_and_org(cls, _id, org, user_id=None):
+        query = db.session.query(cls).filter(cls.id == _id, cls.org == org)
+        query = AccessPermission.apply_view_permission_to_query(query, Query, user_id)
+
+        return query.one()
 
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
@@ -1179,6 +1192,33 @@ class AccessPermission(GFKBase, db.Model):
             q = q.filter(AccessPermission.grantor == grantor)
 
         return q
+
+    @classmethod
+    def apply_view_permission_to_query(cls, query, resource, user_id):
+        if settings.FEATURE_ENABLE_VIEW_PERMISSION:
+            resource_id = getattr(resource, 'id')
+            resource_type = getattr(resource, '__tablename__')
+            resource_fk = getattr(resource, 'user_id')
+
+            query = query.outerjoin(cls, ((resource_id == cls.object_id) & (cls.object_type == resource_type)))
+
+            # Access permission of dashboard overrides query permissions.
+            # If the user has view access to a dashboard, all the queries
+            # related with this dashboard will be viewable by the user.
+            if resource == Query:
+                dashboard_ap = aliased(cls)
+                query = (query.outerjoin(Visualization, (resource_id == Visualization.query_id))
+                              .outerjoin(Widget, (Visualization.id == Widget.visualization_id))
+                              .outerjoin(dashboard_ap,
+                                         ((Widget.dashboard_id == dashboard_ap.object_id) &
+                                          (dashboard_ap.object_type == 'dashboards')))
+                              .filter((cls.grantee_id == user_id) |
+                                      (resource_fk == user_id) |
+                                      (dashboard_ap.grantee_id == user_id)))
+            else:
+                query = query.filter((cls.grantee_id == user_id) | (resource_fk == user_id))
+
+        return query
 
     def to_dict(self):
         d = {
@@ -1389,7 +1429,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 Dashboard.org == org)
             .group_by(Dashboard.id))
 
-        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
+        query = (AccessPermission.apply_view_permission_to_query(query, Dashboard, user_id)
+                                 .filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False)))
 
         return query
 
@@ -1415,6 +1456,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                  .group_by(Event.object_id, Dashboard.id)
                  .order_by(db.desc(db.func.count(0))))
 
+        query = AccessPermission.apply_view_permission_to_query(query, Dashboard, user_id)
+
         if for_user:
             query = query.filter(Event.user_id == user_id)
 
@@ -1423,8 +1466,11 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query
 
     @classmethod
-    def get_by_slug_and_org(cls, slug, org):
-        return cls.query.filter(cls.slug == slug, cls.org == org).one()
+    def get_by_slug_and_org(cls, slug, org, user_id):
+        query = cls.query.filter(cls.slug == slug, cls.org == org)
+        query = AccessPermission.apply_view_permission_to_query(query, Dashboard, user_id)
+
+        return query.one()
 
     def __unicode__(self):
         return u"%s=%s" % (self.id, self.name)

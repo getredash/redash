@@ -98,7 +98,11 @@ class DashboardResource(BaseResource):
         :>json string widget.created_at: ISO format timestamp for widget creation
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
-        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
+        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org,
+                                      dashboard_slug,
+                                      self.current_org,
+                                      self.current_user.id)
+
         response = dashboard.to_dict(with_widgets=True, user=self.current_user)
 
         api_key = models.ApiKey.get_by_object(dashboard)
@@ -158,7 +162,7 @@ class DashboardResource(BaseResource):
 
         Responds with the archived :ref:`dashboard <dashboard-response-label>`.
         """
-        dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
+        dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org, self.current_user.id)
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)

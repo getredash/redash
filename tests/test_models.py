@@ -7,7 +7,7 @@ import mock
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
 
-from redash import models
+from redash import models, settings
 from redash.models import db
 from redash.utils import gen_query_hash, utcnow
 
@@ -642,3 +642,51 @@ class TestDashboardRecent(BaseTestCase):
 
         self.assertIn(w1.dashboard, models.Dashboard.recent(self.u1.org, self.u1.group_ids, None))
         self.assertNotIn(w1.dashboard, models.Dashboard.recent(user.org, user.group_ids, None))
+
+def with_view_permission_feature_flag_enabled(function):
+    def test_decorator(self):
+        try:
+            settings.FEATURE_ENABLE_VIEW_PERMISSION = True
+            function(self)
+        finally:
+            settings.FEATURE_ENABLE_VIEW_PERMISSION = False
+
+    return test_decorator
+
+def with_fresh_data(function):
+    def test_decorator(self):
+        _set_up_dashboard_test(self)
+        function(self)
+
+class TestAccessPermission(BaseTestCase):
+    def setUp(self):
+        super(TestAccessPermission, self).setUp()
+
+    @with_fresh_data
+    def test_returns_all_dashboards(self):
+        self.assertEqual(2, models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id).count())
+
+    @with_fresh_data
+    @with_view_permission_feature_flag_enabled
+    def test_returns_only_the_permitted_dashboards(self):
+        self.factory.create_access_permission(grantee=self.u1, object_id=self.w1.dashboard.id, object_type='dashboards')
+        self.assertIn(self.w1.dashboard, models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id))
+        self.assertEqual(1, models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id).count())
+
+    @with_fresh_data
+    def test_returns_all_queries(self):
+        self.assertEqual(2, models.Query.all_queries(self.u1.group_ids, self.u1.id).count())
+
+    @with_fresh_data
+    @with_view_permission_feature_flag_enabled
+    def test_returns_only_the_permitted_queries(self):
+        self.factory.create_access_permission(grantee=self.u1, object_id=self.q1.id, object_type='queries')
+        self.assertIn(self.q1, models.Query.all_queries(self.u1.group_ids, self.u1.id))
+        self.assertEqual(1, models.Query.all_queries(self.u1.group_ids, self.u1.id).count())
+
+    @with_fresh_data
+    @with_view_permission_feature_flag_enabled
+    def test_dashboard_permission_overrides_query_permissions(self):
+        self.factory.create_access_permission(grantee=self.u1, object_id=self.w2.dashboard.id, object_type='dashboards')
+        self.assertIn(self.q2, models.Query.all_queries(self.u1.group_ids, self.u1.id))
+        self.assertEqual(1, models.Query.all_queries(self.u1.group_ids, self.u1.id).count())

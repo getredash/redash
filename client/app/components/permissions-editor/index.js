@@ -8,12 +8,14 @@ const PermissionsEditorComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller($http, User) {
+  controller($http, User, clientConfig) {
     'ngInject';
 
     this.grantees = [];
     this.newGrantees = {};
     this.aclUrl = this.resolve.aclUrl.url;
+    this.showViewPermission = clientConfig.showViewPermission;
+    this.foundUsers = {};
 
     // List users that are granted permissions
     const loadGrantees = () => {
@@ -32,24 +34,26 @@ const PermissionsEditorComponent = {
     loadGrantees();
 
     // Search for user
-    this.findUser = (search) => {
+    this.findUser = (search, accessType) => {
       if (search === '') {
         return;
       }
 
-      if (this.foundUsers === undefined) {
+      if (this.foundUsers[accessType] === undefined) {
         User.query((users) => {
-          const existingIds = this.grantees.map(m => m.id);
+          const filtered = this.grantees.filter(m => m.access_type === accessType);
+          const existingIds = filtered.map(m => m.id);
           users.forEach((user) => { user.alreadyGrantee = includes(existingIds, user.id); });
-          this.foundUsers = users;
+          this.foundUsers[accessType] = users;
         });
       }
     };
 
+
     // Add new user to grantees list
-    this.addGrantee = (user) => {
+    this.addGrantee = (user, accessType) => {
       this.newGrantees.selected = undefined;
-      const body = { access_type: 'modify', user_id: user.id };
+      const body = { access_type: accessType, user_id: user.id };
       $http.post(this.aclUrl, body).success(() => {
         user.alreadyGrantee = true;
         loadGrantees();
@@ -58,7 +62,7 @@ const PermissionsEditorComponent = {
 
     // Remove user from grantees list
     this.removeGrantee = (user) => {
-      const body = { access_type: 'modify', user_id: user.id };
+      const body = { access_type: user.access_type, user_id: user.id };
       $http({
         url: this.aclUrl,
         method: 'DELETE',
@@ -67,8 +71,9 @@ const PermissionsEditorComponent = {
       }).success(() => {
         this.grantees = this.grantees.filter(m => m !== user);
 
-        if (this.foundUsers) {
-          this.foundUsers.forEach((u) => { if (u.id === user.id) { u.alreadyGrantee = false; } });
+        if (this.foundUsers[user.access_type]) {
+          const users = this.foundUsers[user.access_type];
+          users.forEach((u) => { if (u.id === user.id) { u.alreadyGrantee = false; } });
         }
       });
     };

@@ -96,11 +96,11 @@ class TestDashboardResourcePost(BaseTestCase):
 class TestDashboardResourceDelete(BaseTestCase):
     def test_delete_dashboard(self):
         d = self.factory.create_dashboard()
-
+        user = self.factory.create_user()
         rv = self.make_request('delete', '/api/dashboards/{0}'.format(d.slug))
         self.assertEquals(rv.status_code, 200)
 
-        d = Dashboard.get_by_slug_and_org(d.slug, d.org)
+        d = Dashboard.get_by_slug_and_org(d.slug, d.org, user.id)
         self.assertTrue(d.is_archived)
 
 

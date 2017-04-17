@@ -53,6 +53,7 @@ class QuerySearchResource(BaseResource):
                 for q in models.Query.search(term,
                                              self.current_user.group_ids,
                                              include_drafts=include_drafts,
+                                             user_id=self.current_user.id,
                                              limit=None)]
 
 
@@ -227,7 +228,7 @@ class QueryResource(BaseResource):
 
         Responds with the :ref:`query <query-response-label>` contents.
         """
-        q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org, self.current_user.id)
         require_access(q.groups, self.current_user, view_only)
 
         result = q.to_dict(with_visualizations=True)
@@ -241,7 +242,7 @@ class QueryResource(BaseResource):
 
         :param query_id: ID of query to archive
         """
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org, self.current_user.id)
         require_admin_or_owner(query.user_id)
         query.archive(self.current_user)
         models.db.session.commit()
@@ -257,7 +258,7 @@ class QueryForkResource(BaseResource):
 
         Responds with created :ref:`query <query-response-label>` object.
         """
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org, self.current_user.id)
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
@@ -279,7 +280,7 @@ class QueryRefreshResource(BaseResource):
         if self.current_user.is_api_user():
             abort(403, message="Please use a user API key.")
 
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org, self.current_user.id)
         require_access(query.groups, self.current_user, not_view_only)
 
         parameter_values = collect_parameters_from_request(request.args)

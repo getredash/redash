@@ -4,10 +4,23 @@
 </div>
 <div class="modal-body">
   <div style="overflow: auto; height: 300px">
-    <ui-select ng-model="$ctrl.newGrantee.selected" on-select="$ctrl.addGrantee($item)">
-       <ui-select-match placeholder="Add New User"></ui-select-match>
-       <ui-select-choices repeat="user in $ctrl.foundUsers | filter:$select.search"
-                         refresh="$ctrl.findUser($select.search)"
+    <ui-select ng-if="$ctrl.showViewPermission" ng-model="$ctrl.newGrantee.selected" on-select="$ctrl.addGrantee($item, 'view')">
+       <ui-select-match placeholder="Add View New User"></ui-select-match>
+       <ui-select-choices repeat="user in $ctrl.foundUsers['view'] | filter:$select.search"
+                         refresh="$ctrl.findUser($select.search, 'view')"
+                         refresh-delay="0"
+                         ui-disable-choice="user.alreadyGrantee">
+        <div>
+          <img ng-src="{{user.gravatar_url}}" height="24px">&nbsp;{{user.name}}
+          <small ng-if="user.alreadyGrantee">(already has permission)</small>
+        </div>
+       </ui-select-choices>
+    </ui-select>
+    <br/>
+    <ui-select ng-model="$ctrl.newGrantee.selected" on-select="$ctrl.addGrantee($item, 'modify')">
+       <ui-select-match placeholder="Add Modify New User"></ui-select-match>
+       <ui-select-choices repeat="user in $ctrl.foundUsers['modify'] | filter:$select.search"
+                         refresh="$ctrl.findUser($select.search, 'modify')"
                          refresh-delay="0"
                          ui-disable-choice="user.alreadyGrantee">
         <div>
