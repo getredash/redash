@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Fix: page freezes when rendering large result set.
 - Fix: chart embeds were not rendering in PhantomJS.
 
 ## v1.0.1 - 2017-04-02
