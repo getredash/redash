@@ -1,9 +1,10 @@
 # Change Log
 
-## UNRELEASED
+## v1.0.2 - 2017-04-18
 
 ### Fixed
 
+- Fix: support for unicode in dashboard tags. @deecay
 - Fix: page freezes when rendering large result set.
 - Fix: chart embeds were not rendering in PhantomJS.
 
