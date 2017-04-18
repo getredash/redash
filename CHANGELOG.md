@@ -1,5 +1,11 @@
 # Change Log
 
+## v1.0.3 - 2017-04-18
+
+### Fixed
+
+- Fix: sort by column no longer working.
+
 ## v1.0.2 - 2017-04-18
 
 ### Fixed
