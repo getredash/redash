@@ -4,6 +4,7 @@
 
 ### Fixed
 
+- Fix: favicon wasn't showing up.
 - Fix: support for unicode in dashboard tags. @deecay
 - Fix: page freezes when rendering large result set.
 - Fix: chart embeds were not rendering in PhantomJS.
