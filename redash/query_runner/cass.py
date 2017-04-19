@@ -1,5 +1,6 @@
 import json
 import logging
+import uuid
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder
@@ -13,6 +14,11 @@ try:
 except ImportError:
     enabled = False
 
+class CassandraJSONEncoder(JSONEncoder):
+    def default(self, o):
+        if isinstance(o, uuid.UUID):
+            return str(o)
+        return super(CassandraJSONEncoder, self).default(o)
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
@@ -50,6 +56,15 @@ class Cassandra(BaseQueryRunner):
                     "type": "string",
                     "title": "Documentation URL",
                     "default": cls.default_doc_url
+                },
+                'protocol': {
+                    'type': 'number',
+                    'title': 'Protocol Version',
+                    'default': 3
+                },
+                'cqlversion': {
+                    'type': 'string',
+                    'title': 'CQL Version'
                 }
             },
             'required': ['keyspace', 'host']
@@ -83,10 +98,9 @@ class Cassandra(BaseQueryRunner):
             if self.configuration.get('username', '') and self.configuration.get('password', ''):
                 auth_provider = PlainTextAuthProvider(username='{}'.format(self.configuration.get('username', '')),
                                                       password='{}'.format(self.configuration.get('password', '')))
-                connection = Cluster([self.configuration.get('host', '')], auth_provider=auth_provider, protocol_version=3)
+		connection = Cluster([self.configuration.get('host', '')], auth_provider=auth_provider, protocol_version=self.configuration.get('protocol', ''), cql_version=self.configuration.get('cqlversion', ''))
             else:
-                connection = Cluster([self.configuration.get('host', '')], protocol_version=3)
-
+                connection = Cluster([self.configuration.get('host', '')], protocol_version=self.configuration.get('protocol', ''), cql_version=self.configuration.get('cqlversion', ''))
             session = connection.connect()
             session.set_keyspace(self.configuration['keyspace'])
             logger.debug("Cassandra running query: %s", query)
@@ -99,7 +113,7 @@ class Cassandra(BaseQueryRunner):
             rows = [dict(zip(column_names, row)) for row in result]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json.dumps(data, cls=CassandraJSONEncoder)
 
             error = None
         except KeyboardInterrupt:
