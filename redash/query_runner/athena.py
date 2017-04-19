@@ -132,6 +132,10 @@ class AthenaDirect(BaseQueryRunner):
                 's3_staging_dir': {
                     'type': 'string',
                     'title': 'S3 Staging Path'
+                },
+                'database': {
+                    'type': 'string',
+                    'default': 'default'
                 }
             },
             'required': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir'],
@@ -162,7 +166,7 @@ class AthenaDirect(BaseQueryRunner):
         response = client.run_query(
             Query=query,
             OutputLocation=self.configuration['s3_staging_dir'],
-            QueryExecutionContext={'Database': 'default'})
+            QueryExecutionContext={'Database': self.configuration['database']})
         waiter = client.get_waiter('query_completed')
         waiter.wait(QueryExecutionId=response['QueryExecutionId'])
 
