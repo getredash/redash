@@ -1,7 +1,11 @@
 import json
 import os
 
-import botocore.session
+try:
+    import botocore.session
+    direct_enabled = True
+except ImportError:
+    direct_enabled = False
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder
@@ -103,6 +107,10 @@ class AthenaDirect(BaseQueryRunner):
     @classmethod
     def name(cls):
         return "Amazon Athena (direct)"
+
+    @classmethod
+    def enabled(cls):
+        return direct_enabled
 
     @classmethod
     def configuration_schema(cls):
