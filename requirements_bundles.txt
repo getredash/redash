@@ -2,6 +2,8 @@
 # loading mechanism need on Python 2 and can be removed
 # when moved to Python 3.
 # It's automatically installed when running npm run bundle
+# This is the Mozilla Redash extension
+redash-stmo>=2019.9.0
 
 # These can be removed when upgrading to Python 3.x
 importlib-metadata>=1.6  # remove when on 3.8

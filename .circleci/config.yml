@@ -1,17 +1,5 @@
 version: 2.0
 
-build-docker-image-job: &build-docker-image-job
-  docker:
-    - image: circleci/node:12
-  steps:
-    - setup_remote_docker
-    - checkout
-    - run: sudo apt update
-    - run: sudo apt install python3-pip
-    - run: sudo pip3 install -r requirements_bundles.txt
-    - run: .circleci/update_version
-    - run: npm run bundle
-    - run: .circleci/docker_build
 jobs:
   backend-lint:
     docker:
@@ -83,68 +71,95 @@ jobs:
           name: Run Visualizations Tests
           command: (cd viz-lib && npm test)
       - run: npm run lint
-  frontend-e2e-tests:
-    environment:
-      COMPOSE_FILE: .circleci/docker-compose.cypress.yml
-      COMPOSE_PROJECT_NAME: cypress
-      PERCY_TOKEN_ENCODED: ZGRiY2ZmZDQ0OTdjMzM5ZWE0ZGQzNTZiOWNkMDRjOTk4Zjg0ZjMxMWRmMDZiM2RjOTYxNDZhOGExMjI4ZDE3MA==
-      CYPRESS_PROJECT_ID_ENCODED: OTI0Y2th
-      CYPRESS_RECORD_KEY_ENCODED: YzA1OTIxMTUtYTA1Yy00NzQ2LWEyMDMtZmZjMDgwZGI2ODgx
+  build-docker-image:
     docker:
       - image: circleci/node:12
     steps:
       - setup_remote_docker
       - checkout
-      - run:
-          name: Install npm dependencies
-          command: |
-            npm ci
-      - run:
-          name: Setup Redash server
-          command: |
-            npm run cypress build
-            npm run cypress start -- --skip-db-seed
-            docker-compose run cypress npm run cypress db-seed
-      - run:
-          name: Execute Cypress tests
-          command: npm run cypress run-ci
-  build-docker-image: *build-docker-image-job
-  build-preview-docker-image: *build-docker-image-job
+      - run: echo "export MOZILLA_VERSION=master" >> $BASH_ENV
+      - run: sudo apt update
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
+      - run: .circleci/update_version
+      - run: npm run bundle
+      - run: .circleci/docker_build
+  build-docker-image-rc:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: echo "export MOZILLA_VERSION=rc" >> $BASH_ENV
+      - run: sudo apt update
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
+      - run: .circleci/update_version
+      - run: npm run bundle
+      - run: .circleci/docker_build
+  build-docker-image-tag:
+    docker:
+      - image: circleci/node:12
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: echo "export MOZILLA_VERSION=$CIRCLE_TAG" >> $BASH_ENV
+      - run: sudo apt update
+      - run: sudo apt install python3-pip
+      - run: sudo pip3 install -r requirements_bundles.txt
+      - run: .circleci/update_version
+      - run: npm run bundle
+      - run: .circleci/docker_build
+      # Create alias from tag to "latest":
+      - run: docker tag $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:latest
+      - run: docker push $DOCKERHUB_REPO:latest
 workflows:
   version: 2
   build:
     jobs:
-      - backend-lint
+      - backend-lint:
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
       - backend-unit-tests:
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
           requires:
             - backend-lint
-      - frontend-lint
+      - frontend-lint:
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
       - frontend-unit-tests:
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
           requires:
             - backend-lint
             - frontend-lint
-      - frontend-e2e-tests:
-          requires:
-            - frontend-lint
-      - build-preview-docker-image:
+      - build-docker-image:
           requires:
             - backend-unit-tests
             - frontend-unit-tests
-            - frontend-e2e-tests
           filters:
             branches:
               only:
                 - master
-      - hold:
-          type: approval
+      - build-docker-image-rc:
           requires:
             - backend-unit-tests
             - frontend-unit-tests
-            - frontend-e2e-tests
           filters:
             branches:
               only:
-                - /release\/.*/
-      - build-docker-image:
+                - release
+      - build-docker-image-tag:
           requires:
-            - hold
+            - backend-unit-tests
+            - frontend-unit-tests
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
