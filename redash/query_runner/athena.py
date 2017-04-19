@@ -1,7 +1,11 @@
 import json
 import os
 
-import botocore.session
+try:
+    import botocore.session
+    direct_enabled = True
+except ImportError:
+    direct_enabled = False
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder
@@ -105,6 +109,10 @@ class AthenaDirect(BaseQueryRunner):
         return "Amazon Athena (direct)"
 
     @classmethod
+    def enabled(cls):
+        return direct_enabled
+
+    @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
@@ -124,6 +132,10 @@ class AthenaDirect(BaseQueryRunner):
                 's3_staging_dir': {
                     'type': 'string',
                     'title': 'S3 Staging Path'
+                },
+                'database': {
+                    'type': 'string',
+                    'default': 'default'
                 }
             },
             'required': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir'],
@@ -154,7 +166,7 @@ class AthenaDirect(BaseQueryRunner):
         response = client.run_query(
             Query=query,
             OutputLocation=self.configuration['s3_staging_dir'],
-            QueryExecutionContext={'Database': 'default'})
+            QueryExecutionContext={'Database': self.configuration['database']})
         waiter = client.get_waiter('query_completed')
         waiter.wait(QueryExecutionId=response['QueryExecutionId'])
 
