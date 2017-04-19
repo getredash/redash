@@ -14,11 +14,13 @@ try:
 except ImportError:
     enabled = False
 
+
 class CassandraJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, uuid.UUID):
             return str(o)
         return super(CassandraJSONEncoder, self).default(o)
+
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
@@ -92,9 +94,14 @@ class Cassandra(BaseQueryRunner):
             if self.configuration.get('username', '') and self.configuration.get('password', ''):
                 auth_provider = PlainTextAuthProvider(username='{}'.format(self.configuration.get('username', '')),
                                                       password='{}'.format(self.configuration.get('password', '')))
-		connection = Cluster([self.configuration.get('host', '')], auth_provider=auth_provider, protocol_version=self.configuration.get('protocol', ''), cql_version=self.configuration.get('cqlversion', ''))
+                connection = Cluster([self.configuration.get('host', '')], 
+                                     auth_provider=auth_provider, 
+                                     protocol_version=self.configuration.get('protocol', ''), 
+                                     cql_version=self.configuration.get('cqlversion', ''))
             else:
-                connection = Cluster([self.configuration.get('host', '')], protocol_version=self.configuration.get('protocol', ''), cql_version=self.configuration.get('cqlversion', ''))
+                connection = Cluster([self.configuration.get('host', '')], 
+                                     protocol_version=self.configuration.get('protocol', ''), 
+                                     cql_version=self.configuration.get('cqlversion', ''))
             session = connection.connect()
             session.set_keyspace(self.configuration['keyspace'])
             logger.debug("Cassandra running query: %s", query)
