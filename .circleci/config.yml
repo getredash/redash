@@ -1,125 +1,130 @@
-version: 2.0
+# These environment variables must be set in CircleCI UI
+#
+# DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
+# DOCKER_USER
+# DOCKER_PASS
+#
+
+version: 2
 jobs:
-  unit-tests:
-    environment:
-      COMPOSE_FILE: .circleci/docker-compose.circle.yml
-      COMPOSE_PROJECT_NAME: redash
+  build:
     docker:
-      - image: circleci/buildpack-deps:xenial
+      - image: docker:18.02.0-ce
+    working_directory: ~/mozilla/redash
     steps:
-      - setup_remote_docker
       - checkout
+      - setup_remote_docker
       - run:
-          name: Build Docker Images
-          command: |
-            set -x
-            docker-compose up -d
-            sleep 10
+          command: docker build -t app:build .
+          no_output_timeout: 20m
+
+  test:
+    docker:
+      - image: circleci/node:6.14.3-stretch
+      - image: redis
+      - image: circleci/postgres:10-alpine-postgis
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/test-reports/pytest
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y python-pip python-dev
+      - run: sudo apt-get install -y redis-tools redis-server
+      - run: sudo pip install --upgrade setuptools
+      - run: sudo pip install -r requirements_dev.txt
+      - run: sudo pip install -r requirements.txt
+      - run: sudo npm install
+      - run: sudo npm run build
       - run:
-          name: Create Test Database
-          command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
-      - run:
-          name: Run Tests
-          command: docker-compose run --name tests redash tests --junitxml=junit.xml tests/
-      - run:
-          name: Copy Test Results
-          command: |
-            mkdir -p /tmp/test-results/unit-tests
-            docker cp tests:/app/coverage.xml ./coverage.xml 
-            docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
+          command: pytest --junitxml=/tmp/test-reports/pytest/junit.xml tests/
+          environment:
+            REDASH_REDIS_URL: redis://localhost:6379/0
+            REDASH_DATABASE_URL: "postgresql://postgres@localhost/postgres"
+      - store_artifacts:
+          path: /tmp/test-reports/
+          destination: tr1
       - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: coverage.xml
-  build-tarball:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - checkout
-      - run: npm install
-      - run: npm run build
-      - run: .circleci/update_version
-      - run: .circleci/pack
-      - store_artifacts:
-          path: /tmp/artifacts/
-  build-docker-image:
-    docker:
-      - image: circleci/buildpack-deps:xenial
-    steps:
-      - setup_remote_docker
-      - checkout
-      - run: .circleci/update_version
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker build -t redash/redash:$(.circleci/docker_tag) .
-      - run: docker push redash/redash:$(.circleci/docker_tag)
-  integration-tests:
-    working_directory: ~/redash
-    machine: true
-    environment:
-      REDASH_SERVER_URL : "http://127.0.0.1:5000/"
-      DOCKER_IMAGE: mozilla/redash-ui-tests
+          path: /tmp/test-reports/
+
+  deploy-master:
+    machine:
+      enable: true
+    working_directory: ~/mozilla/redash
     steps:
       - checkout
       - run:
-          name: Install Docker Compose
+          name: Deploy to Dockerhub
+          no_output_timeout: 20m
           command: |
-            set -x
-            pip install --upgrade pip
-            pip install docker-compose>=1.18
-            docker-compose --version
+            ./bin/deploy "master"
+
+  deploy-rc:
+    machine:
+      enable: true
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
       - run:
-          name: Pull redash images
+          name: Deploy to Dockerhub
+          no_output_timeout: 20m
           command: |
-            set -x
-            docker-compose -f docker-compose.yml up --no-start
-            sleep 10
+            ./bin/deploy "rc"
+
+  deploy-milestone:
+    machine:
+      enable: true
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
       - run:
-          name: Pull redash-ui-tests
-          command: docker pull "${DOCKER_IMAGE}":latest
-      - run:
-          name: Setup redash instance
+          name: Deploy milestone to Dockerhub
+          no_output_timeout: 20m
           command: |
-            set -x
-            docker-compose run --rm --user root server create_db
-            docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests"
-            docker-compose run --rm --user root server /app/manage.py users create_root root@example.com "rootuser" --password "IAMROOT" --org default
-            docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"title": "uitests"}'
-            docker-compose run -d -p 5000:5000 --user root server
-            docker-compose start postgres
-            docker-compose run --rm --user root server npm install
-            docker-compose run --rm --user root server npm run build
-      - run:
-          name: Run tests
-          command: |
-            set -x
-            docker run --net="host" --env REDASH_SERVER_URL="${REDASH_SERVER_URL}" "${DOCKER_IMAGE}"
-      - store_artifacts:
-          path: report.html
+            ./bin/deploy "$CIRCLE_TAG"
+            ./bin/alias "$CIRCLE_TAG" "latest"
+
+
 workflows:
   version: 2
-  integration_tests:
+  build-test-deploy:
     jobs:
-      - integration-tests:
+      - build:
           filters:
-             branches:
-               only: master
-  build:
-    jobs:
-      - unit-tests
-      - build-tarball:
-           requires:
-             - unit-tests
-           filters:
-             tags:
-               only: /v[0-9]+(\.[0-9\-a-z]+)*/
-             branches:
-               only:
-                 - master
-                 - /release\/.*/
-      - build-docker-image:
-           requires:
-             - unit-tests
-           filters:
-             branches:
-               only:
-                 - /release\/.*/
+            tags:
+              only: /.*/
+            branches:
+              ignore:
+                - gh-pages
+
+      - test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore:
+                - gh-pages
+
+      - deploy-master:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - master
+
+      - deploy-rc:
+          requires:
+            - test
+          filters:
+            branches:
+              only:
+                - release
+
+      - deploy-milestone:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
+            branches:
+              ignore: /.*/
