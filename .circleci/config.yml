@@ -39,7 +39,7 @@ jobs:
           name: Copy Test Results
           command: |
             mkdir -p /tmp/test-results/unit-tests
-            docker cp tests:/app/coverage.xml ./coverage.xml 
+            docker cp tests:/app/coverage.xml ./coverage.xml
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - store_test_results:
           path: /tmp/test-results
@@ -96,15 +96,37 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: .circleci/update_version
-      - run: .circleci/docker_build
+      - run: .circleci/update_version "master"
+      - run: .circleci/docker_build "master"
+  build-docker-image-rc:
+    docker:
+      - image: circleci/buildpack-deps:xenial
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: .circleci/update_version "rc"
+      - run: .circleci/docker_build "rc"
+  build-docker-image-tag:
+    docker:
+      - image: circleci/buildpack-deps:xenial
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: .circleci/update_version "$CIRCLE_TAG"
+      - run: .circleci/docker_build "rc"
+      # Create alias from tag to "latest":
+      - run: docker tag $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:latest
+      - run: docker push $DOCKERHUB_REPO:latest
 workflows:
   version: 2
   build:
     jobs:
       - python-flake8-tests
       - legacy-python-flake8-tests
-      - backend-unit-tests
+      - backend-unit-tests:
+        filters:
+          tags:
+            only: /^m[0-9]+(\.[0-9]+)?$/
       - frontend-unit-tests
       - frontend-e2e-tests
       - build-tarball:
@@ -116,7 +138,6 @@ workflows:
             branches:
               only:
                 - master
-                - /release\/.*/
       - build-docker-image:
           requires:
             - backend-unit-tests
@@ -126,5 +147,22 @@ workflows:
             branches:
               only:
                 - master
-                - preview-image
-                - /release\/.*/
+      - build-docker-image-rc:
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              only:
+                - release
+      - build-docker-image-tag:
+          requires:
+            - backend-unit-tests
+            - frontend-unit-tests
+            - frontend-e2e-tests
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
