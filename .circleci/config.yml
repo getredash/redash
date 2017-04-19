@@ -39,7 +39,7 @@ jobs:
           name: Copy Test Results
           command: |
             mkdir -p /tmp/test-results/unit-tests
-            docker cp tests:/app/coverage.xml ./coverage.xml 
+            docker cp tests:/app/coverage.xml ./coverage.xml
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - store_test_results:
           path: /tmp/test-results
@@ -76,29 +76,41 @@ jobs:
       - run:
           name: Execute Cypress tests
           command: npm run cypress run-ci
-  build-tarball:
-    docker:
-      - image: circleci/node:8
-    steps:
-      - checkout
-      - run: sudo apt install python-pip
-      - run: npm install
-      - run: .circleci/update_version
-      - run: npm run bundle
-      - run: npm run build
-      - run: .circleci/pack
-      - store_artifacts:
-          path: /tmp/artifacts/
-  build-docker-image:
+  deploy-master:
     docker:
       - image: circleci/buildpack-deps:xenial
     steps:
       - setup_remote_docker
       - checkout
-      - run: .circleci/update_version
+      - run: ./bin/dockerflow-version "master"
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker build -t redash/redash:$(.circleci/docker_tag) .
-      - run: docker push redash/redash:$(.circleci/docker_tag)
+      - run: docker build -t $DOCKERHUB_REPO:master .
+      - run: docker push $DOCKERHUB_REPO:master
+  deploy-rc:
+    docker:
+      - image: circleci/buildpack-deps:xenial
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: ./bin/dockerflow-version "rc"
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker build -t $DOCKERHUB_REPO:rc .
+      - run: docker push $DOCKERHUB_REPO:rc
+  deploy-milestone:
+    docker:
+      - image: circleci/buildpack-deps:xenial
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run: ./bin/dockerflow-version "$CIRCLE_TAG"
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker build -t $DOCKERHUB_REPO:$CIRCLE_TAG .
+      - run: docker push $DOCKERHUB_REPO:$CIRCLE_TAG
+      # Create alias from tag to "latest"
+      - run: docker tag $DOCKERHUB_REPO:$CIRCLE_TAG $DOCKERHUB_REPO:latest
+      - run: docker push $DOCKERHUB_REPO:latest
+
+
 workflows:
   version: 2
   build:
@@ -108,22 +120,27 @@ workflows:
       - backend-unit-tests
       - frontend-unit-tests
       - frontend-e2e-tests
-      - build-tarball:
-           requires:
-             - backend-unit-tests
-           filters:
-             tags:
-               only: /v[0-9]+(\.[0-9\-a-z]+)*/
-             branches:
-               only:
-                 - master
-                 - /release\/.*/
-      - build-docker-image:
-           requires:
-             - backend-unit-tests
-           filters:
-             branches:
-               only:
-                 - master
-                 - preview-build
-                 - /release\/.*/
+      - deploy-master:
+          requires:
+            - backend-unit-tests
+          filters:
+            branches:
+              only:
+                - master
+
+      - deploy-rc:
+          requires:
+            - backend-unit-tests
+          filters:
+            branches:
+              only:
+                - release
+
+      - deploy-milestone:
+          requires:
+            - backend-unit-tests
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
+            branches:
+              ignore: /.*/
