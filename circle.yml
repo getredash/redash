@@ -17,20 +17,22 @@ test:
   override:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
 deployment:
-  github_and_docker:
-    branch: master
+  hub_releases:
+    tag: /^m[0-9]+(\.[0-9]+)?$/
+    owner: mozilla
     commands:
-      - make pack
-      # Skipping uploads for now, until master is stable.
-      # - make upload
-      #- echo "client/app" >> .dockerignore
-      #- docker pull redash/redash:latest
+      - "[ ! -z $DOCKERHUB_REPO ]"
+      - >
+        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
+        "$CIRCLE_SHA1"
+        "$CIRCLE_TAG"
+        "$CIRCLE_PROJECT_USERNAME"
+        "$CIRCLE_PROJECT_REPONAME"
+        "$CIRCLE_BUILD_URL"
+        > version.json
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
-      - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
-notify:
-  webhooks:
-    - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
+      - docker build -t $DOCKERHUB_REPO:$CIRCLE_TAG .
+      - docker push $DOCKERHUB_REPO:$CIRCLE_TAG
 general:
   branches:
     ignore:
