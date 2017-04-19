@@ -2,6 +2,7 @@
 # loading mechanism need on Python 2 and can be removed
 # when moved to Python 3.
 # It's automatically installed when running npm run bundle
+redash-stmo>=2019.7.2
 
 # These can be removed when upgrading to Python 3.x
 importlib-metadata==0.9  # remove when on 3.8
