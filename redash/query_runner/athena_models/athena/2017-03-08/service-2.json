@@ -1,0 +1,1051 @@
+{
+  "version": "2.0",
+  "metadata": {
+    "apiVersion": "2017-03-08",
+    "endpointPrefix": "athena",
+    "jsonVersion": "1.1",
+    "protocol": "json",
+    "serviceFullName": "Amazon Athena",
+    "signatureVersion": "v4",
+    "targetPrefix": "AmazonAthena",
+    "uid": "athena-2017-03-08"
+  },
+  "operations": {
+    "CancelQueryExecution": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "CancelQueryExecutionRequest"
+      },
+      "name": "CancelQueryExecution"
+    },
+    "DeleteQuery": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "DeleteQueryRequest"
+      },
+      "name": "DeleteQuery"
+    },
+    "GetCatalogs": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "name": "GetCatalogs",
+      "output": {
+        "shape": "GetCatalogsResult"
+      }
+    },
+    "GetExecutionEngine": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetExecutionEngineRequest"
+      },
+      "name": "GetExecutionEngine",
+      "output": {
+        "shape": "GetExecutionEngineResult"
+      }
+    },
+    "GetExecutionEngines": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "name": "GetExecutionEngines",
+      "output": {
+        "shape": "GetExecutionEnginesResult"
+      }
+    },
+    "GetNamespace": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetNamespaceRequest"
+      },
+      "name": "GetNamespace",
+      "output": {
+        "shape": "GetNamespaceResult"
+      }
+    },
+    "GetNamespaces": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetNamespacesRequest"
+      },
+      "name": "GetNamespaces",
+      "output": {
+        "shape": "GetNamespacesResult"
+      }
+    },
+    "GetQueries": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetQueriesRequest"
+      },
+      "name": "GetQueries",
+      "output": {
+        "shape": "GetQueriesResult"
+      }
+    },
+    "GetQuery": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetQueryRequest"
+      },
+      "name": "GetQuery",
+      "output": {
+        "shape": "GetQueryResult"
+      }
+    },
+    "GetQueryExecution": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetQueryExecutionRequest"
+      },
+      "name": "GetQueryExecution",
+      "output": {
+        "shape": "GetQueryExecutionResult"
+      }
+    },
+    "GetQueryExecutions": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetQueryExecutionsRequest"
+      },
+      "name": "GetQueryExecutions",
+      "output": {
+        "shape": "GetQueryExecutionsResult"
+      }
+    },
+    "GetQueryResults": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetQueryResultsRequest"
+      },
+      "name": "GetQueryResults",
+      "output": {
+        "shape": "GetQueryResultsResult"
+      }
+    },
+    "GetTable": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetTableRequest"
+      },
+      "name": "GetTable",
+      "output": {
+        "shape": "GetTableResult"
+      }
+    },
+    "GetTables": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "GetTablesRequest"
+      },
+      "name": "GetTables",
+      "output": {
+        "shape": "GetTablesResult"
+      }
+    },
+    "RunQuery": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "RunQueryRequest"
+      },
+      "name": "RunQuery",
+      "output": {
+        "shape": "RunQueryResult"
+      }
+    },
+    "SaveQuery": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "SaveQueryRequest"
+      },
+      "name": "SaveQuery",
+      "output": {
+        "shape": "SaveQueryResult"
+      }
+    },
+    "UpdateQueryExecutionStats": {
+      "http": {
+        "method": "POST",
+        "requestUri": "/"
+      },
+      "input": {
+        "shape": "UpdateQueryExecutionStatsRequest"
+      },
+      "name": "UpdateQueryExecutionStats"
+    }
+  },
+  "shapes": {
+    "Boolean": {
+      "type": "boolean"
+    },
+    "CancelQueryExecutionRequest": {
+      "members": {
+        "QueryExecutionId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "Catalog": {
+      "members": {
+        "CatalogId": {
+          "shape": "String"
+        },
+        "CatalogName": {
+          "shape": "String"
+        },
+        "Description": {
+          "shape": "String"
+        },
+        "Parameters": {
+          "shape": "StringStringMap"
+        }
+      },
+      "type": "structure"
+    },
+    "CatalogList": {
+      "member": {
+        "shape": "Catalog"
+      },
+      "type": "list"
+    },
+    "Column": {
+      "members": {
+        "Comment": {
+          "shape": "String"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "Type": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "ColumnInfo": {
+      "members": {
+        "CaseSensitive": {
+          "shape": "Boolean"
+        },
+        "CatalogName": {
+          "shape": "String"
+        },
+        "Label": {
+          "shape": "String"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "Nullable": {
+          "shape": "ColumnNullable"
+        },
+        "Precision": {
+          "shape": "Integer"
+        },
+        "Scale": {
+          "shape": "Integer"
+        },
+        "SchemaName": {
+          "shape": "String"
+        },
+        "TableName": {
+          "shape": "String"
+        },
+        "Type": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "ColumnInfoList": {
+      "member": {
+        "shape": "ColumnInfo"
+      },
+      "type": "list"
+    },
+    "ColumnList": {
+      "member": {
+        "shape": "Column"
+      },
+      "type": "list"
+    },
+    "ColumnNullable": {
+      "enum": [
+        "NOTNULL",
+        "NULLABLE",
+        "UNKNOWN"
+      ],
+      "type": "string"
+    },
+    "DataType": {
+      "members": {
+        "AutoIncrementable": {
+          "shape": "Boolean"
+        },
+        "CaseSensitive": {
+          "shape": "Boolean"
+        },
+        "IsUnsigned": {
+          "shape": "Boolean"
+        },
+        "MaximumScale": {
+          "shape": "Integer"
+        },
+        "MinimumScale": {
+          "shape": "Integer"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "Nullable": {
+          "shape": "Boolean"
+        },
+        "Precision": {
+          "shape": "String"
+        },
+        "Searchable": {
+          "shape": "Searchable"
+        }
+      },
+      "type": "structure"
+    },
+    "DataTypeList": {
+      "member": {
+        "shape": "DataType"
+      },
+      "type": "list"
+    },
+    "Date": {
+      "type": "timestamp"
+    },
+    "DeleteQueryRequest": {
+      "members": {
+        "QueryId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "ExecutionEngine": {
+      "members": {
+        "DataTypeList": {
+          "shape": "DataTypeList"
+        },
+        "ExecutionEngineId": {
+          "shape": "String"
+        },
+        "ExecutionEngineName": {
+          "shape": "String"
+        },
+        "ExecutionEngineProperties": {
+          "shape": "StringStringMap"
+        },
+        "ExecutionEngineVersion": {
+          "shape": "String"
+        },
+        "FunctionList": {
+          "shape": "FunctionList"
+        }
+      },
+      "type": "structure"
+    },
+    "ExecutionEngineList": {
+      "member": {
+        "shape": "ExecutionEngine"
+      },
+      "type": "list"
+    },
+    "Function": {
+      "members": {
+        "FunctionDescription": {
+          "shape": "String"
+        },
+        "FunctionName": {
+          "shape": "String"
+        },
+        "FunctionType": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "FunctionList": {
+      "member": {
+        "shape": "Function"
+      },
+      "type": "list"
+    },
+    "GetCatalogsResult": {
+      "members": {
+        "Catalogs": {
+          "shape": "CatalogList"
+        }
+      },
+      "type": "structure"
+    },
+    "GetExecutionEngineRequest": {
+      "members": {
+        "ExecutionEngineId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetExecutionEngineResult": {
+      "members": {
+        "ExecutionEngine": {
+          "shape": "ExecutionEngine"
+        }
+      },
+      "type": "structure"
+    },
+    "GetExecutionEnginesResult": {
+      "members": {
+        "ExecutionEngineList": {
+          "shape": "ExecutionEngineList"
+        }
+      },
+      "type": "structure"
+    },
+    "GetNamespaceRequest": {
+      "members": {
+        "CatalogId": {
+          "shape": "String"
+        },
+        "NamespaceName": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetNamespaceResult": {
+      "members": {
+        "Namespace": {
+          "shape": "Namespace"
+        }
+      },
+      "type": "structure"
+    },
+    "GetNamespacesRequest": {
+      "members": {
+        "CatalogId": {
+          "shape": "String"
+        },
+        "NextToken": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetNamespacesResult": {
+      "members": {
+        "NamespaceList": {
+          "shape": "NamespaceList"
+        },
+        "NextToken": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueriesRequest": {
+      "members": {
+        "MaxResults": {
+          "shape": "Integer"
+        },
+        "NextToken": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueriesResult": {
+      "members": {
+        "NextToken": {
+          "shape": "String"
+        },
+        "Queries": {
+          "shape": "QueryList"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryExecutionRequest": {
+      "members": {
+        "QueryExecutionId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryExecutionResult": {
+      "members": {
+        "QueryExecutionDetail": {
+          "shape": "QueryExecutionDetail"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryExecutionsRequest": {
+      "members": {
+        "MaxResults": {
+          "shape": "Integer"
+        },
+        "NextToken": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryExecutionsResult": {
+      "members": {
+        "NextToken": {
+          "shape": "String"
+        },
+        "QueryExecutions": {
+          "shape": "QueryExecutionDetailList"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryRequest": {
+      "members": {
+        "QueryId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryResult": {
+      "members": {
+        "Query": {
+          "shape": "Query"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryResultsRequest": {
+      "members": {
+        "MaxResults": {
+          "shape": "Integer"
+        },
+        "NextToken": {
+          "shape": "String"
+        },
+        "QueryExecutionId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetQueryResultsResult": {
+      "members": {
+        "NextToken": {
+          "shape": "String"
+        },
+        "Output": {
+          "shape": "String"
+        },
+        "ResultSet": {
+          "shape": "ResultSet"
+        },
+        "UpdateCount": {
+          "shape": "Long"
+        },
+        "UpdateType": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetTableRequest": {
+      "members": {
+        "CatalogId": {
+          "shape": "String"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "NamespaceName": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetTableResult": {
+      "members": {
+        "Table": {
+          "shape": "Table"
+        }
+      },
+      "type": "structure"
+    },
+    "GetTablesRequest": {
+      "members": {
+        "CatalogId": {
+          "shape": "String"
+        },
+        "Expression": {
+          "shape": "String"
+        },
+        "NamespaceName": {
+          "shape": "String"
+        },
+        "NextToken": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "GetTablesResult": {
+      "members": {
+        "NextToken": {
+          "shape": "String"
+        },
+        "TableList": {
+          "shape": "TableList"
+        }
+      },
+      "type": "structure"
+    },
+    "Integer": {
+      "type": "integer"
+    },
+    "Long": {
+      "type": "long"
+    },
+    "Namespace": {
+      "members": {
+        "Description": {
+          "shape": "String"
+        },
+        "LocationUri": {
+          "shape": "String"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "Parameters": {
+          "shape": "StringStringMap"
+        }
+      },
+      "type": "structure"
+    },
+    "NamespaceList": {
+      "member": {
+        "shape": "Namespace"
+      },
+      "type": "list"
+    },
+    "Order": {
+      "members": {
+        "Column": {
+          "shape": "String"
+        },
+        "Ordering": {
+          "shape": "Integer"
+        }
+      },
+      "type": "structure"
+    },
+    "OrderList": {
+      "member": {
+        "shape": "Order"
+      },
+      "type": "list"
+    },
+    "Query": {
+      "members": {
+        "Database": {
+          "shape": "String"
+        },
+        "Description": {
+          "shape": "String"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "QueryId": {
+          "shape": "String"
+        },
+        "QueryString": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "QueryExecutionContext": {
+      "members": {
+        "Database": {
+          "shape": "String"
+        },
+        "QueryId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "QueryExecutionDetail": {
+      "members": {
+        "OutputLocation": {
+          "shape": "String"
+        },
+        "Query": {
+          "shape": "String"
+        },
+        "QueryExecutionContext": {
+          "shape": "QueryExecutionContext"
+        },
+        "QueryExecutionId": {
+          "shape": "String"
+        },
+        "Stats": {
+          "shape": "QueryExecutionStats"
+        },
+        "Status": {
+          "shape": "QueryExecutionStatus"
+        }
+      },
+      "type": "structure"
+    },
+    "QueryExecutionDetailList": {
+      "member": {
+        "shape": "QueryExecutionDetail"
+      },
+      "type": "list"
+    },
+    "QueryExecutionState": {
+      "enum": [
+        "SUBMITTED",
+        "RUNNING",
+        "SUCCEEDED",
+        "FAILED",
+        "CANCELED"
+      ],
+      "type": "string"
+    },
+    "QueryExecutionStats": {
+      "members": {
+        "EngineExecutionTimeInMillis": {
+          "shape": "Long"
+        },
+        "ProcessedBytes": {
+          "shape": "Long"
+        },
+        "ProcessedInputBytes": {
+          "shape": "Long"
+        },
+        "ProcessedInputRows": {
+          "shape": "Long"
+        },
+        "ProcessedRows": {
+          "shape": "Long"
+        }
+      },
+      "type": "structure"
+    },
+    "QueryExecutionStatus": {
+      "members": {
+        "CompletionDateTime": {
+          "shape": "Date"
+        },
+        "State": {
+          "shape": "QueryExecutionState"
+        },
+        "StateChangeReason": {
+          "shape": "String"
+        },
+        "SubmissionDateTime": {
+          "shape": "Date"
+        }
+      },
+      "type": "structure"
+    },
+    "QueryList": {
+      "member": {
+        "shape": "Query"
+      },
+      "type": "list"
+    },
+    "ResultRow": {
+      "members": {
+        "Data": {
+          "shape": "StringList"
+        }
+      },
+      "type": "structure"
+    },
+    "ResultRowList": {
+      "member": {
+        "shape": "ResultRow"
+      },
+      "type": "list"
+    },
+    "ResultSet": {
+      "members": {
+        "ColumnInfos": {
+          "shape": "ColumnInfoList"
+        },
+        "ResultRows": {
+          "shape": "ResultRowList"
+        }
+      },
+      "type": "structure"
+    },
+    "RunQueryRequest": {
+      "members": {
+        "ClientRequestToken": {
+          "idempotencyToken": true,
+          "shape": "String"
+        },
+        "OutputLocation": {
+          "shape": "String"
+        },
+        "Query": {
+          "shape": "String"
+        },
+        "QueryExecutionContext": {
+          "shape": "QueryExecutionContext"
+        }
+      },
+      "type": "structure"
+    },
+    "RunQueryResult": {
+      "members": {
+        "QueryExecutionId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "SaveQueryRequest": {
+      "members": {
+        "ClientRequestToken": {
+          "idempotencyToken": true,
+          "shape": "String"
+        },
+        "Query": {
+          "shape": "Query"
+        }
+      },
+      "type": "structure"
+    },
+    "SaveQueryResult": {
+      "members": {
+        "QueryId": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "Searchable": {
+      "enum": [
+        "NOT_SUPPORTED",
+        "ONLY_WITH_LIKE_CALUSE",
+        "NOT_WITH_LIKE_CALUSE",
+        "SUPPORTED",
+        "CANCELED"
+      ],
+      "type": "string"
+    },
+    "SerDeInfo": {
+      "members": {
+        "Name": {
+          "shape": "String"
+        },
+        "Parameters": {
+          "shape": "StringStringMap"
+        },
+        "SerializationLibrary": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "SkewedInfo": {
+      "members": {
+        "SkewedColumnNames": {
+          "shape": "StringList"
+        },
+        "SkewedColumnValueLocationMaps": {
+          "shape": "StringStringMap"
+        },
+        "SkewedColumnValues": {
+          "shape": "StringList"
+        }
+      },
+      "type": "structure"
+    },
+    "StorageDescriptor": {
+      "members": {
+        "BucketColumns": {
+          "shape": "StringList"
+        },
+        "Columns": {
+          "shape": "ColumnList"
+        },
+        "Compressed": {
+          "shape": "Boolean"
+        },
+        "InputFormat": {
+          "shape": "String"
+        },
+        "Location": {
+          "shape": "String"
+        },
+        "NumberOfBuckets": {
+          "shape": "Integer"
+        },
+        "OutputFormat": {
+          "shape": "String"
+        },
+        "Parameters": {
+          "shape": "StringStringMap"
+        },
+        "SerdeInfo": {
+          "shape": "SerDeInfo"
+        },
+        "SkewedInfo": {
+          "shape": "SkewedInfo"
+        },
+        "SortColumns": {
+          "shape": "OrderList"
+        },
+        "StoredAsSubDirectories": {
+          "shape": "Boolean"
+        }
+      },
+      "type": "structure"
+    },
+    "String": {
+      "type": "string"
+    },
+    "StringList": {
+      "member": {
+        "shape": "String"
+      },
+      "type": "list"
+    },
+    "StringStringMap": {
+      "key": {
+        "shape": "String"
+      },
+      "type": "map",
+      "value": {
+        "shape": "String"
+      }
+    },
+    "Table": {
+      "members": {
+        "CreateTime": {
+          "shape": "Date"
+        },
+        "LastAccessTime": {
+          "shape": "Date"
+        },
+        "LastAnalyzedTime": {
+          "shape": "Date"
+        },
+        "Name": {
+          "shape": "String"
+        },
+        "Owner": {
+          "shape": "String"
+        },
+        "Parameters": {
+          "shape": "StringStringMap"
+        },
+        "PartitionKeys": {
+          "shape": "ColumnList"
+        },
+        "Retention": {
+          "shape": "Integer"
+        },
+        "StorageDescriptor": {
+          "shape": "StorageDescriptor"
+        },
+        "TableType": {
+          "shape": "String"
+        },
+        "ViewExpandedText": {
+          "shape": "String"
+        },
+        "ViewOriginalText": {
+          "shape": "String"
+        }
+      },
+      "type": "structure"
+    },
+    "TableList": {
+      "member": {
+        "shape": "Table"
+      },
+      "type": "list"
+    },
+    "UpdateQueryExecutionStatsRequest": {
+      "members": {
+        "QueryExecutionId": {
+          "shape": "String"
+        },
+        "QueryFinalStatusTimeInMillis": {
+          "shape": "Long"
+        },
+        "QueryResultTimeInMillis": {
+          "shape": "Long"
+        },
+        "RunQueryResponseTimeInMillis": {
+          "shape": "Long"
+        },
+        "RunQuerySubmittedTimeInMillis": {
+          "shape": "Long"
+        }
+      },
+      "type": "structure"
+    }
+  }
+}

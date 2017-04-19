@@ -1,0 +1,16 @@
+{
+    "pagination": {
+        "GetQueryResults": {
+            "input_token": "NextToken",
+            "output_token": "NextToken",
+            "limit_key": "MaxResults",
+            "result_key": "ResultSet.ResultRows",
+            "non_aggregate_keys": [
+                "Output",
+                "ResultSet.ColumnInfos",
+                "UpdateType",
+                "UpdateCount"
+            ]
+        }
+    }
+}
