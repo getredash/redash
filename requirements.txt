@@ -43,4 +43,3 @@ pystache==0.5.4
 parsedatetime==2.1
 cryptography==1.4
 simplejson==3.10.0
-botocore==1.5.21
