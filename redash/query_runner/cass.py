@@ -96,12 +96,12 @@ class Cassandra(BaseQueryRunner):
                                                       password='{}'.format(self.configuration.get('password', '')))
                 connection = Cluster([self.configuration.get('host', '')],
                                      auth_provider=auth_provider,
-                                     protocol_version=self.configuration.get('protocol', ''),
-                                     cql_version=self.configuration.get('cqlversion', ''))
+                                     protocol_version=self.configuration.get('protocol', 3),
+                                     cql_version=self.configuration.get('cqlversion', 'None'))
             else:
                 connection = Cluster([self.configuration.get('host', '')],
-                                     protocol_version=self.configuration.get('protocol', ''),
-                                     cql_version=self.configuration.get('cqlversion', ''))
+                                     protocol_version=self.configuration.get('protocol', 3),
+                                     cql_version=self.configuration.get('cqlversion', 'None'))
             session = connection.connect()
             session.set_keyspace(self.configuration['keyspace'])
             logger.debug("Cassandra running query: %s", query)
