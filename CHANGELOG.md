@@ -1,9 +1,18 @@
 # Change Log
 
-## UNRELEASED
+## v1.0.3 - 2017-04-18
 
 ### Fixed
 
+- Fix: sort by column no longer working.
+
+## v1.0.2 - 2017-04-18
+
+### Fixed
+
+- Fix: favicon wasn't showing up.
+- Fix: support for unicode in dashboard tags. @deecay
+- Fix: page freezes when rendering large result set.
 - Fix: chart embeds were not rendering in PhantomJS.
 
 ## v1.0.1 - 2017-04-02

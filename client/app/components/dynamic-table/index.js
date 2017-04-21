@@ -41,9 +41,9 @@ function DynamicTable($sanitize) {
     }
 
     if (this.orderByField) {
-      this.allRows = sortBy(this.allRows, this.orderByField.name);
+      this.rows = sortBy(this.rows, this.orderByField.name);
       if (this.orderByReverse) {
-        this.allRows = this.allRows.reverse();
+        this.rows = this.rows.reverse();
       }
       this.pageChanged();
     }
