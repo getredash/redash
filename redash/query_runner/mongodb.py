@@ -43,14 +43,18 @@ class MongoDBJSONEncoder(JSONEncoder):
 
 
 date_regex = re.compile("ISODate\(\"(.*)\"\)", re.IGNORECASE)
+objectid_regex = re.compile("ObjectId\(\"(.*)\"\)", re.IGNORECASE)
 
-
-def datetime_parser(dct):
+def query_parser(dct):
     for k, v in dct.iteritems():
         if isinstance(v, basestring):
             m = date_regex.findall(v)
             if len(m) > 0:
                 dct[k] = parse(m[0], yearfirst=True)
+
+            m = objectid_regex.findall(v)
+            if len(m) > 0:
+                dct[k] = ObjectId(m[0])
 
     if '$humanTime' in dct:
         return parse_human_time(dct['$humanTime'])
@@ -59,7 +63,7 @@ def datetime_parser(dct):
 
 
 def parse_query_json(query):
-    query_data = json.loads(query, object_hook=datetime_parser)
+    query_data = json.loads(query, object_hook=query_parser)
     return query_data
 
 
