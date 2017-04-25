@@ -72,7 +72,7 @@ SQLALCHEMY_ECHO = False
 # Celery related settings
 CELERY_BROKER = os.environ.get("REDASH_CELERY_BROKER", REDIS_URL)
 CELERY_BACKEND = os.environ.get("REDASH_CELERY_BACKEND", CELERY_BROKER)
-CELERY_TASK_RESULT_EXPIRES = int(os.environ.get('REDASH_CELERY_TASK_RESULT_EXPIRES', 3600))
+CELERY_TASK_RESULT_EXPIRES = int(os.environ.get('REDASH_CELERY_TASK_RESULT_EXPIRES', 3600 * 12))
 
 # The following enables periodic job (every 5 minutes) of removing unused query results.
 QUERY_RESULTS_CLEANUP_ENABLED = parse_boolean(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP_ENABLED", "true"))
@@ -129,7 +129,7 @@ REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Re
 STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/").split(',')]
 STATIC_ASSETS_PATHS.append(fix_assets_path('./static/'))
 
-JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 6))
+JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
 SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
 
