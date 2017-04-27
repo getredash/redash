@@ -40,6 +40,9 @@ class Athena(BaseQueryRunner):
             'secret': ['aws_secret_key']
         }
 
+    @classmethod
+    def annotate_query(cls):
+        return False
 
     def get_schema(self, get_stats=False):
         schema = {}
