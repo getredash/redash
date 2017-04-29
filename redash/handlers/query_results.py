@@ -1,13 +1,10 @@
-import csv
 import json
-import cStringIO
 import time
 
 import pystache
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-import xlsxwriter
 from redash import models, settings, utils
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
@@ -45,13 +42,21 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query_text, data_source, metadata={"Username": current_user.name, "Query ID": query_id})
+        job = enqueue_query(query_text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
         return {'job': job.to_dict()}
 
 
 class QueryResultListResource(BaseResource):
     @require_permission('execute_query')
     def post(self):
+        """
+        Execute a query (or retrieve recent results).
+
+        :qparam string query: The query text to execute
+        :qparam number query_id: The query object to update with the result (optional)
+        :qparam number max_age: If query results less than `max_age` seconds old are available, return them, otherwise execute the query; if omitted, always execute
+        :qparam number data_source_id: ID of data source to query
+        """
         params = request.get_json(force=True)
         parameter_values = collect_parameters_from_request(request.args)
 
@@ -71,7 +76,6 @@ class QueryResultListResource(BaseResource):
             'object_type': 'data_source',
             'query': query
         })
-
         return run_query(data_source, parameter_values, query, query_id, max_age)
 
 
@@ -84,7 +88,7 @@ class QueryResultResource(BaseResource):
         if 'Origin' in request.headers:
             origin = request.headers['Origin']
 
-            if origin in settings.ACCESS_CONTROL_ALLOW_ORIGIN:
+            if set(['*', origin]) & settings.ACCESS_CONTROL_ALLOW_ORIGIN:
                 headers['Access-Control-Allow-Origin'] = origin
                 headers['Access-Control-Allow-Credentials'] = str(settings.ACCESS_CONTROL_ALLOW_CREDENTIALS).lower()
 
@@ -103,6 +107,21 @@ class QueryResultResource(BaseResource):
 
     @require_permission('view_query')
     def get(self, query_id=None, query_result_id=None, filetype='json'):
+        """
+        Retrieve query results.
+
+        :param number query_id: The ID of the query whose results should be fetched
+        :param number query_result_id: the ID of the query result to fetch
+        :param string filetype: Format to return. One of 'json', 'xlsx', or 'csv'. Defaults to 'json'.
+
+        :<json number id: Query result ID
+        :<json string query: Query that produced this result
+        :<json string query_hash: Hash code for query text
+        :<json object data: Query output
+        :<json number data_source_id: ID of data source that produced this result
+        :<json number runtime: Length of execution time in seconds
+        :<json string retrieved_at: Query retrieval date/time, in ISO format
+        """
         # TODO:
         # This method handles two cases: retrieving result by id & retrieving result by query id.
         # They need to be split, as they have different logic (for example, retrieving by query id
@@ -111,7 +130,7 @@ class QueryResultResource(BaseResource):
         if query_result_id is None and query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
             if query:
-                query_result_id = query._data['latest_query_data']
+                query_result_id = query.latest_query_data_id
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
@@ -167,47 +186,27 @@ class QueryResultResource(BaseResource):
 
     @staticmethod
     def make_csv_response(query_result):
-        s = cStringIO.StringIO()
-
-        query_data = json.loads(query_result.data)
-        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
-        writer.writer = utils.UnicodeWriter(s)
-        writer.writeheader()
-        for row in query_data['rows']:
-            writer.writerow(row)
-
         headers = {'Content-Type': "text/csv; charset=UTF-8"}
-        return make_response(s.getvalue(), 200, headers)
+        return make_response(query_result.make_csv_content(), 200, headers)
 
     @staticmethod
     def make_excel_response(query_result):
-        s = cStringIO.StringIO()
-
-        query_data = json.loads(query_result.data)
-        book = xlsxwriter.Workbook(s)
-        sheet = book.add_worksheet("result")
-
-        column_names = []
-        for (c, col) in enumerate(query_data['columns']):
-            sheet.write(0, c, col['name'])
-            column_names.append(col['name'])
-
-        for (r, row) in enumerate(query_data['rows']):
-            for (c, name) in enumerate(column_names):
-                sheet.write(r + 1, c, row.get(name))
-
-        book.close()
-
         headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
-        return make_response(s.getvalue(), 200, headers)
+        return make_response(query_result.make_excel_content(), 200, headers)
 
 
 class JobResource(BaseResource):
     def get(self, job_id):
+        """
+        Retrieve info about a running query job.
+        """
         job = QueryTask(job_id=job_id)
         return {'job': job.to_dict()}
 
     def delete(self, job_id):
+        """
+        Cancel a query job in progress.
+        """
         job = QueryTask(job_id=job_id)
         job.cancel()
 

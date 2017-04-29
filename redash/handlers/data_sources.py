@@ -1,3 +1,4 @@
+import logging
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
@@ -29,23 +30,24 @@ class DataSourceResource(BaseResource):
         schema = get_configuration_schema_for_query_runner_type(req['type'])
         if schema is None:
             abort(400)
-
         try:
             data_source.options.set_schema(schema)
             data_source.options.update(req['options'])
         except ValidationError:
             abort(400)
-        
+
         data_source.type = req['type']
         data_source.name = req['name']
-        data_source.save()
+        models.db.session.add(data_source)
+        models.db.session.commit()
 
         return data_source.to_dict(all=True)
 
     @require_admin
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        data_source.delete_instance(recursive=True)
+        models.db.session.delete(data_source)
+        models.db.session.commit()
 
         return make_response('', 204)
 
@@ -56,16 +58,19 @@ class DataSourceListResource(BaseResource):
         if self.current_user.has_permission('admin'):
             data_sources = models.DataSource.all(self.current_org)
         else:
-            data_sources = models.DataSource.all(self.current_org, groups=self.current_user.groups)
+            data_sources = models.DataSource.all(self.current_org, group_ids=self.current_user.group_ids)
 
         response = {}
         for ds in data_sources:
             if ds.id in response:
                 continue
 
-            d = ds.to_dict()
-            d['view_only'] = all(project(ds.groups, self.current_user.groups).values())
-            response[ds.id] = d
+            try:
+                d = ds.to_dict()
+                d['view_only'] = all(project(ds.groups, self.current_user.group_ids).values())
+                response[ds.id] = d
+            except AttributeError:
+                logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
         return sorted(response.values(), key=lambda d: d['id'])
 
@@ -89,6 +94,9 @@ class DataSourceListResource(BaseResource):
                                                          name=req['name'],
                                                          type=req['type'],
                                                          options=config)
+
+        models.db.session.commit()
+
         self.record_event({
             'action': 'create',
             'object_id': datasource.id,
@@ -102,7 +110,8 @@ class DataSourceSchemaResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         require_access(data_source.groups, self.current_user, view_only)
-        schema = data_source.get_schema()
+        refresh = request.args.get('refresh') is not None
+        schema = data_source.get_schema(refresh)
 
         return schema
 
@@ -118,26 +127,35 @@ class DataSourcePauseResource(BaseResource):
             reason = request.args.get('reason')
 
         data_source.pause(reason)
-        data_source.save()
 
         self.record_event({
             'action': 'pause',
             'object_id': data_source.id,
             'object_type': 'datasource'
         })
-
         return data_source.to_dict()
 
     @require_admin
     def delete(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         data_source.resume()
-        data_source.save()
 
         self.record_event({
             'action': 'resume',
             'object_id': data_source.id,
             'object_type': 'datasource'
         })
-
         return data_source.to_dict()
+
+
+class DataSourceTestResource(BaseResource):
+    @require_admin
+    def post(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+
+        try:
+            data_source.query_runner.test_connection()
+        except Exception as e:
+            return {"message": unicode(e), "ok": False}
+        else:
+            return {"message": "success", "ok": True}

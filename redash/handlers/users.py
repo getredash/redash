@@ -2,7 +2,7 @@ import time
 from flask import request
 from flask_restful import abort
 from funcy import project
-from peewee import IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from redash import models
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
@@ -31,10 +31,11 @@ class UserListResource(BaseResource):
         user = models.User(org=self.current_org,
                            name=req['name'],
                            email=req['email'],
-                           groups=[self.current_org.default_group.id])
+                           group_ids=[self.current_org.default_group.id])
 
         try:
-            user.save()
+            models.db.session.add(user)
+            models.db.session.commit()
         except IntegrityError as e:
             if "email" in e.message:
                 abort(400, message='Email already taken.')
@@ -74,6 +75,10 @@ class UserResetPasswordResource(BaseResource):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         reset_link = send_password_reset_email(user)
 
+        return {
+            'reset_link': reset_link,
+        }
+
 
 class UserResource(BaseResource):
     def get(self, user_id):
@@ -104,7 +109,8 @@ class UserResource(BaseResource):
             abort(403, message="Must be admin to change groups membership.")
 
         try:
-            user.update_instance(**params)
+            self.update_model(user, params)
+            models.db.session.commit()
         except IntegrityError as e:
             if "email" in e.message:
                 message = "Email already taken."

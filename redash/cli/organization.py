@@ -1,29 +1,37 @@
-from flask_script import Manager
+from click import argument
+from flask.cli import AppGroup
+
 from redash import models
 
-manager = Manager(help="Organization management commands.")
+manager = AppGroup(help="Organization management commands.")
 
 
-@manager.option('domains', help="comma separated list of domains to allow")
+@manager.command()
+@argument('domains')
 def set_google_apps_domains(domains):
-    organization = models.Organization.select().first()
+    """
+    Sets the allowable domains to the comma separated list DOMAINS.
+    """
+    organization = models.Organization.query.first()
+    k = models.Organization.SETTING_GOOGLE_APPS_DOMAINS
+    organization.settings[k] = domains.split(',')
+    models.db.session.add(organization)
+    models.db.session.commit()
+    print "Updated list of allowed domains to: {}".format(
+        organization.google_apps_domains)
 
-    organization.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = domains.split(',')
-    organization.save()
 
-    print "Updated list of allowed domains to: {}".format(organization.google_apps_domains)
-
-
-@manager.command
+@manager.command()
 def show_google_apps_domains():
-    organization = models.Organization.select().first()
-    print "Current list of Google Apps domains: {}".format(organization.google_apps_domains)
+    organization = models.Organization.query.first()
+    print "Current list of Google Apps domains: {}".format(
+        ', '.join(organization.google_apps_domains))
 
 
-@manager.command
+@manager.command()
 def list():
     """List all organizations"""
-    orgs = models.Organization.select()
+    orgs = models.Organization.query
     for i, org in enumerate(orgs):
         if i > 0:
             print "-" * 20

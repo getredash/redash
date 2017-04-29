@@ -3,7 +3,7 @@ from unittest import TestCase
 from redash.permissions import has_access
 
 
-MockUser = namedtuple('MockUser', ['permissions', 'groups'])
+MockUser = namedtuple('MockUser', ['permissions', 'group_ids'])
 view_only = True
 
 

@@ -5,7 +5,7 @@
 <p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">Hi {{ invited.name }},</p>
 <h2 class="intercom-align-left" style="color: #282F33; font-size: 18px; font-weight: bold; margin-bottom: 7px; margin-top: 30px; text-align: left !important" align="left">
     {{ inviter.name }} (<a href="mailto:{{ inviter.email }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ inviter.email }}</a>)
-    invited you to join the Re:dash account of {{ org.name }}.
+    invited you to join the Redash account of {{ org.name }}.
 </h2>
 <table class="intercom-container intercom-align-center" align="center" style="border-collapse: collapse; border-spacing: 0; margin: 17px auto; table-layout: fixed; text-align: center !important"><tr><td style="background: #0071b2; border: 1px none #dadada; border-radius: 3px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; margin: 0; padding: 12px 35px; text-align: left; vertical-align: top" align="left" bgcolor="#0071b2" valign="top"><a class="intercom-h2b-button" target="_blank" href="{{ invite_url }}" style="background: #0071b2; border: none; border-radius: 3px; color: white; display: inline-block; font-size: 14px; font-weight: bold; outline: none !important; text-decoration: none">Setup Account</a></td></tr></table>
 <p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
@@ -13,7 +13,7 @@
 </p>
 <p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
     Your sign-in email is: {{ invited.email }}<br>
-    Your Re:dash account is: <a href="{{ url_for('redash.index', org_slug=org.slug, _external=True) }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ url_for('redash.index', org_slug=org.slug, _external=True) }}</a>
+    Your Redash account is: <a href="{{ url_for('redash.index', org_slug=org.slug, _external=True) }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ url_for('redash.index', org_slug=org.slug, _external=True) }}</a>
 </p>
 
 {% endblock %}

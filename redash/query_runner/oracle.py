@@ -36,6 +36,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 class Oracle(BaseSQLQueryRunner):
+    noop_query = "SELECT 1 FROM dual"
 
     @classmethod
     def get_col_type(cls, col_type, scale):
@@ -98,7 +99,7 @@ class Oracle(BaseSQLQueryRunner):
         WHERE all_tab_cols.OWNER NOT IN('SYS','SYSTEM','ORDSYS','CTXSYS','WMSYS','MDSYS','ORDDATA','XDB','OUTLN','DMSYS','DSSYS','EXFSYS','LBACSYS','TSMSYS')
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -137,7 +138,7 @@ class Oracle(BaseSQLQueryRunner):
             if scale <= 0:
                 return cursor.var(cx_Oracle.STRING, 255, outconverter=Oracle._convert_number, arraysize=cursor.arraysize)
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = cx_Oracle.connect(self.connection_string)
         connection.outputtypehandler = Oracle.output_handler
 

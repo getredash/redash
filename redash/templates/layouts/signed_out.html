@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="stylesheet" href="/styles/superflat_redash.css">
+    <link rel="stylesheet" href="/styles/redash.css">
+    <link rel="stylesheet" href="/styles/login.css">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+</head>
+<body>
+
+<div style="position: absolute; width: 100%; height: 100%;">
+  <div class="logo-container">
+    <div style="display:table-cell; vertical-align:middle;" class="text-center">
+      <img src="/images/logo_white.png" style="width: 184px; height: 96px;">
+    </div>
+  </div>
+
+  <div class="content-container">
+    <div class="" style="display:table-cell;vertical-align:middle;">
+      <div style="max-width:500px; margin: auto;">
+      {% block content %}
+      {% endblock %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+{% block scripts %}
+{% endblock %}
+
+{% include '_includes/signed_out_tail.html' %}
+
+</body>
+</html>

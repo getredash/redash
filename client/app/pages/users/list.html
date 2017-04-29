@@ -1,0 +1,29 @@
+<settings-screen>
+  <div class="row voffset1">
+    <div class="col-md-12">
+      <p ng-if="$ctrl.currentUser.hasPermission('admin')">
+        <a href="users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
+      </p>
+
+      <table class="table table-condensed table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Joined</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="row in $ctrl.users.getPageRows()">
+            <td>
+              <img ng-src="{{row.gravatar_url}}" height="40px"/> <a href="users/{{row.id}}">{{row.name}}</a>
+            </td>
+            <td>
+              <span am-time-ago="row.created_at"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <paginator paginator="$ctrl.users"></paginator>
+    </div>
+  </div>
+</settings-screen>

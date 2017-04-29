@@ -10,7 +10,10 @@ from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
+
 class Sqlite(BaseSQLQueryRunner):
+    noop_query = "pragma quick_check"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -37,7 +40,7 @@ class Sqlite(BaseSQLQueryRunner):
         query_table = "select tbl_name from sqlite_master where type='table'"
         query_columns = "PRAGMA table_info(%s)"
 
-        results, error = self.run_query(query_table)
+        results, error = self.run_query(query_table, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -47,7 +50,7 @@ class Sqlite(BaseSQLQueryRunner):
         for row in results['rows']:
             table_name = row['tbl_name']
             schema[table_name] = {'name': table_name, 'columns': []}
-            results_table, error = self.run_query(query_columns % (table_name,))
+            results_table, error = self.run_query(query_columns % (table_name,), None)
             if error is not None:
                 raise Exception("Failed getting schema.")
 
@@ -57,7 +60,7 @@ class Sqlite(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = sqlite3.connect(self._dbpath)
 
         cursor = connection.cursor()

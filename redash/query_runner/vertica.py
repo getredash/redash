@@ -29,6 +29,8 @@ types_map = {
 
 
 class Vertica(BaseSQLQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -51,6 +53,10 @@ class Vertica(BaseSQLQueryRunner):
                 "port": {
                     "type": "number"
                 },
+                "read_timeout": {
+                    "type": "number",
+                    "title": "Read Timeout"
+                },                                
             },
             'required': ['database'],
             'secret': ['password']
@@ -75,7 +81,7 @@ class Vertica(BaseSQLQueryRunner):
         select table_schema, table_name, column_name from view_columns;
         """
 
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed getting schema.")
@@ -92,7 +98,7 @@ class Vertica(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         import vertica_python
 
         if query == "":
@@ -107,7 +113,8 @@ class Vertica(BaseSQLQueryRunner):
                 'port': self.configuration.get('port', 5433),
                 'user': self.configuration.get('user', ''),
                 'password': self.configuration.get('password', ''),
-                'database': self.configuration.get('database', '')
+                'database': self.configuration.get('database', ''),
+                'read_timeout': self.configuration.get('read_timeout', 600)
             }
             connection = vertica_python.connect(**conn_info)
             cursor = connection.cursor()

@@ -1,3 +1,6 @@
-nose==1.3.0
-coverage==3.7.1
-mock==1.0.1
+nose==1.3.7
+coverage==4.0.3
+mock==2.0.0
+
+# PyMongo is needed for one of the unit tests:
+pymongo==3.2.1

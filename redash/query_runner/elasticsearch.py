@@ -1,4 +1,4 @@
-import json
+import simplejson as json
 import logging
 import sys
 import urllib
@@ -17,27 +17,27 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 ELASTICSEARCH_TYPES_MAPPING = {
-    "integer" : TYPE_INTEGER,
-    "long" : TYPE_INTEGER,
-    "float" : TYPE_FLOAT,
-    "double" : TYPE_FLOAT,
-    "boolean" : TYPE_BOOLEAN,
-    "string" : TYPE_STRING,
-    "date" : TYPE_DATE,
-    "object" : TYPE_STRING,
+    "integer": TYPE_INTEGER,
+    "long": TYPE_INTEGER,
+    "float": TYPE_FLOAT,
+    "double": TYPE_FLOAT,
+    "boolean": TYPE_BOOLEAN,
+    "string": TYPE_STRING,
+    "date": TYPE_DATE,
+    "object": TYPE_STRING,
     # "geo_point" TODO: Need to split to 2 fields somehow
 }
 
 ELASTICSEARCH_BUILTIN_FIELDS_MAPPING = {
-    "_id" : "Id",
-    "_score" : "Score"
+    "_id": "Id",
+    "_score": "Score"
 }
 
 PYTHON_TYPES_MAPPING = {
     str: TYPE_STRING,
     unicode: TYPE_STRING,
-    bool : TYPE_BOOLEAN,
-    int : TYPE_INTEGER,
+    bool: TYPE_BOOLEAN,
+    int: TYPE_INTEGER,
     long: TYPE_INTEGER,
     float: TYPE_FLOAT
 }
@@ -101,16 +101,37 @@ class BaseElasticSearch(BaseQueryRunner):
 
     def _get_mappings(self, url):
         mappings = {}
+        error = None
+        try:
+            r = requests.get(url, auth=self.auth)
+            r.raise_for_status()
 
-        r = requests.get(url, auth=self.auth)
-        mappings_data = r.json()
+            mappings = r.json()
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            mappings = None
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
+            mappings = None
 
+        return mappings, error
+
+    def _get_query_mappings(self, url):
+        mappings_data, error = self._get_mappings(url)
+        if error:
+            return mappings_data, error
+
+        mappings = {}
         for index_name in mappings_data:
             index_mappings = mappings_data[index_name]
             for m in index_mappings.get("mappings", {}):
+                if "properties" not in index_mappings["mappings"][m]:
+                    continue
                 for property_name in index_mappings["mappings"][m]["properties"]:
                     property_data = index_mappings["mappings"][m]["properties"][property_name]
-                    if not property_name in mappings:
+                    if property_name not in mappings:
                         property_type = property_data.get("type", None)
                         if property_type:
                             if property_type in ELASTICSEARCH_TYPES_MAPPING:
@@ -119,7 +140,39 @@ class BaseElasticSearch(BaseQueryRunner):
                                 mappings[property_name] = TYPE_STRING
                                 #raise Exception("Unknown property type: {0}".format(property_type))
 
-        return mappings
+        return mappings, error
+
+    def get_schema(self, *args, **kwargs):
+        def parse_doc(doc, path=None):
+            '''Recursively parse a doc type dictionary
+            '''
+            path = path or []
+            result = []
+            for field, description in doc['properties'].items():
+                if 'properties' in description:
+                    result.extend(parse_doc(description, path + [field]))
+                else:
+                    result.append('.'.join(path + [field]))
+            return result
+
+        schema = {}
+        url = "{0}/_mappings".format(self.server_url)
+        mappings, error = self._get_mappings(url)
+
+        if mappings:
+            # make a schema for each index
+            # the index contains a mappings dict with documents
+            # in a hierarchical format
+            for name, index in mappings.items():
+                columns = []
+                schema[name] = {'name': name}
+                for doc, items in index['mappings'].items():
+                    columns.extend(parse_doc(items))
+
+                # remove duplicates
+                # sort alphabetically
+                schema[name]['columns'] = sorted(set(columns))
+        return schema.values()
 
     def _parse_results(self, mappings, result_fields, raw_result, result_columns, result_rows):
         def add_column_if_needed(mappings, column_name, friendly_name, result_columns, result_columns_index):
@@ -145,9 +198,7 @@ class BaseElasticSearch(BaseQueryRunner):
             row[key] = value
 
         def collect_aggregations(mappings, rows, parent_key, data, row, result_columns, result_columns_index):
-
             if isinstance(data, dict):
-
                 for key, value in data.iteritems():
                     val = collect_aggregations(mappings, rows, parent_key if key == 'buckets' else key, value, row, result_columns, result_columns_index)
                     if val:
@@ -164,7 +215,6 @@ class BaseElasticSearch(BaseQueryRunner):
                         return data[data_key]
 
             elif isinstance(data, list):
-
                 for value in data:
                     result_row = get_row(rows, row)
                     collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
@@ -176,7 +226,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
             return None
 
-        result_columns_index = {c["name"] : c for c in result_columns}
+        result_columns_index = {c["name"]: c for c in result_columns}
 
         result_fields_index = {}
         if result_fields:
@@ -184,15 +234,12 @@ class BaseElasticSearch(BaseQueryRunner):
                 result_fields_index[r] = None
 
         if 'error' in raw_result:
-
             error = raw_result['error']
             if len(error) > 10240:
                 error = error[:10240] + '... continues'
 
             raise Exception(error)
-
         elif 'aggregations' in raw_result:
-
             if result_fields:
                 for field in result_fields:
                     add_column_if_needed(mappings, field, field, result_columns, result_columns_index)
@@ -202,9 +249,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
             logger.debug("result_rows %s", str(result_rows))
             logger.debug("result_columns %s", str(result_columns))
-
         elif 'hits' in raw_result and 'hits' in raw_result['hits']:
-
             if result_fields:
                 for field in result_fields:
                     add_column_if_needed(mappings, field, field, result_columns, result_columns_index)
@@ -224,8 +269,18 @@ class BaseElasticSearch(BaseQueryRunner):
 
                 result_rows.append(row)
         else:
-
             raise Exception("Redash failed to parse the results it got from ElasticSearch.")
+
+    def test_connection(self):
+        try:
+            r = requests.get("{0}/_cluster/health".format(self.server_url), auth=self.auth)
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            logger.exception(e)
+            raise Exception("Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text))
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            raise Exception("Connection refused")
 
 
 class Kibana(BaseElasticSearch):
@@ -243,8 +298,7 @@ class Kibana(BaseElasticSearch):
     def _execute_simple_query(self, url, auth, _from, mappings, result_fields, result_columns, result_rows):
         url += "&from={0}".format(_from)
         r = requests.get(url, auth=self.auth)
-        if r.status_code != 200:
-            raise Exception("Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text))
+        r.raise_for_status()
 
         raw_result = r.json()
 
@@ -256,7 +310,7 @@ class Kibana(BaseElasticSearch):
 
         return raw_result["hits"]["total"]
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             error = None
 
@@ -277,9 +331,10 @@ class Kibana(BaseElasticSearch):
             url = "{0}/{1}/_search?".format(self.server_url, index_name)
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
-            mappings = self._get_mappings(mapping_url)
-
-            logger.debug(json.dumps(mappings, indent=4))
+            mappings, error = self._get_query_mappings(mapping_url)
+            if error:
+                return None, error
+            #logger.debug(json.dumps(mappings, indent=4))
 
             if sort:
                 url += "&sort={0}".format(urllib.quote_plus(sort))
@@ -304,13 +359,22 @@ class Kibana(BaseElasticSearch):
                 raise Exception("Advanced queries are not supported")
 
             json_data = json.dumps({
-                "columns" : result_columns,
-                "rows" : result_rows
+                "columns": result_columns,
+                "rows": result_rows
             })
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            json_data = None
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
+            json_data = None
         except Exception as e:
+            logger.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
@@ -329,7 +393,7 @@ class ElasticSearch(BaseElasticSearch):
     def annotate_query(cls):
         return False
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         try:
             error = None
 
@@ -346,12 +410,15 @@ class ElasticSearch(BaseElasticSearch):
             url = "{0}/{1}/_search".format(self.server_url, index_name)
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
 
-            mappings = self._get_mappings(mapping_url)
+            mappings, error = self._get_query_mappings(mapping_url)
+            if error:
+                return None, error
 
             params = {"source": json.dumps(query_dict)}
             logger.debug("Using URL: %s", url)
             logger.debug("Using params : %s", params)
             r = requests.get(url, params=params, auth=self.auth)
+            r.raise_for_status()
             logger.debug("Result: %s", r.json())
 
             result_columns = []
@@ -359,13 +426,23 @@ class ElasticSearch(BaseElasticSearch):
             self._parse_results(mappings, result_fields, r.json(), result_columns, result_rows)
 
             json_data = json.dumps({
-                "columns" : result_columns,
-                "rows" : result_rows
+                "columns": result_columns,
+                "rows": result_rows
             })
         except KeyboardInterrupt:
+            logger.exception(e)
             error = "Query cancelled by user."
             json_data = None
+        except requests.HTTPError as e:
+            logger.exception(e)
+            error = "Failed to execute query. Return Code: {0}   Reason: {1}".format(r.status_code, r.text)
+            json_data = None
+        except requests.exceptions.RequestException as e:
+            logger.exception(e)
+            error = "Connection refused"
+            json_data = None
         except Exception as e:
+            logger.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error

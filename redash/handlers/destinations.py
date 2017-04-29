@@ -1,14 +1,11 @@
-import json
-
 from flask import make_response, request
-from flask.ext.restful import abort
-from funcy import project
+from flask_restful import abort
 
 from redash import models
 from redash.permissions import require_admin
 from redash.destinations import destinations, get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource
 
 
 class DestinationTypeListResource(BaseResource):
@@ -35,20 +32,21 @@ class DestinationResource(BaseResource):
         try:
             destination.options.set_schema(schema)
             destination.options.update(req['options'])
+            models.db.session.add(destination)
+            models.db.session.commit()
         except ValidationError:
             abort(400)
 
         destination.type = req['type']
         destination.name = req['name']
 
-        destination.save()
-
         return destination.to_dict(all=True)
 
     @require_admin
     def delete(self, destination_id):
         destination = models.NotificationDestination.get_by_id_and_org(destination_id, self.current_org)
-        destination.delete_instance(recursive=True)
+        models.db.session.delete(destination)
+        models.db.session.commit()
 
         return make_response('', 204)
 
@@ -88,6 +86,7 @@ class DestinationListResource(BaseResource):
                                                      type=req['type'],
                                                      options=config,
                                                      user=self.current_user)
-        destination.save()
 
+        models.db.session.add(destination)
+        models.db.session.commit()
         return destination.to_dict(all=True)

@@ -44,6 +44,8 @@ class InterruptException(Exception):
 
 
 class BaseQueryRunner(object):
+    noop_query = None
+
     def __init__(self, configuration):
         self.syntax = 'sql'
         self.configuration = configuration
@@ -68,7 +70,15 @@ class BaseQueryRunner(object):
     def configuration_schema(cls):
         return {}
 
-    def run_query(self, query):
+    def test_connection(self):
+        if self.noop_query is None:
+            raise NotImplementedError()
+        data, error = self.run_query(self.noop_query, None)
+
+        if error is not None:
+            raise Exception(error)
+
+    def run_query(self, query, user):
         raise NotImplementedError()
 
     def fetch_columns(self, columns):
@@ -93,7 +103,7 @@ class BaseQueryRunner(object):
         return []
 
     def _run_query_internal(self, query):
-        results, error = self.run_query(query)
+        results, error = self.run_query(query, None)
 
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
@@ -137,7 +147,7 @@ def register(query_runner_class):
         logger.debug("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
         query_runners[query_runner_class.type()] = query_runner_class
     else:
-        logger.warning("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
+        logger.debug("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
 
 
 def get_query_runner(query_runner_type, configuration):

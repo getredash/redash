@@ -1,0 +1,21 @@
+<!-- simple nav bar -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation" ng-if="!$ctrl.headless">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/" target="_self"><img ng-src="{{$ctrl.logoUrl}}"/></a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+  <page-header title="{{$ctrl.dashboard.name}}">
+  </page-header>
+
+  <div class="m-b-5">
+    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
+  </div>
+
+    <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
+      <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard" public="true"></dashboard-widget>
+    </div>
+</div>

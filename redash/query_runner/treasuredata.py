@@ -34,6 +34,8 @@ TD_TYPES_MAPPING = {
 
 
 class TreasureData(BaseQueryRunner):
+    noop_query = "SELECT 1"
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -92,7 +94,7 @@ class TreasureData(BaseQueryRunner):
                 raise Exception("Failed getting schema")
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
         connection = tdclient.connect(
                 endpoint=self.configuration.get('endpoint', 'https://api.treasuredata.com'),
                 apikey=self.configuration.get('apikey'),

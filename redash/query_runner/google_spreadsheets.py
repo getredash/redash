@@ -97,7 +97,7 @@ def parse_worksheet(worksheet):
 
     for j, column_name in enumerate(worksheet[HEADER_INDEX]):
         if column_name in column_names:
-            column_name = "{}{}".format(column_name, duplicate_counter)
+            column_name = u"{}{}".format(column_name, duplicate_counter)
             duplicate_counter += 1
 
         column_names.append(column_name)
@@ -168,7 +168,10 @@ class GoogleSpreadsheet(BaseQueryRunner):
         spreadsheetservice = gspread.authorize(credentials)
         return spreadsheetservice
 
-    def run_query(self, query):
+    def test_connection(self):
+        self._get_spreadsheet_service()
+
+    def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         values = query.split("|")
         key = values[0] #key of the spreadsheet

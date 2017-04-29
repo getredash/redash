@@ -1,18 +1,21 @@
-from flask_script import Manager
+from flask.cli import AppGroup
+from flask_migrate import stamp
+manager = AppGroup(help="Manage the database (create/drop tables).")
 
-manager = Manager(help="Manage the database (create/drop tables).")
 
-@manager.command
+@manager.command()
 def create_tables():
     """Create the database tables."""
-    from redash.models import create_db, init_db
+    from redash.models import db
+    db.create_all()
 
-    create_db(True, False)
-    init_db()
+    # Need to mark current DB as up to date
+    stamp()
 
-@manager.command
+
+@manager.command()
 def drop_tables():
     """Drop the database tables."""
-    from redash.models import create_db
+    from redash.models import db
 
-    create_db(False, True)
+    db.drop_all()

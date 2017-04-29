@@ -2,7 +2,6 @@ import json
 import logging
 import sys
 
-
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -43,28 +42,20 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                     "type": "string",
                     "default": "us-east-1"
                 },
-                "host": {
-                    "type": "string",
-                    "default": "Use for non standard endpoints."
-                },
-                "port": {
-                    "type": "number",
-                    "default": 80
-                },
                 "access_key": {
                     "type": "string",
                 },
                 "secret_key": {
                     "type": "string",
-                },
-                "is_secure": {
-                    "type": "boolean",
-                    "default": False,
                 }
             },
             "required": ["access_key", "secret_key"],
             "secret": ["secret_key"]
         }
+
+    def test_connection(self):
+        engine = self._connect()
+        list(engine.connection.list_tables())
 
     @classmethod
     def annotate_query(cls):
@@ -91,31 +82,32 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         if config.get('host') == '':
             config['host'] = None
 
-        return engine, engine.connect(**config)
+        engine.connect(**config)
+
+        return engine
 
     def _get_tables(self, schema):
+        engine = self._connect()
 
+        for table in engine.describe_all():
+            schema[table.name] = {'name': table.name, 'columns': table.attrs.keys()}
+
+    def run_query(self, query, user):
+        engine = None
         try:
-            engine, _ = self._connect()
+            engine = self._connect()
 
-            for table in engine.describe_all():
-                schema[table.name] = {'name': table.name, 'columns': table.attrs.keys()}
-
-        except Exception as e:
-            logging.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
-
-    def run_query(self, query):
-        connection = None
-        try:
-            engine, connection = self._connect()
-
-            res_dict = engine.execute(query if str(query).endswith(';') else str(query)+';')
+            result = engine.execute(query if str(query).endswith(';') else str(query)+';')
 
             columns = []
             rows = []
-            for item in res_dict:
 
+            # When running a count query it returns the value as a string, in which case
+            # we transform it into a dictionary to be the same as regular queries.
+            if isinstance(result, basestring):
+                result = [{"value": result}]
+
+            for item in result:
                 if not columns:
                     for k, v in item.iteritems():
                         columns.append({
@@ -135,8 +127,8 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             error = e.message
             json_data = None
         except KeyboardInterrupt:
-            if connection:
-                connection.cancel()
+            if engine and engine.connection:
+                engine.connection.cancel()
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:

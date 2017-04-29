@@ -1,131 +1,186 @@
-import json
-from flask_login import UserMixin, AnonymousUserMixin
-import hashlib
-import logging
-import os
-import threading
-import time
 import datetime
+import functools
+import hashlib
 import itertools
+import json
+import logging
+import cStringIO
+import csv
+import xlsxwriter
+
 from funcy import project
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, AnonymousUserMixin
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.event import listens_for
+from sqlalchemy.inspection import inspect
+from sqlalchemy.types import TypeDecorator
+from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.orm import object_session, backref, joinedload, subqueryload
+# noinspection PyUnresolvedReferences
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import or_
 
-import peewee
 from passlib.apps import custom_app_context as pwd_context
-from playhouse.gfk import GFKField, BaseModel
-from playhouse.postgres_ext import ArrayField, DateTimeTZField
-from permissions import has_access, view_only
 
-from redash import utils, settings, redis_connection
-from redash.query_runner import get_query_runner, get_configuration_schema_for_query_runner_type
+from redash import redis_connection, utils
 from redash.destinations import get_destination, get_configuration_schema_for_destination_type
-from redash.metrics.database import MeteredPostgresqlExtDatabase, MeteredModel
-from redash.utils import generate_token
+from redash.permissions import has_access, view_only
+from redash.query_runner import get_query_runner, get_configuration_schema_for_query_runner_type
+from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
+from redash.metrics import database
+
+db = SQLAlchemy(session_options={
+    'expire_on_commit': False
+})
+Column = functools.partial(db.Column, nullable=False)
+
+# AccessPermission and Change use a 'generic foreign key' approach to refer to
+# either queries or dashboards.
+# TODO replace this with association tables.
+_gfk_types = {}
 
 
-class Database(object):
-    def __init__(self):
-        self.database_config = dict(settings.DATABASE_CONFIG)
-        self.database_config['register_hstore'] = False
-        self.database_name = self.database_config.pop('name')
-        self.database = MeteredPostgresqlExtDatabase(self.database_name, **self.database_config)
-        self.app = None
-        self.pid = os.getpid()
+class GFKBase(object):
+    """
+    Compatibility with 'generic foreign key' approach Peewee used.
+    """
+    # XXX Replace this with table-per-association.
+    object_type = Column(db.String(255))
+    object_id = Column(db.Integer)
 
-    def init_app(self, app):
-        self.app = app
-        self.register_handlers()
+    _object = None
 
-    def connect_db(self):
-        self._check_pid()
-        self.database.reset_metrics()
-        self.database.connect()
+    @property
+    def object(self):
+        session = object_session(self)
+        if self._object or not session:
+            return self._object
+        else:
+            object_class = _gfk_types[self.object_type]
+            self._object = session.query(object_class).filter(
+                object_class.id == self.object_id).first()
+            return self._object
 
-    def close_db(self, exc):
-        self._check_pid()
-        if not self.database.is_closed():
-            self.database.close()
-
-    def _check_pid(self):
-        current_pid = os.getpid()
-        if self.pid != current_pid:
-            logging.info("New pid detected (%d!=%d); resetting database lock.", self.pid, current_pid)
-            self.pid = os.getpid()
-            self.database._conn_lock = threading.Lock()
-
-    def register_handlers(self):
-        self.app.before_request(self.connect_db)
-        self.app.teardown_request(self.close_db)
+    @object.setter
+    def object(self, value):
+        self._object = value
+        self.object_type = value.__class__.__tablename__
+        self.object_id = value.id
 
 
-db = Database()
+# XXX replace PseudoJSON and MutableDict with real JSON field
+class PseudoJSON(TypeDecorator):
+    impl = db.Text
 
+    def process_bind_param(self, value, dialect):
+        return json_dumps(value)
 
-# Support for cast operation on database fields
-@peewee.Node.extend()
-def cast(self, as_type):
-    return peewee.Expression(self, '::', peewee.SQL(as_type))
-
-
-class JSONField(peewee.TextField):
-    def db_value(self, value):
-        return json.dumps(value)
-
-    def python_value(self, value):
+    def process_result_value(self, value, dialect):
         if not value:
             return value
         return json.loads(value)
 
 
-class BaseModel(MeteredModel):
-    class Meta:
-        database = db.database
+class MutableDict(Mutable, dict):
+    @classmethod
+    def coerce(cls, key, value):
+        "Convert plain dictionaries to MutableDict."
+
+        if not isinstance(value, MutableDict):
+            if isinstance(value, dict):
+                return MutableDict(value)
+
+            # this call will raise ValueError
+            return Mutable.coerce(key, value)
+        else:
+            return value
+
+    def __setitem__(self, key, value):
+        "Detect dictionary set events and emit change events."
+
+        dict.__setitem__(self, key, value)
+        self.changed()
+
+    def __delitem__(self, key):
+        "Detect dictionary del events and emit change events."
+
+        dict.__delitem__(self, key)
+        self.changed()
+
+
+class MutableList(Mutable, list):
+    def append(self, value):
+        list.append(self, value)
+        self.changed()
+
+    def remove(self, value):
+        list.remove(self, value)
+        self.changed()
 
     @classmethod
-    def get_by_id(cls, model_id):
-        return cls.get(cls.id == model_id)
-
-    def pre_save(self, created):
-        pass
-
-    def post_save(self, created):
-        # Handler for post_save operations. Overriding if needed.
-        pass
-
-    def save(self, *args, **kwargs):
-        pk_value = self._get_pk_value()
-        created = kwargs.get('force_insert', False) or not bool(pk_value)
-        self.pre_save(created)
-        super(BaseModel, self).save(*args, **kwargs)
-        self.post_save(created)
-
-    def update_instance(self, **kwargs):
-        for k, v in kwargs.items():
-            # setattr(model_instance, field_name, field_obj.python_value(value))
-            setattr(self, k, v)
-
-        # We have to run pre-save before calculating dirty_fields. We end up running it twice,
-        # but pre_save calls should be very quick so it's not big of an issue.
-        # An alternative can be to recalculate dirty_fields, but it felt more error prone.
-        self.pre_save(False)
-
-        self.save(only=self.dirty_fields)
+    def coerce(cls, key, value):
+        if not isinstance(value, MutableList):
+            if isinstance(value, list):
+                return MutableList(value)
+            return Mutable.coerce(key, value)
+        else:
+            return value
 
 
-class ModelTimestampsMixin(BaseModel):
-    updated_at = DateTimeTZField(default=datetime.datetime.now)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
+class TimestampMixin(object):
+    updated_at = Column(db.DateTime(True), default=db.func.now(),
+                           onupdate=db.func.now(), nullable=False)
+    created_at = Column(db.DateTime(True), default=db.func.now(),
+                           nullable=False)
 
-    def pre_save(self, created):
-        super(ModelTimestampsMixin, self).pre_save(created)
 
-        self.updated_at = datetime.datetime.now()
+class ChangeTrackingMixin(object):
+    skipped_fields = ('id', 'created_at', 'updated_at', 'version')
+    _clean_values = None
+
+    def __init__(self, *a, **kw):
+        super(ChangeTrackingMixin, self).__init__(*a, **kw)
+        self.record_changes(self.user)
+
+    def prep_cleanvalues(self):
+        self.__dict__['_clean_values'] = {}
+        for attr in inspect(self.__class__).column_attrs:
+            col, = attr.columns
+            # 'query' is col name but not attr name
+            self._clean_values[col.name] = None
+
+    def __setattr__(self, key, value):
+        if self._clean_values is None:
+            self.prep_cleanvalues()
+        for attr in inspect(self.__class__).column_attrs:
+            col, = attr.columns
+            previous = getattr(self, attr.key, None)
+            self._clean_values[col.name] = previous
+
+        super(ChangeTrackingMixin, self).__setattr__(key, value)
+
+    def record_changes(self, changed_by):
+        db.session.add(self)
+        db.session.flush()
+        changes = {}
+        for attr in inspect(self.__class__).column_attrs:
+            col, = attr.columns
+            if attr.key not in self.skipped_fields:
+                changes[col.name] = {'previous': self._clean_values[col.name],
+                                     'current': getattr(self, attr.key)}
+
+        db.session.add(Change(object=self,
+                              object_version=self.version,
+                              user=changed_by,
+                              change=changes))
 
 
 class BelongsToOrgMixin(object):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return cls.get(cls.id == object_id, cls.org == org)
+        return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one()
 
 
 class PermissionsCheckMixin(object):
@@ -157,7 +212,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
             self.id = api_key.api_key
             self.name = "ApiKey: {}".format(api_key.id)
             self.object = api_key.object
-        self.groups = groups
+        self.group_ids = groups
         self.org = org
 
     def __repr__(self):
@@ -167,34 +222,35 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def permissions(self):
         return ['view_query']
 
+    def has_access(self, obj, access_type):
+        return False
 
-class Organization(ModelTimestampsMixin, BaseModel):
+
+class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = 'google_apps_domains'
     SETTING_IS_PUBLIC = "is_public"
 
-    id = peewee.PrimaryKeyField()
-    name = peewee.CharField()
-    slug = peewee.CharField(unique=True)
-    settings = JSONField()
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(255))
+    slug = Column(db.String(255), unique=True)
+    settings = Column(MutableDict.as_mutable(PseudoJSON))
+    groups = db.relationship("Group", lazy="dynamic")
 
-    class Meta:
-        db_table = 'organizations'
+    __tablename__ = 'organizations'
 
     def __repr__(self):
         return u"<Organization: {}, {}>".format(self.id, self.name)
 
-    # When Organization is used with LocalProxy (like the current_org helper), peewee doesn't recognize it as a Model
-    # and might call int() on it. This method makes sure it works.
-    def __int__(self):
-        return self.id
+    def __unicode__(self):
+        return u'%s (%s)' % (self.name, self.id)
 
     @classmethod
     def get_by_slug(cls, slug):
-        return cls.get(cls.slug == slug)
+        return cls.query.filter(cls.slug == slug).first()
 
     @property
     def default_group(self):
-        return self.groups.where(Group.name=='default', Group.type==Group.BUILTIN_GROUP).first()
+        return self.groups.filter(Group.name == 'default', Group.type == Group.BUILTIN_GROUP).first()
 
     @property
     def google_apps_domains(self):
@@ -206,13 +262,13 @@ class Organization(ModelTimestampsMixin, BaseModel):
 
     @property
     def admin_group(self):
-        return self.groups.where(Group.name=='admin', Group.type==Group.BUILTIN_GROUP).first()
+        return self.groups.filter(Group.name == 'admin', Group.type == Group.BUILTIN_GROUP).first()
 
     def has_user(self, email):
-        return self.users.where(User.email==email).count() == 1
+        return self.users.filter(User.email == email).count() == 1
 
 
-class Group(BaseModel, BelongsToOrgMixin):
+class Group(db.Model, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query',
                            'list_dashboards', 'list_alerts', 'list_data_sources']
@@ -220,15 +276,18 @@ class Group(BaseModel, BelongsToOrgMixin):
     BUILTIN_GROUP = 'builtin'
     REGULAR_GROUP = 'regular'
 
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="groups")
-    type = peewee.CharField(default=REGULAR_GROUP)
-    name = peewee.CharField(max_length=100)
-    permissions = ArrayField(peewee.CharField, default=DEFAULT_PERMISSIONS)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
+    id = Column(db.Integer, primary_key=True)
+    data_sources = db.relationship("DataSourceGroup", back_populates="group",
+                                         cascade="all")
+    org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
+    org = db.relationship(Organization, back_populates="groups")
+    type = Column(db.String(255), default=REGULAR_GROUP)
+    name = Column(db.String(100))
+    permissions = Column(postgresql.ARRAY(db.String(255)),
+                         default=DEFAULT_PERMISSIONS)
+    created_at = Column(db.DateTime(True), default=db.func.now())
 
-    class Meta:
-        db_table = 'groups'
+    __tablename__ = 'groups'
 
     def to_dict(self):
         return {
@@ -241,36 +300,36 @@ class Group(BaseModel, BelongsToOrgMixin):
 
     @classmethod
     def all(cls, org):
-        return cls.select().where(cls.org==org)
+        return cls.query.filter(cls.org == org)
 
     @classmethod
     def members(cls, group_id):
-        return User.select().where(peewee.SQL("%s = ANY(groups)", group_id))
+        return User.query.filter(User.group_ids.any(group_id))
 
     @classmethod
     def find_by_name(cls, org, group_names):
-        result = cls.select().where(cls.org == org, cls.name << group_names)
+        result = cls.query.filter(cls.org == org, cls.name.in_(group_names))
         return list(result)
 
     def __unicode__(self):
         return unicode(self.id)
 
 
-class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="users")
-    name = peewee.CharField(max_length=320)
-    email = peewee.CharField(max_length=320)
-    password_hash = peewee.CharField(max_length=128, null=True)
-    groups = ArrayField(peewee.IntegerField, null=True)
-    api_key = peewee.CharField(max_length=40, unique=True)
+class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
+    org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
+    name = Column(db.String(320))
+    email = Column(db.String(320))
+    password_hash = Column(db.String(128), nullable=True)
+    #XXX replace with association table
+    group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
+    api_key = Column(db.String(40),
+                     default=lambda: generate_token(40),
+                     unique=True)
 
-    class Meta:
-        db_table = 'users'
-
-        indexes = (
-            (('org', 'email'), True),
-        )
+    __tablename__ = 'users'
+    __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
@@ -281,7 +340,7 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
             'name': self.name,
             'email': self.email,
             'gravatar_url': self.gravatar_url,
-            'groups': self.groups,
+            'groups': self.group_ids,
             'updated_at': self.updated_at,
             'created_at': self.created_at
         }
@@ -296,12 +355,6 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
 
         return d
 
-    def pre_save(self, created):
-        super(User, self).pre_save(created)
-
-        if not self.api_key:
-            self.api_key = generate_token(40)
-
     @property
     def gravatar_url(self):
         email_md5 = hashlib.md5(self.email.lower()).hexdigest()
@@ -311,23 +364,23 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
     def permissions(self):
         # TODO: this should be cached.
         return list(itertools.chain(*[g.permissions for g in
-                                      Group.select().where(Group.id << self.groups)]))
+                                      Group.query.filter(Group.id.in_(self.group_ids))]))
 
     @classmethod
     def get_by_email_and_org(cls, email, org):
-        return cls.get(cls.email == email, cls.org == org)
+        return cls.query.filter(cls.email == email, cls.org == org).one()
 
     @classmethod
     def get_by_api_key_and_org(cls, api_key, org):
-        return cls.get(cls.api_key == api_key, cls.org == org)
+        return cls.query.filter(cls.api_key == api_key, cls.org == org).one()
 
     @classmethod
     def all(cls, org):
-        return cls.select().where(cls.org == org)
+        return cls.query.filter(cls.org == org)
 
     @classmethod
     def find_by_email(cls, email):
-        return cls.select().where(cls.email == email)
+        return cls.query.filter(cls.email == email)
 
     def __unicode__(self):
         return u'%s (%s)' % (self.name, self.email)
@@ -341,36 +394,45 @@ class User(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin, UserMixin, Permis
     def update_group_assignments(self, group_names):
         groups = Group.find_by_name(self.org, group_names)
         groups.append(self.org.default_group)
-        self.groups = map(lambda g: g.id, groups)
-        self.save()
+        self.group_ids = [g.id for g in groups]
+        db.session.add(self)
+
+    def has_access(self, obj, access_type):
+        return AccessPermission.exists(obj, access_type, grantee=self)
 
 
-class ConfigurationField(peewee.TextField):
-    def db_value(self, value):
+class Configuration(TypeDecorator):
+
+    impl = db.Text
+
+    def process_bind_param(self, value, dialect):
         return value.to_json()
 
-    def python_value(self, value):
+    def process_result_value(self, value, dialect):
         return ConfigurationContainer.from_json(value)
 
 
-class DataSource(BelongsToOrgMixin, BaseModel):
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="data_sources")
-    name = peewee.CharField()
-    type = peewee.CharField()
-    options = ConfigurationField()
-    queue_name = peewee.CharField(default="queries")
-    scheduled_queue_name = peewee.CharField(default="scheduled_queries")
-    created_at = DateTimeTZField(default=datetime.datetime.now)
+class DataSource(BelongsToOrgMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
+    org = db.relationship(Organization, backref="data_sources")
 
-    class Meta:
-        db_table = 'data_sources'
+    name = Column(db.String(255))
+    type = Column(db.String(255))
+    options = Column(ConfigurationContainer.as_mutable(Configuration))
+    queue_name = Column(db.String(255), default="queries")
+    scheduled_queue_name = Column(db.String(255), default="scheduled_queries")
+    created_at = Column(db.DateTime(True), default=db.func.now())
 
-        indexes = (
-            (('org', 'name'), True),
-        )
+    data_source_groups = db.relationship("DataSourceGroup", back_populates="data_source",
+                                         cascade="all")
+    __tablename__ = 'data_sources'
+    __table_args__ = (db.Index('data_sources_org_id_name', 'org_id', 'name'),)
 
-    def to_dict(self, all=False, with_permissions=False):
+    def __eq__(self, other):
+        return self.id == other.id
+
+    def to_dict(self, all=False, with_permissions_for=None):
         d = {
             'id': self.id,
             'name': self.name,
@@ -388,8 +450,10 @@ class DataSource(BelongsToOrgMixin, BaseModel):
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
 
-        if with_permissions:
-            d['view_only'] = self.data_source_groups.view_only
+        if with_permissions_for is not None:
+            d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
+                DataSourceGroup.group == with_permissions_for,
+                DataSourceGroup.data_source == self).one()[0]
 
         return d
 
@@ -398,8 +462,11 @@ class DataSource(BelongsToOrgMixin, BaseModel):
 
     @classmethod
     def create_with_group(cls, *args, **kwargs):
-        data_source = cls.create(*args, **kwargs)
-        DataSourceGroup.create(data_source=data_source, group=data_source.org.default_group)
+        data_source = cls(*args, **kwargs)
+        data_source_group = DataSourceGroup(
+            data_source=data_source,
+            group=data_source.org.default_group)
+        db.session.add_all([data_source, data_source_group])
         return data_source
 
     def get_schema(self, refresh=False):
@@ -437,64 +504,85 @@ class DataSource(BelongsToOrgMixin, BaseModel):
         redis_connection.delete(self._pause_key())
 
     def add_group(self, group, view_only=False):
-        dsg = DataSourceGroup.create(group=group, data_source=self, view_only=view_only)
-        setattr(self, 'data_source_groups', dsg)
+        dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
+        db.session.add(dsg)
+        return dsg
 
     def remove_group(self, group):
-        DataSourceGroup.delete().where(DataSourceGroup.group==group, DataSourceGroup.data_source==self).execute()
+        db.session.query(DataSourceGroup).filter(
+            DataSourceGroup.group == group,
+            DataSourceGroup.data_source == self).delete()
+        db.session.commit()
 
     def update_group_permission(self, group, view_only):
-        dsg = DataSourceGroup.get(DataSourceGroup.group==group, DataSourceGroup.data_source==self)
+        dsg = DataSourceGroup.query.filter(
+            DataSourceGroup.group == group,
+            DataSourceGroup.data_source == self).one()
         dsg.view_only = view_only
-        dsg.save()
-        setattr(self, 'data_source_groups', dsg)
+        db.session.add(dsg)
+        return dsg
 
     @property
     def query_runner(self):
         return get_query_runner(self.type, self.options)
 
     @classmethod
-    def all(cls, org, groups=None):
-        data_sources = cls.select().where(cls.org==org).order_by(cls.id.asc())
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
 
-        if groups:
-            data_sources = data_sources.join(DataSourceGroup).where(DataSourceGroup.group << groups)
+    @classmethod
+    def get_by_name(cls, name):
+        return cls.query.filter(cls.name == name).one()
+
+    @classmethod
+    def all(cls, org, group_ids=None):
+        data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
+
+        if group_ids:
+            data_sources = data_sources.join(DataSourceGroup).filter(
+                DataSourceGroup.group_id.in_(group_ids))
 
         return data_sources
 
+    #XXX examine call sites to see if a regular SQLA collection would work better
     @property
     def groups(self):
-        groups = DataSourceGroup.select().where(DataSourceGroup.data_source==self)
+        groups = db.session.query(DataSourceGroup).filter(
+            DataSourceGroup.data_source == self)
         return dict(map(lambda g: (g.group_id, g.view_only), groups))
 
 
-class DataSourceGroup(BaseModel):
-    data_source = peewee.ForeignKeyField(DataSource)
-    group = peewee.ForeignKeyField(Group, related_name="data_sources")
-    view_only = peewee.BooleanField(default=False)
+class DataSourceGroup(db.Model):
+    #XXX drop id, use datasource/group as PK
+    id = Column(db.Integer, primary_key=True)
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    data_source = db.relationship(DataSource, back_populates="data_source_groups")
+    group_id = Column(db.Integer, db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="data_sources")
+    view_only = Column(db.Boolean, default=False)
 
-    class Meta:
-        db_table = "data_source_groups"
+    __tablename__ = "data_source_groups"
 
 
-class QueryResult(BaseModel, BelongsToOrgMixin):
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization)
-    data_source = peewee.ForeignKeyField(DataSource)
-    query_hash = peewee.CharField(max_length=32, index=True)
-    query = peewee.TextField()
-    data = peewee.TextField()
-    runtime = peewee.FloatField()
-    retrieved_at = DateTimeTZField()
+class QueryResult(db.Model, BelongsToOrgMixin):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
+    org = db.relationship(Organization)
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
+    data_source = db.relationship(DataSource, backref=backref('query_results', cascade="all, delete-orphan"))
+    query_hash = Column(db.String(32), index=True)
+    query_text = Column('query', db.Text)
+    data = Column(db.Text)
+    runtime = Column(postgresql.DOUBLE_PRECISION)
+    retrieved_at = Column(db.DateTime(True))
 
-    class Meta:
-        db_table = 'query_results'
+    __tablename__ = 'query_results'
 
     def to_dict(self):
         return {
             'id': self.id,
             'query_hash': self.query_hash,
-            'query': self.query,
+            'query': self.query_text,
             'data': json.loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
@@ -505,8 +593,9 @@ class QueryResult(BaseModel, BelongsToOrgMixin):
     def unused(cls, days=7):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
 
-        unused_results = cls.select().where(Query.id == None, cls.retrieved_at < age_threshold)\
-            .join(Query, join_type=peewee.JOIN_LEFT_OUTER)
+        unused_results = (db.session.query(QueryResult.id).filter(
+            Query.id == None, QueryResult.retrieved_at < age_threshold)
+            .outerjoin(Query))
 
         return unused_results
 
@@ -515,35 +604,40 @@ class QueryResult(BaseModel, BelongsToOrgMixin):
         query_hash = utils.gen_query_hash(query)
 
         if max_age == -1:
-            query = cls.select().where(cls.query_hash == query_hash,
-                                       cls.data_source == data_source).order_by(cls.retrieved_at.desc())
+            q = db.session.query(QueryResult).filter(
+                cls.query_hash == query_hash,
+                cls.data_source == data_source).order_by(
+                    QueryResult.retrieved_at.desc())
         else:
-            query = cls.select().where(cls.query_hash == query_hash, cls.data_source == data_source,
-                                       peewee.SQL("retrieved_at + interval '%s second' >= now() at time zone 'utc'",
-                                                  max_age)).order_by(cls.retrieved_at.desc())
+            q = db.session.query(QueryResult).filter(
+                QueryResult.query_hash == query_hash,
+                QueryResult.data_source == data_source,
+                db.func.timezone('utc', QueryResult.retrieved_at) +
+                datetime.timedelta(seconds=max_age) >=
+                db.func.timezone('utc', db.func.now())
+                ).order_by(QueryResult.retrieved_at.desc())
 
-        return query.first()
+        return q.first()
 
     @classmethod
-    def store_result(cls, org_id, data_source_id, query_hash, query, data, run_time, retrieved_at):
-        query_result = cls.create(org=org_id,
-                                  query_hash=query_hash,
-                                  query=query,
-                                  runtime=run_time,
-                                  data_source=data_source_id,
-                                  retrieved_at=retrieved_at,
-                                  data=data)
-
+    def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+        query_result = cls(org=org,
+                           query_hash=query_hash,
+                           query_text=query,
+                           runtime=run_time,
+                           data_source=data_source,
+                           retrieved_at=retrieved_at,
+                           data=data)
+        db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
-
-        sql = "UPDATE queries SET latest_query_data_id = %s WHERE query_hash = %s AND data_source_id = %s RETURNING id"
-        query_ids = [row[0] for row in db.database.execute_sql(sql, params=(query_result.id, query_hash, data_source_id))]
-
-        # TODO: when peewee with update & returning support is released, we can get back to using this code:
-        # updated_count = Query.update(latest_query_data=query_result).\
-        #     where(Query.query_hash==query_hash, Query.data_source==data_source_id).\
-        #     execute()
-
+        # TODO: Investigate how big an impact this select-before-update makes.
+        queries = db.session.query(Query).filter(
+            Query.query_hash == query_hash,
+            Query.data_source == data_source)
+        for q in queries:
+            q.latest_query_data = query_result
+            db.session.add(q)
+        query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
 
         return query_result, query_ids
@@ -555,8 +649,40 @@ class QueryResult(BaseModel, BelongsToOrgMixin):
     def groups(self):
         return self.data_source.groups
 
+    def make_csv_content(self):
+        s = cStringIO.StringIO()
 
-def should_schedule_next(previous_iteration, now, schedule):
+        query_data = json.loads(self.data)
+        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
+        writer.writer = utils.UnicodeWriter(s)
+        writer.writeheader()
+        for row in query_data['rows']:
+            writer.writerow(row)
+
+        return s.getvalue()
+
+    def make_excel_content(self):
+        s = cStringIO.StringIO()
+
+        query_data = json.loads(self.data)
+        book = xlsxwriter.Workbook(s)
+        sheet = book.add_worksheet("result")
+
+        column_names = []
+        for (c, col) in enumerate(query_data['columns']):
+            sheet.write(0, c, col['name'])
+            column_names.append(col['name'])
+
+        for (r, row) in enumerate(query_data['rows']):
+            for (c, name) in enumerate(column_names):
+                sheet.write(r + 1, c, row.get(name))
+
+        book.close()
+
+        return s.getvalue()
+
+
+def should_schedule_next(previous_iteration, now, schedule, failures):
     if schedule.isdigit():
         ttl = int(schedule)
         next_iteration = previous_iteration + datetime.timedelta(seconds=ttl)
@@ -573,44 +699,60 @@ def should_schedule_next(previous_iteration, now, schedule):
             previous_iteration = normalized_previous_iteration - datetime.timedelta(days=1)
 
         next_iteration = (previous_iteration + datetime.timedelta(days=1)).replace(hour=hour, minute=minute)
-
+    if failures:
+        next_iteration += datetime.timedelta(minutes=2**failures)
     return now > next_iteration
 
 
-class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="queries")
-    data_source = peewee.ForeignKeyField(DataSource, null=True)
-    latest_query_data = peewee.ForeignKeyField(QueryResult, null=True)
-    name = peewee.CharField(max_length=255)
-    description = peewee.CharField(max_length=4096, null=True)
-    query = peewee.TextField()
-    query_hash = peewee.CharField(max_length=32)
-    api_key = peewee.CharField(max_length=40)
-    user = peewee.ForeignKeyField(User)
-    last_modified_by = peewee.ForeignKeyField(User, null=True, related_name="modified_queries")
-    is_archived = peewee.BooleanField(default=False, index=True)
-    schedule = peewee.CharField(max_length=10, null=True)
-    options = JSONField(default={})
+class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    version = Column(db.Integer, default=1)
+    org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
+    org = db.relationship(Organization, backref="queries")
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
+    data_source = db.relationship(DataSource, backref='queries')
+    latest_query_data_id = Column(db.Integer, db.ForeignKey("query_results.id"), nullable=True)
+    latest_query_data = db.relationship(QueryResult)
+    name = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
+    query_text = Column("query", db.Text)
+    query_hash = Column(db.String(32))
+    api_key = Column(db.String(40), default=lambda: generate_token(40))
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User, foreign_keys=[user_id])
+    last_modified_by_id = Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    last_modified_by = db.relationship(User, backref="modified_queries",
+                                       foreign_keys=[last_modified_by_id])
+    is_archived = Column(db.Boolean, default=False, index=True)
+    is_draft = Column(db.Boolean, default=True, index=True)
+    schedule = Column(db.String(10), nullable=True)
+    schedule_failures = Column(db.Integer, default=0)
+    visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
+    options = Column(MutableDict.as_mutable(PseudoJSON), default={})
 
-    class Meta:
-        db_table = 'queries'
+    __tablename__ = 'queries'
+    __mapper_args__ = {
+        "version_id_col": version,
+        'version_id_generator': False
+    }
 
     def to_dict(self, with_stats=False, with_visualizations=False, with_user=True, with_last_modified_by=True):
         d = {
             'id': self.id,
-            'latest_query_data_id': self._data.get('latest_query_data', None),
+            'latest_query_data_id': self.latest_query_data_id,
             'name': self.name,
             'description': self.description,
-            'query': self.query,
+            'query': self.query_text,
             'query_hash': self.query_hash,
             'schedule': self.schedule,
             'api_key': self.api_key,
             'is_archived': self.is_archived,
+            'is_draft': self.is_draft,
             'updated_at': self.updated_at,
             'created_at': self.created_at,
             'data_source_id': self.data_source_id,
-            'options': self.options
+            'options': self.options,
+            'version': self.version
         }
 
         if with_user:
@@ -624,8 +766,12 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             d['last_modified_by_id'] = self.last_modified_by_id
 
         if with_stats:
-            d['retrieved_at'] = self.retrieved_at
-            d['runtime'] = self.runtime
+            if self.latest_query_data is not None:
+                d['retrieved_at'] = self.retrieved_at
+                d['runtime'] = self.runtime
+            else:
+                d['retrieved_at'] = None
+                d['runtime'] = None
 
         if with_visualizations:
             d['visualizations'] = [vis.to_dict(with_query=False)
@@ -633,110 +779,139 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 
         return d
 
-    def archive(self):
+    def archive(self, user=None):
+        db.session.add(self)
         self.is_archived = True
         self.schedule = None
 
         for vis in self.visualizations:
             for w in vis.widgets:
-                w.delete_instance()
+                db.session.delete(w)
 
-        for alert in self.alerts:
-            alert.delete_instance(recursive=True)
+        for a in self.alerts:
+            db.session.delete(a)
 
-        self.save()
+        if user:
+            self.record_changes(user)
 
     @classmethod
-    def all_queries(cls, groups):
-        q = Query.select(Query, User, QueryResult.retrieved_at, QueryResult.runtime)\
-            .join(QueryResult, join_type=peewee.JOIN_LEFT_OUTER)\
-            .switch(Query).join(User)\
-            .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source))\
-            .where(Query.is_archived==False)\
-            .where(DataSourceGroup.group << groups)\
-            .group_by(Query.id, User.id, QueryResult.id, QueryResult.retrieved_at, QueryResult.runtime)\
-            .order_by(cls.created_at.desc())
+    def create(cls, **kwargs):
+        query = cls(**kwargs)
+        db.session.add(Visualization(query_rel=query,
+                                     name="Table",
+                                     description='',
+                                     type="TABLE",
+                                     options="{}"))
+        return query
+
+    @classmethod
+    def all_queries(cls, group_ids, user_id=None, drafts=False):
+        q = (cls.query
+            .options(joinedload(Query.user),
+                     joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
+            .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .filter(Query.is_archived == False)
+            .filter(DataSourceGroup.group_id.in_(group_ids))\
+            .order_by(Query.created_at.desc()))
+
+        if not drafts:
+            q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
 
         return q
 
     @classmethod
+    def by_user(cls, user):
+        return cls.all_queries(user.group_ids, user.id).filter(Query.user == user)
+
+    @classmethod
     def outdated_queries(cls):
-        queries = cls.select(cls, QueryResult.retrieved_at, DataSource)\
-            .join(QueryResult)\
-            .switch(Query).join(DataSource)\
-            .where(cls.schedule != None)
+        queries = (db.session.query(Query)
+                   .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
+                   .filter(Query.schedule != None)
+                   .order_by(Query.id))
 
         now = utils.utcnow()
         outdated_queries = {}
         for query in queries:
-            if should_schedule_next(query.latest_query_data.retrieved_at, now, query.schedule):
-                key = "{}:{}".format(query.query_hash, query.data_source.id)
+            if query.latest_query_data:
+                retrieved_at = query.latest_query_data.retrieved_at
+            else:
+                retrieved_at = now
+
+            if should_schedule_next(retrieved_at, now, query.schedule, query.schedule_failures):
+                key = "{}:{}".format(query.query_hash, query.data_source_id)
                 outdated_queries[key] = query
 
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, groups):
+    def search(cls, term, group_ids, include_drafts=False):
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
-
-        where = (cls.name**u"%{}%".format(term)) | (cls.description**u"%{}%".format(term))
+        where = (Query.name.ilike(u"%{}%".format(term)) |
+                 Query.description.ilike(u"%{}%".format(term)))
 
         if term.isdigit():
-            where |= cls.id == term
+            where |= Query.id == term
 
-        where &= cls.is_archived == False
+        where &= Query.is_archived == False
 
-        query_ids = cls.select(peewee.fn.Distinct(cls.id))\
-            .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source)) \
-            .where(where) \
-            .where(DataSourceGroup.group << groups)
+        if not include_drafts:
+            where &= Query.is_draft == False
 
-        return cls.select().where(cls.id << query_ids)
+        where &= DataSourceGroup.group_id.in_(group_ids)
+        query_ids = (
+            db.session.query(Query.id).join(
+                DataSourceGroup,
+                Query.data_source_id == DataSourceGroup.data_source_id)
+            .filter(where)).distinct()
 
+        return Query.query.options(joinedload(Query.user)).filter(Query.id.in_(query_ids))
 
     @classmethod
-    def recent(cls, groups, user_id=None, limit=20):
-        query = cls.select(Query, User).where(Event.created_at > peewee.SQL("current_date - 7")).\
-            join(Event, on=(Query.id == Event.object_id.cast('integer'))). \
-            join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source)). \
-            switch(Query).join(User).\
-            where(Event.action << ('edit', 'execute', 'edit_name', 'edit_description', 'view_source')).\
-            where(~(Event.object_id >> None)).\
-            where(Event.object_type == 'query'). \
-            where(DataSourceGroup.group << groups).\
-            where(cls.is_archived == False).\
-            group_by(Event.object_id, Query.id, User.id).\
-            order_by(peewee.SQL("count(0) desc"))
+    def recent(cls, group_ids, user_id=None, limit=20):
+        query = (cls.query.options(subqueryload(Query.user))
+                 .filter(Event.created_at > (db.func.current_date() - 7))
+                 .join(Event, Query.id == Event.object_id.cast(db.Integer))
+                 .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+                 .filter(
+                     Event.action.in_(['edit', 'execute', 'edit_name',
+                                       'edit_description', 'view_source']),
+                     Event.object_id != None,
+                     Event.object_type == 'query',
+                     DataSourceGroup.group_id.in_(group_ids),
+                     or_(Query.is_draft == False, Query.user_id == user_id),
+                     Query.is_archived == False)
+                 .group_by(Event.object_id, Query.id)
+                 .order_by(db.desc(db.func.count(0))))
 
         if user_id:
-            query = query.where(Event.user == user_id)
+            query = query.filter(Event.user_id == user_id)
 
         query = query.limit(limit)
 
         return query
 
-    def pre_save(self, created):
-        super(Query, self).pre_save(created)
-        self.query_hash = utils.gen_query_hash(self.query)
-        self._set_api_key()
+    @classmethod
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
 
-        if self.last_modified_by is None:
-            self.last_modified_by = self.user
+    def fork(self, user):
+        forked_list = ['org', 'data_source', 'latest_query_data', 'description',
+                       'query_text', 'query_hash']
+        kwargs = {a: getattr(self, a) for a in forked_list}
+        forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
+                                    user=user, **kwargs)
 
-    def post_save(self, created):
-        if created:
-            self._create_default_visualizations()
-
-    def _create_default_visualizations(self):
-        table_visualization = Visualization(query=self, name="Table",
-                                            description='',
-                                            type="TABLE", options="{}")
-        table_visualization.save()
-
-    def _set_api_key(self):
-        if not self.api_key:
-            self.api_key = hashlib.sha1(
-                u''.join((str(time.time()), self.query, str(self.user_id), self.name)).encode('utf-8')).hexdigest()
+        for v in self.visualizations:
+            if v.type == 'TABLE':
+                continue
+            forked_v = v.to_dict()
+            forked_v['options'] = v.options
+            forked_v['query_rel'] = forked_query
+            forked_v.pop('id')
+            forked_query.visualizations.append(Visualization(**forked_v))
+        db.session.add(forked_query)
+        return forked_query
 
     @property
     def runtime(self):
@@ -757,36 +932,154 @@ class Query(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
         return unicode(self.id)
 
 
-class Alert(ModelTimestampsMixin, BaseModel):
+@listens_for(Query.query_text, 'set')
+def gen_query_hash(target, val, oldval, initiator):
+    target.query_hash = utils.gen_query_hash(val)
+    target.schedule_failures = 0
+
+
+@listens_for(Query.user_id, 'set')
+def query_last_modified_by(target, val, oldval, initiator):
+    target.last_modified_by_id = val
+
+
+class AccessPermission(GFKBase, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    # 'object' defined in GFKBase
+    access_type = Column(db.String(255))
+    grantor_id = Column(db.Integer, db.ForeignKey("users.id"))
+    grantor = db.relationship(User, backref='grantor', foreign_keys=[grantor_id])
+    grantee_id = Column(db.Integer, db.ForeignKey("users.id"))
+    grantee = db.relationship(User, backref='grantee', foreign_keys=[grantee_id])
+
+    __tablename__ = 'access_permissions'
+
+    @classmethod
+    def grant(cls, obj, access_type, grantee, grantor):
+        grant = cls.query.filter(cls.object_type==obj.__tablename__,
+                                 cls.object_id==obj.id,
+                                 cls.access_type==access_type,
+                                 cls.grantee==grantee,
+                                 cls.grantor==grantor).one_or_none()
+
+        if not grant:
+            grant = cls(object_type=obj.__tablename__,
+                        object_id=obj.id,
+                        access_type=access_type,
+                        grantee=grantee,
+                        grantor=grantor)
+            db.session.add(grant)
+
+        return grant
+
+    @classmethod
+    def revoke(cls, obj, grantee, access_type=None):
+        permissions = cls._query(obj, access_type, grantee)
+        return permissions.delete()
+
+    @classmethod
+    def find(cls, obj, access_type=None, grantee=None, grantor=None):
+        return cls._query(obj, access_type, grantee, grantor)
+
+    @classmethod
+    def exists(cls, obj, access_type, grantee):
+        return cls.find(obj, access_type, grantee).count() > 0
+
+    @classmethod
+    def _query(cls, obj, access_type=None, grantee=None, grantor=None):
+        q = cls.query.filter(cls.object_id == obj.id,
+                             cls.object_type == obj.__tablename__)
+
+        if access_type:
+            q.filter(AccessPermission.access_type == access_type)
+
+        if grantee:
+            q.filter(AccessPermission.grantee == grantee)
+
+        if grantor:
+            q.filter(AccessPermission.grantor == grantor)
+
+        return q
+
+    def to_dict(self):
+        d = {
+            'id': self.id,
+            'object_id': self.object_id,
+            'object_type': self.object_type,
+            'access_type': self.access_type,
+            'grantor': self.grantor_id,
+            'grantee': self.grantee_id
+        }
+        return d
+
+
+class Change(GFKBase, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    # 'object' defined in GFKBase
+    object_version = Column(db.Integer, default=0)
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User, backref='changes')
+    change = Column(PseudoJSON)
+    created_at = Column(db.DateTime(True), default=db.func.now())
+
+    __tablename__ = 'changes'
+
+    def to_dict(self, full=True):
+        d = {
+            'id': self.id,
+            'object_id': self.object_id,
+            'object_type': self.object_type,
+            'change_type': self.change_type,
+            'object_version': self.object_version,
+            'change': self.change,
+            'created_at': self.created_at
+        }
+
+        if full:
+            d['user'] = self.user.to_dict()
+        else:
+            d['user_id'] = self.user_id
+
+        return d
+
+    @classmethod
+    def last_change(cls, obj):
+        return db.session.query(cls).filter(
+            cls.object_id == obj.id,
+            cls.object_type == obj.__class__.__tablename__).order_by(
+                cls.object_version.desc()).first()
+
+
+class Alert(TimestampMixin, db.Model):
     UNKNOWN_STATE = 'unknown'
     OK_STATE = 'ok'
     TRIGGERED_STATE = 'triggered'
 
-    id = peewee.PrimaryKeyField()
-    name = peewee.CharField()
-    query = peewee.ForeignKeyField(Query, related_name='alerts')
-    user = peewee.ForeignKeyField(User, related_name='alerts')
-    options = JSONField()
-    state = peewee.CharField(default=UNKNOWN_STATE)
-    last_triggered_at = DateTimeTZField(null=True)
-    rearm = peewee.IntegerField(null=True)
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.String(255))
+    query_id = Column(db.Integer, db.ForeignKey("queries.id"))
+    query_rel = db.relationship(Query, backref=backref('alerts', cascade="all"))
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User, backref='alerts')
+    options = Column(MutableDict.as_mutable(PseudoJSON))
+    state = Column(db.String(255), default=UNKNOWN_STATE)
+    subscriptions = db.relationship("AlertSubscription", cascade="all, delete-orphan")
+    last_triggered_at = Column(db.DateTime(True), nullable=True)
+    rearm = Column(db.Integer, nullable=True)
 
-    class Meta:
-        db_table = 'alerts'
+    __tablename__ = 'alerts'
 
     @classmethod
-    def all(cls, groups):
-        return cls.select(Alert, User, Query)\
+    def all(cls, group_ids):
+        return db.session.query(Alert)\
+            .options(joinedload(Alert.user), joinedload(Alert.query_rel))\
             .join(Query)\
-            .join(DataSourceGroup, on=(Query.data_source==DataSourceGroup.data_source))\
-            .where(DataSourceGroup.group << groups)\
-            .switch(Alert)\
-            .join(User)\
-            .group_by(Alert, User, Query)
+            .join(DataSourceGroup, DataSourceGroup.data_source_id==Query.data_source_id)\
+            .filter(DataSourceGroup.group_id.in_(group_ids))
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
-        return cls.select(Alert, User, Query).join(Query).switch(Alert).join(User).where(cls.id==id, Query.org==org).get()
+        return db.session.query(Alert).join(Query).filter(Alert.id==id, Query.org==org).one()
 
     def to_dict(self, full=True):
         d = {
@@ -801,7 +1094,7 @@ class Alert(ModelTimestampsMixin, BaseModel):
         }
 
         if full:
-            d['query'] = self.query.to_dict()
+            d['query'] = self.query_rel.to_dict()
             d['user'] = self.user.to_dict()
         else:
             d['query_id'] = self.query_id
@@ -810,7 +1103,7 @@ class Alert(ModelTimestampsMixin, BaseModel):
         return d
 
     def evaluate(self):
-        data = json.loads(self.query.latest_query_data.data)
+        data = json.loads(self.query_rel.latest_query_data.data)
         # todo: safe guard for empty
         value = data['rows'][0][self.options['column']]
         op = self.options['op']
@@ -827,42 +1120,56 @@ class Alert(ModelTimestampsMixin, BaseModel):
         return new_state
 
     def subscribers(self):
-        return User.select().join(AlertSubscription).where(AlertSubscription.alert==self)
+        return User.query.join(AlertSubscription).filter(AlertSubscription.alert == self)
 
     @property
     def groups(self):
-        return self.query.groups
+        return self.query_rel.groups
 
 
-class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="dashboards")
-    slug = peewee.CharField(max_length=140, index=True)
-    name = peewee.CharField(max_length=100)
-    user = peewee.ForeignKeyField(User)
-    layout = peewee.TextField()
-    dashboard_filters_enabled = peewee.BooleanField(default=False)
-    is_archived = peewee.BooleanField(default=False, index=True)
+def generate_slug(ctx):
+    slug = utils.slugify(ctx.current_parameters['name'])
+    tries = 1
+    while Dashboard.query.filter(Dashboard.slug == slug).first() is not None:
+        slug = utils.slugify(ctx.current_parameters['name']) + "_" + str(tries)
+        tries += 1
+    return slug
 
-    class Meta:
-        db_table = 'dashboards'
+
+class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    version = Column(db.Integer)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="dashboards")
+    slug = Column(db.String(140), index=True, default=generate_slug)
+    name = Column(db.String(100))
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User)
+    # TODO: The layout should dynamically be built from position and size information on each widget.
+    # Will require update in the frontend code to support this.
+    layout = Column(db.Text)
+    dashboard_filters_enabled = Column(db.Boolean, default=False)
+    is_archived = Column(db.Boolean, default=False, index=True)
+    is_draft = Column(db.Boolean, default=True, index=True)
+    widgets = db.relationship('Widget', backref='dashboard', lazy='dynamic')
+
+    __tablename__ = 'dashboards'
+    __mapper_args__ = {
+        "version_id_col": version
+        }
 
     def to_dict(self, with_widgets=False, user=None):
         layout = json.loads(self.layout)
 
         if with_widgets:
-            widget_list = Widget.select(Widget, Visualization, Query, User)\
-                .where(Widget.dashboard == self.id)\
-                .join(Visualization, join_type=peewee.JOIN_LEFT_OUTER)\
-                .join(Query, join_type=peewee.JOIN_LEFT_OUTER)\
-                .join(User, join_type=peewee.JOIN_LEFT_OUTER)
+            widget_list = Widget.query.filter(Widget.dashboard == self)
 
             widgets = {}
 
             for w in widget_list:
                 if w.visualization_id is None:
                     widgets[w.id] = w.to_dict()
-                elif user and has_access(w.visualization.query.groups, user, view_only):
+                elif user and has_access(w.visualization.query_rel.groups, user, view_only):
                     widgets[w.id] = w.to_dict()
                 else:
                     widgets[w.id] = project(w.to_dict(),
@@ -876,6 +1183,8 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             # to the widget).
             widgets_layout = []
             for row in layout:
+                if not row:
+                    continue
                 new_row = []
                 for widget_id in row:
                     widget = widgets.get(widget_id, None)
@@ -895,47 +1204,56 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
             'widgets': widgets_layout,
             'is_archived': self.is_archived,
+            'is_draft': self.is_draft,
             'updated_at': self.updated_at,
-            'created_at': self.created_at
+            'created_at': self.created_at,
+            'version': self.version
         }
 
     @classmethod
-    def all(cls, org, groups, user_id):
-        query = cls.select().\
-            join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
-            join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
-            join(Query, peewee.JOIN_LEFT_OUTER, on=(Visualization.query == Query.id)). \
-            join(DataSourceGroup, peewee.JOIN_LEFT_OUTER, on=(Query.data_source == DataSourceGroup.data_source)). \
-            where(Dashboard.is_archived == False). \
-            where((DataSourceGroup.group << groups) |
-                  (Dashboard.user == user_id) |
-                  (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
-            where(Dashboard.org == org). \
-            group_by(Dashboard.id)
+    def all(cls, org, group_ids, user_id):
+        query = (
+            Dashboard.query
+            .outerjoin(Widget)
+            .outerjoin(Visualization)
+            .outerjoin(Query)
+            .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .filter(
+                Dashboard.is_archived == False,
+                (DataSourceGroup.group_id.in_(group_ids) |
+                 (Dashboard.user_id == user_id) |
+                 ((Widget.dashboard != None) & (Widget.visualization == None))),
+                Dashboard.org == org)
+            .group_by(Dashboard.id))
+
+        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
         return query
 
     @classmethod
-    def recent(cls, org, groups, user_id, for_user=False, limit=20):
-        query = cls.select().where(Event.created_at > peewee.SQL("current_date - 7")). \
-            join(Event, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Event.object_id.cast('integer'))). \
-            join(Widget, peewee.JOIN_LEFT_OUTER, on=(Dashboard.id == Widget.dashboard)). \
-            join(Visualization, peewee.JOIN_LEFT_OUTER, on=(Widget.visualization == Visualization.id)). \
-            join(Query, peewee.JOIN_LEFT_OUTER, on=(Visualization.query == Query.id)). \
-            join(DataSourceGroup, peewee.JOIN_LEFT_OUTER, on=(Query.data_source == DataSourceGroup.data_source)). \
-            where(Event.action << ('edit', 'view')). \
-            where(~(Event.object_id >> None)). \
-            where(Event.object_type == 'dashboard'). \
-            where(Dashboard.is_archived == False). \
-            where(Dashboard.org == org). \
-            where((DataSourceGroup.group << groups) |
-                  (Dashboard.user == user_id) |
-                  (~(Widget.dashboard >> None) & (Widget.visualization >> None))). \
-            group_by(Event.object_id, Dashboard.id). \
-            order_by(peewee.SQL("count(0) desc"))
+    def recent(cls, org, group_ids, user_id, for_user=False, limit=20):
+        query = (Dashboard.query
+                 .outerjoin(Event, Dashboard.id == Event.object_id.cast(db.Integer))
+                 .outerjoin(Widget)
+                 .outerjoin(Visualization)
+                 .outerjoin(Query)
+                 .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+                 .filter(
+                     Event.created_at > (db.func.current_date() - 7),
+                     Event.action.in_(['edit', 'view']),
+                     Event.object_id != None,
+                     Event.object_type == 'dashboard',
+                     Dashboard.org == org,
+                     Dashboard.is_archived == False,
+                     or_(Dashboard.is_draft == False, Dashboard.user_id == user_id),
+                     DataSourceGroup.group_id.in_(group_ids) |
+                     (Dashboard.user_id == user_id) |
+                     ((Widget.dashboard != None) & (Widget.visualization == None)))
+                 .group_by(Event.object_id, Dashboard.id)
+                 .order_by(db.desc(db.func.count(0))))
 
         if for_user:
-            query = query.where(Event.user == user_id)
+            query = query.filter(Event.user_id == user_id)
 
         query = query.limit(limit)
 
@@ -943,33 +1261,23 @@ class Dashboard(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
-        return cls.get(cls.slug == slug, cls.org==org)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = utils.slugify(self.name)
-
-            tries = 1
-            while self.select().where(Dashboard.slug == self.slug).first() is not None:
-                self.slug = utils.slugify(self.name) + "_{0}".format(tries)
-                tries += 1
-
-        super(Dashboard, self).save(*args, **kwargs)
+        return cls.query.filter(cls.slug == slug, cls.org==org).one()
 
     def __unicode__(self):
         return u"%s=%s" % (self.id, self.name)
 
 
-class Visualization(ModelTimestampsMixin, BaseModel):
-    id = peewee.PrimaryKeyField()
-    type = peewee.CharField(max_length=100)
-    query = peewee.ForeignKeyField(Query, related_name='visualizations')
-    name = peewee.CharField(max_length=255)
-    description = peewee.CharField(max_length=4096, null=True)
-    options = peewee.TextField()
+class Visualization(TimestampMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    type = Column(db.String(100))
+    query_id = Column(db.Integer, db.ForeignKey("queries.id"))
+    # query_rel and not query, because db.Model already has query defined.
+    query_rel = db.relationship(Query, back_populates='visualizations')
+    name = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
+    options = Column(db.Text)
 
-    class Meta:
-        db_table = 'visualizations'
+    __tablename__ = 'visualizations'
 
     def to_dict(self, with_query=True):
         d = {
@@ -983,33 +1291,34 @@ class Visualization(ModelTimestampsMixin, BaseModel):
         }
 
         if with_query:
-            d['query'] = self.query.to_dict()
+            d['query'] = self.query_rel.to_dict()
 
         return d
 
     @classmethod
     def get_by_id_and_org(cls, visualization_id, org):
-        return cls.select(Visualization, Query).join(Query).where(cls.id == visualization_id,
-                                                                  Query.org == org).get()
+        return db.session.query(Visualization).join(Query).filter(
+            cls.id == visualization_id,
+            Query.org == org).one()
 
     def __unicode__(self):
         return u"%s %s" % (self.id, self.type)
 
 
-class Widget(ModelTimestampsMixin, BaseModel):
-    id = peewee.PrimaryKeyField()
-    visualization = peewee.ForeignKeyField(Visualization, related_name='widgets', null=True)
-    text = peewee.TextField(null=True)
-    width = peewee.IntegerField()
-    options = peewee.TextField()
-    dashboard = peewee.ForeignKeyField(Dashboard, related_name='widgets', index=True)
+class Widget(TimestampMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    visualization_id = Column(db.Integer, db.ForeignKey('visualizations.id'), nullable=True)
+    visualization = db.relationship(Visualization, backref='widgets')
+    text = Column(db.Text, nullable=True)
+    width = Column(db.Integer)
+    options = Column(db.Text)
+    dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id"), index=True)
 
     # unused; kept for backward compatability:
-    type = peewee.CharField(max_length=100, null=True)
-    query_id = peewee.IntegerField(null=True)
+    type = Column(db.String(100), nullable=True)
+    query_id = Column(db.Integer, nullable=True)
 
-    class Meta:
-        db_table = 'widgets'
+    __tablename__ = 'widgets'
 
     def to_dict(self):
         d = {
@@ -1027,98 +1336,110 @@ class Widget(ModelTimestampsMixin, BaseModel):
 
         return d
 
+    def delete(self):
+        layout = json.loads(self.dashboard.layout)
+        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
+        layout = filter(lambda row: len(row) > 0, layout)
+        self.dashboard.layout = json.dumps(layout)
+
+        db.session.add(self.dashboard)
+        db.session.delete(self)
+
     def __unicode__(self):
         return u"%s" % self.id
 
     @classmethod
     def get_by_id_and_org(cls, widget_id, org):
-        return cls.select(cls, Dashboard).join(Dashboard).where(cls.id == widget_id, Dashboard.org == org).get()
-
-    def delete_instance(self, *args, **kwargs):
-        layout = json.loads(self.dashboard.layout)
-        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
-        layout = filter(lambda row: len(row) > 0, layout)
-        self.dashboard.layout = json.dumps(layout)
-        self.dashboard.save()
-        super(Widget, self).delete_instance(*args, **kwargs)
+        return db.session.query(cls).join(Dashboard).filter(cls.id == widget_id, Dashboard.org== org).one()
 
 
-class Event(BaseModel):
-    org = peewee.ForeignKeyField(Organization, related_name="events")
-    user = peewee.ForeignKeyField(User, related_name="events", null=True)
-    action = peewee.CharField()
-    object_type = peewee.CharField()
-    object_id = peewee.CharField(null=True)
-    additional_properties = peewee.TextField(null=True)
-    created_at = DateTimeTZField(default=datetime.datetime.now)
+class Event(db.Model):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="events")
+    user_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    user = db.relationship(User, backref="events")
+    action = Column(db.String(255))
+    object_type = Column(db.String(255))
+    object_id = Column(db.String(255), nullable=True)
+    additional_properties = Column(MutableDict.as_mutable(PseudoJSON), nullable=True, default={})
+    created_at = Column(db.DateTime(True), default=db.func.now())
 
-    class Meta:
-        db_table = 'events'
+    __tablename__ = 'events'
 
     def __unicode__(self):
         return u"%s,%s,%s,%s" % (self.user_id, self.action, self.object_type, self.object_id)
 
+    def to_dict(self):
+        return {
+            'org_id': self.org_id,
+            'user_id': self.user_id,
+            'action': self.action,
+            'object_type': self.object_type,
+            'object_id': self.object_id,
+            'additional_properties': self.additional_properties,
+            'created_at': self.created_at.isoformat()
+        }
+
     @classmethod
     def record(cls, event):
-        org = event.pop('org_id')
-        user = event.pop('user_id', None)
+        org_id = event.pop('org_id')
+        user_id = event.pop('user_id', None)
         action = event.pop('action')
         object_type = event.pop('object_type')
         object_id = event.pop('object_id', None)
 
         created_at = datetime.datetime.utcfromtimestamp(event.pop('timestamp'))
-        additional_properties = json.dumps(event)
 
-        event = cls.create(org=org, user=user, action=action, object_type=object_type, object_id=object_id,
-                           additional_properties=additional_properties, created_at=created_at)
-
+        event = cls(org_id=org_id, user_id=user_id, action=action,
+                    object_type=object_type, object_id=object_id,
+                    additional_properties=event,
+                    created_at=created_at)
+        db.session.add(event)
         return event
 
 
-class ApiKey(ModelTimestampsMixin, BaseModel):
-    org = peewee.ForeignKeyField(Organization)
-    api_key = peewee.CharField(index=True, default=lambda: generate_token(40))
-    active = peewee.BooleanField(default=True)
-    object_type = peewee.CharField()
-    object_id = peewee.IntegerField()
-    object = GFKField('object_type', 'object_id')
-    created_by = peewee.ForeignKeyField(User, null=True)
+class ApiKey(TimestampMixin, GFKBase, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization)
+    api_key = Column(db.String(255), index=True, default=lambda: generate_token(40))
+    active = Column(db.Boolean, default=True)
+    #'object' provided by GFKBase
+    created_by_id = Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    created_by = db.relationship(User)
 
-    class Meta:
-        db_table = 'api_keys'
-        indexes = (
-            (('object_type', 'object_id'), False),
-        )
+    __tablename__ = 'api_keys'
+    __table_args__ = (db.Index('api_keys_object_type_object_id', 'object_type', 'object_id'),)
 
     @classmethod
     def get_by_api_key(cls, api_key):
-        return cls.get(cls.api_key==api_key, cls.active==True)
+        return cls.query.filter(cls.api_key==api_key, cls.active==True).one()
 
     @classmethod
     def get_by_object(cls, object):
-        return cls.select().where(cls.object_type==object._meta.db_table, cls.object_id==object.id, cls.active==True).first()
+        return cls.query.filter(cls.object_type==object.__class__.__tablename__, cls.object_id==object.id, cls.active==True).first()
 
     @classmethod
     def create_for_object(cls, object, user):
-        return cls.create(org=user.org, object=object, created_by=user)
+        k = cls(org=user.org, object=object, created_by=user)
+        db.session.add(k)
+        return k
 
 
-class NotificationDestination(BelongsToOrgMixin, BaseModel):
-
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="notification_destinations")
-    user = peewee.ForeignKeyField(User, related_name="notification_destinations")
-    name = peewee.CharField()
-    type = peewee.CharField()
-    options = ConfigurationField()
-    created_at = DateTimeTZField(default=datetime.datetime.now)
-
-    class Meta:
-        db_table = 'notification_destinations'
-
-        indexes = (
-            (('org', 'name'), True),
-        )
+class NotificationDestination(BelongsToOrgMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="notification_destinations")
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User, backref="notification_destinations")
+    name = Column(db.String(255))
+    type = Column(db.String(255))
+    options = Column(Configuration)
+    created_at = Column(db.DateTime(True), default=db.func.now())
+    __tablename__ = 'notification_destinations'
+    __table_args__ = (db.Index('notification_destinations_org_id_name', 'org_id',
+                               'name', unique=True),)
 
     def to_dict(self, all=False):
         d = {
@@ -1144,7 +1465,7 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
 
     @classmethod
     def all(cls, org):
-        notification_destinations = cls.select().where(cls.org==org).order_by(cls.id.asc())
+        notification_destinations = cls.query.filter(cls.org==org).order_by(cls.id.asc())
 
         return notification_destinations
 
@@ -1155,17 +1476,20 @@ class NotificationDestination(BelongsToOrgMixin, BaseModel):
                                        app, host, self.options)
 
 
-class AlertSubscription(ModelTimestampsMixin, BaseModel):
-    user = peewee.ForeignKeyField(User)
-    destination = peewee.ForeignKeyField(NotificationDestination, null=True)
-    alert = peewee.ForeignKeyField(Alert, related_name="subscriptions")
+class AlertSubscription(TimestampMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User)
+    destination_id = Column(db.Integer,
+                               db.ForeignKey("notification_destinations.id"),
+                               nullable=True)
+    destination = db.relationship(NotificationDestination)
+    alert_id = Column(db.Integer, db.ForeignKey("alerts.id"))
+    alert = db.relationship(Alert, back_populates="subscriptions")
 
-    class Meta:
-        db_table = 'alert_subscriptions'
-
-        indexes = (
-            (('destination', 'alert'), True),
-        )
+    __tablename__ = 'alert_subscriptions'
+    __table_args__ = (db.Index('alert_subscriptions_destination_id_alert_id',
+                               'destination_id', 'alert_id', unique=True),)
 
     def to_dict(self):
         d = {
@@ -1181,7 +1505,7 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
 
     @classmethod
     def all(cls, alert_id):
-        return AlertSubscription.select(AlertSubscription, User).join(User).where(AlertSubscription.alert==alert_id)
+        return AlertSubscription.query.join(User).filter(AlertSubscription.alert_id == alert_id)
 
     def notify(self, alert, query, user, new_state, app, host):
         if self.destination:
@@ -1196,20 +1520,20 @@ class AlertSubscription(ModelTimestampsMixin, BaseModel):
             return destination.notify(alert, query, user, new_state, app, host, options)
 
 
-class QuerySnippet(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
-    id = peewee.PrimaryKeyField()
-    org = peewee.ForeignKeyField(Organization, related_name="query_snippets")
-    trigger = peewee.CharField(unique=True)
-    description = peewee.TextField()
-    user = peewee.ForeignKeyField(User, related_name="query_snippets")
-    snippet = peewee.TextField()
-
-    class Meta:
-        db_table = 'query_snippets'
+class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="query_snippets")
+    trigger = Column(db.String(255), unique=True)
+    description = Column(db.Text)
+    user_id = Column(db.Integer, db.ForeignKey("users.id"))
+    user = db.relationship(User, backref="query_snippets")
+    snippet = Column(db.Text)
+    __tablename__ = 'query_snippets'
 
     @classmethod
     def all(cls, org):
-        return cls.select().where(cls.org==org)
+        return cls.query.filter(cls.org == org)
 
     def to_dict(self):
         d = {
@@ -1224,26 +1548,15 @@ class QuerySnippet(ModelTimestampsMixin, BaseModel, BelongsToOrgMixin):
 
         return d
 
-
-all_models = (Organization, Group, DataSource, DataSourceGroup, User, QueryResult, Query, Alert, Dashboard, Visualization, Widget, Event, NotificationDestination, AlertSubscription, ApiKey, QuerySnippet)
+_gfk_types = {'queries': Query, 'dashboards': Dashboard}
 
 
 def init_db():
-    default_org = Organization.create(name="Default", slug='default', settings={})
-    admin_group = Group.create(name='admin', permissions=['admin', 'super_admin'], org=default_org, type=Group.BUILTIN_GROUP)
-    default_group = Group.create(name='default', permissions=Group.DEFAULT_PERMISSIONS, org=default_org, type=Group.BUILTIN_GROUP)
+    default_org = Organization(name="Default", slug='default', settings={})
+    admin_group = Group(name='admin', permissions=['admin', 'super_admin'], org=default_org, type=Group.BUILTIN_GROUP)
+    default_group = Group(name='default', permissions=Group.DEFAULT_PERMISSIONS, org=default_org, type=Group.BUILTIN_GROUP)
 
+    db.session.add_all([default_org, admin_group, default_group])
+    #XXX remove after fixing User.group_ids
+    db.session.commit()
     return default_org, admin_group, default_group
-
-
-def create_db(create_tables, drop_tables):
-    db.connect_db()
-
-    for model in all_models:
-        if drop_tables and model.table_exists():
-            model.drop_table(cascade=True)
-
-        if create_tables and not model.table_exists():
-            model.create_table()
-
-    db.close_db(None)

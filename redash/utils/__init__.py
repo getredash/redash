@@ -11,6 +11,7 @@ import pytz
 import pystache
 
 from funcy import distinct
+from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
 from redash import settings
@@ -57,6 +58,9 @@ class JSONEncoder(json.JSONEncoder):
     """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
 
     def default(self, o):
+        # Some SQLAlchemy collections are lazy.
+        if isinstance(o, Query):
+            return list(o)
         if isinstance(o, decimal.Decimal):
             return float(o)
 

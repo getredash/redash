@@ -3,6 +3,8 @@ import requests
 from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_login import login_user
 from flask_oauthlib.client import OAuth
+from sqlalchemy.orm.exc import NoResultFound
+
 from redash import models, settings
 from redash.authentication.org_resolving import current_org
 
@@ -62,10 +64,12 @@ def create_and_login_user(org, name, email):
         if user_object.name != name:
             logger.debug("Updating user name (%r -> %r)", user_object.name, name)
             user_object.name = name
-            user_object.save()
-    except models.User.DoesNotExist:
+            models.db.session.commit()
+    except NoResultFound:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User.create(org=org, name=name, email=email, groups=[org.default_group.id])
+        user_object = models.User(org=org, name=name, email=email, group_ids=[org.default_group.id])
+        models.db.session.add(user_object)
+        models.db.session.commit()
 
     login_user(user_object, remember=True)
 
@@ -81,10 +85,10 @@ def org_login(org_slug):
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
     callback = url_for('.callback', _external=True)
-    next = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
+    next_path = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
     logger.debug("Callback url: %s", callback)
-    logger.debug("Next is: %s", next)
-    return google_remote_app().authorize(callback=callback, state=next)
+    logger.debug("Next is: %s", next_path)
+    return google_remote_app().authorize(callback=callback, state=next_path)
 
 
 @blueprint.route('/oauth/google_callback', endpoint="callback")
@@ -114,6 +118,6 @@ def authorized():
 
     create_and_login_user(org, profile['name'], profile['email'])
 
-    next = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
+    next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
 
-    return redirect(next)
+    return redirect(next_path)
