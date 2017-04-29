@@ -281,6 +281,7 @@ const PlotlyChart = () => {
         }
 
         if (scope.options.globalSeriesType === 'box') {
+          scope.options.sortX = false;
           scope.layout.boxmode = 'group';
           scope.layout.boxgroupgap = 0.50;
         }
