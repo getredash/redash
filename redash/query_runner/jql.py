@@ -183,6 +183,8 @@ class JiraJQL(BaseQueryRunner):
             if query_type == 'count':
                 query['maxResults'] = 1
                 query['fields'] = ''
+            else:
+                query['maxResults'] = 1000
 
             response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
 
