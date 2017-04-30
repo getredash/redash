@@ -87,6 +87,12 @@ function DynamicForm($http, toastr, $q) {
           if (prev !== undefined) {
             $scope.target.options = {};
           }
+          if (Object.keys($scope.target.options).length === 0) {
+            const properties = $scope.type.configuration_schema.properties;
+            Object.keys(properties).forEach((property) => {
+              $scope.target.options[property] = properties[property].default || '';
+            });
+          }
           setType($scope.types);
         }
       });
