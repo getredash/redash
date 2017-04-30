@@ -71,6 +71,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                     "title": "Database Name"
                 }
             },
+            "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname"],
             "secret": ["password"]
         }
