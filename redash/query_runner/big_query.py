@@ -18,7 +18,7 @@ try:
     import apiclient.errors
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    from oauth2client.client import SignedJwtAssertionCredentials
+    from oauth2client.service_account import ServiceAccountCredentials
     from oauth2client import gce
 
     enabled = True
@@ -138,9 +138,9 @@ class BigQuery(BaseQueryRunner):
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
 
-        credentials = SignedJwtAssertionCredentials(key['client_email'], key['private_key'], scope=scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
-        http = credentials.authorize(http)
+        http = creds.authorize(http)
 
         return build("bigquery", "v2", http=http)
 
@@ -152,10 +152,10 @@ class BigQuery(BaseQueryRunner):
             "query": query,
             "dryRun": True,
         }
-        
+
         if self.configuration.get('useStandardSql', False):
             job_data['useLegacySql'] = False
-            
+
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
@@ -168,7 +168,7 @@ class BigQuery(BaseQueryRunner):
                 }
             }
         }
-        
+
         if self.configuration.get('useStandardSql', False):
             job_data['configuration']['query']['useLegacySql'] = False
 
