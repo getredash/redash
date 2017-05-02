@@ -87,16 +87,12 @@ class MemSQL(BaseSQLQueryRunner):
 
         columns_query = "show columns in %s"
 
-        for schema_name in filter(lambda a: len(a) > 0,
-                                  map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]),
-                                                               self._run_query_internal(
-                                                                       tables_query % schema_name))):
+        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
+            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]), self._run_query_internal(tables_query % schema_name))):
                 table_name = '.'.join((schema_name, table_name))
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']),
-                                                           self._run_query_internal(columns_query % table_name)))
+                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']), self._run_query_internal(columns_query % table_name)))
 
-                schema[table_name] = {'name': table_name, 'columns': columns}
+            schema[table_name] = {'name': table_name, 'columns': columns}
         return schema.values()
 
     def run_query(self, query, user):
@@ -132,7 +128,11 @@ class MemSQL(BaseSQLQueryRunner):
                     columns.append({
                         'name': column,
                         'friendly_name': column,
+<<<<<<< dbb1bf5ae05e2033ab5845ec57d0782185a43308
                         'type': TYPE_STRING
+=======
+                        'type': None
+>>>>>>> get_schema fix
                     })
 
             data = {'columns': columns, 'rows': rows}
