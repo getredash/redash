@@ -176,7 +176,7 @@ export default function (ngModule) {
 
     VisualizationProvider.registerVisualization({
       type: 'BOXPLOT',
-      name: 'Boxplot',
+      name: 'Boxplot (Deprecated)',
       renderTemplate,
       editorTemplate: editTemplate,
     });
