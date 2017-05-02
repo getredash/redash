@@ -87,12 +87,16 @@ class MemSQL(BaseSQLQueryRunner):
 
         columns_query = "show columns in %s"
 
-        for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
-            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]), self._run_query_internal(tables_query % schema_name))):
+        for schema_name in filter(lambda a: len(a) > 0,
+                                  map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
+            for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]),
+                                                               self._run_query_internal(
+                                                                       tables_query % schema_name))):
                 table_name = '.'.join((schema_name, table_name))
-                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']), self._run_query_internal(columns_query % table_name)))
+                columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']),
+                                                           self._run_query_internal(columns_query % table_name)))
 
-            schema[table_name] = {'name': table_name, 'columns': columns}
+        schema[table_name] = {'name': table_name, 'columns': columns}
         return schema.values()
 
     def run_query(self, query, user):
@@ -152,4 +156,8 @@ class MemSQL(BaseSQLQueryRunner):
         return json_data, error
 
 
+<<<<<<< edc615526ba3758fb834a5f340aa904c0a42261c
 register(MemSQL)
+=======
+register(MemSQL)
+>>>>>>> reformat, as for pep-8
