@@ -52,7 +52,7 @@
     "ng-annotate-loader": "^0.2.0",
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.3.0",
-    "plotly.js": "1.21.2",
+    "plotly.js": "1.26.1",
     "ui-select": "^0.19.6",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4"
