@@ -39,6 +39,8 @@ types_map = {
 
 
 class MemSQL(BaseSQLQueryRunner):
+    noop_query = 'SELECT 1'
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -86,6 +88,7 @@ class MemSQL(BaseSQLQueryRunner):
 
             for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
                 for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]), self._run_query_internal(tables_query % schema_name))):
+                    table_name = '.'.join((schema_name, table_name))
                     columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']), self._run_query_internal(columns_query % table_name)))
 
                     schema[table_name] = {'name': table_name, 'columns': columns}
@@ -93,7 +96,7 @@ class MemSQL(BaseSQLQueryRunner):
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         return schema.values()
 
-    def run_query(self, query):
+    def run_query(self, query, user):
 
         cursor = None
         try:
@@ -121,12 +124,14 @@ class MemSQL(BaseSQLQueryRunner):
             #====================================================================================================
             columns = []
             column_names = rows[0].keys() if rows else None
-            for column in column_names:
-                columns.append({
-                    'name': column,
-                    'friendly_name': column,
-                    'type': None
-                })
+
+            if column_names:
+                for column in column_names:
+                    columns.append({
+                        'name': column,
+                        'friendly_name': column,
+                        'type': None
+                    })
 
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
