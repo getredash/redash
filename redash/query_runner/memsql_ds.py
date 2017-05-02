@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from memsql.common import database
+
     enabled = True
 except ImportError, e:
     logger.warning(e)
@@ -86,10 +87,14 @@ class MemSQL(BaseSQLQueryRunner):
 
             columns_query = "show columns in %s"
 
-            for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
-                for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]), self._run_query_internal(tables_query % schema_name))):
+            for schema_name in filter(lambda a: len(a) > 0,
+                                      map(lambda a: str(a['Database']), self._run_query_internal(schemas_query))):
+                for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['Tables_in_%s' % schema_name]),
+                                                                   self._run_query_internal(
+                                                                           tables_query % schema_name))):
                     table_name = '.'.join((schema_name, table_name))
-                    columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']), self._run_query_internal(columns_query % table_name)))
+                    columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']),
+                                                               self._run_query_internal(columns_query % table_name)))
 
                     schema[table_name] = {'name': table_name, 'columns': columns}
         except Exception, e:
@@ -118,10 +123,9 @@ class MemSQL(BaseSQLQueryRunner):
 
             rows = [dict(zip(list(row.keys()), list(row.values()))) for row in res]
 
-
-            #====================================================================================================
-            #temporary - until https://github.com/memsql/memsql-python/pull/8 gets merged
-            #====================================================================================================
+            # ====================================================================================================
+            # temporary - until https://github.com/memsql/memsql-python/pull/8 gets merged
+            # ====================================================================================================
             columns = []
             column_names = rows[0].keys() if rows else None
 
@@ -148,5 +152,6 @@ class MemSQL(BaseSQLQueryRunner):
                 cursor.close()
 
         return json_data, error
+
 
 register(MemSQL)
