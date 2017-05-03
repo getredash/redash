@@ -1,7 +1,8 @@
+import os
 import logging
 import urlparse
 import redis
-from flask import Flask
+from flask import Flask, safe_join
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import BaseConverter, ValidationError
@@ -72,9 +73,11 @@ reset_new_version_status()
 
 class SlugConverter(BaseConverter):
     def to_python(self, value):
-        # This is an ugly workaround for when we enable multi-org and some files are being called by the index rule:
-        if value in ('google_login.png', 'favicon.ico', 'robots.txt', 'views'):
-            raise ValidationError()
+        # This is ay workaround for when we enable multi-org and some files are being called by the index rule:
+        for path in settings.STATIC_ASSETS_PATHS:
+            full_path = safe_join(path, value)
+            if os.path.isfile(full_path):
+                raise ValidationError()
 
         return value
 
@@ -90,7 +93,7 @@ def create_app(load_admin=True):
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
-                template_folder=settings.STATIC_ASSETS_PATHS[-1],
+                template_folder=settings.STATIC_ASSETS_PATHS[0],
                 static_folder=settings.STATIC_ASSETS_PATHS[-1],
                 static_path='/static')
 
