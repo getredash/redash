@@ -3,6 +3,7 @@ import os
 
 try:
     import botocore.session
+    from botocore.exceptions import WaiterError
     direct_enabled = True
 except ImportError:
     direct_enabled = False
@@ -168,7 +169,12 @@ class AthenaDirect(BaseQueryRunner):
             OutputLocation=self.configuration['s3_staging_dir'],
             QueryExecutionContext={'Database': self.configuration['database']})
         waiter = client.get_waiter('query_completed')
-        waiter.wait(QueryExecutionId=response['QueryExecutionId'])
+        try:
+            waiter.wait(QueryExecutionId=response['QueryExecutionId'])
+        except WaiterError as e:
+            raise ValueError(e.last_response['QueryExecutionDetail']['Status']
+                             ['StateChangeReason'])
+
 
         paginator = client.get_paginator('get_query_results')
         iterator = paginator.paginate(QueryExecutionId=response['QueryExecutionId'])
