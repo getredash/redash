@@ -16,6 +16,7 @@ var config = {
     // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
     path: './client/dist',
     filename: '[name].[chunkhash].js',
+    publicPath: '/'
   },
 
   plugins: [
@@ -44,8 +45,11 @@ var config = {
       chunks: ['vendor']
     }),
     new HtmlWebpackPlugin({
-      // template: __dirname + '/app/' + 'index.html'
       template: './client/app/index.html'
+    }),
+    new HtmlWebpackPlugin({
+      template: './client/app/multi_org.html',
+      filename: 'multi_org.html'
     }),
     new ExtractTextPlugin('styles.[chunkhash].css')
   ],
