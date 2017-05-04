@@ -26,8 +26,7 @@ def send_static(filename):
     raise NotFound()
 
 
-@login_required
-def index(**kwargs):
+def render_index():
     if settings.MULTI_ORG:
         response = render_template("multi_org.html", base_href=base_href())
     else:
@@ -35,6 +34,11 @@ def index(**kwargs):
         response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
 
     return response
+
+
+@login_required
+def index(**kwargs):
+    return render_index()
 
 
 def register_static_routes(rules):
