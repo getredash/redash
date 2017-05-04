@@ -152,7 +152,7 @@ def base_href():
 
 
 def client_config():
-    if not isinstance(current_user._get_current_object(), models.ApiUser) and current_user.is_authenticated:
+    if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
             'newVersionAvailable': get_latest_version(),
             'version': __version__
@@ -181,7 +181,12 @@ def config(org_slug=None):
 @routes.route('/api/session', methods=['GET'])
 @login_required
 def session(org_slug=None):
-    if not isinstance(current_user._get_current_object(), models.ApiUser):
+    if current_user.is_api_user():
+        user = {
+            'permissions': [],
+            'apiKey': current_user.id
+        }
+    else:
         email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
         gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
@@ -192,11 +197,6 @@ def session(org_slug=None):
             'email': current_user.email,
             'groups': current_user.group_ids,
             'permissions': current_user.permissions
-        }
-    else:
-        user = {
-            'permissions': [],
-            'apiKey': current_user.id
         }
 
     return json_response({
