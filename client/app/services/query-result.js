@@ -409,7 +409,7 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getLink(queryId, fileType, apiKey) {
-      let link = `/api/queries/${queryId}/results/${this.getId()}.${fileType}`;
+      let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
       if (apiKey) {
         link = `${link}?api_key=${apiKey}`;
       }
