@@ -137,6 +137,10 @@ class AthenaDirect(BaseQueryRunner):
                 'database': {
                     'type': 'string',
                     'default': 'default'
+                },
+                'table_whitelist': {
+                    'type': 'string',
+                    'title': 'Table whitelist (blank for all)'
                 }
             },
             'required': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir'],
@@ -158,8 +162,10 @@ class AthenaDirect(BaseQueryRunner):
         for schema_name in schema_names:
             tables = client.get_tables(NamespaceName=schema_name)['TableList']
             for table in tables:
-                schemas.append({'name': '%s.%s' % (schema_name, table['Name']),
-                                'columns': [col['Name'] for col in table['StorageDescriptor']['Columns']]})
+                fullname = '%s.%s' % (schema_name, table['Name'])
+                if self.configuration['table_whitelist'] and fullname in self.configuration['table_whitelist']:
+                    schemas.append({'name': fullname,
+                                    'columns': [col['Name'] for col in table['StorageDescriptor']['Columns']]})
         return schemas
 
     def run_query(self, query, user):
