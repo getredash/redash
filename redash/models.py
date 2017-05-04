@@ -204,7 +204,7 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     def permissions(self):
         return []
 
-    def is_api_user():
+    def is_api_user(self):
         return False
 
 
@@ -224,7 +224,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
     def __repr__(self):
         return u"<{}>".format(self.name)
 
-    def is_api_user():
+    def is_api_user(self):
         return True
 
     @property
@@ -364,7 +364,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
         return d
 
-    def is_api_user():
+    def is_api_user(self):
         return False
 
     @property
