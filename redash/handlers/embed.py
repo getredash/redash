@@ -9,7 +9,8 @@ from flask_login import current_user, login_required
 from flask_restful import abort
 from redash import models, utils
 from redash.handlers import routes
-from redash.handlers.base import org_scoped_rule, record_event
+from redash.handlers.base import (get_object_or_404, org_scoped_rule,
+                                  record_event)
 from redash.handlers.query_results import collect_query_parameters
 from redash.handlers.static import render_index
 from redash.utils import gen_query_hash
@@ -82,13 +83,18 @@ def embed(query_id, visualization_id, org_slug=None):
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
 @login_required
 def public_dashboard(token, org_slug=None):
-    # TODO: bring this back.
-    # record_event(current_org, current_user, {
-    #     'action': 'view',
-    #     'object_id': dashboard.id,
-    #     'object_type': 'dashboard',
-    #     'public': True,
-    #     'headless': 'embed' in request.args,
-    #     'referer': request.headers.get('Referer')
-    # })
+    if current_user.is_api_user():
+        dashboard = current_user.object
+    else:
+        api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
+        dashboard = api_key.object
+
+    record_event(current_org, current_user, {
+        'action': 'view',
+        'object_id': dashboard.id,
+        'object_type': 'dashboard',
+        'public': True,
+        'headless': 'embed' in request.args,
+        'referer': request.headers.get('Referer')
+    })
     return render_index()
