@@ -181,7 +181,7 @@ class JiraJQL(BaseQueryRunner):
             field_mapping = FieldMapping(query.pop('fieldMapping', {}))
 
             if query_type == 'count':
-                query['maxResults'] = query.get('maxResults', 1)
+                query['maxResults'] = 1
                 query['fields'] = ''
             else:
                 query['maxResults'] = query.get('maxResults', 1000)
