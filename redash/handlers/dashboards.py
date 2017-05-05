@@ -4,6 +4,7 @@ import json
 from flask import request, url_for
 from flask_restful import abort
 from funcy import distinct, project, take
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models, serializers
@@ -148,7 +149,8 @@ class DashboardResource(BaseResource):
             models.db.session.commit()
         except StaleDataError:
             abort(409)
-
+        except IntegrityError:
+            abort(400)
         result = dashboard.to_dict(with_widgets=True, user=self.current_user)
         return result
 
