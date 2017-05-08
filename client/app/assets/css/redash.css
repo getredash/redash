@@ -4,9 +4,14 @@ body {
 
 body.headless {
   padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 body.headless nav.app-header {
+  display: none;
+}
+
+body.headless div#footer {
   display: none;
 }
 
@@ -415,6 +420,16 @@ counter-renderer counter-name {
   background-color: white;
 }
 
+.schema-control {
+  display: flex;
+  padding: 5px 0;
+}
+
+.schema-control .form-control {
+  height: 30px;
+  margin-right: 5px;
+}
+
 .schema-browser {
   height: calc(100% - 45px);
   overflow-y: auto;
@@ -673,4 +688,13 @@ div.table-name:hover {
 /*Dashboard list view */
 .m-2{
   margin:2px;
+}
+
+.dropdown-menu > .disabled{
+ cursor: not-allowed;
+}
+
+/* The real magic ;) */
+.dropdown-menu > .disabled > a{
+ pointer-events: none;
 }

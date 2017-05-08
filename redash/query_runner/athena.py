@@ -4,8 +4,10 @@ import os
 import requests
 
 from redash.query_runner import BaseQueryRunner, register
+from redash.settings import parse_boolean
 
 PROXY_URL = os.environ.get('ATHENA_PROXY_URL')
+ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
 
 class Athena(BaseQueryRunner):
     noop_query = 'SELECT 1'
@@ -40,6 +42,9 @@ class Athena(BaseQueryRunner):
             'secret': ['aws_secret_key']
         }
 
+    @classmethod
+    def annotate_query(cls):
+        return ANNOTATE_QUERY
 
     def get_schema(self, get_stats=False):
         schema = {}

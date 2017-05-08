@@ -9,6 +9,8 @@ const EditTextBoxComponent = {
     dismiss: '&',
   },
   controller(toastr) {
+    'ngInject';
+
     this.saveInProgress = false;
     this.widget = this.resolve.widget;
     this.saveWidget = () => {

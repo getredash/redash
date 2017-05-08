@@ -3,6 +3,20 @@ import endsWith from 'underscore.string/endsWith';
 import template from './dynamic-form.html';
 
 function DynamicForm($http, toastr, $q) {
+  function orderedInputs(properties, order) {
+    const inputs = new Array(order.length);
+    Object.keys(properties).forEach((key) => {
+      const position = order.indexOf(key);
+      const input = { name: key, property: properties[key] };
+      if (position > -1) {
+        inputs[position] = input;
+      } else {
+        inputs.push(input);
+      }
+    });
+    return inputs;
+  }
+
   return {
     restrict: 'E',
     replace: 'true',
@@ -19,7 +33,15 @@ function DynamicForm($http, toastr, $q) {
           $scope.target.type = types[0].type;
         }
 
-        $scope.type = find(types, t => t.type === $scope.target.type);
+        const type = find(types, t => t.type === $scope.target.type);
+        const configurationSchema = type.configuration_schema;
+
+        $scope.fields = orderedInputs(
+          configurationSchema.properties,
+          configurationSchema.order || []
+        );
+
+        return type;
       }
 
       $scope.inProgressActions = {};
@@ -35,6 +57,7 @@ function DynamicForm($http, toastr, $q) {
               $scope.inProgressActions[action.name] = false;
               action.name = name;
             }
+
             originalCallback(release);
           };
         });
@@ -80,24 +103,37 @@ function DynamicForm($http, toastr, $q) {
             prop.required = contains(type.configuration_schema.required, name);
           });
         });
+
+        $scope.$watch('target.type', (current, prev) => {
+          if (prev !== current) {
+            if (prev !== undefined) {
+              $scope.target.options = {};
+            }
+
+            const type = setType($scope.types);
+
+            if (Object.keys($scope.target.options).length === 0) {
+              const properties = type.configuration_schema.properties;
+              Object.keys(properties).forEach((property) => {
+                $scope.target.options[property] =
+                  properties[property].default || '';
+              });
+            }
+          }
+        });
       });
 
-      $scope.$watch('target.type', (current, prev) => {
-        if (prev !== current) {
-          if (prev !== undefined) {
-            $scope.target.options = {};
-          }
-          setType($scope.types);
-        }
-      });
 
       $scope.saveChanges = () => {
-        $scope.target.$save(() => {
-          toastr.success('Saved.');
-          $scope.dataSourceForm.$setPristine();
-        }, () => {
-          toastr.error('Failed saving.');
-        });
+        $scope.target.$save(
+          () => {
+            toastr.success('Saved.');
+            $scope.dataSourceForm.$setPristine();
+          },
+          () => {
+            toastr.error('Failed saving.');
+          }
+        );
       };
     },
   };

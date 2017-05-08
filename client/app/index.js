@@ -1,3 +1,6 @@
+// This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
+import 'core-js/fn/typed/array-buffer';
+
 import 'material-design-iconic-font/dist/css/material-design-iconic-font.css';
 import 'font-awesome/css/font-awesome.css';
 import 'ui-select/dist/select.css';

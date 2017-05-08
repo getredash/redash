@@ -25,9 +25,9 @@ deployment:
       # - make upload
       #- echo "client/app" >> .dockerignore
       #- docker pull redash/redash:latest
-      #- docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
-      #- docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      #- docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
+      - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
