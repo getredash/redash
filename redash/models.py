@@ -653,7 +653,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         s = cStringIO.StringIO()
 
         query_data = json.loads(self.data)
-        writer = csv.DictWriter(s, fieldnames=[col['name'] for col in query_data['columns']])
+        writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
         writer.writer = utils.UnicodeWriter(s)
         writer.writeheader()
         for row in query_data['rows']:
