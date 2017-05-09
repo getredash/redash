@@ -15,7 +15,7 @@ var config = {
   output: {
     // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
     path: './client/dist',
-    filename: '[name].[chunkhash].js',
+    filename: '[name].js',
     publicPath: '/'
   },
 
@@ -134,6 +134,7 @@ if (process.env.DEV_SERVER_HOST) {
 
 if (process.env.NODE_ENV === 'production') {
   config.output.path = __dirname + '/client/dist';
+  config.output.filename = '[name].[chunkhash].js';
   config.plugins.push(new webpack.optimize.UglifyJsPlugin());
   config.devtool = 'source-map';
 }
