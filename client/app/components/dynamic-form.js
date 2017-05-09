@@ -35,9 +35,13 @@ function DynamicForm($http, toastr, $q) {
 
         const type = find(types, t => t.type === $scope.target.type);
         const configurationSchema = type.configuration_schema;
-        $scope.type = type;
-        $scope.fields = orderedInputs(configurationSchema.properties,
-                    configurationSchema.order || []);
+
+        $scope.fields = orderedInputs(
+          configurationSchema.properties,
+          configurationSchema.order || []
+        );
+
+        return type;
       }
 
       $scope.inProgressActions = {};
@@ -99,30 +103,37 @@ function DynamicForm($http, toastr, $q) {
             prop.required = contains(type.configuration_schema.required, name);
           });
         });
+
+        $scope.$watch('target.type', (current, prev) => {
+          if (prev !== current) {
+            if (prev !== undefined) {
+              $scope.target.options = {};
+            }
+
+            const type = setType($scope.types);
+
+            if (Object.keys($scope.target.options).length === 0) {
+              const properties = type.configuration_schema.properties;
+              Object.keys(properties).forEach((property) => {
+                $scope.target.options[property] =
+                  properties[property].default || '';
+              });
+            }
+          }
+        });
       });
 
-      $scope.$watch('target.type', (current, prev) => {
-        if (prev !== current) {
-          if (prev !== undefined) {
-            $scope.target.options = {};
-          }
-          if (Object.keys($scope.target.options).length === 0) {
-            const properties = $scope.type.configuration_schema.properties;
-            Object.keys(properties).forEach((property) => {
-              $scope.target.options[property] = properties[property].default || '';
-            });
-          }
-          setType($scope.types);
-        }
-      });
 
       $scope.saveChanges = () => {
-        $scope.target.$save(() => {
-          toastr.success('Saved.');
-          $scope.dataSourceForm.$setPristine();
-        }, () => {
-          toastr.error('Failed saving.');
-        });
+        $scope.target.$save(
+          () => {
+            toastr.success('Saved.');
+            $scope.dataSourceForm.$setPristine();
+          },
+          () => {
+            toastr.error('Failed saving.');
+          }
+        );
       };
     },
   };
