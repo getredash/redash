@@ -1,6 +1,8 @@
+import sys
 import logging
 import json
 
+from collections import OrderedDict
 from redash import settings
 
 logger = logging.getLogger(__name__)
@@ -138,6 +140,7 @@ class BaseSQLQueryRunner(BaseQueryRunner):
                 res = self._run_query_internal('select count(*) as cnt from %s' % t)
                 tables_dict[t]['size'] = res[0]['cnt']
 
+
 query_runners = {}
 
 
@@ -147,7 +150,8 @@ def register(query_runner_class):
         logger.debug("Registering %s (%s) query runner.", query_runner_class.name(), query_runner_class.type())
         query_runners[query_runner_class.type()] = query_runner_class
     else:
-        logger.debug("%s query runner enabled but not supported, not registering. Either disable or install missing dependencies.", query_runner_class.name())
+        logger.debug("%s query runner enabled but not supported, not registering. Either disable or install missing "
+                     "dependencies.", query_runner_class.name())
 
 
 def get_query_runner(query_runner_type, configuration):

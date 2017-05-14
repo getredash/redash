@@ -54,7 +54,7 @@ def parse_issue(issue, field_mapping):
 
                 if 'watchCount' in v:
                     result[output_name] = v['watchCount']
-        
+
         elif isinstance(v, list):
             if len(member_names) > 0:
                 # if field mapping with dict member mappings defined get value of each member
@@ -104,7 +104,7 @@ class FieldMapping:
         for k, v in query_field_mapping.iteritems():
             field_name = k
             member_name = None
-            
+
             # check for member name contained in field name
             member_parser = re.search('(\w+)\.(\w+)', k)
             if (member_parser):
@@ -183,6 +183,8 @@ class JiraJQL(BaseQueryRunner):
             if query_type == 'count':
                 query['maxResults'] = 1
                 query['fields'] = ''
+            else:
+                query['maxResults'] = query.get('maxResults', 1000)
 
             response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
 
