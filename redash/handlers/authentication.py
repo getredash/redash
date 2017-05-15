@@ -2,10 +2,8 @@ import hashlib
 import logging
 
 from flask import flash, redirect, render_template, request, url_for
+
 from flask_login import current_user, login_required, login_user, logout_user
-
-from sqlalchemy.orm.exc import NoResultFound
-
 from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url
 from redash.authentication.account import (BadSignature, SignatureExpired,
@@ -14,6 +12,7 @@ from redash.authentication.account import (BadSignature, SignatureExpired,
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
 from redash.version_check import get_latest_version
+from sqlalchemy.orm.exc import NoResultFound
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +93,9 @@ def forgot_password(org_slug=None):
 def login(org_slug=None):
     # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
     # noinspection PyComparisonWithNone
-    if current_org == None and not settings.MULTI_ORG:
+    if current_org is None and not settings.MULTI_ORG:
         return redirect('/setup')
-    elif current_org == None:
+    elif current_org is None:
         return redirect('/')
 
     index_url = url_for("redash.index", org_slug=org_slug)
@@ -153,7 +152,7 @@ def base_href():
 
 
 def client_config():
-    if not isinstance(current_user._get_current_object(), models.ApiUser) and current_user.is_authenticated:
+    if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
             'newVersionAvailable': get_latest_version(),
             'version': __version__
@@ -169,7 +168,8 @@ def client_config():
     return client_config
 
 
-@routes.route(org_scoped_rule('/api/config'), methods=['GET'])
+# @routes.route(org_scoped_rule('/api/config'), methods=['GET'])
+@routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
     return json_response({
         'org_slug': current_org.slug,
@@ -177,10 +177,16 @@ def config(org_slug=None):
     })
 
 
-@routes.route(org_scoped_rule('/api/session'), methods=['GET'])
+# @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
+@routes.route('/api/session', methods=['GET'])
 @login_required
 def session(org_slug=None):
-    if not isinstance(current_user._get_current_object(), models.ApiUser):
+    if current_user.is_api_user():
+        user = {
+            'permissions': [],
+            'apiKey': current_user.id
+        }
+    else:
         email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
         gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
 
@@ -191,11 +197,6 @@ def session(org_slug=None):
             'email': current_user.email,
             'groups': current_user.group_ids,
             'permissions': current_user.permissions
-        }
-    else:
-        user = {
-            'permissions': [],
-            'apiKey': current_user.id
         }
 
     return json_response({

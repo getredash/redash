@@ -1,35 +1,36 @@
+import cStringIO
+import csv
 import datetime
 import functools
 import hashlib
 import itertools
 import json
 import logging
-import cStringIO
-import csv
-import xlsxwriter
 
 from funcy import project
+
+import xlsxwriter
+from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, AnonymousUserMixin
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.event import listens_for
-from sqlalchemy.inspection import inspect
-from sqlalchemy.types import TypeDecorator
-from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.orm import object_session, backref, joinedload, subqueryload
-# noinspection PyUnresolvedReferences
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import or_
-
 from passlib.apps import custom_app_context as pwd_context
-
 from redash import redis_connection, utils
-from redash.destinations import get_destination, get_configuration_schema_for_destination_type
+from redash.destinations import (get_configuration_schema_for_destination_type,
+                                 get_destination)
+from redash.metrics import database
 from redash.permissions import has_access, view_only
-from redash.query_runner import get_query_runner, get_configuration_schema_for_query_runner_type
+from redash.query_runner import (get_configuration_schema_for_query_runner_type,
+                                 get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
-from redash.metrics import database
+from sqlalchemy import or_
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.event import listens_for
+from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
+# noinspection PyUnresolvedReferences
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.types import TypeDecorator
 
 db = SQLAlchemy(session_options={
     'expire_on_commit': False
@@ -201,6 +202,9 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
     def permissions(self):
         return []
 
+    def is_api_user(self):
+        return False
+
 
 class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key, org, groups, name=None):
@@ -217,6 +221,9 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
 
     def __repr__(self):
         return u"<{}>".format(self.name)
+
+    def is_api_user(self):
+        return True
 
     @property
     def permissions(self):
@@ -354,6 +361,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             d['api_key'] = self.api_key
 
         return d
+
+    def is_api_user(self):
+        return False
 
     @property
     def gravatar_url(self):

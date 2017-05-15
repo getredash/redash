@@ -6,9 +6,9 @@ import './app-header.css';
 
 const logger = debug('redash:appHeader');
 
-function controller($rootScope, $location, $uibModal, Auth, currentUser, Dashboard) {
-  // TODO: logoUrl should come from clientconfig
+function controller($rootScope, $location, $uibModal, Auth, currentUser, clientConfig, Dashboard) {
   this.logoUrl = logoUrl;
+  this.basePath = clientConfig.basePath;
   this.currentUser = currentUser;
   this.showQueriesMenu = currentUser.hasPermission('view_query');
   this.showNewQueryMenu = currentUser.hasPermission('create_query');
