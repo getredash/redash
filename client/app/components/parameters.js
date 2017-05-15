@@ -40,7 +40,11 @@ function ParametersDirective($location, $uibModal) {
           });
         }, true);
       }
-
+      scope.extractEnumOptions = (enumOptions) => {
+        // These are input as newline delimited values,
+        // so we split them here.
+        return enumOptions.split('\n');
+      };
       scope.showParameterSettings = (param) => {
         $uibModal.open({
           component: 'parameterSettings',
