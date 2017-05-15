@@ -32,6 +32,7 @@ def setup_logging():
         logging.getLogger("passlib").setLevel("ERROR")
         logging.getLogger("requests.packages.urllib3").setLevel("ERROR")
         logging.getLogger("snowflake.connector").setLevel("ERROR")
+        logging.getLogger('apiclient').setLevel("ERROR")
 
 
 def create_redis_connection():
