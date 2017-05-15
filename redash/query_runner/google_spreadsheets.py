@@ -1,7 +1,9 @@
-from base64 import b64decode
 import json
 import logging
+from base64 import b64decode
+
 from dateutil import parser
+
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -38,7 +40,7 @@ def _guess_type(value):
     try:
         val = parser.parse(value)
         return TYPE_DATETIME
-    except ValueError:
+    except (ValueError, OverflowError):
         pass
     return TYPE_STRING
 
@@ -72,7 +74,7 @@ def _value_eval_list(value):
             val = parser.parse(member)
             value_list.append(val)
             continue
-        except ValueError:
+        except (ValueError, OverflowError):
             pass
         value_list.append(member)
     return value_list
