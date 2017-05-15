@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 try:
     from pyhive import hive
     enabled = True
-except ImportError, e:
+except ImportError:
     enabled = False
 
 COLUMN_NAME = 0
@@ -125,9 +125,6 @@ class Hive(BaseSQLQueryRunner):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            logging.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if connection:
                 connection.close()

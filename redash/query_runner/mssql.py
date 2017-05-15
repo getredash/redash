@@ -162,7 +162,6 @@ class SqlServer(BaseSQLQueryRunner):
 
             cursor.close()
         except pymssql.Error as e:
-            logging.exception(e)
             try:
                 # Query errors are at `args[1]`
                 error = e.args[1]
