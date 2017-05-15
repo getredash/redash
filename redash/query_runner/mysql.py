@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import sys
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
@@ -159,14 +158,12 @@ class Mysql(BaseSQLQueryRunner):
                 error = "No data was returned."
 
             cursor.close()
-        except MySQLdb.Error, e:
+        except MySQLdb.Error as e:
             json_data = None
             error = e.args[1]
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if connection:
                 connection.close()
@@ -188,4 +185,55 @@ class Mysql(BaseSQLQueryRunner):
         return ssl_params
 
 
+class RDSMySQL(Mysql):
+    @classmethod
+    def name(cls):
+        return "MySQL (Amazon RDS)"
+
+    @classmethod
+    def type(cls):
+        return 'rds_mysql'
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'host': {
+                    'type': 'string',
+                },
+                'user': {
+                    'type': 'string'
+                },
+                'passwd': {
+                    'type': 'string',
+                    'title': 'Password'
+                },
+                'db': {
+                    'type': 'string',
+                    'title': 'Database name'
+                },
+                'port': {
+                    'type': 'number',
+                    'default': 3306,
+                },
+                'use_ssl': {
+                    'type': 'boolean',
+                    'title': 'Use SSL'
+                }
+            },
+            "order": ['host', 'port', 'user', 'passwd', 'db'],
+            'required': ['db', 'user', 'passwd', 'host'],
+            'secret': ['passwd']
+        }
+
+    def _get_ssl_parameters(self):
+        if self.configuration.get('use_ssl'):
+            ca_path = os.path.join(os.path.dirname(__file__), './files/rds-combined-ca-bundle.pem')
+            return {'ca': ca_path}
+
+        return {}
+
+
 register(Mysql)
+register(RDSMySQL)
