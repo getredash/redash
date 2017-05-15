@@ -40,10 +40,13 @@ function ParametersDirective($location, $uibModal) {
           });
         }, true);
       }
+      // These are input as newline delimited values,
+      // so we split them here.
       scope.extractEnumOptions = (enumOptions) => {
-        // These are input as newline delimited values,
-        // so we split them here.
-        return enumOptions.split('\n');
+        if (enumOptions) {
+          return enumOptions.split('\n');
+        }
+        return [];
       };
       scope.showParameterSettings = (param) => {
         $uibModal.open({
