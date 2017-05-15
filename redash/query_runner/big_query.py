@@ -1,11 +1,11 @@
-from base64 import b64decode
 import datetime
 import json
-import httplib2
 import logging
 import sys
 import time
+from base64 import b64decode
 
+import httplib2
 import requests
 
 from redash import settings
@@ -222,7 +222,6 @@ class BigQuery(BaseQueryRunner):
             tables = service.tables().list(projectId=project_id, datasetId=dataset_id).execute()
             for table in tables.get('tables', []):
                 table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
-                print table_data
 
                 schema.append({'name': table_data['id'], 'columns': map(lambda r: r['name'], table_data['schema']['fields'])})
 
