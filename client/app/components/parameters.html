@@ -8,7 +8,7 @@
       <input ng-switch-when="date" type="date" class="form-control" ng-model="param.ngModel">
       <span ns-switch-when="enum">
         <select ns-model="param.value" class="form-control">
-          <option ng-repeat="option in param.enumOptions.split('\n')" value="{{option}}">{{option}}</option>
+          <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{option}}">{{option}}</option>
         </select>
       </span>
       <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.ngModel">
