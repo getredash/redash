@@ -1,9 +1,11 @@
-import sys
 import json
 import logging
+import os
+import sys
 
-from redash.utils import JSONEncoder
 from redash.query_runner import *
+from redash.settings import parse_boolean
+from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +35,9 @@ class Mysql(BaseSQLQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        return {
+        show_ssl_settings = parse_boolean(os.environ.get('MYSQL_SHOW_SSL_SETTINGS', 'true'))
+
+        schema = {
             'type': 'object',
             'properties': {
                 'host': {
@@ -54,7 +58,15 @@ class Mysql(BaseSQLQueryRunner):
                 'port': {
                     'type': 'number',
                     'default': 3306,
-                },
+                }
+            },
+            "order": ['host', 'port', 'user', 'passwd', 'db'],
+            'required': ['db'],
+            'secret': ['passwd']
+        }
+
+        if show_ssl_settings:
+            schema['properties'].update({
                 'use_ssl': {
                     'type': 'boolean',
                     'title': 'Use SSL'
@@ -76,10 +88,9 @@ class Mysql(BaseSQLQueryRunner):
                     "title": "Documentation URL",
                     "default": cls.default_doc_url
                 }
-            },
-            'required': ['db'],
-            'secret': ['passwd']
-        }
+            })
+
+        return schema
 
     @classmethod
     def name(cls):
