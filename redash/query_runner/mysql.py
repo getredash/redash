@@ -7,7 +7,6 @@ from redash.settings import parse_boolean
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
-
 types_map = {
     0: TYPE_FLOAT,
     1: TYPE_INTEGER,
