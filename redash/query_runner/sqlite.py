@@ -83,7 +83,11 @@ class Sqlite(BaseSQLQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            # handle unicode error message
+            err_class = sys.exc_info()[1].__class__
+            err_args = [arg.decode('utf-8') for arg in sys.exc_info()[1].args]
+            unicode_err = err_class(*err_args)
+            raise unicode_err, None, sys.exc_info()[2]
         finally:
             connection.close()
         return json_data, error
