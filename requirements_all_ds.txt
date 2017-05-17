@@ -1,5 +1,5 @@
 google-api-python-client==1.5.1
-gspread==0.2.5
+gspread==0.6.2
 impyla==0.10.0
 influxdb==2.7.1
 MySQL-python==1.2.5
