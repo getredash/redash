@@ -96,7 +96,7 @@ class MemSQL(BaseSQLQueryRunner):
                 columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']),
                                                            self._run_query_internal(columns_query % table_name)))
 
-        schema[table_name] = {'name': table_name, 'columns': columns}
+            schema[table_name] = {'name': table_name, 'columns': columns} 
         return schema.values()
 
     def run_query(self, query, user):
@@ -132,11 +132,15 @@ class MemSQL(BaseSQLQueryRunner):
                     columns.append({
                         'name': column,
                         'friendly_name': column,
+<<<<<<< aa343495d1effce09796bf03afc76b5c0079127a
 <<<<<<< dbb1bf5ae05e2033ab5845ec57d0782185a43308
                         'type': TYPE_STRING
 =======
                         'type': None
 >>>>>>> get_schema fix
+=======
+                        'type': TYPE_STRING
+>>>>>>> fixes
                     })
 
             data = {'columns': columns, 'rows': rows}
