@@ -1,14 +1,17 @@
 import json
-import time
 import logging
 import signal
+import time
+
 import redis
+
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
-from redash import redis_connection, models, statsd_client, settings, utils
+from redash import models, redis_connection, settings, statsd_client, utils
+from redash.query_runner import InterruptException
 from redash.utils import gen_query_hash
 from redash.worker import celery
-from redash.query_runner import InterruptException
+
 from .alerts import check_alerts_for_query
 
 logger = get_task_logger(__name__)
@@ -114,16 +117,15 @@ class QueryTaskTracker(object):
         return tasks
 
     @classmethod
-    def prune(cls, list_name, keep_count):
+    def prune(cls, list_name, keep_count, max_keys=100):
         count = redis_connection.zcard(list_name)
         if count <= keep_count:
             return 0
 
-        remove_count = count - keep_count
+        remove_count = min(max_keys, count - keep_count)
         keys = redis_connection.zrange(list_name, 0, remove_count - 1)
         redis_connection.delete(*keys)
         redis_connection.zremrangebyrank(list_name, 0, remove_count - 1)
-
         return remove_count
 
     def __getattr__(self, item):
@@ -265,7 +267,7 @@ def refresh_queries():
 
     with statsd_client.timer('manager.outdated_queries_lookup'):
         for query in models.Query.outdated_queries():
-            if settings.FEATURE_DISABLE_REFRESH_QUERIES: 
+            if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
@@ -274,8 +276,8 @@ def refresh_queries():
                               scheduled_query=query,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 
-            query_ids.append(query.id)
-            outdated_queries_count += 1
+                query_ids.append(query.id)
+                outdated_queries_count += 1
 
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
 
@@ -299,14 +301,6 @@ def cleanup_tasks():
     for tracker in in_progress:
         result = AsyncResult(tracker.task_id)
 
-        # If the AsyncResult status is PENDING it means there is no celery task object for this tracker, and we can
-        # mark it as "dead":
-        if result.status == 'PENDING':
-            logging.info("In progress tracker for %s is no longer enqueued, cancelling (task: %s).",
-                         tracker.query_hash, tracker.task_id)
-            _unlock(tracker.query_hash, tracker.data_source_id)
-            tracker.update(state='cancelled')
-
         if result.ready():
             logging.info("in progress tracker %s finished", tracker.query_hash)
             _unlock(tracker.query_hash, tracker.data_source_id)
@@ -322,7 +316,9 @@ def cleanup_tasks():
             tracker.update(state='finished')
 
     # Maintain constant size of the finished tasks list:
-    QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
+    removed = 1000
+    while removed > 0:
+        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
 
 
 @celery.task(name="redash.tasks.cleanup_query_results")

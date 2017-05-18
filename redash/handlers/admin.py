@@ -37,9 +37,9 @@ def queries_tasks():
     done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=50)
 
     response = {
-        'waiting': [t.data for t in waiting],
-        'in_progress': [t.data for t in in_progress],
-        'done': [t.data for t in done]
+        'waiting': [t.data for t in waiting if t is not None],
+        'in_progress': [t.data for t in in_progress if t is not Non],
+        'done': [t.data for t in done if t is not Non]
     }
 
     return json_response(response)
