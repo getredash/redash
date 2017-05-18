@@ -3,6 +3,7 @@ import moment from 'moment';
 import { uniq, contains, values, some, each, isArray, isNumber, isString } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
+const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -18,6 +19,11 @@ function getColumnNameWithoutType(column) {
   if (parts[0] === '' && parts.length === 2) {
     return parts[1];
   }
+
+  if (!contains(filterTypes, parts[1])) {
+    return column;
+  }
+
   return parts[0];
 }
 
@@ -343,7 +349,6 @@ function QueryResultService($resource, $timeout, $q) {
       }
 
       const filters = [];
-      const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
 
       this.getColumns().forEach((col) => {
         const name = col.name;
