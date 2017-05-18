@@ -158,7 +158,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
   };
 
   $scope.showApiKey = () => {
-    $window.alert(`API Key for this query:\n${$scope.query.api_key}`);
+    $uibModal.open({
+      component: 'apiKeyDialog',
+      resolve: {
+        query: $scope.query,
+      },
+    });
   };
 
   $scope.saveQuery = (customOptions, data) => {
