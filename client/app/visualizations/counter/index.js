@@ -1,6 +1,18 @@
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
 
+function getRowNumber(index, size) {
+  if (index >= 0) {
+    return index - 1;
+  }
+
+  if (Math.abs(index) > size) {
+    index %= size;
+  }
+
+  return size + index;
+}
+
 function CounterRenderer() {
   return {
     restrict: 'E',
@@ -9,8 +21,9 @@ function CounterRenderer() {
       const refreshData = () => {
         const queryData = $scope.queryResult.getData();
         if (queryData) {
-          const rowNumber = $scope.visualization.options.rowNumber - 1;
-          const targetRowNumber = $scope.visualization.options.targetRowNumber - 1;
+          const rowNumber = getRowNumber($scope.visualization.options.rowNumber, queryData.length);
+          const targetRowNumber =
+            getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
 
