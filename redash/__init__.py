@@ -106,12 +106,15 @@ def create_app(load_admin=True):
         SSLify(app, skips=['ping'])
 
     if settings.SENTRY_DSN:
+        from raven import Client
         from raven.contrib.flask import Sentry
         from raven.handlers.logging import SentryHandler
-        sentry = Sentry(app, dsn=settings.SENTRY_DSN)
+
+        client = Client(settings.SENTRY_DSN, release=__version__, install_logging_hook=False)
+        sentry = Sentry(app, client=client)
         sentry.client.release = __version__
 
-        sentry_handler = SentryHandler(settings.SENTRY_DSN)
+        sentry_handler = SentryHandler(client=client)
         sentry_handler.setLevel(logging.ERROR)
         logging.getLogger().addHandler(sentry_handler)
 
