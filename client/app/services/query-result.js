@@ -85,17 +85,29 @@ function QueryResultService($resource, $timeout, $q) {
         // on the column type set by the backend. This logic is prone to errors,
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
+          let newType = null;
+
           each(row, (v, k) => {
             if (isNumber(v)) {
-              columnTypes[k] = 'float';
+              newType = 'float';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
               row[k] = moment.utc(v);
-              columnTypes[k] = 'datetime';
+              newType = 'datetime';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
               row[k] = moment.utc(v);
-              columnTypes[k] = 'date';
+              newType = 'date';
             } else if (typeof (v) === 'object' && v !== null) {
               row[k] = JSON.stringify(v);
+            } else {
+              newType = 'string';
+            }
+
+            if (newType !== null) {
+              if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
+                columnTypes[k] = 'string';
+              } else {
+                columnTypes[k] = newType;
+              }
             }
           });
         });
