@@ -2,9 +2,11 @@
 import datetime
 import json
 from unittest import TestCase
+
 import mock
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
+
 from redash import models
 from redash.models import db
 from redash.utils import gen_query_hash, utcnow
@@ -79,12 +81,6 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         self.assertNotIn(query, queries)
 
-    def test_outdated_queries_skips_unscheduled_queries(self):
-        query = self.factory.create_query(schedule='60')
-        queries = models.Query.outdated_queries()
-
-        self.assertNotIn(query, queries)
-
     def test_outdated_queries_works_with_ttl_based_schedule(self):
         two_hours_ago = utcnow() - datetime.timedelta(hours=2)
         query = self.factory.create_query(schedule="3600")
@@ -93,6 +89,17 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
+
+    def test_outdated_queries_works_scheduled_queries_tracker(self):
+        two_hours_ago = datetime.datetime.now() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule="3600")
+        query_result = self.factory.create_query_result(query=query, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        models.scheduled_queries_executions.update(query.id)
+
+        queries = models.Query.outdated_queries()
+        self.assertNotIn(query, queries)
 
     def test_skips_fresh_queries(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
@@ -479,7 +486,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         query_result, _ = models.QueryResult.store_result(
             self.data_source.org, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
-        
+
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
         self.assertNotEqual(query3.latest_query_data, query_result)
