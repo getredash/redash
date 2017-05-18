@@ -405,14 +405,39 @@ function QueryResultService($resource, $timeout, $q) {
       return queryResult;
     }
 
+    loadResult(tryCount) {
+      QueryResultResource.get({ id: this.job.query_result_id },
+        (response) => {
+          this.update(response);
+        },
+        (error) => {
+          if (tryCount === undefined) {
+            tryCount = 0;
+          }
+
+          if (tryCount > 3) {
+            logger('Connection error while trying to load result', error);
+            this.update({
+              job: {
+                error: 'failed communicating with server. Please check your Internet connection and try again.',
+                status: 4,
+              },
+            });
+          } else {
+            $timeout(() => {
+              this.loadResult(tryCount + 1);
+            }, 1000 * Math.pow(2, tryCount));
+          }
+        }
+      );
+    }
+
     refreshStatus(query) {
       Job.get({ id: this.job.id }, (jobResponse) => {
         this.update(jobResponse);
 
         if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-          QueryResultResource.get({ id: this.job.query_result_id }, (response) => {
-            this.update(response);
-          });
+          this.loadResult();
         } else if (this.getStatus() !== 'failed') {
           $timeout(() => {
             this.refreshStatus(query);
