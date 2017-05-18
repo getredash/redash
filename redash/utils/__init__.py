@@ -28,6 +28,15 @@ def utcnow():
     return datetime.datetime.now(pytz.utc)
 
 
+def dt_from_timestamp(timestamp, tz_aware=True):
+    timestamp = datetime.datetime.utcfromtimestamp(float(timestamp))
+
+    if tz_aware:
+        timestamp = timestamp.replace(tzinfo=pytz.utc)
+
+    return timestamp
+
+
 def slugify(s):
     return re.sub('[^a-z0-9_\-]+', '-', s.lower())
 
@@ -156,5 +165,3 @@ def base_url(org):
         return "https://{}/{}".format(settings.HOST, org.slug)
 
     return settings.HOST
-
-
