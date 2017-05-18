@@ -117,16 +117,15 @@ class QueryTaskTracker(object):
         return tasks
 
     @classmethod
-    def prune(cls, list_name, keep_count):
+    def prune(cls, list_name, keep_count, max_keys=100):
         count = redis_connection.zcard(list_name)
         if count <= keep_count:
             return 0
 
-        remove_count = count - keep_count
+        remove_count = min(max_keys, count - keep_count)
         keys = redis_connection.zrange(list_name, 0, remove_count - 1)
         redis_connection.delete(*keys)
         redis_connection.zremrangebyrank(list_name, 0, remove_count - 1)
-
         return remove_count
 
     def __getattr__(self, item):
@@ -317,7 +316,9 @@ def cleanup_tasks():
             tracker.update(state='finished')
 
     # Maintain constant size of the finished tasks list:
-    QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
+    removed = 1000
+    while removed > 0:
+        removed = QueryTaskTracker.prune(QueryTaskTracker.DONE_LIST, 1000)
 
 
 @celery.task(name="redash.tasks.cleanup_query_results")
