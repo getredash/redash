@@ -25,7 +25,7 @@ function cohortRenderer() {
         }
 
         const sortedData = _.sortBy($scope.queryResult.getData(), r =>
-           r.date + r.day_number
+           r.date + parseInt(r.day_number, 10)
         );
 
         const grouped = _.groupBy(sortedData, 'date');
@@ -35,9 +35,9 @@ function cohortRenderer() {
         , 0);
 
         const data = _.map(grouped, (values) => {
-          const row = [values[0].total];
+          const row = [parseInt(values[0].total, 10)];
           _.each(values, (value) => {
-            row.push(value.value);
+            row.push(parseInt(value.value, 10));
           });
           _.each(_.range(values.length, maxColumns), () => {
             row.push(null);
