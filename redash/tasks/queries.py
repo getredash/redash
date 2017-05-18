@@ -3,6 +3,7 @@ import logging
 import signal
 import time
 
+import pystache
 import redis
 
 from celery.exceptions import SoftTimeLimitExceeded
@@ -271,7 +272,15 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                enqueue_query(query.query_text, query.data_source, query.user_id,
+                # if query.options and 'parameters' in query.options and len(query.options['parameters']) > 0:
+                if query.options and len(query.options.get('parameters', [])) > 0:
+                    query_params = {p['name']: p['value']
+                                    for p in query.options['parameters']}
+                    query_text = pystache.render(query.query_text, query_params)
+                else:
+                    query_text = query.query_text
+
+                enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 
@@ -410,6 +419,8 @@ class QueryExecutor(object):
                                                                                                    self.query_hash,
                                                                                                    self.data_source_id,
                                                                                                    False, metadata)
+        if self.tracker.scheduled:
+            models.scheduled_queries_executions.update(self.tracker.query_id)
 
     def run(self):
         signal.signal(signal.SIGINT, signal_handler)
