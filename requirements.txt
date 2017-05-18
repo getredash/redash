@@ -42,6 +42,4 @@ xlsxwriter==0.9.3
 pystache==0.5.4
 parsedatetime==2.1
 cryptography==1.4
-oauthlib==2.0.0
-WTForms==2.1
 simplejson==3.10.0
