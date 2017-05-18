@@ -479,6 +479,20 @@ class DataSource(BelongsToOrgMixin, db.Model):
         db.session.add_all([data_source, data_source_group])
         return data_source
 
+    @classmethod
+    def all(cls, org, group_ids=None):
+        data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
+
+        if group_ids:
+            data_sources = data_sources.join(DataSourceGroup).filter(
+                DataSourceGroup.group_id.in_(group_ids))
+
+        return data_sources
+
+    @classmethod
+    def get_by_id(cls, _id):
+        return cls.query.filter(cls.id == _id).one()
+
     def get_schema(self, refresh=False):
         key = "data_source:schema:{}".format(self.id)
 
@@ -537,22 +551,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return get_query_runner(self.type, self.options)
 
     @classmethod
-    def get_by_id(cls, _id):
-        return cls.query.filter(cls.id == _id).one()
-
-    @classmethod
     def get_by_name(cls, name):
         return cls.query.filter(cls.name == name).one()
-
-    @classmethod
-    def all(cls, org, group_ids=None):
-        data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
-
-        if group_ids:
-            data_sources = data_sources.join(DataSourceGroup).filter(
-                DataSourceGroup.group_id.in_(group_ids))
-
-        return data_sources
 
     #XXX examine call sites to see if a regular SQLA collection would work better
     @property

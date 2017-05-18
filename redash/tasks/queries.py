@@ -5,6 +5,7 @@ import time
 
 import redis
 
+from celery.exceptions import SoftTimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from redash import models, redis_connection, settings, statsd_client, utils
@@ -234,9 +235,7 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
 
-                result = execute_query.apply_async(args=(
-                    query, data_source.id, metadata, user_id,
-                    scheduled_query_id),
+                result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
                                                    queue=queue_name)
                 job = QueryTask(async_result=result)
                 tracker = QueryTaskTracker.create(
@@ -342,14 +341,30 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results.", deleted_count)
 
 
+@celery.task(name="redash.tasks.refresh_schema", soft_time_limit=60)
+def refresh_schema(data_source_id):
+    ds = models.DataSource.get_by_id(data_source_id)
+    logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
+    start_time = time.time()
+    try:
+        ds.get_schema(refresh=True)
+        logger.info(u"task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+        statsd_client.incr('refresh_schema.success')
+    except SoftTimeLimitExceeded:
+        logger.info(u"task=refresh_schema state=timeout ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+        statsd_client.incr('refresh_schema.timeout')
+    except Exception:
+        logger.warning(u"Failed refreshing schema for the data source: %s", ds.name, exc_info=1)
+        statsd_client.incr('refresh_schema.error')
+        logger.info(u"task=refresh_schema state=failed ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+
+
 @celery.task(name="redash.tasks.refresh_schemas")
 def refresh_schemas():
     """
     Refreshes the data sources schemas.
     """
-
     blacklist = [int(ds_id) for ds_id in redis_connection.smembers('data_sources:schema:blacklist') if ds_id]
-
     global_start_time = time.time()
 
     logger.info(u"task=refresh_schemas state=start")
@@ -360,14 +375,7 @@ def refresh_schemas():
         elif ds.id in blacklist:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=blacklist", ds.id)
         else:
-            logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
-            start_time = time.time()
-            try:
-                ds.get_schema(refresh=True)
-                logger.info(u"task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
-            except Exception:
-                logger.exception(u"Failed refreshing schema for the data source: %s", ds.name)
-                logger.info(u"task=refresh_schema state=failed ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
+            refresh_schema.apply_async(args=(ds.id,), queue="schemas")
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
