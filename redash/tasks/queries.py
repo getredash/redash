@@ -282,8 +282,8 @@ def refresh_queries():
                               scheduled_query=query,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
 
-            query_ids.append(query.id)
-            outdated_queries_count += 1
+                query_ids.append(query.id)
+                outdated_queries_count += 1
 
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
 
