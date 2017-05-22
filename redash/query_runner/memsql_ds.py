@@ -9,10 +9,8 @@ logger = logging.getLogger(__name__)
 
 try:
     from memsql.common import database
-
     enabled = True
-except ImportError, e:
-    logger.warning(e)
+except ImportError:
     enabled = False
 
 COLUMN_NAME = 0
