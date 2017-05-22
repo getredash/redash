@@ -54,8 +54,6 @@
 - Fix: don't remove locks for queries with task status of PENDING.
 - Only split columns with __/:: that end with filter/MultiFilter.
 
-### Other
-
 ## v1.0.3 - 2017-04-18
 
 ### Fixed
