@@ -18,7 +18,6 @@ try:
     import httplib2
     enabled = True
 except ImportError as e:
-    logger.info(str(e))
     enabled = False
 
 
