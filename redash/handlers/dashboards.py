@@ -19,7 +19,7 @@ class RecentDashboardsResource(BaseResource):
         Lists dashboards modified in the last 7 days.
         """
         if settings.FEATURE_DUMB_RECENTS:
-            dashboards = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user).order_by(models.Dashboard.updated_at.desc()).limit(10)
+            dashboards = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id).order_by(models.Dashboard.updated_at.desc()).limit(10)
             dashboards = [d.to_dict() for d in dashboards]
         else:
             recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
