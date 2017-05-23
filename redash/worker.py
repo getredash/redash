@@ -47,7 +47,9 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
 celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
                    CELERYBEAT_SCHEDULE=celery_schedule,
                    CELERY_TIMEZONE='UTC',
-                   CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES)
+                   CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES,
+                   CELERYD_PREFETCH_MULTIPLIER=settings.CELERYD_PREFETCH_MULTIPLIER,
+                   CELERY_ACKS_LATE=settings.CELERY_ACKS_LATE)
 
 if settings.SENTRY_DSN:
     from raven import Client
