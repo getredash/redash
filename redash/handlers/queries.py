@@ -59,7 +59,7 @@ class QueryRecentResource(BaseResource):
         """
 
         if settings.FEATURE_DUMB_RECENTS:
-            results = models.Query.by_user(self.current_user, False).order_by(models.Query.updated_at.desc()).limit(10)
+            results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
             queries = [q.to_dict(with_last_modified_by=False) for q in results]
         else:
             queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
