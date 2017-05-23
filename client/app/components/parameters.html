@@ -3,9 +3,18 @@
     <label>{{param.title}}</label>
     <button class="btn btn-default btn-xs" ng-click="showParameterSettings(param)" ng-if="editable"><i class="zmdi zmdi-settings"></i></button>
     <span ng-switch="param.type">
-      <input ng-switch-when="datetime-with-seconds" type="datetime-local" step="1" class="form-control" ng-model="param.ngModel">
-      <input ng-switch-when="datetime-local" type="datetime-local" class="form-control" ng-model="param.ngModel">
-      <input ng-switch-when="date" type="date" class="form-control" ng-model="param.ngModel">
+      <span ng-switch-when="datetime-with-seconds">
+        <input type="datetime-local" step="1" class="form-control" ng-model="param.ngModel">
+        <button ng-if="param.goToNow" type="button" class="btn btn-default" ng-click="param.ngModel = now(true)">Go to now</button>
+      </span>
+      <span ng-switch-when="datetime-local">
+        <input type="datetime-local" class="form-control" ng-model="param.ngModel">
+        <button ng-if="param.goToNow" type="button" class="btn btn-default" ng-click="param.ngModel = now()">Go to now</button>
+      </span>
+      <span ng-switch-when="date">
+        <input type="date" class="form-control" ng-model="param.ngModel">
+        <button ng-if="param.goToNow" type="button" class="btn btn-default" ng-click="param.ngModel = now()">Go to now</button>
+      </span>
       <span ng-switch-when="enum">
         <select ng-model="param.value" class="form-control">
           <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{option}}">{{option}}</option>

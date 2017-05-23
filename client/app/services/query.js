@@ -51,6 +51,7 @@ class Parameter {
     this.value = parameter.value;
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
+    this.goToNow = parameter.goToNow;
   }
 
   get ngModel() {
