@@ -39,8 +39,11 @@
 - Fix: page header wasn't updating on dashboards page @MichaelJAndy
 - Fix: keyboard shortcuts didn't work in parameter inputs
 
-## v1.0.0-rc.2 - 2017-02-22
+### Other
 
+- Change default job expiry times to: job lock expire after 12 hours (previously: 6 hours) and Celery task result object expire after 4 hours (previously: 1 hour). @shimpeko
+
+## v1.0.0-rc.2 - 2017-02-22
 
 ### Changed
 
