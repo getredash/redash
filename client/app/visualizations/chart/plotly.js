@@ -97,6 +97,20 @@ function normalAreaStacking(seriesList) {
   });
 }
 
+function normalBarStacking(seriesList) {
+  for (let i = 0; i < seriesList.length; i += 1) {
+    const d = {};
+    for (let j = 0; j < seriesList[i].x.length; j += 1) {
+      if (!(seriesList[i].x[j] in d)) {
+        d[seriesList[i].x[j]] = 0;
+      }
+      d[seriesList[i].x[j]] += seriesList[i].y[j];
+    }
+    seriesList[i].x = Object.keys(d);
+    seriesList[i].y = Object.values(d);
+  }
+}
+
 function lastVisibleY(seriesList, lastSeriesIndex, yIndex) {
   for (let i = lastSeriesIndex; i >= 0; i -= 1) {
     if (seriesList[i].visible === true) {
@@ -423,6 +437,8 @@ const PlotlyChart = () => {
           scope.layout.barmode = 'stack';
           if (scope.options.globalSeriesType === 'area') {
             normalAreaStacking(scope.data);
+          } else if (scope.options.globalSeriesType === 'column') {
+            normalBarStacking(scope.data);
           }
         } else if (scope.options.series.stacking === 'percent') {
           scope.layout.barmode = 'stack';
