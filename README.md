@@ -8,6 +8,8 @@
 [![Join the chat at https://gitter.im/getredash/redash](https://badges.gitter.im/getredash/redash.svg)](https://gitter.im/getredash/redash?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
 
+> Make Your Company Data Driven. Connect to any data source, easily visualize and share your data.
+
 **_Redash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
 
 Prior to **_Redash_**, we tried to use traditional BI suites and discovered a set of bloated, technically challenged and slow tools/flows. What we were looking for was a more hacker'ish way to look at data, so we built one.
@@ -31,7 +33,6 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 
 * [Setting up Redash instance](https://redash.io/help-onpremise/setup/setting-up-redash-instance.html) (includes links to ready made AWS/GCE images).
 * [Documentation](https://redash.io/help/).
-
 
 ## Getting Help
 
