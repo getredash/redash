@@ -8,6 +8,9 @@
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
   },
+  "keywords": [
+    "redash", "python", "visualization", "analytics", "bi", "angular", "redshift", "bigquery", "athena", "mysql", "postgresql"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/getredash/redash.git"
