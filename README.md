@@ -50,4 +50,4 @@ Note that all interactions with redash are subject to the Contributor Covenant [
 
 ## License
 
-BSD-2-Clause.
+BSD-2-Clause Copyright © 2013-2017 Arik Fraimovich.
