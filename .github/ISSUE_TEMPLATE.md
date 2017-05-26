@@ -1,10 +1,12 @@
-Welcome to Redash's GitHub repo! 👋🎉
+<!-- Welcome to Redash's GitHub repo! 👋🎉
 
-Do you need help or have a question? Checkout the Support category in our discussion forum: https://discuss.redash.io/c/support. 
+Do you need help or have a question? Checkout the Support category in our discussion forum: https://discuss.redash.io/c/support.
 
 Got an idea for a new feature? Check if it isn't on the roadmap already: http://bit.ly/redash-roadmap and start a new discussion in the features category: https://discuss.redash.io/c/feature-requests 🌟.
 
 Found a bug? Please fill out the sections below... thank you 👍
+
+You can remove this when you post the issue. -->
 
 ### Issue Summary
 
