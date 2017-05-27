@@ -50,6 +50,10 @@ class Oracle(BaseSQLQueryRunner):
         return ENABLED
 
     @classmethod
+    def annotate_query(cls):
+        return False
+
+    @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
