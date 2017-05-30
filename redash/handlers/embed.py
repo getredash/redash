@@ -14,7 +14,7 @@ from redash.handlers.base import (get_object_or_404, org_scoped_rule,
                                   record_event)
 
 from redash.handlers.query_results import collect_query_parameters, run_query_sync
-from redash.permissions import require_access, view_only
+from redash.handlers.static import render_index
 from redash.utils import (collect_parameters_from_request, json_dumps, gen_query_hash)
 
 
@@ -89,7 +89,6 @@ def public_dashboard(token, org_slug=None):
     else:
         api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
         dashboard = api_key.object
-
     record_event(current_org, current_user, {
         'action': 'view',
         'object_id': dashboard.id,
