@@ -5,7 +5,7 @@
         <a href="destinations/new" class="btn btn-default"><i class="fa fa-plus"></i> New Alert Destination</a>
       </p>
       <div class="list-group">
-        <a ng-href="destinations/{{destination.id}}" class="list-group-item" ng-repeat="destination in destinations"><i class="fa {{destination.icon}}"></i> {{destination.name}}</a>
+        <a ng-href="destinations/{{destination.id}}" class="list-group-item" ng-repeat="destination in destinations | orderBy:'name'"><i class="fa {{destination.icon}}"></i> {{destination.name}}</a>
       </div>
     </div>
   </div>
