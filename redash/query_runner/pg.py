@@ -1,8 +1,9 @@
 import json
 import logging
-import psycopg2
 import select
 import sys
+
+import psycopg2
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -71,6 +72,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                     "title": "Database Name"
                 }
             },
+            "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname"],
             "secret": ["password"]
         }
@@ -88,13 +90,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self.connection_string = " ".join(values)
 
-    def _get_tables(self, schema):
-        query = """
-        SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
-        """
-
+    def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
 
         if error is not None:
@@ -112,6 +108,30 @@ class PostgreSQL(BaseSQLQueryRunner):
                 schema[table_name] = {'name': table_name, 'columns': []}
 
             schema[table_name]['columns'].append(row['column_name'])
+
+    def _get_tables(self, schema):
+        query = """
+        SELECT table_schema, table_name, column_name
+        FROM information_schema.columns
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+        """
+
+        self._get_definitions(schema, query)
+
+        materialized_views_query = """
+        SELECT ns.nspname as table_schema,
+               mv.relname as table_name,
+               atr.attname as column_name
+        FROM pg_class mv
+          JOIN pg_namespace ns ON mv.relnamespace = ns.oid
+          JOIN pg_attribute atr
+            ON atr.attrelid = mv.oid
+           AND atr.attnum > 0
+           AND NOT atr.attisdropped
+        WHERE mv.relkind = 'm';
+        """
+
+        self._get_definitions(schema, materialized_views_query)
 
         return schema.values()
 
@@ -136,19 +156,15 @@ class PostgreSQL(BaseSQLQueryRunner):
                 error = 'Query completed but it returned no data.'
                 json_data = None
         except (select.error, OSError) as e:
-            logging.exception(e)
             error = "Query interrupted. Please retry."
             json_data = None
         except psycopg2.DatabaseError as e:
-            logging.exception(e)
             error = e.message
             json_data = None
         except (KeyboardInterrupt, InterruptException):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             connection.close()
 

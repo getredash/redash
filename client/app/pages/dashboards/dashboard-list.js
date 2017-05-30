@@ -6,7 +6,7 @@ import './dashboard-list.css';
 
 
 function DashboardListCtrl(Dashboard, $location, clientConfig) {
-  const TAGS_REGEX = /(^[\w\s]+):|(#[\w-]+)/ig;
+  const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/ig;
 
   this.logoUrl = clientConfig.logoUrl;
   const page = parseInt($location.search().page || 1, 10);
@@ -46,6 +46,7 @@ function DashboardListCtrl(Dashboard, $location, clientConfig) {
 
   this.update = () => {
     this.dashboards.$promise.then((data) => {
+      data = _.sortBy(data, 'name');
       const filteredDashboards = data.map((dashboard) => {
         dashboard.tags = (dashboard.name.match(TAGS_REGEX) || []).map(tag => tag.replace(/:$/, ''));
         dashboard.untagged_name = dashboard.name.replace(TAGS_REGEX, '').trim();

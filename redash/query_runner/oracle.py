@@ -158,15 +158,12 @@ class Oracle(BaseSQLQueryRunner):
                 error = 'Query completed but it returned no data.'
                 json_data = None
         except cx_Oracle.DatabaseError as err:
-            logging.exception(err.message)
-            error = "Query failed. {}.".format(err.message)
+            error = u"Query failed. {}.".format(err.message)
             json_data = None
         except KeyboardInterrupt:
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as err:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             connection.close()
 

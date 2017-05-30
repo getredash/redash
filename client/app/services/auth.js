@@ -31,12 +31,12 @@ function AuthService($window, $location, $q, $http) {
     login() {
       const next = encodeURI($location.url());
       logger('Calling login with next = %s', next);
-      window.location.href = `/login?next=${next}`;
+      window.location.href = `login?next=${next}`;
     },
     logout() {
       logger('Logout.');
       window.sessionStorage.removeItem(SESSION_ITEM);
-      $window.location.href = '/logout';
+      $window.location.href = 'logout';
     },
     loadSession() {
       logger('Loading session');

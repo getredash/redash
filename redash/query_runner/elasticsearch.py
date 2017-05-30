@@ -1,12 +1,12 @@
-import simplejson as json
 import logging
 import sys
 import urllib
+
+import requests
+import simplejson as json
 from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
-
-import requests
 
 try:
     import http.client as http_client
@@ -42,9 +42,9 @@ PYTHON_TYPES_MAPPING = {
     float: TYPE_FLOAT
 }
 
-class BaseElasticSearch(BaseQueryRunner):
 
-    DEBUG_ENABLED = True
+class BaseElasticSearch(BaseQueryRunner):
+    DEBUG_ENABLED = False
 
     @classmethod
     def configuration_schema(cls):
