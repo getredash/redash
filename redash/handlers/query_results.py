@@ -179,7 +179,6 @@ class QueryResultResource(BaseResource):
         should_cache = query_result_id is not None
 
         parameter_values = collect_parameters_from_request(request.args)
-        query_parameters = set(collect_query_parameters(query_text))
         max_age = int(request.args.get('maxAge', 0))
 
         query_result = None
@@ -190,7 +189,7 @@ class QueryResultResource(BaseResource):
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
             if query is not None:
-                if settings.ALLOW_PARAMETERS_IN_EMBEDS and query_parameters:
+                if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
                     query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
