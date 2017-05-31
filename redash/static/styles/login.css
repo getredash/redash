@@ -4,7 +4,7 @@ body {
 }
 
 .logo-container {
-  background-color: #668899;
+  background: url('/images/datalicious-background-red.jpg');
   display: table;
   width: 100%;
   padding: 10px;

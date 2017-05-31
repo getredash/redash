@@ -53,8 +53,8 @@ def all_settings():
     return settings
 
 
-NAME = os.environ.get('REDASH_NAME', 'Redash')
-LOGO_URL = os.environ.get('REDASH_LOGO_URL', '/images/redash_icon_small.png')
+NAME = os.environ.get('REDASH_NAME', 'Datalicious')
+LOGO_URL = os.environ.get('REDASH_LOGO_URL', '/images/logo_small.png')
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))

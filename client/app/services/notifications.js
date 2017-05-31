@@ -63,7 +63,7 @@ function Notifications(currentUser, Events) {
     }
 
     // using the 'tag' to avoid showing duplicate notifications
-    const notification = new Notification(title, { tag: title + content, body: content, icon: '/images/redash_icon_small.png' });
+    const notification = new Notification(title, { tag: title + content, body: content, icon: '/images/logo_small.png' });
     setTimeout(() => {
       notification.close();
     }, 3000);

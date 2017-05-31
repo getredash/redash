@@ -1,6 +1,6 @@
 import { find } from 'underscore';
 import template from './visualization-embed.html';
-import logoUrl from '../../assets/images/redash_icon_small.png';
+import logoUrl from '../../assets/images/logo_small.png';
 
 const VisualizationEmbed = {
   template,
