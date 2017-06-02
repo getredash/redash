@@ -39,7 +39,7 @@ class DashboardListResource(BaseResource):
         """
         Lists all accessible dashboards.
         """
-        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id).order_by(models.Dashboard.name)
         return [q.to_dict() for q in results]
 
     @require_permission('create_dashboard')
