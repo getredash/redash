@@ -1,13 +1,16 @@
 import logging
+
 from flask import make_response, request
-from flask_restful import abort
 from funcy import project
 
+from flask_restful import abort
 from redash import models
-from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.permissions import require_admin, require_permission, require_access, view_only
-from redash.query_runner import query_runners, get_configuration_schema_for_query_runner_type
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.permissions import (require_access, require_admin,
+                                require_permission, view_only)
+from redash.query_runner import (get_configuration_schema_for_query_runner_type,
+                                 query_runners)
+from redash.utils.configuration import ConfigurationContainer, ValidationError
 
 
 class DataSourceTypeListResource(BaseResource):
@@ -46,8 +49,7 @@ class DataSourceResource(BaseResource):
     @require_admin
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        models.db.session.delete(data_source)
-        models.db.session.commit()
+        data_source.delete()
 
         return make_response('', 204)
 
