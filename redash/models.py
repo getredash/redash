@@ -518,6 +518,13 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
 
+    def delete(self):
+        Query.query.filter(Query.data_source == self).update(dict(data_source_id=None, latest_query_data_id=None))
+        QueryResult.query.filter(QueryResult.data_source == self).delete()
+        res = db.session.delete(self)
+        db.session.commit()
+        return res
+
     def get_schema(self, refresh=False):
         key = "data_source:schema:{}".format(self.id)
 
@@ -604,7 +611,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization)
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
-    data_source = db.relationship(DataSource, backref=backref('query_results', cascade="all, delete-orphan"))
+    data_source = db.relationship(DataSource, backref=backref('query_results'))
     query_hash = Column(db.String(32), index=True)
     query_text = Column('query', db.Text)
     data = Column(db.Text)
