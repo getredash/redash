@@ -275,42 +275,6 @@ class QueryArchiveTest(BaseTestCase):
         self.assertEqual(db.session.query(models.AlertSubscription).get(subscription.id), None)
 
 
-class DataSourceTest(BaseTestCase):
-    def test_get_schema(self):
-        return_value = [{'name': 'table', 'columns': []}]
-
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
-            patched_get_schema.return_value = return_value
-
-            schema = self.factory.data_source.get_schema()
-
-            self.assertEqual(return_value, schema)
-
-    def test_get_schema_uses_cache(self):
-        return_value = [{'name': 'table', 'columns': []}]
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
-            patched_get_schema.return_value = return_value
-
-            self.factory.data_source.get_schema()
-            schema = self.factory.data_source.get_schema()
-
-            self.assertEqual(return_value, schema)
-            self.assertEqual(patched_get_schema.call_count, 1)
-
-    def test_get_schema_skips_cache_with_refresh_true(self):
-        return_value = [{'name': 'table', 'columns': []}]
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
-            patched_get_schema.return_value = return_value
-
-            self.factory.data_source.get_schema()
-            new_return_value = [{'name': 'new_table', 'columns': []}]
-            patched_get_schema.return_value = new_return_value
-            schema = self.factory.data_source.get_schema(refresh=True)
-
-            self.assertEqual(new_return_value, schema)
-            self.assertEqual(patched_get_schema.call_count, 2)
-
-
 class QueryResultTest(BaseTestCase):
     def setUp(self):
         super(QueryResultTest, self).setUp()
