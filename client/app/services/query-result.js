@@ -386,6 +386,8 @@ function QueryResultService($resource, $timeout, $q) {
           }
           return v;
         });
+        // add all filters by default
+        if (filter.values.length > 1) filter.current = filter.values;
       });
 
       this.filters = filters;
