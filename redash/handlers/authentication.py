@@ -93,9 +93,9 @@ def forgot_password(org_slug=None):
 def login(org_slug=None):
     # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
     # noinspection PyComparisonWithNone
-    if current_org is None and not settings.MULTI_ORG:
+    if current_org == None and not settings.MULTI_ORG:
         return redirect('/setup')
-    elif current_org is None:
+    elif current_org == None:
         return redirect('/')
 
     index_url = url_for("redash.index", org_slug=org_slug)
