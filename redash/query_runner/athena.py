@@ -37,6 +37,10 @@ class Athena(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
     @classmethod
+    def name(cls):
+        return "Amazon Athena"
+    
+    @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
