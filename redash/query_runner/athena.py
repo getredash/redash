@@ -128,6 +128,10 @@ class Athena(BaseQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
+        except KeyboardInterrupt:
+            cursor.cancel()
+            error = "Query cancelled by user."
+            json_data = None
         except Exception, ex:
             cursor.cancel()
             error = ex.message
