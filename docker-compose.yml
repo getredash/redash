@@ -11,7 +11,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ".:/app"
+      - ".:/client/app"
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
