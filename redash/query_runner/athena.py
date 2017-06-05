@@ -39,31 +39,32 @@ class Athena(BaseQueryRunner):
     @classmethod
     def name(cls):
         return "Amazon Athena"
-    
+
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
             'properties': {
-                'aws_access_key_id': {
+                'region': {
                     'type': 'string',
-                    'title': 'AWS Access Key ID',
+                    'title': 'AWS Region'
                 },
-                'aws_secret_access_key': {
+                'aws_access_key': {
                     'type': 'string',
-                    'title': 'AWS Secret Access Key',
+                    'title': 'AWS Access Key'
                 },
-                'schema_name': {
+                'aws_secret_key': {
                     'type': 'string',
-                    'title': 'Schema Name',
-                },
-                'region_name': {
-                    'type': 'string',
-                    'title': 'Region Name',
+                    'title': 'AWS Secret Key'
                 },
                 's3_staging_dir': {
                     'type': 'string',
-                    'title': 'S3 Staging Directory',
+                    'title': 'S3 Staging Path'
+                },
+                'schema': {
+                    'type': 'string',
+                    'title': 'Schema Name',
+                    'default': 'default'
                 },
                 'encryption_option': {
                     'type': 'string',
@@ -74,7 +75,7 @@ class Athena(BaseQueryRunner):
                     'title': 'KMS Key',
                 },
             },
-            'required': ['region_name', 'schema_name', 's3_staging_dir']
+            'required': ['region', 's3_staging_dir']
         }
 
     @classmethod
@@ -110,7 +111,14 @@ class Athena(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        cursor = pyathena.connect(**self.configuration.to_dict()).cursor()
+        cursor = pyathena.connect(
+            s3_staging_dir=self.configuration['s3_staging_dir'],
+            region_name=self.configuration['region_name'],
+            aws_access_key_id=self.configuration.get('aws_access_key', None),
+            aws_secret_access_key=self.configuration.get('aws_secret_key', None),
+            schema_name=self.configuration.get('schema', 'default'),
+            encryption_option=self.configuration.get('encryption_option', None),
+            kms_key=self.configuration.get('kms_key', None)).cursor()
 
         try:
             cursor.execute(query)
