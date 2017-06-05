@@ -75,7 +75,8 @@ class Athena(BaseQueryRunner):
                     'title': 'KMS Key',
                 },
             },
-            'required': ['region', 's3_staging_dir']
+            'required': ['region', 's3_staging_dir'],
+            'secret': ['aws_secret_key']
         }
 
     @classmethod
