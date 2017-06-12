@@ -4,7 +4,7 @@
      ng-model="parameters">
   <div class="form-group m-l-10 m-r-10"
        ng-repeat="param in parameters">
-    <label>{{param.title}}</label>
+    <label class="parameter-label">{{param.title}}</label>
     <button class="btn btn-default btn-xs"
             ng-click="showParameterSettings(param)"
             ng-if="editable">
