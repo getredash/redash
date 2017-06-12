@@ -1,12 +1,14 @@
 <div class="container">
     <div class="bg-white p-5 m-t-10 m-b-10">
       <form class="form-inline" role="form" ng-submit="$ctrl.search()">
-          <div class="form-group">
-              <input class="form-control" placeholder="Search..." ng-model="$ctrl.term" autofocus>
-          </div>
-          <button type="submit" class="btn btn-primary">
-              <span class="zmdi zmdi-search"></span>
-          </button>
+        <div class="input-group">
+            <input class="form-control input-sm" placeholder="Search..." ng-model="$ctrl.term" autofocus>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit">
+                <span class="zmdi zmdi-search"></span>
+              </button>
+            </span>
+        </div>
       </form>
     </div>
     <div class="bg-white">
