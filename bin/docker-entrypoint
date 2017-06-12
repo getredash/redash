@@ -1,8 +1,13 @@
 #!/bin/bash
 set -e
 
-worker() {
+init() {
+  /app/manage.py database create_tables
   /app/manage.py db upgrade
+}
+
+worker() {
+  init
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery}
 
@@ -11,7 +16,7 @@ worker() {
 }
 
 scheduler() {
-  /app/manage.py db upgrade
+  init
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
 
@@ -21,7 +26,7 @@ scheduler() {
 }
 
 server() {
-  /app/manage.py db upgrade
+  init
   exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w4 redash.wsgi:app
 }
 

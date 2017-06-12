@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 try:
     import botocore.session
@@ -155,15 +156,23 @@ class AthenaDirect(BaseQueryRunner):
         session.set_config_variable('data_path', os.path.join(BASE_DIR, 'athena_models'))
         return session.create_client('athena')
 
+    def _get_whitelist(self):
+        whitelist = self.configuration['table_whitelist']
+        whitelist = re.split(r"\s*,?\s*", whitelist)
+        whitelist = set(table for table in whitelist if table)
+        return whitelist
+
     def get_schema(self, get_stats=False):
         client = self._get_client()
         schemas = []
         schema_names = [n['Name'] for n in client.get_namespaces()['NamespaceList']]
+        whitelist = self._get_whitelist()
         for schema_name in schema_names:
             tables = client.get_tables(NamespaceName=schema_name)['TableList']
+            globname = '{}.*'.format(schema_name)
             for table in tables:
-                fullname = '%s.%s' % (schema_name, table['Name'])
-                if self.configuration['table_whitelist'] and fullname in self.configuration['table_whitelist']:
+                fullname = '{}.{}'.format(schema_name, table['Name'])
+                if not whitelist or globname in whitelist or fullname in whitelist:
                     schemas.append({'name': fullname,
                                     'columns': [col['Name'] for col in table['StorageDescriptor']['Columns']]})
         return schemas
