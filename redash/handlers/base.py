@@ -1,16 +1,15 @@
 import time
 
 from flask import Blueprint, current_app, request
+
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
-
-from sqlalchemy.orm.exc import NoResultFound
-
 from redash import settings
 from redash.authentication import current_org
 from redash.models import ApiUser
 from redash.tasks import record_event as record_event_task
 from redash.utils import json_dumps
+from sqlalchemy.orm.exc import NoResultFound
 
 routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
