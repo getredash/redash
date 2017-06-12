@@ -38,8 +38,8 @@ def queries_tasks():
 
     response = {
         'waiting': [t.data for t in waiting if t is not None],
-        'in_progress': [t.data for t in in_progress if t is not Non],
-        'done': [t.data for t in done if t is not Non]
+        'in_progress': [t.data for t in in_progress if t is not None],
+        'done': [t.data for t in done if t is not None]
     }
 
     return json_response(response)
