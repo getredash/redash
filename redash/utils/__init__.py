@@ -10,7 +10,7 @@ import hashlib
 import pytz
 import pystache
 
-from funcy import distinct
+from funcy import distinct, select_values
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
@@ -165,3 +165,7 @@ def base_url(org):
         return "https://{}/{}".format(settings.HOST, org.slug)
 
     return settings.HOST
+
+
+def filter_none(d):
+    return select_values(lambda v: v is not None, d)
