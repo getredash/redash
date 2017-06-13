@@ -1,4 +1,4 @@
-import { each, contains, find } from 'underscore';
+import { isUndefined, each, contains, find } from 'underscore';
 import endsWith from 'underscore.string/endsWith';
 import template from './dynamic-form.html';
 
@@ -115,8 +115,9 @@ function DynamicForm($http, toastr, $q) {
             if (Object.keys($scope.target.options).length === 0) {
               const properties = type.configuration_schema.properties;
               Object.keys(properties).forEach((property) => {
-                $scope.target.options[property] =
-                  properties[property].default || '';
+                if (!isUndefined(properties[property].default)) {
+                  $scope.target.options[property] = properties[property].default;
+                }
               });
             }
           }
