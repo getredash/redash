@@ -1,6 +1,8 @@
-from redash.utils import build_url, collect_query_parameters, collect_parameters_from_request
 from collections import namedtuple
 from unittest import TestCase
+
+from redash.utils import (build_url, collect_parameters_from_request,
+                          collect_query_parameters, filter_none)
 
 DummyRequest = namedtuple('DummyRequest', ['host', 'scheme'])
 
@@ -49,3 +51,13 @@ class TestCollectParametersFromRequest(TestCase):
 
     def test_takes_prefixed_values(self):
         self.assertDictEqual({'test': 1, 'something_else': 'test'}, collect_parameters_from_request({'p_test': 1, 'p_something_else': 'test'}))
+
+
+class TestSkipNones(TestCase):
+    def test_skips_nones(self):
+        d = {
+            'a': 1,
+            'b': None
+        }
+
+        self.assertDictEqual(filter_none(d), {'a': 1})

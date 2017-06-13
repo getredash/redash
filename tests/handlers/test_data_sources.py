@@ -51,7 +51,7 @@ class TestDataSourceResourcePost(BaseTestCase):
     def test_returns_400_when_configuration_invalid(self):
         admin = self.factory.create_admin()
         rv = self.make_request('post', self.path,
-                               data={'name': 'DS 1', 'type': 'pg', 'options': '{}'}, user=admin)
+                               data={'name': 'DS 1', 'type': 'pg', 'options': {}}, user=admin)
 
         self.assertEqual(rv.status_code, 400)
 
@@ -94,7 +94,7 @@ class TestDataSourceListResourcePost(BaseTestCase):
     def test_returns_400_when_configuration_invalid(self):
         admin = self.factory.create_admin()
         rv = self.make_request('post', '/api/data_sources',
-                               data={'name': 'DS 1', 'type': 'pg', 'options': '{}'}, user=admin)
+                               data={'name': 'DS 1', 'type': 'pg', 'options': {}}, user=admin)
 
         self.assertEqual(rv.status_code, 400)
 
