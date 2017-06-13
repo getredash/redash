@@ -271,21 +271,13 @@ def refresh_queries():
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-<<<<<<< c28d5c96b5faf936059ebdc64e229a727d10acf3
-                if query.options and 'parameters' in query.options:
-=======
                 # if query.options and 'parameters' in query.options and len(query.options['parameters']) > 0:
                 if query.options and len(query.options.get('parameters', [])) > 0:
->>>>>>> Scheduled queries improvements:
                     query_params = {p['name']: p['value']
                                     for p in query.options['parameters']}
                     query_text = pystache.render(query.query_text, query_params)
                 else:
                     query_text = query.query_text
-<<<<<<< c28d5c96b5faf936059ebdc64e229a727d10acf3
-=======
-
->>>>>>> Scheduled queries improvements:
                 enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
