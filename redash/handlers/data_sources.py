@@ -10,6 +10,7 @@ from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  query_runners)
+from redash.utils import filter_none
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 
 
@@ -35,7 +36,7 @@ class DataSourceResource(BaseResource):
             abort(400)
         try:
             data_source.options.set_schema(schema)
-            data_source.options.update(req['options'])
+            data_source.options.update(filter_none(req['options']))
         except ValidationError:
             abort(400)
 
@@ -88,7 +89,9 @@ class DataSourceListResource(BaseResource):
         if schema is None:
             abort(400)
 
-        config = ConfigurationContainer(req['options'], schema)
+        config = ConfigurationContainer(filter_none(req['options']), schema)
+        # from IPython import embed
+        # embed()
         if not config.is_valid():
             abort(400)
 
