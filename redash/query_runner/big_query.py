@@ -19,7 +19,7 @@ try:
     from apiclient.discovery import build
     from apiclient.errors import HttpError
     from oauth2client.service_account import ServiceAccountCredentials
-    from oauth2client import gce
+    from oauth2client.contrib import gce
 
     enabled = True
 except ImportError:
@@ -100,7 +100,7 @@ class BigQuery(BaseQueryRunner):
                 },
                 'totalMBytesProcessedLimit': {
                     "type": "number",
-                    'title': 'Total MByte Processed Limit'
+                    'title': 'Scanned Data Limit (MB)'
                 },
                 'userDefinedFunctionResourceUri': {
                     "type": "string",
@@ -120,6 +120,7 @@ class BigQuery(BaseQueryRunner):
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
+            "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']
         }
 
