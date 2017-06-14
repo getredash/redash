@@ -18,9 +18,9 @@ export default function (ngModule) {
   registerEmbedCodeDialog(ngModule);
   registerScheduleDialog(ngModule);
   registerAlertUnsavedChanges(ngModule);
-  registerVisualizationEmbed(ngModule); 
-  registerCompareQueryDialog(ngModule); 
-  registerApiKeyDialog(ngModule); 
+  registerVisualizationEmbed(ngModule);
+  registerCompareQueryDialog(ngModule);
+  registerApiKeyDialog(ngModule);
 
   return Object.assign({}, registerQuerySearchResultsPage(ngModule),
                            registerSourceView(ngModule),

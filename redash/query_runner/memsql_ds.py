@@ -130,15 +130,7 @@ class MemSQL(BaseSQLQueryRunner):
                     columns.append({
                         'name': column,
                         'friendly_name': column,
-<<<<<<< aa343495d1effce09796bf03afc76b5c0079127a
-<<<<<<< dbb1bf5ae05e2033ab5845ec57d0782185a43308
                         'type': TYPE_STRING
-=======
-                        'type': None
->>>>>>> get_schema fix
-=======
-                        'type': TYPE_STRING
->>>>>>> fixes
                     })
 
             data = {'columns': columns, 'rows': rows}
@@ -158,8 +150,4 @@ class MemSQL(BaseSQLQueryRunner):
         return json_data, error
 
 
-<<<<<<< edc615526ba3758fb834a5f340aa904c0a42261c
 register(MemSQL)
-=======
-register(MemSQL)
->>>>>>> reformat, as for pep-8
