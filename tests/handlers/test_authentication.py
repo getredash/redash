@@ -72,4 +72,4 @@ class TestLogin(BaseTestCase):
 class TestSession(BaseTestCase):
     # really simple test just to trigger this route
     def test_get(self):
-        self.make_request('get', '/api/session', user=self.factory.user, org=False)
+        self.make_request('get', '/default/api/session', user=self.factory.user, org=False)

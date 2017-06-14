@@ -168,7 +168,6 @@ def client_config():
     return client_config
 
 
-# @routes.route(org_scoped_rule('/api/config'), methods=['GET'])
 @routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
     return json_response({
@@ -177,8 +176,7 @@ def config(org_slug=None):
     })
 
 
-# @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
-@routes.route('/api/session', methods=['GET'])
+@routes.route(org_scoped_rule('/api/session'), methods=['GET'])
 @login_required
 def session(org_slug=None):
     if current_user.is_api_user():
