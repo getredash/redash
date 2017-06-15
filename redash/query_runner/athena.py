@@ -114,7 +114,7 @@ class Athena(BaseQueryRunner):
     def run_query(self, query, user):
         cursor = pyathena.connect(
             s3_staging_dir=self.configuration['s3_staging_dir'],
-            region_name=self.configuration['region_name'],
+            region_name=self.configuration['region'],
             aws_access_key_id=self.configuration.get('aws_access_key', None),
             aws_secret_access_key=self.configuration.get('aws_secret_key', None),
             schema_name=self.configuration.get('schema', 'default'),
