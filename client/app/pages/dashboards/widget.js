@@ -8,7 +8,7 @@ const EditTextBoxComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller(toastr) {
+  controller($rootScope, $location, $http, toastr) {
     'ngInject';
 
     this.saveInProgress = false;
@@ -23,6 +23,10 @@ const EditTextBoxComponent = {
         this.saveInProgress = false;
       });
     };
+    this.closeWithoutSave = () => {
+      this.widget.text = this.widget.existing_text;
+      this.close();
+    };
   },
 };
 
@@ -30,6 +34,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
+    this.widget.existing_text = this.widget.text;
     $uibModal.open({
       component: 'editTextBox',
       resolve: {
