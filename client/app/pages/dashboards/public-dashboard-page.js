@@ -31,7 +31,7 @@ export default function (ngModule) {
     'ngInject';
 
     const token = $route.current.params.token;
-    return $http.get(`/api/dashboards/public/${token}`).then(response =>
+    return $http.get(`api/dashboards/public/${token}`).then(response =>
        response.data
     );
   }

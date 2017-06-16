@@ -4,6 +4,7 @@ import registerQueryResultsLink from './query-results-link';
 import registerQueryEditor from './query-editor';
 import registerSchemaBrowser from './schema-browser';
 import registerEmbedCodeDialog from './embed-code-dialog';
+import registerApiKeyDialog from './api-key-dialog';
 import registerScheduleDialog from './schedule-dialog';
 import registerAlertUnsavedChanges from './alert-unsaved-changes';
 import registerQuerySearchResultsPage from './queries-search-results-page';
@@ -19,6 +20,7 @@ export default function (ngModule) {
   registerAlertUnsavedChanges(ngModule);
   registerVisualizationEmbed(ngModule);
   registerCompareQueryDialog(ngModule);
+  registerApiKeyDialog(ngModule);
 
   return Object.assign({}, registerQuerySearchResultsPage(ngModule),
                            registerSourceView(ngModule),

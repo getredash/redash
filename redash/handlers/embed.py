@@ -1,21 +1,19 @@
-import json
 import logging
 import time
 
 import pystache
+from flask import request
+
 from authentication import current_org
-from flask import current_app, render_template, request, safe_join, send_file
 from flask_login import current_user, login_required
 from flask_restful import abort
-from funcy import project
-from redash import models, serializers, settings, utils
+from redash import models, utils
 from redash.handlers import routes
 from redash.handlers.base import (get_object_or_404, org_scoped_rule,
                                   record_event)
 from redash.handlers.query_results import collect_query_parameters
-from redash.permissions import require_access, view_only
-from redash.utils import (collect_parameters_from_request, gen_query_hash,
-                          json_dumps)
+from redash.handlers.static import render_index
+from redash.utils import gen_query_hash
 
 
 #
@@ -54,12 +52,12 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         if max_age > 0:
             run_time = time.time() - started_at
             query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source.id,
-                                                                                  query_hash, query_text, data,
-                                                                                  run_time, utils.utcnow())
+                                                                              query_hash, query_text, data,
+                                                                              run_time, utils.utcnow())
 
             models.db.session.commit()
         return data
-    except Exception, e:
+    except Exception:
         if max_age > 0:
             abort(404, message="Unable to get result from the database, and no cached query result found.")
         else:
@@ -79,23 +77,24 @@ def embed(query_id, visualization_id, org_slug=None):
         'referer': request.headers.get('Referer')
     })
 
-    full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
-    models.db.session.commit()
-    return send_file(full_path, **dict(cache_timeout=0, conditional=True))
+    return render_index()
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
 @login_required
 def public_dashboard(token, org_slug=None):
-    # TODO: bring this back.
-    # record_event(current_org, current_user, {
-    #     'action': 'view',
-    #     'object_id': dashboard.id,
-    #     'object_type': 'dashboard',
-    #     'public': True,
-    #     'headless': 'embed' in request.args,
-    #     'referer': request.headers.get('Referer')
-    # })
-    # models.db.session.commit()
-    full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
-    return send_file(full_path, **dict(cache_timeout=0, conditional=True))
+    if current_user.is_api_user():
+        dashboard = current_user.object
+    else:
+        api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)
+        dashboard = api_key.object
+
+    record_event(current_org, current_user, {
+        'action': 'view',
+        'object_id': dashboard.id,
+        'object_type': 'dashboard',
+        'public': True,
+        'headless': 'embed' in request.args,
+        'referer': request.headers.get('Referer')
+    })
+    return render_index()

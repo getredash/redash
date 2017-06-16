@@ -50,6 +50,7 @@ class Parameter {
     this.type = parameter.type;
     this.value = parameter.value;
     this.global = parameter.global;
+    this.enumOptions = parameter.enumOptions;
   }
 
   get ngModel() {

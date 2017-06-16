@@ -1,12 +1,12 @@
-import simplejson as json
 import logging
 import sys
 import urllib
+
+import requests
+import simplejson as json
 from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
-
-import requests
 
 try:
     import http.client as http_client
@@ -44,7 +44,7 @@ PYTHON_TYPES_MAPPING = {
 
 
 class BaseElasticSearch(BaseQueryRunner):
-    DEBUG_ENABLED = True
+    DEBUG_ENABLED = False
     default_doc_url = "https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html"
 
     @classmethod
