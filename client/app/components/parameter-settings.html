@@ -13,6 +13,7 @@
         <select ng-model="$ctrl.parameter.type" class="form-control">
           <option value="text">Text</option>
           <option value="number">Number</option>
+          <option value="enum">Dropdown List</option>
           <option value="date">Date</option>
           <option value="datetime-local">Date and Time</option>
           <option value="datetime-with-seconds">Date and Time (with seconds)</option>
@@ -21,6 +22,10 @@
       <div class="form-group">
         <label>Global</label>
         <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.global">
+      </div>
+      <div class="form-group" ng-if="$ctrl.parameter.type === 'enum'">
+        <label>Dropdown List Values (newline delimited)</label>
+        <textarea class="form-control" rows="3" ng-model="$ctrl.parameter.enumOptions"></textarea>
       </div>
     </div>
 </div>

@@ -36,8 +36,8 @@ export default function (ngModule) {
   function loadData($http, $route, $q, Auth) {
     return session($http, $route, Auth).then(() => {
       const queryId = $route.current.params.queryId;
-      const query = $http.get(`/api/queries/${queryId}`).then(response => response.data);
-      const queryResult = $http.get(`/api/queries/${queryId}/results.json`).then(response => response.data);
+      const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
+      const queryResult = $http.get(`api/queries/${queryId}/results.json`).then(response => response.data);
       return $q.all([query, queryResult]);
     });
   }

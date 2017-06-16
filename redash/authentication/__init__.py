@@ -16,7 +16,9 @@ logger = logging.getLogger('authentication')
 
 
 def get_login_url(external=False, next="/"):
-    if settings.MULTI_ORG:
+    if settings.MULTI_ORG and current_org == None:
+        login_url = '/'
+    elif settings.MULTI_ORG:
         login_url = url_for('redash.login', org_slug=current_org.slug, next=next, _external=external)
     else:
         login_url = url_for('redash.login', next=next, _external=external)
@@ -155,5 +157,3 @@ def setup_authentication(app):
     else:
         logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
         login_manager.request_loader(hmac_load_user_from_request)
-
-

@@ -4,10 +4,11 @@ import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
+import box from 'plotly.js/lib/box';
 
 import moment from 'moment';
 
-Plotly.register([bar, pie, histogram]);
+Plotly.register([bar, pie, histogram, box]);
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ['sendDataToCloud'],
 });
@@ -197,6 +198,9 @@ const PlotlyChart = () => {
     link(scope, element) {
       function calculateHeight() {
         const height = Math.max(scope.height, (scope.height - 50) + bottomMargin);
+        if (scope.options.globalSeriesType === 'box') {
+          return scope.options.height || height;
+        }
         return height;
       }
 
@@ -212,6 +216,9 @@ const PlotlyChart = () => {
           series.type = 'scatter';
           series.mode = 'markers';
         } else if (type === 'bubble') {
+          series.mode = 'markers';
+        } else if (type === 'box') {
+          series.type = 'box';
           series.mode = 'markers';
         }
       }
@@ -271,6 +278,12 @@ const PlotlyChart = () => {
             scope.data.push(plotlySeries);
           });
           return;
+        }
+
+        if (scope.options.globalSeriesType === 'box') {
+          scope.options.sortX = false;
+          scope.layout.boxmode = 'group';
+          scope.layout.boxgroupgap = 0.50;
         }
 
         let hasY2 = false;
@@ -341,6 +354,22 @@ const PlotlyChart = () => {
               size: pluck(data, 'size'),
             };
           }
+
+          if (seriesOptions.type === 'box') {
+            plotlySeries.boxpoints = 'outliers';
+            plotlySeries.marker = {
+              size: 3,
+            };
+            if (scope.options.showpoints) {
+              plotlySeries.boxpoints = 'all';
+              plotlySeries.jitter = 0.3;
+              plotlySeries.pointpos = -1.8;
+              plotlySeries.marker = {
+                size: 3,
+              };
+            }
+          }
+
           scope.data.push(plotlySeries);
         });
 

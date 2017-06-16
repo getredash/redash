@@ -10,7 +10,7 @@ import hashlib
 import pytz
 import pystache
 
-from funcy import distinct
+from funcy import distinct, select_values
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
@@ -26,6 +26,15 @@ def utcnow():
     which leads to errors in calculations.
     """
     return datetime.datetime.now(pytz.utc)
+
+
+def dt_from_timestamp(timestamp, tz_aware=True):
+    timestamp = datetime.datetime.utcfromtimestamp(float(timestamp))
+
+    if tz_aware:
+        timestamp = timestamp.replace(tzinfo=pytz.utc)
+
+    return timestamp
 
 
 def slugify(s):
@@ -158,3 +167,5 @@ def base_url(org):
     return settings.HOST
 
 
+def filter_none(d):
+    return select_values(lambda v: v is not None, d)
