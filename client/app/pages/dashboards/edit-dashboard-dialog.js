@@ -93,6 +93,10 @@ const EditDashboardDialog = {
         Events.record('create', 'dashboard');
       }
     };
+    this.closeWithoutSave = () => {
+      this.dashboard.name = this.dashboard.existing_name;
+      this.dismiss();
+    };
   },
 };
 
