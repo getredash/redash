@@ -91,9 +91,8 @@ function QueryResultService($resource, $timeout, $q) {
         // on the column type set by the backend. This logic is prone to errors,
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
-          let newType = null;
-
           each(row, (v, k) => {
+            let newType = null;
             if (isNumber(v)) {
               newType = 'float';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
