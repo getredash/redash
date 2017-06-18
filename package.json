@@ -68,14 +68,14 @@
     "eslint-config-airbnb-base": "^9.0.0",
     "eslint-loader": "^1.6.0",
     "eslint-plugin-import": "^2.0.1",
-    "extract-text-webpack-plugin": "^1.0.1",
+    "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.9.0",
     "html-webpack-plugin": "^2.24.0",
     "node-sass": "^4.3.0",
     "raw-loader": "^0.5.1",
     "sass-loader": "^4.1.1",
     "url-loader": "^0.5.7",
-    "webpack": "^1.13.3",
+    "webpack": "^2.6.1",
     "webpack-build-notifier": "^0.1.13",
     "webpack-dev-server": "^1.16.2"
   }
