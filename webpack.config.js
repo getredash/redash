@@ -70,11 +70,25 @@ var config = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract('css-loader')
+        use: ExtractTextPlugin.extract([{
+          loader: 'css-loader',
+          options: {
+            minimize: process.env.NODE_ENV === 'production'
+          }
+        }])
       },
       {
         test: /\.scss$/,
-        use: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
+        use: ExtractTextPlugin.extract([
+          {
+            loader: 'css-loader',
+            options: {
+              minimize: process.env.NODE_ENV === 'production'
+            }
+          }, {
+            loader: 'sass-loader'
+          }
+        ])
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
