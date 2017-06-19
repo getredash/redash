@@ -13,8 +13,7 @@ var config = {
     app: './client/app/index.js'
   },
   output: {
-    // path: process.env.NODE_ENV === 'production' ? './dist' : './dev',
-    path: './client/dist',
+    path: path.join(__dirname, 'client', 'dist'),
     filename: '[name].js',
     publicPath: '/'
   },
@@ -117,6 +116,7 @@ var config = {
   devServer: {
     inline: true,
     historyApiFallback: true,
+    contentBase: path.join(__dirname, 'client', 'app'),
     proxy: {
       '/login': {
         target: redashBackend + '/',
