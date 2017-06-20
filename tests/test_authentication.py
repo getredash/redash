@@ -2,12 +2,14 @@ import time
 
 from flask import request
 from mock import patch
-from redash import models
+from tests import BaseTestCase
+
+from redash import models, settings
 from redash.authentication import (api_key_load_user_from_request,
-                                   hmac_load_user_from_request, sign)
+                                   get_login_url, hmac_load_user_from_request,
+                                   sign)
 from redash.authentication.google_oauth import (create_and_login_user,
                                                 verify_profile)
-from tests import BaseTestCase
 
 
 class TestApiKeyAuthentication(BaseTestCase):
@@ -169,3 +171,13 @@ class TestVerifyProfile(BaseTestCase):
         self.factory.create_user(email='arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
         self.assertTrue(verify_profile(self.factory.org, profile))
+
+
+class TestGetLoginUrl(BaseTestCase):
+    def test_when_multi_org_enabled_and_org_exists(self):
+        with self.app.test_request_context('/{}/'.format(self.factory.org.slug)):
+            self.assertEqual(get_login_url(next=None), '/{}/login'.format(self.factory.org.slug))
+
+    def test_when_multi_org_enabled_and_org_doesnt_exist(self):
+        with self.app.test_request_context('/{}_notexists/'.format(self.factory.org.slug)):
+            self.assertEqual(get_login_url(next=None), '/')

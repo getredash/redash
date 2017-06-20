@@ -1,11 +1,24 @@
-<div class="form-inline bg-white p-5" ng-if="parameters | notEmpty" ui-sortable="{ 'ui-floating': true, 'disabled': !editable }" ng-model="parameters">
-  <div class="form-group" ng-repeat="param in parameters">
-    <label>{{param.title}}</label>
-    <button class="btn btn-default btn-xs" ng-click="showParameterSettings(param)" ng-if="editable"><i class="zmdi zmdi-settings"></i></button>
+<div class="form-inline bg-white p-5"
+     ng-if="parameters | notEmpty"
+     ui-sortable="{ 'ui-floating': true, 'disabled': !editable }"
+     ng-model="parameters">
+  <div class="form-group m-l-10 m-r-10"
+       ng-repeat="param in parameters">
+    <label class="parameter-label">{{param.title}}</label>
+    <button class="btn btn-default btn-xs"
+            ng-click="showParameterSettings(param)"
+            ng-if="editable">
+        <i class="zmdi zmdi-settings"></i>
+    </button>
     <span ng-switch="param.type">
       <input ng-switch-when="datetime-with-seconds" type="datetime-local" step="1" class="form-control" ng-model="param.ngModel">
       <input ng-switch-when="datetime-local" type="datetime-local" class="form-control" ng-model="param.ngModel">
       <input ng-switch-when="date" type="date" class="form-control" ng-model="param.ngModel">
+      <span ng-switch-when="enum">
+        <select ng-model="param.value" class="form-control">
+          <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{option}}">{{option}}</option>
+        </select>
+      </span>
       <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.ngModel">
     </span>
   </div>

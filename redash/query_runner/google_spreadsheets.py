@@ -1,7 +1,10 @@
-from base64 import b64decode
 import json
 import logging
+from base64 import b64decode
+
 from dateutil import parser
+from requests import Session
+
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -9,7 +12,8 @@ logger = logging.getLogger(__name__)
 
 try:
     import gspread
-    from oauth2client.client import SignedJwtAssertionCredentials
+    from gspread.httpsession import HTTPSession
+    from oauth2client.service_account import ServiceAccountCredentials
     enabled = True
 except ImportError:
     enabled = False
@@ -38,7 +42,7 @@ def _guess_type(value):
     try:
         val = parser.parse(value)
         return TYPE_DATETIME
-    except ValueError:
+    except (ValueError, OverflowError):
         pass
     return TYPE_STRING
 
@@ -72,7 +76,7 @@ def _value_eval_list(value):
             val = parser.parse(member)
             value_list.append(val)
             continue
-        except ValueError:
+        except (ValueError, OverflowError):
             pass
         value_list.append(member)
     return value_list
@@ -108,7 +112,7 @@ def parse_worksheet(worksheet):
         })
 
     if len(worksheet) > 1:
-        for j, value in enumerate(worksheet[HEADER_INDEX+1]):
+        for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
             columns[j]['type'] = _guess_type(value)
 
     rows = [dict(zip(column_names, _value_eval_list(row))) for row in worksheet[HEADER_INDEX + 1:]]
@@ -126,6 +130,12 @@ def parse_spreadsheet(spreadsheet, worksheet_num):
     worksheet = worksheets[worksheet_num].get_all_values()
 
     return parse_worksheet(worksheet)
+
+
+class TimeoutSession(Session):
+    def request(self, *args, **kwargs):
+        kwargs.setdefault('timeout', 300)
+        return super(TimeoutSession, self).request(*args, **kwargs)
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
@@ -164,8 +174,12 @@ class GoogleSpreadsheet(BaseQueryRunner):
         ]
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
-        credentials = SignedJwtAssertionCredentials(key['client_email'], key["private_key"], scope=scope)
-        spreadsheetservice = gspread.authorize(credentials)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+
+        timeout_session = HTTPSession()
+        timeout_session.requests_session = TimeoutSession()
+        spreadsheetservice = gspread.Client(auth=creds, http_session=timeout_session)
+        spreadsheetservice.login()
         return spreadsheetservice
 
     def test_connection(self):
@@ -174,8 +188,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         values = query.split("|")
-        key = values[0] #key of the spreadsheet
-        worksheet_num = 0 if len(values) != 2 else int(values[1])# if spreadsheet contains more than one worksheet - this is the number of it
+        key = values[0]  # key of the spreadsheet
+        worksheet_num = 0 if len(values) != 2 else int(values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
+
         try:
             spreadsheet_service = self._get_spreadsheet_service()
             spreadsheet = spreadsheet_service.open_by_key(key)

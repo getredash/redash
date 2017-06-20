@@ -1,9 +1,9 @@
 import json
-
-from redash.utils import JSONEncoder
-from redash.query_runner import *
-
 import logging
+
+from redash.query_runner import *
+from redash.utils import JSONEncoder
+
 logger = logging.getLogger(__name__)
 
 try:
@@ -103,21 +103,17 @@ class TreasureData(BaseQueryRunner):
 
         cursor = connection.cursor()
 
-        try:
-            cursor.execute(query)
-            columns_data = [(row[0], cursor.show_job()['hive_result_schema'][i][1]) for i,row in enumerate(cursor.description)]
+        cursor.execute(query)
+        columns_data = [(row[0], cursor.show_job()['hive_result_schema'][i][1]) for i,row in enumerate(cursor.description)]
 
-            columns = [{'name': col[0],
-                'friendly_name': col[0],
-                'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
+        columns = [{'name': col[0],
+            'friendly_name': col[0],
+            'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
 
-            rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
-            data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
-            error = None
-        except Exception, ex:
-            json_data = None
-            error = ex.message
+        rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
+        data = {'columns': columns, 'rows': rows}
+        json_data = json.dumps(data, cls=JSONEncoder)
+        error = None
 
         return json_data, error
 

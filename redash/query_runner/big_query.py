@@ -1,11 +1,11 @@
-from base64 import b64decode
 import datetime
 import json
-import httplib2
 import logging
 import sys
 import time
+from base64 import b64decode
 
+import httplib2
 import requests
 
 from redash import settings
@@ -18,8 +18,8 @@ try:
     import apiclient.errors
     from apiclient.discovery import build
     from apiclient.errors import HttpError
-    from oauth2client.client import SignedJwtAssertionCredentials
-    from oauth2client import gce
+    from oauth2client.service_account import ServiceAccountCredentials
+    from oauth2client.contrib import gce
 
     enabled = True
 except ImportError:
@@ -100,7 +100,7 @@ class BigQuery(BaseQueryRunner):
                 },
                 'totalMBytesProcessedLimit': {
                     "type": "number",
-                    'title': 'Total MByte Processed Limit'
+                    'title': 'Scanned Data Limit (MB)'
                 },
                 'userDefinedFunctionResourceUri': {
                     "type": "string",
@@ -113,9 +113,14 @@ class BigQuery(BaseQueryRunner):
                 'loadSchema': {
                     "type": "boolean",
                     "title": "Load Schema"
+                },
+                'maximumBillingTier': {
+                    "type": "number",
+                    "title": "Maximum Billing Tier"
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
+            "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']
         }
 
@@ -134,9 +139,9 @@ class BigQuery(BaseQueryRunner):
 
         key = json.loads(b64decode(self.configuration['jsonKeyFile']))
 
-        credentials = SignedJwtAssertionCredentials(key['client_email'], key['private_key'], scope=scope)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         http = httplib2.Http(timeout=settings.BIGQUERY_HTTP_TIMEOUT)
-        http = credentials.authorize(http)
+        http = creds.authorize(http)
 
         return build("bigquery", "v2", http=http)
 
@@ -148,10 +153,10 @@ class BigQuery(BaseQueryRunner):
             "query": query,
             "dryRun": True,
         }
-        
+
         if self.configuration.get('useStandardSql', False):
             job_data['useLegacySql'] = False
-            
+
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
         return int(response["totalBytesProcessed"])
 
@@ -164,7 +169,7 @@ class BigQuery(BaseQueryRunner):
                 }
             }
         }
-        
+
         if self.configuration.get('useStandardSql', False):
             job_data['configuration']['query']['useLegacySql'] = False
 
@@ -173,6 +178,9 @@ class BigQuery(BaseQueryRunner):
             resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
             job_data["configuration"]["query"]["userDefinedFunctionResources"] = map(
                 lambda resource_uri: {"resourceUri": resource_uri}, resource_uris)
+
+        if "maximumBillingTier" in self.configuration:
+            job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
 
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
@@ -215,7 +223,6 @@ class BigQuery(BaseQueryRunner):
             tables = service.tables().list(projectId=project_id, datasetId=dataset_id).execute()
             for table in tables.get('tables', []):
                 table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
-                print table_data
 
                 schema.append({'name': table_data['id'], 'columns': map(lambda r: r['name'], table_data['schema']['fields'])})
 

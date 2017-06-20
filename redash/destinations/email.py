@@ -40,16 +40,15 @@ class Email(BaseDestination):
         logging.debug("Notifying: %s", recipients)
 
         try:
-            with app.app_context():
-                alert_name = alert.name.encode('utf-8', 'ignore')
-                state = new_state.upper()
-                subject_template = options.get('subject_template', settings.ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE)
-                message = Message(
-                    recipients=recipients,
-                    subject=subject_template.format(alert_name=alert_name, state=state),
-                    html=html
-                )
-                mail.send(message)
+            alert_name = alert.name.encode('utf-8', 'ignore')
+            state = new_state.upper()
+            subject_template = options.get('subject_template', settings.ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE)
+            message = Message(
+                recipients=recipients,
+                subject=subject_template.format(alert_name=alert_name, state=state),
+                html=html
+            )
+            mail.send(message)
         except Exception:
             logging.exception("Mail send error.")
 

@@ -3,6 +3,7 @@ import moment from 'moment';
 import { uniq, contains, values, some, each, isArray, isNumber, isString } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
+const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -18,6 +19,11 @@ function getColumnNameWithoutType(column) {
   if (parts[0] === '' && parts.length === 2) {
     return parts[1];
   }
+
+  if (!contains(filterTypes, parts[1])) {
+    return column;
+  }
+
   return parts[0];
 }
 
@@ -86,16 +92,27 @@ function QueryResultService($resource, $timeout, $q) {
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
           each(row, (v, k) => {
+            let newType = null;
             if (isNumber(v)) {
-              columnTypes[k] = 'float';
+              newType = 'float';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
               row[k] = moment.utc(v);
-              columnTypes[k] = 'datetime';
+              newType = 'datetime';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
               row[k] = moment.utc(v);
-              columnTypes[k] = 'date';
+              newType = 'date';
             } else if (typeof (v) === 'object' && v !== null) {
               row[k] = JSON.stringify(v);
+            } else {
+              newType = 'string';
+            }
+
+            if (newType !== null) {
+              if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
+                columnTypes[k] = 'string';
+              } else {
+                columnTypes[k] = newType;
+              }
             }
           });
         });
@@ -331,7 +348,6 @@ function QueryResultService($resource, $timeout, $q) {
       }
 
       const filters = [];
-      const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
 
       this.getColumns().forEach((col) => {
         const name = col.name;
@@ -388,14 +404,39 @@ function QueryResultService($resource, $timeout, $q) {
       return queryResult;
     }
 
+    loadResult(tryCount) {
+      QueryResultResource.get({ id: this.job.query_result_id },
+        (response) => {
+          this.update(response);
+        },
+        (error) => {
+          if (tryCount === undefined) {
+            tryCount = 0;
+          }
+
+          if (tryCount > 3) {
+            logger('Connection error while trying to load result', error);
+            this.update({
+              job: {
+                error: 'failed communicating with server. Please check your Internet connection and try again.',
+                status: 4,
+              },
+            });
+          } else {
+            $timeout(() => {
+              this.loadResult(tryCount + 1);
+            }, 1000 * Math.pow(2, tryCount));
+          }
+        }
+      );
+    }
+
     refreshStatus(query) {
       Job.get({ id: this.job.id }, (jobResponse) => {
         this.update(jobResponse);
 
         if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-          QueryResultResource.get({ id: this.job.query_result_id }, (response) => {
-            this.update(response);
-          });
+          this.loadResult();
         } else if (this.getStatus() !== 'failed') {
           $timeout(() => {
             this.refreshStatus(query);
@@ -409,7 +450,7 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getLink(queryId, fileType, apiKey) {
-      let link = `/api/queries/${queryId}/results/${this.getId()}.${fileType}`;
+      let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
       if (apiKey) {
         link = `${link}?api_key=${apiKey}`;
       }
