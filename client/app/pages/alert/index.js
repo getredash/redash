@@ -57,8 +57,10 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     if (this.alert.name === undefined || this.alert.name === '') {
       this.alert.name = this.getDefaultName();
     }
-    if (this.alert.rearm === '' || this.alert.rearm === 0) {
-      this.alert.rearm = null;
+    if (this.alert.options.rearm === '' || this.alert.options.rearm === 0) {
+      this.alert.options.rearm = null;
+    } else if (this.alert.rearm === '' || this.alert.rearm === 0) {
+      this.alert.rearm = this.alert.options.rearm;
     }
     this.alert.$save((alert) => {
       toastr.success('Saved.');
