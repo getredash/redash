@@ -54,7 +54,7 @@
 
   <form role="form" method="post" name="login">
     <div class="form-group">
-      <label for="inputEmail">Email</label>
+      <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
       <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
     </div>
     <div class="form-group">

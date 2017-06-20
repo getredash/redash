@@ -19,7 +19,7 @@ blueprint = Blueprint('ldap_auth', __name__)
 def login(org_slug=None):
     index_url = url_for("redash.index", org_slug=org_slug)
     next_path = request.args.get('next', index_url)
-    
+
     if not settings.LDAP_LOGIN_ENABLED:
         logger.error("Cannot use LDAP for login without being enabled in settings")
         return redirect(url_for('redash.index', next=next_path))
@@ -41,10 +41,11 @@ def login(org_slug=None):
                 flash("Incorrect credentials.")
         except LDAPBindError:
             flash("Incorrect credentials.")
-        except LDAPException as e:
+        except LDAPException:
+            logging.exception("Unkown error connecting to LDAP.")
             flash("Error connecting to LDAP.")
 
-    return render_template("ldap_login.html",
+    return render_template("login.html",
                            org_slug=org_slug,
                            next=next_path,
                            email=request.form.get('email', ''),
