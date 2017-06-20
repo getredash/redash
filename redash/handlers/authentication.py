@@ -137,7 +137,7 @@ def login(org_slug=None):
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
-                           show_LDAP_login=settings.LDAP_LOGIN_ENABLED)
+                           show_ldap_login=settings.LDAP_LOGIN_ENABLED)
 
 
 @routes.route(org_scoped_rule('/logout'))
