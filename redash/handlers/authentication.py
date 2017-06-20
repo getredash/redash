@@ -129,7 +129,7 @@ def login(org_slug=None):
     return render_template("login.html",
                            org_slug=org_slug,
                            next=next_path,
-                           username=request.form.get('username', ''),
+                           email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
