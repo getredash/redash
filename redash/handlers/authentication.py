@@ -114,7 +114,6 @@ def login(org_slug=None):
             return redirect(url_for("google_oauth.authorize", next=next_path))
 
     if request.method == 'POST':
-
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form['email'], org)

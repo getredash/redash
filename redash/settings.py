@@ -124,8 +124,6 @@ SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "
 REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
 REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
 
-
-
 # If REDASH_PASSWORD_LOGIN_ENABLED is not false, then users will still be able to login through Redash instead of the LDAP server
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_LDAP_LOGIN_ENABLED", 'false'))
 # Includes port (ex. 10.0.10.1:389)
@@ -142,8 +140,6 @@ LDAP_DISPLAY_NAME_KEY = os.environ.get('REDASH_LDAP_DISPLAY_NAME_KEY', "displayN
 LDAP_EMAIL_KEY = os.environ.get('REDASH_LDAP_EMAIL_KEY', "mail")
 # Prompt that should be shown above username/email field.
 LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get('REDASH_LDAP_LDAP_CUSTOM_USERNAME_PROMPT', "LDAP/AD/SSO username:")
-
-
 
 # Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
 # last one will be used for Flask templates.
@@ -273,7 +269,3 @@ COMMON_CLIENT_CONFIG = {
     'mailSettingsMissing': MAIL_DEFAULT_SENDER is None,
     'logoUrl': LOGO_URL
 }
-
-
-
-

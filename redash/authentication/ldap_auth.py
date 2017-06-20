@@ -1,7 +1,7 @@
 import logging
 
 from flask import flash, redirect, render_template, request, url_for, Blueprint
-from ldap3 import Server, Connection, ALL, NTLM #TODO: Other authentication methods
+from ldap3 import Server, Connection, ALL, NTLM, SIMPLE
 from ldap3.core.exceptions import LDAPBindError, LDAPException
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -14,8 +14,7 @@ logger = logging.getLogger('ldap_auth')
 
 blueprint = Blueprint('ldap_auth', __name__)
 
-#@limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
-# TODO: Check how org_slug affected
+
 @blueprint.route("/ldap_auth/login", methods=['GET', 'POST'])
 def login(org_slug=None):
     index_url = url_for("redash.index", org_slug=org_slug)
@@ -44,7 +43,6 @@ def login(org_slug=None):
             flash("Incorrect credentials.")
         except LDAPException as e:
             flash("Error connecting to LDAP.")
-
 
     return render_template("ldap_login.html",
                            org_slug=org_slug,
