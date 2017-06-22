@@ -20,6 +20,7 @@ from redash import settings
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODE = os.environ.get('REDASH_WRITER_ENCODE', 'utf-8')
 
+
 def utcnow():
     """Return datetime.now value with timezone specified.
 
