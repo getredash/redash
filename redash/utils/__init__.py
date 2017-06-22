@@ -18,7 +18,7 @@ from .human_time import parse_human_time
 from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
-WRITER_ENCODE = os.environ.get('REDASH_WRITER_ENCODE','utf-8')
+WRITER_ENCODE = os.environ.get('REDASH_WRITER_ENCODE', 'utf-8')
 
 
 def utcnow():
