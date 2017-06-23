@@ -2,6 +2,8 @@ import json
 import os
 import re
 
+import requests
+
 try:
     import botocore.session
     from botocore.exceptions import WaiterError
