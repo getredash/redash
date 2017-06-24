@@ -29,6 +29,8 @@ types_map = {
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "none"
 
     @classmethod
     def configuration_schema(cls):
