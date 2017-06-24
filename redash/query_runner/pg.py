@@ -48,6 +48,8 @@ def _wait(conn, timeout=None):
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
     default_doc_url = "https://www.postgresql.org/docs/current/"
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take second"
 
     @classmethod
     def configuration_schema(cls):
