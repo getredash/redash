@@ -40,6 +40,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
       resolve: {
         widget: this.widget,
       },
+      backdrop: 'static',
+      keyboard: false,
     });
   };
 
