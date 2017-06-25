@@ -155,6 +155,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.editDashboard = () => {
+    this.dashboard.existing_name = this.dashboard.name;
     $uibModal.open({
       component: 'editDashboardDialog',
       resolve: {
