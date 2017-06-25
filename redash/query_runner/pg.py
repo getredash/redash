@@ -171,6 +171,11 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    default_doc_url = ("http://docs.aws.amazon.com/redshift/latest/"
+                       "dg/cm_chap_SQLCommandRef.html")
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take last"
+
     @classmethod
     def type(cls):
         return "redshift"
