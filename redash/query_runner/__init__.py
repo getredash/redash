@@ -80,6 +80,10 @@ class BaseQueryRunner(object):
         version = json.loads(data)['rows'][0]['version']
         if(self.data_source_version_post_process == "split by space take second"):
             version = version.split(" ")[1]
+        elif(self.data_source_version_post_process == "split by space take last"):
+            version = version.split(" ")[-1]
+        elif(self.data_source_version_post_process == "none"):
+            version = version
         
         if error is not None:
             raise Exception(error)
