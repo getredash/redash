@@ -2,10 +2,11 @@ import json
 import logging
 
 from redash.query_runner import *
+from redash.settings import parse_boolean
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
-
+ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
 
 try:
     import pyathena
@@ -86,6 +87,10 @@ class Athena(BaseQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
+
+    @classmethod
+    def annotate_query(cls):
+        return ANNOTATE_QUERY
 
     @classmethod
     def type(cls):
