@@ -17,5 +17,5 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.dismiss()">Close</button>
-  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.saveDashboard()">Save</button>
+  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || !$ctrl.isFormValid()" ng-click="$ctrl.saveDashboard()">Save</button>
 </div>
