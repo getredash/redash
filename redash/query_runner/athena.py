@@ -1,12 +1,13 @@
-import logging
 import json
+import logging
+import os
 
-from redash.utils import JSONEncoder
 from redash.query_runner import *
-
+from redash.settings import parse_boolean
+from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
-
+ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
 
 try:
     import pyathena
@@ -31,6 +32,11 @@ _TYPE_MAPPINGS = {
     'row': TYPE_STRING,
     'decimal': TYPE_FLOAT,
 }
+
+
+class SimpleFormatter(object):
+    def format(self, operation, parameters=None):
+        return operation
 
 
 class Athena(BaseQueryRunner):
@@ -84,6 +90,10 @@ class Athena(BaseQueryRunner):
         return enabled
 
     @classmethod
+    def annotate_query(cls):
+        return ANNOTATE_QUERY
+
+    @classmethod
     def type(cls):
         return "athena"
 
@@ -119,7 +129,8 @@ class Athena(BaseQueryRunner):
             aws_secret_access_key=self.configuration.get('aws_secret_key', None),
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
-            kms_key=self.configuration.get('kms_key', None)).cursor()
+            kms_key=self.configuration.get('kms_key', None),
+            formatter=SimpleFormatter()).cursor()
 
         try:
             cursor.execute(query)
