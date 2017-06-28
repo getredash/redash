@@ -915,7 +915,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
-        query = (cls.query.options(subqueryload(Query.user))
+        query = (cls.query
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
                  .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
