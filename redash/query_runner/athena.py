@@ -1,9 +1,8 @@
-import logging
 import json
+import logging
 
-from redash.utils import JSONEncoder
 from redash.query_runner import *
-
+from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +30,11 @@ _TYPE_MAPPINGS = {
     'row': TYPE_STRING,
     'decimal': TYPE_FLOAT,
 }
+
+
+class SimpleFormatter(object):
+    def format(self, operation, parameters=None):
+        return operation
 
 
 class Athena(BaseQueryRunner):
@@ -119,7 +123,8 @@ class Athena(BaseQueryRunner):
             aws_secret_access_key=self.configuration.get('aws_secret_key', None),
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
-            kms_key=self.configuration.get('kms_key', None)).cursor()
+            kms_key=self.configuration.get('kms_key', None),
+            formatter=SimpleFormatter()).cursor()
 
         try:
             cursor.execute(query)
