@@ -1,9 +1,10 @@
 import logging
 
 from flask import make_response, request
-from funcy import project
-
 from flask_restful import abort
+from funcy import project
+from sqlalchemy.exc import IntegrityError
+
 from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (require_access, require_admin,
@@ -43,7 +44,14 @@ class DataSourceResource(BaseResource):
         data_source.type = req['type']
         data_source.name = req['name']
         models.db.session.add(data_source)
-        models.db.session.commit()
+
+        try:
+            models.db.session.commit()
+        except IntegrityError as e:
+            if req['name'] in e.message:
+                abort(400, message="Data source with the name {} already exists.".format(req['name']))
+
+            abort(400)
 
         return data_source.to_dict(all=True)
 
@@ -95,12 +103,18 @@ class DataSourceListResource(BaseResource):
         if not config.is_valid():
             abort(400)
 
-        datasource = models.DataSource.create_with_group(org=self.current_org,
-                                                         name=req['name'],
-                                                         type=req['type'],
-                                                         options=config)
+        try:
+            datasource = models.DataSource.create_with_group(org=self.current_org,
+                                                             name=req['name'],
+                                                             type=req['type'],
+                                                             options=config)
 
-        models.db.session.commit()
+            models.db.session.commit()
+        except IntegrityError as e:
+            if req['name'] in e.message:
+                abort(400, message="Data source with the name {} already exists.".format(req['name']))
+
+            abort(400)
 
         self.record_event({
             'action': 'create',
