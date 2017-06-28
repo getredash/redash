@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
