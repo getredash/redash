@@ -8,6 +8,8 @@ from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
+SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
+OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
 
 try:
     import pyathena
@@ -48,7 +50,7 @@ class Athena(BaseQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        return {
+        schema = {
             'type': 'object',
             'properties': {
                 'region': {
@@ -72,6 +74,14 @@ class Athena(BaseQueryRunner):
                     'title': 'Schema Name',
                     'default': 'default'
                 },
+            },
+            'required': ['region', 's3_staging_dir'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
+            'secret': ['aws_secret_key']
+        }
+
+        if SHOW_EXTRA_SETTINGS:
+            schema['properties'].update({
                 'encryption_option': {
                     'type': 'string',
                     'title': 'Encryption Option',
@@ -80,10 +90,12 @@ class Athena(BaseQueryRunner):
                     'type': 'string',
                     'title': 'KMS Key',
                 },
-            },
-            'required': ['region', 's3_staging_dir'],
-            'secret': ['aws_secret_key']
-        }
+            })
+
+        if not OPTIONAL_CREDENTIALS:
+            schema['required'] += ['aws_access_key', 'aws_secret_key']
+
+        return schema
 
     @classmethod
     def enabled(cls):
