@@ -71,6 +71,9 @@
       Log In
     </button>
   </form>
-  <hr>
-  <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+  
+  {% if not hide_forgot_password %}
+    <hr>
+    <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+  {% endif %}
 {% endblock %}
