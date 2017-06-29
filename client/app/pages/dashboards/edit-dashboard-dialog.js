@@ -67,6 +67,7 @@ const EditDashboardDialog = {
           slug: this.dashboard.id,
           name: this.dashboard.name,
           version: this.dashboard.version,
+          dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
           layout: JSON.stringify(layout),
         };
 

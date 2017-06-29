@@ -7,6 +7,13 @@
     <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name">
   </p>
 
+  <p ng-if="$ctrl.dashboard.id">
+    <label>
+        <input name="input" type="checkbox" ng-model="$ctrl.dashboard.dashboard_filters_enabled">
+        Use Dashboard Level Filters
+    </label>
+  </p>
+
   <div gridster="$ctrl.gridsterOptions" ng-if="$ctrl.items | notEmpty">
     <ul>
       <li gridster-item="item" ng-repeat="item in $ctrl.items" class="widget panel panel-default gs-w">

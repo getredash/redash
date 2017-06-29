@@ -155,12 +155,20 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.editDashboard = () => {
+    const previousFiltersState = this.dashboard.dashboard_filters_enabled;
     $uibModal.open({
       component: 'editDashboardDialog',
       resolve: {
         dashboard: () => this.dashboard,
       },
-    }).result.then((dashboard) => { this.dashboard = dashboard; });
+    }).result.then((dashboard) => {
+      const shouldRenderDashboard = !previousFiltersState && dashboard.dashboard_filters_enabled;
+      this.dashboard = dashboard;
+
+      if (shouldRenderDashboard) {
+        renderDashboard(this.dashboard);
+      }
+    });
   };
 
   this.addWidget = () => {
