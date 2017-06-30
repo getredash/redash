@@ -92,7 +92,7 @@ class Salesforce(BaseQueryRunner):
         sf = SimpleSalesforce(username=self.configuration['username'],
                               password=self.configuration['password'],
                               security_token=self.configuration['token'],
-                              sandbox=self.configuration['sandbox'],
+                              sandbox=self.configuration.get('sandbox', False),
                               client_id='Redash')
         return sf
 
