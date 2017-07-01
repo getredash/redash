@@ -10,7 +10,7 @@ from redash import models, settings, utils
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash
+from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash, gen_signature_hash
 from redash.tasks.queries import enqueue_query
 
 
@@ -187,10 +187,24 @@ class QueryResultResource(BaseResource):
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
         elif query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-
             if query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
-                    query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+                    is_valid = True
+                    if settings.EMBED_KEY:
+                        is_valid = False
+                        provided_signature = request.args.get('signature')
+                        if provided_signature is not None:
+                            expected_sig = gen_signature_hash(parameter_values, None)
+                            if expected_sig == provided_signature:
+                                is_valid = True
+                        elif request.args.get('gensig'):
+                            expected_sig = gen_signature_hash(parameter_values, request.args.get('gensig'))
+                            print "signature %s " % expected_sig
+                            abort(400)
+                    if is_valid:
+                        query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+                    else:
+                        abort(404)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
 

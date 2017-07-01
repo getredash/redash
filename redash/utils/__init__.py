@@ -42,6 +42,10 @@ def dt_from_timestamp(timestamp, tz_aware=True):
 def slugify(s):
     return re.sub('[^a-z0-9_\-]+', '-', s.lower())
 
+def gen_signature_hash(parameters, key):
+    if key is None:
+        key = settings.EMBED_KEY
+    return hashlib.sha256(str(parameters)+key).hexdigest()
 
 def gen_query_hash(sql):
     """Return hash of the given query after stripping all comments, line breaks

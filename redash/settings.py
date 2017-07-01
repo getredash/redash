@@ -238,8 +238,8 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA
 
 # Allow Parameters in Embeds
 # WARNING: With this option enabled, Redash reads query parameters from the request URL (risk of SQL injection!)
-ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
-
+ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "true"))
+EMBED_KEY = os.environ.get("REDASH_EMBED_KEY", "dsjfdsjhdsjdsh")
 # Common Client config
 COMMON_CLIENT_CONFIG = {
     'allowScriptsInUserInput': ALLOW_SCRIPTS_IN_USER_INPUT,
