@@ -100,13 +100,12 @@
 
               <i class="fa fa-database"></i>
               <span class="text-muted">Data Source</span>
-              <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+              <select id="data-source-selection" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                       ng-options="ds.id as ds.name for ds in dataSources"></select>
 <<<<<<< HEAD
 
 =======
               <a ng-if="dataSource.options.doc_url != ''" ng-href={{dataSource.options.doc_url}}>{{dataSource.type_name}} documentation</a>
-              <span ng-if="dataSource.options.doc_url == ''">{{dataSource.type_name}}</span>
               <get-data-source-version></get-data-source-version>
               
 >>>>>>> d6a589a... working postgres version

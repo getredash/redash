@@ -1,12 +1,15 @@
-function GetDataSourceVersionCtrl(Events, toastr, $scope, DataSource) {
+function GetDataSourceVersionCtrl(Events, toastr, $scope, DataSource, $route) {
   // 'ngInject';
 
-  this.getDataSourceVersion = DataSource.version({ id: 6 });
+  this.getDataSourceVersion = DataSource.version(
+    {
+      id: $route.current.locals.query.data_source_id,
+    }
+  );
 }
 
 const GetDataSourceVersionInfo = {
   bindings: {
-    schema: '<',
     onRefresh: '&',
   },
   controller: GetDataSourceVersionCtrl,
