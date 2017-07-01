@@ -57,7 +57,7 @@ function DataSourceCtrl($scope, $routeParams, $http, $location, toastr,
       { id: $scope.dataSource.id }, (httpResponse) => {
         if (httpResponse.ok) {
           const versionNumber = httpResponse.message;
-          toastr.success(`Success. Verison: ${versionNumber}`);
+          toastr.success(`Success. Version: ${versionNumber}`);
         } else {
           toastr.error(httpResponse.message, 'Version Test Failed:', { timeOut: 10000 });
         }
