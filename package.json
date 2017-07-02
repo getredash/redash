@@ -58,6 +58,7 @@
   "devDependencies": {
     "babel-core": "^6.18.0",
     "babel-loader": "^6.2.7",
+    "babel-plugin-angularjs-annotate": "^0.7.0",
     "babel-plugin-transform-object-assign": "^6.22.0",
     "babel-preset-es2015": "^6.18.0",
     "babel-preset-stage-2": "^6.18.0",
@@ -69,7 +70,6 @@
     "extract-text-webpack-plugin": "^2.1.2",
     "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.24.0",
-    "ng-annotate-loader": "^0.6.1",
     "node-sass": "^4.5.3",
     "raw-loader": "^0.5.1",
     "sass-loader": "^6.0.6",
