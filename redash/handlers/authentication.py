@@ -1,7 +1,7 @@
 import hashlib
 import logging
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
@@ -74,6 +74,9 @@ def reset(token, org_slug=None):
 
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
+    if not settings.PASSWORD_LOGIN_ENABLED:
+        abort(404)
+
     submitted = False
     if request.method == 'POST' and request.form['email']:
         submitted = True
