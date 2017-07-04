@@ -36,6 +36,7 @@ const SchemaBrowser = {
   bindings: {
     schema: '<',
     onRefresh: '&',
+    flipToggleVersionedTables: '&',
   },
   controller: SchemaBrowserCtrl,
   template,
