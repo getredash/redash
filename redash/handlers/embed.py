@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import json
-=======
 import logging
->>>>>>> upstream/master
 import time
 
 import pystache
