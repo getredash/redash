@@ -3,6 +3,8 @@ import template from './schema-browser.html';
 function SchemaBrowserCtrl($scope) {
   'ngInject';
 
+  this.versionToggle = false;
+
   this.showTable = (table) => {
     table.collapsed = !table.collapsed;
     $scope.$broadcast('vsRepeatTrigger');
@@ -17,12 +19,21 @@ function SchemaBrowserCtrl($scope) {
 
     return size;
   };
+
+  this.flipToggleVersionedTables = (versionToggle) => {
+    if (versionToggle === false) {
+      this.versionToggle = true;
+    } else {
+      this.versionToggle = false;
+    }
+  };
 }
 
 const SchemaBrowser = {
   bindings: {
     schema: '<',
     onRefresh: '&',
+    flipToggleVersionedTables: '&',
   },
   controller: SchemaBrowserCtrl,
   template,

@@ -6,6 +6,14 @@
             ng-click="$ctrl.onRefresh()">
       <span class="zmdi zmdi-refresh"></span>
     </button>
+
+    <button class="btn btn-default"
+          title="Toggle Versioned Tables"
+          ng-click="$ctrl.flipToggleVersionedTables($ctrl.versionToggle)">
+    <span class="fa " ng-class="{'fa-toggle-on': $ctrl.versionToggle, 'fa-toggle-off': !$ctrl.versionToggle}">
+      <input type="checkbox" id="versioned-tables-toggle" ng-model="$ctrl.versionToggle" hidden/>
+    </span>
+    </button>
   </div>
 
   <div class="schema-browser" vs-repeat vs-size="$ctrl.getSize(table)">
