@@ -254,6 +254,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
     updateSchema();
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
+    document.getElementById('data-source-version').innerHTML = '<span class=\'fa fa-refresh\' data-toggle=\'tooltip\' data-placement=\'right\' tooltip title=\'refresh page to get version\'></span>';
   };
 
   $scope.setVisualizationTab = (visualization) => {
