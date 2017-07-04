@@ -4,6 +4,7 @@ function SchemaBrowserCtrl($scope) {
   'ngInject';
 
   this.versionToggle = false;
+  this.versionFilter = 'abcdefghijklmnop';
 
   this.showTable = (table) => {
     table.collapsed = !table.collapsed;
@@ -23,8 +24,10 @@ function SchemaBrowserCtrl($scope) {
   this.flipToggleVersionedTables = (versionToggle) => {
     if (versionToggle === false) {
       this.versionToggle = true;
+      this.versionFilter = '_v';
     } else {
       this.versionToggle = false;
+      this.versionFilter = 'abcdefghijklmnop';
     }
   };
 }
