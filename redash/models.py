@@ -680,10 +680,11 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
-        if json.loads(data)['data_scanned'] is not None:
+        try:
             data_scanned_information = json.loads(data)['data_scanned']
-        else:
-            data_scanned_information = ''
+        except:
+            data_scanned_information =''
+
         query_result = cls(org=org,
                            query_hash=query_hash,
                            query_text=query,
