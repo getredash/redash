@@ -6,7 +6,7 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 ## Quick Links:
 
-- [Feature Roadmap](https://trello.com/b/b2LUHU7A/re-dash-roadmap)
+- [Feature Roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
 - [Gitter Chat](https://gitter.im/getredash/redash) or [Slack](https://slack.redash.io)
 - [Documentation](https://redash.io/help/)
@@ -29,7 +29,7 @@ The following is a set of guidelines for contributing to Redash. These are guide
 - [Documentation](#documentation)
 - Design?
 
-[Addtional Notes](#additional-notes)
+[Additional Notes](#additional-notes)
 
 - [Release Method](#release-method)
 - [Code of Conduct](#code-of-conduct)
@@ -46,9 +46,9 @@ When creating a new bug report, please make sure to:
 
 ### Suggesting Enhancements / Feature Requests
 
-If you would like to suggest an enchancement or ask for a new feature:
+If you would like to suggest an enhancement or ask for a new feature:
 
-- Please check [the roadmap](https://trello.com/b/b2LUHU7A/re-dash-roadmap) for existing Trello card for what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
+- Please check [the roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap) for existing Trello card for what you want to suggest/ask. If there is, feel free to upvote it to signal interest or add your comments.
 - If there is no existing card, open a thread in [the forum](https://discuss.redash.io/c/feature-requests) to start a discussion about what you want to suggest. Try to provide as much details and context as possible and include information about *the problem you want to solve* rather only *your proposed solution*.
 
 ### Pull Requests
@@ -56,7 +56,7 @@ If you would like to suggest an enchancement or ask for a new feature:
 - **Code contributions are welcomed**. For big changes or significant features, it's usually better to reach out first and discuss what you want to implement and how (we recommend reading: [Pull Request First](https://medium.com/practical-blend/pull-request-first-f6bb667a9b6#.ozlqxvj36)). This to make sure that what you want to implement is aligned with our goals for the project and that no one else is already working on it.
 - Include screenshots and animated GIFs in your pull request whenever possible.
 - Please add [documentation](#documentation) for new features or changes in functionality along with the code.
-- Please follow existing code style. We use PEP8 for Python and sensible style for Javascript.
+- Please follow existing code style. We use PEP8 for Python and sensible style for JavaScript.
 
 ### Documentation
 

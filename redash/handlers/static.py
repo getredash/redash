@@ -1,11 +1,13 @@
 import os
 
-from flask import current_app, safe_join, send_file
+from flask import current_app, render_template, safe_join, send_file
+from werkzeug.exceptions import NotFound
+
 from flask_login import login_required
 from redash import settings
 from redash.handlers import routes
+from redash.handlers.authentication import base_href
 from redash.handlers.base import org_scoped_rule
-from werkzeug.exceptions import NotFound
 
 
 @routes.route('/<path:filename>')
@@ -24,10 +26,19 @@ def send_static(filename):
     raise NotFound()
 
 
+def render_index():
+    if settings.MULTI_ORG:
+        response = render_template("multi_org.html", base_href=base_href())
+    else:
+        full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
+        response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
+
+    return response
+
+
 @login_required
 def index(**kwargs):
-    full_path = safe_join(settings.STATIC_ASSETS_PATHS[-2], 'index.html')
-    return send_file(full_path, **dict(cache_timeout=0, conditional=True))
+    return render_index()
 
 
 def register_static_routes(rules):

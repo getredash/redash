@@ -1,14 +1,15 @@
 from __future__ import absolute_import
 
-from random import randint
-from celery import Celery
-from flask import current_app
 from datetime import timedelta
+from random import randint
+
+from flask import current_app
+
+from celery import Celery
 from celery.schedules import crontab
 from celery.signals import worker_process_init
-from redash import settings, __version__, create_app
+from redash import __version__, create_app, settings
 from redash.metrics import celery as celery_metrics
-
 
 celery = Celery('redash',
                 broker=settings.CELERY_BROKER,
@@ -52,7 +53,7 @@ if settings.SENTRY_DSN:
     from raven import Client
     from raven.contrib.celery import register_signal
 
-    client = Client(settings.SENTRY_DSN, release=__version__)
+    client = Client(settings.SENTRY_DSN, release=__version__, install_logging_hook=False)
     register_signal(client)
 
 
@@ -75,4 +76,3 @@ celery.Task = ContextTask
 def init_celery_flask_app(**kwargs):
     app = create_app()
     app.app_context().push()
-

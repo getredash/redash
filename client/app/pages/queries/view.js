@@ -158,7 +158,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
   };
 
   $scope.showApiKey = () => {
-    $window.alert(`API Key for this query:\n${$scope.query.api_key}`);
+    $uibModal.open({
+      component: 'apiKeyDialog',
+      resolve: {
+        query: $scope.query,
+      },
+    });
   };
 
   $scope.saveQuery = (customOptions, data) => {
@@ -206,7 +211,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
   $scope.saveName = () => {
     Events.record('edit_name', 'query', $scope.query.id);
-    $scope.saveQuery(undefined, { name: $scope.query.name });
+
+    if ($scope.query.is_draft && clientConfig.autoPublishNamedQueries && $scope.query.name !== 'New Query') {
+      $scope.query.is_draft = false;
+    }
+
+    $scope.saveQuery(undefined, { name: $scope.query.name, is_draft: $scope.query.is_draft });
   };
 
   $scope.cancelExecution = () => {

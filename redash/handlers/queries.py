@@ -2,12 +2,11 @@ from itertools import chain
 
 import sqlparse
 from flask import jsonify, request
+from funcy import distinct, take
+
 from flask_login import login_required
 from flask_restful import abort
-from funcy import distinct, take
-from sqlalchemy.orm.exc import StaleDataError
-
-from redash import models
+from redash import models, settings
 from redash.handlers.base import (BaseResource, get_object_or_404,
                                   org_scoped_rule, paginate, routes)
 from redash.handlers.query_results import run_query
@@ -16,6 +15,7 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_object_modify_permission,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
+from sqlalchemy.orm.exc import StaleDataError
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -57,14 +57,21 @@ class QueryRecentResource(BaseResource):
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
-        queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
-        recent = [d.to_dict(with_last_modified_by=False) for d in queries]
 
-        global_recent = []
-        if len(recent) < 10:
-            global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.group_ids)]
+        if settings.FEATURE_DUMB_RECENTS:
+            results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+            queries = [q.to_dict(with_last_modified_by=False) for q in results]
+        else:
+            queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
+            recent = [d.to_dict(with_last_modified_by=False) for d in queries]
 
-        return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
+            global_recent = []
+            if len(recent) < 10:
+                global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.group_ids)]
+
+            queries = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
+
+        return queries
 
 
 class QueryListResource(BaseResource):
@@ -136,7 +143,7 @@ class QueryListResource(BaseResource):
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        
+
         results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)

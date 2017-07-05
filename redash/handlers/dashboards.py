@@ -1,15 +1,15 @@
 from itertools import chain
 
 from flask import request, url_for
-from flask_restful import abort
 from funcy import distinct, project, take
-from sqlalchemy.orm.exc import StaleDataError
 
-from redash import models, serializers
+from flask_restful import abort
+from redash import models, serializers, settings
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission)
+from sqlalchemy.orm.exc import StaleDataError
 
 
 class RecentDashboardsResource(BaseResource):
@@ -18,13 +18,19 @@ class RecentDashboardsResource(BaseResource):
         """
         Lists dashboards modified in the last 7 days.
         """
-        recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
+        if settings.FEATURE_DUMB_RECENTS:
+            dashboards = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id).order_by(models.Dashboard.updated_at.desc()).limit(10)
+            dashboards = [d.to_dict() for d in dashboards]
+        else:
+            recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
 
-        global_recent = []
-        if len(recent) < 10:
-            global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id)]
+            global_recent = []
+            if len(recent) < 10:
+                global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id)]
 
-        return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
+            dashboards = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
+
+        return dashboards
 
 
 class DashboardListResource(BaseResource):
