@@ -20,6 +20,7 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_COOKIE_SECRET: veryverysecret
+      REDASH_WEB_WORKERS: 4
   worker:
     image: redash/redash:latest
     command: scheduler
