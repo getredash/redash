@@ -134,6 +134,7 @@ COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e23
 SESSION_COOKIE_SECURE = parse_boolean(os.environ.get("REDASH_SESSION_COOKIE_SECURE") or str(ENFORCE_HTTPS))
 
 LOG_LEVEL = os.environ.get("REDASH_LOG_LEVEL", "INFO")
+LOG_STDOUT = parse_boolean(os.environ.get('REDASH_LOG_STDOUT', 'false'))
 
 # Mail settings:
 MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
