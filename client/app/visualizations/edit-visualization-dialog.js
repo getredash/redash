@@ -1,6 +1,7 @@
 import { pluck } from 'underscore';
 import { copy } from 'angular';
 import template from './edit-visualization-dialog.html';
+import './edit-visualization-dialog.css';
 
 const EditVisualizationDialog = {
   template,
@@ -20,7 +21,7 @@ const EditVisualizationDialog = {
     this.visTypes = Visualization.visualizationTypes;
 
     this.warning_three_column_groupby = '<b>You have more than 2 columns in your result set.</b> To ensure the chart is accurate, please do one of the following: <ul> <li>Change the SQL query to give 2 result columns. You can CONCAT() columns together if you wish.</li> <LI>Select column(s) to group by.</LI> </ul>';
-    this.warning_three_column_stacking = '<B>You have more than 2 columns in your result set.</b> You may wish to make the Stacking option equal to `Enabled` or `Percent`.';
+    this.warning_three_column_stacking = '<b>You have more than 2 columns in your result set.</b> You may wish to make the Stacking option equal to `Enabled` or `Percent`.';
 
     this.newVisualization = () =>
        ({
