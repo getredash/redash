@@ -2,9 +2,9 @@ from itertools import chain
 import json
 
 from flask import request, url_for
+from funcy import distinct, project, take
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError 
-from funcy import distinct, project, take
 
 from flask_restful import abort
 from redash import models, serializers, settings
