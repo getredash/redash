@@ -198,6 +198,14 @@
             <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
           </strong>
         </li>
+        <li ng-if="queryResult.query_result.data_scanned">
+          <!-- data scanned -->
+          <span class="zmdi zmdi-time"></span>
+          <span class="text-muted">Data Scanned </span>
+          <strong>
+            <span> {{ queryResult.query_result.data_scanned }}</span>
+          </strong>
+        </li>
       </ul>
 
     </div>
