@@ -33,28 +33,28 @@ class ActiveData(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     #def __init__(self, configuration):
-    #    url = urlparse(configuration['url'])
-    #    configuration['url'] = url.scheme + "://" + url.hostname + ":" + unicode(url.port or 80)
+    #    url = urlparse(configuration['host_url'])
+    #    configuration['host_url'] = url.scheme + "://" + url.hostname + ":" + unicode(url.port or 80)
     #    BaseSQLQueryRunner.__init__(self, configuration)
 
     @classmethod
     def configuration_schema(cls):
         return {
-            'type': 'object',
-            'properties': {
-                'host_url': {
-                    'type': 'string',
-                    'title': 'Host URL',
-                    'default': 'http://127.0.0.1:5000' #,
-                    #'info': 'Do not end with a trailing slash.'
+            "type": "object",
+            "properties": {
+                "host_url": {
+                    "type": "string",
+                    "title": "Host URL",
+                    "default": "https://activedata.allizom.org:80",
+                    "info": "Do not end with a trailing slash."
                 },
-                'doc_url': {
-                    'type': 'string',
-                    'title': 'Documentation URL',
-                    'default': 'https://github.com/klahnakoski/ActiveData/tree/dev/docs'
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": "https://github.com/klahnakoski/ActiveData/tree/dev/docs"
                 }
             },
-            'required': ['host_url']
+            "required": ["host_url"]
         }
 
     @classmethod
@@ -94,7 +94,7 @@ class ActiveData(BaseSQLQueryRunner):
 
     def run_jx_query(self, query, user):
         data = json.dumps(query, ensure_ascii=False)
-        result = requests.post(self.configuration['url']+"/query", data=data)
+        result = requests.post(self.configuration['host_url']+"/query", data=data)
         response = json.loads(result.content)
 
         if response.get('type') == "ERROR":
@@ -112,7 +112,7 @@ class ActiveData(BaseSQLQueryRunner):
 
         logger.debug("Send ActiveData a SQL query: %s", request['sql'])
         data = json.dumps(request, ensure_ascii=False)
-        result = requests.post(self.configuration['url']+"/sql", data=data)
+        result = requests.post(self.configuration['host_url']+"/sql", data=data)
         response = json.loads(result.content)
 
         if response.get('type') == "ERROR":

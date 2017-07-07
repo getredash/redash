@@ -8,7 +8,6 @@
         <input type="string" class="form-control" name="dataSourceName" ng-model="target.name" required>
     </div>
     {{ fields }}
-    {{ target.options }}
     <div class="form-group" ng-class='{"has-error": !inner.input.$valid}' ng-form="inner" ng-repeat="field in fields">
         <label ng-if="field.property.type !== 'checkbox'">{{field.property.title || field.name | capitalize}}</label>
         <input name="input" type="{{field.property.type}}" class="form-control" ng-model="target.options[field.name]" ng-required="field.property.required"
