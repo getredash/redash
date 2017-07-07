@@ -94,6 +94,7 @@ function QueryResultService($resource, $timeout, $q) {
           let newType = null;
 
           each(row, (v, k) => {
+            let newType = null;
             if (isNumber(v)) {
               newType = 'float';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {

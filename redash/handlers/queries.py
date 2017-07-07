@@ -60,14 +60,14 @@ class QueryRecentResource(BaseResource):
 
         if settings.FEATURE_DUMB_RECENTS:
             results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
-            queries = [q.to_dict(with_last_modified_by=False) for q in results]
+            queries = [q.to_dict(with_last_modified_by=False, with_user=False) for q in results]
         else:
             queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
-            recent = [d.to_dict(with_last_modified_by=False) for d in queries]
+            recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in queries]
 
             global_recent = []
             if len(recent) < 10:
-                global_recent = [d.to_dict(with_last_modified_by=False) for d in models.Query.recent(self.current_user.group_ids)]
+                global_recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in models.Query.recent(self.current_user.group_ids)]
 
             queries = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
