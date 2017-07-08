@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -eo pipefail
+
+[ ! -z $DOCKERHUB_REPO ] && [ $# -eq 1 ]
+
+VERSION="$1"
+
+printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
+  "$CIRCLE_SHA1" \
+  "$VERSION" \
+  "$CIRCLE_PROJECT_USERNAME" \
+  "$CIRCLE_PROJECT_REPONAME" \
+  "$CIRCLE_BUILD_URL" \
+> version.json
+
+docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+docker build -t $DOCKERHUB_REPO:$VERSION .
+docker push $DOCKERHUB_REPO:$VERSION

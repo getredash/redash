@@ -627,10 +627,16 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
+    data_scanned = Column(db.String(255), nullable=True)
 
     __tablename__ = 'query_results'
 
     def to_dict(self):
+        if hasattr(self, 'data_scanned') and self.data_scanned:
+            data_scanned_info = self.data_scanned
+        else:
+            data_scanned_info = ''
+
         return {
             'id': self.id,
             'query_hash': self.query_hash,
@@ -638,7 +644,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'data': json.loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
-            'retrieved_at': self.retrieved_at
+            'retrieved_at': self.retrieved_at,
+            'data_scanned': data_scanned_info
         }
 
     @classmethod
@@ -673,13 +680,20 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+        try:
+            data_scanned_information = json.loads(data)['data_scanned']
+        except (ValueError, TypeError):
+            data_scanned_information = ''
+
         query_result = cls(org=org,
                            query_hash=query_hash,
                            query_text=query,
                            runtime=run_time,
                            data_source=data_source,
                            retrieved_at=retrieved_at,
-                           data=data)
+                           data=data,
+                           data_scanned=data_scanned_information
+                           )
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.
