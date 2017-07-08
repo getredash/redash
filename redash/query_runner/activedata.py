@@ -37,6 +37,9 @@ class ActiveData(BaseSQLQueryRunner):
     #    configuration['host_url'] = url.scheme + "://" + url.hostname + ":" + unicode(url.port or 80)
     #    BaseSQLQueryRunner.__init__(self, configuration)
 
+    def __init__(self, configuration):
+        super(ActiveData, self).__init__(configuration)
+
     @classmethod
     def configuration_schema(cls):
         return {
