@@ -77,16 +77,21 @@ class BaseQueryRunner(object):
         if self.data_source_version_query is None:
             raise NotImplementedError
         data, error = self.run_query(self.data_source_version_query, None)
-        version = json.loads(data)['rows'][0]['version']
-        if(self.data_source_version_post_process == "split by space take second"):
-            version = version.split(" ")[1]
-        elif(self.data_source_version_post_process == "split by space take last"):
-            version = version.split(" ")[-1]
-        elif(self.data_source_version_post_process == "none"):
-            version = version
-        
+
         if error is not None:
             raise Exception(error)
+
+        try:
+            version = json.loads(data)['rows'][0]['version']
+        except KeyError as e:
+            raise Exception(e)
+            
+        if self.data_source_version_post_process == "split by space take second":
+            version = version.split(" ")[1]
+        elif self.data_source_version_post_process == "split by space take last":
+            version = version.split(" ")[-1]
+        elif self.data_source_version_post_process == "none":
+            version = version
 
         return version
 
