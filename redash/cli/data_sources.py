@@ -57,7 +57,7 @@ def test(name, organization='default'):
             name, data_source.id)
         try:
             data_source.query_runner.test_connection()
-        except Exception, e:
+        except Exception as e:
             print "Failure: {}".format(e)
             exit(1)
         else:
@@ -82,7 +82,7 @@ def get_data_source_version(name, organization='default'):
             name, data_source.id)
         try:
             info = data_source.query_runner.get_data_source_version()
-        except Exception, e:
+        except Exception as e:
             print "Failure: {}".format(e)
             exit(1)
         else:
