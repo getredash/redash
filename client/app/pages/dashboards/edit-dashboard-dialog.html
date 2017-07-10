@@ -11,6 +11,13 @@
   <p ng-if="myForm.dashboardName.$invalid" class="alert alert-warning">A name is required.</p>
 
 
+  <p ng-if="$ctrl.dashboard.id">
+    <label>
+        <input name="input" type="checkbox" ng-model="$ctrl.dashboard.dashboard_filters_enabled">
+        Use Dashboard Level Filters
+    </label>
+  </p>
+
   <div gridster="$ctrl.gridsterOptions" ng-if="$ctrl.items | notEmpty">
     <ul>
       <li gridster-item="item" ng-repeat="item in $ctrl.items" class="widget panel panel-default gs-w">
@@ -21,5 +28,5 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.closeWithoutSave()">Close</button>
-  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || myForm.dashboardName.$invalid"  ng-click="$ctrl.saveDashboard()">Save</button> 
+  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || myForm.dashboardName.$invalid || !$ctrl.isFormValid()"  ng-click="$ctrl.saveDashboard()">Save</button> 
 </div>
