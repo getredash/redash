@@ -50,9 +50,29 @@ function DataSourceCtrl($scope, $routeParams, $http, $location, toastr,
     });
   }
 
+  function getDataSourceVersion(callback) {
+    Events.record('test', 'data_source_version', $scope.dataSource.id);
+
+    DataSource.version(
+      { id: $scope.dataSource.id }, (httpResponse) => {
+        if (httpResponse.ok) {
+          const versionNumber = httpResponse.message;
+          toastr.success(`Success. Version: ${versionNumber}`);
+        } else {
+          toastr.error(httpResponse.message, 'Version Test Failed:', { timeOut: 10000 });
+        }
+        callback();
+      }, (httpResponse) => {
+        logger('Failed to get data source version: ', httpResponse.status, httpResponse.statusText, httpResponse);
+        toastr.error('Unknown error occurred while performing data source version test. Please try again later.', 'Data Source Version Test Failed:', { timeOut: 10000 });
+        callback();
+      });
+  }
+
   $scope.actions = [
     { name: 'Delete', class: 'btn-danger', callback: deleteDataSource },
     { name: 'Test Connection', class: 'btn-default', callback: testConnection, disableWhenDirty: true },
+    { name: 'Test Data Source Version', class: 'btn-default', callback: getDataSourceVersion, disableWhenDirty: true },
   ];
 }
 
