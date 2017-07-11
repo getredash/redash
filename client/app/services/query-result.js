@@ -260,6 +260,7 @@ function QueryResultService($resource, $timeout, $q) {
         const yValues = {};
         let eValue = null;
         let sizeValue = null;
+        let zValue = null;
 
         each(row, (v, definition) => {
           const name = definition.split('::')[0] || definition.split('__')[0];
@@ -298,6 +299,11 @@ function QueryResultService($resource, $timeout, $q) {
             sizeValue = value;
           }
 
+          if (type === 'zVal') {
+            point[type] = value;
+            zValue = value;
+          }
+
           if (type === 'multiFilter' || type === 'multi-filter') {
             seriesName = String(value);
           }
@@ -312,6 +318,10 @@ function QueryResultService($resource, $timeout, $q) {
 
             if (sizeValue !== null) {
               point.size = sizeValue;
+            }
+
+            if (zValue !== null) {
+              point.zVal = zValue;
             }
             addPointToSeries(point, series, ySeriesName);
           });

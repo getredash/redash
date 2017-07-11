@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div ng-if="['line', 'area', 'column', 'scatter'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
+    <div ng-if="['line', 'area', 'column', 'scatter', 'heatmap'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
       <label><input type="checkbox" ng-model="options.showDataLabels"> Show data labels</label>
     </div>
 
@@ -62,7 +62,7 @@
 
     </div>
 
-    <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
+    <div class="form-group" ng-if="options.globalSeriesType != 'custom' && options.globalSeriesType != 'heatmap'">
       <label class="control-label">Group by</label>
       <ui-select name="groupby" ng-model="form.groupby" class="clearable">
         <ui-select-match allow-clear="true" placeholder="Choose column...">
@@ -87,7 +87,19 @@
       </ui-select>
     </div>
 
-    <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
+    <div class="form-group" ng-if="showZColumnPicker()">
+      <label class="control-label">Color Column</label>
+
+      <ui-select name="zValColumn" ng-model="form.zValColumn">
+        <ui-select-match allow-clear="true" placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+        <ui-select-choices repeat="column in columnNames | remove:form.yAxisColumns | remove:form.groupby">
+          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+          <small class="text-muted" ng-bind="columns[column].type"></small>
+        </ui-select-choices>
+      </ui-select>
+    </div>
+
+    <div class="form-group" ng-if="options.globalSeriesType != 'custom' && options.globalSeriesType != 'heatmap'">
       <label class="control-label">Errors column</label>
 
       <ui-select name="errorColumn" ng-model="form.errorColumn">
@@ -99,7 +111,7 @@
       </ui-select>
     </div>
 
-    <div class="checkbox" ng-if="options.globalSeriesType != 'custom'">
+    <div class="checkbox" ng-if="options.globalSeriesType != 'custom' && options.globalSeriesType != 'heatmap'">
       <label>
         <input type="checkbox" ng-model="options.legend.enabled">
         <i class="input-helper"></i> Show Legend
@@ -113,7 +125,7 @@
       </label>
     </div>
 
-    <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
+    <div class="form-group" ng-if="options.globalSeriesType != 'custom' && options.globalSeriesType != 'heatmap'">
       <label class="control-label">Stacking</label>
 
       <div ng-if="stackingOptions"><!--the if is a weird workaround-->
@@ -132,6 +144,16 @@
           Normalize values to percentage
         </label>
       </div>
+    </div>
+    <div class="form-group" ng-if="options.globalSeriesType == 'heatmap'">
+      <label class="control-label">Color Scheme</label>
+
+      <ui-select ng-model="options.colorScheme"">
+        <ui-select-match allow-clear="true" placeholder="Choose Colorscheme...">{{$select.selected | capitalize}}</ui-select-match>
+        <ui-select-choices repeat="value in colorScheme">
+          <div ng-bind-html="value | highlight: $select.search"></div>
+        </ui-select-choices>
+      </ui-select>
     </div>
   </div>
 
@@ -180,6 +202,13 @@
 
     <div class="checkbox">
       <label>
+        <input type="checkbox" ng-model="options.reverseX">
+        <i class="input-helper"></i> Reverse Order
+      </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
         <input type="checkbox" ng-model="options.xAxis.labels.enabled">
         <i class="input-helper"></i> Show Labels
       </label>
@@ -211,6 +240,21 @@
         <label class="control-label">Max Value</label>
         <input ng-model="yAxis.rangeMax" type="number" step="any" placeholder="Auto" class="form-control"></input>
       </div>
+
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="options.sortY">
+          <i class="input-helper"></i> Sort Values
+        </label>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="options.reverseY">
+          <i class="input-helper"></i> Reverse Order
+        </label>
+      </div>
+
     </div>
   </div>
 

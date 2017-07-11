@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isString, isUndefined, contains, min, max, has, find,
-  each, values, sortBy, pluck, identity, filter, map,
+  each, values, sortBy, pluck, identity, filter, map, uniq, findWhere, flatten,
 } from 'underscore';
 import moment from 'moment';
 import createFormatter from '@/lib/value-format';
@@ -74,6 +74,15 @@ export function normalizeValue(value) {
     return value.format('YYYY-MM-DD HH:mm:ss');
   }
   return value;
+}
+
+function naturalSort($a, $b) {
+  if ($a === $b) {
+    return 0;
+  } else if ($a < $b) {
+    return -1;
+  }
+  return 1;
 }
 
 function calculateAxisRange(seriesList, minValue, maxValue) {
@@ -201,6 +210,79 @@ function preparePieData(seriesList, options) {
   });
 }
 
+function prepareHeatmapData(seriesList, options) {
+  return map(seriesList, (series) => {
+    const plotlySeries = {
+      x: [],
+      y: [],
+      z: [],
+      type: 'heatmap',
+      name: '',
+      colorscale: options.colorScheme || 'RdBu',
+    };
+
+    plotlySeries.x = uniq(pluck(series.data, 'x'));
+    plotlySeries.y = uniq(pluck(series.data, 'y'));
+
+    if (options.sortX) {
+      plotlySeries.x.sort(naturalSort);
+    }
+
+    if (options.sortY) {
+      plotlySeries.y.sort(naturalSort);
+    }
+
+    if (options.reverseX) {
+      plotlySeries.x.reverse();
+    }
+
+    if (options.reverseY) {
+      plotlySeries.y.reverse();
+    }
+
+    const zMax = max(pluck(series.data, 'zVal'));
+
+    // Use text trace instead of default annotation for better performance
+    const dataLabels = {
+      x: [],
+      y: [],
+      mode: 'text',
+      hoverinfo: 'skip',
+      showlegend: false,
+      text: [],
+      textfont: {
+        color: [],
+      },
+    };
+
+    for (let i = 0; i < plotlySeries.y.length; i += 1) {
+      const item = [];
+      for (let j = 0; j < plotlySeries.x.length; j += 1) {
+        const datum = findWhere(
+          series.data,
+          { x: plotlySeries.x[j], y: plotlySeries.y[i] },
+        );
+
+        const zValue = datum ? datum.zVal : 0;
+        item.push(zValue);
+
+        if (isFinite(zMax) && options.showDataLabels) {
+          dataLabels.x.push(plotlySeries.x[j]);
+          dataLabels.y.push(plotlySeries.y[i]);
+          dataLabels.text.push(String(zValue));
+          dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
+        }
+      }
+      plotlySeries.z.push(item);
+    }
+
+    if (isFinite(zMax) && options.showDataLabels) {
+      return [plotlySeries, dataLabels];
+    }
+    return plotlySeries;
+  });
+}
+
 function prepareChartData(seriesList, options) {
   const sortX = (options.sortX === true) || (options.sortX === undefined);
 
@@ -279,6 +361,12 @@ function prepareChartData(seriesList, options) {
 export function prepareData(seriesList, options) {
   if (options.globalSeriesType === 'pie') {
     return preparePieData(seriesList, options);
+  }
+  if (options.globalSeriesType === 'heatmap') {
+    if (options.showDataLabels) {
+      return flatten(prepareHeatmapData(seriesList, options));
+    }
+    return prepareHeatmapData(seriesList, options);
   }
   return prepareChartData(seriesList, options);
 }
@@ -445,6 +533,9 @@ export function updateData(seriesList, options) {
   if (options.globalSeriesType === 'pie') {
     return seriesList;
   }
+  if (options.globalSeriesType === 'heatmap') {
+    return seriesList;
+  }
 
   // Use only visible series
   seriesList = filter(seriesList, s => s.visible === true);
@@ -519,3 +610,4 @@ export function updateDimensions(layout, element, margins) {
 
   return changed;
 }
+
