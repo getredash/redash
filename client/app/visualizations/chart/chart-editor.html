@@ -139,12 +139,18 @@
   </div>
 
   <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
-      <label>
-        <input type="checkbox" ng-model="options.enableConsoleLogs">
-        <i class="input-helper"></i> Show errors in the console
-      </label>
-    </div>
+    <label>
+      <input type="checkbox" ng-model="options.enableConsoleLogs">
+      <i class="input-helper"></i> Show errors in the console
+    </label>
+  </div>
 
+  <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
+    <label>
+      <input type="checkbox" ng-model="options.autoRedraw">
+      <i class="input-helper"></i> Auto update graph
+    </label>
+  </div>
 
   <div ng-show="currentTab == 'xAxis'">
     <div class="form-group">
