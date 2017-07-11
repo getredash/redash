@@ -514,9 +514,11 @@ const CustomPlotlyChart = (clientConfig) => {
           });
         });
       };
-      scope.$watch('options.customCode', () => {
+      scope.$watch('[options.customCode, options.autoRedraw]', () => {
         try {
-          refresh();
+          if (scope.options.autoRedraw) {
+            refresh();
+          }
         } catch (err) {
           if (scope.options.enableConsoleLogs) {
             // eslint-disable-next-line no-console
