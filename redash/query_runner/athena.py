@@ -149,7 +149,12 @@ class Athena(BaseQueryRunner):
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
-            data = {'columns': columns, 'rows': rows}
+            qbytes = None
+            try:
+                qbytes = cursor.data_scanned_in_bytes()
+            except AttributeError as e:
+                debug("Athena Direct can't get data_scanned_in_bytes: %s", e)
+            data = { 'columns': columns, 'rows': rows, 'data_scanned': [{ qbytes }] }
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:
@@ -269,10 +274,6 @@ class AthenaDirect(BaseQueryRunner):
             rows.extend(result['ResultSet']['ResultRows'])
         cnames = [c['Name'] for c in column_info]
 
-        #get data scanned in query
-        query_execution = client.get_query_execution(response['QueryExecutionId'])
-        qbytes = query_execution['QueryExecutionDetail']['Stats']['ProcessedBytes']
-
         data = {'columns':
                 [{
                     'name': name,
@@ -282,9 +283,7 @@ class AthenaDirect(BaseQueryRunner):
                 'rows':
                 [{
                     name: row['Data'][i] for (i, name) in enumerate(cnames)
-                } for row in rows[1:]],
-                'data_scanned':
-                [{ qbytes }]
+                } for row in rows[1:]]
         }
 
         return json.dumps(data, cls=JSONEncoder), None
