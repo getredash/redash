@@ -210,6 +210,11 @@ class AthenaDirect(BaseQueryRunner):
             assert len(column_info_set) == 1, "Don't know what to do with inconsistent column info"
             rows.extend(result['ResultSet']['ResultRows'])
         cnames = [c['Name'] for c in column_info]
+
+        #get data scanned in query
+        query_execution = client.get_query_execution(response['QueryExecutionId'])
+        qbytes = query_execution['QueryExecutionDetail']['Stats']['ProcessedBytes']
+
         data = {'columns':
                 [{
                     'name': name,
@@ -217,8 +222,11 @@ class AthenaDirect(BaseQueryRunner):
                     'type': 'string', # XXX map athena types to redash types
                 } for name in cnames],
                 'rows':
-                [{name: row['Data'][i] for (i, name) in enumerate(cnames)}
-                 for row in rows[1:]]
+                [{
+                    name: row['Data'][i] for (i, name) in enumerate(cnames)
+                } for row in rows[1:]],
+                'data_scanned':
+                [{ qbytes }]
         }
 
         return json.dumps(data, cls=JSONEncoder), None

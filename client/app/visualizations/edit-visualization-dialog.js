@@ -1,6 +1,7 @@
 import { pluck } from 'underscore';
 import { copy } from 'angular';
 import template from './edit-visualization-dialog.html';
+import './edit-visualization-dialog.css';
 
 const EditVisualizationDialog = {
   template,
@@ -18,6 +19,9 @@ const EditVisualizationDialog = {
     this.onNewSuccess = this.resolve.onNewSuccess;
     this.visualization = copy(this.originalVisualization);
     this.visTypes = Visualization.visualizationTypes;
+
+    this.warning_three_column_groupby = '<b>You have more than 2 columns in your result set.</b> To ensure the chart is accurate, please do one of the following: <ul> <li>Change the SQL query to give 2 result columns. You can CONCAT() columns together if you wish.</li> <LI>Select column(s) to group by.</LI> </ul>';
+    this.warning_three_column_stacking = '<b>You have more than 2 columns in your result set.</b> You may wish to make the Stacking option equal to `Enabled` or `Percent`.';
 
     this.newVisualization = () =>
        ({
@@ -45,6 +49,21 @@ const EditVisualizationDialog = {
         this.visualization.options =
           Visualization.visualizations[this.visualization.type].defaultOptions;
       }
+    };
+
+    this.has3plusColumnsFunction = () => {
+      let has3plusColumns = false;
+      if ((JSON.stringify(this.visualization.options.columnMapping).match(/,/g) || []).length > 1) {
+        has3plusColumns = true;
+      }
+      return has3plusColumns;
+    };
+
+    this.disableSubmit = () => {
+      if (this.has3plusColumnsFunction() && JSON.stringify(this.visualization.options.columnMapping).includes('unused')) {
+        return true;
+      }
+      return false;
     };
 
     this.submit = () => {

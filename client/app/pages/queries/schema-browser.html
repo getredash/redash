@@ -6,10 +6,18 @@
             ng-click="$ctrl.onRefresh()">
       <span class="zmdi zmdi-refresh"></span>
     </button>
+
+    <button class="btn btn-default"
+          title="Toggle Versioned Tables"
+          ng-click="$ctrl.flipToggleVersionedTables($ctrl.versionToggle)">
+    <span class="fa " ng-class="{'fa-toggle-on': $ctrl.versionToggle == true, 'fa-toggle-off': !$ctrl.versionToggle}">
+      <input type="checkbox" id="versioned-tables-toggle" ng-model="$ctrl.versionToggle" hidden/>
+    </span>
+    </button>
   </div>
 
   <div class="schema-browser" vs-repeat vs-size="$ctrl.getSize(table)">
-    <div ng-repeat="table in $ctrl.schema | filter:$ctrl.schemaFilter track by table.name">
+    <div ng-repeat="table in $ctrl.schema | filter:$ctrl.schemaFilter | filter:'!'+$ctrl.versionFilter">
       <div class="table-name" ng-click="$ctrl.showTable(table)">
         <i class="fa fa-table"></i>
         <strong>
