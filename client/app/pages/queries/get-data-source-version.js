@@ -13,7 +13,7 @@ const GetDataSourceVersionInfo = {
     onRefresh: '&',
   },
   controller: GetDataSourceVersionCtrl,
-  template: '<span ng-if=\'!$ctrl.getDataSourceVersion.message.includes("not")\'>{{ $ctrl.getDataSourceVersion.message  }}</span><span ng-if=\'$ctrl.getDataSourceVersion.message.includes("not")\' class=\'fa fa-exclamation-circle\' data-toggle=\'tooltip\' data-placement=\'right\' tooltip title=\'{{ $ctrl.getDataSourceVersion.message }}\'></span>',
+  template: '<span ng-if=\'!$ctrl.getDataSourceVersion.message.includes("no")\'>{{ $ctrl.getDataSourceVersion.message  }}</span><span ng-if=\'$ctrl.getDataSourceVersion.message.includes("no")\' class=\'fa fa-exclamation-circle\' data-toggle=\'tooltip\' data-placement=\'right\' tooltip title=\'{{ $ctrl.getDataSourceVersion.message }}\'></span>',
 };
 
 export default function (ngModule) {
