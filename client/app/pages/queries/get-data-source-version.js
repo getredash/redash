@@ -1,5 +1,5 @@
 function GetDataSourceVersionCtrl(Events, toastr, $scope, DataSource, $route) {
-  // 'ngInject';
+  'ngInject';
 
   this.getDataSourceVersion = DataSource.version(
     {
