@@ -1,4 +1,5 @@
 from tests import BaseTestCase
+
 from redash.models import NotificationDestination
 
 
@@ -55,10 +56,14 @@ class TestDestinationResource(BaseTestCase):
         data = {
             'name': 'updated',
             'type': d.type,
-            'options': d.options.to_dict()
+            'options': {"url": "https://www.slack.com/updated"}
         }
-        rv = self.make_request('post', '/api/destinations/{}'.format(d.id), user=self.factory.create_admin(), data=data)
+
+        with self.app.app_context():
+            rv = self.make_request('post', '/api/destinations/{}'.format(d.id), user=self.factory.create_admin(), data=data)
+
         self.assertEqual(rv.status_code, 200)
-        self.assertEqual(NotificationDestination.query.get(d.id).name, data['name'])
 
-
+        d = NotificationDestination.query.get(d.id)
+        self.assertEqual(d.name, data['name'])
+        self.assertEqual(d.options['url'], data['options']['url'])

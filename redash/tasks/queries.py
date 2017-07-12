@@ -278,6 +278,7 @@ def refresh_queries():
                     query_text = pystache.render(query.query_text, query_params)
                 else:
                     query_text = query.query_text
+
                 enqueue_query(query_text, query.data_source, query.user_id,
                               scheduled_query=query,
                               metadata={'Query ID': query.id, 'Username': 'Scheduled'})
