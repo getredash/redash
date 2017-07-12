@@ -8,12 +8,20 @@ import json
 import logging
 import time
 
-from funcy import project
-
 import xlsxwriter
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from funcy import project
 from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy import or_
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.event import listens_for
+from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
+from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
+from sqlalchemy.types import TypeDecorator
+
 from redash import redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
@@ -23,14 +31,6 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
-from sqlalchemy import or_
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.event import listens_for
-from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
-from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
-from sqlalchemy.types import TypeDecorator
 
 db = SQLAlchemy(session_options={
     'expire_on_commit': False
@@ -627,10 +627,16 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
+    data_scanned = Column(db.String(255), nullable=True)
 
     __tablename__ = 'query_results'
 
     def to_dict(self):
+        if hasattr(self, 'data_scanned') and self.data_scanned:
+            data_scanned_info = self.data_scanned
+        else:
+            data_scanned_info = ''
+
         return {
             'id': self.id,
             'query_hash': self.query_hash,
@@ -638,7 +644,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'data': json.loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
-            'retrieved_at': self.retrieved_at
+            'retrieved_at': self.retrieved_at,
+            'data_scanned': data_scanned_info
         }
 
     @classmethod
@@ -673,13 +680,20 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+        try:
+            data_scanned_information = json.loads(data)['data_scanned']
+        except (ValueError, TypeError):
+            data_scanned_information = ''
+
         query_result = cls(org=org,
                            query_hash=query_hash,
                            query_text=query,
                            runtime=run_time,
                            data_source=data_source,
                            retrieved_at=retrieved_at,
-                           data=data)
+                           data=data,
+                           data_scanned=data_scanned_information
+                           )
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.
@@ -929,7 +943,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
-        query = (cls.query.options(subqueryload(Query.user))
+        query = (cls.query
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
                  .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -1170,18 +1184,20 @@ class Alert(TimestampMixin, db.Model):
 
     def evaluate(self):
         data = json.loads(self.query_rel.latest_query_data.data)
-        # todo: safe guard for empty
-        value = data['rows'][0][self.options['column']]
-        op = self.options['op']
+        if data['rows']:
+            value = data['rows'][0][self.options['column']]
+            op = self.options['op']
 
-        if op == 'greater than' and value > self.options['value']:
-            new_state = self.TRIGGERED_STATE
-        elif op == 'less than' and value < self.options['value']:
-            new_state = self.TRIGGERED_STATE
-        elif op == 'equals' and value == self.options['value']:
-            new_state = self.TRIGGERED_STATE
+            if op == 'greater than' and value > self.options['value']:
+                new_state = self.TRIGGERED_STATE
+            elif op == 'less than' and value < self.options['value']:
+                new_state = self.TRIGGERED_STATE
+            elif op == 'equals' and value == self.options['value']:
+                new_state = self.TRIGGERED_STATE
+            else:
+                new_state = self.OK_STATE
         else:
-            new_state = self.OK_STATE
+            new_state = self.UNKNOWN_STATE
 
         return new_state
 
@@ -1501,8 +1517,9 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     user = db.relationship(User, backref="notification_destinations")
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(Configuration)
+    options = Column(ConfigurationContainer.as_mutable(Configuration))
     created_at = Column(db.DateTime(True), default=db.func.now())
+
     __tablename__ = 'notification_destinations'
     __table_args__ = (db.Index('notification_destinations_org_id_name', 'org_id',
                                'name', unique=True),)

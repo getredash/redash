@@ -211,7 +211,12 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
   $scope.saveName = () => {
     Events.record('edit_name', 'query', $scope.query.id);
-    $scope.saveQuery(undefined, { name: $scope.query.name });
+
+    if ($scope.query.is_draft && clientConfig.autoPublishNamedQueries && $scope.query.name !== 'New Query') {
+      $scope.query.is_draft = false;
+    }
+
+    $scope.saveQuery(undefined, { name: $scope.query.name, is_draft: $scope.query.is_draft });
   };
 
   $scope.cancelExecution = () => {
@@ -254,6 +259,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
 
     updateSchema();
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
+    document.getElementById('data-source-version').innerHTML = '<span class=\'fa fa-refresh\' data-toggle=\'tooltip\' data-placement=\'right\' tooltip title=\'refresh page to get version\'></span>';
   };
 
   $scope.setVisualizationTab = (visualization) => {

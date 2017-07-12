@@ -48,6 +48,8 @@ def _wait(conn, timeout=None):
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
     default_doc_url = "https://www.postgresql.org/docs/current/"
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take second"
 
     @classmethod
     def configuration_schema(cls):
@@ -157,7 +159,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
             else:
@@ -182,6 +184,8 @@ class PostgreSQL(BaseSQLQueryRunner):
 class Redshift(PostgreSQL):
     default_doc_url = ("http://docs.aws.amazon.com/redshift/latest/"
                        "dg/cm_chap_SQLCommandRef.html")
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take last"
 
     @classmethod
     def type(cls):
