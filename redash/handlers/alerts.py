@@ -4,10 +4,8 @@ from flask import request
 from funcy import project
 
 from redash import models
-from redash.handlers.base import (BaseResource, get_object_or_404,
-                                  require_fields)
-from redash.permissions import (require_access, require_admin_or_owner,
-                                require_permission, view_only)
+from redash.permissions import require_access, require_admin_or_owner, view_only, require_permission
+from redash.handlers.base import BaseResource, require_fields, get_object_or_404
 
 
 class AlertResource(BaseResource):
@@ -54,7 +52,6 @@ class AlertListResource(BaseResource):
             name=req['name'],
             query_rel=query,
             user=self.current_user,
-            rearm=req.get('rearm'),
             options=req['options']
         )
 

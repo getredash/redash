@@ -2,11 +2,10 @@ from flask import make_response, request
 from flask_restful import abort
 
 from redash import models
-from redash.destinations import (destinations,
-                                 get_configuration_schema_for_destination_type)
-from redash.handlers.base import BaseResource
 from redash.permissions import require_admin
+from redash.destinations import destinations, get_configuration_schema_for_destination_type
 from redash.utils.configuration import ConfigurationContainer, ValidationError
+from redash.handlers.base import BaseResource
 
 
 class DestinationTypeListResource(BaseResource):
@@ -31,14 +30,15 @@ class DestinationResource(BaseResource):
             abort(400)
 
         try:
-            destination.type = req['type']
-            destination.name = req['name']
             destination.options.set_schema(schema)
             destination.options.update(req['options'])
             models.db.session.add(destination)
             models.db.session.commit()
         except ValidationError:
             abort(400)
+
+        destination.type = req['type']
+        destination.name = req['name']
 
         return destination.to_dict(all=True)
 

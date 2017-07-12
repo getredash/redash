@@ -2,7 +2,6 @@ import hashlib
 import logging
 
 from flask import flash, redirect, render_template, request, url_for
-from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
@@ -75,9 +74,6 @@ def reset(token, org_slug=None):
 
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
-    if not settings.PASSWORD_LOGIN_ENABLED:
-        abort(404)
-
     submitted = False
     if request.method == 'POST' and request.form['email']:
         submitted = True
@@ -133,7 +129,7 @@ def login(org_slug=None):
     return render_template("login.html",
                            org_slug=org_slug,
                            next=next_path,
-                           email=request.form.get('email', ''),
+                           username=request.form.get('username', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
@@ -171,6 +167,8 @@ def client_config():
 
     return client_config
 
+
+# @routes.route(org_scoped_rule('/api/config'), methods=['GET'])
 @routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
     return json_response({
