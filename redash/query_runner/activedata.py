@@ -32,11 +32,6 @@ types_map = {
 class ActiveData(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
-    #def __init__(self, configuration):
-    #    url = urlparse(configuration['host_url'])
-    #    configuration['host_url'] = url.scheme + "://" + url.hostname + ":" + unicode(url.port or 80)
-    #    BaseSQLQueryRunner.__init__(self, configuration)
-
     def __init__(self, configuration):
         super(ActiveData, self).__init__(configuration)
 
