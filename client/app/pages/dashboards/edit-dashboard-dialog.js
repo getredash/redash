@@ -1,4 +1,4 @@
-import { isEmpty, sortBy } from 'underscore';
+import { sortBy } from 'underscore';
 import template from './edit-dashboard-dialog.html';
 
 const EditDashboardDialog = {
@@ -45,8 +45,6 @@ const EditDashboardDialog = {
       });
     }
 
-    this.isFormValid = () => !isEmpty(this.dashboard.name);
-
     this.saveDashboard = () => {
       this.saveInProgress = true;
 
@@ -67,7 +65,6 @@ const EditDashboardDialog = {
           slug: this.dashboard.id,
           name: this.dashboard.name,
           version: this.dashboard.version,
-          dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
           layout: JSON.stringify(layout),
         };
 
