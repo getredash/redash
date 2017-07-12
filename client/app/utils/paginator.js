@@ -1,8 +1,12 @@
+import { sortBy } from 'underscore';
+
 export default class Paginator {
   constructor(rows, { page = 1, itemsPerPage = 20, totalCount = undefined } = {}) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
     this.updateRows(rows, totalCount);
+    this.orderByField = undefined;
+    this.orderByReverse = false;
   }
 
   setPage(page) {
@@ -22,6 +26,22 @@ export default class Paginator {
       this.totalCount = totalCount || rows.length;
     } else {
       this.totalCount = 0;
+    }
+  }
+
+  orderBy(column) {
+    if (column === this.orderByField) {
+      this.orderByReverse = !this.orderByReverse;
+    } else {
+      this.orderByField = column;
+      this.orderByReverse = false;
+    }
+
+    if (this.orderByField) {
+      this.rows = sortBy(this.rows, this.orderByField);
+      if (this.orderByReverse) {
+        this.rows = this.rows.reverse();
+      }
     }
   }
 }

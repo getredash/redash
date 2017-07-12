@@ -18,3 +18,4 @@ export { default as rdTimeAgo } from './rd-time-ago';
 export { default as overlay } from './overlay';
 export { default as routeStatus } from './route-status';
 export { default as filters } from './filters';
+export { default as sortIcon } from './sort-icon';
