@@ -1,3 +1,4 @@
+import logging
 import json
 import time
 
@@ -9,13 +10,62 @@ from redash import models, settings, utils
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import collect_query_parameters, collect_parameters_from_request
+from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash
 from redash.tasks.queries import enqueue_query
 
 
 def error_response(message):
     return {'job': {'status': 4, 'error': message}}, 400
 
+
+#
+# Run a parameterized query synchronously and return the result
+# DISCLAIMER: Temporary solution to support parameters in queries. Should be
+#             removed once we refactor the query results API endpoints and handling
+#             on the client side. Please don't reuse in other API handlers.
+#
+def run_query_sync(data_source, parameter_values, query_text, max_age=0):
+    query_parameters = set(collect_query_parameters(query_text))
+    missing_params = set(query_parameters) - set(parameter_values.keys())
+    if missing_params:
+        raise Exception('Missing parameter value for: {}'.format(", ".join(missing_params)))
+
+    if query_parameters:
+        query_text = pystache.render(query_text, parameter_values)
+
+    if max_age <= 0:
+        query_result = None
+    else:
+        query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
+
+    query_hash = gen_query_hash(query_text)
+
+    if query_result:
+        logging.info("Returning cached result for query %s" % query_hash)
+        return query_result
+
+    try:
+        started_at = time.time()
+        data, error = data_source.query_runner.run_query(query_text, current_user)
+
+        if error:
+            logging.info('got bak error')
+            logging.info(error)
+            return None
+
+        run_time = time.time() - started_at
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org, data_source,
+                                                                              query_hash, query_text, data,
+                                                                              run_time, utils.utcnow())
+
+        models.db.session.commit()
+        return query_result
+    except Exception, e:
+        if max_age > 0:
+            abort(404, message="Unable to get result from the database, and no cached query result found.")
+        else:
+            abort(503, message="Unable to get result from the database.")
+        return None
 
 def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     query_parameters = set(collect_query_parameters(query_text))
@@ -127,15 +177,22 @@ class QueryResultResource(BaseResource):
         # They need to be split, as they have different logic (for example, retrieving by query id
         # should check for query parameters and shouldn't cache the result).
         should_cache = query_result_id is not None
-        if query_result_id is None and query_id is not None:
-            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-            if query:
-                query_result_id = query.latest_query_data_id
+
+        parameter_values = collect_parameters_from_request(request.args)
+        max_age = int(request.args.get('maxAge', 0))
+
+        query_result = None
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
-        else:
-            query_result = None
+        elif query_id is not None:
+            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+
+            if query is not None:
+                if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
+                    query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+                elif query.latest_query_data_id is not None:
+                    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
 
         if query_result:
             require_access(query_result.data_source.groups, self.current_user, view_only)
@@ -209,4 +266,3 @@ class JobResource(BaseResource):
         """
         job = QueryTask(job_id=job_id)
         job.cancel()
-

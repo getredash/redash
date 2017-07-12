@@ -1,10 +1,3 @@
-"""
-This module implements different strategies to resolve the current Organization we are using.
-
-By default we use the simple single_org strategy, which assumes you have a
-single Organization in your installation.
-"""
-
 import logging
 
 from flask import g, request
