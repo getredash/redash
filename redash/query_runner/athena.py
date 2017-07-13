@@ -14,6 +14,10 @@ OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS
 
 try:
     import pyathena
+
+    #for AthenaDirect
+    import botocore.session     
+    from botocore.exceptions import WaiterError
     enabled = True
 except ImportError:
     enabled = False
