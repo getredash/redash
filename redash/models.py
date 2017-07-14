@@ -494,7 +494,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
                 DataSourceGroup.data_source == self).one()[0]
 
         doc_url = self.options.get('doc_url')
-        if doc_url:
+        try:
+            if doc_url:
+                d['options'].update(doc_url=doc_url)
+        except:
             d['options'] = {'doc_url': doc_url}
 
         return d
@@ -569,7 +572,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def add_group(self, group, view_only=False):
         dsg = DataSourceGroup(group=group, data_source=self, view_only=view_only)
         db.session.add(dsg)
-        #setattr(self, 'data_source_groups', dsg)
         return dsg
 
     def remove_group(self, group):
