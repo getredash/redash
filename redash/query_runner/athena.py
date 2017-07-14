@@ -25,6 +25,8 @@ from redash.settings import parse_boolean
 logger = logging.getLogger(__name__)
 PROXY_URL = os.environ.get('ATHENA_PROXY_URL')
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
+SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
+OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
 
 _TYPE_MAPPINGS = {
     'boolean': TYPE_BOOLEAN,
@@ -56,7 +58,7 @@ class AthenaUpstream(BaseQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        return {
+        schema = return {
             'type': 'object',
             'properties': {
                 'region': {
@@ -79,7 +81,15 @@ class AthenaUpstream(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Schema Name',
                     'default': 'default'
-                },
+                }
+            },
+            'required': ['region', 's3_staging_dir'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
+            'secret': ['aws_secret_key']
+        }
+
+        if SHOW_EXTRA_SETTINGS:
+            schema['properties'].update({
                 'encryption_option': {
                     'type': 'string',
                     'title': 'Encryption Option',
@@ -88,10 +98,13 @@ class AthenaUpstream(BaseQueryRunner):
                     'type': 'string',
                     'title': 'KMS Key',
                 },
-            },
-            'required': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir'],
-            'secret': ['aws_secret_key']
-        }
+            })
+
+        if not OPTIONAL_CREDENTIALS:
+            schema['required'] += ['aws_access_key', 'aws_secret_key']
+
+        return schema
+
 
     @classmethod
     def enabled(cls):
