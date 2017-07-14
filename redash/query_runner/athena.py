@@ -17,7 +17,7 @@ except ImportError:
     direct_enabled = False
     enabled = False
 
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import *
 from redash.utils import JSONEncoder
 from redash.settings import parse_boolean
 
