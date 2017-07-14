@@ -43,6 +43,10 @@ _TYPE_MAPPINGS = {
     'decimal': TYPE_FLOAT,
 }
 
+class SimpleFormatter(object):
+    def format(self, operation, parameters=None):
+        return operation
+
 class AthenaUpstream(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
@@ -94,6 +98,10 @@ class AthenaUpstream(BaseQueryRunner):
         return enabled
 
     @classmethod
+    def annotate_query(cls):
+        return ANNOTATE_QUERY
+
+    @classmethod
     def type(cls):
         return "athena_upstream"
 
@@ -129,7 +137,8 @@ class AthenaUpstream(BaseQueryRunner):
             aws_secret_access_key=self.configuration.get('aws_secret_key', None),
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
-            kms_key=self.configuration.get('kms_key', None)).cursor()
+            kms_key=self.configuration.get('kms_key', None),
+            formatter=SimpleFormatter()).cursor()
 
         try:
             cursor.execute(query)
