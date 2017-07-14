@@ -58,7 +58,7 @@ class AthenaUpstream(BaseQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        schema = return {
+        schema = {
             'type': 'object',
             'properties': {
                 'region': {
