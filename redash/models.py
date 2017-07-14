@@ -495,10 +495,10 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         doc_url = self.options.get('doc_url')
         try:
-            if doc_url:
+            if doc_url and all != False:
                 d['options'].update(doc_url=doc_url)
         except:
-            d['options'] = {'doc_url': doc_url}
+            print d
 
         return d
 
