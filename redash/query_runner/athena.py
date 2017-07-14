@@ -3,25 +3,29 @@ import logging
 import os
 import re
 
-from redash.query_runner import *
-from redash.settings import parse_boolean
-from redash.utils import JSONEncoder
-
-logger = logging.getLogger(__name__)
-ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
-SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
-OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
+import requests
 
 try:
     import pyathena
 
     #for AthenaDirect
-    import botocore.session     
+    import botocore.session
     from botocore.exceptions import WaiterError
+    direct_enabled = True
     enabled = True
 except ImportError:
+    direct_enabled = False
     enabled = False
 
+from redash.query_runner import BaseQueryRunner, register
+from redash.utils import JSONEncoder
+from redash.settings import parse_boolean
+
+logger = logging.getLogger(__name__)
+PROXY_URL = os.environ.get('ATHENA_PROXY_URL')
+ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
+SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
+OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
 
 _TYPE_MAPPINGS = {
     'boolean': TYPE_BOOLEAN,
@@ -45,12 +49,12 @@ class SimpleFormatter(object):
     def format(self, operation, parameters=None):
         return operation
 
-class Athena(BaseQueryRunner):
+class AthenaUpstream(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
     @classmethod
     def name(cls):
-        return "Amazon Athena (via JDBC)"
+        return "Amazon Athena (Upstream)"
 
     @classmethod
     def configuration_schema(cls):
@@ -114,7 +118,7 @@ class Athena(BaseQueryRunner):
         return "athena"
 
     def __init__(self, configuration):
-        super(Athena, self).__init__(configuration)
+        super(AthenaUpstream, self).__init__(configuration)
 
     def get_schema(self, get_stats=False):
         schema = {}
@@ -153,12 +157,7 @@ class Athena(BaseQueryRunner):
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
-            qbytes = None
-            try:
-                qbytes = cursor.data_scanned_in_bytes()
-            except AttributeError as e:
-                debug("Athena Direct can't get data_scanned_in_bytes: %s", e)
-            data = { 'columns': columns, 'rows': rows, 'data_scanned': qbytes }
+            data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:
@@ -175,6 +174,99 @@ class Athena(BaseQueryRunner):
         return json_data, error
 
 
+register(AthenaUpstream)
+
+
+class Athena(BaseQueryRunner):
+    noop_query = 'SELECT 1'
+
+    @classmethod
+    def name(cls):
+        return "Amazon Athena (via JDBC)"
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'region': {
+                    'type': 'string',
+                    'title': 'AWS Region'
+                },
+                'aws_access_key': {
+                    'type': 'string',
+                    'title': 'AWS Access Key'
+                },
+                'aws_secret_key': {
+                    'type': 'string',
+                    'title': 'AWS Secret Key'
+                },
+                's3_staging_dir': {
+                    'type': 'string',
+                    'title': 'S3 Staging Path'
+                }
+            },
+            'required': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir'],
+            'secret': ['aws_secret_key']
+        }
+
+    @classmethod
+    def annotate_query(cls):
+        return ANNOTATE_QUERY
+
+    def get_schema(self, get_stats=False):
+        schema = {}
+        query = """
+        SELECT table_schema, table_name, column_name
+        FROM information_schema.columns
+        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        """
+
+        results, error = self.run_query(query, None)
+
+        if error is not None:
+            raise Exception("Failed getting schema.")
+
+        results = json.loads(results)
+
+        for row in results['rows']:
+            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+
+            if table_name not in schema:
+                schema[table_name] = {'name': table_name, 'columns': []}
+
+            schema[table_name]['columns'].append(row['column_name'])
+
+        return schema.values()
+
+    def run_query(self, query, user):
+        try:
+            data = {
+                'athenaUrl': 'jdbc:awsathena://athena.{}.amazonaws.com:443/'.format(self.configuration['region'].lower()),
+                'awsAccessKey': self.configuration['aws_access_key'],
+                'awsSecretKey': self.configuration['aws_secret_key'],
+                's3StagingDir': self.configuration['s3_staging_dir'],
+                'query': query
+            }
+
+            response = requests.post(PROXY_URL, json=data)
+            response.raise_for_status()
+
+            json_data = response.content.strip()
+            error = None
+
+            return json_data, error
+        except requests.RequestException as e:
+            if e.response.status_code == 400:
+                return None, response.content
+
+            return None, str(e)
+        except KeyboardInterrupt:
+            error = "Query cancelled by user."
+            json_data = None
+
+        return json_data, error
+
 register(Athena)
 
 class AthenaDirect(BaseQueryRunner):
@@ -186,7 +278,7 @@ class AthenaDirect(BaseQueryRunner):
 
     @classmethod
     def enabled(cls):
-        return enabled
+        return direct_enabled
 
     @classmethod
     def configuration_schema(cls):
@@ -277,7 +369,6 @@ class AthenaDirect(BaseQueryRunner):
             assert len(column_info_set) == 1, "Don't know what to do with inconsistent column info"
             rows.extend(result['ResultSet']['ResultRows'])
         cnames = [c['Name'] for c in column_info]
-
         data = {'columns':
                 [{
                     'name': name,
@@ -285,9 +376,8 @@ class AthenaDirect(BaseQueryRunner):
                     'type': 'string', # XXX map athena types to redash types
                 } for name in cnames],
                 'rows':
-                [{
-                    name: row['Data'][i] for (i, name) in enumerate(cnames)
-                } for row in rows[1:]]
+                [{name: row['Data'][i] for (i, name) in enumerate(cnames)}
+                 for row in rows[1:]]
         }
 
         return json.dumps(data, cls=JSONEncoder), None
