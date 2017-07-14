@@ -1,21 +1,15 @@
 import json
 import logging
-from urlparse import urlparse
 
 import requests
-# from mo_dots import wrap, listwrap
-# from mo_logs import Except
-# from mo_logs.exceptions import ERROR
 
 from redash.query_runner import TYPE_INTEGER, TYPE_STRING, TYPE_FLOAT, BaseSQLQueryRunner, register
 from redash.utils import JSONEncoder
 
-#originally from: https://github.com/klahnakoski/ActiveData-redash-query-runner/blob/c0e7286c09c6f1eb6746a6c7cca581bea79f4757/active_data.py
+#Originally written by Github user @klahnakoski
+#Original link: https://github.com/klahnakoski/ActiveData-redash-query-runner/blob/c0e7286c09c6f1eb6746a6c7cca581bea79f4757/active_data.py
 
 logger = logging.getLogger(__name__)
-
-if not unicode:
-    unicode = str
 
 types_map = {
     bool: TYPE_INTEGER,
@@ -32,9 +26,6 @@ types_map = {
 class ActiveData(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
-    def __init__(self, configuration):
-        super(ActiveData, self).__init__(configuration)
-
     @classmethod
     def configuration_schema(cls):
         return {
@@ -44,7 +35,7 @@ class ActiveData(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "Host URL",
                     "default": "https://activedata.allizom.org:80",
-                    "info": "Do not end with a trailing slash."
+                    "info": "Please include a port. Do not end with a trailing slash."
                 },
                 "doc_url": {
                     "type": "string",
@@ -103,9 +94,9 @@ class ActiveData(BaseSQLQueryRunner):
     def run_query(self, annotated_query, user):
         request = {}
         comment, request["sql"] = annotated_query.split("*/", 2)
-        meta = request['meta'] ={}
+        meta = request['meta'] = {}
         for kv in comment.strip()[2:].split(","):
-            k, v = map(unicode.strip, kv.split(":"))
+            k, v = [s.strip() for s in kv.split(':')]
             meta[k] = v
 
         logger.debug("Send ActiveData a SQL query: %s", request['sql'])
@@ -143,12 +134,12 @@ def normalize(table):
         new_row = {}
         for i, cname in enumerate(table['header']):
             val = r[i]
-            if val == None:
+            if val is None:
                 continue
             type_ = val.__class__
-            if type_ in [dict, list]:
+            if isinstance(val, (dict, list)):
                 val = json.dumps(val, cls=JSONEncoder)
-            col = get_unique_name(cname, types_map[type_])
+            col = get_unique_name(cname, types_map.get(type(val), TYPE_STRING))
             new_row[col] = val
         output.append(new_row)
 
