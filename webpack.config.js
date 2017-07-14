@@ -56,7 +56,7 @@ var config = {
 
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'ng-annotate!babel!eslint', exclude: /node_modules/},
+      {test: /\.js$/, loader: 'ng-annotate!babel-loader!eslint', exclude: /node_modules/},
       {test: /\.html$/, loader: 'raw', exclude: [/node_modules/, /index\.html/]},
       // {test: /\.css$/, loader: 'style!css', exclude: /node_modules/},
       {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader")},
