@@ -1,5 +1,6 @@
 import logging
 import json
+import logging
 import os
 import re
 
@@ -104,7 +105,6 @@ class AthenaUpstream(BaseQueryRunner):
             schema['required'] += ['aws_access_key', 'aws_secret_key']
 
         return schema
-
 
     @classmethod
     def enabled(cls):
