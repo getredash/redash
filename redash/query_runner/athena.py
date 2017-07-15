@@ -1,5 +1,5 @@
-import json
 import logging
+import json
 import os
 import re
 
@@ -7,15 +7,16 @@ import requests
 
 try:
     import pyathena
+    enabled = True 
+except ImportError:
+    enabled = False
 
-    #for AthenaDirect
+try:
     import botocore.session
     from botocore.exceptions import WaiterError
     direct_enabled = True
-    enabled = True
 except ImportError:
     direct_enabled = False
-    enabled = False
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -44,7 +45,6 @@ _TYPE_MAPPINGS = {
     'decimal': TYPE_FLOAT,
 }
 
-
 class SimpleFormatter(object):
     def format(self, operation, parameters=None):
         return operation
@@ -54,7 +54,7 @@ class AthenaUpstream(BaseQueryRunner):
 
     @classmethod
     def name(cls):
-        return "Amazon Athena (Upstream)"
+        return "Amazon Athena (Upstream PyAthena)"
 
     @classmethod
     def configuration_schema(cls):
@@ -81,7 +81,7 @@ class AthenaUpstream(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Schema Name',
                     'default': 'default'
-                },
+                }
             },
             'required': ['region', 's3_staging_dir'],
             'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
@@ -115,7 +115,7 @@ class AthenaUpstream(BaseQueryRunner):
 
     @classmethod
     def type(cls):
-        return "athena"
+        return "athena_upstream"
 
     def __init__(self, configuration):
         super(AthenaUpstream, self).__init__(configuration)
@@ -183,6 +183,10 @@ class Athena(BaseQueryRunner):
     @classmethod
     def name(cls):
         return "Amazon Athena (via JDBC)"
+
+    @classmethod
+    def type(cls):
+        return "athena"
 
     @classmethod
     def configuration_schema(cls):
@@ -275,6 +279,10 @@ class AthenaDirect(BaseQueryRunner):
     @classmethod
     def name(cls):
         return "Amazon Athena (direct)"
+
+    @classmethod
+    def type(cls):
+        return "athena"
 
     @classmethod
     def enabled(cls):

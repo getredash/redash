@@ -55,28 +55,11 @@ var config = {
   ],
 
   module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: ['ng-annotate-loader', 'babel-loader', 'eslint-loader']
-      },
-      {
-        test: /\.html$/,
-        exclude: [/node_modules/, /index\.html/],
-        use: [{
-          loader: 'raw-loader'
-        }]
-      },
-      {
-        test: /\.css$/,
-        use: ExtractTextPlugin.extract([{
-          loader: 'css-loader',
-          options: {
-            minimize: process.env.NODE_ENV === 'production'
-          }
-        }])
-      },
+    loaders: [
+      {test: /\.js$/, loader: 'ng-annotate!babel-loader!eslint', exclude: /node_modules/},
+      {test: /\.html$/, loader: 'raw', exclude: [/node_modules/, /index\.html/]},
+      // {test: /\.css$/, loader: 'style!css', exclude: /node_modules/},
+      {test: /\.css$/, loader: ExtractTextPlugin.extract("css-loader")},
       {
         test: /\.scss$/,
         use: ExtractTextPlugin.extract([
