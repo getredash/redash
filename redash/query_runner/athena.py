@@ -157,7 +157,7 @@ class AthenaUpstream(BaseQueryRunner):
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
-            data = {'columns': columns, 'rows': rows}
+            data = {'columns': columns, 'rows': rows, 'data_scanned': 'upstream'}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:
@@ -282,7 +282,7 @@ class AthenaDirect(BaseQueryRunner):
 
     @classmethod
     def type(cls):
-        return "athena"
+        return "athenadirect"
 
     @classmethod
     def enabled(cls):

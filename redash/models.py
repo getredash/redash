@@ -632,10 +632,10 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     __tablename__ = 'query_results'
 
     def to_dict(self):
-        if hasattr(self, 'data_scanned') and self.data_scanned:
+        if hasattr(self, 'data_scanned'):
             data_scanned_info = self.data_scanned
         else:
-            data_scanned_info = ''
+            data_scanned_info = 'to_dict'
 
         return {
             'id': self.id,
@@ -682,8 +682,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
         try:
             data_scanned_information = json.loads(data)['data_scanned']
-        except (ValueError, TypeError):
-            data_scanned_information = ''
+        except (ValueError, TypeError) as e:
+            data_scanned_information = e
 
         query_result = cls(org=org,
                            query_hash=query_hash,
