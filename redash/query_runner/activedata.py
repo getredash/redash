@@ -109,6 +109,7 @@ class ActiveData(BaseSQLQueryRunner):
             return None, cause
 
         output = normalize(response)
+        output.update({'data_scanned':'N/A'})
         json_data = json.dumps(output, cls=JSONEncoder)
         return json_data, None
 
