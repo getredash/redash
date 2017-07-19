@@ -159,7 +159,8 @@ class AthenaUpstream(BaseQueryRunner):
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             qbytes = 'upstream2'
             try:
-                qbytes = cursor.data_scanned_in_bytes()
+                cursor._poll()
+                qbytes = cursor._data_scanned_in_bytes
             except AttributeError as e:
                 debug("Athena Upstream can't get data_scanned_in_bytes: %s", e)
             data = {'columns': columns, 'rows': rows, 'data_scanned': qbytes }
