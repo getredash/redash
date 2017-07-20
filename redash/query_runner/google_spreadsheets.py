@@ -205,6 +205,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             spreadsheet = spreadsheet_service.open_by_key(key)
 
             data = parse_spreadsheet(spreadsheet, worksheet_num)
+            data.update({'data_scanned': 'N/A'})
 
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
