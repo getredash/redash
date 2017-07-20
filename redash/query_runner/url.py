@@ -48,6 +48,7 @@ class Url(BaseQueryRunner):
 
             response = requests.get(url)
             response.raise_for_status()
+            response.update({'data_scanned':'N/A'})
             json_data = response.content.strip()
 
             if not json_data:

@@ -248,6 +248,7 @@ class BigQuery(BaseQueryRunner):
                     return None, "Larger than %d MBytes will be processed (%f MBytes)" % (limitMB, processedMB)
 
             data = self._get_query_result(jobs, query)
+            data.update({'data_scanned':'N/A'})
             error = None
 
             json_data = json.dumps(data, cls=JSONEncoder)
