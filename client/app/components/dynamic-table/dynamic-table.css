@@ -5,3 +5,14 @@ dynamic-table > div {
 th.sortable-column {
   cursor: pointer;
 }
+
+.table_filter{
+  width:auto;
+  margin:5px;
+  float:left;
+}
+
+.filter_label{
+  float:left;
+  margin:10px;
+}
