@@ -21,7 +21,9 @@
   "dependencies": {
     "angular": "~1.5.8",
     "angular-base64-upload": "^0.1.19",
+    "angular-dynamic-locale": "^0.1.32",
     "angular-gridster": "^0.13.14",
+    "angular-i18n": "^1.6.5",
     "angular-messages": "~1.5.8",
     "angular-moment": "^1.0.0",
     "angular-resizable": "^1.2.0",

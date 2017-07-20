@@ -26,6 +26,7 @@ import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
+import 'angular-dynamic-locale/dist/tmhDynamicLocale';
 import { each } from 'underscore';
 
 import './sortable';
@@ -42,12 +43,14 @@ import registerDirectives from './directives';
 import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 import dateTimeFilter from './filters/datetime';
+import customCurrencyFilter from './filters/customCurrency';
+import customNumberFilter from './filters/customNumber';
 
 const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name,
+  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name, 'tmh.dynamicLocale',
 ];
 
 const ngModule = angular.module('app', requirements);
@@ -94,12 +97,14 @@ registerServices();
 registerFilters();
 markdownFilter(ngModule);
 dateTimeFilter(ngModule);
+customCurrencyFilter(ngModule);
+customNumberFilter(ngModule);
 registerComponents();
 registerPages();
 registerVisualizations(ngModule);
 
 ngModule.config(($routeProvider, $locationProvider, $compileProvider,
-  uiSelectConfig, toastrConfig) => {
+  uiSelectConfig, toastrConfig, tmhDynamicLocaleProvider) => {
   $compileProvider.debugInfoEnabled(false);
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
   $locationProvider.html5Mode(true);
@@ -109,6 +114,8 @@ ngModule.config(($routeProvider, $locationProvider, $compileProvider,
     positionClass: 'toast-bottom-right',
     timeOut: 2000,
   });
+
+  tmhDynamicLocaleProvider.localeLocationPattern('./locales/angular-locale_{{locale}}.js');
 });
 
 // Update ui-select's template to use Font-Awesome instead of glyphicon.

@@ -26,6 +26,32 @@
     </div>
   </div>
   <div class="form-group">
+    <label class="col-lg-6">Format</label>
+    <div class="col-lg-6">
+      <select ng-options="c as c for c in formattingOptions" ng-model="visualization.options.format" class="form-control">
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Format locale</label>
+    <div class="col-lg-6">
+      <select ng-options="key as value.name for (key, value) in localeOptions" ng-model="visualization.options.counterLocale" class="form-control">
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Format suffix</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.suffix" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Format Decimal Places</label>
+    <div class="col-lg-6">
+      <input type="number" ng-model="visualization.options.fractionSize" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
     <div class="col-lg-6">
       <input type="checkbox" ng-model="visualization.options.countRow">
       <i class="input-helper"></i> Count Rows
