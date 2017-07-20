@@ -1,7 +1,7 @@
 import json
 from tests import BaseTestCase
 from redash.models import db
-
+from redash.utils import gen_signature_hash
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
     def test_uses_cache_headers_for_specific_result(self):
@@ -133,4 +133,27 @@ class TestQueryResultExcelResponse(BaseTestCase):
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
         self.assertEquals(rv.status_code, 200)
+
+
+class TestEmbededSignedParameters(BaseTestCase):
+    def test_has_access_with_correct_key(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(latest_query_data=query_result)
+        sig = gen_signature_hash({'num':4,'str1':'sss'}, query.api_key)
+        rv = self.make_request('get', '/api/queries/{}/results.json?p_num=4&p_str1=sss&signature={}'.format(query.id,sig))
+        self.assertNotEqual(404, rv.status_code)
+
+    def test_has_no_access_with_incorrect_key(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(latest_query_data=query_result)
+
+        rv = self.make_request('get', '/api/queries/{}/results.json?p_num=4&p_str1=sss&signature=9esaaaadasdsss23d33c5bc337e4fe60a'.format(query.id))
+        self.assertEqual(404, rv.status_code)
+
+    def test_has_no_access_with_invalid_key(self):
+        query_result = self.factory.create_query_result()
+        query = self.factory.create_query(latest_query_data=query_result)
+
+        rv = self.make_request('get', '/api/queries/{}/results.json?p_num=4&p_str1=sss&signature=9esaaaaZZZZZZZzzzzzz4fe60a'.format(query.id))
+        self.assertEqual(404, rv.status_code)
 

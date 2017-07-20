@@ -182,7 +182,6 @@ class QueryResultResource(BaseResource):
         max_age = int(request.args.get('maxAge', 0))
 
         query_result = None
-
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
         elif query_id is not None:
@@ -190,15 +189,16 @@ class QueryResultResource(BaseResource):
             if query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
                     is_valid = True
-                    if settings.EMBED_KEY:
+                    if settings.SIGN_EMBEDED_PARAMS:
                         is_valid = False
                         provided_signature = request.args.get('signature')
                         if provided_signature is not None:
-                            expected_sig = gen_signature_hash(parameter_values, None)
+                            expected_sig = gen_signature_hash(parameter_values, query.api_key)
                             if expected_sig == provided_signature:
                                 is_valid = True
+                        # Utility request to sign a request, printing the result to the console
                         elif request.args.get('gensig'):
-                            expected_sig = gen_signature_hash(parameter_values, request.args.get('gensig'))
+                            expected_sig = gen_signature_hash(parameter_values, query.api_key)
                             print "signature %s " % expected_sig
                             abort(400)
                     if is_valid:

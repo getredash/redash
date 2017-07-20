@@ -10,6 +10,7 @@ import hashlib
 import pytz
 import pystache
 import os
+import hmac
 
 from funcy import distinct, select_values
 from sqlalchemy.orm.query import Query
@@ -43,9 +44,14 @@ def slugify(s):
     return re.sub('[^a-z0-9_\-]+', '-', s.lower())
 
 def gen_signature_hash(parameters, key):
-    if key is None:
+    if not key:
         key = settings.EMBED_KEY
-    return hashlib.sha256(str(parameters)+key).hexdigest()
+    s = ""
+    for k in sorted(parameters.iterkeys()):
+        s += "%s=%s&" % (k, parameters[k])
+    s+=key
+    h = hmac.new(str(key), msg=s, digestmod=hashlib.sha256)
+    return h.hexdigest()
 
 def gen_query_hash(sql):
     """Return hash of the given query after stripping all comments, line breaks
