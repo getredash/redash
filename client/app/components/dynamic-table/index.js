@@ -5,7 +5,7 @@ import './dynamic-table.css';
 function DynamicTable($sanitize) {
   'ngInject';
 
-  this.itemsPerPage = this.count = 100000;
+  this.itemsPerPage = this.count = 15;
   this.page = 1;
   this.rowsCount = 0;
   this.orderByField = undefined;
