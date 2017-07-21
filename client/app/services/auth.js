@@ -47,7 +47,7 @@ function AuthService($window, $location, $q, $http) {
       }
 
       this.setApiKey(null);
-      return $http.get('/api/session').then((response) => {
+      return $http.get('api/session').then((response) => {
         storeSession(response.data);
         return session;
       });
