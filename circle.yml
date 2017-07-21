@@ -17,22 +17,16 @@ test:
   override:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
 deployment:
+  latest:
+    branch: master
+    owner: mozilla
+    commands:
+      - ./bin/deploy "latest"
   hub_releases:
     tag: /^m[0-9]+(\.[0-9]+)?$/
     owner: mozilla
     commands:
-      - "[ ! -z $DOCKERHUB_REPO ]"
-      - >
-        printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n'
-        "$CIRCLE_SHA1"
-        "$CIRCLE_TAG"
-        "$CIRCLE_PROJECT_USERNAME"
-        "$CIRCLE_PROJECT_REPONAME"
-        "$CIRCLE_BUILD_URL"
-        > version.json
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker build -t $DOCKERHUB_REPO:$CIRCLE_TAG .
-      - docker push $DOCKERHUB_REPO:$CIRCLE_TAG
+      - ./bin/deploy "$CIRCLE_TAG"
 general:
   branches:
     ignore:

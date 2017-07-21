@@ -1,5 +1,6 @@
 from tests import BaseTestCase
-from redash.models import AlertSubscription, Alert, db
+
+from redash.models import Alert, AlertSubscription, db
 
 
 class TestAlertResourceGet(BaseTestCase):
@@ -92,8 +93,10 @@ class TestAlertListPost(BaseTestCase):
         destination = self.factory.create_destination()
         db.session.commit()
         rv = self.make_request('post', "/api/alerts", data=dict(name='Alert', query_id=query.id,
-                                                                destination_id=destination.id, options={}))
+                                                                destination_id=destination.id, options={},
+                                                                rearm=100))
         self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['rearm'], 100)
 
     def test_fails_if_doesnt_have_access_to_query(self):
         data_source = self.factory.create_data_source(group=self.factory.create_group())

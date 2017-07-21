@@ -57,7 +57,7 @@ def test(name, organization='default'):
             name, data_source.id)
         try:
             data_source.query_runner.test_connection()
-        except Exception, e:
+        except Exception as e:
             print "Failure: {}".format(e)
             exit(1)
         else:
@@ -66,6 +66,30 @@ def test(name, organization='default'):
         print "Couldn't find data source named: {}".format(name)
         exit(1)
 
+@manager.command()
+@click.argument('name')
+@click.option('--org', 'organization', default='default',
+              help="The organization the user belongs to "
+              "(leave blank for 'default').")
+def get_data_source_version(name, organization='default'):
+    """Get version of data source connection by issuing a trivial query."""
+    try:
+        org = models.Organization.get_by_slug(organization)
+        data_source = models.DataSource.query.filter(
+            models.DataSource.name == name,
+            models.DataSource.org == org).one()
+        print "Testing get connection data source version: {} (id={})".format(
+            name, data_source.id)
+        try:
+            info = data_source.query_runner.get_data_source_version()
+        except Exception as e:
+            print "Failure: {}".format(e)
+            exit(1)
+        else:
+            print info
+    except NoResultFound:
+        print "Couldn't find data source named: {}".format(name)
+        exit(1)
 
 @manager.command()
 @click.argument('name', default=None, required=False)

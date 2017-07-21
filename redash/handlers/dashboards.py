@@ -2,7 +2,7 @@ from itertools import chain
 import json
 
 from flask import request, url_for
-from funcy import distinct, project, take 
+from funcy import distinct, project, take
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError 
 
@@ -140,7 +140,7 @@ class DashboardResource(BaseResource):
                 abort(400)
 
         updates = project(dashboard_properties, ('name', 'layout', 'version',
-                                                 'is_draft'))
+                                                 'is_draft', 'dashboard_filters_enabled'))
 
         # SQLAlchemy handles the case where a concurrent transaction beats us
         # to the update. But we still have to make sure that we're not starting
