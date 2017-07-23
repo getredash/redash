@@ -33,8 +33,8 @@ def outdated_queries():
 @login_required
 def queries_tasks():
     limit = request.args.get('limit') or 50
-    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
-    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST)
+    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=limit)
+    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=limit)
     done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=limit)
 
     response = {
