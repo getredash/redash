@@ -24,7 +24,7 @@ function SchemaBrowserCtrl($scope) {
   this.flipToggleVersionedTables = (versionToggle) => {
     if (versionToggle === false) {
       this.versionToggle = true;
-      this.versionFilter = '_v';
+      this.versionFilter = $scope.dataSource.options.toggle_table_string;
     } else {
       this.versionToggle = false;
       this.versionFilter = 'abcdefghijklmnop';
