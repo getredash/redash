@@ -14,6 +14,7 @@ class AlertsListCtrl {
     this.alerts = new Paginator([], { itemsPerPage: 20 });
     Alert.query((alerts) => {
       this.alerts.updateRows(alerts.map(alert => ({
+        id: alert.id,
         name: alert.name,
         state: alert.state,
         class: stateClass[alert.state],
