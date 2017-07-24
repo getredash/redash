@@ -1,5 +1,6 @@
 import json
 
+from flask import request
 from flask_login import login_required
 from redash import models, redis_connection
 from redash.handlers import routes
@@ -32,10 +33,14 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
-    limit = request.args.get('limit') or 50
-    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=limit)
-    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=limit)
-    done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=limit)
+    global_limit = int(request.args.get('limit')) if request.args.get('limit') is not None else 50
+    waiting_limit = int(request.args.get('waiting_limit')) if request.args.get('waiting_limit') is not None else None
+    progress_limit = int(request.args.get('progress_limit')) if request.args.get('progress_limit') is not None else None
+    done_limit = int(request.args.get('done_limit')) if request.args.get('done_limit') is not None else None
+
+    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=(waiting_limit or global_limit))
+    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=(progress_limit or global_limit))
+    done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=(done_limit or global_limit))
 
     response = {
         'waiting': [t.data for t in waiting if t is not None],
