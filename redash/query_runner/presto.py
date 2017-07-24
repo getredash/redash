@@ -34,6 +34,8 @@ PRESTO_TYPES_MAPPING = {
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
     default_doc_url = 'https://prestodb.io/docs/current/'
+    data_source_version_query = "SELECT node_version FROM system.runtime.nodes WHERE coordinator = true AND state = 'active'"
+    data_source_version_post_process = "none"
 
     @classmethod
     def configuration_schema(cls):
