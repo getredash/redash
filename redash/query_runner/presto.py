@@ -86,7 +86,7 @@ class Presto(BaseQueryRunner):
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            
+
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
@@ -95,10 +95,14 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
+        if user==None:
+            param_username = self.configuration.get('username', 'redash')
+        else:
+            param_username = user.email
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
-                username=self.configuration.get('username', 'redash'),
+                username=param_username,
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
 
