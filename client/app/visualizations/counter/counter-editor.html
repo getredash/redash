@@ -12,6 +12,36 @@
     </div>
   </div>
   <div class="form-group">
+    <label class="col-lg-6">Formatting Decimal Place</label>
+    <div class="col-lg-6">
+      <input type="number" ng-model="visualization.options.stringDecimal" class="form-control" ng-disabled="!isValueNumber()">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Formatting Decimal Character</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.stringDecChar" class="form-control" ng-disabled="!isValueNumber()">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Formatting Thousands Separator</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.stringThouSep" class="form-control" ng-disabled="!isValueNumber()" ng-trim="false">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Formatting String Prefix</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.stringPrefix" class="form-control" ng-disabled="!isValueNumber()" ng-trim="false">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Formatting String Suffix</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.stringSuffix" class="form-control" ng-disabled="!isValueNumber()" ng-trim="false">
+    </div>
+  </div>
+  <div class="form-group">
     <label class="col-lg-6">Target Value Column Name</label>
     <div class="col-lg-6">
       <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.targetColName" class="form-control">
