@@ -16,7 +16,7 @@ class DataSourceCommandTests(BaseTestCase):
         result = runner.invoke(
             manager,
             ['ds', 'new'],
-            input="test\n%s\n\n\n\nexample.com\n\ntestdb\n" % (pg_i,))
+            input="test\n%s\n\n\n\n\nexample.com\n\ntestdb\n" % (pg_i,))
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(DataSource.query.count(), 1)
