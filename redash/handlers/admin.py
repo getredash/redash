@@ -33,14 +33,14 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
-    global_limit = int(request.args.get('limit')) if request.args.get('limit') is not None else 50
-    waiting_limit = int(request.args.get('waiting_limit')) if request.args.get('waiting_limit') is not None else None
-    progress_limit = int(request.args.get('progress_limit')) if request.args.get('progress_limit') is not None else None
-    done_limit = int(request.args.get('done_limit')) if request.args.get('done_limit') is not None else None
+    global_limit = int(request.args.get('limit', 50))
+    waiting_limit = int(request.args.get('waiting_limit', global_limit))
+    progress_limit = int(request.args.get('progress_limit', global_limit))
+    done_limit = int(request.args.get('done_limit', global_limit))
 
-    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=(waiting_limit or global_limit))
-    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=(progress_limit or global_limit))
-    done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=(done_limit or global_limit))
+    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=waiting_limit)
+    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=progress_limit)
+    done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=done_limit)
 
     response = {
         'waiting': [t.data for t in waiting if t is not None],
