@@ -151,7 +151,7 @@ class Oracle(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], Oracle.get_col_type(i[1], i[5])) for i in cursor.description])
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
             else:

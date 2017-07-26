@@ -109,7 +109,7 @@ class Cassandra(BaseQueryRunner):
 
             rows = [dict(zip(column_names, row)) for row in result]
 
-            data = {'columns': columns, 'rows': rows}
+            data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
             json_data = json.dumps(data, cls=CassandraJSONEncoder)
 
             error = None

@@ -44,7 +44,8 @@ def _transform_result(results):
 
     return json.dumps({
         "columns": [{'name': c} for c in result_columns],
-        "rows": result_rows
+        "rows": result_rows,
+        "data_scanned": 'N/A'
     }, cls=JSONEncoder)
 
 

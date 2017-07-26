@@ -74,7 +74,7 @@ class Snowflake(BaseQueryRunner):
             columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
             rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
 
-            data = {'columns': columns, 'rows': rows}
+            data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
             error = None
             json_data = json_dumps(data)
         finally:

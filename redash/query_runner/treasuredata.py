@@ -111,7 +111,7 @@ class TreasureData(BaseQueryRunner):
             'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
 
         rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
-        data = {'columns': columns, 'rows': rows}
+        data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
         json_data = json.dumps(data, cls=JSONEncoder)
         error = None
 

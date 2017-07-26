@@ -120,7 +120,7 @@ class Impala(BaseSQLQueryRunner):
 
             rows = [dict(zip(column_names, row)) for row in cursor]
 
-            data = {'columns': columns, 'rows': rows}
+            data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
             cursor.close()

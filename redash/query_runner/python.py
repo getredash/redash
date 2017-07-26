@@ -264,6 +264,7 @@ class Python(BaseQueryRunner):
 
             result = self._script_locals['result']
             result['log'] = self._custom_print.lines
+            result.update({'data_scanned':'N/A'})
             json_data = json_dumps(result)
         except KeyboardInterrupt:
             error = "Query cancelled by user."

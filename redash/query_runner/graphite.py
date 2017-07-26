@@ -20,7 +20,7 @@ def _transform_result(response):
             timestamp = datetime.datetime.fromtimestamp(int(values[1]))
             rows.append({'Time::x': timestamp, 'name::series': series['target'], 'value::y': values[0]})
 
-    data = {'columns': columns, 'rows': rows}
+    data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
     return json.dumps(data, cls=JSONEncoder)
 
 
