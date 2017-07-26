@@ -682,8 +682,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
         try:
             data_scanned_information = json.loads(data)['data_scanned']
-        except (ValueError, TypeError) as e:
-            data_scanned_information = 'error'
+        except (ValueError, TypeError, KeyError) as e:
+            data_scanned_information = ''
 
         query_result = cls(org=org,
                            query_hash=query_hash,
