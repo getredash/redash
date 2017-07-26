@@ -95,7 +95,7 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        if user==None:
+        if user is None:
             param_username = self.configuration.get('username', 'redash')
         else:
             param_username = user.email
