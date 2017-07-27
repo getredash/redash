@@ -155,7 +155,7 @@ class Athena(BaseQueryRunner):
                 qbytes = cursor._data_scanned_in_bytes
             except AttributeError as e:
                 debug("Athena Upstream can't get data_scanned_in_bytes: %s", e)
-            data = {'columns': columns, 'rows': rows, 'data_scanned': qbytes }
+            data = {'columns': columns, 'rows': rows, 'data_scanned': qbytes}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:
