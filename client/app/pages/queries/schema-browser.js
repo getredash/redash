@@ -21,10 +21,10 @@ function SchemaBrowserCtrl($scope) {
     return size;
   };
 
-  this.flipToggleVersionedTables = (versionToggle) => {
+  this.flipToggleVersionedTables = (versionToggle, toggleString) => {
     if (versionToggle === false) {
       this.versionToggle = true;
-      this.versionFilter = $scope.dataSource.options.toggle_table_string;
+      this.versionFilter = toggleString;
     } else {
       this.versionToggle = false;
       this.versionFilter = 'abcdefghijklmnop';
@@ -35,6 +35,7 @@ function SchemaBrowserCtrl($scope) {
 const SchemaBrowser = {
   bindings: {
     schema: '<',
+    tabletogglestring: '<',
     onRefresh: '&',
     flipToggleVersionedTables: '&',
   },

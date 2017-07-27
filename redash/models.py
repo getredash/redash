@@ -480,10 +480,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'type_name': self.query_runner.name()
         }
 
+        
+        schema = get_configuration_schema_for_query_runner_type(self.type)
+        self.options.set_schema(schema)
+        d['options'] = self.options.to_dict(mask_secrets=True)
         if all:
-            schema = get_configuration_schema_for_query_runner_type(self.type)
-            self.options.set_schema(schema)
-            d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
@@ -492,13 +493,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
             d['view_only'] = db.session.query(DataSourceGroup.view_only).filter(
                 DataSourceGroup.group == with_permissions_for,
                 DataSourceGroup.data_source == self).one()[0]
-
-        doc_url = self.options.get('doc_url')
-        try:
-            if doc_url and all != False:
-                d['options'].update(doc_url=doc_url)
-        except:
-            print d
 
         return d
 
