@@ -11,6 +11,13 @@ export const DataSource = PropTypes.shape({
   type_name: PropTypes.string,
 });
 
+export const DataSourceMetadata = PropTypes.shape({
+  key: PropTypes.number,
+  name: PropTypes.string,
+  type: PropTypes.string,
+  example: PropTypes.string,
+});
+
 export const Table = PropTypes.shape({
   columns: PropTypes.arrayOf(PropTypes.string).isRequired,
 });

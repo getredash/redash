@@ -1,15 +1,20 @@
 import logging
 import signal
 import time
+import datetime
 
 import redis
+from celery import group
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from six import text_type
+from sqlalchemy.orm import load_only
+from sqlalchemy import or_
 
-from redash import models, redis_connection, settings, statsd_client
-from redash.query_runner import InterruptException
+from redash import models, redis_connection, settings, statsd_client, utils
+from redash.models import TableMetadata, ColumnMetadata, db
+from redash.query_runner import InterruptException, NotSupported
 from redash.tasks.alerts import check_alerts_for_query
 from redash.utils import gen_query_hash, json_dumps, utcnow, mustache_render
 from redash.worker import celery
@@ -241,13 +246,268 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results.", deleted_count)
 
 
-@celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
+def truncate_long_string(original_str, max_length):
+    # Remove null characters so we can save as string to postgres
+    new_str = original_str.replace('\x00', '')
+
+    if new_str and len(new_str) > max_length:
+        new_str = u'{}...'.format(new_str[:max_length])
+    return new_str
+
+
+@celery.task(name="redash.tasks.update_sample")
+def update_sample(data_source_id, table_name, table_id):
+    """
+    For a given table, find look up a sample row for it and update
+    the "example" fields for it in the column_metadata table.
+    """
+    logger.info(u"task=update_sample state=start table_name=%s", table_name)
+    start_time = time.time()
+    ds = models.DataSource.get_by_id(data_source_id)
+    sample = None
+    try:
+        sample = ds.query_runner.get_table_sample(table_name)
+    except NotSupported:
+        logger.info(u"Unable to fetch samples for {}".format(table_name))
+
+    if not sample:
+        return
+
+    persisted_columns = ColumnMetadata.query.filter(
+        ColumnMetadata.exists.is_(True),
+        ColumnMetadata.table_id == table_id,
+    ).options(load_only('id')).all()
+
+    #  If a column exists, add a sample to it.
+    column_examples = []
+    for persisted_column in persisted_columns:
+        column_example = sample.get(persisted_column.name, None)
+        column_example = column_example if isinstance(
+            column_example, unicode) else str(column_example)
+        column_example = truncate_long_string(column_example, 4000)
+
+        column_examples.append({
+            "id": persisted_column.id,
+            "example": column_example
+        })
+
+    models.db.session.bulk_update_mappings(
+        ColumnMetadata,
+        column_examples
+    )
+    models.db.session.commit()
+    logger.info(u"task=update_sample state=finished table_name=%s runtime=%.2f",
+                table_name, time.time() - start_time)
+
+
+@celery.task(name="redash.tasks.refresh_samples")
+def refresh_samples(data_source_id, table_sample_limit):
+    """
+    For a given data source, refresh the data samples stored for each
+    table. This is done for tables with no samples or samples older
+    than DAYS_AGO
+    """
+    logger.info(u"task=refresh_samples state=start ds_id=%s", data_source_id)
+    ds = models.DataSource.get_by_id(data_source_id)
+
+    if not ds.query_runner.configuration.get('samples', False):
+        return
+
+    DAYS_AGO = (
+        utils.utcnow() - datetime.timedelta(days=settings.SCHEMA_SAMPLE_REFRESH_FREQUENCY_DAYS))
+
+    # Find all existing tables that have an empty or old sample_updated_at
+    tables_to_sample = TableMetadata.query.filter(
+        TableMetadata.exists.is_(True),
+        TableMetadata.data_source_id == data_source_id,
+        or_(
+            TableMetadata.sample_updated_at.is_(None),
+            TableMetadata.sample_updated_at < DAYS_AGO
+        )
+    ).limit(table_sample_limit).all()
+
+    tasks = []
+    for table in tables_to_sample:
+        tasks.append(
+            update_sample.signature(
+                args=(ds.id, table.name, table.id),
+                queue=settings.SCHEMAS_REFRESH_QUEUE
+            )
+        )
+        table.sample_updated_at = db.func.now()
+        models.db.session.add(table)
+
+    group(tasks).apply_async()
+    models.db.session.commit()
+
+
+def cleanup_data_in_table(table_model):
+    TTL_DAYS_AGO = (
+        utils.utcnow() - datetime.timedelta(days=settings.SCHEMA_METADATA_TTL_DAYS))
+
+    table_model.query.filter(
+        table_model.exists.is_(False),
+        table_model.updated_at < TTL_DAYS_AGO
+    ).delete()
+
+    db.session.commit()
+
+
+@celery.task(name="redash.tasks.cleanup_schema_metadata")
+def cleanup_schema_metadata():
+    cleanup_data_in_table(TableMetadata)
+    cleanup_data_in_table(ColumnMetadata)
+
+
+def insert_or_update_table_metadata(data_source, existing_tables_set, table_data):
+    # Update all persisted tables that exist to reflect this.
+    persisted_tables = TableMetadata.query.filter(
+        TableMetadata.name.in_(existing_tables_set),
+        TableMetadata.data_source_id == data_source.id,
+    )
+    persisted_table_data = []
+    for persisted_table in persisted_tables:
+        # Add IDs to persisted table data so it can be used for updates.
+        table_data[persisted_table.name]['id'] = persisted_table.id
+        persisted_table_data.append(table_data[persisted_table.name])
+
+    models.db.session.bulk_update_mappings(
+        TableMetadata,
+        persisted_table_data
+    )
+
+    # Find the tables that need to be created by subtracting the sets:
+    persisted_table_set = set([col_data['name'] for col_data in persisted_table_data])
+    tables_to_create = existing_tables_set.difference(persisted_table_set)
+
+    table_metadata = [table_data[table_name] for table_name in tables_to_create]
+
+    models.db.session.bulk_insert_mappings(
+        TableMetadata,
+        table_metadata
+    )
+
+
+def insert_or_update_column_metadata(table, existing_columns_set, column_data):
+    persisted_columns = ColumnMetadata.query.filter(
+        ColumnMetadata.name.in_(existing_columns_set),
+        ColumnMetadata.table_id == table.id,
+    ).all()
+
+    persisted_column_data = []
+    for persisted_column in persisted_columns:
+        # Add IDs to persisted column data so it can be used for updates.
+        column_data[persisted_column.name]['id'] = persisted_column.id
+        persisted_column_data.append(column_data[persisted_column.name])
+
+    models.db.session.bulk_update_mappings(
+        ColumnMetadata,
+        persisted_column_data
+    )
+
+    # Find the columns that need to be created by subtracting the sets:
+    persisted_column_set = set([col_data['name'] for col_data in persisted_column_data])
+    columns_to_create = existing_columns_set.difference(persisted_column_set)
+
+    column_metadata = [column_data[col_name] for col_name in columns_to_create]
+
+    models.db.session.bulk_insert_mappings(
+        ColumnMetadata,
+        column_metadata
+    )
+
+
+@celery.task(name="redash.tasks.refresh_schema", time_limit=600, soft_time_limit=300)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)
     start_time = time.time()
+
+    MAX_TYPE_STRING_LENGTH = 250
     try:
-        ds.get_schema(refresh=True)
+        schema = ds.query_runner.get_schema(get_stats=True)
+
+        # Stores data from the updated schema that tells us which
+        # columns and which tables currently exist
+        existing_tables_set = set()
+        existing_columns_set = set()
+
+        # Stores data that will be inserted into postgres
+        table_data = {}
+        column_data = {}
+
+        new_column_names = {}
+        new_column_metadata = {}
+        for table in schema:
+            table_name = table['name']
+            existing_tables_set.add(table_name)
+
+            table_data[table_name] = {
+                'org_id': ds.org_id,
+                'name': table_name,
+                'data_source_id': ds.id,
+                'column_metadata': "metadata" in table,
+                'exists': True
+            }
+            new_column_names[table_name] = table['columns']
+            new_column_metadata[table_name] = table.get('metadata', None)
+
+        insert_or_update_table_metadata(ds, existing_tables_set, table_data)
+        models.db.session.commit()
+
+        all_existing_persisted_tables = TableMetadata.query.filter(
+            TableMetadata.exists.is_(True),
+            TableMetadata.data_source_id == ds.id,
+        ).all()
+
+        for table in all_existing_persisted_tables:
+            for i, column in enumerate(new_column_names.get(table.name, [])):
+                existing_columns_set.add(column)
+                column_data[column] = {
+                    'org_id': ds.org_id,
+                    'table_id': table.id,
+                    'name': column,
+                    'type': None,
+                    'exists': True
+                }
+
+                if table.column_metadata:
+                    column_type = new_column_metadata[table.name][i]['type']
+                    column_type = truncate_long_string(column_type, MAX_TYPE_STRING_LENGTH)
+                    column_data[column]['type'] = column_type
+
+            insert_or_update_column_metadata(table, existing_columns_set, column_data)
+            models.db.session.commit()
+
+            existing_columns_list = list(existing_columns_set)
+
+            # If a column did not exist, set the 'column_exists' flag to false.
+            ColumnMetadata.query.filter(
+                ColumnMetadata.exists.is_(True),
+                ColumnMetadata.table_id == table.id,
+                ~ColumnMetadata.name.in_(existing_columns_list),
+            ).update({
+                "exists": False,
+                "updated_at": db.func.now()
+            }, synchronize_session='fetch')
+
+            # Clear the set for the next round
+            existing_columns_set.clear()
+
+        # If a table did not exist in the get_schema() response above,
+        # set the 'exists' flag to false.
+        existing_tables_list = list(existing_tables_set)
+        TableMetadata.query.filter(
+            TableMetadata.exists.is_(True),
+            TableMetadata.data_source_id == ds.id,
+            ~TableMetadata.name.in_(existing_tables_list)
+        ).update({
+            "exists": False,
+            "updated_at": db.func.now()
+        }, synchronize_session='fetch')
+
+        models.db.session.commit()
+
         logger.info(u"task=refresh_schema state=finished ds_id=%s runtime=%.2f", ds.id, time.time() - start_time)
         statsd_client.incr('refresh_schema.success')
     except SoftTimeLimitExceeded:
@@ -264,6 +524,7 @@ def refresh_schemas():
     """
     Refreshes the data sources schemas.
     """
+    TABLE_SAMPLE_LIMIT = 50
     blacklist = [int(ds_id) for ds_id in redis_connection.smembers('data_sources:schema:blacklist') if ds_id]
     global_start_time = time.time()
 
@@ -278,6 +539,7 @@ def refresh_schemas():
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
             refresh_schema.apply_async(args=(ds.id,), queue=settings.SCHEMAS_REFRESH_QUEUE)
+            refresh_samples.apply_async(args=(ds.id, TABLE_SAMPLE_LIMIT), queue=settings.SAMPLES_REFRESH_QUEUE)
 
     logger.info(u"task=refresh_schemas state=finish total_runtime=%.2f", time.time() - global_start_time)
 
