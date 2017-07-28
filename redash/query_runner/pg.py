@@ -108,7 +108,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
 
     def _get_tables(self, schema):
         '''
@@ -128,6 +128,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
+               t.typname as column_type,
                a.attname as column_name
         FROM pg_class c
         JOIN pg_namespace s
@@ -137,6 +138,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
+        JOIN pg_type t
+        ON c.reltype = t.oid
         WHERE c.relkind IN ('r', 'v', 'm', 'f', 'p')
         """
 
