@@ -4,6 +4,8 @@ import logging
 import time
 import pytz
 
+import xlsxwriter
+from operator import itemgetter
 from six import python_2_unicode_compatible, text_type
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
@@ -60,6 +62,66 @@ class ScheduledQueriesExecutions(object):
 
 
 scheduled_queries_executions = ScheduledQueriesExecutions()
+
+
+@python_2_unicode_compatible
+@generic_repr('id', 'name', 'data_source_id', 'org_id', 'exists', 'column_metadata')
+class TableMetadata(TimestampMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id", ondelete="CASCADE"))
+    exists = Column(db.Boolean, default=True)
+    name = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
+    column_metadata = Column(db.Boolean, default=False)
+    sample_query = Column("sample_query", db.Text, nullable=True)
+    sample_updated_at = Column(db.DateTime(True), nullable=True)
+
+    __tablename__ = 'table_metadata'
+
+    def __str__(self):
+        return text_type(self.name)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'org_id': self.org_id,
+            'data_source_id': self.data_source_id,
+            'exists': self.exists,
+            'name': self.name,
+            'description': self.description,
+            'column_metadata': self.column_metadata,
+            'sample_query': self.sample_query,
+            'sample_updated_at': self.sample_updated_at,
+        }
+
+
+@python_2_unicode_compatible
+@generic_repr('id', 'name', 'type', 'table_id', 'org_id', 'exists')
+class ColumnMetadata(TimestampMixin, db.Model):
+    id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
+    table_id = Column(db.Integer, db.ForeignKey("table_metadata.id", ondelete="CASCADE"))
+    name = Column(db.String(255))
+    type = Column(db.String(255), nullable=True)
+    example = Column(db.String(4096), nullable=True)
+    exists = Column(db.Boolean, default=True)
+
+    __tablename__ = 'column_metadata'
+
+    def __str__(self):
+        return text_type(self.name)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'org_id': self.org_id,
+            'table_id': self.table_id,
+            'name': self.name,
+            'type': self.type,
+            'example': self.example,
+            'exists': self.exists,
+        }
 
 
 @python_2_unicode_compatible
@@ -142,22 +204,42 @@ class DataSource(BelongsToOrgMixin, db.Model):
         db.session.commit()
         return res
 
-    def get_schema(self, refresh=False):
-        key = "data_source:schema:{}".format(self.id)
+    def get_schema(self):
+        schema = []
+        columns_by_table_id = {}
 
-        cache = None
-        if not refresh:
-            cache = redis_connection.get(key)
+        tables = TableMetadata.query.filter(
+            TableMetadata.data_source_id == self.id,
+            TableMetadata.exists.is_(True),
+        ).all()
+        table_ids = [table.id for table in tables]
 
-        if cache is None:
-            query_runner = self.query_runner
-            schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
+        columns = ColumnMetadata.query.filter(
+            ColumnMetadata.exists.is_(True),
+            ColumnMetadata.table_id.in_(table_ids),
+        ).all()
 
-            redis_connection.set(key, json_dumps(schema))
-        else:
-            schema = json_loads(cache)
+        for column in columns:
+            columns_by_table_id.setdefault(column.table_id, []).append({
+                'key': column.id,
+                'name': column.name,
+                'type': column.type,
+                'exists': column.exists,
+                'example': column.example
+            })
 
-        return schema
+        for table in tables:
+            table_info = {
+                'name': table.name,
+                'exists': table.exists,
+                'hasColumnMetadata': table.column_metadata,
+                'columns': []}
+
+            table_info['columns'] = sorted(
+                columns_by_table_id.get(table.id, []), key=itemgetter('name'))
+            schema.append(table_info)
+
+        return sorted(schema, key=itemgetter('name'))
 
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)

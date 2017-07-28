@@ -242,7 +242,10 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         Execution failures recorded for a query result in exponential backoff
         for scheduling future execution.
         """
-        query = self.factory.create_query(schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None}, schedule_failures=4)
+
+        query = self.factory.create_query(schedule={'interval':'60', 'until':None, 'time': None, 'day_of_week':None})
+        # can't be set in create_query due to gen_query_hash
+        query.schedule_failures = 4
         retrieved_at = utcnow() - datetime.timedelta(minutes=16)
         query_result = self.factory.create_query_result(
             retrieved_at=retrieved_at, query_text=query.query_text,

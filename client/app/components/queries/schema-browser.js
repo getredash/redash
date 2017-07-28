@@ -11,6 +11,17 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     $scope.$broadcast('vsRepeatTrigger');
   };
 
+  $scope.showSchemaInfo = false;
+  $scope.openSchemaInfo = ($event, tableName, tableMetadata) => {
+    $scope.tableName = tableName;
+    $scope.tableMetadata = tableMetadata;
+    $scope.showSchemaInfo = true;
+    $event.stopPropagation();
+  };
+  $scope.closeSchemaInfo = () => {
+    $scope.$apply(() => { $scope.showSchemaInfo = false; });
+  };
+
   this.getSize = (table) => {
     let size = 22;
 

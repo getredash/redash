@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from redash import models
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  query_runners)
+from redash.tasks import refresh_samples
 from redash.utils import json_loads
 from redash.utils.configuration import ConfigurationContainer
 
@@ -110,7 +111,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
         options_obj = {}
 
-        for k, prop in schema['properties'].iteritems():
+        for k, prop in sorted(schema['properties'].iteritems()):
             required = k in schema.get('required', [])
             default_value = "<<DEFAULT_VALUE>>"
             if required:
@@ -170,6 +171,27 @@ def update_attr(obj, attr, new_value):
         old_value = getattr(obj, attr)
         print("Updating {}: {} -> {}".format(attr, old_value, new_value))
         setattr(obj, attr, new_value)
+
+
+@manager.command()
+@click.argument('name')
+@click.option('--org', 'organization', default='default',
+              help="The organization the user belongs to (leave blank for "
+              "'default').")
+@click.option('--count', 'num_tables', default=50,
+              help="number of tables to process data samples for")
+def refresh_data_samples(name, num_tables=50, organization='default'):
+    """Refresh table samples by data source name."""
+    try:
+        org = models.Organization.get_by_slug(organization)
+        data_source = models.DataSource.query.filter(
+            models.DataSource.name == name,
+            models.DataSource.org == org).one()
+        print("Refreshing samples for data source: {} (id={})".format(name, data_source.id))
+        refresh_samples(data_source.id, num_tables)
+    except NoResultFound:
+        print("Couldn't find data source named: {}".format(name))
+        exit(1)
 
 
 @manager.command()
