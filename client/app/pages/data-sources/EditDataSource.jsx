@@ -10,6 +10,7 @@ import notification from '@/services/notification';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import LoadingState from '@/components/items-list/components/LoadingState';
 import DynamicForm from '@/components/dynamic-form/DynamicForm';
+import SchemaTable from '@/pages/data-sources/schema-table-components/SchemaTable';
 import helper from '@/components/dynamic-form/dynamicFormHelper';
 import { HelpTrigger, TYPES as HELP_TRIGGER_TYPES } from '@/components/HelpTrigger';
 
@@ -26,13 +27,23 @@ class EditDataSource extends React.Component {
     dataSource: null,
     type: null,
     loading: true,
+    schema: null,
   };
 
   componentDidMount() {
     DataSource.get({ id: $route.current.params.dataSourceId }).$promise.then((dataSource) => {
       const { type } = dataSource;
       this.setState({ dataSource });
-      DataSource.types(types => this.setState({ type: find(types, { type }), loading: false }));
+
+      const typesPromise = DataSource.types().$promise;
+      const schemaPromise = DataSource.schema({ id: $route.current.params.dataSourceId }).$promise;
+
+      typesPromise.then(types => this.setState({ type: find(types, { type }) }));
+      schemaPromise.then(data => this.setState({ schema: data.schema }));
+
+      Promise.all([typesPromise, schemaPromise]).then(() => {
+        this.setState({ loading: false });
+      });
     }).catch((error) => {
       // ANGULAR_REMOVE_ME This code is related to Angular's HTTP services
       if (error.status && error.data) {
@@ -76,6 +87,12 @@ class EditDataSource extends React.Component {
       maskClosable: true,
       autoFocusButton: null,
     });
+  };
+
+  updateSchema = (schema, tableId, columnId) => {
+    const { dataSource } = this.state;
+    const data = { tableId, columnId, schema };
+    DataSource.updateSchema({ id: dataSource.id }, data);
   };
 
   testConnection = (callback) => {
@@ -123,6 +140,12 @@ class EditDataSource extends React.Component {
         </div>
         <div className="col-md-4 col-md-offset-4 m-b-10">
           <DynamicForm {...formProps} />
+        </div>
+        <div className="col-md-12 admin-schema-editor">
+          <SchemaTable
+            schema={this.state.schema}
+            updateSchema={this.updateSchema}
+          />
         </div>
       </div>
     );

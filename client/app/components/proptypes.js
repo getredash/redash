@@ -11,8 +11,16 @@ export const DataSource = PropTypes.shape({
   type_name: PropTypes.string,
 });
 
+export const DataSourceMetadata = PropTypes.shape({
+  key: PropTypes.number,
+  name: PropTypes.string,
+  type: PropTypes.string,
+  example: PropTypes.string,
+  description: PropTypes.string,
+});
+
 export const Table = PropTypes.shape({
-  columns: PropTypes.arrayOf(PropTypes.string).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.object).isRequired,
 });
 
 export const Schema = PropTypes.arrayOf(Table);
@@ -30,6 +38,13 @@ export const RefreshScheduleDefault = {
   day_of_week: null,
   until: null,
 };
+
+export const TableMetadata = PropTypes.shape({
+  key: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  visible: PropTypes.bool.isRequired,
+});
 
 export const Field = PropTypes.shape({
   name: PropTypes.string.isRequired,

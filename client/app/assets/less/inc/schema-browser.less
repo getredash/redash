@@ -7,14 +7,14 @@ div.table-name {
   border-radius: @redash-radius;
   position: relative;
 
-  .copy-to-editor {
+  .copy-to-editor, .info {
     display: none;
   }
 
   &:hover {
     background: fade(@redash-gray, 10%);
 
-    .copy-to-editor {
+    .copy-to-editor, .info {
       display: flex;
     }
   }
@@ -36,7 +36,7 @@ div.table-name {
     background: transparent;
   }
 
-  .copy-to-editor {
+  .copy-to-editor, .info {
     color: fade(@redash-gray, 90%);
     cursor: pointer;
     position: absolute;
@@ -49,6 +49,10 @@ div.table-name {
     justify-content: center;
   }
 
+  .info {
+    right: 20px
+  }
+
   .table-open {
     padding: 0 22px 0 26px;
     overflow: hidden;
@@ -56,14 +60,14 @@ div.table-name {
     white-space: nowrap;
     position: relative;
 
-    .copy-to-editor {
+    .copy-to-editor, .info {
       display: none;
     }
 
     &:hover {
       background: fade(@redash-gray, 10%);
 
-      .copy-to-editor {
+      .copy-to-editor, .info {
         display: flex;
       }
     }

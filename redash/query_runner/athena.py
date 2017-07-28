@@ -44,6 +44,10 @@ class SimpleFormatter(object):
 class Athena(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
+    # This takes a 1% random sample from {table}, reducing
+    # the runtime and data scanned for the query
+    sample_query = "SELECT * FROM {table} TABLESAMPLE SYSTEM (1) LIMIT 1"
+
     @classmethod
     def name(cls):
         return "Amazon Athena"
@@ -88,6 +92,10 @@ class Athena(BaseQueryRunner):
                     "title": "Toggle Table String",
                     "default": "_v",
                     "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                },
+                'samples': {
+                    'type': 'boolean',
+                    'title': 'Show Data Samples'
                 },
             },
             'required': ['region', 's3_staging_dir'],
@@ -143,9 +151,18 @@ class Athena(BaseQueryRunner):
                     table_name = '%s.%s' % (database['Name'], table['Name'])
                     if table_name not in schema:
                         column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
-                        schema[table_name] = {'name': table_name, 'columns': column}
+                        metadata = [{
+                            "name": column_data['Name'],
+                            "type": column_data['Type']
+                        } for column_data in table['StorageDescriptor']['Columns']]
+                        schema[table_name] = {'name': table_name, 'columns': column, 'metadata': metadata}
                         for partition in table.get('PartitionKeys', []):
                             schema[table_name]['columns'].append(partition['Name'])
+                            schema[table_name]['metadata'].append({
+                                "name": partition['Name'],
+                                "type": partition['Type']
+                            })
+
         return schema.values()
 
     def get_schema(self, get_stats=False):
@@ -154,7 +171,7 @@ class Athena(BaseQueryRunner):
 
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type AS column_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
         """
@@ -164,11 +181,17 @@ class Athena(BaseQueryRunner):
             raise Exception("Failed getting schema.")
 
         results = json_loads(results)
-        for row in results['rows']:
+
+        for i, row in enumerate(results['rows']):
             table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
+                schema[table_name] = {'name': table_name, 'columns': [], 'metadata': []}
+
             schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['metadata'].append({
+                "name": row['column_name'],
+                "type": row['column_type'],
+            })
 
         return schema.values()
 

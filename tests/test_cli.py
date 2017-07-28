@@ -3,10 +3,11 @@ import textwrap
 from click.testing import CliRunner
 
 from tests import BaseTestCase
+from redash import utils
 from redash.utils.configuration import ConfigurationContainer
 from redash.query_runner import query_runners
 from redash.cli import manager
-from redash.models import DataSource, Group, Organization, User, db
+from redash.models import TableMetadata, DataSource, Group, Organization, User, db
 
 
 class DataSourceCommandTests(BaseTestCase):
@@ -16,7 +17,7 @@ class DataSourceCommandTests(BaseTestCase):
         result = runner.invoke(
             manager,
             ['ds', 'new'],
-            input="test\n%s\n\n\n\n\nexample.com\n\n\ntestdb\n" % (pg_i,))
+            input="test\n%s\ntestdb\n" % (pg_i,))
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(DataSource.query.count(), 1)
@@ -138,6 +139,16 @@ class DataSourceCommandTests(BaseTestCase):
         self.assertEqual(result.exit_code, 1)
         self.assertIn("Couldn't find", result.output)
         self.assertEqual(DataSource.query.count(), 1)
+
+    def test_refresh_samples(self):
+        ds = self.factory.create_data_source(
+            name='test1', type='sqlite',
+            options=ConfigurationContainer({"dbpath": "/tmp/test.db"}))
+        runner = CliRunner()
+        result = runner.invoke(manager, ['ds', 'refresh_data_samples', 'test1'])
+        self.assertFalse(result.exception)
+        self.assertEqual(result.exit_code, 0)
+        self.assertIn('Refreshing', result.output)
 
     def test_options_edit(self):
         self.factory.create_data_source(

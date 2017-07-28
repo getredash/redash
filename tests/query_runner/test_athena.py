@@ -72,7 +72,11 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['row_id'], 'name': 'test1.jdbc_table'}]
+            assert query_runner.get_schema() == [{
+                'columns': ['row_id'],
+                'name': 'test1.jdbc_table',
+                'metadata': [{'type': 'int', 'name': 'row_id'}]
+            }]
 
     def test_partitioned_table(self):
         """
@@ -118,7 +122,11 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['sk', 'category'], 'name': 'test1.partitioned_table'}]
+            assert query_runner.get_schema() == [{
+                'columns': ['sk', 'category'],
+                'name': 'test1.partitioned_table',
+                'metadata': [{'type': 'int', 'name': 'sk'}, {'type': 'int', 'name': 'category'}]
+            }]
 
     def test_view(self):
         query_runner = Athena({'glue': True, 'region': 'mars-east-1'})
@@ -150,7 +158,11 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['sk'], 'name': 'test1.view'}]
+            assert query_runner.get_schema() == [{
+                'columns': ['sk'],
+                'name': 'test1.view',
+                'metadata': [{'type': 'int', 'name': 'sk'}]
+            }]
 
     def test_dodgy_table_does_not_break_schema_listing(self):
         """
@@ -187,4 +199,8 @@ class TestGlueSchema(TestCase):
             {'DatabaseName': 'test1'},
         )
         with self.stubber:
-            assert query_runner.get_schema() == [{'columns': ['region'], 'name': 'test1.csv'}]
+            assert query_runner.get_schema() == [{
+                'columns': ['region'],
+                'name': 'test1.csv',
+                'metadata': [{'type': 'string', 'name': 'region'}]
+            }]

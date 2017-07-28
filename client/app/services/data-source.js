@@ -18,6 +18,7 @@ function DataSourceService($q, $resource, $http) {
 
   const actions = {
     get: { method: 'GET', cache: false, isArray: false },
+    post: { method: 'POST', cache: false, isArray: false },
     query: { method: 'GET', cache: false, isArray: true },
     save: { method: 'POST' },
     types: {
@@ -31,6 +32,18 @@ function DataSourceService($q, $resource, $http) {
       cache: false,
       isArray: false,
       url: 'api/data_sources/:id/test',
+    },
+    schema: {
+      method: 'GET',
+      cache: false,
+      isArray: false,
+      url: 'api/data_sources/:id/schema',
+    },
+    updateSchema: {
+      method: 'POST',
+      cache: false,
+      isArray: false,
+      url: 'api/data_sources/:id/schema',
     },
   };
 
