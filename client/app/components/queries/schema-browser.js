@@ -35,7 +35,7 @@ function SchemaBrowserCtrl($rootScope, $scope) {
   };
 
   this.itemSelected = ($event, hierarchy) => {
-    $rootScope.$broadcast('query-editor.command', 'paste', hierarchy.join('.'));
+    $rootScope.$broadcast('query-editor.command', 'paste', hierarchy.join('.').split('(')[0]);
     $event.preventDefault();
     $event.stopPropagation();
   };

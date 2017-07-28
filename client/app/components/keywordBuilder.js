@@ -29,6 +29,9 @@ function buildKeywordsFromSchema(schema) {
     });
     tableColumnKeywords[table.name] = buildTableColumnKeywords(table);
     table.columns.forEach((c) => {
+      if (c.length > 0) {
+        c = c.split('(')[0];
+      }
       columnKeywords[c] = 'Column';
     });
   });
