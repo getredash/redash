@@ -1,5 +1,5 @@
 <div class="form-inline bg-white p-5"
-     ng-if="parameters | notEmpty"
+     ng-if="hideParameters != 'true' && parameters | notEmpty"
      ui-sortable="{ 'ui-floating': true, 'disabled': !editable }"
      ng-model="parameters">
   <div class="form-group m-l-10 m-r-10"
