@@ -1,12 +1,15 @@
-import logging
 import json
+import logging
+import os
 
-from redash.utils import JSONEncoder
 from redash.query_runner import *
-
+from redash.settings import parse_boolean
+from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
-
+ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
+SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
+OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
 
 try:
     import pyathena
@@ -33,6 +36,11 @@ _TYPE_MAPPINGS = {
 }
 
 
+class SimpleFormatter(object):
+    def format(self, operation, parameters=None):
+        return operation
+
+
 class Athena(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
@@ -42,7 +50,7 @@ class Athena(BaseQueryRunner):
 
     @classmethod
     def configuration_schema(cls):
-        return {
+        schema = {
             'type': 'object',
             'properties': {
                 'region': {
@@ -66,6 +74,14 @@ class Athena(BaseQueryRunner):
                     'title': 'Schema Name',
                     'default': 'default'
                 },
+            },
+            'required': ['region', 's3_staging_dir'],
+            'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
+            'secret': ['aws_secret_key']
+        }
+
+        if SHOW_EXTRA_SETTINGS:
+            schema['properties'].update({
                 'encryption_option': {
                     'type': 'string',
                     'title': 'Encryption Option',
@@ -74,14 +90,20 @@ class Athena(BaseQueryRunner):
                     'type': 'string',
                     'title': 'KMS Key',
                 },
-            },
-            'required': ['region', 's3_staging_dir'],
-            'secret': ['aws_secret_key']
-        }
+            })
+
+        if not OPTIONAL_CREDENTIALS:
+            schema['required'] += ['aws_access_key', 'aws_secret_key']
+
+        return schema
 
     @classmethod
     def enabled(cls):
         return enabled
+
+    @classmethod
+    def annotate_query(cls):
+        return ANNOTATE_QUERY
 
     @classmethod
     def type(cls):
@@ -119,7 +141,8 @@ class Athena(BaseQueryRunner):
             aws_secret_access_key=self.configuration.get('aws_secret_key', None),
             schema_name=self.configuration.get('schema', 'default'),
             encryption_option=self.configuration.get('encryption_option', None),
-            kms_key=self.configuration.get('kms_key', None)).cursor()
+            kms_key=self.configuration.get('kms_key', None),
+            formatter=SimpleFormatter()).cursor()
 
         try:
             cursor.execute(query)
@@ -130,11 +153,13 @@ class Athena(BaseQueryRunner):
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:
-            cursor.cancel()
+            if cursor.query_id:
+                cursor.cancel()
             error = "Query cancelled by user."
             json_data = None
         except Exception, ex:
-            cursor.cancel()
+            if cursor.query_id:
+                cursor.cancel()
             error = ex.message
             json_data = None
 

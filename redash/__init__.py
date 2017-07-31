@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import urlparse
 import redis
@@ -21,7 +22,7 @@ __version__ = '2.0.0'
 
 
 def setup_logging():
-    handler = logging.StreamHandler()
+    handler = logging.StreamHandler(sys.stdout if settings.LOG_STDOUT else sys.stderr)
     formatter = logging.Formatter('[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)

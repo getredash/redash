@@ -131,8 +131,12 @@ function DynamicForm($http, toastr, $q) {
             toastr.success('Saved.');
             $scope.dataSourceForm.$setPristine();
           },
-          () => {
-            toastr.error('Failed saving.');
+          (error) => {
+            if (error.status === 400 && 'message' in error.data) {
+              toastr.error(error.data.message);
+            } else {
+              toastr.error('Failed saving.');
+            }
           }
         );
       };
