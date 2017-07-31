@@ -80,10 +80,10 @@ def get_latest_release_from_ci():
         exit("Failed getting releases (status code: %s)." % response.status_code)
 
     tarball_asset = filter(lambda asset: asset['url'].endswith('.tar.gz'), response.json())[0]
-    filename = tarball_asset['pretty_path'].replace('$CIRCLE_ARTIFACTS/', '')
-    version = filename.replace('redash.', '').replace('.tar.gz', '')
-
-    release = Release(version, tarball_asset['url'], filename, '')
+    url = tarball_asset['url'].replace('%252B', '+')
+    filename = url.split('/')[-1]
+    version = filename.replace('redash', '').replace('.tar.gz', '')
+    release = Release(version, url, filename, '')
 
     return release
 
