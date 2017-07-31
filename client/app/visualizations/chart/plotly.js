@@ -499,9 +499,9 @@ const CustomPlotlyChart = (clientConfig) => {
         return;
       }
       const refresh = () => {
-        // Clear existing data
-        element[0].children[0].calcdata = [];
-        element[0].children[0].data = [];
+        // Clear existing data with blank data for succeeding codeCall adds data to existing plot.
+        Plotly.newPlot(element[0].children[0]);
+
         // eslint-disable-next-line no-eval
         const codeCall = eval(`codeCall = function(x, ys, element, Plotly){ ${scope.options.customCode} }`);
         codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
