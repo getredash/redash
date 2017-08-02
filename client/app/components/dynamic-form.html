@@ -11,6 +11,7 @@
         <label ng-if="field.property.type !== 'checkbox'">{{field.property.title || field.name | capitalize}}</label>
         <input name="input" type="{{field.property.type}}" class="form-control" ng-model="target.options[field.name]" ng-required="field.property.required"
                ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox'" accesskey="tab" placeholder="{{field.property.default}}">
+               <div class="mute-text"> {{ field.property.info }} </div>
 
         <label ng-if="field.property.type=='checkbox'">
             <input name="input" type="{{field.property.type}}" ng-model="target.options[field.name]" ng-required="field.property.required"

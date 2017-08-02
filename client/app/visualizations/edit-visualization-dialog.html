@@ -33,10 +33,18 @@
       <div class="col-md-7" style="border: 1px solid #eee">
         <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult"></visualization-renderer>
       </div>
+      <div class="col-md-7">  
+        <div class="bg-warning slight-padding" ng-if="$ctrl.visualization.options.series.stacking == null && $ctrl.has3plusColumnsFunction()" ng-bind-html="$ctrl.warning_three_column_stacking"> 
+        </div>
+        <div ng-repeat="value in $ctrl.visualization.options.columnMapping">
+          <div ng-if="value == 'unused' && $ctrl.has3plusColumnsFunction()" ng-bind-html="$ctrl.warning_three_column_groupby" class="bg-danger slight-padding"></div> 
+        </div>
+        </div>
+      </div>
     </div>
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-default" ng-click="$ctrl.closeDialog()">Close</button>
-    <button type="button" class="btn btn-primary" ng-click="$ctrl.submit()">Save</button>
+    <button type="button" class="btn btn-primary" ng-click="$ctrl.submit()" ng-disabled="$ctrl.disableSubmit()">Save</button>
   </div>
 </div>

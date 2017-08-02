@@ -1,7 +1,10 @@
 from itertools import chain
+import json
 
 from flask import request, url_for
 from funcy import distinct, project, take
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import StaleDataError 
 
 from flask_restful import abort
 from redash import models, serializers, settings
@@ -128,6 +131,13 @@ class DashboardResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug, self.current_org)
 
         require_object_modify_permission(dashboard, self.current_user)
+        if 'layout' in dashboard_properties:
+            try:
+                layout = json.loads(dashboard_properties['layout'])
+            except ValueError:
+                abort(400)
+            if not isinstance(layout, list):
+                abort(400)
 
         updates = project(dashboard_properties, ('name', 'layout', 'version',
                                                  'is_draft', 'dashboard_filters_enabled'))
@@ -146,7 +156,8 @@ class DashboardResource(BaseResource):
             models.db.session.commit()
         except StaleDataError:
             abort(409)
-
+        except IntegrityError:
+            abort(400)
         result = dashboard.to_dict(with_widgets=True, user=self.current_user)
         return result
 

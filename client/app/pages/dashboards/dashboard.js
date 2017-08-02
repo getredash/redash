@@ -155,6 +155,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.editDashboard = () => {
+    this.dashboard.existing_name = this.dashboard.name;
     const previousFiltersState = this.dashboard.dashboard_filters_enabled;
     $uibModal.open({
       component: 'editDashboardDialog',

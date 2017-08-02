@@ -1,9 +1,8 @@
 import json
 import logging
 import signal
-import time
-
 import pystache
+import time
 import redis
 
 from celery.exceptions import SoftTimeLimitExceeded

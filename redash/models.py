@@ -476,13 +476,15 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'type': self.type,
             'syntax': self.query_runner.syntax,
             'paused': self.paused,
-            'pause_reason': self.pause_reason
+            'pause_reason': self.pause_reason,
+            'type_name': self.query_runner.name()
         }
 
+        
+        schema = get_configuration_schema_for_query_runner_type(self.type)
+        self.options.set_schema(schema)
+        d['options'] = self.options.to_dict(mask_secrets=True)
         if all:
-            schema = get_configuration_schema_for_query_runner_type(self.type)
-            self.options.set_schema(schema)
-            d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
@@ -619,10 +621,16 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
+    data_scanned = Column(db.String(255), nullable=True)
 
     __tablename__ = 'query_results'
 
     def to_dict(self):
+        if hasattr(self, 'data_scanned'):
+            data_scanned_info = self.data_scanned
+        else:
+            data_scanned_info = 'to_dict'
+
         return {
             'id': self.id,
             'query_hash': self.query_hash,
@@ -630,7 +638,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'data': json.loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
-            'retrieved_at': self.retrieved_at
+            'retrieved_at': self.retrieved_at,
+            'data_scanned': data_scanned_info
         }
 
     @classmethod
@@ -665,13 +674,20 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+        try:
+            data_scanned_information = json.loads(data)['data_scanned']
+        except (ValueError, TypeError, KeyError) as e:
+            data_scanned_information = ''
+
         query_result = cls(org=org,
                            query_hash=query_hash,
                            query_text=query,
                            runtime=run_time,
                            data_source=data_source,
                            retrieved_at=retrieved_at,
-                           data=data)
+                           data=data,
+                           data_scanned=data_scanned_information
+                           )
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.
@@ -771,6 +787,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
     schedule_failures = Column(db.Integer, default=0)
+    schedule_until = Column(db.DateTime(True), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
 
@@ -789,6 +806,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             'query': self.query_text,
             'query_hash': self.query_hash,
             'schedule': self.schedule,
+            'schedule_until': self.schedule_until,
             'api_key': self.api_key,
             'is_archived': self.is_archived,
             'is_draft': self.is_draft,
@@ -871,7 +889,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (db.session.query(Query)
                    .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
-                   .filter(Query.schedule != None)
+                   .filter(Query.schedule != None,
+                           (Query.schedule_until == None) |
+                           (Query.schedule_until > db.func.now()))
                    .order_by(Query.id))
 
         now = utils.utcnow()
@@ -1198,7 +1218,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="dashboards")
     slug = Column(db.String(140), index=True, default=generate_slug)
-    name = Column(db.String(100))
+    name = Column(db.String(100), db.CheckConstraint("name<>''", name="dashboard_name_c"))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
     # TODO: The layout should dynamically be built from position and size information on each widget.

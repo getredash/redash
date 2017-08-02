@@ -88,7 +88,17 @@ def login():
     next_path = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next_path)
-    return google_remote_app().authorize(callback=callback, state=next_path)
+    extra = {}
+    if 'org_slug' in session:
+        org = models.Organization.get_by_slug(session.pop('org_slug'))
+    else:
+        org = current_org
+    if org.google_apps_domains:
+        extra['hd'] = org.google_apps_domains[0]
+    if session.get('relogin') == '1':
+        extra['prompt'] = 'consent'
+        session['relogin'] = '0'
+    return google_remote_app().authorize(callback=callback, state=next_path, **extra)
 
 
 @blueprint.route('/oauth/google_callback', endpoint="callback")
@@ -113,7 +123,7 @@ def authorized():
 
     if not verify_profile(org, profile):
         logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
-        flash("Your Google Apps account ({}) isn't allowed.".format(profile['email']))
+        session['relogin'] = '1'
         return redirect(url_for('redash.login', org_slug=org.slug))
 
     create_and_login_user(org, profile['name'], profile['email'])

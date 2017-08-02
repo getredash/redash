@@ -35,8 +35,10 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
+    default_doc_url = "http://docs.oracle.com/database/121/SQLRF/toc.htm"
 
     @classmethod
     def get_col_type(cls, col_type, scale):
@@ -69,6 +71,17 @@ class Oracle(BaseSQLQueryRunner):
                 "servicename": {
                     "type": "string",
                     "title": "DSN Service Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "required": ["servicename", "user", "password", "host", "port"],

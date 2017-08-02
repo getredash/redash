@@ -56,6 +56,12 @@ class MemSQL(BaseSQLQueryRunner):
                 },
                 "password": {
                     "type": "string"
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
 
             },
@@ -93,7 +99,6 @@ class MemSQL(BaseSQLQueryRunner):
                 table_name = '.'.join((schema_name, table_name))
                 columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['Field']),
                                                            self._run_query_internal(columns_query % table_name)))
-
                 schema[table_name] = {'name': table_name, 'columns': columns}
         return schema.values()
 
