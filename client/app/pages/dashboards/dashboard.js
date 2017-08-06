@@ -17,6 +17,8 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     { name: '10 minutes', rate: 60 * 10 },
     { name: '30 minutes', rate: 60 * 30 },
     { name: '1 hour', rate: 60 * 60 },
+    { name: '12 hour', rate: 12 * 60 * 60 },
+    { name: '24 hour', rate: 24 * 60 * 60 },
   ];
 
   this.setRefreshRate = (rate) => {

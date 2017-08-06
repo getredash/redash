@@ -30,6 +30,7 @@
 - Add limit parameter to tasks API. @alexpekurovsky
 - Add SQLAlchemy pool settings.
 - Support for category type y axis.
+- Add 12 & 24 hours refresh rate option to dashboards.
 
 ### Changed
 
