@@ -94,6 +94,7 @@
 - Salesforce: sandbox parameter should be optional. @msnider
 - Alert page wasn't properly linked from alerts list. @alison985
 - PostgreSQL passwords with spaces were not supported. (#1056)
+- PivotTable wasn't updating after first save.
 
 
 ## v1.0.3 - 2017-04-18
