@@ -198,7 +198,6 @@ default_query_runners = [
     'redash.query_runner.memsql_ds',
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
-    'redash.query_runner.snowflake',
     'redash.query_runner.axibase_tsd',
     'redash.query_runner.salesforce'
 ]
