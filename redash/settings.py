@@ -42,6 +42,13 @@ def parse_boolean(str):
     return json.loads(str.lower())
 
 
+def int_or_none(value):
+    if value is None:
+        return value
+
+    return int(value)
+
+
 def all_settings():
     from types import ModuleType
 
@@ -66,6 +73,9 @@ STATSD_USE_TAGS = parse_boolean(os.environ.get('REDASH_STATSD_USE_TAGS', "false"
 
 # Connection settings for Redash's own database (where we store the queries, results, etc)
 SQLALCHEMY_DATABASE_URI = os.environ.get("REDASH_DATABASE_URL", os.environ.get('DATABASE_URL', "postgresql:///postgres"))
+SQLALCHEMY_MAX_OVERFLOW = int_or_none(os.environ.get("SQLALCHEMY_MAX_OVERFLOW"))
+SQLALCHEMY_POOL_SIZE = int_or_none(os.environ.get("SQLALCHEMY_POOL_SIZE"))
+SQLALCHEMY_DISABLE_POOL = parse_boolean(os.environ.get("SQLALCHEMY_DISABLE_POOL", "false"))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
