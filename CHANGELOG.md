@@ -28,6 +28,7 @@
 - Add link to query page from admin view. @miketheman
 - Add the option to write logs to STDOUT instead of STDERR. @eyalzek
 - Add limit parameter to tasks API. @alexpekurovsky
+- Support for category type y axis.
 
 ### Changed
 
