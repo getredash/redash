@@ -68,6 +68,7 @@
 - Update to Webpack 2. @44px
 - Remove /forgot endpoint if REDASH_PASSWORD_LOGIN_ENABLED is false. @amarjayr
 - Docker: make Gunicorn worker count configurable. @unixwitch
+- Snowflake support is no longer enabled by default.
 
 ### Fixed
 
