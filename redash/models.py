@@ -8,20 +8,12 @@ import json
 import logging
 import time
 
+from funcy import project
+
 import xlsxwriter
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from funcy import project
 from passlib.apps import custom_app_context as pwd_context
-from sqlalchemy import or_
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.event import listens_for
-from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
-from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
-from sqlalchemy.types import TypeDecorator
-
 from redash import redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
@@ -31,6 +23,14 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
+from sqlalchemy import or_
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.event import listens_for
+from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
+from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
+from sqlalchemy.types import TypeDecorator
 
 db = SQLAlchemy(session_options={
     'expire_on_commit': False
@@ -707,7 +707,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         s = cStringIO.StringIO()
 
         query_data = json.loads(self.data)
-        book = xlsxwriter.Workbook(s)
+        book = xlsxwriter.Workbook(s, {'constant_memory': True})
         sheet = book.add_worksheet("result")
 
         column_names = []

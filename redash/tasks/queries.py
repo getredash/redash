@@ -269,6 +269,8 @@ def refresh_queries():
         for query in models.Query.outdated_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
+            elif query.data_source is None:
+                logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
@@ -350,7 +352,7 @@ def cleanup_query_results():
     logger.info("Deleted %d unused query results.", deleted_count)
 
 
-@celery.task(name="redash.tasks.refresh_schema", soft_time_limit=60)
+@celery.task(name="redash.tasks.refresh_schema", time_limit=90, soft_time_limit=60)
 def refresh_schema(data_source_id):
     ds = models.DataSource.get_by_id(data_source_id)
     logger.info(u"task=refresh_schema state=start ds_id=%s", ds.id)

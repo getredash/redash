@@ -78,8 +78,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   };
 
   if (this.widget.visualization) {
-    Events.record('view', 'query', this.widget.visualization.query.id);
-    Events.record('view', 'visualization', this.widget.visualization.id);
+    Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
+    Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
 
     this.query = this.widget.getQuery();
     this.reload(false);
