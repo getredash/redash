@@ -50,7 +50,10 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   this.onGlobalParametersChange = () => {
     this.globalParameters.forEach((global) => {
       global.locals.forEach((local) => {
-        local.value = global.value;
+        if (local.value !== global.value) {
+          local.value = global.value;
+          location.reload();
+        }
       });
     });
   };
