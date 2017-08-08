@@ -42,6 +42,13 @@ def parse_boolean(str):
     return json.loads(str.lower())
 
 
+def int_or_none(value):
+    if value is None:
+        return value
+
+    return int(value)
+
+
 def all_settings():
     from types import ModuleType
 
@@ -66,6 +73,9 @@ STATSD_USE_TAGS = parse_boolean(os.environ.get('REDASH_STATSD_USE_TAGS', "false"
 
 # Connection settings for Redash's own database (where we store the queries, results, etc)
 SQLALCHEMY_DATABASE_URI = os.environ.get("REDASH_DATABASE_URL", os.environ.get('DATABASE_URL', "postgresql:///postgres"))
+SQLALCHEMY_MAX_OVERFLOW = int_or_none(os.environ.get("SQLALCHEMY_MAX_OVERFLOW"))
+SQLALCHEMY_POOL_SIZE = int_or_none(os.environ.get("SQLALCHEMY_POOL_SIZE"))
+SQLALCHEMY_DISABLE_POOL = parse_boolean(os.environ.get("SQLALCHEMY_DISABLE_POOL", "false"))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
@@ -90,6 +100,13 @@ MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
+
+LDAP_BASE_DN = os.environ.get("REDASH_LDAP_BASE_DN", "")
+LDAP_SERVER = os.environ.get("REDASH_LDAP_SERVER", "")
+LDAP_ADMIN_CN = os.environ.get("REDASH_LDAP_ADMIN_CN", "")
+LDAP_ADMIN_PASSWORD = os.environ.get("REDASH_LDAP_ADMIN_PASSWORD", "")
+LDAP_DOMAIN = os.environ.get("REDASH_LDAP_DOMAIN", "")
+LDAP_LOGIN_ENABLED = LDAP_BASE_DN and LDAP_SERVER and LDAP_ADMIN_CN and LDAP_ADMIN_PASSWORD and LDAP_DOMAIN
 
 SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
 SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
@@ -154,7 +171,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAI
 # How many requests are allowed per IP to the login page before
 # being throttled?
 # See https://flask-limiter.readthedocs.io/en/stable/#rate-limit-string-notation
-THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50/hour')
+THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50000000/hour')
 
 # CORS settings for the Query Result API (and possbily future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN
@@ -188,7 +205,6 @@ default_query_runners = [
     'redash.query_runner.memsql_ds',
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
-    'redash.query_runner.snowflake',
     'redash.query_runner.axibase_tsd',
     'redash.query_runner.salesforce'
 ]
