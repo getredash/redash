@@ -1,4 +1,5 @@
 <div>
+  <div class="filter_label">Filter results: </div><input type="text" ng-model="$ctrl.filterWord" class="form-control table_filter">
   <table class="table table-condensed table-hover">
     <thead>
     <tr>
@@ -9,7 +10,7 @@
 
     </thead>
     <tbody>
-    <tr ng-repeat="row in $ctrl.rowsToDisplay">
+    <tr ng-repeat="row in $ctrl.rowsToDisplay | filter:$ctrl.filterWord:strict">
       <td ng-repeat="column in $ctrl.columns" ng-bind-html="$ctrl.sanitize(column.formatFunction(row[column.name]))">
       </td>
     </tr>

@@ -101,6 +101,13 @@ GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 
+LDAP_BASE_DN = os.environ.get("REDASH_LDAP_BASE_DN", "")
+LDAP_SERVER = os.environ.get("REDASH_LDAP_SERVER", "")
+LDAP_ADMIN_CN = os.environ.get("REDASH_LDAP_ADMIN_CN", "")
+LDAP_ADMIN_PASSWORD = os.environ.get("REDASH_LDAP_ADMIN_PASSWORD", "")
+LDAP_DOMAIN = os.environ.get("REDASH_LDAP_DOMAIN", "")
+LDAP_LOGIN_ENABLED = LDAP_BASE_DN and LDAP_SERVER and LDAP_ADMIN_CN and LDAP_ADMIN_PASSWORD and LDAP_DOMAIN
+
 SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
 SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
 SAML_LOCAL_METADATA_PATH = os.environ.get("REDASH_SAML_LOCAL_METADATA_PATH", "")
@@ -164,7 +171,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAI
 # How many requests are allowed per IP to the login page before
 # being throttled?
 # See https://flask-limiter.readthedocs.io/en/stable/#rate-limit-string-notation
-THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50/hour')
+THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50000000/hour')
 
 # CORS settings for the Query Result API (and possbily future external APIs).
 # In most cases all you need to do is set REDASH_CORS_ACCESS_CONTROL_ALLOW_ORIGIN

@@ -1,11 +1,13 @@
 import hashlib
 import logging
+import ldap
 
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url
+from redash.authentication.ldap_auth import ldap_login
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
                                            validate_token)
@@ -13,9 +15,9 @@ from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
 from redash.version_check import get_latest_version
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql import exists
 
 logger = logging.getLogger(__name__)
-
 
 def get_google_auth_url(next_path):
     if settings.MULTI_ORG:
@@ -71,7 +73,6 @@ def invite(token, org_slug=None):
 def reset(token, org_slug=None):
     return render_token_login_page("reset.html", org_slug, token)
 
-
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
     if not settings.PASSWORD_LOGIN_ENABLED:
@@ -89,7 +90,6 @@ def forgot_password(org_slug=None):
             logging.error("No user found for forgot password: %s", email)
 
     return render_template("forgot.html", submitted=submitted)
-
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
@@ -114,7 +114,7 @@ def login(org_slug=None):
         else:
             return redirect(url_for("google_oauth.authorize", next=next_path))
 
-    if request.method == 'POST':
+    if request.method == 'POST' and not settings.LDAP_LOGIN_ENABLED:
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form['email'], org)
@@ -127,6 +127,51 @@ def login(org_slug=None):
         except NoResultFound:
             flash("Wrong email or password.")
 
+    if request.method == 'POST' and settings.LDAP_LOGIN_ENABLED:
+
+        org = current_org._get_current_object()
+        username = request.form['username']
+        password = request.form['password']
+        email = username + '@' + settings.LDAP_DOMAIN
+
+        user_data = ldap_login(username, password)
+
+        if user_data:
+
+            user_groups = [org.default_group.id]
+            #add new groups to db
+            for g in user_data[0][0][1]['memberOf']:
+                group_name = g[3:g.index(',')]
+
+                group_exists = models.db.session.query(models.Group).filter_by(name=group_name).count()
+
+                if group_exists == 0:
+                    group = models.Group(name=group_name, org=org)
+                    models.db.session.add(group)
+                    models.db.session.commit()
+
+                group_id = models.db.session.query(models.Group.id).filter_by(name=group_name).all()
+                user_groups.append(group_id[0][0])
+
+            try:
+                #user already exists
+                user = models.User.get_by_email_and_org(email, org)
+
+                #update user groups
+                models.db.session.query(models.User).filter(models.User.id == user.id).update({"group_ids": user_groups})
+                models.db.session.commit()
+
+            except NoResultFound:
+                #new user
+                user = models.User(org=org, name=username, email=email, group_ids=user_groups)
+                models.db.session.add(user)
+                models.db.session.commit()
+            remember = ('remember' in request.form)
+            login_user(user, remember=remember)
+            return redirect(next_path)
+        else:
+            flash("Wrong username or password.")
+
     google_auth_url = get_google_auth_url(next_path)
 
     return render_template("login.html",
@@ -134,6 +179,7 @@ def login(org_slug=None):
                            next=next_path,
                            email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
+                           show_ldap_login=settings.LDAP_LOGIN_ENABLED,
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED)
