@@ -22,6 +22,7 @@ export default function (ngModule) {
   registerVisualizationEmbed(ngModule);
   registerCompareQueryDialog(ngModule);
   registerApiKeyDialog(ngModule);
+  registerCompareQueryDialog(ngModule);
   registerGetDataSourceVersion(ngModule);
 
   return Object.assign({}, registerQuerySearchResultsPage(ngModule),

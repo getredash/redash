@@ -277,6 +277,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
       component: 'compareQueryDialog',
       resolve: {
         query: $scope.query,
+        saveQuery: () => $scope.saveQuery,
       },
     });
   };

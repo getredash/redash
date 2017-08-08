@@ -22,18 +22,17 @@
   margin: 0 5px 0 0;
 }
 
-.query-diff-container > div {
+.query-diff-container > div:not(.compare-query-version-controls) {
   float: left;
   width: calc(50% - 5px);
   margin: 0 10px 0 0;
 }
 
-.query-diff-container > div:first-child {
-  float: none;
-  width: 400px;
-  margin: 0 auto;
-  padding: 10px;
+.compare-query-version {
   background-color: #f5f5f5;
+  padding: 5px;
+  border: 1px solid #ccc;
+  margin-right: 15px;
   border-radius: 3px;
 }
 
@@ -46,4 +45,10 @@
 
 .query-diff-container > div:last-child {
   margin: 0;
+}
+
+.compare-query-version-controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
 }

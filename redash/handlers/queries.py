@@ -281,10 +281,7 @@ class QueryVersionListResource(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
         results = models.Change.list_versions(models.Query.get_by_id(query_id))
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-
-        return paginate(results, page, page_size, lambda q: q.to_dict(full=False))
+        return [q.to_dict() for q in results]
 
 
 class ChangeResource(BaseResource):
