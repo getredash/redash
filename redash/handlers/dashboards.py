@@ -65,6 +65,13 @@ class DashboardListResource(BaseResource):
         models.db.session.commit()
         return dashboard.to_dict()
 
+class DashboardObjectResource(BaseResource):
+    @require_permission('edit_dashboard')
+    def get(self, dashboard_slug=None):
+        """
+        Retrieves a dashboard as an object, not an array.
+        """
+        return get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
 
 class DashboardResource(BaseResource):
     @require_permission('list_dashboards')
@@ -241,3 +248,20 @@ class DashboardShareResource(BaseResource):
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
+
+class SearchDashboardResource(BaseResource):
+    @require_permission('list_dashboards')
+    def get(self):
+        """
+        Searches for a dashboard.
+
+        Sends to models.py > Dashboard > search()
+        search(cls, term, user_id, group_ids, limit_to_users_dashboards=False, include_drafts=False)
+        """
+        term = request.args.get('q', '')
+        include_drafts = request.args.get('include_drafts') is not None
+        user_id = request.args.get('user_id', '')
+        limit_to_users_dashboards = request.args.get('limit_to_users_dashboards', '')
+
+        return [q.to_dict() for q in models.Dashboard.search(term, user_id, self.current_user.group_ids, limit_to_users_dashboards=limit_to_users_dashboards, include_drafts=include_drafts)]
+
