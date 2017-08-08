@@ -22,7 +22,7 @@ class DashboardListResource(BaseResource):
         search_term = request.args.get('q')
 
         if search_term:
-            results = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+            results = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term, 'include_drafts' in request.args)
         else:
             results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
 
