@@ -79,6 +79,10 @@ function CounterEditor() {
     restrict: 'E',
     template: counterEditorTemplate,
     link(scope) {
+      scope.currentTab = 'general';
+      scope.changeTab = (tab) => {
+        scope.currentTab = tab;
+      };
       scope.isValueNumber = () => {
         const queryData = scope.queryResult.getData();
         if (queryData) {
