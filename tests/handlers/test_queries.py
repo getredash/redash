@@ -169,9 +169,9 @@ class ChangeResourceTests(BaseTestCase):
         query.record_changes(self.factory.user)
         rv = self.make_request('get', '/api/queries/{0}/version'.format(query.id))
         self.assertEquals(rv.status_code, 200)
-        self.assertEquals(len(rv.json['results']), 2)
-        self.assertEquals(rv.json['results'][0]['change']['name']['current'], 'version A')
-        self.assertEquals(rv.json['results'][1]['change']['name']['current'], 'version B')
+        self.assertEquals(len(rv.json), 2)
+        self.assertEquals(rv.json[0]['change']['name']['current'], 'version A')
+        self.assertEquals(rv.json[1]['change']['name']['current'], 'version B')
 
     def test_get(self):
         query = self.factory.create_query()
