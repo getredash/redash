@@ -361,6 +361,17 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
     });
   };
 
+  $scope.openAddToDashboardForm = () => {
+    $uibModal.open({
+      component: 'addToDashboardDialog',
+      size: 'sm',
+      resolve: {
+        query: $scope.query,
+        saveAddToDashboard: () => $scope.saveAddToDashboard,
+      },
+    });
+  };
+
   $scope.showEmbedDialog = (query, visualization) => {
     $uibModal.open({
       component: 'embedCodeDialog',
