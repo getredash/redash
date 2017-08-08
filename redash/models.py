@@ -1360,7 +1360,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         }
 
     @classmethod
-    def all(cls, org, group_ids, user_id):
+    def all(cls, org, group_ids, user_id, include_drafts=False):
         query = (
             Dashboard.query
             .options(joinedload(Dashboard.user))
@@ -1376,14 +1376,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 Dashboard.org == org)
             .distinct())
 
-        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
+        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == include_drafts))
 
         return query
 
     @classmethod
-    def search(cls, org, groups_ids, user_id, search_term):
+    def search(cls, org, groups_ids, user_id, search_term, include_drafts):
         # TODO: switch to FTS
-        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike(u'%{}%'.format(search_term)))
+        return cls.all(org, groups_ids, user_id, include_drafts).filter(cls.name.ilike(u'%{}%'.format(search_term)))
 
     @classmethod
     def all_tags(cls, org, user):
