@@ -135,7 +135,7 @@ LDAP_BIND_DN_PASSWORD = os.environ.get('REDASH_LDAP_BIND_DN_PASSWORD', '')
 LDAP_DISPLAY_NAME_KEY = os.environ.get('REDASH_LDAP_DISPLAY_NAME_KEY', 'displayName')
 LDAP_EMAIL_KEY = os.environ.get('REDASH_LDAP_EMAIL_KEY', "mail")
 # Prompt that should be shown above username/email field.
-LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get('REDASH_LDAP_LDAP_CUSTOM_USERNAME_PROMPT', 'LDAP/AD/SSO username:')
+LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get('REDASH_LDAP_CUSTOM_USERNAME_PROMPT', 'LDAP/AD/SSO username:')
 # LDAP Search DN TEMPLATE (for AD this should be "(sAMAccountName=%(username)s)"")
 LDAP_SEARCH_TEMPLATE = os.environ.get('REDASH_LDAP_SEARCH_TEMPLATE', '(cn=%(username)s)')
 # The schema to bind to (ex. cn=users,dc=ORG,dc=local)
