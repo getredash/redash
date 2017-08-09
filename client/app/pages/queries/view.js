@@ -361,12 +361,13 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
     });
   };
 
-  $scope.openAddToDashboardForm = () => {
+  $scope.openAddToDashboardForm = (vis) => {
     $uibModal.open({
       component: 'addToDashboardDialog',
       size: 'sm',
       resolve: {
         query: $scope.query,
+        vis,
         saveAddToDashboard: () => $scope.saveAddToDashboard,
       },
     });

@@ -17,7 +17,6 @@ function Dashboard($resource, $http, currentUser, Widget) {
 
   const resource = $resource('api/dashboards/:slug', { slug: '@slug' }, {
     get: { method: 'GET', transformResponse: transform },
-    get_object: { method: 'GET', isArray: false, url: 'api/dashboards/get_object/:slug' },
     save: { method: 'POST', transformResponse: transform },
     query: { method: 'GET', isArray: true, transformResponse: transform },
     search: { method: 'GET', isArray: true, url: 'api/dashboards/search' },
