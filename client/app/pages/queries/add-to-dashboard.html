@@ -6,8 +6,8 @@
 
     <form name="alertForm" class="form">
       <div class="form-group">
-        <label>Limit Dashboard search to dashboards I've created? </label>
-        <input type="checkbox" ng-model="$ctrl.limitToUsersDashboards" on-change="$ctrl.dashboardList == $select.search"   ng-disabled="$ctrl.saveInProgress" />
+        <!-- <label>Limit Dashboard search to dashboards I've created? </label>
+        <input type="checkbox" ng-model="$ctrl.limitToUsersDashboards" on-change="$ctrl.dashboardList == $select.search"   ng-disabled="$ctrl.saveInProgress" /> --> 
         <label>Choose the dashboard to add this query to:</label>
         <ui-select ng-model="$ctrl.dashboardList" reset-search-input="false" on-select="$ctrl.onDashboardSelected($item)" ng-disabled="$ctrl.saveInProgress">
           <ui-select-match placeholder="Search a dashboard by name">{{$select.selected.name}}</ui-select-match>

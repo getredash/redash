@@ -162,9 +162,6 @@
                   uib-dropdown-toggle aria-expanded="false">
             Download Dataset <span class="caret"></span>
           </button>
-          <button type="button" class="btn btn-default btn-sm" ng-click="openAddToDashboardForm()">
-            <span class="fa fa-plus"></span>
-          </button>
           <ul class="dropdown-menu pull-right" uib-dropdown-menu>
             <li>
               <a query-result-link target="_self">
@@ -256,7 +253,7 @@
                   <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" base-path="query.getUrl(sourceMode)"
                           ng-repeat="vis in query.visualizations">
                           <span class="remove" ng-click="deleteVisualization($event, vis)"
-                                ng-show="canEdit"> &times;</span>
+                                ng-show="canEdit"> &times;</span> <span class="btn btn-xs btn-success" ng-click="openAddToDashboardForm(vis)"> +</span>
                   </rd-tab>
                   <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
                 </ul>
