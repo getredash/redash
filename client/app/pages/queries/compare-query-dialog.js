@@ -17,12 +17,11 @@ const CompareQueryDialog = {
     this.compareQueries = () => {
       this.previousQueryVersion = document.getElementById('version-choice').value ||
                                   this.previousQueryVersion;
-      $http.get(`/api/changes/${this.previousQueryVersion}`).then((response) => {
-        previousQuery = response.data.change.query.current;
-        this.currentDiff = jsDiff.diffChars(previousQuery, this.currentQuery.query);
-        this.previousDiff = jsDiff.diffChars(this.currentQuery.query, previousQuery);
-        document.querySelector('.compare-query-revert-wrapper').classList.remove('hidden');
-      });
+
+      previousQuery = this.versions[this.previousQueryVersion];
+      this.currentDiff = jsDiff.diffChars(previousQuery, this.currentQuery.query);
+      this.previousDiff = jsDiff.diffChars(this.currentQuery.query, previousQuery);
+      document.querySelector('.compare-query-revert-wrapper').classList.remove('hidden');
     };
 
     this.revertQuery = () => {
@@ -35,14 +34,6 @@ const CompareQueryDialog = {
 
     $http.get(`/api/queries/${this.currentQuery.id}/version`).then((response) => {
       this.versions = response.data;
-      // We don't need the last element of the returned versions.
-      this.versions = this.versions.slice(0, this.versions.length - 1);
-    });
-
-    $http.get(`/api/changes/${this.previousQueryVersion}`).then((response) => {
-      previousQuery = response.data.change.query.current;
-      this.currentDiff = jsDiff.diffChars(previousQuery, this.currentQuery.query);
-      this.previousDiff = jsDiff.diffChars(this.currentQuery.query, previousQuery);
     });
   }],
   scope: {
