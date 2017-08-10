@@ -96,6 +96,12 @@ const EditDashboardDialog = {
         Events.record('create', 'dashboard');
       }
     };
+    this.saveDashboardOnEnter = ($event) => {
+      // keyCode 13 is the Enter key
+      if ($event.keyCode === 13) {
+        this.saveDashboard();
+      }
+    };
     this.closeWithoutSave = () => {
       this.dashboard.name = this.dashboard.existing_name;
       this.dismiss();

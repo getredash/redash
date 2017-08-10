@@ -5,11 +5,14 @@
     <h4 class="modal-title">Compare Query</h4>
 </div>
 <div class="modal-body query-diff-container">
-    <div class="compare-query-version">
-        <span>Compare current version to</span>
-        <select id="version-choice" ng-model="compareQueryVersion" ng-change="$ctrl.compareQueries()">
-            <option ng-repeat="version in $ctrl.versions" value="{{version.object_version}}">{{version.object_version}}</option>
-        </select>
+    <div class="compare-query-version-controls">
+        <div class="compare-query-version">
+            <span>Compare current version to</span>
+            <select id="version-choice" ng-model="compareQueryVersion" ng-change="$ctrl.compareQueries()">
+                <option ng-repeat="version in $ctrl.versions" value="{{version.object_version}}">Version {{version.object_version}}</option>
+            </select>
+        </div>
+        <div class="compare-query-revert-wrapper hidden"><a ng-click="$ctrl.revertQuery()" class="btn btn-default">Revert to version {{$ctrl.previousQueryVersion}}</a></div>
     </div>
     <div>
         <h5>Current Version {{$ctrl.currentQuery.version}}</h5>

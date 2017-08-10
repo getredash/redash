@@ -5,7 +5,7 @@
 <div class="modal-body">
   <p>
     <form name="myForm">
-      <input name="dashboardName" type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name" required>
+      <input name="dashboardName" type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name" ng-keyup="$ctrl.saveDashboardOnEnter($event)" required>
     </form>
   </p>
   <p ng-if="myForm.dashboardName.$invalid" class="alert alert-warning">A name is required.</p>
