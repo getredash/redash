@@ -19,6 +19,7 @@ function Dashboard($resource, $http, currentUser, Widget) {
     get: { method: 'GET', transformResponse: transform },
     save: { method: 'POST', transformResponse: transform },
     query: { method: 'GET', isArray: true, transformResponse: transform },
+    search: { method: 'GET', isArray: true, url: 'api/dashboards/search' },
     recent: {
       method: 'get',
       isArray: true,

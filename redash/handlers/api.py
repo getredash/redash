@@ -6,7 +6,7 @@ from redash.utils import json_dumps
 from redash.handlers.base import org_scoped_rule
 from redash.handlers.permissions import ObjectPermissionsListResource, CheckPermissionResource
 from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscriptionListResource, AlertSubscriptionResource
-from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource, PublicDashboardResource
+from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource, PublicDashboardResource, SearchDashboardResource
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource, DataSourceVersionResource
 from redash.handlers.events import EventResource
 from redash.handlers.queries import (
@@ -52,6 +52,7 @@ api.add_org_resource(RecentDashboardsResource, '/api/dashboards/recent', endpoin
 api.add_org_resource(DashboardResource, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
 api.add_org_resource(PublicDashboardResource, '/api/dashboards/public/<token>', endpoint='public_dashboard')
 api.add_org_resource(DashboardShareResource, '/api/dashboards/<dashboard_id>/share', endpoint='dashboard_share')
+api.add_org_resource(SearchDashboardResource, '/api/dashboards/search')
 
 api.add_org_resource(DataSourceTypeListResource, '/api/data_sources/types', endpoint='data_source_types')
 api.add_org_resource(DataSourceListResource, '/api/data_sources', endpoint='data_sources')
