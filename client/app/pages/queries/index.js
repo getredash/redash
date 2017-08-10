@@ -21,7 +21,6 @@ export default function (ngModule) {
   registerScheduleDialog(ngModule);
   registerAlertUnsavedChanges(ngModule);
   registerVisualizationEmbed(ngModule);
-  registerCompareQueryDialog(ngModule);
   registerApiKeyDialog(ngModule);
   registerCompareQueryDialog(ngModule);
   registerGetDataSourceVersion(ngModule);
