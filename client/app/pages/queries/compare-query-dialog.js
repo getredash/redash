@@ -18,7 +18,7 @@ const CompareQueryDialog = {
       this.previousQueryVersion = document.getElementById('version-choice').value ||
                                   this.previousQueryVersion;
 
-      previousQuery = this.versions[this.previousQueryVersion];
+      previousQuery = this.versions[this.previousQueryVersion].change.query.current;
       this.currentDiff = jsDiff.diffChars(previousQuery, this.currentQuery.query);
       this.previousDiff = jsDiff.diffChars(this.currentQuery.query, previousQuery);
       document.querySelector('.compare-query-revert-wrapper').classList.remove('hidden');
