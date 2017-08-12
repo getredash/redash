@@ -10,6 +10,7 @@
           <tr>
             <th>Name</th>
             <th>Joined</th>
+            <th>Last Active At</th>
           </tr>
         </thead>
         <tbody>
@@ -19,6 +20,9 @@
             </td>
             <td>
               <span am-time-ago="row.created_at"></span>
+            </td>
+            <td>
+              <span>{{ row.last_active_at[0][0] }}</span>
             </td>
           </tr>
         </tbody>
