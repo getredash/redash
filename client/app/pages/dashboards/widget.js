@@ -8,24 +8,25 @@ const EditTextBoxComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller($rootScope, $location, $http, toastr) {
+  controller(toastr) {
     'ngInject';
 
     this.saveInProgress = false;
     this.widget = this.resolve.widget;
     this.saveWidget = () => {
       this.saveInProgress = true;
-      this.widget.$save().then(() => {
+      if (this.widget.new_text !== this.widget.existing_text) {
+        this.widget.text = this.widget.new_text;
+        this.widget.$save().then(() => {
+          this.close();
+        }).catch(() => {
+          toastr.error('Widget can not be updated');
+        }).finally(() => {
+          this.saveInProgress = false;
+        });
+      } else {
         this.close();
-      }).catch(() => {
-        toastr.error('Widget can not be updated');
-      }).finally(() => {
-        this.saveInProgress = false;
-      });
-    };
-    this.closeWithoutSave = () => {
-      this.widget.text = this.widget.existing_text;
-      this.close();
+      }
     };
   },
 };
@@ -35,13 +36,12 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   this.editTextBox = () => {
     this.widget.existing_text = this.widget.text;
+    this.widget.new_text = this.widget.text;
     $uibModal.open({
       component: 'editTextBox',
       resolve: {
         widget: this.widget,
       },
-      backdrop: 'static',
-      keyboard: false,
     });
   };
 
