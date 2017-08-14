@@ -39,9 +39,8 @@ function QueryBasedParameterController($scope, Query) {
           const queryResult = result.query_result;
           const columns = queryResult.data.columns;
           const numColumns = columns.length;
-          if (numColumns > 0) {
-            const columnName = columns[0].name;
-            $scope.queryResults = queryResult.data.rows.map(row => row[columnName]);
+          if (numColumns > 0 && columns[0].type === 'string') {
+            $scope.queryResults = queryResult.data.rows.map(row => row[columns[0].name]);
           }
         }
       );
