@@ -28,6 +28,7 @@ def public_widget(widget):
             'updated_at': widget.visualization.updated_at,
             'created_at': widget.visualization.created_at,
             'query': {
+                'id': widget.visualization.query_rel.id,
                 'query': ' ',  # workaround, as otherwise the query data won't be loaded.
                 'name': widget.visualization.query_rel.name,
                 'description': widget.visualization.query_rel.description,
@@ -45,8 +46,16 @@ def public_dashboard(dashboard):
     widget_list = (models.Widget.query
                    .filter(models.Widget.dashboard_id == dashboard.id)
                    .outerjoin(models.Visualization)
-                   .outerjoin(models.Query))
+                   .outerjoin(models.Query)
+                   #.with_entities(models.Widget, models.Query.latest_query_data_id)
+                   )
+
     widgets = {w.id: public_widget(w) for w in widget_list}
+
+    # make sure all widgets' query's have a last_query_data_id that is not null so public dashboards work
+    for w in widgets:
+        if not hasattr(w, 'latest_query_data'):
+            models.Query.query.filter(models.Query.id == widgets[w]['visualization']['query']['id'])
 
     widgets_layout = []
     for row in dashboard_dict['layout']:
