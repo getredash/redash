@@ -42,8 +42,7 @@ function QueryBasedParameterController($scope, Query) {
           if (numColumns > 0 && columns[0].type === 'string') {
             $scope.queryResults = queryResult.data.rows.map(row => row[columns[0].name]);
           }
-        }
-      );
+        });
     }
   }, true);
 }
