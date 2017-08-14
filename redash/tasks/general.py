@@ -18,8 +18,8 @@ def record_event(raw_event):
         logger.debug("Forwarding event to: %s", hook)
         try:
             data = {
-              "schema": "iglu:io.redash.webhooks/event/jsonschema/1-0-0",
-              "data": event.to_dict()
+                "schema": "iglu:io.redash.webhooks/event/jsonschema/1-0-0",
+                "data": event.to_dict()
             }
             response = requests.post(hook, json=data)
             if response.status_code != 200:
@@ -48,8 +48,6 @@ def subscribe(form):
 
 @celery.task(name="redash.tasks.send_mail")
 def send_mail(to, subject, html, text):
-    from redash.wsgi import app
-
     try:
         message = Message(recipients=to,
                           subject=subject,

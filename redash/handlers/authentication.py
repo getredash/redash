@@ -111,6 +111,8 @@ def login(org_slug=None):
             return redirect(url_for("remote_user_auth.login", next=next_path))
         elif settings.SAML_LOGIN_ENABLED:
             return redirect(url_for("saml_auth.sp_initiated", next=next_path))
+        elif settings.LDAP_LOGIN_ENABLED:
+            return redirect(url_for("ldap_auth.login", next=next_path))
         else:
             return redirect(url_for("google_oauth.authorize", next=next_path))
 
@@ -136,7 +138,8 @@ def login(org_slug=None):
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
-                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED)
+                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
+                           show_ldap_login=settings.LDAP_LOGIN_ENABLED)
 
 
 @routes.route(org_scoped_rule('/logout'))
