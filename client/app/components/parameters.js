@@ -8,12 +8,44 @@ const ParameterSettingsComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller() {
+  controller($sce, Query) {
     'ngInject';
 
+    this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
+    this.onQuerySelect = (query) => {
+      this.parameter.query = query;
+    };
+    this.searchQueries = (term) => {
+      if (!term || term.length < 3) {
+        return;
+      }
+
+      Query.search({ q: term }, (results) => {
+        this.queries = results;
+      });
+    };
   },
 };
+
+function QueryBasedParameterController($scope, Query) {
+  $scope.queryResults = [];
+  $scope.$watch('param', () => {
+    const param = $scope.param;
+    if (param.query !== null) {
+      Query.resultById(
+        { id: param.query.id },
+        (result) => {
+          const queryResult = result.query_result;
+          const columns = queryResult.data.columns;
+          const numColumns = columns.length;
+          if (numColumns > 0 && columns[0].type === 'string') {
+            $scope.queryResults = queryResult.data.rows.map(row => row[columns[0].name]);
+          }
+        });
+    }
+  }, true);
+}
 
 function ParametersDirective($location, $uibModal) {
   return {
@@ -40,6 +72,7 @@ function ParametersDirective($location, $uibModal) {
           });
         }, true);
       }
+
       // These are input as newline delimited values,
       // so we split them here.
       scope.extractEnumOptions = (enumOptions) => {
@@ -62,5 +95,6 @@ function ParametersDirective($location, $uibModal) {
 
 export default function (ngModule) {
   ngModule.directive('parameters', ParametersDirective);
+  ngModule.controller('QueryBasedParameterController', QueryBasedParameterController);
   ngModule.component('parameterSettings', ParameterSettingsComponent);
 }
