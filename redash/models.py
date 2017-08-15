@@ -387,7 +387,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if with_api_key:
             d['api_key'] = self.api_key
 
-        d['last_active_at'] = Event.query.filter(Event.user_id == self.id).with_entities(Event.created_at).order_by(Event.created_at.desc()).limit(1)
+        d['last_active_at'] = Event.query.filter(Event.user_id == self.id).with_entities(Event.created_at).order_by(Event.created_at.desc()).first()
 
         return d
 
