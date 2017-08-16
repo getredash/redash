@@ -32,6 +32,17 @@ const CompareQueryDialog = {
 
     $http.get(`/api/queries/${this.currentQuery.id}/version`).then((response) => {
       this.versions = response.data;
+
+      const compare = (a, b) => {
+        if (a.object_version < b.object_version) {
+          return -1;
+        } else if (a.object_version > b.object_version) {
+          return 1;
+        }
+        return 0;
+      };
+
+      this.versions.sort(compare);
       this.compareQueries(true);
     });
   }],
