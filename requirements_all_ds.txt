@@ -6,7 +6,7 @@ MySQL-python==1.2.5
 oauth2client==3.0.0
 pyhive==0.3.0
 pymongo==3.2.1
-pyOpenSSL==0.14
+pyOpenSSL==16.2.0
 vertica-python==0.5.1
 td-client==0.8.0
 pymssql==2.1.3
