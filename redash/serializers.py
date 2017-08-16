@@ -47,7 +47,6 @@ def public_dashboard(dashboard):
                    .filter(models.Widget.dashboard_id == dashboard.id)
                    .outerjoin(models.Visualization)
                    .outerjoin(models.Query)
-                   #.with_entities(models.Widget, models.Query.latest_query_data_id)
                    )
 
     widgets = {w.id: public_widget(w) for w in widget_list}
@@ -55,7 +54,7 @@ def public_dashboard(dashboard):
     # make sure all widgets' query's have a last_query_data_id that is not null so public dashboards work
     for w in widgets:
         if not hasattr(w, 'latest_query_data'):
-            models.Query.query.filter(models.Query.id == widgets[w]['visualization']['query']['id'])
+            models.Query.query.filter(models.Query.id == widgets[w]['visualization']['query']['id']).first()
 
     widgets_layout = []
     for row in dashboard_dict['layout']:
