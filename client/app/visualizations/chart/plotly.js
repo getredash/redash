@@ -299,12 +299,17 @@ const PlotlyChart = () => {
           const seriesOptions = scope.options.seriesOptions[series.name] ||
             { type: scope.options.globalSeriesType };
 
+          const seriesColor = seriesOptions.color ? seriesOptions.color : getColor(index);
+
           const plotlySeries = {
             x: [],
             y: [],
-            error_y: { array: [] },
+            error_y: {
+              array: [],
+              color: seriesColor,
+            },
             name: seriesOptions.name || series.name,
-            marker: { color: seriesOptions.color ? seriesOptions.color : getColor(index) },
+            marker: { color: seriesColor },
           };
 
           if (seriesOptions.yAxis === 1 && (scope.options.series.stacking === null || seriesOptions.type === 'line')) {
