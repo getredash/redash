@@ -78,14 +78,14 @@ class Cassandra(BaseQueryRunner):
         release_version = results['rows'][0]['release_version']
 
         query = """
-        SELECT table_name, column_name 
-        FROM system_schema.columns 
+        SELECT table_name, column_name
+        FROM system_schema.columns
         WHERE keyspace_name ='{}';
         """.format(self.configuration['keyspace'])
 
         if release_version.startswith('2'):
                 query = """
-                SELECT columnfamily_name AS table_name, column_name 
+                SELECT columnfamily_name AS table_name, column_name
                 FROM system.schema_columns
                 WHERE keyspace_name ='{}';
                 """.format(self.configuration['keyspace'])
