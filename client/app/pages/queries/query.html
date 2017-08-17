@@ -45,7 +45,7 @@
           </a>
         </span>
 
-        <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
+        <div ng-show="moreMenuIsPopulated()" id="query-more-menu" ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
           <button class="btn btn-default dropdown-toggle hidden-xs" uib-dropdown-toggle>
             <span class="zmdi zmdi-more"></span>
           </button>
