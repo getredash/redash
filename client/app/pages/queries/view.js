@@ -499,6 +499,17 @@ function QueryViewCtrl(
       },
     });
   };
+
+  $scope.moreMenuIsPopulated = () => {
+    const menuParent = document.getElementById('query-more-menu');
+
+    if (menuParent) {
+      if (menuParent.querySelectorAll('.dropdown-menu li').length) {
+        return true;
+      }
+    }
+    return false;
+  };
 }
 
 export default function init(ngModule) {
