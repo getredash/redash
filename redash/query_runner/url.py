@@ -3,6 +3,9 @@ from redash.query_runner import BaseQueryRunner, register
 
 
 class Url(BaseQueryRunner):
+    default_doc_url = ("http://redash.readthedocs.io/en/latest/"
+                       "datasources.html#url")
+
     @classmethod
     def configuration_schema(cls):
         return {

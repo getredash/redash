@@ -75,6 +75,9 @@ def parse_query_json(query):
 
 
 class MongoDB(BaseQueryRunner):
+    default_doc_url = ("https://docs.mongodb.com/manual/reference/operator/"
+                       "query/")
+    
     @classmethod
     def configuration_schema(cls):
         return {

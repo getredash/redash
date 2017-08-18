@@ -45,6 +45,7 @@ PYTHON_TYPES_MAPPING = {
 
 class BaseElasticSearch(BaseQueryRunner):
     DEBUG_ENABLED = False
+    default_doc_url = "https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html"
 
     @classmethod
     def configuration_schema(cls):

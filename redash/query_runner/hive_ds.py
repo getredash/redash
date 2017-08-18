@@ -36,6 +36,8 @@ types_map = {
 
 class Hive(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = ("https://cwiki.apache.org/confluence/display/Hive/"
+                       "LanguageManual")
 
     @classmethod
     def configuration_schema(cls):

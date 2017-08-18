@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class Sqlite(BaseSQLQueryRunner):
     noop_query = "pragma quick_check"
+    default_doc_url = "http://sqlite.org/lang.html"
 
     @classmethod
     def configuration_schema(cls):

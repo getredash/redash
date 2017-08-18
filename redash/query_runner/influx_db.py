@@ -49,6 +49,8 @@ def _transform_result(results):
 
 
 class InfluxDB(BaseQueryRunner):
+    default_doc_url = ("https://docs.influxdata.com/influxdb/v1.0/"
+                       "query_language/spec/")
     noop_query = "show measurements limit 1"
 
     @classmethod

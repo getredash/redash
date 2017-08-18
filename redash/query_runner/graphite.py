@@ -25,6 +25,8 @@ def _transform_result(response):
 
 
 class Graphite(BaseQueryRunner):
+
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -46,7 +48,6 @@ class Graphite(BaseQueryRunner):
                 "doc_url": {
                     "type": "string",
                     "title": "Documentation URL",
-                    "default": cls.default_doc_url
                 },
                 "toggle_table_string": {
                     "type": "string",

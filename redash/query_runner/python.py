@@ -46,6 +46,9 @@ class Python(BaseQueryRunner):
         'tuple', 'set', 'list', 'dict', 'bool',
     )
 
+    default_doc_url = ("http://redash.readthedocs.io/en/latest/"
+                       "datasources.html#python")
+
     @classmethod
     def configuration_schema(cls):
         return {

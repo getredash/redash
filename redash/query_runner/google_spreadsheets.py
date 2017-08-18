@@ -139,6 +139,9 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    default_doc_url = ("http://redash.readthedocs.io/en/latest/"
+                       "datasources.html#google-spreadsheets")
+    
     @classmethod
     def annotate_query(cls):
         return False
