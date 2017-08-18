@@ -204,13 +204,6 @@ function ChartEditor(ColorPalette, clientConfig) {
         });
       });
 
-      /* scope.$watchCollection('form.colorsList', (value) => {
-        each(value, (name, index) => {
-          scope.options.colorOptions[name].zIndex = index;
-          scope.options.colorOptions[name].index = 0; // is this needed?
-        });
-      }); */
-
       scope.$watchCollection('form.yAxisColumns', (value, old) => {
         each(old, unsetColumn);
         each(value, partial(setColumnRole, 'y'));

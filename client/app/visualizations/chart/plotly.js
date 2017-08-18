@@ -270,14 +270,11 @@ const PlotlyChart = () => {
               },
             };
 
-            console.log(scope.options.seriesOptions);
             series.data.forEach((row) => {
               plotlySeries.values.push(row.y);
               plotlySeries.labels.push(hasX ? row.x : `Slice ${index}`);
               plotlySeries.marker.colors.push(scope.options.seriesOptions[hasX ? row.x : `Slice ${index}`].color);
             });
-
-            console.log(plotlySeries);
 
             scope.data.push(plotlySeries);
           });
