@@ -59,7 +59,7 @@ var config = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ['ng-annotate-loader', 'babel-loader', 'eslint-loader']
+        use: ['babel-loader', 'eslint-loader']
       },
       {
         test: /\.html$/,
