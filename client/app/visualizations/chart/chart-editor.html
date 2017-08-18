@@ -9,8 +9,13 @@
     <li ng-class="{active: currentTab == 'yAxis'}" ng-if="options.globalSeriesType != 'custom'">
       <a ng-click="changeTab('yAxis')">Y Axis</a>
     </li>
-    <li ng-class="{active: currentTab == 'series'}" ng-if="options.globalSeriesType != 'custom'">
+    <li ng-class="{active: currentTab == 'series'}" 
+      ng-if="options.globalSeriesType != 'custom' && options.globalSeriesType != 'pie'">
       <a ng-click="changeTab('series')">Series</a>
+    </li>
+    <li ng-class="{active: currentTab == 'colors'}"
+       ng-if="options.globalSeriesType == 'pie'">
+      <a ng-click="changeTab('colors')">Colors</a>
     </li>
   </ul>
   <div ng-show="currentTab == 'general'">
@@ -31,7 +36,6 @@
         </ui-select>
       </div>
     </div>
-
 
     <div class="form-group" ng-class="{'has-error': chartEditor.xAxisColumn.$invalid}">
       <label class="control-label">X Column</label>
@@ -130,21 +134,20 @@
         <input name="graph-height" type="number" class="form-control" ng-model="options.height">
       </label>
     </div>
-  </div>
 
-  <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
-    <label class="control-label">Custom code</label>
-    <textarea ng-model="options.customCode" class="form-control" rows="10">
-    </textarea>
-  </div>
+    <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
+      <label class="control-label">Custom code</label>
+      <textarea ng-model="options.customCode" class="form-control" rows="10">
+      </textarea>
+    </div>
 
-  <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
+    <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
       <label>
         <input type="checkbox" ng-model="options.enableConsoleLogs">
         <i class="input-helper"></i> Show errors in the console
       </label>
     </div>
-
+  </div>
 
   <div ng-show="currentTab == 'xAxis'">
     <div class="form-group">
@@ -210,20 +213,23 @@
     </div>
   </div>
 
-  <div ng-show="currentTab=='series'">
+  <div ng-show="currentTab == 'series'">
     <table class="table table-condensed col-table">
       <thead>
-      <th>zIndex</th>
-      <th>Left Y Axis</th>
-      <th>Right Y Axis</th>
-      <th>Label</th>
-      <th>Color</th>
-      <th>Type</th>
+        <tr>
+          <th>zIndex</th>
+          <th>Left Y Axis</th>
+          <th>Right Y Axis</th>
+          <th>Label</th>
+          <th>Color</th>
+          <th>Type</th>
+        </tr>
       </thead>
       <tbody ui-sortable ng-model="form.seriesList">
       <tr ng-repeat="name in form.seriesList">
         <td style="cursor: move;"><i class="fa fa-arrows-v"></i> <span
-          ng-bind="options.seriesOptions[name].zIndex + 1"></span></td>
+          ng-bind="options.seriesOptions[name].zIndex + 1"></span>
+        </td>
         <td>
           <input type="radio" ng-value="0" ng-model="options.seriesOptions[name].yAxis">
         </td>
@@ -260,6 +266,40 @@
           </ui-select>
         </td>
       </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div ng-show="currentTab == 'colors'">
+    <table class="table table-condensed col-table">
+      <thead>
+        <tr>
+          <th>zIndex</th>
+          <th>Label</th>
+          <th>Color</th>
+        </tr>
+      </thead>
+      <tbody ui-sortable ng-model="form.colorsList">
+        <tr ng-repeat="name in form.colorsList">
+          <td style="cursor: move;"><i class="fa fa-arrows-v"></i> <span
+            ng-bind="options.seriesOptions[name].zIndex + 1"></span>
+          </td>
+          <td style="padding: 3px; width: 300px;">
+            <input placeholder="{{name}}" class="form-control input-sm super-small-input" type="text"
+                   ng-model="options.seriesOptions[name].name">
+          </td>
+          <td style="padding: 3px; width: 35px;">
+            <ui-select ng-model="options.seriesOptions[name].color">
+              <ui-select-match>
+                <color-box color="$select.selected.value"></color-box>
+              </ui-select-match>
+              <ui-select-choices repeat="color.value as (key, color) in colors">
+                <color-box color="color.value"></color-box>
+                <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+              </ui-select-choices>
+            </ui-select>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
