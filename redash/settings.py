@@ -42,6 +42,13 @@ def parse_boolean(str):
     return json.loads(str.lower())
 
 
+def int_or_none(value):
+    if value is None:
+        return value
+
+    return int(value)
+
+
 def all_settings():
     from types import ModuleType
 
@@ -66,6 +73,9 @@ STATSD_USE_TAGS = parse_boolean(os.environ.get('REDASH_STATSD_USE_TAGS', "false"
 
 # Connection settings for Redash's own database (where we store the queries, results, etc)
 SQLALCHEMY_DATABASE_URI = os.environ.get("REDASH_DATABASE_URL", os.environ.get('DATABASE_URL', "postgresql:///postgres"))
+SQLALCHEMY_MAX_OVERFLOW = int_or_none(os.environ.get("SQLALCHEMY_MAX_OVERFLOW"))
+SQLALCHEMY_POOL_SIZE = int_or_none(os.environ.get("SQLALCHEMY_POOL_SIZE"))
+SQLALCHEMY_DISABLE_POOL = parse_boolean(os.environ.get("SQLALCHEMY_DISABLE_POOL", "false"))
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_ECHO = False
 
@@ -123,6 +133,24 @@ SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "
 # login page to trigger remote user auth.
 REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
 REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
+
+# If REDASH_PASSWORD_LOGIN_ENABLED is not false, then users will still be able to login through Redash instead of the LDAP server
+LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
+# The LDAP directory address (ex. ldap://10.0.10.1:389)
+LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
+# The DN & password used to connect to LDAP to determine the identity of the user being authenticated. For AD this should be "org\\user".
+LDAP_BIND_DN = os.environ.get('REDASH_LDAP_BIND_DN', None)
+LDAP_BIND_DN_PASSWORD = os.environ.get('REDASH_LDAP_BIND_DN_PASSWORD', '')
+# AD/LDAP email and display name keys
+LDAP_DISPLAY_NAME_KEY = os.environ.get('REDASH_LDAP_DISPLAY_NAME_KEY', 'displayName')
+LDAP_EMAIL_KEY = os.environ.get('REDASH_LDAP_EMAIL_KEY', "mail")
+# Prompt that should be shown above username/email field.
+LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get('REDASH_LDAP_CUSTOM_USERNAME_PROMPT', 'LDAP/AD/SSO username:')
+# LDAP Search DN TEMPLATE (for AD this should be "(sAMAccountName=%(username)s)"")
+LDAP_SEARCH_TEMPLATE = os.environ.get('REDASH_LDAP_SEARCH_TEMPLATE', '(cn=%(username)s)')
+# The schema to bind to (ex. cn=users,dc=ORG,dc=local)
+LDAP_SEARCH_DN = os.environ.get('REDASH_SEARCH_DN', None)
+
 
 # Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
 # last one will be used for Flask templates.
@@ -189,7 +217,6 @@ default_query_runners = [
     'redash.query_runner.memsql_ds',
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
-    'redash.query_runner.snowflake',
     'redash.query_runner.axibase_tsd',
     'redash.query_runner.salesforce',
     'redash.query_runner.activedata'

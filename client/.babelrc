@@ -1,4 +1,4 @@
 {
   "presets": ["es2015", "stage-2"],
-  "plugins": ["transform-object-assign"]
+  "plugins": ["angularjs-annotate", "transform-object-assign"]
 }

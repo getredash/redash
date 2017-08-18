@@ -1,7 +1,6 @@
 import json
 import logging
 import select
-import sys
 
 import psycopg2
 
@@ -146,7 +145,13 @@ class PostgreSQL(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        connection = psycopg2.connect(self.connection_string, async=True)
+        connection = psycopg2.connect(user=self.configuration.get('user'),
+                                      password=self.configuration.get('password'),
+                                      host=self.configuration.get('host'),
+                                      port=self.configuration.get('port'),
+                                      dbname=self.configuration.get('dbname'),
+                                      async=True)
+
         _wait(connection, timeout=10)
 
         cursor = connection.cursor()
