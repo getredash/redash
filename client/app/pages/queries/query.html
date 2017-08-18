@@ -127,7 +127,7 @@
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
                     <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish Query</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
-                    <li ng-if="query.id && (isQueryOwner || currentUser.hasPermission('admin'))">
+                    <li ng-show="canEdit" ng-if="query.id && (query.version > 1)">
                       <a ng-click="compareQueryVersion()">Query Versions</a>
                     </li>
                   </ul>
