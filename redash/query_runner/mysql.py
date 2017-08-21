@@ -154,8 +154,8 @@ class Mysql(BaseSQLQueryRunner):
             else:
                 if rows_count > 0:
                     connection.commit()
-                    columns = [{'name': 'Row(s) Count','type': types_map.get(str(type(rows_count)).upper(), None)}]
-                    rows = [{ "Row(s) Count" : rows_count }]
+                    columns = [{'name': 'Row(s) Count', 'type': types_map.get(str(type(rows_count)).upper(), None)}]
+                    rows = [{'Row(s) Count': rows_count}]
                     data = {'columns': columns, 'rows': rows}
                     json_data = json_data = json.dumps(data, cls=JSONEncoder)
                     error = None
