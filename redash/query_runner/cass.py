@@ -67,22 +67,55 @@ class Cassandra(BaseQueryRunner):
         return "Cassandra"
 
     def get_schema(self, get_stats=False):
+        cass_version = self.check_cluster_version()
+        logger.debug('cass version: {}'.format(cass_version))
+        columnfamily_name = None
+        cass_keyspace_system = None
+        cass_table_system = None
+        if cass_version == '2':
+          columnfamily_name = 'columnfamily_name'
+          cass_keyspace_system = 'system'
+          cass_table_system = 'schema_columns'
+        elif cass_version == '3':
+          columnfamily_name = 'table_name'
+          cass_keyspace_system = 'system_schema'
+          cass_table_system = 'columns'
         query = """
-        SELECT columnfamily_name, column_name FROM system.schema_columns where keyspace_name ='{}';
-        """.format(self.configuration['keyspace'])
+        SELECT {}, column_name FROM {}.{} where keyspace_name ='{}';
+        """.format(columnfamily_name, cass_keyspace_system, cass_table_system, self.configuration['keyspace'])
 
         results, error = self.run_query(query, None)
         results = json.loads(results)
 
         schema = {}
         for row in results['rows']:
-            table_name = row['columnfamily_name']
+            table_name = row[columnfamily_name]
             column_name = row['column_name']
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
             schema[table_name]['columns'].append(column_name)
 
         return schema.values()
+
+    def check_cluster_version(self):
+        query = """SELECT release_version from system.local;"""
+        connection = None
+        if self.configuration.get('username', '') and self.configuration.get('password', ''):
+            auth_provider = PlainTextAuthProvider(username='{}'.format(self.configuration.get('username', '')),
+                                                  password='{}'.format(self.configuration.get('password', '')))
+            connection = Cluster([self.configuration.get('host', '')],
+                                 auth_provider=auth_provider,
+                                 port=self.configuration.get('port', 9042),
+                                 protocol_version=self.configuration.get('protocol', 3))
+        else:
+            connection = Cluster([self.configuration.get('host', '')],
+                                 port=self.configuration.get('port', 9042),
+                                 protocol_version=self.configuration.get('protocol', 3))
+        session = connection.connect()
+        session.set_keyspace(self.configuration['keyspace'])
+        logger.debug("Cassandra running query: %s", query)
+        result = session.execute(query)
+        return result[0].release_version.split('.')[0]
 
     def run_query(self, query, user):
         connection = None
@@ -92,11 +125,11 @@ class Cassandra(BaseQueryRunner):
                                                       password='{}'.format(self.configuration.get('password', '')))
                 connection = Cluster([self.configuration.get('host', '')],
                                      auth_provider=auth_provider,
-                                     port=self.configuration.get('port', ''),
+                                     port=self.configuration.get('port', 9042),
                                      protocol_version=self.configuration.get('protocol', 3))
             else:
                 connection = Cluster([self.configuration.get('host', '')],
-                                     port=self.configuration.get('port', ''),
+                                     port=self.configuration.get('port', 9042),
                                      protocol_version=self.configuration.get('protocol', 3))
             session = connection.connect()
             session.set_keyspace(self.configuration['keyspace'])
