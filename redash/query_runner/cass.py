@@ -73,13 +73,13 @@ class Cassandra(BaseQueryRunner):
         cass_keyspace_system = None
         cass_table_system = None
         if cass_version == '2':
-          columnfamily_name = 'columnfamily_name'
-          cass_keyspace_system = 'system'
-          cass_table_system = 'schema_columns'
+            columnfamily_name = 'columnfamily_name'
+            cass_keyspace_system = 'system'
+            cass_table_system = 'schema_columns'
         elif cass_version == '3':
-          columnfamily_name = 'table_name'
-          cass_keyspace_system = 'system_schema'
-          cass_table_system = 'columns'
+            columnfamily_name = 'table_name'
+            cass_keyspace_system = 'system_schema'
+            cass_table_system = 'columns'
         query = """
         SELECT {}, column_name FROM {}.{} where keyspace_name ='{}';
         """.format(columnfamily_name, cass_keyspace_system, cass_table_system, self.configuration['keyspace'])
