@@ -140,8 +140,7 @@ class Mysql(BaseSQLQueryRunner):
                                          ssl=self._get_ssl_parameters())
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
-            cursor.execute(query)
-
+            rows_count = cursor.execute(query)
             data = cursor.fetchall()
 
             # TODO - very similar to pg.py
@@ -153,8 +152,16 @@ class Mysql(BaseSQLQueryRunner):
                 json_data = json.dumps(data, cls=JSONEncoder)
                 error = None
             else:
-                json_data = None
-                error = "No data was returned."
+                if rows_count > 0:
+                    connection.commit()
+                    columns = [{'name': 'Row(s) Count','type': types_map.get(str(type(rows_count)).upper(), None)}]
+                    rows = [{ "Row(s) Count" : rows_count }]
+                    data = {'columns': columns, 'rows': rows}
+                    json_data = json_data = json.dumps(data, cls=JSONEncoder)
+                    error = None
+                else:
+                    json_data = None
+                    error = "No data was returned."
 
             cursor.close()
         except MySQLdb.Error as e:
