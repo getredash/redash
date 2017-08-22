@@ -146,20 +146,22 @@ class Mysql(BaseSQLQueryRunner):
             transaction_rows = 0
 
             for query in queries:
-                 cursor.execute(query)
-                 rows_count = cursor.rowcount
-                 data = cursor.fetchall()
-                 if cursor.description is not None:
-                     columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                     rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
-                     data = {'columns': columns, 'rows': rows}
-                     json_data = json.dumps(data, cls=JSONEncoder)
-                     break
-                 else:
-                     if rows_count is not None:
-                         transaction = True
-                         columns = [{'name': 'Row(s) Count', 'type': types_map.get(str(type(rows_count)).upper(), None)}]
-                         transaction_rows += rows_count
+                cursor.execute(query)
+                rows_count = cursor.rowcount
+                data = cursor.fetchall()
+                if cursor.description is not None:
+                    columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                    rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+                    data = {'columns': columns, 'rows': rows}
+                    json_data = json.dumps(data, cls=JSONEncoder)
+                    break
+                else:
+                    if rows_count is not None:
+                        transaction = True
+                        columns = [{'name': 'Row(s) Count', 
+                                    'type': types_map.get(str(type(rows_count)).upper(), 
+                                    None)}]
+                        transaction_rows += rows_count
 
             if transaction and transaction_rows > 0:
                 rows = [{'Row(s) Count': transaction_rows}]
