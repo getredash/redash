@@ -158,9 +158,8 @@ class Mysql(BaseSQLQueryRunner):
                 else:
                     if rows_count is not None:
                         transaction = True
-                        columns = [{'name': 'Row(s) Count', 
-                                    'type': types_map.get(str(type(rows_count)).upper(), 
-                                    None)}]
+                        columns = [{'name': 'Row(s) Count',
+                                    'type': types_map.get(str(type(rows_count)).upper(),None)}]
                         transaction_rows += rows_count
 
             if transaction and transaction_rows > 0:
