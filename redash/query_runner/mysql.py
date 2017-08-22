@@ -158,7 +158,7 @@ class Mysql(BaseSQLQueryRunner):
                 else:
                     transaction = True
                     columns = [{'name': 'Row(s) Affected',
-                                'type': types_map.get(str(type(rows_count)).upper(),None)}]
+                                'type': types_map.get(str(type(rows_count)).upper(), None)}]
                     transaction_rows += rows_count
 
             if transaction:
