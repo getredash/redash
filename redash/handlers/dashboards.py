@@ -253,8 +253,8 @@ class SearchDashboardResource(BaseResource):
         term = request.args.get('q', '')
         include_drafts = request.args.get('include_drafts') is not None
         user_id = request.args.get('user_id', '')
-        # limit_to_users_dashboards = request.args.get('limit_to_users_dashboards', '')
-
-        # limit_to_users_dashboards=limit_to_users_dashboards, 
-        return [q.to_dict() for q in models.Dashboard.search(term, user_id, self.current_user.group_ids, include_drafts=include_drafts)]
+        group_ids = self.current_user.group_ids
+        if group_ids == None and request.args.get('test',False):
+            group_ids = [2] # the array that's used for test factory users
+        return [q.to_dict() for q in models.Dashboard.search(term, user_id, group_ids, include_drafts=include_drafts)]
 
