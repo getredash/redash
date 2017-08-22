@@ -77,7 +77,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       }
 
       scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
-      scope.yAxisScales = ['linear', 'logarithmic', 'datetime', 'category'];
+      scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
 
       scope.chartTypeChanged = () => {
         keys(scope.options.seriesOptions).forEach((key) => {
