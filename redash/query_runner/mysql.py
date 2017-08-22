@@ -156,14 +156,13 @@ class Mysql(BaseSQLQueryRunner):
                     json_data = json.dumps(data, cls=JSONEncoder)
                     break
                 else:
-                    if rows_count is not None:
-                        transaction = True
-                        columns = [{'name': 'Row(s) Count',
-                                    'type': types_map.get(str(type(rows_count)).upper(),None)}]
-                        transaction_rows += rows_count
+                    transaction = True
+                    columns = [{'name': 'Row(s) Affected',
+                                'type': types_map.get(str(type(rows_count)).upper(),None)}]
+                    transaction_rows += rows_count
 
-            if transaction and transaction_rows > 0:
-                rows = [{'Row(s) Count': transaction_rows}]
+            if transaction:
+                rows = [{'Row(s) Affected': transaction_rows}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
 
