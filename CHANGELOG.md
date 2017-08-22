@@ -1,8 +1,6 @@
 # Change Log
 
-## v3.0.0 - UNRELEASED
-
-## v2.0.0 - 2017-08-08
+## v2.0.0 - UNRELEASED
 
 ### Added
 
@@ -20,19 +18,6 @@
 - Add: option to hide pivot table controls. @deecay
 - Retry reload of query results if it had an error.
 - [Data Sources] Add: MemSQL query runner. @alexanderlz
-- "Dumb" recents option (see #1779 for details)
-- Athena: direct query runner using the instead of JDBC proxy. @laughingman7743
-- Optionally support parameters in embeds. @ziahamza
-- Sorting ability in alerts view.
-- Option to change default encoding of CSV writer. @yamamanx
-- Ability to set dashboard level filters from UI.
-- CLI command to open IPython shell.
-- Add link to query page from admin view. @miketheman
-- Add the option to write logs to STDOUT instead of STDERR. @eyalzek
-- Add limit parameter to tasks API. @alexpekurovsky
-- Add SQLAlchemy pool settings.
-- Support for category type y axis.
-- Add 12 & 24 hours refresh rate option to dashboards.
 
 ### Changed
 
@@ -59,20 +44,6 @@
 - Split refresh schemas into separate tasks and add a timeout.
 - Execute scheduled queries with parameters using their default value.
 - Keep track of last query execution (including failed ones) for scheduling purposes.
-- Same view for input on search result page as in header. @44px
-- Metrics: report endpoints without dots for metrics.
-- Redirect to / when org not found.
-- Improve parameters label placement. @44px
-- Auto-publish queries when they are named (with option to disable; #1830).
-- Show friendly error message in case of duplicate data source name.
-- Don't allow saving dashboard with empty name.
-- Enable strict checking for Angular DI.
-- Disable Angular debug info (should improve performance).
-- Update to Webpack 2. @44px
-- Remove /forgot endpoint if REDASH_PASSWORD_LOGIN_ENABLED is false. @amarjayr
-- Docker: make Gunicorn worker count configurable. @unixwitch
-- Snowflake support is no longer enabled by default.
-- Enable memory optimization for Excel exporter.
 
 ### Fixed
 
@@ -82,24 +53,6 @@
 - [SQLite] better handle utf-8 error messages.
 - Fix: don't remove locks for queries with task status of PENDING.
 - Only split columns with __/:: that end with filter/MultiFilter.
-- Alert notifications fail (sometime) with a SQLAlchemy error.
-- Safeguard against empty query results when checking alert status. @danielerapati
-- Delete data source doesn't work when query results referenced by queries.
-- Fix redirect to /setup on the last setup step. @44px
-- Cassandra: use port setting in connection options. @yershalom
-- Metrics: table name wasn't found for count queries.
-- BigQuery wasn't loading due to bad import.
-- DynamicForm component was inserting empty values.
-- Clear null values from data source options dictionary.
-- /api/session API call wasn't working when multi tenancy enabled
-- If column had no type it would use previous column's type.
-- Alert destination details were not updating.
-- When setting rearm on a new alert, it wasn't persisted.
-- Salesforce: sandbox parameter should be optional. @msnider
-- Alert page wasn't properly linked from alerts list. @alison985
-- PostgreSQL passwords with spaces were not supported. (#1056)
-- PivotTable wasn't updating after first save.
-
 
 ## v1.0.3 - 2017-04-18
 
