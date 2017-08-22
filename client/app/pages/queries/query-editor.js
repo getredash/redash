@@ -70,7 +70,7 @@ function queryEditor(QuerySnippet) {
               editor.getSession().setMode(newMode);
             });
 
-            $scope.$watch('schema', (newSchema, oldSchema) => {
+            $scope.$watch('autoCompleteSchema', (newSchema, oldSchema) => {
               if (newSchema !== oldSchema) {
                 const tokensCount =
                   newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
@@ -92,27 +92,50 @@ function queryEditor(QuerySnippet) {
           },
         };
 
+        function removeExtraSchemaInfo(data) {
+          let newColumns = [];
+          data.forEach((table) => {
+            table.columns.forEach((column) => {
+              if (column.charAt(column.length - 1) === ')') {
+                let parensStartAt = column.indexOf('(') - 1;
+                column = column.substring(0, parensStartAt);
+                parensStartAt = 1; // linter complains without this line
+              }
+              // remove '[P] ' for partition keys
+              if (column.charAt(0) === '[') {
+                column = column.substring(4, column.length);
+              }
+              newColumns.push(column);
+            });
+            table.autoCompleteColumns = newColumns;
+          });
+          newColumns = []; // linter complains without this line
+          return data;
+        }
 
         const schemaCompleter = {
           getCompletions(state, session, pos, prefix, callback) {
-            if (prefix.length === 0 || !$scope.schema) {
+            // make a variable for the auto completion in the query editor
+            $scope.autoCompleteSchema = removeExtraSchemaInfo($scope.schema);
+
+            if (prefix.length === 0 || !$scope.autoCompleteSchema) {
               callback(null, []);
               return;
             }
 
-            if (!$scope.schema.keywords) {
+            if (!$scope.autoCompleteSchema.keywords) {
               const keywords = {};
 
-              $scope.schema.forEach((table) => {
+              $scope.autoCompleteSchema.forEach((table) => {
                 keywords[table.name] = 'Table';
 
-                table.columns.forEach((c) => {
+                table.autoCompleteColumns.forEach((c) => {
                   keywords[c] = 'Column';
                   keywords[`${table.name}.${c}`] = 'Column';
                 });
               });
 
-              $scope.schema.keywords = map(keywords, (v, k) =>
+              $scope.autoCompleteSchema.keywords = map(keywords, (v, k) =>
                  ({
                    name: k,
                    value: k,
@@ -121,7 +144,7 @@ function queryEditor(QuerySnippet) {
                  })
               );
             }
-            callback(null, $scope.schema.keywords);
+            callback(null, $scope.autoCompleteSchema.keywords);
           },
         };
 

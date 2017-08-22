@@ -106,7 +106,6 @@
               <a ng-if="dataSource.options.doc_url != '' && dataSource.options.doc_url" ng-href={{dataSource.options.doc_url}}>{{dataSource.type_name}} documentation</a>
               <span ng-if="dataSource.options.doc_url == '' || !dataSource.options.doc_url">{{ dataSource.type_name }} documentation</span>
               <get-data-source-version id='data-source-version'></get-data-source-version>
-              
               <div class="pull-right">
                 <button class="btn btn-s btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <span class="fa fa-paper-plane"></span> Publish
@@ -118,7 +117,7 @@
                   <span class="fa fa-floppy-o"> </span> Save<span
                   ng-show="isDirty">&#42;</span>
                 </button>
-                <div class="btn-group" role="group" uib-dropdown>
+                <div class="btn-group" ng-show="moreMenuIsPopulated()" id="query-more-menu" role="group" uib-dropdown>
                   <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                     <span class="zmdi zmdi-more"></span>
                   </button>
@@ -127,7 +126,7 @@
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
                     <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish Query</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
-                    <li ng-if="query.id && (isQueryOwner || currentUser.hasPermission('admin'))">
+                    <li ng-show="canEdit" ng-if="query.id && (query.version > 1)">
                       <a ng-click="compareQueryVersion()">Query Versions</a>
                     </li>
                   </ul>

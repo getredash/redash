@@ -22,8 +22,8 @@ export default function (ngModule) {
   registerAlertUnsavedChanges(ngModule);
   registerVisualizationEmbed(ngModule);
   registerApiKeyDialog(ngModule);
-  registerGetDataSourceVersion(ngModule);
   registerCompareQueryDialog(ngModule);
+  registerGetDataSourceVersion(ngModule);
   registerAddToDashboard(ngModule);
 
   return Object.assign({}, registerQuerySearchResultsPage(ngModule),

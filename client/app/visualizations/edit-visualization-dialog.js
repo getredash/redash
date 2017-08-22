@@ -60,7 +60,9 @@ const EditVisualizationDialog = {
     };
 
     this.disableSubmit = () => {
-      if (this.has3plusColumnsFunction() && JSON.stringify(this.visualization.options.columnMapping).includes('unused')) {
+      if (this.visualization.options.globalSeriesType === 'column'
+          && this.has3plusColumnsFunction()
+          && JSON.stringify(this.visualization.options.columnMapping).includes('unused')) {
         return true;
       }
       return false;

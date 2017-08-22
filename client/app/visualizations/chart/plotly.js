@@ -260,7 +260,7 @@ const PlotlyChart = () => {
               labels: [],
               type: 'pie',
               hole: 0.4,
-              marker: { colors: ColorPaletteArray },
+              marker: { colors: [] },
               text: series.name,
               textposition: 'inside',
               name: series.name,
@@ -273,6 +273,7 @@ const PlotlyChart = () => {
             series.data.forEach((row) => {
               plotlySeries.values.push(row.y);
               plotlySeries.labels.push(hasX ? row.x : `Slice ${index}`);
+              plotlySeries.marker.colors.push(scope.options.seriesOptions[hasX ? row.x : `Slice ${index}`].color);
             });
 
             scope.data.push(plotlySeries);
