@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import os
 import argparse
+import os
 import subprocess
 import sys
 from collections import namedtuple
@@ -111,7 +111,10 @@ def restart_services():
     # otherwise it won't notice that /opt/redash/current pointing at a different
     # directory.
     green("Restarting...")
-    run('sudo /etc/init.d/redash_supervisord restart')
+    try:
+        run('sudo /etc/init.d/redash_supervisord restart')
+    except subprocess.CalledProcessError as e:
+        run('sudo service supervisor restart')
 
 
 def update_requirements(version_name):

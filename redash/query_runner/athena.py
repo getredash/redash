@@ -142,7 +142,6 @@ class AthenaUpstream(BaseQueryRunner):
             else:
                 schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
 
-
         return schema.values()
 
     def run_query(self, query, user):
