@@ -53,9 +53,18 @@ class Hive(BaseSQLQueryRunner):
                 },
                 "username": {
                     "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "use_ldap": {
+                    "type": "boolean",
+                    "title": "Use LDAP",
+                    "default": False
                 }
             },
-            "required": ["host"]
+            "required": ["host"],
+            "secret": ["password"]
         }
 
     @classmethod
@@ -94,13 +103,19 @@ class Hive(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-
         connection = None
         try:
-            connection = hive.connect(**self.configuration.to_dict())
+            if self.configuration.get('use_ldap', False):
+                connection = hive.connect(host=self.configuration.get('host', 'localhost'),
+                                          port=self.configuration.get('port', 10000),
+                                          database=self.configuration.get('database', 'default'),
+                                          username=self.configuration.get('username', ''),
+                                          password=self.configuration.get('password', ''),
+                                          auth='LDAP')
+            else:
+                connection = hive.connect(**self.configuration.to_dict())
 
             cursor = connection.cursor()
-
             cursor.execute(query)
 
             column_names = []
