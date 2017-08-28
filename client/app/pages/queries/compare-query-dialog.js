@@ -6,24 +6,24 @@ const CompareQueryDialog = {
   controller: ['clientConfig', '$http', function doCompare(clientConfig, $http) {
     this.currentQuery = this.resolve.query;
 
-    let previousQuery = '';
+    this.previousQuery = '';
     this.currentDiff = [];
     this.previousDiff = [];
     this.versions = [];
-    this.previousQueryVersion = this.currentQuery.version - 1;
+    this.previousQueryVersion = this.currentQuery.version - 2; // due to 0-indexed versions[]
 
-    this.compareQueries = () => {
-      this.previousQueryVersion = document.getElementById('version-choice').value ||
-                                  this.previousQueryVersion;
+    this.compareQueries = (isInitialLoad) => {
+      if (!isInitialLoad) {
+        this.previousQueryVersion = document.getElementById('version-choice').value - 1; // due to 0-indexed versions[]
+      }
 
-      previousQuery = this.versions[this.previousQueryVersion].change.query.current;
-      this.currentDiff = jsDiff.diffChars(previousQuery, this.currentQuery.query);
-      this.previousDiff = jsDiff.diffChars(this.currentQuery.query, previousQuery);
+      this.previousQuery = this.versions[this.previousQueryVersion].change.query.current;
+      this.currentDiff = jsDiff.diffChars(this.previousQuery, this.currentQuery.query);
       document.querySelector('.compare-query-revert-wrapper').classList.remove('hidden');
     };
 
     this.revertQuery = () => {
-      this.resolve.query.query = previousQuery;
+      this.resolve.query.query = this.previousQuery;
       this.resolve.saveQuery();
 
       // Close modal.
@@ -32,6 +32,18 @@ const CompareQueryDialog = {
 
     $http.get(`/api/queries/${this.currentQuery.id}/version`).then((response) => {
       this.versions = response.data;
+
+      const compare = (a, b) => {
+        if (a.object_version < b.object_version) {
+          return -1;
+        } else if (a.object_version > b.object_version) {
+          return 1;
+        }
+        return 0;
+      };
+
+      this.versions.sort(compare);
+      this.compareQueries(true);
     });
   }],
   scope: {
