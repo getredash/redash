@@ -103,7 +103,7 @@
               <span class="text-muted">Data Source</span>
               <select id="data-source-selection" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                       ng-options="ds.id as ds.name for ds in dataSources"></select>
-              <a ng-if="dataSource.options.doc_url != '' && dataSource.options.doc_url" ng-href={{dataSource.options.doc_url}}>{{dataSource.type_name}} documentation</a>
+              <a ng-if="dataSource.options.doc_url != '' && dataSource.options.doc_url" ng-href={{dataSource.options.doc_url}} target="_blank">{{dataSource.type_name}} documentation</a>
               <span ng-if="dataSource.options.doc_url == '' || !dataSource.options.doc_url">{{ dataSource.type_name }} documentation</span>
               <get-data-source-version id='data-source-version'></get-data-source-version>
 
