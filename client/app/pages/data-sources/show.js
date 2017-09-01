@@ -6,9 +6,8 @@ const logger = debug('redash:http');
 
 function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, AlertDialog, Events, DataSource,
+  currentUser, AlertDialog, DataSource,
 ) {
-  Events.record('view', 'page', 'admin/data_source');
 
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
@@ -45,8 +44,6 @@ function DataSourceCtrl(
 
   function deleteDataSource(callback) {
     const doDelete = () => {
-      Events.record('delete', 'datasource', $scope.dataSource.id);
-
       $scope.dataSource.$delete(() => {
         toastr.success('Data source deleted successfully.');
         $location.path('/data_sources/');
@@ -64,8 +61,6 @@ function DataSourceCtrl(
   }
 
   function testConnection(callback) {
-    Events.record('test', 'datasource', $scope.dataSource.id);
-
     DataSource.test({ id: $scope.dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
         toastr.success('Success');
@@ -81,8 +76,6 @@ function DataSourceCtrl(
   }
 
   function getDataSourceVersion(callback) {
-    Events.record('test', 'data_source_version', $scope.dataSource.id);
-
     DataSource.version({ id: $scope.dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
         const versionNumber = httpResponse.message;
