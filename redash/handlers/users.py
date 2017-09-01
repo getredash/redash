@@ -49,13 +49,13 @@ class UserListResource(BaseResource):
 
                 if group:
                     user_groups.append({'id': group.id, 'name': group.name})
-            
+
             d['groups'] = user_groups
 
             return d
 
         search_term = request.args.get('q', '')
-        
+
         if request.args.get('disabled', None) is not None:
             users = models.User.all_disabled(self.current_org)
         else:
@@ -63,9 +63,14 @@ class UserListResource(BaseResource):
 
         if search_term:
             users = models.User.search(users, search_term)
-        
+
         users = order_results(users)
 
+        self.record_event({
+            'action': 'view',
+            'object_id': 'users',
+            'object_type': 'api_call',
+        })
         return paginate(users, page, page_size, serialize_user)
 
     @require_admin
@@ -138,7 +143,11 @@ class UserResource(BaseResource):
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
-
+        self.record_event({
+            'action': 'view',
+            'object_id': user_id,
+            'object_type': 'user',
+        })
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
     def post(self, user_id):

@@ -30,6 +30,12 @@ class GroupListResource(BaseResource):
             groups = models.Group.query.filter(
                 models.Group.id.in_(self.current_user.group_ids))
 
+        self.record_event({
+            'action': 'view',
+            'object_id': 'groups',
+            'object_type': 'api_call',
+        })
+
         return [g.to_dict() for g in groups]
 
 
@@ -58,6 +64,12 @@ class GroupResource(BaseResource):
             abort(403)
 
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': group_id,
+            'object_type': 'group',
+        })
 
         return group.to_dict()
 
@@ -154,6 +166,12 @@ class GroupDataSourceListResource(BaseResource):
         data_sources = (models.DataSource.query
                         .join(models.DataSourceGroup)
                         .filter(models.DataSourceGroup.group == group))
+        
+        self.record_event({
+            'action': 'view',
+            'object_id': group_id,
+            'object_type': 'group_data_sources',
+        })
 
         return [ds.to_dict(with_permissions_for=group) for ds in data_sources]
 

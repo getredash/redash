@@ -25,7 +25,13 @@ class DataSourceResource(BaseResource):
     @require_admin
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        return data_source.to_dict(all=True)
+        ds = data_source.to_dict(all=True)
+        self.record_event({
+            'action': 'view',
+            'object_id': data_source.id,
+            'object_type': 'data_source',
+        })
+        return ds
 
     @require_admin
     def post(self, data_source_id):
@@ -59,6 +65,11 @@ class DataSourceResource(BaseResource):
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete()
+        self.record_event({
+            'action': 'delete',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
 
         return make_response('', 204)
 
@@ -83,6 +94,11 @@ class DataSourceListResource(BaseResource):
             except AttributeError:
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
+        self.record_event({
+            'action': 'view',
+            'object_id': 'admin/data_sources',
+            'object_type': 'api_call',
+        })
         return sorted(response.values(), key=lambda d: d['name'].lower())
 
     @require_admin
@@ -185,6 +201,12 @@ class DataSourceTestResource(BaseResource):
     @require_admin
     def post(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+
+        self.record_event({
+            'action': 'test',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
 
         try:
             data_source.query_runner.test_connection()
