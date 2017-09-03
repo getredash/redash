@@ -20,7 +20,7 @@
   {% endif %}
 
   {% if show_saml_login %}
-  <div class="row">
+  <div class="row" style="text-align: center">
     <a href="/saml/login">SAML Login</a>
   </div>
 
@@ -71,7 +71,7 @@
       Log In
     </button>
   </form>
-  
+
   {% if not hide_forgot_password %}
     <hr>
     <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
