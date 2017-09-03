@@ -135,6 +135,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
   $scope.queryExecuting = false;
 
   $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
+  $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
   $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
@@ -333,7 +334,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
   }
 
   $scope.openScheduleForm = () => {
-    if (!$scope.isQueryOwner || !$scope.canScheduleQuery) {
+    if (!$scope.canEdit || !$scope.canScheduleQuery) {
       return;
     }
 
