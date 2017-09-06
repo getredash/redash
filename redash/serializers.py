@@ -6,9 +6,11 @@ code and better separation of concerns.
 import json
 from funcy import project
 from redash import models
+from redash.handlers.query_results import run_query_sync
 
 
 def public_widget(widget):
+
     res = {
         'id': widget.id,
         'width': widget.width,
@@ -18,8 +20,15 @@ def public_widget(widget):
         'created_at': widget.created_at
     }
 
-    if widget.visualization and widget.visualization.id:
-        query_data = models.QueryResult.query.get(widget.visualization.query_rel.latest_query_data_id).to_dict()
+    if (widget.visualization and widget.visualization.id and
+            widget.visualization.query_rel is not None):
+        q = widget.visualization.query_rel
+            # make sure the widget's query has a latest_query_data_id that is
+            # not null so public dashboards work
+        if (q.latest_query_data_id is None):
+            run_query_sync(q.data_source, {}, q.query_text)
+
+        query_data = q.to_dict()
         res['visualization'] = {
             'type': widget.visualization.type,
             'name': widget.visualization.name,
@@ -28,10 +37,10 @@ def public_widget(widget):
             'updated_at': widget.visualization.updated_at,
             'created_at': widget.visualization.created_at,
             'query': {
-                'id': widget.visualization.query_rel.id,
+                'id': q.id,
                 'query': ' ',  # workaround, as otherwise the query data won't be loaded.
-                'name': widget.visualization.query_rel.name,
-                'description': widget.visualization.query_rel.description,
+                'name': q.name,
+                'description': q.description,
                 'options': {},
                 'latest_query_data': query_data
             }
@@ -50,11 +59,6 @@ def public_dashboard(dashboard):
                    )
 
     widgets = {w.id: public_widget(w) for w in widget_list}
-
-    # make sure all widgets' query's have a last_query_data_id that is not null so public dashboards work
-    for w in widgets:
-        if not hasattr(w, 'latest_query_data'):
-            models.Query.query.filter(models.Query.id == widgets[w]['visualization']['query']['id']).first()
 
     widgets_layout = []
     for row in dashboard_dict['layout']:

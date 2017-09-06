@@ -1,5 +1,8 @@
+import mock
+
 from tests import BaseTestCase
 from redash.models import db
+from redash.query_runner.pg import PostgreSQL
 
 
 class TestEmbedVisualization(BaseTestCase):
@@ -97,6 +100,15 @@ class TestAPIPublicDashboard(BaseTestCase):
         res = self.make_request('get', '/api/dashboards/public/{}'.format(api_key.api_key), user=False, is_json=False)
         self.assertEqual(res.status_code, 404)
 
+    def test_dashboard_widgets(self):
+        dashboard = self.factory.create_dashboard()
+        w1 = self.factory.create_widget(dashboard=dashboard)
+        w2 = self.factory.create_widget(dashboard=dashboard, visualization=None, text="a text box")
+        api_key = self.factory.create_api_key(object=dashboard)
+        with mock.patch.object(PostgreSQL, "run_query") as qr:
+            qr.return_value = ("[1, 2]", None)
+            res = self.make_request('get', '/api/dashboards/public/{}'.format(api_key.api_key), user=False, is_json=False)
+        self.assertEqual(res.status_code, 200)
     # Not relevant for now, as tokens in api_keys table are only created for dashboards. Once this changes, we should
     # add this test.
     # def test_token_doesnt_belong_to_dashboard(self):
