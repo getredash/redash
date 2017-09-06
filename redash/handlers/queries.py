@@ -2,11 +2,10 @@ from itertools import chain
 
 import sqlparse
 from flask import jsonify, request
+from funcy import distinct, take
+
 from flask_login import login_required
 from flask_restful import abort
-from funcy import distinct, take
-from sqlalchemy.orm.exc import StaleDataError
-
 from redash import models, settings
 from redash.handlers.base import (BaseResource, get_object_or_404,
                                   org_scoped_rule, paginate, routes)
@@ -16,6 +15,7 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_object_modify_permission,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
+from sqlalchemy.orm.exc import StaleDataError
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -85,6 +85,7 @@ class QueryListResource(BaseResource):
         :<json string name:
         :<json string description:
         :<json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json string schedule_until: Time in ISO format to stop scheduling this query (may be null to run indefinitely)
         :<json object options: Query options
 
         .. _query-response-label:
@@ -96,6 +97,7 @@ class QueryListResource(BaseResource):
         :>json string query: Query text
         :>json string query_hash: Hash of query text
         :>json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json string schedule_until: Time in ISO format to stop scheduling this query (may be null to run indefinitely)
         :>json string api_key: Key for public access to this query's results.
         :>json boolean is_archived: Whether this query is displayed in indexes and search results or not.
         :>json boolean is_draft: Whether this query is a draft or not
@@ -122,6 +124,7 @@ class QueryListResource(BaseResource):
         query_def['org'] = self.current_org
         query_def['is_draft'] = True
         query = models.Query.create(**query_def)
+        query.record_changes(changed_by=self.current_user)
         models.db.session.add(query)
         models.db.session.commit()
 
@@ -205,6 +208,7 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            query.record_changes(self.current_user)
             models.db.session.commit()
         except StaleDataError:
             abort(409)
@@ -271,3 +275,16 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query_text, query.id)
+
+
+class QueryVersionListResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id):
+        results = models.Change.list_versions(models.Query.get_by_id(query_id))
+        return [q.to_dict() for q in results]
+
+
+class ChangeResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, change_id):
+        return models.Change.query.get(change_id).to_dict()

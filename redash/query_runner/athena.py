@@ -1,22 +1,25 @@
-import json
 import logging
+import json
 import os
+import re
 
-from redash.query_runner import *
-from redash.settings import parse_boolean
-from redash.utils import JSONEncoder
-
-logger = logging.getLogger(__name__)
-ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
-SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
-OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
+import requests
 
 try:
     import pyathena
-    enabled = True
+    enabled = True 
 except ImportError:
     enabled = False
 
+from redash.query_runner import *
+from redash.utils import JSONEncoder
+from redash.settings import parse_boolean
+
+logger = logging.getLogger(__name__)
+PROXY_URL = os.environ.get('ATHENA_PROXY_URL')
+ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
+SHOW_EXTRA_SETTINGS = parse_boolean(os.environ.get('ATHENA_SHOW_EXTRA_SETTINGS', 'true'))
+OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS', 'true'))
 
 _TYPE_MAPPINGS = {
     'boolean': TYPE_BOOLEAN,
@@ -35,18 +38,16 @@ _TYPE_MAPPINGS = {
     'decimal': TYPE_FLOAT,
 }
 
-
 class SimpleFormatter(object):
     def format(self, operation, parameters=None):
         return operation
 
-
-class Athena(BaseQueryRunner):
+class AthenaUpstream(BaseQueryRunner):
     noop_query = 'SELECT 1'
 
     @classmethod
     def name(cls):
-        return "Amazon Athena"
+        return "Amazon Athena (Upstream PyAthena)"
 
     @classmethod
     def configuration_schema(cls):
@@ -74,6 +75,12 @@ class Athena(BaseQueryRunner):
                     'title': 'Schema Name',
                     'default': 'default'
                 },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                }
             },
             'required': ['region', 's3_staging_dir'],
             'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
@@ -107,15 +114,15 @@ class Athena(BaseQueryRunner):
 
     @classmethod
     def type(cls):
-        return "athena"
+        return "athena_upstream"
 
     def __init__(self, configuration):
-        super(Athena, self).__init__(configuration)
+        super(AthenaUpstream, self).__init__(configuration)
 
     def get_schema(self, get_stats=False):
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type as column_type, extra_info
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
         """
@@ -129,7 +136,12 @@ class Athena(BaseQueryRunner):
             table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
-            schema[table_name]['columns'].append(row['column_name'])
+
+            if row['extra_info'] == 'partition key':
+                schema[table_name]['columns'].append('[P] ' + row['column_name'] + ' (' + row['column_type'] + ')')
+            else:
+                schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
+
 
         return schema.values()
 
@@ -149,7 +161,13 @@ class Athena(BaseQueryRunner):
             column_tuples = [(i[0], _TYPE_MAPPINGS.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
-            data = {'columns': columns, 'rows': rows}
+            qbytes = 'upstream2'
+            try:
+                cursor._poll()
+                qbytes = cursor._data_scanned_in_bytes
+            except AttributeError as e:
+                debug("Athena Upstream can't get data_scanned_in_bytes: %s", e)
+            data = {'columns': columns, 'rows': rows, 'data_scanned': qbytes }
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:
@@ -166,4 +184,4 @@ class Athena(BaseQueryRunner):
         return json_data, error
 
 
-register(Athena)
+register(AthenaUpstream)

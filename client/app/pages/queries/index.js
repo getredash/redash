@@ -9,6 +9,9 @@ import registerScheduleDialog from './schedule-dialog';
 import registerAlertUnsavedChanges from './alert-unsaved-changes';
 import registerQuerySearchResultsPage from './queries-search-results-page';
 import registerVisualizationEmbed from './visualization-embed';
+import registerCompareQueryDialog from './compare-query-dialog';
+import registerGetDataSourceVersion from './get-data-source-version';
+import registerAddToDashboard from './add-to-dashboard';
 
 export default function (ngModule) {
   registerQueryResultsLink(ngModule);
@@ -19,6 +22,9 @@ export default function (ngModule) {
   registerAlertUnsavedChanges(ngModule);
   registerVisualizationEmbed(ngModule);
   registerApiKeyDialog(ngModule);
+  registerCompareQueryDialog(ngModule);
+  registerGetDataSourceVersion(ngModule);
+  registerAddToDashboard(ngModule);
 
   return Object.assign({}, registerQuerySearchResultsPage(ngModule),
                            registerSourceView(ngModule),

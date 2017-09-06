@@ -17,6 +17,7 @@ const AddWidgetDialog = {
     this.query = {};
     this.selected_query = undefined;
     this.text = '';
+    this.existing_text = '';
     this.widgetSizes = [{
       name: 'Regular',
       value: 1,

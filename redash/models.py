@@ -8,12 +8,20 @@ import json
 import logging
 import time
 
-from funcy import project
-
 import xlsxwriter
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy
+from funcy import project
 from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy import or_
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.event import listens_for
+from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.inspection import inspect
+from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
+from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
+from sqlalchemy.types import TypeDecorator
+
 from redash import redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
@@ -23,14 +31,6 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
-from sqlalchemy import or_
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.event import listens_for
-from sqlalchemy.ext.mutable import Mutable
-from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
-from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
-from sqlalchemy.types import TypeDecorator
 
 db = SQLAlchemy(session_options={
     'expire_on_commit': False
@@ -166,10 +166,6 @@ class ChangeTrackingMixin(object):
     skipped_fields = ('id', 'created_at', 'updated_at', 'version')
     _clean_values = None
 
-    def __init__(self, *a, **kw):
-        super(ChangeTrackingMixin, self).__init__(*a, **kw)
-        self.record_changes(self.user)
-
     def prep_cleanvalues(self):
         self.__dict__['_clean_values'] = {}
         for attr in inspect(self.__class__).column_attrs:
@@ -180,10 +176,10 @@ class ChangeTrackingMixin(object):
     def __setattr__(self, key, value):
         if self._clean_values is None:
             self.prep_cleanvalues()
-        for attr in inspect(self.__class__).column_attrs:
-            col, = attr.columns
-            previous = getattr(self, attr.key, None)
-            self._clean_values[col.name] = previous
+
+        if key in inspect(self.__class__).column_attrs:
+            previous = getattr(self, key, None)
+            self._clean_values[key] = previous
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 
@@ -194,13 +190,19 @@ class ChangeTrackingMixin(object):
         for attr in inspect(self.__class__).column_attrs:
             col, = attr.columns
             if attr.key not in self.skipped_fields:
-                changes[col.name] = {'previous': self._clean_values[col.name],
-                                     'current': getattr(self, attr.key)}
+                prev = self._clean_values[col.name]
+                current = getattr(self, attr.key)
+                if prev != current:
+                    changes[col.name] = {'previous': prev, 'current': current}
 
-        db.session.add(Change(object=self,
-                              object_version=self.version,
-                              user=changed_by,
-                              change=changes))
+        if changes:
+            self.version = (self.version or 0) + 1
+            change = Change(object=self,
+                            object_version=self.version,
+                            user=changed_by,
+                            change=changes)
+            db.session.add(change)
+            return change
 
 
 class BelongsToOrgMixin(object):
@@ -385,6 +387,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if with_api_key:
             d['api_key'] = self.api_key
 
+        d['last_active_at'] = Event.query.filter(Event.user_id == self.id).with_entities(Event.created_at).order_by(Event.created_at.desc()).first()
+
         return d
 
     def is_api_user(self):
@@ -474,13 +478,15 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'type': self.type,
             'syntax': self.query_runner.syntax,
             'paused': self.paused,
-            'pause_reason': self.pause_reason
+            'pause_reason': self.pause_reason,
+            'type_name': self.query_runner.name()
         }
 
+        
+        schema = get_configuration_schema_for_query_runner_type(self.type)
+        self.options.set_schema(schema)
+        d['options'] = self.options.to_dict(mask_secrets=True)
         if all:
-            schema = get_configuration_schema_for_query_runner_type(self.type)
-            self.options.set_schema(schema)
-            d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
@@ -617,10 +623,16 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     data = Column(db.Text)
     runtime = Column(postgresql.DOUBLE_PRECISION)
     retrieved_at = Column(db.DateTime(True))
+    data_scanned = Column(db.String(255), nullable=True)
 
     __tablename__ = 'query_results'
 
     def to_dict(self):
+        if hasattr(self, 'data_scanned'):
+            data_scanned_info = self.data_scanned
+        else:
+            data_scanned_info = 'to_dict'
+
         return {
             'id': self.id,
             'query_hash': self.query_hash,
@@ -628,7 +640,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'data': json.loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
-            'retrieved_at': self.retrieved_at
+            'retrieved_at': self.retrieved_at,
+            'data_scanned': data_scanned_info
         }
 
     @classmethod
@@ -663,13 +676,20 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
+        try:
+            data_scanned_information = json.loads(data)['data_scanned']
+        except (ValueError, TypeError, KeyError) as e:
+            data_scanned_information = ''
+
         query_result = cls(org=org,
                            query_hash=query_hash,
                            query_text=query,
                            runtime=run_time,
                            data_source=data_source,
                            retrieved_at=retrieved_at,
-                           data=data)
+                           data=data,
+                           data_scanned=data_scanned_information
+                           )
         db.session.add(query_result)
         logging.info("Inserted query (%s) data; id=%s", query_hash, query_result.id)
         # TODO: Investigate how big an impact this select-before-update makes.
@@ -707,7 +727,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         s = cStringIO.StringIO()
 
         query_data = json.loads(self.data)
-        book = xlsxwriter.Workbook(s, {'constant_memory': True})
+        book = xlsxwriter.Workbook(s)
         sheet = book.add_worksheet("result")
 
         column_names = []
@@ -748,7 +768,7 @@ def should_schedule_next(previous_iteration, now, schedule, failures):
 
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    version = Column(db.Integer, default=1)
+    version = Column(db.Integer, default=0)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
@@ -769,6 +789,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
     schedule_failures = Column(db.Integer, default=0)
+    schedule_until = Column(db.DateTime(True), nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
 
@@ -787,6 +808,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             'query': self.query_text,
             'query_hash': self.query_hash,
             'schedule': self.schedule,
+            'schedule_until': self.schedule_until,
             'api_key': self.api_key,
             'is_archived': self.is_archived,
             'is_draft': self.is_draft,
@@ -869,7 +891,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (db.session.query(Query)
                    .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
-                   .filter(Query.schedule != None)
+                   .filter(Query.schedule != None,
+                           (Query.schedule_until == None) |
+                           (Query.schedule_until > db.func.now()))
                    .order_by(Query.id))
 
         now = utils.utcnow()
@@ -947,6 +971,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         kwargs = {a: getattr(self, a) for a in forked_list}
         forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
                                     user=user, **kwargs)
+        forked_query.record_changes(changed_by=user)
 
         for v in self.visualizations:
             if v.type == 'TABLE':
@@ -1075,7 +1100,6 @@ class Change(GFKBase, db.Model):
             'id': self.id,
             'object_id': self.object_id,
             'object_type': self.object_type,
-            'change_type': self.change_type,
             'object_version': self.object_version,
             'change': self.change,
             'created_at': self.created_at
@@ -1094,6 +1118,12 @@ class Change(GFKBase, db.Model):
             cls.object_id == obj.id,
             cls.object_type == obj.__class__.__tablename__).order_by(
                 cls.object_version.desc()).first()
+
+    @classmethod
+    def list_versions(cls, query):
+        return cls.query.filter(
+            cls.object_id == query.id,
+            cls.object_type == 'queries')
 
 
 class Alert(TimestampMixin, db.Model):
@@ -1190,7 +1220,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
     org = db.relationship(Organization, backref="dashboards")
     slug = Column(db.String(140), index=True, default=generate_slug)
-    name = Column(db.String(100))
+    name = Column(db.String(100), db.CheckConstraint("name<>''", name="dashboard_name_c"))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
     # TODO: The layout should dynamically be built from position and size information on each widget.
@@ -1277,6 +1307,30 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
         return query
+
+    @classmethod
+    def search(cls, term, user_id, group_ids, include_drafts=False):
+        # limit_to_users_dashboards=False, 
+        # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
+        where = (Dashboard.name.ilike(u"%{}%".format(term)))
+
+        if term.isdigit():
+            where |= Dashboard.id == term
+
+        #if limit_to_users_dashboards:
+        #    where &= Dashboard.user_id == user_id
+
+        where &= Dashboard.is_archived == False
+
+        if not include_drafts:
+            where &= Dashboard.is_draft == False
+
+        where &= DataSourceGroup.group_id.in_(group_ids)
+        dashboard_ids = (
+            db.session.query(Dashboard.id)
+            .filter(where)).distinct()
+
+        return Dashboard.query.filter(Dashboard.id.in_(dashboard_ids))
 
     @classmethod
     def recent(cls, org, group_ids, user_id, for_user=False, limit=20):

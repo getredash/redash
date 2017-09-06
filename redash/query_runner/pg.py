@@ -1,6 +1,7 @@
 import json
 import logging
 import select
+import sys
 
 import psycopg2
 
@@ -46,6 +47,9 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://www.postgresql.org/docs/current/"
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take second"
 
     @classmethod
     def configuration_schema(cls):
@@ -69,6 +73,17 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -79,6 +94,17 @@ class PostgreSQL(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "pg"
+
+    def __init__(self, configuration):
+        super(PostgreSQL, self).__init__(configuration)
+
+        values = []
+        for k in 'user password host port dbname'.split():
+            v = self.configuration.get(k)
+            if v is not None:
+                values.append("{}={}".format(k, v))
+
+        self.connection_string = " ".join(values)
 
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
@@ -97,11 +123,11 @@ class PostgreSQL(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
 
     def _get_tables(self, schema):
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, udt_name as column_type
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
         """
@@ -126,13 +152,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        connection = psycopg2.connect(user=self.configuration.get('user'),
-                                      password=self.configuration.get('password'),
-                                      host=self.configuration.get('host'),
-                                      port=self.configuration.get('port'),
-                                      dbname=self.configuration.get('dbname'),
-                                      async=True)
-
+        connection = psycopg2.connect(self.connection_string, async=True)
         _wait(connection, timeout=10)
 
         cursor = connection.cursor()
@@ -145,7 +165,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
             else:
@@ -168,6 +188,11 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    default_doc_url = ("http://docs.aws.amazon.com/redshift/latest/"
+                       "dg/cm_chap_SQLCommandRef.html")
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take last"
+
     @classmethod
     def type(cls):
         return "redshift"
@@ -192,6 +217,11 @@ class Redshift(PostgreSQL):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "required": ["dbname", "user", "password", "host", "port"],

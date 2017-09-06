@@ -8,7 +8,7 @@ const EditTextBoxComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller(toastr) {
+  controller($rootScope, $location, $http, toastr) {
     'ngInject';
 
     this.saveInProgress = false;
@@ -23,6 +23,10 @@ const EditTextBoxComponent = {
         this.saveInProgress = false;
       });
     };
+    this.closeWithoutSave = () => {
+      this.widget.text = this.widget.existing_text;
+      this.close();
+    };
   },
 };
 
@@ -30,11 +34,14 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
+    this.widget.existing_text = this.widget.text;
     $uibModal.open({
       component: 'editTextBox',
       resolve: {
         widget: this.widget,
       },
+      backdrop: 'static',
+      keyboard: false,
     });
   };
 
@@ -78,8 +85,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   };
 
   if (this.widget.visualization) {
-    Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
-    Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
+    Events.record('view', 'query', this.widget.visualization.query.id);
+    Events.record('view', 'visualization', this.widget.visualization.id);
 
     this.query = this.widget.getQuery();
     this.reload(false);

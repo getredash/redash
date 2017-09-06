@@ -49,7 +49,7 @@
         </li>
         <li>
           <span class="zmdi zmdi-time"></span>
-          <span class="text-muted">Updated at </span>
+          <span class="text-muted">Updated at</span>
           <strong>
             <rd-time-ago value="query.updated_at"></rd-time-ago>
           </strong>
@@ -83,6 +83,7 @@
       <div class="row bg-white p-b-5" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
         <schema-browser class="col-md-3 hidden-sm hidden-xs schema-container"
                         schema="schema"
+                        tabletogglestring="dataSource.options.toggle_table_string"
                         on-refresh="refreshSchema()"
                         ng-show="hasSchema">
         </schema-browser>
@@ -100,8 +101,11 @@
 
               <i class="fa fa-database"></i>
               <span class="text-muted">Data Source</span>
-              <select ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+              <select id="data-source-selection" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                       ng-options="ds.id as ds.name for ds in dataSources"></select>
+              <a ng-if="dataSource.options.doc_url != '' && dataSource.options.doc_url" ng-href={{dataSource.options.doc_url}} target="_blank">{{dataSource.type_name}} documentation</a>
+              <span ng-if="dataSource.options.doc_url == '' || !dataSource.options.doc_url">{{ dataSource.type_name }} documentation</span>
+              <get-data-source-version id='data-source-version'></get-data-source-version>
 
               <div class="pull-right">
                 <button class="btn btn-s btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
@@ -114,7 +118,7 @@
                   <span class="fa fa-floppy-o"> </span> Save<span
                   ng-show="isDirty">&#42;</span>
                 </button>
-                <div class="btn-group" role="group" uib-dropdown>
+                <div class="btn-group" ng-show="moreMenuIsPopulated()" id="query-more-menu" role="group" uib-dropdown>
                   <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                     <span class="zmdi zmdi-more"></span>
                   </button>
@@ -123,12 +127,15 @@
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
                     <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish Query</a></li>
                     <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
+                    <li ng-show="canEdit" ng-if="query.id && (query.version > 1)">
+                      <a ng-click="compareQueryVersion()">Query Versions</a>
+                    </li>
                   </ul>
                 </div>
               </div>
             </div>
             <p style="height:calc(100% - 40px);">
-              <query-editor query="query"
+              <query-editor id="query-source" query="query"
                             schema="schema"
                             syntax="dataSource.syntax"></query-editor>
             </p>
@@ -197,6 +204,14 @@
             <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
           </strong>
         </li>
+        <li ng-if="queryResult.query_result.data_scanned">
+          <!-- data scanned -->
+          <span class="zmdi zmdi-time"></span>
+          <span class="text-muted">Data Scanned </span>
+          <strong>
+            <span ng-if="queryResult.query_result.data_scanned != '' || queryResult.query_result.data_scanned == 'N/A'"> {{ queryResult.query_result.data_scanned }}</span>
+          </strong>
+        </li>
       </ul>
 
     </div>
@@ -238,7 +253,7 @@
                   <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" base-path="query.getUrl(sourceMode)"
                           ng-repeat="vis in query.visualizations">
                           <span class="remove" ng-click="deleteVisualization($event, vis)"
-                                ng-show="canEdit"> &times;</span>
+                                ng-show="canEdit"> &times;</span> <span class="btn btn-xs btn-success" ng-click="openAddToDashboardForm(vis)"> +</span>
                   </rd-tab>
                   <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
                 </ul>

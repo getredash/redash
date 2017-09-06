@@ -15,4 +15,8 @@
             <query-time-picker refresh-type="$ctrl.refreshType" query="$ctrl.query" save-query="$ctrl.saveQuery"></query-time-picker>
         </label>
     </div>
+    <label>
+      Stop scheduling at date/time (format yyyy-MM-ddTHH:mm:ss, like 2016-12-28T14:57:00):
+      <schedule-until query="$ctrl.query" save-query="$ctrl.saveQuery"></schedule-until>
+    </label>
 </div>

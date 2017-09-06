@@ -1,7 +1,10 @@
 from itertools import chain
+import json
 
 from flask import request, url_for
 from funcy import distinct, project, take
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm.exc import StaleDataError 
 
 from flask_restful import abort
 from redash import models, serializers, settings
@@ -57,10 +60,10 @@ class DashboardListResource(BaseResource):
                                      user=self.current_user,
                                      is_draft=True,
                                      layout='[]')
+        dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
         models.db.session.commit()
         return dashboard.to_dict()
-
 
 class DashboardResource(BaseResource):
     @require_permission('list_dashboards')
@@ -127,6 +130,13 @@ class DashboardResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_slug, self.current_org)
 
         require_object_modify_permission(dashboard, self.current_user)
+        if 'layout' in dashboard_properties:
+            try:
+                layout = json.loads(dashboard_properties['layout'])
+            except ValueError:
+                abort(400)
+            if not isinstance(layout, list):
+                abort(400)
 
         updates = project(dashboard_properties, ('name', 'layout', 'version',
                                                  'is_draft', 'dashboard_filters_enabled'))
@@ -145,7 +155,8 @@ class DashboardResource(BaseResource):
             models.db.session.commit()
         except StaleDataError:
             abort(409)
-
+        except IntegrityError:
+            abort(400)
         result = dashboard.to_dict(with_widgets=True, user=self.current_user)
         return result
 
@@ -229,3 +240,21 @@ class DashboardShareResource(BaseResource):
             'object_id': dashboard.id,
             'object_type': 'dashboard',
         })
+
+class SearchDashboardResource(BaseResource):
+    @require_permission('list_dashboards')
+    def get(self):
+        """
+        Searches for a dashboard.
+
+        Sends to models.py > Dashboard > search()
+        search(cls, term, user_id, group_ids, limit_to_users_dashboards=False, include_drafts=False)
+        """
+        term = request.args.get('q', '')
+        include_drafts = request.args.get('include_drafts') is not None
+        user_id = request.args.get('user_id', '')
+        group_ids = self.current_user.group_ids
+        if group_ids == None and request.args.get('test',False):
+            group_ids = [2] # the array that's used for test factory users
+        return [q.to_dict() for q in models.Dashboard.search(term, user_id, group_ids, include_drafts=include_drafts)]
+

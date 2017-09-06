@@ -1,6 +1,7 @@
 import hashlib
 import logging
 
+from flask import flash, redirect, render_template, request, url_for
 from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
@@ -111,8 +112,6 @@ def login(org_slug=None):
             return redirect(url_for("remote_user_auth.login", next=next_path))
         elif settings.SAML_LOGIN_ENABLED:
             return redirect(url_for("saml_auth.sp_initiated", next=next_path))
-        elif settings.LDAP_LOGIN_ENABLED:
-            return redirect(url_for("ldap_auth.login", next=next_path))
         else:
             return redirect(url_for("google_oauth.authorize", next=next_path))
 
@@ -138,8 +137,7 @@ def login(org_slug=None):
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
-                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
-                           show_ldap_login=settings.LDAP_LOGIN_ENABLED)
+                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED)
 
 
 @routes.route(org_scoped_rule('/logout'))
@@ -173,7 +171,6 @@ def client_config():
 
     return client_config
 
-
 @routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
     return json_response({
@@ -182,7 +179,8 @@ def config(org_slug=None):
     })
 
 
-@routes.route(org_scoped_rule('/api/session'), methods=['GET'])
+# @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
+@routes.route('/api/session', methods=['GET'])
 @login_required
 def session(org_slug=None):
     if current_user.is_api_user():

@@ -16,20 +16,6 @@ function pivotTableRenderer() {
     template: '',
     replace: false,
     link($scope, element) {
-      function removeControls() {
-        const hideControls =
-          $scope.visualization.options.controls &&
-          $scope.visualization.options.controls.enabled;
-
-        document.querySelectorAll('.pvtAxisContainer, .pvtRenderer, .pvtVals').forEach((control) => {
-          if (hideControls) {
-            control.style.display = 'none';
-          } else {
-            control.style.display = '';
-          }
-        });
-      }
-
       function updatePivot() {
         $scope.$watch('queryResult && queryResult.getData()', (data) => {
           if (!data) {
@@ -61,15 +47,17 @@ function pivotTableRenderer() {
             if ($scope.visualization) {
               Object.assign(options, $scope.visualization.options);
             }
-
             $(element).pivotUI(data, options, true);
-            removeControls();
+            if (options.controls && options.controls.enabled) {
+              const controls = $('.pvtAxisContainer, .pvtRenderer, .pvtVals');
+              for (let i = 0; i < controls.length; i += 1) { controls[i].style.display = 'none'; }
+            }
           }
         });
       }
 
       $scope.$watch('queryResult && queryResult.getData()', updatePivot);
-      $scope.$watch('visualization.options.controls.enabled', removeControls);
+      $scope.$watch('visualization.options.controls.enabled', updatePivot);
     },
   };
 }
