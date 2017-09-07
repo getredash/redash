@@ -50,7 +50,7 @@
     "mustache": "^2.2.1",
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.3.0",
-    "plotly.js": "1.26.1",
+    "plotly.js": "1.29.3",
     "ui-select": "^0.19.6",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4"

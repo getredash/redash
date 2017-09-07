@@ -424,6 +424,9 @@ const PlotlyChart = () => {
           delete scope.layout.yaxis2;
         }
 
+        scope.data.forEach((series) => {
+          series.hoverlabel = { namelength: -1 };
+        });
         if (scope.options.series.stacking === 'normal') {
           scope.layout.barmode = 'stack';
           if (scope.options.globalSeriesType === 'area') {
