@@ -25,8 +25,6 @@ def _transform_result(response):
 
 
 class Graphite(BaseQueryRunner):
-
-
     @classmethod
     def configuration_schema(cls):
         return {
@@ -53,7 +51,9 @@ class Graphite(BaseQueryRunner):
                     "type": "string",
                     "title": "Toggle Table String",
                     "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                    "info": "This string will be used to toggle visibility of \
+                    tables in the schema browser when editing a query in order \
+                    to remove non-useful tables from sight."
                 }
             },
             'required': ['url'],

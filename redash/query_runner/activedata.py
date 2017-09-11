@@ -6,8 +6,10 @@ import requests
 from redash.query_runner import TYPE_INTEGER, TYPE_STRING, TYPE_FLOAT, BaseSQLQueryRunner, register
 from redash.utils import JSONEncoder
 
-#Originally written by Github user @klahnakoski
-#Original link: https://github.com/klahnakoski/ActiveData-redash-query-runner/blob/c0e7286c09c6f1eb6746a6c7cca581bea79f4757/active_data.py
+# Originally written by Github user @klahnakoski
+# Original link: https://github.com/klahnakoski/
+# ActiveData-redash-query-runner/blob/
+# c0e7286c09c6f1eb6746a6c7cca581bea79f4757/active_data.py
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +48,9 @@ class ActiveData(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "Toggle Table String",
                     "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                    "info": "This string will be used to toggle visibility of \
+                    tables in the schema browser when editing a query in order to \
+                    remove non-useful tables from sight."
                 }
             },
             "required": ["host_url"]
@@ -115,10 +119,9 @@ class ActiveData(BaseSQLQueryRunner):
             return None, cause
 
         output = normalize(response)
-        output.update({'data_scanned':'N/A'})
+        output.update({'data_scanned': 'N/A'})
         json_data = json.dumps(output, cls=JSONEncoder)
         return json_data, None
-
 
 
 def normalize(table):

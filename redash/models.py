@@ -477,7 +477,6 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'pause_reason': self.pause_reason
         }
 
-        
         schema = get_configuration_schema_for_query_runner_type(self.type)
         self.options.set_schema(schema)
         d['options'] = self.options.to_dict(mask_secrets=True)

@@ -34,7 +34,8 @@ PRESTO_TYPES_MAPPING = {
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
     default_doc_url = 'https://prestodb.io/docs/current/'
-    data_source_version_query = "SELECT node_version FROM system.runtime.nodes WHERE coordinator = true AND state = 'active'"
+    data_source_version_query = 
+        "SELECT node_version FROM system.runtime.nodes WHERE coordinator = true AND state = 'active'"
     data_source_version_post_process = "none"
 
     @classmethod
@@ -66,7 +67,9 @@ class Presto(BaseQueryRunner):
                     "type": "string",
                     "title": "Toggle Table String",
                     "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                    "info": "This string will be used to toggle visibility of \
+                    tables in the schema browser when editing a query in order \
+                    to remove non-useful tables from sight."
                 }
             },
             'required': ['host']
