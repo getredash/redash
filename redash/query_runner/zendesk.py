@@ -39,7 +39,34 @@ class Zendesk(BaseQueryRunner):
             raise Exception("Not Authorized! (http status code: {0}).".format(response.status_code))
     def run_query(self, query, user):
         try:
-            jsonfilepath='/tmp/'+randint(0, 1000)+'.json'
+            jsonfilepath="/tmp/"+str(randint(0, 1000))+".json"
+            zendeskcolumn=['via',
+              'updated_at',
+              'submitter_id',
+              'assignee_id',
+              'brand_id',
+              'id',
+              'subject',
+              'priority',
+              'satisfaction_rating',
+              'type',
+              'status',
+              'tags',
+              'forum_topic_id',
+              'organization_id',
+              'due_at',
+              'is_public',
+              'requester_id',
+              'recipient',
+              'problem_id',
+              'url',
+              'created_at',
+              'raw_subject',
+              'allow_channelback',
+              'has_incidents',
+              'group_id',
+              'external_id',
+              'result_type'] 
             error = None
             query = query.strip()
             if query.find("://") > -1:
@@ -52,29 +79,26 @@ class Zendesk(BaseQueryRunner):
             row={}
             rows=[]
             for i in json_data['results']:
-                row['id']= i['id']
-                row['created_at']= i['created_at']
-                row['status']= i['status']
-                row['tags']= i['tags']
+                for column in zendeskcolumn:
+                    row[column]=i[column]
                 rows.append(row)
+                row={}
             while(json_data['next_page'] is not None):
                 response = requests.get(json_data['next_page'],auth=self.auth)
                 response.raise_for_status()
                 json_data = response.content.strip()
                 json_data = json.loads(json_data)
                 for i in json_data['results']:
-                    row['id']= i['id']
-                    row['created_at']= i['created_at']
-                    row['status']= i['status']
-                    row['tags']= i['tags']
+                    for column in zendeskcolumn:
+                        row[column]=i[column]
                     rows.append(row)
                     row={}
-            json_data1 = {'temp':rows}
+            json_temp = {'temp':rows}
             with open(jsonfilepath,'w+') as outfile:
-                json.dump(json_data1,outfile)
+                json.dump(json_temp,outfile)
             rows=[]
             drill = PyDrill(host='localhost', port=8047)
-            data = drill.query('''SELECT * (select flatten(temp) AS flatdata FROM dfs.`'''+jsonfilepath+'''`) t''')
+            data = drill.query('''SELECT t.flatdata.id as id  FROM (select flatten(temp) AS flatdata FROM dfs.`'''+jsonfilepath+'''`) t''')
             for result in data:
                 columnnames = list(result.keys())
                 for column in columnnames:
