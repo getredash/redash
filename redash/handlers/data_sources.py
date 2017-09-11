@@ -179,6 +179,7 @@ class DataSourceTestResource(BaseResource):
         else:
             return {"message": "success", "ok": True}
 
+
 class DataSourceVersionResource(BaseResource):
     def get(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
@@ -189,5 +190,3 @@ class DataSourceVersionResource(BaseResource):
             return {"message": unicode(e), "ok": False}
         else:
             return {"message": version_info, "ok": True}
-
-

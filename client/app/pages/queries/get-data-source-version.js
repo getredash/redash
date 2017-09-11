@@ -4,7 +4,7 @@ function GetDataSourceVersionCtrl(Events, toastr, $scope, DataSource, $route) {
   this.getDataSourceVersion = DataSource.version(
     {
       id: $route.current.locals.query.data_source_id,
-    }
+    },
   );
 }
 

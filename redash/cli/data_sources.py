@@ -66,6 +66,7 @@ def test(name, organization='default'):
         print "Couldn't find data source named: {}".format(name)
         exit(1)
 
+
 @manager.command()
 @click.argument('name')
 @click.option('--org', 'organization', default='default',
@@ -90,6 +91,7 @@ def get_data_source_version(name, organization='default'):
     except NoResultFound:
         print "Couldn't find data source named: {}".format(name)
         exit(1)
+
 
 @manager.command()
 @click.argument('name', default=None, required=False)
