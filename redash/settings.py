@@ -246,7 +246,7 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
-DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
+DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "YYYY-MM-DD")
 
 # Features:
 FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))
