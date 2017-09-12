@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 try:
     from cassandra.cluster import Cluster
     from cassandra.auth import PlainTextAuthProvider
+    from cassandra.util import sortedset
     enabled = True
 except ImportError:
     enabled = False
@@ -19,6 +20,8 @@ class CassandraJSONEncoder(JSONEncoder):
     def default(self, o):
         if isinstance(o, uuid.UUID):
             return str(o)
+        if isinstance(o, sortedset):
+            return list(o)
         return super(CassandraJSONEncoder, self).default(o)
 
 
@@ -68,15 +71,31 @@ class Cassandra(BaseQueryRunner):
 
     def get_schema(self, get_stats=False):
         query = """
-        SELECT columnfamily_name, column_name FROM system.schema_columns where keyspace_name ='{}';
+        select release_version from system.local;
+        """
+        results, error = self.run_query(query, None)
+        results = json.loads(results)
+        release_version = results['rows'][0]['release_version']
+
+        query = """
+        SELECT table_name, column_name
+        FROM system_schema.columns
+        WHERE keyspace_name ='{}';
         """.format(self.configuration['keyspace'])
+
+        if release_version.startswith('2'):
+                query = """
+                SELECT columnfamily_name AS table_name, column_name
+                FROM system.schema_columns
+                WHERE keyspace_name ='{}';
+                """.format(self.configuration['keyspace'])
 
         results, error = self.run_query(query, None)
         results = json.loads(results)
 
         schema = {}
         for row in results['rows']:
-            table_name = row['columnfamily_name']
+            table_name = row['table_name']
             column_name = row['column_name']
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
