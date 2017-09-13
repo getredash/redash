@@ -19,6 +19,9 @@
           <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{option}}">{{option}}</option>
         </select>
       </span>
+      <span ng-switch-when="query">
+        <query-based-parameter param="param"></query-based-parameter>
+      </span>
       <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.ngModel">
     </span>
   </div>
