@@ -32,7 +32,7 @@ statsd==2.1.2
 gunicorn==19.4.5
 celery==3.1.23
 jsonschema==2.4.0
-RestrictedPython==3.6.0
+RestrictedPython==4.0a2
 pysaml2==2.4.0
 pycrypto==2.6.1
 funcy==1.7.1
