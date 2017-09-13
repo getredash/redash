@@ -1,7 +1,6 @@
 import json
 import logging
 import select
-import sys
 
 import psycopg2
 
@@ -70,6 +69,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "sslmode": {
+                   "type": "string",
+                   "title": "SSL Mode",
+                   "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -80,15 +84,6 @@ class PostgreSQL(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "pg"
-
-    def __init__(self, configuration):
-        super(PostgreSQL, self).__init__(configuration)
-
-        values = []
-        for k, v in self.configuration.iteritems():
-            values.append("{}={}".format(k, v))
-
-        self.connection_string = " ".join(values)
 
     def _get_definitions(self, schema, query):
         results, error = self.run_query(query, None)
@@ -136,7 +131,13 @@ class PostgreSQL(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        connection = psycopg2.connect(self.connection_string, async=True)
+        connection = psycopg2.connect(user=self.configuration.get('user'),
+                                      password=self.configuration.get('password'),
+                                      host=self.configuration.get('host'),
+                                      port=self.configuration.get('port'),
+                                      dbname=self.configuration.get('dbname'),
+                                      async=True)
+
         _wait(connection, timeout=10)
 
         cursor = connection.cursor()

@@ -1,9 +1,10 @@
 import requests
+
 from celery.utils.log import get_task_logger
 from flask_mail import Message
-from redash.worker import celery
+from redash import mail, models, settings
 from redash.version_check import run_version_check
-from redash import models, mail, settings
+from redash.worker import celery
 
 logger = get_task_logger(__name__)
 
@@ -17,8 +18,8 @@ def record_event(raw_event):
         logger.debug("Forwarding event to: %s", hook)
         try:
             data = {
-              "schema": "iglu:io.redash.webhooks/event/jsonschema/1-0-0",
-              "data": event.to_dict()
+                "schema": "iglu:io.redash.webhooks/event/jsonschema/1-0-0",
+                "data": event.to_dict()
             }
             response = requests.post(hook, json=data)
             if response.status_code != 200:
@@ -47,15 +48,12 @@ def subscribe(form):
 
 @celery.task(name="redash.tasks.send_mail")
 def send_mail(to, subject, html, text):
-    from redash.wsgi import app
-
     try:
-        with app.app_context():
-            message = Message(recipients=to,
-                              subject=subject,
-                              html=html,
-                              body=text)
+        message = Message(recipients=to,
+                          subject=subject,
+                          html=html,
+                          body=text)
 
-            mail.send(message)
+        mail.send(message)
     except Exception:
         logger.exception('Failed sending message: %s', message.subject)

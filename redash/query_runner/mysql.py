@@ -137,12 +137,16 @@ class Mysql(BaseSQLQueryRunner):
                                          db=self.configuration['db'],
                                          port=self.configuration.get('port', 3306),
                                          charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters())
+                                         ssl=self._get_ssl_parameters(),
+                                         connect_timeout=60)
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
 
             data = cursor.fetchall()
+
+            while cursor.nextset():
+                data = cursor.fetchall()
 
             # TODO - very similar to pg.py
             if cursor.description is not None:

@@ -1,9 +1,12 @@
 import debug from 'debug';
 import moment from 'moment';
-import { uniq, contains, values, some, each, isArray, isNumber, isString } from 'underscore';
+import { uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
+
+const ALL_VALUES = '*';
+const NONE_VALUES = '-';
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -91,9 +94,8 @@ function QueryResultService($resource, $timeout, $q) {
         // on the column type set by the backend. This logic is prone to errors,
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
-          let newType = null;
-
           each(row, (v, k) => {
+            let newType = null;
             if (isNumber(v)) {
               newType = 'float';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
@@ -209,6 +211,21 @@ function QueryResultService($resource, $timeout, $q) {
         this.filterFreeze = filterFreeze;
 
         if (filters) {
+          filters.forEach((filter) => {
+            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
+              filter.current = filter.values.slice(1);
+            }
+
+            if (filter.current.length === (filter.values.length - 1)) {
+              filter.values[0] = NONE_VALUES;
+            }
+
+            if (filter.multiple && includes(filter.current, NONE_VALUES)) {
+              filter.current = [];
+              filter.values[0] = ALL_VALUES;
+            }
+          });
+
           this.filteredData = this.query_result.data.rows.filter(row =>
              filters.reduce((memo, filter) => {
                if (!isArray(filter.current)) {
@@ -377,6 +394,12 @@ function QueryResultService($resource, $timeout, $q) {
             }
           }
         });
+      });
+
+      filters.forEach((filter) => {
+        if (filter.multiple) {
+          filter.values.unshift(ALL_VALUES);
+        }
       });
 
       filters.forEach((filter) => {

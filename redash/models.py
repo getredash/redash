@@ -518,6 +518,13 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def get_by_id(cls, _id):
         return cls.query.filter(cls.id == _id).one()
 
+    def delete(self):
+        Query.query.filter(Query.data_source == self).update(dict(data_source_id=None, latest_query_data_id=None))
+        QueryResult.query.filter(QueryResult.data_source == self).delete()
+        res = db.session.delete(self)
+        db.session.commit()
+        return res
+
     def get_schema(self, refresh=False):
         key = "data_source:schema:{}".format(self.id)
 
@@ -604,7 +611,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization)
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"))
-    data_source = db.relationship(DataSource, backref=backref('query_results', cascade="all, delete-orphan"))
+    data_source = db.relationship(DataSource, backref=backref('query_results'))
     query_hash = Column(db.String(32), index=True)
     query_text = Column('query', db.Text)
     data = Column(db.Text)
@@ -700,7 +707,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         s = cStringIO.StringIO()
 
         query_data = json.loads(self.data)
-        book = xlsxwriter.Workbook(s)
+        book = xlsxwriter.Workbook(s, {'constant_memory': True})
         sheet = book.add_worksheet("result")
 
         column_names = []
@@ -908,7 +915,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
-        query = (cls.query.options(subqueryload(Query.user))
+        query = (cls.query
                  .filter(Event.created_at > (db.func.current_date() - 7))
                  .join(Event, Query.id == Event.object_id.cast(db.Integer))
                  .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
@@ -1143,18 +1150,20 @@ class Alert(TimestampMixin, db.Model):
 
     def evaluate(self):
         data = json.loads(self.query_rel.latest_query_data.data)
-        # todo: safe guard for empty
-        value = data['rows'][0][self.options['column']]
-        op = self.options['op']
+        if data['rows']:
+            value = data['rows'][0][self.options['column']]
+            op = self.options['op']
 
-        if op == 'greater than' and value > self.options['value']:
-            new_state = self.TRIGGERED_STATE
-        elif op == 'less than' and value < self.options['value']:
-            new_state = self.TRIGGERED_STATE
-        elif op == 'equals' and value == self.options['value']:
-            new_state = self.TRIGGERED_STATE
+            if op == 'greater than' and value > self.options['value']:
+                new_state = self.TRIGGERED_STATE
+            elif op == 'less than' and value < self.options['value']:
+                new_state = self.TRIGGERED_STATE
+            elif op == 'equals' and value == self.options['value']:
+                new_state = self.TRIGGERED_STATE
+            else:
+                new_state = self.OK_STATE
         else:
-            new_state = self.OK_STATE
+            new_state = self.UNKNOWN_STATE
 
         return new_state
 
@@ -1474,8 +1483,9 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
     user = db.relationship(User, backref="notification_destinations")
     name = Column(db.String(255))
     type = Column(db.String(255))
-    options = Column(Configuration)
+    options = Column(ConfigurationContainer.as_mutable(Configuration))
     created_at = Column(db.DateTime(True), default=db.func.now())
+
     __tablename__ = 'notification_destinations'
     __table_args__ = (db.Index('notification_destinations_org_id_name', 'org_id',
                                'name', unique=True),)

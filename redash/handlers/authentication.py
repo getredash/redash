@@ -1,7 +1,7 @@
 import hashlib
 import logging
 
-from flask import flash, redirect, render_template, request, url_for
+from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
@@ -74,6 +74,9 @@ def reset(token, org_slug=None):
 
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
+    if not settings.PASSWORD_LOGIN_ENABLED:
+        abort(404)
+
     submitted = False
     if request.method == 'POST' and request.form['email']:
         submitted = True
@@ -93,9 +96,9 @@ def forgot_password(org_slug=None):
 def login(org_slug=None):
     # We intentionally use == as otherwise it won't actually use the proxy. So weird :O
     # noinspection PyComparisonWithNone
-    if current_org is None and not settings.MULTI_ORG:
+    if current_org == None and not settings.MULTI_ORG:
         return redirect('/setup')
-    elif current_org is None:
+    elif current_org == None:
         return redirect('/')
 
     index_url = url_for("redash.index", org_slug=org_slug)
@@ -108,6 +111,8 @@ def login(org_slug=None):
             return redirect(url_for("remote_user_auth.login", next=next_path))
         elif settings.SAML_LOGIN_ENABLED:
             return redirect(url_for("saml_auth.sp_initiated", next=next_path))
+        elif settings.LDAP_LOGIN_ENABLED:
+            return redirect(url_for("ldap_auth.login", next=next_path))
         else:
             return redirect(url_for("google_oauth.authorize", next=next_path))
 
@@ -129,11 +134,12 @@ def login(org_slug=None):
     return render_template("login.html",
                            org_slug=org_slug,
                            next=next_path,
-                           username=request.form.get('username', ''),
+                           email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
                            show_saml_login=settings.SAML_LOGIN_ENABLED,
-                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED)
+                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
+                           show_ldap_login=settings.LDAP_LOGIN_ENABLED)
 
 
 @routes.route(org_scoped_rule('/logout'))
@@ -168,7 +174,6 @@ def client_config():
     return client_config
 
 
-# @routes.route(org_scoped_rule('/api/config'), methods=['GET'])
 @routes.route('/api/config', methods=['GET'])
 def config(org_slug=None):
     return json_response({
@@ -177,8 +182,7 @@ def config(org_slug=None):
     })
 
 
-# @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
-@routes.route('/api/session', methods=['GET'])
+@routes.route(org_scoped_rule('/api/session'), methods=['GET'])
 @login_required
 def session(org_slug=None):
     if current_user.is_api_user():

@@ -299,12 +299,17 @@ const PlotlyChart = () => {
           const seriesOptions = scope.options.seriesOptions[series.name] ||
             { type: scope.options.globalSeriesType };
 
+          const seriesColor = seriesOptions.color ? seriesOptions.color : getColor(index);
+
           const plotlySeries = {
             x: [],
             y: [],
-            error_y: { array: [] },
+            error_y: {
+              array: [],
+              color: seriesColor,
+            },
             name: seriesOptions.name || series.name,
-            marker: { color: seriesOptions.color ? seriesOptions.color : getColor(index) },
+            marker: { color: seriesColor },
           };
 
           if (seriesOptions.yAxis === 1 && (scope.options.series.stacking === null || seriesOptions.type === 'line')) {
@@ -499,6 +504,9 @@ const CustomPlotlyChart = (clientConfig) => {
         return;
       }
       const refresh = () => {
+        // Clear existing data with blank data for succeeding codeCall adds data to existing plot.
+        Plotly.newPlot(element[0].children[0]);
+
         // eslint-disable-next-line no-eval
         const codeCall = eval(`codeCall = function(x, ys, element, Plotly){ ${scope.options.customCode} }`);
         codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
@@ -514,9 +522,11 @@ const CustomPlotlyChart = (clientConfig) => {
           });
         });
       };
-      scope.$watch('options.customCode', () => {
+      scope.$watch('[options.customCode, options.autoRedraw]', () => {
         try {
-          refresh();
+          if (scope.options.autoRedraw) {
+            refresh();
+          }
         } catch (err) {
           if (scope.options.enableConsoleLogs) {
             // eslint-disable-next-line no-console

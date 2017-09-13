@@ -19,7 +19,7 @@ class RecentDashboardsResource(BaseResource):
         Lists dashboards modified in the last 7 days.
         """
         if settings.FEATURE_DUMB_RECENTS:
-            dashboards = models.Dashboard.all(self.current_org, self.current_user.groups, self.current_user).order_by(models.Dashboard.updated_at.desc()).limit(10)
+            dashboards = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id).order_by(models.Dashboard.updated_at.desc()).limit(10)
             dashboards = [d.to_dict() for d in dashboards]
         else:
             recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
@@ -129,7 +129,7 @@ class DashboardResource(BaseResource):
         require_object_modify_permission(dashboard, self.current_user)
 
         updates = project(dashboard_properties, ('name', 'layout', 'version',
-                                                 'is_draft'))
+                                                 'is_draft', 'dashboard_filters_enabled'))
 
         # SQLAlchemy handles the case where a concurrent transaction beats us
         # to the update. But we still have to make sure that we're not starting

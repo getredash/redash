@@ -92,7 +92,7 @@ class Salesforce(BaseQueryRunner):
         sf = SimpleSalesforce(username=self.configuration['username'],
                               password=self.configuration['password'],
                               security_token=self.configuration['token'],
-                              sandbox=self.configuration['sandbox'],
+                              sandbox=self.configuration.get('sandbox', False),
                               client_id='Redash')
         return sf
 
@@ -159,7 +159,7 @@ class Salesforce(BaseQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data)
         except SalesforceError as err:
-            error = err.message
+            error = err.content
             json_data = None
         return json_data, error
 

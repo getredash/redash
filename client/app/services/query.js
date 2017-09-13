@@ -52,6 +52,7 @@ class Parameter {
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
     this.goToNow = parameter.goToNow;
+    this.queryBasedOption = parameter.queryBasedOption;
   }
 
   get ngModel() {
@@ -181,6 +182,11 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         isArray: false,
         url: 'api/queries/:id/fork',
         params: { id: '@id' },
+      },
+      resultById: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/:id/results.json',
       },
     });
 
