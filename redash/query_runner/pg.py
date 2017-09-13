@@ -69,6 +69,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "sslmode": {
+                   "type": "string",
+                   "title": "SSL Mode",
+                   "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
