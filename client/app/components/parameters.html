@@ -11,15 +11,15 @@
         <i class="zmdi zmdi-settings"></i>
     </button>
     <span ng-switch="param.type">
-      <input ng-switch-when="datetime-with-seconds" type="datetime-local" step="1" class="form-control" ng-model="param.ngModel">
-      <input ng-switch-when="datetime-local" type="datetime-local" class="form-control" ng-model="param.ngModel">
-      <input ng-switch-when="date" type="date" class="form-control" ng-model="param.ngModel">
+      <input ng-switch-when="datetime-with-seconds" type="datetime-local" step="1" class="form-control" ng-model="param.ngModel" ng-model-options="{updateOn: 'blur'}">
+      <input ng-switch-when="datetime-local" type="datetime-local" class="form-control" ng-model="param.ngModel" ng-model-options="{updateOn: 'blur'}">
+      <input ng-switch-when="date" type="date" class="form-control" ng-model="param.ngModel" ng-model-options="{updateOn: 'blur'}">
       <span ng-switch-when="enum">
-        <select ng-model="param.value" class="form-control">
+        <select ng-model="param.value" class="form-control" ng-model-options="{updateOn: 'blur'}">
           <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{option}}">{{option}}</option>
         </select>
       </span>
-      <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.ngModel">
+      <input ng-switch-default type="{{param.type}}" class="form-control" ng-model="param.ngModel" ng-model-options="{updateOn: 'blur'}">
     </span>
   </div>
 </div>
