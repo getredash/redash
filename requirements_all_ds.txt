@@ -10,7 +10,7 @@ pyOpenSSL==16.2.0
 vertica-python==0.5.1
 td-client==0.8.0
 pymssql==2.1.3
-dql==0.5.16
+dql==0.5.24
 dynamo3==0.4.7
 botocore==1.5.72
 sasl>=0.1.3
