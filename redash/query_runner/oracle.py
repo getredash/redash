@@ -14,18 +14,14 @@ try:
         cx_Oracle.LOB: TYPE_STRING,
         cx_Oracle.FIXED_CHAR: TYPE_STRING,
         cx_Oracle.FIXED_NCHAR: TYPE_STRING,
-        cx_Oracle.FIXED_UNICODE: TYPE_STRING,
         cx_Oracle.INTERVAL: TYPE_DATETIME,
-        cx_Oracle.LONG_NCHAR: TYPE_STRING,
         cx_Oracle.LONG_STRING: TYPE_STRING,
-        cx_Oracle.LONG_UNICODE: TYPE_STRING,
         cx_Oracle.NATIVE_FLOAT: TYPE_FLOAT,
         cx_Oracle.NCHAR: TYPE_STRING,
         cx_Oracle.NUMBER: TYPE_FLOAT,
         cx_Oracle.ROWID: TYPE_INTEGER,
         cx_Oracle.STRING: TYPE_STRING,
         cx_Oracle.TIMESTAMP: TYPE_DATETIME,
-        cx_Oracle.UNICODE: TYPE_STRING,
     }
 
 
