@@ -29,6 +29,9 @@ types_map = {
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = 'https://dev.mysql.com/doc/refman/5.7/en/'
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "none"
 
     @classmethod
     def configuration_schema(cls):
@@ -55,6 +58,14 @@ class Mysql(BaseSQLQueryRunner):
                 'port': {
                     'type': 'number',
                     'default': 3306,
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of \
+                    tables in the schema browser when editing a query in order \
+                    to remove non-useful tables from sight."
                 }
             },
             "order": ['host', 'port', 'user', 'passwd', 'db'],
