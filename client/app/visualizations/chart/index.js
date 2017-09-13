@@ -87,10 +87,12 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
 
-      scope.options.customCode = `// Available variables are x, ys, element, and Plotly
+      if (scope.options.customCode === undefined) {
+        scope.options.customCode = `// Available variables are x, ys, element, and Plotly
 // Type console.log(x, ys); for more info about x and ys
 // To plot your graph call Plotly.plot(element, ...)
 // Plotly examples and docs: https://plot.ly/javascript/`;
+      }
 
       function refreshColumns() {
         scope.columns = scope.queryResult.getColumns();
