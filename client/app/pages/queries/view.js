@@ -100,6 +100,11 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
       return;
     }
 
+    // Remove ';' from queries to avoid pyhive errors
+    if ($scope.query.query[$scope.query.query.length - 1] === ';') {
+      $scope.query.query = $scope.query.query.substring(0, $scope.query.query.length - 1);
+    }
+
     if (!$scope.query.query) {
       return;
     }
