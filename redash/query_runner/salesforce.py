@@ -159,7 +159,7 @@ class Salesforce(BaseQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json_dumps(data)
         except SalesforceError as err:
-            error = err.message
+            error = err.content
             json_data = None
         return json_data, error
 
