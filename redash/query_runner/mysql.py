@@ -145,6 +145,9 @@ class Mysql(BaseSQLQueryRunner):
 
             data = cursor.fetchall()
 
+            while cursor.nextset():
+                data = cursor.fetchall()
+
             # TODO - very similar to pg.py
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
