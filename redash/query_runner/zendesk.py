@@ -13,7 +13,8 @@ class Zendesk(BaseQueryRunner):
             "properties": {
                 "url": {
                     "type": "string",
-                    "default": "https://domain.zendesk.com/api/v2/search.json?"
+                    "default": "https://domain.zendesk.com",
+                    "title" : "Zendesk URL"
                 },
                 "email": {
                     "type": "string",
@@ -36,16 +37,18 @@ class Zendesk(BaseQueryRunner):
         self.base_url = self.configuration.get("url", None)
         
     def test_connection(self):
-        response = requests.get(self.base_url,auth=(self.configuration.get("email", None), self.configuration.get("pwd", None)))
-        if response.status_code != 200 and response.status_code != 422 :
+        response = requests.get(self.base_url+'/api/v2/users.json',auth=(self.configuration.get("email", None), self.configuration.get("pwd", None)))
+        if response.status_code != 200:
             raise Exception("Not Authorized! (http status code: {0}).".format(response.status_code))
         
     def run_query(self, query, user):
         try:
             query = query.strip()
-            sqlquery = None
-            jsonfile="/tmp/"+str(randint(100, 1000))+".json"
+            error = None
             
+            if query.find("://") > -1:
+                    return None, "Accepting only relative URLs to '%s'" % self.base_url
+                
             columnnames=['id',
               'created_at',
               'updated_at',
@@ -72,20 +75,16 @@ class Zendesk(BaseQueryRunner):
               'has_incidents',
               'group_id',
               'external_id',
-              'result_type'] 
-              
-            error = None
+              'result_type']
             
-            if query.find("://") > -1:
-                    return None, "Accepting only relative URLs to '%s'" % self.base_url
-                
             queries = query.split(";")
             
+            sqlquery = None
             if len(queries ) > 1 :
                 sqlquery=queries[1]
                 
             zendeskquery = queries[0]
-            url = self.base_url + zendeskquery
+            url = self.base_url +'/api/v2/search.json?query='+ zendeskquery
             response = requests.get(url,auth=self.auth )
             response.raise_for_status()
             json_data = response.content.strip()
@@ -111,6 +110,7 @@ class Zendesk(BaseQueryRunner):
                     row={}
                     
             if sqlquery is not None and len(sqlquery)>1:
+                jsonfile="/tmp/"+str(randint(100, 1000))+".json"
                 json_temp = {'temp':rows}
                 with open(jsonfile,'w+') as outfile:
                     json.dump(json_temp,outfile)
@@ -152,3 +152,4 @@ class Zendesk(BaseQueryRunner):
         return json_data, error
     
 register(Zendesk)
+
