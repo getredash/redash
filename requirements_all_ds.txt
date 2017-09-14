@@ -2,7 +2,7 @@ google-api-python-client==1.5.1
 gspread==0.6.2
 impyla==0.10.0
 influxdb==2.7.1
-MySQL-python==1.2.5
+PyMySQL==0.7.11
 oauth2client==3.0.0
 pyhive==0.3.0
 pymongo==3.6.1
