@@ -96,7 +96,7 @@ class Mysql(BaseSQLQueryRunner):
     @classmethod
     def enabled(cls):
         try:
-            import MySQLdb
+            import pymysql
         except ImportError:
             return False
 
@@ -132,14 +132,14 @@ class Mysql(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        import MySQLdb
+        import pymysql
 
         ev = threading.Event()
         thread_id = ""
         r = Result()
         t = None
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
+            connection = pymysql.connect(host=self.configuration.get('host', ''),
                                          user=self.configuration.get('user', ''),
                                          passwd=self.configuration.get('passwd', ''),
                                          db=self.configuration['db'],
@@ -191,7 +191,7 @@ class Mysql(BaseSQLQueryRunner):
                 r.error = "No data was returned."
 
             cursor.close()
-        except MySQLdb.Error as e:
+        except pymysql.Error as e:
             if cursor:
                 cursor.close()
             r.json_data = None
