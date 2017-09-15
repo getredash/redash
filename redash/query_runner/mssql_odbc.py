@@ -80,11 +80,11 @@ class SQLServerODBC(BaseSQLQueryRunner):
 
     @classmethod
     def name(cls):
-        return "Azure SQL Data Warehouse"
+        return "Microsoft SQL Server (ODBC)"
 
     @classmethod
     def type(cls):
-        return "azure_dwh"
+        return "mssql_odbc"
 
     @classmethod
     def annotate_query(cls):
