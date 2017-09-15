@@ -143,10 +143,6 @@ class SQLServerODBC(BaseSQLQueryRunner):
                                                              user,
                                                              password)
             connection = pyodbc.connect(connection_string)
-
-            if isinstance(query, unicode):
-                query = query.encode(charset)
-
             cursor = connection.cursor()
             logger.debug("SqlServer running query: %s", query)
             cursor.execute(query)
