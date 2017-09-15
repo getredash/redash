@@ -5,6 +5,7 @@ import uuid
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
+from redash.query_runner.mssql import MSSQLJSONEncoder, types_map
 
 logger = logging.getLogger(__name__)
 
@@ -13,24 +14,6 @@ try:
     enabled = True
 except ImportError:
     enabled = False
-
-# from _mssql.pyx ## DB-API type definitions & http://www.freetds.org/tds.html#types ##
-types_map = {
-    1: TYPE_STRING,
-    2: TYPE_BOOLEAN,
-    # Type #3 supposed to be an integer, but in some cases decimals are returned
-    # with this type. To be on safe side, marking it as float.
-    3: TYPE_FLOAT,
-    4: TYPE_DATETIME,
-    5: TYPE_FLOAT,
-}
-
-
-class MSSQLJSONEncoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, uuid.UUID):
-            return str(o)
-        return super(MSSQLJSONEncoder, self).default(o)
 
 
 class SQLServerODBC(BaseSQLQueryRunner):
