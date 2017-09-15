@@ -74,7 +74,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
         return False
 
     def __init__(self, configuration):
-        super(SqlServer, self).__init__(configuration)
+        super(SQLServerODBC, self).__init__(configuration)
 
     def _get_tables(self, schema):
         query = """
@@ -127,7 +127,7 @@ class SQLServerODBC(BaseSQLQueryRunner):
                                                              password)
             connection = pyodbc.connect(connection_string)
             cursor = connection.cursor()
-            logger.debug("SqlServer running query: %s", query)
+            logger.debug("SQLServerODBC running query: %s", query)
             cursor.execute(query)
             data = cursor.fetchall()
 
@@ -163,4 +163,4 @@ class SQLServerODBC(BaseSQLQueryRunner):
 
         return json_data, error
 
-register(SqlServer)
+register(SQLServerODBC)
