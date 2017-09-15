@@ -55,11 +55,6 @@ class SQLServerODBC(BaseSQLQueryRunner):
                     "type": "number",
                     "default": 1433
                 },
-                "tds_version": {
-                    "type": "string",
-                    "default": "7.0",
-                    "title": "TDS Version"
-                },
                 "charset": {
                     "type": "string",
                     "default": "UTF-8",
@@ -136,7 +131,6 @@ class SQLServerODBC(BaseSQLQueryRunner):
             password = self.configuration.get('password', '')
             db = self.configuration['db']
             port = self.configuration.get('port', 1433)
-            tds_version = self.configuration.get('tds_version', '7.0')
             charset = self.configuration.get('charset', 'UTF-8')
             driver = self.configuration.get('driver', '{ODBC Driver 13 for SQL Server}')
 
