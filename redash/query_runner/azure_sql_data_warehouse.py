@@ -66,7 +66,8 @@ class SQLServerODBC(BaseSQLQueryRunner):
                 },
                 "driver": {
                     "type": "string",
-                    "title": "Driver Identifier"
+                    "title": "Driver Identifier",
+                    "default": "{ODBC Driver 13 for SQL Server}"
                 }
             },
             "required": ["db"],
