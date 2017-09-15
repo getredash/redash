@@ -33,7 +33,7 @@ class MSSQLJSONEncoder(JSONEncoder):
         return super(MSSQLJSONEncoder, self).default(o)
 
 
-class SqlServer(BaseSQLQueryRunner):
+class SQLServerODBC(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
