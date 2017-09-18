@@ -65,7 +65,7 @@ create_directories() {
 extract_redash_sources() {
     sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
     sudo -u redash mkdir "$VERSION_DIR"
-    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
+    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL" --strip-components=1
     ln -nfs "$VERSION_DIR" /opt/redash/current
     ln -nfs /opt/redash/.env /opt/redash/current/.env
 }
