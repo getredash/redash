@@ -15,7 +15,7 @@ REDASH_VERSION=${REDASH_VERSION-2.0.0.b2990} # Install latest version if not spe
 LATEST_URL="https://s3.amazonaws.com/redash-releases/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu/files
+FILES_BASE_URL=https://raw.githubusercontent.com/surexdirect/redash/SUR-2805_zendesk_data_source/setup/ubuntu/files
 
 cd /tmp/
 
