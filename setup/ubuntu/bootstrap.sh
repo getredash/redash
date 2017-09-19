@@ -10,12 +10,12 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-REDASH_BRANCH="${REDASH_BRANCH:-SUR-2805_zendesk_data_source}" # Default branch/version to master if not specified in REDASH_BRANCH env var
+REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
 REDASH_VERSION=${REDASH_VERSION-2.0.0.b2990} # Install latest version if not specified in REDASH_VERSION env var
-LATEST_URL="https://github.com/surexdirect/redash/archive/SUR-2805_zendesk_data_source.tar.gz"
+LATEST_URL="https://s3.amazonaws.com/redash-releases/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
-FILES_BASE_URL=https://raw.githubusercontent.com/surexdirect/redash/SUR-2805_zendesk_data_source/setup/ubuntu/files
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu/files
 
 cd /tmp/
 
@@ -65,7 +65,7 @@ create_directories() {
 extract_redash_sources() {
     sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
     sudo -u redash mkdir "$VERSION_DIR"
-    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL" --strip-components=1
+    sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
     ln -nfs "$VERSION_DIR" /opt/redash/current
     ln -nfs /opt/redash/.env /opt/redash/current/.env
 }
