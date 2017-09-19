@@ -17,11 +17,11 @@ class Zendesk(BaseQueryRunner):
                     "title" : "Zendesk URL"
                 },
                 "email": {
-                    "type": "string",
-                    "default": "default"
+                    "type": "string"
                 },
                 "pwd": {
-                    "type": "string"
+                    "type": "string",
+                    "title":"password"
                 }
             },
             "required": ["email","pwd"],
@@ -152,4 +152,3 @@ class Zendesk(BaseQueryRunner):
         return json_data, error
     
 register(Zendesk)
-
