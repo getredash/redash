@@ -230,6 +230,12 @@ const PlotlyChart = () => {
         return null;
       }
 
+      function getHoverformat(axis) {
+        if (!isUndefined(axis) && !isUndefined(axis.hoverformat)) {
+          return axis.hoverformat;
+        }
+        return null;
+      }
 
       function recalculateOptions() {
         scope.data.length = 0;
@@ -391,6 +397,7 @@ const PlotlyChart = () => {
           scope.layout.yaxis = {
             title: getTitle(scope.options.yAxis[0]),
             type: getScaleType(scope.options.yAxis[0].type),
+            hoverformat: getHoverformat(scope.options.yAxis[0]),
           };
 
           if (isNumber(scope.options.yAxis[0].rangeMin) ||
