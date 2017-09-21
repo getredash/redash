@@ -157,7 +157,7 @@ class Mysql(BaseSQLQueryRunner):
                 else:
                     transaction = True
                     columns = [{'name': 'Row(s) Affected',
-                                'type': 'TYPE_INTEGER', None)}]
+                                'type': 'TYPE_INTEGER'}]
                     transaction_rows += rows_count
                 if not cursor.nextset():
                     break
