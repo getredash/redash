@@ -140,15 +140,14 @@ class Mysql(BaseSQLQueryRunner):
                                          ssl=self._get_ssl_parameters())
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
-            queries = query.rstrip(';').split(';')
+            cursor.execute(query)
 
             transaction = False
             transaction_rows = 0
 
-            for query in queries:
-                cursor.execute(query)
-                rows_count = cursor.rowcount
+            while True:
                 data = cursor.fetchall()
+                rows_count = cursor.rowcount
                 if cursor.description is not None:
                     columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
                     rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
@@ -158,21 +157,21 @@ class Mysql(BaseSQLQueryRunner):
                 else:
                     transaction = True
                     columns = [{'name': 'Row(s) Affected',
-                                'type': types_map.get(str(type(rows_count)).upper(), None)}]
+                                'type': 'TYPE_INTEGER', None)}]
                     transaction_rows += rows_count
+                if not cursor.nextset():
+                    break
 
             if transaction:
                 rows = [{'Row(s) Affected': transaction_rows}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
+                connection.commit()
 
             if json_data is None:
                 error = "No data was returned."
             else:
                 error = None
-
-            if transaction:
-                connection.commit()
 
             cursor.close()
         except MySQLdb.Error as e:
