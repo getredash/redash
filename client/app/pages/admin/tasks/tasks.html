@@ -42,7 +42,7 @@
         <td>{{row.started_at | toMilliseconds | dateTime }}</td>
         <td>{{row.updated_at | toMilliseconds | dateTime }}</td>
         <td ng-if="selectedTab === 'in_progress'">
-          <cancel-query-button query-id="dataRow.query_id" task-id="dataRow.task_id"></cancel-query-button>
+          <cancel-query-button query-id="row.query_id" task-id="row.task_id"></cancel-query-button>
         </td>
       </tr>
       </tbody>

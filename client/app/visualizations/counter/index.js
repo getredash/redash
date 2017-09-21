@@ -1,3 +1,6 @@
+import numberFormat from 'underscore.string/numberFormat';
+import { isNumber as isNum } from 'underscore';
+
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
 
@@ -42,6 +45,26 @@ function CounterRenderer() {
           } else {
             $scope.targetValue = null;
           }
+
+          $scope.isNumber = isNum($scope.counterValue);
+          if ($scope.isNumber) {
+            $scope.stringPrefix = $scope.visualization.options.stringPrefix;
+            $scope.stringSuffix = $scope.visualization.options.stringSuffix;
+
+            const stringDecimal = $scope.visualization.options.stringDecimal;
+            const stringDecChar = $scope.visualization.options.stringDecChar;
+            const stringThouSep = $scope.visualization.options.stringThouSep;
+            if (stringDecimal || stringDecChar || stringThouSep) {
+              $scope.counterValue = numberFormat($scope.counterValue,
+                 stringDecimal,
+                 stringDecChar,
+                 stringThouSep);
+              $scope.isNumber = false;
+            }
+          } else {
+            $scope.stringPrefix = null;
+            $scope.stringSuffix = null;
+          }
         }
       };
 
@@ -55,6 +78,26 @@ function CounterEditor() {
   return {
     restrict: 'E',
     template: counterEditorTemplate,
+    link(scope) {
+      scope.currentTab = 'general';
+      scope.changeTab = (tab) => {
+        scope.currentTab = tab;
+      };
+      scope.isValueNumber = () => {
+        const queryData = scope.queryResult.getData();
+        if (queryData) {
+          const rowNumber = getRowNumber(scope.visualization.options.rowNumber, queryData.length);
+          const counterColName = scope.visualization.options.counterColName;
+
+          if (scope.visualization.options.countRow) {
+            scope.counterValue = queryData.length;
+          } else if (counterColName) {
+            scope.counterValue = queryData[rowNumber][counterColName];
+          }
+        }
+        return isNum(scope.counterValue);
+      };
+    },
   };
 }
 
@@ -74,6 +117,9 @@ export default function (ngModule) {
       counterColName: 'counter',
       rowNumber: 1,
       targetRowNumber: 1,
+      stringDecimal: 0,
+      stringDecChar: '.',
+      stringThouSep: ',',
     };
 
     VisualizationProvider.registerVisualization({

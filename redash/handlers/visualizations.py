@@ -1,9 +1,12 @@
 import json
+
 from flask import request
 
 from redash import models
-from redash.permissions import require_permission, require_admin_or_owner
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.permissions import (require_admin_or_owner,
+                                require_object_modify_permission,
+                                require_permission)
 
 
 class VisualizationListResource(BaseResource):
@@ -12,7 +15,7 @@ class VisualizationListResource(BaseResource):
         kwargs = request.get_json(force=True)
 
         query = get_object_or_404(models.Query.get_by_id_and_org, kwargs.pop('query_id'), self.current_org)
-        require_admin_or_owner(query.user_id)
+        require_object_modify_permission(query, self.current_user)
 
         kwargs['options'] = json.dumps(kwargs['options'])
         kwargs['query_rel'] = query
@@ -28,7 +31,7 @@ class VisualizationResource(BaseResource):
     @require_permission('edit_query')
     def post(self, visualization_id):
         vis = get_object_or_404(models.Visualization.get_by_id_and_org, visualization_id, self.current_org)
-        require_admin_or_owner(vis.query_rel.user_id)
+        require_object_modify_permission(vis.query_rel, self.current_user)
 
         kwargs = request.get_json(force=True)
         if 'options' in kwargs:
@@ -45,6 +48,6 @@ class VisualizationResource(BaseResource):
     @require_permission('edit_query')
     def delete(self, visualization_id):
         vis = get_object_or_404(models.Visualization.get_by_id_and_org, visualization_id, self.current_org)
-        require_admin_or_owner(vis.query_rel.user_id)
+        require_object_modify_permission(vis.query_rel, self.current_user)
         models.db.session.delete(vis)
         models.db.session.commit()

@@ -16,7 +16,6 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   const saveQuery = $scope.saveQuery;
 
   $scope.sourceMode = true;
-  $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.isDirty = false;
   $scope.base_url = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
 
