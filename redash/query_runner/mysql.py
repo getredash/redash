@@ -143,7 +143,6 @@ class Mysql(BaseSQLQueryRunner):
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
 
-
             transaction = False
             transaction_rows = 0
 
