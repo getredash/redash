@@ -17,6 +17,11 @@
       "from": "a-big-triangle@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/a-big-triangle/-/a-big-triangle-1.0.3.tgz"
     },
+    "abbrev": {
+      "version": "1.1.0",
+      "from": "abbrev@>=1.0.0 <2.0.0",
+      "resolved": "https://registry.npmjs.org/abbrev/-/abbrev-1.1.0.tgz"
+    },
     "acorn": {
       "version": "4.0.4",
       "from": "acorn@4.0.4",
@@ -2024,10 +2029,10 @@
       "from": "marching-simplex-table@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/marching-simplex-table/-/marching-simplex-table-1.0.0.tgz"
     },
-    "marked": {
-      "version": "0.3.6",
-      "from": "marked@>=0.3.6 <0.4.0",
-      "resolved": "https://registry.npmjs.org/marked/-/marked-0.3.6.tgz"
+    "markdown": {
+      "version": "0.5.0",
+      "from": "markdown@0.5.0",
+      "resolved": "https://registry.npmjs.org/markdown/-/markdown-0.5.0.tgz"
     },
     "mat4-decompose": {
       "version": "1.0.4",
@@ -2234,6 +2239,11 @@
           "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.6.0.tgz"
         }
       }
+    },
+    "nopt": {
+      "version": "2.1.2",
+      "from": "nopt@>=2.1.1 <2.2.0",
+      "resolved": "https://registry.npmjs.org/nopt/-/nopt-2.1.2.tgz"
     },
     "normals": {
       "version": "1.1.0",
