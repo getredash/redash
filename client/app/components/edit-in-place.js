@@ -77,6 +77,7 @@ function EditInPlace() {
         // 'return' or 'enter' key pressed
         // allow 'shift' to break lines
         if (e.which === keycodeEnter && !e.shiftKey) {
+          e.preventDefault();
           save();
         } else if (e.which === keycodeEscape) {
           $scope.value = $scope.oldValue;
