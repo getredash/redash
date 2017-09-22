@@ -217,7 +217,8 @@ default_query_runners = [
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
     'redash.query_runner.axibase_tsd',
-    'redash.query_runner.salesforce'
+    'redash.query_runner.salesforce',
+    'redash.query_runner.zendesk'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
@@ -246,7 +247,7 @@ SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
 ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
-DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
+DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "YYYY-MM-DD")
 
 # Features:
 FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))
