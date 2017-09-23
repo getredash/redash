@@ -14,14 +14,22 @@ try:
 except ImportError:
     enabled = False
 
+# https://github.com/mkleehammer/pyodbc/wiki/Data-Types#python-2
 types_map = {
-    1: TYPE_STRING,
-    2: TYPE_BOOLEAN,
-    # Type #3 supposed to be an integer, but in some cases decimals are returned
-    # with this type. To be on safe side, marking it as float.
-    3: TYPE_FLOAT,
-    4: TYPE_DATETIME,
-    5: TYPE_FLOAT,
+    "<type 'str'>": TYPE_STRING,
+    "<type 'unicode'>": TYPE_STRING,
+    "<type 'bytearray'>": TYPE_STRING,
+    "<type 'buffer'>": TYPE_STRING,
+    "<type 'bool'>": TYPE_BOOLEAN,
+    "<type 'datetime.date'>": TYPE_DATE,
+    "<type 'datetime.time'>": TYPE_DATETIME,
+    "<type 'datetime.datetime'>": TYPE_DATETIME,
+    "<type 'int'>": TYPE_INTEGER,
+    "<type 'long'>": TYPE_FLOAT,
+    "<type 'float'>": TYPE_FLOAT,
+    "<type 'decimal'>": TYPE_FLOAT,
+    "<type 'UUID.uuid'>": TYPE_STRING,
+    "<class 'decimal.Decimal'>": TYPE_FLOAT,
 }
 
 class ODBC(BaseSQLQueryRunner):
@@ -90,7 +98,7 @@ class ODBC(BaseSQLQueryRunner):
             data = cursor.fetchall()
 
             if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+                columns = self.fetch_columns([(i[0], types_map.get(str(i[1]), None)) for i in cursor.description])
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
