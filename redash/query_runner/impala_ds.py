@@ -38,39 +38,86 @@ class Impala(BaseSQLQueryRunner):
     noop_query = "show schemas"
 
     @classmethod
+    def name(cls):
+        return "Impala"
+
+    @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
             "properties": {
                 "host": {
-                    "type": "string"
+                    "type": "string",
+                    "title": "Host: The hostname for HS2. For Impala, this can be any of the `impalad`s. For Hive, this is the Hive Metastore."
                 },
                 "port": {
-                    "type": "number"
+                    "type": "number",
+                    "title": "Port: The port number. The Impala default is 21050. The Hive default is 10000."
                 },
                 "protocol": {
                     "type": "string",
-                    "title": "Please specify beeswax or hiveserver2"
+                    "default": "hiveserver2",
+                    "title": "Protocol: Please specify 'hiveserver2' only"
                 },
                 "database": {
-                    "type": "string"
+                    "type": "string",
+                    "title": "Default Database: If `None`, the result is implementation-dependent."
+                },
+                "use_ssl": {
+                    "type": "boolean",
+                    "title": "Use SSL?"
+                },
+                "ca_cert": {
+                    "type": "string",
+                    "title": "Local path to the the third-party CA certificate. If SSL is enabled but the certificate is not specified, the server certificate will not be validated."
+                },
+                "auth_mechanism": {
+                    "type": "string",
+                    "default": "NOSASL",
+                    "title": "Authentication Mechanism: `'NOSASL'` for unsecured Impala. `'PLAIN'` for unsecured Hive (because Hive requires the SASL transport). `'GSSAPI'` for Kerberos. `'LDAP'` for LDAP."
+                },
+                "user": {
+                    "type": "string",
+                    "title": "User: (if applicable)"
+                },
+                "password": {
+                    "type": "string",
+                    "title": "Password: (if applicable)"
+                },
+                "kerberos_service_name": {
+                    "type": "string",
+                    "default": "impala",
+                    "title": "Kerberos Service Name: Authenticate to a particular `impalad` service principal. Uses `'impala'` by default."
+                },
+                "use_kerberos": {
+                    "type": "boolean",
+                    "title": "Use Kerberos? (deprecated): Specify `auth_mechanism='GSSAPI'` instead."
                 },
                 "use_ldap": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "title": "Use LDAP? (deprecated): Specify `auth_mechanism='LDAP'` instead."
                 },
                 "ldap_user": {
-                    "type": "string"
+                    "type": "string",
+                    "title": "LDAP User (deprecated): Use `user` parameter instead."
                 },
                 "ldap_password": {
-                    "type": "string"
+                    "type": "string",
+                    "title": "LDAP Password (deprecated): Use `password` parameter instead."
                 },
                 "timeout": {
-                    "type": "number"
+                    "type": "number",
+                    "title": "Connection timeout in seconds. Default is no timeout."
                 }
             },
+            "order": ["host","port","protocol","database","use_ssl","ca_cert","auth_mechanism","user","password","kerberos_service_name","use_kerberos","use_ldap","ldap_user","ldap_password","timeout"],
             "required": ["host"],
-            "secret": ["ldap_password"]
+            "secret": ["password", "ldap_password"]
         }
+
+    @classmethod
+    def annotate_query(cls):
+        return True
 
     @classmethod
     def type(cls):
@@ -140,4 +187,22 @@ class Impala(BaseSQLQueryRunner):
 
         return json_data, error
 
+
+class HiveImpala(Impala):
+
+    @classmethod
+    def name(cls):
+        return "Hive via Impala"
+
+    @classmethod
+    def annotate_query(cls):
+        # True works for Impala, but it must be False to also allow connectivity with Hive.
+        return False
+
+    @classmethod
+    def type(cls):
+        return "hiveimpala"
+
+
 register(Impala)
+register(HiveImpala)
