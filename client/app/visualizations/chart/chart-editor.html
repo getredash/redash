@@ -134,17 +134,23 @@
 
   <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
     <label class="control-label">Custom code</label>
-    <textarea ng-model="options.customCode" class="form-control" rows="10">
+    <textarea ng-model="options.customCode" class="form-control v-resizable" rows="10">
     </textarea>
   </div>
 
   <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
-      <label>
-        <input type="checkbox" ng-model="options.enableConsoleLogs">
-        <i class="input-helper"></i> Show errors in the console
-      </label>
-    </div>
+    <label>
+      <input type="checkbox" ng-model="options.enableConsoleLogs">
+      <i class="input-helper"></i> Show errors in the console
+    </label>
+  </div>
 
+  <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
+    <label>
+      <input type="checkbox" ng-model="options.autoRedraw">
+      <i class="input-helper"></i> Auto update graph
+    </label>
+  </div>
 
   <div ng-show="currentTab == 'xAxis'">
     <div class="form-group">

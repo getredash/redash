@@ -15,13 +15,18 @@ const EditTextBoxComponent = {
     this.widget = this.resolve.widget;
     this.saveWidget = () => {
       this.saveInProgress = true;
-      this.widget.$save().then(() => {
+      if (this.widget.new_text !== this.widget.existing_text) {
+        this.widget.text = this.widget.new_text;
+        this.widget.$save().then(() => {
+          this.close();
+        }).catch(() => {
+          toastr.error('Widget can not be updated');
+        }).finally(() => {
+          this.saveInProgress = false;
+        });
+      } else {
         this.close();
-      }).catch(() => {
-        toastr.error('Widget can not be updated');
-      }).finally(() => {
-        this.saveInProgress = false;
-      });
+      }
     };
   },
 };
@@ -30,6 +35,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
+    this.widget.existing_text = this.widget.text;
+    this.widget.new_text = this.widget.text;
     $uibModal.open({
       component: 'editTextBox',
       resolve: {

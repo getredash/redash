@@ -19,6 +19,7 @@ from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
 WRITER_ENCODING = os.environ.get('REDASH_CSV_WRITER_ENCODING', 'utf-8')
+WRITER_ERRORS = os.environ.get('REDASH_CSV_WRITER_ERRORS', 'strict')
 
 
 def utcnow():
@@ -113,7 +114,7 @@ class UnicodeWriter:
 
     def _encode_utf8(self, val):
         if isinstance(val, (unicode, str)):
-            return val.encode(WRITER_ENCODING)
+            return val.encode(WRITER_ENCODING, WRITER_ERRORS)
 
         return val
 
