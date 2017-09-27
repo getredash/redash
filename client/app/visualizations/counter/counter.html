@@ -1,5 +1,6 @@
 <counter ng-class="{'positive': targetValue && trendPositive, 'negative': targetValue && !trendPositive}">
-  <value>{{counterValue|number}}</value>
+  <value ng-if="isNumber">{{stringPrefix}}{{counterValue|number}}{{stringSuffix}}</value>
+  <value ng-if="!isNumber">{{stringPrefix}}{{counterValue}}{{stringSuffix}}</value>
   <counter-target ng-if="targetValue">({{targetValue|number}})</counter-target>
   <counter-name>{{visualization.name}}</counter-name>
 </counter>

@@ -1781,6 +1781,9 @@ fieldset[disabled] .form-control {
 textarea.form-control {
   height: auto;
 }
+textarea.v-resizable {
+  resize: vertical;
+}
 input[type="search"] {
   -webkit-appearance: none;
 }
@@ -8592,6 +8595,7 @@ a.thumbnail.active {
   padding: 0;
   white-space: nowrap;
   margin: 0;
+  margin-bottom: 10px;
   overflow: auto;
   box-shadow: inset 0 -2px 0 0 #eee;
 }
