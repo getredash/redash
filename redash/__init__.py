@@ -127,6 +127,11 @@ def create_app(load_admin=True):
     app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
     app.config.update(settings.all_settings())
 
+    def set_response_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
+
+    app.after_request(set_response_headers)
     provision_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
