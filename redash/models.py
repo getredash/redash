@@ -23,7 +23,7 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
-from sqlalchemy import or_
+from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
@@ -848,13 +848,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_queries(cls, group_ids, user_id=None, drafts=False):
+        query_ids = (db.session.query(distinct(cls.id))
+                               .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+                               .filter(Query.is_archived == False)
+                               .filter(DataSourceGroup.group_id.in_(group_ids)))
+
         q = (cls.query
-            .options(joinedload(Query.user),
-                     joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
-            .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-            .filter(Query.is_archived == False)
-            .filter(DataSourceGroup.group_id.in_(group_ids))
-            .order_by(Query.created_at.desc()))
+                .options(joinedload(Query.user),
+                         joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
+                .filter(cls.id.in_(query_ids))
+                .order_by(Query.created_at.desc()))
 
         if not drafts:
             q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
