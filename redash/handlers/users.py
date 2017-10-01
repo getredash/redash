@@ -30,7 +30,7 @@ class UserListResource(BaseResource):
 
         user = models.User(org=self.current_org,
                            name=req['name'],
-                           email=req['email'],
+                           email=req['email'].lower(),
                            group_ids=[self.current_org.default_group.id])
 
         try:
