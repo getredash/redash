@@ -111,6 +111,18 @@ class TestLogin(BaseTestCase):
             self.assertEquals(rv.status_code, 302)
             login_user_mock.assert_called_with(user, remember=False)
 
+    def test_submit_case_insensitive_user_and_password(self):
+        user = self.factory.user
+        user.hash_password('password')
+
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/default/login', data={'email': user.email.upper(), 'password': 'password'})
+            self.assertEquals(rv.status_code, 302)
+            login_user_mock.assert_called_with(user, remember=False)
+
     def test_submit_correct_user_and_password_and_remember_me(self):
         user = self.factory.user
         user.hash_password('password')
