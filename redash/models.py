@@ -23,7 +23,7 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
-from sqlalchemy import or_
+from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
