@@ -60,17 +60,17 @@ const QueryBasedParameterComponent = {
               let valueColumn = null;
               columns.forEach((column) => {
                 const columnName = column.name.toLowerCase();
-                if (column.type === 'string' && columnName === 'name') {
+                if (columnName === 'name') {
                   nameColumn = column.name;
                 }
-                if (column.type === 'string' && columnName === 'value') {
+                if (columnName === 'value') {
                   valueColumn = column.name;
                 }
                 // Assign first string column as name and value column.
-                if (nameColumn === null && column.type === 'string') {
+                if (nameColumn === null) {
                   nameColumn = column.name;
                 }
-                if (valueColumn === null && column.type === 'string') {
+                if (valueColumn === null) {
                   valueColumn = column.name;
                 }
               });
