@@ -345,7 +345,7 @@ const PlotlyChart = () => {
             data.forEach((row) => {
               plotlySeries.x.push(normalizeValue(row.x));
               plotlySeries.y.push(normalizeValue(row.y));
-              if (row.yError) {
+              if (row.yError !== undefined) {
                 plotlySeries.error_y.array.push(normalizeValue(row.yError));
               }
             });
