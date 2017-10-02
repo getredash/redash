@@ -307,6 +307,7 @@ class Organization(TimestampMixin, db.Model):
             'settings': self.settings
         }
 
+
 class Group(db.Model, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query',

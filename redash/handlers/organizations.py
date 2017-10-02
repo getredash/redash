@@ -4,9 +4,11 @@ from redash.permissions import require_admin
 from redash.handlers.base import BaseResource
 from redash.models import Organization
 
+
 class OrganizationListResource(BaseResource):
     def get(self):
         return [self.current_org.to_dict()]
+
 
 class OrganizationResource(BaseResource):
     @require_admin
