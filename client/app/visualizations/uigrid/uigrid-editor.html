@@ -1,0 +1,64 @@
+<div class="form-horizontal">
+
+
+  <ul class="tab-nav">
+    <li ng-class="{active: currentTab == 'general'}">
+      <a ng-click="changeTab('general')">General</a>
+    </li>
+    <li ng-class="{active: currentTab == 'colWidths'}" ng-if="options.globalSeriesType != 'custom'">
+      <a ng-click="changeTab('colWidths')">Column Widths</a>
+    </li>
+  </ul>
+
+<div ng-show="currentTab == 'general'">
+<br>
+  <div class="form-group">
+    <label class="col-lg-6">Pin Column Left</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.uiGridPinLeftColumn" class="form-control"></select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-lg-6">Pin Column Right</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.uiGridPinRightColumn" class="form-control"></select>
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <div class="col-lg-6">
+      <input type="checkbox" ng-model="visualization.options.uiGridShowColumnFooter">
+      <i class="input-helper"></i>Show Column Footer
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-lg-6">
+      <input type="checkbox" ng-model="visualization.options.uiGridShowGridFooter">
+      <i class="input-helper"></i>Show Grid Footer
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="col-lg-6">
+      <input type="checkbox" ng-model="visualization.options.uiGridEnableFiltering">
+      <i class="input-helper"></i>Enable Filtering
+    </div>
+  </div>
+</div>
+
+<div ng-show="currentTab == 'colWidths'">
+  <h4>Minimum width per column </h4>
+  <div ng-repeat="name in queryResult.getColumnNames()" class="form-group">
+    <label class="col-lg-6">{{name}}</label>
+    <div class="col-lg-6">
+      <input type="number" ng-model="visualization.options.uiGridMinColWidths[name]" min="1" class="form-control">
+    </div>
+  </div>
+</div>
+
+
+  <div >
+  {{n}}
+</div>
+</div>

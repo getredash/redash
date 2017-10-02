@@ -4,6 +4,7 @@ import { isEmpty, isArray, reduce } from 'underscore';
 import registerEditVisualizationDialog from './edit-visualization-dialog';
 import counterVisualization from './counter';
 import tableVisualization from './table';
+import uiGridVisualization from './uigrid';
 import chartVisualization from './chart';
 import sunburstVisualization from './sunburst';
 import sankeyVisualization from './sankey';
@@ -161,4 +162,5 @@ export default function (ngModule) {
   mapVisualization(ngModule);
   pivotVisualization(ngModule);
   tableVisualization(ngModule);
+  uiGridVisualization(ngModule);
 }
