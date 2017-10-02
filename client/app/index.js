@@ -22,6 +22,7 @@ import toastr from 'angular-toastr';
 import ngUpload from 'angular-base64-upload';
 import vsRepeat from 'angular-vs-repeat';
 import 'angular-moment';
+import momentTimezone from 'moment-timezone';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
@@ -51,6 +52,7 @@ const requirements = [
 ];
 
 const ngModule = angular.module('app', requirements);
+ngModule.constant('moment', momentTimezone);
 
 function registerComponents() {
   each(components, (register) => {

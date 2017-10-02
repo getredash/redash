@@ -13,6 +13,7 @@ export default function (ngModule) {
          $scope.dsPage = startsWith($location.path(), '/data_sources');
          $scope.destinationsPage = startsWith($location.path(), '/destinations');
          $scope.snippetsPage = startsWith($location.path(), '/query_snippets');
+         $scope.systemSettingsPage = startsWith($location.path(), '/system_settings');
 
          $scope.showGroupsLink = currentUser.hasPermission('list_users');
          $scope.showUsersLink = currentUser.hasPermission('list_users');

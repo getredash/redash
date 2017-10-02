@@ -2084,6 +2084,11 @@
       "from": "moment@latest",
       "resolved": "https://registry.npmjs.org/moment/-/moment-2.15.2.tgz"
     },
+    "moment-timezone": {
+      "version": "0.5.13",
+      "from": "moment-timezone@latest",
+      "resolved": "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.13.tgz"
+    },
     "monotone-convex-hull-2d": {
       "version": "1.0.1",
       "from": "monotone-convex-hull-2d@>=1.0.1 <2.0.0",

@@ -4,6 +4,7 @@ import logging
 import re
 
 from dateutil.parser import parse
+from functools import partial
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder, parse_human_time
@@ -53,7 +54,7 @@ def parse_oids(oids):
     return [bson_object_hook({'$oid': oid}) for oid in oids]
 
 
-def datetime_parser(dct):
+def datetime_parser(timezone, dct):
     for k, v in dct.iteritems():
         if isinstance(v, basestring):
             m = date_regex.findall(v)
@@ -61,7 +62,7 @@ def datetime_parser(dct):
                 dct[k] = parse(m[0], yearfirst=True)
 
     if '$humanTime' in dct:
-        return parse_human_time(dct['$humanTime'])
+        return parse_human_time(dct['$humanTime'], timezone)
 
     if '$oids' in dct:
         return parse_oids(dct['$oids'])
@@ -69,8 +70,8 @@ def datetime_parser(dct):
     return bson_object_hook(dct)
 
 
-def parse_query_json(query):
-    query_data = json.loads(query, object_hook=datetime_parser)
+def parse_query_json(query, timezone):
+    query_data = json.loads(query, object_hook=partial(datetime_parser, timezone))
     return query_data
 
 
@@ -179,7 +180,7 @@ class MongoDB(BaseQueryRunner):
         logger.debug("mongodb got query: %s", query)
 
         try:
-            query_data = parse_query_json(query)
+            query_data = parse_query_json(query, user.org.settings['timezone'])
         except ValueError:
             return None, "Invalid query format. The query is not a valid JSON."
 

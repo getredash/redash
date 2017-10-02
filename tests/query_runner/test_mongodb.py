@@ -18,7 +18,7 @@ class TestParseQueryJson(TestCase):
             }
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json.dumps(query), None)
         self.assertDictEqual(query_data, query)
 
     def test_parses_isodate_fields(self):
@@ -32,7 +32,7 @@ class TestParseQueryJson(TestCase):
             'testIsoDate': "ISODate(\"2014-10-03T00:00\")"
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json.dumps(query), None)
 
         self.assertEqual(query_data['testIsoDate'], datetime.datetime(2014, 10, 3, 0, 0))
 
@@ -49,7 +49,7 @@ class TestParseQueryJson(TestCase):
             'testIsoDate': "ISODate(\"2014-10-03T00:00\")"
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json.dumps(query), None)
 
         self.assertEqual(query_data['testIsoDate'], datetime.datetime(2014, 10, 3, 0, 0))
         self.assertEqual(query_data['test_dict']['b']['date'], datetime.datetime(2014, 10, 4, 0, 0))
@@ -71,7 +71,7 @@ class TestParseQueryJson(TestCase):
             ]
         }
 
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json.dumps(query), None)
 
         self.assertDictEqual(query, query_data)
 
@@ -91,7 +91,7 @@ class TestParseQueryJson(TestCase):
                 '$undefined': None
             }
         }
-        query_data = parse_query_json(json.dumps(query))
+        query_data = parse_query_json(json.dumps(query), None)
         self.assertEqual(query_data['test$undefined'], None)
         self.assertEqual(query_data['test$date'], datetime.datetime(2014, 10, 3, 0, 0).replace(tzinfo=utc))
 
@@ -100,9 +100,27 @@ class TestParseQueryJson(TestCase):
             'ts': {'$humanTime': '1 hour ago'}
         }
 
-        one_hour_ago = parse_human_time("1 hour ago")
-        query_data = parse_query_json(json.dumps(query))
+        one_hour_ago = parse_human_time("1 hour ago", None)
+        query_data = parse_query_json(json.dumps(query), None)
         self.assertEqual(query_data['ts'], one_hour_ago)
 
+    def tests_supports_absolute_timestamps_with_timezone(self):
+        query = {
+            'ts': {'$humanTime': 'august 20th 2016 at 2pm'}
+        }
 
+        expected_date_time = datetime.datetime(2016, 8, 20, 18, 0).replace(tzinfo=utc)
+
+        query_data = parse_query_json(json.dumps(query), 'US/Eastern')
+        self.assertEqual(query_data['ts'], expected_date_time)
+
+    def tests_use_utc_for_relative_timestamps_with_timezone(self):
+        query = {
+            'ts': {'$humanTime': '1 hour ago'}
+        }
+
+        one_hour_ago = parse_human_time("1 hour ago", None)
+
+        query_data = parse_query_json(json.dumps(query), 'US/Eastern')
+        self.assertEqual(query_data['ts'], one_hour_ago)
 

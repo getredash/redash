@@ -10,3 +10,4 @@ export { default as groups } from './groups';
 export { default as destinations } from './destinations';
 export { default as dataSources } from './data-sources';
 export { default as queries } from './queries';
+export { default as systemSettings } from './system-settings';
