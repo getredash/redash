@@ -6,7 +6,7 @@ function DataSourcesCtrl($scope, $location, currentUser, Events, DataSource) {
   $scope.dataSources = DataSource.query();
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('DataSourcesCtrl', DataSourcesCtrl);
 
   return {

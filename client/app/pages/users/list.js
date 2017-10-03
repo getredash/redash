@@ -11,7 +11,7 @@ function UsersCtrl(currentUser, Events, User) {
   });
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('usersListPage', {
     controller: UsersCtrl,
     template,

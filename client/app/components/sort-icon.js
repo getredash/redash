@@ -1,4 +1,4 @@
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('sortIcon', {
     template: '<span ng-if="$ctrl.showIcon"><i class="fa fa-sort-{{$ctrl.icon}}"></i></span>',
     bindings: {

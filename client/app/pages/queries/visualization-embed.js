@@ -22,7 +22,7 @@ const VisualizationEmbed = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
 
   function session($http, $route, Auth) {

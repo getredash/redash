@@ -144,7 +144,7 @@ function FilterValueFilter(clientConfig) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.provider('Visualization', VisualizationProvider);
   ngModule.directive('visualizationRenderer', VisualizationRenderer);
   ngModule.directive('visualizationOptionsEditor', VisualizationOptionsEditor);

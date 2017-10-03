@@ -38,7 +38,7 @@ function DynamicForm($http, toastr, $q) {
 
         $scope.fields = orderedInputs(
           configurationSchema.properties,
-          configurationSchema.order || []
+          configurationSchema.order || [],
         );
 
         return type;
@@ -137,13 +137,13 @@ function DynamicForm($http, toastr, $q) {
             } else {
               toastr.error('Failed saving.');
             }
-          }
+          },
         );
       };
     },
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('dynamicForm', DynamicForm);
 }

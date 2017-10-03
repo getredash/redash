@@ -2,7 +2,7 @@ function controller(clientConfig, currentUser) {
   this.showMailWarning = clientConfig.mailSettingsMissing && currentUser.isAdmin;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('emailSettingsWarning', {
     bindings: {
       function: '<',

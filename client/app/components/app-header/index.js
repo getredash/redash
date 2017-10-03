@@ -42,7 +42,7 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('appHeader', {
     template,
     controller,

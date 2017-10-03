@@ -20,14 +20,12 @@ const EditVisualizationDialog = {
     this.visTypes = Visualization.visualizationTypes;
 
     this.newVisualization = () =>
-       ({
-         type: Visualization.defaultVisualization.type,
-         name: Visualization.defaultVisualization.name,
-         description: '',
-         options: Visualization.defaultVisualization.defaultOptions,
-       })
-    ;
-
+      ({
+        type: Visualization.defaultVisualization.type,
+        name: Visualization.defaultVisualization.name,
+        description: '',
+        options: Visualization.defaultVisualization.defaultOptions,
+      });
     if (!this.visualization) {
       this.visualization = this.newVisualization();
     }
@@ -88,6 +86,6 @@ const EditVisualizationDialog = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('editVisualizationDialog', EditVisualizationDialog);
 }

@@ -20,6 +20,6 @@ function Alert($resource, $http) {
   return resource;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Alert', Alert);
 }

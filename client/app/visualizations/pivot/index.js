@@ -81,7 +81,7 @@ function pivotTableEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('pivotTableRenderer', pivotTableRenderer);
   ngModule.directive('pivotTableEditor', pivotTableEditor);
 
