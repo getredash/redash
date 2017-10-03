@@ -70,7 +70,7 @@ function title($rootScope, Title) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Title', TitleService);
   ngModule.directive('title', title);
   ngModule.directive('compareTo', compareTo);

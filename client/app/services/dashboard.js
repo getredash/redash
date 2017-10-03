@@ -34,6 +34,6 @@ function Dashboard($resource, $http, currentUser, Widget) {
   return resource;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Dashboard', Dashboard);
 }

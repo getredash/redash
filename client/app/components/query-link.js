@@ -13,7 +13,7 @@ function QueryLinkController() {
   this.link = this.query.getUrl(false, hash);
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('queryLink', {
     bindings: {
       query: '<',

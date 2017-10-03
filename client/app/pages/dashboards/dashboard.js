@@ -2,8 +2,10 @@ import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
-function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibModal,
-  Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
+function DashboardCtrl(
+  $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
+  Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
+) {
   this.isFullscreen = false;
   this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
@@ -42,8 +44,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
             globalParams[param.name].locals.push(param);
           });
         }
-      })
-    );
+      }));
     this.globalParameters = _.values(globalParams);
   };
 
@@ -60,16 +61,15 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     const promises = [];
 
     this.dashboard.widgets.forEach(row =>
-       row.forEach((widget) => {
-         if (widget.visualization) {
-           const maxAge = force ? 0 : undefined;
-           const queryResult = widget.getQuery().getQueryResult(maxAge);
-           if (!_.isUndefined(queryResult)) {
-             promises.push(queryResult.toPromise());
-           }
-         }
-       })
-    );
+      row.forEach((widget) => {
+        if (widget.visualization) {
+          const maxAge = force ? 0 : undefined;
+          const queryResult = widget.getQuery().getQueryResult(maxAge);
+          if (!_.isUndefined(queryResult)) {
+            promises.push(queryResult.toPromise());
+          }
+        }
+      }));
 
     this.extractGlobalParameters();
 
@@ -115,10 +115,10 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
       Events.record('view', 'dashboard', dashboard.id);
       renderDashboard(dashboard, force);
     }, () => {
-        // error...
-        // try again. we wrap loadDashboard with throttle so it doesn't happen too often.
-        // we might want to consider exponential backoff and also move this as a general
-        // solution in $http/$resource for all AJAX calls.
+      // error...
+      // try again. we wrap loadDashboard with throttle so it doesn't happen too often.
+      // we might want to consider exponential backoff and also move this as a general
+      // solution in $http/$resource for all AJAX calls.
       this.loadDashboard();
     });
   }, 1000);
@@ -128,8 +128,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   this.autoRefresh = () => {
     $timeout(() => {
       this.loadDashboard(true);
-    }, this.refreshRate.rate * 1000
-    ).then(() => this.autoRefresh());
+    }, this.refreshRate.rate * 1000).then(() => this.autoRefresh());
   };
 
   this.archiveDashboard = () => {
@@ -260,7 +259,7 @@ const ShareDashboardComponent = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('shareDashboard', ShareDashboardComponent);
   ngModule.component('dashboardPage', {
     template,

@@ -37,8 +37,7 @@ export function getColumnCleanName(column) {
 
 function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a =>
-     a.toUpperCase()
-  );
+    a.toUpperCase());
 }
 
 function addPointToSeries(point, seriesCollection, seriesName) {
@@ -199,9 +198,11 @@ function QueryResultService($resource, $timeout, $q) {
           return null;
         }
 
-        return filters.reduce((str, filter) =>
-           str + filter.current
-        , '');
+        return filters.reduce(
+          (str, filter) =>
+            str + filter.current
+          , '',
+        );
       }
 
       const filters = this.getFilters();
@@ -227,22 +228,21 @@ function QueryResultService($resource, $timeout, $q) {
           });
 
           this.filteredData = this.query_result.data.rows.filter(row =>
-             filters.reduce((memo, filter) => {
-               if (!isArray(filter.current)) {
-                 filter.current = [filter.current];
-               }
+            filters.reduce((memo, filter) => {
+              if (!isArray(filter.current)) {
+                filter.current = [filter.current];
+              }
 
-               return (memo && some(filter.current, (v) => {
-                 const value = row[filter.name];
-                 if (moment.isMoment(value)) {
-                   return value.isSame(v);
-                 }
-                 // We compare with either the value or the String representation of the value,
-                 // because Select2 casts true/false to "true"/"false".
-                 return (v === value || String(value) === v);
-               }));
-             }, true)
-          );
+              return (memo && some(filter.current, (v) => {
+                const value = row[filter.name];
+                if (moment.isMoment(value)) {
+                  return value.isSame(v);
+                }
+                // We compare with either the value or the String representation of the value,
+                // because Select2 casts true/false to "true"/"false".
+                return (v === value || String(value) === v);
+              }));
+            }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
         }
@@ -429,7 +429,8 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     loadResult(tryCount) {
-      QueryResultResource.get({ id: this.job.query_result_id },
+      QueryResultResource.get(
+        { id: this.job.query_result_id },
         (response) => {
           this.update(response);
         },
@@ -451,7 +452,7 @@ function QueryResultService($resource, $timeout, $q) {
               this.loadResult(tryCount + 1);
             }, 1000 * Math.pow(2, tryCount));
           }
-        }
+        },
       );
     }
 
@@ -518,6 +519,6 @@ function QueryResultService($resource, $timeout, $q) {
   return QueryResult;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('QueryResult', QueryResultService);
 }

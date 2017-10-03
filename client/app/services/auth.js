@@ -103,7 +103,7 @@ function apiKeyHttpInterceptor($injector) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Auth', AuthService);
   ngModule.service('currentUser', CurrentUserService);
   ngModule.service('clientConfig', ClientConfigService);

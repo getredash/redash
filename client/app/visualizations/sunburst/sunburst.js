@@ -1,4 +1,4 @@
-import d3 from 'd3';
+import * as d3 from 'd3';
 import _ from 'underscore';
 import angular from 'angular';
 
@@ -63,23 +63,18 @@ export default function Sunburst(scope, element) {
   const partition = d3.layout.partition()
     .size([2 * Math.PI, radius * radius])
     .value(d =>
-       d.size
-    );
+      d.size);
 
   // create arcs for drawing D3 paths
   const arc = d3.svg.arc()
     .startAngle(d =>
-       d.x
-    )
+      d.x)
     .endAngle(d =>
-       d.x + d.dx
-    )
+      d.x + d.dx)
     .innerRadius(d =>
-       Math.sqrt(d.y)
-    )
+      Math.sqrt(d.y))
     .outerRadius(d =>
-       Math.sqrt(d.y + d.dy)
-    );
+      Math.sqrt(d.y + d.dy));
 
 
   /**
@@ -154,8 +149,7 @@ export default function Sunburst(scope, element) {
     // Data join, where primary key = name + depth.
     const g = breadcrumbs.selectAll('g')
       .data(ancestors, d =>
-         d.name + d.depth
-      );
+        d.name + d.depth);
 
     // Add breadcrumb and label for entering nodes.
     const breadcrumb = g.enter().append('g');
@@ -173,13 +167,11 @@ export default function Sunburst(scope, element) {
       .attr('font-size', '10px')
       .attr('text-anchor', 'middle')
       .text(d =>
-         d.name
-      );
+        d.name);
 
     // Set position for entering and updating nodes.
     g.attr('transform', (d, i) =>
-       `translate(${i * (b.w + b.s)}, 0)`
-    );
+      `translate(${i * (b.w + b.s)}, 0)`);
 
     // Remove exiting nodes.
     g.exit().remove();
@@ -214,16 +206,13 @@ export default function Sunburst(scope, element) {
       .attr('opacity', 0.3);
     sunburst.selectAll('path')
       .filter(node =>
-         (ancestors.indexOf(node) >= 0)
-      )
+        (ancestors.indexOf(node) >= 0))
       .attr('opacity', 1);
 
     // update summary
-    summary.html(
-      `Stage: ${d.depth}<br />` +
+    summary.html(`Stage: ${d.depth}<br />` +
       `<span class='percentage' style='font-size: 2em;'>${percentageString}</span><br />${
-      d.value} of ${totalSize}<br />`
-    );
+        d.value} of ${totalSize}<br />`);
 
     // display summary and breadcrumbs if hidden
     summary.style('visibility', '');
@@ -252,9 +241,7 @@ export default function Sunburst(scope, element) {
   function drawSunburst(json) {
     // Build only nodes of a threshold "visible" sizes to improve efficiency
     const nodes = partition.nodes(json)
-      .filter(d =>
-         (d.dx > 0.005) && d.name !== exitNode // 0.005 radians = 0.29 degrees
-      );
+      .filter(d => (d.dx > 0.005) && d.name !== exitNode); // 0.005 radians = 0.29 degrees
 
     // this section is required to update the colors.domain() every time the data updates
     const uniqueNames = (function uniqueNames(a) {
@@ -315,12 +302,11 @@ export default function Sunburst(scope, element) {
       const keys = _.sortBy(_.filter(_.keys(raw[0]), validKey), _.identity);
 
       values = _.map(raw, (row, sequence) =>
-         ({
-           size: row.value,
-           sequence,
-           nodes: _.compact(_.map(keys, key => row[key])),
-         })
-      );
+        ({
+          size: row.value,
+          sequence,
+          nodes: _.compact(_.map(keys, key => row[key])),
+        }));
     }
 
     return values;
