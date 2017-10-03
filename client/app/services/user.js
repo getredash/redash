@@ -31,6 +31,6 @@ function User($resource, $http) {
   return UserResource;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('User', User);
 }

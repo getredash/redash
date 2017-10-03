@@ -201,7 +201,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
-    }
+    },
   );
 
   Query.newQuery = function newQuery() {
@@ -363,6 +363,6 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
   return Query;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Query', QueryResource);
 }

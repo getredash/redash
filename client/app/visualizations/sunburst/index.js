@@ -30,7 +30,7 @@ function sunburstSequenceEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('sunburstSequenceRenderer', sunburstSequenceRenderer);
   ngModule.directive('sunburstSequenceEditor', sunburstSequenceEditor);
 
@@ -50,6 +50,5 @@ export default function (ngModule) {
       editorTemplate: editTemplate,
       defaultOptions,
     });
-  }
-  );
+  });
 }

@@ -9,26 +9,28 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
   $scope.destinations = [];
   $scope.currentUser = currentUser;
 
-  $q.all([Destination.query().$promise,
-    AlertSubscription.query({ alertId: $scope.alertId }).$promise]).then((responses) => {
-      const destinations = responses[0];
-      const subscribers = responses[1];
+  $q.all([
+    Destination.query().$promise,
+    AlertSubscription.query({ alertId: $scope.alertId }).$promise,
+  ]).then((responses) => {
+    const destinations = responses[0];
+    const subscribers = responses[1];
 
-      const subscribedDestinations =
-        compact(subscribers.map(s => s.destination && s.destination.id));
+    const subscribedDestinations =
+      compact(subscribers.map(s => s.destination && s.destination.id));
 
-      const subscribedUsers =
-        compact(subscribers.map(s => !s.destination && s.user.id));
+    const subscribedUsers =
+      compact(subscribers.map(s => !s.destination && s.user.id));
 
-      $scope.destinations = destinations.filter(d => !contains(subscribedDestinations, d.id));
+    $scope.destinations = destinations.filter(d => !contains(subscribedDestinations, d.id));
 
-      if (!contains(subscribedUsers, currentUser.id)) {
-        $scope.destinations.unshift({ user: { name: currentUser.name } });
-      }
+    if (!contains(subscribedUsers, currentUser.id)) {
+      $scope.destinations.unshift({ user: { name: currentUser.name } });
+    }
 
-      $scope.newSubscription.destination = $scope.destinations[0];
-      $scope.subscribers = subscribers;
-    });
+    $scope.newSubscription.destination = $scope.destinations[0];
+    $scope.subscribers = subscribers;
+  });
 
   $scope.destinationsDisplay = (d) => {
     if (!d) {

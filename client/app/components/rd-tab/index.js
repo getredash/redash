@@ -11,15 +11,14 @@ function rdTab($location) {
     replace: true,
     link(scope) {
       scope.basePath = scope.basePath || $location.path().substring(1);
-      scope.$watch(() =>
-         scope.$parent.selectedTab
-      , (tab) => {
-        scope.selectedTab = tab;
-      });
+      scope.$watch(
+        () => scope.$parent.selectedTab,
+        (tab) => { scope.selectedTab = tab; },
+      );
     },
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('rdTab', rdTab);
 }

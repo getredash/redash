@@ -17,14 +17,12 @@ const PublicDashboardPage = {
     }
     this.public = true;
     this.dashboard.widgets = this.dashboard.widgets.map(row =>
-       row.map(widget =>
-         new Widget(widget)
-      )
-    );
+      row.map(widget =>
+        new Widget(widget)));
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('publicDashboardPage', PublicDashboardPage);
 
   function loadPublicDashboard($http, $route) {
@@ -32,8 +30,7 @@ export default function (ngModule) {
 
     const token = $route.current.params.token;
     return $http.get(`api/dashboards/public/${token}`).then(response =>
-       response.data
-    );
+      response.data);
   }
 
   function session($http, $route, Auth) {

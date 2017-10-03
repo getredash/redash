@@ -5,7 +5,7 @@ import addWidgetDialog from './add-widget-dialog';
 import registerEditDashboardDialog from './edit-dashboard-dialog';
 import publicDashboardPage from './public-dashboard-page';
 
-export default function (ngModule) {
+export default function init(ngModule) {
   addWidgetDialog(ngModule);
   widgetComponent(ngModule);
   publicDashboardPage(ngModule);
