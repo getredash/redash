@@ -3,8 +3,10 @@ import template from './show.html';
 
 const logger = debug('redash:http');
 
-function DataSourceCtrl($scope, $routeParams, $http, $location, toastr,
-  currentUser, Events, DataSource) {
+function DataSourceCtrl(
+  $scope, $routeParams, $http, $location, toastr,
+  currentUser, Events, DataSource,
+) {
   Events.record('view', 'page', 'admin/data_source');
 
   $scope.dataSourceId = $routeParams.dataSourceId;
@@ -52,11 +54,13 @@ function DataSourceCtrl($scope, $routeParams, $http, $location, toastr,
 
   $scope.actions = [
     { name: 'Delete', class: 'btn-danger', callback: deleteDataSource },
-    { name: 'Test Connection', class: 'btn-default', callback: testConnection, disableWhenDirty: true },
+    {
+      name: 'Test Connection', class: 'btn-default', callback: testConnection, disableWhenDirty: true,
+    },
   ];
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('DataSourceCtrl', DataSourceCtrl);
 
   return {

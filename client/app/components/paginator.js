@@ -7,7 +7,7 @@ class PaginatorCtrl {
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('paginator', {
     template: `
 <div class="text-center">

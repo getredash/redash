@@ -20,7 +20,7 @@ function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('homePage', {
     template,
     controller: HomeCtrl,

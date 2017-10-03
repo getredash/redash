@@ -74,8 +74,10 @@ function cohortRenderer() {
           return;
         }
 
-        const { data, initialDate } = prepareData($scope.queryResult.getData(),
-          $scope.options.timeInterval);
+        const { data, initialDate } = prepareData(
+          $scope.queryResult.getData(),
+          $scope.options.timeInterval,
+        );
 
         const container = angular.element(element)[0];
 
@@ -106,7 +108,7 @@ function cohortEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('cohortRenderer', cohortRenderer);
   ngModule.directive('cohortEditor', cohortEditor);
 

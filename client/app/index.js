@@ -98,8 +98,10 @@ registerComponents();
 registerPages();
 registerVisualizations(ngModule);
 
-ngModule.config(($routeProvider, $locationProvider, $compileProvider,
-  uiSelectConfig, toastrConfig) => {
+ngModule.config((
+  $routeProvider, $locationProvider, $compileProvider,
+  uiSelectConfig, toastrConfig,
+) => {
   $compileProvider.debugInfoEnabled(false);
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
   $locationProvider.html5Mode(true);

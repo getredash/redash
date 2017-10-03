@@ -10,7 +10,7 @@ import registerAlertUnsavedChanges from './alert-unsaved-changes';
 import registerQuerySearchResultsPage from './queries-search-results-page';
 import registerVisualizationEmbed from './visualization-embed';
 
-export default function (ngModule) {
+export default function init(ngModule) {
   registerQueryResultsLink(ngModule);
   registerQueryEditor(ngModule);
   registerSchemaBrowser(ngModule);
@@ -20,7 +20,9 @@ export default function (ngModule) {
   registerVisualizationEmbed(ngModule);
   registerApiKeyDialog(ngModule);
 
-  return Object.assign({}, registerQuerySearchResultsPage(ngModule),
-                           registerSourceView(ngModule),
-                           registerView(ngModule));
+  return Object.assign(
+    {}, registerQuerySearchResultsPage(ngModule),
+    registerSourceView(ngModule),
+    registerView(ngModule),
+  );
 }

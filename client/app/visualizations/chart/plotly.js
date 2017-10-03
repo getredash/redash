@@ -115,9 +115,11 @@ function percentAreaStacking(seriesList) {
   initializeTextAndHover(seriesList);
 
   each(seriesList[0].y, (seriesY, yIndex) => {
-    const sumOfCorrespondingDataPoints = seriesList.reduce((total, series) =>
-       total + series.original_y[yIndex]
-    , 0);
+    const sumOfCorrespondingDataPoints = seriesList.reduce(
+      (total, series) =>
+        total + series.original_y[yIndex]
+      , 0,
+    );
 
     each(seriesList, (series, seriesIndex) => {
       const percentage = (series.original_y[yIndex] / sumOfCorrespondingDataPoints) * 100;
@@ -446,7 +448,9 @@ const PlotlyChart = () => {
       scope.$watch('options', recalculateOptions, true);
 
       scope.layout = {
-        margin: { l: 50, r: 50, b: bottomMargin, t: 20, pad: 4 },
+        margin: {
+          l: 50, r: 50, b: bottomMargin, t: 20, pad: 4,
+        },
         height: calculateHeight(),
         autosize: true,
       };
@@ -543,7 +547,7 @@ const CustomPlotlyChart = (clientConfig) => {
   return customChart;
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);
