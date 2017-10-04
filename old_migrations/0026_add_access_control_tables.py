@@ -1,3 +1,4 @@
+from __future__ import print_function
 from redash.models import db, Change, AccessPermission, Query, Dashboard
 from playhouse.migrate import PostgresqlMigrator, migrate
 
@@ -17,6 +18,6 @@ if __name__ == '__main__':
             migrator.add_column('dashboards', 'version', Dashboard.version)
         )
     except Exception as ex:
-        print "Error while adding version column to queries/dashboards. Maybe it already exists?"
-        print ex
+        print("Error while adding version column to queries/dashboards. Maybe it already exists?")
+        print(ex)
 

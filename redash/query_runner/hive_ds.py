@@ -89,7 +89,7 @@ class Hive(BaseSQLQueryRunner):
                         table_name = '{}.{}'.format(schema_name, table_name)
 
                     schema[table_name] = {'name': table_name, 'columns': columns}
-        except Exception, e:
+        except Exception as e:
             raise sys.exc_info()[1], None, sys.exc_info()[2]
         return schema.values()
 

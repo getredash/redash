@@ -157,7 +157,7 @@ class Athena(BaseQueryRunner):
                 cursor.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception, ex:
+        except Exception as ex:
             if cursor.query_id:
                 cursor.cancel()
             error = ex.message
