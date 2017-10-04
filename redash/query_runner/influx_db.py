@@ -91,7 +91,7 @@ class InfluxDB(BaseQueryRunner):
 
             json_data = _transform_result(results)
             error = None
-        except Exception, ex:
+        except Exception as ex:
             json_data = None
             error = ex.message
 
