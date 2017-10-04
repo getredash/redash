@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 
 
@@ -38,19 +39,19 @@ manager.add_command(run_command, "runserver")
 @manager.command()
 def version():
     """Displays Redash version."""
-    print __version__
+    print(__version__)
 
 
 @manager.command()
 def status():
-    print json.dumps(get_status(), indent=2)
+    print(json.dumps(get_status(), indent=2))
 
 
 @manager.command()
 def check_settings():
     """Show the settings as Redash sees them (useful for debugging)."""
     for name, item in settings.all_settings().iteritems():
-        print "{} = {}".format(name, item)
+        print("{} = {}".format(name, item))
 
 
 @manager.command()

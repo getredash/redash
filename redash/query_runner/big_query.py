@@ -245,7 +245,7 @@ class BigQuery(BaseQueryRunner):
             error = None
 
             json_data = json.dumps(data, cls=JSONEncoder)
-        except apiclient.errors.HttpError, e:
+        except apiclient.errors.HttpError as e:
             json_data = None
             if e.resp.status == 400:
                 error = json.loads(e.content)['error']['message']

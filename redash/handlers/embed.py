@@ -1,10 +1,11 @@
+from __future__ import absolute_import
 import logging
 import time
 
 import pystache
 from flask import request
 
-from authentication import current_org
+from .authentication import current_org
 from flask_login import current_user, login_required
 from flask_restful import abort
 from redash import models, utils
