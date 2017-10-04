@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import peewee
 from redash.models import db, NotificationDestination, AlertSubscription, Alert, Organization, User
@@ -29,7 +30,7 @@ if __name__ == '__main__':
                 org = Organization.get_by_slug('default')
                 user = User.select().where(User.org==org, peewee.SQL("%s = ANY(groups)", org.admin_group.id)).get()
             except Exception:
-                print "!!! Warning: failed finding default organization or admin user, won't migrate Webhook/HipChat alert subscriptions."
+                print("!!! Warning: failed finding default organization or admin user, won't migrate Webhook/HipChat alert subscriptions.")
                 exit()
 
             if WEBHOOK_ENDPOINT:

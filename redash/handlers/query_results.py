@@ -60,7 +60,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
         models.db.session.commit()
         return query_result
-    except Exception, e:
+    except Exception as e:
         if max_age > 0:
             abort(404, message="Unable to get result from the database, and no cached query result found.")
         else:
