@@ -28,7 +28,7 @@ class SystemSettingsCtrl {
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('systemSettingsPage', {
     template,
     controller: SystemSettingsCtrl,
