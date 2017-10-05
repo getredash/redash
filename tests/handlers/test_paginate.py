@@ -1,3 +1,5 @@
+from builtins import range
+from builtins import object
 from werkzeug.exceptions import BadRequest
 
 from redash.handlers.base import paginate

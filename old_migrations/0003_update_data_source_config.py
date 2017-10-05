@@ -1,4 +1,5 @@
 from __future__ import print_function
+from past.builtins import basestring
 import json
 import jsonschema
 from jsonschema import ValidationError

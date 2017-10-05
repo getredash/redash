@@ -1,3 +1,4 @@
+from future.utils import raise_with_traceback
 import datetime
 import json
 import logging
@@ -176,8 +177,7 @@ class BigQuery(BaseQueryRunner):
 
         if "userDefinedFunctionResourceUri" in self.configuration:
             resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
-            job_data["configuration"]["query"]["userDefinedFunctionResources"] = map(
-                lambda resource_uri: {"resourceUri": resource_uri}, resource_uris)
+            job_data["configuration"]["query"]["userDefinedFunctionResources"] = [{"resourceUri": resource_uri} for resource_uri in resource_uris]
 
         if "maximumBillingTier" in self.configuration:
             job_data["configuration"]["query"]["maximumBillingTier"] = self.configuration["maximumBillingTier"]
@@ -224,7 +224,7 @@ class BigQuery(BaseQueryRunner):
             for table in tables.get('tables', []):
                 table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
 
-                schema.append({'name': table_data['id'], 'columns': map(lambda r: r['name'], table_data['schema']['fields'])})
+                schema.append({'name': table_data['id'], 'columns': [r['name'] for r in table_data['schema']['fields']]})
 
         return schema
 
@@ -255,7 +255,7 @@ class BigQuery(BaseQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
 
         return json_data, error
 

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from future import standard_library
+standard_library.install_aliases()
 import json
 import logging
 from base64 import b64decode
 from datetime import datetime
-from urlparse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlparse
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -48,7 +50,7 @@ def parse_ga_response(response):
         d = {}
         for c, value in enumerate(r):
             column_name = response['columnHeaders'][c]['name']
-            column_type = filter(lambda col: col['name'] == column_name, columns)[0]['type']
+            column_type = [col for col in columns if col['name'] == column_name][0]['type']
 
             # mcf results come a bit different than ga results:
             if isinstance(value, dict):
@@ -133,7 +135,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                         u'{0} (ga:{1})'.format(property_['name'], property_['defaultProfileId'])
                     )
 
-        return schema.values()
+        return list(schema.values())
 
     def test_connection(self):
         try:
@@ -149,7 +151,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
             params = json.loads(query)
         except:
             params = parse_qs(urlparse(query).query, keep_blank_values=True)
-            for key in params.keys():
+            for key in list(params.keys()):
                 params[key] = ','.join(params[key])
                 if '-' in key:
                     params[key.replace('-', '_')] = params.pop(key)

@@ -1,3 +1,4 @@
+from builtins import str
 from tests import BaseTestCase
 from redash import models
 
@@ -23,7 +24,7 @@ class WidgetAPITest(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
 
         dashboard = models.Dashboard.query.get(dashboard.id)
-        self.assertEquals(unicode(rv.json['layout']), dashboard.layout)
+        self.assertEquals(str(rv.json['layout']), dashboard.layout)
 
         self.assertEquals(dashboard.widgets.count(), 1)
         self.assertEquals(rv.json['layout'], [[rv.json['widget']['id']]])

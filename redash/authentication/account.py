@@ -1,3 +1,4 @@
+from builtins import str
 import logging
 from flask import render_template
 

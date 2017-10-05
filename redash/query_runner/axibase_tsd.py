@@ -1,3 +1,7 @@
+from builtins import next
+from builtins import str
+from builtins import zip
+from future.utils import raise_with_traceback
 from io import StringIO
 import json
 import logging
@@ -70,7 +74,7 @@ def generate_rows_and_columns(csv_response):
                 'name': i['name']}
                for i in meta_columns]
     column_names = [c['name'] for c in columns]
-    rows = [dict(zip(column_names, row)) for row in reader]
+    rows = [dict(list(zip(column_names, row))) for row in reader]
     return columns, rows
 
 
@@ -173,7 +177,7 @@ class AxibaseTSD(BaseQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
 
         return json_data, error
 
@@ -195,7 +199,7 @@ class AxibaseTSD(BaseQueryRunner):
         for table_name in metrics_list:
             schema[table_name] = {'name': "'{}'".format(table_name),
                                   'columns': default_columns}
-        values = schema.values()
+        values = list(schema.values())
         return values
 
 register(AxibaseTSD)

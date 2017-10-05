@@ -1,6 +1,10 @@
+from future import standard_library
+standard_library.install_aliases()
+from future.utils import raise_with_traceback
+from builtins import str
 import logging
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 import simplejson as json
@@ -12,7 +16,7 @@ try:
     import http.client as http_client
 except ImportError:
     # Python 2
-    import httplib as http_client
+    import http.client as http_client
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +39,10 @@ ELASTICSEARCH_BUILTIN_FIELDS_MAPPING = {
 
 PYTHON_TYPES_MAPPING = {
     str: TYPE_STRING,
-    unicode: TYPE_STRING,
+    str: TYPE_STRING,
     bool: TYPE_BOOLEAN,
     int: TYPE_INTEGER,
-    long: TYPE_INTEGER,
+    int: TYPE_INTEGER,
     float: TYPE_FLOAT
 }
 
@@ -148,7 +152,7 @@ class BaseElasticSearch(BaseQueryRunner):
             '''
             path = path or []
             result = []
-            for field, description in doc['properties'].items():
+            for field, description in list(doc['properties'].items()):
                 if 'properties' in description:
                     result.extend(parse_doc(description, path + [field]))
                 else:
@@ -163,16 +167,16 @@ class BaseElasticSearch(BaseQueryRunner):
             # make a schema for each index
             # the index contains a mappings dict with documents
             # in a hierarchical format
-            for name, index in mappings.items():
+            for name, index in list(mappings.items()):
                 columns = []
                 schema[name] = {'name': name}
-                for doc, items in index['mappings'].items():
+                for doc, items in list(index['mappings'].items()):
                     columns.extend(parse_doc(items))
 
                 # remove duplicates
                 # sort alphabetically
                 schema[name]['columns'] = sorted(set(columns))
-        return schema.values()
+        return list(schema.values())
 
     def _parse_results(self, mappings, result_fields, raw_result, result_columns, result_rows):
         def add_column_if_needed(mappings, column_name, friendly_name, result_columns, result_columns_index):
@@ -199,7 +203,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
         def collect_aggregations(mappings, rows, parent_key, data, row, result_columns, result_columns_index):
             if isinstance(data, dict):
-                for key, value in data.iteritems():
+                for key, value in list(data.items()):
                     val = collect_aggregations(mappings, rows, parent_key if key == 'buckets' else key, value, row, result_columns, result_columns_index)
                     if val:
                         row = get_row(rows, row)
@@ -208,7 +212,7 @@ class BaseElasticSearch(BaseQueryRunner):
                 for data_key in ['value', 'doc_count']:
                     if data_key not in data:
                         continue
-                    if 'key' in data and len(data.keys()) == 2:
+                    if 'key' in data and len(list(data.keys())) == 2:
                         key_is_string = 'key_as_string' in data
                         collect_value(mappings, row, data['key'] if not key_is_string else data['key_as_string'], data[data_key], 'long' if not key_is_string else 'string')
                     else:
@@ -244,7 +248,7 @@ class BaseElasticSearch(BaseQueryRunner):
                 for field in result_fields:
                     add_column_if_needed(mappings, field, field, result_columns, result_columns_index)
 
-            for key, data in raw_result["aggregations"].iteritems():
+            for key, data in list(raw_result["aggregations"].items()):
                 collect_aggregations(mappings, result_rows, key, data, None, result_columns, result_columns_index)
 
             logger.debug("result_rows %s", str(result_rows))
@@ -337,16 +341,16 @@ class Kibana(BaseElasticSearch):
             #logger.debug(json.dumps(mappings, indent=4))
 
             if sort:
-                url += "&sort={0}".format(urllib.quote_plus(sort))
+                url += "&sort={0}".format(urllib.parse.quote_plus(sort))
 
-            url += "&q={0}".format(urllib.quote_plus(query_data))
+            url += "&q={0}".format(urllib.parse.quote_plus(query_data))
 
             logger.debug("Using URL: {0}".format(url))
             logger.debug("Using Query: {0}".format(query_data))
 
             result_columns = []
             result_rows = []
-            if isinstance(query_data, str) or isinstance(query_data, unicode):
+            if isinstance(query_data, str) or isinstance(query_data, str):
                 _from = 0
                 while True:
                     query_size = size if limit >= (_from + size) else (limit - _from)
@@ -375,7 +379,7 @@ class Kibana(BaseElasticSearch):
             json_data = None
         except Exception as e:
             logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
 
         return json_data, error
 
@@ -443,7 +447,7 @@ class ElasticSearch(BaseElasticSearch):
             json_data = None
         except Exception as e:
             logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
 
         return json_data, error
 

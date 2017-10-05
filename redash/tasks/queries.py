@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 import json
 import logging
 import signal
@@ -437,7 +439,7 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            error = unicode(e)
+            error = str(e)
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 
@@ -478,7 +480,7 @@ class QueryExecutor(object):
             self.metadata['Query Hash'] = self.query_hash
             self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
 
-            annotation = u", ".join([u"{}: {}".format(k, v) for k, v in self.metadata.iteritems()])
+            annotation = u", ".join([u"{}: {}".format(k, v) for k, v in list(self.metadata.items())])
             annotated_query = u"/* {} */ {}".format(annotation, self.query)
         else:
             annotated_query = self.query

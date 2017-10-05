@@ -1,3 +1,4 @@
+from builtins import str
 from flask_login import LoginManager, user_logged_in
 import hashlib
 import hmac
@@ -65,7 +66,7 @@ def hmac_load_user_from_request(request):
             calculated_signature = sign(query.api_key, request.path, expires)
 
             if query.api_key and signature == calculated_signature:
-                return models.ApiUser(query.api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
+                return models.ApiUser(query.api_key, query.org, list(query.groups.keys()), name="ApiKey: Query {}".format(query.id))
 
     return None
 
@@ -88,7 +89,7 @@ def get_user_from_api_key(api_key, query_id):
             if query_id:
                 query = models.Query.get_by_id_and_org(query_id, org)
                 if query and query.api_key == api_key:
-                    user = models.ApiUser(api_key, query.org, query.groups.keys(), name="ApiKey: Query {}".format(query.id))
+                    user = models.ApiUser(api_key, query.org, list(query.groups.keys()), name="ApiKey: Query {}".format(query.id))
 
     return user
 

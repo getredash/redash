@@ -1,7 +1,9 @@
+from future import standard_library
+standard_library.install_aliases()
 import os
 import sys
 import logging
-import urlparse
+import urllib.parse
 import redis
 from flask import Flask, safe_join
 from flask_sslify import SSLify
@@ -38,10 +40,10 @@ def setup_logging():
 
 def create_redis_connection():
     logging.debug("Creating Redis connection (%s)", settings.REDIS_URL)
-    redis_url = urlparse.urlparse(settings.REDIS_URL)
+    redis_url = urllib.parse.urlparse(settings.REDIS_URL)
 
     if redis_url.scheme == 'redis+socket':
-        qs = urlparse.parse_qs(redis_url.query)
+        qs = urllib.parse.parse_qs(redis_url.query)
         if 'virtual_host' in qs:
             db = qs['virtual_host'][0]
         else:

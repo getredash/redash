@@ -1,3 +1,4 @@
+from builtins import object
 import sys
 import logging
 import json
@@ -129,13 +130,13 @@ class BaseSQLQueryRunner(BaseQueryRunner):
         self._get_tables(schema_dict)
         if settings.SCHEMA_RUN_TABLE_SIZE_CALCULATIONS and get_stats:
             self._get_tables_stats(schema_dict)
-        return schema_dict.values()
+        return list(schema_dict.values())
 
     def _get_tables(self, schema_dict):
         return []
 
     def _get_tables_stats(self, tables_dict):
-        for t in tables_dict.keys():
+        for t in list(tables_dict.keys()):
             if type(tables_dict[t]) == dict:
                 res = self._run_query_internal('select count(*) as cnt from %s' % t)
                 tables_dict[t]['size'] = res[0]['cnt']

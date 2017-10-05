@@ -1,4 +1,5 @@
 from __future__ import print_function
+from past.builtins import basestring
 from sys import exit
 
 from click import BOOL, argument, option, prompt

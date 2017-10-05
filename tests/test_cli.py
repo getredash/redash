@@ -1,3 +1,4 @@
+from builtins import str
 import mock
 import textwrap
 from click.testing import CliRunner
@@ -12,7 +13,7 @@ from redash.models import DataSource, Group, Organization, User, db
 class DataSourceCommandTests(BaseTestCase):
     def test_interactive_new(self):
         runner = CliRunner()
-        pg_i = query_runners.keys().index('pg') + 1
+        pg_i = list(query_runners.keys()).index('pg') + 1
         result = runner.invoke(
             manager,
             ['ds', 'new'],

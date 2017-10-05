@@ -26,7 +26,7 @@ def get_status():
             queues[queue].add(ds.name)
 
     status['manager']['queues'] = {}
-    for queue, sources in queues.iteritems():
+    for queue, sources in list(queues.items()):
         status['manager']['queues'][queue] = {
             'data_sources': ', '.join(sources),
             'size': redis_connection.llen(queue)

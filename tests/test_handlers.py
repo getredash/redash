@@ -1,3 +1,4 @@
+from builtins import object
 from flask import url_for
 from flask_login import current_user
 from funcy import project

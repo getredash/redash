@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import zip
 import json
 import logging
 from base64 import b64decode
@@ -37,7 +39,7 @@ def _guess_type(value):
         return TYPE_FLOAT
     except ValueError:
         pass
-    if unicode(value).lower() in ('true', 'false'):
+    if str(value).lower() in ('true', 'false'):
         return TYPE_BOOLEAN
     try:
         val = parser.parse(value)
@@ -66,8 +68,8 @@ def _value_eval_list(value):
             continue
         except ValueError:
             pass
-        if unicode(member).lower() in ('true', 'false'):
-            if unicode(member).lower() == 'true':
+        if str(member).lower() in ('true', 'false'):
+            if str(member).lower() == 'true':
                 value_list.append(True)
             else:
                 value_list.append(False)
@@ -115,7 +117,7 @@ def parse_worksheet(worksheet):
         for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
             columns[j]['type'] = _guess_type(value)
 
-    rows = [dict(zip(column_names, _value_eval_list(row))) for row in worksheet[HEADER_INDEX + 1:]]
+    rows = [dict(list(zip(column_names, _value_eval_list(row)))) for row in worksheet[HEADER_INDEX + 1:]]
     data = {'columns': columns, 'rows': rows}
 
     return data

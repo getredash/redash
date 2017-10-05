@@ -1,3 +1,4 @@
+from builtins import str
 import logging
 
 from flask import make_response, request
@@ -18,7 +19,7 @@ from redash.utils.configuration import ConfigurationContainer, ValidationError
 class DataSourceTypeListResource(BaseResource):
     @require_admin
     def get(self):
-        return [q.to_dict() for q in sorted(query_runners.values(), key=lambda q: q.name())]
+        return [q.to_dict() for q in sorted(list(query_runners.values()), key=lambda q: q.name())]
 
 
 class DataSourceResource(BaseResource):
@@ -83,7 +84,7 @@ class DataSourceListResource(BaseResource):
             except AttributeError:
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
-        return sorted(response.values(), key=lambda d: d['id'])
+        return sorted(list(response.values()), key=lambda d: d['id'])
 
     @require_admin
     def post(self):
@@ -175,6 +176,6 @@ class DataSourceTestResource(BaseResource):
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
-            return {"message": unicode(e), "ok": False}
+            return {"message": str(e), "ok": False}
         else:
             return {"message": "success", "ok": True}

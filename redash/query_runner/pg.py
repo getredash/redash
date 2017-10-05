@@ -1,3 +1,4 @@
+from builtins import zip
 import json
 import logging
 import select
@@ -128,7 +129,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         self._get_definitions(schema, materialized_views_query)
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = psycopg2.connect(user=self.configuration.get('user'),
@@ -148,7 +149,7 @@ class PostgreSQL(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+                rows = [dict(list(zip((c['name'] for c in columns), row))) for row in cursor]
 
                 data = {'columns': columns, 'rows': rows}
                 error = None

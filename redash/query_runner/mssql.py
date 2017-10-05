@@ -1,3 +1,6 @@
+from builtins import str
+from builtins import zip
+from future.utils import raise_with_traceback
 import json
 import logging
 import sys
@@ -121,7 +124,7 @@ class SqlServer(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = None
@@ -140,7 +143,7 @@ class SqlServer(BaseSQLQueryRunner):
 
             connection = pymssql.connect(server=server, user=user, password=password, database=db, tds_version=tds_version, charset=charset)
 
-            if isinstance(query, unicode):
+            if isinstance(query, str):
                 query = query.encode(charset)
 
             cursor = connection.cursor()
@@ -151,7 +154,7 @@ class SqlServer(BaseSQLQueryRunner):
 
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
-                rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
+                rows = [dict(list(zip((c['name'] for c in columns), row))) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=MSSQLJSONEncoder)
@@ -174,7 +177,7 @@ class SqlServer(BaseSQLQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
         finally:
             if connection:
                 connection.close()

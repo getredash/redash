@@ -1,4 +1,9 @@
-import cStringIO
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from past.builtins import basestring
+from builtins import object
+import io
 import csv
 import datetime
 import functools
@@ -216,8 +221,7 @@ class PermissionsCheckMixin(object):
 
     def has_permissions(self, permissions):
         has_permissions = reduce(lambda a, b: a and b,
-                                 map(lambda permission: permission in self.permissions,
-                                     permissions),
+                                 [permission in self.permissions for permission in permissions],
                                  True)
 
         return has_permissions
@@ -345,7 +349,7 @@ class Group(db.Model, BelongsToOrgMixin):
         return list(result)
 
     def __unicode__(self):
-        return unicode(self.id)
+        return str(self.id)
 
 
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
@@ -592,7 +596,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def groups(self):
         groups = db.session.query(DataSourceGroup).filter(
             DataSourceGroup.data_source == self)
-        return dict(map(lambda g: (g.group_id, g.view_only), groups))
+        return dict([(g.group_id, g.view_only) for g in groups])
 
 
 class DataSourceGroup(db.Model):
@@ -693,7 +697,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return self.data_source.groups
 
     def make_csv_content(self):
-        s = cStringIO.StringIO()
+        s = io.StringIO()
 
         query_data = json.loads(self.data)
         writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
@@ -705,7 +709,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return s.getvalue()
 
     def make_excel_content(self):
-        s = cStringIO.StringIO()
+        s = io.StringIO()
 
         query_data = json.loads(self.data)
         book = xlsxwriter.Workbook(s, {'constant_memory': True})
@@ -892,7 +896,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 key = "{}:{}".format(query.query_hash, query.data_source_id)
                 outdated_queries[key] = query
 
-        return outdated_queries.values()
+        return list(outdated_queries.values())
 
     @classmethod
     def search(cls, term, group_ids, include_drafts=False):
@@ -979,7 +983,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return self.data_source.groups
 
     def __unicode__(self):
-        return unicode(self.id)
+        return str(self.id)
 
 
 @listens_for(Query.query_text, 'set')
@@ -1390,8 +1394,8 @@ class Widget(TimestampMixin, db.Model):
 
     def delete(self):
         layout = json.loads(self.dashboard.layout)
-        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
-        layout = filter(lambda row: len(row) > 0, layout)
+        layout = [[w for w in row if w != self.id] for row in layout]
+        layout = [row for row in layout if len(row) > 0]
         self.dashboard.layout = json.dumps(layout)
 
         db.session.add(self.dashboard)

@@ -50,7 +50,7 @@ def status():
 @manager.command()
 def check_settings():
     """Show the settings as Redash sees them (useful for debugging)."""
-    for name, item in settings.all_settings().iteritems():
+    for name, item in list(settings.all_settings().items()):
         print("{} = {}".format(name, item))
 
 

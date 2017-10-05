@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
         migrate(migrator.add_column('users', 'groups', User.groups))
 
-        group_map = dict(map(lambda g: (g.name, g.id), Group.select()))
+        group_map = dict([(g.name, g.id) for g in Group.select()])
         user_map = defaultdict(list)
         for user in User.select(User, peewee.SQL('old_groups')):
             group_ids = [group_map[group] for group in user.old_groups]
