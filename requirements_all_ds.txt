@@ -1,3 +1,4 @@
+future==0.16.0
 google-api-python-client==1.5.1
 gspread==0.6.2
 impyla==0.10.0
