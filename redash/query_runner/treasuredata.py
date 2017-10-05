@@ -90,7 +90,7 @@ class TreasureData(BaseQueryRunner):
                                 'name': table_name,
                                 'columns': [column[0] for column in table.schema],
                             }
-            except Exception, ex:
+            except Exception as ex:
                 raise Exception("Failed getting schema")
         return schema.values()
 

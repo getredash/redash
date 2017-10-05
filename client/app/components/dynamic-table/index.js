@@ -64,7 +64,7 @@ function DynamicTable($sanitize) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('dynamicTable', {
     template,
     controller: DynamicTable,

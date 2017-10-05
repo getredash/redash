@@ -99,7 +99,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('editTextBox', EditTextBoxComponent);
   ngModule.component('dashboardWidget', {
     template,

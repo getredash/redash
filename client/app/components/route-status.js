@@ -1,4 +1,4 @@
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('routeStatus', {
     template: '<overlay ng-if="$ctrl.permissionDenied">You do not have permission to load this page.',
 

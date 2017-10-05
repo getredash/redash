@@ -117,44 +117,14 @@ var config = {
     inline: true,
     historyApiFallback: true,
     contentBase: path.join(__dirname, 'client', 'app'),
-    proxy: {
-      '/login': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/invite': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/setup': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/images': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/js': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/styles': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/status.json': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/api/admin': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/api': {
-        target: redashBackend,
-        secure: false
-      }
-    }
+    proxy: [{
+      context: [
+        '/login', '/invite', '/setup', '/images', '/js', '/styles',
+        '/status.json', '/api/admin', '/api', '/oauth'],
+      target: redashBackend + '/',
+      changeOrigin: true,
+      secure: false
+    }]
   }
 };
 

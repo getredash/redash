@@ -55,10 +55,12 @@ function CounterRenderer() {
             const stringDecChar = $scope.visualization.options.stringDecChar;
             const stringThouSep = $scope.visualization.options.stringThouSep;
             if (stringDecimal || stringDecChar || stringThouSep) {
-              $scope.counterValue = numberFormat($scope.counterValue,
-                 stringDecimal,
-                 stringDecChar,
-                 stringThouSep);
+              $scope.counterValue = numberFormat(
+                $scope.counterValue,
+                stringDecimal,
+                stringDecChar,
+                stringThouSep,
+              );
               $scope.isNumber = false;
             }
           } else {
@@ -102,7 +104,7 @@ function CounterEditor() {
 }
 
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('counterEditor', CounterEditor);
   ngModule.directive('counterRenderer', CounterRenderer);
 

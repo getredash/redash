@@ -84,7 +84,8 @@ const QueryBasedParameterComponent = {
                 });
               }
             }
-          });
+          },
+        );
       }
     }, true);
   },
@@ -136,7 +137,7 @@ function ParametersDirective($location, $uibModal) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('parameters', ParametersDirective);
   ngModule.component('queryBasedParameter', QueryBasedParameterComponent);
   ngModule.component('parameterSettings', ParameterSettingsComponent);

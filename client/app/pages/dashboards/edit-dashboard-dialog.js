@@ -99,6 +99,6 @@ const EditDashboardDialog = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('editDashboardDialog', EditDashboardDialog);
 }

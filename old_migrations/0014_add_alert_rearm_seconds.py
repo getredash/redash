@@ -1,3 +1,4 @@
+from __future__ import print_function
 import peewee
 from playhouse.migrate import PostgresqlMigrator, migrate
 
@@ -10,7 +11,7 @@ if __name__ == '__main__':
 
     cursor = db.database.execute_sql("SELECT column_name FROM information_schema.columns WHERE table_name='alerts' and column_name='rearm';")
     if cursor.rowcount > 0:
-        print "Column exists. Skipping."
+        print("Column exists. Skipping.")
         exit()
 
     with db.database.transaction():

@@ -75,7 +75,7 @@ function GridRenderer(clientConfig) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.config((VisualizationProvider) => {
     VisualizationProvider.registerVisualization({
       type: 'TABLE',

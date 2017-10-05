@@ -28,7 +28,7 @@ function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
   Events.record('search', 'query', '', { term: this.term });
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('queriesSearchResultsPage', {
     template,
     controller: QuerySearchCtrl,

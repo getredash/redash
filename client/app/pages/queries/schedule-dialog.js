@@ -38,9 +38,9 @@ function queryTimePicker() {
 
       $scope.updateSchedule = () => {
         const newSchedule = moment().hour($scope.hour)
-                                    .minute($scope.minute)
-                                    .utc()
-                                    .format('HH:mm');
+          .minute($scope.minute)
+          .utc()
+          .format('HH:mm');
 
         if (newSchedule !== $scope.query.schedule) {
           $scope.query.schedule = newSchedule;
@@ -143,7 +143,7 @@ const ScheduleForm = {
   template,
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('queryTimePicker', queryTimePicker);
   ngModule.directive('queryRefreshSelect', queryRefreshSelect);
   ngModule.component('scheduleDialog', ScheduleForm);

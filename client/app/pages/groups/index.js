@@ -4,11 +4,13 @@ import registerDataSources from './data-sources';
 import registerEditGroupDialog from './edit-group-dialog';
 import registerGroupName from './group-name';
 
-export default function (ngModule) {
+export default function init(ngModule) {
   registerEditGroupDialog(ngModule);
   registerGroupName(ngModule);
 
-  return Object.assign({}, registerList(ngModule),
-                           registerShow(ngModule),
-                           registerDataSources(ngModule));
+  return Object.assign(
+    {}, registerList(ngModule),
+    registerShow(ngModule),
+    registerDataSources(ngModule),
+  );
 }

@@ -31,6 +31,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
+from functools import reduce
 
 db = SQLAlchemy(session_options={
     'expire_on_commit': False
