@@ -1041,13 +1041,13 @@ class AccessPermission(GFKBase, db.Model):
                              cls.object_type == obj.__tablename__)
 
         if access_type:
-            q.filter(AccessPermission.access_type == access_type)
+            q = q.filter(AccessPermission.access_type == access_type)
 
         if grantee:
-            q.filter(AccessPermission.grantee == grantee)
+            q = q.filter(AccessPermission.grantee == grantee)
 
         if grantor:
-            q.filter(AccessPermission.grantor == grantor)
+            q = q.filter(AccessPermission.grantor == grantor)
 
         return q
 
