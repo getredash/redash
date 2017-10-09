@@ -23,7 +23,8 @@ python-dateutil==2.4.2
 pytz==2016.7
 redis==2.10.5
 requests==2.11.1
-six==1.10.0
+future==0.16.0
+six==1.11.0
 SQLAlchemy==1.1.4
 sqlparse==0.1.8
 wsgiref==0.1.2

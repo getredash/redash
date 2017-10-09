@@ -1,3 +1,4 @@
+from builtins import str
 import requests
 from redash.query_runner import BaseQueryRunner, register
 

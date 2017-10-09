@@ -1,3 +1,6 @@
+from builtins import str
+from builtins import zip
+from past.builtins import basestring
 import json
 
 from redash.utils import JSONEncoder
@@ -92,7 +95,7 @@ class Presto(BaseQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = presto.connect(
@@ -109,7 +112,7 @@ class Presto(BaseQueryRunner):
             cursor.execute(query)
             column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
-            rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
+            rows = [dict(list(zip(([c['name'] for c in columns]), r))) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
@@ -126,7 +129,7 @@ class Presto(BaseQueryRunner):
             json_data = None
             error = ex.message
             if not isinstance(error, basestring):
-                error = unicode(error)
+                error = str(error)
 
         return json_data, error
 

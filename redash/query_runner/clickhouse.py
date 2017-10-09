@@ -1,3 +1,4 @@
+from builtins import str
 import json
 import logging
 from redash.query_runner import *
@@ -60,7 +61,7 @@ class ClickHouse(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def _send_query(self, data, stream=False):
         r = requests.post(self.configuration['url'], data=data.encode("utf-8"), stream=stream, params={
@@ -115,7 +116,7 @@ class ClickHouse(BaseSQLQueryRunner):
         except Exception as e:
             data = None
             logging.exception(e)
-            error = unicode(e)
+            error = str(e)
         return data, error
 
 register(ClickHouse)

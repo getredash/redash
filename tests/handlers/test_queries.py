@@ -1,3 +1,4 @@
+from builtins import range
 from tests import BaseTestCase
 from redash import models
 from redash.models import db

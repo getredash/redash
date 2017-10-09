@@ -1,3 +1,6 @@
+from builtins import str
+from future.utils import raise_with_traceback
+from past.builtins import basestring
 import json
 import logging
 import sys
@@ -90,7 +93,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
         engine = self._connect()
 
         for table in engine.describe_all():
-            schema[table.name] = {'name': table.name, 'columns': table.attrs.keys()}
+            schema[table.name] = {'name': table.name, 'columns': list(table.attrs.keys())}
 
     def run_query(self, query, user):
         engine = None
@@ -109,7 +112,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
 
             for item in result:
                 if not columns:
-                    for k, v in item.iteritems():
+                    for k, v in list(item.items()):
                         columns.append({
                             'name': k,
                             'friendly_name': k,
@@ -132,7 +135,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
 
         return json_data, error
 

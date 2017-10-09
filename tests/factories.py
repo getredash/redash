@@ -1,3 +1,4 @@
+from builtins import object
 import redash.models
 from redash.models import db
 from redash.permissions import ACCESS_TYPE_MODIFY
@@ -14,7 +15,7 @@ class ModelFactory(object):
         kwargs = self.kwargs.copy()
         kwargs.update(override_kwargs)
 
-        for key, arg in kwargs.items():
+        for key, arg in list(kwargs.items()):
             if callable(arg):
                 kwargs[key] = arg()
 

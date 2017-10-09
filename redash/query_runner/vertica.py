@@ -1,3 +1,5 @@
+from builtins import zip
+from future.utils import raise_with_traceback
 import sys
 import json
 import logging
@@ -96,7 +98,7 @@ class Vertica(BaseSQLQueryRunner):
 
             schema[table_name]['columns'].append(row['column_name'])
 
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         import vertica_python
@@ -125,7 +127,7 @@ class Vertica(BaseSQLQueryRunner):
             if cursor.description is not None:
                 columns_data = [(i[0], i[1]) for i in cursor.description]
 
-                rows = [dict(zip((c[0] for c in columns_data), row)) for row in cursor.fetchall()]
+                rows = [dict(list(zip((c[0] for c in columns_data), row))) for row in cursor.fetchall()]
                 columns = [{'name': col[0],
                             'friendly_name': col[0],
                             'type': types_map.get(col[1], None)} for col in columns_data]
@@ -142,7 +144,7 @@ class Vertica(BaseSQLQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
         finally:
             if connection:
                 connection.close()

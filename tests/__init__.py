@@ -104,7 +104,7 @@ class BaseTestCase(TestCase):
         return self.client.post(path, data=data)
 
     def assertResponseEqual(self, expected, actual):
-        for k, v in expected.iteritems():
+        for k, v in list(expected.items()):
             if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):
                 continue
 

@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import zip
 import json
 import logging
 import sys
@@ -84,16 +86,16 @@ class Impala(BaseSQLQueryRunner):
         tables_query = "show tables in %s;"
         columns_query = "show column stats %s.%s;"
 
-        for schema_name in map(lambda a: unicode(a['name']), self._run_query_internal(schemas_query)):
-            for table_name in map(lambda a: unicode(a['name']), self._run_query_internal(tables_query % schema_name)):
-                columns = map(lambda a: unicode(a['Column']), self._run_query_internal(columns_query % (schema_name, table_name)))
+        for schema_name in [str(a['name']) for a in self._run_query_internal(schemas_query)]:
+            for table_name in [str(a['name']) for a in self._run_query_internal(tables_query % schema_name)]:
+                columns = [str(a['Column']) for a in self._run_query_internal(columns_query % (schema_name, table_name))]
 
                 if schema_name != 'default':
                     table_name = '{}.{}'.format(schema_name, table_name)
 
                 schema_dict[table_name] = {'name': table_name, 'columns': columns}
 
-        return schema_dict.values()
+        return list(schema_dict.values())
 
     def run_query(self, query, user):
 
@@ -118,7 +120,7 @@ class Impala(BaseSQLQueryRunner):
                     'type': types_map.get(column[COLUMN_TYPE], None)
                 })
 
-            rows = [dict(zip(column_names, row)) for row in cursor]
+            rows = [dict(list(zip(column_names, row))) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)

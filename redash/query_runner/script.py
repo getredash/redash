@@ -1,3 +1,5 @@
+from builtins import str
+from future.utils import raise_with_traceback
 import os
 import sys
 import subprocess
@@ -75,7 +77,7 @@ class Script(BaseQueryRunner):
             error = "Query cancelled by user."
             json_data = None
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
+            raise_with_traceback(sys.exc_info()[1])
 
         return json_data, error
 

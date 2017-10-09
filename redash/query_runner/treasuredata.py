@@ -1,3 +1,4 @@
+from builtins import zip
 import json
 import logging
 
@@ -92,7 +93,7 @@ class TreasureData(BaseQueryRunner):
                             }
             except Exception as ex:
                 raise Exception("Failed getting schema")
-        return schema.values()
+        return list(schema.values())
 
     def run_query(self, query, user):
         connection = tdclient.connect(
@@ -110,7 +111,7 @@ class TreasureData(BaseQueryRunner):
             'friendly_name': col[0],
             'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
 
-        rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
+        rows = [dict(list(zip(([c[0] for c in columns_data]), r))) for i, r in enumerate(cursor.fetchall())]
         data = {'columns': columns, 'rows': rows}
         json_data = json.dumps(data, cls=JSONEncoder)
         error = None

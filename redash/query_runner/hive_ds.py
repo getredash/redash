@@ -1,3 +1,6 @@
+from builtins import zip
+from builtins import str
+from future.utils import raise_with_traceback
 import json
 import logging
 import sys
@@ -81,17 +84,17 @@ class Hive(BaseSQLQueryRunner):
 
             columns_query = "show columns in %s.%s"
 
-            for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
-                for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
-                    columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % (schema_name, table_name))))
+            for schema_name in [a for a in [str(a['database_name']) for a in self._run_query_internal(schemas_query)] if len(a) > 0]:
+                for table_name in [a for a in [str(a['tab_name']) for a in self._run_query_internal(tables_query % schema_name)] if len(a) > 0]:
+                    columns = [a for a in [str(a['field']) for a in self._run_query_internal(columns_query % (schema_name, table_name))] if len(a) > 0]
 
                     if schema_name != 'default':
                         table_name = '{}.{}'.format(schema_name, table_name)
 
                     schema[table_name] = {'name': table_name, 'columns': columns}
         except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
-        return schema.values()
+            raise_with_traceback(sys.exc_info()[1])
+        return list(schema.values())
 
     def run_query(self, query, user):
 
@@ -116,7 +119,7 @@ class Hive(BaseSQLQueryRunner):
                     'type': types_map.get(column[COLUMN_TYPE], None)
                 })
 
-            rows = [dict(zip(column_names, row)) for row in cursor]
+            rows = [dict(list(zip(column_names, row))) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)

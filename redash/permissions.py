@@ -1,3 +1,4 @@
+from builtins import object
 import functools
 
 from flask_login import current_user

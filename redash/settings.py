@@ -1,12 +1,15 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
 import json
 import os
-import urlparse
+import urllib.parse
 
 from funcy import distinct, remove
 
 
 def parse_db_url(url):
-    url_parts = urlparse.urlparse(url)
+    url_parts = urllib.parse.urlparse(url)
     connection = {'threadlocals': True}
 
     if url_parts.hostname and not url_parts.path:
@@ -53,7 +56,7 @@ def all_settings():
     from types import ModuleType
 
     settings = {}
-    for name, item in globals().iteritems():
+    for name, item in list(globals().items()):
         if not callable(item) and not name.startswith("__") and not isinstance(item, ModuleType):
             settings[name] = item
 
