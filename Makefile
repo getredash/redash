@@ -4,6 +4,7 @@ FULL_VERSION=$(VERSION)+b$(CIRCLE_BUILD_NUM)
 BASE_VERSION=$(shell python ./manage.py version | cut -d + -f 1)
 # VERSION gets evaluated every time it's referenced, therefore we need to use VERSION here instead of FULL_VERSION.
 FILENAME=$(CIRCLE_ARTIFACTS)/$(NAME).$(VERSION).tar.gz
+TEST_ARGS?=--with-coverage --cover-package=redash tests/
 
 deps:
 	if [ -d "./client/app" ]; then npm install; fi
@@ -17,4 +18,4 @@ upload:
 	python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
 
 test:
-	nosetests --with-coverage --cover-package=redash tests/
+	nosetests $(TEST_ARGS)
