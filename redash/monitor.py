@@ -15,9 +15,7 @@ def get_status():
 
     status['workers'] = []
 
-    manager_status = redis_connection.hgetall('redash:status')
-    status['manager'] = manager_status
-    status['manager']['outdated_queries_count'] = len(models.Query.outdated_queries())
+    status['manager'] = redis_connection.hgetall('redash:status')
 
     queues = {}
     for ds in models.DataSource.query:
