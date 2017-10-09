@@ -2,7 +2,7 @@ import json
 import requests
 import logging
 import datetime
-from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME
+from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
 from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,7 @@ class Prometheus(BaseQueryRunner):
                     },
                     {
                         'friendly_name': 'value',
-                        'type': 'string',
+                        'type': TYPE_STRING,
                         'name': 'value'
                     },
                 ]
@@ -74,7 +74,7 @@ class Prometheus(BaseQueryRunner):
                 for column_name in columns_name:
                     columns.append({
                         'friendly_name': column_name,
-                        'type': 'string',
+                        'type': TYPE_STRING,
                         'name': column_name
                     })
                 rows = []
