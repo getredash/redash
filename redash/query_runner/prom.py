@@ -50,11 +50,13 @@ class Prometheus(BaseQueryRunner):
             if '__name__/values' in query:
                 url = base_url + query
                 response = requests.get(url)
+                response.raise_for_status()
                 json_data = response.json()['data']
             else:
                 url = base_url + local_query
                 payload = {'query': query}
                 response = requests.get(url, params=payload)
+                response.raise_for_status()
                 raw_data = response.json()['data']['result']
                 columns = [
                     {
