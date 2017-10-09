@@ -32,7 +32,7 @@
             <li><a href="queries">Queries</a></li>
           </ul>
         </li>
-        <li>
+        <li ng-if="$ctrl.showAlertsLink">
           <a href="alerts">Alerts</a>
         </li>
       </ul>
@@ -59,7 +59,7 @@
               <a ng-href="users/{{$ctrl.currentUser.id}}">
                 <div class="row">
                   <div class="col-sm-2">
-                    <img ng-src="{{$ctrl.currentUser.gravatar_url}}" size="40px" class="img-circle"/>
+                    <img ng-src="{{$ctrl.currentUser.gravatar_url}}" size="40px" class="img-circle" />
                   </div>
                   <div class="col-sm-10">
                     <p><strong>{{$ctrl.currentUser.name}}</strong></p>
@@ -68,14 +68,14 @@
               </a>
             </li>
             <li class="divider" ng-if="$ctrl.currentUser.hasPermission('super_admin')">
-            <li ng-if="$ctrl.currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
-            <li class="divider">
-            </li>
-            <li>
-              <a ng-click="$ctrl.logout()">Log out</a>
-            </li>
+              <li ng-if="$ctrl.currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
+              <li class="divider">
+              </li>
+              <li>
+                <a ng-click="$ctrl.logout()">Log out</a>
+              </li>
           </ul>
-        </li>
+          </li>
       </ul>
     </div>
   </div>
