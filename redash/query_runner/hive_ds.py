@@ -77,8 +77,6 @@ class Hive(BaseSQLQueryRunner):
 
     @classmethod
     def enabled(cls):
-
-▽
         return enabled
 
     def __init__(self, configuration):
