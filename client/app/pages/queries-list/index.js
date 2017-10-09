@@ -27,8 +27,10 @@ class QueriesListCtrl {
     function queriesFetcher(requestedPage, itemsPerPage, paginator) {
       $location.search('page', requestedPage);
 
-      const request = Object.assign({}, self.defaultOptions,
-        { page: requestedPage, page_size: itemsPerPage });
+      const request = Object.assign(
+        {}, self.defaultOptions,
+        { page: requestedPage, page_size: itemsPerPage },
+      );
 
       return self.resource(request).$promise.then((data) => {
         const rows = data.results.map((query) => {
@@ -50,7 +52,7 @@ class QueriesListCtrl {
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('pageQueriesList', {
     template,
     controller: QueriesListCtrl,

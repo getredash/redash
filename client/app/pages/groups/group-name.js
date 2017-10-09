@@ -15,7 +15,7 @@ function controller($window, $location, toastr, currentUser) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('groupName', {
     bindings: {
       group: '<',

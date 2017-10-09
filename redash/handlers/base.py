@@ -44,7 +44,7 @@ class BaseResource(Resource):
 
 
 def record_event(org, user, options):
-    if isinstance(user, ApiUser):
+    if user.is_api_user():
         options.update({
             'api_key': user.name,
             'org_id': org.id
@@ -52,6 +52,7 @@ def record_event(org, user, options):
     else:
         options.update({
             'user_id': user.id,
+            'user_name': user.name,
             'org_id': org.id
         })
 
@@ -88,7 +89,7 @@ def paginate(query_set, page, page_size, serializer):
     if page < 1:
         abort(400, message='Page must be positive integer.')
 
-    if (page-1)*page_size+1 > count > 0:
+    if (page - 1) * page_size + 1 > count > 0:
         abort(400, message='Page is out of range.')
 
     if page_size > 250 or page_size < 1:

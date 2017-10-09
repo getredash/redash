@@ -4,8 +4,10 @@ import template from './show.html';
 
 const logger = debug('redash:http');
 
-function DestinationCtrl($scope, $routeParams, $http, $location, toastr,
-                         currentUser, Events, Destination) {
+function DestinationCtrl(
+  $scope, $routeParams, $http, $location, toastr,
+  currentUser, Events, Destination,
+) {
   Events.record('view', 'page', 'admin/destination');
 
   $scope.destinationId = $routeParams.destinationId;
@@ -35,7 +37,7 @@ function DestinationCtrl($scope, $routeParams, $http, $location, toastr,
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('DestinationCtrl', DestinationCtrl);
 
   return {

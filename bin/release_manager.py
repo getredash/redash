@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import json
@@ -95,7 +96,7 @@ def get_changelog(commit_sha):
         try:
             pull_request = re.match("Merge pull request #(\d+)", subject).groups()[0]
             pull_request = " #{}".format(pull_request)
-        except Exception, ex:
+        except Exception as ex:
             pull_request = ""
 
         author = subprocess.check_output(['git', 'log', '-1', '--pretty=format:"%an"', parents.split(' ')[-1]])[1:-1]
@@ -124,7 +125,7 @@ def update_release(version, build_filepath, commit_sha):
         else:
             release = create_release(version, commit_sha)
 
-        print "Using release id: {}".format(release['id'])
+        print("Using release id: {}".format(release['id']))
 
         remove_previous_builds(release)
         response = upload_asset(release, build_filepath)
@@ -135,8 +136,8 @@ def update_release(version, build_filepath, commit_sha):
         if response.status_code != 200:
             raise exception_from_error("Failed updating release description", response)
 
-    except Exception, ex:
-        print ex
+    except Exception as ex:
+        print(ex)
 
 if __name__ == '__main__':
     commit_sha = sys.argv[1]

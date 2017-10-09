@@ -90,7 +90,7 @@ class TreasureData(BaseQueryRunner):
                                 'name': table_name,
                                 'columns': [column[0] for column in table.schema],
                             }
-            except Exception, ex:
+            except Exception as ex:
                 raise Exception("Failed getting schema")
         return schema.values()
 
@@ -110,7 +110,10 @@ class TreasureData(BaseQueryRunner):
             'friendly_name': col[0],
             'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
 
-        rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
+        if cursor.rowcount == 0:
+            rows = []
+        else:
+            rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
         data = {'columns': columns, 'rows': rows}
         json_data = json.dumps(data, cls=JSONEncoder)
         error = None

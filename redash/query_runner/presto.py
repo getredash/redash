@@ -113,7 +113,7 @@ class Presto(BaseQueryRunner):
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
-        except DatabaseError, db:
+        except DatabaseError as db:
             json_data = None
             default_message = 'Unspecified DatabaseError: {0}'.format(db.message)
             message = db.message.get('failureInfo', {'message', None}).get('message')

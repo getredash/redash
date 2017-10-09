@@ -115,9 +115,11 @@ function percentAreaStacking(seriesList) {
   initializeTextAndHover(seriesList);
 
   each(seriesList[0].y, (seriesY, yIndex) => {
-    const sumOfCorrespondingDataPoints = seriesList.reduce((total, series) =>
-       total + series.original_y[yIndex]
-    , 0);
+    const sumOfCorrespondingDataPoints = seriesList.reduce(
+      (total, series) =>
+        total + series.original_y[yIndex]
+      , 0,
+    );
 
     each(seriesList, (series, seriesIndex) => {
       const percentage = (series.original_y[yIndex] / sumOfCorrespondingDataPoints) * 100;
@@ -345,7 +347,7 @@ const PlotlyChart = () => {
             data.forEach((row) => {
               plotlySeries.x.push(normalizeValue(row.x));
               plotlySeries.y.push(normalizeValue(row.y));
-              if (row.yError) {
+              if (row.yError !== undefined) {
                 plotlySeries.error_y.array.push(normalizeValue(row.yError));
               }
             });
@@ -363,15 +365,13 @@ const PlotlyChart = () => {
           if (seriesOptions.type === 'box') {
             plotlySeries.boxpoints = 'outliers';
             plotlySeries.marker = {
+              color: seriesColor,
               size: 3,
             };
             if (scope.options.showpoints) {
               plotlySeries.boxpoints = 'all';
               plotlySeries.jitter = 0.3;
               plotlySeries.pointpos = -1.8;
-              plotlySeries.marker = {
-                size: 3,
-              };
             }
           }
 
@@ -446,7 +446,9 @@ const PlotlyChart = () => {
       scope.$watch('options', recalculateOptions, true);
 
       scope.layout = {
-        margin: { l: 50, r: 50, b: bottomMargin, t: 20, pad: 4 },
+        margin: {
+          l: 50, r: 50, b: bottomMargin, t: 20, pad: 4,
+        },
         height: calculateHeight(),
         autosize: true,
       };
@@ -543,7 +545,7 @@ const CustomPlotlyChart = (clientConfig) => {
   return customChart;
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);

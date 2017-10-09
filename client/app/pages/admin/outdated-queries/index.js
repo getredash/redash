@@ -30,7 +30,7 @@ function OutdatedQueriesCtrl($scope, Events, $http, $timeout) {
   refresh();
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('outdatedQueriesPage', {
     template,
     controller: OutdatedQueriesCtrl,

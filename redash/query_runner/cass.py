@@ -60,6 +60,11 @@ class Cassandra(BaseQueryRunner):
                     'type': 'number',
                     'title': 'Protocol Version',
                     'default': 3
+                },
+                'timeout': {
+                    'type': 'number',
+                    'title': 'Timeout',
+                    'default': 10
                 }
             },
             'required': ['keyspace', 'host']
@@ -119,6 +124,7 @@ class Cassandra(BaseQueryRunner):
                                      protocol_version=self.configuration.get('protocol', 3))
             session = connection.connect()
             session.set_keyspace(self.configuration['keyspace'])
+            session.default_timeout = self.configuration.get('timeout', 10)
             logger.debug("Cassandra running query: %s", query)
             result = session.execute(query)
 

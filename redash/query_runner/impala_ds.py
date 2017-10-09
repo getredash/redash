@@ -11,7 +11,7 @@ try:
     from impala.dbapi import connect
     from impala.error import DatabaseError, RPCError
     enabled = True
-except ImportError, e:
+except ImportError as e:
     enabled = False
 
 COLUMN_NAME = 0

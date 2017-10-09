@@ -1,7 +1,9 @@
 import template from './query.html';
 
-function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, $q,
-  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts) {
+function QuerySourceCtrl(
+  Events, toastr, $controller, $scope, $location, $http, $q,
+  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts,
+) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
   // TODO:
@@ -102,7 +104,7 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   });
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('QuerySourceCtrl', QuerySourceCtrl);
 
   return {

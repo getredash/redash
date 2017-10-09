@@ -113,13 +113,12 @@ function queryEditor(QuerySnippet) {
               });
 
               $scope.schema.keywords = map(keywords, (v, k) =>
-                 ({
-                   name: k,
-                   value: k,
-                   score: 0,
-                   meta: v,
-                 })
-              );
+                ({
+                  name: k,
+                  value: k,
+                  score: 0,
+                  meta: v,
+                }));
             }
             callback(null, $scope.schema.keywords);
           },
@@ -134,6 +133,6 @@ function queryEditor(QuerySnippet) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('queryEditor', queryEditor);
 }

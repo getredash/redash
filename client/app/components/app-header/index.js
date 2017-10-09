@@ -11,6 +11,7 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
   this.basePath = clientConfig.basePath;
   this.currentUser = currentUser;
   this.showQueriesMenu = currentUser.hasPermission('view_query');
+  this.showAlertsLink = currentUser.hasPermission('list_alerts');
   this.showNewQueryMenu = currentUser.hasPermission('create_query');
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.showDashboardsMenu = currentUser.hasPermission('list_dashboards');
@@ -42,7 +43,7 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('appHeader', {
     template,
     controller,

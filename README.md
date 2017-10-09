@@ -43,7 +43,7 @@ You can try out the demo instance: http://demo.redash.io/ (login with any Google
 ## Reporting Bugs and Contributing Code
 
 * Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/setup/setting-up-development-environment-using-vagrant.html), and make a pull request. We need all the help we can get!
+* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html), and make a pull request. We need all the help we can get!
 
 ## License
 
