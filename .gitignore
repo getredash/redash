@@ -9,14 +9,8 @@ celerybeat-schedule*
 \#*#
 *~
 _build
-
-# Vagrant related
-.vagrant
-Berksfile.lock
-redash/dump.rdb
+.vscode
 .env
-.ruby-version
-venv
 
 dump.rdb
 
