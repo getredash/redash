@@ -360,7 +360,8 @@ class Kibana(BaseElasticSearch):
 
             json_data = json.dumps({
                 "columns": result_columns,
-                "rows": result_rows
+                "rows": result_rows,
+                "data_scanned": 'N/A'
             })
         except KeyboardInterrupt:
             error = "Query cancelled by user."
@@ -427,7 +428,8 @@ class ElasticSearch(BaseElasticSearch):
 
             json_data = json.dumps({
                 "columns": result_columns,
-                "rows": result_rows
+                "rows": result_rows,
+                "data_scanned": 'N/A'
             })
         except KeyboardInterrupt:
             logger.exception(e)

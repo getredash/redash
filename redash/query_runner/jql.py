@@ -24,7 +24,7 @@ class ResultSet(object):
             self.columns[column] = {'name': column, 'type': column_type, 'friendly_name': column}
 
     def to_json(self):
-        return json.dumps({'rows': self.rows, 'columns': self.columns.values()})
+        return json.dumps({'rows': self.rows, 'columns': self.columns.values(), 'data_scanned': 'N/A'})
 
 
 def parse_issue(issue, field_mapping):

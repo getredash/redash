@@ -117,7 +117,7 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                         })
                 rows.append(item)
 
-            data = {'columns': columns, 'rows': rows}
+            data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except ParseException as e:

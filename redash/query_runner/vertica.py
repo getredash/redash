@@ -130,7 +130,7 @@ class Vertica(BaseSQLQueryRunner):
                             'friendly_name': col[0],
                             'type': types_map.get(col[1], None)} for col in columns_data]
 
-                data = {'columns': columns, 'rows': rows}
+                data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
                 json_data = json.dumps(data, cls=JSONEncoder)
                 error = None
             else:

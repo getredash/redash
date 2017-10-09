@@ -161,7 +161,7 @@ class AxibaseTSD(BaseQueryRunner):
 
             columns, rows = generate_rows_and_columns(data)
 
-            data = {'columns': columns, 'rows': rows}
+            data = {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
 

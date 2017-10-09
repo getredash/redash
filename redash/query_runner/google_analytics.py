@@ -75,7 +75,7 @@ def parse_ga_response(response):
             d[column_name] = value
         rows.append(d)
 
-    return {'columns': columns, 'rows': rows}
+    return {'columns': columns, 'rows': rows, 'data_scanned': 'N/A'}
 
 
 class GoogleAnalytics(BaseSQLQueryRunner):

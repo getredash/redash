@@ -278,7 +278,8 @@ class MongoDB(BaseQueryRunner):
 
         data = {
             "columns": columns,
-            "rows": rows
+            "rows": rows,
+            "data_scanned": 'N/A'
         }
         error = None
         json_data = json.dumps(data, cls=MongoDBJSONEncoder)

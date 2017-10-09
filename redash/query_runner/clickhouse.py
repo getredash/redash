@@ -110,6 +110,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return json_data, error
         try:
             q = self._clickhouse_query(query)
+            q.update({'data_scanned': 'N/A'})
             data = json.dumps(q, cls=JSONEncoder)
             error = None
         except Exception as e:
