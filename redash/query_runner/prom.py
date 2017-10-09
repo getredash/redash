@@ -88,8 +88,8 @@ class Prometheus(BaseQueryRunner):
                     for r in row['metric']:
                         h[r] = row['metric'][r]
                         h['value'] = row['value'][1]
-                        h['timestamp'] = datetime.datetime.fromtimestamp(int(str(row['value'][0]).split('.')[0])).strftime(
-                             '%Y-%m-%d %H:%M:%S')
+                        h['timestamp'] = datetime.datetime.fromtimestamp(int(str(row['value'][0]).split('.')[0]))\
+                            .strftime('%Y-%m-%d %H:%M:%S')
                     rows.append(h)
 
                 json_data = json.dumps(
