@@ -1,0 +1,115 @@
+import json
+import requests
+import logging
+import datetime
+from redash.query_runner import BaseQueryRunner, register
+
+logger = logging.getLogger(__name__)
+
+
+class Prometheus(BaseQueryRunner):
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'url': {
+                    'type': 'string',
+                    'title': 'URL base path'
+                }
+            }
+        }
+
+    @classmethod
+    def annotate_query(cls):
+        return False
+
+    def test_connection(self):
+        resp = requests.get(self.configuration.get("url", None))
+        if resp.status_code == '200':
+            return True
+
+    def get_schema(self, get_stats=False):
+        metrics_names = '/api/v1/label/__name__/values'
+        results, error = self.run_query(metrics_names, None)
+
+        schema = {}
+        for name in results:
+            schema[name] = {'name': name}
+
+        return schema.values()
+
+    def run_query(self, query, user):
+        base_url = self.configuration.get("url", None)
+
+        try:
+            error = None
+            query = query.strip()
+
+            if base_url is not None and base_url != "":
+                if query.find("://") > -1:
+                    return None, "Accepting only relative URLs to '%s'" % base_url
+
+            if base_url is None:
+                base_url = ""
+            local_query = 'api/v1/query?query={}'.format(query)
+            if '__name__/values' in query:
+                url = base_url + query
+                response = requests.get(url)
+                response.raise_for_status()
+                json_data = response.json()['data']
+            else:
+                url = base_url + local_query
+                response = requests.get(url)
+                response.raise_for_status()
+                raw_data = response.json()['data']['result']
+                columns = [
+                    {
+                        'friendly_name': 'timestamp',
+                        'type': 'string',
+                        'name': 'timestamp'
+                    },
+                    {
+                        'friendly_name': 'value',
+                        'type': 'string',
+                        'name': 'value'
+                    },
+                ]
+                columns_name = raw_data[0]['metric'].keys()
+                for column_name in columns_name:
+                    columns.append({
+                        'friendly_name': column_name,
+                        'type': 'string',
+                        'name': column_name
+                    })
+                rows = []
+                for row in raw_data:
+                    h = {}
+                    for r in row['metric']:
+                        h[r] = row['metric'][r]
+                        h['value'] = row['value'][1]
+                        h['timestamp'] = datetime.datetime.fromtimestamp(int(str(row['value'][0]).split('.')[0])).strftime(
+                             '%Y-%m-%d %H:%M:%S')
+                    rows.append(h)
+
+                json_data = json.dumps(
+                    {
+                        'rows': rows,
+                        'columns': columns
+                    }
+                )
+
+            if not json_data:
+                error = "Got empty response from '{}'.".format(url)
+
+            return json_data, error
+        except requests.RequestException as e:
+            return None, str(e)
+        except KeyboardInterrupt:
+            error = "Query cancelled by user."
+            json_data = None
+
+        return json_data, error
+
+
+register(Prometheus)
