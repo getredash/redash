@@ -365,15 +365,13 @@ const PlotlyChart = () => {
           if (seriesOptions.type === 'box') {
             plotlySeries.boxpoints = 'outliers';
             plotlySeries.marker = {
+              color: seriesColor,
               size: 3,
             };
             if (scope.options.showpoints) {
               plotlySeries.boxpoints = 'all';
               plotlySeries.jitter = 0.3;
               plotlySeries.pointpos = -1.8;
-              plotlySeries.marker = {
-                size: 3,
-              };
             }
           }
 
