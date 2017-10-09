@@ -2,7 +2,8 @@ import json
 import requests
 import logging
 import datetime
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ class Prometheus(BaseQueryRunner):
             'properties': {
                 'url': {
                     'type': 'string',
-                    'title': 'URL base path'
+                    'title': 'Prometheus API URL'
                 }
             }
         }
@@ -26,8 +27,7 @@ class Prometheus(BaseQueryRunner):
 
     def test_connection(self):
         resp = requests.get(self.configuration.get("url", None))
-        if resp.status_code == '200':
-            return True
+        return resp.ok
 
     def get_schema(self, get_stats=False):
         metrics_names = '/api/v1/label/__name__/values'
@@ -46,27 +46,20 @@ class Prometheus(BaseQueryRunner):
             error = None
             query = query.strip()
 
-            if base_url is not None and base_url != "":
-                if query.find("://") > -1:
-                    return None, "Accepting only relative URLs to '%s'" % base_url
-
-            if base_url is None:
-                base_url = ""
-            local_query = 'api/v1/query?query={}'.format(query)
+            local_query = 'api/v1/query'
             if '__name__/values' in query:
                 url = base_url + query
                 response = requests.get(url)
-                response.raise_for_status()
                 json_data = response.json()['data']
             else:
                 url = base_url + local_query
-                response = requests.get(url)
-                response.raise_for_status()
+                payload = {'query': query}
+                response = requests.get(url, params=payload)
                 raw_data = response.json()['data']['result']
                 columns = [
                     {
                         'friendly_name': 'timestamp',
-                        'type': 'string',
+                        'type': TYPE_DATETIME,
                         'name': 'timestamp'
                     },
                     {
@@ -88,19 +81,16 @@ class Prometheus(BaseQueryRunner):
                     for r in row['metric']:
                         h[r] = row['metric'][r]
                         h['value'] = row['value'][1]
-                        h['timestamp'] = datetime.datetime.fromtimestamp(int(str(row['value'][0]).split('.')[0]))\
+                        h['timestamp'] = datetime.datetime.fromtimestamp(int(str(row['value'][0]).split('.')[0])) \
                             .strftime('%Y-%m-%d %H:%M:%S')
                     rows.append(h)
 
-                json_data = json.dumps(
+                json_data = json_dumps(
                     {
                         'rows': rows,
                         'columns': columns
                     }
                 )
-
-            if not json_data:
-                error = "Got empty response from '{}'.".format(url)
 
             return json_data, error
         except requests.RequestException as e:
