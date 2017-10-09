@@ -1,12 +1,7 @@
-import json
 import requests
-import logging
 import datetime
 from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
 from redash.utils import json_dumps
-
-logger = logging.getLogger(__name__)
-
 
 class Prometheus(BaseQueryRunner):
     @classmethod
