@@ -6,7 +6,7 @@ function DestinationsCtrl($scope, $location, toastr, currentUser, Events, Destin
   $scope.destinations = Destination.query();
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('DestinationsCtrl', DestinationsCtrl);
 
   return {

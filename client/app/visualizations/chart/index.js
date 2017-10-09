@@ -164,8 +164,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.form = {
         yAxisColumns: [],
         seriesList: sortBy(keys(scope.options.seriesOptions), name =>
-           scope.options.seriesOptions[name].zIndex
-        ),
+          scope.options.seriesOptions[name].zIndex),
       };
 
       scope.$watchCollection('form.seriesList', (value) => {
@@ -253,7 +252,7 @@ const ColorBox = {
   template: "<span style='width: 12px; height: 12px; background-color: {{$ctrl.color}}; display: inline-block; margin-right: 5px;'></span>",
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('colorBox', ColorBox);
   ngModule.directive('chartRenderer', ChartRenderer);
   ngModule.directive('chartEditor', ChartEditor);

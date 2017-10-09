@@ -40,7 +40,7 @@ function AlertDialog($uibModal) {
   return service;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('alertDialog', AlertDialogComponent);
   ngModule.factory('AlertDialog', AlertDialog);
 }

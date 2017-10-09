@@ -46,7 +46,7 @@ function GroupCtrl($scope, $routeParams, $http, currentUser, Events, Group, User
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('GroupCtrl', GroupCtrl);
   return {
     '/groups/:groupId': {

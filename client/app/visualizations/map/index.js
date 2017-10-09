@@ -47,7 +47,7 @@ function mapRenderer() {
 
         if (b) {
           map.fitBounds([[b._southWest.lat, b._southWest.lng],
-                         [b._northEast.lat, b._northEast.lng]]);
+            [b._northEast.lat, b._northEast.lng]]);
         } else if (layers) {
           const allMarkers = _.flatten(_.map(_.values(layers), l => l.getLayers()));
           // eslint-disable-next-line new-cap
@@ -275,7 +275,7 @@ function mapEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('mapRenderer', mapRenderer);
   ngModule.directive('mapEditor', mapEditor);
   ngModule.config((VisualizationProvider) => {

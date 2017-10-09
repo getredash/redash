@@ -25,7 +25,7 @@ function AdminStatusCtrl($scope, $http, $timeout, currentUser, Events) {
   refresh();
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('statusPage', {
     template,
     controller: AdminStatusCtrl,

@@ -10,7 +10,7 @@ function SnippetsCtrl($location, currentUser, Events, QuerySnippet) {
   });
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('snippetsListPage', {
     template,
     controller: SnippetsCtrl,

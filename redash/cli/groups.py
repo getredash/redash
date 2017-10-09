@@ -1,3 +1,4 @@
+from __future__ import print_function
 from sys import exit
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -21,21 +22,21 @@ manager = AppGroup(help="Groups management commands.")
         " 'schedule_query', 'list_dashboards', 'list_alerts',"
         " 'list_data_sources') (leave blank for default).")
 def create(name, permissions=None, organization='default'):
-    print "Creating group (%s)..." % (name)
+    print("Creating group (%s)..." % (name))
 
     org = models.Organization.get_by_slug(organization)
 
     permissions = extract_permissions_string(permissions)
 
-    print "permissions: [%s]" % ",".join(permissions)
+    print("permissions: [%s]" % ",".join(permissions))
 
     try:
         models.db.session.add(models.Group(
             name=name, org=org,
             permissions=permissions))
         models.db.session.commit()
-    except Exception, e:
-        print "Failed create group: %s" % e.message
+    except Exception as e:
+        print("Failed create group: %s" % e.message)
         exit(1)
 
 
@@ -48,25 +49,25 @@ def create(name, permissions=None, organization='default'):
         " 'schedule_query', 'list_dashboards', 'list_alerts',"
         " 'list_data_sources') (leave blank for default).")
 def change_permissions(group_id, permissions=None):
-    print "Change permissions of group %s ..." % group_id
+    print("Change permissions of group %s ..." % group_id)
 
     try:
         group = models.Group.query.get(group_id)
     except NoResultFound:
-        print "User [%s] not found." % group_id
+        print("User [%s] not found." % group_id)
         exit(1)
 
     permissions = extract_permissions_string(permissions)
-    print "current permissions [%s] will be modify to [%s]" % (
-        ",".join(group.permissions), ",".join(permissions))
+    print("current permissions [%s] will be modify to [%s]" % (
+        ",".join(group.permissions), ",".join(permissions)))
 
     group.permissions = permissions
 
     try:
         models.db.session.add(group)
         models.db.session.commit()
-    except Exception, e:
-        print "Failed change permission: %s" % e.message
+    except Exception as e:
+        print("Failed change permission: %s" % e.message)
         exit(1)
 
 
@@ -92,7 +93,7 @@ def list(organization=None):
 
     for i, group in enumerate(groups):
         if i > 0:
-            print "-" * 20
+            print("-" * 20)
 
-        print "Id: {}\nName: {}\nType: {}\nOrganization: {}".format(
-            group.id, group.name, group.type, group.org.slug)
+        print("Id: {}\nName: {}\nType: {}\nOrganization: {}".format(
+            group.id, group.name, group.type, group.org.slug))

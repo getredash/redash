@@ -26,7 +26,7 @@ class AlertsListCtrl {
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('alertsListPage', {
     template,
     controller: AlertsListCtrl,

@@ -1,9 +1,11 @@
 import { pick, any, some, find } from 'underscore';
 import template from './query.html';
 
-function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window, $q,
+function QueryViewCtrl(
+  $scope, Events, $route, $routeParams, $location, $window, $q,
   KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
-  currentUser, Query, DataSource) {
+  currentUser, Query, DataSource,
+) {
   const DEFAULT_TAB = 'table';
 
   function getQueryResult(maxAge) {
@@ -32,8 +34,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
     // If we had an invalid value in localStorage (e.g. nothing, deleted source),
     // then use the first data source
     const isValidDataSourceId = !isNaN(dataSourceId) && some($scope.dataSources, ds =>
-       ds.id === dataSourceId
-    );
+      ds.id === dataSourceId);
 
     if (!isValidDataSourceId) {
       dataSourceId = $scope.dataSources[0].id;
@@ -76,8 +77,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
   function updateDataSources(dataSources) {
     // Filter out data sources the user can't query (or used by current query):
     $scope.dataSources = dataSources.filter(dataSource =>
-       !dataSource.view_only || dataSource.id === $scope.query.data_source_id
-    );
+      !dataSource.view_only || dataSource.id === $scope.query.data_source_id);
 
     if ($scope.dataSources.length === 0) {
       $scope.noDataSources = true;
@@ -358,11 +358,10 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
     });
   };
 
-  $scope.$watch(() =>
-     $location.hash()
-  , (hash) => {
-    $scope.selectedTab = hash || DEFAULT_TAB;
-  });
+  $scope.$watch(
+    () => $location.hash(),
+    (hash) => { $scope.selectedTab = hash || DEFAULT_TAB; },
+  );
 
   $scope.showManagePermissionsModal = () => {
     $uibModal.open({
@@ -374,7 +373,7 @@ function QueryViewCtrl($scope, Events, $route, $routeParams, $location, $window,
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('QueryViewCtrl', QueryViewCtrl);
 
   return {
