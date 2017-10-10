@@ -26,70 +26,65 @@ class Prometheus(BaseQueryRunner):
         return resp.ok
 
     def get_schema(self, get_stats=False):
-        metrics_names = '/api/v1/label/__name__/values'
-        results, error = self.run_query(metrics_names, None)
+        base_url = self.configuration["url"]
+        metrics_path = '/api/v1/label/__name__/values'
+        response = requests.get(base_url + metrics_path)
+        response.raise_for_status()
+        data = response.json()['data']
 
         schema = {}
-        for name in results:
+        for name in data:
             schema[name] = {'name': name}
 
         return schema.values()
 
     def run_query(self, query, user):
-        base_url = self.configuration.get("url", None)
+        base_url = self.configuration["url"]
 
         try:
             error = None
             query = query.strip()
 
             local_query = 'api/v1/query'
-            if '__name__/values' in query:
-                url = base_url + query
-                response = requests.get(url)
-                response.raise_for_status()
-                json_data = response.json()['data']
-            else:
-                url = base_url + local_query
-                payload = {'query': query}
-                response = requests.get(url, params=payload)
-                response.raise_for_status()
-                raw_data = response.json()['data']['result']
-                columns = [
-                    {
-                        'friendly_name': 'timestamp',
-                        'type': TYPE_DATETIME,
-                        'name': 'timestamp'
-                    },
-                    {
-                        'friendly_name': 'value',
-                        'type': TYPE_STRING,
-                        'name': 'value'
-                    },
-                ]
-                columns_name = raw_data[0]['metric'].keys()
-                for column_name in columns_name:
-                    columns.append({
-                        'friendly_name': column_name,
-                        'type': TYPE_STRING,
-                        'name': column_name
-                    })
-                rows = []
-                for row in raw_data:
-                    h = {}
-                    for r in row['metric']:
-                        h[r] = row['metric'][r]
-                        h['value'] = row['value'][1]
-                        h['timestamp'] = datetime.datetime.fromtimestamp(row['value'][0])
-                    rows.append(h)
+            url = base_url + local_query
+            payload = {'query': query}
+            response = requests.get(url, params=payload)
+            response.raise_for_status()
+            raw_data = response.json()['data']['result']
+            columns = [
+                {
+                    'friendly_name': 'timestamp',
+                    'type': TYPE_DATETIME,
+                    'name': 'timestamp'
+                },
+                {
+                    'friendly_name': 'value',
+                    'type': TYPE_STRING,
+                    'name': 'value'
+                },
+            ]
+            columns_name = raw_data[0]['metric'].keys()
+            for column_name in columns_name:
+                columns.append({
+                    'friendly_name': column_name,
+                    'type': TYPE_STRING,
+                    'name': column_name
+                })
+            rows = []
+            for row in raw_data:
+                h = {}
+                for r in row['metric']:
+                    h[r] = row['metric'][r]
+                    h['value'] = row['value'][1]
+                    h['timestamp'] = datetime.datetime.fromtimestamp(row['value'][0])
+                rows.append(h)
 
-                json_data = json_dumps(
-                    {
-                        'rows': rows,
-                        'columns': columns
-                    }
-                )
-
-            return json_data, error
+            json_data = json_dumps(
+                {
+                    'rows': rows,
+                    'columns': columns
+                }
+            )
         except requests.RequestException as e:
             return None, str(e)
         except KeyboardInterrupt:
