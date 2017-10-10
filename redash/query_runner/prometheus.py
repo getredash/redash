@@ -14,7 +14,8 @@ class Prometheus(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Prometheus API URL'
                 }
-            }
+            },
+            "required": ["url"]
         }
 
     @classmethod
