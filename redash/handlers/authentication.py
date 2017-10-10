@@ -80,7 +80,7 @@ def forgot_password(org_slug=None):
     submitted = False
     if request.method == 'POST' and request.form['email']:
         submitted = True
-        email = request.form['email'].lower()
+        email = request.form['email']
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(email, org)
@@ -119,7 +119,7 @@ def login(org_slug=None):
     if request.method == 'POST':
         try:
             org = current_org._get_current_object()
-            user = models.User.get_by_email_and_org(request.form['email'].lower(), org)
+            user = models.User.get_by_email_and_org(request.form['email'], org)
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
