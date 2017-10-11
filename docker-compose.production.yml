@@ -31,8 +31,8 @@ services:
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery"
-    restart: always
       WORKERS_COUNT: 2
+    restart: always
   redis:
     image: redis:3.0-alpine
     restart: always
