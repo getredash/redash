@@ -78,6 +78,6 @@ function Notifications(currentUser, Events) {
 }
 
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Notifications', Notifications);
 }

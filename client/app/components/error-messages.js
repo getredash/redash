@@ -15,6 +15,6 @@ const ErrorMessagesComponent = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('errorMessages', ErrorMessagesComponent);
 }

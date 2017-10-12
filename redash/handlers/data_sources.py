@@ -1,13 +1,18 @@
 import logging
+
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
+from sqlalchemy.exc import IntegrityError
 
 from redash import models
-from redash.utils.configuration import ConfigurationContainer, ValidationError
-from redash.permissions import require_admin, require_permission, require_access, view_only
-from redash.query_runner import query_runners, get_configuration_schema_for_query_runner_type
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.permissions import (require_access, require_admin,
+                                require_permission, view_only)
+from redash.query_runner import (get_configuration_schema_for_query_runner_type,
+                                 query_runners)
+from redash.utils import filter_none
+from redash.utils.configuration import ConfigurationContainer, ValidationError
 
 
 class DataSourceTypeListResource(BaseResource):
@@ -32,22 +37,28 @@ class DataSourceResource(BaseResource):
             abort(400)
         try:
             data_source.options.set_schema(schema)
-            data_source.options.update(req['options'])
+            data_source.options.update(filter_none(req['options']))
         except ValidationError:
             abort(400)
 
         data_source.type = req['type']
         data_source.name = req['name']
         models.db.session.add(data_source)
-        models.db.session.commit()
+
+        try:
+            models.db.session.commit()
+        except IntegrityError as e:
+            if req['name'] in e.message:
+                abort(400, message="Data source with the name {} already exists.".format(req['name']))
+
+            abort(400)
 
         return data_source.to_dict(all=True)
 
     @require_admin
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        models.db.session.delete(data_source)
-        models.db.session.commit()
+        data_source.delete()
 
         return make_response('', 204)
 
@@ -86,16 +97,24 @@ class DataSourceListResource(BaseResource):
         if schema is None:
             abort(400)
 
-        config = ConfigurationContainer(req['options'], schema)
+        config = ConfigurationContainer(filter_none(req['options']), schema)
+        # from IPython import embed
+        # embed()
         if not config.is_valid():
             abort(400)
 
-        datasource = models.DataSource.create_with_group(org=self.current_org,
-                                                         name=req['name'],
-                                                         type=req['type'],
-                                                         options=config)
+        try:
+            datasource = models.DataSource.create_with_group(org=self.current_org,
+                                                             name=req['name'],
+                                                             type=req['type'],
+                                                             options=config)
 
-        models.db.session.commit()
+            models.db.session.commit()
+        except IntegrityError as e:
+            if req['name'] in e.message:
+                abort(400, message="Data source with the name {} already exists.".format(req['name']))
+
+            abort(400)
 
         self.record_event({
             'action': 'create',

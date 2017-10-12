@@ -1,8 +1,8 @@
 import redash.models
 from redash.models import db
+from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.utils import gen_query_hash, utcnow
 from redash.utils.configuration import ConfigurationContainer
-from redash.permissions import ACCESS_TYPE_MODIFY
 
 
 class ModelFactory(object):
@@ -69,7 +69,7 @@ api_key_factory = ModelFactory(redash.models.ApiKey,
 query_factory = ModelFactory(redash.models.Query,
                              name='Query',
                              description='',
-                             query_text='SELECT 1',
+                             query_text=u'SELECT 1',
                              user=user_factory.create,
                              is_archived=False,
                              is_draft=False,
@@ -166,11 +166,6 @@ class Factory(object):
                 data_source=self._data_source))
 
         return self._data_source
-
-    def _init_org(self):
-        if self._org is None:
-            self._org, self._admin_group, self._default_group = redash.models.init_db()
-            self.org.domain = 'org0.example.org'
 
     def create_org(self, **kwargs):
         org = org_factory.create(**kwargs)

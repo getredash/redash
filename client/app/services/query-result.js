@@ -1,8 +1,12 @@
 import debug from 'debug';
 import moment from 'moment';
-import { uniq, contains, values, some, each, isArray, isNumber, isString } from 'underscore';
+import { uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
+const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
+
+const ALL_VALUES = '*';
+const NONE_VALUES = '-';
 
 function getColumnNameWithoutType(column) {
   let typeSplit;
@@ -18,6 +22,11 @@ function getColumnNameWithoutType(column) {
   if (parts[0] === '' && parts.length === 2) {
     return parts[1];
   }
+
+  if (!contains(filterTypes, parts[1])) {
+    return column;
+  }
+
   return parts[0];
 }
 
@@ -28,8 +37,7 @@ export function getColumnCleanName(column) {
 
 function getColumnFriendlyName(column) {
   return getColumnNameWithoutType(column).replace(/(?:^|\s)\S/g, a =>
-     a.toUpperCase()
-  );
+    a.toUpperCase());
 }
 
 function addPointToSeries(point, seriesCollection, seriesName) {
@@ -86,16 +94,27 @@ function QueryResultService($resource, $timeout, $q) {
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
           each(row, (v, k) => {
+            let newType = null;
             if (isNumber(v)) {
-              columnTypes[k] = 'float';
+              newType = 'float';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}T/)) {
               row[k] = moment.utc(v);
-              columnTypes[k] = 'datetime';
+              newType = 'datetime';
             } else if (isString(v) && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
               row[k] = moment.utc(v);
-              columnTypes[k] = 'date';
+              newType = 'date';
             } else if (typeof (v) === 'object' && v !== null) {
               row[k] = JSON.stringify(v);
+            } else {
+              newType = 'string';
+            }
+
+            if (newType !== null) {
+              if (columnTypes[k] !== undefined && columnTypes[k] !== newType) {
+                columnTypes[k] = 'string';
+              } else {
+                columnTypes[k] = newType;
+              }
             }
           });
         });
@@ -179,9 +198,11 @@ function QueryResultService($resource, $timeout, $q) {
           return null;
         }
 
-        return filters.reduce((str, filter) =>
-           str + filter.current
-        , '');
+        return filters.reduce(
+          (str, filter) =>
+            str + filter.current
+          , '',
+        );
       }
 
       const filters = this.getFilters();
@@ -191,23 +212,37 @@ function QueryResultService($resource, $timeout, $q) {
         this.filterFreeze = filterFreeze;
 
         if (filters) {
-          this.filteredData = this.query_result.data.rows.filter(row =>
-             filters.reduce((memo, filter) => {
-               if (!isArray(filter.current)) {
-                 filter.current = [filter.current];
-               }
+          filters.forEach((filter) => {
+            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
+              filter.current = filter.values.slice(1);
+            }
 
-               return (memo && some(filter.current, (v) => {
-                 const value = row[filter.name];
-                 if (moment.isMoment(value)) {
-                   return value.isSame(v);
-                 }
-                 // We compare with either the value or the String representation of the value,
-                 // because Select2 casts true/false to "true"/"false".
-                 return (v === value || String(value) === v);
-               }));
-             }, true)
-          );
+            if (filter.current.length === (filter.values.length - 1)) {
+              filter.values[0] = NONE_VALUES;
+            }
+
+            if (filter.multiple && includes(filter.current, NONE_VALUES)) {
+              filter.current = [];
+              filter.values[0] = ALL_VALUES;
+            }
+          });
+
+          this.filteredData = this.query_result.data.rows.filter(row =>
+            filters.reduce((memo, filter) => {
+              if (!isArray(filter.current)) {
+                filter.current = [filter.current];
+              }
+
+              return (memo && some(filter.current, (v) => {
+                const value = row[filter.name];
+                if (moment.isMoment(value)) {
+                  return value.isSame(v);
+                }
+                // We compare with either the value or the String representation of the value,
+                // because Select2 casts true/false to "true"/"false".
+                return (v === value || String(value) === v);
+              }));
+            }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
         }
@@ -216,15 +251,20 @@ function QueryResultService($resource, $timeout, $q) {
       return this.filteredData;
     }
 
+    isEmpty() {
+      return this.getData() === null || this.getData().length === 0;
+    }
+
     getChartData(mapping) {
       const series = {};
 
       this.getData().forEach((row) => {
-        const point = {};
+        let point = {};
         let seriesName;
         let xValue = 0;
         const yValues = {};
         let eValue = null;
+        let sizeValue = null;
 
         each(row, (v, definition) => {
           const name = definition.split('::')[0] || definition.split('__')[0];
@@ -258,6 +298,11 @@ function QueryResultService($resource, $timeout, $q) {
             seriesName = String(value);
           }
 
+          if (type === 'size') {
+            point[type] = value;
+            sizeValue = value;
+          }
+
           if (type === 'multiFilter' || type === 'multi-filter') {
             seriesName = String(value);
           }
@@ -265,11 +310,15 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
+            point = { x: xValue, y: yValue };
             if (eValue !== null) {
-              addPointToSeries({ x: xValue, y: yValue, yError: eValue }, series, ySeriesName);
-            } else {
-              addPointToSeries({ x: xValue, y: yValue }, series, ySeriesName);
+              point.yError = eValue;
             }
+
+            if (sizeValue !== null) {
+              point.size = sizeValue;
+            }
+            addPointToSeries(point, series, ySeriesName);
           });
         } else {
           addPointToSeries(point, series, seriesName);
@@ -317,7 +366,6 @@ function QueryResultService($resource, $timeout, $q) {
       }
 
       const filters = [];
-      const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
 
       this.getColumns().forEach((col) => {
         const name = col.name;
@@ -339,9 +387,19 @@ function QueryResultService($resource, $timeout, $q) {
         filters.forEach((filter) => {
           filter.values.push(row[filter.name]);
           if (filter.values.length === 1) {
-            filter.current = row[filter.name];
+            if (filter.multiple) {
+              filter.current = [row[filter.name]];
+            } else {
+              filter.current = row[filter.name];
+            }
           }
         });
+      });
+
+      filters.forEach((filter) => {
+        if (filter.multiple) {
+          filter.values.unshift(ALL_VALUES);
+        }
       });
 
       filters.forEach((filter) => {
@@ -370,14 +428,40 @@ function QueryResultService($resource, $timeout, $q) {
       return queryResult;
     }
 
+    loadResult(tryCount) {
+      QueryResultResource.get(
+        { id: this.job.query_result_id },
+        (response) => {
+          this.update(response);
+        },
+        (error) => {
+          if (tryCount === undefined) {
+            tryCount = 0;
+          }
+
+          if (tryCount > 3) {
+            logger('Connection error while trying to load result', error);
+            this.update({
+              job: {
+                error: 'failed communicating with server. Please check your Internet connection and try again.',
+                status: 4,
+              },
+            });
+          } else {
+            $timeout(() => {
+              this.loadResult(tryCount + 1);
+            }, 1000 * Math.pow(2, tryCount));
+          }
+        },
+      );
+    }
+
     refreshStatus(query) {
       Job.get({ id: this.job.id }, (jobResponse) => {
         this.update(jobResponse);
 
         if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
-          QueryResultResource.get({ id: this.job.query_result_id }, (response) => {
-            this.update(response);
-          });
+          this.loadResult();
         } else if (this.getStatus() !== 'failed') {
           $timeout(() => {
             this.refreshStatus(query);
@@ -391,7 +475,7 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getLink(queryId, fileType, apiKey) {
-      let link = `/api/queries/${queryId}/results/${this.getId()}.${fileType}`;
+      let link = `api/queries/${queryId}/results/${this.getId()}.${fileType}`;
       if (apiKey) {
         link = `${link}?api_key=${apiKey}`;
       }
@@ -435,6 +519,6 @@ function QueryResultService($resource, $timeout, $q) {
   return QueryResult;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('QueryResult', QueryResultService);
 }

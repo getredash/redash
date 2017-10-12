@@ -49,7 +49,7 @@ function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, Events
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('snippetPage', {
     template,
     controller: SnippetCtrl,

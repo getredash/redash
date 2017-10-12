@@ -22,7 +22,7 @@ function GroupsCtrl($scope, $uibModal, currentUser, Events, Group) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('GroupsCtrl', GroupsCtrl);
 
   return {

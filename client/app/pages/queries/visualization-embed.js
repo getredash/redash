@@ -8,6 +8,8 @@ const VisualizationEmbed = {
     data: '<',
   },
   controller($routeParams, Query, QueryResult) {
+    'ngInject';
+
     document.querySelector('body').classList.add('headless');
     const visualizationId = parseInt($routeParams.visualizationId, 10);
     this.showQueryDescription = $routeParams.showDescription;
@@ -20,10 +22,12 @@ const VisualizationEmbed = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('visualizationEmbed', VisualizationEmbed);
 
   function session($http, $route, Auth) {
+    'ngInject';
+
     const apiKey = $route.current.params.api_key;
     Auth.setApiKey(apiKey);
     return Auth.loadConfig();
@@ -32,8 +36,8 @@ export default function (ngModule) {
   function loadData($http, $route, $q, Auth) {
     return session($http, $route, Auth).then(() => {
       const queryId = $route.current.params.queryId;
-      const query = $http.get(`/api/queries/${queryId}`).then(response => response.data);
-      const queryResult = $http.get(`/api/queries/${queryId}/results.json`).then(response => response.data);
+      const query = $http.get(`api/queries/${queryId}`).then(response => response.data);
+      const queryResult = $http.get(`api/queries/${queryId}/results.json${location.search}`).then(response => response.data);
       return $q.all([query, queryResult]);
     });
   }

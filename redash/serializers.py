@@ -19,7 +19,7 @@ def public_widget(widget):
     }
 
     if widget.visualization and widget.visualization.id:
-        query_data = models.QueryResult.query.get(widget.visualization.query.latest_query_data_id).to_dict()
+        query_data = models.QueryResult.query.get(widget.visualization.query_rel.latest_query_data_id).to_dict()
         res['visualization'] = {
             'type': widget.visualization.type,
             'name': widget.visualization.name,
@@ -29,8 +29,8 @@ def public_widget(widget):
             'created_at': widget.visualization.created_at,
             'query': {
                 'query': ' ',  # workaround, as otherwise the query data won't be loaded.
-                'name': widget.visualization.query.name,
-                'description': widget.visualization.query.description,
+                'name': widget.visualization.query_rel.name,
+                'description': widget.visualization.query_rel.description,
                 'options': {},
                 'latest_query_data': query_data
             }

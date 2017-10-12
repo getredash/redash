@@ -1,7 +1,10 @@
 <div class="container">
-  <div class="row bg-white p-10 p-l-15 p-r-15 m-b-10">
+  <div class="row bg-white p-t-10 p-b-10 m-b-10">
     <div class="col-sm-9">
-      <h3>{{$ctrl.dashboard.name}} <span class="label label-warning" ng-if="$ctrl.dashboard.is_draft">Draft</span></h3>
+      <h3>{{$ctrl.dashboard.name}}
+        <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
+        <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+      </h3>
     </div>
     <div class="col-sm-3 text-right">
       <h3>
@@ -33,7 +36,7 @@
               <span class="zmdi zmdi-share"></span>
             </button>
         </span>
-            <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown>
+            <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived">
               <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                 <span class="zmdi zmdi-more"></span>
               </button>
@@ -50,8 +53,8 @@
     </div>
   </div>
 
-  <div class="col-lg-12 p-5 m-b-10 bg-orange c-white" ng-if="$ctrl.dashboard.is_archived">
-    This dashboard is archived and won't appear in the dashboards list or search results.
+  <div class="m-b-5">
+    <parameters parameters="$ctrl.globalParameters" on-change="$ctrl.onGlobalParametersChange()"></parameters>
   </div>
 
   <div class="m-b-5">
@@ -59,6 +62,6 @@
   </div>
 
   <div ng-repeat="row in $ctrl.dashboard.widgets" class="row">
-    <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard"></dashboard-widget>
+    <dashboard-widget ng-repeat="widget in row" widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.extractGlobalParameters()"></dashboard-widget>
   </div>
 </div>

@@ -2,12 +2,15 @@ import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
-function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibModal,
-  Title, AlertDialog, Dashboard, currentUser, clientConfig, Events) {
+function DashboardCtrl(
+  $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
+  Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
+) {
   this.isFullscreen = false;
   this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
+  this.globalParameters = [];
   this.refreshRates = [
     { name: '10 seconds', rate: 10 },
     { name: '30 seconds', rate: 30 },
@@ -16,6 +19,8 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     { name: '10 minutes', rate: 60 * 10 },
     { name: '30 minutes', rate: 60 * 30 },
     { name: '1 hour', rate: 60 * 60 },
+    { name: '12 hour', rate: 12 * 60 * 60 },
+    { name: '24 hour', rate: 24 * 60 * 60 },
   ];
 
   this.setRefreshRate = (rate) => {
@@ -26,21 +31,47 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
     }
   };
 
+  this.extractGlobalParameters = () => {
+    let globalParams = {};
+    this.dashboard.widgets.forEach(row =>
+      row.forEach((widget) => {
+        if (widget.getQuery()) {
+          widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
+            const defaults = {};
+            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name].locals = [];
+            globalParams = _.defaults(globalParams, defaults);
+            globalParams[param.name].locals.push(param);
+          });
+        }
+      }));
+    this.globalParameters = _.values(globalParams);
+  };
+
+  this.onGlobalParametersChange = () => {
+    this.globalParameters.forEach((global) => {
+      global.locals.forEach((local) => {
+        local.value = global.value;
+      });
+    });
+  };
+
   const renderDashboard = (dashboard, force) => {
     Title.set(dashboard.name);
     const promises = [];
 
     this.dashboard.widgets.forEach(row =>
-       row.forEach((widget) => {
-         if (widget.visualization) {
-           const maxAge = force ? 0 : undefined;
-           const queryResult = widget.getQuery().getQueryResult(maxAge);
-           if (!_.isUndefined(queryResult)) {
-             promises.push(queryResult.toPromise());
-           }
-         }
-       })
-    );
+      row.forEach((widget) => {
+        if (widget.visualization) {
+          const maxAge = force ? 0 : undefined;
+          const queryResult = widget.getQuery().getQueryResult(maxAge);
+          if (!_.isUndefined(queryResult)) {
+            promises.push(queryResult.toPromise());
+          }
+        }
+      }));
+
+    this.extractGlobalParameters();
 
     $q.all(promises).then((queryResults) => {
       const filters = {};
@@ -55,13 +86,14 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
             return;
           }
 
+          if (hasQueryStringValue) {
+            queryFilter.current = $location.search()[queryFilter.name];
+          }
+
           if (!_.has(filters, queryFilter.name)) {
             const filter = _.extend({}, queryFilter);
             filters[filter.name] = filter;
             filters[filter.name].originFilters = [];
-            if (hasQueryStringValue) {
-              filter.current = $location.search()[filter.name];
-            }
           }
 
           // TODO: merge values.
@@ -83,10 +115,10 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
       Events.record('view', 'dashboard', dashboard.id);
       renderDashboard(dashboard, force);
     }, () => {
-        // error...
-        // try again. we wrap loadDashboard with throttle so it doesn't happen too often.
-        // we might want to consider exponential backoff and also move this as a general
-        // solution in $http/$resource for all AJAX calls.
+      // error...
+      // try again. we wrap loadDashboard with throttle so it doesn't happen too often.
+      // we might want to consider exponential backoff and also move this as a general
+      // solution in $http/$resource for all AJAX calls.
       this.loadDashboard();
     });
   }, 1000);
@@ -96,8 +128,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   this.autoRefresh = () => {
     $timeout(() => {
       this.loadDashboard(true);
-    }, this.refreshRate.rate * 1000
-    ).then(() => this.autoRefresh());
+    }, this.refreshRate.rate * 1000).then(() => this.autoRefresh());
   };
 
   this.archiveDashboard = () => {
@@ -125,12 +156,20 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.editDashboard = () => {
+    const previousFiltersState = this.dashboard.dashboard_filters_enabled;
     $uibModal.open({
       component: 'editDashboardDialog',
       resolve: {
         dashboard: () => this.dashboard,
       },
-    }).result.then((dashboard) => { this.dashboard = dashboard; });
+    }).result.then((dashboard) => {
+      const shouldRenderDashboard = !previousFiltersState && dashboard.dashboard_filters_enabled;
+      this.dashboard = dashboard;
+
+      if (shouldRenderDashboard) {
+        renderDashboard(this.dashboard);
+      }
+    });
   };
 
   this.addWidget = () => {
@@ -139,7 +178,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
       resolve: {
         dashboard: () => this.dashboard,
       },
-    });
+    }).result.then(() => this.extractGlobalParameters());
   };
 
   this.toggleFullscreen = () => {
@@ -154,7 +193,7 @@ function DashboardCtrl($rootScope, $routeParams, $location, $timeout, $q, $uibMo
   };
 
   this.togglePublished = () => {
-    Events.record(currentUser, 'toggle_published', 'dashboard', this.dashboard.id);
+    Events.record('toggle_published', 'dashboard', this.dashboard.id);
     this.dashboard.is_draft = !this.dashboard.is_draft;
     this.saveInProgress = true;
     Dashboard.save({
@@ -191,6 +230,8 @@ const ShareDashboardComponent = {
     dismiss: '&',
   },
   controller($http) {
+    'ngInject';
+
     this.dashboard = this.resolve.dashboard;
 
     this.toggleSharing = () => {
@@ -218,7 +259,7 @@ const ShareDashboardComponent = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('shareDashboard', ShareDashboardComponent);
   ngModule.component('dashboardPage', {
     template,

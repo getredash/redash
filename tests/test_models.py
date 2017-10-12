@@ -2,9 +2,11 @@
 import datetime
 import json
 from unittest import TestCase
+
 import mock
 from dateutil.parser import parse as date_parse
 from tests import BaseTestCase
+
 from redash import models
 from redash.models import db
 from redash.utils import gen_query_hash, utcnow
@@ -30,31 +32,45 @@ class ShouldScheduleNextTest(TestCase):
     def test_interval_schedule_that_needs_reschedule(self):
         now = utcnow()
         two_hours_ago = now - datetime.timedelta(hours=2)
-        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600"))
+        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600",
+                                                    0))
 
     def test_interval_schedule_that_doesnt_need_reschedule(self):
         now = utcnow()
         half_an_hour_ago = now - datetime.timedelta(minutes=30)
-        self.assertFalse(models.should_schedule_next(half_an_hour_ago, now, "3600"))
+        self.assertFalse(models.should_schedule_next(half_an_hour_ago, now,
+                                                     "3600", 0))
 
     def test_exact_time_that_needs_reschedule(self):
         now = utcnow()
         yesterday = now - datetime.timedelta(days=1)
         scheduled_datetime = now - datetime.timedelta(hours=3)
         scheduled_time = "{:02d}:00".format(scheduled_datetime.hour)
-        self.assertTrue(models.should_schedule_next(yesterday, now, scheduled_time))
+        self.assertTrue(models.should_schedule_next(yesterday, now,
+                                                    scheduled_time, 0))
 
     def test_exact_time_that_doesnt_need_reschedule(self):
         now = date_parse("2015-10-16 20:10")
         yesterday = date_parse("2015-10-15 23:07")
         schedule = "23:00"
-        self.assertFalse(models.should_schedule_next(yesterday, now, schedule))
+        self.assertFalse(models.should_schedule_next(yesterday, now, schedule,
+                                                     0))
 
     def test_exact_time_with_day_change(self):
         now = utcnow().replace(hour=0, minute=1)
-        previous = (now - datetime.timedelta(days=2)).replace(hour=23, minute=59)
+        previous = (now - datetime.timedelta(days=2)).replace(hour=23,
+                                                              minute=59)
         schedule = "23:59".format(now.hour + 3)
-        self.assertTrue(models.should_schedule_next(previous, now, schedule))
+        self.assertTrue(models.should_schedule_next(previous, now, schedule,
+                                                    0))
+
+    def test_backoff(self):
+        now = utcnow()
+        two_hours_ago = now - datetime.timedelta(hours=2)
+        self.assertTrue(models.should_schedule_next(two_hours_ago, now, "3600",
+                                                    5))
+        self.assertFalse(models.should_schedule_next(two_hours_ago, now,
+                                                     "3600", 10))
 
 
 class QueryOutdatedQueriesTest(BaseTestCase):
@@ -74,6 +90,17 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
 
+    def test_outdated_queries_works_scheduled_queries_tracker(self):
+        two_hours_ago = datetime.datetime.now() - datetime.timedelta(hours=2)
+        query = self.factory.create_query(schedule="3600")
+        query_result = self.factory.create_query_result(query=query, retrieved_at=two_hours_ago)
+        query.latest_query_data = query_result
+
+        models.scheduled_queries_executions.update(query.id)
+
+        queries = models.Query.outdated_queries()
+        self.assertNotIn(query, queries)
+
     def test_skips_fresh_queries(self):
         half_an_hour_ago = utcnow() - datetime.timedelta(minutes=30)
         query = self.factory.create_query(schedule="3600")
@@ -91,6 +118,79 @@ class QueryOutdatedQueriesTest(BaseTestCase):
 
         queries = models.Query.outdated_queries()
         self.assertIn(query, queries)
+
+    def test_enqueues_query_only_once(self):
+        """
+        Only one query per data source with the same text will be reported by
+        Query.outdated_queries().
+        """
+        query = self.factory.create_query(schedule="60")
+        query2 = self.factory.create_query(
+            schedule="60", query_text=query.query_text,
+            query_hash=query.query_hash)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query2.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()), [query2])
+
+    def test_enqueues_query_with_correct_data_source(self):
+        """
+        Queries from different data sources will be reported by
+        Query.outdated_queries() even if they have the same query text.
+        """
+        query = self.factory.create_query(
+            schedule="60", data_source=self.factory.create_data_source())
+        query2 = self.factory.create_query(
+            schedule="60", query_text=query.query_text,
+            query_hash=query.query_hash)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query2.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()),
+                         [query2, query])
+
+    def test_enqueues_only_for_relevant_data_source(self):
+        """
+        If multiple queries with the same text exist, only ones that are
+        scheduled to be refreshed are reported by Query.outdated_queries().
+        """
+        query = self.factory.create_query(schedule="60")
+        query2 = self.factory.create_query(
+            schedule="3600", query_text=query.query_text,
+            query_hash=query.query_hash)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=10)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+        query2.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
+
+    def test_failure_extends_schedule(self):
+        """
+        Execution failures recorded for a query result in exponential backoff
+        for scheduling future execution.
+        """
+        query = self.factory.create_query(schedule="60", schedule_failures=4)
+        retrieved_at = utcnow() - datetime.timedelta(minutes=16)
+        query_result = self.factory.create_query_result(
+            retrieved_at=retrieved_at, query_text=query.query_text,
+            query_hash=query.query_hash)
+        query.latest_query_data = query_result
+
+        self.assertEqual(list(models.Query.outdated_queries()), [])
+
+        query_result.retrieved_at = utcnow() - datetime.timedelta(minutes=17)
+        self.assertEqual(list(models.Query.outdated_queries()), [query])
 
 
 class QueryArchiveTest(BaseTestCase):
@@ -144,42 +244,6 @@ class QueryArchiveTest(BaseTestCase):
         db.session.flush()
         self.assertEqual(db.session.query(models.Alert).get(subscription.alert.id), None)
         self.assertEqual(db.session.query(models.AlertSubscription).get(subscription.id), None)
-
-
-class DataSourceTest(BaseTestCase):
-    def test_get_schema(self):
-        return_value = [{'name': 'table', 'columns': []}]
-
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
-            patched_get_schema.return_value = return_value
-
-            schema = self.factory.data_source.get_schema()
-
-            self.assertEqual(return_value, schema)
-
-    def test_get_schema_uses_cache(self):
-        return_value = [{'name': 'table', 'columns': []}]
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
-            patched_get_schema.return_value = return_value
-
-            self.factory.data_source.get_schema()
-            schema = self.factory.data_source.get_schema()
-
-            self.assertEqual(return_value, schema)
-            self.assertEqual(patched_get_schema.call_count, 1)
-
-    def test_get_schema_skips_cache_with_refresh_true(self):
-        return_value = [{'name': 'table', 'columns': []}]
-        with mock.patch('redash.query_runner.pg.PostgreSQL.get_schema') as patched_get_schema:
-            patched_get_schema.return_value = return_value
-
-            self.factory.data_source.get_schema()
-            new_return_value = [{'name': 'new_table', 'columns': []}]
-            patched_get_schema.return_value = new_return_value
-            schema = self.factory.data_source.get_schema(refresh=True)
-
-            self.assertEqual(new_return_value, schema)
-            self.assertEqual(patched_get_schema.call_count, 2)
 
 
 class QueryResultTest(BaseTestCase):
@@ -284,6 +348,14 @@ class TestQueryAll(BaseTestCase):
         self.assertIn(q1, list(models.Query.all_queries([group1.id, group2.id])))
         self.assertIn(q2, list(models.Query.all_queries([group1.id, group2.id])))
 
+    def test_skips_drafts(self):
+        q = self.factory.create_query(is_draft=True)
+        self.assertNotIn(q, models.Query.all_queries([self.factory.default_group.id]))
+
+    def test_includes_drafts_of_given_user(self):
+        q = self.factory.create_query(is_draft=True)
+        self.assertIn(q, models.Query.all_queries([self.factory.default_group.id], user_id=q.user_id))
+
 
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):
@@ -349,7 +421,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         query_result, _ = models.QueryResult.store_result(
             self.data_source.org, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
-        
+
         self.assertEqual(query1.latest_query_data, query_result)
         self.assertEqual(query2.latest_query_data, query_result)
         self.assertNotEqual(query3.latest_query_data, query_result)
@@ -401,7 +473,7 @@ class TestEvents(BaseTestCase):
 
         event = models.Event.record(raw_event)
 
-        self.assertDictEqual(json.loads(event.additional_properties), additional_properties)
+        self.assertDictEqual(event.additional_properties, additional_properties)
 
 
 class TestWidgetDeleteInstance(BaseTestCase):

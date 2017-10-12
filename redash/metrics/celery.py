@@ -1,11 +1,12 @@
 from __future__ import absolute_import
 
-import logging
-import time
 import json
+import logging
 import socket
-from celery.signals import task_prerun, task_postrun
-from redash import statsd_client, settings
+import time
+
+from celery.signals import task_postrun, task_prerun
+from redash import settings, statsd_client
 
 tasks_start_time = {}
 
@@ -33,16 +34,19 @@ def task_postrun_handler(signal, sender, task_id, task, args, kwargs, retval, st
     try:
         run_time = 1000 * (time.time() - tasks_start_time.pop(task_id))
 
-        tags = {'name': task.name, 'state': (state or 'unknown').lower(), 'hostname': socket.gethostname()}
+        state = (state or 'unknown').lower()
+        tags = {'state': state, 'hostname': socket.gethostname()}
         if task.name == 'redash.tasks.execute_query':
             if isinstance(retval, Exception):
                 tags['state'] = 'exception'
+                state = 'exception'
 
             tags['data_source_id'] = args[1]
 
-        metric = "celery.task.runtime"
+        normalized_task_name = task.name.replace('redash.tasks.', '').replace('.', '_')
+        metric = "celery.task_runtime.{}".format(normalized_task_name)
         logging.debug("metric=%s", json.dumps({'metric': metric, 'tags': tags, 'value': run_time}))
         statsd_client.timing(metric_name(metric, tags), run_time)
-        statsd_client.incr(metric_name('celery.task.count', tags))
+        statsd_client.incr(metric_name('celery.task.{}.{}'.format(normalized_task_name, state), tags))
     except Exception:
         logging.exception("Exception during task_postrun handler.")

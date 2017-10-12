@@ -9,11 +9,13 @@ const PermissionsEditorComponent = {
     dismiss: '&',
   },
   controller($http, User) {
+    'ngInject';
+
     this.grantees = [];
     this.newGrantees = {};
     this.aclUrl = this.resolve.aclUrl.url;
 
-      // List users that are granted permissions
+    // List users that are granted permissions
     const loadGrantees = () => {
       $http.get(this.aclUrl).success((result) => {
         this.grantees = [];
@@ -29,7 +31,7 @@ const PermissionsEditorComponent = {
 
     loadGrantees();
 
-      // Search for user
+    // Search for user
     this.findUser = (search) => {
       if (search === '') {
         return;
@@ -44,7 +46,7 @@ const PermissionsEditorComponent = {
       }
     };
 
-      // Add new user to grantees list
+    // Add new user to grantees list
     this.addGrantee = (user) => {
       this.newGrantees.selected = undefined;
       const body = { access_type: 'modify', user_id: user.id };
@@ -54,10 +56,11 @@ const PermissionsEditorComponent = {
       });
     };
 
-      // Remove user from grantees list
+    // Remove user from grantees list
     this.removeGrantee = (user) => {
       const body = { access_type: 'modify', user_id: user.id };
-      $http({ url: this.aclUrl,
+      $http({
+        url: this.aclUrl,
         method: 'DELETE',
         data: body,
         headers: { 'Content-Type': 'application/json' },
@@ -72,6 +75,6 @@ const PermissionsEditorComponent = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('permissionsEditor', PermissionsEditorComponent);
 }

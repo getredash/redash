@@ -1,0 +1,78 @@
+#!/bin/bash
+set -e
+
+worker() {
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery}
+
+  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+}
+
+scheduler() {
+  WORKERS_COUNT=${WORKERS_COUNT:-1}
+  QUEUES=${QUEUES:-celery}
+
+  echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+}
+
+server() {
+  exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
+}
+
+help() {
+  echo "Redash Docker."
+  echo ""
+  echo "Usage:"
+  echo ""
+
+  echo "server -- start Redash server (with gunicorn)"
+  echo "worker -- start Celery worker"
+  echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo ""
+  echo "shell -- open shell"
+  echo "dev_server -- start Flask development server with debugger and auto reload"
+  echo "create_db -- create database tables"
+  echo "manage -- CLI to manage redash"
+}
+
+tests() {
+  export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
+  exec make test
+}
+
+case "$1" in
+  worker)
+    shift
+    worker
+    ;;
+  server)
+    shift
+    server
+    ;;
+  scheduler)
+    shift
+    scheduler
+    ;;
+  dev_server)
+    exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+    ;;
+  shell)
+    exec /app/manage.py shell
+    ;;
+  create_db)
+    exec /app/manage.py database create_tables
+    ;;
+  manage)
+    shift
+    exec /app/manage.py $*
+    ;;
+  tests)
+    tests
+    ;;
+  *)
+    help
+    ;;
+esac

@@ -1,12 +1,12 @@
-import simplejson as json
 import logging
 import sys
 import urllib
+
+import requests
+import simplejson as json
 from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
-
-import requests
 
 try:
     import http.client as http_client
@@ -42,9 +42,9 @@ PYTHON_TYPES_MAPPING = {
     float: TYPE_FLOAT
 }
 
-class BaseElasticSearch(BaseQueryRunner):
 
-    DEBUG_ENABLED = True
+class BaseElasticSearch(BaseQueryRunner):
+    DEBUG_ENABLED = False
 
     @classmethod
     def configuration_schema(cls):
@@ -119,13 +119,16 @@ class BaseElasticSearch(BaseQueryRunner):
         return mappings, error
 
     def _get_query_mappings(self, url):
-        mappings, error = self._get_mappings(url)
+        mappings_data, error = self._get_mappings(url)
         if error:
-            return mappings, error
+            return mappings_data, error
 
+        mappings = {}
         for index_name in mappings_data:
             index_mappings = mappings_data[index_name]
             for m in index_mappings.get("mappings", {}):
+                if "properties" not in index_mappings["mappings"][m]:
+                    continue
                 for property_name in index_mappings["mappings"][m]["properties"]:
                     property_data = index_mappings["mappings"][m]["properties"][property_name]
                     if property_name not in mappings:

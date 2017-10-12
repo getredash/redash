@@ -1,9 +1,11 @@
-from tests import BaseTestCase
-import mock
 import time
+
+import mock
+from tests import BaseTestCase
+
 from redash import settings
-from redash.models import User
 from redash.authentication.account import invite_token
+from redash.models import User
 
 
 class TestInvite(BaseTestCase):
@@ -70,4 +72,4 @@ class TestLogin(BaseTestCase):
 class TestSession(BaseTestCase):
     # really simple test just to trigger this route
     def test_get(self):
-        self.make_request('get', '/api/session', user=self.factory.user)
+        self.make_request('get', '/default/api/session', user=self.factory.user, org=False)

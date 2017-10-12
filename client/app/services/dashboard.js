@@ -27,10 +27,13 @@ function Dashboard($resource, $http, currentUser, Widget) {
     },
   });
 
-  resource.prototype.canEdit = () => currentUser.canEdit(this) || this.can_edit;
+  resource.prototype.canEdit = function canEdit() {
+    return currentUser.canEdit(this) || this.can_edit;
+  };
+
   return resource;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Dashboard', Dashboard);
 }

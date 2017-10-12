@@ -4,10 +4,14 @@ import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
+import box from 'plotly.js/lib/box';
 
 import moment from 'moment';
 
-Plotly.register([bar, pie, histogram]);
+Plotly.register([bar, pie, histogram, box]);
+Plotly.setPlotConfig({
+  modeBarButtonsToRemove: ['sendDataToCloud'],
+});
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
@@ -111,9 +115,11 @@ function percentAreaStacking(seriesList) {
   initializeTextAndHover(seriesList);
 
   each(seriesList[0].y, (seriesY, yIndex) => {
-    const sumOfCorrespondingDataPoints = seriesList.reduce((total, series) =>
-       total + series.original_y[yIndex]
-    , 0);
+    const sumOfCorrespondingDataPoints = seriesList.reduce(
+      (total, series) =>
+        total + series.original_y[yIndex]
+      , 0,
+    );
 
     each(seriesList, (series, seriesIndex) => {
       const percentage = (series.original_y[yIndex] / sumOfCorrespondingDataPoints) * 100;
@@ -137,7 +143,7 @@ function percentBarStacking(seriesList) {
       sum += seriesList[j].y[i];
     }
     for (let j = 0; j < seriesList.length; j += 1) {
-      const value = seriesList[j].y[i] / (sum * 100);
+      const value = seriesList[j].y[i] / sum * 100;
       seriesList[j].text.push(`Value: ${seriesList[j].y[i]}<br>Relative: ${value.toFixed(2)}%`);
       seriesList[j].y[i] = value;
     }
@@ -194,6 +200,9 @@ const PlotlyChart = () => {
     link(scope, element) {
       function calculateHeight() {
         const height = Math.max(scope.height, (scope.height - 50) + bottomMargin);
+        if (scope.options.globalSeriesType === 'box') {
+          return scope.options.height || height;
+        }
         return height;
       }
 
@@ -207,6 +216,11 @@ const PlotlyChart = () => {
           series.mode = 'lines';
         } else if (type === 'scatter') {
           series.type = 'scatter';
+          series.mode = 'markers';
+        } else if (type === 'bubble') {
+          series.mode = 'markers';
+        } else if (type === 'box') {
+          series.type = 'box';
           series.mode = 'markers';
         }
       }
@@ -268,6 +282,12 @@ const PlotlyChart = () => {
           return;
         }
 
+        if (scope.options.globalSeriesType === 'box') {
+          scope.options.sortX = false;
+          scope.layout.boxmode = 'group';
+          scope.layout.boxgroupgap = 0.50;
+        }
+
         let hasY2 = false;
         const sortX = scope.options.sortX === true || scope.options.sortX === undefined;
         const useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category';
@@ -281,12 +301,17 @@ const PlotlyChart = () => {
           const seriesOptions = scope.options.seriesOptions[series.name] ||
             { type: scope.options.globalSeriesType };
 
+          const seriesColor = seriesOptions.color ? seriesOptions.color : getColor(index);
+
           const plotlySeries = {
             x: [],
             y: [],
-            error_y: { array: [] },
+            error_y: {
+              array: [],
+              color: seriesColor,
+            },
             name: seriesOptions.name || series.name,
-            marker: { color: seriesOptions.color ? seriesOptions.color : getColor(index) },
+            marker: { color: seriesColor },
           };
 
           if (seriesOptions.yAxis === 1 && (scope.options.series.stacking === null || seriesOptions.type === 'line')) {
@@ -322,7 +347,7 @@ const PlotlyChart = () => {
             data.forEach((row) => {
               plotlySeries.x.push(normalizeValue(row.x));
               plotlySeries.y.push(normalizeValue(row.y));
-              if (row.yError) {
+              if (row.yError !== undefined) {
                 plotlySeries.error_y.array.push(normalizeValue(row.yError));
               }
             });
@@ -330,6 +355,26 @@ const PlotlyChart = () => {
           if (!plotlySeries.error_y.length) {
             delete plotlySeries.error_y.length;
           }
+
+          if (seriesOptions.type === 'bubble') {
+            plotlySeries.marker = {
+              size: pluck(data, 'size'),
+            };
+          }
+
+          if (seriesOptions.type === 'box') {
+            plotlySeries.boxpoints = 'outliers';
+            plotlySeries.marker = {
+              color: seriesColor,
+              size: 3,
+            };
+            if (scope.options.showpoints) {
+              plotlySeries.boxpoints = 'all';
+              plotlySeries.jitter = 0.3;
+              plotlySeries.pointpos = -1.8;
+            }
+          }
+
           scope.data.push(plotlySeries);
         });
 
@@ -400,7 +445,13 @@ const PlotlyChart = () => {
       scope.$watch('series', recalculateOptions);
       scope.$watch('options', recalculateOptions, true);
 
-      scope.layout = { margin: { l: 50, r: 50, b: bottomMargin, t: 20, pad: 4 }, height: calculateHeight(), autosize: true, hovermode: 'closest' };
+      scope.layout = {
+        margin: {
+          l: 50, r: 50, b: bottomMargin, t: 20, pad: 4,
+        },
+        height: calculateHeight(),
+        autosize: true,
+      };
       scope.plotlyOptions = { showLink: false, displaylogo: false };
       scope.data = [];
 
@@ -455,6 +506,9 @@ const CustomPlotlyChart = (clientConfig) => {
         return;
       }
       const refresh = () => {
+        // Clear existing data with blank data for succeeding codeCall adds data to existing plot.
+        Plotly.newPlot(element[0].children[0]);
+
         // eslint-disable-next-line no-eval
         const codeCall = eval(`codeCall = function(x, ys, element, Plotly){ ${scope.options.customCode} }`);
         codeCall(scope.x, scope.ys, element[0].children[0], Plotly);
@@ -470,9 +524,11 @@ const CustomPlotlyChart = (clientConfig) => {
           });
         });
       };
-      scope.$watch('options.customCode', () => {
+      scope.$watch('[options.customCode, options.autoRedraw]', () => {
         try {
-          refresh();
+          if (scope.options.autoRedraw) {
+            refresh();
+          }
         } catch (err) {
           if (scope.options.enableConsoleLogs) {
             // eslint-disable-next-line no-console
@@ -489,7 +545,7 @@ const CustomPlotlyChart = (clientConfig) => {
   return customChart;
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.constant('ColorPalette', ColorPalette);
   ngModule.directive('plotlyChart', PlotlyChart);
   ngModule.directive('customPlotlyChart', CustomPlotlyChart);

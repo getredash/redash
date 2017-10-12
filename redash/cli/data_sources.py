@@ -1,3 +1,4 @@
+from __future__ import print_function
 from sys import exit
 import json
 
@@ -27,17 +28,17 @@ def list(organization=None):
         data_sources = models.DataSource.query
     for i, ds in enumerate(data_sources):
         if i > 0:
-            print "-" * 20
+            print("-" * 20)
 
-        print "Id: {}\nName: {}\nType: {}\nOptions: {}".format(
-            ds.id, ds.name, ds.type, ds.options.to_json())
+        print("Id: {}\nName: {}\nType: {}\nOptions: {}".format(
+            ds.id, ds.name, ds.type, ds.options.to_json()))
 
 
 def validate_data_source_type(type):
     if type not in query_runners.keys():
         print ("Error: the type \"{}\" is not supported (supported types: {})."
                .format(type, ", ".join(query_runners.keys())))
-        print "OJNK"
+        print("OJNK")
         exit(1)
 
 
@@ -53,17 +54,17 @@ def test(name, organization='default'):
         data_source = models.DataSource.query.filter(
             models.DataSource.name == name,
             models.DataSource.org == org).one()
-        print "Testing connection to data source: {} (id={})".format(
-            name, data_source.id)
+        print("Testing connection to data source: {} (id={})".format(
+            name, data_source.id))
         try:
             data_source.query_runner.test_connection()
-        except Exception, e:
-            print "Failure: {}".format(e)
+        except Exception as e:
+            print("Failure: {}".format(e))
             exit(1)
         else:
-            print "Success"
+            print("Success")
     except NoResultFound:
-        print "Couldn't find data source named: {}".format(name)
+        print("Couldn't find data source named: {}".format(name))
         exit(1)
 
 
@@ -83,9 +84,9 @@ def new(name=None, type=None, options=None, organization='default'):
         name = click.prompt("Name")
 
     if type is None:
-        print "Select type:"
+        print("Select type:")
         for i, query_runner_name in enumerate(query_runners.keys()):
-            print "{}. {}".format(i + 1, query_runner_name)
+            print("{}. {}".format(i + 1, query_runner_name))
 
         idx = 0
         while idx < 1 or idx > len(query_runners.keys()):
@@ -130,17 +131,17 @@ def new(name=None, type=None, options=None, organization='default'):
         options = ConfigurationContainer(json.loads(options), schema)
 
     if not options.is_valid():
-        print "Error: invalid configuration."
+        print("Error: invalid configuration.")
         exit()
 
-    print "Creating {} data source ({}) with options:\n{}".format(
-        type, name, options.to_json())
+    print("Creating {} data source ({}) with options:\n{}".format(
+        type, name, options.to_json()))
 
     data_source = models.DataSource.create_with_group(
         name=name, type=type, options=options,
         org=models.Organization.get_by_slug(organization))
     models.db.session.commit()
-    print "Id: {}".format(data_source.id)
+    print("Id: {}".format(data_source.id))
 
 
 @manager.command()
@@ -155,18 +156,18 @@ def delete(name, organization='default'):
         data_source = models.DataSource.query.filter(
             models.DataSource.name == name,
             models.DataSource.org == org).one()
-        print "Deleting data source: {} (id={})".format(name, data_source.id)
+        print("Deleting data source: {} (id={})".format(name, data_source.id))
         models.db.session.delete(data_source)
         models.db.session.commit()
     except NoResultFound:
-        print "Couldn't find data source named: {}".format(name)
+        print("Couldn't find data source named: {}".format(name))
         exit(1)
 
 
 def update_attr(obj, attr, new_value):
     if new_value is not None:
         old_value = getattr(obj, attr)
-        print "Updating {}: {} -> {}".format(attr, old_value, new_value)
+        print("Updating {}: {} -> {}".format(attr, old_value, new_value))
         setattr(obj, attr, new_value)
 
 
@@ -204,4 +205,4 @@ def edit(name, new_name=None, options=None, type=None, organization='default'):
         models.db.session.commit()
 
     except NoResultFound:
-        print "Couldn't find data source named: {}".format(name)
+        print("Couldn't find data source named: {}".format(name))
