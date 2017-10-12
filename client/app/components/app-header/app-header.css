@@ -1,0 +1,7 @@
+.menu-search {
+    margin-top: 3px;
+}
+
+.menu-search input[type="text"] {
+    height: 30px;
+}

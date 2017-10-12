@@ -3,6 +3,7 @@ import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 import requests
+import re
 logger = logging.getLogger(__name__)
 
 
@@ -68,18 +69,22 @@ class ClickHouse(BaseSQLQueryRunner):
         })
         if r.status_code != 200:
             raise Exception(r.text)
+        # logging.warning(r.json())
         return r.json()
 
     @staticmethod
     def _define_column_type(column):
         c = column.lower()
-        if 'int' in c:
+        f = re.search(r'^nullable\((.*)\)$', c)
+        if f is not None:
+            c = f.group(1)
+        if c.startswith('int') or c.startswith('uint'):
             return TYPE_INTEGER
-        elif 'float' in c:
+        elif c.startswith('float'):
             return TYPE_FLOAT
-        elif 'datetime' == c:
+        elif c == 'datetime':
             return TYPE_DATETIME
-        elif 'date' == c:
+        elif c == 'date':
             return TYPE_DATE
         else:
             return TYPE_STRING
@@ -89,7 +94,13 @@ class ClickHouse(BaseSQLQueryRunner):
         result = self._send_query(query)
         columns = [{'name': r['name'], 'friendly_name': r['name'],
                     'type': self._define_column_type(r['type'])} for r in result['meta']]
-        return {'columns': columns, 'rows': result['data']}
+        # db converts value to string if its type equals UInt64
+        columns_uint64 = [r['name'] for r in result['meta'] if r['type'] == 'UInt64']
+        rows = result['data']
+        for row in rows:
+            for column in columns_uint64:
+                row[column] = int(row[column])
+        return {'columns': columns, 'rows': rows}
 
     def run_query(self, query, user):
         logger.debug("Clickhouse is about to execute query: %s", query)

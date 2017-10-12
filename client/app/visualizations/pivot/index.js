@@ -1,6 +1,10 @@
+import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
+
+import editorTemplate from './pivottable-editor.html';
+
 
 function pivotTableRenderer() {
   return {
@@ -12,48 +16,77 @@ function pivotTableRenderer() {
     template: '',
     replace: false,
     link($scope, element) {
-      $scope.$watch('queryResult && queryResult.getData()', (data) => {
-        if (!data) {
-          return;
-        }
+      function removeControls() {
+        const hideControls =
+          $scope.visualization.options.controls &&
+          $scope.visualization.options.controls.enabled;
 
-        if ($scope.queryResult.getData() !== null) {
-          // We need to give the pivot table its own copy of the data, because it changes
-          // it which interferes with other visualizations.
-          data = $.extend(true, [], $scope.queryResult.getRawData());
-          const options = {
-            renderers: $.pivotUtilities.renderers,
-            onRefresh(config) {
-              const configCopy = Object.assign({}, config);
-              // delete some values which are functions
-              delete configCopy.aggregators;
-              delete configCopy.renderers;
-              delete configCopy.onRefresh;
-              // delete some bulky default values
-              delete configCopy.rendererOptions;
-              delete configCopy.localeStrings;
-
-              if ($scope.visualization) {
-                $scope.visualization.options = configCopy;
-              }
-            },
-          };
-
-          if ($scope.visualization) {
-            Object.assign(options, $scope.visualization.options);
+        document.querySelectorAll('.pvtAxisContainer, .pvtRenderer, .pvtVals').forEach((control) => {
+          if (hideControls) {
+            control.style.display = 'none';
+          } else {
+            control.style.display = '';
           }
-          $(element).pivotUI(data, options, true);
-        }
-      });
+        });
+      }
+
+      function updatePivot() {
+        $scope.$watch('queryResult && queryResult.getData()', (data) => {
+          if (!data) {
+            return;
+          }
+
+          if ($scope.queryResult.getData() !== null) {
+            // We need to give the pivot table its own copy of the data, because it changes
+            // it which interferes with other visualizations.
+            data = angular.copy($scope.queryResult.getData());
+            const options = {
+              renderers: $.pivotUtilities.renderers,
+              onRefresh(config) {
+                const configCopy = Object.assign({}, config);
+                // delete some values which are functions
+                delete configCopy.aggregators;
+                delete configCopy.renderers;
+                delete configCopy.onRefresh;
+                // delete some bulky default values
+                delete configCopy.rendererOptions;
+                delete configCopy.localeStrings;
+
+                if ($scope.visualization) {
+                  $scope.visualization.options = configCopy;
+                }
+              },
+            };
+
+            if ($scope.visualization) {
+              Object.assign(options, $scope.visualization.options);
+            }
+
+            $(element).pivotUI(data, options, true);
+            removeControls();
+          }
+        });
+      }
+
+      $scope.$watch('queryResult && queryResult.getData()', updatePivot);
+      $scope.$watch('visualization.options.controls.enabled', removeControls);
     },
   };
 }
 
-export default function (ngModule) {
+function pivotTableEditor() {
+  return {
+    restrict: 'E',
+    template: editorTemplate,
+  };
+}
+
+export default function init(ngModule) {
   ngModule.directive('pivotTableRenderer', pivotTableRenderer);
+  ngModule.directive('pivotTableEditor', pivotTableEditor);
 
   ngModule.config((VisualizationProvider) => {
-    const editTemplate = '<div/>';
+    const editTemplate = '<pivot-table-editor></pivot-table-editor>';
     const defaultOptions = {
     };
 

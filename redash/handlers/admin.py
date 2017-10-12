@@ -1,5 +1,6 @@
 import json
 
+from flask import request
 from flask_login import login_required
 from redash import models, redis_connection
 from redash.handlers import routes
@@ -32,14 +33,19 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
-    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST)
-    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST)
-    done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=50)
+    global_limit = int(request.args.get('limit', 50))
+    waiting_limit = int(request.args.get('waiting_limit', global_limit))
+    progress_limit = int(request.args.get('progress_limit', global_limit))
+    done_limit = int(request.args.get('done_limit', global_limit))
+
+    waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=waiting_limit)
+    in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=progress_limit)
+    done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=done_limit)
 
     response = {
-        'waiting': [t.data for t in waiting],
-        'in_progress': [t.data for t in in_progress],
-        'done': [t.data for t in done]
+        'waiting': [t.data for t in waiting if t is not None],
+        'in_progress': [t.data for t in in_progress if t is not None],
+        'done': [t.data for t in done if t is not None]
     }
 
     return json_response(response)

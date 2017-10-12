@@ -1,11 +1,12 @@
-import json
 import datetime
+import json
 import logging
 import re
+
 from dateutil.parser import parse
 
-from redash.utils import JSONEncoder, parse_human_time
 from redash.query_runner import *
+from redash.utils import JSONEncoder, parse_human_time
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,13 @@ class MongoDBJSONEncoder(JSONEncoder):
 date_regex = re.compile("ISODate\(\"(.*)\"\)", re.IGNORECASE)
 
 
+def parse_oids(oids):
+    if not isinstance(oids, list):
+        raise Exception("$oids takes an array as input.")
+
+    return [bson_object_hook({'$oid': oid}) for oid in oids]
+
+
 def datetime_parser(dct):
     for k, v in dct.iteritems():
         if isinstance(v, basestring):
@@ -54,6 +62,9 @@ def datetime_parser(dct):
 
     if '$humanTime' in dct:
         return parse_human_time(dct['$humanTime'])
+
+    if '$oids' in dct:
+        return parse_oids(dct['$oids'])
 
     return bson_object_hook(dct)
 

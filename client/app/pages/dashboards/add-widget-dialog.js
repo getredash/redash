@@ -17,6 +17,8 @@ const AddWidgetDialog = {
     this.query = {};
     this.selected_query = undefined;
     this.text = '';
+    this.existing_text = '';
+    this.new_text = '';
     this.widgetSizes = [{
       name: 'Regular',
       value: 1,
@@ -95,6 +97,6 @@ const AddWidgetDialog = {
   },
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('addWidgetDialog', AddWidgetDialog);
 }

@@ -3,6 +3,6 @@ function AlertSubscription($resource) {
   return resource;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('AlertSubscription', AlertSubscription);
 }

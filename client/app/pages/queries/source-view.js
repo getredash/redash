@@ -1,7 +1,9 @@
 import template from './query.html';
 
-function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, $q,
-  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts) {
+function QuerySourceCtrl(
+  Events, toastr, $controller, $scope, $location, $http, $q,
+  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts,
+) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
   // TODO:
@@ -16,7 +18,6 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   const saveQuery = $scope.saveQuery;
 
   $scope.sourceMode = true;
-  $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.isDirty = false;
   $scope.base_url = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
 
@@ -29,24 +30,19 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
     },
   });
 
-  $scope.shortcuts = {
-    'meta+s': function save() {
+  const shortcuts = {
+    'mod+s': function save() {
       if ($scope.canEdit) {
         $scope.saveQuery();
       }
     },
-    'ctrl+s': function save() {
-      if ($scope.canEdit) {
-        $scope.saveQuery();
-      }
-    },
-    // Cmd+Enter for Mac
-    'meta+enter': $scope.executeQuery,
-    // Ctrl+Enter for PC
-    'ctrl+enter': $scope.executeQuery,
   };
 
-  KeyboardShortcuts.bind($scope.shortcuts);
+  KeyboardShortcuts.bind(shortcuts);
+
+  $scope.$on('$destroy', () => {
+    KeyboardShortcuts.unbind(shortcuts);
+  });
 
   // @override
   $scope.saveQuery = (options, data) => {
@@ -106,13 +102,9 @@ function QuerySourceCtrl(Events, toastr, $controller, $scope, $location, $http, 
   $scope.$watch('query.query', (newQueryText) => {
     $scope.isDirty = (newQueryText !== queryText);
   });
-
-  $scope.$on('$destroy', () => {
-    KeyboardShortcuts.unbind($scope.shortcuts);
-  });
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('QuerySourceCtrl', QuerySourceCtrl);
 
   return {

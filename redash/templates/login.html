@@ -41,9 +41,20 @@
   </div>
   {% endif %}
 
+  {% if show_ldap_login %}
+  <div class="row">
+    <a href="/ldap_auth/login">LDAP/SSO Login</a>
+  </div>
+
+  <div class="login-or">
+    <hr class="hr-or">
+    <span class="span-or">or</span>
+  </div>
+  {% endif %}
+
   <form role="form" method="post" name="login">
     <div class="form-group">
-      <label for="inputEmail">Email</label>
+      <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
       <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
     </div>
     <div class="form-group">
@@ -60,6 +71,9 @@
       Log In
     </button>
   </form>
-  <hr>
-  <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+  
+  {% if not hide_forgot_password %}
+    <hr>
+    <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+  {% endif %}
 {% endblock %}

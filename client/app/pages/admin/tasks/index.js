@@ -46,7 +46,7 @@ function TasksCtrl($scope, $location, $http, $timeout, Events) {
   refresh();
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('tasksPage', {
     template,
     controller: TasksCtrl,

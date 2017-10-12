@@ -1,16 +1,15 @@
 import time
 
 from flask import Blueprint, current_app, request
+
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
-
-from sqlalchemy.orm.exc import NoResultFound
-
 from redash import settings
 from redash.authentication import current_org
 from redash.models import ApiUser
 from redash.tasks import record_event as record_event_task
 from redash.utils import json_dumps
+from sqlalchemy.orm.exc import NoResultFound
 
 routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
@@ -45,7 +44,7 @@ class BaseResource(Resource):
 
 
 def record_event(org, user, options):
-    if isinstance(user, ApiUser):
+    if user.is_api_user():
         options.update({
             'api_key': user.name,
             'org_id': org.id
@@ -53,6 +52,7 @@ def record_event(org, user, options):
     else:
         options.update({
             'user_id': user.id,
+            'user_name': user.name,
             'org_id': org.id
         })
 
@@ -89,7 +89,7 @@ def paginate(query_set, page, page_size, serializer):
     if page < 1:
         abort(400, message='Page must be positive integer.')
 
-    if (page-1)*page_size+1 > count > 0:
+    if (page - 1) * page_size + 1 > count > 0:
         abort(400, message='Page is out of range.')
 
     if page_size > 250 or page_size < 1:

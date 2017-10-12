@@ -1,10 +1,12 @@
 import { each } from 'underscore';
 import Mousetrap from 'mousetrap';
+import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
+
 
 function KeyboardShortcuts() {
   this.bind = function bind(keymap) {
     each(keymap, (fn, key) => {
-      Mousetrap.bind(key, (e) => {
+      Mousetrap.bindGlobal(key, (e) => {
         e.preventDefault();
         fn();
       });
@@ -18,6 +20,6 @@ function KeyboardShortcuts() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.service('KeyboardShortcuts', KeyboardShortcuts);
 }

@@ -2,14 +2,16 @@ import debug from 'debug';
 
 import template from './app-header.html';
 import logoUrl from '../../assets/images/redash_icon_small.png';
+import './app-header.css';
 
 const logger = debug('redash:appHeader');
 
-function controller($rootScope, $location, $uibModal, Auth, currentUser, Dashboard) {
-  // TODO: logoUrl should come from clientconfig
+function controller($rootScope, $location, $uibModal, Auth, currentUser, clientConfig, Dashboard) {
   this.logoUrl = logoUrl;
+  this.basePath = clientConfig.basePath;
   this.currentUser = currentUser;
   this.showQueriesMenu = currentUser.hasPermission('view_query');
+  this.showAlertsLink = currentUser.hasPermission('list_alerts');
   this.showNewQueryMenu = currentUser.hasPermission('create_query');
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.showDashboardsMenu = currentUser.hasPermission('list_dashboards');
@@ -41,7 +43,7 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, Dashboa
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('appHeader', {
     template,
     controller,

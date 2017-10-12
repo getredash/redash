@@ -3,7 +3,7 @@ import 'brace/mode/python';
 import 'brace/mode/sql';
 import 'brace/mode/json';
 import 'brace/ext/language_tools';
-import { each, map } from 'underscore';
+import { map } from 'underscore';
 
 // By default Ace will try to load snippet files for the different modes and fail.
 // We don't need them, so we use these placeholders until we define our own.
@@ -25,7 +25,6 @@ function queryEditor(QuerySnippet) {
       query: '=',
       schema: '=',
       syntax: '=',
-      shortcuts: '=',
     },
     template: '<div ui-ace="editorOptions" ng-model="query.query"></div>',
     link: {
@@ -46,11 +45,6 @@ function queryEditor(QuerySnippet) {
             // Release Cmd/Ctrl+L to the browser
             editor.commands.bindKey('Cmd+L', null);
             editor.commands.bindKey('Ctrl+L', null);
-
-            each($scope.shortcuts, (fn, key) => {
-              key = key.replace('meta', 'Cmd').replace('ctrl', 'Ctrl');
-              editor.commands.bindKey(key, () => fn());
-            });
 
             QuerySnippet.query((snippets) => {
               window.ace.acequire(['ace/snippets'], (snippetsModule) => {
@@ -119,13 +113,12 @@ function queryEditor(QuerySnippet) {
               });
 
               $scope.schema.keywords = map(keywords, (v, k) =>
-                 ({
-                   name: k,
-                   value: k,
-                   score: 0,
-                   meta: v,
-                 })
-              );
+                ({
+                  name: k,
+                  value: k,
+                  score: 0,
+                  meta: v,
+                }));
             }
             callback(null, $scope.schema.keywords);
           },
@@ -140,6 +133,6 @@ function queryEditor(QuerySnippet) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('queryEditor', queryEditor);
 }

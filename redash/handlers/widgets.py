@@ -11,6 +11,20 @@ from redash.permissions import (require_access,
 class WidgetListResource(BaseResource):
     @require_permission('edit_dashboard')
     def post(self):
+        """
+        Add a widget to a dashboard.
+
+        :<json number dashboard_id: The ID for the dashboard being added to
+        :<json visualization_id: The ID of the visualization to put in this widget
+        :<json object options: Widget options
+        :<json string text: Text box contents
+        :<json number width: Width for widget display
+
+        :>json object widget: The created widget
+        :>json array layout: The new layout of the dashboard this widget was added to
+        :>json boolean new_row: Whether this widget was added on a new row or not
+        :>json number version: The revision number of the dashboard
+        """
         widget_properties = request.get_json(force=True)
         dashboard = models.Dashboard.get_by_id_and_org(widget_properties.pop('dashboard_id'), self.current_org)
         require_object_modify_permission(dashboard, self.current_user)
@@ -56,7 +70,14 @@ class WidgetListResource(BaseResource):
 class WidgetResource(BaseResource):
     @require_permission('edit_dashboard')
     def post(self, widget_id):
-        # This method currently handles Text Box widgets only.
+        """
+        Updates a widget in a dashboard.
+        This method currently handles Text Box widgets only.
+
+        :param number widget_id: The ID of the widget to modify
+
+        :<json string text: The new contents of the text box
+        """
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
@@ -66,6 +87,14 @@ class WidgetResource(BaseResource):
 
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
+        """
+        Remove a widget from a dashboard.
+
+        :param number widget_id: ID of widget to remove
+
+        :>json array layout: New layout of dashboard this widget was removed from
+        :>json number version: Revision number of dashboard
+        """
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget.delete()

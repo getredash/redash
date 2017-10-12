@@ -1,21 +1,18 @@
 machine:
   services:
     - docker
+    - redis
   node:
     version:
       6.9.1
-  python:
-    version:
-      2.7.3
 dependencies:
-  pre:
+  override:
     - pip install --upgrade setuptools
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
-    - pip install pymongo==3.2.1
     - make deps
   cache_directories:
-    - client/node_modules/
+    - node_modules/
 test:
   override:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
@@ -28,9 +25,9 @@ deployment:
       # - make upload
       #- echo "client/app" >> .dockerignore
       #- docker pull redash/redash:latest
-      #- docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
-      #- docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      #- docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
+      - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f

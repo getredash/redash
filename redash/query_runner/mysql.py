@@ -1,12 +1,12 @@
-import sys
 import json
 import logging
+import os
 
-from redash.utils import JSONEncoder
 from redash.query_runner import *
+from redash.settings import parse_boolean
+from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
-
 types_map = {
     0: TYPE_FLOAT,
     1: TYPE_INTEGER,
@@ -26,12 +26,15 @@ types_map = {
     254: TYPE_STRING,
 }
 
+
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
 
     @classmethod
     def configuration_schema(cls):
-        return {
+        show_ssl_settings = parse_boolean(os.environ.get('MYSQL_SHOW_SSL_SETTINGS', 'true'))
+
+        schema = {
             'type': 'object',
             'properties': {
                 'host': {
@@ -52,7 +55,15 @@ class Mysql(BaseSQLQueryRunner):
                 'port': {
                     'type': 'number',
                     'default': 3306,
-                },
+                }
+            },
+            "order": ['host', 'port', 'user', 'passwd', 'db'],
+            'required': ['db'],
+            'secret': ['passwd']
+        }
+
+        if show_ssl_settings:
+            schema['properties'].update({
                 'use_ssl': {
                     'type': 'boolean',
                     'title': 'Use SSL'
@@ -69,10 +80,9 @@ class Mysql(BaseSQLQueryRunner):
                     'type': 'string',
                     'title': 'Path to private key file (SSL)'
                 }
-            },
-            'required': ['db'],
-            'secret': ['passwd']
-        }
+            })
+
+        return schema
 
     @classmethod
     def name(cls):
@@ -93,12 +103,7 @@ class Mysql(BaseSQLQueryRunner):
                col.table_name,
                col.column_name
         FROM `information_schema`.`columns` col
-        INNER JOIN
-          (SELECT table_schema,
-                  TABLE_NAME
-           FROM information_schema.tables
-           WHERE table_type <> 'SYSTEM VIEW' AND table_schema NOT IN ('performance_schema', 'mysql')) tables ON tables.table_schema = col.table_schema
-        AND tables.TABLE_NAME = col.TABLE_NAME;
+        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
         """
 
         results, error = self.run_query(query, None)
@@ -110,7 +115,7 @@ class Mysql(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+                table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
 
@@ -132,12 +137,16 @@ class Mysql(BaseSQLQueryRunner):
                                          db=self.configuration['db'],
                                          port=self.configuration.get('port', 3306),
                                          charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters())
+                                         ssl=self._get_ssl_parameters(),
+                                         connect_timeout=60)
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
 
             data = cursor.fetchall()
+
+            while cursor.nextset():
+                data = cursor.fetchall()
 
             # TODO - very similar to pg.py
             if cursor.description is not None:
@@ -152,14 +161,12 @@ class Mysql(BaseSQLQueryRunner):
                 error = "No data was returned."
 
             cursor.close()
-        except MySQLdb.Error, e:
+        except MySQLdb.Error as e:
             json_data = None
             error = e.args[1]
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if connection:
                 connection.close()
@@ -181,4 +188,55 @@ class Mysql(BaseSQLQueryRunner):
         return ssl_params
 
 
+class RDSMySQL(Mysql):
+    @classmethod
+    def name(cls):
+        return "MySQL (Amazon RDS)"
+
+    @classmethod
+    def type(cls):
+        return 'rds_mysql'
+
+    @classmethod
+    def configuration_schema(cls):
+        return {
+            'type': 'object',
+            'properties': {
+                'host': {
+                    'type': 'string',
+                },
+                'user': {
+                    'type': 'string'
+                },
+                'passwd': {
+                    'type': 'string',
+                    'title': 'Password'
+                },
+                'db': {
+                    'type': 'string',
+                    'title': 'Database name'
+                },
+                'port': {
+                    'type': 'number',
+                    'default': 3306,
+                },
+                'use_ssl': {
+                    'type': 'boolean',
+                    'title': 'Use SSL'
+                }
+            },
+            "order": ['host', 'port', 'user', 'passwd', 'db'],
+            'required': ['db', 'user', 'passwd', 'host'],
+            'secret': ['passwd']
+        }
+
+    def _get_ssl_parameters(self):
+        if self.configuration.get('use_ssl'):
+            ca_path = os.path.join(os.path.dirname(__file__), './files/rds-combined-ca-bundle.pem')
+            return {'ca': ca_path}
+
+        return {}
+
+
 register(Mysql)
+register(RDSMySQL)

@@ -16,11 +16,6 @@ class QueriesListCtrl {
         Title.set('Queries');
         this.resource = Query.query;
         break;
-      case '/queries/drafts':
-        Title.set('Draft Queries');
-        this.resource = Query.myQueries;
-        this.defaultOptions.drafts = true;
-        break;
       case '/queries/my':
         Title.set('My Queries');
         this.resource = Query.myQueries;
@@ -32,8 +27,10 @@ class QueriesListCtrl {
     function queriesFetcher(requestedPage, itemsPerPage, paginator) {
       $location.search('page', requestedPage);
 
-      const request = Object.assign({}, self.defaultOptions,
-        { page: requestedPage, page_size: itemsPerPage });
+      const request = Object.assign(
+        {}, self.defaultOptions,
+        { page: requestedPage, page_size: itemsPerPage },
+      );
 
       return self.resource(request).$promise.then((data) => {
         const rows = data.results.map((query) => {
@@ -51,12 +48,11 @@ class QueriesListCtrl {
     this.tabs = [
       { name: 'My Queries', path: 'queries/my' },
       { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
-      { path: 'queries/drafts', name: 'Drafts' },
     ];
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('pageQueriesList', {
     template,
     controller: QueriesListCtrl,
@@ -70,6 +66,5 @@ export default function (ngModule) {
   return {
     '/queries': route,
     '/queries/my': route,
-    '/queries/drafts': route,
   };
 }

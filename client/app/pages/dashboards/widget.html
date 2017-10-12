@@ -17,15 +17,15 @@
             <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more"></i></a>
 
             <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
-              <li><a ng-disabled="!$ctrl.queryResult.getData()" query-result-link target="_self">Download as CSV File</a></li>
-              <li><a ng-disabled="!$ctrl.queryResult.getData()" file-type="xlsx" query-result-link target="_self">Download as Excel File</a></li>
-              <li><a ng-href="queries/{{query.id}}#{{widget.visualization.id}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
+              <li ng-class="{'disabled': $ctrl.queryResult.isEmpty()}"><a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'csv')}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'csv')}}" target="_self">Download as CSV File</a></li>
+              <li ng-class="{'disabled': $ctrl.queryResult.isEmpty()}"><a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'xlsx')}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'xlsx')}}" target="_self">Download as Excel File</a></li>
+              <li><a ng-href="queries/{{$ctrl.query.id}}#{{$ctrl.widget.visualization.id}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
               <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
             </ul>
           </div>
         </div>
 
-        <parameters parameters="$ctrl.widget.query.getParametersDefs()"></parameters>
+        <parameters parameters="$ctrl.localParametersDefs()"></parameters>
 
         <div ng-switch="$ctrl.queryResult.getStatus()">
           <div ng-switch-when="failed">

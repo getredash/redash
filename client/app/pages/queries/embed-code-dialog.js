@@ -20,6 +20,6 @@ const EmbedCodeDialog = {
   template,
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('embedCodeDialog', EmbedCodeDialog);
 }

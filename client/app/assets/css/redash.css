@@ -4,9 +4,14 @@ body {
 
 body.headless {
   padding-top: 0px;
+  padding-bottom: 0px;
 }
 
 body.headless nav.app-header {
+  display: none;
+}
+
+body.headless div#footer {
   display: none;
 }
 
@@ -415,11 +420,25 @@ counter-renderer counter-name {
   background-color: white;
 }
 
+.schema-control {
+  display: flex;
+  padding: 5px 0;
+}
+
+.schema-control .form-control {
+  height: 30px;
+  margin-right: 5px;
+}
+
 .schema-browser {
   height: calc(100% - 45px);
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid rgba(0,0,0,.15);
+}
+
+.parameter-label {
+  display: block;
 }
 
 div.table-name {
@@ -597,9 +616,16 @@ div.table-name:hover {
 
 .collapsing,
 .collapse.in {
-    background: #f4f4f4;
-    padding: 5px 10px;
-    transition: all 0.35s ease;
+  padding: 5px 10px;
+  transition: all 0.35s ease;
+}
+
+.schema-browser .collapse.in {
+  background: #f4f4f4;
+}
+
+.navbar .collapse.in {
+  background: #222;
 }
 
 /* Fixes for SuperFlat */
@@ -666,4 +692,13 @@ div.table-name:hover {
 /*Dashboard list view */
 .m-2{
   margin:2px;
+}
+
+.dropdown-menu > .disabled{
+ cursor: not-allowed;
+}
+
+/* The real magic ;) */
+.dropdown-menu > .disabled > a{
+ pointer-events: none;
 }

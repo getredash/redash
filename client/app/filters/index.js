@@ -32,10 +32,10 @@ export function scheduleHumanize(schedule) {
   } else if (schedule.match(/\d\d:\d\d/) !== null) {
     const parts = schedule.split(':');
     const localTime = moment.utc()
-                            .hour(parts[0])
-                            .minute(parts[1])
-                            .local()
-                            .format('HH:mm');
+      .hour(parts[0])
+      .minute(parts[1])
+      .local()
+      .format('HH:mm');
 
     return `Every day at ${localTime}`;
   }
@@ -45,8 +45,7 @@ export function scheduleHumanize(schedule) {
 
 export function toHuman(text) {
   return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a =>
-     a.toUpperCase()
-  );
+    a.toUpperCase());
 }
 
 export function colWidth(widgetWidth) {

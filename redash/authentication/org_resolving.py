@@ -1,13 +1,6 @@
-"""
-This module implements different strategies to resolve the current Organization we are using.
-
-By default we use the simple single_org strategy, which assumes you have a
-single Organization in your installation.
-"""
-
 import logging
 
-from flask import request, g
+from flask import g, request
 from werkzeug.local import LocalProxy
 
 from redash.models import Organization

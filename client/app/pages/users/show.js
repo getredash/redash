@@ -1,8 +1,10 @@
 import { each } from 'underscore';
 import template from './show.html';
 
-function UserCtrl($scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, Events, User) {
+function UserCtrl(
+  $scope, $routeParams, $http, $location, toastr,
+  clientConfig, currentUser, Events, User,
+) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
   $scope.clientConfig = clientConfig;
@@ -103,7 +105,7 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr,
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('UserCtrl', UserCtrl);
 
   return {

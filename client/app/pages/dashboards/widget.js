@@ -9,17 +9,24 @@ const EditTextBoxComponent = {
     dismiss: '&',
   },
   controller(toastr) {
+    'ngInject';
+
     this.saveInProgress = false;
     this.widget = this.resolve.widget;
     this.saveWidget = () => {
       this.saveInProgress = true;
-      this.widget.$save().then(() => {
+      if (this.widget.new_text !== this.widget.existing_text) {
+        this.widget.text = this.widget.new_text;
+        this.widget.$save().then(() => {
+          this.close();
+        }).catch(() => {
+          toastr.error('Widget can not be updated');
+        }).finally(() => {
+          this.saveInProgress = false;
+        });
+      } else {
         this.close();
-      }).catch(() => {
-        toastr.error('Widget can not be updated');
-      }).finally(() => {
-        this.saveInProgress = false;
-      });
+      }
     };
   },
 };
@@ -28,12 +35,21 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
+    this.widget.existing_text = this.widget.text;
+    this.widget.new_text = this.widget.text;
     $uibModal.open({
       component: 'editTextBox',
       resolve: {
         widget: this.widget,
       },
     });
+  };
+
+  this.localParametersDefs = () => {
+    if (!this.localParameters) {
+      this.localParameters = this.widget.query.getParametersDefs().filter(p => !p.global);
+    }
+    return this.localParameters;
   };
 
   this.deleteWidget = () => {
@@ -51,6 +67,10 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
       this.dashboard.layout = response.layout;
       this.dashboard.version = response.version;
+
+      if (this.deleted) {
+        this.deleted({});
+      }
     });
   };
 
@@ -65,8 +85,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   };
 
   if (this.widget.visualization) {
-    Events.record('view', 'query', this.widget.visualization.query.id);
-    Events.record('view', 'visualization', this.widget.visualization.id);
+    Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
+    Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
 
     this.query = this.widget.getQuery();
     this.reload(false);
@@ -79,7 +99,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('editTextBox', EditTextBoxComponent);
   ngModule.component('dashboardWidget', {
     template,
@@ -88,6 +108,7 @@ export default function (ngModule) {
       widget: '<',
       public: '<',
       dashboard: '<',
+      deleted: '&onDelete',
     },
   });
 }

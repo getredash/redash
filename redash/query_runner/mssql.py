@@ -18,7 +18,9 @@ except ImportError:
 types_map = {
     1: TYPE_STRING,
     2: TYPE_BOOLEAN,
-    3: TYPE_INTEGER,
+    # Type #3 supposed to be an integer, but in some cases decimals are returned
+    # with this type. To be on safe side, marking it as float.
+    3: TYPE_FLOAT,
     4: TYPE_DATETIME,
     5: TYPE_FLOAT,
 }
@@ -94,7 +96,7 @@ class SqlServer(BaseSQLQueryRunner):
     def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
+        FROM INFORMATION_SCHEMA.COLUMNS
         WHERE table_schema NOT IN ('guest','INFORMATION_SCHEMA','sys','db_owner','db_accessadmin'
                                   ,'db_securityadmin','db_ddladmin','db_backupoperator','db_datareader'
                                   ,'db_datawriter','db_denydatareader','db_denydatawriter'
@@ -160,7 +162,6 @@ class SqlServer(BaseSQLQueryRunner):
 
             cursor.close()
         except pymssql.Error as e:
-            logging.exception(e)
             try:
                 # Query errors are at `args[1]`
                 error = e.args[1]

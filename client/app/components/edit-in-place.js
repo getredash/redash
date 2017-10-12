@@ -33,6 +33,8 @@ function EditInPlace() {
     link($scope, element) {
       // Let's get a reference to the input element, as we'll want to reference it.
       const inputElement = $(element.children()[2]);
+      const keycodeEnter = 13;
+      const keycodeEscape = 27;
 
       // This directive should have a set class so we can style it.
       element.addClass('edit-in-place');
@@ -74,9 +76,10 @@ function EditInPlace() {
       $(inputElement).keydown((e) => {
         // 'return' or 'enter' key pressed
         // allow 'shift' to break lines
-        if (e.which === 13 && !e.shiftKey) {
+        if (e.which === keycodeEnter && !e.shiftKey) {
+          e.preventDefault();
           save();
-        } else if (e.which === 27) {
+        } else if (e.which === keycodeEscape) {
           $scope.value = $scope.oldValue;
           $scope.$apply(() => {
             $(inputElement[0]).blur();
@@ -89,6 +92,6 @@ function EditInPlace() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('editInPlace', EditInPlace);
 }

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import json
 import jsonschema
 from jsonschema import ValidationError
@@ -23,10 +24,10 @@ def validate_configuration(query_runner_type, configuration_json):
     return True
 
 def update(data_source):
-    print "[%s] Old options: %s" % (data_source.name, data_source.options)
+    print("[%s] Old options: %s" % (data_source.name, data_source.options))
 
     if validate_configuration(data_source.type, data_source.options):
-        print "[%s] configuration already valid. skipping." % data_source.name
+        print("[%s] configuration already valid. skipping." % data_source.name)
         return
 
     if data_source.type == 'pg':
@@ -80,9 +81,9 @@ def update(data_source):
         data_source.type = 'mongodb'
 
     else:
-        print "[%s] No need to convert type of: %s" % (data_source.name, data_source.type)
+        print("[%s] No need to convert type of: %s" % (data_source.name, data_source.type))
 
-    print "[%s] New options: %s" % (data_source.name, data_source.options)
+    print("[%s] New options: %s" % (data_source.name, data_source.options))
     data_source.save(only=data_source.dirty_fields)
 
 

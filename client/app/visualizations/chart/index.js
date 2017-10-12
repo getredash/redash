@@ -1,4 +1,4 @@
-import { extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
+import { some, extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
 import plotly from './plotly';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
@@ -68,6 +68,8 @@ function ChartEditor(ColorPalette, clientConfig) {
         area: { name: 'Area', icon: 'area-chart' },
         pie: { name: 'Pie', icon: 'pie-chart' },
         scatter: { name: 'Scatter', icon: 'circle-o' },
+        bubble: { name: 'Bubble', icon: 'circle-o' },
+        box: { name: 'Box', icon: 'square-o' },
       };
 
       if (clientConfig.allowCustomJSVisualizations) {
@@ -75,7 +77,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       }
 
       scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
-      scope.yAxisScales = ['linear', 'logarithmic', 'datetime'];
+      scope.yAxisScales = ['linear', 'logarithmic', 'datetime', 'category'];
 
       scope.chartTypeChanged = () => {
         keys(scope.options.seriesOptions).forEach((key) => {
@@ -83,10 +85,14 @@ function ChartEditor(ColorPalette, clientConfig) {
         });
       };
 
-      scope.options.customCode = `// Available variables are x, ys, element, and Plotly
+      scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
+
+      if (scope.options.customCode === undefined) {
+        scope.options.customCode = `// Available variables are x, ys, element, and Plotly
 // Type console.log(x, ys); for more info about x and ys
 // To plot your graph call Plotly.plot(element, ...)
 // Plotly examples and docs: https://plot.ly/javascript/`;
+      }
 
       function refreshColumns() {
         scope.columns = scope.queryResult.getColumns();
@@ -158,8 +164,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.form = {
         yAxisColumns: [],
         seriesList: sortBy(keys(scope.options.seriesOptions), name =>
-           scope.options.seriesOptions[name].zIndex
-        ),
+          scope.options.seriesOptions[name].zIndex),
       };
 
       scope.$watchCollection('form.seriesList', (value) => {
@@ -188,6 +193,15 @@ function ChartEditor(ColorPalette, clientConfig) {
         }
         if (value !== undefined) {
           setColumnRole('yError', value);
+        }
+      });
+
+      scope.$watch('form.sizeColumn', (value, old) => {
+        if (old !== undefined) {
+          unsetColumn(old);
+        }
+        if (value !== undefined) {
+          setColumnRole('size', value);
         }
       });
 
@@ -222,6 +236,8 @@ function ChartEditor(ColorPalette, clientConfig) {
             scope.form.groupby = key;
           } else if (value === 'yError') {
             scope.form.errorColumn = key;
+          } else if (value === 'size') {
+            scope.form.sizeColumn = key;
           }
         });
       }
@@ -236,7 +252,7 @@ const ColorBox = {
   template: "<span style='width: 12px; height: 12px; background-color: {{$ctrl.color}}; display: inline-block; margin-right: 5px;'></span>",
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('colorBox', ColorBox);
   ngModule.directive('chartRenderer', ChartRenderer);
   ngModule.directive('chartEditor', ChartEditor);
