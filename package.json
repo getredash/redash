@@ -34,7 +34,7 @@
     "angular-sanitize": "~1.5.8",
     "angular-toastr": "^2.1.1",
     "angular-ui-ace": "^0.2.3",
-    "angular-ui-bootstrap": "^2.5.0",
+    "angular-ui-bootstrap": "2.5.0",
     "angular-vs-repeat": "^1.1.7",
     "brace": "^0.10.0",
     "core-js": "https://registry.npmjs.org/core-js/-/core-js-2.4.1.tgz",
