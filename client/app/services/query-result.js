@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -324,7 +324,7 @@ function QueryResultService($resource, $timeout, $q) {
           addPointToSeries(point, series, seriesName);
         }
       });
-      return values(series);
+      return sortBy(values(series), 'name');
     }
 
     getColumns() {
