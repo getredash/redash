@@ -49,7 +49,10 @@ class UserListResource(BaseResource):
             'object_type': 'user'
         })
 
-        invite_url = invite_user(self.current_org, self.current_user, user)
+        if request.args.get('no_invite') is not None:
+            invite_url = invite_link_for_user(user)
+        else:
+            invite_url = invite_user(self.current_org, self.current_user, user)
 
         d = user.to_dict()
         d['invite_link'] = invite_url
