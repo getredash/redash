@@ -6,15 +6,14 @@ import time
 import pystache
 import redis
 
-from celery.exceptions import SoftTimeLimitExceeded
+from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
 from redash import models, redis_connection, settings, statsd_client, utils
 from redash.query_runner import InterruptException
 from redash.utils import gen_query_hash
 from redash.worker import celery
-
-from .alerts import check_alerts_for_query
+from redash.alerts import check_alerts_for_query
 
 logger = get_task_logger(__name__)
 
@@ -167,7 +166,10 @@ class QueryTask(object):
 
         status = self.STATUSES[task_status]
 
-        if isinstance(result, Exception):
+        if isinstance(result, (TimeLimitExceeded, SoftTimeLimitExceeded)):
+            error = "Query exceeded Redash query execution time limit."
+            status = 4
+        elif isinstance(result, Exception):
             error = result.message
             status = 4
         elif task_status == 'REVOKED':
@@ -229,15 +231,19 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
             if not job:
                 pipe.multi()
 
+                time_limit = None
+
                 if scheduled_query:
                     queue_name = data_source.scheduled_queue_name
                     scheduled_query_id = scheduled_query.id
                 else:
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
+                    time_limit = settings.ADHOC_QUERY_TIME_LIMIT
 
                 result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
-                                                   queue=queue_name)
+                                                   queue=queue_name,
+                                                   time_limit=time_limit)
                 job = QueryTask(async_result=result)
                 tracker = QueryTaskTracker.create(
                     result.id, 'created', query_hash, data_source.id,
