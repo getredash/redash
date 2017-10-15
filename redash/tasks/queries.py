@@ -13,7 +13,7 @@ from redash import models, redis_connection, settings, statsd_client, utils
 from redash.query_runner import InterruptException
 from redash.utils import gen_query_hash
 from redash.worker import celery
-from redash.alerts import check_alerts_for_query
+from redash.tasks.alerts import check_alerts_for_query
 
 logger = get_task_logger(__name__)
 
