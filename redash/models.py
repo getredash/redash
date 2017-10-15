@@ -14,7 +14,7 @@ import xlsxwriter
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from passlib.apps import custom_app_context as pwd_context
-from redash import redis_connection, utils
+from redash import settings, redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
