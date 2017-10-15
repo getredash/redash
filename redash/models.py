@@ -33,7 +33,17 @@ from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from functools import reduce
 
-db = SQLAlchemy(session_options={
+
+class SQLAlchemyExt(SQLAlchemy):
+    def apply_pool_defaults(self, app, options):
+        if settings.SQLALCHEMY_DISABLE_POOL:
+            from sqlalchemy.pool import NullPool
+            options['poolclass'] = NullPool
+        else:
+            return super(SQLAlchemyExt, self).apply_pool_defaults(app, options)
+
+
+db = SQLAlchemyExt(session_options={
     'expire_on_commit': False
 })
 
