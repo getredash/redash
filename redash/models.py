@@ -304,6 +304,16 @@ class Organization(TimestampMixin, db.Model):
         return self.settings.get(self.SETTING_IS_PUBLIC, False)
 
     @property
+    def is_disabled(self):
+        return self.settings.get('is_disabled', False)
+
+    def disable(self):
+        self.settings['is_disabled'] = True
+
+    def enable(self):
+        self.settings['is_disabled'] = False
+
+    @property
     def admin_group(self):
         return self.groups.filter(Group.name == 'admin', Group.type == Group.BUILTIN_GROUP).first()
 
