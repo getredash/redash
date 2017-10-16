@@ -3,7 +3,7 @@
   <form class="form" name="$ctrl.userForm" ng-submit="saveUser()" novalidate>
     <div class="form-group required" ng-class="{ 'has-error':  ($ctrl.userForm.email | showError:$ctrl.userForm )}">
       <label class="control-label">Name</label>
-      <input type="text" name="name" class="form-control" ng-model="user.name" ng-disabled="user.created" required/>
+      <input type="text" name="name" class="form-control" ng-model="user.name" ng-disabled="user.created" required/ autofocus>
 
       <error-messages input="$ctrl.userForm.name" form="$ctrl.userForm"></error-messages>
     </div>
