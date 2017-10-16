@@ -275,12 +275,13 @@ def refresh_queries():
         for query in models.Query.outdated_queries():
             if settings.FEATURE_DISABLE_REFRESH_QUERIES:
                 logging.info("Disabled refresh queries.")
+            elif query.org.is_disabled:
+                logging.info("Skipping refresh of %s because org is disabled.", query.id)
             elif query.data_source is None:
                 logging.info("Skipping refresh of %s because the datasource is none.", query.id)
             elif query.data_source.paused:
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
-                # if query.options and 'parameters' in query.options and len(query.options['parameters']) > 0:
                 if query.options and len(query.options.get('parameters', [])) > 0:
                     query_params = {p['name']: p['value']
                                     for p in query.options['parameters']}
@@ -391,6 +392,8 @@ def refresh_schemas():
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
         elif ds.id in blacklist:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=blacklist", ds.id)
+        elif ds.org.is_disabled:
+            logger.info(u"task=refresh_schema state=skip ds_id=%s reason=org_disabled", ds.id)
         else:
             refresh_schema.apply_async(args=(ds.id,), queue="schemas")
 
