@@ -1,20 +1,34 @@
 <div class="container bg-white p-5" ng-show="$ctrl.filters | notEmpty">
   <div class="row">
     <div class="col-sm-6 m-t-5" ng-repeat="filter in $ctrl.filters">
-      <ui-select ng-model="filter.current" ng-if="!filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)" on-remove="$ctrl.filterChangeListener(filter, $model)">
-        <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$select.selected | filterValue:filter}}</ui-select-match>
+      <label>{{filter.friendlyName}}</label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 m-t-5" ng-repeat="filter in $ctrl.filters">
+      <ui-select ng-model="filter.current" ng-if="!filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)" on-remove="$ctrl.filterChangeListener(filter, $model)"
+        remove-selected="false">
+        <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{$select.selected | filterValue:filter}}</ui-select-match>
         <ui-select-choices repeat="value in filter.values | filter: $select.search">
           {{value | filterValue:filter }}
         </ui-select-choices>
       </ui-select>
 
-      <ui-select ng-model="filter.current" multiple ng-if="filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)" on-remove="$ctrl.filterChangeListener(filter, $model)">
-        <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{filter.friendlyName}}: {{$item | filterValue:filter}}</ui-select-match>
-        <ui-select-choices repeat="value in filter.values | filter: $select.search">
-          {{value | filterValue:filter }}
+      <ui-select ng-model="filter.current" multiple ng-if="filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)"
+        on-remove="$ctrl.filterChangeListener(filter, $model)" remove-selected="false">
+        <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{$item | filterValue:filter}}</ui-select-match>
+        <ui-select-choices repeat="value in filter.values | filter: $select.search" group-by="$ctrl.itemGroup">
+          <span ng-if="value == '*'">
+            Select All
+          </span>
+          <span ng-if="value == '-'">
+            Clear
+          </span>
+          <span ng-if="value != '*' && value != '-'">
+            {{value | filterValue:filter }}
+          </span>
         </ui-select-choices>
       </ui-select>
     </div>
   </div>
 </div>
-
