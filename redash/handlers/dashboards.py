@@ -12,6 +12,7 @@ from redash.permissions import (can_modify, require_admin_or_owner,
 from redash.security import csp_allows_embeding
 from redash.serializers import serialize_dashboard
 from sqlalchemy.orm.exc import StaleDataError
+from sqlalchemy.exc import IntegrityError
 
 
 # Ordering map for relationships
@@ -351,3 +352,18 @@ class DashboardFavoriteListResource(BaseResource):
         })
 
         return response
+
+
+class DashboardUserResource(BaseResource):
+    @require_admin
+    def delete(self, user_id):
+        dashboards = models.Dashboard.query.filter(models.Dashboard.user_id == user_id)
+        id = [dashboard.id for dashboard in dashboards]
+        models.Widget.query.filter(models.Widget.dashboard_id.in_(id)).delete(synchronize_session='fetch')
+        dashboards.delete()
+        try:
+            models.db.session.commit()
+        except IntegrityError as e:
+            abort(500)
+
+        return Response(status = 204, content_type = "")

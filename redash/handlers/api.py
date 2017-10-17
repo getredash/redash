@@ -82,6 +82,7 @@ api.add_org_resource(DashboardListResource, '/api/dashboards', endpoint='dashboa
 api.add_org_resource(DashboardResource, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
 api.add_org_resource(PublicDashboardResource, '/api/dashboards/public/<token>', endpoint='public_dashboard')
 api.add_org_resource(DashboardShareResource, '/api/dashboards/<dashboard_id>/share', endpoint='dashboard_share')
+api.add_org_resource(DashboardUserResource, '/api/dashboards/user/<user_id>', endpoint='dashboard_user_id')
 
 api.add_org_resource(DataSourceTypeListResource, '/api/data_sources/types', endpoint='data_source_types')
 api.add_org_resource(DataSourceListResource, '/api/data_sources', endpoint='data_sources')
