@@ -25,6 +25,8 @@ redis==2.10.5
 requests==2.11.1
 six==1.10.0
 SQLAlchemy==1.1.4
+SQLAlchemy-Searchable==0.10.6
+SQLAlchemy-Utils>=0.29.0
 sqlparse==0.1.8
 wsgiref==0.1.2
 honcho==0.5.0
@@ -46,4 +48,3 @@ simplejson==3.10.0
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
-
