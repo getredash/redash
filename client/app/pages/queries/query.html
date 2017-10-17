@@ -114,7 +114,7 @@
                   <span class="fa fa-floppy-o"> </span> Save<span
                   ng-show="isDirty">&#42;</span>
                 </button>
-                <div class="btn-group" role="group" uib-dropdown>
+                <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
                   <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
                     <span class="zmdi zmdi-more"></span>
                   </button>
