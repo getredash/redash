@@ -203,5 +203,18 @@ class Redshift(PostgreSQL):
             "secret": ["password"]
         }
 
+    def _get_tables(self, schema):
+        # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
+        # http://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
+        query = """
+        SELECT DISTINCT table_name,table_schema, column_name
+        FROM svv_columns
+        WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema');
+        """
+
+        self._get_definitions(schema, query)
+
+        return schema.values()
+
 register(PostgreSQL)
 register(Redshift)
