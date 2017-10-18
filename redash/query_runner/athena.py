@@ -117,7 +117,7 @@ class Athena(BaseQueryRunner):
     def __init__(self, configuration):
         super(Athena, self).__init__(configuration)
 
-    def get_schema_from_glue(self):
+    def __get_schema_from_glue(self):
         client = boto3.client(
                 'glue',
                 aws_access_key_id=self.configuration.get('aws_access_key', None),
@@ -139,7 +139,7 @@ class Athena(BaseQueryRunner):
 
     def get_schema(self, get_stats=False):
         if self.configuration.get('glue', False):
-            return self.get_schema_from_glue()
+            return self.__get_schema_from_glue()
 
         schema = {}
         query = """
