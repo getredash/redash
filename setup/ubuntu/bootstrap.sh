@@ -50,7 +50,7 @@ install_system_packages() {
 }
 
 create_directories() {
-    mkdir /opt/redash
+    mkdir -p /opt/redash
     chown redash /opt/redash
     
     # Default config file
