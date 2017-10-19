@@ -55,11 +55,11 @@ create_directories() {
     
     # Default config file
     if [ ! -f "$REDASH_BASE_PATH/.env" ]; then
-        sudo -u redash wget "$FILES_BASE_URL/env" -O /opt/redash/.env
+        sudo -u redash wget "$FILES_BASE_URL/env" -O $REDASH_BASE_PATH/.env
     fi
 
     COOKIE_SECRET=$(pwgen -1s 32)
-    echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> /opt/redash/.env
+    echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> $REDASH_BASE_PATH/.env
 }
 
 extract_redash_sources() {
