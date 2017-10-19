@@ -50,11 +50,11 @@ install_system_packages() {
 }
 
 create_directories() {
-    mkdir /opt/redash
-    chown redash /opt/redash
+    mkdir $REDASH_BASE_PATH
+    chown redash $REDASH_BASE_PATH
     
     # Default config file
-    if [ ! -f "/opt/redash/.env" ]; then
+    if [ ! -f "$REDASH_BASE_PATH/.env" ]; then
         sudo -u redash wget "$FILES_BASE_URL/env" -O /opt/redash/.env
     fi
 
