@@ -27,6 +27,7 @@ import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
 import { each } from 'underscore';
+import clipboardModule from 'angular-clipboard';
 
 import './sortable';
 
@@ -47,7 +48,7 @@ const logger = debug('redash');
 
 const requirements = [
   ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name,
+  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name, clipboardModule.name,
 ];
 
 const ngModule = angular.module('app', requirements);

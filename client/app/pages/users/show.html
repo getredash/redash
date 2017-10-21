@@ -44,7 +44,10 @@
   </div>
   <div ng-show="selectedTab == 'apiKey'" class="p-10">
     API Key:
-    <input type="text" value="{{user.api_key}}" size="44" readonly/>
+    <pre>{{user.api_key}}</pre>
+    <div class="copy-link">
+      <a clipboard supported="supported" text="user.api_key" on-copied="copySuccess()" on-error="copyFail(err)">Copy</a>
+    </div>
   </div>
   <div ng-show="selectedTab == 'settings'" class="p-10">
     <div class="col-md-6">

@@ -25,6 +25,7 @@
   "dependencies": {
     "angular": "~1.5.8",
     "angular-base64-upload": "^0.1.23",
+    "angular-clipboard": "^1.6.2",
     "angular-gridster": "^0.13.14",
     "angular-messages": "~1.5.8",
     "angular-moment": "^1.1.0",

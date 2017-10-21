@@ -134,6 +134,14 @@ a.navbar-brand img {
   display: block;
 }
 
+.copy-link {
+  text-align: right;
+}
+
+.copy-link > a {
+  cursor: pointer;
+}
+
 /* angular-growl */
 .growl {
   position: fixed;

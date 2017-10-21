@@ -1,5 +1,6 @@
 import { each } from 'underscore';
 import template from './show.html';
+import { CopyClipboard } from '../../utils';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
@@ -102,6 +103,16 @@ function UserCtrl(
       $scope.disablePasswordResetButton = false;
       $scope.passwordResetLink = data.reset_link;
     });
+  };
+
+  this.copyClipboard = new CopyClipboard(toastr);
+
+  $scope.copySuccess = () => {
+    this.copyClipboard.success();
+  };
+
+  $scope.copyFail = (err) => {
+    this.copyClipboard.fail(err);
   };
 }
 
