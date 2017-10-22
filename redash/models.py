@@ -349,15 +349,15 @@ class Group(db.Model, BelongsToOrgMixin):
         return unicode(self.id)
 
 
-class EmailType(TypeDecorator):
+class LowercasedString(TypeDecorator):
     """
-    A case-insensitive string
+    A lowercased string
     """
     impl = db.String
     comparator_factory = CaseInsensitiveComparator
 
     def __init__(self, length=320, *args, **kwargs):
-        super(EmailType, self).__init__(length=length, *args, **kwargs)
+        super(LowercasedString, self).__init__(length=length, *args, **kwargs)
 
     def process_bind_param(self, value, dialect):
         if value is not None:
@@ -374,7 +374,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
-    email = Column(EmailType)
+    email = Column(LowercasedString)
     password_hash = Column(db.String(128), nullable=True)
     # XXX replace with association table
     group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
@@ -386,7 +386,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
 
     def __init__(self, *args, **kwargs):
-        kwargs["email"] = kwargs.get("email", None).lower()
+        if kwargs.get('email') is not None:
+            kwargs['email'] = kwargs['email'].lower()
         super(User, self).__init__(*args, **kwargs)
 
     def to_dict(self, with_api_key=False):
