@@ -46,7 +46,7 @@ class Prometheus(BaseQueryRunner):
             error = None
             query = query.strip()
 
-            local_query = 'api/v1/query'
+            local_query = '/api/v1/query'
             url = base_url + local_query
             payload = {'query': query}
             response = requests.get(url, params=payload)
