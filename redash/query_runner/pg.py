@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import select
@@ -130,14 +131,19 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query, user):
+    def _get_connection(self):
         connection = psycopg2.connect(user=self.configuration.get('user'),
                                       password=self.configuration.get('password'),
                                       host=self.configuration.get('host'),
                                       port=self.configuration.get('port'),
                                       dbname=self.configuration.get('dbname'),
+                                      sslmode=self.configuration.get('sslmode'),
                                       async=True)
 
+        return connection
+
+    def run_query(self, query, user):
+        connection = self._get_connection()
         _wait(connection, timeout=10)
 
         cursor = connection.cursor()
@@ -177,8 +183,23 @@ class Redshift(PostgreSQL):
     def type(cls):
         return "redshift"
 
+    def _get_connection(self):
+        sslrootcert_path = os.path.join(os.path.dirname(__file__), './files/redshift-ca-bundle.crt')
+
+        connection = psycopg2.connect(user=self.configuration.get('user'),
+                                      password=self.configuration.get('password'),
+                                      host=self.configuration.get('host'),
+                                      port=self.configuration.get('port'),
+                                      dbname=self.configuration.get('dbname'),
+                                      sslmode='require',
+                                      sslrootcert=sslrootcert_path,
+                                      async=True)
+
+        return connection
+
     @classmethod
     def configuration_schema(cls):
+
         return {
             "type": "object",
             "properties": {
@@ -199,9 +220,23 @@ class Redshift(PostgreSQL):
                     "title": "Database Name"
                 }
             },
+            "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
+
+    def _get_tables(self, schema):
+        # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
+        # http://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
+        query = """
+        SELECT DISTINCT table_name,table_schema, column_name
+        FROM svv_columns
+        WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema');
+        """
+
+        self._get_definitions(schema, query)
+
+        return schema.values()
 
 register(PostgreSQL)
 register(Redshift)

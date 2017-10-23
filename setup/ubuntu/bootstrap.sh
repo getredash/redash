@@ -11,9 +11,9 @@ set -eu
 
 REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
-REDASH_VERSION=${REDASH_VERSION-2.0.0.b2990} # Install latest version if not specified in REDASH_VERSION env var
+REDASH_VERSION=${REDASH_VERSION-2.0.1.b3080} # Install latest version if not specified in REDASH_VERSION env var
 LATEST_URL="https://s3.amazonaws.com/redash-releases/redash.${REDASH_VERSION}.tar.gz"
-VERSION_DIR="/opt/redash/redash.${REDASH_VERSION}"
+VERSION_DIR="$REDASH_BASE_PATH/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
 FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu/files
 
@@ -50,32 +50,32 @@ install_system_packages() {
 }
 
 create_directories() {
-    mkdir -p /opt/redash
-    chown redash /opt/redash
+    mkdir -p $REDASH_BASE_PATH
+    chown redash $REDASH_BASE_PATH
     
     # Default config file
-    if [ ! -f "/opt/redash/.env" ]; then
-        sudo -u redash wget "$FILES_BASE_URL/env" -O /opt/redash/.env
+    if [ ! -f "$REDASH_BASE_PATH/.env" ]; then
+        sudo -u redash wget "$FILES_BASE_URL/env" -O $REDASH_BASE_PATH/.env
     fi
 
     COOKIE_SECRET=$(pwgen -1s 32)
-    echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> /opt/redash/.env
+    echo "export REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> $REDASH_BASE_PATH/.env
 }
 
 extract_redash_sources() {
     sudo -u redash wget "$LATEST_URL" -O "$REDASH_TARBALL"
     sudo -u redash mkdir "$VERSION_DIR"
     sudo -u redash tar -C "$VERSION_DIR" -xvf "$REDASH_TARBALL"
-    ln -nfs "$VERSION_DIR" /opt/redash/current
-    ln -nfs /opt/redash/.env /opt/redash/current/.env
+    ln -nfs "$VERSION_DIR" $REDASH_BASE_PATH/current
+    ln -nfs $REDASH_BASE_PATH/.env $REDASH_BASE_PATH/current/.env
 }
 
 install_python_packages() {
     pip install --upgrade pip
     # TODO: venv?
     pip install setproctitle # setproctitle is used by Celery for "pretty" process titles
-    pip install -r /opt/redash/current/requirements.txt
-    pip install -r /opt/redash/current/requirements_all_ds.txt
+    pip install -r $REDASH_BASE_PATH/current/requirements.txt
+    pip install -r $REDASH_BASE_PATH/current/requirements_all_ds.txt
 }
 
 create_database() {
@@ -83,7 +83,7 @@ create_database() {
     sudo -u postgres createuser redash --no-superuser --no-createdb --no-createrole
     sudo -u postgres createdb redash --owner=redash
 
-    cd /opt/redash/current
+    cd $REDASH_BASE_PATH/current
     sudo -u redash bin/run ./manage.py database create_tables
 }
 

@@ -2,6 +2,11 @@
 
 ## v3.0.0 - UNRELEASED
 
+## v2.0.1 - 2017-10-22
+
+This is a patch release, that adds support for Redshift ACM certificates (see #2044 for details).
+
+
 ## v2.0.0 - 2017-08-08
 
 ### Added
