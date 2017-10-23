@@ -50,7 +50,7 @@ install_system_packages() {
 }
 
 create_directories() {
-    mkdir $REDASH_BASE_PATH
+    mkdir -p $REDASH_BASE_PATH
     chown redash $REDASH_BASE_PATH
     
     # Default config file
