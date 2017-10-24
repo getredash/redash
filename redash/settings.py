@@ -186,6 +186,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAI
 # How many requests are allowed per IP to the login page before
 # being throttled?
 # See https://flask-limiter.readthedocs.io/en/stable/#rate-limit-string-notation
+
 THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50/hour')
 LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
 
@@ -219,6 +220,7 @@ default_query_runners = [
     'redash.query_runner.dynamodb_sql',
     'redash.query_runner.mssql',
     'redash.query_runner.memsql_ds',
+    'redash.query_runner.mapd',
     'redash.query_runner.jql',
     'redash.query_runner.google_analytics',
     'redash.query_runner.axibase_tsd',
