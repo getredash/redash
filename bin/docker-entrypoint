@@ -72,7 +72,10 @@ case "$1" in
   tests)
     tests
     ;;
-  *)
+  help)
     help
+    ;;
+  *)
+    exec "$@"
     ;;
 esac
