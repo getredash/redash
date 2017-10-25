@@ -28,8 +28,6 @@ TYPES_MAP = {
     12: TYPE_DATE
 }
 
-
-
 class Mapd(BaseSQLQueryRunner):
 
     @classmethod
@@ -59,7 +57,7 @@ class Mapd(BaseSQLQueryRunner):
                     "default": "mapd"
                 }
             },
-            "order": [ "user", "password", "host", "port", "database"],
+            "order": ["user", "password", "host", "port", "database"],
             "required": ["host", "port", "user", "password", "database"],
             "secret": ["password"]
         }
@@ -83,12 +81,12 @@ class Mapd(BaseSQLQueryRunner):
         cursor = connection.cursor()
 
         try:
-           cursor.execute(query)
-           columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
-           rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
-           data = {'columns': columns, 'rows': rows}
-           error = None
-           json_data = json_dumps(data)
+            cursor.execute(query)
+            columns = self.fetch_columns([(i[0], TYPES_MAP.get(i[1], None)) for i in cursor.description])
+            rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
+            data = {'columns': columns, 'rows': rows}
+            error = None
+            json_data = json_dumps(data)
         finally:
             cursor.close()
             connection.close()
@@ -110,8 +108,8 @@ class Mapd(BaseSQLQueryRunner):
     def test_connection(self):
         connection = self.connect_database()
         try:
-            tables=connection.get_tables()
-            num_tbales=tables.count(tables)
+            tables = connection.get_tables()
+            num_tables = tables.count(tables)
         finally:
             connection.close
 
