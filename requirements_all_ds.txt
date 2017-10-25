@@ -19,7 +19,7 @@ cassandra-driver==3.11.0
 memsql==2.16.0
 atsd_client==2.0.12
 simple_salesforce==0.72.2
-PyAthena>=1.0.0
+PyAthena>=1.2.0
 pymapd>=0.2.1
 qds-sdk>=1.9.6
 # certifi is needed to support MongoDB and SSL:
