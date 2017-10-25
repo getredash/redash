@@ -34,12 +34,8 @@ import './assets/css/superflat_redash.css';
 import './assets/css/redash.css';
 import './assets/css/main.scss';
 
-import * as pages from './pages';
-import * as components from './components';
 import * as filters from './filters';
-import * as services from './services';
 import registerDirectives from './directives';
-import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 import dateTimeFilter from './filters/datetime';
 
@@ -64,22 +60,41 @@ const requirements = [
 
 const ngModule = angular.module('app', requirements);
 
-function registerComponents() {
-  each(components, (register) => {
-    register(ngModule);
+function registerAll(context) {
+  const modules = context
+    .keys()
+    .map(context)
+    .map(module => module.default);
+
+  return modules.map((f) => {
+    if (!f.skipAutoLoad) {
+      return f(ngModule);
+    }
+    return null;
   });
+}
+
+function registerComponents() {
+  // We repeat this code in other register functions, because if we don't use a literal for the path
+  // Webpack won't be able to statcily analyze our imports.
+  const context = require.context('./components', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  registerAll(context);
 }
 
 function registerServices() {
-  each(services, (register) => {
-    register(ngModule);
-  });
+  const context = require.context('./services', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  registerAll(context);
+}
+
+function registerVisualizations() {
+  const context = require.context('./visualizations', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  registerAll(context);
 }
 
 function registerPages() {
-  each(pages, (registerPage) => {
-    const routes = registerPage(ngModule);
-
+  const context = require.context('./pages', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const routesCollection = registerAll(context);
+  routesCollection.forEach((routes) => {
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
         logger('Registering route: %s', path);

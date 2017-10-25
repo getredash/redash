@@ -1,5 +1,4 @@
 import { some, extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
-import plotly from './plotly';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
@@ -281,5 +280,4 @@ export default function init(ngModule) {
       defaultOptions,
     });
   });
-  plotly(ngModule);
 }
