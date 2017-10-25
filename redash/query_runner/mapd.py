@@ -28,6 +28,7 @@ TYPES_MAP = {
     12: TYPE_DATE
 }
 
+
 class Mapd(BaseSQLQueryRunner):
 
     @classmethod
