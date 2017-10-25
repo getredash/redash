@@ -43,11 +43,23 @@ import registerVisualizations from './visualizations';
 import markdownFilter from './filters/markdown';
 import dateTimeFilter from './filters/datetime';
 
-const logger = debug('redash');
+const logger = debug('redash:init');
 
 const requirements = [
-  ngRoute, ngResource, ngSanitize, uiBootstrap, ngMessages, uiSelect, 'angularMoment', toastr, 'ui.ace',
-  ngUpload, 'angularResizable', vsRepeat, 'ui.sortable', ngGridster.name,
+  ngRoute,
+  ngResource,
+  ngSanitize,
+  uiBootstrap,
+  ngMessages,
+  uiSelect,
+  'angularMoment',
+  toastr,
+  'ui.ace',
+  ngUpload,
+  'angularResizable',
+  vsRepeat,
+  'ui.sortable',
+  ngGridster.name,
 ];
 
 const ngModule = angular.module('app', requirements);
@@ -70,7 +82,7 @@ function registerPages() {
 
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
-        logger('Route: ', path);
+        logger('Registering route: %s', path);
         // This is a workaround, to make sure app-header and footer are loaded only
         // for the authenticated routes.
         // We should look into switching to ui-router, that has built in support for
@@ -98,10 +110,7 @@ registerComponents();
 registerPages();
 registerVisualizations(ngModule);
 
-ngModule.config((
-  $routeProvider, $locationProvider, $compileProvider,
-  uiSelectConfig, toastrConfig,
-) => {
+ngModule.config(($locationProvider, $compileProvider, uiSelectConfig, toastrConfig) => {
   $compileProvider.debugInfoEnabled(false);
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|http|data):/);
   $locationProvider.html5Mode(true);
@@ -114,7 +123,8 @@ ngModule.config((
 });
 
 // Update ui-select's template to use Font-Awesome instead of glyphicon.
-ngModule.run(($templateCache, OfflineListener) => { // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+ngModule.run(($templateCache, OfflineListener) => {
   const templateName = 'bootstrap/match.tpl.html';
   let template = $templateCache.get(templateName);
   template = template.replace('glyphicon glyphicon-remove', 'fa fa-remove');
