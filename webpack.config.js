@@ -17,7 +17,11 @@ var config = {
     filename: '[name].js',
     publicPath: '/'
   },
-
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, 'client/app')
+    }
+  },
   plugins: [
     new WebpackBuildNotifierPlugin({title: 'Redash'}),
     new webpack.DefinePlugin({

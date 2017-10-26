@@ -1,6 +1,9 @@
 module.exports = {
   root: true,
   extends: "airbnb-base",
+  settings: {
+    "import/resolver": "webpack"
+  },
   env: {
     "browser": true,
     "node": true
