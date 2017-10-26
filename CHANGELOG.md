@@ -2,6 +2,72 @@
 
 ## v3.0.0 - UNRELEASED
 
+### Added
+
+- Allow running any command inside the container via the Docker entrypoint script. @jezdez
+- Make invitation token max age configurable. @hhamalai
+- Redshift: add support for the new ACM root CA.
+- Redshift: support for Spectrum (external) tables. @atharvai
+- MongoDB: option to set allowDiskUse in queries.
+- Option to disable SQLAlchemy connection pool.
+- Option to set a time limit on adhoc queries.
+- Option to disable sending an invite to a new user.
+- Azure SQL Data Warehouse query runner. @kitsuyui
+- Prometheus query runner. @yershalom
+- Option to set the Flask-Limiter storage engine.
+- Option to set UnicodeWriter's error handling method. @fan-t-endo
+- PostgreSQL: SSL configuration option. @TylerBrock
+- Counter visualization: additional formatting options. @deecay
+- Query based drop down parameter. @rohithmenon
+- MySQL: multiple queries support & connection timeout.
+- Ability to select all in multi-filter. @Posnet
+- LDAP (Active Directory) support. @amarjayr
+
+### Changed
+
+- Reduce boilerplate in frontend code.
+- Set auto focus in first input items. @kyoshidajp
+- Update gunicorn to latest version.
+- Make log format configurable. 
+- Sort series by name. 
+- Allow setting test file with Docker test run. @meinac
+- Use outdated queries count stored already in Redis.
+- Show links based on permissions the user have. 
+- Cassandra: update driver version. @yershalom
+- Docker-Compose: update configuration to always restart services. @muddydixon
+- Modernize Python 2 code to get ready for Python 3. @cclauss
+- Cohort visualization: make it friendlier to use by better handle gaps in data, so it's easier to generate the data needed.
+- Use a different markdown library. @alexmuller
+- Salesforce: improve error messages we receive from the API. @akiray03
+- Custom JS code visualization improvements. @deecay
+- DQL: Update version to 0.5.24. @aterreno
+- Cassandra: get_schema support for both C* 2.x and 3.x, support for SortedSet type serialization. (@mfouilleul)
+- Replace deprecated ng-annotate with babel plugin. @44px
+- Update Python dependencies to recent versions. @alison985
+- Bootstrap script: create /opt/redash directory only if it doesn't exist. @isomura
+- Bootstrap script: make use of REDASH_BASE_PATH variable in setup script. @sylvain
+
+### Fixed
+
+- Show query editor's Archive/Publish Query drop-down only on saved queries. @cyriac
+- Move misplaced configuration in docker-compose.production.yml. @yutannihilation
+- MySQL: support UTF8 schema.
+- TreasureData queries were failing when returning 0 rows.
+- Use series color for Boxplot. @deecay
+- Revoke permission should respect to given grantee and access type. @meinac
+- Fixed eslint "Cannot read property 'length' of undefined" error. @kravets-levko
+- Don't crash query editor when there are unclosed curly brackets. 
+- Error value in charts wasn't displayed if it was 0.
+- Prevent line breaks in EditInPlace description when using Firefox. @alexmuller
+- Queries#all_queries was sometimes returning wrong number of queries.
+- record_event fails for API events.
+- Cancel button on tasks admin page was broken.
+- Remove deprecated cx_Oracle types. @queeno
+- Textbox widgets were updating their value even when editor was cancelled. @alison985
+- Collaborators couldn't edit visualizations or schedule.
+- Use series color for error bar. @deecay
+- Upgrade script was using the wrong restart command on new AMIs.
+
 ## v2.0.1 - 2017-10-22
 
 This is a patch release, that adds support for Redshift ACM certificates (see #2044 for details).
