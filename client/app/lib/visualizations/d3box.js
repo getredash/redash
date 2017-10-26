@@ -325,6 +325,4 @@ function boxQuartiles(d) {
   return [d3.quantile(d, 0.25), d3.quantile(d, 0.5), d3.quantile(d, 0.75)];
 }
 
-box.skipAutoLoad = true;
-
 export default box;

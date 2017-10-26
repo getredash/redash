@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { isString } from 'underscore';
 
-import { Paginator } from '../../utils';
+import { Paginator } from '@/lib/pagination';
 import template from './queries-search-results-page.html';
 
 function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {

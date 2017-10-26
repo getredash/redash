@@ -333,6 +333,4 @@ function Sankey() {
   return sankey;
 }
 
-Sankey.skipAutoLoad = true;
-
 export default Sankey;

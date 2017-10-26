@@ -1,5 +1,5 @@
 import d3 from 'd3';
-import box from './d3box';
+import box from '@/lib/visualizations/d3box';
 import editorTemplate from './box-plot-editor.html';
 
 function boxPlotRenderer() {

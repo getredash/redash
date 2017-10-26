@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import { Paginator } from '../../../utils';
+import { Paginator } from '@/lib/pagination';
 import template from './tasks.html';
 
 function TasksCtrl($scope, $location, $http, $timeout, Events) {

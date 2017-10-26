@@ -397,6 +397,4 @@ Sunburst.prototype.remove = function remove() {
   angular.element(this.element[0]).empty('.vis-container');
 };
 
-Sunburst.skipAutoLoad = true;
-
 export default Sunburst;
