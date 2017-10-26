@@ -762,8 +762,11 @@ def should_schedule_next(previous_iteration, now, schedule, failures):
             previous_iteration = normalized_previous_iteration - datetime.timedelta(days=1)
 
         next_iteration = (previous_iteration + datetime.timedelta(days=1)).replace(hour=hour, minute=minute)
+
+    max_retry_after = 60  # 1 hour
     if failures:
-        next_iteration += datetime.timedelta(minutes=2**failures)
+        retry_after = min(max_retry_after, 2 ** failures)
+        next_iteration += datetime.timedelta(minutes=retry_after)
     return now > next_iteration
 
 
