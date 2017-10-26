@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import { LivePaginator } from '../../utils';
+import { LivePaginator } from '@/lib/pagination';
 import template from './queries-list.html';
 
 class QueriesListCtrl {

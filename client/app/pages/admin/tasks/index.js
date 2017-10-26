@@ -1,8 +1,7 @@
 import moment from 'moment';
 
-import { Paginator } from '../../../utils';
+import { Paginator } from '@/lib/pagination';
 import template from './tasks.html';
-import registerCancelQueryButton from './cancel-query-button';
 
 function TasksCtrl($scope, $location, $http, $timeout, Events) {
   Events.record('view', 'page', 'admin/tasks');
@@ -51,8 +50,6 @@ export default function init(ngModule) {
     template,
     controller: TasksCtrl,
   });
-
-  registerCancelQueryButton(ngModule);
 
   return {
     '/admin/queries/tasks': {

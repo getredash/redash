@@ -10,7 +10,6 @@ function colorMap(d) {
   return colors(d.name);
 }
 
-
 // Return array of ancestors of nodes, highest first, but excluding the root.
 function getAncestors(node) {
   const path = [];
@@ -24,7 +23,7 @@ function getAncestors(node) {
 }
 
 // The following is based on @chrisrzhou's example from: http://bl.ocks.org/chrisrzhou/d5bdd8546f64ca0e4366.
-export default function Sunburst(scope, element) {
+function Sunburst(scope, element) {
   this.element = element;
   this.watches = [];
 
@@ -60,22 +59,18 @@ export default function Sunburst(scope, element) {
   let totalSize = 0;
 
   // create d3.layout.partition
-  const partition = d3.layout.partition()
+  const partition = d3.layout
+    .partition()
     .size([2 * Math.PI, radius * radius])
-    .value(d =>
-      d.size);
+    .value(d => d.size);
 
   // create arcs for drawing D3 paths
-  const arc = d3.svg.arc()
-    .startAngle(d =>
-      d.x)
-    .endAngle(d =>
-      d.x + d.dx)
-    .innerRadius(d =>
-      Math.sqrt(d.y))
-    .outerRadius(d =>
-      Math.sqrt(d.y + d.dy));
-
+  const arc = d3.svg
+    .arc()
+    .startAngle(d => d.x)
+    .endAngle(d => d.x + d.dx)
+    .innerRadius(d => Math.sqrt(d.y))
+    .outerRadius(d => Math.sqrt(d.y + d.dy));
 
   /**
    * Define and initialize D3 select references and div-containers
@@ -83,15 +78,18 @@ export default function Sunburst(scope, element) {
    * e.g. vis, breadcrumbs, lastCrumb, summary, sunburst, legend
    */
   // create main vis selection
-  const vis = d3.select(element[0])
-    .append('div').classed('vis-container', true)
+  const vis = d3
+    .select(element[0])
+    .append('div')
+    .classed('vis-container', true)
     .style('position', 'relative')
     .style('margin-top', '5px')
     .style('height', `${height + 2 * b.h}px`);
 
   // create and position breadcrumbs container and svg
   const breadcrumbs = vis
-    .append('div').classed('breadcrumbs-container', true)
+    .append('div')
+    .classed('breadcrumbs-container', true)
     .append('svg')
     .attr('width', width)
     .attr('height', b.h)
@@ -102,7 +100,8 @@ export default function Sunburst(scope, element) {
 
   // create and position SVG
   const sunburst = vis
-    .append('div').classed('sunburst-container', true)
+    .append('div')
+    .classed('sunburst-container', true)
     .style('z-index', '2')
     // .style("margin-left", marginLeft + "px")
     .style('left', `${marginLeft}px`)
@@ -118,9 +117,10 @@ export default function Sunburst(scope, element) {
 
   // create and position summary container
   const summary = vis
-    .append('div').classed('summary-container', true)
+    .append('div')
+    .classed('summary-container', true)
     .style('position', 'absolute')
-    .style('top', `${b.h + radius * 0.80}px`)
+    .style('top', `${b.h + radius * 0.8}px`)
     .style('left', `${marginLeft + radius / 2}px`)
     .style('width', `${radius}px`)
     .style('height', `${radius}px`)
@@ -138,7 +138,8 @@ export default function Sunburst(scope, element) {
     points.push(`${b.w},${b.h}`);
     points.push(`0,${b.h}`);
 
-    if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
+    if (i > 0) {
+      // Leftmost breadcrumb; don't include 6th vertex.
       points.push(`${b.t},${b.h / 2}`);
     }
     return points.join(' ');
@@ -147,31 +148,29 @@ export default function Sunburst(scope, element) {
   // Update the breadcrumb breadcrumbs to show the current sequence and percentage.
   function updateBreadcrumbs(ancestors, percentageString) {
     // Data join, where primary key = name + depth.
-    const g = breadcrumbs.selectAll('g')
-      .data(ancestors, d =>
-        d.name + d.depth);
+    const g = breadcrumbs.selectAll('g').data(ancestors, d => d.name + d.depth);
 
     // Add breadcrumb and label for entering nodes.
     const breadcrumb = g.enter().append('g');
 
     breadcrumb
-      .append('polygon').classed('breadcrumbs-shape', true)
+      .append('polygon')
+      .classed('breadcrumbs-shape', true)
       .attr('points', breadcrumbPoints)
       .attr('fill', colorMap);
 
     breadcrumb
-      .append('text').classed('breadcrumbs-text', true)
+      .append('text')
+      .classed('breadcrumbs-text', true)
       .attr('x', (b.w + b.t) / 2)
       .attr('y', b.h / 2)
       .attr('dy', '0.35em')
       .attr('font-size', '10px')
       .attr('text-anchor', 'middle')
-      .text(d =>
-        d.name);
+      .text(d => d.name);
 
     // Set position for entering and updating nodes.
-    g.attr('transform', (d, i) =>
-      `translate(${i * (b.w + b.s)}, 0)`);
+    g.attr('transform', (d, i) => `translate(${i * (b.w + b.s)}, 0)`);
 
     // Remove exiting nodes.
     g.exit().remove();
@@ -202,29 +201,27 @@ export default function Sunburst(scope, element) {
     updateBreadcrumbs(ancestors, percentageString);
 
     // update sunburst (Fade all the segments and highlight only ancestors of current segment)
-    sunburst.selectAll('path')
-      .attr('opacity', 0.3);
-    sunburst.selectAll('path')
-      .filter(node =>
-        (ancestors.indexOf(node) >= 0))
+    sunburst.selectAll('path').attr('opacity', 0.3);
+    sunburst
+      .selectAll('path')
+      .filter(node => ancestors.indexOf(node) >= 0)
       .attr('opacity', 1);
 
     // update summary
     summary.html(`Stage: ${d.depth}<br />` +
-      `<span class='percentage' style='font-size: 2em;'>${percentageString}</span><br />${
-        d.value} of ${totalSize}<br />`);
+        `<span class='percentage' style='font-size: 2em;'>${percentageString}</span><br />${d.value} of ${totalSize}<br />`);
 
     // display summary and breadcrumbs if hidden
     summary.style('visibility', '');
     breadcrumbs.style('visibility', '');
   }
 
-
   // helper function click to handle mouseleave events/animations
   function click() {
     // Deactivate all segments then retransition each segment to full opacity.
     sunburst.selectAll('path').on('mouseover', null);
-    sunburst.selectAll('path')
+    sunburst
+      .selectAll('path')
       .transition()
       .duration(1000)
       .attr('opacity', 1)
@@ -240,8 +237,8 @@ export default function Sunburst(scope, element) {
   // helper function to draw the sunburst and breadcrumbs
   function drawSunburst(json) {
     // Build only nodes of a threshold "visible" sizes to improve efficiency
-    const nodes = partition.nodes(json)
-      .filter(d => (d.dx > 0.005) && d.name !== exitNode); // 0.005 radians = 0.29 degrees
+    // 0.005 radians = 0.29 degrees
+    const nodes = partition.nodes(json).filter(d => d.dx > 0.005 && d.name !== exitNode);
 
     // this section is required to update the colors.domain() every time the data updates
     const uniqueNames = (function uniqueNames(a) {
@@ -254,8 +251,11 @@ export default function Sunburst(scope, element) {
     colors.domain(uniqueNames); // update domain colors
 
     // create path based on nodes
-    const path = sunburst.data([json]).selectAll('path')
-      .data(nodes).enter()
+    const path = sunburst
+      .data([json])
+      .selectAll('path')
+      .data(nodes)
+      .enter()
       .append('path')
       .classed('nodePath', true)
       .attr('display', d => (d.depth ? null : 'none'))
@@ -264,7 +264,6 @@ export default function Sunburst(scope, element) {
       .attr('opacity', 1)
       .attr('stroke', 'white')
       .on('mouseover', mouseover);
-
 
     // // trigger mouse click over sunburst to reset visualization summary
     vis.on('click', click);
@@ -286,7 +285,12 @@ export default function Sunburst(scope, element) {
   function buildNodes(raw) {
     let values;
 
-    if (_.has(raw[0], 'sequence') && _.has(raw[0], 'stage') && _.has(raw[0], 'node') && _.has(raw[0], 'value')) {
+    if (
+      _.has(raw[0], 'sequence') &&
+      _.has(raw[0], 'stage') &&
+      _.has(raw[0], 'node') &&
+      _.has(raw[0], 'value')
+    ) {
       const grouped = _.groupBy(raw, 'sequence');
 
       values = _.map(grouped, (value) => {
@@ -301,12 +305,11 @@ export default function Sunburst(scope, element) {
       const validKey = key => key !== 'value' && key.indexOf('$$') !== 0;
       const keys = _.sortBy(_.filter(_.keys(raw[0]), validKey), _.identity);
 
-      values = _.map(raw, (row, sequence) =>
-        ({
-          size: row.value,
-          sequence,
-          nodes: _.compact(_.map(keys, key => row[key])),
-        }));
+      values = _.map(raw, (row, sequence) => ({
+        size: row.value,
+        sequence,
+        nodes: _.compact(_.map(keys, key => row[key])),
+      }));
     }
 
     return values;
@@ -331,7 +334,6 @@ export default function Sunburst(scope, element) {
         let children = currentNode.children;
         const nodeName = nodes[j];
         const isLeaf = j + 1 === nodes.length;
-
 
         if (!children) {
           currentNode.children = children = [];
@@ -389,6 +391,10 @@ export default function Sunburst(scope, element) {
 }
 
 Sunburst.prototype.remove = function remove() {
-  this.watches.forEach((unregister) => { unregister(); });
+  this.watches.forEach((unregister) => {
+    unregister();
+  });
   angular.element(this.element[0]).empty('.vis-container');
 };
+
+export default Sunburst;
