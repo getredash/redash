@@ -1,5 +1,5 @@
 import jQuery from 'jquery';
-import Sunburst from './sunburst';
+import Sunburst from '@/lib/visualizations/sunburst';
 import editorTemplate from './sunburst-sequence-editor.html';
 
 function sunburstSequenceRenderer() {

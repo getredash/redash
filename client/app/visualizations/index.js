@@ -1,21 +1,10 @@
 import moment from 'moment';
-import { isEmpty, isArray, reduce } from 'underscore';
-
-import registerEditVisualizationDialog from './edit-visualization-dialog';
-import counterVisualization from './counter';
-import tableVisualization from './table';
-import chartVisualization from './chart';
-import sunburstVisualization from './sunburst';
-import sankeyVisualization from './sankey';
-import wordCloudVisualization from './word-cloud';
-import boxPlotVisualization from './box-plot';
-import cohortVisualization from './cohort';
-import mapVisualization from './map';
-import pivotVisualization from './pivot';
+import { isArray, reduce } from 'underscore';
 
 function VisualizationProvider() {
   this.visualizations = {};
-  this.visualizationTypes = {};
+  // this.visualizationTypes = {};
+  this.visualizationTypes = [];
   const defaultConfig = {
     defaultOptions: {},
     skipTypes: false,
@@ -26,30 +15,34 @@ function VisualizationProvider() {
     const visualization = Object.assign({}, defaultConfig, config);
 
     // TODO: this is prone to errors; better refactor.
-    if (isEmpty(this.visualizations)) {
+    if (this.defaultVisualization === undefined && !visualization.name.match(/Deprecated/)) {
       this.defaultVisualization = visualization;
     }
 
     this.visualizations[config.type] = visualization;
 
     if (!config.skipTypes) {
-      this.visualizationTypes[config.name] = config.type;
+      this.visualizationTypes.push({ name: config.name, type: config.type });
     }
   };
 
   this.getSwitchTemplate = (property) => {
     const pattern = /(<[a-zA-Z0-9-]*?)( |>)/;
 
-    let mergedTemplates = reduce(this.visualizations, (templates, visualization) => {
-      if (visualization[property]) {
-        const ngSwitch = `$1 ng-switch-when="${visualization.type}" $2`;
-        const template = visualization[property].replace(pattern, ngSwitch);
+    let mergedTemplates = reduce(
+      this.visualizations,
+      (templates, visualization) => {
+        if (visualization[property]) {
+          const ngSwitch = `$1 ng-switch-when="${visualization.type}" $2`;
+          const template = visualization[property].replace(pattern, ngSwitch);
 
-        return `${templates}\n${template}`;
-      }
+          return `${templates}\n${template}`;
+        }
 
-      return templates;
-    }, '');
+        return templates;
+      },
+      '',
+    );
 
     mergedTemplates = `<div ng-switch on="visualization.type">${mergedTemplates}</div>`;
 
@@ -150,15 +143,4 @@ export default function init(ngModule) {
   ngModule.directive('visualizationOptionsEditor', VisualizationOptionsEditor);
   ngModule.directive('visualizationName', VisualizationName);
   ngModule.filter('filterValue', FilterValueFilter);
-  registerEditVisualizationDialog(ngModule);
-  chartVisualization(ngModule);
-  counterVisualization(ngModule);
-  sunburstVisualization(ngModule);
-  sankeyVisualization(ngModule);
-  wordCloudVisualization(ngModule);
-  boxPlotVisualization(ngModule);
-  cohortVisualization(ngModule);
-  mapVisualization(ngModule);
-  pivotVisualization(ngModule);
-  tableVisualization(ngModule);
 }

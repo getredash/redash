@@ -1,4 +1,4 @@
-import { Paginator } from '../../utils';
+import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
 function SnippetsCtrl($location, currentUser, Events, QuerySnippet) {

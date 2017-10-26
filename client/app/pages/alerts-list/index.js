@@ -1,4 +1,4 @@
-import { Paginator } from '../../utils';
+import { Paginator } from '@/lib/pagination';
 import template from './alerts-list.html';
 
 const stateClass = {

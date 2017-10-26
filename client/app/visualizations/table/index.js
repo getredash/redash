@@ -1,6 +1,6 @@
 import moment from 'moment';
 import { _, partial, isString } from 'underscore';
-import { getColumnCleanName } from '../../services/query-result';
+import { getColumnCleanName } from '@/services/query-result';
 import template from './table.html';
 
 function formatValue($filter, clientConfig, value, type) {
