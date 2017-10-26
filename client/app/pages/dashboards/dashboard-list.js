@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import { Paginator } from '../../utils';
+import { Paginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
 import './dashboard-list.css';
 

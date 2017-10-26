@@ -3,7 +3,7 @@ import _ from 'underscore';
 import $ from 'jquery';
 import d3 from 'd3';
 
-import d3sankey from './d3sankey';
+import d3sankey from '@/lib/visualizations/d3sankey';
 import editorTemplate from './sankey-editor.html';
 
 function getConnectedNodes(node) {
