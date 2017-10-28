@@ -738,7 +738,10 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
         for (r, row) in enumerate(query_data['rows']):
             for (c, name) in enumerate(column_names):
-                sheet.write(r + 1, c, row.get(name))
+                v = row.get(name)
+                if isinstance(v, list):
+                    v = str(v).encode('utf-8')
+                sheet.write(r + 1, c, v)
 
         book.close()
 
