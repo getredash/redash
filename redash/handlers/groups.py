@@ -70,6 +70,7 @@ class GroupResource(BaseResource):
         members = models.Group.members(group_id)
         for member in members:
             member.group_ids.remove(int(group_id))
+            models.db.session.add(member)
 
         models.db.session.delete(group)
         models.db.session.commit()
