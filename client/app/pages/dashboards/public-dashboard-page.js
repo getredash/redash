@@ -6,8 +6,10 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($routeParams, Widget) {
+  controller($routeParams, Widget, dashboardGridOptions) {
     'ngInject';
+
+    this.dashboardGridOptions = dashboardGridOptions;
 
     // embed in params == headless
     this.logoUrl = logoUrl;
@@ -16,8 +18,7 @@ const PublicDashboardPage = {
       document.querySelector('body').classList.add('headless');
     }
     this.public = true;
-    this.dashboard.widgets = this.dashboard.widgets.map(row =>
-      row.map(widget => new Widget(widget)));
+    this.dashboard.widgets = this.dashboard.widgets.map(widget => new Widget(widget));
   },
 };
 

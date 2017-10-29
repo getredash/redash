@@ -2,6 +2,11 @@ import debug from 'debug';
 
 const logger = debug('redash:directives');
 
+const requestAnimationFrame = window.requestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.mozRequestAnimationFrame ||
+  window.msRequestAnimationFrame;
+
 function compareTo() {
   return {
     require: 'ngModel',
@@ -70,9 +75,46 @@ function title($rootScope, Title) {
   };
 }
 
+function gridsterAutoHeight($timeout) {
+  return {
+    restrict: 'A',
+    require: 'gridsterItem',
+    link($scope, $element, attr, controller) {
+      let destroyed = false;
+
+      function updateHeight() {
+        const paddings = 15;
+        const element = $element[0].querySelector(attr.gridsterAutoHeight);
+        if (element) {
+          if (element.scrollHeight > element.offsetHeight) {
+            let h = element.scrollHeight;
+            h = Math.ceil((h + paddings) / controller.gridster.curRowHeight);
+            $timeout(() => {
+              controller.sizeY = h;
+            });
+          }
+        }
+
+        if (!destroyed) {
+          requestAnimationFrame(updateHeight);
+        }
+      }
+
+      if (controller.sizeY < 0) {
+        updateHeight();
+
+        $scope.$on('$destroy', () => {
+          destroyed = true;
+        });
+      }
+    },
+  };
+}
+
 export default function init(ngModule) {
   ngModule.factory('Title', TitleService);
   ngModule.directive('title', title);
   ngModule.directive('compareTo', compareTo);
   ngModule.directive('autofocus', autofocus);
+  ngModule.directive('gridsterAutoHeight', gridsterAutoHeight);
 }

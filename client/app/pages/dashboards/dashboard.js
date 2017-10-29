@@ -3,9 +3,58 @@ import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 
 function DashboardCtrl(
-  $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
+  $rootScope, $scope, $routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
+  dashboardGridOptions, toastr,
 ) {
+  this.saveInProgress = false;
+  const saveDashboard = _.debounce(() => {
+    if (!this.dashboard.canEdit()) {
+      return;
+    }
+
+    this.saveInProgress = true;
+    const showMessages = this.layoutEditing;
+    // Temporarily disable grid editing (but allow user to use UI controls)
+    this.dashboardGridOptions.draggable.enabled = false;
+    this.dashboardGridOptions.resizable.enabled = false;
+    $q.all(_.map(this.dashboard.widgets, widget => widget.$save()))
+      .then(() => {
+        if (showMessages) {
+          toastr.success('Dashboard layout saved.');
+        }
+      })
+      .catch(() => {
+        if (showMessages) {
+          toastr.error('Cannot save dashboard layout.');
+        }
+      })
+      .finally(() => {
+        this.saveInProgress = false;
+        // If user didn't disable editing mode while saving - restore grid
+        this.dashboardGridOptions.draggable.enabled = this.layoutEditing;
+        this.dashboardGridOptions.resizable.enabled = this.layoutEditing;
+      });
+  }, 2000);
+
+  this.layoutEditing = false;
+  this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
+    resizable: {
+      enabled: false,
+      handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+      stop: saveDashboard,
+    },
+    draggable: {
+      enabled: false,
+      stop: saveDashboard,
+    },
+  });
+
+  $scope.$watch(
+    () => (_.isArray(this.dashboard.widgets) ? this.dashboard.widgets.length : undefined),
+    () => saveDashboard(),
+  );
+
   this.isFullscreen = false;
   this.refreshRate = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
@@ -33,18 +82,17 @@ function DashboardCtrl(
 
   this.extractGlobalParameters = () => {
     let globalParams = {};
-    this.dashboard.widgets.forEach(row =>
-      row.forEach((widget) => {
-        if (widget.getQuery()) {
-          widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
-            const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
-            defaults[param.name].locals = [];
-            globalParams = _.defaults(globalParams, defaults);
-            globalParams[param.name].locals.push(param);
-          });
-        }
-      }));
+    this.dashboard.widgets.forEach((widget) => {
+      if (widget.getQuery()) {
+        widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
+          const defaults = {};
+          defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+          defaults[param.name].locals = [];
+          globalParams = _.defaults(globalParams, defaults);
+          globalParams[param.name].locals.push(param);
+        });
+      }
+    });
     this.globalParameters = _.values(globalParams);
   };
 
@@ -60,16 +108,15 @@ function DashboardCtrl(
     Title.set(dashboard.name);
     const promises = [];
 
-    this.dashboard.widgets.forEach(row =>
-      row.forEach((widget) => {
-        if (widget.visualization) {
-          const maxAge = force ? 0 : undefined;
-          const queryResult = widget.getQuery().getQueryResult(maxAge);
-          if (!_.isUndefined(queryResult)) {
-            promises.push(queryResult.toPromise());
-          }
+    this.dashboard.widgets.forEach((widget) => {
+      if (widget.visualization) {
+        const maxAge = force ? 0 : undefined;
+        const queryResult = widget.getQuery().getQueryResult(maxAge);
+        if (!_.isUndefined(queryResult)) {
+          promises.push(queryResult.toPromise());
         }
-      }));
+      }
+    });
 
     this.extractGlobalParameters();
 
@@ -155,6 +202,12 @@ function DashboardCtrl(
     });
   };
 
+  this.editLayout = (enableEditing) => {
+    this.layoutEditing = enableEditing;
+    this.dashboardGridOptions.draggable.enabled = this.layoutEditing && !this.saveInProgress;
+    this.dashboardGridOptions.resizable.enabled = this.layoutEditing && !this.saveInProgress;
+  };
+
   this.editDashboard = () => {
     const previousFiltersState = this.dashboard.dashboard_filters_enabled;
     $uibModal.open({
@@ -199,7 +252,6 @@ function DashboardCtrl(
     Dashboard.save({
       slug: this.dashboard.id,
       name: this.dashboard.name,
-      layout: JSON.stringify(this.dashboard.layout),
       is_draft: this.dashboard.is_draft,
     }, (dashboard) => {
       this.saveInProgress = false;

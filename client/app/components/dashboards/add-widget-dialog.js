@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import template from './add-widget-dialog.html';
 
 const AddWidgetDialog = {
@@ -12,21 +13,13 @@ const AddWidgetDialog = {
 
     this.dashboard = this.resolve.dashboard;
     this.saveInProgress = false;
-    this.widgetSize = 1;
     this.selectedVis = null;
     this.query = {};
     this.selected_query = undefined;
     this.text = '';
     this.existing_text = '';
     this.new_text = '';
-    this.widgetSizes = [{
-      name: 'Regular',
-      value: 1,
-    }, {
-      name: 'Double',
-      value: 2,
-    }];
-
+    this.isHidden = false;
     this.type = 'visualization';
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
@@ -35,11 +28,6 @@ const AddWidgetDialog = {
 
     this.setType = (type) => {
       this.type = type;
-      if (type === 'textbox') {
-        this.widgetSizes.push({ name: 'Hidden', value: 0 });
-      } else if (this.widgetSizes.length > 2) {
-        this.widgetSizes.pop();
-      }
     };
 
     this.onQuerySelect = () => {
@@ -72,21 +60,40 @@ const AddWidgetDialog = {
       const widget = new Widget({
         visualization_id: this.selectedVis && this.selectedVis.id,
         dashboard_id: this.dashboard.id,
-        options: {},
-        width: this.widgetSize,
+        options: {
+          isHidden: this.isTextBox() && this.isHidden,
+          position: {
+            // Place new widget below all others
+            col: 0,
+            row: _.chain(this.dashboard.widgets)
+              .map((w) => {
+                let temp = _.extend({}, w.options);
+                temp = _.extend({}, temp.position);
+                const row = parseInt(temp.row, 10);
+                const height = parseInt(temp.sizeY, 10);
+
+                let result = 0;
+                if (isFinite(row)) {
+                  result += row;
+                }
+                if (isFinite(height)) {
+                  result += height;
+                }
+                return result;
+              })
+              .max()
+              .value(),
+            // Auto-height by default
+            sizeY: -1,
+          },
+        },
         text: this.text,
       });
 
       widget.$save().then((response) => {
         // update dashboard layout
-        this.dashboard.layout = response.layout;
         this.dashboard.version = response.version;
-        const newWidget = new Widget(response.widget);
-        if (response.new_row) {
-          this.dashboard.widgets.push([newWidget]);
-        } else {
-          this.dashboard.widgets[this.dashboard.widgets.length - 1].push(newWidget);
-        }
+        this.dashboard.widgets.push(new Widget(response.widget));
         this.close();
       }).catch(() => {
         toastr.error('Widget can not be added');

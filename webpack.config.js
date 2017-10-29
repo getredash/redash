@@ -124,7 +124,7 @@ var config = {
     proxy: [{
       context: [
         '/login', '/invite', '/setup', '/images', '/js', '/styles',
-        '/status.json', '/api/admin', '/api', '/oauth'],
+        '/status.json', '/api', '/oauth'],
       target: redashBackend + '/',
       changeOrigin: true,
       secure: false
