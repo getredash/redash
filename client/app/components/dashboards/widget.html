@@ -1,4 +1,4 @@
-<div class="col-lg-{{$ctrl.widget.width | colWidth}}">
+<div>
     <div class="tile" ng-if="$ctrl.type=='visualization'">
         <div class="t-header widget">
             <div class="th-title">
@@ -39,7 +39,7 @@
           </div>
         </div>
 
-        <div class="p-5 clearfix" style="line-height:28px;">
+        <div class="dashboard-widget-bottom-panel p-5 clearfix">
             <span class="small hidden-print">Updated: <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span></span>
             <span class="visible-print">
               Updated: {{$ctrl.queryResult.getUpdatedAt() | dateTime}}
