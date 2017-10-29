@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import boto3
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
@@ -74,6 +75,10 @@ class Athena(BaseQueryRunner):
                     'title': 'Schema Name',
                     'default': 'default'
                 },
+                'glue': {
+                    'type': 'boolean',
+                    'title': 'Use Glue Data Catalog',
+                },
             },
             'required': ['region', 's3_staging_dir'],
             'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
@@ -112,7 +117,30 @@ class Athena(BaseQueryRunner):
     def __init__(self, configuration):
         super(Athena, self).__init__(configuration)
 
+    def __get_schema_from_glue(self):
+        client = boto3.client(
+                'glue',
+                aws_access_key_id=self.configuration.get('aws_access_key', None),
+                aws_secret_access_key=self.configuration.get('aws_secret_key', None),
+                region_name=self.configuration['region']
+                )
+        schema = {}
+
+        for database in client.get_databases()['DatabaseList']:
+            for table in client.get_tables(DatabaseName=database['Name'])['TableList']:
+                table_name = '%s.%s' % (database['Name'], table['Name'])
+                if table_name not in schema:
+                    column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
+                    schema[table_name] = {'name': table_name, 'columns': column}
+                    for partition in table['PartitionKeys']:
+                        schema[table_name]['columns'].append(partition['Name'])
+
+        return schema.values()
+
     def get_schema(self, get_stats=False):
+        if self.configuration.get('glue', False):
+            return self.__get_schema_from_glue()
+
         schema = {}
         query = """
         SELECT table_schema, table_name, column_name
