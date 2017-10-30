@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import boto3
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
@@ -14,6 +13,7 @@ OPTIONAL_CREDENTIALS = parse_boolean(os.environ.get('ATHENA_OPTIONAL_CREDENTIALS
 
 try:
     import pyathena
+    import boto3
     enabled = True
 except ImportError:
     enabled = False
