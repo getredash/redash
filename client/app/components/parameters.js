@@ -3,14 +3,6 @@ import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';
 
-const QueryBasedOption = (query) => {
-  const queryBasedOption = {
-    id: query.id,
-    name: query.name,
-  };
-  return queryBasedOption;
-};
-
 const ParameterSettingsComponent = {
   template: parameterSettingsTemplate,
   bindings: {
@@ -23,13 +15,20 @@ const ParameterSettingsComponent = {
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
+
+    if (this.parameter.queryId) {
+      Query.get({ id: this.parameter.queryId }, (query) => {
+        this.queries = [query];
+      });
+    }
+
     this.searchQueries = (term) => {
       if (!term || term.length < 3) {
         return;
       }
 
       Query.search({ q: term }, (results) => {
-        this.queries = results.map(query => QueryBasedOption(query));
+        this.queries = results;
       });
     };
   },
