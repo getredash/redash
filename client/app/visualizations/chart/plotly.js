@@ -283,14 +283,13 @@ const PlotlyChart = () => {
         }
 
         if (scope.options.globalSeriesType === 'box') {
-          scope.options.sortX = false;
           scope.layout.boxmode = 'group';
           scope.layout.boxgroupgap = 0.50;
         }
 
         let hasY2 = false;
         const sortX = scope.options.sortX === true || scope.options.sortX === undefined;
-        const useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category';
+        const useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category' && scope.options.globalSeriesType !== 'box';
 
         let unifiedX = null;
         if (useUnifiedXaxis) {
