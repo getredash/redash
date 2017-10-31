@@ -37,7 +37,7 @@ create_redash_user() {
 }
 
 install_system_packages() {
-    apt-get -y update
+    apt-get -qq update
     # Base packages
     apt install -y python-pip python-dev nginx curl build-essential pwgen
     # Data sources dependencies:
