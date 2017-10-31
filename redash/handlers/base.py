@@ -17,6 +17,32 @@ from sqlalchemy_utils import sort_query
 
 routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
+class NoCheckResource(Resource):
+
+    def __init__(self, *args, **kwargs):
+        super(NoCheckResource, self).__init__(*args, **kwargs)
+        self._user = None
+
+    def dispatch_request(self, *args, **kwargs):
+        kwargs.pop('org_slug', None)
+
+        return super(NoCheckResource, self).dispatch_request(*args, **kwargs)
+
+    @property
+    def current_user(self):
+        return current_user._get_current_object()
+
+    @property
+    def current_org(self):
+        return current_org._get_current_object()
+
+    def record_event(self, options):
+        record_event(self.current_org, self.current_user, options)
+
+    # TODO: this should probably be somewhere else
+    def update_model(self, model, updates):
+        for k, v in updates.items():
+            setattr(model, k, v)
 
 class BaseResource(Resource):
     decorators = [login_required]
