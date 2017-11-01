@@ -266,6 +266,12 @@ class QueryRefreshResource(BaseResource):
 
         Responds with query task details.
         """
+        # TODO: this should actually check for permissions, but because currently you can only
+        # get here either with a user API key or a query one, we can just check whether it's
+        # an api key (meaning this is a query API key, which only grants read access).
+        if self.current_user.is_api_user():
+            abort(403, message="Please use a user API key.")
+
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.groups, self.current_user, not_view_only)
 
