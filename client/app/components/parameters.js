@@ -1,3 +1,4 @@
+import moment from 'moment';
 import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';
@@ -124,6 +125,14 @@ function ParametersDirective($location, $uibModal) {
           return enumOptions.split('\n');
         }
         return [];
+      };
+      scope.now = (keepSeconds) => {
+        const now = moment();
+        now.milliseconds(0);
+        if (!keepSeconds) {
+          now.seconds(0);
+        }
+        return now.toDate();
       };
       scope.showParameterSettings = (param) => {
         $uibModal.open({
