@@ -107,7 +107,7 @@
                 <button class="btn btn-s btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <span class="fa fa-paper-plane"></span> Publish
                 </button>
-                <button class="btn btn-s btn-default" ng-click="duplicateQuery()" ng-disabled="query.id === undefined">
+                <button class="btn btn-s btn-default" ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()">
                   <span class="zmdi zmdi-arrow-split"></span> Fork
                 </button>
                 <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()">
