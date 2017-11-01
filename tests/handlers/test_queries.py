@@ -158,3 +158,21 @@ class QueryRefreshTest(BaseTestCase):
         user = self.factory.create_user(group_ids=[group.id])
         response = self.make_request('post', self.path, user=user)
         self.assertEqual(403, response.status_code)
+
+
+class TestQueryForkResourcePost(BaseTestCase):
+    def test_forks_a_query(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
+        query = self.factory.create_query(data_source=ds)
+
+        rv = self.make_request('post', '/api/queries/{}/fork'.format(query.id))
+
+        self.assertEqual(rv.status_code, 200)
+
+    def test_must_have_full_access_to_data_source(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=True)
+        query = self.factory.create_query(data_source=ds)
+
+        rv = self.make_request('post', '/api/queries/{}/fork'.format(query.id))
+
+        self.assertEqual(rv.status_code, 403)
