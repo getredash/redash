@@ -158,6 +158,13 @@ class QueryRefreshTest(BaseTestCase):
         user = self.factory.create_user(group_ids=[group.id])
         response = self.make_request('post', self.path, user=user)
         self.assertEqual(403, response.status_code)
+    
+    def test_refresh_forbiden_with_query_api_key(self):
+        response = self.make_request('post', '{}?api_key={}'.format(self.path, self.query.api_key), user=False)
+        self.assertEqual(403, response.status_code)
+
+        response = self.make_request('post', '{}?api_key={}'.format(self.path, self.factory.user.api_key), user=False)
+        self.assertEqual(200, response.status_code)
 
 
 class TestQueryForkResourcePost(BaseTestCase):
