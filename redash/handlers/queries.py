@@ -251,6 +251,7 @@ class QueryForkResource(BaseResource):
         Responds with created :ref:`query <query-response-label>` object.
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
         return forked_query.to_dict(with_visualizations=True)
