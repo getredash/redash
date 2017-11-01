@@ -44,6 +44,8 @@ function QuerySourceCtrl(
     KeyboardShortcuts.unbind(shortcuts);
   });
 
+  $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
+
   // @override
   $scope.saveQuery = (options, data) => {
     const savePromise = saveQuery(options, data);
