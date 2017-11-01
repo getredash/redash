@@ -138,17 +138,14 @@ class TestQueryResultAPI(BaseTestCase):
     def test_query_api_key_and_different_query_result(self):
         ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         query = self.factory.create_query(query_text="SELECT 8")
-        query_result = self.factory.create_query_result(data_source=ds, query_text=query.query_text, query_hash=query.query_hash)
         query_result2 = self.factory.create_query_result(data_source=ds, query_hash='something-different')
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.json?api_key={}'.format(query.id, query_result2.id, query.api_key), user=False)
         self.assertEquals(rv.status_code, 404)
 
     def test_signed_in_user_and_different_query_result(self):
-        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
         ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
         query = self.factory.create_query(query_text="SELECT 8")
-        query_result = self.factory.create_query_result(data_source=ds, query_text=query.query_text, query_hash=query.query_hash)
         query_result2 = self.factory.create_query_result(data_source=ds2, query_hash='something-different')
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.json'.format(query.id, query_result2.id))
