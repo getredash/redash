@@ -14,25 +14,27 @@
           <option value="text">Text</option>
           <option value="number">Number</option>
           <option value="enum">Dropdown List</option>
-          <option value="query">Query based dropdown List</option>
+          <option value="query">Query Based Dropdown List</option>
           <option value="date">Date</option>
           <option value="datetime-local">Date and Time</option>
           <option value="datetime-with-seconds">Date and Time (with seconds)</option>
         </select>
       </div>
       <div class="form-group">
-        <label>Global</label>
-        <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.global">
+        <label>
+          <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.global">
+          Global
+        </label>
       </div>
       <div class="form-group" ng-if="$ctrl.parameter.type === 'enum'">
         <label>Dropdown List Values (newline delimited)</label>
         <textarea class="form-control" rows="3" ng-model="$ctrl.parameter.enumOptions"></textarea>
       </div>
       <div class="form-group" ng-if="$ctrl.parameter.type === 'query'">
-        <label>Saved query (single column output)</label>
-        <ui-select ng-model="$ctrl.parameter.queryBasedOption" theme="bootstrap" reset-search-input="false">
+        <label>Query to load dropdown values from:</label>
+        <ui-select ng-model="$ctrl.parameter.queryId" reset-search-input="false">
             <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
-            <ui-select-choices repeat="q in $ctrl.queries"
+            <ui-select-choices repeat="q.id as q in $ctrl.queries"
                                refresh="$ctrl.searchQueries($select.search)"
                                refresh-delay="0">
             <div class="form-group" ng-bind-html="$ctrl.trustAsHtml(q.name | highlight: $select.search)"></div>

@@ -53,7 +53,7 @@ class Parameter {
     this.value = parameter.value;
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
-    this.queryBasedOption = parameter.queryBasedOption;
+    this.queryId = parameter.queryId;
   }
 
   get ngModel() {
