@@ -970,7 +970,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def fork(self, user):
         forked_list = ['org', 'data_source', 'latest_query_data', 'description',
-                       'query_text', 'query_hash']
+                       'query_text', 'query_hash', 'options']
         kwargs = {a: getattr(self, a) for a in forked_list}
         forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
                                     user=user, **kwargs)
