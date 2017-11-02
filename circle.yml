@@ -18,7 +18,7 @@ test:
     - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
 deployment:
   github_and_docker:
-    branch: master
+    branch: [master, /release.*/]
     commands:
       - make pack
       # Skipping uploads for now, until master is stable.
