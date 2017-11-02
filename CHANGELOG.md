@@ -4,6 +4,8 @@
 
 ### Added
 
+- Query Result data source (run queries on query results).
+- Athena: option to load schema from Glue catalog. @myouju
 - Allow running any command inside the container via the Docker entrypoint script. @jezdez
 - Make invitation token max age configurable. @hhamalai
 - Redshift: add support for the new ACM root CA.
@@ -25,6 +27,8 @@
 
 ### Changed
 
+- Copy parameters when forking a query. @kyoshidajp
+- Prevent using Query API Key with refresh API (previously it was just failing).
 - Reduce boilerplate in frontend code.
 - Set auto focus in first input items. @kyoshidajp
 - Update gunicorn to latest version.
@@ -49,6 +53,11 @@
 
 ### Fixed
 
+- Require full data source access to fork a query.
+- API key of one query could be used to get results of another one.
+- Delete group id from user object when deleting the group. @kyoshidajp
+- Sorting of X axis wasn't working for Box plot type visualizations. @deecay
+- Exporting query results as excel was failing when one of the columns had array data. @kyoshidajp
 - Show query editor's Archive/Publish Query drop-down only on saved queries. @cyriac
 - Move misplaced configuration in docker-compose.production.yml. @yutannihilation
 - MySQL: support UTF8 schema.
