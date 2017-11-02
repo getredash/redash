@@ -191,7 +191,7 @@ class Redshift(PostgreSQL):
                                       host=self.configuration.get('host'),
                                       port=self.configuration.get('port'),
                                       dbname=self.configuration.get('dbname'),
-                                      sslmode='require',
+                                      sslmode='prefer',
                                       sslrootcert=sslrootcert_path,
                                       async=True)
 
