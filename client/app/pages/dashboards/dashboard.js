@@ -4,22 +4,22 @@ import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.css';
 
 function DashboardCtrl(
-  $rootScope, $scope, $routeParams, $location, $timeout, $q, $uibModal,
+  $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
   dashboardGridOptions, toastr,
 ) {
   this.saveInProgress = false;
-  const saveDashboardLayout = _.debounce(() => {
+  const saveDashboardLayout = () => {
     if (!this.dashboard.canEdit()) {
       return;
     }
 
     this.saveInProgress = true;
-    const showMessages = this.layoutEditing;
+    const showMessages = true; // this.layoutEditing;
     // Temporarily disable grid editing (but allow user to use UI controls)
     this.dashboardGridOptions.draggable.enabled = false;
     this.dashboardGridOptions.resizable.enabled = false;
-    $q.all(_.map(this.dashboard.widgets, widget => widget.$save()))
+    return $q.all(_.map(this.dashboard.widgets, widget => widget.$save()))
       .then(() => {
         if (showMessages) {
           toastr.success('Dashboard layout saved.');
@@ -36,23 +36,25 @@ function DashboardCtrl(
         this.dashboardGridOptions.draggable.enabled = this.layoutEditing;
         this.dashboardGridOptions.resizable.enabled = this.layoutEditing;
       });
-  }, 2000);
+  };
+
 
   this.layoutEditing = false;
   this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
     resizable: {
       enabled: false,
       handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-      stop: saveDashboardLayout,
+      // stop: saveDashboardLayout,
     },
     draggable: {
       enabled: false,
-      stop: saveDashboardLayout,
+      // stop: saveDashboardLayout,
     },
   });
 
   this.isFullscreen = false;
   this.refreshRate = null;
+  this.isGridDisabled = false;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
   this.globalParameters = [];
@@ -67,6 +69,11 @@ function DashboardCtrl(
     { name: '12 hour', rate: 12 * 60 * 60 },
     { name: '24 hour', rate: 24 * 60 * 60 },
   ];
+
+  $rootScope.$on('gridster-mobile-changed', ($event, gridster) => {
+    this.isGridDisabled = gridster.isMobile;
+  });
+
 
   this.setRefreshRate = (rate) => {
     this.refreshRate = rate;
@@ -198,10 +205,37 @@ function DashboardCtrl(
     });
   };
 
-  this.editLayout = (enableEditing) => {
-    this.layoutEditing = enableEditing;
-    this.dashboardGridOptions.draggable.enabled = this.layoutEditing && !this.saveInProgress;
-    this.dashboardGridOptions.resizable.enabled = this.layoutEditing && !this.saveInProgress;
+  this.editLayout = (enableEditing, applyChanges) => {
+    if (!this.isGridDisabled) {
+      if (enableEditing) {
+        if (!this.layoutEditing) {
+          // Save current positions of widgets
+          _.each(this.dashboard.widgets, (widget) => {
+            widget.$savedPosition = _.clone(widget.options.position);
+          });
+        }
+      } else {
+        if (applyChanges) {
+          // Clear saved data and save layout
+          _.each(this.dashboard.widgets, (widget) => {
+            widget.$savedPosition = undefined;
+          });
+          saveDashboardLayout();
+        } else {
+          // Revert changes
+          _.each(this.dashboard.widgets, (widget) => {
+            if (_.isObject(widget.$savedPosition)) {
+              widget.options.position = widget.$savedPosition;
+            }
+            widget.$savedPosition = undefined;
+          });
+        }
+      }
+
+      this.layoutEditing = enableEditing;
+      this.dashboardGridOptions.draggable.enabled = this.layoutEditing && !this.saveInProgress;
+      this.dashboardGridOptions.resizable.enabled = this.layoutEditing && !this.saveInProgress;
+    }
   };
 
   this.editDashboard = () => {
@@ -229,13 +263,28 @@ function DashboardCtrl(
       },
     }).result.then(() => {
       this.extractGlobalParameters();
-      saveDashboardLayout();
+      if (this.layoutEditing) {
+        // Save position of newly added widget (but not entire layout)
+        const widget = _.last(this.dashboard.widgets);
+        if (_.isObject(widget)) {
+          return widget.$save().then(() => {
+            if (this.layoutEditing) {
+              widget.$savedPosition = _.clone(widget.options.position);
+            }
+          });
+        }
+      } else {
+        // Update entire layout
+        return saveDashboardLayout();
+      }
     });
   };
 
   this.removeWidget = () => {
     this.extractGlobalParameters();
-    saveDashboardLayout();
+    if (!this.layoutEditing) {
+      saveDashboardLayout();
+    }
   };
 
   this.toggleFullscreen = () => {

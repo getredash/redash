@@ -1,5 +1,6 @@
 <div>
-    <div class="tile" ng-if="$ctrl.type=='visualization'">
+    <div class="tile" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type">
+      <div class="dashboard-widget-scrollbox">
         <div class="t-header widget">
             <div class="th-title">
                 <p class="hidden-print">
@@ -34,21 +35,22 @@
           <div ng-switch-when="done">
               <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.queryResult" class="t-body"></visualization-renderer>
           </div>
-          <div ng-switch-default class="text-center">
+          <div ng-switch-default class="spinner">
             <i class="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x"></i>
           </div>
         </div>
+      </div>
 
-        <div class="dashboard-widget-bottom-panel p-5 clearfix">
-            <span class="small hidden-print">Updated: <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span></span>
-            <span class="visible-print">
-              Updated: {{$ctrl.queryResult.getUpdatedAt() | dateTime}}
-            </span>
-            <button class="btn btn-sm btn-default pull-right hidden-print" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public"><i class="zmdi zmdi-refresh"></i></button>
-        </div>
+      <div class="dashboard-widget-bottom-panel p-5 clearfix">
+        <span class="small hidden-print">Updated: <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span></span>
+        <span class="visible-print">
+          Updated: {{$ctrl.queryResult.getUpdatedAt() | dateTime}}
+        </span>
+        <button class="btn btn-sm btn-default pull-right hidden-print" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public"><i class="zmdi zmdi-refresh"></i></button>
+      </div>
     </div>
 
-  <div class="tile" ng-if="$ctrl.type=='restricted'">
+  <div class="tile" ng-if="$ctrl.type=='restricted'" ng-class="$ctrl.type">
     <div class="t-body">
       <div class="text-center">
         <h1><span class="zmdi zmdi-lock"></span></h1>
@@ -59,7 +61,7 @@
     </div>
   </div>
 
-  <div class="tile" ng-hide="$ctrl.widget.width === 0" ng-if="$ctrl.type=='textbox'">
+  <div class="tile" ng-hide="$ctrl.widget.width === 0" ng-if="$ctrl.type=='textbox'" ng-class="$ctrl.type">
     <div class="t-body">
       <div class="dropdown" uib-dropdown ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
         <div class="dropdown-header">

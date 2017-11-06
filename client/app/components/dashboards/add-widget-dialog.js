@@ -8,7 +8,7 @@ const AddWidgetDialog = {
     close: '&',
     dismiss: '&',
   },
-  controller($sce, toastr, Query, Widget) {
+  controller($sce, toastr, Query, Widget, dashboardGridOptions) {
     'ngInject';
 
     this.dashboard = this.resolve.dashboard;
@@ -57,6 +57,48 @@ const AddWidgetDialog = {
 
     this.saveWidget = () => {
       this.saveInProgress = true;
+
+      const width = dashboardGridOptions.defaultSizeX;
+
+      // Find first free row for each column
+      const bottomLine = _.chain(this.dashboard.widgets)
+        .map((w) => {
+          const options = _.extend({}, w.options);
+          const position = _.extend({ row: 0, sizeY: 0 }, options.position);
+          return {
+            left: position.col,
+            top: position.row,
+            right: position.col + position.sizeX,
+            bottom: position.row + position.sizeY,
+            width: position.sizeX,
+            height: position.sizeY,
+          };
+        })
+        .reduce((result, item) => {
+          const from = Math.max(item.left, 0);
+          const to = Math.min(item.right, result.length + 1);
+          for (let i = from; i < to; i += 1) {
+            result[i] = Math.max(result[i], item.bottom);
+          }
+          return result;
+        }, _.map(new Array(dashboardGridOptions.columns), _.constant(0)))
+        .value();
+
+      // Go through columns, pick them by count necessary to hold new block,
+      // and calculate bottom-most free row per group.
+      // Choose group with the top-most free row (comparing to other groups)
+      const position = _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
+        .map(col => ({
+          col,
+          row: _.chain(bottomLine)
+            .slice(col, col + width)
+            .max()
+            .value(),
+        }))
+        .sortBy('row')
+        .first()
+        .value();
+
       const widget = new Widget({
         visualization_id: this.selectedVis && this.selectedVis.id,
         dashboard_id: this.dashboard.id,
@@ -64,25 +106,9 @@ const AddWidgetDialog = {
           isHidden: this.isTextBox() && this.isHidden,
           position: {
             // Place new widget below all others
-            col: 0,
-            row: _.chain(this.dashboard.widgets)
-              .map((w) => {
-                let temp = _.extend({}, w.options);
-                temp = _.extend({}, temp.position);
-                const row = parseInt(temp.row, 10);
-                const height = parseInt(temp.sizeY, 10);
-
-                let result = 0;
-                if (isFinite(row)) {
-                  result += row;
-                }
-                if (isFinite(height)) {
-                  result += height;
-                }
-                return result;
-              })
-              .max()
-              .value(),
+            col: position.col,
+            row: position.row,
+            sizeX: width,
             // Auto-height by default
             sizeY: -1,
           },
