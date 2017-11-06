@@ -70,7 +70,7 @@
   <div style="overflow: hidden">
     <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper">
       <div ng-repeat="widget in $ctrl.dashboard.widgets" gridster-item="widget.options.position" gridster-auto-height=".tile">
-        <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.extractGlobalParameters()"></dashboard-widget>
+        <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget()"></dashboard-widget>
       </div>
     </div>
   </div>

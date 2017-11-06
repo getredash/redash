@@ -1,0 +1,36 @@
+.dashboard-wrapper {
+  margin: -7px;
+}
+.dashboard-wrapper .tile {
+  position: absolute;
+  left: 7px;
+  top: 7px;
+  right: 7px;
+  bottom: 7px;
+  overflow: auto;
+  margin: 0;
+  padding: 0 0 40px 0;
+}
+.dashboard-wrapper.gridster-mobile {
+  margin: 0;
+}
+.dashboard-wrapper.gridster-mobile .gridster-item {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+.dashboard-wrapper.gridster-mobile .tile {
+  display: block;
+  position: static;
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.dashboard-widget-bottom-panel {
+  line-height: 28px;
+}
+.dashboard-wrapper .dashboard-widget-bottom-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
