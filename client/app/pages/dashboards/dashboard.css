@@ -1,15 +1,12 @@
-.dashboard-wrapper {
-  margin: -7px;
-}
 .dashboard-wrapper .tile {
   position: absolute;
-  left: 7px;
-  top: 7px;
-  right: 7px;
-  bottom: 7px;
-  overflow: auto;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
   margin: 0;
-  padding: 0 0 40px 0;
+  padding: 0;
 }
 .dashboard-wrapper.gridster-mobile {
   margin: 0;
@@ -25,12 +22,49 @@
   margin-bottom: 15px;
 }
 
+.dashboard-wrapper.gridster-mobile .tile .dashboard-widget-scrollbox,
+.dashboard-wrapper.gridster-mobile .tile .spinner {
+  position: static;
+}
+.dashboard-wrapper .tile .spinner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100px;
+  overflow: hidden;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .dashboard-widget-bottom-panel {
   line-height: 28px;
+  background: #fff;
+}
+.dashboard-wrapper .dashboard-widget-scrollbox {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+}
+.dashboard-wrapper .tile.visualization .dashboard-widget-scrollbox {
+  bottom: 40px;
 }
 .dashboard-wrapper .dashboard-widget-bottom-panel {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.dashboard-wrapper .gridster-preview-holder {
+  background: #aaa;
 }
