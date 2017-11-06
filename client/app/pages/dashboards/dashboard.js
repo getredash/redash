@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
+import './dashboard.css';
 
 function DashboardCtrl(
   $rootScope, $scope, $routeParams, $location, $timeout, $q, $uibModal,
@@ -8,7 +9,7 @@ function DashboardCtrl(
   dashboardGridOptions, toastr,
 ) {
   this.saveInProgress = false;
-  const saveDashboard = _.debounce(() => {
+  const saveDashboardLayout = _.debounce(() => {
     if (!this.dashboard.canEdit()) {
       return;
     }
@@ -42,18 +43,13 @@ function DashboardCtrl(
     resizable: {
       enabled: false,
       handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-      stop: saveDashboard,
+      stop: saveDashboardLayout,
     },
     draggable: {
       enabled: false,
-      stop: saveDashboard,
+      stop: saveDashboardLayout,
     },
   });
-
-  $scope.$watch(
-    () => (_.isArray(this.dashboard.widgets) ? this.dashboard.widgets.length : undefined),
-    () => saveDashboard(),
-  );
 
   this.isFullscreen = false;
   this.refreshRate = null;
@@ -231,7 +227,15 @@ function DashboardCtrl(
       resolve: {
         dashboard: () => this.dashboard,
       },
-    }).result.then(() => this.extractGlobalParameters());
+    }).result.then(() => {
+      this.extractGlobalParameters();
+      saveDashboardLayout();
+    });
+  };
+
+  this.removeWidget = () => {
+    this.extractGlobalParameters();
+    saveDashboardLayout();
   };
 
   this.toggleFullscreen = () => {

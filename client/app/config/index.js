@@ -26,6 +26,7 @@ import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
+import dashboardGridOptions from './dashboard-grid-options';
 
 const logger = debug('redash:config');
 
@@ -46,41 +47,9 @@ const requirements = [
   ngGridster.name,
 ];
 
-const dashboardGridOptions = {
-  columns: 6,
-  pushing: true,
-  floating: true,
-  swapping: true,
-  width: 'auto',
-  colWidth: 'auto',
-  rowHeight: 100,
-  margins: [0, 0],
-  outerMargin: false,
-  sparse: false,
-  isMobile: false,
-  mobileBreakPoint: 1200,
-  mobileModeEnabled: true,
-  minColumns: 1,
-  minRows: 1,
-  maxRows: 100,
-  defaultSizeX: 3,
-  defaultSizeY: 2,
-  minSizeX: 1,
-  maxSizeX: null,
-  minSizeY: 1,
-  maxSizeY: null,
-  resizable: {
-    enabled: true,
-    handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-  },
-  draggable: {
-    enabled: true, // whether dragging items is supported
-  },
-};
-
 const ngModule = angular.module('app', requirements);
 
-ngModule.constant('dashboardGridOptions', dashboardGridOptions);
+dashboardGridOptions(ngModule);
 
 function registerAll(context) {
   const modules = context

@@ -1,18 +1,15 @@
 import { map, flatten, extend, isArray } from 'underscore';
 
 function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
-  function transformSingle(dashboard) {
-    if (
-      isArray(dashboard.widgets) && (dashboard.widgets.length > 0) &&
-      isArray(dashboard.widgets[0])
-    ) {
+  function prepareDashboardWidgets(widgets) {
+    if (isArray(widgets) && (widgets.length > 0) && isArray(widgets[0])) {
       // Dashboard v1 processing
       // v1 dashboard has two columns, and widget can occupy one of them or both;
       // this means, that there can be at most two widgets per row.
       // Here we will map gridster columns and rows to v1-style grid
       const dashboardV1ColumnSize = Math.round(dashboardGridOptions.columns / 2);
-      dashboard.widgets = map(
-        dashboard.widgets,
+      widgets = map(
+        widgets,
         (row, rowIndex) => map(row, (widget, widgetIndex) => {
           widget.options = widget.options || {};
           widget.options.position = extend({}, {
@@ -26,8 +23,11 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
       );
     }
 
-    dashboard.widgets = map(flatten(dashboard.widgets), widget => new Widget(widget));
+    return map(flatten(widgets), widget => new Widget(widget));
+  }
 
+  function transformSingle(dashboard) {
+    dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
     dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
   }
 
@@ -55,6 +55,8 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
   resource.prototype.canEdit = function canEdit() {
     return currentUser.canEdit(this) || this.can_edit;
   };
+
+  resource.prepareDashboardWidgets = prepareDashboardWidgets;
 
   return resource;
 }

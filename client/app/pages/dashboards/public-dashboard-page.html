@@ -15,11 +15,11 @@
     <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
   </div>
 
-
-  <div gridster="$ctrl.dashboardGridOptions">
-    <div ng-repeat="widget in $ctrl.dashboard.widgets">
-      <dashboard-widget widget="widget" gridster-item="widget.options.position"
-        dashboard="$ctrl.dashboard" public="true"></dashboard-widget>
+  <div style="overflow: hidden">
+    <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper">
+      <div ng-repeat="widget in $ctrl.dashboard.widgets" gridster-item="widget.options.position" gridster-auto-height=".tile">
+        <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" public="true"></dashboard-widget>
+      </div>
     </div>
   </div>
 </div>
