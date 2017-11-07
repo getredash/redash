@@ -9,6 +9,24 @@
     padding: 0;
   }
 
+  &.preview-mode {
+    .widget-menu-regular {
+      display: block;
+    }
+    .widget-menu-remove {
+      display: none;
+    }
+  }
+
+  &.editing-mode {
+    .widget-menu-regular {
+      display: none;
+    }
+    .widget-menu-remove {
+      display: block;
+    }
+  }
+
   .gridster-preview-holder {
     background: #aaa;
   }
