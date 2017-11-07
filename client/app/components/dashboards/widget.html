@@ -3,7 +3,12 @@
     ng-switch="$ctrl.queryResult.getStatus()">
     <div class="body-row">
       <div class="t-header widget clearfix">
-        <div class="dropdown pull-right" uib-dropdown ng-if="!$ctrl.public">
+        <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
+          <div class="actions">
+            <a ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
+          </div>
+        </div>
+        <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public" uib-dropdown>
           <div class="actions">
             <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more"></i></a>
           </div>
@@ -65,7 +70,12 @@
 
   <div class="tile body-container" ng-hide="$ctrl.widget.width === 0" ng-if="$ctrl.type=='textbox'" ng-class="$ctrl.type">
     <div class="body-row clearfix t-body">
-      <div class="dropdown pull-right" uib-dropdown ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
+      <div class="dropdown pull-right widget-menu-remove" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
+        <div class="dropdown-header">
+          <a class="actions" ng-click="$ctrl.deleteWidget()" title="Remove From Dashboard"><i class="zmdi zmdi-close"></i></a>
+        </div>
+      </div>
+      <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()" uib-dropdown>
         <div class="dropdown-header">
           <a data-toggle="dropdown" uib-dropdown-toggle class="actions"><i class="zmdi zmdi-more"></i></a>
         </div>

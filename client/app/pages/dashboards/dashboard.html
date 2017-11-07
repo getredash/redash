@@ -1,12 +1,12 @@
 <div class="container">
   <div class="row bg-white p-t-10 p-b-10 m-b-10">
-    <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-7">
       <h3>{{$ctrl.dashboard.name}}
         <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       </h3>
     </div>
-    <div class="col-xs-12 col-sm-12 col-md-5 col-lg-4 text-right">
+    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5 text-right">
       <h3>
         <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
 
@@ -78,7 +78,8 @@
   </div>
 
   <div style="overflow: hidden">
-    <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper">
+    <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper"
+      ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
       <div ng-repeat="widget in $ctrl.dashboard.widgets" gridster-item="widget.options.position"
         gridster-auto-height=".scrollbox, .spinner-container">
         <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget()"></dashboard-widget>
