@@ -1,4 +1,5 @@
 import debug from 'debug';
+import * as _ from 'underscore';
 
 const logger = debug('redash:directives');
 
@@ -83,14 +84,17 @@ function gridsterAutoHeight($timeout) {
       let destroyed = false;
 
       function updateHeight() {
-        const paddings = 15;
-        const element = $element[0].querySelector(attr.gridsterAutoHeight);
+        const wrapper = $element[0];
+        const element = wrapper.querySelector(attr.gridsterAutoHeight);
         if (element) {
           if (element.scrollHeight > element.offsetHeight) {
-            let h = element.scrollHeight;
-            h = Math.ceil((h + paddings) / controller.gridster.curRowHeight);
+            const additionalHeight = wrapper.offsetHeight - element.offsetHeight +
+              _.last(controller.gridster.margins);
+
+            const contentsHeight = element.scrollHeight;
             $timeout(() => {
-              controller.sizeY = h;
+              controller.sizeY = Math.ceil((contentsHeight + additionalHeight) /
+                controller.gridster.curRowHeight);
             });
           }
         }
@@ -101,6 +105,7 @@ function gridsterAutoHeight($timeout) {
       }
 
       if (controller.sizeY < 0) {
+        $element.addClass('gridster-auto-height-enabled');
         updateHeight();
 
         $scope.$on('$destroy', () => {
