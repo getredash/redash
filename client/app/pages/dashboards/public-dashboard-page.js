@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
-import './dashboard.css';
+import './dashboard.less';
 
 const PublicDashboardPage = {
   template,

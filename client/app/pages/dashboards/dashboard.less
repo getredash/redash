@@ -1,0 +1,32 @@
+.dashboard-wrapper {
+  .tile {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .gridster-preview-holder {
+    background: #aaa;
+  }
+
+  &.gridster-mobile {
+    margin: 0;
+
+    .gridster-item {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    .tile {
+      display: block;
+      position: static;
+      height: auto;
+      margin-bottom: 15px;
+    }
+  }
+}
