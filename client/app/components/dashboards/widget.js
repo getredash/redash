@@ -1,5 +1,6 @@
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
+import './widget.less';
 
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,

@@ -1,7 +1,7 @@
 import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
-import './dashboard.css';
+import './dashboard.less';
 
 function DashboardCtrl(
   $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
