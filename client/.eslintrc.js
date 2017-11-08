@@ -19,6 +19,8 @@ module.exports = {
     "no-restricted-properties": "off",
     "no-restricted-globals": "off",
     "no-multi-assign": "off",
+    "no-lonely-if": "off",
+    "consistent-return": "off",
     "max-len": ['error', 120, 2, {
       ignoreUrls: true,
       ignoreComments: false,
