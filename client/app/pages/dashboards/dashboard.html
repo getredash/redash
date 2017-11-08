@@ -57,7 +57,7 @@
               </button>
               <ul class="dropdown-menu pull-right" uib-dropdown-menu>
                 <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.editDashboard()">Edit Dashboard</a></li>
-                <li ng-if="!$ctrl.dashboard.is_archived" ng-class="{disabled: $ctrl.isGridDisabled}"><a ng-click="$ctrl.editLayout(true)">Edit Layout</a></li>
+                <li ng-if="!$ctrl.dashboard.is_archived" ng-class="{hidden: $ctrl.isGridDisabled}"><a ng-click="$ctrl.editLayout(true)">Edit Layout</a></li>
                 <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.addWidget()">Add Widget</a></li>
                 <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
                 <li ng-if="!$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish Dashboard</a></li>

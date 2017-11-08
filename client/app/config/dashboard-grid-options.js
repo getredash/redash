@@ -10,7 +10,7 @@ const dashboardGridOptions = {
   outerMargin: false,
   sparse: false,
   isMobile: false,
-  mobileBreakPoint: 1200,
+  mobileBreakPoint: 800,
   mobileModeEnabled: true,
   minColumns: 1,
   minRows: 1,
@@ -22,11 +22,11 @@ const dashboardGridOptions = {
   minSizeY: 1,
   maxSizeY: null,
   resizable: {
-    enabled: true,
+    enabled: false,
     handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
   },
   draggable: {
-    enabled: true, // whether dragging items is supported
+    enabled: false,
   },
 };
 
