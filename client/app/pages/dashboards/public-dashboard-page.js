@@ -1,13 +1,20 @@
+import * as _ from 'underscore';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
+import './dashboard.less';
 
 const PublicDashboardPage = {
   template,
   bindings: {
     dashboard: '<',
   },
-  controller($routeParams, Widget) {
+  controller($routeParams, dashboardGridOptions, Dashboard) {
     'ngInject';
+
+    this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
+      resizable: { enabled: false },
+      draggable: { enabled: false },
+    });
 
     // embed in params == headless
     this.logoUrl = logoUrl;
@@ -16,8 +23,7 @@ const PublicDashboardPage = {
       document.querySelector('body').classList.add('headless');
     }
     this.public = true;
-    this.dashboard.widgets = this.dashboard.widgets.map(row =>
-      row.map(widget => new Widget(widget)));
+    this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
   },
 };
 

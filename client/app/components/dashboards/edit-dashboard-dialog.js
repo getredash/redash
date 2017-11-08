@@ -1,4 +1,4 @@
-import { isEmpty, sortBy } from 'underscore';
+import { isEmpty } from 'underscore';
 import template from './edit-dashboard-dialog.html';
 
 const EditDashboardDialog = {
@@ -28,47 +28,17 @@ const EditDashboardDialog = {
       },
     };
 
-    this.items = [];
-
-    if (this.dashboard.widgets) {
-      this.dashboard.widgets.forEach((row, rowIndex) => {
-        row.forEach((widget, colIndex) => {
-          this.items.push({
-            id: widget.id,
-            col: colIndex,
-            row: rowIndex,
-            sizeY: 1,
-            sizeX: widget.width,
-            name: widget.getName(), // visualization.query.name
-          });
-        });
-      });
-    }
-
     this.isFormValid = () => !isEmpty(this.dashboard.name);
 
     this.saveDashboard = () => {
       this.saveInProgress = true;
 
       if (this.dashboard.id) {
-        const layout = [];
-        const sortedItems = sortBy(this.items, item => item.row * 10 + item.col);
-
-        sortedItems.forEach((item) => {
-          layout[item.row] = layout[item.row] || [];
-          if (item.col > 0 && layout[item.row][item.col - 1] === undefined) {
-            layout[item.row][item.col - 1] = item.id;
-          } else {
-            layout[item.row][item.col] = item.id;
-          }
-        });
-
         const request = {
           slug: this.dashboard.id,
           name: this.dashboard.name,
           version: this.dashboard.version,
           dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
-          layout: JSON.stringify(layout),
         };
 
         Dashboard.save(request, (dashboard) => {

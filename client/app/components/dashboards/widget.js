@@ -1,5 +1,6 @@
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
+import './widget.less';
 
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
@@ -47,7 +48,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   this.localParametersDefs = () => {
     if (!this.localParameters) {
-      this.localParameters = this.widget.query.getParametersDefs().filter(p => !p.global);
+      this.localParameters = this.widget.getQuery().getParametersDefs().filter(p => !p.global);
     }
     return this.localParameters;
   };
@@ -60,14 +61,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
     Events.record('delete', 'widget', this.widget.id);
 
     this.widget.$delete((response) => {
-      this.dashboard.widgets =
-        this.dashboard.widgets.map(row => row.filter(widget => widget.id !== undefined));
-
-      this.dashboard.widgets = this.dashboard.widgets.filter(row => row.length > 0);
-
-      this.dashboard.layout = response.layout;
+      this.dashboard.widgets = this.dashboard.widgets.filter(widget => widget.id !== undefined);
       this.dashboard.version = response.version;
-
       if (this.deleted) {
         this.deleted({});
       }

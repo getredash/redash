@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import template from './add-widget-dialog.html';
 
 const AddWidgetDialog = {
@@ -7,26 +8,18 @@ const AddWidgetDialog = {
     close: '&',
     dismiss: '&',
   },
-  controller($sce, toastr, Query, Widget) {
+  controller($sce, toastr, Query, Widget, dashboardGridOptions) {
     'ngInject';
 
     this.dashboard = this.resolve.dashboard;
     this.saveInProgress = false;
-    this.widgetSize = 1;
     this.selectedVis = null;
     this.query = {};
     this.selected_query = undefined;
     this.text = '';
     this.existing_text = '';
     this.new_text = '';
-    this.widgetSizes = [{
-      name: 'Regular',
-      value: 1,
-    }, {
-      name: 'Double',
-      value: 2,
-    }];
-
+    this.isHidden = false;
     this.type = 'visualization';
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
@@ -35,11 +28,6 @@ const AddWidgetDialog = {
 
     this.setType = (type) => {
       this.type = type;
-      if (type === 'textbox') {
-        this.widgetSizes.push({ name: 'Hidden', value: 0 });
-      } else if (this.widgetSizes.length > 2) {
-        this.widgetSizes.pop();
-      }
     };
 
     this.onQuerySelect = () => {
@@ -69,24 +57,69 @@ const AddWidgetDialog = {
 
     this.saveWidget = () => {
       this.saveInProgress = true;
+
+      const width = dashboardGridOptions.defaultSizeX;
+
+      // Find first free row for each column
+      const bottomLine = _.chain(this.dashboard.widgets)
+        .map((w) => {
+          const options = _.extend({}, w.options);
+          const position = _.extend({ row: 0, sizeY: 0 }, options.position);
+          return {
+            left: position.col,
+            top: position.row,
+            right: position.col + position.sizeX,
+            bottom: position.row + position.sizeY,
+            width: position.sizeX,
+            height: position.sizeY,
+          };
+        })
+        .reduce((result, item) => {
+          const from = Math.max(item.left, 0);
+          const to = Math.min(item.right, result.length + 1);
+          for (let i = from; i < to; i += 1) {
+            result[i] = Math.max(result[i], item.bottom);
+          }
+          return result;
+        }, _.map(new Array(dashboardGridOptions.columns), _.constant(0)))
+        .value();
+
+      // Go through columns, pick them by count necessary to hold new block,
+      // and calculate bottom-most free row per group.
+      // Choose group with the top-most free row (comparing to other groups)
+      const position = _.chain(_.range(0, dashboardGridOptions.columns - width + 1))
+        .map(col => ({
+          col,
+          row: _.chain(bottomLine)
+            .slice(col, col + width)
+            .max()
+            .value(),
+        }))
+        .sortBy('row')
+        .first()
+        .value();
+
       const widget = new Widget({
         visualization_id: this.selectedVis && this.selectedVis.id,
         dashboard_id: this.dashboard.id,
-        options: {},
-        width: this.widgetSize,
+        options: {
+          isHidden: this.isTextBox() && this.isHidden,
+          position: {
+            // Place new widget below all others
+            col: position.col,
+            row: position.row,
+            sizeX: width,
+            // Auto-height by default
+            sizeY: -1,
+          },
+        },
         text: this.text,
       });
 
       widget.$save().then((response) => {
         // update dashboard layout
-        this.dashboard.layout = response.layout;
         this.dashboard.version = response.version;
-        const newWidget = new Widget(response.widget);
-        if (response.new_row) {
-          this.dashboard.widgets.push([newWidget]);
-        } else {
-          this.dashboard.widgets[this.dashboard.widgets.length - 1].push(newWidget);
-        }
+        this.dashboard.widgets.push(new Widget(response.widget));
         this.close();
       }).catch(() => {
         toastr.error('Widget can not be added');
