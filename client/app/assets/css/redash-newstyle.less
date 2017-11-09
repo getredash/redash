@@ -1,0 +1,104 @@
+// Spacing
+
+// Colors
+@redash-gray: rgba(92, 126, 143, 1);
+@redash-orange: rgba(255, 120, 100, 1);
+
+body {
+  //padding-bottom: 0px;
+}
+
+#footer {
+  height: auto;
+  line-height: 3;
+  padding: 20px;
+}
+
+page-header, .dashboard__header {
+  h3 {
+    margin: 0;
+    line-height: 2;
+  }
+}
+
+.dashboard__control {
+  margin: 8px 0;
+}
+
+.collapsing, .collapse.in {
+  padding: 0;
+}
+
+.navbar {
+  max-height: 50px;
+
+  a.navbar-brand {
+    padding: 4px 0px 0px 0px;
+    margin-left: -3px !important;
+  }
+}
+
+.tab-nav {
+  margin-bottom: 0px;
+}
+
+.profile__image--navbar {
+  border-radius: 100%;
+  margin-right: 3px;
+  margin-top: -2px;
+}
+
+.btn__new {
+  margin-top: 11px;
+  margin-left: 15px;
+}
+
+.navbar-brand {
+  position: absolute;
+  left: 50%;
+  margin-left: -50px !important;  /* 50% of your logo width */
+  display: block;
+}
+
+.tile {
+  border-radius: 3px;
+  box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
+
+  .widget-menu-regular, .btn__refresh {
+    opacity: 0 !important;
+    transition: opacity 0.35s ease-in-out;
+  }
+
+  .t-header.widget {
+    padding: 10px;
+  }
+
+  &:hover {
+    .widget-menu-regular, .btn__refresh {
+      opacity: 1 !important;
+      transition: opacity 0.35s ease-in-out;
+    }
+  }
+
+  .tile__bottom-control {
+    padding: 10px;
+    line-height: 2;
+  }
+}
+
+.navbar {
+  //box-shadow: fade(@redash-gray, 20%) 0px 5px 10px -5px;
+  //border-bottom: 1px solid fade(@redash-gray, 10%);
+
+  a.dropdown--profile {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    line-height: 2.35;
+  }
+
+
+  .navbar-inverse {
+    background-color: @redash-gray;
+    border: none;
+  }
+}
