@@ -1,5 +1,6 @@
 import { each } from 'underscore';
 import template from './show.html';
+import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
