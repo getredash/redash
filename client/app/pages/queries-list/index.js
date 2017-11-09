@@ -46,8 +46,8 @@ class QueriesListCtrl {
     this.paginator = new LivePaginator(queriesFetcher, { page });
 
     this.tabs = [
-      { name: 'My Queries', path: 'queries/my' },
       { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
+      { name: 'My Queries', path: 'queries/my' },
     ];
   }
 }
