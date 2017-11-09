@@ -97,6 +97,8 @@ function UserCtrl(
     });
   };
 
+  $scope.isCollapsed = true;
+
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
