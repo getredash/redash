@@ -48,11 +48,10 @@
 
         <hr>
 
-        <button class="btn btn-default" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
-          Change password <b class="caret"></b>
-        </button>
 
-        <div class="collapse" id="collapseExample">
+        <button type="button" class="btn btn-default" ng-click="isCollapsed = !isCollapsed">Change password <b class="caret"></b></button>
+
+        <div uib-collapse="isCollapsed">
           <div class="well">
             <form class="form" name="userPasswordForm" ng-submit="savePassword(userPasswordForm)" novalidate>
               <div class="form-group required" ng-class="{ 'has-error':  (userPasswordForm.currentPassword | showError:userPasswordForm )}">
@@ -79,6 +78,7 @@
             </form>
           </div>
         </div>
+
 
         <div ng-if="currentUser.isAdmin">
           <br>
