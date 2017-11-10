@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
+    "start:worker": "C_FORCE_ROOT=true ./bin/run celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2",
+    "start:server": "./bin/run ./manage.py runserver --debugger --reload --host 0.0.0.0 --port 8000",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
   },
@@ -37,8 +39,8 @@
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",
     "brace": "^0.10.0",
-    "core-js": "https://registry.npmjs.org/core-js/-/core-js-2.4.1.tgz",
-    "cornelius": "git+https://github.com/restorando/cornelius.git",
+    "core-js": "2.5.1",
+    "cornelius": "git+git@github.com:restorando/cornelius.git",
     "d3": "^3.5.17",
     "d3-cloud": "^1.2.4",
     "debug": "^3.1.0",
@@ -52,7 +54,7 @@
     "moment": "^2.18.1",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
-    "pace-progress": "git+https://github.com/getredash/pace.git",
+    "pace-progress": "git+git@github.com:getredash/pace.git",
     "pivottable": "^2.15.0",
     "plotly.js": "1.30.1",
     "ui-select": "^0.19.8",

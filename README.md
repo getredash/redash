@@ -27,24 +27,19 @@ Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 
 You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
 
-## Getting Started
+## Running In Development
 
-* [Setting up Redash instance](https://redash.io/help-onpremise/setup/setting-up-redash-instance.html) (includes links to ready made AWS/GCE images).
-* [Documentation](https://redash.io/help/).
+Make sure redis is running
+```sh
+redis-server
+```
 
-
-## Getting Help
-
-* Issues: https://github.com/getredash/redash/issues
-* Discussion Forum: https://discuss.redash.io/
-* Slack: http://slack.redash.io/
-* Gitter (chat): https://gitter.im/getredash/redash
-
-## Reporting Bugs and Contributing Code
-
-* Want to report a bug or request a feature? Please open [an issue](https://github.com/getredash/redash/issues/new).
-* Want to help us build **_Redash_**? Fork the project, edit in a [dev environment](https://redash.io/help-onpremise/dev/guide.html), and make a pull request. We need all the help we can get!
+```sh
+npm run start 
+npm run start:workers # in another window
+npm run start:server # in yet another window
+```
 
 ## License
 
-BSD-2-Clause.
+Jenny License
