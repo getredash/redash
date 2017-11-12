@@ -123,6 +123,10 @@ var config = {
     ]
   },
   devtool: 'cheap-eval-module-source-map',
+  stats: {
+    modules: false,
+    chunkModules: false,
+  },
   devServer: {
     inline: true,
     historyApiFallback: true,
@@ -134,7 +138,11 @@ var config = {
       target: redashBackend + '/',
       changeOrigin: true,
       secure: false
-    }]
+    }],
+    stats: {
+      modules: false,
+      chunkModules: false,
+    },
   }
 };
 

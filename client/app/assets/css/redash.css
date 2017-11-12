@@ -321,7 +321,7 @@ to add those CSS styles here. */
 }
 
 pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
-  overflow: auto;
+  /*overflow: auto;*/
 }
 
 counter-renderer {
