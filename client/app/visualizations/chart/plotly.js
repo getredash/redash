@@ -252,7 +252,9 @@ const PlotlyChart = () => {
           const cellWidth = 1 / cellsInRow;
           const cellHeight = 1 / rows;
           const xPadding = 0.02;
-          const yPadding = 0.05;
+          const yPadding = 0.1;
+
+          scope.layout.annotations = [];
 
           each(scope.series, (series, index) => {
             const xPosition = (index % cellsInRow) * cellWidth;
@@ -271,6 +273,17 @@ const PlotlyChart = () => {
                 y: [yPosition, yPosition + cellHeight - yPadding],
               },
             };
+
+            if (scope.series.length > 1) {
+              scope.layout.annotations.push({
+                x: xPosition + ((cellWidth - xPadding) / 2),
+                y: yPosition + (cellHeight / 1) - 0.015,
+                xanchor: 'center',
+                yanchor: 'top',
+                text: series.name,
+                showarrow: false,
+              });
+            }
 
             series.data.forEach((row) => {
               plotlySeries.values.push(row.y);
