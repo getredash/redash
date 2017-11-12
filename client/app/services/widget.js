@@ -35,7 +35,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   function WidgetConstructor(widget) {
     widget.width = 1; // Backward compatibility, user on back-end
 
-    const visualizationOptions = {};
+    const visualizationOptions = {
+      sizeX: Math.round(dashboardGridOptions.columns / 2),
+      sizeY: -1, // auto-height
+    };
     const visualization = widget.visualization ?
       Visualization.visualizations[widget.visualization.type] : null;
     if (isObject(visualization)) {
@@ -64,6 +67,16 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
       const maxRows = parseInt(options.maxRows, 10);
       if (isFinite(maxRows) && (maxRows >= 0)) {
         visualizationOptions.maxSizeY = maxRows;
+      }
+
+      // Default dimensions
+      const defaultWidth = parseInt(options.defaultColumns, 10);
+      if (isFinite(defaultWidth) && (defaultWidth > 0)) {
+        visualizationOptions.sizeX = defaultWidth;
+      }
+      const defaultHeight = parseInt(options.defaultRows, 10);
+      if (isFinite(defaultHeight) && (defaultHeight > 0)) {
+        visualizationOptions.sizeY = defaultHeight;
       }
     }
 

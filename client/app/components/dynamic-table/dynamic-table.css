@@ -1,5 +1,5 @@
 dynamic-table > div {
-  overflow: auto;
+  /*overflow: auto;*/
 }
 
 th.sortable-column {

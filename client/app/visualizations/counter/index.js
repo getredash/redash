@@ -122,6 +122,8 @@ export default function init(ngModule) {
       stringDecimal: 0,
       stringDecChar: '.',
       stringThouSep: ',',
+      defaultColumns: 2,
+      defaultRows: 6,
     };
 
     VisualizationProvider.registerVisualization({
