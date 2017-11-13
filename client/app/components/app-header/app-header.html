@@ -17,7 +17,7 @@
         <li class="dropdown btn-group" ng-show="$ctrl.showDashboardsMenu" uib-dropdown>
           <a id="split-button" class="btn" href="dashboards">Dashboards</a>
           <a type="button" class="btn hidden-xs" uib-dropdown-toggle>
-            <span class="caret"></span>
+            <span class="caret caret--nav"></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li><a href="dashboards">All Dashboards</a></li>
@@ -38,7 +38,7 @@
       <!-- Add New Button -->
       <div class="btn-group navbar-btn navbar-left btn__new hidden-xs" uib-dropdown is-open="status.isopen">
         <button id="create-button" type="button" class="btn btn-primary btn--create" uib-dropdown-toggle ng-disabled="disabled">
-          Create <span class="caret"></span>
+          Create <span class="caret caret--nav"></span>
         </button>
         <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="create-button">
           <li role="menuitem"><a ng-show="$ctrl.currentUser.hasPermission('create_dashboard')" ng-click="$ctrl.newDashboard()">Dashboard</a></li>
@@ -59,7 +59,7 @@
           <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle>
             <img ng-src="{{$ctrl.currentUser.gravatar_url}}" class="profile__image--navbar" width="20"/>
             <span ng-bind="$ctrl.currentUser.name"></span> <span
-            class="caret"></span></a>
+            class="caret caret--nav"></span></a>
           <ul class="dropdown-menu dropdown-menu--profile">
             <li>
               <a ng-href="users/{{$ctrl.currentUser.id}}">Edit Profile</a>

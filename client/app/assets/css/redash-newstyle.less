@@ -11,15 +11,15 @@ body {
   background: #f5f5f5;
 }
 
-.caret {
+.caret--nav {
   border-top: none;
 }
 
-.caret:after {
+.caret--nav:after {
   content: "";
   position: absolute;
   right: 5px;
-  top: 19px;
+  top: 9px;
   width: 13px;
   height: 13px;
   display: block;
@@ -28,21 +28,25 @@ body {
   transition: transform .2s cubic-bezier(.75,0,.25,1);
 }
 
-.dropdown--profile .caret:after {
+.navbar .caret--nav:after {
+  top: 19px;
+}
+
+.dropdown--profile .caret--nav:after {
   right: 8px;
 }
 
 .btn--create {
   padding-right: 16px;
 
-  .caret:after {
+  .caret--nav:after {
     top: 10px;
     right: 7px;
     background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='11px' height='6px' viewBox='0 0 11 6' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3C!-- Generator: Sketch 42 %2836781%29 - http://www.bohemiancoding.com/sketch --%3E%3Ctitle%3EShape%3C/title%3E%3Cdesc%3ECreated with Sketch.%3C/desc%3E%3Cdefs%3E%3C/defs%3E%3Cg id='Page-1' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cpath d='M5.29592111,4.28945339 L9.38192111,0.201453387 C9.66078932,-0.0702383105 10.1064398,-0.0666695379 10.3809211,0.209453387 C10.6609211,0.489453387 10.6609211,0.933453387 10.3879211,1.20745339 L5.79192111,5.80445339 C5.66021101,5.9353425 5.48160054,6.00808305 5.29592111,6.00645339 C5.1098961,6.00835125 4.9308756,5.9355904 4.79892111,5.80445339 L0.203921109,1.20845339 C0.0720842204,1.07540275 -0.00129639464,0.895299774 1.73406884e-05,0.707998651 C0.00133107602,0.520697529 0.0772308417,0.341641606 0.210921109,0.210453387 C0.485286842,-0.0650114866 0.930174648,-0.0685777215 1.20892111,0.202453387 L5.29592111,4.28945339 L5.29592111,4.28945339 Z' id='Shape' fill='%23FCFCFC'%3E%3C/path%3E%3C/g%3E%3C/svg%3E");
   }
 }
 
-.dropdown.open .caret:after {
+.dropdown.open .caret--nav:after {
   transform: rotate(180deg);
 }
 
