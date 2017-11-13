@@ -13,26 +13,11 @@
     <div class="collapse navbar-collapse" uib-collapse="!isNavOpen">
       <!-- Main Left Nav-->
 
-      <!--
-      <div class="btn-group pull-left" uib-dropdown>
-        <a id="split-button" class="btn btn-default" href="dashboards">Dashboards</a>
-        <a type="button" class="btn btn-default" uib-dropdown-toggle>
-          <span class="caret"></span>
-          <span class="sr-only">Split button!</span>
-        </a>
-        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
-          <li role="menuitem" ng-repeat="dashboard in $ctrl.dashboards">
-            <a href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
-          </li>
-        </ul>
-      </div> -->
-
-      <ul class="nav navbar-nav">
+      <ul class="nav navbar-nav nav__main">
         <li class="dropdown btn-group" ng-show="$ctrl.showDashboardsMenu" uib-dropdown>
           <a id="split-button" class="btn" href="dashboards">Dashboards</a>
-          <a type="button" class="btn" uib-dropdown-toggle>
+          <a type="button" class="btn hidden-xs" uib-dropdown-toggle>
             <span class="caret"></span>
-            <span class="sr-only">Dashboards</span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li><a href="dashboards">All Dashboards</a></li>
@@ -51,7 +36,7 @@
       </ul>
 
       <!-- Add New Button -->
-      <div class="btn-group navbar-btn navbar-left btn__new" uib-dropdown is-open="status.isopen">
+      <div class="btn-group navbar-btn navbar-left btn__new hidden-xs" uib-dropdown is-open="status.isopen">
         <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
           <i class="zmdi zmdi-plus"></i> Create <span class="caret"></span>
         </button>
@@ -95,7 +80,7 @@
       <!-- Search -->
       <form class="navbar-form navbar-right" role="search" ng-submit="$ctrl.searchQueries()">
         <div class="input-group menu-search">
-          <input type="text" ng-model="$ctrl.term" class="form-control" placeholder="Search queries...">
+          <input type="text" ng-model="$ctrl.term" class="form-control navbar__search__input" placeholder="Search queries...">
           <span class="input-group-btn">
             <button type="submit" class="btn btn-default"><span class="zmdi zmdi-search"></span></button>
           </span>
