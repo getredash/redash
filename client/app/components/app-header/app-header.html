@@ -50,29 +50,47 @@
       <!-- Profile -->
       <ul class="nav navbar-nav navbar-right">
         <li ng-show="$ctrl.currentUser.isAdmin">
-          <a href="data_sources" title="Data Sources"><i class="fa fa-database"></i></a>
+          <a href="data_sources" title="Data Sources"><i class="fa fa-sliders" aria-hidden="true"></i></a>
         </li>
-        <li ng-show="$ctrl.showSettingsMenu">
-          <a href="users" title="Settings"><i class="fa fa-cog"></i></a>
-        </li>
+        <!--<li ng-show="$ctrl.showSettingsMenu">-->
+          <!--<a href="users" title="Settings"><i class="fa fa-cog"></i></a>-->
+        <!--</li>-->
         <li class="dropdown" uib-dropdown>
           <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle>
             <img ng-src="{{$ctrl.currentUser.gravatar_url}}" class="profile__image--navbar" width="20"/>
             <span ng-bind="$ctrl.currentUser.name"></span> <span
             class="caret"></span></a>
-          <ul class="dropdown-menu" dropdown-menu>
-            <li style="width:200px">
-              <a ng-href="users/{{$ctrl.currentUser.id}}">
-                Account Settings
-              </a>
+          <ul class="dropdown-menu dropdown-menu--profile">
+            <li>
+              <a ng-href="users/{{$ctrl.currentUser.id}}">Edit Profile</a>
+            </li>
+            <li>
+              <a ng-href="query_snippets">Query Snippets</a>
             </li>
             <li class="divider" ng-if="$ctrl.currentUser.hasPermission('super_admin')">
-              <li ng-if="$ctrl.currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
-              <li class="divider">
-              </li>
-              <li>
-                <a ng-click="$ctrl.logout()">Log out</a>
-              </li>
+
+            <li ng-show="$ctrl.currentUser.isAdmin">
+              <a href="data_sources" title="Data Sources">Data Sources</a>
+            </li>
+            <li ng-show="$ctrl.showSettingsMenu">
+              <a href="groups" title="Settings">Groups</a>
+            </li>
+            <li ng-show="$ctrl.showSettingsMenu">
+              <a href="users" title="Settings">Users</a>
+            </li>
+            <li ng-show="$ctrl.showSettingsMenu">
+              <a href="destinations" title="Settings">Alert Destinations</a>
+            </li>
+
+            <li class="divider"></li>
+
+            <li ng-if="$ctrl.currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
+
+            <li class="divider"></li>
+
+            <li>
+              <a ng-click="$ctrl.logout()">Log out</a>
+            </li>
           </ul>
         </li>
       </ul>

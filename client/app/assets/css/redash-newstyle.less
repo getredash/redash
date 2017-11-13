@@ -149,6 +149,12 @@ page-header, .dashboard__header {
   }
 }
 
+.dropdown-menu--profile {
+  li {
+    width: 200px;
+  }
+}
+
 // Mobile fixes
 
 .navbar .collapse.in {
@@ -166,6 +172,12 @@ page-header, .dashboard__header {
   //Fix navbar collapse
   .navbar .collapse.in {
     border: none;
+
+    .dropdown-menu--profile {
+      li {
+        width: auto;
+      }
+    }
 
     .nav__main li a {
       padding: 10px 15px;
