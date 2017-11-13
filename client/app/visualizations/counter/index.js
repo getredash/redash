@@ -1,5 +1,5 @@
 import numberFormat from 'underscore.string/numberFormat';
-import { isNumber as isNum } from 'underscore';
+import * as _ from 'underscore';
 
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
@@ -20,7 +20,27 @@ function CounterRenderer() {
   return {
     restrict: 'E',
     template: counterTemplate,
-    link($scope) {
+    link($scope, $element) {
+      $scope.fontSize = '1em';
+
+      const rootNode = $element[0].querySelector('counter');
+      // This is collection (not array), and will be updated by browser
+      const rulers = rootNode.querySelectorAll('.ruler');
+      $scope.handleResize = () => {
+        const rootWidth = Math.floor(rootNode.offsetWidth) - 30; // scrollbox
+        const maxRuler = _.chain(rulers)
+          .map(ruler => ({
+            width: Math.floor(ruler.offsetWidth),
+            fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
+          }))
+          .sortBy('width')
+          .last()
+          .value();
+
+        const fontSize = Math.floor(rootWidth / maxRuler.width * maxRuler.fontSize);
+        $scope.fontSize = fontSize + 'px';
+      };
+
       const refreshData = () => {
         const queryData = $scope.queryResult.getData();
         if (queryData) {
@@ -46,7 +66,7 @@ function CounterRenderer() {
             $scope.targetValue = null;
           }
 
-          $scope.isNumber = isNum($scope.counterValue);
+          $scope.isNumber = _.isNumber($scope.counterValue);
           if ($scope.isNumber) {
             $scope.stringPrefix = $scope.visualization.options.stringPrefix;
             $scope.stringSuffix = $scope.visualization.options.stringSuffix;
@@ -97,7 +117,7 @@ function CounterEditor() {
             scope.counterValue = queryData[rowNumber][counterColName];
           }
         }
-        return isNum(scope.counterValue);
+        return _.isNumber(scope.counterValue);
       };
     },
   };

@@ -1,6 +1,8 @@
-<counter ng-class="{'positive': targetValue && trendPositive, 'negative': targetValue && !trendPositive}">
-  <value ng-if="isNumber">{{stringPrefix}}{{counterValue|number}}{{stringSuffix}}</value>
-  <value ng-if="!isNumber">{{stringPrefix}}{{counterValue}}{{stringSuffix}}</value>
-  <counter-target ng-if="targetValue">({{targetValue|number}})</counter-target>
-  <counter-name>{{visualization.name}}</counter-name>
+<counter
+  ng-class="{'positive': targetValue && trendPositive, 'negative': targetValue && !trendPositive}"
+  ng-style="{'font-size': fontSize}" resize-event="handleResize()">
+  <value ng-if="isNumber"><span class="ruler">{{stringPrefix}}{{counterValue|number}}{{stringSuffix}}</span></value>
+  <value ng-if="!isNumber"><span class="ruler">{{stringPrefix}}{{counterValue}}{{stringSuffix}}</span></value>
+  <counter-target ng-if="targetValue"><span class="ruler">({{targetValue|number}})</span></counter-target>
+  <counter-name><span class="ruler">{{visualization.name}}</span></counter-name>
 </counter>
