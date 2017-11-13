@@ -1,0 +1,11 @@
+<basic-image-show ng-class="{'positive': targetValue && trendPositive, 'negative': targetValue && !trendPositive}">
+  <value ng-bind-html="counterValue"></value>
+  <basic-image-show-target ng-if="targetValue">
+    <div>
+      <h4>({{stringPrefix}}{{targetValue}}{{stringSuffix}})</h4>
+    </div>
+  </basic-image-show-target>
+  <basic-image-show-name>
+    <div><h5>{{visualization.name}}</h5></div>
+  </basic-image-show-name>
+</basic-image-show>

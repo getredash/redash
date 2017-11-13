@@ -702,3 +702,30 @@ div.table-name:hover {
 .dropdown-menu > .disabled > a{
  pointer-events: none;
 }
+
+basic-image-show img {
+  display: block;
+  margin: 0 auto;
+  margin-top: 30px;
+}
+
+basic-image-show-renderer {
+  display: block;
+  text-align: center;
+}
+
+basic-image-show-renderer basic-image-show {
+  margin: 0 auto;
+  padding: 15px 50px;
+  display: block;;
+}
+
+basic-image-show-renderer basic-image-show-target {
+  font-size: 30px;
+  display: block;
+}
+
+basic-image-show-renderer basic-image-show-name {
+  font-size: 20px;
+  display: block;
+}
