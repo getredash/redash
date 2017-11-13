@@ -1,5 +1,5 @@
 import { truncate } from 'underscore.string';
-import { omit, flatten, extend, isObject } from 'underscore';
+import { pick, omit, flatten, extend, isObject } from 'underscore';
 
 function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   function prepareForSave(data) {
@@ -81,7 +81,11 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     }
 
     widget.options = widget.options || {};
-    widget.options.position = extend({}, visualizationOptions, widget.options.position);
+    widget.options.position = extend(
+      {},
+      visualizationOptions,
+      pick(widget.options.position, ['col', 'row', 'sizeX', 'sizeY']),
+    );
 
     return new WidgetResource(widget);
   }

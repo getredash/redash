@@ -286,7 +286,10 @@ export default function init(ngModule) {
 
     const editTemplate = '<map-editor></map-editor>';
     const defaultOptions = {
-      height: 500,
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
+      minRows: 3,
       classify: 'none',
       clusterMarkers: true,
     };
