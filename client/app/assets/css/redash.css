@@ -327,17 +327,20 @@ pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div 
 counter-renderer {
   display: block;
   text-align: center;
+  padding: 15px 10px;
+  overflow: hidden;
 }
 
 counter-renderer counter {
-  margin: 0 auto;
-  padding: 15px 50px;
-  display: block;;
+  margin: 0;
+  display: block;
+  font-size: 80px;
+  overflow: hidden;
 }
 
 counter-renderer value,
 counter-renderer counter-target {
-  font-size: 80px;
+  font-size: 1em;
   display: block;
 }
 
@@ -355,7 +358,7 @@ counter-renderer counter.negative value {
 }
 
 counter-renderer counter-name {
-  font-size: 40px;
+  font-size: 0.5em;
   display: block;
 }
 
