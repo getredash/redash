@@ -1,5 +1,5 @@
-<nav class="navbar navbar-default navbar-fixed-top app-header" role="navigation">
-  <div class="container">
+<nav class="navbar navbar-default app-header" role="navigation">
+  <div class="container"">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" ng-click="isNavOpen = !isNavOpen">
         <span class="sr-only">Toggle navigation</span>
@@ -12,11 +12,27 @@
     </div>
     <div class="collapse navbar-collapse" uib-collapse="!isNavOpen">
       <!-- Main Left Nav-->
+
+      <!--
+      <div class="btn-group pull-left" uib-dropdown>
+        <a id="split-button" class="btn btn-default" href="dashboards">Dashboards</a>
+        <a type="button" class="btn btn-default" uib-dropdown-toggle>
+          <span class="caret"></span>
+          <span class="sr-only">Split button!</span>
+        </a>
+        <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="split-button">
+          <li role="menuitem" ng-repeat="dashboard in $ctrl.dashboards">
+            <a href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+          </li>
+        </ul>
+      </div> -->
+
       <ul class="nav navbar-nav">
-        <li class="dropdown" ng-show="$ctrl.showDashboardsMenu" uib-dropdown>
-          <a href="#" class="dropdown-toggle" uib-dropdown-toggle title="Dashboards">
-            <span class="visible-xs visible-md visible-lg">Dashboards <b class="caret"></b></span>
-            <span class="visible-sm"><i class="zmdi zmdi-view-dashboard"></i> <b class="caret"></b></span>
+        <li class="dropdown btn-group" ng-show="$ctrl.showDashboardsMenu" uib-dropdown>
+          <a id="split-button" class="btn" href="dashboards">Dashboards</a>
+          <a type="button" class="btn" uib-dropdown-toggle>
+            <span class="caret"></span>
+            <span class="sr-only">Dashboards</span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li><a href="dashboards">All Dashboards</a></li>
@@ -37,12 +53,12 @@
       <!-- Add New Button -->
       <div class="btn-group navbar-btn navbar-left btn__new" uib-dropdown is-open="status.isopen">
         <button id="single-button" type="button" class="btn btn-primary" uib-dropdown-toggle ng-disabled="disabled">
-          + New <span class="caret"></span>
+          <i class="zmdi zmdi-plus"></i> Create <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="single-button">
-          <li role="menuitem"><a ng-show="$ctrl.currentUser.hasPermission('create_dashboard')" ng-click="$ctrl.newDashboard()">New Dashboard</a></li>
-          <li role="menuitem" ng-show="$ctrl.showNewQueryMenu"><a href="queries/new">New Query</a></li>
-          <li role="menuitem"><a href="alerts/new">New Alert</a></li>
+          <li role="menuitem"><a ng-show="$ctrl.currentUser.hasPermission('create_dashboard')" ng-click="$ctrl.newDashboard()">Dashboard</a></li>
+          <li role="menuitem" ng-show="$ctrl.showNewQueryMenu"><a href="queries/new">Query</a></li>
+          <li role="menuitem"><a href="alerts/new">Alert</a></li>
         </ul>
       </div>
 
