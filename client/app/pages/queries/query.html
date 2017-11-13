@@ -255,7 +255,9 @@
                   </div>
                 </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
-                  <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                  <div style="min-height: 400px; position: relative">
+                    <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                  </div>
                   <div class="bg-ace p-5">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
                     <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
