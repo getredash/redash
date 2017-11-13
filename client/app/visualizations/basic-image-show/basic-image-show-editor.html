@@ -8,20 +8,20 @@
     <div class="form-group">
       <label class="col-lg-6">Basic Show Image Value Column Name</label>
       <div class="col-lg-6">
-        <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.counterColName" class="form-control" ng-disabled="visualization.options.countRow"></select>
+        <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.avatarColName" class="form-control"></select>
       </div>
     </div>
     <div class="form-group">
       <label class="col-lg-6">Basic Show Image Value Row Number</label>
       <div class="col-lg-6">
-        <input type="number" ng-model="visualization.options.rowNumber" class="form-control" ng-disabled="visualization.options.countRow" min="1" ng-max="queryResult.getData().length" max="{{queryResult.getData().length}}">
+        <input type="number" ng-model="visualization.options.rowNumber" class="form-control" min="1" ng-max="queryResult.getData().length" max="{{queryResult.getData().length}}">
       </div>
     </div>
     <div class="form-group">
-      <label class="col-lg-6">Target Value Column Name</label>
+      <label class="col-lg-6">Avatar Caption Column Name</label>
       <div class="col-lg-6">
-        <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.targetColName" class="form-control">
-          <option value="">No target value</option>
+        <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.captionColName" class="form-control">
+          <option value="">No caption value</option>
         </select>
       </div>
     </div>

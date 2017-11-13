@@ -23,21 +23,16 @@ function BasicImageShowRenderer() {
 
         if (queryData) {
           const rowNumber = getRowNumber($scope.visualization.options.rowNumber, queryData.length);
-          const counterColName = $scope.visualization.options.counterColName;
-          const targetColName = $scope.visualization.options.targetColName;
+          const avatarColName = $scope.visualization.options.avatarColName;
+          const captionColName = $scope.visualization.options.captionColName;
 
-          if (counterColName) {
-            $scope.counterValue = queryData[rowNumber][counterColName];
+          if (avatarColName) {
+            $scope.avatar = queryData[rowNumber][avatarColName];
           }
-          if (targetColName) {
-            $scope.targetValue = queryData[rowNumber][targetColName];
-
-            if ($scope.targetValue) {
-              $scope.delta = $scope.counterValue - $scope.targetValue;
-              $scope.trendPositive = $scope.delta >= 0;
-            }
+          if (captionColName) {
+            $scope.captionValue = queryData[rowNumber][captionColName];
           } else {
-            $scope.targetValue = null;
+            $scope.captionValue = null;
           }
         }
       };
@@ -74,7 +69,7 @@ export default function init(ngModule) {
 
     const editTemplate = '<basic-image-show-editor></basic-image-show-editor>';
     const defaultOptions = {
-      counterColName: 'basicImageShow',
+      avatarColName: 'avatar',
       rowNumber: 1,
       targetRowNumber: 1,
       stringDecimal: 0,
