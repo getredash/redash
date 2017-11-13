@@ -80,6 +80,8 @@ export default function init(ngModule) {
     const defaultOptions = {
       defaultRows: 15,
       defaultColumns: 4,
+      minRows: 4,
+      minColumns: 2,
     };
 
     VisualizationProvider.registerVisualization({
