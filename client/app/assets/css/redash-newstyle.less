@@ -6,6 +6,7 @@
 
 body {
   //padding-bottom: 0px;
+  padding-top: 0;
 }
 
 #footer {
@@ -30,12 +31,47 @@ page-header, .dashboard__header {
 }
 
 .navbar {
-  max-height: 50px;
+  //max-height: 50px;
+  min-height: initial;
+  height: 49px;
+  border: 1px solid #fff;
+  border-top: none;
+  border-radius: 0;
+  background: #fff;
+  margin-bottom: 10px;
 
   a.navbar-brand {
     padding: 4px 0px 0px 0px;
     margin-left: -3px !important;
   }
+
+  .btn-group.open .dropdown-toggle {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  .btn-group .btn:active {
+    box-shadow: none;
+  }
+}
+
+.navbar-default .navbar-nav > li > a {
+  color: #000;
+  font-weight: 500;
+
+  &:active, &:hover, &:focus {
+    color: #000;
+  }
+}
+
+.navbar-default .navbar-nav > .open > a, .navbar-default .navbar-nav > .open > a:hover, .navbar-default .navbar-nav > .open > a:focus {
+  background-color: fade(@redash-gray, 10%);
+  color: #111;
+}
+
+.dropdown-menu > li > a:hover, .dropdown-menu > li > a:focus {
+  background-color: fade(@redash-gray, 10%);
+  color: #111;
 }
 
 .tab-nav {
@@ -49,8 +85,12 @@ page-header, .dashboard__header {
 }
 
 .btn__new {
-  margin-top: 10px;
   margin-left: 15px;
+}
+
+.navbar-btn {
+  margin-top: 10px;
+  margin-bottom: 9px;
 }
 
 .navbar-brand {
@@ -58,6 +98,8 @@ page-header, .dashboard__header {
   left: 49%;
   margin-left: -50px !important;  /* 50% of your logo width */
   display: block;
+  zoom: 0.9;
+  margin-top: 3px;
 }
 
 .tile {
@@ -90,6 +132,10 @@ page-header, .dashboard__header {
   //box-shadow: fade(@redash-gray, 20%) 0px 5px 10px -5px;
   //border-bottom: 1px solid fade(@redash-gray, 10%);
 
+  .navbar-collapse {
+    padding-left: 0;
+  }
+
   a.dropdown--profile {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -101,4 +147,10 @@ page-header, .dashboard__header {
     background-color: @redash-gray;
     border: none;
   }
+}
+
+// Mobile fixes
+
+.navbar .collapse.in {
+  background: #fff;
 }
