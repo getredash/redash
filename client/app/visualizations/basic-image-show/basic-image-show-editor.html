@@ -3,9 +3,6 @@
     <li ng-class="{active: currentTab == 'general'}">
       <a ng-click="changeTab('general')">General</a>
     </li>
-    <li ng-class="{active: currentTab == 'format'}">
-      <a ng-click="changeTab('format')">Format</a>
-    </li>
   </ul>
   <div ng-show="currentTab == 'general'">
     <div class="form-group">
@@ -17,7 +14,7 @@
     <div class="form-group">
       <label class="col-lg-6">Basic Show Image Value Row Number</label>
       <div class="col-lg-6">
-        <input type="number" ng-model="visualization.options.rowNumber" class="form-control" ng-disabled="visualization.options.countRow">
+        <input type="number" ng-model="visualization.options.rowNumber" class="form-control" ng-disabled="visualization.options.countRow" min="1" ng-max="queryResult.getData().length" max="{{queryResult.getData().length}}">
       </div>
     </div>
     <div class="form-group">
@@ -26,51 +23,6 @@
         <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.targetColName" class="form-control">
           <option value="">No target value</option>
         </select>
-      </div>
-    </div>
-    <div class="form-group" ng-if="visualization.options.targetColName">
-      <label class="col-lg-6">Target Value Row Number</label>
-      <div class="col-lg-6">
-        <input type="number" ng-model="visualization.options.targetRowNumber" class="form-control">
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="col-lg-6">
-        <input type="checkbox" ng-model="visualization.options.countRow">
-        <i class="input-helper"></i> Count Rows
-      </div>
-    </div>
-  </div>
-
-  <div ng-show="currentTab == 'format'">
-    <div class="form-group">
-      <label class="col-lg-6">Formatting Decimal Place</label>
-      <div class="col-lg-6">
-        <input type="number" ng-model="visualization.options.stringDecimal" class="form-control" ng-disabled="!isValueNumber()">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-lg-6">Formatting Decimal Character</label>
-      <div class="col-lg-6">
-        <input type="text" ng-model="visualization.options.stringDecChar" class="form-control" ng-disabled="!isValueNumber()">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-lg-6">Formatting Thousands Separator</label>
-      <div class="col-lg-6">
-        <input type="text" ng-model="visualization.options.stringThouSep" class="form-control" ng-disabled="!isValueNumber()" ng-trim="false">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-lg-6">Formatting String Prefix</label>
-      <div class="col-lg-6">
-        <input type="text" ng-model="visualization.options.stringPrefix" class="form-control" ng-disabled="!isValueNumber()" ng-trim="false">
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="col-lg-6">Formatting String Suffix</label>
-      <div class="col-lg-6">
-        <input type="text" ng-model="visualization.options.stringSuffix" class="form-control" ng-disabled="!isValueNumber()" ng-trim="false">
       </div>
     </div>
   </div>

@@ -29,6 +29,7 @@ function CounterRenderer() {
             getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
+          const targetSetValue = $scope.visualization.options.targetSetValue;
 
           if ($scope.visualization.options.countRow) {
             $scope.counterValue = queryData.length;
@@ -37,6 +38,13 @@ function CounterRenderer() {
           }
           if (targetColName) {
             $scope.targetValue = queryData[targetRowNumber][targetColName];
+
+            if ($scope.targetValue) {
+              $scope.delta = $scope.counterValue - $scope.targetValue;
+              $scope.trendPositive = $scope.delta >= 0;
+            }
+          } else if (targetSetValue) {
+            $scope.targetValue = targetSetValue;
 
             if ($scope.targetValue) {
               $scope.delta = $scope.counterValue - $scope.targetValue;

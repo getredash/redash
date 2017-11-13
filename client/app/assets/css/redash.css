@@ -721,11 +721,11 @@ basic-image-show-renderer basic-image-show {
 }
 
 basic-image-show-renderer basic-image-show-target {
-  font-size: 30px;
+  font-size: 40px;
   display: block;
 }
 
 basic-image-show-renderer basic-image-show-name {
-  font-size: 20px;
+  font-size: 40px;
   display: block;
 }

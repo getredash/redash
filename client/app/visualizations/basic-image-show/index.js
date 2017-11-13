@@ -1,6 +1,3 @@
-import numberFormat from 'underscore.string/numberFormat';
-import { isNumber as isNum } from 'underscore';
-
 import BasicImageShowTemplate from './basic-image-show.html';
 import BasicImageShowEditorTemplate from './basic-image-show-editor.html';
 
@@ -16,28 +13,24 @@ function getRowNumber(index, size) {
   return size + index;
 }
 
-function CounterRenderer() {
+function BasicImageShowRenderer() {
   return {
     restrict: 'E',
     template: BasicImageShowTemplate,
     link($scope) {
       const refreshData = () => {
         const queryData = $scope.queryResult.getData();
-        console.log('THE QUERY data', queryData)
+
         if (queryData) {
           const rowNumber = getRowNumber($scope.visualization.options.rowNumber, queryData.length);
-          const targetRowNumber =
-            getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
 
-          if ($scope.visualization.options.countRow) {
-            $scope.counterValue = queryData.length;
-          } else if (counterColName) {
+          if (counterColName) {
             $scope.counterValue = queryData[rowNumber][counterColName];
           }
           if (targetColName) {
-            $scope.targetValue = queryData[targetRowNumber][targetColName];
+            $scope.targetValue = queryData[rowNumber][targetColName];
 
             if ($scope.targetValue) {
               $scope.delta = $scope.counterValue - $scope.targetValue;
@@ -45,28 +38,6 @@ function CounterRenderer() {
             }
           } else {
             $scope.targetValue = null;
-          }
-
-          $scope.isNumber = isNum($scope.counterValue);
-          if ($scope.isNumber) {
-            $scope.stringPrefix = $scope.visualization.options.stringPrefix;
-            $scope.stringSuffix = $scope.visualization.options.stringSuffix;
-
-            const stringDecimal = $scope.visualization.options.stringDecimal;
-            const stringDecChar = $scope.visualization.options.stringDecChar;
-            const stringThouSep = $scope.visualization.options.stringThouSep;
-            if (stringDecimal || stringDecChar || stringThouSep) {
-              $scope.counterValue = numberFormat(
-                $scope.counterValue,
-                stringDecimal,
-                stringDecChar,
-                stringThouSep,
-              );
-              $scope.isNumber = false;
-            }
-          } else {
-            $scope.stringPrefix = null;
-            $scope.stringSuffix = null;
           }
         }
       };
@@ -77,7 +48,7 @@ function CounterRenderer() {
   };
 }
 
-function CounterEditor() {
+function BasicImageShowEditor() {
   return {
     restrict: 'E',
     template: BasicImageShowEditorTemplate,
@@ -86,28 +57,14 @@ function CounterEditor() {
       scope.changeTab = (tab) => {
         scope.currentTab = tab;
       };
-      scope.isValueNumber = () => {
-        const queryData = scope.queryResult.getData();
-        if (queryData) {
-          const rowNumber = getRowNumber(scope.visualization.options.rowNumber, queryData.length);
-          const counterColName = scope.visualization.options.counterColName;
-
-          if (scope.visualization.options.countRow) {
-            scope.counterValue = queryData.length;
-          } else if (counterColName) {
-            scope.counterValue = queryData[rowNumber][counterColName];
-          }
-        }
-        return isNum(scope.counterValue);
-      };
     },
   };
 }
 
 
 export default function init(ngModule) {
-  ngModule.directive('basicImageShowEditor', CounterEditor);
-  ngModule.directive('basicImageShowRenderer', CounterRenderer);
+  ngModule.directive('basicImageShowEditor', BasicImageShowEditor);
+  ngModule.directive('basicImageShowRenderer', BasicImageShowRenderer);
 
   ngModule.config((VisualizationProvider) => {
     const renderTemplate =
