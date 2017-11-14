@@ -26,19 +26,23 @@ function CounterRenderer() {
       const rootNode = $element[0].querySelector('counter');
       // This is collection (not array), and will be updated by browser
       const rulers = rootNode.querySelectorAll('.ruler');
+      let lastWidth = null;
       $scope.handleResize = () => {
-        const rootWidth = Math.floor(rootNode.offsetWidth) - 30; // scrollbox
-        const maxRuler = _.chain(rulers)
-          .map(ruler => ({
-            width: Math.floor(ruler.offsetWidth),
-            fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
-          }))
-          .sortBy('width')
-          .last()
-          .value();
+        const rootWidth = Math.floor(rootNode.offsetWidth) - 30; // scrollbar
+        if (rootWidth !== lastWidth) {
+          lastWidth = rootWidth;
+          const maxRuler = _.chain(rulers)
+            .map(ruler => ({
+              width: Math.floor(ruler.offsetWidth),
+              fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
+            }))
+            .sortBy('width')
+            .last()
+            .value();
 
-        const fontSize = Math.floor(rootWidth / maxRuler.width * maxRuler.fontSize);
-        $scope.fontSize = fontSize + 'px';
+          const fontSize = Math.floor(rootWidth / maxRuler.width * maxRuler.fontSize);
+          $scope.fontSize = fontSize + 'px';
+        }
       };
 
       const refreshData = () => {
