@@ -27,6 +27,27 @@
     }
   }
 
+  .map-visualization-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+  }
+
+  counter {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    overflow-y: auto;
+    padding: inherit;
+  }
+
   .gridster-preview-holder {
     background: #aaa;
   }
@@ -44,6 +65,17 @@
       position: static;
       height: auto;
       margin-bottom: 15px;
+    }
+
+    counter {
+      position: static;
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .map-visualization-container {
+      position: static;
+      height: 500px;
     }
   }
 
