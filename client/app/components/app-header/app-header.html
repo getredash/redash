@@ -58,14 +58,11 @@
         <li class="dropdown" uib-dropdown>
           <a href="#" class="dropdown-toggle dropdown--profile" uib-dropdown-toggle>
             <img ng-src="{{$ctrl.currentUser.gravatar_url}}" class="profile__image--navbar" width="20"/>
-            <span ng-bind="$ctrl.currentUser.name"></span> <span
+            <span class="dropdown--profile__username" ng-bind="$ctrl.currentUser.name"></span> <span
             class="caret caret--nav"></span></a>
           <ul class="dropdown-menu dropdown-menu--profile">
             <li>
               <a ng-href="users/{{$ctrl.currentUser.id}}">Edit Profile</a>
-            </li>
-            <li>
-              <a ng-href="query_snippets">Query Snippets</a>
             </li>
             <li class="divider" ng-if="$ctrl.currentUser.hasPermission('super_admin')">
 
@@ -78,11 +75,14 @@
             <li ng-show="$ctrl.showSettingsMenu">
               <a href="users" title="Settings">Users</a>
             </li>
+            <li>
+              <a ng-href="query_snippets">Query Snippets</a>
+            </li>
             <li ng-show="$ctrl.showSettingsMenu">
               <a href="destinations" title="Settings">Alert Destinations</a>
             </li>
 
-            <li class="divider"></li>
+            <li  ng-if="$ctrl.currentUser.hasPermission('super_admin')" class="divider"></li>
 
             <li ng-if="$ctrl.currentUser.hasPermission('super_admin')"><a href="admin/status">System Status</a></li>
 
