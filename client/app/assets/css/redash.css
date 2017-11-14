@@ -705,3 +705,7 @@ div.table-name:hover {
 .dropdown-menu > .disabled > a{
  pointer-events: none;
 }
+
+.map-visualization-container {
+  height: 500px;
+}
