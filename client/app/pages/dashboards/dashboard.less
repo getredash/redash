@@ -48,6 +48,16 @@
     padding: inherit;
   }
 
+  .plotly-chart-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+    overflow: hidden;
+  }
+
   .gridster-preview-holder {
     background: #aaa;
   }
@@ -66,11 +76,19 @@
       height: auto;
       margin-bottom: 15px;
     }
+  }
 
+  &.gridster-mobile, .gridster-auto-height-enabled {
     counter {
       position: static;
       overflow: hidden;
       padding: 0;
+    }
+
+    .plotly-chart-container {
+      position: static;
+      height: 400px;
+      overflow: hidden;
     }
 
     .map-visualization-container {
