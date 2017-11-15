@@ -341,6 +341,7 @@ counter-renderer counter {
 counter-renderer value,
 counter-renderer counter-target {
   font-size: 1em;
+  line-height: 1em;
   display: block;
 }
 
@@ -708,4 +709,9 @@ div.table-name:hover {
 
 .map-visualization-container {
   height: 500px;
+}
+
+.plotly-chart-container {
+  height: 400px;
+  overflow: hidden;
 }
