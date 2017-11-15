@@ -147,7 +147,7 @@ export default function init(ngModule) {
       stringDecChar: '.',
       stringThouSep: ',',
       defaultColumns: 2,
-      defaultRows: 6,
+      defaultRows: -1, // auto-height
     };
 
     VisualizationProvider.registerVisualization({

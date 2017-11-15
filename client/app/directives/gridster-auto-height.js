@@ -10,18 +10,20 @@ function gridsterAutoHeight($timeout) {
 
       function updateHeight() {
         const wrapper = $element[0];
-        const element = wrapper.querySelector(attr.gridsterAutoHeight);
+        // Query element, but keep selector order
+        const element = _.chain(attr.gridsterAutoHeight.split(','))
+          .map(selector => wrapper.querySelector(selector))
+          .filter(_.isObject)
+          .first()
+          .value();
         if (element) {
-          if (element.scrollHeight > element.offsetHeight) {
-            const additionalHeight = wrapper.offsetHeight - element.offsetHeight +
-              _.last(controller.gridster.margins);
+          const additionalHeight = 100 + _.last(controller.gridster.margins);
 
-            const contentsHeight = element.scrollHeight;
-            $timeout(() => {
-              controller.sizeY = Math.ceil((contentsHeight + additionalHeight) /
-                controller.gridster.curRowHeight);
-            });
-          }
+          const contentsHeight = element.scrollHeight;
+          $timeout(() => {
+            controller.sizeY = Math.ceil((contentsHeight + additionalHeight) /
+              controller.gridster.curRowHeight);
+          });
         }
 
         if (!destroyed) {
