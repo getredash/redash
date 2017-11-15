@@ -53,7 +53,7 @@ class WidgetListResource(BaseResource):
             layout.append([widget.id])
         elif len(layout[-1]) == 1:
             neighbour_widget = models.Widget.query.get(layout[-1][0])
-            if neighbour_widget.width == 1:
+            if not (neighbour_widget is None) and neighbour_widget.width == 1:
                 layout[-1].append(widget.id)
                 new_row = False
             else:

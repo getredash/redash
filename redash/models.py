@@ -850,6 +850,22 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         self.is_archived = True
         self.schedule = None
 
+        dashboards = Dashboard.all(self.org, self.user.group_ids, self.user_id)
+        for dashboard in dashboards:
+            widget_list = Widget.query.filter(Widget.dashboard == dashboard)
+            target_widget_ids = []
+            for widget in widget_list:
+                if self.id == widget.visualization.query_id:
+                    target_widget_ids.append(widget.id)
+
+            if len(target_widget_ids) == 0:
+                continue
+
+            new_layout = map(lambda row: filter(lambda w: w not in target_widget_ids, row), layout)
+            new_layout = filter(lambda row: len(row) > 0, new_layout)
+            dashboard.layout = json.dumps(new_layout)
+            db.session.add(dashboard)
+
         for vis in self.visualizations:
             for w in vis.widgets:
                 db.session.delete(w)
