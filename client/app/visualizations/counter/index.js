@@ -24,25 +24,30 @@ function CounterRenderer() {
       $scope.fontSize = '1em';
 
       const rootNode = $element[0].querySelector('counter');
-      // This is collection (not array), and will be updated by browser
-      const rulers = rootNode.querySelectorAll('.ruler');
-      let lastWidth = null;
       $scope.handleResize = () => {
-        const rootWidth = Math.floor(rootNode.offsetWidth) - 30; // scrollbar
-        if (rootWidth !== lastWidth) {
-          lastWidth = rootWidth;
-          const maxRuler = _.chain(rulers)
-            .map(ruler => ({
-              width: Math.floor(ruler.offsetWidth),
-              fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
-            }))
-            .sortBy('width')
-            .last()
-            .value();
+        const rootMeasures = {
+          height: Math.floor(rootNode.offsetHeight),
+          fontSize: parseFloat(window.getComputedStyle(rootNode).fontSize),
+        };
+        const rulers = rootNode.querySelectorAll('.ruler');
+        const rulerMeasures = _.chain(rulers)
+          .map(ruler => ({
+            height: ruler.offsetHeight,
+            fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
+          }))
+          .reduce((result, value) => ({
+            height: result.height + value.height,
+            fontSize: result.fontSize + value.fontSize,
+          }))
+          .value();
 
-          const fontSize = Math.floor(rootWidth / maxRuler.width * maxRuler.fontSize);
-          $scope.fontSize = fontSize + 'px';
-        }
+        /* eslint-disable function-paren-newline */
+        const fontSize = Math.floor(
+          (rootMeasures.height / rulerMeasures.height * rulerMeasures.fontSize) /
+          (rulerMeasures.fontSize / rootMeasures.fontSize),
+        );
+        /* eslint-enable function-paren-newline */
+        $scope.fontSize = fontSize + 'px';
       };
 
       const refreshData = () => {
@@ -147,7 +152,7 @@ export default function init(ngModule) {
       stringDecChar: '.',
       stringThouSep: ',',
       defaultColumns: 2,
-      defaultRows: -1, // auto-height
+      defaultRows: 5,
     };
 
     VisualizationProvider.registerVisualization({

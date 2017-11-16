@@ -339,6 +339,7 @@ counter-renderer counter {
 }
 
 counter-renderer value,
+counter-renderer counter-name,
 counter-renderer counter-target {
   font-size: 1em;
   line-height: 1em;
@@ -346,8 +347,12 @@ counter-renderer counter-target {
 }
 
 counter-renderer value .ruler,
+counter-renderer counter-name .ruler,
 counter-renderer counter-target .ruler {
-  display: inline-block;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font: inherit;
   line-height: inherit;
   margin: 0;
