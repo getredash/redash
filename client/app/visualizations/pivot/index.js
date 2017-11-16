@@ -90,7 +90,6 @@ export default function init(ngModule) {
     const defaultOptions = {
       defaultRows: 10,
       defaultColumns: 3,
-      minRows: 4,
       minColumns: 2,
     };
 

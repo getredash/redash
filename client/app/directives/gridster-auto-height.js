@@ -17,9 +17,18 @@ function gridsterAutoHeight($timeout) {
           .first()
           .value();
         if (element) {
-          const additionalHeight = 100 + _.last(controller.gridster.margins);
+          const childrenBounds = _.chain(element.children)
+            .map(child => child.getBoundingClientRect())
+            .reduce((result, bounds) => ({
+              left: Math.min(result.left, bounds.left),
+              top: Math.min(result.top, bounds.top),
+              right: Math.min(result.right, bounds.right),
+              bottom: Math.min(result.bottom, bounds.bottom),
+            }))
+            .value();
 
-          const contentsHeight = element.scrollHeight;
+          const additionalHeight = 100 + _.last(controller.gridster.margins);
+          const contentsHeight = childrenBounds.bottom - childrenBounds.top;
           $timeout(() => {
             controller.sizeY = Math.ceil((contentsHeight + additionalHeight) /
               controller.gridster.curRowHeight);
