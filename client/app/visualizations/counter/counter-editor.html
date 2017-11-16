@@ -35,6 +35,13 @@
       </div>
     </div>
     <div class="form-group">
+      <label class="col-lg-6">Target Value Comparator</label>
+      <div class="col-lg-6">
+        <select ng-options="compare for compare in comparatorOptions" ng-model="visualization.options.targetComparator" class="form-control">
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
       <label class="col-lg-6">Target Set Value</label>
       <div class="col-lg-6">
         <input type="number" ng-model="visualization.options.targetSetValue" class="form-control">

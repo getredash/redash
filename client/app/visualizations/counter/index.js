@@ -1,5 +1,5 @@
 import numberFormat from 'underscore.string/numberFormat';
-import { isNumber as isNum } from 'underscore';
+import { keys, isNumber as isNum } from 'underscore';
 
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
@@ -16,6 +16,20 @@ function getRowNumber(index, size) {
   return size + index;
 }
 
+const DEFAULT_COMPARATOR_VALUE = 'Greater Than'
+
+const comparatorTable = {
+  [DEFAULT_COMPARATOR_VALUE]: '>', 
+  'Greater or Equal to': '>=',
+  'Less Than': '<', 
+  'Less Than or Equal to': '<=', 
+  'Equal to': '===',
+}
+
+function performComparison(a, b, comparatorString) {
+  return eval(`a ${comparatorTable[comparatorString]} b`)
+}
+
 function CounterRenderer() {
   return {
     restrict: 'E',
@@ -30,6 +44,9 @@ function CounterRenderer() {
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
           const targetSetValue = $scope.visualization.options.targetSetValue;
+          const targetComparator = $scope.visualization.options.targetComparator;
+
+          console.log('target comparator', targetComparator)
 
           if ($scope.visualization.options.countRow) {
             $scope.counterValue = queryData.length;
@@ -48,7 +65,7 @@ function CounterRenderer() {
 
             if ($scope.targetValue) {
               $scope.delta = $scope.counterValue - $scope.targetValue;
-              $scope.trendPositive = $scope.delta >= 0;
+              $scope.trendPositive = performComparison($scope.delta, 0, targetComparator);
             }
           } else {
             $scope.targetValue = null;
@@ -107,6 +124,17 @@ function CounterEditor() {
         }
         return isNum(scope.counterValue);
       };
+
+      scope.visualization.options.targetComparator = DEFAULT_COMPARATOR_VALUE
+
+      scope.comparatorOptions = keys(comparatorTable)
+      // scope.comparatorOptions = {
+      //   '>': 'Greater Than',
+      //   '>=': 'Greater or Equal to',
+      //   '<': 'Less Than',
+      //   '<=': 'Less Than or Equal to',
+      //   '==': 'Equal to',
+      // }
     },
   };
 }
