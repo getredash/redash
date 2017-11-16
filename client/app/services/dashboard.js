@@ -16,7 +16,7 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
             row: rowIndex,
             col: widgetIndex * dashboardV1ColumnSize,
             sizeX: dashboardV1ColumnSize * widget.width,
-            sizeY: -1, // auto
+            // do not set sizeY - let widget to use defaults for visualization
           }, widget.options.position);
           return widget;
         }),
