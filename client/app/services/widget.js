@@ -38,6 +38,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     const visualizationOptions = {
       sizeX: Math.round(dashboardGridOptions.columns / 2),
       sizeY: -1, // auto-height
+      minSizeX: dashboardGridOptions.minSizeX,
+      maxSizeX: dashboardGridOptions.maxSizeX,
+      minSizeY: dashboardGridOptions.minSizeY,
+      maxSizeY: dashboardGridOptions.maxSizeY,
     };
     const visualization = widget.visualization ?
       Visualization.visualizations[widget.visualization.type] : null;

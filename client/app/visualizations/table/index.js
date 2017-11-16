@@ -78,9 +78,8 @@ function GridRenderer(clientConfig) {
 export default function init(ngModule) {
   ngModule.config((VisualizationProvider) => {
     const defaultOptions = {
-      defaultRows: 15,
+      defaultRows: 14,
       defaultColumns: 4,
-      minRows: 4,
       minColumns: 2,
     };
 
