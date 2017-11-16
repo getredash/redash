@@ -2,7 +2,6 @@
 .idea
 *.pyc
 .coverage
-client/dist
 .DS_Store
 celerybeat-schedule*
 .#*
