@@ -238,6 +238,7 @@ class Redshift(PostgreSQL):
 
         return schema.values()
 
+
 class CockroachDB(PostgreSQL):
     def __init__(self, configuration):
         super(CockroachDB, self).__init__(configuration)
