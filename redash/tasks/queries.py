@@ -487,8 +487,16 @@ class QueryExecutor(object):
             self.metadata['Query Hash'] = self.query_hash
             self.metadata['Queue'] = self.task.request.delivery_info['routing_key']
 
-            annotation = u", ".join([u"{}: {}".format(k, v) for k, v in self.metadata.iteritems()])
-            annotated_query = u"/* {} */ {}".format(annotation, self.query)
+            if self.data_source.type == 'vertica':
+                username = self.metadata.get('Username', 'unknown')
+                name = username.split('@')[0]
+                vertica_username = "{}_outbrain_com".format(name)
+                splited_q = self.query.split(' ')
+                annotated_query = u"{} /*+label({})*/ {}".format(splited_q[0], vertica_username,
+                                                                 ' '.join(splited_q[1:]))
+            else:
+                annotation = u", ".join([u"{}: {}".format(k, v) for k, v in self.metadata.iteritems()])
+                annotated_query = u"/* {} */ {}".format(annotation, self.query)
         else:
             annotated_query = self.query
         return annotated_query
