@@ -225,7 +225,8 @@ default_query_runners = [
     'redash.query_runner.google_analytics',
     'redash.query_runner.axibase_tsd',
     'redash.query_runner.salesforce',
-    'redash.query_runner.query_results'
+    'redash.query_runner.query_results',
+    'redash.query_runner.qubole'
 ]
 
 enabled_query_runners = array_from_string(os.environ.get("REDASH_ENABLED_QUERY_RUNNERS", ",".join(default_query_runners)))
