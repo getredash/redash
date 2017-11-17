@@ -46,13 +46,22 @@ function CounterRenderer() {
           const targetSetValue = $scope.visualization.options.targetSetValue;
           const targetComparator = $scope.visualization.options.targetComparator;
 
-          console.log('target comparator', targetComparator)
+          const targetSumColumn = $scope.visualization.options.targetSumColumn;
+
+          if (counterColName) {
+            $scope.counterValue = queryData[rowNumber][counterColName];
+          }
+
+          if (targetSumColumn) {
+            const columnSum = queryData.reduce((sum, row) => sum + (+row[targetSumColumn]), 0)
+            $scope.counterValue = columnSum
+            console.log('the column sum', columnSum)
+          }
 
           if ($scope.visualization.options.countRow) {
             $scope.counterValue = queryData.length;
-          } else if (counterColName) {
-            $scope.counterValue = queryData[rowNumber][counterColName];
           }
+
           if (targetColName) {
             $scope.targetValue = queryData[targetRowNumber][targetColName];
 
@@ -63,10 +72,8 @@ function CounterRenderer() {
           } else if (targetSetValue) {
             $scope.targetValue = targetSetValue;
 
-            if ($scope.targetValue) {
-              $scope.delta = $scope.counterValue - $scope.targetValue;
-              $scope.trendPositive = performComparison($scope.delta, 0, targetComparator);
-            }
+            $scope.delta = $scope.counterValue - $scope.targetValue;
+            $scope.trendPositive = performComparison($scope.delta, 0, targetComparator);
           } else {
             $scope.targetValue = null;
           }
