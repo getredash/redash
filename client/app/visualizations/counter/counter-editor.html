@@ -37,7 +37,11 @@
     <div class="form-group">
       <label class="col-lg-6">Target Value Comparator</label>
       <div class="col-lg-6">
-        <select ng-options="compare for compare in comparatorOptions" ng-model="visualization.options.targetComparator" class="form-control">
+        <select 
+          ng-options="compare for compare in comparatorOptions" 
+          ng-model="visualization.options.targetComparator" 
+          ng-disabled="!visualization.options.targetColName"
+          class="form-control">
         </select>
       </div>
     </div>

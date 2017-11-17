@@ -58,7 +58,7 @@ function CounterRenderer() {
 
             if ($scope.targetValue) {
               $scope.delta = $scope.counterValue - $scope.targetValue;
-              $scope.trendPositive = $scope.delta >= 0;
+              $scope.trendPositive = performComparison($scope.delta, 0, targetComparator);
             }
           } else if (targetSetValue) {
             $scope.targetValue = targetSetValue;
