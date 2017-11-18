@@ -30,7 +30,7 @@
             {{$ctrl.query.name}}
             <visualization-name visualization="$ctrl.widget.visualization"/>
           </p>
-          <div class="text-muted" ng-bind-html="$ctrl.query.description | markdown"></div>
+          <div class="text-muted query--description" ng-bind-html="$ctrl.query.description | markdown"></div>
         </div>
       </div>
       <parameters parameters="$ctrl.localParametersDefs()"></parameters>
