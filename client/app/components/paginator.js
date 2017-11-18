@@ -18,8 +18,8 @@ export default function init(ngModule) {
                      class="pagination"
                      boundary-link-numbers="true"
                      rotate="false"
-                     next-text='>'
-                     previous-text='<'
+                     next-text='&#8594;'
+                     previous-text='&#8592;'
                      ng-change="$ctrl.pageChanged()"></ul>
 </div>
     `,
