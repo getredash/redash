@@ -11,6 +11,19 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
 }
 
+.bg-ace {
+  background: #FAFAFA !important;
+}
+
+.t-header:not(.th-alt) {
+  padding: 15px;
+
+  ul {
+    margin-bottom: 0;
+    line-height: 2.2;
+  }
+}
+
 #footer {
   height: auto;
   line-height: 3;
@@ -31,6 +44,11 @@ page-header, .page-header--new {
 
 .btn-default:hover, .btn-default:focus, .btn-default.focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default {
   background-color: fade(@redash-gray, 25%);
+}
+
+.btn-default:active:hover, .btn-default.active:hover, .open > .dropdown-toggle.btn-default:hover, .btn-default:active:focus, .btn-default.active:focus, .open > .dropdown-toggle.btn-default:focus, .btn-default:active.focus, .btn-default.active.focus, .open > .dropdown-toggle.btn-default.focus {
+  color: #333;
+  background-color: fade(@redash-gray, 45%);
 }
 
 .label {
