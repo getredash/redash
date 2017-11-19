@@ -24,17 +24,17 @@
         <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       </h3>
-      <p>
-        <em>
-          <edit-in-place editable="canEdit"
-                         done="saveDescription"
-                         editor="textarea"
-                         placeholder="No description"
-                         ignore-blanks='false'
-                         value="query.description"
-                         markdown="true">
-          </edit-in-place>
-        </em>
+
+      <em>
+        <edit-in-place editable="canEdit"
+                       done="saveDescription"
+                       editor="textarea"
+                       placeholder="No description"
+                       ignore-blanks='false'
+                       value="query.description"
+                       markdown="true">
+        </edit-in-place>
+      </em>
 
       <ul class="list-inline m-t-20">
         <li>
@@ -62,7 +62,7 @@
           </strong>
         </li>
       </ul>
-      </p>
+
     </div>
     <div class="col-sm-3 text-right p-r-0">
       <span ng-show="query.id && canViewSource">
