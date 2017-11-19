@@ -10,8 +10,8 @@
     </ul>
 
 
-
-      <ul class="list-group col-lg-4">
+    <div class="row p-15">
+      <ul class="list-group p-l-15 col-lg-4">
         <li class="list-group-item active">General</li>
         <li class="list-group-item" ng-repeat="(name, value) in status">
           <span class="badge">{{value}}</span>
@@ -42,7 +42,7 @@
           {{name}} <span uib-popover="{{value.data_sources}}" popover-trigger="'mouseenter'"><i class="fa fa-question-circle"></i></span>
         </li>
       </ul>
-
+    </div>
 
   </div>
 </div>
