@@ -38,8 +38,24 @@ page-header, .page-header--new {
   }
 }
 
+.popover {
+  box-shadow: fade(@redash-gray, 25%) 0px 0px 15px 0px;
+}
+
+.tile__bottom-control a {
+  color: fade(@redash-black, 65%);
+
+  &:hover {
+    color: fade(@redash-black, 95%);
+  }
+}
+
 .btn-default {
   background-color: fade(@redash-gray, 15%);
+}
+
+.btn-transparent {
+  background-color: transparent !important;
 }
 
 .btn-default:hover, .btn-default:focus, .btn-default.focus, .btn-default:active, .btn-default.active, .open > .dropdown-toggle.btn-default {
