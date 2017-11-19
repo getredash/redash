@@ -37,6 +37,7 @@ const EditDashboardDialog = {
         const request = {
           slug: this.dashboard.id,
           name: this.dashboard.name,
+          description: this.dashboard.description,
           version: this.dashboard.version,
           dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
         };
@@ -59,6 +60,7 @@ const EditDashboardDialog = {
       } else {
         $http.post('api/dashboards', {
           name: this.dashboard.name,
+          description: this.dashboard.description,
         }).success((response) => {
           this.close();
           $location.path(`/dashboard/${response.slug}`).replace();

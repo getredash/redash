@@ -5,6 +5,9 @@
         <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       </h3>
+      <p>
+        <em>{{$ctrl.dashboard.description}}</em>
+      </p>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5 text-right">
       <h3>
