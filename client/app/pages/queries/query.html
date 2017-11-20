@@ -141,7 +141,7 @@
   <!-- End of Query Details-->
 
   <div class="tile">
-    <div class="t-header bg-ace">
+    <div class="t-header">
       <div class="pull-right">
         <button class="btn btn-sm btn-default" ng-click="executeQuery()"
                 ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
@@ -248,13 +248,13 @@
                   <filters filters="filters"></filters>
                   <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
                   <!-- the ng-repeat is a lame hack to find the table visualization... -->
-                  <div class="bg-ace p-5" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
+                  <div class="p-15" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
                     <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
                 </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                  <div class="bg-ace p-5">
+                  <div class="p-15">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
                     <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
