@@ -1,0 +1,47 @@
+@media print {    
+    @page {
+        margin: 0;
+        padding: 0;
+        size: auto;
+    }
+    
+    body, #content, .container {
+        margin: 0mm 0mm 0mm 0mm !important;
+        padding: 0mm !important;
+    }
+    
+    
+    #header,
+    #footer,
+    #sidebar,
+    #chat,
+    .growl-animated,
+    [data-action="print"] {
+        display: none !important;
+    }
+
+    
+    /* --------------------------------------------------------
+        Invoice
+    -----------------------------------------------------------*/
+    .invoice {
+        padding: 30px !important;
+        -webkit-print-color-adjust: exact !important; 
+        
+        .card-header {
+            background: #eee !important;
+            padding: 20px;
+            margin-bottom: 20px;
+            margin: -60px -30px 25px -30px;
+        }
+        
+        
+        .page-header { 
+            display: none;
+        } 
+        
+        .highlight {
+            background: #eee !important; 
+        }
+    }
+}
