@@ -1,0 +1,138 @@
+.login-content {
+    overflow: hidden;
+    height: 100%;
+    background: @brand-bg;
+    padding: 0;
+    text-align: center;
+    
+    &:after {
+        content: "";
+        vertical-align: middle; 
+        display: inline-block;
+        width: 1px;
+        height: 100vh;
+    }
+}
+
+.lc-block {
+    background: #fff;
+    box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
+    border-radius: 2px;
+    width: 300px;
+    display: inline-block;
+    vertical-align: middle;
+    position: relative;
+    padding: 45px 30px 30px;
+    
+    &:not(.toggled) {
+        display: none;
+    }
+    
+    &.toggled {
+        .animated(fadeInUp, 300ms);
+        z-index: 10;
+    }
+    
+    @media (max-width: @screen-xs-max) {
+        padding: 15px 35px 25px 20px;
+        width: ~"calc(100% - 60px)";
+    }
+    
+    .form-control {
+        text-align: center;
+    }
+}
+
+.lcb-float {
+    width: 60px;
+    height: 60px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 -10px 19px rgba(0, 0, 0, 0.38);
+    position: absolute;
+    top: -35px;
+    left: 50%;
+    margin-left: -30px;
+    
+    img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        padding: 4px;
+    }
+    
+    i {
+        color: #333;
+        font-size: 25px;
+        line-height: 60px;
+    }
+}
+
+.lcb-lockscreen {
+    position: relative;
+    
+    .form-control {
+        padding-right: 35px;
+    }
+    
+    .lcbl-btn {
+        background-color: #2196F3;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 30px;
+        color: #fff;
+        font-size: 15px;
+        height: 27px;
+        margin: 4px;
+        line-height: 26px;
+        border-radius: 2px;
+    }
+}
+
+.login-navigation {     
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    left: 0%;
+    bottom: -45px;
+
+    & > li {
+        display: inline-block;
+        margin: 0 2px;
+        .transition(all);
+        .transition-duration(150ms);
+        cursor: pointer;
+        vertical-align: top;
+        color: #fff;
+        line-height: 16px;
+        min-width: 16px; 
+        min-height: 16px;
+        text-transform: uppercase;
+        .backface-visibility(hidden); 
+
+        & > span {
+            .opacity(0);
+        }
+
+        &:not(:hover) {
+            font-size: 0px;
+            border-radius: 100%;
+        }
+
+        &:hover {
+            border-radius: 10px;
+            padding: 0 5px;
+            font-size: 8px; 
+
+            & > span {
+                .opacity(1);
+            } 
+        }
+
+    }
+}
+ 

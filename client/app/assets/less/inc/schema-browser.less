@@ -1,0 +1,41 @@
+div.table-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 0 10px;
+  &:hover {
+    background: #f4f4f4;
+  }
+}
+
+.schema-container {
+  height: 100%;
+  z-index: 10;
+  background-color: white;
+}
+
+.schema-browser {
+  height: calc(100% - 45px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: 1px solid rgba(0,0,0,.15);
+
+  .collapse.in {
+    background: #f4f4f4;
+  }
+}
+
+.schema-control {
+  display: flex;
+  padding: 5px 0;
+
+ .form-control {
+   height: 30px;
+   margin-right: 5px;
+ }
+}
+
+.parameter-label {
+  display: block;
+}

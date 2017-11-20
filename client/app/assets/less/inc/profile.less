@@ -1,0 +1,366 @@
+#profile-main {
+    min-height: 500px;
+    position: relative;
+}
+
+.pm-overview {
+    overflow: hidden !important;
+    
+    @media (min-width: 1200px) {
+        width: 300px;
+    }
+    
+    @media (min-width: @screen-sm-min) and (max-width: 1200px) {
+        width: 250px;
+    }
+    
+    @media (min-width: @screen-sm-min) {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: #f8f8f8;
+        border-right: 1px solid #eee;
+    }
+    
+    @media (max-width: @screen-xs-max) {
+        width: 100%;
+        background: #333;
+        text-align: center;
+    }
+    
+    &:hover {
+        .pmop-edit {
+            .opacity(1);
+            color: #fff;
+        }
+    }
+}
+
+.pm-body {
+    @media (min-width: 1200px) {
+        padding-left: 300px;
+    }
+    
+    @media (min-width: @screen-sm-min) and (max-width: 1200px) {
+        padding-left: 250px;
+    }
+    
+    @media (max-width: @screen-xs-max) {
+        padding-left: 0; 
+    }
+}
+
+.pmo-pic {
+    position: relative;
+    margin: 20px;
+    
+    img { 
+        @media(min-width: @screen-sm-min) {
+            width: 100%;
+            border-radius: 2px 2px 0 0;
+        }
+        
+        @media(max-width: @screen-xs-max) {
+            width: 180px;
+            display: inline-block;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+        }
+    }
+}
+
+.pmo-stat {
+    border-radius: 0 0 2px 2px;
+    color: #fff;
+    text-align: center;
+    padding: 30px 5px 0;
+    
+    @media(min-width: @screen-sm-min) {
+         background: @amber;
+         padding-bottom: 15px;
+    }
+}
+
+.pmop-edit {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.38);
+    text-align: center;
+    padding: 10px 10px 11px; 
+    
+    &:hover {
+        background: rgba(0, 0, 0, 0.8);
+    }
+    
+    i {
+        font-size: 18px;
+        vertical-align: middle;
+        margin-top: -3px;
+    }
+    
+    @media (min-width: @screen-sm-min) {
+        width: 100%;
+        .opacity(0);
+        
+        i {
+            margin-right: 4px;
+        }
+    }
+}
+
+.pmop-message  {
+    position: absolute;
+    bottom: 27px;
+    left: 50%; 
+    margin-left: -25px;
+    
+    .dropdown-menu {
+        padding: 5px 0 55px; 
+        left: -90px;
+        width: 228px;
+        height: 150px;
+        top: -74px;
+        
+        textarea {
+            width: 100%;
+            height: 95px;
+            border: 0;
+            resize: none;
+            padding: 10px 19px;
+        }
+        
+        button {
+            position: absolute;
+            bottom: 5px;
+            left: 93px;
+        }
+    }
+}
+    
+.pmb-block {
+    margin-bottom: 20px;
+    
+    @media (min-width: 1200px) {
+        padding: 40px 42px 0;
+    }
+    
+    @media (max-width: 1199px) {
+        padding: 30px 20px 0;
+    }
+    
+    &:last-child {
+        margin-bottom: 50px;
+    }
+    
+    &.toggled {
+        .pmbb-edit {
+            display: block;
+        }
+        
+        .pmbb-view {
+            display: none;
+        }
+    }
+}
+
+.pmbb-header {
+    margin-bottom: 25px;
+    position: relative;
+    
+    .actions {
+        position: absolute;
+        top: -2px;
+        right: 0;
+    }
+    
+    h2 {
+        margin: 0;
+        font-weight: 100;
+        font-size: 20px;
+    }
+}
+
+.pmbb-edit {
+    position: relative;
+    z-index: 1; 
+    display: none;
+}
+
+.pmo-block {
+    padding: 25px;
+    
+    & > h2 {
+        font-size: 16px;
+        margin: 0 0 15px;
+    }
+}
+
+.pmo-items {
+    .pmob-body {
+        padding: 0 10px;
+    }
+    
+    a {
+        display: block;
+        padding: 4px;
+        
+        img {
+            width: 100%;
+        }
+    }
+}
+
+.pmopm-send {
+    background-color: #fff;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    line-height: 53px;
+    border-radius: 50%;
+    position: absolute;
+    color: #333;
+    bottom: -50px;
+    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.16);
+    text-align: center;
+    
+    &:hover {
+        color: #000;
+    }
+}
+
+.pmo-contact {
+    ul {
+        list-style: none;
+        margin: 0;
+        padding: 0; 
+        
+        li {
+            position: relative;
+            padding: 8px 0 8px 35px;
+            
+            i {
+                font-size: 18px;
+                vertical-align: top;
+                line-height: 100%;
+                position: absolute;
+                left: 0;
+                width: 18px;
+                text-align: center;
+                color: #333;
+            }
+        }
+    }
+}
+
+.pmo-map {
+    margin: 20px -21px -18px;
+    display: block;
+    
+    img {
+        width: 100%;
+    }
+}
+
+.p-header {
+    position: relative;
+    margin: 0 -7px;
+    
+    .actions {
+        position: absolute;
+        top: -18px;
+        right: 0;
+    }
+}
+
+.p-menu {
+    list-style: none;
+    padding: 0 8px;
+    margin: 0 0 30px;
+    
+    & > li {
+        display: inline-block;
+        vertical-align: top;
+        
+        & > a {
+            display: block;
+            padding: 5px 20px 5px 0;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 15px;
+            
+            & > i {
+                margin-right: 4px;
+                font-size: 20px;
+                vertical-align: middle;
+                margin-top: -5px;
+            }
+        }
+        
+        &:not(.active) > a {
+            color: #4285F4;
+            
+            &:hover {
+                color: #333;
+            }
+        }
+        
+        &.active > a {
+            color: #000;
+        }
+    }
+    
+    .pm-search {
+        @media(max-width: @screen-sm-max) {
+            margin: 20px 2px 30px;
+            display: block;
+            
+            input[type="text"] {
+                width: 100%;
+                border: 1px solid #ccc;
+            }
+        }
+    }
+    
+    .pms-inner {
+        margin: -2px 0 0;
+        position: relative;
+        top: -2px;
+        overflow: hidden;
+        white-space: nowrap;
+        
+        i {
+            vertical-align: top;
+            font-size: 20px;
+            line-height: 100%;
+            position: absolute;
+            left: 9px;
+            top: 8px;
+            color: #333;
+        }
+        
+        input[type="text"] {
+            height: 35px;
+            border-radius: 2px;
+            padding: 0 10px 0 40px;
+            
+            @media(min-width:  @screen-sm-min) {
+                border: 1px solid #fff; 
+                width: 50px;
+                background: transparent;
+                position: relative;
+                z-index: 1;
+                .transition(all);
+                .transition-duration(300ms);
+            
+                &:focus {
+                    border-color: #DFDFDF;
+                    width: 200px;
+                }
+            }
+        }
+    }
+}
