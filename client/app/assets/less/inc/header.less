@@ -1,0 +1,366 @@
+#header {
+    width: 100%;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    height: @header-height;
+    
+    &.affix {
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.23);
+    }
+    
+    &:not(.affix) {
+        box-shadow: @tile-shadow;
+        position: fixed;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Top Menu
+-----------------------------------------------------------*/
+.header-inner {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    list-style: none;
+
+    & > li {
+        &:not(.pull-right) {
+            float: left;
+        }
+        
+        @media (max-width: @screen-sm-min) {
+            &:not(.top-search) {
+                position: static;
+            }
+            
+            .dropdown-menu {
+                width: ~"calc(100% - 30px)";
+                margin-left: 15px;
+            }
+        }
+
+        & > a {
+            height: @header-height;
+            color: #333;
+            min-width: 45px;
+            display: block;
+            position: relative;
+            
+            & > .zmdi {
+                font-size: 22px;
+                line-height: @header-height;
+            }
+        }
+        
+        &:not(.logo) {
+            text-align: center;
+        }
+        
+        &.open > a:not([class*="hi-"]):before {
+            content: "";
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -21px;
+            margin-left: -20px;
+            background: #eee;
+            border-radius: 50%;
+            z-index: -1;
+        }
+    }
+    
+    .dropdown-menu {
+        margin-top: -5px; 
+    }
+    
+    .open {
+        & > .hi-messages { color: @green; }
+        & > .hi-notifications { color: @orange; }
+        & > .hi-projects { color: @green; }
+        & > .hi-events { color: @blue; }
+        
+        .hi-count {
+            display: none;
+        }
+    }
+}
+
+.hi-count {
+    position: absolute;
+    font-style: normal;
+    background-color: @red;
+    padding: 0 4px;
+    font-size: 10px;
+    color: #fff;
+    line-height: 17px;
+    height: 17px;
+    top: 11px;
+    right: 6px;
+    border-radius: 50%;
+    width: 17px;
+}
+
+.hi-dropdown {
+    padding: 0;
+    
+    @media (min-width: @screen-sm-min) {
+        width: 350px;
+    }
+}
+
+/* --------------------------------------------------------
+    Logo
+-----------------------------------------------------------*/
+.logo {
+    position: relative; 
+    z-index: 2;
+    height: @logo-height;
+    
+    @media (min-width: (@screen-lg-min + 80px)) { 
+        width: @logo-width;
+        background-color: #000;
+        margin-right: 15px;
+        
+        & > a {
+            padding: 15px 22px;
+        }
+    }
+    
+    @media (max-width: (@screen-md-max + 80px)) {
+        width: @sidebar-left-mid-width;
+        
+        & > a {
+            display: none !important;
+        }
+    }
+    
+    @media (max-width: (@screen-sm-min)) {
+        padding: 12px;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Sidebar Trigger for mobile
+-----------------------------------------------------------*/
+#menu-trigger {
+    font-size: 21px;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    display: none;
+    background: #000;
+    height: 100%;
+    
+    &.toggled i:before {
+        content: '\f2ea';
+    }
+    
+    @media (min-width: (@screen-sm-min + 1)) {
+        line-height: @header-height;
+    }
+    
+    @media (max-width: (@screen-md-max + 80px)) {
+        display: block;
+    }
+    
+    @media (max-width: (@screen-sm-min)) {
+        border-radius: 2px;
+        line-height: 39px;
+    }
+}
+        
+
+/* --------------------------------------------------------
+    Top Search
+-----------------------------------------------------------*/
+.top-search {
+    position: relative;
+    background: #fff;
+    height: @header-height;
+    
+    &:not(.toggled) {
+        width: 80px;
+        margin-left: 15px;
+        
+        &:before {
+            font-family: @font-icon;
+            content: "\f1c3";
+            position: absolute;
+            left: 0;
+            top: 15px;
+            font-size: 22px;
+            z-index: 1;
+            color: #333;
+        }
+            
+        .ts-reset {
+            display: none;    
+        }
+        
+        .ts-input {
+            cursor: pointer;
+        }
+        
+        @media (max-width: (@screen-xs-min - 150px)) {
+            width: 20px;
+        }
+    }
+    
+    .ts-input {
+        height: @header-height - 2px;
+        padding-left: 25px;
+        width: 100%;
+        border: 0;
+        position: relative;
+        background: transparent;
+        z-index: 1;
+    }
+    
+    &.toggled {
+        position: absolute;
+        top: 0;
+        font-size: 20px;
+        font-weight: normal;
+        z-index: 1;
+        width: 100%;
+        left: 0;
+        
+        @media (min-width: (@screen-lg-min + 80px)) {
+            padding-left: @sidebar-left-width;
+        }
+        
+        @media (min-width: (@screen-sm-min + 1px)) and (max-width: (@screen-md-max + 80px)) { 
+            padding-left: @sidebar-left-mid-width;
+        }
+        
+        .ts-input {
+            background: #fff;
+        }
+        
+        .ts-reset {
+            font-size: 11px; 
+            color: #fff; 
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            z-index: 2;
+            width: 20px;
+            height: 20px;
+            background-color: #8E8E8E;
+            line-height: 20px;
+            text-align: center;
+            border-radius: 50%;
+            margin-top: -10px;
+            
+            &:hover {
+                cursor: pointer;
+                background: #333;
+            }
+        }
+    }
+}
+
+
+/* --------------------------------------------------------
+    Events
+-----------------------------------------------------------*/
+.event-time {
+    width: 67px; 
+    height: 50px;
+    text-align: center;
+    padding: 9px 0;
+    color: #fff;
+    border-radius: 2px;
+    margin-top: 2px;
+    
+    & > h2 {
+        margin: 0;
+        line-height: 100%;
+        font-size: 17px;
+        margin-bottom: -1px;
+        color: #fff;
+        font-weight: normal;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Apps
+-----------------------------------------------------------*/
+@media (min-width: @screen-sm-min) {
+    #launch-apps {    
+        padding: 0;
+        text-align: center;
+        width: 300px;
+    }
+    
+    .la-body {
+        padding: 20px 10px;
+    }
+    
+    .lab-item {
+        width: 60px;
+        display: inline-block;
+        margin: 10px;
+        
+        &:hover {
+            & > a {
+                .opacity(0.8);
+            }
+            
+            & > small {
+                color: #333;
+            }
+        }
+        
+        & > a {
+            height: 60px;
+            display: block;
+            color: #fff;
+            line-height: 70px;
+            border-radius: 50%;
+            .transition(opacity);
+        
+            & > i {
+                font-size: 25px;
+            }
+        }
+        
+        & > small { 
+            color: #969696;  
+            display: block;
+            margin-top: 5px; 
+            .transition(color);
+        } 
+  
+    }
+}
+
+
+/* --------------------------------------------------------
+    Time
+-----------------------------------------------------------*/
+#time {
+    font-size: 18px;
+    font-weight: 400;
+    background-color: @sidebar;
+    color: #FBFBFB;
+    padding: 4px 11px;
+    border-radius: 2px;
+    margin: 14px;
+    
+    span {
+        &:not(:last-child):after {
+            content: ":";
+            position: relative;
+            top: -1px;
+            right: -1px;
+        }
+    }
+}

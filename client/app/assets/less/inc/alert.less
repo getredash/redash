@@ -1,0 +1,45 @@
+.alert {
+    padding-left: 30px;
+    padding-right: 30px;
+    
+    span {
+        cursor: pointer;
+    }
+}
+
+.alert-dismissable,
+.alert-dismissible {
+    padding-right: 44px;
+} 
+
+.alert-inverse {
+    .alert-variant(@alert-inverse-bg; @alert-inverse-border; @alert-inverse-text);
+}
+
+.alert-link {
+    color: #fff !important;
+    font-weight: normal !important;
+    text-decoration: underline;
+}
+
+.growl-animated {
+    &.alert-inverse {
+        box-shadow: 0 0 5px fade(@alert-inverse-bg, 50%);
+    }
+    
+    &.alert-info {
+        box-shadow: 0 0 5px fade(@alert-info-bg, 50%);
+    }
+
+    &.alert-success {
+        box-shadow: 0 0 5px fade(@alert-success-bg, 50%);
+    }
+
+    &.alert-warning {
+        box-shadow: 0 0 5px fade(@alert-warning-bg, 50%);
+    }
+
+    &.alert-danger {
+        box-shadow: 0 0 5px fade(@alert-danger-bg, 50%);
+    }
+}

@@ -1,4 +1,3 @@
-import '@/config/styles';
 import ngModule from '@/config';
 
 ngModule.config(($locationProvider, $compileProvider, uiSelectConfig, toastrConfig) => {
