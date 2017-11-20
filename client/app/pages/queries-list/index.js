@@ -58,13 +58,14 @@ export default function init(ngModule) {
     controller: QueriesListCtrl,
   });
 
-  const route = {
-    template: '<page-queries-list></page-queries-list>',
-    reloadOnSearch: false,
-  };
-
   return {
-    '/queries': route,
-    '/queries/my': route,
+    '/queries': {
+      template: '<page-queries-list></page-queries-list>',
+      reloadOnSearch: false,
+    },
+    '/queries/my': {
+      template: '<page-queries-list></page-queries-list>',
+      reloadOnSearch: false,
+    },
   };
 }
