@@ -11,7 +11,7 @@ var redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
 var config = {
   entry: {
-    app: './client/app/index.js'
+    app: ['./client/app/index.js', './client/app/assets/less/main.less'],
   },
   output: {
     path: path.join(__dirname, 'client', 'dist'),
@@ -97,19 +97,6 @@ var config = {
                 new LessPluginAutoPrefix({browsers: ['last 3 versions']})
               ]
             }
-          }
-        ])
-      },
-      {
-        test: /\.scss$/,
-        use: ExtractTextPlugin.extract([
-          {
-            loader: 'css-loader',
-            options: {
-              minimize: process.env.NODE_ENV === 'production'
-            }
-          }, {
-            loader: 'sass-loader'
           }
         ])
       },

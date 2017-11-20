@@ -1,0 +1,42 @@
+/** Media - Overriding the Media object to 3.2 version in order to prevent issues like text overflow. **/
+.media {
+    margin-top: 0;
+    .clearfix();
+
+    & > .pull-left {
+        padding-right: 15px;
+    }
+
+    & > .pull-right {
+        padding-left: 15px;
+    }
+
+    overflow: visible;
+}
+
+.media-heading {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.media-body {
+    zoom: 1;
+    display: block;
+    width: auto;
+}
+
+.media-object {
+    border-radius: 2px;
+}
+
+.collapsing,
+.collapse.in {
+    padding: 5px 10px;
+    transition: all 0.35s ease;
+}
+
+/** LIST **/
+.list-inline > li {
+    vertical-align: top;
+    margin-left: 0;
+}

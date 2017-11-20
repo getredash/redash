@@ -1,0 +1,73 @@
+.pricing-table {
+    margin-top: 50px;
+}
+
+.pt-inner {
+    text-align: center;
+    
+    .pti-header {
+          padding: 45px 10px 70px;
+          color: #fff;
+          position: relative;
+            margin-bottom: 15px;
+
+        
+        & > h2 {
+              margin: 0;
+              line-height: 100%;
+              color: #fff;
+              font-weight: 100;
+              font-size: 50px;
+
+            small {
+                  color: #fff;
+                  letter-spacing: 0;
+                  vertical-align: top;
+                  font-size: 16px;
+                  font-weight: 100;
+            }
+        }
+        
+        .ptih-title {
+              background-color: rgba(0, 0, 0, 0.1);
+              padding: 8px 10px 9px;
+              text-transform: uppercase;
+              margin: 0 -10px;
+              position: absolute;
+              width: 100%;
+              bottom: 0;
+        }
+    }
+    
+    .pti-body {
+        padding: 0 23px;
+        
+        .ptib-item {
+            padding: 15px 0;
+            font-weight: 400;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid #eee;
+            }
+        }
+    }
+    
+    .pti-footer {
+        padding: 10px 20px 30px;
+        
+        & > a {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            text-align: center;
+            color: #fff;
+            display: inline-block;
+            line-height: 60px;
+            font-size: 30px;
+            
+            &:hover {
+                .opacity(0.85);
+            }
+        }
+    }
+}

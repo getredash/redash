@@ -1,0 +1,172 @@
+.noUi-target {
+    border-radius: 0;
+    box-shadow: none;
+    border: 0;
+}
+
+.noUi-background {
+    background: #d4d4d4;
+    box-shadow: none;
+}
+
+.noUi-horizontal {
+    height: 3px;
+    
+    .noUi-handle {
+        top: -8px;
+    }
+}
+
+.noUi-vertical {
+    width: 3px;
+}
+
+.noUi-horizontal,
+.noUi-vertical {
+    .noUi-handle {
+        width: 19px;
+        height: 19px;
+        border: 0;
+        border-radius: 100%;
+        box-shadow: none;
+        .transition(box-shadow);
+        .transition-duration(200ms);
+        cursor: pointer;
+        position: relative;
+        
+        &:before,
+        &:after {
+            display: none;
+        }
+        
+        &:active {
+            background: #ccc !important;
+        }
+        
+        .is-tooltip {
+            position: absolute;
+            bottom: 32px;
+            height: 35px;
+            border-radius: 2px;
+            color: #fff;
+            text-align: center;
+            line-height: 33px;
+            width: 50px;
+            left: 50%;
+            margin-left: -25px;
+            padding: 0 10px;
+            .transition(all);
+            .transition-duration(200ms);
+            .backface-visibility(hidden);
+            .opacity(0);
+            .scale(0);
+            
+            &:after {
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 15px 10px 0 10px;
+                position: absolute;
+                bottom: -8px;
+                left: 50%;
+                margin-left: -9px;
+                content: "";
+
+            }
+        }
+    }
+    
+    .noUi-active {
+        box-shadow: 0 0 0 13px rgba(0,0,0,0.1);
+        
+        .is-tooltip {
+            .scale(1);
+            bottom: 40px;
+            .opacity(1);
+        }
+    }
+}  
+
+.input-slider,
+.input-slider-range,
+.input-slider-values {
+    &:not([data-is-color]) {
+        .noUi-handle,
+        .noUi-connect, {
+            background: @teal !important;
+        }
+        
+        .is-tooltip {
+            background: @teal;
+            
+            &:after {
+                border-color: @teal transparent transparent transparent;
+            }
+        }
+    }
+    
+    &[data-is-color=red] {
+        .is-color-handle(@red);
+    }
+    
+    &[data-is-color=blue] {
+        .is-color-handle(@blue);
+    }
+    
+    &[data-is-color=cyan] {
+        .is-color-handle(@cyan);
+    }
+    
+    &[data-is-color=amber] {
+        .is-color-handle(@amber);
+    }
+    
+    &[data-is-color=green] {
+        .is-color-handle(@green);
+    }
+}
+
+.input-slider {
+    .noUi-origin {
+        background: #d4d4d4;
+    }
+    
+    &:not([data-is-color]) {
+        .noUi-base {
+            background: @teal !important;
+        }
+    }
+    
+    &[data-is-color=red] {
+        .is-color-base(@red);
+    }
+    
+    &[data-is-color=blue] {
+        .is-color-base(@blue);
+    }
+    
+    &[data-is-color=cyan] {
+        .is-color-base(@cyan);
+    }
+    
+    &[data-is-color=amber] {
+        .is-color-base(@amber);
+    }
+    
+    &[data-is-color=green] {
+        .is-color-base(@green);
+    }
+}
+
+.is-color-handle(@color) {
+    .noUi-handle,
+    .noUi-connect {
+        background: @color !important;
+    }
+}
+
+.is-color-base(@color) {
+    .noUi-base {
+        background: @color !important;
+    }
+}

@@ -1,11 +1,11 @@
 {
   "name": "redash-client",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "start-demo": "REDASH_BACKEND=https://demo.redash.io npm start",
+    "start-demo": "REDASH_BACKEND=http://demo-direct.redash.io npm start",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
   },
@@ -37,6 +37,7 @@
     "angular-ui-ace": "^0.2.3",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",
+    "bootstrap": "^3.3.7",
     "brace": "^0.10.0",
     "core-js": "https://registry.npmjs.org/core-js/-/core-js-2.4.1.tgz",
     "cornelius": "git+https://github.com/restorando/cornelius.git",
@@ -80,9 +81,7 @@
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "less-plugin-autoprefix": "^1.5.1",
-    "node-sass": "^4.5.3",
     "raw-loader": "^0.5.1",
-    "sass-loader": "^6.0.6",
     "url-loader": "^0.5.9",
     "webpack": "^3.6.0",
     "webpack-build-notifier": "^0.1.16",
