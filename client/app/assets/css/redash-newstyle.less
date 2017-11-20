@@ -72,8 +72,8 @@ page-header, .page-header--new {
   padding: 3px 6px 4px;
 }
 
-.tab-nav > li > a {
-  text-transform: none;
+.tab-nav > li > a, .table > thead > tr > th {
+  text-transform: capitalize;
 }
 
 .dashboard__control {
@@ -135,7 +135,7 @@ edit-in-place p {
   display: inline-block;
 }
 
-edit-in-place p:hover {
+edit-in-place p.editable:hover {
   background: #FCFCA2;
   display: inline-block;
 }
