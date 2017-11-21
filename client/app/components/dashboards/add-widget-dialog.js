@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import template from './add-widget-dialog.html';
 
 const AddWidgetDialog = {
@@ -65,30 +64,19 @@ const AddWidgetDialog = {
           isHidden: this.isTextBox() && this.isHidden,
           position: {},
         },
+        visualization: this.selectedVis,
         text: this.text,
       });
+
+      const position = this.dashboard.calculateNewWidgetPosition(widget);
+      widget.options.position.col = position.col;
+      widget.options.position.row = position.row;
 
       widget.$save()
         .then((response) => {
           // update dashboard layout
           this.dashboard.version = response.version;
-
-          response.widget.options = _.extend(
-            {},
-            response.widget.options,
-            { position: {} },
-          );
-          const w = new Widget(response.widget);
-
-          const position = this.dashboard.calculateNewWidgetPosition(w);
-          w.options.position.col = position.col;
-          w.options.position.row = position.row;
-
-          // Save it with new position
-          return w.$save().then(() => w);
-        })
-        .then((w) => {
-          this.dashboard.widgets.push(w);
+          this.dashboard.widgets.push(new Widget(response.widget));
           this.close();
         })
         .catch(() => {
