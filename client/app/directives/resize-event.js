@@ -1,12 +1,12 @@
 import * as _ from 'underscore';
 import { requestAnimationFrame } from './utils';
 
-const items = [];
+const items = new Map();
 
 function checkItems() {
-  _.each(items, (item) => {
-    const offsetWidth = item.node.offsetWidth;
-    const offsetHeight = item.node.offsetHeight;
+  items.forEach((item, node) => {
+    const offsetWidth = node.offsetWidth;
+    const offsetHeight = node.offsetHeight;
 
     if (
       (item.offsetWidth !== offsetWidth) ||
@@ -14,7 +14,7 @@ function checkItems() {
     ) {
       item.offsetWidth = offsetWidth;
       item.offsetHeight = offsetHeight;
-      item.callback(item);
+      item.callback(node);
     }
   });
 
@@ -28,10 +28,8 @@ function resizeEvent() {
     restrict: 'A',
     link($scope, $element, attrs) {
       const node = $element[0];
-      const exists = _.find(items, item => item.node === node);
-      if (!exists) {
-        items.push({
-          node,
+      if (!items.has(node)) {
+        items.set(node, {
           callback: () => {
             $scope.$evalAsync(attrs.resizeEvent);
           },
