@@ -122,8 +122,9 @@ def login(org_slug=None):
             user = models.User.get_by_email_and_org(request.form['email'], org)
             if user and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
-                login_user(user, remember=remember)
-                return redirect(next_path)
+                if login_user(user, remember=remember):
+                    return redirect(next_path)
+                flash("Your account has been deactivated.")
             else:
                 flash("Wrong email or password.")
         except NoResultFound:
