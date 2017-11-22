@@ -16,7 +16,7 @@
     </tbody>
   </table>
 </div>
-<div class="text-center">
+<div class="text-center" ng-if="$ctrl.rowsCount > $ctrl.itemsPerPage">
   <ul uib-pagination total-items="$ctrl.rowsCount"
       items-per-page="$ctrl.itemsPerPage"
       ng-model="$ctrl.page"
@@ -24,7 +24,7 @@
       class="pagination"
       boundary-link-numbers="true"
       rotate="false"
-      next-text='>'
-      previous-text='<'
+      next-text='&#8594;'
+      previous-text='&#8592;'
       ng-change="$ctrl.pageChanged()"></ul>
 </div>

@@ -17,24 +17,24 @@
 
   <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
-  <div class="row bg-white p-10 m-b-10">
-    <div class="col-sm-9">
+  <div class="row bg-white tiled p-10 p-l-15 p-r-15 m-b-10 m-l-0 m-r-0 page-header--new">
+    <div class="col-sm-9 p-l-0">
       <h3>
         <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
         <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       </h3>
-      <p>
-        <em>
-          <edit-in-place editable="canEdit"
-                         done="saveDescription"
-                         editor="textarea"
-                         placeholder="No description"
-                         ignore-blanks='false'
-                         value="query.description"
-                         markdown="true">
-          </edit-in-place>
-        </em>
+
+      <em>
+        <edit-in-place editable="canEdit"
+                       done="saveDescription"
+                       editor="textarea"
+                       placeholder="No description"
+                       ignore-blanks='false'
+                       value="query.description"
+                       markdown="true">
+        </edit-in-place>
+      </em>
 
       <ul class="list-inline m-t-20">
         <li>
@@ -48,7 +48,7 @@
           <strong>{{query.last_modified_by.name}}</strong>
         </li>
         <li>
-          <span class="zmdi zmdi-time"></span>
+          <i class="zmdi zmdi-time-restore"></i>
           <span class="text-muted">Updated at </span>
           <strong>
             <rd-time-ago value="query.updated_at"></rd-time-ago>
@@ -62,25 +62,23 @@
           </strong>
         </li>
       </ul>
-      </p>
+
     </div>
-    <div class="col-sm-3 text-right">
-      <h3>
-        <span ng-show="query.id && canViewSource">
-            <a ng-show="!sourceMode"
-              ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default">Show Source
-            </a>
-            <a ng-show="sourceMode"
-              ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default">Hide Source
-            </a>
-        </span>
-      </h3>
+    <div class="col-sm-3 text-right p-r-0">
+      <span ng-show="query.id && canViewSource">
+          <a ng-show="!sourceMode"
+            ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default">Show Source
+          </a>
+          <a ng-show="sourceMode"
+            ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default">Hide Source
+          </a>
+      </span>
     </div>
   </div>
 
   <!-- editor -->
   <div class="container">
-      <div class="row bg-white p-b-5" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+      <div class="row bg-white tiled p-b-5" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
         <schema-browser class="col-md-3 hidden-sm hidden-xs schema-container"
                         schema="schema"
                         on-refresh="refreshSchema()"
@@ -143,7 +141,7 @@
   <!-- End of Query Details-->
 
   <div class="tile">
-    <div class="t-header bg-ace">
+    <div class="t-header">
       <div class="pull-right">
         <button class="btn btn-sm btn-default" ng-click="executeQuery()"
                 ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
@@ -191,7 +189,7 @@
         </li>
         <li>
           <!-- last update -->
-          <span class="zmdi zmdi-time"></span>
+          <i class="zmdi zmdi-time-restore"></i>
           <span class="text-muted">Last update </span>
           <strong>
             <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
@@ -250,13 +248,13 @@
                   <filters filters="filters"></filters>
                   <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
                   <!-- the ng-repeat is a lame hack to find the table visualization... -->
-                  <div class="bg-ace p-5" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
+                  <div class="p-15" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
                     <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
                 </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                  <div class="bg-ace p-5">
+                  <div class="p-15">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
                     <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>

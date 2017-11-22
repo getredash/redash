@@ -10,7 +10,7 @@ class PaginatorCtrl {
 export default function init(ngModule) {
   ngModule.component('paginator', {
     template: `
-<div class="text-center">
+<div class="text-center" ng-if="$ctrl.paginator.totalCount > $ctrl.paginator.itemsPerPage">
   <ul uib-pagination total-items="$ctrl.paginator.totalCount"
                      items-per-page="$ctrl.paginator.itemsPerPage"
                      ng-model="$ctrl.page"
@@ -18,8 +18,8 @@ export default function init(ngModule) {
                      class="pagination"
                      boundary-link-numbers="true"
                      rotate="false"
-                     next-text='>'
-                     previous-text='<'
+                     next-text='&#8594;'
+                     previous-text='&#8592;'
                      ng-change="$ctrl.pageChanged()"></ul>
 </div>
     `,

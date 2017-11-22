@@ -1,5 +1,6 @@
 import { each } from 'underscore';
 import template from './show.html';
+import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
@@ -95,6 +96,8 @@ function UserCtrl(
       toastr.error(message);
     });
   };
+
+  $scope.isCollapsed = true;
 
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
