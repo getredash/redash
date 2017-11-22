@@ -1,8 +1,8 @@
-<page-header title="Admin">
-</page-header>
-
 <div class="container">
-  <div class="container bg-white p-5">
+  <page-header title="Admin">
+  </page-header>
+
+  <div class="bg-white tiled">
     <ul class="tab-nav">
       <li><a href="admin/status">System Status</a></li>
       <li class="active"><a href="admin/queries/tasks">Queries Queue</a></li>
@@ -49,6 +49,8 @@
     </table>
     <paginator paginator="$ctrl.tasksPaginator"></paginator>
 
-    <label><input type="checkbox" ng-model="autoUpdate"> Auto Update</label>
+    <div class="p-15">
+      <label><input type="checkbox" ng-model="autoUpdate"> Auto Update</label>
+    </div>
   </div>
 </div>

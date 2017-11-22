@@ -1,11 +1,12 @@
-<page-header title='{{$ctrl.alert.name || $ctrl.getDefaultName() || "New" }}'>
-</page-header>
-
 <div class="container">
+
+  <page-header title='{{$ctrl.alert.name || $ctrl.getDefaultName() || "New Alert" }}'>
+  </page-header>
+
   <email-settings-warning function="'alert emails'"></email-settings-warning>
 
   <div class="container">
-    <div class="row bg-white p-10">
+    <div class="row bg-white tiled p-10">
       <div class="col-md-8">
         <form name="alertForm" class="form">
           <div class="form-group">
