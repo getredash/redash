@@ -218,6 +218,8 @@ class BaseElasticSearch(BaseQueryRunner):
                 for value in data:
                     result_row = get_row(rows, row)
                     collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
+                    if 'doc_count' in value:
+                        collect_value(mappings, result_row, 'doc_count', value['doc_count'], 'integer')
                     if 'key' in value:
                         if 'key_as_string' in value:
                             collect_value(mappings, result_row, parent_key, value['key_as_string'], 'string')
