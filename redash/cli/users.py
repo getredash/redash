@@ -112,7 +112,8 @@ def delete(email, organization=None):
             models.User.org == org.id,
         ).delete()
     else:
-        deleted_count = models.User.query.filter(models.User.email == email).delete()
+        deleted_count = models.User.query.filter(models.User.email == email).delete(
+            synchronize_session=False)
     models.db.session.commit()
     print("Deleted %d users." % deleted_count)
 

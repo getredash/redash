@@ -19,7 +19,7 @@ const dashboardGridOptions = {
   defaultSizeY: 3,
   minSizeX: 1,
   maxSizeX: null,
-  minSizeY: 1,
+  minSizeY: 4,
   maxSizeY: null,
   resizable: {
     enabled: false,

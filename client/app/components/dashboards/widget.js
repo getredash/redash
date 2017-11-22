@@ -1,3 +1,4 @@
+import * as _ from 'underscore';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import './widget.less';
@@ -44,6 +45,15 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
         widget: this.widget,
       },
     });
+  };
+
+  this.getWidgetStyles = () => {
+    if (_.isObject(this.widget) && _.isObject(this.widget.visualization)) {
+      const visualization = this.widget.visualization;
+      if (visualization.type === 'PIVOT') {
+        return { overflow: 'visible' };
+      }
+    }
   };
 
   this.localParametersDefs = () => {

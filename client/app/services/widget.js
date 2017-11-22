@@ -1,5 +1,5 @@
 import { truncate } from 'underscore.string';
-import { omit, flatten, extend, isObject } from 'underscore';
+import { pick, omit, flatten, extend, isObject } from 'underscore';
 
 function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   function prepareForSave(data) {
@@ -35,7 +35,14 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   function WidgetConstructor(widget) {
     widget.width = 1; // Backward compatibility, user on back-end
 
-    const visualizationOptions = {};
+    const visualizationOptions = {
+      sizeX: Math.round(dashboardGridOptions.columns / 2),
+      sizeY: -1, // auto-height
+      minSizeX: dashboardGridOptions.minSizeX,
+      maxSizeX: dashboardGridOptions.maxSizeX,
+      minSizeY: dashboardGridOptions.minSizeY,
+      maxSizeY: dashboardGridOptions.maxSizeY,
+    };
     const visualization = widget.visualization ?
       Visualization.visualizations[widget.visualization.type] : null;
     if (isObject(visualization)) {
@@ -65,10 +72,24 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
       if (isFinite(maxRows) && (maxRows >= 0)) {
         visualizationOptions.maxSizeY = maxRows;
       }
+
+      // Default dimensions
+      const defaultWidth = parseInt(options.defaultColumns, 10);
+      if (isFinite(defaultWidth) && (defaultWidth > 0)) {
+        visualizationOptions.sizeX = defaultWidth;
+      }
+      const defaultHeight = parseInt(options.defaultRows, 10);
+      if (isFinite(defaultHeight) && (defaultHeight > 0)) {
+        visualizationOptions.sizeY = defaultHeight;
+      }
     }
 
     widget.options = widget.options || {};
-    widget.options.position = extend({}, visualizationOptions, widget.options.position);
+    widget.options.position = extend(
+      {},
+      visualizationOptions,
+      pick(widget.options.position, ['col', 'row', 'sizeX', 'sizeY']),
+    );
 
     return new WidgetResource(widget);
   }

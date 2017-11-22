@@ -39,7 +39,7 @@
     <div ng-switch-when="failed" class="body-row-auto scrollbox">
       <div class="alert alert-danger m-5" ng-show="$ctrl.queryResult.getError()">Error running query: <strong>{{$ctrl.queryResult.getError()}}</strong></div>
     </div>
-    <div ng-switch-when="done" class="body-row-auto scrollbox">
+    <div ng-switch-when="done" class="body-row-auto scrollbox" ng-style="$ctrl.getWidgetStyles()">
       <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.queryResult" class="t-body"></visualization-renderer>
     </div>
     <div ng-switch-default class="body-row-auto spinner-container">
