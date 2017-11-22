@@ -77,11 +77,18 @@ function GridRenderer(clientConfig) {
 
 export default function init(ngModule) {
   ngModule.config((VisualizationProvider) => {
+    const defaultOptions = {
+      defaultRows: 14,
+      defaultColumns: 4,
+      minColumns: 2,
+    };
+
     VisualizationProvider.registerVisualization({
       type: 'TABLE',
       name: 'Table',
       renderTemplate: '<grid-renderer options="visualization.options" query-result="queryResult"></grid-renderer>',
       skipTypes: true,
+      defaultOptions,
     });
   });
   ngModule.directive('gridRenderer', GridRenderer);

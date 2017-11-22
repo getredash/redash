@@ -1,15 +1,15 @@
 /* eslint-disable */
 
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
-var LessPluginAutoPrefix = require('less-plugin-autoprefix');
-var path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
+const LessPluginAutoPrefix = require('less-plugin-autoprefix');
+const path = require('path');
 
-var redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
+const redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
-var config = {
+const config = {
   entry: {
     app: ['./client/app/index.js', './client/app/assets/less/main.less'],
   },
@@ -123,6 +123,10 @@ var config = {
     ]
   },
   devtool: 'cheap-eval-module-source-map',
+  stats: {
+    modules: false,
+    chunkModules: false,
+  },
   devServer: {
     inline: true,
     historyApiFallback: true,
@@ -133,8 +137,12 @@ var config = {
         '/status.json', '/api', '/oauth'],
       target: redashBackend + '/',
       changeOrigin: true,
-      secure: false
-    }]
+      secure: false,
+    }],
+    stats: {
+      modules: false,
+      chunkModules: false,
+    },
   }
 };
 
