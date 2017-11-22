@@ -1,3 +1,4 @@
+
 google-api-python-client==1.5.1
 gspread==0.6.2
 impyla==0.10.0
@@ -21,6 +22,7 @@ memsql==2.16.0
 atsd_client==2.0.12
 simple_salesforce==0.72.2
 PyAthena>=1.0.0
+pymapd>=0.2.1
 # certifi is needed to support MongoDB and SSL:
 certifi
 # We don't install snowflake connector by default, as it's causing conflicts with

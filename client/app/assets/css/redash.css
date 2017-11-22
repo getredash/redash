@@ -327,18 +327,36 @@ pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div 
 counter-renderer {
   display: block;
   text-align: center;
+  padding: 15px 10px;
+  overflow: hidden;
 }
 
 counter-renderer counter {
-  margin: 0 auto;
-  padding: 15px 50px;
-  display: block;;
+  margin: 0;
+  display: block;
+  font-size: 80px;
+  overflow: hidden;
 }
 
 counter-renderer value,
+counter-renderer counter-name,
 counter-renderer counter-target {
-  font-size: 80px;
+  font-size: 1em;
+  line-height: 1em;
   display: block;
+}
+
+counter-renderer value .ruler,
+counter-renderer counter-name .ruler,
+counter-renderer counter-target .ruler {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
 }
 
 counter-renderer counter-target {
@@ -355,7 +373,7 @@ counter-renderer counter.negative value {
 }
 
 counter-renderer counter-name {
-  font-size: 40px;
+  font-size: 0.5em;
   display: block;
 }
 
@@ -701,4 +719,17 @@ div.table-name:hover {
 /* The real magic ;) */
 .dropdown-menu > .disabled > a{
  pointer-events: none;
+}
+
+.map-visualization-container {
+  height: 500px;
+}
+
+.plotly-chart-container {
+  height: 400px;
+  overflow: hidden;
+}
+
+visualization-renderer .pagination {
+  margin: 0;
 }

@@ -15,7 +15,7 @@ dependencies:
     - node_modules/
 test:
   override:
-    - nosetests --with-xunit --xunit-file=$CIRCLE_TEST_REPORTS/junit.xml --with-coverage --cover-package=redash tests/
+    - pytest --junitxml=$CIRCLE_TEST_REPORTS/junit.xml tests/
 deployment:
   github_and_docker:
     branch: [master, /release.*/]
