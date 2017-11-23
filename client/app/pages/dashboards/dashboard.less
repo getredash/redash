@@ -1,12 +1,9 @@
 .dashboard-wrapper {
   .tile {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    margin: 0;
-    padding: 0;
+    display: flex;
+    position: static;
+    height: auto;
+    margin-bottom: 15px;
   }
 
   pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
@@ -31,36 +28,6 @@
     }
   }
 
-  .map-visualization-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
-  }
-
-  counter {
-    position: absolute;
-    left: 10px;
-    top: 15px;
-    right: 10px;
-    bottom: 15px;
-    overflow: hidden;
-    padding: 0;
-  }
-
-  .plotly-chart-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    height: auto;
-    overflow: hidden;
-  }
-
   .gridster-preview-holder {
     background: #aaa;
   }
@@ -72,31 +39,46 @@
       margin-left: 0 !important;
       margin-right: 0 !important;
     }
-
-    .tile {
-      display: block;
-      position: static;
-      height: auto;
-      margin-bottom: 15px;
-    }
   }
 
-  &.gridster-mobile, .gridster-auto-height-enabled {
-    counter {
-      position: static;
+  &:not(.gridster-mobile) {
+    .tile {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
       overflow: hidden;
+      margin: 0;
       padding: 0;
     }
 
-    .plotly-chart-container {
-      position: static;
-      height: 400px;
-      overflow: hidden;
-    }
+    .gridster-item:not(.gridster-auto-height-enabled) {
+      .sunburst-visualization-container,
+      .sankey-visualization-container,
+      .map-visualization-container,
+      .plotly-chart-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        height: auto;
+        overflow: hidden;
+      }
 
-    .map-visualization-container {
-      position: static;
-      height: 500px;
+      counter {
+        position: absolute;
+        left: 10px;
+        top: 15px;
+        right: 10px;
+        bottom: 15px;
+        overflow: hidden;
+        padding: 0;
+      }
     }
   }
 

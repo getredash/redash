@@ -28,9 +28,8 @@ function Sunburst(scope, element) {
   this.watches = [];
 
   // svg dimensions
-  const width = element[0].parentElement.clientWidth;
-  const height = scope.visualization.options.height;
-  const radius = Math.min(width, height) / 2;
+  const width = element.clientWidth;
+  const height = element.offsetHeight;
 
   // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
   const b = {
@@ -39,6 +38,11 @@ function Sunburst(scope, element) {
     s: 3,
     t: 10,
   };
+
+  const radius = Math.min(width - b.h, height - b.h) / 2 - 5;
+  if (radius <= 0) {
+    return;
+  }
 
   // margins
   const margin = {
@@ -77,14 +81,7 @@ function Sunburst(scope, element) {
    *
    * e.g. vis, breadcrumbs, lastCrumb, summary, sunburst, legend
    */
-  // create main vis selection
-  const vis = d3
-    .select(element[0])
-    .append('div')
-    .classed('vis-container', true)
-    .style('position', 'relative')
-    .style('margin-top', '5px')
-    .style('height', `${height + 2 * b.h}px`);
+  const vis = d3.select(element);
 
   // create and position breadcrumbs container and svg
   const breadcrumbs = vis
@@ -96,38 +93,25 @@ function Sunburst(scope, element) {
     .attr('fill', 'white')
     .attr('font-weight', 600);
 
-  const marginLeft = (width - radius * 2) / 2;
-
   // create and position SVG
-  const sunburst = vis
+  const container = vis.append('div');
+
+  // create and position summary container
+  const summary = container
+    .append('div')
+    .classed('summary-container', true);
+
+  const sunburst = container
     .append('div')
     .classed('sunburst-container', true)
-    .style('z-index', '2')
-    // .style("margin-left", marginLeft + "px")
-    .style('left', `${marginLeft}px`)
-    .style('position', 'absolute')
     .append('svg')
-    .attr('width', width)
-    .attr('height', height)
+    .attr('width', radius * 2)
+    .attr('height', radius * 2)
     .append('g')
     .attr('transform', `translate(${margin.left},${margin.top})`);
 
   // create last breadcrumb element
   const lastCrumb = breadcrumbs.append('text').classed('lastCrumb', true);
-
-  // create and position summary container
-  const summary = vis
-    .append('div')
-    .classed('summary-container', true)
-    .style('position', 'absolute')
-    .style('top', `${b.h + radius * 0.8}px`)
-    .style('left', `${marginLeft + radius / 2}px`)
-    .style('width', `${radius}px`)
-    .style('height', `${radius}px`)
-    .style('text-align', 'center')
-    .style('font-size', '11px')
-    .style('color', '#666')
-    .style('z-index', '1');
 
   // Generate a string representation for drawing a breadcrumb polygon.
   function breadcrumbPoints(d, i) {
@@ -208,8 +192,11 @@ function Sunburst(scope, element) {
       .attr('opacity', 1);
 
     // update summary
-    summary.html(`Stage: ${d.depth}<br />` +
-        `<span class='percentage' style='font-size: 2em;'>${percentageString}</span><br />${d.value} of ${totalSize}<br />`);
+    summary.html(`
+      <span>Stage: ${d.depth}</span>
+      <span class='percentage' style='font-size: 2em;'>${percentageString}</span>
+      <span>${d.value} of ${totalSize}</span>
+    `);
 
     // display summary and breadcrumbs if hidden
     summary.style('visibility', '');
@@ -394,7 +381,7 @@ Sunburst.prototype.remove = function remove() {
   this.watches.forEach((unregister) => {
     unregister();
   });
-  angular.element(this.element[0]).empty('.vis-container');
+  angular.element(this.element).empty('.vis-container');
 };
 
 export default Sunburst;
