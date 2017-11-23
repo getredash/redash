@@ -116,7 +116,8 @@ def authorized():
         flash("Your Google Apps account ({}) isn't allowed.".format(profile['email']))
         return redirect(url_for('redash.login', org_slug=org.slug))
 
-    create_and_login_user(org, profile['name'], profile['email'], profile['picture'])
+    picture_url = "%s?sz=40" % profile['picture']
+    create_and_login_user(org, profile['name'], profile['email'], picture_url)
 
     next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
 
