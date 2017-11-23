@@ -23,7 +23,7 @@
       </div>
       <small ng-if="$ctrl.snippet.user">
         Created by: 
-        <span class="avatar-mini"><img ng-src="{{$ctrl.snippet.user.gravatar_url}}"/></span>
+        <img ng-src="{{$ctrl.snippet.user.gravatar_url}}" class="profile__image_thumb"/>
         {{$ctrl.snippet.user.name}}
       </small>
     </form>
