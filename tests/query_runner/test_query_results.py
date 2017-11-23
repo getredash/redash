@@ -19,6 +19,10 @@ class TestExtractQueryIds(TestCase):
         query = "SELECT * FROM query_123 JOIN query_4566"
         self.assertEquals([123, 4566], extract_query_ids(query))
 
+    def test_finds_queries_with_whitespace_characters(self):
+        query = "SELECT * FROM    query_123 a JOIN\tquery_4566 b ON a.id=b.parent_id JOIN\r\nquery_78 c ON b.id=c.parent_id"
+        self.assertEquals([123, 4566, 78], extract_query_ids(query))
+
 
 class TestCreateTable(TestCase):
     def test_creates_table_with_colons_in_column_name(self):
