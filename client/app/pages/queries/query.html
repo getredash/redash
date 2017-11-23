@@ -40,6 +40,7 @@
         <li>
           <span class="zmdi zmdi-account"></span>
           <span class="text-muted">Created By </span>
+          <span class="avatar-mini"><img ng-src="{{query.user.gravatar_url}}"/></span>
           <strong>{{query.user.name}}</strong>
         </li>
         <li ng-if="query.last_modified_by && query.user.id != query.last_modified_by.id">

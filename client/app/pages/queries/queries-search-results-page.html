@@ -24,7 +24,9 @@
         <tbody>
           <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
             <td><a href="queries/{{query.id}}">{{query.name}}</a> <span class="label label-default" ng-if="query.is_draft">Unpublished</span></td>
-            <td>{{query.user.name}}</td>
+            <td>
+              <span class="avatar-mini"><img ng-src="{{query.user.gravatar_url}}"/></span>
+              {{query.user.name}}</td>
             <td>{{query.created_at | dateTime}}</td>
             <td>{{query.schedule | scheduleHumanize}}</td>
           </tr>

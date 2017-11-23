@@ -53,6 +53,11 @@ a.navbar-brand img {
   height: 40px;
 }
 
+.avatar-mini img {
+  width: 20px;
+  height: 20px;
+}
+
 #logout {
   color: white;
   position: relative;
