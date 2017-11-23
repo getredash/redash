@@ -58,7 +58,7 @@ def verify_profile(org, profile):
     return False
 
 
-def create_and_login_user(org, name, email, picture):
+def create_and_login_user(org, name, email, picture=None):
     try:
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.name != name:
