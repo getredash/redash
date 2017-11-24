@@ -24,6 +24,7 @@
   },
   "homepage": "https://redash.io/",
   "dependencies": {
+    "ag-grid": "^14.2.0",
     "angular": "~1.5.8",
     "angular-base64-upload": "^0.1.23",
     "angular-gridster": "^0.13.14",

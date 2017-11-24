@@ -1,66 +1,89 @@
-import { sortBy } from 'underscore';
+import * as _ from 'underscore';
+import 'ag-grid/dist/styles/ag-grid.css';
+import 'ag-grid/dist/styles/ag-theme-material.css';
 import template from './dynamic-table.html';
 import './dynamic-table.css';
 
 function DynamicTable($sanitize) {
   'ngInject';
 
-  this.itemsPerPage = this.count = 15;
+  this.itemsPerPage = 10;
   this.page = 1;
   this.rowsCount = 0;
-  this.orderByField = undefined;
-  this.orderByReverse = false;
+
+  this.gridOptions = {
+    columnDefs: [],
+    rowData: [],
+    enableColResize: true,
+    suppressFieldDotNotation: true,
+    enableSorting: true,
+    suppressRowClickSelection: true,
+    suppressCellSelection: true,
+    suppressClickEdit: true,
+    pagination: true,
+    suppressPaginationPanel: true,
+    paginationPageSize: this.itemsPerPage,
+    suppressScrollOnNewData: true,
+    suppressDragLeaveHidesColumns: true,
+    suppressFocusAfterRefresh: true,
+    domLayout: 'autoHeight',
+  };
+
+  const getCellStyle = (column) => {
+    switch (column.type) {
+      case 'integer':
+      case 'float':
+      case 'boolean':
+      case 'date':
+      case 'datetime':
+        return {
+          textAlign: 'right',
+        };
+      default:
+        return {};
+    }
+  };
+
+  const updateColumns = (columns) => {
+    if (this.gridOptions.api) {
+      this.gridOptions.api.setRowData(null);
+      this.gridOptions.api.setColumnDefs(_.map(columns, col => ({
+        headerName: col.title,
+        field: col.name,
+        cellStyle: getCellStyle(col),
+        cellRenderer: params => $sanitize(params.value),
+        valueFormatter: params => (col.formatFunction
+          ? col.formatFunction(params.value, col.type)
+          : params.value
+        ),
+      })));
+      if (columns.length <= 4) {
+        this.gridOptions.api.sizeColumnsToFit();
+      }
+    }
+  };
+
+  const updateData = (rows) => {
+    if (this.gridOptions.api) {
+      this.gridOptions.api.setRowData(rows);
+    }
+  };
 
   this.pageChanged = () => {
-    const first = this.count * (this.page - 1);
-    const last = this.count * (this.page);
-
-    this.rowsToDisplay = this.rows.slice(first, last);
+    if (this.gridOptions.api) {
+      this.gridOptions.api.paginationGoToPage(this.page);
+    }
   };
 
   this.$onChanges = (changes) => {
     if (changes.columns) {
-      this.columns = changes.columns.currentValue;
+      updateColumns(changes.columns.currentValue);
     }
-
     if (changes.rows) {
-      this.rows = changes.rows.currentValue;
+      updateData(changes.rows.currentValue);
     }
-
     this.rowsCount = this.rows.length;
-
     this.pageChanged();
-  };
-
-  this.orderBy = (column) => {
-    if (column === this.orderByField) {
-      this.orderByReverse = !this.orderByReverse;
-    } else {
-      this.orderByField = column;
-      this.orderByReverse = false;
-    }
-
-    if (this.orderByField) {
-      this.rows = sortBy(this.rows, this.orderByField.name);
-      if (this.orderByReverse) {
-        this.rows = this.rows.reverse();
-      }
-      this.pageChanged();
-    }
-  };
-
-  this.sanitize = value => $sanitize(value);
-
-  this.sortIcon = (column) => {
-    if (column !== this.orderByField) {
-      return null;
-    }
-
-    if (this.orderByReverse) {
-      return 'desc';
-    }
-
-    return 'asc';
   };
 }
 
