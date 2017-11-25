@@ -78,7 +78,7 @@
 
   <!-- editor -->
   <div class="container">
-      <div class="row bg-white tiled p-b-0 m-b-10" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+      <div class="row bg-white tiled p-15 m-b-10" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
         <schema-browser class="col-md-3 p-0 hidden-sm hidden-xs schema-container"
                         schema="schema"
                         on-refresh="refreshSchema()"
@@ -125,7 +125,7 @@
                 </div>
               </div>
             </div>
-            <p style="height:calc(100% - 50px);">
+            <p style="height:calc(100% - 40px); margin-bottom: 0px;">
               <query-editor query="query"
                             schema="schema"
                             syntax="dataSource.syntax"></query-editor>
@@ -136,7 +136,7 @@
   <!-- end of editor -->
 
   <!-- Query Details-->
-  <div class="container m-b-5 p-t-5 bg-ace" ng-if="sourceMode">
+  <div class="container" ng-if="sourceMode">
   </div>
   <!-- End of Query Details-->
 

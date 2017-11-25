@@ -46,7 +46,7 @@ function QueryViewCtrl(
 
   function toggleSchemaBrowser(hasSchema) {
     $scope.hasSchema = hasSchema;
-    $scope.editorSize = hasSchema ? 'col-md-9 p-0' : 'col-md-12';
+    $scope.editorSize = hasSchema ? 'col-md-9 p-r-0' : 'col-md-12';
   }
 
   function getSchema(refresh = undefined) {
