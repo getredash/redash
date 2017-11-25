@@ -3,6 +3,9 @@
 @redash-orange: rgba(255, 120, 100, 1);
 @redash-black: rgba(0, 0, 0, 1);
 
+//Default spacing (between tiles)
+@redash-space: 10px;
+
 
 // General
 body {
@@ -32,6 +35,11 @@ page-header, .page-header--new {
     line-height: 2;
     font-weight: 500;
   }
+}
+
+.rg-top span, .rg-bottom span {
+  height: 3px;
+  border-color: #b1c1ce; // TODO: variable
 }
 
 .popover {
@@ -137,6 +145,8 @@ page-header, .page-header--new {
   }
 }
 
+
+// Editor
 edit-in-place p {
   display: inline-block;
 }
@@ -144,6 +154,15 @@ edit-in-place p {
 edit-in-place p.editable:hover {
   background: #FCFCA2;
   display: inline-block;
+}
+
+.editor__control {
+  padding: 10px 10px 10px 0;
+}
+
+.schema-browser {
+  height: calc(75%);
+  border: none;
 }
 
 // Navigation

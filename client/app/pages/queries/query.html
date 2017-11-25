@@ -78,15 +78,15 @@
 
   <!-- editor -->
   <div class="container">
-      <div class="row bg-white tiled p-b-5" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
-        <schema-browser class="col-md-3 hidden-sm hidden-xs schema-container"
+      <div class="row bg-white tiled p-b-0 m-b-10" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+        <schema-browser class="col-md-3 p-0 hidden-sm hidden-xs schema-container"
                         schema="schema"
                         on-refresh="refreshSchema()"
                         ng-show="hasSchema">
         </schema-browser>
 
         <div ng-class="editorSize" style="height:100%;">
-            <div class="p-5">
+            <div class="editor__control">
               <button type="button" class="btn btn-primary btn-s" ng-disabled="queryExecuting || !canExecuteQuery()"
                       ng-click="executeQuery()">
                 <span class="zmdi zmdi-play"></span> Execute
@@ -125,7 +125,7 @@
                 </div>
               </div>
             </div>
-            <p style="height:calc(100% - 40px);">
+            <p style="height:calc(100% - 50px);">
               <query-editor query="query"
                             schema="schema"
                             syntax="dataSource.syntax"></query-editor>
