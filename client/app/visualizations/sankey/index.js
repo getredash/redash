@@ -1,6 +1,5 @@
 import angular from 'angular';
 import _ from 'underscore';
-import $ from 'jquery';
 import d3 from 'd3';
 
 import d3sankey from '@/lib/visualizations/d3sankey';
@@ -95,12 +94,16 @@ function spreadNodes(height, data) {
   });
 }
 
-function createSankey(element, sankeyHeight, data) {
+function createSankey(element, data) {
   const margin = {
     top: 10, right: 10, bottom: 10, left: 10,
   };
-  const width = $(element).parent().width() - margin.left - margin.right;
-  const height = sankeyHeight - margin.top - margin.bottom;
+  const width = element.offsetWidth - margin.left - margin.right;
+  const height = element.offsetHeight - margin.top - margin.bottom;
+
+  if ((width <= 0) || (height <= 0)) {
+    return;
+  }
 
   const format = d => d3.format(',.0f')(d);
   const color = d3.scale.category20();
@@ -216,17 +219,20 @@ function createSankey(element, sankeyHeight, data) {
 function sankeyRenderer() {
   return {
     restrict: 'E',
+    template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
     link(scope, element) {
+      const container = element[0].querySelector('.sankey-visualization-container');
+
       function refreshData() {
         const queryData = scope.queryResult.getData();
         if (queryData) {
           // do the render logic.
-          angular.element(element[0]).empty();
-          createSankey(element[0], scope.visualization.options.height, queryData);
+          angular.element(container).empty();
+          createSankey(container, queryData);
         }
       }
 
-      angular.element(window).on('resize', refreshData);
+      scope.handleResize = _.debounce(refreshData, 50);
       scope.$watch('queryResult && queryResult.getData()', refreshData);
       scope.$watch('visualization.options.height', (oldValue, newValue) => {
         if (oldValue !== newValue) {
@@ -250,11 +256,11 @@ export default function init(ngModule) {
 
   ngModule.config((VisualizationProvider) => {
     const renderTemplate =
-        '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>';
+      '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>';
 
     const editTemplate = '<sankey-editor></sankey-editor>';
     const defaultOptions = {
-      height: 300,
+      defaultRows: 7,
     };
 
     VisualizationProvider.registerVisualization({
