@@ -5,7 +5,7 @@
         <a href="users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
       </p>
 
-      <table class="table table-condensed table-hover">
+      <table class="table table-hover">
         <thead>
           <tr>
             <th>Name</th>
@@ -15,7 +15,7 @@
         <tbody>
           <tr ng-repeat="row in $ctrl.users.getPageRows()">
             <td>
-              <img ng-src="{{row.gravatar_url}}" height="40px"/> <a href="users/{{row.id}}">{{row.name}}</a>
+              <img ng-src="{{row.gravatar_url}}" height="32px" class="profile__image--settings"/> <a href="users/{{row.id}}">{{row.name}}</a>
             </td>
             <td>
               <span am-time-ago="row.created_at"></span>
