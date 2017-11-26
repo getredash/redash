@@ -1,10 +1,6 @@
 .table {
   margin-bottom: 0;
 
-  &:not(.table-striped) > thead > tr > th {
-    background-color: #FAFAFA;
-  }
-
   [class*="bg-"] {
     & > tr > th {
       color: #fff;
@@ -98,5 +94,11 @@
 }
 
 .table-hover > tbody > tr:hover {
-  background-color: #f4f4f4;
+  background-color: #fff !important;
+  background-color: fade(@redash-gray, 5%) !important;
+}
+
+.table:not(.table-striped) > thead > tr > th {
+  background-color: #fff !important;
+  background-color: fade(@redash-gray, 5%) !important;
 }
