@@ -638,10 +638,6 @@ div.table-name:hover {
   transition: all 0.35s ease;
 }
 
-.schema-browser .collapse.in {
-  background: #f4f4f4;
-}
-
 .navbar .collapse.in {
   background: #222;
 }
