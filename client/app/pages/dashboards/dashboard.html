@@ -26,12 +26,12 @@
 
           <div class="btn-group" uib-dropdown>
             <button id="split-button" type="button"
-                    ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}"
-                    class="btn" ng-click="$ctrl.loadDashboard(true)">
+                    ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}"
+                    class="btn btn-sm" ng-click="$ctrl.loadDashboard(true)">
               <i class="zmdi zmdi-refresh"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
             </button>
             <button type="button" class="btn" uib-dropdown-toggle
-                    ng-class="{'btn-default': $ctrl.refreshRate === null,'btn-primary':$ctrl.refreshRate !== null}">
+                    ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}">
               <span class="caret"></span>
               <span class="sr-only">Split button!</span>
             </button>
