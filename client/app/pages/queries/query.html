@@ -91,10 +91,8 @@
             <div class="form-inline">
               <i class="fa fa-database"></i>
               <span class="text-muted">Data</span>
-
               <select class="form-control" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                     ng-options="ds.id as ds.name for ds in dataSources"></select>
-
 
               <div class="pull-right">
                 <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
