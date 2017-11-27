@@ -1,13 +1,17 @@
-<div ag-grid="$ctrl.gridOptions" class="ag-theme-material"></div>
-<div class="text-center" ng-if="$ctrl.rowsCount > $ctrl.itemsPerPage">
-  <ul uib-pagination total-items="$ctrl.rowsCount"
-      items-per-page="$ctrl.itemsPerPage"
-      ng-model="$ctrl.page"
-      max-size="6"
-      class="pagination"
-      boundary-link-numbers="true"
-      rotate="false"
-      next-text='&#8594;'
-      previous-text='&#8592;'
-      ng-change="$ctrl.pageChanged()"></ul>
+<div class="dynamic-table-container">
+  <div class="ag-grid-container">
+    <div ag-grid="$ctrl.gridOptions" class="ag-theme-material"></div>
+  </div>
+  <div class="text-center" ng-if="$ctrl.rowsCount > $ctrl.itemsPerPage">
+    <ul uib-pagination total-items="$ctrl.rowsCount"
+        items-per-page="$ctrl.itemsPerPage"
+        ng-model="$ctrl.page"
+        max-size="6"
+        class="pagination"
+        boundary-link-numbers="true"
+        rotate="false"
+        next-text='&#8594;'
+        previous-text='&#8592;'
+        ng-change="$ctrl.pageChanged()"></ul>
+  </div>
 </div>

@@ -2,7 +2,7 @@ import * as _ from 'underscore';
 import 'ag-grid/dist/styles/ag-grid.css';
 import 'ag-grid/dist/styles/ag-theme-material.css';
 import template from './dynamic-table.html';
-import './dynamic-table.css';
+import './dynamic-table.less';
 
 function DynamicTable($sanitize) {
   'ngInject';
@@ -26,7 +26,7 @@ function DynamicTable($sanitize) {
     suppressScrollOnNewData: true,
     suppressDragLeaveHidesColumns: true,
     suppressFocusAfterRefresh: true,
-    domLayout: 'autoHeight',
+    // domLayout: 'autoHeight',
   };
 
   const getCellStyle = (column) => {
@@ -58,7 +58,9 @@ function DynamicTable($sanitize) {
         ),
       })));
       if (columns.length <= 4) {
-        this.gridOptions.api.sizeColumnsToFit();
+        setTimeout(() => {
+          this.gridOptions.api.sizeColumnsToFit();
+        }, 50);
       }
     }
   };
