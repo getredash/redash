@@ -56,6 +56,26 @@
     }
 
     .gridster-item:not(.gridster-auto-height-enabled) {
+      visualization-renderer {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+
+        > filters {
+          flex-grow: 0;
+        }
+
+        > div {
+          flex-grow: 1;
+          position: relative;
+        }
+      }
+
+      .dynamic-table-container,
       .sunburst-visualization-container,
       .sankey-visualization-container,
       .map-visualization-container,
