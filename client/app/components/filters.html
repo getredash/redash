@@ -1,10 +1,10 @@
-<div class="container bg-white p-5" ng-show="$ctrl.filters | notEmpty">
-  <div class="row">
+<div class="container bg-white" ng-show="$ctrl.filters | notEmpty" style="padding: 5px;">
+  <div class="row" style="margin-left: -5px; margin-right: -5px;">
     <div class="col-sm-6 m-t-5" ng-repeat="filter in $ctrl.filters">
       <label>{{filter.friendlyName}}</label>
     </div>
   </div>
-  <div class="row">
+  <div class="row" style="margin-left: -5px; margin-right: -5px;">
     <div class="col-sm-6 m-t-5" ng-repeat="filter in $ctrl.filters">
       <ui-select ng-model="filter.current" ng-if="!filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)" on-remove="$ctrl.filterChangeListener(filter, $model)"
         remove-selected="false">
