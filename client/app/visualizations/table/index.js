@@ -65,6 +65,7 @@ function GridRenderer(clientConfig) {
           columns.forEach((col) => {
             col.title = getColumnCleanName(col.name);
             col.formatFunction = partial(formatValue, $filter, clientConfig, _, col.type);
+            col.className = col.type === 'integer' || col.type === 'float' ? 'number-column' : 'string-column';
           });
 
           $scope.gridRows = $scope.queryResult.getData();
