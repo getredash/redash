@@ -731,5 +731,5 @@ div.table-name:hover {
 }
 
 visualization-renderer .pagination {
-  margin: 0;
+  margin: 5px 0;
 }

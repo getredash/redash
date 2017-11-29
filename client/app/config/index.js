@@ -18,6 +18,7 @@ import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
+import { initialiseAgGridWithAngular1 } from 'ag-grid';
 import { each } from 'underscore';
 
 import '@/lib/sortable';
@@ -29,6 +30,8 @@ import dateTimeFilter from '@/filters/datetime';
 import dashboardGridOptions from './dashboard-grid-options';
 
 const logger = debug('redash:config');
+
+initialiseAgGridWithAngular1(angular);
 
 const requirements = [
   ngRoute,
@@ -45,6 +48,7 @@ const requirements = [
   vsRepeat,
   'ui.sortable',
   ngGridster.name,
+  'agGrid',
 ];
 
 const ngModule = angular.module('app', requirements);

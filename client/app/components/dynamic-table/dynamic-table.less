@@ -1,0 +1,18 @@
+.dynamic-table-container {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+
+  .ag-grid-container {
+    flex-grow: 1;
+    position: relative;
+
+    [ag-grid] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+    }
+  }
+}
