@@ -15,6 +15,7 @@ function DynamicTable($sanitize) {
     columnDefs: [],
     rowData: [],
     enableColResize: true,
+    // suppressMovableColumns: true,
     suppressFieldDotNotation: true,
     enableSorting: true,
     suppressRowClickSelection: true,
@@ -29,20 +30,10 @@ function DynamicTable($sanitize) {
     // domLayout: 'autoHeight',
   };
 
-  const getCellStyle = (column) => {
-    switch (column.type) {
-      case 'integer':
-      case 'float':
-      case 'boolean':
-      case 'date':
-      case 'datetime':
-        return {
-          textAlign: 'right',
-        };
-      default:
-        return {};
-    }
-  };
+  const isNumericColumns = column => _.includes(
+    ['integer', 'float', 'boolean', 'date', 'datetime'],
+    column.type,
+  );
 
   const updateColumns = (columns) => {
     if (this.gridOptions.api) {
@@ -50,7 +41,7 @@ function DynamicTable($sanitize) {
       this.gridOptions.api.setColumnDefs(_.map(columns, col => ({
         headerName: col.title,
         field: col.name,
-        cellStyle: getCellStyle(col),
+        type: isNumericColumns(col) ? 'numericColumn' : '',
         cellRenderer: params => $sanitize(params.value),
         valueFormatter: params => (col.formatFunction
           ? col.formatFunction(params.value, col.type)
@@ -73,7 +64,7 @@ function DynamicTable($sanitize) {
 
   this.pageChanged = () => {
     if (this.gridOptions.api) {
-      this.gridOptions.api.paginationGoToPage(this.page);
+      this.gridOptions.api.paginationGoToPage(this.page - 1);
     }
   };
 
@@ -83,6 +74,8 @@ function DynamicTable($sanitize) {
     }
     if (changes.rows) {
       updateData(changes.rows.currentValue);
+      this.page = 1;
+      this.pageChanged();
     }
     this.rowsCount = this.rows.length;
     this.pageChanged();
