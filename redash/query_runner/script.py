@@ -1,5 +1,4 @@
 import os
-import re
 import subprocess
 import sys
 
@@ -7,6 +6,10 @@ from redash.query_runner import *
 
 
 class Script(BaseQueryRunner):
+    @classmethod
+    def annotate_query(cls):
+        return False
+
     @classmethod
     def enabled(cls):
         return "check_output" in subprocess.__dict__
@@ -46,15 +49,11 @@ class Script(BaseQueryRunner):
     def test_connection(self):
         pass
 
-    def strip_whitespaces_and_annotation(self, query):
-        return re.sub('^/\*.*\*/', '', query).strip()
-
     def run_query(self, query, user):
         try:
             json_data = None
             error = None
 
-            query = self.strip_whitespaces_and_annotation(query)
             script = query
 
             if self.configuration["path"] != "*":
