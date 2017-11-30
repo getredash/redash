@@ -1,0 +1,24 @@
+th {
+  white-space: nowrap;
+  span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &.sortable-column {
+    cursor: pointer;
+  }
+}
+
+th, td {
+  &.content-align-left {
+    text-align: left;
+  }
+  &.content-align-right {
+    text-align: right;
+  }
+  &.content-align-center {
+    text-align: center;
+  }
+}

@@ -65,6 +65,8 @@ function GridRenderer(clientConfig) {
           columns.forEach((col) => {
             col.title = getColumnCleanName(col.name);
             col.formatFunction = partial(formatValue, $filter, clientConfig, _, col.type);
+            col.allowHTML = true;
+            col.alignContent = ['integer', 'float', 'boolean', 'date', 'datetime'].indexOf(col.type) >= 0 ? 'right' : 'left';
           });
 
           $scope.gridRows = $scope.queryResult.getData();
