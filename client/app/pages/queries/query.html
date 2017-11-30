@@ -246,12 +246,6 @@
             </div>
             <div class="row">
               <div class="col-lg-12">
-                <div ng-show="selectedTab == 'table'">
-                  <filters filters="filters"></filters>
-                  <div class="scrollbox">
-                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                  </div>
-                </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
                   <div class="p-15">
