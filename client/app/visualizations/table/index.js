@@ -43,21 +43,36 @@ function getColumnContentAlignment(type) {
   return ['integer', 'float', 'boolean', 'date', 'datetime'].indexOf(type) >= 0 ? 'right' : 'left';
 }
 
-function getColumnsOptions(columns, $filter, clientConfig) {
+function getDefaultColumnsOptions(columns) {
   return _.map(columns, (col, index) => ({
     name: col.name,
     type: col.type,
     visible: true,
     order: 100000 + index,
     title: getColumnCleanName(col.name),
-    formatFunction: _.partial(formatValue, $filter, clientConfig, _, col.type),
-    allowHTML: true,
+    allowHTML: false,
     alignContent: getColumnContentAlignment(col.type),
   }));
 }
 
-function columnOptionsAsMap(options) {
-  return _.object(_.map(options, column => [column.name, column]));
+function getColumnsOptions(columns, visualizationColumns) {
+  const options = getDefaultColumnsOptions(columns);
+  visualizationColumns = _.object(_.map(
+    visualizationColumns,
+    (col, index) => [col.name, _.extend({}, col, { order: index })],
+  ));
+
+  _.each(options, col => _.extend(col, visualizationColumns[col.name]));
+
+  return _.sortBy(options, 'order');
+}
+
+function getColumnsToDisplay(columns, options, $filter, clientConfig) {
+  columns = _.object(_.map(columns, col => [col.name, col]));
+  const result = _.map(options, col => _.extend({}, col, columns[col.name], {
+    formatFunction: _.partial(formatValue, $filter, clientConfig, _, col.type),
+  }));
+  return _.sortBy(_.filter(result, 'visible'), 'order');
 }
 
 function GridRenderer(clientConfig) {
@@ -82,32 +97,18 @@ function GridRenderer(clientConfig) {
           $scope.gridRows = $scope.queryResult.getData();
 
           const columns = $scope.queryResult.getColumns();
-          const columnsOptions = columnOptionsAsMap(getColumnsOptions(columns, $filter, clientConfig));
-          const visualizationOptions = columnOptionsAsMap(_.map(
+          const columnsOptions = getColumnsOptions(
+            columns,
             _.extend({}, $scope.options).columns,
-            (col, index) => {
-              col.order = index;
-              return col;
-            },
-          ));
-          $scope.gridColumns = _.map(columns, col => _.extend(
-            {},
-            columnsOptions[col.name],
-            visualizationOptions[col.name],
-            col,
-          ));
-          $scope.gridColumns = _.sortBy(
-            _.filter($scope.gridColumns, 'visible'),
-            'order',
           );
+          $scope.gridColumns = getColumnsToDisplay(columns, columnsOptions, $filter, clientConfig);
         }
       }
 
       $scope.$watch('queryResult && queryResult.getData()', (queryResult) => {
-        if (!queryResult) {
-          return;
+        if (queryResult) {
+          update();
         }
-        update();
       });
 
       $scope.$watch('options', (newValue, oldValue) => {
@@ -119,7 +120,7 @@ function GridRenderer(clientConfig) {
   };
 }
 
-function GridEditor($filter, clientConfig) {
+function GridEditor() {
   return {
     restrict: 'E',
     template: editorTemplate,
@@ -132,14 +133,13 @@ function GridEditor($filter, clientConfig) {
           return;
         }
         if ($scope.queryResult.getData() == null) {
-          $scope.visualization.options.columns = {};
+          $scope.visualization.options.columns = [];
         } else {
           const columns = $scope.queryResult.getColumns();
-          const columnsOptions = getColumnsOptions(columns, $filter, clientConfig);
-          _.each(columnsOptions, (column) => {
-            column.allowHTML = false;
-          });
-          $scope.visualization.options.columns = columnsOptions;
+          $scope.visualization.options.columns = getColumnsOptions(
+            columns,
+            $scope.visualization.options.columns,
+          );
         }
       });
     },
