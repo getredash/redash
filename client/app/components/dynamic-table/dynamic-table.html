@@ -1,30 +1,33 @@
 <div>
   <table class="table table-condensed table-hover">
     <thead>
-    <tr>
-      <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.orderBy(column)" class="sortable-column">
-        {{column.title}} <span ng-if="$ctrl.sortIcon(column)"><i class="fa fa-sort-{{$ctrl.sortIcon(column)}}"></i></span>
-      </th>
-    </tr>
-
+      <tr>
+        <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick(column)"
+          class="sortable-column" ng-class="'content-align-' + column.alignContent">
+          <span>{{column.title}}</span>
+          <i ng-if="$ctrl.sortIcon(column)" class="fa fa-caret-{{$ctrl.sortIcon(column)}}"></i>
+        </th>
+      </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="row in $ctrl.rowsToDisplay">
-      <td ng-repeat="column in $ctrl.columns" ng-bind-html="$ctrl.sanitize(column.formatFunction(row[column.name]))">
-      </td>
-    </tr>
+      <tr ng-repeat="row in $ctrl.rowsToDisplay">
+        <td ng-repeat="column in $ctrl.columns" ng-class="'content-align-' + column.alignContent">
+          <div ng-if="column.allowHTML" ng-bind-html="$ctrl.sanitize(column.formatFunction(row[column.name]))"></div>
+          <div ng-if="!column.allowHTML" ng-bind="column.formatFunction(row[column.name]))"></div>
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>
-<div class="text-center" ng-if="$ctrl.rowsCount > $ctrl.itemsPerPage">
-  <ul uib-pagination total-items="$ctrl.rowsCount"
+<div class="text-center" ng-if="$ctrl.rows.length > $ctrl.itemsPerPage">
+  <ul uib-pagination total-items="$ctrl.rows.length"
       items-per-page="$ctrl.itemsPerPage"
-      ng-model="$ctrl.page"
+      ng-model="$ctrl.currentPage"
       max-size="6"
       class="pagination"
       boundary-link-numbers="true"
       rotate="false"
       next-text='&#8594;'
       previous-text='&#8592;'
-      ng-change="$ctrl.pageChanged()"></ul>
+      ng-change="$ctrl.onPageChanged()"></ul>
 </div>
