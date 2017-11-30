@@ -18,7 +18,6 @@ import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
-import angularDragula from 'angularjs-dragula';
 import { each } from 'underscore';
 
 import '@/lib/sortable';
@@ -46,7 +45,6 @@ const requirements = [
   vsRepeat,
   'ui.sortable',
   ngGridster.name,
-  angularDragula(angular),
 ];
 
 const ngModule = angular.module('app', requirements);

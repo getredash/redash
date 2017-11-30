@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div dragula="'table-editor-columns'" dragula-model="visualization.options.columns">
+  <div ui-sortable ng-model="visualization.options.columns">
     <div ng-repeat="column in visualization.options.columns">
       <h5>{{ column.title }}</h5>
       <div class="row">

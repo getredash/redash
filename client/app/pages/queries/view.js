@@ -1,4 +1,4 @@
-import { pick, any, some, find } from 'underscore';
+import { pick, any, some, find, values } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -7,6 +7,12 @@ function QueryViewCtrl(
   currentUser, Query, DataSource,
 ) {
   const DEFAULT_TAB = 'table';
+
+  $scope.$watch('query', (query) => {
+    if (query) {
+      query.visualizations = values(query.visualizations).reverse();
+    }
+  });
 
   function getQueryResult(maxAge) {
     if (maxAge === undefined) {
