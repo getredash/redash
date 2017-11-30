@@ -32,10 +32,16 @@ function getRowsForPage(rows, page, itemsPerPage) {
   return rows.slice(first, last);
 }
 
+function validateItemsPerPage(value, defaultValue) {
+  defaultValue = defaultValue || 15;
+  value = parseInt(value, 10) || defaultValue;
+  return value > 0 ? value : defaultValue;
+}
+
 function DynamicTable($sanitize) {
   'ngInject';
 
-  this.itemsPerPage = 15;
+  this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
   this.currentPage = 1;
 
   this.sortedRows = [];
@@ -77,6 +83,11 @@ function DynamicTable($sanitize) {
       this.currentPage = 1;
     }
 
+    if (changes.itemsPerPage) {
+      this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
+      this.currentPage = 1;
+    }
+
     this.sortedRows = sortRows(this.rows, this.orderBy);
     this.rowsToDisplay = getRowsForPage(this.sortedRows, this.currentPage, this.itemsPerPage);
   };
@@ -99,6 +110,7 @@ export default function init(ngModule) {
     bindings: {
       rows: '<',
       columns: '<',
+      itemsPerPage: '<',
     },
   });
 }
