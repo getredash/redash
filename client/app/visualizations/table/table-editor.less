@@ -1,5 +1,38 @@
 .table-editor-container {
-  [dragula] {
-    cursor: move;
+  .btn-group.btn-group-justified {
+    display: flex;
+    align-items: stretch;
+    justify-content: stretch;
+
+    .btn {
+      flex-grow: 1;
+    }
+  }
+
+  .table-editor-query-columns {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow: auto;
+
+    > div {
+      min-width: 200px;
+      width: 200px;
+      padding: 0 10px;
+      border-right: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-right: none;
+      }
+    }
+
+    .table-editor-column-header {
+      background: rgba(102, 136, 153, 0.05);
+      padding: 10px;
+      margin-left: -10px;
+      margin-right: -10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
   }
 }

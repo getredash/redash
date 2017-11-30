@@ -20,6 +20,7 @@ angular.module('ui.sortable', [])
     // ng-repeat items
     // if the user uses
     items: '> [ng-repeat],> [data-ng-repeat],> [x-ng-repeat]',
+    cancel: 'input, textarea, button, select, option, .ui-sortable-bypass',
   })
   .directive('uiSortable', [
     'uiSortableConfig', '$timeout', '$log',

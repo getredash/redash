@@ -54,6 +54,7 @@
     "moment": "^2.18.1",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
+    "numeral": "^2.0.6",
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.15.0",
     "plotly.js": "1.30.1",

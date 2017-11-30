@@ -1,58 +1,50 @@
-import moment from 'moment';
 import _ from 'underscore';
 import { getColumnCleanName } from '@/services/query-result';
+import createFormatter from './formats';
 import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
-
-function formatValue($filter, clientConfig, value, type) {
-  let formattedValue = value;
-  switch (type) {
-    case 'integer':
-      formattedValue = $filter('number')(value, 0);
-      break;
-    case 'float':
-      formattedValue = $filter('number')(value, 2);
-      break;
-    case 'boolean':
-      if (value !== undefined) {
-        formattedValue = String(value);
-      }
-      break;
-    case 'date':
-      if (value && moment.isMoment(value)) {
-        formattedValue = value.format(clientConfig.dateFormat);
-      }
-      break;
-    case 'datetime':
-      if (value && moment.isMoment(value)) {
-        formattedValue = value.format(clientConfig.dateTimeFormat);
-      }
-      break;
-    default:
-      if (_.isString(value)) {
-        formattedValue = $filter('linkify')(value);
-      }
-      break;
-  }
-
-  return formattedValue;
-}
 
 function getColumnContentAlignment(type) {
   return ['integer', 'float', 'boolean', 'date', 'datetime'].indexOf(type) >= 0 ? 'right' : 'left';
 }
 
 function getDefaultColumnsOptions(columns) {
+  const displayAs = {
+    integer: 'number',
+    float: 'number',
+    boolean: 'boolean',
+    date: 'datetime',
+    datetime: 'datetime',
+  };
+
   return _.map(columns, (col, index) => ({
     name: col.name,
     type: col.type,
+    displayAs: displayAs[col.type] || 'string',
     visible: true,
     order: 100000 + index,
     title: getColumnCleanName(col.name),
     allowHTML: false,
+    highlightLinks: false,
     alignContent: getColumnContentAlignment(col.type),
   }));
+}
+
+function getDefaultFormatOptions(column, clientConfig) {
+  const dateTimeFormat = {
+    date: clientConfig.dateFormat || 'DD/MM/YY',
+    datetime: clientConfig.dateTimeFormat || 'DD/MM/YY HH:mm',
+  };
+  const numberFormat = {
+    integer: clientConfig.integerFormat || '0,0',
+    float: clientConfig.floatFormat || '0,0.00',
+  };
+  return {
+    dateTimeFormat: dateTimeFormat[column.type],
+    numberFormat: numberFormat[column.type],
+    booleanValues: clientConfig.booleanValues || ['false', 'true'],
+  };
 }
 
 function getColumnsOptions(columns, visualizationColumns) {
@@ -67,11 +59,18 @@ function getColumnsOptions(columns, visualizationColumns) {
   return _.sortBy(options, 'order');
 }
 
-function getColumnsToDisplay(columns, options, $filter, clientConfig) {
+function getColumnsToDisplay(columns, options, clientConfig) {
   columns = _.object(_.map(columns, col => [col.name, col]));
-  const result = _.map(options, col => _.extend({}, col, columns[col.name], {
-    formatFunction: _.partial(formatValue, $filter, clientConfig, _, col.type),
+  let result = _.map(options, col => _.extend(
+    getDefaultFormatOptions(col, clientConfig),
+    col,
+    columns[col.name],
+  ));
+
+  result = _.map(result, col => _.extend(col, {
+    formatFunction: createFormatter(col),
   }));
+
   return _.sortBy(_.filter(result, 'visible'), 'order');
 }
 
@@ -84,7 +83,7 @@ function GridRenderer(clientConfig) {
     },
     template,
     replace: false,
-    controller($scope, $filter) {
+    controller($scope) {
       $scope.gridColumns = [];
       $scope.gridRows = [];
 
@@ -101,7 +100,7 @@ function GridRenderer(clientConfig) {
             columns,
             _.extend({}, $scope.options).columns,
           );
-          $scope.gridColumns = getColumnsToDisplay(columns, columnsOptions, $filter, clientConfig);
+          $scope.gridColumns = getColumnsToDisplay(columns, columnsOptions, clientConfig);
         }
       }
 
@@ -120,13 +119,23 @@ function GridRenderer(clientConfig) {
   };
 }
 
-function GridEditor() {
+function GridEditor(clientConfig) {
   return {
     restrict: 'E',
     template: editorTemplate,
     link: ($scope) => {
       $scope.allowedItemsPerPage = [5, 10, 15, 20, 25];
-      $scope.allowedContentAlignment = ['left', 'center', 'right'];
+      $scope.displayAsOptions = [
+        { name: 'Text', value: 'string' },
+        { name: 'Number', value: 'number' },
+        { name: 'Date/Time', value: 'datetime' },
+        { name: 'Boolean', value: 'boolean' },
+      ];
+
+      $scope.currentTab = 'grid';
+      $scope.setCurrentTab = (tab) => {
+        $scope.currentTab = tab;
+      };
 
       $scope.$watch('queryResult && queryResult.getData()', (queryResult) => {
         if (!queryResult) {
@@ -136,9 +145,9 @@ function GridEditor() {
           $scope.visualization.options.columns = [];
         } else {
           const columns = $scope.queryResult.getColumns();
-          $scope.visualization.options.columns = getColumnsOptions(
-            columns,
-            $scope.visualization.options.columns,
+          $scope.visualization.options.columns = _.map(
+            getColumnsOptions(columns, $scope.visualization.options.columns),
+            col => _.extend(getDefaultFormatOptions(col, clientConfig), col),
           );
         }
       });

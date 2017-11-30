@@ -1,4 +1,4 @@
-import { pick, any, some, find, values } from 'underscore';
+import { pick, any, some, find, values, first } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -6,8 +6,6 @@ function QueryViewCtrl(
   KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
   currentUser, Query, DataSource,
 ) {
-  const DEFAULT_TAB = 'table';
-
   $scope.$watch('query', (query) => {
     if (query) {
       query.visualizations = values(query.visualizations).reverse();
@@ -366,7 +364,11 @@ function QueryViewCtrl(
 
   $scope.$watch(
     () => $location.hash(),
-    (hash) => { $scope.selectedTab = hash || DEFAULT_TAB; },
+    (hash) => {
+      // eslint-disable-next-line eqeqeq
+      const exists = find($scope.query.visualizations, item => item.id == hash);
+      $scope.selectedTab = exists ? hash : first($scope.query.visualizations).id;
+    },
   );
 
   $scope.showManagePermissionsModal = () => {
