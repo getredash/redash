@@ -10,12 +10,10 @@
       </tr>
     </thead>
     <tbody>
-      <tr ng-repeat="row in $ctrl.rowsToDisplay">
-        <td ng-repeat="column in $ctrl.columns" ng-class="'content-align-' + column.alignContent">
-          <div ng-if="column.allowHTML" ng-bind-html="$ctrl.sanitize(column.formatFunction(row[column.name]))"></div>
-          <div ng-if="!column.allowHTML" ng-bind="$ctrl.sanitize(column.formatFunction(row[column.name]))"></div>
-        </td>
-      </tr>
+      <tr ng-repeat="row in $ctrl.rowsToDisplay"
+        dynamic-table-row columns="$ctrl.columns" row="row"
+        render="$ctrl.renderSingleRow"
+      ></tr>
     </tbody>
   </table>
 </div>

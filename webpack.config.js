@@ -28,6 +28,8 @@ const config = {
     new webpack.DefinePlugin({
       ON_TEST: process.env.NODE_ENV === 'test'
     }),
+    // Enforce angular to use jQuery instead of jqLite
+    new webpack.ProvidePlugin({'window.jQuery': 'jquery'}),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
       minChunks: function (module, count) {
