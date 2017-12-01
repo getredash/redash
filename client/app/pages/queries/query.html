@@ -102,12 +102,15 @@
                   <span class="fa fa-floppy-o"> </span> Save<span
                   ng-show="isDirty">&#42;</span>
                 </button>
+                <button type="button" class="btn btn-default btn-s" ng-click="formatQuery()">
+                  <span class="zmdi zmdi-format-indent-increase"></span> Format
+                </button>
+
                 <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
                   <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
                     <span class="zmdi zmdi-more"></span>
                   </button>
                   <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-                    <li><a ng-click="formatQuery()"> Format</a></li>
                     <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
                     <li class="divider"></li>
                     <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
