@@ -11,13 +11,13 @@
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
 
           <div class="btn-group">
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-default btn-sm"
               ng-disabled="$ctrl.isGridDisabled"
               ng-click="$ctrl.editLayout(false, true)" ng-if="$ctrl.layoutEditing">
               <i class="zmdi zmdi-check"></i> Apply Changes
             </button>
 
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-default btn-sm"
               ng-disabled="$ctrl.isGridDisabled"
               ng-click="$ctrl.editLayout(false, false)" ng-if="$ctrl.layoutEditing">
               Cancel
