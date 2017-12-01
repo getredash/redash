@@ -13,6 +13,19 @@ body {
   padding-top: 0;
   background: #cad1dc2b;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+
+  &.headless {
+    padding-top: 10px;
+    padding-bottom: 15px;
+
+    .navbar {
+      display: none !important;
+    }
+
+    div#footer {
+      display: none;
+    }
+  }
 }
 
 .t-header:not(.th-alt) {
