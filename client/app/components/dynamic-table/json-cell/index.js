@@ -2,7 +2,17 @@ import { isUndefined, isString } from 'underscore';
 import renderJsonView from './json-view-interactive';
 import template from './template.html';
 
-const MAX_JSON_SIZE = 10000;
+const MAX_JSON_SIZE = 50000;
+
+function parseValue(value) {
+  if (isString(value) && (value.length <= MAX_JSON_SIZE)) {
+    try {
+      return JSON.parse(value);
+    } catch (e) {
+      return undefined;
+    }
+  }
+}
 
 export default function init(ngModule) {
   ngModule.directive('dynamicTableJsonCell', () => ({
@@ -20,21 +30,10 @@ export default function init(ngModule) {
       $scope.parsedValue = null;
 
       $scope.$watch('value', () => {
-        $scope.parsedValue = null;
-        $scope.isValid = false;
-        if (isString($scope.value) && ($scope.value.length <= MAX_JSON_SIZE)) {
-          try {
-            $scope.parsedValue = JSON.parse($scope.value);
-            $scope.isValid = !isUndefined($scope.parsedValue);
-          } catch (e) {
-            $scope.parsedValue = null;
-          }
-        }
-
+        $scope.parsedValue = parseValue($scope.value);
+        $scope.isValid = !isUndefined($scope.parsedValue);
         container.empty();
-        if ($scope.isValid) {
-          renderJsonView(container, $scope.parsedValue);
-        }
+        renderJsonView(container, $scope.parsedValue);
       });
     },
   }));

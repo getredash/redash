@@ -367,7 +367,8 @@ function QueryViewCtrl(
     (hash) => {
       // eslint-disable-next-line eqeqeq
       const exists = find($scope.query.visualizations, item => item.id == hash);
-      $scope.selectedTab = exists ? hash : first($scope.query.visualizations).id;
+      const visualization = first($scope.query.visualizations) || {};
+      $scope.selectedTab = exists ? hash : visualization.id;
     },
   );
 
