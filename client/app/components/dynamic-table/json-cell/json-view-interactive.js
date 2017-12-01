@@ -1,9 +1,19 @@
-import { isFunction, isArray, isObject, isString, isNumber, each, keys } from 'underscore';
+import { isFunction, isArray, isObject, isString, isNumber, isUndefined, each, keys, filter } from 'underscore';
 import $ from 'jquery';
 import './json-view-interactive.less';
 
-function getCountComment(count) {
-  return ' // ' + count + ' ' + (count === 1 ? 'item' : 'items');
+function isPrimitive(value) {
+  return (value === null) || (value === false) || (value === true) ||
+    (isNumber(value) && isFinite(value));
+}
+
+function combine(...functions) {
+  functions = filter(functions, isFunction);
+  return (...args) => {
+    each(functions, (fn) => {
+      fn(...args);
+    });
+  };
 }
 
 function initToggle(toggle, toggleBlockFn) {
@@ -82,84 +92,59 @@ function renderString($element, value, comma) {
   return null;
 }
 
-function renderArray($element, values, comma) {
-  const count = values.length;
+function renderComment($element, count) {
+  const text = ' // ' + count + ' ' + (count === 1 ? 'item' : 'items');
+  const comment = $('<span>').addClass('jvi-comment').text(text).appendTo($element);
+  return (show) => {
+    if (show) {
+      comment.addClass('hidden');
+    } else {
+      comment.removeClass('hidden');
+    }
+  };
+}
 
+function renderBrace($element, isForArray, isOpening) {
+  const openingBrace = isForArray ? '[' : '{';
+  const closingBrace = isForArray ? ']' : '}';
+  const brace = isOpening ? openingBrace : closingBrace;
+  return $('<span>').addClass('jvi-punctuation').text(brace).appendTo($element);
+}
+
+function renderWithNested($element, values, comma, valuesIsArray) {
+  const count = valuesIsArray ? values.length : keys(values).length;
   let result = null;
 
-  $('<span>').addClass('jvi-punctuation').text('[').appendTo($element);
+  renderBrace($element, valuesIsArray, true);
   if (count > 0) {
     const ellipsis = renderEllipsis($element);
     const block = $('<span>').addClass('jvi-block hidden').appendTo($element);
-    result = createRenderNestedBlock(block, ellipsis, values, false);
+    result = createRenderNestedBlock(block, ellipsis, values, !valuesIsArray);
   }
-  $('<span>').addClass('jvi-punctuation').text(']').appendTo($element);
+  renderBrace($element, valuesIsArray, false);
 
   if (comma) {
     renderComma($element);
   }
 
   if (count > 0) {
-    const comment = $('<span>').addClass('jvi-comment').text(getCountComment(count))
-      .appendTo($element);
-    const prevResult = result;
-    result = (show) => {
-      if (show) {
-        comment.addClass('hidden');
-      } else {
-        comment.removeClass('hidden');
-      }
-      if (prevResult) {
-        prevResult(show);
-      }
-    };
+    result = combine(renderComment($element, count), result);
   }
-
   return result;
 }
 
+function renderArray($element, values, comma) {
+  return renderWithNested($element, values, comma, true);
+}
+
 function renderObject($element, value, comma) {
-  const count = keys(value).length;
-
-  let result = null;
-
-  $('<span>').addClass('jvi-punctuation').text('{').appendTo($element);
-  if (count > 0) {
-    const ellipsis = renderEllipsis($element);
-    const block = $('<span>').addClass('jvi-block hidden').appendTo($element);
-    result = createRenderNestedBlock(block, ellipsis, value, true);
-  }
-  $('<span>').addClass('jvi-punctuation').text('}').appendTo($element);
-
-  if (comma) {
-    renderComma($element);
-  }
-
-  if (count > 0) {
-    const comment = $('<span>').addClass('jvi-comment').text(getCountComment(count))
-      .appendTo($element);
-    const prevResult = result;
-    result = (show) => {
-      if (show) {
-        comment.addClass('hidden');
-      } else {
-        comment.removeClass('hidden');
-      }
-      if (prevResult) {
-        prevResult(show);
-      }
-    };
-  }
-
-  return result;
+  return renderWithNested($element, value, comma, false);
 }
 
 function renderValue($element, value, comma) {
   $element = $('<span>').appendTo($element);
-  if (
-    (value === null) || (value === false) || (value === true) ||
-    (isNumber(value) && isFinite(value))
-  ) {
+
+  if (isPrimitive(value)) {
     return renderPrimitive($element, value, comma);
   } else if (isString(value)) {
     return renderString($element, value, comma);
@@ -171,7 +156,7 @@ function renderValue($element, value, comma) {
 }
 
 export default function renderJsonView(container, value) {
-  if (container instanceof $) {
+  if ((container instanceof $) && !isUndefined(value) && !isFunction(value)) {
     const block = $('<span>').addClass('jvi-item').appendTo(container);
     const toggle = $('<span>').addClass('jvi-toggle').appendTo(block);
     const toggleBlockFn = renderValue(block, value);

@@ -5,6 +5,16 @@ import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
 
+const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25];
+
+const DISPLAY_AS_OPTIONS = [
+  { name: 'Text', value: 'string' },
+  { name: 'Number', value: 'number' },
+  { name: 'Date/Time', value: 'datetime' },
+  { name: 'Boolean', value: 'boolean' },
+  { name: 'JSON', value: 'json' },
+];
+
 function getColumnContentAlignment(type) {
   return ['integer', 'float', 'boolean', 'date', 'datetime'].indexOf(type) >= 0 ? 'right' : 'left';
 }
@@ -94,12 +104,8 @@ function GridRenderer(clientConfig) {
         } else {
           $scope.filters = $scope.queryResult.getFilters();
           $scope.gridRows = $scope.queryResult.getData();
-
           const columns = $scope.queryResult.getColumns();
-          const columnsOptions = getColumnsOptions(
-            columns,
-            _.extend({}, $scope.options).columns,
-          );
+          const columnsOptions = getColumnsOptions(columns, _.extend({}, $scope.options).columns);
           $scope.gridColumns = getColumnsToDisplay(columns, columnsOptions, clientConfig);
         }
       }
@@ -124,14 +130,8 @@ function GridEditor(clientConfig) {
     restrict: 'E',
     template: editorTemplate,
     link: ($scope) => {
-      $scope.allowedItemsPerPage = [5, 10, 15, 20, 25];
-      $scope.displayAsOptions = [
-        { name: 'Text', value: 'string' },
-        { name: 'Number', value: 'number' },
-        { name: 'Date/Time', value: 'datetime' },
-        { name: 'Boolean', value: 'boolean' },
-        { name: 'JSON', value: 'json' },
-      ];
+      $scope.allowedItemsPerPage = ALLOWED_ITEM_PER_PAGE;
+      $scope.displayAsOptions = DISPLAY_AS_OPTIONS;
 
       $scope.currentTab = 'grid';
       $scope.setCurrentTab = (tab) => {
@@ -139,17 +139,16 @@ function GridEditor(clientConfig) {
       };
 
       $scope.$watch('queryResult && queryResult.getData()', (queryResult) => {
-        if (!queryResult) {
-          return;
-        }
-        if ($scope.queryResult.getData() == null) {
-          $scope.visualization.options.columns = [];
-        } else {
-          const columns = $scope.queryResult.getColumns();
-          $scope.visualization.options.columns = _.map(
-            getColumnsOptions(columns, $scope.visualization.options.columns),
-            col => _.extend(getDefaultFormatOptions(col, clientConfig), col),
-          );
+        if (queryResult) {
+          if ($scope.queryResult.getData() == null) {
+            $scope.visualization.options.columns = [];
+          } else {
+            const columns = $scope.queryResult.getColumns();
+            $scope.visualization.options.columns = _.map(
+              getColumnsOptions(columns, $scope.visualization.options.columns),
+              col => _.extend(getDefaultFormatOptions(col, clientConfig), col),
+            );
+          }
         }
       });
     },
