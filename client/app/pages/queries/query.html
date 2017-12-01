@@ -64,27 +64,27 @@
       </ul>
 
     </div>
-    <div class="col-sm-3 text-right p-r-0">
-
-    </div>
-  </div>
-
-  <div class="container">
-    <div class="row text-center" style="margin-bottom: 10px;">
-      <span ng-show="query.id && canViewSource">
+    <div class="col-sm-3 text-right p-r-0 source-control">
+       <span ng-show="query.id && canViewSource">
           <a ng-show="!sourceMode"
-             ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default">Show Source <i class="zmdi zmdi-chevron-down"></i>
+             ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-eye" aria-hidden="true"></i> Show Source</i>
           </a>
           <a ng-show="sourceMode"
-             ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default">Hide Source <i class="zmdi zmdi-chevron-up"></i>
+             ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-eye-slash" aria-hidden="true"></i> Hide Source</i>
           </a>
-      </span>
+        </span>
     </div>
   </div>
 
   <!-- editor -->
   <div class="container">
       <div class="row bg-white tiled p-15 m-b-10" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+        
+        <schema-browser class="col-md-3 p-0 hidden-sm hidden-xs schema-container"
+                        schema="schema"
+                        on-refresh="refreshSchema()"
+                        ng-show="hasSchema">
+        </schema-browser>
 
         <div ng-class="editorSize" style="height:100%;">
           <div class="editor__control">
@@ -133,13 +133,6 @@
                           syntax="dataSource.syntax"></query-editor>
           </p>
         </div>
-
-        <schema-browser class="col-md-3 p-0 hidden-sm hidden-xs schema-container"
-                        schema="schema"
-                        on-refresh="refreshSchema()"
-                        ng-show="hasSchema">
-        </schema-browser>
-
       </div>
   </div>
   <!-- end of editor -->
