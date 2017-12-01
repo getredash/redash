@@ -1,4 +1,4 @@
-import { find, filter } from 'underscore';
+import { find, filter, map } from 'underscore';
 import template from './dynamic-table.html';
 import './dynamic-table.less';
 
@@ -38,15 +38,44 @@ function validateItemsPerPage(value, defaultValue) {
   return value > 0 ? value : defaultValue;
 }
 
-function DynamicTable($sanitize) {
+function DynamicTable($compile) {
   'ngInject';
 
   this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
   this.currentPage = 1;
 
+  this.columns = [];
+  this.rows = [];
   this.sortedRows = [];
   this.rowsToDisplay = [];
   this.orderBy = [];
+
+  // Optimized rendering
+  // Instead of using two nested `ng-repeat`s by rows and columns,
+  // we'll create a template for row (and update it when columns changed),
+  // compile it, and then use `ng-repeat` by rows and bind this template
+  // to each row's scope. The goal is to reduce amount of scopes and watchers
+  // from `count(rows) * count(cols)` to `count(rows)`. The major disadvantage
+  // is that cell markup should be specified here instead of template.
+  function createRowRenderTemplate(columns) {
+    const rowTemplate = map(columns, (column, index) => {
+      switch (column.displayAs) {
+        case 'json':
+          return `
+            <dynamic-table-json-cell column="columns[${index}]" 
+              value="row[columns[${index}].name]"></dynamic-table-json-cell>
+          `;
+        default:
+          return `
+            <dynamic-table-default-cell column="columns[${index}]" 
+              value="row[columns[${index}].name]"></dynamic-table-default-cell>
+          `;
+      }
+    }).join('');
+    return $compile(rowTemplate);
+  }
+
+  this.renderSingleRow = null;
 
   this.onColumnHeaderClick = (column) => {
     const orderBy = find(this.orderBy, item => item.name === column.name);
@@ -76,6 +105,7 @@ function DynamicTable($sanitize) {
     if (changes.columns) {
       this.columns = changes.columns.currentValue;
       this.orderBy = [];
+      this.renderSingleRow = createRowRenderTemplate(this.columns);
     }
 
     if (changes.rows) {
@@ -91,8 +121,6 @@ function DynamicTable($sanitize) {
     this.sortedRows = sortRows(this.rows, this.orderBy);
     this.rowsToDisplay = getRowsForPage(this.sortedRows, this.currentPage, this.itemsPerPage);
   };
-
-  this.sanitize = value => $sanitize(value);
 
   this.sortIcon = (column) => {
     const orderBy = find(this.orderBy, item => item.name === column.name);

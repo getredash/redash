@@ -130,6 +130,7 @@ function GridEditor(clientConfig) {
         { name: 'Number', value: 'number' },
         { name: 'Date/Time', value: 'datetime' },
         { name: 'Boolean', value: 'boolean' },
+        { name: 'JSON', value: 'json' },
       ];
 
       $scope.currentTab = 'grid';
