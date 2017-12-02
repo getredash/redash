@@ -1,4 +1,4 @@
-import { pick, any, some, find, values, first } from 'underscore';
+import { pick, any, some, find, first } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -6,12 +6,6 @@ function QueryViewCtrl(
   KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
   currentUser, Query, DataSource,
 ) {
-  $scope.$watch('query', (query) => {
-    if (query) {
-      query.visualizations = values(query.visualizations).reverse();
-    }
-  });
-
   function getQueryResult(maxAge) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;

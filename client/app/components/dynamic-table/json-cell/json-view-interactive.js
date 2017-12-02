@@ -108,7 +108,7 @@ function renderBrace($element, isForArray, isOpening) {
   const openingBrace = isForArray ? '[' : '{';
   const closingBrace = isForArray ? ']' : '}';
   const brace = isOpening ? openingBrace : closingBrace;
-  return $('<span>').addClass('jvi-punctuation').text(brace).appendTo($element);
+  return $('<span>').addClass('jvi-punctuation jvi-braces').text(brace).appendTo($element);
 }
 
 function renderWithNested($element, values, comma, valuesIsArray) {
