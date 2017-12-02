@@ -1,9 +1,28 @@
-import { find, filter, map } from 'underscore';
+import { find, filter, map, each } from 'underscore';
 import template from './dynamic-table.html';
 import './dynamic-table.less';
 
+function filterRows(rows, searchTerm, columns) {
+  if ((searchTerm === '') || (columns.length === 0) || (rows.length === 0)) {
+    return rows;
+  }
+  searchTerm = searchTerm.toUpperCase();
+  return filter(rows, (row) => {
+    for (let i = 0; i < columns.length; i += 1) {
+      const col = columns[i];
+      if (row[col] !== undefined) {
+        const value = ('' + row[col]).toUpperCase();
+        if (value.indexOf(searchTerm) >= 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  });
+}
+
 function sortRows(rows, orderBy) {
-  if (orderBy.length === 0) {
+  if ((orderBy.length === 0) || (rows.length === 0)) {
     return rows;
   }
   // Create a copy of array before sorting, because .sort() will modify original array
@@ -26,16 +45,39 @@ function sortRows(rows, orderBy) {
   });
 }
 
-function getRowsForPage(rows, page, itemsPerPage) {
-  const first = (page - 1) * itemsPerPage;
-  const last = first + itemsPerPage;
-  return rows.slice(first, last);
-}
-
 function validateItemsPerPage(value, defaultValue) {
-  defaultValue = defaultValue || 15;
+  defaultValue = defaultValue || 10;
   value = parseInt(value, 10) || defaultValue;
   return value > 0 ? value : defaultValue;
+}
+
+function getSearchColumns(columns) {
+  return map(filter(columns, 'allowSearch'), col => col.name);
+}
+
+// Optimized rendering
+// Instead of using two nested `ng-repeat`s by rows and columns,
+// we'll create a template for row (and update it when columns changed),
+// compile it, and then use `ng-repeat` by rows and bind this template
+// to each row's scope. The goal is to reduce amount of scopes and watchers
+// from `count(rows) * count(cols)` to `count(rows)`. The major disadvantage
+// is that cell markup should be specified here instead of template.
+function createRowRenderTemplate(columns, $compile) {
+  const rowTemplate = map(columns, (column, index) => {
+    switch (column.displayAs) {
+      case 'json':
+        return `
+            <dynamic-table-json-cell column="columns[${index}]" 
+              value="row[columns[${index}].name]"></dynamic-table-json-cell>
+          `;
+      default:
+        return `
+            <dynamic-table-default-cell column="columns[${index}]" 
+              value="row[columns[${index}].name]"></dynamic-table-default-cell>
+          `;
+    }
+  }).join('');
+  return $compile(rowTemplate);
 }
 
 function DynamicTable($compile) {
@@ -43,37 +85,65 @@ function DynamicTable($compile) {
 
   this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
   this.currentPage = 1;
+  this.searchTerm = '';
 
   this.columns = [];
   this.rows = [];
-  this.sortedRows = [];
+  this.preparedRows = [];
   this.rowsToDisplay = [];
   this.orderBy = [];
+  this.orderByColumnsIndex = {};
+  this.orderByColumnsDirection = {};
 
-  // Optimized rendering
-  // Instead of using two nested `ng-repeat`s by rows and columns,
-  // we'll create a template for row (and update it when columns changed),
-  // compile it, and then use `ng-repeat` by rows and bind this template
-  // to each row's scope. The goal is to reduce amount of scopes and watchers
-  // from `count(rows) * count(cols)` to `count(rows)`. The major disadvantage
-  // is that cell markup should be specified here instead of template.
-  function createRowRenderTemplate(columns) {
-    const rowTemplate = map(columns, (column, index) => {
-      switch (column.displayAs) {
-        case 'json':
-          return `
-            <dynamic-table-json-cell column="columns[${index}]" 
-              value="row[columns[${index}].name]"></dynamic-table-json-cell>
-          `;
-        default:
-          return `
-            <dynamic-table-default-cell column="columns[${index}]" 
-              value="row[columns[${index}].name]"></dynamic-table-default-cell>
-          `;
-      }
-    }).join('');
-    return $compile(rowTemplate);
-  }
+  this.searchColumns = [];
+
+  const updateOrderByColumnsInfo = () => {
+    this.orderByColumnsIndex = {};
+    this.orderByColumnsDirection = {};
+    each(this.orderBy, (column, index) => {
+      this.orderByColumnsIndex[column.name] = index + 1;
+      this.orderByColumnsDirection[column.name] = column.direction;
+    });
+  };
+
+  const updateRowsToDisplay = (performFilterAndSort) => {
+    if (performFilterAndSort) {
+      this.preparedRows = sortRows(
+        filterRows(this.rows, this.searchTerm, this.searchColumns),
+        this.orderBy,
+      );
+    }
+    const first = (this.currentPage - 1) * this.itemsPerPage;
+    const last = first + this.itemsPerPage;
+    this.rowsToDisplay = this.preparedRows.slice(first, last);
+  };
+
+  const setColumns = (columns) => {
+    // 1. reset sorting
+    // 2. reset current page
+    // 3. reset search
+    // 4. get columns for search
+    // 5. update row rendering template
+    // 6. prepare rows
+
+    this.columns = columns;
+    updateOrderByColumnsInfo();
+    this.orderBy = [];
+    this.currentPage = 1;
+    this.searchTerm = '';
+    this.searchColumns = getSearchColumns(this.columns);
+    this.renderSingleRow = createRowRenderTemplate(this.columns, $compile);
+    updateRowsToDisplay(true);
+  };
+
+  const setRows = (rows) => {
+    // 1. reset current page
+    // 2. prepare rows
+
+    this.rows = rows;
+    this.currentPage = 1;
+    updateRowsToDisplay(true);
+  };
 
   this.renderSingleRow = null;
 
@@ -92,42 +162,42 @@ function DynamicTable($compile) {
         direction: 1,
       });
     }
-
-    this.sortedRows = sortRows(this.rows, this.orderBy);
-    this.rowsToDisplay = getRowsForPage(this.sortedRows, this.currentPage, this.itemsPerPage);
+    updateOrderByColumnsInfo();
+    updateRowsToDisplay(true);
   };
 
   this.onPageChanged = () => {
-    this.rowsToDisplay = getRowsForPage(this.sortedRows, this.currentPage, this.itemsPerPage);
+    updateRowsToDisplay(false);
+  };
+
+  this.onSearchTermChanged = () => {
+    this.preparedRows = sortRows(
+      filterRows(this.rows, this.searchTerm, this.searchColumns),
+      this.orderBy,
+    );
+    this.currentPage = 1;
+    updateRowsToDisplay(true);
   };
 
   this.$onChanges = (changes) => {
     if (changes.columns) {
-      this.columns = changes.columns.currentValue;
-      this.orderBy = [];
-      this.renderSingleRow = createRowRenderTemplate(this.columns);
+      if (changes.rows) {
+        // if rows also changed - temporarily set if to empty array - to avoid
+        // filtering and sorting
+        this.rows = [];
+      }
+      setColumns(changes.columns.currentValue);
     }
 
     if (changes.rows) {
-      this.rows = changes.rows.currentValue;
-      this.currentPage = 1;
+      setRows(changes.rows.currentValue);
     }
 
     if (changes.itemsPerPage) {
       this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
       this.currentPage = 1;
+      updateRowsToDisplay(false);
     }
-
-    this.sortedRows = sortRows(this.rows, this.orderBy);
-    this.rowsToDisplay = getRowsForPage(this.sortedRows, this.currentPage, this.itemsPerPage);
-  };
-
-  this.sortIcon = (column) => {
-    const orderBy = find(this.orderBy, item => item.name === column.name);
-    if (orderBy) {
-      return orderBy.direction > 0 ? 'down' : 'up';
-    }
-    return null;
   };
 }
 

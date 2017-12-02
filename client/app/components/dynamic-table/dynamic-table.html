@@ -1,13 +1,27 @@
-<div>
+<div class="dynamic-table-container">
   <table class="table table-condensed table-hover">
     <thead>
       <tr>
         <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick(column)"
           class="sortable-column" ng-class="'content-align-' + column.alignContent">
+          <span ng-if="($ctrl.orderBy.length > 1) && ($ctrl.orderByColumnsIndex[column.name] > 0)"
+            class="sort-order-indicator">{{ $ctrl.orderByColumnsIndex[column.name] }}</span>
           <span>{{column.title}}</span>
-          <i ng-if="$ctrl.sortIcon(column)" class="fa fa-caret-{{$ctrl.sortIcon(column)}}"></i>
+          <i ng-if="$ctrl.orderByColumnsIndex[column.name] > 0"
+            ng-class="{
+              'fa': true,
+              'fa-caret-down': $ctrl.orderByColumnsDirection[column.name] > 0,
+              'fa-caret-up': $ctrl.orderByColumnsDirection[column.name] < 0
+            }"></i>
         </th>
       </tr>
+    </thead>
+    <thead ng-if="$ctrl.searchColumns.length > 0">
+      <th class="p-t-10 p-b-10 p-l-15 p-r-15" colspan="{{ $ctrl.columns.length }}">
+        <input type="text" class="form-control" placeholder="Search..."
+          ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+          ng-change="$ctrl.onSearchTermChanged()">
+      </th>
     </thead>
     <tbody>
       <tr ng-repeat="row in $ctrl.rowsToDisplay"
@@ -17,8 +31,8 @@
     </tbody>
   </table>
 </div>
-<div class="text-center" ng-if="$ctrl.rows.length > $ctrl.itemsPerPage">
-  <ul uib-pagination total-items="$ctrl.rows.length"
+<div class="text-center" ng-if="$ctrl.preparedRows.length > $ctrl.itemsPerPage">
+  <ul uib-pagination total-items="$ctrl.preparedRows.length"
       items-per-page="$ctrl.itemsPerPage"
       ng-model="$ctrl.currentPage"
       max-size="6"

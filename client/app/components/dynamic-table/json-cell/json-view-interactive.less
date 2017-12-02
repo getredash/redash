@@ -1,7 +1,7 @@
 @import (reference) "~bootstrap/less/variables.less";
 
 @jvi-gutter: 20px;
-@jvi-spacing: 6px;
+@jvi-spacing: 2px;
 
 .jvi-block {
   display: block;
@@ -18,9 +18,10 @@
   display: block;
   position: relative;
   padding: 0 0 0 @jvi-gutter;
+  white-space: nowrap;
 
   .jvi-item {
-    margin: @jvi-spacing / 2 0;
+    margin: @jvi-spacing 0;
   }
 }
 
@@ -57,17 +58,21 @@
     color: @state-success-text;
   }
 
+  &.jvi-braces {
+    margin: 0 @jvi-spacing;
+  }
+
+  &.jvi-ellipsis {
+    padding: 0 @jvi-spacing;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
   &.hidden {
     display: none;
-  }
-}
-
-.jvi-ellipsis {
-  padding: 0 @jvi-spacing;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
   }
 }
 
@@ -76,6 +81,10 @@
 
   &.jvi-primitive {
     color: @state-warning-text;
+  }
+
+  &.jvi-string {
+    white-space: normal;
   }
 }
 
@@ -88,7 +97,7 @@
 .jvi-comment {
   color: @text-muted;
   font-style: italic;
-  margin: 0 0 0 @jvi-spacing;
+  margin: 0 0 0 2 * @jvi-spacing;
   opacity: 0.5;
 
   &.hidden {

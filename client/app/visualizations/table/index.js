@@ -15,6 +15,13 @@ const DISPLAY_AS_OPTIONS = [
   { name: 'JSON', value: 'json' },
 ];
 
+const DEFAULT_OPTIONS = {
+  itemsPerPage: 15,
+  defaultRows: 14,
+  defaultColumns: 4,
+  minColumns: 2,
+};
+
 function getColumnContentAlignment(type) {
   return ['integer', 'float', 'boolean', 'date', 'datetime'].indexOf(type) >= 0 ? 'right' : 'left';
 }
@@ -35,6 +42,7 @@ function getDefaultColumnsOptions(columns) {
     visible: true,
     order: 100000 + index,
     title: getColumnCleanName(col.name),
+    allowSearch: false,
     allowHTML: false,
     highlightLinks: false,
     alignContent: getColumnContentAlignment(col.type),
@@ -133,22 +141,25 @@ function GridEditor(clientConfig) {
       $scope.allowedItemsPerPage = ALLOWED_ITEM_PER_PAGE;
       $scope.displayAsOptions = DISPLAY_AS_OPTIONS;
 
-      $scope.currentTab = 'grid';
+      $scope.currentTab = 'columns';
       $scope.setCurrentTab = (tab) => {
         $scope.currentTab = tab;
       };
 
+      $scope.$watch('visualization', () => {
+        if ($scope.visualization) {
+          // For existing visualization - set default options
+          $scope.visualization.options = _.extend({}, DEFAULT_OPTIONS, $scope.visualization.options);
+        }
+      });
+
       $scope.$watch('queryResult && queryResult.getData()', (queryResult) => {
         if (queryResult) {
-          if ($scope.queryResult.getData() == null) {
-            $scope.visualization.options.columns = [];
-          } else {
-            const columns = $scope.queryResult.getColumns();
-            $scope.visualization.options.columns = _.map(
-              getColumnsOptions(columns, $scope.visualization.options.columns),
-              col => _.extend(getDefaultFormatOptions(col, clientConfig), col),
-            );
-          }
+          const columns = $scope.queryResult.getData() !== null ? $scope.queryResult.getColumns() : [];
+          $scope.visualization.options.columns = _.map(
+            getColumnsOptions(columns, $scope.visualization.options.columns),
+            col => _.extend(getDefaultFormatOptions(col, clientConfig), col),
+          );
         }
       });
     },
@@ -160,12 +171,7 @@ export default function init(ngModule) {
   ngModule.directive('gridEditor', GridEditor);
 
   ngModule.config((VisualizationProvider) => {
-    const defaultOptions = {
-      itemsPerPage: 15,
-      defaultRows: 14,
-      defaultColumns: 4,
-      minColumns: 2,
-    };
+    const defaultOptions = DEFAULT_OPTIONS;
 
     VisualizationProvider.registerVisualization({
       type: 'TABLE',
