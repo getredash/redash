@@ -89,8 +89,7 @@
         <div ng-class="editorSize" style="height:100%;">
           <div class="editor__control">
             <div class="form-inline">
-              <i class="fa fa-database"></i>
-              <span class="text-muted">Data</span>
+              <i class="fa fa-database"></i> &nbsp;
               <select class="form-control" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                     ng-options="ds.id as ds.name for ds in dataSources"></select>
 
