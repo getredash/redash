@@ -2,7 +2,7 @@
   <table class="table table-condensed table-hover">
     <thead>
       <tr>
-        <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick(column)"
+        <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick($event, column)"
           class="sortable-column" ng-class="'content-align-' + column.alignContent">
           <span ng-if="($ctrl.orderBy.length > 1) && ($ctrl.orderByColumnsIndex[column.name] > 0)"
             class="sort-order-indicator">{{ $ctrl.orderByColumnsIndex[column.name] }}</span>

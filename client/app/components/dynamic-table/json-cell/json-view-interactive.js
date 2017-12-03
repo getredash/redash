@@ -37,8 +37,12 @@ function createRenderNestedBlock(block, ellipsis, values, renderKeys) {
       ellipsis.addClass('hidden');
       block.removeClass('hidden').empty();
 
+      let firstItem = null;
+      let lastItem = null;
       each(values, (val, key) => {
         const nestedBlock = $('<span>').addClass('jvi-item').appendTo(block);
+        firstItem = firstItem || nestedBlock;
+        lastItem = nestedBlock;
 
         const toggle = $('<span>').addClass('jvi-toggle').appendTo(nestedBlock);
 
@@ -52,6 +56,13 @@ function createRenderNestedBlock(block, ellipsis, values, renderKeys) {
         const toggleBlockFn = renderValue(nestedBlock, val, true);
         initToggle(toggle, toggleBlockFn);
       });
+
+      if (firstItem) {
+        firstItem.addClass('jvi-nested-first');
+      }
+      if (lastItem) {
+        lastItem.addClass('jvi-nested-last');
+      }
     } else {
       block.addClass('hidden').empty();
       ellipsis.removeClass('hidden');
@@ -60,7 +71,7 @@ function createRenderNestedBlock(block, ellipsis, values, renderKeys) {
 }
 
 function renderComma($element) {
-  return $('<span>').addClass('jvi-punctuation').text(',').appendTo($element);
+  return $('<span>').addClass('jvi-punctuation jvi-comma').text(',').appendTo($element);
 }
 
 function renderEllipsis($element) {
