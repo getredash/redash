@@ -9,9 +9,11 @@ function filterRows(rows, searchTerm, columns) {
   searchTerm = searchTerm.toUpperCase();
   return filter(rows, (row) => {
     for (let i = 0; i < columns.length; i += 1) {
-      const col = columns[i];
-      if (row[col] !== undefined) {
-        const value = ('' + row[col]).toUpperCase();
+      const columnName = columns[i].name;
+      const formatFunction = columns[i].formatFunction;
+      if (row[columnName] !== undefined) {
+        let value = formatFunction ? formatFunction(row[columnName]) : row[columnName];
+        value = ('' + value).toUpperCase();
         if (value.indexOf(searchTerm) >= 0) {
           return true;
         }
@@ -49,10 +51,6 @@ function validateItemsPerPage(value, defaultValue) {
   defaultValue = defaultValue || 10;
   value = parseInt(value, 10) || defaultValue;
   return value > 0 ? value : defaultValue;
-}
-
-function getSearchColumns(columns) {
-  return map(filter(columns, 'allowSearch'), col => col.name);
 }
 
 // Optimized rendering
@@ -131,7 +129,7 @@ function DynamicTable($compile) {
     this.orderBy = [];
     this.currentPage = 1;
     this.searchTerm = '';
-    this.searchColumns = getSearchColumns(this.columns);
+    this.searchColumns = filter(this.columns, 'allowSearch');
     this.renderSingleRow = createRowRenderTemplate(this.columns, $compile);
     updateRowsToDisplay(true);
   };
