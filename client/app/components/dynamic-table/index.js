@@ -147,16 +147,26 @@ function DynamicTable($compile) {
 
   this.renderSingleRow = null;
 
-  this.onColumnHeaderClick = (column) => {
+  this.onColumnHeaderClick = ($event, column) => {
     const orderBy = find(this.orderBy, item => item.name === column.name);
     if (orderBy) {
       // ASC -> DESC -> off
       if (orderBy.direction === 1) {
         orderBy.direction = -1;
+        if (!$event.shiftKey) {
+          this.orderBy = [orderBy];
+        }
       } else {
-        this.orderBy = filter(this.orderBy, item => item.name !== column.name);
+        if ($event.shiftKey) {
+          this.orderBy = filter(this.orderBy, item => item.name !== column.name);
+        } else {
+          this.orderBy = [];
+        }
       }
     } else {
+      if (!$event.shiftKey) {
+        this.orderBy = [];
+      }
       this.orderBy.push({
         name: column.name,
         direction: 1,
@@ -164,6 +174,12 @@ function DynamicTable($compile) {
     }
     updateOrderByColumnsInfo();
     updateRowsToDisplay(true);
+
+
+    // Remove text selection - may occur accidentally
+    if ($event.shiftKey) {
+      document.getSelection().removeAllRanges();
+    }
   };
 
   this.onPageChanged = () => {
