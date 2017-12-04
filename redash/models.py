@@ -395,7 +395,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
     email = Column(LowercasedString)
-    image_url = Column(db.String(320), nullable=True)
+    _profile_image_url = Column('profile_image_url', db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
     # XXX replace with association table
     group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
@@ -416,7 +416,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'gravatar_url': self.gravatar_url,
+            'profile_image_url': self.profile_image_url,
             'groups': self.group_ids,
             'updated_at': self.updated_at,
             'created_at': self.created_at
@@ -436,9 +436,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return False
 
     @property
-    def gravatar_url(self):
-        if self.image_url is not None:
-            return self.image_url
+    def profile_image_url(self):
+        if self._profile_image_url is not None:
+            return self._profile_image_url
 
         email_md5 = hashlib.md5(self.email.lower()).hexdigest()
         return "https://www.gravatar.com/avatar/%s?s=40" % email_md5

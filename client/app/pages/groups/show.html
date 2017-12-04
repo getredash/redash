@@ -17,7 +17,7 @@
                            refresh-delay="0"
                            ui-disable-choice="user.alreadyMember">
           <div>
-            <img ng-src="{{user.gravatar_url}}" height="24px">&nbsp;{{user.name}}
+            <img ng-src="{{user.profile_image_url}}" height="24px">&nbsp;{{user.name}}
             <small ng-if="user.alreadyMember">(already member in this group)</small>
           </div>
         </ui-select-choices>
@@ -29,7 +29,7 @@
       <table class="table table-condensed table-hover" ng-show="members">
         <tbody>
         <tr ng-repeat="member in members">
-          <td width="50px"><img ng-src="{{member.gravatar_url}}" height="40px"/></td>
+          <td width="50px"><img ng-src="{{member.profile_image_url}}" height="40px"/></td>
           <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin">Remove</button></td>
         </tr>
         </tbody>
