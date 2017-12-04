@@ -235,6 +235,8 @@
             <div class="row">
               <div class="col-lg-12">
                 <ul class="tab-nav">
+                  <rd-tab ng-if="!query.visualizations.length"
+                    tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                   <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)"
                     ng-repeat="vis in query.visualizations | orderBy:'id'">
                     <span class="remove" ng-click="deleteVisualization($event, vis)"
