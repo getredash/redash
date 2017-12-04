@@ -1,4 +1,4 @@
-import { pick, any, some, find } from 'underscore';
+import { pick, any, some, find, min, isObject } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -6,8 +6,6 @@ function QueryViewCtrl(
   KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
   currentUser, Query, DataSource,
 ) {
-  const DEFAULT_TAB = 'table';
-
   function getQueryResult(maxAge) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
@@ -112,7 +110,7 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
-
+  $scope.selectedTab = 'table';
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
@@ -360,7 +358,15 @@ function QueryViewCtrl(
 
   $scope.$watch(
     () => $location.hash(),
-    (hash) => { $scope.selectedTab = hash || DEFAULT_TAB; },
+    (hash) => {
+      // eslint-disable-next-line eqeqeq
+      const exists = find($scope.query.visualizations, item => item.id == hash);
+      let visualization = min($scope.query.visualizations, viz => viz.id);
+      if (!isObject(visualization)) {
+        visualization = {};
+      }
+      $scope.selectedTab = (exists ? hash : visualization.id) || 'table';
+    },
   );
 
   $scope.showManagePermissionsModal = () => {
