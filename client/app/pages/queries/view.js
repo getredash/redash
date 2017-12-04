@@ -1,4 +1,4 @@
-import { pick, any, some, find, first } from 'underscore';
+import { pick, any, some, find, min, isObject } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -110,7 +110,7 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
-
+  $scope.selectedTab = 'table';
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
@@ -361,8 +361,11 @@ function QueryViewCtrl(
     (hash) => {
       // eslint-disable-next-line eqeqeq
       const exists = find($scope.query.visualizations, item => item.id == hash);
-      const visualization = first($scope.query.visualizations) || {};
-      $scope.selectedTab = exists ? hash : visualization.id;
+      let visualization = min($scope.query.visualizations, viz => viz.id);
+      if (!isObject(visualization)) {
+        visualization = {};
+      }
+      $scope.selectedTab = (exists ? hash : visualization.id) || 'table';
     },
   );
 
