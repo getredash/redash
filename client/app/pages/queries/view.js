@@ -42,11 +42,6 @@ function QueryViewCtrl(
     return dataSourceId;
   }
 
-  function toggleSchemaBrowser(hasSchema) {
-    $scope.hasSchema = hasSchema;
-    $scope.editorSize = hasSchema ? 'col-md-9 p-r-0' : 'col-md-9 p-r-0';
-  }
-
   function getSchema(refresh = undefined) {
     DataSource.getSchema({ id: $scope.query.data_source_id, refresh }, (data) => {
       const hasPrevSchema = refresh ? ($scope.schema && ($scope.schema.length > 0)) : false;
@@ -60,13 +55,10 @@ function QueryViewCtrl(
       } else if (hasPrevSchema) {
         toastr.error('Schema refresh failed. Please try again later.');
       }
-
-      toggleSchemaBrowser(hasSchema || hasPrevSchema);
     });
   }
 
   function updateSchema() {
-    toggleSchemaBrowser(false);
     getSchema();
   }
 
