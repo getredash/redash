@@ -206,21 +206,24 @@
         <div class="col-lg-12">
           <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
           <!-- Query Execution Status -->
-          <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
-            Executing query&hellip;
-            <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-            <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
-                    ng-click="cancelExecution()">Cancel
-            </button>
-          </div>
-          <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
-            Query in queue&hellip;
-            <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-            <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
-                    ng-click="cancelExecution()">Cancel
-            </button>
-          </div>
-          <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong>
+
+          <div class="query-alerts">
+            <div class="alert alert-info" ng-show="queryResult.getStatus() == 'processing'">
+              Executing query&hellip;
+              <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+              <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
+                      ng-click="cancelExecution()">Cancel
+              </button>
+            </div>
+            <div class="alert alert-info" ng-show="queryResult.getStatus() == 'waiting'">
+              Query in queue&hellip;
+              <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+              <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
+                      ng-click="cancelExecution()">Cancel
+              </button>
+            </div>
+            <div class="alert alert-danger" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong>
+            </div>
           </div>
           <!-- End of Query Execution Status -->
 

@@ -52,6 +52,9 @@
       <a class="small hidden-print" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public">
         <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span>
       </a>
+      <span class="small hidden-print" ng-if="$ctrl.public">
+        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span>
+      </span>
       <span class="visible-print">
         <i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}}
       </span>
