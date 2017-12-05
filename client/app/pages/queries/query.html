@@ -80,20 +80,22 @@
   <div class="container">
       <div class="row bg-white tiled p-15 m-b-10" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
 
-        <schema-browser class="col-md-3 p-0 hidden-sm hidden-xs schema-container"
-                        schema="schema"
-                        on-refresh="refreshSchema()"
-                        ng-show="hasSchema">
-        </schema-browser>
+        <div class="col-md-3 p-0 hidden-sm hidden-xs">
+
+          <select class="form-control m-b-10" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+                  ng-options="ds.id as ds.name for ds in dataSources"></select>
+
+          <schema-browser class="schema-container"
+                          schema="schema"
+                          on-refresh="refreshSchema()"
+                          ng-show="hasSchema">
+          </schema-browser>
+        </div>
 
         <div ng-class="editorSize" style="height:100%;">
           <div class="editor__control">
             <div class="form-inline">
-              <i class="fa fa-database"></i> &nbsp;
-              <select class="form-control" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
-                    ng-options="ds.id as ds.name for ds in dataSources"></select>
-
-              <div class="pull-right">
+              <div class="text-right">
                 <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                   <span class="fa fa-paper-plane"></span> Publish
                 </button>
