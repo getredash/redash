@@ -1,6 +1,8 @@
 # Change Log
 
-## v3.0.0 - UNRELEASED
+## v4.0.0 - UNRELEASED
+
+## v3.0.0 - 2017-11-13
 
 ### Added
 
