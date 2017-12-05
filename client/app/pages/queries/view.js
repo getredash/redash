@@ -199,6 +199,9 @@ function QueryViewCtrl(
     }).$promise;
   };
 
+  // toastr.success('It seems like the query has been modified by another user. ' +
+  //   'Please copy/backup your changes and reload this page.', { timeOut: 0 });
+
   $scope.togglePublished = () => {
     Events.record('toggle_published', 'query', $scope.query.id);
     $scope.query.is_draft = !$scope.query.is_draft;
