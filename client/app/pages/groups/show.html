@@ -30,7 +30,7 @@
         <tbody>
         <tr ng-repeat="member in members">
           <td width="50px"><img ng-src="{{member.gravatar_url}}" height="40px"/></td>
-          <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin">Remove</button></td>
+          <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin && (group.type != 'builtin' || currentUser.id != member.id)">Remove</button></td>
         </tr>
         </tbody>
       </table>
