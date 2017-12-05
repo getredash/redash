@@ -43,7 +43,10 @@ function QueryViewCtrl(
   }
 
   function getSchema(refresh = undefined) {
-    DataSource.getSchema({ id: $scope.query.data_source_id, refresh }, (data) => {
+    // TODO: is it possible this will be called before dataSource is set?
+    $scope.schema = [];
+    $scope.dataSource.getSchema(refresh).then((data) => {
+      data = data.data;
       const hasPrevSchema = refresh ? ($scope.schema && ($scope.schema.length > 0)) : false;
       const hasSchema = data && (data.length > 0);
 
@@ -56,10 +59,6 @@ function QueryViewCtrl(
         toastr.error('Schema refresh failed. Please try again later.');
       }
     });
-  }
-
-  function updateSchema() {
-    getSchema();
   }
 
   $scope.refreshSchema = () => getSchema(true);
@@ -82,7 +81,7 @@ function QueryViewCtrl(
 
     $scope.canCreateQuery = any(dataSources, ds => !ds.view_only);
 
-    updateSchema();
+    getSchema();
   }
 
   $scope.executeQuery = () => {
@@ -251,8 +250,8 @@ function QueryViewCtrl(
       });
     }
 
-    updateSchema();
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
+    getSchema();
     $scope.executeQuery();
   };
 
