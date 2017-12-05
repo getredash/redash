@@ -13,6 +13,8 @@ Plotly.setPlotConfig({
   modeBarButtonsToRemove: ['sendDataToCloud'],
 });
 
+const DEFAULT_BOTTOM_MARGIN = 50;
+
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
   Blue: '#4572A7',
@@ -225,6 +227,8 @@ const PlotlyChart = () => ({
 
 
     function recalculateOptions() {
+      scope.layout.margin.b = parseInt(scope.options.bottomMargin, 10) || DEFAULT_BOTTOM_MARGIN;
+
       scope.data.length = 0;
       scope.layout.showlegend = has(scope.options, 'legend') ? scope.options.legend.enabled : true;
       delete scope.layout.barmode;
@@ -444,7 +448,7 @@ const PlotlyChart = () => ({
 
     scope.layout = {
       margin: {
-        l: 50, r: 50, b: 50, t: 20, pad: 4,
+        l: 50, r: 50, b: DEFAULT_BOTTOM_MARGIN, t: 20, pad: 4,
       },
       width: container.offsetWidth,
       height: container.offsetHeight,
