@@ -3,9 +3,11 @@ div.table-name {
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
-  padding: 0 10px;
+  padding: 2px 10px;
+  border-radius: @redash-radius;
+
   &:hover {
-    background: #f4f4f4;
+    background: fade(@redash-gray, 10%);
   }
 }
 
@@ -16,19 +18,24 @@ div.table-name {
 }
 
 .schema-browser {
-  height: calc(100% - 45px);
   overflow-y: auto;
   overflow-x: hidden;
-  border: 1px solid rgba(0,0,0,.15);
+  height: calc(85%);
+  border: none;
+  margin-top: 10px;
 
   .collapse.in {
-    background: #f4f4f4;
+    background: transparent;
+  }
+
+  .table-open {
+    padding-left: 26px;
   }
 }
 
 .schema-control {
   display: flex;
-  padding: 5px 0;
+  padding: 0;
 
  .form-control {
    height: 30px;

@@ -44,7 +44,7 @@ function QueryViewCtrl(
 
   function toggleSchemaBrowser(hasSchema) {
     $scope.hasSchema = hasSchema;
-    $scope.editorSize = hasSchema ? 'col-md-9' : 'col-md-12';
+    $scope.editorSize = hasSchema ? 'col-md-9 p-r-0' : 'col-md-12 p-l-0 p-l-0';
   }
 
   function getSchema(refresh = undefined) {
@@ -196,6 +196,9 @@ function QueryViewCtrl(
       }
     }).$promise;
   };
+
+  // toastr.success('It seems like the query has been modified by another user. ' +
+  //   'Please copy/backup your changes and reload this page.', { timeOut: 0 });
 
   $scope.togglePublished = () => {
     Events.record('toggle_published', 'query', $scope.query.id);

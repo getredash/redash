@@ -3,12 +3,29 @@
 @redash-orange: rgba(255, 120, 100, 1);
 @redash-black: rgba(0, 0, 0, 1);
 
+//Default spacing (between tiles)
+@redash-space: 10px;
+
+@redash-radius: 3px;
 
 // General
 body {
   padding-top: 0;
   background: #cad1dc2b;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol" !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+
+  &.headless {
+    padding-top: 10px;
+    padding-bottom: 15px;
+
+    .navbar {
+      display: none !important;
+    }
+
+    div#footer {
+      display: none;
+    }
+  }
 }
 
 .t-header:not(.th-alt) {
@@ -29,9 +46,22 @@ body {
 page-header, .page-header--new {
   h3 {
     margin: 0;
-    line-height: 2;
+    line-height: 1.75;
     font-weight: 500;
   }
+}
+
+.dynamic-table__pagination {
+  margin-top: 10px;
+}
+
+.rg-top span, .rg-bottom span {
+  height: 3px;
+  border-color: #b1c1ce; // TODO: variable
+}
+
+.rg-bottom span {
+  margin: 1.5px 0 0 -10px;
 }
 
 .popover {
@@ -80,9 +110,15 @@ page-header, .page-header--new {
   margin: 8px 0;
 }
 
-.table:not(.table-striped) > thead > tr > th {
-  background-color: #fff !important;
-  background-color: fade(@redash-gray, 5%) !important;
+.editing-mode {
+  a.query-link {
+    pointer-events: none;
+    cursor: move;
+  }
+
+  .th-title {
+    cursor: move;
+  }
 }
 
 .bg-ace {
@@ -141,13 +177,11 @@ page-header, .page-header--new {
   }
 }
 
-edit-in-place p {
-  display: inline-block;
-}
-
-edit-in-place p.editable:hover {
-  background: #FCFCA2;
-  display: inline-block;
+.embed-heading {
+  h3 {
+    line-height: 1.75;
+    margin: 0;
+  }
 }
 
 // Navigation
@@ -255,6 +289,10 @@ edit-in-place p.editable:hover {
   border-radius: 100%;
   margin-right: 3px;
   margin-top: -2px;
+}
+
+.profile__image--settings {
+  border-radius: 100%;
 }
 
 .btn__new {
