@@ -254,6 +254,7 @@ const PlotlyChart = () => ({
             marker: { colors: ColorPaletteArray },
             text: series.name,
             textposition: 'inside',
+            textfont: { color: '#f5f5f5' },
             name: series.name,
             domain: {
               x: [xPosition, xPosition + cellWidth - xPadding],
