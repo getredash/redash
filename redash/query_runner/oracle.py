@@ -152,8 +152,7 @@ class Oracle(BaseSQLQueryRunner):
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
             else:
-                columns = [{'name': 'Row(s) Affected',
-                        'type': 'TYPE_INTEGER'}]
+                columns = [{'name': 'Row(s) Affected','type': 'TYPE_INTEGER'}]
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
