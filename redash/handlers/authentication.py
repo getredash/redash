@@ -191,11 +191,8 @@ def session(org_slug=None):
             'apiKey': current_user.id
         }
     else:
-        email_md5 = hashlib.md5(current_user.email.lower()).hexdigest()
-        gravatar_url = "https://www.gravatar.com/avatar/%s?s=40" % email_md5
-
         user = {
-            'gravatar_url': gravatar_url,
+            'profile_image_url': current_user.profile_image_url,
             'id': current_user.id,
             'name': current_user.name,
             'email': current_user.email,
