@@ -150,9 +150,15 @@ class Oracle(BaseSQLQueryRunner):
                 data = {'columns': columns, 'rows': rows}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
+                
             else:
-                error = 'Query completed but it returned no data.'
-                json_data = None
+                columns = [{'name': 'Row(s) Affected',
+                        'type': 'TYPE_INTEGER'}]
+                rows = [{'Row(s) Affected': rows_count}]
+                data = {'columns': columns, 'rows': rows}
+                json_data = json.dumps(data, cls=JSONEncoder)
+                connection.commit()
+                
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None
