@@ -22,7 +22,9 @@
         <button class="btn btn-danger" ng-if="$ctrl.snippet.id" ng-click="$ctrl.delete()">Delete</button>
       </div>
       <small ng-if="$ctrl.snippet.user">
-        Created by: {{$ctrl.snippet.user.name}}
+        Created by: 
+        <img ng-src="{{$ctrl.snippet.user.profile_image_url}}" class="profile__image_thumb"/>
+        {{$ctrl.snippet.user.name}}
       </small>
     </form>
   </div>
