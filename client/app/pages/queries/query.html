@@ -258,9 +258,9 @@
                     <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
                 </div>
-                <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+                <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis col-md-12">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                  <div class="p-15">
+                  <div class="p-t-15 p-b-15">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
                     <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
