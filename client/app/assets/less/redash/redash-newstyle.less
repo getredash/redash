@@ -80,6 +80,22 @@ page-header, .page-header--new {
   }
 }
 
+.pagination {
+  .disabled a {
+    background-color: fade(@redash-gray, 14%);
+  }
+
+  li {
+    a {
+      background-color: fade(@redash-gray, 15%);
+
+      &:hover {
+        background-color: fade(@redash-gray, 25%);
+      }
+    }
+  }
+}
+
 .btn-default {
   background-color: fade(@redash-gray, 15%);
 }
