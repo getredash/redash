@@ -53,13 +53,21 @@ class Exasol(BaseQueryRunner):
         }
 
     def _get_connection(self):
-        options = make_options(read_buffer_size=Megabytes(100))
+        options = make_options(read_buffer_size=Megabytes(100),
+                               parameter_sets_to_buffer=1000,
+                               varchar_max_character_limit=10000,
+                               use_async_io=True,
+                               prefer_unicode=True,
+                               autocommit=True,
+                               large_decimals_as_64_bit_types=True,
+                               limit_varchar_results_to_max=True)
+
         exahost = "%s:%s" % (self.configuration['host'], self.configuration['port'])
         return connect(driver="Exasol driver",
-                             exahost=exahost,
-                             exauid=self.configuration['user'],
-                             exapwd=self.configuration['password'],
-                             turbodbc_options=options)
+                       exahost=exahost,
+                       exauid=self.configuration['user'],
+                       exapwd=self.configuration['password'],
+                       turbodbc_options=options)
 
         return
 
