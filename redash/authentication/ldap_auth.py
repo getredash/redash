@@ -36,7 +36,12 @@ def login(org_slug=None):
         user = auth_ldap_user(request.form['email'], request.form['password'])
 
         if user is not None:
-            create_and_login_user(current_org, user[settings.LDAP_DISPLAY_NAME_KEY][0], user[settings.LDAP_EMAIL_KEY][0])
+            email = ''
+            if settings.LDAP_CUSTOM_MAIL_DOMAIN:
+                email = '{}@{}'.format(user[settings.LDAP_EMAIL_KEY][0], settings.LDAP_CUSTOM_MAIL_DOMAIN)
+            else:
+                email = user[settings.LDAP_EMAIL_KEY][0]
+            create_and_login_user(current_org, user[settings.LDAP_DISPLAY_NAME_KEY][0], email)
             return redirect(next_path or url_for('redash.index'))
         else:
             flash("Incorrect credentials.")
