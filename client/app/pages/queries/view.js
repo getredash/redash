@@ -1,10 +1,25 @@
 import { pick, any, some, find, min, isObject } from 'underscore';
+import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import template from './query.html';
 
 function QueryViewCtrl(
-  $scope, Events, $route, $routeParams, $location, $window, $q,
-  KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
-  currentUser, Query, DataSource,
+  $scope,
+  Events,
+  $route,
+  $routeParams,
+  $location,
+  $window,
+  $q,
+  KeyboardShortcuts,
+  Title,
+  AlertDialog,
+  Notifications,
+  clientConfig,
+  toastr,
+  $uibModal,
+  currentUser,
+  Query,
+  DataSource,
 ) {
   function getQueryResult(maxAge) {
     if (maxAge === undefined) {
@@ -31,8 +46,7 @@ function QueryViewCtrl(
 
     // If we had an invalid value in localStorage (e.g. nothing, deleted source),
     // then use the first data source
-    const isValidDataSourceId = !isNaN(dataSourceId) && some($scope.dataSources, ds =>
-      ds.id === dataSourceId);
+    const isValidDataSourceId = !isNaN(dataSourceId) && some($scope.dataSources, ds => ds.id === dataSourceId);
 
     if (!isValidDataSourceId) {
       dataSourceId = $scope.dataSources[0].id;
@@ -46,16 +60,16 @@ function QueryViewCtrl(
     // TODO: is it possible this will be called before dataSource is set?
     $scope.schema = [];
     $scope.dataSource.getSchema(refresh).then((data) => {
-      data = data.data;
-      const hasPrevSchema = refresh ? ($scope.schema && ($scope.schema.length > 0)) : false;
-      const hasSchema = data && (data.length > 0);
-
-      if (hasSchema) {
-        $scope.schema = data;
-        data.forEach((table) => {
+      if (data.schema) {
+        $scope.schema = data.schema;
+        $scope.schema.forEach((table) => {
           table.collapsed = true;
         });
-      } else if (hasPrevSchema) {
+      } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
+        $scope.schema = undefined;
+      } else if (data.error.code === SCHEMA_LOAD_ERROR) {
+        toastr.error('Schema refresh failed. Please try again later.');
+      } else {
         toastr.error('Schema refresh failed. Please try again later.');
       }
     });
@@ -65,8 +79,10 @@ function QueryViewCtrl(
 
   function updateDataSources(dataSources) {
     // Filter out data sources the user can't query (or used by current query):
-    $scope.dataSources = dataSources.filter(dataSource =>
-      !dataSource.view_only || dataSource.id === $scope.query.data_source_id);
+    function canUseDataSource(dataSource) {
+      return !dataSource.view_only || dataSource.id === $scope.query.data_source_id;
+    }
+    $scope.dataSources = dataSources.filter(canUseDataSource);
 
     if ($scope.dataSources.length === 0) {
       $scope.noDataSources = true;
@@ -123,7 +139,7 @@ function QueryViewCtrl(
   }
   $scope.queryExecuting = false;
 
-  $scope.isQueryOwner = (currentUser.id === $scope.query.user.id) || currentUser.hasPermission('admin');
+  $scope.isQueryOwner = currentUser.id === $scope.query.user.id || currentUser.hasPermission('admin');
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
@@ -167,25 +183,47 @@ function QueryViewCtrl(
       request.id = $scope.query.id;
       request.version = $scope.query.version;
     } else {
-      request = pick($scope.query, ['schedule', 'query', 'id', 'description', 'name', 'data_source_id', 'options', 'latest_query_data_id', 'version', 'is_draft']);
+      request = pick($scope.query, [
+        'schedule',
+        'query',
+        'id',
+        'description',
+        'name',
+        'data_source_id',
+        'options',
+        'latest_query_data_id',
+        'version',
+        'is_draft',
+      ]);
     }
 
-    const options = Object.assign({}, {
-      successMessage: 'Query saved',
-      errorMessage: 'Query could not be saved',
-    }, customOptions);
+    const options = Object.assign(
+      {},
+      {
+        successMessage: 'Query saved',
+        errorMessage: 'Query could not be saved',
+      },
+      customOptions,
+    );
 
-    return Query.save(request, (updatedQuery) => {
-      toastr.success(options.successMessage);
-      $scope.query.version = updatedQuery.version;
-    }, (error) => {
-      if (error.status === 409) {
-        toastr.error('It seems like the query has been modified by another user. ' +
-          'Please copy/backup your changes and reload this page.', { autoDismiss: false });
-      } else {
-        toastr.error(options.errorMessage);
-      }
-    }).$promise;
+    return Query.save(
+      request,
+      (updatedQuery) => {
+        toastr.success(options.successMessage);
+        $scope.query.version = updatedQuery.version;
+      },
+      (error) => {
+        if (error.status === 409) {
+          toastr.error(
+            'It seems like the query has been modified by another user. ' +
+              'Please copy/backup your changes and reload this page.',
+            { autoDismiss: false },
+          );
+        } else {
+          toastr.error(options.errorMessage);
+        }
+      },
+    ).$promise;
   };
 
   // toastr.success('It seems like the query has been modified by another user. ' +
@@ -220,16 +258,21 @@ function QueryViewCtrl(
 
   $scope.archiveQuery = () => {
     function archive() {
-      Query.delete({ id: $scope.query.id }, () => {
-        $scope.query.is_archived = true;
-        $scope.query.schedule = null;
-      }, () => {
-        toastr.error('Query could not be archived.');
-      });
+      Query.delete(
+        { id: $scope.query.id },
+        () => {
+          $scope.query.is_archived = true;
+          $scope.query.schedule = null;
+        },
+        () => {
+          toastr.error('Query could not be archived.');
+        },
+      );
     }
 
     const title = 'Archive Query';
-    const message = 'Are you sure you want to archive this query?<br/> All alerts and dashboard widgets created with its visualizations will be deleted.';
+    const message =
+      'Are you sure you want to archive this query?<br/> All alerts and dashboard widgets created with its visualizations will be deleted.';
     const confirm = { class: 'btn-warning', title: 'Archive' };
 
     AlertDialog.open(title, message, confirm).then(archive);
