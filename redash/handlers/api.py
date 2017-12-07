@@ -79,6 +79,7 @@ api.add_org_resource(CheckPermissionResource, '/api/<object_type>/<object_id>/ac
 
 api.add_org_resource(QueryResultListResource, '/api/query_results', endpoint='query_results')
 api.add_org_resource(QueryResultResource,
+                     '/api/query_results/<query_result_id>.<filetype>',
                      '/api/query_results/<query_result_id>',
                      '/api/queries/<query_id>/results.<filetype>',
                      '/api/queries/<query_id>/results/<query_result_id>.<filetype>',
