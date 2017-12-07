@@ -17,6 +17,10 @@ function SchemaBrowserCtrl($scope) {
 
     return size;
   };
+
+  this.isEmpty = function isEmpty() {
+    return this.schema === undefined || this.schema.length === 0;
+  };
 }
 
 const SchemaBrowser = {

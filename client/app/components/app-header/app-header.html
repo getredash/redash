@@ -41,8 +41,8 @@
           Create <span class="caret caret--nav"></span>
         </button>
         <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="create-button">
-          <li role="menuitem"><a ng-show="$ctrl.currentUser.hasPermission('create_dashboard')" ng-click="$ctrl.newDashboard()">Dashboard</a></li>
           <li role="menuitem" ng-show="$ctrl.showNewQueryMenu"><a href="queries/new">Query</a></li>
+          <li role="menuitem"><a ng-show="$ctrl.currentUser.hasPermission('create_dashboard')" ng-click="$ctrl.newDashboard()">Dashboard</a></li>
           <li role="menuitem"><a href="alerts/new">Alert</a></li>
         </ul>
       </div>
