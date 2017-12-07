@@ -1,37 +1,41 @@
-<div class='container row'>
+<div class='container'>
   <page-header title="Dashboards"></page-header>
-  <div class="col-lg-3">
-    <input type='text' class='form-control' placeholder="Search Dashboards..." 
-      ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
-    <div class='list-group m-t-20 tags-list'>
-      <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
-      class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
-        {{ tag }}
-      </a>
+
+  <div class="row">
+    <div class="col-lg-3">
+      <input type='text' class='form-control' placeholder="Search Dashboards..."
+        ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
+      <div class='list-group m-t-20 tags-list tiled'>
+        <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
+        class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
+          {{ tag }}
+        </a>
+      </div>
     </div>
-  </div>
-  <div class="col-lg-9">
-    <div class="bg-white">
-      <table class="table table-condensed table-hover">
-        <thead>
-        <tr>
-          <th>Name</th>
-          <th>Created At</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="dashboard in $ctrl.paginator.getPageRows()">
-          <td>
-            <a href="dashboard/{{ dashboard.slug }}">
-              <span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
-              <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
-            </a>
-          </td>
-          <td>{{ dashboard.created_at | dateTime }}</td>
-        </tr>
-        </tbody>
-      </table>
-      <paginator paginator="$ctrl.paginator"></paginator>
+
+    <div class="col-lg-9">
+      <div class="bg-white tiled">
+        <table class="table table-condensed table-hover">
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Created At</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr ng-repeat="dashboard in $ctrl.paginator.getPageRows()">
+            <td>
+              <a href="dashboard/{{ dashboard.slug }}">
+                <span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
+                <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
+              </a>
+            </td>
+            <td>{{ dashboard.created_at | dateTime }}</td>
+          </tr>
+          </tbody>
+        </table>
+        <paginator paginator="$ctrl.paginator"></paginator>
+      </div>
     </div>
   </div>
 </div>

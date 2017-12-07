@@ -270,6 +270,10 @@ export default function init(ngModule) {
       seriesOptions: {},
       columnMapping: {},
       bottomMargin: 50,
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
+      minRows: 5,
     };
 
     VisualizationProvider.registerVisualization({

@@ -1,13 +1,60 @@
 import * as _ from 'underscore';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
+import './dashboard.less';
 
 function DashboardCtrl(
   $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
+  dashboardGridOptions, toastr,
 ) {
+  this.saveInProgress = false;
+  const saveDashboardLayout = () => {
+    if (!this.dashboard.canEdit()) {
+      return;
+    }
+
+    this.saveInProgress = true;
+    const showMessages = true; // this.layoutEditing;
+    // Temporarily disable grid editing (but allow user to use UI controls)
+    this.dashboardGridOptions.draggable.enabled = false;
+    this.dashboardGridOptions.resizable.enabled = false;
+    return $q.all(_.map(this.dashboard.widgets, widget => widget.$save()))
+      .then(() => {
+        if (showMessages) {
+          toastr.success('Dashboard layout saved.');
+        }
+      })
+      .catch(() => {
+        if (showMessages) {
+          toastr.error('Cannot save dashboard layout.');
+        }
+      })
+      .finally(() => {
+        this.saveInProgress = false;
+        // If user didn't disable editing mode while saving - restore grid
+        this.dashboardGridOptions.draggable.enabled = this.layoutEditing;
+        this.dashboardGridOptions.resizable.enabled = this.layoutEditing;
+      });
+  };
+
+
+  this.layoutEditing = false;
+  this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
+    resizable: {
+      enabled: false,
+      handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
+      // stop: saveDashboardLayout,
+    },
+    draggable: {
+      enabled: false,
+      // stop: saveDashboardLayout,
+    },
+  });
+
   this.isFullscreen = false;
   this.refreshRate = null;
+  this.isGridDisabled = false;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.currentUser = currentUser;
   this.globalParameters = [];
@@ -23,6 +70,11 @@ function DashboardCtrl(
     { name: '24 hour', rate: 24 * 60 * 60 },
   ];
 
+  $rootScope.$on('gridster-mobile-changed', ($event, gridster) => {
+    this.isGridDisabled = gridster.isMobile;
+  });
+
+
   this.setRefreshRate = (rate) => {
     this.refreshRate = rate;
     if (rate !== null) {
@@ -33,18 +85,17 @@ function DashboardCtrl(
 
   this.extractGlobalParameters = () => {
     let globalParams = {};
-    this.dashboard.widgets.forEach(row =>
-      row.forEach((widget) => {
-        if (widget.getQuery()) {
-          widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
-            const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
-            defaults[param.name].locals = [];
-            globalParams = _.defaults(globalParams, defaults);
-            globalParams[param.name].locals.push(param);
-          });
-        }
-      }));
+    this.dashboard.widgets.forEach((widget) => {
+      if (widget.getQuery()) {
+        widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
+          const defaults = {};
+          defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+          defaults[param.name].locals = [];
+          globalParams = _.defaults(globalParams, defaults);
+          globalParams[param.name].locals.push(param);
+        });
+      }
+    });
     this.globalParameters = _.values(globalParams);
   };
 
@@ -60,16 +111,15 @@ function DashboardCtrl(
     Title.set(dashboard.name);
     const promises = [];
 
-    this.dashboard.widgets.forEach(row =>
-      row.forEach((widget) => {
-        if (widget.visualization) {
-          const maxAge = force ? 0 : undefined;
-          const queryResult = widget.getQuery().getQueryResult(maxAge);
-          if (!_.isUndefined(queryResult)) {
-            promises.push(queryResult.toPromise());
-          }
+    this.dashboard.widgets.forEach((widget) => {
+      if (widget.visualization) {
+        const maxAge = force ? 0 : undefined;
+        const queryResult = widget.getQuery().getQueryResult(maxAge);
+        if (!_.isUndefined(queryResult)) {
+          promises.push(queryResult.toPromise());
         }
-      }));
+      }
+    });
 
     this.extractGlobalParameters();
 
@@ -155,6 +205,39 @@ function DashboardCtrl(
     });
   };
 
+  this.editLayout = (enableEditing, applyChanges) => {
+    if (!this.isGridDisabled) {
+      if (enableEditing) {
+        if (!this.layoutEditing) {
+          // Save current positions of widgets
+          _.each(this.dashboard.widgets, (widget) => {
+            widget.$savedPosition = _.clone(widget.options.position);
+          });
+        }
+      } else {
+        if (applyChanges) {
+          // Clear saved data and save layout
+          _.each(this.dashboard.widgets, (widget) => {
+            widget.$savedPosition = undefined;
+          });
+          saveDashboardLayout();
+        } else {
+          // Revert changes
+          _.each(this.dashboard.widgets, (widget) => {
+            if (_.isObject(widget.$savedPosition)) {
+              widget.options.position = widget.$savedPosition;
+            }
+            widget.$savedPosition = undefined;
+          });
+        }
+      }
+
+      this.layoutEditing = enableEditing;
+      this.dashboardGridOptions.draggable.enabled = this.layoutEditing && !this.saveInProgress;
+      this.dashboardGridOptions.resizable.enabled = this.layoutEditing && !this.saveInProgress;
+    }
+  };
+
   this.editDashboard = () => {
     const previousFiltersState = this.dashboard.dashboard_filters_enabled;
     $uibModal.open({
@@ -178,7 +261,30 @@ function DashboardCtrl(
       resolve: {
         dashboard: () => this.dashboard,
       },
-    }).result.then(() => this.extractGlobalParameters());
+    }).result.then(() => {
+      this.extractGlobalParameters();
+      if (this.layoutEditing) {
+        // Save position of newly added widget (but not entire layout)
+        const widget = _.last(this.dashboard.widgets);
+        if (_.isObject(widget)) {
+          return widget.$save().then(() => {
+            if (this.layoutEditing) {
+              widget.$savedPosition = _.clone(widget.options.position);
+            }
+          });
+        }
+      } else {
+        // Update entire layout
+        return saveDashboardLayout();
+      }
+    });
+  };
+
+  this.removeWidget = () => {
+    this.extractGlobalParameters();
+    if (!this.layoutEditing) {
+      saveDashboardLayout();
+    }
   };
 
   this.toggleFullscreen = () => {
@@ -199,7 +305,6 @@ function DashboardCtrl(
     Dashboard.save({
       slug: this.dashboard.id,
       name: this.dashboard.name,
-      layout: JSON.stringify(this.dashboard.layout),
       is_draft: this.dashboard.is_draft,
     }, (dashboard) => {
       this.saveInProgress = false;

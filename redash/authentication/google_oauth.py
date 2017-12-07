@@ -58,7 +58,7 @@ def verify_profile(org, profile):
     return False
 
 
-def create_and_login_user(org, name, email):
+def create_and_login_user(org, name, email, picture=None):
     try:
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.name != name:
@@ -67,7 +67,8 @@ def create_and_login_user(org, name, email):
             models.db.session.commit()
     except NoResultFound:
         logger.debug("Creating user object (%r)", name)
-        user_object = models.User(org=org, name=name, email=email, group_ids=[org.default_group.id])
+        user_object = models.User(org=org, name=name, email=email, _profile_image_url=picture,
+                                  group_ids=[org.default_group.id])
         models.db.session.add(user_object)
         models.db.session.commit()
 
@@ -116,7 +117,8 @@ def authorized():
         flash("Your Google Apps account ({}) isn't allowed.".format(profile['email']))
         return redirect(url_for('redash.login', org_slug=org.slug))
 
-    create_and_login_user(org, profile['name'], profile['email'])
+    picture_url = "%s?sz=40" % profile['picture']
+    create_and_login_user(org, profile['name'], profile['email'], picture_url)
 
     next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
 

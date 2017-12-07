@@ -1,0 +1,74 @@
+// Editor
+edit-in-place p {
+  display: inline-block;
+}
+
+edit-in-place p.editable:hover {
+  background: #FCFCA2;
+  display: inline-block;
+}
+
+.editor__control {
+  padding: 0 0 10px 0;
+
+  button {
+    margin-right: 7px;
+  }
+
+  .dropdown-toggle {
+    margin-right: 0;
+  }
+
+  button.btn-primary {
+    margin-right: 0;
+    margin-left: 7px;
+  }
+}
+
+.source-control {
+  position: relative;
+  min-height: 105px;
+}
+
+.btn--showhide {
+  position: absolute;
+  right: 0;
+  bottom: 5px;
+}
+
+.ace_editor.ace_autocomplete .ace_completion-highlight {
+  text-shadow: none !important;
+  background: #ffff005e;
+  font-weight: 600;
+}
+
+.editor__control {
+  .form-control {
+    height: 30px;
+  }
+}
+
+.schema-container {
+  background: transparent;
+  height: calc(100% - 15px);
+}
+
+.editor__left {
+  height: 100% !important;
+
+  .form-control {
+    height: 30px;
+  }
+}
+
+.schema-browser {
+  height: calc(83%);
+}
+
+.query-alerts {
+  .alert {
+    margin-bottom: 15px;
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+}

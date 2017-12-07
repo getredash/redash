@@ -38,10 +38,8 @@
       </div>
   </div>
 
-  <div class="form-group">
-      <label for="">Widget Size</label>
-      <select class="form-control" ng-model="$ctrl.widgetSize"
-              ng-options="c.value as c.name for c in $ctrl.widgetSizes"></select>
+  <div class="form-group" ng-if="$ctrl.isTextBox()">
+      <label><input type="checkbox" ng-model="$ctrl.isHidden">&nbsp;Hidden</label>
   </div>
 </div>
 

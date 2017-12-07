@@ -1,0 +1,228 @@
+/* --------------------------------------------------------
+    Actions
+-----------------------------------------------------------*/
+.actions {
+    position: absolute;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    & > li {
+        display: inline-block;
+    
+        & > a {
+            display: block;
+            padding: 0 10px;
+            
+            & > i {
+                font-size: 20px;
+            }
+        }
+    }
+
+    .dropdown-menu {
+        min-width: 140px;
+        margin-top: -8px;
+        margin-right: -1px;
+    }
+    
+    &:not(.a-alt) {
+        & > li > a > i {
+            color: #939393;
+        }
+        
+        & > li.open > a > i,
+        & > li > a:hover > i {
+            color: #000;
+        }
+    }
+    
+    &.a-alt {
+        & > li > a > i {
+            color: #fff;
+        }
+    }
+}
+
+
+/* --------------------------------------------------------
+    View More
+-----------------------------------------------------------*/
+.view-more {
+    display: block;
+    padding: 5px 10px;
+    text-align: center;
+    border-top: 1px solid darken(@light-gray, 3%);
+    font-size: 12px;
+    margin-top: 15px;
+    color: #777777;
+    
+    &:hover {
+        color: #333;
+        background-color: @light-gray;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Page Header
+-----------------------------------------------------------*/
+.page-header {
+    padding: 0 22px;
+    font-weight: normal;
+    font-size: 19px;
+    margin: 0 0 20px 0;
+    
+    small {
+        text-transform: none;
+        display: block;
+        font-size: 12px;
+        color: #9C9C9C;
+        margin-top: 7px;
+        line-height: 140%;
+    }
+    
+    h3 {
+        margin: 0;
+        font-weight: normal;
+        font-size: 15px;
+        color: #333;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Close
+-----------------------------------------------------------*/
+.close {
+    font-weight: normal;
+    text-shadow: none;
+    .opacity(0.5);
+}
+
+
+/* --------------------------------------------------------
+    Action Header
+-----------------------------------------------------------*/
+.action-header {
+    position: relative;
+    background: @ace;
+    padding: 15px 13px 15px 17px;
+}
+
+.ah-actions {
+    z-index: 3;
+    float: right;
+    margin-top: 7px;
+    position: relative;
+}
+
+.ah-label {
+    color: #818181;
+    display: inline-block;
+    margin: 0;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 0 6px;
+    line-height: 33px;
+    vertical-align: middle;
+    float: left;
+}
+
+.ah-search {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 4;
+    background: #fff;
+    display: none;
+    
+    &:before {
+        content: "\f1c3";
+        font-family: 'Material-Design-Iconic-Font';
+        position: absolute;
+        left: 24px;
+        top: 17px;
+        font-size: 22px;
+    }
+}
+
+.ahs-input {
+    border: 0;
+    padding: 0 26px 0 55px;
+    height: 63px;
+    font-size: 18px;
+    width: 100%;
+    font-weight: 100;
+    background: #fff;
+    border-bottom: 1px solid #EEE;
+}
+
+.ahs-close {
+    font-style: normal;
+    position: absolute;
+    top: 23px;
+    right: 22px;
+    font-size: 17px;
+    width: 18px;
+    height: 18px;
+    background-color: #ADADAD;
+    line-height: 100%;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 50%;
+    
+    &:hover {
+        background: #333;
+    }
+}
+
+
+/* --------------------------------------------------------
+    Load More
+-----------------------------------------------------------*/
+.load-more {
+    text-align: center;
+    margin-top: 30px;
+    
+    a {
+        padding: 5px 10px 3px;
+        display: inline-block;
+        background-color: @red;
+        color: #FFF;
+        border-radius: 2px;
+        white-space: nowrap;
+        
+        i {
+            font-size: 20px;
+            vertical-align: middle;
+            position: relative;
+            margin-top: -2px;
+        }
+        
+        &:hover {
+            background-color: darken(@red, 10%);
+        }
+    }
+}
+
+
+/* --------------------------------------------------------
+    Data List
+-----------------------------------------------------------*/
+.dl-horizontal dt {
+    text-align: left;
+}
+
+
+/* --------------------------------------------------------
+    User Avatar
+-----------------------------------------------------------*/
+.img-avatar {
+    height: 37px;
+    border-radius: 2px;
+    width: 37px;
+}

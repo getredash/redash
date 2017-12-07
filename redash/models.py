@@ -22,6 +22,7 @@ from redash.permissions import has_access, view_only
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
+from redash.utils.comparators import CaseInsensitiveComparator
 from redash.utils.configuration import ConfigurationContainer
 from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
@@ -368,12 +369,33 @@ class Group(db.Model, BelongsToOrgMixin):
         return unicode(self.id)
 
 
+class LowercasedString(TypeDecorator):
+    """
+    A lowercased string
+    """
+    impl = db.String
+    comparator_factory = CaseInsensitiveComparator
+
+    def __init__(self, length=320, *args, **kwargs):
+        super(LowercasedString, self).__init__(length=length, *args, **kwargs)
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            return value.lower()
+        return value
+
+    @property
+    def python_type(self):
+        return self.impl.type.python_type
+
+
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
-    email = Column(db.String(320))
+    email = Column(LowercasedString)
+    _profile_image_url = Column('profile_image_url', db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
     # XXX replace with association table
     group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
@@ -385,6 +407,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
 
     def __init__(self, *args, **kwargs):
+        if kwargs.get('email') is not None:
+            kwargs['email'] = kwargs['email'].lower()
         super(User, self).__init__(*args, **kwargs)
 
     def to_dict(self, with_api_key=False):
@@ -392,7 +416,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'gravatar_url': self.gravatar_url,
+            'profile_image_url': self.profile_image_url,
             'groups': self.group_ids,
             'updated_at': self.updated_at,
             'created_at': self.created_at
@@ -412,9 +436,12 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return False
 
     @property
-    def gravatar_url(self):
+    def profile_image_url(self):
+        if self._profile_image_url is not None:
+            return self._profile_image_url
+
         email_md5 = hashlib.md5(self.email.lower()).hexdigest()
-        return "https://www.gravatar.com/avatar/%s?s=40" % email_md5
+        return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
 
     @property
     def permissions(self):

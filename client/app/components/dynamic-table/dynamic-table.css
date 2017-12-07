@@ -1,7 +1,0 @@
-dynamic-table > div {
-  overflow: auto;
-}
-
-th.sortable-column {
-  cursor: pointer;
-}

@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import d3 from 'd3';
-import angular from 'angular';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
@@ -204,9 +203,12 @@ function mapRenderer() {
         }
       }
 
+      $scope.handleResize = () => {
+        resize();
+      };
+
       $scope.$watch('queryResult && queryResult.getData()', render);
       $scope.$watch('visualization.options', render, true);
-      angular.element(window).on('resize', resize);
       $scope.$watch('visualization.options.height', resize);
     },
   };
@@ -286,7 +288,9 @@ export default function init(ngModule) {
 
     const editTemplate = '<map-editor></map-editor>';
     const defaultOptions = {
-      height: 500,
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
       classify: 'none',
       clusterMarkers: true,
     };

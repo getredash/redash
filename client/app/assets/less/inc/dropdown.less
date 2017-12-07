@@ -1,0 +1,97 @@
+
+.dropdown-menu {
+    z-index: 1000000000;
+    box-shadow: @dropdown-shadow;
+    margin-top: 1px;
+    border-width: 0;
+    .animated(fadeIn, 300ms);
+
+    > .disabled{
+        cursor: not-allowed;
+        // The real magic ;)
+        > a {
+            pointer-events: none;
+        }
+    }
+
+    & > li > a {
+        padding: 8px 17px;
+    }
+
+    &.dm-icon {
+        & > li > a > .zmdi {
+            line-height: 100%;
+            vertical-align: top;
+            font-size: 18px;
+            width: 28px;
+        }
+    }
+
+    &:not([class*="bg-"]) {
+        & > li > a {
+            color: #4C4C4C;
+
+            &:hover {
+                color: #000;
+            }
+        }
+    }
+
+    &[class*="bg-"] {
+        & > li > a {
+            font-weight: 300;
+            color: #fff;
+        }
+    }
+}
+
+.dropdown-header {
+    padding: 10px 15px 9px;
+    text-transform: uppercase;
+    font-weight: normal;
+    border-radius: 1px 1px 0 0;
+    line-height: 100%;
+    border-radius: 2px 2px 0 0;
+
+    &[class*="bg-"] {
+        color: #fff;
+    }
+
+    .actions {
+        top: 0;
+        right: 0;
+
+        & > li > a {
+            display: block;
+            padding: 6px 0 5px;
+            width: 33px;
+            text-align: center;
+
+            &:hover {
+                background: rgba(0,0,0,0.08);
+            }
+        }
+    }
+}
+
+.dropdown-menu {
+  >span {
+    >li {
+      >a {
+        display: block;
+        padding: 3px 20px;
+        clear: both;
+        font-weight: normal;
+        line-height: 1.428571429;
+        color: #333333;
+        white-space: nowrap;
+        &:hover, &:focus {
+          color: #ffffff;
+          text-decoration: none;
+          background-color: #428bca;
+        }
+      }
+    }
+  }
+}
+

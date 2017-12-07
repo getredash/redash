@@ -1,4 +1,4 @@
-import { pick, any, some, find } from 'underscore';
+import { pick, any, some, find, min, isObject } from 'underscore';
 import template from './query.html';
 
 function QueryViewCtrl(
@@ -6,8 +6,6 @@ function QueryViewCtrl(
   KeyboardShortcuts, Title, AlertDialog, Notifications, clientConfig, toastr, $uibModal,
   currentUser, Query, DataSource,
 ) {
-  const DEFAULT_TAB = 'table';
-
   function getQueryResult(maxAge) {
     if (maxAge === undefined) {
       maxAge = $location.search().maxAge;
@@ -46,7 +44,7 @@ function QueryViewCtrl(
 
   function toggleSchemaBrowser(hasSchema) {
     $scope.hasSchema = hasSchema;
-    $scope.editorSize = hasSchema ? 'col-md-9' : 'col-md-12';
+    $scope.editorSize = hasSchema ? 'col-md-9 p-r-0' : 'col-md-9 p-r-0';
   }
 
   function getSchema(refresh = undefined) {
@@ -112,7 +110,7 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
-
+  $scope.selectedTab = 'table';
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
@@ -198,6 +196,9 @@ function QueryViewCtrl(
       }
     }).$promise;
   };
+
+  // toastr.success('It seems like the query has been modified by another user. ' +
+  //   'Please copy/backup your changes and reload this page.', { timeOut: 0 });
 
   $scope.togglePublished = () => {
     Events.record('toggle_published', 'query', $scope.query.id);
@@ -360,7 +361,15 @@ function QueryViewCtrl(
 
   $scope.$watch(
     () => $location.hash(),
-    (hash) => { $scope.selectedTab = hash || DEFAULT_TAB; },
+    (hash) => {
+      // eslint-disable-next-line eqeqeq
+      const exists = find($scope.query.visualizations, item => item.id == hash);
+      let visualization = min($scope.query.visualizations, viz => viz.id);
+      if (!isObject(visualization)) {
+        visualization = {};
+      }
+      $scope.selectedTab = (exists ? hash : visualization.id) || 'table';
+    },
   );
 
   $scope.showManagePermissionsModal = () => {

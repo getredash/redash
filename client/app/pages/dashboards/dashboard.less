@@ -1,0 +1,110 @@
+.dashboard-wrapper {
+  .tile {
+    display: flex;
+    position: static;
+    height: auto;
+    margin-bottom: 15px;
+  }
+
+  pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+    overflow: visible;
+  }
+
+  &.preview-mode {
+    .widget-menu-regular {
+      display: block;
+    }
+    .widget-menu-remove {
+      display: none;
+    }
+  }
+
+  &.editing-mode {
+    .widget-menu-regular {
+      display: none;
+    }
+    .widget-menu-remove {
+      display: block;
+    }
+  }
+
+  .gridster-preview-holder {
+    background: #aaa;
+  }
+
+  &.gridster-mobile {
+    margin: 0;
+
+    .gridster-item {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
+
+  &:not(.gridster-mobile) {
+    .tile {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      height: auto;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .gridster-item:not(.gridster-auto-height-enabled) {
+      visualization-renderer {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+
+        > filters {
+          flex-grow: 0;
+        }
+
+        > div {
+          flex-grow: 1;
+          position: relative;
+        }
+      }
+
+      .dynamic-table-container,
+      .sunburst-visualization-container,
+      .sankey-visualization-container,
+      .map-visualization-container,
+      .plotly-chart-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: auto;
+        height: auto;
+        overflow: hidden;
+      }
+
+      counter {
+        position: absolute;
+        left: 10px;
+        top: 15px;
+        right: 10px;
+        bottom: 15px;
+        overflow: hidden;
+        padding: 0;
+      }
+    }
+  }
+
+  .gridster-auto-height-enabled {
+    .spinner {
+      position: static;
+    }
+  }
+}

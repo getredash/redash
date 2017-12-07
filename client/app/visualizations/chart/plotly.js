@@ -1,4 +1,4 @@
-import { isEmpty, isEqual, isArray, isNumber, isUndefined, contains, min, max, has, each, values, sortBy, union, pluck, identity } from 'underscore';
+import { isEmpty, isEqual, isArray, isNumber, isUndefined, contains, min, max, has, each, values, sortBy, union, pluck, identity, debounce } from 'underscore';
 import d3 from 'd3';
 import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
@@ -12,6 +12,8 @@ Plotly.register([bar, pie, histogram, box]);
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ['sendDataToCloud'],
 });
+
+const DEFAULT_BOTTOM_MARGIN = 50;
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
@@ -187,309 +189,315 @@ function getColor(index) {
   return ColorPaletteArray[index % ColorPaletteArray.length];
 }
 
-const PlotlyChart = () => {
-  let bottomMargin = 50;
-  return {
-    restrict: 'E',
-    template: '<div></div>',
-    scope: {
-      options: '=',
-      series: '=',
-      height: '=',
-    },
-    link(scope, element) {
-      function calculateHeight() {
-        const height = Math.max(scope.height, (scope.height - 50) + bottomMargin);
-        if (scope.options.globalSeriesType === 'box') {
-          return scope.options.height || height;
-        }
-        return height;
+const PlotlyChart = () => ({
+  restrict: 'E',
+  template: '<div class="plotly-chart-container" resize-event="handleResize()"></div>',
+  scope: {
+    options: '=',
+    series: '=',
+  },
+  link(scope, element) {
+    const container = element[0].querySelector('.plotly-chart-container');
+
+    function setType(series, type) {
+      if (type === 'column') {
+        series.type = 'bar';
+      } else if (type === 'line') {
+        series.mode = 'lines';
+      } else if (type === 'area') {
+        series.fill = scope.options.series.stacking === null ? 'tozeroy' : 'tonexty';
+        series.mode = 'lines';
+      } else if (type === 'scatter') {
+        series.type = 'scatter';
+        series.mode = 'markers';
+      } else if (type === 'bubble') {
+        series.mode = 'markers';
+      } else if (type === 'box') {
+        series.type = 'box';
+        series.mode = 'markers';
       }
+    }
 
-      function setType(series, type) {
-        if (type === 'column') {
-          series.type = 'bar';
-        } else if (type === 'line') {
-          series.mode = 'lines';
-        } else if (type === 'area') {
-          series.fill = scope.options.series.stacking === null ? 'tozeroy' : 'tonexty';
-          series.mode = 'lines';
-        } else if (type === 'scatter') {
-          series.type = 'scatter';
-          series.mode = 'markers';
-        } else if (type === 'bubble') {
-          series.mode = 'markers';
-        } else if (type === 'box') {
-          series.type = 'box';
-          series.mode = 'markers';
-        }
+    function getTitle(axis) {
+      if (!isUndefined(axis) && !isUndefined(axis.title)) {
+        return axis.title.text;
       }
-
-      function getTitle(axis) {
-        if (!isUndefined(axis) && !isUndefined(axis.title)) {
-          return axis.title.text;
-        }
-        return null;
-      }
+      return null;
+    }
 
 
-      function recalculateOptions() {
-        scope.data.length = 0;
-        scope.layout.showlegend = has(scope.options, 'legend') ? scope.options.legend.enabled : true;
-        if (has(scope.options, 'bottomMargin')) {
-          bottomMargin = parseInt(scope.options.bottomMargin, 10);
-          scope.layout.margin.b = bottomMargin;
-        }
-        delete scope.layout.barmode;
-        delete scope.layout.xaxis;
-        delete scope.layout.yaxis;
-        delete scope.layout.yaxis2;
+    function recalculateOptions() {
+      scope.layout.margin.b = parseInt(scope.options.bottomMargin, 10) || DEFAULT_BOTTOM_MARGIN;
 
-        if (scope.options.globalSeriesType === 'pie') {
-          const hasX = contains(values(scope.options.columnMapping), 'x');
-          const rows = scope.series.length > 2 ? 2 : 1;
-          const cellsInRow = Math.ceil(scope.series.length / rows);
-          const cellWidth = 1 / cellsInRow;
-          const cellHeight = 1 / rows;
-          const xPadding = 0.02;
-          const yPadding = 0.05;
+      scope.data.length = 0;
+      scope.layout.showlegend = has(scope.options, 'legend') ? scope.options.legend.enabled : true;
+      delete scope.layout.barmode;
+      delete scope.layout.xaxis;
+      delete scope.layout.yaxis;
+      delete scope.layout.yaxis2;
 
-          each(scope.series, (series, index) => {
-            const xPosition = (index % cellsInRow) * cellWidth;
-            const yPosition = Math.floor(index / cellsInRow) * cellHeight;
-            const plotlySeries = {
-              values: [],
-              labels: [],
-              type: 'pie',
-              hole: 0.4,
-              marker: { colors: ColorPaletteArray },
-              text: series.name,
-              textposition: 'inside',
-              name: series.name,
-              domain: {
-                x: [xPosition, xPosition + cellWidth - xPadding],
-                y: [yPosition, yPosition + cellHeight - yPadding],
-              },
-            };
+      if (scope.options.globalSeriesType === 'pie') {
+        const hasX = contains(values(scope.options.columnMapping), 'x');
+        const rows = scope.series.length > 2 ? 2 : 1;
+        const cellsInRow = Math.ceil(scope.series.length / rows);
+        const cellWidth = 1 / cellsInRow;
+        const cellHeight = 1 / rows;
+        const xPadding = 0.02;
+        const yPadding = 0.1;
 
-            series.data.forEach((row) => {
-              plotlySeries.values.push(row.y);
-              plotlySeries.labels.push(hasX ? row.x : `Slice ${index}`);
-            });
-
-            scope.data.push(plotlySeries);
-          });
-          return;
-        }
-
-        if (scope.options.globalSeriesType === 'box') {
-          scope.layout.boxmode = 'group';
-          scope.layout.boxgroupgap = 0.50;
-        }
-
-        let hasY2 = false;
-        const sortX = scope.options.sortX === true || scope.options.sortX === undefined;
-        const useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category' && scope.options.globalSeriesType !== 'box';
-
-        let unifiedX = null;
-        if (useUnifiedXaxis) {
-          unifiedX = sortBy(union(...scope.series.map(s => pluck(s.data, 'x'))), identity);
-        }
+        scope.layout.annotations = [];
 
         each(scope.series, (series, index) => {
-          const seriesOptions = scope.options.seriesOptions[series.name] ||
-            { type: scope.options.globalSeriesType };
-
-          const seriesColor = seriesOptions.color ? seriesOptions.color : getColor(index);
-
+          const xPosition = (index % cellsInRow) * cellWidth;
+          const yPosition = Math.floor(index / cellsInRow) * cellHeight;
           const plotlySeries = {
-            x: [],
-            y: [],
-            error_y: {
-              array: [],
-              color: seriesColor,
+            values: [],
+            labels: [],
+            type: 'pie',
+            hole: 0.4,
+            marker: { colors: ColorPaletteArray },
+            text: series.name,
+            textposition: 'inside',
+            textfont: { color: '#f5f5f5' },
+            name: series.name,
+            domain: {
+              x: [xPosition, xPosition + cellWidth - xPadding],
+              y: [yPosition, yPosition + cellHeight - yPadding],
             },
-            name: seriesOptions.name || series.name,
-            marker: { color: seriesColor },
           };
 
-          if (seriesOptions.yAxis === 1 && (scope.options.series.stacking === null || seriesOptions.type === 'line')) {
-            hasY2 = true;
-            plotlySeries.yaxis = 'y2';
-          }
-
-          setType(plotlySeries, seriesOptions.type);
-          let data = series.data;
-          if (sortX) {
-            data = sortBy(data, 'x');
-          }
-
-          if (useUnifiedXaxis && index === 0) {
-            const yValues = {};
-            const eValues = {};
-
-            data.forEach((row) => {
-              yValues[row.x] = row.y;
-              if (row.yError) {
-                eValues[row.x] = row.yError;
-              }
-            });
-
-            unifiedX.forEach((x) => {
-              plotlySeries.x.push(normalizeValue(x));
-              plotlySeries.y.push(normalizeValue(yValues[x] || null));
-              if (!isUndefined(eValues[x])) {
-                plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
-              }
-            });
-          } else {
-            data.forEach((row) => {
-              plotlySeries.x.push(normalizeValue(row.x));
-              plotlySeries.y.push(normalizeValue(row.y));
-              if (row.yError !== undefined) {
-                plotlySeries.error_y.array.push(normalizeValue(row.yError));
-              }
+          if (scope.series.length > 1) {
+            scope.layout.annotations.push({
+              x: xPosition + ((cellWidth - xPadding) / 2),
+              y: yPosition + (cellHeight / 1) - 0.015,
+              xanchor: 'center',
+              yanchor: 'top',
+              text: series.name,
+              showarrow: false,
             });
           }
-          if (!plotlySeries.error_y.length) {
-            delete plotlySeries.error_y.length;
-          }
 
-          if (seriesOptions.type === 'bubble') {
-            plotlySeries.marker = {
-              size: pluck(data, 'size'),
-            };
-          }
-
-          if (seriesOptions.type === 'box') {
-            plotlySeries.boxpoints = 'outliers';
-            plotlySeries.marker = {
-              color: seriesColor,
-              size: 3,
-            };
-            if (scope.options.showpoints) {
-              plotlySeries.boxpoints = 'all';
-              plotlySeries.jitter = 0.3;
-              plotlySeries.pointpos = -1.8;
-            }
-          }
+          series.data.forEach((row) => {
+            plotlySeries.values.push(row.y);
+            plotlySeries.labels.push(hasX ? row.x : `Slice ${index}`);
+          });
 
           scope.data.push(plotlySeries);
         });
-
-        scope.layout.xaxis = {
-          title: getTitle(scope.options.xAxis),
-          type: getScaleType(scope.options.xAxis.type),
-        };
-
-        if (!isUndefined(scope.options.xAxis.labels)) {
-          scope.layout.xaxis.showticklabels = scope.options.xAxis.labels.enabled;
-        }
-
-        if (isArray(scope.options.yAxis)) {
-          scope.layout.yaxis = {
-            title: getTitle(scope.options.yAxis[0]),
-            type: getScaleType(scope.options.yAxis[0].type),
-          };
-
-          if (isNumber(scope.options.yAxis[0].rangeMin) ||
-              isNumber(scope.options.yAxis[0].rangeMax)) {
-            const minY = scope.options.yAxis[0].rangeMin ||
-              Math.min(0, seriesMinValue(leftAxisSeries(scope.data)));
-            const maxY = scope.options.yAxis[0].rangeMax ||
-              seriesMaxValue(leftAxisSeries(scope.data));
-
-            scope.layout.yaxis.range = [minY, maxY];
-          }
-        }
-        if (hasY2 && !isUndefined(scope.options.yAxis)) {
-          scope.layout.yaxis2 = {
-            title: getTitle(scope.options.yAxis[1]),
-            type: getScaleType(scope.options.yAxis[1].type),
-            overlaying: 'y',
-            side: 'right',
-          };
-
-          if (isNumber(scope.options.yAxis[1].rangeMin) ||
-              isNumber(scope.options.yAxis[1].rangeMax)) {
-            const minY = scope.options.yAxis[1].rangeMin ||
-              Math.min(0, seriesMinValue(rightAxisSeries(scope.data)));
-            const maxY = scope.options.yAxis[1].rangeMax ||
-              seriesMaxValue(rightAxisSeries(scope.data));
-
-            scope.layout.yaxis2.range = [minY, maxY];
-          }
-        } else {
-          delete scope.layout.yaxis2;
-        }
-
-        if (scope.options.series.stacking === 'normal') {
-          scope.layout.barmode = 'stack';
-          if (scope.options.globalSeriesType === 'area') {
-            normalAreaStacking(scope.data);
-          }
-        } else if (scope.options.series.stacking === 'percent') {
-          scope.layout.barmode = 'stack';
-          if (scope.options.globalSeriesType === 'area') {
-            percentAreaStacking(scope.data);
-          } else if (scope.options.globalSeriesType === 'column') {
-            percentBarStacking(scope.data);
-          }
-        }
-
-        scope.layout.margin.b = bottomMargin;
-        scope.layout.height = calculateHeight();
+        return;
       }
 
-      scope.$watch('series', recalculateOptions);
-      scope.$watch('options', recalculateOptions, true);
+      if (scope.options.globalSeriesType === 'box') {
+        scope.layout.boxmode = 'group';
+        scope.layout.boxgroupgap = 0.50;
+      }
 
-      scope.layout = {
-        margin: {
-          l: 50, r: 50, b: bottomMargin, t: 20, pad: 4,
-        },
-        height: calculateHeight(),
-        autosize: true,
-      };
-      scope.plotlyOptions = { showLink: false, displaylogo: false };
-      scope.data = [];
+      let hasY2 = false;
+      const sortX = scope.options.sortX === true || scope.options.sortX === undefined;
+      const useUnifiedXaxis = sortX && scope.options.xAxis.type === 'category' && scope.options.globalSeriesType !== 'box';
 
-      const plotlyElement = element[0].children[0];
-      Plotly.newPlot(plotlyElement, scope.data, scope.layout, scope.plotlyOptions);
+      let unifiedX = null;
+      if (useUnifiedXaxis) {
+        unifiedX = sortBy(union(...scope.series.map(s => pluck(s.data, 'x'))), identity);
+      }
 
-      plotlyElement.on('plotly_afterplot', () => {
-        if (scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')) {
-          document.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
-            d3.select(rectDiv).on('click', () => {
-              const maxIndex = scope.data.length - 1;
-              const itemClicked = scope.data[maxIndex - i];
+      each(scope.series, (series, index) => {
+        const seriesOptions = scope.options.seriesOptions[series.name] ||
+          { type: scope.options.globalSeriesType };
 
-              itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
-              if (scope.options.series.stacking === 'normal') {
-                normalAreaStacking(scope.data);
-              } else if (scope.options.series.stacking === 'percent') {
-                percentAreaStacking(scope.data);
-              }
-              Plotly.redraw(plotlyElement);
-            });
+        const seriesColor = seriesOptions.color ? seriesOptions.color : getColor(index);
+
+        const plotlySeries = {
+          x: [],
+          y: [],
+          error_y: {
+            array: [],
+            color: seriesColor,
+          },
+          name: seriesOptions.name || series.name,
+          marker: { color: seriesColor },
+        };
+
+        if (seriesOptions.yAxis === 1 && (scope.options.series.stacking === null || seriesOptions.type === 'line')) {
+          hasY2 = true;
+          plotlySeries.yaxis = 'y2';
+        }
+
+        setType(plotlySeries, seriesOptions.type);
+        let data = series.data;
+        if (sortX) {
+          data = sortBy(data, 'x');
+        }
+
+        if (useUnifiedXaxis && index === 0) {
+          const yValues = {};
+          const eValues = {};
+
+          data.forEach((row) => {
+            yValues[row.x] = row.y;
+            if (row.yError) {
+              eValues[row.x] = row.yError;
+            }
+          });
+
+          unifiedX.forEach((x) => {
+            plotlySeries.x.push(normalizeValue(x));
+            plotlySeries.y.push(normalizeValue(yValues[x] || null));
+            if (!isUndefined(eValues[x])) {
+              plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
+            }
+          });
+        } else {
+          data.forEach((row) => {
+            plotlySeries.x.push(normalizeValue(row.x));
+            plotlySeries.y.push(normalizeValue(row.y));
+            if (row.yError !== undefined) {
+              plotlySeries.error_y.array.push(normalizeValue(row.yError));
+            }
           });
         }
-      });
-      scope.$watch('layout', (layout, old) => {
-        if (isEqual(layout, old)) {
-          return;
+        if (!plotlySeries.error_y.length) {
+          delete plotlySeries.error_y.length;
         }
-        Plotly.relayout(plotlyElement, layout);
-      }, true);
 
-      scope.$watch('data', (data) => {
-        if (!isEmpty(data)) {
-          Plotly.redraw(plotlyElement);
+        if (seriesOptions.type === 'bubble') {
+          plotlySeries.marker = {
+            size: pluck(data, 'size'),
+          };
         }
-      }, true);
-    },
-  };
-};
+
+        if (seriesOptions.type === 'box') {
+          plotlySeries.boxpoints = 'outliers';
+          plotlySeries.marker = {
+            color: seriesColor,
+            size: 3,
+          };
+          if (scope.options.showpoints) {
+            plotlySeries.boxpoints = 'all';
+            plotlySeries.jitter = 0.3;
+            plotlySeries.pointpos = -1.8;
+          }
+        }
+
+        scope.data.push(plotlySeries);
+      });
+
+      scope.layout.xaxis = {
+        title: getTitle(scope.options.xAxis),
+        type: getScaleType(scope.options.xAxis.type),
+      };
+
+      if (!isUndefined(scope.options.xAxis.labels)) {
+        scope.layout.xaxis.showticklabels = scope.options.xAxis.labels.enabled;
+      }
+
+      if (isArray(scope.options.yAxis)) {
+        scope.layout.yaxis = {
+          title: getTitle(scope.options.yAxis[0]),
+          type: getScaleType(scope.options.yAxis[0].type),
+        };
+
+        if (isNumber(scope.options.yAxis[0].rangeMin) ||
+          isNumber(scope.options.yAxis[0].rangeMax)) {
+          const minY = scope.options.yAxis[0].rangeMin ||
+            Math.min(0, seriesMinValue(leftAxisSeries(scope.data)));
+          const maxY = scope.options.yAxis[0].rangeMax ||
+            seriesMaxValue(leftAxisSeries(scope.data));
+
+          scope.layout.yaxis.range = [minY, maxY];
+        }
+      }
+      if (hasY2 && !isUndefined(scope.options.yAxis)) {
+        scope.layout.yaxis2 = {
+          title: getTitle(scope.options.yAxis[1]),
+          type: getScaleType(scope.options.yAxis[1].type),
+          overlaying: 'y',
+          side: 'right',
+        };
+
+        if (isNumber(scope.options.yAxis[1].rangeMin) ||
+          isNumber(scope.options.yAxis[1].rangeMax)) {
+          const minY = scope.options.yAxis[1].rangeMin ||
+            Math.min(0, seriesMinValue(rightAxisSeries(scope.data)));
+          const maxY = scope.options.yAxis[1].rangeMax ||
+            seriesMaxValue(rightAxisSeries(scope.data));
+
+          scope.layout.yaxis2.range = [minY, maxY];
+        }
+      } else {
+        delete scope.layout.yaxis2;
+      }
+
+      if (scope.options.series.stacking === 'normal') {
+        scope.layout.barmode = 'stack';
+        if (scope.options.globalSeriesType === 'area') {
+          normalAreaStacking(scope.data);
+        }
+      } else if (scope.options.series.stacking === 'percent') {
+        scope.layout.barmode = 'stack';
+        if (scope.options.globalSeriesType === 'area') {
+          percentAreaStacking(scope.data);
+        } else if (scope.options.globalSeriesType === 'column') {
+          percentBarStacking(scope.data);
+        }
+      }
+    }
+
+    scope.$watch('series', recalculateOptions);
+    scope.$watch('options', recalculateOptions, true);
+
+    scope.layout = {
+      margin: {
+        l: 50, r: 50, b: DEFAULT_BOTTOM_MARGIN, t: 20, pad: 4,
+      },
+      width: container.offsetWidth,
+      height: container.offsetHeight,
+      autosize: true,
+    };
+    scope.plotlyOptions = { showLink: false, displaylogo: false };
+    scope.data = [];
+
+    const plotlyElement = element[0].children[0];
+    Plotly.newPlot(plotlyElement, scope.data, scope.layout, scope.plotlyOptions);
+
+    plotlyElement.on('plotly_afterplot', () => {
+      if (scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')) {
+        document.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
+          d3.select(rectDiv).on('click', () => {
+            const maxIndex = scope.data.length - 1;
+            const itemClicked = scope.data[maxIndex - i];
+
+            itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+            if (scope.options.series.stacking === 'normal') {
+              normalAreaStacking(scope.data);
+            } else if (scope.options.series.stacking === 'percent') {
+              percentAreaStacking(scope.data);
+            }
+            Plotly.redraw(plotlyElement);
+          });
+        });
+      }
+    });
+    scope.$watch('layout', (layout, old) => {
+      if (isEqual(layout, old)) {
+        return;
+      }
+      Plotly.relayout(plotlyElement, layout);
+    }, true);
+
+    scope.$watch('data', (data) => {
+      if (!isEmpty(data)) {
+        Plotly.redraw(plotlyElement);
+      }
+    }, true);
+
+    scope.handleResize = debounce(() => {
+      scope.layout.width = container.offsetWidth;
+      scope.layout.height = container.offsetHeight;
+    }, 100);
+    scope.handleResize();
+  },
+});
 
 const CustomPlotlyChart = (clientConfig) => {
   const customChart = {
@@ -498,7 +506,6 @@ const CustomPlotlyChart = (clientConfig) => {
     scope: {
       series: '=',
       options: '=',
-      height: '=',
     },
     link(scope, element) {
       if (!clientConfig.allowCustomJSVisualizations) {

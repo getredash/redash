@@ -1,5 +1,5 @@
 <div class="container">
-    <div class="bg-white p-5 m-t-10 m-b-10">
+    <div class="bg-white tiled p-5 m-t-10 m-b-10">
       <form class="form-inline" role="form" ng-submit="$ctrl.search()">
         <div class="input-group">
             <input class="form-control input-sm" placeholder="Search..." ng-model="$ctrl.term" autofocus>
@@ -11,7 +11,7 @@
         </div>
       </form>
     </div>
-    <div class="bg-white">
+    <div class="bg-white tiled">
       <table class="table table-condensed table-hover">
         <thead>
           <tr>
@@ -24,7 +24,9 @@
         <tbody>
           <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
             <td><a href="queries/{{query.id}}">{{query.name}}</a> <span class="label label-default" ng-if="query.is_draft">Unpublished</span></td>
-            <td>{{query.user.name}}</td>
+            <td>
+              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/>
+              {{query.user.name}}</td>
             <td>{{query.created_at | dateTime}}</td>
             <td>{{query.schedule | scheduleHumanize}}</td>
           </tr>

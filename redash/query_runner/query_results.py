@@ -43,7 +43,7 @@ def _guess_type(value):
 
 
 def extract_query_ids(query):
-    queries = re.findall(r'(?:join|from) query_(\d+)', query, re.IGNORECASE)
+    queries = re.findall(r'(?:join|from)\s+query_(\d+)', query, re.IGNORECASE)
     return [int(q) for q in queries]
 
 
