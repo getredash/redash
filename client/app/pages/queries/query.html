@@ -250,10 +250,6 @@
                 <div ng-if="!query.visualizations.length">
                   <filters filters="filters"></filters>
                   <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                  <!-- the ng-repeat is a lame hack to find the table visualization... -->
-                  <div class="p-15" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
-                    <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
-                  </div>
                 </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
