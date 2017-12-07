@@ -10,7 +10,7 @@ from redash.handlers.base import BaseResource, get_object_or_404
 from redash.permissions import (require_access, require_admin,
                                 require_permission, view_only)
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
-                                 query_runners)
+                                 query_runners, NotSupported)
 from redash.utils import filter_none
 from redash.utils.configuration import ConfigurationContainer, ValidationError
 
@@ -130,9 +130,23 @@ class DataSourceSchemaResource(BaseResource):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
         require_access(data_source.groups, self.current_user, view_only)
         refresh = request.args.get('refresh') is not None
-        schema = data_source.get_schema(refresh)
 
-        return schema
+        response = {}
+
+        try:
+            response['schema'] = data_source.get_schema(refresh)
+        except NotSupported:
+            response['error'] = {
+                'code': 1,
+                'message': 'Data source type does not support retrieving schema'
+            }
+        except Exception:
+            response['error'] = {
+                'code': 2,
+                'message': 'Error retrieving schema.'
+            }
+
+        return response
 
 
 class DataSourcePauseResource(BaseResource):
