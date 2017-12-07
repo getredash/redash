@@ -1,4 +1,4 @@
-<div class="tile m-l-10 m-r-10">
+<div class="tile m-l-10 m-r-10 embed__vis">
   <div class="embed-heading p-t-10 p-b-10 p-r-15 p-l-15">
     <h3>
       <img ng-src="{{$ctrl.logoUrl}}" style="height: 24px;"/>
@@ -11,8 +11,10 @@
     </h3>
   </div>
 
-  <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
-  </visualization-renderer>
+  <div class="col-md-12 query__vis">
+    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
+    </visualization-renderer>
+  </div>
 
   <div class="clearfix tile__bottom-control">
     <div class="row">

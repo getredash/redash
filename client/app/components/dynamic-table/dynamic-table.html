@@ -31,7 +31,7 @@
     </tbody>
   </table>
 </div>
-<div class="text-center" ng-if="$ctrl.preparedRows.length > $ctrl.itemsPerPage">
+<div class="paginator-container" ng-if="$ctrl.preparedRows.length > $ctrl.itemsPerPage">
   <ul uib-pagination total-items="$ctrl.preparedRows.length"
       items-per-page="$ctrl.itemsPerPage"
       ng-model="$ctrl.currentPage"
