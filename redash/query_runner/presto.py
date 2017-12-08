@@ -116,7 +116,10 @@ class Presto(BaseQueryRunner):
         except DatabaseError as db:
             json_data = None
             default_message = 'Unspecified DatabaseError: {0}'.format(db.message)
-            message = db.message.get('failureInfo', {'message', None}).get('message')
+            if hasattr(db.message, 'get'):
+                message = db.message.get('failureInfo', {'message', None}).get('message')
+            else:
+                message = None
             error = default_message if message is None else message
         except (KeyboardInterrupt, InterruptException) as e:
             cursor.cancel()
