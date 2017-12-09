@@ -1,4 +1,5 @@
 import json
+from markupsafe import Markup, escape
 
 from redash.utils import JSONEncoder
 from redash.query_runner import *
@@ -84,9 +85,10 @@ class Presto(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name, data_type as column_type
+        SELECT table_schema, table_name, column_name, data_type as column_type, extra_info
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        ORDER BY 1, 5 DESC
         """
 
         results, error = self.run_query(query, None)
@@ -102,7 +104,14 @@ class Presto(BaseQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
+            if row['extra_info'] == 'partition key':
+                schema[table_name]['columns'].append('[P] ' + row['column_name'] + ' (' + row['column_type'] + ')')
+            elif row['column_type'] == 'integer' or row['column_type'] == 'varchar' or row['column_type'] == 'timestamp' or row['column_type'] == 'boolean' or row['column_type'] == 'bigint':
+                schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
+            elif row['column_type'][0:2] == 'row' or row['column_type'][0:2] == 'map' or row['column_type'][0:2] == 'arr':
+                schema[table_name]['columns'].append(row['column_name'] + ' (row or map or array)')
+            else:
+                schema[table_name]['columns'].append(row['column_name'])
 
         return schema.values()
 
@@ -122,6 +131,9 @@ class Presto(BaseQueryRunner):
             column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
+            for row in rows:
+                for field in row:
+                    field = escape(field)
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
