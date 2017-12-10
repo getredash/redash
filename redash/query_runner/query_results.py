@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import json
 import logging
@@ -83,6 +83,7 @@ def is_ascii(string):
         if ord(c) >= 128:
             return False
     return True
+
 
 def fix_column_name(i, name):
     if is_ascii(name):
