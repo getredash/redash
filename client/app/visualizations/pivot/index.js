@@ -1,6 +1,7 @@
 import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
+import 'pivottable/dist/plotly_renderers';
 import 'pivottable/dist/pivot.css';
 
 import editorTemplate from './pivottable-editor.html';
@@ -41,7 +42,10 @@ function pivotTableRenderer() {
             // it which interferes with other visualizations.
             data = angular.copy($scope.queryResult.getData());
             const options = {
-              renderers: $.pivotUtilities.renderers,
+              renderers: $.extend(
+                $.pivotUtilities.renderers,
+                $.pivotUtilities.plotly_renderers,
+              ),
               onRefresh(config) {
                 const configCopy = Object.assign({}, config);
                 // delete some values which are functions

@@ -20,7 +20,9 @@ const config = {
   },
   resolve: {
     alias: {
-      '@': path.join(__dirname, 'client/app')
+      '@': path.join(__dirname, 'client/app'),
+      // specify core directly to avoid pivottable-plotly compile error
+      'plotly.js$': path.resolve(__dirname, 'plotly.js/lib/core'),
     }
   },
   plugins: [
