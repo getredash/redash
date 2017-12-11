@@ -5,7 +5,7 @@ export default function init(ngModule) {
 
   ngModule.filter('dateTime', clientConfig =>
     function dateTime(value) {
-      if (!value || !value.isValid()) {
+      if (!value || !moment(value).isValid()) {
         return '-';
       }
 
