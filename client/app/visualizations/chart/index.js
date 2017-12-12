@@ -218,10 +218,6 @@ function ChartEditor(ColorPalette, clientConfig) {
         scope.options.legend = { enabled: true };
       }
 
-      if (!has(scope.options, 'bottomMargin')) {
-        scope.options.bottomMargin = 50;
-      }
-
       if (scope.columnNames) {
         each(scope.options.columnMapping, (value, key) => {
           if (scope.columnNames.length > 0 && !contains(scope.columnNames, key)) {
@@ -269,7 +265,6 @@ export default function init(ngModule) {
       series: { stacking: null, error_y: { type: 'data', visible: true } },
       seriesOptions: {},
       columnMapping: {},
-      bottomMargin: 50,
       defaultColumns: 3,
       defaultRows: 8,
       minColumns: 2,
