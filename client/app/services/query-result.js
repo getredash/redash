@@ -383,7 +383,7 @@ function QueryResultService($resource, $timeout, $q) {
           filter.values.push(row[filter.name]);
           if (filter.values.length === 1) {
             if (filter.multiple) {
-              filter.current = [row[filter.name]];
+              filter.current = [ALL_VALUES];
             } else {
               filter.current = row[filter.name];
             }
