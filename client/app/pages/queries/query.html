@@ -79,53 +79,63 @@
 
   <!-- editor -->
   <div class="container">
-      <div class="row bg-white tiled p-15 m-b-10" ng-if="sourceMode" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
+      <div class="row m-b-10" ng-if="sourceMode">
 
         <div class="col-md-3 p-0 hidden-sm hidden-xs editor__left">
+          <div class="editor__left__data-source p-15 m-b-10 bg-white tiled">
+            <select class="form-control" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+                    ng-options="ds.id as ds.name for ds in dataSources"></select>
+          </div>
 
-          <select class="form-control m-b-10" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
-                  ng-options="ds.id as ds.name for ds in dataSources"></select>
-
-          <schema-browser class="schema-container"
-                          schema="schema"
-                          on-refresh="refreshSchema()">
-          </schema-browser>
+          <div class="editor__left__schema p-15 bg-white tiled">
+            <schema-browser class="schema-container"
+                            schema="schema"
+                            on-refresh="refreshSchema()">
+            </schema-browser>
+          </div>
         </div>
 
-        <div class="col-md-9 p-r-0" style="height:100%;">
+        <div class="col-md-9 p-t-15 p-b-15 bg-white tiled" style="height:100%;" resizable r-directions="['bottom']" r-height="300" style="min-height:100px;">
           <div class="editor__control">
-            <div class="form-inline">
-              <div class="text-right">
-                <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-                  <span class="fa fa-paper-plane"></span> Publish
-                </button>
-                <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()">
-                  <span class="fa fa-floppy-o"> </span> Save<span
-                  ng-show="isDirty">&#42;</span>
-                </button>
-                <button type="button" class="btn btn-default btn-s" ng-click="formatQuery()">
-                  <span class="zmdi zmdi-format-indent-increase"></span> Format
-                </button>
-
-                <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
-                  <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-                    <span class="zmdi zmdi-more"></span>
-                  </button>
-                  <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-                    <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
-                    <li class="divider"></li>
-                    <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
-                    <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
-                    <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish</a></li>
-                    <li class="divider"></li>
-                    <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
-                  </ul>
-                </div>
-
-                <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
-                  <span class="zmdi zmdi-play"></span> Execute
-                </button>
+            <div class="row form-inline">
+              <div class="col-xs-6 text-left">
+                <select class="form-control visible-sm visible-xs" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+                        ng-options="ds.id as ds.name for ds in dataSources"></select>
               </div>
+
+              <div class="col-xs-6 text-right">
+                <div class="text-right">
+                  <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+                    <span class="fa fa-paper-plane"></span> Publish
+                  </button>
+                  <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()">
+                    <span class="fa fa-floppy-o"> </span> Save<span
+                    ng-show="isDirty">&#42;</span>
+                  </button>
+                  <button type="button" class="btn btn-default btn-s" ng-click="formatQuery()">
+                    <span class="zmdi zmdi-format-indent-increase"></span> Format
+                  </button>
+
+                  <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
+                    <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+                      <span class="zmdi zmdi-more"></span>
+                    </button>
+                    <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+                      <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
+                      <li class="divider"></li>
+                      <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
+                      <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
+                      <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish</a></li>
+                      <li class="divider"></li>
+                      <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
+                    </ul>
+                  </div>
+                  <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
+                    <span class="zmdi zmdi-play"></span> Execute
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
           <p style="height:calc(100% - 40px); margin-bottom: 0px;">
