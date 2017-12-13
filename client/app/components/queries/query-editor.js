@@ -72,8 +72,10 @@ function queryEditor(QuerySnippet) {
 
             $scope.$watch('schema', (newSchema, oldSchema) => {
               if (newSchema !== oldSchema) {
-                const tokensCount =
-                  newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
+                if (newSchema === undefined) {
+                  return;
+                }
+                const tokensCount = newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
                 // If there are too many tokens we disable live autocomplete,
                 // as it makes typing slower.
                 if (tokensCount > 5000) {
@@ -91,7 +93,6 @@ function queryEditor(QuerySnippet) {
             editor.focus();
           },
         };
-
 
         const schemaCompleter = {
           getCompletions(state, session, pos, prefix, callback) {
@@ -112,18 +113,16 @@ function queryEditor(QuerySnippet) {
                 });
               });
 
-              $scope.schema.keywords = map(keywords, (v, k) =>
-                ({
-                  name: k,
-                  value: k,
-                  score: 0,
-                  meta: v,
-                }));
+              $scope.schema.keywords = map(keywords, (v, k) => ({
+                name: k,
+                value: k,
+                score: 0,
+                meta: v,
+              }));
             }
             callback(null, $scope.schema.keywords);
           },
         };
-
 
         window.ace.acequire(['ace/ext/language_tools'], (langTools) => {
           langTools.addCompleter(schemaCompleter);

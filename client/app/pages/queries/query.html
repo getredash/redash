@@ -88,12 +88,11 @@
 
           <schema-browser class="schema-container"
                           schema="schema"
-                          on-refresh="refreshSchema()"
-                          ng-show="hasSchema">
+                          on-refresh="refreshSchema()">
           </schema-browser>
         </div>
 
-        <div ng-class="editorSize" style="height:100%;">
+        <div class="col-md-9 p-r-0" style="height:100%;">
           <div class="editor__control">
             <div class="form-inline">
               <div class="text-right">
@@ -239,11 +238,9 @@
             <div class="row">
               <div class="col-lg-12">
                 <ul class="tab-nav">
-                  <rd-tab tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
-                  <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" ng-if="vis.type!='TABLE'" base-path="query.getUrl(sourceMode)"
-                          ng-repeat="vis in query.visualizations">
-                          <span class="remove" ng-click="deleteVisualization($event, vis)"
-                                ng-show="canEdit"> &times;</span>
+                  <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
+                  <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
+                    <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> &times;</span>
                   </rd-tab>
                   <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
                 </ul>
@@ -251,17 +248,13 @@
             </div>
             <div class="row">
               <div class="col-lg-12">
-                <div ng-show="selectedTab == 'table'">
+                <div ng-if="!query.visualizations.length">
                   <filters filters="filters"></filters>
                   <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                  <!-- the ng-repeat is a lame hack to find the table visualization... -->
-                  <div class="p-15" ng-repeat="vis in query.visualizations" ng-if="vis.type == 'TABLE'">
-                    <button class="btn btn-default" ng-if="!query.isNew()" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
-                  </div>
                 </div>
-                <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations">
+                <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis col-md-12">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                  <div class="p-15">
+                  <div class="p-t-15 p-b-15">
                     <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
                     <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
                   </div>
