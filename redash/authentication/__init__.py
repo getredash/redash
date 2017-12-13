@@ -20,13 +20,21 @@ def get_login_url(external=False, next="/"):
         login_url = '/'
     elif settings.MULTI_ORG:
         login_url = url_for('redash.login', org_slug=current_org.slug, next=next, _external=external)
-    elif settings.LDAP_ONLY_LOGIN:
-        login_url = '/ldap/login'
     else:
-        login_url = url_for('redash.login', next=next, _external=external)
+        login_url = get_alternate_login_url(next=next, external=external)
 
     return login_url
 
+def get_alternate_login_url(external=False, next="/"):
+    implemented_logins = ['ldap', 'saml', 'remote_user']
+    alternate_login = settings.USE_ALTERNATE_LOGIN_IMPLEMENTATION
+
+    if alternate_login and alternate_login in implemented_logins:
+        login_url = '/{}/login'.format(alternate_login)
+    else:
+        login_url = url_for('redash.login', next=next, _external=external)
+    
+    return login_url
 
 def sign(key, path, expires):
     if not key:
