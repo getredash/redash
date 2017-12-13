@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sqlite3
 from unittest import TestCase
 
@@ -56,6 +58,17 @@ class TestCreateTable(TestCase):
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
+
+    def test_creates_table_with_non_ascii_in_column_name(self):
+        connection = sqlite3.connect(':memory:')
+        results = {'columns': [{'name': '日の일'}, {'name': 'normal'}], 'rows': [
+            {'日の일': 1, 'normal': 2}]}
+        table_name = 'query_123'
+        expected_column_names = ['column_1', 'normal']
+        create_table(connection, table_name, results)
+        table_description = connection.execute('SELECT * FROM query_123').description
+        actual_column_names = [x[0] for x in table_description]
+        self.assertEquals(actual_column_names, expected_column_names)
 
     def test_loads_results(self):
         connection = sqlite3.connect(':memory:')

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import json
 import logging
 import numbers
@@ -76,14 +78,23 @@ def create_tables_from_query_ids(user, connection, query_ids):
         create_table(connection, table_name, results)
 
 
-def fix_column_name(name):
-    return name.replace(':', '_').replace('.', '_').replace(' ', '_')
+def is_ascii(string):
+    for c in string:
+        if ord(c) >= 128:
+            return False
+    return True
+
+
+def fix_column_name(i, name):
+    if is_ascii(name):
+        return name.replace(':', '_').replace('.', '_').replace(' ', '_')
+    return 'column_{}'.format(i+1)
 
 
 def create_table(connection, table_name, query_results):
     columns = [column['name']
                for column in query_results['columns']]
-    safe_columns = [fix_column_name(column) for column in columns]
+    safe_columns = [fix_column_name(i, column) for (i, column) in enumerate(columns)]
 
     column_list = ", ".join(safe_columns)
     create_table = "CREATE TABLE {table_name} ({column_list})".format(
