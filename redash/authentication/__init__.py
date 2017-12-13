@@ -20,6 +20,8 @@ def get_login_url(external=False, next="/"):
         login_url = '/'
     elif settings.MULTI_ORG:
         login_url = url_for('redash.login', org_slug=current_org.slug, next=next, _external=external)
+    elif settings.LDAP_ONLY_LOGIN:
+        login_url = '/ldap/login'
     else:
         login_url = url_for('redash.login', next=next, _external=external)
 
