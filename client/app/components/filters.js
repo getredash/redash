@@ -1,3 +1,4 @@
+import { without } from 'underscore';
 import template from './filters.html';
 
 const FiltersComponent = {
@@ -25,6 +26,13 @@ const FiltersComponent = {
       if (filter.current[0] === '*') {
         filter.current = filter.values.slice(2);
       }
+    };
+
+    this.availableChoices = (filter) => {
+      if (filter.current[0] === '*') {
+        return [];
+      }
+      return without(filter.values, ...filter.current);
     };
   },
 };
