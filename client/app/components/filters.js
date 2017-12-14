@@ -20,6 +20,12 @@ const FiltersComponent = {
 
       return 'Values';
     };
+
+    this.filterExpandAllValue = (filter) => {
+      if (filter.current[0] === '*') {
+        filter.current = filter.values.slice(2);
+      }
+    };
   },
 };
 

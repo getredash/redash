@@ -214,7 +214,7 @@ function QueryResultService($resource, $timeout, $q) {
         if (filters) {
           filters.forEach((filter) => {
             if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = filter.values.slice(2);
+              filter.current = [ALL_VALUES];
             }
 
             if (filter.multiple && includes(filter.current, NONE_VALUES)) {
@@ -228,7 +228,7 @@ function QueryResultService($resource, $timeout, $q) {
                 filter.current = [filter.current];
               }
 
-              return (memo && some(filter.current, (v) => {
+              const inFilter = (filter.current[0] === ALL_VALUES) || some(filter.current, (v) => {
                 const value = row[filter.name];
                 if (moment.isMoment(value)) {
                   return value.isSame(v);
@@ -236,7 +236,9 @@ function QueryResultService($resource, $timeout, $q) {
                 // We compare with either the value or the String representation of the value,
                 // because Select2 casts true/false to "true"/"false".
                 return (v === value || String(value) === v);
-              }));
+              });
+
+              return (memo && inFilter);
             }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
