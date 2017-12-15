@@ -116,11 +116,18 @@
       <div ng-if="stackingOptions"><!--the if is a weird workaround-->
         <ui-select ng-model="options.series.stacking"
                    ng-disabled="['line', 'area', 'column'].indexOf(options.globalSeriesType) == -1">
-          <ui-select-match placeholder="Choose Stacking...">{{$select.selected.key | capitalize}}</ui-select-match>
+          <ui-select-match placeholder="Disabled">{{$select.selected.key | capitalize}}</ui-select-match>
           <ui-select-choices repeat="value.value as (key, value) in stackingOptions">
             <div ng-bind-html="value.key | highlight: $select.search"></div>
           </ui-select-choices>
         </ui-select>
+      </div>
+
+      <div ng-if="options.series.stacking" class="checkbox">
+        <label class="control-label">
+          <input type="checkbox" ng-model="options.series.percentValues">
+          Percent values
+        </label>
       </div>
     </div>
   </div>
