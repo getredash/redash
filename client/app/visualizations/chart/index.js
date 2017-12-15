@@ -51,11 +51,27 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.currentTab = 'general';
       scope.colors = extend({ Automatic: null }, ColorPalette);
 
-      scope.stackingOptions = {
+      scope.barStackingOptions = {
         Disabled: null,
-        Enabled: 'normal',
-        Percent: 'percent',
+        Stack: 'stack',
+        Overlay: 'overlay',
+        Group: 'group',
+        Relative: 'relative',
       };
+      scope.otherStackingOptions = {
+        Disabled: null,
+        Enabled: 'stack',
+      };
+      scope.stackingOptions = scope.otherStackingOptions;
+
+      scope.$watch('options.globalSeriesType', () => {
+        if (scope.options.globalSeriesType === 'column') {
+          scope.stackingOptions = scope.barStackingOptions;
+        } else {
+          scope.stackingOptions = scope.otherStackingOptions;
+        }
+        scope.options.series.stacking = null;
+      });
 
       scope.changeTab = (tab) => {
         scope.currentTab = tab;

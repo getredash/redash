@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isUndefined, contains, min, max, has, find,
-  each, values, sortBy, union, pluck, identity, filter, map,
+  each, values, sortBy, union, pluck, identity, filter, map, constant,
 } from 'underscore';
 import moment from 'moment';
 
@@ -34,133 +34,21 @@ export const ColorPalette = Object.assign({}, BaseColors, {
 
 const ColorPaletteArray = values(BaseColors);
 
-function fillXValues(seriesList) {
-  const xValues = sortBy(union(...pluck(seriesList, 'x')), identity);
-  seriesList.forEach((series) => {
-    series.x = sortBy(series.x, identity);
-
-    each(xValues, (value, index) => {
-      if (series.x[index] !== value) {
-        series.x.splice(index, 0, value);
-        series.y.splice(index, 0, null);
-      }
-    });
-  });
-}
-
-function storeOriginalHeightForEachSeries(seriesList) {
-  seriesList.forEach((series) => {
-    if (!has(series, 'visible')) {
-      series.visible = true;
-      series.original_y = series.y.slice();
-    }
-  });
-}
-
-function getEnabledSeries(seriesList) {
-  return seriesList.filter(series => series.visible === true);
-}
-
-function initializeTextAndHover(seriesList) {
-  seriesList.forEach((series) => {
-    series.text = [];
-    series.hoverinfo = 'text+name';
-  });
-}
-
-export function normalAreaStacking(seriesList) {
-  fillXValues(seriesList);
-  storeOriginalHeightForEachSeries(seriesList);
-  initializeTextAndHover(seriesList);
-
-  const enabledSeriesList = getEnabledSeries(seriesList);
-
-  each(enabledSeriesList, (series, seriesIndex, list) => {
-    each(series.y, (_, yIndex) => {
-      const cumulativeHeightOfPreviousSeries =
-        seriesIndex > 0 ? list[seriesIndex - 1].y[yIndex] : 0;
-      const cumulativeHeightWithThisSeries =
-        cumulativeHeightOfPreviousSeries + series.original_y[yIndex];
-
-      series.y[yIndex] = cumulativeHeightWithThisSeries;
-      series.text.push(`Value: ${series.original_y[yIndex]}<br>Sum: ${cumulativeHeightWithThisSeries}`);
-    });
-  });
-}
-
-function lastVisibleY(seriesList, lastSeriesIndex, yIndex) {
-  for (let i = lastSeriesIndex; i >= 0; i -= 1) {
-    if (seriesList[i].visible === true) {
-      return seriesList[i].y[yIndex];
-    }
-  }
-  return 0;
-}
-
-export function percentAreaStacking(seriesList) {
-  if (seriesList.length === 0) {
-    return;
-  }
-  fillXValues(seriesList);
-  storeOriginalHeightForEachSeries(seriesList);
-  initializeTextAndHover(seriesList);
-
-  each(seriesList[0].y, (seriesY, yIndex) => {
-    const sumOfCorrespondingDataPoints = seriesList.reduce(
-      (total, series) => total + series.original_y[yIndex],
-      0,
-    );
-
-    each(seriesList, (series, seriesIndex) => {
-      const percentage = (series.original_y[yIndex] / sumOfCorrespondingDataPoints) * 100;
-      const previousVisiblePercentage = lastVisibleY(seriesList, seriesIndex - 1, yIndex);
-      series.y[yIndex] = percentage + previousVisiblePercentage;
-      series.text.push(`Value: ${series.original_y[yIndex]}<br>Relative: ${percentage.toFixed(2)}%`);
-    });
-  });
-}
-
-function percentBarStacking(seriesList) {
-  if (seriesList.length === 0) {
-    return;
-  }
-  fillXValues(seriesList);
-  initializeTextAndHover(seriesList);
-
-  for (let i = 0; i < seriesList[0].y.length; i += 1) {
-    let sum = 0;
-    for (let j = 0; j < seriesList.length; j += 1) {
-      sum += seriesList[j].y[i];
-    }
-    for (let j = 0; j < seriesList.length; j += 1) {
-      const value = seriesList[j].y[i] / sum * 100;
-      seriesList[j].text.push(`Value: ${seriesList[j].y[i]}<br>Relative: ${value.toFixed(2)}%`);
-      seriesList[j].y[i] = value;
-    }
-  }
-}
-
-export function normalizeValue(value) {
+function normalizeValue(value) {
   if (moment.isMoment(value)) {
     return value.format('YYYY-MM-DD HH:mm:ss');
   }
   return value;
 }
 
-function seriesMinValue(series) {
-  return min(series.map(s => min(s.y)));
-}
-
-function seriesMaxValue(series) {
-  return max(series.map(s => max(s.y)));
-}
-
-function leftAxisSeries(series) {
-  return series.filter(s => s.yaxis !== 'y2');
-}
-
-function rightAxisSeries(series) {
-  return series.filter(s => s.yaxis === 'y2');
+function calculateAxisRange(seriesList, minValue, maxValue) {
+  if (!isNumber(minValue)) {
+    minValue = Math.min(0, min(map(seriesList, series => min(series.y))));
+  }
+  if (!isNumber(maxValue)) {
+    maxValue = max(map(seriesList, series => max(series.y)));
+  }
+  return [minValue, maxValue];
 }
 
 function getScaleType(scale) {
@@ -173,8 +61,8 @@ function getScaleType(scale) {
   return scale;
 }
 
-function getColor(index) {
-  return ColorPaletteArray[index % ColorPaletteArray.length];
+function getSeriesColor(seriesOptions, seriesIndex) {
+  return seriesOptions.color || ColorPaletteArray[seriesIndex % ColorPaletteArray.length];
 }
 
 function getTitle(axis) {
@@ -222,46 +110,46 @@ function calculateDimensions(series, options) {
   };
 }
 
-export function prepareData(series, options) {
+function preparePieData(seriesList, options) {
   const {
     cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
-  } = calculateDimensions(series, options);
+  } = calculateDimensions(seriesList, options);
 
-  if (options.globalSeriesType === 'pie') {
-    return map(series, (serie, index) => {
-      const xPosition = (index % cellsInRow) * cellWidth;
-      const yPosition = Math.floor(index / cellsInRow) * cellHeight;
-      return {
-        values: pluck(serie.data, 'y'),
-        labels: map(serie.data, row => (hasX ? row.x : `Slice ${index}`)),
-        type: 'pie',
-        hole: 0.4,
-        marker: { colors: ColorPaletteArray },
-        text: serie.name,
-        textposition: 'inside',
-        textfont: { color: '#f5f5f5' },
-        name: serie.name,
-        domain: {
-          x: [xPosition, xPosition + cellWidth - xPadding],
-          y: [yPosition, yPosition + cellHeight - yPadding],
-        },
-      };
-    });
-  }
+  return map(seriesList, (serie, index) => {
+    const xPosition = (index % cellsInRow) * cellWidth;
+    const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+    return {
+      values: pluck(serie.data, 'y'),
+      labels: map(serie.data, row => (hasX ? row.x : `Slice ${index}`)),
+      type: 'pie',
+      hole: 0.4,
+      marker: { colors: ColorPaletteArray },
+      text: serie.name,
+      textposition: 'inside',
+      textfont: { color: '#f5f5f5' },
+      name: serie.name,
+      domain: {
+        x: [xPosition, xPosition + cellWidth - xPadding],
+        y: [yPosition, yPosition + cellHeight - yPadding],
+      },
+    };
+  });
+}
 
+function prepareChartData(seriesList, options) {
   const sortX = (options.sortX === true) || (options.sortX === undefined);
   const useUnifiedXaxis = sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
 
   let unifiedX = null;
   if (useUnifiedXaxis) {
-    unifiedX = sortBy(union(...series.map(s => pluck(s.data, 'x'))), identity);
+    unifiedX = sortBy(union(...seriesList.map(s => pluck(s.data, 'x'))), identity);
   }
 
-  return map(series, (serie, index) => {
-    const serieOptions = options.seriesOptions[serie.name] ||
+  return map(seriesList, (series, index) => {
+    const seriesOptions = options.seriesOptions[series.name] ||
       { type: options.globalSeriesType };
 
-    const seriesColor = serieOptions.color ? serieOptions.color : getColor(index);
+    const seriesColor = getSeriesColor(seriesOptions, index);
 
     const plotlySeries = {
       x: [],
@@ -270,12 +158,16 @@ export function prepareData(series, options) {
         array: [],
         color: seriesColor,
       },
-      name: serieOptions.name || serie.name,
+      name: seriesOptions.name || series.name,
       marker: { color: seriesColor },
     };
 
-    setType(plotlySeries, serieOptions.type, options);
-    let data = serie.data;
+    if ((seriesOptions.yAxis === 1) && ((options.series.stacking === null) || (seriesOptions.type === 'line'))) {
+      plotlySeries.yaxis = 'y2';
+    }
+
+    setType(plotlySeries, seriesOptions.type, options);
+    let data = series.data;
     if (sortX) {
       data = sortBy(data, 'x');
     }
@@ -311,11 +203,11 @@ export function prepareData(series, options) {
       delete plotlySeries.error_y.length;
     }
 
-    if (serieOptions.type === 'bubble') {
+    if (seriesOptions.type === 'bubble') {
       plotlySeries.marker = {
         size: pluck(data, 'size'),
       };
-    } else if (serieOptions.type === 'box') {
+    } else if (seriesOptions.type === 'box') {
       plotlySeries.boxpoints = 'outliers';
       plotlySeries.marker = {
         color: seriesColor,
@@ -332,10 +224,53 @@ export function prepareData(series, options) {
   });
 }
 
-export function prepareLayout(element, series, options, data) {
+function prepareStackingData(seriesList) {
+  const xValues = union(...pluck(seriesList, 'x')).sort((a, b) => a - b);
+  seriesList.forEach((series) => {
+    series.x.sort((a, b) => a - b);
+
+    each(xValues, (value, index) => {
+      if (series.x[index] !== value) {
+        series.x.splice(index, 0, value);
+        series.y.splice(index, 0, null);
+      }
+    });
+  });
+
+  seriesList.forEach((series) => {
+    series.visible = true;
+    series.savedY = series.y;
+  });
+
+  return seriesList;
+}
+
+export function prepareData(seriesList, options) {
+  if (options.globalSeriesType === 'pie') {
+    return preparePieData(seriesList, options);
+  }
+
+  const result = prepareStackingData(prepareChartData(seriesList, options));
+  if (options.series.percentValues && (result.length > 0)) {
+    const sumOfCorrespondingPoints = map(result[0].savedY, constant(0));
+    each(result, (series) => {
+      each(series.savedY, (v, i) => {
+        sumOfCorrespondingPoints[i] += Math.abs(v);
+      });
+    });
+
+    each(result, (series) => {
+      series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
+      series.text = map(series.y, (v, i) => `Value: ${series.savedY[i]}<br>Relative: ${v.toFixed(2)}%`);
+    });
+  }
+  return result;
+}
+
+export function prepareLayout(element, seriesList, options, data) {
   const {
     cellsInRow, cellWidth, cellHeight, xPadding, hasY2,
-  } = calculateDimensions(series, options);
+  } = calculateDimensions(seriesList, options);
 
   const result = {
     margin: {
@@ -352,7 +287,7 @@ export function prepareLayout(element, series, options, data) {
   };
 
   if (options.globalSeriesType === 'pie') {
-    result.annotations = filter(map(series, (serie, index) => {
+    result.annotations = filter(map(seriesList, (series, index) => {
       const xPosition = (index % cellsInRow) * cellWidth;
       const yPosition = Math.floor(index / cellsInRow) * cellHeight;
       return {
@@ -360,7 +295,7 @@ export function prepareLayout(element, series, options, data) {
         y: yPosition + cellHeight - 0.015,
         xanchor: 'center',
         yanchor: 'top',
-        text: serie.name,
+        text: series.name,
         showarrow: false,
       };
     }));
@@ -385,14 +320,12 @@ export function prepareLayout(element, series, options, data) {
         type: getScaleType(options.yAxis[0].type),
       };
 
-      if (isNumber(options.yAxis[0].rangeMin) ||
-        isNumber(options.yAxis[0].rangeMax)) {
-        const minY = options.yAxis[0].rangeMin ||
-          Math.min(0, seriesMinValue(leftAxisSeries(data)));
-        const maxY = options.yAxis[0].rangeMax ||
-          seriesMaxValue(leftAxisSeries(data));
-
-        result.yaxis.range = [minY, maxY];
+      if (isNumber(options.yAxis[0].rangeMin) || isNumber(options.yAxis[0].rangeMax)) {
+        result.yaxis.range = calculateAxisRange(
+          data.filter(s => !s.yaxis !== 'y2'),
+          options.yAxis[0].rangeMin,
+          options.yAxis[0].rangeMax,
+        );
       }
     }
 
@@ -404,33 +337,50 @@ export function prepareLayout(element, series, options, data) {
         side: 'right',
       };
 
-      if (isNumber(options.yAxis[1].rangeMin) ||
-        isNumber(options.yAxis[1].rangeMax)) {
-        const minY = options.yAxis[1].rangeMin ||
-          Math.min(0, seriesMinValue(rightAxisSeries(data)));
-        const maxY = options.yAxis[1].rangeMax ||
-          seriesMaxValue(rightAxisSeries(data));
-
-        result.yaxis2.range = [minY, maxY];
+      if (isNumber(options.yAxis[1].rangeMin) || isNumber(options.yAxis[1].rangeMax)) {
+        result.yaxis2.range = calculateAxisRange(
+          data.filter(s => s.yaxis === 'y2'),
+          options.yAxis[1].rangeMin,
+          options.yAxis[1].rangeMax,
+        );
       }
     }
 
-    if (options.series.stacking === 'normal') {
-      result.barmode = 'stack';
-      if (options.globalSeriesType === 'area') {
-        normalAreaStacking(data);
-      }
-    } else if (options.series.stacking === 'percent') {
-      result.barmode = 'stack';
-      if (options.globalSeriesType === 'area') {
-        percentAreaStacking(data);
-      } else if (options.globalSeriesType === 'column') {
-        percentBarStacking(data);
-      }
+    if (options.series.stacking) {
+      result.barmode = options.series.stacking;
     }
   }
 
   return result;
+}
+
+export function updateStacking(seriesList, options) {
+  if (seriesList.length === 0) {
+    return seriesList;
+  }
+  if (options.globalSeriesType === 'pie') {
+    return seriesList;
+  }
+
+  if (options.series.stacking) {
+    seriesList = seriesList.filter(series => series.visible);
+    seriesList.forEach((series) => {
+      series.text = [];
+      series.hoverinfo = 'text+name';
+    });
+
+    if (options.series.stacking === 'normal') {
+      if (options.globalSeriesType === 'area') {
+        // normalAreaStacking(seriesList);
+      }
+    } else if (options.series.stacking === 'percent') {
+      if (options.globalSeriesType === 'area') {
+        // percentAreaStacking(seriesList);
+      } else if (options.globalSeriesType === 'column') {
+        // percentBarStacking(seriesList);
+      }
+    }
+  }
 }
 
 export function calculateMargins(element) {

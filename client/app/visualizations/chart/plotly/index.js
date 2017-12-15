@@ -13,8 +13,7 @@ import {
   prepareLayout,
   calculateMargins,
   applyMargins,
-  normalAreaStacking,
-  percentAreaStacking,
+  updateStacking,
   normalizeValue,
 } from './utils';
 
@@ -37,7 +36,16 @@ const PlotlyChart = () => ({
     let data = [];
 
     function update() {
+      if (['normal', 'percent'].indexOf(scope.options.series.stacking) >= 0) {
+        // Backward compatibility
+        scope.options.series.percentValues = scope.options.series.stacking === 'percent';
+        scope.options.series.stacking = 'stack';
+      }
+      scope.options.series.percentValues = scope.options.series.percentValues &&
+        !!scope.options.series.stacking;
+
       data = prepareData(scope.series, scope.options);
+      updateStacking(data, scope.options);
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
       Plotly.purge(plotlyElement);
       Plotly.newPlot(plotlyElement, data, layout, plotlyOptions);
@@ -53,22 +61,16 @@ const PlotlyChart = () => ({
     plotlyElement.on('plotly_afterplot', () => {
       applyAutoMargins();
 
-      if (scope.options.globalSeriesType === 'area' && (scope.options.series.stacking === 'normal' || scope.options.series.stacking === 'percent')) {
-        plotlyElement.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
-          d3.select(rectDiv).on('click', () => {
-            const maxIndex = scope.data.length - 1;
-            const itemClicked = scope.data[maxIndex - i];
+      plotlyElement.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
+        d3.select(rectDiv).on('click', () => {
+          const maxIndex = scope.data.length - 1;
+          const itemClicked = scope.data[maxIndex - i];
 
-            itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
-            if (scope.options.series.stacking === 'normal') {
-              normalAreaStacking(scope.data);
-            } else if (scope.options.series.stacking === 'percent') {
-              percentAreaStacking(scope.data);
-            }
-            Plotly.redraw(plotlyElement);
-          });
+          itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+          updateStacking(data, scope.options);
+          Plotly.redraw(plotlyElement);
         });
-      }
+      });
     });
 
     scope.$watch('series', (oldValue, newValue) => {
