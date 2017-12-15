@@ -1,6 +1,7 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { sortBy, uniq, contains, values, some, each,
+  isArray, isNumber, isString, includes, without } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -213,13 +214,23 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (filters) {
           filters.forEach((filter) => {
-            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = [ALL_VALUES];
-            }
-
             if (filter.multiple && includes(filter.current, NONE_VALUES)) {
               filter.current = [];
+              filter.choices = filter.values;
+              return;
             }
+
+            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
+              filter.current = [ALL_VALUES];
+              filter.choices = [];
+              return;
+            }
+
+            if (isArray(filter.current)) {
+              filter.choices = without(filter.values, ...filter.current);
+              return;
+            }
+            filter.choices = without(filter.values, filter.current);
           });
 
           this.filteredData = this.query_result.data.rows.filter(row =>
