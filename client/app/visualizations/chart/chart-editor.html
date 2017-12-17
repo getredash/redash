@@ -32,6 +32,9 @@
       </div>
     </div>
 
+    <div ng-if="['line', 'area', 'column'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
+      <label><input type="checkbox" ng-model="options.annotations"> Show annotations</label>
+    </div>
 
     <div class="form-group" ng-class="{'has-error': chartEditor.xAxisColumn.$invalid}">
       <label class="control-label">X Column</label>
