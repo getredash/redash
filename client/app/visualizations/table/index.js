@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { getColumnCleanName } from '@/services/query-result';
-import createFormatter from './formats';
+import createFormatter from '@/lib/value-format';
 import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';

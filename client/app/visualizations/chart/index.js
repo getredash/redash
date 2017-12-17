@@ -1,4 +1,7 @@
-import { some, extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
+import {
+  some, extend, has, partial, intersection, without, contains, isUndefined,
+  sortBy, each, pluck, keys, values, difference,
+} from 'underscore';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
@@ -51,26 +54,27 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.currentTab = 'general';
       scope.colors = extend({ Automatic: null }, ColorPalette);
 
-      scope.barStackingOptions = {
+      scope.stackingOptions = {
         Disabled: null,
         Stack: 'stack',
         Overlay: 'overlay',
         Group: 'group',
         Relative: 'relative',
       };
-      scope.otherStackingOptions = {
-        Disabled: null,
-        Enabled: 'stack',
-      };
-      scope.stackingOptions = scope.otherStackingOptions;
+      scope.allowedStackingOptions = [];
+      scope.isStackingOptionAllowed = value => scope.allowedStackingOptions.indexOf(value.value) >= 0;
 
       scope.$watch('options.globalSeriesType', () => {
         if (scope.options.globalSeriesType === 'column') {
-          scope.stackingOptions = scope.barStackingOptions;
+          scope.allowedStackingOptions = values(scope.stackingOptions);
+        } else if (['line', 'area'].indexOf(scope.options.globalSeriesType) >= 0) {
+          scope.allowedStackingOptions = [null, 'stack'];
         } else {
-          scope.stackingOptions = scope.otherStackingOptions;
+          scope.allowedStackingOptions = [null];
         }
-        scope.options.series.stacking = null;
+        if (scope.allowedStackingOptions.indexOf(scope.options.series.stacking) === -1) {
+          scope.options.series.stacking = null;
+        }
       });
 
       scope.changeTab = (tab) => {
