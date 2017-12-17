@@ -3,6 +3,7 @@ import {
   each, values, sortBy, union, pluck, identity, filter, map, constant,
 } from 'underscore';
 import moment from 'moment';
+import createFormatter from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
@@ -31,6 +32,9 @@ export const ColorPalette = Object.assign({}, BaseColors, {
   'Dark Violet': '#A58AFF',
   'Pink 2': '#FB61D7',
 });
+
+const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.]00' });
+const formatPercent = createFormatter({ displayAs: 'number', numberFormat: '0[.]00' });
 
 const ColorPaletteArray = values(BaseColors);
 
@@ -102,7 +106,7 @@ function calculateDimensions(series, options) {
   const hasX = contains(values(options.columnMapping), 'x');
   const hasY2 = !!find(series, (serie) => {
     const serieOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
-    return (serieOptions.yAxis === 1) && ((options.series.stacking === null) || (serieOptions.type === 'line'));
+    return (serieOptions.yAxis === 1) && (options.series.stacking === null);
   });
 
   return {
@@ -162,7 +166,7 @@ function prepareChartData(seriesList, options) {
       marker: { color: seriesColor },
     };
 
-    if ((seriesOptions.yAxis === 1) && ((options.series.stacking === null) || (seriesOptions.type === 'line'))) {
+    if ((seriesOptions.yAxis === 1) && (options.series.stacking === null)) {
       plotlySeries.yaxis = 'y2';
     }
 
@@ -240,6 +244,8 @@ function prepareStackingData(seriesList) {
   seriesList.forEach((series) => {
     series.visible = true;
     series.savedY = series.y;
+    series.hoverinfo = 'x+text+name';
+    series.text = map(series.y, v => `Value: ${formatNumber(v)}`);
   });
 
   return seriesList;
@@ -261,7 +267,12 @@ export function prepareData(seriesList, options) {
 
     each(result, (series) => {
       series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
-      series.text = map(series.y, (v, i) => `Value: ${series.savedY[i]}<br>Relative: ${v.toFixed(2)}%`);
+      series.text = map(series.y, (v, i) => [
+        `Value: ${formatNumber(series.savedY[i])}`,
+        '<br>',
+        `Relative: ${formatPercent(v)}%`,
+      ].join(''));
+      series.savedY = series.y; // Now we don't need absolute values, only percent values will be used
     });
   }
   return result;
@@ -363,22 +374,15 @@ export function updateStacking(seriesList, options) {
   }
 
   if (options.series.stacking) {
-    seriesList = seriesList.filter(series => series.visible);
-    seriesList.forEach((series) => {
-      series.text = [];
-      series.hoverinfo = 'text+name';
-    });
-
-    if (options.series.stacking === 'normal') {
-      if (options.globalSeriesType === 'area') {
-        // normalAreaStacking(seriesList);
-      }
-    } else if (options.series.stacking === 'percent') {
-      if (options.globalSeriesType === 'area') {
-        // percentAreaStacking(seriesList);
-      } else if (options.globalSeriesType === 'column') {
-        // percentBarStacking(seriesList);
-      }
+    seriesList = filter(seriesList, s => s.visible);
+    if (['line', 'area'].indexOf(options.globalSeriesType) >= 0) {
+      // Calculate cumulative value for each x tick
+      each(seriesList, (series, index, list) => {
+        if (index > 0) {
+          const prevSeries = list[index - 1];
+          series.y = map(series.savedY, (v, i) => v + prevSeries.y[i]);
+        }
+      });
     }
   }
 }
