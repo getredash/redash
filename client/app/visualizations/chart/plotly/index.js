@@ -35,6 +35,12 @@ const PlotlyChart = () => ({
     let layout = {};
     let data = [];
 
+    const applyAutoMargins = debounce(() => {
+      if (applyMargins(layout.margin, calculateMargins(plotlyElement))) {
+        Plotly.relayout(plotlyElement, layout);
+      }
+    }, 100);
+
     function update() {
       if (['normal', 'percent'].indexOf(scope.options.series.stacking) >= 0) {
         // Backward compatibility
@@ -47,31 +53,26 @@ const PlotlyChart = () => ({
       data = prepareData(scope.series, scope.options);
       updateStacking(data, scope.options);
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
+
       Plotly.purge(plotlyElement);
       Plotly.newPlot(plotlyElement, data, layout, plotlyOptions);
-    }
-    update();
 
-    const applyAutoMargins = debounce(() => {
-      if (applyMargins(layout.margin, calculateMargins(plotlyElement))) {
-        Plotly.relayout(plotlyElement, layout);
-      }
-    }, 100);
+      plotlyElement.on('plotly_afterplot', () => {
+        applyAutoMargins();
 
-    plotlyElement.on('plotly_afterplot', () => {
-      applyAutoMargins();
+        plotlyElement.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
+          d3.select(rectDiv).on('click', () => {
+            const maxIndex = scope.data.length - 1;
+            const itemClicked = scope.data[maxIndex - i];
 
-      plotlyElement.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
-        d3.select(rectDiv).on('click', () => {
-          const maxIndex = scope.data.length - 1;
-          const itemClicked = scope.data[maxIndex - i];
-
-          itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
-          updateStacking(data, scope.options);
-          Plotly.redraw(plotlyElement);
+            itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+            updateStacking(data, scope.options);
+            Plotly.redraw(plotlyElement);
+          });
         });
       });
-    });
+    }
+    update();
 
     scope.$watch('series', (oldValue, newValue) => {
       if (oldValue !== newValue) {

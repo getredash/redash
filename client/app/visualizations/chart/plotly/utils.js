@@ -1,5 +1,5 @@
 import {
-  isArray, isNumber, isUndefined, contains, min, max, has, find,
+  isArray, isNumber, isUndefined, contains, min, max, has, find, first, last,
   each, values, sortBy, union, pluck, identity, filter, map, constant,
 } from 'underscore';
 import moment from 'moment';
@@ -241,12 +241,79 @@ function prepareStackingData(seriesList) {
     });
   });
 
+  return seriesList;
+}
+
+function enableAnnotations(layout, seriesList, options) {
+  if (options.annotations) {
+    if (options.globalSeriesType === 'column') {
+      seriesList.forEach((series) => {
+        series.textposition = 'auto';
+      });
+    } else if (['line', 'area'].indexOf(options.globalSeriesType) >= 0) {
+      layout.yaxis.showticklabels = false;
+
+      delete layout.yaxis2;
+      layout.annotations = [];
+      each(seriesList, (series) => {
+        delete series.yaxis;
+        const leftAnnotation = {
+          xref: 'paper',
+          x: 0.05,
+          y: first(series.y),
+          xanchor: 'right',
+          yanchor: 'middle',
+          text: first(series.annotations),
+          showarrow: false,
+        };
+        const rightAnnotation = {
+          xref: 'paper',
+          x: 0.95,
+          y: last(series.y),
+          xanchor: 'left',
+          yanchor: 'middle',
+          text: last(series.annotations),
+          showarrow: false,
+        };
+
+        layout.annotations.push(leftAnnotation, rightAnnotation);
+      });
+    }
+  }
+}
+
+function prepareDataLabels(seriesList, options) {
   seriesList.forEach((series) => {
     series.visible = true;
     series.savedY = series.y;
     series.hoverinfo = 'x+text+name';
     series.text = map(series.y, v => `Value: ${formatNumber(v)}`);
+    series.annotations = map([first(series.y), last(series.y)], v => `${formatNumber(v)}`);
   });
+
+  if (options.series.percentValues && (seriesList.length > 0)) {
+    const sumOfCorrespondingPoints = map(seriesList[0].savedY, constant(0));
+    each(seriesList, (series) => {
+      each(series.savedY, (v, i) => {
+        sumOfCorrespondingPoints[i] += Math.abs(v);
+      });
+    });
+
+    each(seriesList, (series) => {
+      series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
+      series.text = map(series.y, (v, i) => [
+        `Value: ${formatNumber(series.savedY[i])}`,
+        '<br>',
+        `Relative: ${formatPercent(v)}%`,
+      ].join(''));
+      series.annotations = map([first(series.y), last(series.y)], (v, i) => [
+        `${formatNumber(series.savedY[i])}`,
+        `(${formatPercent(v)}%)`,
+      ].join(' '));
+      series.savedY = series.y; // Now we don't need absolute values, only percent values will be used
+    });
+  }
+
 
   return seriesList;
 }
@@ -257,25 +324,7 @@ export function prepareData(seriesList, options) {
   }
 
   const result = prepareStackingData(prepareChartData(seriesList, options));
-  if (options.series.percentValues && (result.length > 0)) {
-    const sumOfCorrespondingPoints = map(result[0].savedY, constant(0));
-    each(result, (series) => {
-      each(series.savedY, (v, i) => {
-        sumOfCorrespondingPoints[i] += Math.abs(v);
-      });
-    });
-
-    each(result, (series) => {
-      series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
-      series.text = map(series.y, (v, i) => [
-        `Value: ${formatNumber(series.savedY[i])}`,
-        '<br>',
-        `Relative: ${formatPercent(v)}%`,
-      ].join(''));
-      series.savedY = series.y; // Now we don't need absolute values, only percent values will be used
-    });
-  }
-  return result;
+  return prepareDataLabels(result, options);
 }
 
 export function prepareLayout(element, seriesList, options, data) {
@@ -362,6 +411,8 @@ export function prepareLayout(element, seriesList, options, data) {
     }
   }
 
+  enableAnnotations(result, data, options);
+
   return result;
 }
 
@@ -404,6 +455,16 @@ export function calculateMargins(element) {
       })) + axisSpacing;
     }
   });
+
+  const annotations = element.querySelectorAll('.annotation-text');
+  if (annotations.length > 0) {
+    const annotationsSize = max(map(annotations, (ann) => {
+      const bounds = ann.getBoundingClientRect();
+      return Math.ceil(bounds.width);
+    }));
+    result.l = Math.max(result.l || 0, annotationsSize);
+    result.r = Math.max(result.r || 0, annotationsSize);
+  }
 
   return result;
 }
