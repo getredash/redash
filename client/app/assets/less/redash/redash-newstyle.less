@@ -46,6 +46,86 @@ body {
   }
 }
 
+.add-new-datasource {
+  h5 {
+    color: #a7a7a7;
+  }
+}
+
+.database-source {
+  display: inline-flex;
+  flex-wrap: wrap;
+}
+
+.database-source__card {
+  background: #FFFFFF;
+  border: 1px solid rgba(102,136,153,0.15);
+  border-radius: 3px;
+  margin: 5px;
+  width: 175px;
+  padding: 15px 5px 15px 10px;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform 0.12s ease-out;
+  transition-duration: 0.3s;
+  transition-property: box-shadow;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  &:hover {
+    box-shadow: rgba(102, 136, 153, 0.15) 0px 4px 9px -3px;
+  }
+
+  img {
+    width: 64px;
+    height: 64px;
+    margin-right: 10px;
+  }
+
+  h3 {
+    font-size: 13px;
+    color: #323232;
+    margin: 0;
+  }
+}
+
+@media (max-width: 1200px) {
+  .database-source__card {
+    width: 217px;
+  }
+}
+
+@media (max-width: 755px) {
+  .database-source__card {
+    width: 210px;
+  }
+}
+
+@media (max-width: 515px) {
+  .database-source__card {
+    width: 47%;
+    
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .database-source__card {
+    width: 100%;
+
+    img {
+      width: 48px;
+      height: 48px;
+    }
+  }
+}
+
+
 .t-header:not(.th-alt) {
   padding: 15px;
 
