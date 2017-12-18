@@ -62,14 +62,8 @@ class Oracle(BaseSQLQueryRunner):
                 "port": {
                     "type": "number"
                 },
-                "servicename": {
-                    "type": "string",
-                    "title": "DSN Service Name"
-                },
-                "tns": {
-                    "type": "string",
-                    "title": "TNS Connect String"
-                }
+                "servicename": { "type": "string", "title": "DSN Service Name" },
+                "tns": { "type": "string", "title": "TNS Connect String" }
             },
             "order": ["host", "port", "user", "password", "servicename"],
             "required": ["servicename", "user", "password", "host", "port"],
