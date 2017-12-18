@@ -29,20 +29,26 @@ body {
 }
 
 @media (min-width: 768px) {
-  settings-screen .container {
-    width: 750px;
+  settings-screen, home-page, page-dashboard-list, alerts-list-page, alert-page {
+    .container {
+      width: 750px;
+    }
   }
 }
 
 @media (min-width: 992px) {
-  settings-screen .container {
-    width: 970px;
+  settings-screen, home-page, page-dashboard-list, alerts-list-page, alert-page {
+    .container {
+      width: 970px;
+    }
   }
 }
 
 @media (min-width: 1200px) {
-  settings-screen .container {
-    width: 1170px;
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page {
+    .container, home-page {
+      width: 1170px;
+    }
   }
 }
 
@@ -106,7 +112,7 @@ body {
 @media (max-width: 515px) {
   .database-source__card {
     width: 47%;
-    
+
     img {
       width: 48px;
       height: 48px;
