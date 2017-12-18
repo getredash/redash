@@ -65,8 +65,13 @@ class Oracle(BaseSQLQueryRunner):
                 "servicename": {
                     "type": "string",
                     "title": "DSN Service Name"
+                },
+                "tns": {
+                    "type": "string",
+                    "title": "TNS Connect String"
                 }
             },
+            "order": ["host", "port", "user", "password", "servicename"],
             "required": ["servicename", "user", "password", "host", "port"],
             "secret": ["password"]
         }
@@ -78,10 +83,13 @@ class Oracle(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Oracle, self).__init__(configuration)
 
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"])
+        if self.configuration["tns"] is None:
+            dsn = cx_Oracle.makedsn(
+                self.configuration["host"],
+                self.configuration["port"],
+                service_name=self.configuration["servicename"])
+        else:
+            dsn = self.configuration["tns"]
 
         self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
 
@@ -135,7 +143,7 @@ class Oracle(BaseSQLQueryRunner):
                 return cursor.var(cx_Oracle.STRING, 255, outconverter=Oracle._convert_number, arraysize=cursor.arraysize)
 
     def run_query(self, query, user):
-        connection = cx_Oracle.connect(user=self.configuration["user"], password=self.configuration["password"], dsn=self.configuration["servicename"])
+        connection = cx_Oracle.connect(self.connection_string)
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
