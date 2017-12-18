@@ -593,3 +593,151 @@ text.slicetext {
     top: 12px;
   }
 }
+
+
+
+
+
+
+
+
+// **********************************************************************
+// layout styles
+// **********************************************************************
+
+body {
+  padding-bottom: 0;
+  overflow: hidden;
+
+  footer {
+    display: none;
+  }
+}
+
+.query-fullscreen-container {
+
+}
+@spacing: 14px;
+
+.query-fullscreen {
+  height: calc(~'100% - 137px');
+
+  nav {
+    position: relative;
+    z-index: 1;
+    padding: 0 15px;
+    width: 340px;
+    max-width: 600px;
+    min-width: 250px;
+  }
+  main {
+    display: flex;
+    height: 100%;
+  }
+  .content {
+    flex: 1;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+    align-content: space-around;
+    padding: 0 15px;
+    height: calc(~'100% - 137px');
+  }
+  .row {
+    min-height: 50px;
+    flex: 1;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-around;
+    align-content: space-around;
+    &.resizable {
+      flex: 0 0 300px;
+    }
+
+    .row {
+      display: block;
+      min-height: 0;
+    }
+  }
+
+  section {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 30px;
+    &.resizable {
+      flex: 0 0 300px;
+    }
+  }
+
+  // **********************************************************************
+  // directive styles
+  // **********************************************************************
+  .resizable {
+    position: relative;
+    &.no-transition {
+      transition: none !important;
+    }
+  }
+  .rg-right, .rg-left, .rg-top, .rg-bottom {
+    display: block;
+    width: @spacing;
+    height: @spacing; line-height: @spacing;
+    position: absolute;
+    z-index: 1;
+
+    span {
+      position: absolute;
+      box-sizing: border-box;
+      display: block;
+      border: 1px solid #ccc;
+    }
+  }
+  .rg-right, .rg-left {
+    span {
+      border-width: 0 1px;
+      top: 50%; margin-top: -10px;
+      margin: -10px 0 0 @spacing/4;
+      height: 20px;
+      width: 3px;
+    }
+  }
+  .rg-top, .rg-bottom {
+    span {
+      border-width: 1px 0;
+      left: 50%;
+      margin: @spacing/4 0 0 -10px;
+      width: 20px;
+      height: 3px;
+    }
+  }
+  .rg-top     {
+    cursor: row-resize;
+    width: 100%;
+    top: 0;
+    left: 0;
+    margin-top: -@spacing/2;
+  }
+  .rg-right   {
+    cursor: col-resize;
+    height: 100%;
+    right: 0;
+    top: 0;
+    margin-right: 0px;
+  }
+  .rg-bottom  {
+    cursor: row-resize;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    margin-bottom: -@spacing/2;
+  }
+  .rg-left    {
+    cursor: col-resize;
+    height: 100%;
+    left: 0;
+    top: 0;
+    margin-left: -@spacing;
+  }
+
+}
+
