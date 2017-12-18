@@ -135,7 +135,7 @@ class Oracle(BaseSQLQueryRunner):
                 return cursor.var(cx_Oracle.STRING, 255, outconverter=Oracle._convert_number, arraysize=cursor.arraysize)
 
     def run_query(self, query, user):
-        connection = cx_Oracle.connect(self.connection_string)
+        connection = cx_Oracle.connect(user=self.configuration["user"], password=self.configuration["password"], dsn=self.configuration["servicename"])
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
@@ -149,12 +149,17 @@ class Oracle(BaseSQLQueryRunner):
                 data = {'columns': columns, 'rows': rows}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
+
+                del columns
+                del rows
+                del data
             else:
                 columns = [{'name': 'Row(s) Affected', 'type': 'TYPE_INTEGER'}]
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
-                connection.commit()   
+                connection.commit()
+            cursor.close()
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None
