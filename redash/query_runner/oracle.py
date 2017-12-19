@@ -77,7 +77,7 @@ class Oracle(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Oracle, self).__init__(configuration)
 
-        if self.configuration["tns"] is None:
+        if "tns" not in self.configuration or self.configuration["tns"] is None:
             dsn = cx_Oracle.makedsn(
                 self.configuration["host"],
                 self.configuration["port"],
