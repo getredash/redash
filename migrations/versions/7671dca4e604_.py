@@ -17,9 +17,9 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('users', sa.Column('profile_image_url', sa.String(),
+    op.add_column('users', sa.Column('image_url', sa.String(),
                                      nullable=True, server_default=None))
 
 
 def downgrade():
-    op.drop_column('users', 'profile_image_url')
+    op.drop_column('users', 'image_url')
