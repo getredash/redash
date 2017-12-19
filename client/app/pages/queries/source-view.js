@@ -102,6 +102,11 @@ function QuerySourceCtrl(
       });
   };
 
+  $scope.autocompleteQuery = true;
+  $scope.toggleAutocompleteQuery = () => {
+    $scope.autocompleteQuery = !$scope.autocompleteQuery;
+  };
+
   $scope.$watch('query.query', (newQueryText) => {
     $scope.isDirty = newQueryText !== queryText;
   });
