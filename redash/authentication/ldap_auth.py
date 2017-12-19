@@ -53,7 +53,8 @@ def auth_ldap_user(username, password):
     server = Server(settings.LDAP_HOST_URL)
 
     if settings.LDAP_HOST_AUTH == SIMPLE:
-        conn = Connection(server, settings.LDAP_BIND_DN, password=settings.LDAP_BIND_DN_PASSWORD, authentication=SIMPLE, auto_bind=True)
+        conn = Connection(server, settings.LDAP_BIND_DN, password=settings.LDAP_BIND_DN_PASSWORD,
+                          authentication=SIMPLE, auto_bind=True)
     elif settings.LDAP_HOST_AUTH == ANONYMOUS:
         conn = Connection(server, authentication=ANONYMOUS, auto_bind=True)
     else:
