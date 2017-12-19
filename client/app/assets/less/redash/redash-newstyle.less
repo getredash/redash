@@ -97,6 +97,37 @@ body {
   }
 }
 
+.database-source__card--selected {
+  background: #FFFFFF;
+  border: 1px solid rgba(102,136,153,0.15);
+  border-radius: 3px;
+  padding: 15px 5px 15px 10px;
+  box-shadow: none;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  justify-content: space-between;
+  margin-bottom: 15px;
+  width: 100%;
+
+  img {
+    width: 64px;
+    height: 64px;
+    margin-right: 10px;
+  }
+
+  a {
+    cursor: pointer;
+  }
+}
+
+
+.needhelp {
+  margin-bottom: 25px;
+}
+
 @media (max-width: 1200px) {
   .database-source__card {
     width: 217px;
@@ -601,18 +632,21 @@ text.slicetext {
 
 
 
+
+
+
 // **********************************************************************
-// layout styles
+// Query page
 // **********************************************************************
 
-body {
-  padding-bottom: 0;
-  overflow: hidden;
-
-  footer {
-    display: none;
-  }
-}
+//body {
+//  padding-bottom: 0;
+//  overflow: hidden;
+//
+//  footer {
+//    display: none;
+//  }
+//}
 
 .schema-browser {
   min-height: 150px;
