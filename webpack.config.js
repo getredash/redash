@@ -105,10 +105,11 @@ const config = {
       {
         test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
         use: [{
-          loader: 'url-loader',
+          loader: 'file-loader',
           options: {
-            limit: 10000,
-            name: 'img/[name].[hash:7].[ext]'
+            context: path.resolve(__dirname, './client/app/assets/images/'),
+            outputPath: 'img/',
+            name: '[path][name].[ext]',
           }
         }]
       },
