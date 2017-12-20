@@ -14,6 +14,9 @@ export default function init(ngModule) {
       template,
       controller: 'DestinationsCtrl',
       title: 'Destinations',
+      resolve: {
+        additionalBodyClass: () => 'app-page-destinations',
+      },
     },
   };
 }

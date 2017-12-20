@@ -39,6 +39,9 @@ export default function init(ngModule) {
       template: '<queries-search-results-page></queries-search-results-page>',
       reloadOnSearch: true,
       title: 'Queries Search',
+      resolve: {
+        additionalBodyClass: () => 'app-page-queries-search',
+      },
     },
   };
 }

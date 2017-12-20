@@ -85,6 +85,9 @@ export default function init(ngModule) {
     template: '<page-dashboard-list></page-dashboard-list>',
     reloadOnSearch: false,
     title: 'Dashboards',
+    resolve: {
+      additionalBodyClass: () => 'app-page-dashboards',
+    },
   };
 
   return {
