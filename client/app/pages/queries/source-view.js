@@ -125,6 +125,7 @@ export default function init(ngModule) {
 
           return DataSource.query().$promise;
         },
+        additionalBodyClass: () => 'app-page-new-query',
       },
     },
     '/queries/:queryId/source': {
@@ -137,6 +138,7 @@ export default function init(ngModule) {
 
           return Query.get({ id: $route.current.params.queryId }).$promise;
         },
+        additionalBodyClass: () => 'app-page-query-source',
       },
     },
   };

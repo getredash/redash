@@ -50,6 +50,9 @@ export default function init(ngModule) {
     '/groups/:groupId/data_sources': {
       template,
       controller: 'GroupDataSourcesCtrl',
+      resolve: {
+        additionalBodyClass: () => 'app-page-groups-data-sources',
+      },
     },
   };
 }

@@ -62,10 +62,16 @@ export default function init(ngModule) {
     '/queries': {
       template: '<page-queries-list></page-queries-list>',
       reloadOnSearch: false,
+      resolve: {
+        additionalBodyClass: () => 'app-page-queries',
+      },
     },
     '/queries/my': {
       template: '<page-queries-list></page-queries-list>',
       reloadOnSearch: false,
+      resolve: {
+        additionalBodyClass: () => 'app-page-user-queries',
+      },
     },
   };
 }

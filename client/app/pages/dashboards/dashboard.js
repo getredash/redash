@@ -375,6 +375,9 @@ export default function init(ngModule) {
     '/dashboard/:dashboardSlug': {
       template: '<dashboard-page></dashboard-page>',
       reloadOnSearch: false,
+      resolve: {
+        additionalBodyClass: () => 'app-page-dashboard',
+      },
     },
   };
 }

@@ -59,6 +59,9 @@ export default function init(ngModule) {
     '/query_snippets/:snippetId': {
       template: '<snippet-page></snippet-page>',
       title: 'Query Snippets',
+      resolve: {
+        additionalBodyClass: () => 'app-page-query-snippet',
+      },
     },
   };
 }
