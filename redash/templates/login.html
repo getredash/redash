@@ -43,7 +43,7 @@
 
   {% if show_ldap_login %}
   <div class="row">
-    <a href="/ldap_auth/login">LDAP/SSO Login</a>
+    <a href="/ldap/login">LDAP/SSO Login</a>
   </div>
 
   <div class="login-or">
@@ -71,7 +71,7 @@
       Log In
     </button>
   </form>
-  
+
   {% if not hide_forgot_password %}
     <hr>
     <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
