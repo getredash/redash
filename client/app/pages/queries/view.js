@@ -206,6 +206,10 @@ function QueryViewCtrl(
       customOptions,
     );
 
+    if (options.force) {
+      delete request.version;
+    }
+
     return Query.save(
       request,
       (updatedQuery) => {
@@ -214,10 +218,16 @@ function QueryViewCtrl(
       },
       (error) => {
         if (error.status === 409) {
+          // entirely unpleasant, but there's no good toastr->angular
+          // communications channel
+          window._redash_overwriteQuery = () => $scope.$apply(() => {
+            options.force = true;
+            $scope.saveQuery(options, data);
+          });
           toastr.error(
             'It seems like the query has been modified by another user. ' +
-              'Please copy/backup your changes and reload this page.',
-            { autoDismiss: false },
+            ($scope.isQueryOwner ? '<a class="btn btn-primary" href="#" onclick="_redash_overwriteQuery()">Overwrite anyway</a>' : 'Please copy/backup your changes and reload this page.'),
+            { autoDismiss: false, allowHtml: true },
           );
         } else {
           toastr.error(options.errorMessage);
