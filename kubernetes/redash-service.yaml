@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: server
+  name: redash
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 5000
+  selector:
+    io.kompose.service: server
+#  externalIPs:
+#  - 159.122.175.162
+status:
+  loadBalancer: {}

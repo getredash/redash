@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.production.yml
+    kompose.version: 1.4.0 (c7964e7)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: redash
+  name: redash
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: redash
+    spec:
+      containers:
+      - args:
+        - server
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_COOKIE_SECRET
+          value: veryverysecret
+        - name: REDASH_DATABASE_URL
+          value: postgresql://postgres@postgres/postgres
+        - name: REDASH_LOG_LEVEL
+          value: INFO
+        - name: REDASH_REDIS_URL
+          value: redis://redis:6379/0
+        - name: REDASH_WEB_WORKERS
+          value: "4"
+        image: redash/redash:latest
+        name: redash
+        ports:
+        - containerPort: 5000
+        resources: {}
+      restartPolicy: Always
+status: {}

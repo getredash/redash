@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.production.yml
+    kompose.version: 1.4.0 (c7964e7)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: worker
+  name: worker
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: worker
+    spec:
+      containers:
+      - args:
+        - scheduler
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: QUEUES
+          value: queries,scheduled_queries,celery
+        - name: REDASH_DATABASE_URL
+          value: postgresql://postgres@postgres/postgres
+        - name: REDASH_LOG_LEVEL
+          value: INFO
+        - name: REDASH_REDIS_URL
+          value: redis://redis:6379/0
+        - name: WORKERS_COUNT
+          value: "2"
+        image: redash/redash:latest
+        name: worker
+        resources: {}
+      restartPolicy: Always
+status: {}
