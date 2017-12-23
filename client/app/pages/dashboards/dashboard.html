@@ -4,7 +4,9 @@
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-7 page-header--new p-l-0">
       <h3>{{$ctrl.dashboard.name}}
         <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
-        <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+        <button type="button" class="btn btn-warning" ng-if="$ctrl.dashboard.is_archived" ng-click="$ctrl.unArchiveDashboard()" tooltip="Unarchive this dashboard or won't appear in the dashboards list or search results.">
+          Unarchive
+        </span>
       </h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5 text-right dashboard__control p-r-0">

@@ -4,7 +4,7 @@ import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.less';
 
 function DashboardCtrl(
-  $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
+  $rootScope, $routeParams, $location, $timeout, $q, $uibModal, $http,
   Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
   dashboardGridOptions, toastr,
 ) {
@@ -194,6 +194,22 @@ function DashboardCtrl(
     const confirm = { class: 'btn-warning', title: 'Archive' };
 
     AlertDialog.open(title, message, confirm).then(archive);
+  };
+
+  this.unArchiveDashboard = () => {
+    const url = `api/dashboards/${this.dashboard.slug}/unarchive`;
+    const unarchive = () => {
+      Events.record('unarchive', 'dashboard', this.dashboard.id);
+      $http.patch(url).success(() => {
+        this.loadDashboard();
+      });
+    };
+
+    const title = 'Unarchive Dashboard';
+    const message = `Are you sure you want to unarchive the "${this.dashboard.name}" dashboard?`;
+    const confirm = { class: 'btn-warning', title: 'Unarchive' };
+
+    AlertDialog.open(title, message, confirm).then(unarchive);
   };
 
   this.showManagePermissionsModal = () => {

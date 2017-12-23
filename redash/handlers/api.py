@@ -46,7 +46,9 @@ api.add_org_resource(AlertListResource, '/api/alerts', endpoint='alerts')
 
 api.add_org_resource(DashboardListResource, '/api/dashboards', endpoint='dashboards')
 api.add_org_resource(RecentDashboardsResource, '/api/dashboards/recent', endpoint='recent_dashboards')
-api.add_org_resource(DashboardResource, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')
+api.add_org_resource(DashboardResource, '/api/dashboards/<dashboard_slug>',
+                                        '/api/dashboards/<dashboard_slug>/unarchive',
+                                        endpoint='dashboard')
 api.add_org_resource(PublicDashboardResource, '/api/dashboards/public/<token>', endpoint='public_dashboard')
 api.add_org_resource(DashboardShareResource, '/api/dashboards/<dashboard_id>/share', endpoint='dashboard_share')
 

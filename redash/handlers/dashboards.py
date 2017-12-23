@@ -166,6 +166,23 @@ class DashboardResource(BaseResource):
         models.db.session.commit()
         return d
 
+    @require_permission('edit_dashboard')
+    def patch(self, dashboard_slug):
+        """
+        Unarchives a dashboard.
+
+        :qparam string slug: Slug of dashboard to retrieve.
+
+        Responds with the archived :ref:`dashboard <dashboard-response-label>`.
+        """
+        dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
+        dashboard.is_archived = False
+        dashboard.record_changes(changed_by=self.current_user)
+        models.db.session.add(dashboard)
+        d = dashboard.to_dict(with_widgets=True, user=self.current_user)
+        models.db.session.commit()
+        return d
+
 
 class PublicDashboardResource(BaseResource):
     def get(self, token):
