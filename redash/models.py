@@ -930,6 +930,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         if user:
             self.record_changes(user)
 
+    def unarchive(self, user=None):
+        db.session.add(self)
+        self.is_archived = False
+        self.schedule = None
+
+        if user:
+            self.record_changes(user)
+
     @classmethod
     def create(cls, **kwargs):
         query = cls(**kwargs)

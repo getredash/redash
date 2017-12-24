@@ -72,7 +72,9 @@ api.add_org_resource(QueryRecentResource, '/api/queries/recent', endpoint='recen
 api.add_org_resource(QueryListResource, '/api/queries', endpoint='queries')
 api.add_org_resource(MyQueriesResource, '/api/queries/my', endpoint='my_queries')
 api.add_org_resource(QueryRefreshResource, '/api/queries/<query_id>/refresh', endpoint='query_refresh')
-api.add_org_resource(QueryResource, '/api/queries/<query_id>', endpoint='query')
+api.add_org_resource(QueryResource, '/api/queries/<query_id>',
+                                    '/api/queries/<query_id>/unarchive',
+                                    endpoint='query')
 api.add_org_resource(QueryForkResource, '/api/queries/<query_id>/fork', endpoint='query_fork')
 
 api.add_org_resource(ObjectPermissionsListResource, '/api/<object_type>/<object_id>/acl', endpoint='object_permissions')
