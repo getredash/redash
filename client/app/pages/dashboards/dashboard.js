@@ -202,6 +202,8 @@ function DashboardCtrl(
       Events.record('unarchive', 'dashboard', this.dashboard.id);
       $http.patch(url).success(() => {
         this.loadDashboard();
+      }).error(() => {
+        toastr.error('Dashboard could not be unarchived.');
       });
     };
 
