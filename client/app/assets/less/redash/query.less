@@ -4,7 +4,6 @@ edit-in-place p, span.editable {
 }
 
 edit-in-place p.editable:hover {
-  background: @redash-yellow;
   display: inline-block;
 }
 
@@ -367,7 +366,16 @@ edit-in-place p.editable:hover {
 
       nav {
         width: 100%;
+        max-width: 100%;
         border-right: none;
+
+        .schema-browser {
+          max-height: 250px;
+        }
+
+        .rg-right {
+          display: none;
+        }
       }
     }
 
