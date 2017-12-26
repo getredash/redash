@@ -1,10 +1,10 @@
 // Editor
-edit-in-place p {
+edit-in-place p, span.editable {
   display: inline-block;
 }
 
 edit-in-place p.editable:hover {
-  background: #FCFCA2;
+  background: @redash-yellow;
   display: inline-block;
 }
 
@@ -187,8 +187,6 @@ edit-in-place p.editable:hover {
   overflow-y: auto;
   max-height: 275px;
 }
-
-@spacing: 14px;
 
 .query-fullscreen {
   //height: calc(~'100% - 137px');
