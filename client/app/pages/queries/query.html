@@ -333,57 +333,55 @@
       </div>
 
 
-      <div class="editor__left__query-metadata">
-        <p>
-          <span class="editor__left__query-metadata__property">Created</span>
-          <span class="name"><img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong>{{query.user.name}}</strong></span>
-          <span class="editor__left__query-metadata__time">
-                <rd-time-ago value="query.created_at"></rd-time-ago>
-              </span>
-        </p>
-
-        <p>
-          <span class="editor__left__query-metadata__property">Updated</span>
-          <span class="name"><img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong>{{query.last_modified_by.name}}</strong></span>
-          <span class="editor__left__query-metadata__time">
-                <rd-time-ago value="query.updated_at"></rd-time-ago>
-              </span>
-        </p>
+      <div class="query-metadata">
+        <table>
+          <tr>
+            <td>
+             Created
+            </td>
+            <td>
+              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong>{{query.user.name}}</strong>
+            </td>
+            <td class="text-right">
+              <rd-time-ago value="query.created_at"></rd-time-ago>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Updated
+            </td>
+            <td>
+              <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong>{{query.last_modified_by.name}}</strong>
+            </td>
+            <td class="text-right">
+              <rd-time-ago value="query.updated_at"></rd-time-ago>
+            </td>
+          </tr>
+        </table>
       </div>
 
-      <div class="editor__left__query-metadata editor__left__query-metadata--result">
-        <p>
-          <span class="editor__left__query-metadata__property"><span class="zmdi zmdi-timer"></span> Runtime</span>
 
-          <span class="editor__left__query-metadata__time">
-                <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
-                <span ng-show="queryExecuting">Running&hellip;</span>
-              </span>
+      <div class="query-metadata query-metadata--result">
+        <p>
+          <span class="query-metadata__property"><span class="zmdi zmdi-timer"></span> Runtime</span>
+          <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
+          <span ng-show="queryExecuting">Running&hellip;</span>
         </p>
 
         <p>
-          <span class="editor__left__query-metadata__property"><span class="zmdi zmdi-format-align-justify"></span> Rows</span>
-
-          <span class="editor__left__query-metadata__time">
-                <strong>{{queryResult.getData().length}}</strong>
-              </span>
+          <span class="query-metadata__property"><span class="zmdi zmdi-format-align-justify"></span> Rows</span>
+          <strong>{{queryResult.getData().length}}</strong>
         </p>
 
         <p>
-          <span class="editor__left__query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh</span>
-
-          <span class="editor__left__query-metadata__time">
-                <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
-                <span ng-if="query.isNew()">Never</span>
-              </span>
+          <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh</span>
+          <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
+          <span ng-if="query.isNew()">Never</span>
         </p>
 
         <p>
-          <span class="editor__left__query-metadata__property"><i class="zmdi zmdi-time-restore"></i> Updated</span>
-
-          <span class="editor__left__query-metadata__time">
-                <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
-              </span>
+          <span class="query-metadata__property"><i class="zmdi zmdi-time-restore"></i> Updated</span>
+          <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
         </p>
       </div>
 
@@ -503,7 +501,7 @@
                           <filters filters="filters"></filters>
                           <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
                         </div>
-                        <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis col-md-12">
+                        <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis">
                           <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
                           <div class="p-t-15 p-b-15">
                             <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
