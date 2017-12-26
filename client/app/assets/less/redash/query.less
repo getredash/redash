@@ -26,20 +26,45 @@ edit-in-place p.editable:hover {
 }
 
 .source-control {
-  position: relative;
-  min-height: 105px;
+
+}
+
+.page-header--query {
+  display: flex;
+  align-items: flex-end;
 }
 
 .btn--showhide {
-  position: absolute;
-  right: 0;
-  bottom: 5px;
+
 }
 
 .ace_editor.ace_autocomplete .ace_completion-highlight {
   text-shadow: none !important;
   background: #ffff005e;
   font-weight: 600;
+}
+
+.editor__left__query-metadata {
+  p {
+    &:last-of-type {
+      margin-bottom: 0px;
+    }
+  }
+
+  .editor__left__query-metadata__property {
+    width: 60px;
+    display: inline-block;
+  }
+
+  .editor__left__query-metadata__time {
+    float: right;
+  }
+}
+
+.editor__left__query-metadata--result {
+  .editor__left__query-metadata__property {
+    width: 100px;
+  }
 }
 
 .editor__control {
@@ -55,6 +80,8 @@ edit-in-place p.editable:hover {
 
 .editor__left {
   height: 100% !important;
+  width: calc(~'25% - 10px');
+  margin-right: 10px;
 
   .form-control {
     height: 30px;

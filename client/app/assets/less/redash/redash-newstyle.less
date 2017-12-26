@@ -28,6 +28,24 @@ body {
   }
 }
 
+@media (min-width: 768px) {
+  settings-screen .container {
+    width: 750px;
+  }
+}
+
+@media (min-width: 992px) {
+  settings-screen .container {
+    width: 970px;
+  }
+}
+
+@media (min-width: 1200px) {
+  settings-screen .container {
+    width: 1170px;
+  }
+}
+
 .t-header:not(.th-alt) {
   padding: 15px;
 
@@ -64,8 +82,12 @@ page-header, .page-header--new {
   border-color: #b1c1ce; // TODO: variable
 }
 
-.rg-bottom span {
-  margin: 1.5px 0 0 -10px;
+.rg-bottom {
+  bottom: 15px;
+
+  span {
+    margin: 1.5px 0 0 -10px;
+  }
 }
 
 .popover {
