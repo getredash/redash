@@ -129,16 +129,16 @@
       <div class="row" resizable r-directions="['bottom']" r-flex="true" style="min-height: 125px">
         <section>
 
-          <div class="container 9 p-15 m-b-10" style="height:100%;" resizable r-directions="['bottom']" r-height="inherit" style="min-height:100px;">
+          <div class="container p-15 m-b-10" style="height:100%;" resizable r-directions="['bottom']" r-height="inherit" style="min-height:100px;">
             <div class="editor__control">
               <div class="row form-inline">
-                <div class="col-xs-6 text-left">
+                <div class="col-sm-4 text-left">
                   <select class="form-control visible-sm visible-xs" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                           ng-options="ds.id as ds.name for ds in dataSources"></select>
                 </div>
 
-                <div class="col-xs-6 text-right">
-                  <div class="text-right">
+                <div class="col-sm-8">
+                  <div class="editor__control--right">
                     <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                       <span class="fa fa-paper-plane"></span> Publish
                     </button>
@@ -146,7 +146,7 @@
                       <span class="fa fa-floppy-o"> </span> Save<span
                       ng-show="isDirty">&#42;</span>
                     </button>
-                    <button type="button" class="btn btn-default btn-s" ng-click="formatQuery()">
+                    <button type="button" class="btn btn-default btn-s hidden-xs" ng-click="formatQuery()">
                       <span class="zmdi zmdi-format-indent-increase"></span> Format
                     </button>
 
@@ -156,6 +156,7 @@
                       </button>
                       <ul class="dropdown-menu pull-right" uib-dropdown-menu>
                         <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
+                        <li class="visible-xs"><a ng-click="formatQuery()">Format</a></li>
                         <li class="divider"></li>
                         <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
                         <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
