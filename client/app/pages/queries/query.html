@@ -245,12 +245,12 @@
                             <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
 
                             <div class="pull-right">
-                              <button class="btn btn-sm btn-default" ng-click="executeQuery()"
+                              <button class="btn btn-default" ng-click="executeQuery()"
                                       ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
                                       ng-if="!sourceMode"><span
                                 class="zmdi zmdi-refresh"></span></button>
                               <div class="btn-group" uib-dropdown>
-                                <button type="button" class="btn btn-default btn-sm dropdown-toggle"
+                                <button type="button" class="btn btn-default dropdown-toggle"
                                         ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
                                         uib-dropdown-toggle aria-expanded="false">
                                   Download Dataset <span class="caret"></span>
