@@ -44,25 +44,42 @@ edit-in-place p.editable:hover {
   font-weight: 600;
 }
 
-.editor__left__query-metadata {
+.query-metadata {
+  table {
+    width: 100%;
+
+    td {
+      padding: 3px 0;
+      vertical-align: top;
+    }
+
+    tr {
+      td:first-of-type {
+        padding-right: 5px;
+      }
+    }
+  }
   p {
     &:last-of-type {
       margin-bottom: 0px;
     }
+
+    display: flex;
+    justify-content: space-between;
   }
 
-  .editor__left__query-metadata__property {
+  .query-metadata__property {
     width: 60px;
     display: inline-block;
   }
 
-  .editor__left__query-metadata__time {
-    float: right;
+  ._query-metadata__time {
+
   }
 }
 
-.editor__left__query-metadata--result {
-  .editor__left__query-metadata__property {
+.query-metadata--result {
+  .query-metadata__property {
     width: 100px;
   }
 }
