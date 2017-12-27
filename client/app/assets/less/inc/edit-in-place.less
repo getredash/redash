@@ -1,5 +1,9 @@
 .edit-in-place span {
   white-space: pre-line;
+
+  p {
+    margin-bottom: 0;
+  }
 }
 
 .edit-in-place span.editable {
@@ -25,3 +29,20 @@
   display: inline-block;
 }
 
+.edit-in-place {
+  display: inline-block;
+}
+
+.edit-in-place {
+  .rd-form-control {
+    padding: 0px 6px;
+    width: 30vw;
+  }
+
+  &.active {
+    textarea.rd-form-control {
+      height: 29px;
+      width: 40vw;
+    }
+  }
+}

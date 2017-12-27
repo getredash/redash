@@ -8,19 +8,14 @@ edit-in-place p.editable:hover {
 }
 
 .editor__control {
-  padding: 0 0 10px 0;
-
-  button {
-    margin-right: 7px;
-  }
+  margin-top: 10px;
 
   .dropdown-toggle {
     margin-right: 0;
   }
 
   button.btn-primary {
-    margin-right: 0;
-    margin-left: 7px;
+    //margin-left: 5px;
   }
 }
 
@@ -29,15 +24,6 @@ edit-in-place p.editable:hover {
 }
 
 .source-control {
-
-}
-
-.page-header--query {
-  display: flex;
-  align-items: flex-end;
-}
-
-.btn--showhide {
 
 }
 
@@ -171,13 +157,12 @@ edit-in-place p.editable:hover {
 }
 
 .page-header--query {
+  display: flex;
+  align-items: center;
+
   h3 {
     display: inline-block;
     margin-right: 10px;
-  }
-
-  .btn--showhide {
-    margin-bottom: 5px;
   }
 }
 
@@ -349,6 +334,11 @@ edit-in-place p.editable:hover {
 
 }
 
+nav (max-width: 290px) {
+  .profile__name {
+    display: none;
+  }
+}
 
 
 @media (max-width: 880px) {
@@ -377,10 +367,6 @@ edit-in-place p.editable:hover {
           display: none;
         }
       }
-    }
-
-    .editor__control--right {
-      margin-top: 10px;
     }
 
     .content {
