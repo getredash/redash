@@ -154,60 +154,9 @@
     </div>
 
     <div class="col-md-4 col-md-offset-4">
-      <form class="form ng-pristine ng-valid-email ng-valid ng-valid-required" name="userSettingsForm" ng-submit="updateUser(userSettingsForm)" novalidate="">
-        <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
-          <label class="control-label" for="name">Name</label>
-          <input name="name" id="name" type="text" class="form-control ng-pristine ng-untouched ng-not-empty ng-valid ng-valid-required" ng-model="user.name" required="">
-          <error-messages input="userSettingsForm.name" form="userSettingsForm">
-            <div class="help-block ng-hide ng-inactive" ng-messages="$ctrl.input.$error" ng-show="$ctrl.input.$touched || $ctrl.form.$submitted">
-            </div>
-          </error-messages>
-        </div>
-
-        <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
-          <label class="control-label" for="name">Project ID</label>
-          <input name="name" id="name" type="text" class="form-control ng-pristine ng-untouched ng-not-empty ng-valid ng-valid-required" ng-model="user.name" required="">
-          <error-messages input="userSettingsForm.name" form="userSettingsForm">
-            <div class="help-block ng-hide ng-inactive" ng-messages="$ctrl.input.$error" ng-show="$ctrl.input.$touched || $ctrl.form.$submitted">
-            </div>
-          </error-messages>
-        </div>
-
-        <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
-          <label class="control-label" for="name">Scanned</label>
-          <input name="name" id="name" type="text" class="form-control ng-pristine ng-untouched ng-not-empty ng-valid ng-valid-required" ng-model="user.name" required="">
-          <error-messages input="userSettingsForm.name" form="userSettingsForm">
-            <div class="help-block ng-hide ng-inactive" ng-messages="$ctrl.input.$error" ng-show="$ctrl.input.$touched || $ctrl.form.$submitted">
-            </div>
-          </error-messages>
-        </div>
-
-        <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
-          <label class="control-label" for="name">Maximum</label>
-          <input name="name" id="name" type="text" class="form-control ng-pristine ng-untouched ng-not-empty ng-valid ng-valid-required" ng-model="user.name" required="">
-          <error-messages input="userSettingsForm.name" form="userSettingsForm">
-            <div class="help-block ng-hide ng-inactive" ng-messages="$ctrl.input.$error" ng-show="$ctrl.input.$touched || $ctrl.form.$submitted">
-            </div>
-          </error-messages>
-        </div>
-
-
-        <div class="form-group">
-          <button class="btn btn-block btn-primary">Add Data Source</button>
-        </div>
-
-        <div class="form-group ">
-          <button class="btn btn-danger">Delete</button>
-          <button class="btn btn-primary pull-right">Test Connection</button>
-        </div>
-      </form>
+      <dynamic-form target="dataSource" type="data_sources" actions="actions">
+      </dynamic-form>
     </div>
 
-
-
-    <!--<div class="col-md-8">-->
-      <!--<dynamic-form target="dataSource" type="data_sources" actions="actions">-->
-      <!--</dynamic-form>-->
-    <!--</div>-->
   </div>
 </settings-screen>
