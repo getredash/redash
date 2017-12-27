@@ -12,7 +12,7 @@ set -eu
 REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
 REDASH_VERSION=${REDASH_VERSION-v3.0.1-w.1} # Install latest version if not specified in REDASH_VERSION env var
-LATEST_URL="https://github.com/mayconbordin/redash/releases/download/${REDASH_VERSION}/redash-${REDASH_VERSION}.tar.gz"
+LATEST_URL="https://github.com/mayconbordin/redash/releases/download/${REDASH_VERSION}/redash-${REDASH_VERSION}-dist.tar.gz"
 VERSION_DIR="$REDASH_BASE_PATH/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
 FILES_BASE_URL=https://raw.githubusercontent.com/mayconbordin/redash/${REDASH_BRANCH}/setup/ubuntu/files
