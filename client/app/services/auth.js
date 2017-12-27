@@ -24,6 +24,7 @@ function getLocalSessionData() {
 
 function AuthService($window, $location, $q, $http) {
   const Auth = {
+    logger,
     isAuthenticated() {
       const sessionData = getLocalSessionData();
       return sessionData.loaded && sessionData.user.id;
@@ -111,22 +112,5 @@ export default function init(ngModule) {
 
   ngModule.config(($httpProvider) => {
     $httpProvider.interceptors.push('apiKeyHttpInterceptor');
-  });
-
-  ngModule.run(($location, $window, $rootScope, $route, Auth) => {
-    $rootScope.$on('$routeChangeStart', (event, to) => {
-      if (to.authenticated && !Auth.isAuthenticated()) {
-        logger('Requested authenticated route: ', to);
-        event.preventDefault();
-        // maybe we only miss the session? try to load session
-        Auth.loadSession().then(() => {
-          logger('Loaded session');
-          $route.reload();
-        }).catch(() => {
-          logger('Need to login, redirecting');
-          Auth.login();
-        });
-      }
-    });
   });
 }
