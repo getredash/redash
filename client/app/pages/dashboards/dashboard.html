@@ -4,9 +4,7 @@
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-7 page-header--new p-l-0">
       <h3>{{$ctrl.dashboard.name}}
         <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
-        <button type="button" class="btn btn-warning" ng-if="$ctrl.dashboard.is_archived" ng-click="$ctrl.unArchiveDashboard()" tooltip="Unarchive this dashboard or won't appear in the dashboards list or search results.">
-          Unarchive
-        </span>
+        <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
       </h3>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-6 col-lg-5 text-right dashboard__control p-r-0">
@@ -53,7 +51,7 @@
             <span class="zmdi zmdi-share"></span>
           </button>
       </span>
-          <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived">
+          <div class="btn-group hidden-print" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown>
             <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
               <span class="zmdi zmdi-more"></span>
             </button>
@@ -62,8 +60,9 @@
               <li ng-if="!$ctrl.dashboard.is_archived" ng-class="{hidden: $ctrl.isGridDisabled}"><a ng-click="$ctrl.editLayout(true)">Edit Layout</a></li>
               <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.addWidget()">Add Widget</a></li>
               <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
-              <li ng-if="!$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish Dashboard</a></li>
-              <li ng-if="$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Publish Dashboard</a></li>
+              <li ng-if="$ctrl.dashboard.is_archived"><a ng-click="$ctrl.unArchiveDashboard()">Unarchive Dashboard</a></li>
+              <li ng-if="!$ctrl.dashboard.is_archived && $ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Publish Dashboard</a></li>
+              <li ng-if="!$ctrl.dashboard.is_archived && !$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish Dashboard</a></li>
               <li ng-if="!$ctrl.dashboard.is_archived"><a ng-click="$ctrl.archiveDashboard()">Archive Dashboard</a></li>
             </ul>
           </div>
