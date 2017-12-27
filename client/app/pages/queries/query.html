@@ -145,11 +145,15 @@
       <div class="row" resizable r-directions="['bottom']" r-flex="true" style="min-height: 125px">
         <section>
 
-          <div class="container p-15 m-b-10" style="height:100%;" resizable r-directions="['bottom']" r-height="inherit" style="min-height:100px;">
-            <p style="height:calc(100% - 40px); margin-bottom: 0px;">
+          <div class="container p-15 m-b-10" style="height:100%;" style="min-height:100px;">
+            <p style="height:calc(100% - 40px); margin-bottom: 0px;" class="editor__container">
               <query-editor query="query"
                             schema="schema"
                             syntax="dataSource.syntax"></query-editor>
+
+              <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
+                <span class="zmdi zmdi-format-indent-increase"></span>
+              </button>
             </p>
 
             <div class="editor__control">
@@ -165,17 +169,10 @@
                       <span class="fa fa-paper-plane"></span> Publish
                     </button>
 
-
-
-                    <div class="btn-group" role="group" aria-label="...">
-                      <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
-                        <span class="fa fa-floppy-o"> </span><span
-                        ng-show="isDirty">&#42;</span>
-                      </button>
-                      <button type="button" class="btn btn-default btn-s hidden-xs" ng-click="formatQuery()" title="Format">
-                        <span class="zmdi zmdi-format-indent-increase"></span>
-                      </button>
-                    </div>
+                    <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
+                      <span class="fa fa-floppy-o"></span> Save<span
+                      ng-show="isDirty">&#42;</span>
+                    </button>
 
                     <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
                       <span class="zmdi zmdi-play"></span> Execute
