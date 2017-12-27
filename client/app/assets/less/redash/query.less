@@ -34,8 +34,20 @@ edit-in-place p.editable:hover {
 }
 
 .query-metadata {
+  overflow: hidden;
+
   table {
     width: 100%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    td::last-word {
+      font-size: 25%;
+    }
+
+    .meta__name::last-word  {
+        font-size: 50%;
+    }
 
     td {
       padding: 3px 0;
@@ -48,6 +60,7 @@ edit-in-place p.editable:hover {
       }
     }
   }
+
   p {
     &:last-of-type {
       margin-bottom: 0px;
@@ -353,12 +366,6 @@ edit-in-place p.editable:hover {
 
 }
 
-nav (max-width: 290px) {
-  .profile__name {
-    display: none;
-  }
-}
-
 
 @media (max-width: 880px) {
 
@@ -397,5 +404,11 @@ nav (max-width: 290px) {
         }
       }
     }
+  }
+}
+
+@media (max-width: 438px) {
+  .btn--showhide {
+    margin-bottom: 5px;
   }
 }

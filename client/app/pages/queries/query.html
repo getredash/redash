@@ -18,7 +18,7 @@
   <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
   <div class="row p-l-15 p-b-10 m-l-0 m-r-0 page-header--new page-header--query">
-    <div class="col-xs-8 p-l-0">
+    <div class="col-sm-8 col-xs-7 p-0">
       <h3>
         <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
         <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
@@ -37,7 +37,7 @@
       </em>
     </div>
 
-    <div class="col-xs-4 p-r-0 source-control text-right">
+    <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
        <span ng-show="query.id && canViewSource">
           <a ng-show="!sourceMode"
              ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-eye" aria-hidden="true"></i> Show Source</i>
@@ -53,7 +53,6 @@
           </button>
           <ul class="dropdown-menu pull-right" uib-dropdown-menu>
             <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
-            <li class="visible-xs"><a ng-click="formatQuery()">Format</a></li>
             <li class="divider"></li>
             <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
             <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
@@ -91,25 +90,20 @@
       <div class="query-metadata">
         <table>
           <tr>
+
             <td>
-             Created
-            </td>
-            <td>
-              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong class="profile__name">{{query.user.name}}</strong>
+              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong class="meta__name">{{query.user.name}}</strong>
             </td>
             <td class="text-right">
-              <rd-time-ago value="query.created_at"></rd-time-ago>
+              created <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
             </td>
           </tr>
           <tr>
             <td>
-              Updated
-            </td>
-            <td>
-              <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong>{{query.last_modified_by.name}}</strong>
+              <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong class="meta__name">{{query.last_modified_by.name}}</strong>
             </td>
             <td class="text-right">
-              <rd-time-ago value="query.updated_at"></rd-time-ago>
+              updated <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
             </td>
           </tr>
         </table>
