@@ -150,7 +150,7 @@ LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get('REDASH_LDAP_CUSTOM_USERNAME_PROMPT
 # LDAP Search DN TEMPLATE (for AD this should be "(sAMAccountName=%(username)s)"")
 LDAP_SEARCH_TEMPLATE = os.environ.get('REDASH_LDAP_SEARCH_TEMPLATE', '(cn=%(username)s)')
 # The schema to bind to (ex. cn=users,dc=ORG,dc=local)
-LDAP_SEARCH_DN = os.environ.get('REDASH_SEARCH_DN', None)
+LDAP_SEARCH_DN = os.environ.get('REDASH_LDAP_SEARCH_DN', os.environ.get('REDASH_SEARCH_DN'))
 
 
 # Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
