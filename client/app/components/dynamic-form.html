@@ -23,7 +23,7 @@
                ng-if="field.property.type === 'file'">
     </div>
 
-    <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid" ng-click="saveChanges()">Save</button>
+    <button class="btn btn-block btn-primary m-b-10" ng-disabled="!dataSourceForm.$valid" ng-click="saveChanges()">Save</button>
     <span ng-repeat="action in actions">
         <button class="btn"
                 ng-class="action.class"

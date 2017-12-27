@@ -55,7 +55,7 @@ function DataSourceCtrl(
   $scope.actions = [
     { name: 'Delete', class: 'btn-danger', callback: deleteDataSource },
     {
-      name: 'Test Connection', class: 'btn-default', callback: testConnection, disableWhenDirty: true,
+      name: 'Test Connection', class: 'btn-default pull-right', callback: testConnection, disableWhenDirty: true,
     },
   ];
 }
