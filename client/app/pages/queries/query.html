@@ -22,7 +22,7 @@
       <h3>
         <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
         <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
-        <span class="label label-warning" ng-if="query.is_archived && !(isQueryOwner || currentUser.hasPermission('admin'))" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+        <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
         <button type="button" class="btn btn-warning" ng-click="unarchiveQuery()" ng-if="query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))" tooltip="Unarchive this query or won't appear in dashbords and search results.">
           Unarchive
         </button>
@@ -59,6 +59,7 @@
             <li class="divider"></li>
             <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
             <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
+            <li ng-if="query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="unarchiveQuery()">Unarchive</a></li>
             <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish</a></li>
             <li class="divider"></li>
             <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
