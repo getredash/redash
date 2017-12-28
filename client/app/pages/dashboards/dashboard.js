@@ -172,7 +172,7 @@ function DashboardCtrl(
         this.loadDashboard();
       } else {
         // all kind of 4** errors are not recoverable, so just display them
-        $rootScope.$broadcast('appViewRejection', error);
+        throw error;
       }
     });
   }, 1000);

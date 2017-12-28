@@ -24,7 +24,6 @@ function getLocalSessionData() {
 
 function AuthService($window, $location, $q, $http) {
   const Auth = {
-    logger,
     isAuthenticated() {
       const sessionData = getLocalSessionData();
       return sessionData.loaded && sessionData.user.id;
@@ -66,6 +65,23 @@ function AuthService($window, $location, $q, $http) {
     },
     getApiKey() {
       return this.apiKey;
+    },
+    requireSession() {
+      logger('Requested authentication');
+      if (Auth.isAuthenticated()) {
+        return $q.when(getLocalSessionData());
+      }
+      return Auth.loadSession().then(() => {
+        if (Auth.isAuthenticated()) {
+          logger('Loaded session');
+          return getLocalSessionData();
+        }
+        logger('Need to login, redirecting');
+        this.login();
+      }).catch(() => {
+        logger('Need to login, redirecting');
+        this.login();
+      });
     },
   };
 

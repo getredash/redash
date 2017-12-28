@@ -2,5 +2,5 @@
 <div ng-if="$ctrl.error" class="container-fluid">
   <div class="alert alert-danger">{{ $ctrl.error.message }}</div>
 </div>
-<div ng-hide="$ctrl.error" ng-view></div>
+<div ng-if="!$ctrl.error" ng-view></div>
 <footer ng-if="$ctrl.showHeaderAndFooter"></footer>
