@@ -10,7 +10,6 @@ function QueryViewCtrl(
   $location,
   $window,
   $q,
-  $http,
   KeyboardShortcuts,
   Title,
   AlertDialog,
@@ -281,13 +280,16 @@ function QueryViewCtrl(
 
   $scope.unarchiveQuery = () => {
     const queryId = $scope.query.id;
-    const url = `api/queries/${queryId}/unarchive`;
     Events.record('unarhive', 'queries', queryId);
-    $http.patch(url).success(() => {
-      $scope.query.is_archived = false;
-    }).error(() => {
-      toastr.error('Query could not be unarchived.');
-    });
+    Query.unarchive(
+      { id: queryId },
+      () => {
+        $scope.query.is_archived = false;
+      },
+      () => {
+        toastr.error('Query could not be unarchived.');
+      },
+    );
   };
 
   $scope.updateDataSource = () => {
