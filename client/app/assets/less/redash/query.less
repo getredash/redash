@@ -35,6 +35,10 @@ edit-in-place p.editable:hover {
 
 .query-metadata {
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  z-index: 9;
+
 
   table {
     width: 100%;
@@ -217,6 +221,7 @@ edit-in-place p.editable:hover {
 
   nav {
     position: relative;
+    z-index: 2;
     display: flex;
     flex-flow: column;
     border-right: 1px solid #efefef;
@@ -251,6 +256,8 @@ edit-in-place p.editable:hover {
     height: 100%;
   }
   .content {
+    z-index: 9;
+    background: #fff;
     flex: 1;
     display: flex;
     flex-flow: column nowrap;
@@ -305,7 +312,7 @@ edit-in-place p.editable:hover {
     height: 8px;
     line-height: @spacing;
     position: absolute;
-    z-index: 1;
+    z-index: 99;
 
     span {
       position: absolute;
@@ -406,10 +413,10 @@ edit-in-place p.editable:hover {
       width: 100%;
 
       .resizable {
-        margin-bottom: 25px;
+        //margin-bottom: 25px;
 
         .rg-bottom {
-          bottom: -30px;
+          //bottom: -30px;
         }
       }
     }
