@@ -288,6 +288,7 @@ function QueryViewCtrl(
       },
       () => {
         $scope.query.is_archived = false;
+        toastr.success('Query unarchived');
       },
       () => {
         toastr.error('Query could not be unarchived.');
