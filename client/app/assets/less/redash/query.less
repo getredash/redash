@@ -221,9 +221,9 @@ edit-in-place p.editable:hover {
     flex-flow: column;
     border-right: 1px solid #efefef;
     z-index: 1;
-    width: 340px;
+    width: 25%;
     max-width: 600px;
-    //min-width: 8px;
+    min-width: 8px;
 
     .schema-container {
       height: calc(~'100% - 40px');
@@ -256,8 +256,9 @@ edit-in-place p.editable:hover {
     flex-flow: column nowrap;
     justify-content: space-around;
     align-content: space-around;
-    padding: 0 15px 0 0;
+    padding: 0;
     height: calc(~'100% - 137px');
+    width: 75%;
 
     .editor {
       border-bottom: 1px solid #efefef;
@@ -374,6 +375,8 @@ edit-in-place p.editable:hover {
 @media (max-width: 880px) {
 
   .page-header--query {
+    padding-left: 0px !important;
+
     h3 {
       line-height: 1.25;
     }
@@ -400,6 +403,8 @@ edit-in-place p.editable:hover {
     }
 
     .content {
+      width: 100%;
+
       .resizable {
         margin-bottom: 25px;
 
