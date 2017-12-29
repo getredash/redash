@@ -18,7 +18,7 @@ import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
-import { each } from 'underscore';
+import { each, isFunction } from 'underscore';
 
 import '@/lib/sortable';
 
@@ -57,7 +57,7 @@ function registerAll(context) {
     .map(context)
     .map(module => module.default);
 
-  return modules.map(f => f(ngModule));
+  return modules.filter(isFunction).map(f => f(ngModule));
 }
 
 function registerComponents() {
