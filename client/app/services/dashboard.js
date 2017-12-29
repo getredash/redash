@@ -50,6 +50,11 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
       url: 'api/dashboards/recent',
       transformResponse: transform,
     },
+    unarchive: {
+      method: 'POST',
+      transformResponse: transform,
+      url: 'api/dashboards/:slug/unarchive',
+    },
   });
 
   resource.prototype.canEdit = function canEdit() {

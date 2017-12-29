@@ -129,7 +129,8 @@ class DashboardResource(BaseResource):
         require_object_modify_permission(dashboard, self.current_user)
 
         updates = project(dashboard_properties, ('name', 'layout', 'version',
-                                                 'is_draft', 'dashboard_filters_enabled'))
+                                                 'is_draft', 'dashboard_filters_enabled',
+                                                 'is_archived'))
 
         # SQLAlchemy handles the case where a concurrent transaction beats us
         # to the update. But we still have to make sure that we're not starting
@@ -160,23 +161,6 @@ class DashboardResource(BaseResource):
         """
         dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
         dashboard.is_archived = True
-        dashboard.record_changes(changed_by=self.current_user)
-        models.db.session.add(dashboard)
-        d = dashboard.to_dict(with_widgets=True, user=self.current_user)
-        models.db.session.commit()
-        return d
-
-    @require_permission('edit_dashboard')
-    def patch(self, dashboard_slug):
-        """
-        Unarchives a dashboard.
-
-        :qparam string slug: Slug of dashboard to retrieve.
-
-        Responds with the archived :ref:`dashboard <dashboard-response-label>`.
-        """
-        dashboard = models.Dashboard.get_by_slug_and_org(dashboard_slug, self.current_org)
-        dashboard.is_archived = False
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
         d = dashboard.to_dict(with_widgets=True, user=self.current_user)
