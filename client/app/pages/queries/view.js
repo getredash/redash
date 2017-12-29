@@ -282,21 +282,12 @@ function QueryViewCtrl(
   $scope.unarchiveQuery = () => {
     const queryId = $scope.query.id;
     const url = `api/queries/${queryId}/unarchive`;
-    const unarchive = () => {
-      Events.record('unarhive', 'queries', queryId);
-      $http.patch(url).success(() => {
-        $scope.query.is_archived = false;
-      }).error(() => {
-        toastr.error('Query could not be unarchived.');
-      });
-    };
-
-    const title = 'Unarchive Query';
-    const message =
-      'Are you sure you want to unarchive this query?';
-    const confirm = { class: 'btn-warning', title: 'Unarchive' };
-
-    AlertDialog.open(title, message, confirm).then(unarchive);
+    Events.record('unarhive', 'queries', queryId);
+    $http.patch(url).success(() => {
+      $scope.query.is_archived = false;
+    }).error(() => {
+      toastr.error('Query could not be unarchived.');
+    });
   };
 
   $scope.updateDataSource = () => {
