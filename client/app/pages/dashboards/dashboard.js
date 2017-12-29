@@ -198,20 +198,12 @@ function DashboardCtrl(
 
   this.unArchiveDashboard = () => {
     const url = `api/dashboards/${this.dashboard.slug}/unarchive`;
-    const unarchive = () => {
-      Events.record('unarchive', 'dashboard', this.dashboard.id);
-      $http.patch(url).success(() => {
-        this.loadDashboard();
-      }).error(() => {
-        toastr.error('Dashboard could not be unarchived.');
-      });
-    };
-
-    const title = 'Unarchive Dashboard';
-    const message = `Are you sure you want to unarchive the "${this.dashboard.name}" dashboard?`;
-    const confirm = { class: 'btn-warning', title: 'Unarchive' };
-
-    AlertDialog.open(title, message, confirm).then(unarchive);
+    Events.record('unarchive', 'dashboard', this.dashboard.id);
+    $http.patch(url).success(() => {
+      this.loadDashboard();
+    }).error(() => {
+      toastr.error('Dashboard could not be unarchived.');
+    });
   };
 
   this.showManagePermissionsModal = () => {
