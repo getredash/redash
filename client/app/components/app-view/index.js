@@ -1,18 +1,14 @@
 import debug from 'debug';
+import { ErrorHandler } from './error-handler';
 import template from './template.html';
 
 const logger = debug('redash:app-view');
 
-export default function init(ngModule) {
-  let customHandler = null;
+const handler = new ErrorHandler();
 
+export default function init(ngModule) {
   ngModule.factory('$exceptionHandler', () => function exceptionHandler(exception) {
-    if (customHandler) {
-      customHandler(exception);
-    } else {
-      // eslint-disable-next-line no-console
-      console.error(exception);
-    }
+    handler.process(exception);
   });
 
   ngModule.component('appView', {
@@ -20,21 +16,7 @@ export default function init(ngModule) {
     controller($rootScope, $route, Auth) {
       this.showHeaderAndFooter = false;
 
-      this.error = null;
-
-      customHandler = (error) => {
-        if (!(error instanceof Error)) {
-          if (error.status && error.data) {
-            switch (error.status) {
-              case 403: error = new Error(''); break;
-              default: error = new Error(error.data.message); break;
-            }
-          }
-        }
-        this.error = error;
-        // eslint-disable-next-line no-console
-        console.error(error);
-      };
+      this.handler = handler;
 
       $rootScope.$on('$routeChangeStart', (event, route) => {
         if (route.$$route.authenticated) {
@@ -57,7 +39,7 @@ export default function init(ngModule) {
       });
 
       $rootScope.$on('$routeChangeSuccess', () => {
-        this.error = null;
+        handler.reset();
       });
 
       $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
