@@ -205,6 +205,7 @@ function DashboardCtrl(
       },
       () => {
         this.loadDashboard();
+        toastr.success('Dashboard unarchived');
       },
       () => {
         toastr.error('Dashboard could not be unarchived.');
