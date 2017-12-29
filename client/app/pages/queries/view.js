@@ -282,7 +282,10 @@ function QueryViewCtrl(
     const queryId = $scope.query.id;
     Events.record('unarhive', 'queries', queryId);
     Query.unarchive(
-      { id: queryId },
+      {
+        id: queryId,
+        is_archived: false,
+      },
       () => {
         $scope.query.is_archived = false;
       },

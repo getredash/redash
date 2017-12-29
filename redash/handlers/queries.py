@@ -246,17 +246,6 @@ class QueryResource(BaseResource):
         query.archive(self.current_user)
         models.db.session.commit()
 
-    def patch(self, query_id):
-        """
-        Unarchives a query.
-
-        :param query_id: ID of query to unarchive
-        """
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
-        require_admin_or_owner(query.user_id)
-        query.unarchive(self.current_user)
-        models.db.session.commit()
-
 
 class QueryForkResource(BaseResource):
     @require_permission('edit_query')

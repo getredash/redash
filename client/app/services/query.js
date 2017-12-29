@@ -201,6 +201,11 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
+      unarchive: {
+        method: 'post',
+        isArray: false,
+        url: 'api/queries/:id/unarchive',
+      },
     },
   );
 
