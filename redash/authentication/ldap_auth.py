@@ -7,7 +7,7 @@ from flask import flash, redirect, render_template, request, url_for, Blueprint
 from flask_login import current_user, login_required, login_user, logout_user
 
 try:
-    from ldap3 import Server, Connection, SIMPLE
+    from ldap3 import Server, Connection, SIMPLE, ANONYMOUS
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
         logger.error("The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt).")
@@ -51,7 +51,15 @@ def login(org_slug=None):
 
 def auth_ldap_user(username, password):
     server = Server(settings.LDAP_HOST_URL)
-    conn = Connection(server, settings.LDAP_BIND_DN, password=settings.LDAP_BIND_DN_PASSWORD, authentication=SIMPLE, auto_bind=True)
+
+    if settings.LDAP_HOST_AUTH == SIMPLE:
+        conn = Connection(server, settings.LDAP_BIND_DN, password=settings.LDAP_BIND_DN_PASSWORD,
+                          authentication=SIMPLE, auto_bind=True)
+    elif settings.LDAP_HOST_AUTH == ANONYMOUS:
+        conn = Connection(server, authentication=ANONYMOUS, auto_bind=True)
+    else:
+        logger.error("The ldap3 authentication type " + settings.LDAP_HOST_AUTH + " is not valid.")
+        return None
 
     conn.search(settings.LDAP_SEARCH_DN, settings.LDAP_SEARCH_TEMPLATE % {"username": username}, attributes=[settings.LDAP_DISPLAY_NAME_KEY, settings.LDAP_EMAIL_KEY])
 

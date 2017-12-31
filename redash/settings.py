@@ -139,6 +139,8 @@ REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Re
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
 # The LDAP directory address (ex. ldap://10.0.10.1:389)
 LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
+# The LDAP authentication type (ex. SIMPLE, ANONYMOUS)
+LDAP_HOST_AUTH = os.environ.get('REDASH_LDAP_AUTH', 'SIMPLE')
 # The DN & password used to connect to LDAP to determine the identity of the user being authenticated. For AD this should be "org\\user".
 LDAP_BIND_DN = os.environ.get('REDASH_LDAP_BIND_DN', None)
 LDAP_BIND_DN_PASSWORD = os.environ.get('REDASH_LDAP_BIND_DN_PASSWORD', '')
