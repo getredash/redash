@@ -36,11 +36,13 @@ help() {
   echo "dev_server -- start Flask development server with debugger and auto reload"
   echo "create_db -- create database tables"
   echo "manage -- CLI to manage redash"
+  echo "tests -- run tests"
 }
 
 tests() {
   export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
-  exec make test
+  TEST_ARGS=${TEST_ARGS:-tests/}
+  exec pytest $TEST_ARGS
 }
 
 case "$1" in
@@ -73,6 +75,7 @@ case "$1" in
     tests
     ;;
   help)
+    shift
     help
     ;;
   *)
