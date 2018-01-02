@@ -64,19 +64,6 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.allowedStackingOptions = [];
       scope.isStackingOptionAllowed = value => scope.allowedStackingOptions.indexOf(value.value) >= 0;
 
-      scope.$watch('options.globalSeriesType', () => {
-        if (scope.options.globalSeriesType === 'column') {
-          scope.allowedStackingOptions = values(scope.stackingOptions);
-        } else if (['line', 'area'].indexOf(scope.options.globalSeriesType) >= 0) {
-          scope.allowedStackingOptions = [null, 'stack'];
-        } else {
-          scope.allowedStackingOptions = [null];
-        }
-        if (scope.allowedStackingOptions.indexOf(scope.options.series.stacking) === -1) {
-          scope.options.series.stacking = null;
-        }
-      });
-
       scope.changeTab = (tab) => {
         scope.currentTab = tab;
       };
@@ -102,7 +89,19 @@ function ChartEditor(ColorPalette, clientConfig) {
         keys(scope.options.seriesOptions).forEach((key) => {
           scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
+
+        if (scope.options.globalSeriesType === 'column') {
+          scope.allowedStackingOptions = values(scope.stackingOptions);
+        } else if (['line', 'area'].indexOf(scope.options.globalSeriesType) >= 0) {
+          scope.allowedStackingOptions = [null, 'stack'];
+        } else {
+          scope.allowedStackingOptions = [null];
+        }
+        if (scope.allowedStackingOptions.indexOf(scope.options.series.stacking) === -1) {
+          scope.options.series.stacking = null;
+        }
       };
+      scope.chartTypeChanged();
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
 
