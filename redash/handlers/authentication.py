@@ -109,7 +109,7 @@ def login(org_slug=None):
     if not current_org.get_setting('auth_password_login_enabled'):
         if settings.REMOTE_USER_LOGIN_ENABLED:
             return redirect(url_for("remote_user_auth.login", next=next_path))
-        elif current_org.get_setting('auth_saml_enabled'): #settings.SAML_LOGIN_ENABLED:
+        elif current_org.get_setting('auth_saml_enabled'):  # settings.SAML_LOGIN_ENABLED:
             return redirect(url_for("saml_auth.sp_initiated", next=next_path))
         elif settings.LDAP_LOGIN_ENABLED:
             return redirect(url_for("ldap_auth.login", next=next_path))

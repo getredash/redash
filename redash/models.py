@@ -33,7 +33,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
-from sqlalchemy.orm.attributes import flag_modified    
+from sqlalchemy.orm.attributes import flag_modified
 from functools import reduce
 
 
@@ -315,7 +315,7 @@ class Organization(TimestampMixin, db.Model):
 
     def enable(self):
         self.settings['is_disabled'] = False
-    
+
     def set_setting(self, key, value):
         if key not in org_settings:
             raise KeyError(key)
@@ -330,7 +330,7 @@ class Organization(TimestampMixin, db.Model):
 
         if key in org_settings:
             return org_settings[key]
-    
+
         raise KeyError(key)
 
     @property

@@ -1,7 +1,7 @@
 import os
 from funcy import distinct, remove
 
-from .helpers import parse_db_url, fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string 
+from .helpers import parse_db_url, fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
 
 
 def all_settings():
@@ -72,17 +72,19 @@ GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 # user out.  Doing so could be done with further work, but usually it's
 # unnecessary.
 #
-# If you also set the organization setting auth_password_login_enabled to false, 
-# then your authentication will be seamless.  Otherwise a link will be presented 
+# If you also set the organization setting auth_password_login_enabled to false,
+# then your authentication will be seamless.  Otherwise a link will be presented
 # on the login page to trigger remote user auth.
 REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
 REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
 
-# If the organization setting auth_password_login_enabled is not false, then users will still be able to login through Redash instead of the LDAP server
+# If the organization setting auth_password_login_enabled is not false, then users will still be
+# able to login through Redash instead of the LDAP server
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
 # The LDAP directory address (ex. ldap://10.0.10.1:389)
 LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
-# The DN & password used to connect to LDAP to determine the identity of the user being authenticated. For AD this should be "org\\user".
+# The DN & password used to connect to LDAP to determine the identity of the user being authenticated.
+# For AD this should be "org\\user".
 LDAP_BIND_DN = os.environ.get('REDASH_LDAP_BIND_DN', None)
 LDAP_BIND_DN_PASSWORD = os.environ.get('REDASH_LDAP_BIND_DN_PASSWORD', '')
 # AD/LDAP email and display name keys

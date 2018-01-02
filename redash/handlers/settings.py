@@ -31,14 +31,14 @@ class OrganizationSettings(BaseResource):
         return {
             "settings": settings
         }
-    
+
     @require_admin
     def post(self):
         new_values = request.json
 
         if self.current_org.settings.get('settings') is None:
             self.current_org.settings['settings'] = {}
-        
+
         for k, v in new_values.iteritems():
             self.current_org.set_setting(k, v)
 
@@ -50,4 +50,3 @@ class OrganizationSettings(BaseResource):
         return {
             "settings": settings
         }
-
