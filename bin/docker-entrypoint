@@ -41,7 +41,12 @@ help() {
 
 tests() {
   export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
-  TEST_ARGS=${TEST_ARGS:-tests/}
+
+  if [ $# -eq 0 ]; then
+    TEST_ARGS=tests/
+  else
+    TEST_ARGS=$@
+  fi
   exec pytest $TEST_ARGS
 }
 
@@ -72,7 +77,8 @@ case "$1" in
     exec /app/manage.py $*
     ;;
   tests)
-    tests
+    shift
+    tests $@
     ;;
   help)
     shift
