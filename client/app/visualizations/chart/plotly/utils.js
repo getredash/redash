@@ -1,6 +1,6 @@
 import {
-  isArray, isNumber, isUndefined, contains, min, max, has, find, first, last,
-  each, values, sortBy, union, pluck, identity, filter, map, constant,
+  isArray, isNumber, isString, isUndefined, contains, min, max, has, find,
+  first, last, each, values, sortBy, union, pluck, identity, filter, map, constant,
 } from 'underscore';
 import moment from 'moment';
 import createFormatter from '@/lib/value-format';
@@ -37,6 +37,37 @@ const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.
 const formatPercent = createFormatter({ displayAs: 'number', numberFormat: '0[.]00' });
 
 const ColorPaletteArray = values(BaseColors);
+
+function getFontColor(bgcolor) {
+  let result = '#333333';
+  if (isString(bgcolor)) {
+    let matches = /#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(bgcolor);
+    let r;
+    let g;
+    let b;
+    if (matches) {
+      r = parseInt(matches[1], 16);
+      g = parseInt(matches[2], 16);
+      b = parseInt(matches[3], 16);
+    } else {
+      matches = /#?([0-9a-f])([0-9a-f])([0-9a-f])/i.exec(bgcolor);
+      if (matches) {
+        r = parseInt(matches[1] + matches[1], 16);
+        g = parseInt(matches[2] + matches[2], 16);
+        b = parseInt(matches[3] + matches[3], 16);
+      } else {
+        return result;
+      }
+    }
+
+    const lightness = r * 0.299 + g * 0.587 + b * 0.114;
+    if (lightness < 170) {
+      result = '#ffffff';
+    }
+  }
+
+  return result;
+}
 
 function normalizeValue(value) {
   if (moment.isMoment(value)) {
@@ -164,6 +195,9 @@ function prepareChartData(seriesList, options) {
       },
       name: seriesOptions.name || series.name,
       marker: { color: seriesColor },
+      insidetextfont: {
+        color: getFontColor(seriesColor),
+      },
     };
 
     if ((seriesOptions.yAxis === 1) && (options.series.stacking === null)) {
@@ -248,7 +282,7 @@ function enableAnnotations(layout, seriesList, options) {
   if (options.annotations) {
     if (options.globalSeriesType === 'column') {
       seriesList.forEach((series) => {
-        series.textposition = 'auto';
+        series.textposition = 'inside';
       });
     } else if (['line', 'area'].indexOf(options.globalSeriesType) >= 0) {
       layout.yaxis.showticklabels = false;
