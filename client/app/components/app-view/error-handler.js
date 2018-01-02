@@ -10,15 +10,17 @@ export class ErrorHandler {
   }
 
   process(error) {
+    this.reset();
     if (!(error instanceof Error)) {
       if (error.status && error.data) {
+        // $q rejection
         switch (error.status) {
-          case 403: error = new Error(''); break;
+          case 403: error = new Error('You have no permissions to view this page.'); break;
           default: error = new Error(error.data.message); break;
         }
       }
+      this.error = error;
     }
-    this.error = error;
     if (this.logToConsole) {
       // eslint-disable-next-line no-console
       console.error(error);
