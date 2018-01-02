@@ -33,7 +33,7 @@ gunicorn==19.7.1
 celery==3.1.23
 jsonschema==2.4.0
 RestrictedPython==3.6.0
-pysaml2==2.4.0
+pysaml2==4.5.0
 pycrypto==2.6.1
 funcy==1.7.1
 raven==6.0.0
