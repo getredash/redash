@@ -22,6 +22,9 @@ export default function init(ngModule) {
       template,
       controller: 'DataSourcesCtrl',
       title: 'Data Sources',
+      resolve: {
+        additionalBodyClass: () => 'app-page-data-sources',
+      },
     },
   };
 }

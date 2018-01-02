@@ -52,6 +52,9 @@ export default function init(ngModule) {
     '/groups/:groupId': {
       template,
       controller: 'GroupCtrl',
+      resolve: {
+        additionalBodyClass: () => 'app-page-group',
+      },
     },
   };
 }

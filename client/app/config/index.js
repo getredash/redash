@@ -106,4 +106,13 @@ registerComponents();
 registerPages();
 registerVisualizations(ngModule);
 
+ngModule.run(($rootScope) => {
+  $rootScope.$on('$routeChangeStart', () => {
+    $rootScope.additionalBodyClass = '';
+  });
+  $rootScope.$on('$routeChangeSuccess', ($event, $route) => {
+    $rootScope.additionalBodyClass = $route.locals.additionalBodyClass;
+  });
+});
+
 export default ngModule;

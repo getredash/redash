@@ -29,6 +29,9 @@ export default function init(ngModule) {
       controller: 'NewUserCtrl',
       controllerAs: '$ctrl',
       bindToController: 'true',
+      resolve: {
+        additionalBodyClass: () => 'app-page-new-user',
+      },
     },
   };
 }
