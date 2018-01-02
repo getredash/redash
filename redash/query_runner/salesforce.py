@@ -79,7 +79,8 @@ class Salesforce(BaseQueryRunner):
                 },
                 "api_version": {
                     "type": "string",
-                    "title": "Salesforce API Version"
+                    "title": "Salesforce API Version",
+                    "default": DEFAULT_API_VERSION
                 }
             },
             "required": ["username", "password", "token"],
