@@ -24,6 +24,7 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
 from redash.utils import generate_token, json_dumps
 from redash.utils.comparators import CaseInsensitiveComparator
 from redash.utils.configuration import ConfigurationContainer
+from redash.settings.organization import settings as org_settings
 from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
@@ -32,6 +33,7 @@ from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
+from sqlalchemy.orm.attributes import flag_modified
 from functools import reduce
 
 
@@ -313,6 +315,23 @@ class Organization(TimestampMixin, db.Model):
 
     def enable(self):
         self.settings['is_disabled'] = False
+
+    def set_setting(self, key, value):
+        if key not in org_settings:
+            raise KeyError(key)
+
+        self.settings.setdefault('settings', {})
+        self.settings['settings'][key] = value
+        flag_modified(self, 'settings')
+
+    def get_setting(self, key):
+        if key in self.settings.get('settings', {}):
+            return self.settings['settings'][key]
+
+        if key in org_settings:
+            return org_settings[key]
+
+        raise KeyError(key)
 
     @property
     def admin_group(self):

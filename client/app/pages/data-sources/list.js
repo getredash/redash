@@ -1,3 +1,4 @@
+import settingsMenu from '@/lib/settings-menu';
 import template from './list.html';
 
 function DataSourcesCtrl($scope, $location, currentUser, Events, DataSource) {
@@ -7,6 +8,13 @@ function DataSourcesCtrl($scope, $location, currentUser, Events, DataSource) {
 }
 
 export default function init(ngModule) {
+  settingsMenu.add({
+    permission: 'admin',
+    title: 'Data Sources',
+    path: 'data_sources',
+    order: 1,
+  });
+
   ngModule.controller('DataSourcesCtrl', DataSourcesCtrl);
 
   return {

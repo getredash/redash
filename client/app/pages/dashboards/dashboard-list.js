@@ -5,10 +5,9 @@ import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 
-function DashboardListCtrl(Dashboard, $location, clientConfig) {
+function DashboardListCtrl(Dashboard, $location) {
   const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/ig;
 
-  this.logoUrl = clientConfig.logoUrl;
   const page = parseInt($location.search().page || 1, 10);
 
   this.defaultOptions = {};
