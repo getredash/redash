@@ -284,7 +284,7 @@ function enableAnnotations(layout, seriesList, options) {
       seriesList.forEach((series) => {
         series.textposition = 'inside';
       });
-    } else if (['line', 'area'].indexOf(options.globalSeriesType) >= 0) {
+    } else if (['line', 'area', 'scatter'].indexOf(options.globalSeriesType) >= 0) {
       layout.yaxis.showticklabels = false;
 
       delete layout.yaxis2;

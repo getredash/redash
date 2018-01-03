@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div ng-if="['line', 'area', 'column'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
+    <div ng-if="['line', 'area', 'column', 'scatter'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
       <label><input type="checkbox" ng-model="options.annotations"> Show annotations</label>
     </div>
 
@@ -129,7 +129,7 @@
       <div ng-if="options.series.stacking" class="checkbox">
         <label class="control-label">
           <input type="checkbox" ng-model="options.series.percentValues">
-          Percent values
+          Percent stacking
         </label>
       </div>
     </div>
