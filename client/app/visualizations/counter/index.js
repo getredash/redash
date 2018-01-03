@@ -16,7 +16,7 @@ function getRowNumber(index, size) {
   return size + index;
 }
 
-function CounterRenderer() {
+function CounterRenderer($timeout) {
   return {
     restrict: 'E',
     template: counterTemplate,
@@ -97,6 +97,10 @@ function CounterRenderer() {
             $scope.stringSuffix = null;
           }
         }
+
+        $timeout(() => {
+          $scope.handleResize();
+        });
       };
 
       $scope.$watch('visualization.options', refreshData, true);

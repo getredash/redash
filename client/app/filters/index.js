@@ -92,7 +92,7 @@ export function notEmpty(collection) {
   return !isEmpty(collection);
 }
 
-export function showError(field, form) {
-  return (field.$touched && field.$invalid) || form.$submitted;
+export function showError(field) {
+  return field.$touched && field.$invalid;
 }
 

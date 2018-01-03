@@ -1,52 +1,7 @@
-import json
 import os
-import urlparse
-
 from funcy import distinct, remove
 
-
-def parse_db_url(url):
-    url_parts = urlparse.urlparse(url)
-    connection = {'threadlocals': True}
-
-    if url_parts.hostname and not url_parts.path:
-        connection['name'] = url_parts.hostname
-    else:
-        connection['name'] = url_parts.path[1:]
-        connection['host'] = url_parts.hostname
-        connection['port'] = url_parts.port
-        connection['user'] = url_parts.username
-        connection['password'] = url_parts.password
-
-    return connection
-
-
-def fix_assets_path(path):
-    fullpath = os.path.join(os.path.dirname(__file__), path)
-    return fullpath
-
-
-def array_from_string(str):
-    array = str.split(',')
-    if "" in array:
-        array.remove("")
-
-    return array
-
-
-def set_from_string(str):
-    return set(array_from_string(str))
-
-
-def parse_boolean(str):
-    return json.loads(str.lower())
-
-
-def int_or_none(value):
-    if value is None:
-        return value
-
-    return int(value)
+from .helpers import parse_db_url, fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
 
 
 def all_settings():
@@ -58,10 +13,6 @@ def all_settings():
             settings[name] = item
 
     return settings
-
-
-NAME = os.environ.get('REDASH_NAME', 'Redash')
-LOGO_URL = os.environ.get('REDASH_LOGO_URL', '/images/redash_icon_small.png')
 
 REDIS_URL = os.environ.get('REDASH_REDIS_URL', os.environ.get('REDIS_URL', "redis://localhost:6379/0"))
 PROXIES_COUNT = int(os.environ.get('REDASH_PROXIES_COUNT', "1"))
@@ -92,7 +43,6 @@ QUERY_RESULTS_CLEANUP_MAX_AGE = int(os.environ.get("REDASH_QUERY_RESULTS_CLEANUP
 SCHEMAS_REFRESH_SCHEDULE = int(os.environ.get("REDASH_SCHEMAS_REFRESH_SCHEDULE", 30))
 
 AUTH_TYPE = os.environ.get("REDASH_AUTH_TYPE", "api_key")
-PASSWORD_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_PASSWORD_LOGIN_ENABLED", "true"))
 ENFORCE_HTTPS = parse_boolean(os.environ.get("REDASH_ENFORCE_HTTPS", "false"))
 INVITATION_TOKEN_MAX_AGE = int(os.environ.get("REDASH_INVITATION_TOKEN_MAX_AGE", 60 * 60 * 24 * 7))
 
@@ -101,13 +51,6 @@ MULTI_ORG = parse_boolean(os.environ.get("REDASH_MULTI_ORG", "false"))
 GOOGLE_CLIENT_ID = os.environ.get("REDASH_GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("REDASH_GOOGLE_CLIENT_SECRET", "")
 GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
-
-SAML_ENTITY_ID = os.environ.get("REDASH_SAML_ENTITY_ID", "")
-SAML_METADATA_URL = os.environ.get("REDASH_SAML_METADATA_URL", "")
-SAML_LOCAL_METADATA_PATH = os.environ.get("REDASH_SAML_LOCAL_METADATA_PATH", "")
-SAML_LOGIN_ENABLED = SAML_METADATA_URL != "" or SAML_LOCAL_METADATA_PATH != ""
-SAML_NAMEID_FORMAT = os.environ.get("REDASH_SAML_NAMEID_FORMAT", "")
-SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "")
 
 # Enables the use of an externally-provided and trusted remote user via an HTTP
 # header.  The "user" must be an email address.
@@ -129,17 +72,19 @@ SAML_CALLBACK_SERVER_NAME = os.environ.get("REDASH_SAML_CALLBACK_SERVER_NAME", "
 # user out.  Doing so could be done with further work, but usually it's
 # unnecessary.
 #
-# If you also set REDASH_PASSWORD_LOGIN_ENABLED to false, then your
-# authentication will be seamless.  Otherwise a link will be presented on the
-# login page to trigger remote user auth.
+# If you also set the organization setting auth_password_login_enabled to false,
+# then your authentication will be seamless.  Otherwise a link will be presented
+# on the login page to trigger remote user auth.
 REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
 REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
 
-# If REDASH_PASSWORD_LOGIN_ENABLED is not false, then users will still be able to login through Redash instead of the LDAP server
+# If the organization setting auth_password_login_enabled is not false, then users will still be
+# able to login through Redash instead of the LDAP server
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
 # The LDAP directory address (ex. ldap://10.0.10.1:389)
 LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
-# The DN & password used to connect to LDAP to determine the identity of the user being authenticated. For AD this should be "org\\user".
+# The DN & password used to connect to LDAP to determine the identity of the user being authenticated.
+# For AD this should be "org\\user".
 LDAP_BIND_DN = os.environ.get('REDASH_LDAP_BIND_DN', None)
 LDAP_BIND_DN_PASSWORD = os.environ.get('REDASH_LDAP_BIND_DN_PASSWORD', '')
 # AD/LDAP email and display name keys
@@ -150,13 +95,13 @@ LDAP_CUSTOM_USERNAME_PROMPT = os.environ.get('REDASH_LDAP_CUSTOM_USERNAME_PROMPT
 # LDAP Search DN TEMPLATE (for AD this should be "(sAMAccountName=%(username)s)"")
 LDAP_SEARCH_TEMPLATE = os.environ.get('REDASH_LDAP_SEARCH_TEMPLATE', '(cn=%(username)s)')
 # The schema to bind to (ex. cn=users,dc=ORG,dc=local)
-LDAP_SEARCH_DN = os.environ.get('REDASH_SEARCH_DN', None)
+LDAP_SEARCH_DN = os.environ.get('REDASH_LDAP_SEARCH_DN', os.environ.get('REDASH_SEARCH_DN'))
 
 
 # Usually it will be a single path, but we allow to specify additional ones to override the default assets. Only the
 # last one will be used for Flask templates.
 STATIC_ASSETS_PATHS = [fix_assets_path(path) for path in os.environ.get("REDASH_STATIC_ASSETS_PATH", "../client/dist/").split(',')]
-STATIC_ASSETS_PATHS.append(fix_assets_path('./static/'))
+STATIC_ASSETS_PATHS.append(fix_assets_path('static/'))
 
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 COOKIE_SECRET = os.environ.get("REDASH_COOKIE_SECRET", "c292a0a3aa32397cdb050e233733900f")
@@ -259,7 +204,6 @@ ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 
 # Features:
-FEATURE_ALLOW_ALL_TO_EDIT_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_ALLOW_ALL_TO_EDIT", "true"))
 VERSION_CHECK = parse_boolean(os.environ.get("REDASH_VERSION_CHECK", "true"))
 FEATURE_DISABLE_REFRESH_QUERIES = parse_boolean(os.environ.get("REDASH_FEATURE_DISABLE_REFRESH_QUERIES", "false"))
 FEATURE_SHOW_QUERY_RESULTS_COUNT = parse_boolean(os.environ.get("REDASH_FEATURE_SHOW_QUERY_RESULTS_COUNT", "true"))
@@ -277,16 +221,3 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA
 # Allow Parameters in Embeds
 # WARNING: With this option enabled, Redash reads query parameters from the request URL (risk of SQL injection!)
 ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
-
-# Common Client config
-COMMON_CLIENT_CONFIG = {
-    'allowScriptsInUserInput': ALLOW_SCRIPTS_IN_USER_INPUT,
-    'showPermissionsControl': FEATURE_SHOW_PERMISSIONS_CONTROL,
-    'allowCustomJSVisualizations': FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
-    'autoPublishNamedQueries': FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-    'dateFormat': DATE_FORMAT,
-    'dateTimeFormat': "{0} HH:mm".format(DATE_FORMAT),
-    'allowAllToEditQueries': FEATURE_ALLOW_ALL_TO_EDIT_QUERIES,
-    'mailSettingsMissing': MAIL_DEFAULT_SENDER is None,
-    'logoUrl': LOGO_URL
-}

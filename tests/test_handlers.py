@@ -72,8 +72,8 @@ class JobAPITest(BaseTestCase, AuthenticationTestMixin):
 
 class TestLogin(BaseTestCase):
     def setUp(self):
-        settings.PASSWORD_LOGIN_ENABLED = True
         super(TestLogin, self).setUp()
+        self.factory.org.set_setting('auth_password_login_enabled', True)
 
     @classmethod
     def setUpClass(cls):
@@ -84,10 +84,12 @@ class TestLogin(BaseTestCase):
         settings.ORG_RESOLVING = "multi_org"
 
     def test_redirects_to_google_login_if_password_disabled(self):
-        with patch.object(settings, 'PASSWORD_LOGIN_ENABLED', False), self.app.test_request_context('/default/login'):
+        self.factory.org.set_setting('auth_password_login_enabled', False)
+        with self.app.test_request_context('/default/login'):
             rv = self.client.get('/default/login')
             self.assertEquals(rv.status_code, 302)
             self.assertTrue(rv.location.endswith(url_for('google_oauth.authorize', next='/default/')))
+        self.factory.org.set_setting('auth_password_login_enabled', True)
 
     def test_get_login_form(self):
         rv = self.client.get('/default/login')
