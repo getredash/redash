@@ -1,3 +1,4 @@
+import settingsMenu from '@/lib/settings-menu';
 import template from './list.html';
 
 function DestinationsCtrl($scope, $location, toastr, currentUser, Events, Destination) {
@@ -7,6 +8,12 @@ function DestinationsCtrl($scope, $location, toastr, currentUser, Events, Destin
 }
 
 export default function init(ngModule) {
+  settingsMenu.add({
+    permission: 'admin',
+    title: 'Alert Destinations',
+    path: 'destinations',
+  });
+
   ngModule.controller('DestinationsCtrl', DestinationsCtrl);
 
   return {

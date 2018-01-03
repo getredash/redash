@@ -1,3 +1,4 @@
+import settingsMenu from '@/lib/settings-menu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
@@ -12,6 +13,14 @@ function UsersCtrl(currentUser, Events, User) {
 }
 
 export default function init(ngModule) {
+  settingsMenu.add({
+    permission: 'list_users',
+    title: 'Users',
+    path: 'users',
+    order: 2,
+  });
+
+
   ngModule.component('usersListPage', {
     controller: UsersCtrl,
     template,

@@ -98,6 +98,54 @@ def create(email, name, groups, is_admin=False, google_auth=False,
 
 @manager.command()
 @argument('email')
+@argument('name')
+@option('--org', 'organization', default='default',
+        help="The organization the root user belongs to (leave blank for 'default').")
+@option('--google', 'google_auth', is_flag=True,
+        default=False, help="user uses Google Auth to login")
+@option('--password', 'password', default=None,
+        help="Password for root user who don't use Google Auth "
+        "(leave blank for prompt).")
+def create_root(email, name, google_auth=False, password=None, organization='default'):
+    """
+    Create root user.
+    """
+    print("Creating root user (%s, %s) in organization %s..." % (email, name, organization))
+    print("Login with Google Auth: %r\n" % google_auth)
+
+    user = models.User.query.filter(models.User.email == email).first()
+    if user is not None:
+        print("User [%s] is already exists." % email)
+        exit(1)
+
+    slug = 'default'
+    default_org = models.Organization.query.filter(models.Organization.slug == slug).first()
+    if default_org is None:
+        default_org = models.Organization(name=organization, slug=slug, settings={})
+
+    admin_group = models.Group(name='admin', permissions=['admin', 'super_admin'],
+                               org=default_org, type=models.Group.BUILTIN_GROUP)
+    default_group = models.Group(name='default', permissions=models.Group.DEFAULT_PERMISSIONS,
+                                 org=default_org, type=models.Group.BUILTIN_GROUP)
+
+    models.db.session.add_all([default_org, admin_group, default_group])
+    models.db.session.commit()
+
+    user = models.User(org=default_org, email=email, name=name,
+                       group_ids=[admin_group.id, default_group.id])
+    if not google_auth:
+        user.hash_password(password)
+
+    try:
+        models.db.session.add(user)
+        models.db.session.commit()
+    except Exception as e:
+        print("Failed creating root user: %s" % e.message)
+        exit(1)
+
+
+@manager.command()
+@argument('email')
 @option('--org', 'organization', default=None,
         help="The organization the user belongs to (leave blank for all"
         " organizations).")

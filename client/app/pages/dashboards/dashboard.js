@@ -164,12 +164,16 @@ function DashboardCtrl(
     this.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, (dashboard) => {
       Events.record('view', 'dashboard', dashboard.id);
       renderDashboard(dashboard, force);
-    }, () => {
-      // error...
-      // try again. we wrap loadDashboard with throttle so it doesn't happen too often.
-      // we might want to consider exponential backoff and also move this as a general
-      // solution in $http/$resource for all AJAX calls.
-      this.loadDashboard();
+    }, (error) => {
+      const statusGroup = Math.floor(error.status / 100);
+      if (statusGroup === 5) {
+        // recoverable errors - all 5** (server is temporarily unavailable
+        // for some reason, but it should get up soon).
+        this.loadDashboard();
+      } else {
+        // all kind of 4** errors are not recoverable, so just display them
+        throw error;
+      }
     });
   }, 1000);
 

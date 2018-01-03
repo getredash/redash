@@ -1,0 +1,6 @@
+<app-header ng-if="$ctrl.showHeaderAndFooter"></app-header>
+<div ng-if="$ctrl.handler.error" class="container-fluid">
+  <div class="alert alert-danger">{{ $ctrl.handler.error.message }}</div>
+</div>
+<div ng-if="!$ctrl.handler.error" ng-view></div>
+<footer ng-if="$ctrl.showHeaderAndFooter"></footer>
