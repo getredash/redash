@@ -236,7 +236,7 @@
                           <filters filters="filters"></filters>
                           <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
                         </div>
-                        </div>
+
                         <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis">
                           <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
                           <div class="p-t-15 p-b-15">
@@ -274,14 +274,15 @@
                       </div>
                     </div>
                   </div>
+                </div>
 
                 </div>
               </div>
             </div>
-          </div>
 
         </section>
       </div>
+
     </div>
   </main>
 </div>
