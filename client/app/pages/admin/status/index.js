@@ -35,9 +35,6 @@ export default function init(ngModule) {
     '/admin/status': {
       template: '<status-page></status-page>',
       title: 'System Status',
-      resolve: {
-        additionalBodyClass: () => 'app-page-admin-status',
-      },
     },
   };
 }

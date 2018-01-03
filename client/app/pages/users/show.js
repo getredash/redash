@@ -117,9 +117,6 @@ export default function init(ngModule) {
       reloadOnSearch: false,
       controller: 'UserCtrl',
       title: 'Users',
-      resolve: {
-        additionalBodyClass: () => 'app-page-user',
-      },
     },
   };
 }

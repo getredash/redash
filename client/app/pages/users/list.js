@@ -30,9 +30,6 @@ export default function init(ngModule) {
     '/users': {
       template: '<users-list-page></users-list-page>',
       title: 'Users',
-      resolve: {
-        additionalBodyClass: () => 'app-page-users',
-      },
     },
   };
 }

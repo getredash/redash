@@ -95,9 +95,6 @@ export default function init(ngModule) {
     '/alerts/:alertId': {
       template: '<alert-page></alert-page>',
       title: 'Alerts',
-      resolve: {
-        additionalBodyClass: () => 'app-page-alert',
-      },
     },
   };
 }

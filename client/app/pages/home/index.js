@@ -31,9 +31,6 @@ export default function init(ngModule) {
     '/': {
       template: '<home-page></home-page>',
       title: 'Redash',
-      resolve: {
-        additionalBodyClass: () => 'app-page-home',
-      },
     },
   };
 }

@@ -55,9 +55,6 @@ export default function init(ngModule) {
     '/admin/queries/tasks': {
       template: '<tasks-page></tasks-page>',
       title: 'Running Queries',
-      resolve: {
-        additionalBodyClass: () => 'app-page-admin-tasks',
-      },
     },
   };
 }
