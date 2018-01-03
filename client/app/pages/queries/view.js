@@ -430,7 +430,6 @@ export default function init(ngModule) {
 
           return Query.get({ id: $route.current.params.queryId }).$promise;
         },
-        additionalBodyClass: () => 'app-page-query',
       },
     },
   };

@@ -50,7 +50,6 @@ export default function init(ngModule) {
       resolve: {
         dashboard: loadPublicDashboard,
         session,
-        additionalBodyClass: () => 'app-page-public-dashboard',
       },
     });
   });

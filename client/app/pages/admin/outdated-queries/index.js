@@ -40,9 +40,6 @@ export default function init(ngModule) {
     '/admin/queries/outdated': {
       template: '<outdated-queries-page></outdated-queries-page>',
       title: 'Outdated Queries',
-      resolve: {
-        additionalBodyClass: () => 'app-page-admin-outdated-queries',
-      },
     },
   };
 }
