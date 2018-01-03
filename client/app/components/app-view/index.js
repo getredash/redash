@@ -14,7 +14,7 @@ export default function init(ngModule) {
 
   ngModule.component('appView', {
     template,
-    controller($rootScope, $scope, $route, $timeout, Auth) {
+    controller($rootScope, $scope, $route, Auth) {
       this.showHeaderAndFooter = false;
 
       this.error = null;
@@ -52,16 +52,6 @@ export default function init(ngModule) {
         } else {
           this.showHeaderAndFooter = false;
         }
-      });
-
-      $rootScope.$on('$routeChangeSuccess', () => {
-        // Show any error if it occurred during route changing
-        this.error = handler.error instanceof Error ? handler.error : null;
-        // Wait for error for some grace period - to catch errors during
-        // controller instantiation, in example
-        $timeout(() => {
-          this.error = handler.error instanceof Error ? handler.error : null;
-        }, 50);
       });
 
       $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
