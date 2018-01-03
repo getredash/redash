@@ -232,12 +232,10 @@
                     </div>
                     <div class="row">
                       <div class="col-lg-12">
-                        <div ng-if="!query.visualizations.length">
+                        <div ng-if="!query.visualizations.length" class="query__vis p-b-15">
                           <filters filters="filters"></filters>
-                          <div class="query__vis">
-                            <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                            <br>
-                          </div>
+                          <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                        </div>
                         </div>
                         <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis">
                           <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
