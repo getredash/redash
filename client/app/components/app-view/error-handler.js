@@ -1,29 +1,26 @@
+import { EventEmitter } from 'events';
+
 // eslint-disable-next-line import/prefer-default-export
-export class ErrorHandler {
+export class ErrorHandler extends EventEmitter {
   constructor() {
+    super();
     this.logToConsole = true;
     this.reset();
   }
 
   reset() {
     this.error = null;
+    this.emit('change');
   }
 
   process(error) {
     this.reset();
-    if (!(error instanceof Error)) {
-      if (error.status && error.data) {
-        // $q rejection
-        switch (error.status) {
-          case 403: error = new Error('You have no permissions to view this page.'); break;
-          default: error = new Error(error.data.message); break;
-        }
-      }
-      this.error = error;
-    }
     if (this.logToConsole) {
+      // Log raw error object
       // eslint-disable-next-line no-console
       console.error(error);
     }
+    this.error = error;
+    this.emit('change');
   }
 }

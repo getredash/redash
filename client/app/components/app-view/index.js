@@ -1,4 +1,5 @@
 import debug from 'debug';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import { ErrorHandler } from './error-handler';
 import template from './template.html';
 
@@ -13,12 +14,27 @@ export default function init(ngModule) {
 
   ngModule.component('appView', {
     template,
-    controller($rootScope, $route, Auth) {
+    controller($rootScope, $scope, $route, $timeout, Auth) {
       this.showHeaderAndFooter = false;
 
-      this.handler = handler;
+      this.error = null;
+
+      const handleError = () => {
+        if (
+          (handler.error === null) ||
+          (handler.error instanceof PromiseRejectionError)
+        ) {
+          this.error = handler.error;
+        }
+      };
+
+      handler.addListener('change', handleError);
+      $scope.$on('$destroy', () => {
+        handler.removeListener('change', handleError);
+      });
 
       $rootScope.$on('$routeChangeStart', (event, route) => {
+        handler.reset();
         if (route.$$route.authenticated) {
           // For routes that need authentication, check if session is already
           // loaded, and load it if not.
@@ -39,11 +55,17 @@ export default function init(ngModule) {
       });
 
       $rootScope.$on('$routeChangeSuccess', () => {
-        handler.reset();
+        // Show any error if it occurred during route changing
+        this.error = handler.error instanceof Error ? handler.error : null;
+        // Wait for error for some grace period - to catch errors during
+        // controller instantiation, in example
+        $timeout(() => {
+          this.error = handler.error instanceof Error ? handler.error : null;
+        }, 50);
       });
 
       $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
-        throw rejection;
+        throw new PromiseRejectionError(rejection);
       });
     },
   });
