@@ -57,6 +57,14 @@ class TestCreateTable(TestCase):
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
 
+    def test_creates_table_with_non_ascii_in_column_name(self):
+        connection = sqlite3.connect(':memory:')
+        results = {'columns': [{'name': u'\xe4'}, {'name': 'test2'}], 'rows': [
+            {u'\xe4': 1, 'test2': 2}]}
+        table_name = 'query_123'
+        create_table(connection, table_name, results)
+        connection.execute('SELECT 1 FROM query_123')
+
     def test_loads_results(self):
         connection = sqlite3.connect(':memory:')
         rows = [{'test1': 1, 'test2': 'test'}, {'test1': 2, 'test2': 'test2'}]

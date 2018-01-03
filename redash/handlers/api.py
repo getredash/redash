@@ -19,6 +19,7 @@ from redash.handlers.groups import GroupListResource, GroupResource, GroupMember
     GroupDataSourceListResource, GroupDataSourceResource
 from redash.handlers.destinations import DestinationTypeListResource, DestinationResource, DestinationListResource
 from redash.handlers.query_snippets import QuerySnippetListResource, QuerySnippetResource
+from redash.handlers.settings import OrganizationSettings
 
 
 class ApiExt(Api):
@@ -103,3 +104,5 @@ api.add_org_resource(DestinationListResource, '/api/destinations', endpoint='des
 
 api.add_org_resource(QuerySnippetResource, '/api/query_snippets/<snippet_id>', endpoint='query_snippet')
 api.add_org_resource(QuerySnippetListResource, '/api/query_snippets', endpoint='query_snippets')
+
+api.add_org_resource(OrganizationSettings, '/api/settings/organization', endpoint='organization_settings')

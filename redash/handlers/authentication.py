@@ -74,7 +74,7 @@ def reset(token, org_slug=None):
 
 @routes.route(org_scoped_rule('/forgot'), methods=['GET', 'POST'])
 def forgot_password(org_slug=None):
-    if not settings.PASSWORD_LOGIN_ENABLED:
+    if not current_org.get_setting('auth_password_login_enabled'):
         abort(404)
 
     submitted = False
@@ -106,10 +106,10 @@ def login(org_slug=None):
     if current_user.is_authenticated:
         return redirect(next_path)
 
-    if not settings.PASSWORD_LOGIN_ENABLED:
+    if not current_org.get_setting('auth_password_login_enabled'):
         if settings.REMOTE_USER_LOGIN_ENABLED:
             return redirect(url_for("remote_user_auth.login", next=next_path))
-        elif settings.SAML_LOGIN_ENABLED:
+        elif current_org.get_setting('auth_saml_enabled'):  # settings.SAML_LOGIN_ENABLED:
             return redirect(url_for("saml_auth.sp_initiated", next=next_path))
         elif settings.LDAP_LOGIN_ENABLED:
             return redirect(url_for("ldap_auth.login", next=next_path))
@@ -137,7 +137,7 @@ def login(org_slug=None):
                            email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
-                           show_saml_login=settings.SAML_LOGIN_ENABLED,
+                           show_saml_login=current_org.get_setting('auth_saml_enabled'),
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
                            show_ldap_login=settings.LDAP_LOGIN_ENABLED)
 
@@ -166,7 +166,19 @@ def client_config():
     else:
         client_config = {}
 
-    client_config.update(settings.COMMON_CLIENT_CONFIG)
+    date_format = current_org.get_setting('date_format')
+
+    defaults = {
+        'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
+        'showPermissionsControl': settings.FEATURE_SHOW_PERMISSIONS_CONTROL,
+        'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
+        'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
+        'dateFormat': date_format,
+        'dateTimeFormat': "{0} HH:mm".format(date_format),
+        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None
+    }
+
+    client_config.update(defaults)
     client_config.update({
         'basePath': base_href()
     })

@@ -228,10 +228,18 @@ class Redshift(PostgreSQL):
     def _get_tables(self, schema):
         # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
         # http://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
+        # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
+        # http://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
         query = """
-        SELECT DISTINCT table_name,table_schema, column_name
+        SELECT DISTINCT table_name, table_schema, column_name
         FROM svv_columns
-        WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema');
+        WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+        UNION ALL
+        SELECT DISTINCT view_name::varchar AS table_name,
+                        view_schema::varchar AS table_schema,
+                        col_name::varchar AS column_name
+        FROM pg_get_late_binding_view_cols()
+             cols(view_schema name, view_name name, col_name name, col_type varchar, col_num int);
         """
 
         self._get_definitions(schema, query)
