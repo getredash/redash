@@ -19,6 +19,10 @@ edit-in-place p.editable:hover {
   }
 }
 
+.filter-container {
+  margin-bottom: 5px;
+}
+
 .editor__control--right {
   text-align: right;
 }
@@ -120,8 +124,6 @@ edit-in-place p.editable:hover {
 .query-alerts {
   .alert {
     margin-bottom: 15px;
-    margin-left: 15px;
-    margin-right: 15px;
   }
 }
 
@@ -230,7 +232,7 @@ edit-in-place p.editable:hover {
     z-index: 1;
     width: 25%;
     max-width: 600px;
-    min-width: 8px;
+    min-width: 10px;
 
     .schema-container {
       height: calc(~'100% - 40px');
@@ -315,8 +317,8 @@ edit-in-place p.editable:hover {
   }
   .rg-right, .rg-left, .rg-top, .rg-bottom {
     display: block;
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
     line-height: @spacing;
     position: absolute;
     z-index: 99;
@@ -362,7 +364,7 @@ edit-in-place p.editable:hover {
     margin-right: 0px;
 
     &:hover {
-      background: rgba(0,0,0,0.025);
+      background: fade(@redash-gray, 6%);
     }
   }
   .rg-bottom  {
@@ -374,7 +376,7 @@ edit-in-place p.editable:hover {
     margin-bottom: 0;
 
     &:hover {
-      background: #fbfbfb;
+      background: fade(@redash-gray, 6%);
     }
   }
   .rg-left    {
