@@ -1,31 +1,48 @@
+import { findWhere } from 'underscore';
 import debug from 'debug';
 import template from './show.html';
 
 const logger = debug('redash:http');
 
 function DataSourceCtrl(
-  $scope, $routeParams, $http, $location, toastr,
+  $scope, $route, $routeParams, $http, $location, toastr,
   currentUser, Events, DataSource,
 ) {
   Events.record('view', 'page', 'admin/data_source');
 
+  $scope.dataSource = $route.current.locals.dataSource;
   $scope.filter = {};
   $scope.dataSourceId = $routeParams.dataSourceId;
-  $http.get('api/data_sources/types').then((response) => {
-    $scope.types = response.data;
-  });
+  $scope.types = $route.current.locals.types;
+  $scope.type = findWhere($scope.types, { type: $scope.dataSource.type });
+  $scope.canChangeType = $scope.dataSource.id === undefined;
 
-  if ($scope.dataSourceId === 'new') {
-    $scope.dataSource = new DataSource({ options: {} });
-  } else {
-    $scope.dataSource = DataSource.get({ id: $routeParams.dataSourceId });
-  }
+  $scope.helpLinks = {
+    athena: 'http://help.redash.io/article/122-amazon-athena-setup',
+    bigquery: 'http://help.redash.io/article/124-bigquery-setup',
+    url: 'http://help.redash.io/article/120-using-a-url-as-a-data-source',
+    mongodb: 'http://help.redash.io/article/157-mongodb-setup',
+    google_spreadsheets: 'http://help.redash.io/article/126-google-spreadsheets-setup',
+    google_analytics: 'http://help.redash.io/article/125-google-analytics-setup',
+    axibasetsd: 'http://help.redash.io/article/123-axibase-time-series-database',
+    results: 'http://help.redash.io/article/152-query-results-data-source',
+  };
 
   $scope.$watch('dataSource.id', (id) => {
     if (id !== $scope.dataSourceId && id !== undefined) {
       $location.path(`/data_sources/${id}`).replace();
     }
   });
+
+  $scope.setType = (type) => {
+    $scope.type = type;
+    $scope.dataSource.type = type.type;
+  };
+
+  $scope.resetType = () => {
+    $scope.type = undefined;
+    $scope.dataSource = new DataSource({ options: {} });
+  };
 
   function deleteDataSource() {
     Events.record('delete', 'datasource', $scope.dataSource.id);
@@ -68,10 +85,39 @@ export default function init(ngModule) {
   ngModule.controller('DataSourceCtrl', DataSourceCtrl);
 
   return {
+    '/data_sources/new': {
+      template,
+      controller: 'DataSourceCtrl',
+      title: 'Datasources',
+      resolve: {
+        dataSource: (DataSource) => {
+          'ngInject';
+
+          return new DataSource({ options: {} });
+        },
+        types: ($http) => {
+          'ngInject';
+
+          return $http.get('api/data_sources/types').then(response => response.data);
+        },
+      },
+    },
     '/data_sources/:dataSourceId': {
       template,
       controller: 'DataSourceCtrl',
       title: 'Datasources',
+      resolve: {
+        dataSource: (DataSource, $route) => {
+          'ngInject';
+
+          return DataSource.get({ id: $route.current.params.dataSourceId }).$promise;
+        },
+        types: ($http) => {
+          'ngInject';
+
+          return $http.get('api/data_sources/types').then(response => response.data);
+        },
+      },
     },
   };
 }
