@@ -86,10 +86,15 @@ def org_login(org_slug):
 @blueprint.route('/oauth/google', endpoint="authorize")
 def login():
     callback = url_for('.callback', _external=True)
-    next_path = request.args.get('next', url_for("redash.index", org_slug=session.get('org_slug')))
+    org_slug = session.get('org_slug')
+    org = models.Organization.get_by_slug(session.pop('org_slug')) if org_slug else current_org
+    next_path = request.args.get('next', url_for("redash.index", org_slug=org_slug))
     logger.debug("Callback url: %s", callback)
     logger.debug("Next is: %s", next_path)
-    return google_remote_app().authorize(callback=callback, state=next_path)
+    hd = None
+    if len(org.google_apps_domains) == 1:
+        hd = org.google_apps_domains[0]
+    return google_remote_app().authorize(callback=callback, state=next_path, hd=hd)
 
 
 @blueprint.route('/oauth/google_callback', endpoint="callback")
