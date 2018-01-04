@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isString, isUndefined, contains, min, max, has, find,
-  first, last, each, values, sortBy, union, pluck, identity, filter, map, constant,
+  each, values, sortBy, union, pluck, identity, filter, map, constant,
 } from 'underscore';
 import moment from 'moment';
 import createFormatter from '@/lib/value-format';
@@ -108,21 +108,33 @@ function getTitle(axis) {
 }
 
 function setType(series, type, options) {
-  if (type === 'column') {
-    series.type = 'bar';
-  } else if (type === 'line') {
-    series.mode = 'lines';
-  } else if (type === 'area') {
-    series.fill = options.series.stacking === null ? 'tozeroy' : 'tonexty';
-    series.mode = 'lines';
-  } else if (type === 'scatter') {
-    series.type = 'scatter';
-    series.mode = 'markers';
-  } else if (type === 'bubble') {
-    series.mode = 'markers';
-  } else if (type === 'box') {
-    series.type = 'box';
-    series.mode = 'markers';
+  switch (type) {
+    case 'column':
+      series.type = 'bar';
+      if (options.showDataLabels) {
+        series.textposition = 'inside';
+      }
+      break;
+    case 'line':
+      series.mode = 'lines' + (options.showDataLabels ? '+text' : '');
+      break;
+    case 'area':
+      series.mode = 'lines' + (options.showDataLabels ? '+text' : '');
+      series.fill = options.series.stacking === null ? 'tozeroy' : 'tonexty';
+      break;
+    case 'scatter':
+      series.type = 'scatter';
+      series.mode = 'markers' + (options.showDataLabels ? '+text' : '');
+      break;
+    case 'bubble':
+      series.mode = 'markers';
+      break;
+    case 'box':
+      series.type = 'box';
+      series.mode = 'markers';
+      break;
+    default:
+      break;
   }
 }
 
@@ -278,51 +290,12 @@ function prepareStackingData(seriesList) {
   return seriesList;
 }
 
-function enableAnnotations(layout, seriesList, options) {
-  if (options.annotations) {
-    if (options.globalSeriesType === 'column') {
-      seriesList.forEach((series) => {
-        series.textposition = 'inside';
-      });
-    } else if (['line', 'area', 'scatter'].indexOf(options.globalSeriesType) >= 0) {
-      layout.yaxis.showticklabels = false;
-
-      delete layout.yaxis2;
-      layout.annotations = [];
-      each(seriesList, (series) => {
-        delete series.yaxis;
-        const leftAnnotation = {
-          xref: 'paper',
-          x: 0.05,
-          y: first(series.y),
-          xanchor: 'right',
-          yanchor: 'middle',
-          text: first(series.annotations),
-          showarrow: false,
-        };
-        const rightAnnotation = {
-          xref: 'paper',
-          x: 0.95,
-          y: last(series.y),
-          xanchor: 'left',
-          yanchor: 'middle',
-          text: last(series.annotations),
-          showarrow: false,
-        };
-
-        layout.annotations.push(leftAnnotation, rightAnnotation);
-      });
-    }
-  }
-}
-
 function prepareDataLabels(seriesList, options) {
   seriesList.forEach((series) => {
     series.visible = true;
     series.savedY = series.y;
     series.hoverinfo = 'x+text+name';
-    series.text = map(series.y, v => `Value: ${formatNumber(v)}`);
-    series.annotations = map([first(series.y), last(series.y)], v => `${formatNumber(v)}`);
+    series.text = map(series.y, v => `${formatNumber(v)}`);
   });
 
   if (options.series.percentValues && (seriesList.length > 0)) {
@@ -335,15 +308,7 @@ function prepareDataLabels(seriesList, options) {
 
     each(seriesList, (series) => {
       series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
-      series.text = map(series.y, (v, i) => [
-        `Value: ${formatNumber(series.savedY[i])}`,
-        '<br>',
-        `Relative: ${formatPercent(v)}%`,
-      ].join(''));
-      series.annotations = map([first(series.y), last(series.y)], (v, i) => [
-        `${formatNumber(series.savedY[i])}`,
-        `(${formatPercent(v)}%)`,
-      ].join(' '));
+      series.text = map(series.y, (v, i) => `${formatNumber(series.savedY[i])} (${formatPercent(v)}%)`);
       series.savedY = series.y; // Now we don't need absolute values, only percent values will be used
     });
   }
@@ -441,11 +406,9 @@ export function prepareLayout(element, seriesList, options, data) {
     }
 
     if (options.series.stacking) {
-      result.barmode = options.series.stacking;
+      result.barmode = 'relative';
     }
   }
-
-  enableAnnotations(result, data, options);
 
   return result;
 }
@@ -489,16 +452,6 @@ export function calculateMargins(element) {
       })) + axisSpacing;
     }
   });
-
-  const annotations = element.querySelectorAll('.annotation-text');
-  if (annotations.length > 0) {
-    const annotationsSize = max(map(annotations, (ann) => {
-      const bounds = ann.getBoundingClientRect();
-      return Math.ceil(bounds.width);
-    }));
-    result.l = Math.max(result.l || 0, annotationsSize);
-    result.r = Math.max(result.r || 0, annotationsSize);
-  }
 
   return result;
 }

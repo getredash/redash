@@ -1,6 +1,6 @@
 import {
   some, extend, has, partial, intersection, without, contains, isUndefined,
-  sortBy, each, pluck, keys, values, difference,
+  sortBy, each, pluck, keys, difference,
 } from 'underscore';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
@@ -57,12 +57,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.stackingOptions = {
         Disabled: null,
         Stack: 'stack',
-        Overlay: 'overlay',
-        Group: 'group',
-        Relative: 'relative',
       };
-      scope.allowedStackingOptions = [];
-      scope.isStackingOptionAllowed = value => scope.allowedStackingOptions.indexOf(value.value) >= 0;
 
       scope.changeTab = (tab) => {
         scope.currentTab = tab;
@@ -89,17 +84,6 @@ function ChartEditor(ColorPalette, clientConfig) {
         keys(scope.options.seriesOptions).forEach((key) => {
           scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
-
-        if (scope.options.globalSeriesType === 'column') {
-          scope.allowedStackingOptions = values(scope.stackingOptions);
-        } else if (['line', 'area'].indexOf(scope.options.globalSeriesType) >= 0) {
-          scope.allowedStackingOptions = [null, 'stack'];
-        } else {
-          scope.allowedStackingOptions = [null];
-        }
-        if (scope.allowedStackingOptions.indexOf(scope.options.series.stacking) === -1) {
-          scope.options.series.stacking = null;
-        }
       };
       scope.chartTypeChanged();
 
