@@ -12,12 +12,12 @@
         <hr>
 
         <form class="form" name="userSettingsForm" ng-submit="updateUser(userSettingsForm)" novalidate>
-          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
+          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError )}">
             <label class="control-label" for="name" >Name</label>
             <input name="name" id="name" type="text" class="form-control" ng-model="user.name" required/>
             <error-messages input="userSettingsForm.name" form="userSettingsForm"></error-messages>
           </div>
-          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.email | showError:userSettingsForm )}">
+          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.email | showError )}">
             <label class="control-label" for="email" >Email</label>
             <input name="email" id="email" type="email" class="form-control" ng-model="user.email" required/>
             <error-messages input="userSettingsForm.email" form="userSettingsForm"></error-messages>

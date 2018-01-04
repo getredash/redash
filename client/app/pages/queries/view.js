@@ -290,6 +290,8 @@ function QueryViewCtrl(
         id: $scope.query.id,
         data_source_id: $scope.query.data_source_id,
         latest_query_data_id: null,
+      }, (updatedQuery) => {
+        $scope.query.version = updatedQuery.version;
       });
     }
 

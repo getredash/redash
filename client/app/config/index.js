@@ -18,7 +18,7 @@ import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
 import ngGridster from 'angular-gridster';
-import { each } from 'underscore';
+import { each, isFunction } from 'underscore';
 
 import '@/lib/sortable';
 
@@ -57,7 +57,7 @@ function registerAll(context) {
     .map(context)
     .map(module => module.default);
 
-  return modules.map(f => f(ngModule));
+  return modules.filter(isFunction).map(f => f(ngModule));
 }
 
 function registerComponents() {
@@ -84,11 +84,6 @@ function registerPages() {
     ngModule.config(($routeProvider) => {
       each(routes, (route, path) => {
         logger('Registering route: %s', path);
-        // This is a workaround, to make sure app-header and footer are loaded only
-        // for the authenticated routes.
-        // We should look into switching to ui-router, that has built in support for
-        // such things.
-        route.template = `<app-header></app-header><route-status></route-status>${route.template}<footer></footer>`;
         route.authenticated = true;
         $routeProvider.when(path, route);
       });

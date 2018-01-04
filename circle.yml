@@ -10,7 +10,8 @@ dependencies:
     - pip install --upgrade setuptools
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
-    - make deps
+    - npm install
+    - npm run build
   cache_directories:
     - node_modules/
 test:
@@ -20,11 +21,8 @@ deployment:
   github_and_docker:
     branch: [master, /release.*/]
     commands:
-      - make pack
-      # Skipping uploads for now, until master is stable.
-      # - make upload
-      #- echo "client/app" >> .dockerignore
-      #- docker pull redash/redash:latest
+      - bin/pack
+      # - python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
       - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")

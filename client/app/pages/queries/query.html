@@ -250,7 +250,10 @@
               <div class="col-lg-12">
                 <div ng-if="!query.visualizations.length">
                   <filters filters="filters"></filters>
-                  <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                  <div class="query__vis col-md-12">
+                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
+                    <br>
+                  </div>
                 </div>
                 <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis col-md-12">
                   <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
