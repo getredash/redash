@@ -1,16 +1,14 @@
-import { EventEmitter } from 'events';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 
 // eslint-disable-next-line import/prefer-default-export
-export class ErrorHandler extends EventEmitter {
+export class ErrorHandler {
   constructor() {
-    super();
     this.logToConsole = true;
     this.reset();
   }
 
   reset() {
     this.error = null;
-    this.emit('change');
   }
 
   process(error) {
@@ -20,7 +18,11 @@ export class ErrorHandler extends EventEmitter {
       // eslint-disable-next-line no-console
       console.error(error);
     }
-    this.error = error;
-    this.emit('change');
+    if (
+      (error === null) ||
+      (error instanceof PromiseRejectionError)
+    ) {
+      this.error = error;
+    }
   }
 }

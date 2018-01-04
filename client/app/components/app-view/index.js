@@ -14,27 +14,13 @@ export default function init(ngModule) {
 
   ngModule.component('appView', {
     template,
-    controller($rootScope, $scope, $route, Auth) {
+    controller($rootScope, $route, Auth) {
       this.showHeaderAndFooter = false;
 
-      this.error = null;
-
-      const handleError = () => {
-        if (
-          (handler.error === null) ||
-          (handler.error instanceof PromiseRejectionError)
-        ) {
-          this.error = handler.error;
-        }
-      };
-
-      handler.addListener('change', handleError);
-      $scope.$on('$destroy', () => {
-        handler.removeListener('change', handleError);
-      });
+      this.handler = handler;
 
       $rootScope.$on('$routeChangeStart', (event, route) => {
-        handler.reset();
+        this.handler.reset();
         if (route.$$route.authenticated) {
           // For routes that need authentication, check if session is already
           // loaded, and load it if not.
