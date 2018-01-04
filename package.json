@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server",
-    "start-demo": "REDASH_BACKEND=http://demo-direct.redash.io npm start",
+    "start-demo": "REDASH_BACKEND=https://dev.redashapp.com npm start",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
   },
