@@ -75,11 +75,11 @@
   <main>
     <nav resizable r-directions="['right']">
       <div class="editor__left__data-source">
-        <select class="form-control" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+        <select class="form-control" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
                 ng-options="ds.id as ds.name for ds in dataSources"></select>
       </div>
 
-      <div class="editor__left__schema" resizable r-directions="['bottom']" r-flex="true" style="min-height: 0px; height: 300px;">
+      <div class="editor__left__schema" resizable r-directions="['bottom']" r-flex="true" style="min-height: 0px; height: 300px;" ng-if="sourceMode">
         <schema-browser class="schema-container"
                         schema="schema"
                         on-refresh="refreshSchema()">
@@ -121,7 +121,7 @@
         </p>
 
         <p>
-          <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh</span>
+          <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
           <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
           <span ng-if="query.isNew()">Never</span>
         </p>
@@ -135,7 +135,7 @@
     </nav>
 
     <div class="content p-l-15 p-r-15">
-      <div class="row editor" resizable r-directions="['bottom']" r-flex="true" style="min-height: 11px">
+      <div class="row editor" resizable r-directions="['bottom']" r-flex="true" style="min-height: 11px" ng-if="sourceMode">
         <section>
 
           <div class="container p-15 m-b-10" style="height:100%;">
@@ -152,7 +152,7 @@
             <div class="editor__control">
               <div class="row form-inline">
                 <div class="col-xs-6 text-left">
-                  <select class="form-control visible-sm visible-xs" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
+                  <select class="form-control visible-sm visible-xs" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
                           ng-options="ds.id as ds.name for ds in dataSources"></select>
                 </div>
 
