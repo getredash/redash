@@ -71,10 +71,9 @@
 
 </div>
 
-<div class="query-fullscreen" ng-app="angularResizable">
+<div class="query-fullscreen">
   <main>
     <nav resizable r-directions="['right']">
-
       <div class="editor__left__data-source">
         <select class="form-control" ng-disabled="!isQueryOwner" ng-model="query.data_source_id" ng-change="updateDataSource()"
                 ng-options="ds.id as ds.name for ds in dataSources"></select>
