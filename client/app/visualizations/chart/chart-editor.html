@@ -33,7 +33,7 @@
     </div>
 
     <div ng-if="['line', 'area', 'column', 'scatter'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
-      <label><input type="checkbox" ng-model="options.annotations"> Show annotations</label>
+      <label><input type="checkbox" ng-model="options.showDataLabels"> Show data labels</label>
     </div>
 
     <div class="form-group" ng-class="{'has-error': chartEditor.xAxisColumn.$invalid}">
@@ -116,11 +116,11 @@
     <div class="form-group" ng-if="options.globalSeriesType != 'custom'">
       <label class="control-label">Stacking</label>
 
-      <div ng-if="stackingOptions && allowedStackingOptions.length"><!--the if is a weird workaround-->
+      <div ng-if="stackingOptions"><!--the if is a weird workaround-->
         <ui-select ng-model="options.series.stacking"
           ng-disabled="['line', 'area', 'column'].indexOf(options.globalSeriesType) == -1">
           <ui-select-match placeholder="Choose stacking...">{{ $select.selected.key }}</ui-select-match>
-          <ui-select-choices repeat="value.value as (key, value) in stackingOptions | filter:isStackingOptionAllowed">
+          <ui-select-choices repeat="value.value as (key, value) in stackingOptions">
             <div ng-bind-html="value.key | highlight: $select.search"></div>
           </ui-select-choices>
         </ui-select>
@@ -129,7 +129,7 @@
       <div ng-if="options.series.stacking" class="checkbox">
         <label class="control-label">
           <input type="checkbox" ng-model="options.series.percentValues">
-          Percent stacking
+          Normalize values to percentage
         </label>
       </div>
     </div>
