@@ -11,7 +11,6 @@ function DataSourceCtrl(
   Events.record('view', 'page', 'admin/data_source');
 
   $scope.dataSource = $route.current.locals.dataSource;
-  $scope.filter = {};
   $scope.dataSourceId = $routeParams.dataSourceId;
   $scope.types = $route.current.locals.types;
   $scope.type = findWhere($scope.types, { type: $scope.dataSource.type });
