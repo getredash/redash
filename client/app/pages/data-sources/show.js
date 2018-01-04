@@ -9,7 +9,11 @@ function DataSourceCtrl(
 ) {
   Events.record('view', 'page', 'admin/data_source');
 
+  $scope.filter = {};
   $scope.dataSourceId = $routeParams.dataSourceId;
+  $http.get('api/data_sources/types').then((response) => {
+    $scope.types = response.data;
+  });
 
   if ($scope.dataSourceId === 'new') {
     $scope.dataSource = new DataSource({ options: {} });
