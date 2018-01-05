@@ -1,16 +1,15 @@
 <settings-screen>
   <div class="row">
-    <type-picker img-root="/img/destinations" 
-                 types="types" 
-                 title="New Alert Destination" 
+    <type-picker img-root="/img/destinations"
+                 types="types"
+                 title="New Alert Destination"
                  on-type-select="setType"
                  ng-if="destination.type === undefined"></type-picker>
 
     <div ng-if="destination.type !== undefined">
-      <div class="col-md-6 col-md-offset-3 add-new-datasource" >
-        <h3 class="text-center">New Destination: {{type.name}}</h3>
-
-        <div class="database-source__card--selected">
+      <div class="col-md-6 col-md-offset-3 creation-container">
+        <h3 class="text-center">{{type.name}}</h3>
+        <div class="visual-card--selected">
           <a ng-click="resetType()" ng-if="canChangeType">← Change Type</a>
           <img ng-src="/img/destinations/{{destination.type}}.png" alt="{{type.name}}">
         </div>

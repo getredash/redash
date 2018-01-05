@@ -55,9 +55,14 @@ body {
   }
 }
 
-.add-new-datasource {
+.creation-container {
   h5 {
     color: #a7a7a7;
+  }
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
   }
 }
 
@@ -66,9 +71,9 @@ body {
   flex-wrap: wrap;
 }
 
-.database-source__card {
+.visual-card {
   background: #FFFFFF;
-  border: 1px solid rgba(102,136,153,0.15);
+  border: 1px solid fade(@redash-gray, 15%);
   border-radius: 3px;
   margin-bottom: 10px;
   margin-right: 10px;
@@ -91,35 +96,34 @@ body {
   img {
     width: 64px !important;
     height: 64px !important;
-    margin-right: 8px;
+    margin-right: 5px;
   }
 
   h3 {
     font-size: 13px;
     color: #323232;
-    margin: 0;
+    margin: 0 !important;
   }
 }
 
-.database-source__card--selected {
-  background: #FFFFFF;
-  border: 1px solid rgba(102,136,153,0.15);
+.visual-card--selected {
+  background: fade(@redash-gray, 3%);
+  border: 1px solid fade(@redash-gray, 15%);
   border-radius: 3px;
-  padding: 15px 5px 15px 10px;
+  padding: 0 15px;
   box-shadow: none;
 
   display: flex;
   flex-direction: row;
   align-items: center;
 
-  justify-content: space-between;
+  justify-content: space-around;
   margin-bottom: 15px;
   width: 100%;
 
   img {
     width: 64px;
     height: 64px;
-    margin-right: 10px;
   }
 
   a {
@@ -133,19 +137,19 @@ body {
 }
 
 @media (max-width: 1200px) {
-  .database-source__card {
+  .visual-card {
     width: 217px;
   }
 }
 
 @media (max-width: 755px) {
-  .database-source__card {
+  .visual-card {
     width: 47%;
   }
 }
 
 @media (max-width: 515px) {
-  .database-source__card {
+  .visual-card {
     width: 47%;
 
     img {
@@ -156,7 +160,7 @@ body {
 }
 
 @media (max-width: 408px) {
-  .database-source__card {
+  .visual-card {
     width: 100%;
 
     img {
