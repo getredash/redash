@@ -5,7 +5,7 @@
         <a href="data_sources/new" class="btn btn-default"><i class="fa fa-plus"></i> New Data Source</a>
       </p>
       <div class="database-source">
-        <a class="database-source__card" ng-href="data_sources/{{dataSource.id}}" ng-repeat="dataSource in dataSources">
+        <a class="visual-card" ng-href="data_sources/{{dataSource.id}}" ng-repeat="dataSource in dataSources">
           <img ng-src="/img/db-logos/{{dataSource.type}}.png" alt="{{dataSource.name}}">
           <h3>{{dataSource.name}}</h3>
         </a>
