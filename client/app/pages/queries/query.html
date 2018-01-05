@@ -152,7 +152,7 @@
             <div class="editor__control">
               <div class="row form-inline">
                 <div class="col-xs-6 text-left">
-                  <select class="form-control visible-sm visible-xs" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
+                  <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
                           ng-options="ds.id as ds.name for ds in dataSources"></select>
                 </div>
 
@@ -184,7 +184,7 @@
         <section>
 
           <div class="container">
-            <div class="t-body">
+            <div class="t-body"> &nbsp;
               <div class="row">
                 <div class="col-lg-12">
                   <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
