@@ -11,7 +11,7 @@ set -eu
 
 REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
-REDASH_VERSION=${REDASH_VERSION-2.0.1.b3080} # Install latest version if not specified in REDASH_VERSION env var
+REDASH_VERSION=${REDASH_VERSION-3.0.0.b3134} # Install latest version if not specified in REDASH_VERSION env var
 LATEST_URL="https://s3.amazonaws.com/redash-releases/redash.${REDASH_VERSION}.tar.gz"
 VERSION_DIR="$REDASH_BASE_PATH/redash.${REDASH_VERSION}"
 REDASH_TARBALL=/tmp/redash.tar.gz
