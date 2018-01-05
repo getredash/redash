@@ -290,14 +290,7 @@ function prepareStackingData(seriesList) {
   return seriesList;
 }
 
-function prepareDataLabels(seriesList, options) {
-  seriesList.forEach((series) => {
-    series.visible = true;
-    series.savedY = series.y;
-    series.hoverinfo = 'x+text+name';
-    series.text = map(series.y, v => `${formatNumber(v)}`);
-  });
-
+function preparePercentValues(seriesList, options) {
   if (options.series.percentValues && (seriesList.length > 0)) {
     const sumOfCorrespondingPoints = map(seriesList[0].savedY, constant(0));
     each(seriesList, (series) => {
@@ -309,10 +302,8 @@ function prepareDataLabels(seriesList, options) {
     each(seriesList, (series) => {
       series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
       series.text = map(series.y, (v, i) => `${formatNumber(series.savedY[i])} (${formatPercent(v)}%)`);
-      series.savedY = series.y; // Now we don't need absolute values, only percent values will be used
     });
   }
-
 
   return seriesList;
 }
@@ -323,7 +314,14 @@ export function prepareData(seriesList, options) {
   }
 
   const result = prepareStackingData(prepareChartData(seriesList, options));
-  return prepareDataLabels(result, options);
+
+  return result.map((series) => {
+    series.visible = true;
+    series.savedY = series.y;
+    series.hoverinfo = 'x+text+name';
+    series.text = map(series.y, v => `${formatNumber(v)}`);
+    return series;
+  });
 }
 
 export function prepareLayout(element, seriesList, options, data) {
@@ -422,13 +420,22 @@ export function updateStacking(seriesList, options) {
   }
 
   if (options.series.stacking) {
-    seriesList = filter(seriesList, s => s.visible);
+    seriesList = filter(seriesList, s => s.visible === true);
+
+    // Restore original values
+    each(seriesList, (series) => {
+      series.y = series.savedY;
+    });
+
+    // Apply "percent values" modification
+    preparePercentValues(seriesList, options);
+
     if (['line', 'area'].indexOf(options.globalSeriesType) >= 0) {
       // Calculate cumulative value for each x tick
       each(seriesList, (series, index, list) => {
         if (index > 0) {
           const prevSeries = list[index - 1];
-          series.y = map(series.savedY, (v, i) => v + prevSeries.y[i]);
+          series.y = map(series.y, (v, i) => v + prevSeries.y[i]);
         }
       });
     }

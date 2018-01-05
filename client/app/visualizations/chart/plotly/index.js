@@ -54,20 +54,22 @@ const PlotlyChart = () => ({
       updateStacking(data, scope.options);
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
 
-      Plotly.purge(plotlyElement);
+      // It will auto-purge previous graph
       Plotly.newPlot(plotlyElement, data, layout, plotlyOptions);
 
       plotlyElement.on('plotly_afterplot', () => {
         applyAutoMargins();
 
-        plotlyElement.querySelectorAll('.legendtoggle').forEach((rectDiv, i) => {
-          d3.select(rectDiv).on('click', () => {
-            const maxIndex = scope.data.length - 1;
-            const itemClicked = scope.data[maxIndex - i];
-
-            itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+        plotlyElement.querySelectorAll('.legendtoggle').forEach((rectDiv) => {
+          d3.select(rectDiv).on('click', (items) => {
+            // `items` contains an array of series (in internal plotly format)
+            // series can be mapped to source data using `items[i].trace.index`
+            each(items, (item) => {
+              const itemClicked = data[item.trace.index];
+              itemClicked.visible = (itemClicked.visible === true) ? 'legendonly' : true;
+            });
             updateStacking(data, scope.options);
-            Plotly.redraw(plotlyElement);
+            // Plotly will redraw graph by itself
           });
         });
       });
@@ -89,7 +91,6 @@ const PlotlyChart = () => ({
       layout = prepareLayout(plotlyElement, scope.series, scope.options, data);
       Plotly.relayout(plotlyElement, layout);
     }, 100);
-    scope.handleResize();
   },
 });
 
