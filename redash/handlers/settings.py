@@ -1,8 +1,10 @@
 from flask import request
+from flask_restful import abort
 
 from redash.models import db
 from redash.handlers.base import BaseResource
 from redash.permissions import require_admin
+from redash.settings.helpers import check_saml_settings_security
 from redash.settings.organization import settings as org_settings
 
 
@@ -39,6 +41,17 @@ class OrganizationSettings(BaseResource):
         if self.current_org.settings.get('settings') is None:
             self.current_org.settings['settings'] = {}
 
+        # First, apply the changes on top of the current settings and make sure
+        # they are valid
+        settings = get_settings_with_defaults(org_settings, self.current_org.settings['settings'])
+        settings.update(new_values)
+
+        try:
+            check_saml_settings_security(settings)
+        except Exception as e:
+            abort(400, message=e.message)
+
+        # All good. Persist the changes
         for k, v in new_values.iteritems():
             self.current_org.set_setting(k, v)
 

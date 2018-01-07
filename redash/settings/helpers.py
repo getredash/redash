@@ -45,3 +45,24 @@ def int_or_none(value):
         return value
 
     return int(value)
+
+def check_saml_settings_security(settings):
+    """Check SAML authentication for insecure settings.
+
+    Raises Exception with a human readable message if settings are
+    not secure.
+    """
+    if not settings.get("auth_saml_enabled"):
+        # SAML not enabled. All good.
+        return True
+
+    # We must require that the IDP signs the entire response or
+    # individual assertions (or both). If we don't require any
+    # signatures, anyone can craft a valid and trusted SAML
+    # response with arbitrary information
+    if not settings.get("auth_saml_want_response_signed") and \
+        not settings.get("auth_saml_want_assertions_signed"):
+        raise Exception("SAML configuration must require signed responses, signed assertions or both.")
+
+    # All good
+    return True

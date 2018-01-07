@@ -45,6 +45,26 @@
                         <input name="input" type="string" class="form-control" ng-model="$ctrl.settings.auth_saml_nameid_format" accesskey="tab"
                                ng-change="$ctrl.update('auth_saml_metadata_nameid_format')">
                     </div>
+
+                    <label>SAML Response Signing Settings</label>
+                    <p ng-class="{'text-danger': !$ctrl.validateSamlSigningSettings(), 'help-block': $ctrl.validateSamlSigningSettings()}">
+                        Depending on your SAML IDP, you must require the IDP to sign
+                        assertions, whole response or both.
+                    </p>
+                    <div class="form-group">
+                        <label>
+                            <input name="input" type="checkbox" ng-model="$ctrl.settings.auth_saml_want_assertions_signed"
+                                ng-change="$ctrl.update('auth_saml_want_assertions_signed')" accesskey="tab">
+                            Require Signed Assertions
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input name="input" type="checkbox" ng-model="$ctrl.settings.auth_saml_want_response_signed"
+                                ng-change="$ctrl.update('auth_saml_want_response_signed')" accesskey="tab">
+                            Require Signed Response
+                        </label>
+                    </div>
                 </div>
             </p>
         </div>

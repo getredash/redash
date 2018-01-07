@@ -43,8 +43,8 @@ def get_saml_client(org):
                 # sense in a situation where you control both the SP and IdP
                 'authn_requests_signed': False,
                 'logout_requests_signed': True,
-                'want_assertions_signed': True,
-                'want_response_signed': False,
+                'want_assertions_signed': org.get_setting("auth_saml_want_assertions_signed"),
+                'want_response_signed': org.get_setting("auth_saml_want_response_signed"),
             },
         },
     }
