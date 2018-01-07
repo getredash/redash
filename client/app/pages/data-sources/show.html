@@ -8,25 +8,21 @@
 
     <div ng-if="dataSource.type !== undefined">
       <div class="creation-container">
-        <div class="col-md-4">
-          <br>
+        <div class="col-xs-12 col-sm-4">
           <a ng-click="resetType()" ng-if="canChangeType">← Change Type</a>
         </div>
 
-        <div class="col-md-4 text-center">
+        <div class="col-xs-12 col-sm-4 text-center">
           <img ng-src="/img/db-logos/{{dataSource.type}}.png" alt="{{type.name}}" width="64">
           <h3>{{type.name}}</h3>
         </div>
 
-        <div class="col-md-4">
-          <br>
-          <p class="text-right needhelp" ng-if="helpLinks[type.type]"><a ng-href="{{helpLinks[type.type]}}" target="_blank" >Help for setting up {{type.name}}</a></p>
+        <div class="col-xs-12 col-sm-4 text-right ">
+          <p class="needhelp" ng-if="helpLinks[type.type]"><a ng-href="{{helpLinks[type.type]}}" target="_blank" >Help for setting up {{type.name}} →</a></p>
         </div>
-
-        <!--<div class="visual-card&#45;&#45;selected">-->
-
-        <!--</div>-->
       </div>
+
+      <div class="clearboth"></div>
 
       <div class="col-md-4 col-md-offset-4">
         <dynamic-form target="dataSource" type="type" actions="actions">
