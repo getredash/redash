@@ -1,4 +1,10 @@
 {
   "presets": ["es2015", "stage-2"],
-  "plugins": ["angularjs-annotate", "transform-object-assign"]
+  "plugins": [
+    "angularjs-annotate",
+    "transform-object-assign",
+    ["babel-plugin-transform-builtin-extend", {
+      "globals": ["Error"]
+    }]
+  ]
 }
