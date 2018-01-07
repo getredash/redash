@@ -46,6 +46,7 @@ def int_or_none(value):
 
     return int(value)
 
+
 def check_saml_settings_security(settings):
     """Check SAML authentication for insecure settings.
 
@@ -61,7 +62,7 @@ def check_saml_settings_security(settings):
     # signatures, anyone can craft a valid and trusted SAML
     # response with arbitrary information
     if not settings.get("auth_saml_want_response_signed") and \
-        not settings.get("auth_saml_want_assertions_signed"):
+            not settings.get("auth_saml_want_assertions_signed"):
         raise Exception("SAML configuration must require signed responses, signed assertions or both.")
 
     # All good
