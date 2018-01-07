@@ -1,4 +1,5 @@
 import debug from 'debug';
+import PromiseRejectionError from '@/lib/promise-rejection-error';
 import { ErrorHandler } from './error-handler';
 import template from './template.html';
 
@@ -19,6 +20,7 @@ export default function init(ngModule) {
       this.handler = handler;
 
       $rootScope.$on('$routeChangeStart', (event, route) => {
+        this.handler.reset();
         if (route.$$route.authenticated) {
           // For routes that need authentication, check if session is already
           // loaded, and load it if not.
@@ -38,12 +40,8 @@ export default function init(ngModule) {
         }
       });
 
-      $rootScope.$on('$routeChangeSuccess', () => {
-        handler.reset();
-      });
-
       $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
-        throw rejection;
+        throw new PromiseRejectionError(rejection);
       });
     },
   });

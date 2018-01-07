@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from simple_salesforce import Salesforce as SimpleSalesforce
-    from simple_salesforce.api import SalesforceError
+    from simple_salesforce.api import SalesforceError, DEFAULT_API_VERSION
     enabled = True
 except ImportError as e:
     enabled = False
@@ -76,6 +76,11 @@ class Salesforce(BaseQueryRunner):
                 },
                 "sandbox": {
                     "type": "boolean"
+                },
+                "api_version": {
+                    "type": "string",
+                    "title": "Salesforce API Version",
+                    "default": DEFAULT_API_VERSION
                 }
             },
             "required": ["username", "password", "token"],
@@ -93,6 +98,7 @@ class Salesforce(BaseQueryRunner):
                               password=self.configuration['password'],
                               security_token=self.configuration['token'],
                               sandbox=self.configuration.get('sandbox', False),
+                              version=self.configuration.get('api_version', DEFAULT_API_VERSION),
                               client_id='Redash')
         return sf
 
@@ -105,7 +111,10 @@ class Salesforce(BaseQueryRunner):
 
     def _get_value(self, dct, dots):
         for key in dots.split('.'):
-            dct = dct.get(key)
+            if dct is not None and key in dct:
+                dct = dct.get(key)
+            else:
+                dct = None
         return dct
 
     def _get_column_name(self, key, parents=[]):
