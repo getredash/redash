@@ -86,10 +86,9 @@
         </schema-browser>
       </div>
 
-      <div class="query-metadata">
+      <div class="query-metadata" ng-if="!query.isNew()">
         <table>
           <tr>
-
             <td>
               <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong class="meta__name">{{query.user.name}}</strong>
             </td>
