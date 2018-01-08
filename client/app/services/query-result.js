@@ -1,6 +1,7 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { sortBy, uniq, contains, values, some, each,
+  isArray, isNumber, isString, includes, without } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -213,13 +214,23 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (filters) {
           filters.forEach((filter) => {
-            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = filter.values.slice(2);
-            }
-
             if (filter.multiple && includes(filter.current, NONE_VALUES)) {
               filter.current = [];
+              filter.choices = filter.values;
+              return;
             }
+
+            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
+              filter.current = [ALL_VALUES];
+              filter.choices = [];
+              return;
+            }
+
+            if (isArray(filter.current)) {
+              filter.choices = without(filter.values, ...filter.current);
+              return;
+            }
+            filter.choices = without(filter.values, filter.current);
           });
 
           this.filteredData = this.query_result.data.rows.filter(row =>
@@ -228,7 +239,7 @@ function QueryResultService($resource, $timeout, $q) {
                 filter.current = [filter.current];
               }
 
-              return (memo && some(filter.current, (v) => {
+              const inFilter = (filter.current[0] === ALL_VALUES) || some(filter.current, (v) => {
                 const value = row[filter.name];
                 if (moment.isMoment(value)) {
                   return value.isSame(v);
@@ -236,7 +247,9 @@ function QueryResultService($resource, $timeout, $q) {
                 // We compare with either the value or the String representation of the value,
                 // because Select2 casts true/false to "true"/"false".
                 return (v === value || String(value) === v);
-              }));
+              });
+
+              return (memo && inFilter);
             }, true));
         } else {
           this.filteredData = this.query_result.data.rows;
@@ -383,7 +396,7 @@ function QueryResultService($resource, $timeout, $q) {
           filter.values.push(row[filter.name]);
           if (filter.values.length === 1) {
             if (filter.multiple) {
-              filter.current = [row[filter.name]];
+              filter.current = [ALL_VALUES];
             } else {
               filter.current = row[filter.name];
             }
