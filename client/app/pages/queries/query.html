@@ -227,8 +227,8 @@
                   </div>
 
                   <div class="bottom-controller">
-                    <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit Visualisation</button>
-                    <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
+                    <button class="btn btn-default" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
+                    <button class="btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><i class="zmdi zmdi-code"></i> Embed</button>
 
                     <div class="btn-group dropup" uib-dropdown>
                       <button type="button" class="btn btn-default dropup-toggle"
@@ -250,7 +250,7 @@
                       </ul>
                     </div>
 
-                    <span class="query-metadata__bottom">
+                    <span class="query-metadata__bottom" ng-if="queryResult.getData()">
                       &nbsp;
                       <span class="query-metadata__property"><strong>{{queryResult.getData().length}}</strong> rows</span>
                       <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> runtime</span>
