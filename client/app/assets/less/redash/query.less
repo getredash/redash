@@ -1,5 +1,5 @@
 body.fixed-layout {
-  padding-bottom: 60px;
+  padding-bottom: 50px;
 }
 
 .bottom-controller {
@@ -25,6 +25,10 @@ body.fixed-layout {
     width: 100%;
     left: 0;
   }
+}
+
+.p-b-60 {
+ padding-bottom: 60px !important;
 }
 
 .bottom-controller-container {
@@ -314,6 +318,7 @@ edit-in-place p.editable:hover {
     height: 100%;
   }
   .content {
+    height: calc(~'100vh - 160px');
     z-index: 9;
     background: #fff;
     flex: 1;
@@ -322,8 +327,6 @@ edit-in-place p.editable:hover {
     justify-content: space-around;
     align-content: space-around;
     padding: 0;
-    height: calc(~'100% - 137px');
-    height: auto;
     width: 75%;
 
     .editor {
