@@ -424,6 +424,7 @@ export default function init(ngModule) {
   return {
     '/queries/:queryId': {
       template,
+      layout: 'fixed',
       controller: 'QueryViewCtrl',
       reloadOnSearch: false,
       resolve: {
