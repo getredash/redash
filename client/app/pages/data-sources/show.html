@@ -9,7 +9,7 @@
     <div ng-if="dataSource.type !== undefined">
       <div class="creation-container">
         <div class="col-xs-12 col-sm-4">
-          <a ng-click="resetType()" ng-if="canChangeType">← Change Type</a>
+          <a ng-click="resetType()" ng-if="canChangeType">← Change <span class="hidden-xs">Type</span></a>
         </div>
 
         <div class="col-xs-12 col-sm-4 text-center">
@@ -17,8 +17,12 @@
           <h3>{{type.name}}</h3>
         </div>
 
-        <div class="col-xs-12 col-sm-4 text-right ">
-          <p class="needhelp" ng-if="helpLinks[type.type]"><a ng-href="{{helpLinks[type.type]}}" target="_blank" >Help for setting up {{type.name}} →</a></p>
+        <div class="col-xs-12 col-sm-4">
+          <p class="needhelp text-right text-center-xs" ng-if="helpLinks[type.type]">
+            <a ng-href="{{helpLinks[type.type]}}" target="_blank" >
+              Help <span class="hidden-xs">setting up {{type.name}}</span> <i class="fa fa-external-link" aria-hidden="true"></i>
+            </a>
+          </p>
         </div>
       </div>
 
