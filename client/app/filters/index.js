@@ -93,6 +93,10 @@ export function notEmpty(collection) {
 }
 
 export function showError(field) {
+  // In case of booleans, we get an undefined here.
+  if (field === undefined) {
+    return false;
+  }
   return field.$touched && field.$invalid;
 }
 
