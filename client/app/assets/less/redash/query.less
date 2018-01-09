@@ -6,7 +6,7 @@ body.fixed-layout {
   position: fixed;
   bottom: 0;
 
-  padding: 15px;
+  padding: 10px;
   margin-left: -15px;
   z-index: 999;
   background: #fff;
@@ -19,7 +19,7 @@ body.fixed-layout {
   &:before {
     content: '';
     background: #fff;
-    height: 60px;
+    height: 50px;
     position: fixed;
     bottom: 0;
     width: 100%;
@@ -34,12 +34,16 @@ body.fixed-layout {
   z-index: 99;
   box-shadow: rgba(102, 136, 153, 0.15) 0px -4px 9px -3px;
   width: 100%;
-  padding: 15px;
-  height: 60px;
+  padding: 10px;
+  height: 50px;
   border: none !important;
   margin-left: 0;
 
   pointer-events: none; //so we can access bottom-controller's buttons below
+
+  .btn {
+    pointer-events: auto;
+  }
 }
 
 .query-metadata__bottom {
