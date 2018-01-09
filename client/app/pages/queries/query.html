@@ -107,30 +107,13 @@
         </table>
       </div>
 
-      <div class="query-metadata query-metadata--result">
-        <p>
-          <span class="query-metadata__property"><span class="zmdi zmdi-timer"></span> Runtime</span>
-          <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
-          <span ng-show="queryExecuting">Running&hellip;</span>
-        </p>
-
-        <p>
-          <span class="query-metadata__property"><span class="zmdi zmdi-format-align-justify"></span> Rows</span>
-          <strong>{{queryResult.getData().length}}</strong>
-        </p>
-
+      <div class="query-metadata">
         <p>
           <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
           <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
           <span ng-if="query.isNew()">Never</span>
         </p>
-
-        <p>
-          <span class="query-metadata__property"><i class="zmdi zmdi-time-restore"></i> Updated</span>
-          <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
-        </p>
       </div>
-
     </nav>
 
     <div class="content p-l-15 p-r-15">
@@ -229,7 +212,7 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="col-lg-12">
+                      <div class="col-lg-12 p-b-15">
                         <div ng-if="!query.visualizations.length" class="query__vis p-b-15">
                           <filters filters="filters"></filters>
                           <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
@@ -237,40 +220,42 @@
 
                         <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis">
                           <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                          <div class="p-t-15 p-b-15">
-                            <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
-                            <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
-
-                            <div class="btn-group" uib-dropdown>
-                              <button type="button" class="btn btn-default dropdown-toggle"
-                                      ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
-                                      uib-dropdown-toggle aria-expanded="false">
-                                Download Dataset <span class="caret"></span>
-                              </button>
-                              <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-                                <li>
-                                  <a query-result-link target="_self">
-                                    <span class="fa fa-file-o"></span> Download as CSV File
-                                  </a>
-                                </li>
-                                <li>
-                                  <a query-result-link file-type="xlsx" target="_self">
-                                    <span class="fa fa-file-excel-o"></span> Download as Excel File
-                                  </a>
-                                </li>
-                              </ul>
-                            </div>
-
-                            <div class="pull-right">
-                              <button class="btn btn-primary" ng-click="executeQuery()"
-                                      ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
-                                      ng-if="!sourceMode"><span
-                                class="zmdi zmdi-play"></span></button>
-                            </div>
-                          </div>
                         </div>
+
                       </div>
                     </div>
+                  </div>
+
+                  <div class="bottom-controller">
+                    <button class="btn btn-default" ng-click="openVisualizationEditor(vis)" ng-if="canEdit">Edit</button>
+                    <button class="btn btn-default" ng-click="showEmbedDialog(query, vis)"><i class="zmdi zmdi-code"></i> Embed</button>
+
+                    <div class="btn-group dropup" uib-dropdown>
+                      <button type="button" class="btn btn-default dropup-toggle"
+                              ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
+                              uib-dropdown-toggle aria-expanded="false">
+                        Download <span class="hidden-xs">Dataset </span><span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+                        <li>
+                          <a query-result-link target="_self">
+                            <span class="fa fa-file-o"></span> Download as CSV File
+                          </a>
+                        </li>
+                        <li>
+                          <a query-result-link file-type="xlsx" target="_self">
+                            <span class="fa fa-file-excel-o"></span> Download as Excel File
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <span class="query-metadata__bottom">
+                      &nbsp;
+                      <span class="query-metadata__property"><strong>{{queryResult.getData().length}}</strong> rows</span>
+                      <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> runtime</span>
+                      <span class="query-metadata__property"><span class="hidden-xs">&nbsp; &nbsp; Updated</span></span><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
+                    </span>
                   </div>
                 </div>
 
@@ -283,4 +268,13 @@
 
     </div>
   </main>
+
+  <div class="bottom-controller-container">
+    <div class="pull-right">
+      <button class="btn btn-primary" ng-click="executeQuery()"
+        ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
+        ng-if="!sourceMode"><span class="zmdi zmdi-play"></span>
+      </button>
+    </div>
+  </div>
 </div>

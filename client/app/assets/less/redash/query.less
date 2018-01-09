@@ -1,3 +1,55 @@
+body.fixed-layout {
+  padding-bottom: 60px;
+}
+
+.bottom-controller {
+  position: fixed;
+  bottom: 0;
+
+  padding: 15px;
+  margin-left: -15px;
+  z-index: 999;
+  background: #fff;
+  width: 100%;
+
+  button, div, span {
+    position: relative;
+  }
+
+  &:before {
+    content: '';
+    background: #fff;
+    height: 60px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+  }
+}
+
+.bottom-controller-container {
+  position: fixed;
+  bottom: 0;
+
+  z-index: 99;
+  box-shadow: rgba(102, 136, 153, 0.15) 0px -4px 9px -3px;
+  width: 100%;
+  padding: 15px;
+  height: 60px;
+  border: none !important;
+  margin-left: 0;
+
+  pointer-events: none; //so we can access bottom-controller's buttons below
+}
+
+.query-metadata__bottom {
+  margin: 0 10px;
+
+  .query-metadata__property {
+    margin-right: 5px;
+  }
+}
+
 // Editor
 edit-in-place p, span.editable {
   display: inline-block;
@@ -86,12 +138,6 @@ edit-in-place p.editable:hover {
 
   ._query-metadata__time {
 
-  }
-}
-
-.query-metadata--result {
-  .query-metadata__property {
-    width: 100px;
   }
 }
 
