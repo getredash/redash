@@ -90,7 +90,7 @@ function DynamicForm($http, toastr) {
           // THis is needed because angular-base64-upload sets the value to null at initialization,
           // causing the field to be marked as dirty even if it wasn't changed.
           if (!v && $scope.target.options[k]) {
-            $scope.dataSourceForm.$setPristine();
+            $scope.dynamicForm.$setPristine();
           }
           if (v) {
             $scope.target.options[k] = v.base64;
@@ -102,7 +102,7 @@ function DynamicForm($http, toastr) {
         $scope.target.$save(
           () => {
             toastr.success('Saved.');
-            $scope.dataSourceForm.$setPristine();
+            $scope.dynamicForm.$setPristine();
           },
           (error) => {
             if (error.status === 400 && 'message' in error.data) {
