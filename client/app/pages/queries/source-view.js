@@ -112,6 +112,7 @@ export default function init(ngModule) {
   return {
     '/queries/new': {
       template,
+      layout: 'fixed',
       controller: 'QuerySourceCtrl',
       reloadOnSearch: false,
       resolve: {
@@ -129,6 +130,7 @@ export default function init(ngModule) {
     },
     '/queries/:queryId/source': {
       template,
+      layout: 'fixed',
       controller: 'QuerySourceCtrl',
       reloadOnSearch: false,
       resolve: {
