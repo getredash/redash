@@ -3,6 +3,7 @@ import sys
 import logging
 import urlparse
 import redis
+
 from flask import Flask, safe_join
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
@@ -42,21 +43,14 @@ def create_redis_connection():
 
     if redis_url.scheme == 'redis+socket':
         qs = urlparse.parse_qs(redis_url.query)
-        if 'virtual_host' in qs:
-            db = qs['virtual_host'][0]
-        else:
-            db = 0
-
-        r = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
+        db = qs['virtual_host'][0] if 'virtual_host' in qs else 0
+        pool = redis.ConnectionPool(connection_class=redis.UnixDomainSocketConnection,
+                                    path=redis_url.path, db=db)
     else:
-        if redis_url.path:
-            redis_db = redis_url.path[1]
-        else:
-            redis_db = 0
-
-        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
-
-    return r
+        db = redis_url.path[1] if redis_url.path else 0
+        pool = redis.ConnectionPool(host=redis_url.hostname, port=redis_url.port,
+                                    db=db, password=redis_url.password)
+    return redis.StrictRedis(connection_pool=pool)
 
 
 setup_logging()
