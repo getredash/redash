@@ -40,10 +40,10 @@
     <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
        <span ng-show="query.id && canViewSource">
           <a ng-show="!sourceMode"
-             ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-eye" aria-hidden="true"></i> Show Source</i>
+             ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-code" aria-hidden="true"></i> Edit Source</i>
           </a>
           <a ng-show="sourceMode"
-             ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-eye-slash" aria-hidden="true"></i> Hide Source</i>
+             ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
           </a>
         </span>
 
