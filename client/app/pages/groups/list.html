@@ -11,7 +11,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="row in groups.getPageRows() | orderBy:'name'">
+          <tr ng-repeat="row in groups.getPageRows()">
             <td>
               <a href="groups/{{row.id}}">{{row.name}}</a>
             </td>

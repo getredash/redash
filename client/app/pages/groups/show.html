@@ -28,7 +28,7 @@
     <div class="col-lg-12">
       <table class="table table-condensed table-hover" ng-show="members">
         <tbody>
-        <tr ng-repeat="member in members | orderBy:'name'">
+        <tr ng-repeat="member in members">
           <td width="50px"><img ng-src="{{member.gravatar_url}}" height="40px"/></td>
           <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin">Remove</button></td>
         </tr>

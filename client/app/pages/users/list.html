@@ -13,7 +13,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="row in $ctrl.users.getPageRows() | orderBy:'name'">
+          <tr ng-repeat="row in $ctrl.users.getPageRows()">
             <td>
               <img ng-src="{{row.gravatar_url}}" height="40px"/> <a href="users/{{row.id}}">{{row.name}}</a>
             </td>
