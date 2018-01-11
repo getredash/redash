@@ -55,7 +55,8 @@ class QueryResultModelView(BaseModelView):
 
 class QueryModelView(BaseModelView):
     column_exclude_list = ('latest_query_data',)
-    form_excluded_columns = ('version', 'visualizations', 'alerts', 'org', 'created_at', 'updated_at', 'latest_query_data')
+    form_excluded_columns = ('version', 'visualizations', 'alerts', 'org', 'created_at',
+                             'updated_at', 'latest_query_data', 'search_vector')
 
 
 class DashboardModelView(BaseModelView):
