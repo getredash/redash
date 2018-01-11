@@ -18,9 +18,9 @@
         <thead>
           <tr>
             <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('name')">Name <sort-icon column="'name'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
-            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('created_by')">Created By <sort-icon column="'created_by'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
-            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('created_at')">Created At <sort-icon column="'created_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
-            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('schedule')">Update Schedule <sort-icon column="'schedule'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.createdBySort)">Created By <sort-icon column="$ctrl.createdBySort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.createdAtSort)">Created At <sort-icon column="$ctrl.createdAtSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.scheduleSort)">Update Schedule <sort-icon column="$ctrl.scheduleSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
           </tr>
         </thead>
         <tbody>
