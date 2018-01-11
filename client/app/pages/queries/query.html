@@ -252,7 +252,13 @@
 
                     <span class="query-metadata__bottom" ng-if="queryResult.getData()">
                       &nbsp;
-                      <span class="query-metadata__property"><strong>{{queryResult.getData().length}}</strong> rows</span>
+                      <span class="query-metadata__property"><strong>{{queryResult.getData().length}}</strong><ng-pluralize count="queryResult.getData().length"
+                                      when="{'0': ' rows',
+                                          'one': ' row',
+                                          'other': ' rows'}">
+                        </ng-pluralize>
+                      
+                      </span>
                       <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> runtime</span>
                       <span class="query-metadata__property"><span class="hidden-xs">&nbsp; &nbsp; Updated</span></span><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
                     </span>
