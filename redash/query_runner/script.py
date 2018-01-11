@@ -1,11 +1,15 @@
 import os
-import sys
 import subprocess
+import sys
 
 from redash.query_runner import *
 
 
 class Script(BaseQueryRunner):
+    @classmethod
+    def annotate_query(cls):
+        return False
+
     @classmethod
     def enabled(cls):
         return "check_output" in subprocess.__dict__
@@ -31,7 +35,6 @@ class Script(BaseQueryRunner):
     def type(cls):
         return "insecure_script"
 
-
     def __init__(self, configuration):
         super(Script, self).__init__(configuration)
 
@@ -51,7 +54,7 @@ class Script(BaseQueryRunner):
             json_data = None
             error = None
 
-            query = query.strip()
+            script = query
 
             if self.configuration["path"] != "*":
                 script = os.path.join(self.configuration["path"], query.split(" ")[0])
@@ -59,8 +62,6 @@ class Script(BaseQueryRunner):
                     return None, "Script '%s' not found in script directory" % query
 
                 script = os.path.join(self.configuration["path"], query).split(" ")
-            else:
-                script = query.split("*/ ")[1]
 
             output = subprocess.check_output(script, shell=self.configuration['shell'])
             if output is not None:
