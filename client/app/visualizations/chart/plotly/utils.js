@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isString, isUndefined, contains, min, max, has, find,
-  each, values, sortBy, union, pluck, identity, filter, map, constant,
+  each, values, sortBy, pluck, identity, filter, map,
 } from 'underscore';
 import moment from 'moment';
 import createFormatter from '@/lib/value-format';
@@ -69,7 +69,7 @@ function getFontColor(bgcolor) {
   return result;
 }
 
-function normalizeValue(value) {
+export function normalizeValue(value) {
   if (moment.isMoment(value)) {
     return value.format('YYYY-MM-DD HH:mm:ss');
   }
@@ -157,6 +157,24 @@ function calculateDimensions(series, options) {
   };
 }
 
+function getUnifiedXAxisValues(seriesList, sorted) {
+  const set = new Set();
+  each(seriesList, (series) => {
+    // `Map.forEach` will walk items in insertion order
+    series.sourceData.forEach((item) => {
+      set.add(item.x);
+    });
+  });
+
+  const result = [];
+  // `Set.forEach` will walk items in insertion order
+  set.forEach((item) => {
+    result.push(item);
+  });
+
+  return sorted ? sortBy(result, identity) : result;
+}
+
 function preparePieData(seriesList, options) {
   const {
     cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
@@ -185,12 +203,6 @@ function preparePieData(seriesList, options) {
 
 function prepareChartData(seriesList, options) {
   const sortX = (options.sortX === true) || (options.sortX === undefined);
-  const useUnifiedXaxis = sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
-
-  let unifiedX = null;
-  if (useUnifiedXaxis) {
-    unifiedX = sortBy(union(...seriesList.map(s => pluck(s.data, 'x'))), identity);
-  }
 
   return map(seriesList, (series, index) => {
     const seriesOptions = options.seriesOptions[series.name] ||
@@ -198,11 +210,35 @@ function prepareChartData(seriesList, options) {
 
     const seriesColor = getSeriesColor(seriesOptions, index);
 
+    // Sort by x - `Map` preserves order of items
+    const data = sortX ? sortBy(series.data, d => normalizeValue(d.x)) : series.data;
+
+    const sourceData = new Map();
+    const xValues = [];
+    const yValues = [];
+    const yErrorValues = [];
+    each(data, (row) => {
+      const x = normalizeValue(row.x);
+      const y = normalizeValue(row.y);
+      const yError = normalizeValue(row.yError);
+      sourceData.set(x, {
+        x,
+        y,
+        yError,
+        yPercent: null, // will be updated later
+      });
+      xValues.push(x);
+      yValues.push(y);
+      yErrorValues.push(yError);
+    });
+
     const plotlySeries = {
-      x: [],
-      y: [],
+      visible: true,
+      hoverinfo: 'x+text+name',
+      x: xValues,
+      y: yValues,
       error_y: {
-        array: [],
+        array: yErrorValues,
         color: seriesColor,
       },
       name: seriesOptions.name || series.name,
@@ -210,6 +246,7 @@ function prepareChartData(seriesList, options) {
       insidetextfont: {
         color: getFontColor(seriesColor),
       },
+      sourceData,
     };
 
     if ((seriesOptions.yAxis === 1) && (options.series.stacking === null)) {
@@ -217,41 +254,6 @@ function prepareChartData(seriesList, options) {
     }
 
     setType(plotlySeries, seriesOptions.type, options);
-    let data = series.data;
-    if (sortX) {
-      data = sortBy(data, 'x');
-    }
-
-    if (useUnifiedXaxis && (index === 0)) {
-      const yValues = {};
-      const eValues = {};
-
-      data.forEach((row) => {
-        yValues[row.x] = row.y;
-        if (row.yError) {
-          eValues[row.x] = row.yError;
-        }
-      });
-
-      unifiedX.forEach((x) => {
-        plotlySeries.x.push(normalizeValue(x));
-        plotlySeries.y.push(normalizeValue(yValues[x] || null));
-        if (!isUndefined(eValues[x])) {
-          plotlySeries.error_y.array.push(normalizeValue(eValues[x] || null));
-        }
-      });
-    } else {
-      data.forEach((row) => {
-        plotlySeries.x.push(normalizeValue(row.x));
-        plotlySeries.y.push(normalizeValue(row.y));
-        if (row.yError !== undefined) {
-          plotlySeries.error_y.array.push(normalizeValue(row.yError));
-        }
-      });
-    }
-    if (!plotlySeries.error_y.length) {
-      delete plotlySeries.error_y.length;
-    }
 
     if (seriesOptions.type === 'bubble') {
       plotlySeries.marker = {
@@ -274,54 +276,11 @@ function prepareChartData(seriesList, options) {
   });
 }
 
-function prepareStackingData(seriesList) {
-  const xValues = union(...pluck(seriesList, 'x')).sort((a, b) => a - b);
-  seriesList.forEach((series) => {
-    series.x.sort((a, b) => a - b);
-
-    each(xValues, (value, index) => {
-      if (series.x[index] !== value) {
-        series.x.splice(index, 0, value);
-        series.y.splice(index, 0, null);
-      }
-    });
-  });
-
-  return seriesList;
-}
-
-function preparePercentValues(seriesList, options) {
-  if (options.series.percentValues && (seriesList.length > 0)) {
-    const sumOfCorrespondingPoints = map(seriesList[0].savedY, constant(0));
-    each(seriesList, (series) => {
-      each(series.savedY, (v, i) => {
-        sumOfCorrespondingPoints[i] += Math.abs(v);
-      });
-    });
-
-    each(seriesList, (series) => {
-      series.y = map(series.savedY, (v, i) => Math.sign(v) * Math.abs(v) / sumOfCorrespondingPoints[i] * 100);
-      series.text = map(series.y, (v, i) => `${formatNumber(series.savedY[i])} (${formatPercent(v)}%)`);
-    });
-  }
-
-  return seriesList;
-}
-
 export function prepareData(seriesList, options) {
   if (options.globalSeriesType === 'pie') {
     return preparePieData(seriesList, options);
   }
-
-  const result = prepareStackingData(prepareChartData(seriesList, options));
-
-  return result.map((series) => {
-    series.visible = true;
-    series.savedY = series.y;
-    series.hoverinfo = 'x+text+name';
-    series.text = map(series.y, v => `${formatNumber(v)}`);
-    return series;
-  });
+  return prepareChartData(seriesList, options);
 }
 
 export function prepareLayout(element, seriesList, options, data) {
@@ -337,8 +296,8 @@ export function prepareLayout(element, seriesList, options, data) {
       t: 20,
       pad: 4,
     },
-    width: element.offsetWidth,
-    height: element.offsetHeight,
+    width: Math.floor(element.offsetWidth),
+    height: Math.floor(element.offsetHeight),
     autosize: true,
     showlegend: has(options, 'legend') ? options.legend.enabled : true,
   };
@@ -411,7 +370,75 @@ export function prepareLayout(element, seriesList, options, data) {
   return result;
 }
 
-export function updateStacking(seriesList, options) {
+function updateSeriesText(seriesList, options) {
+  each(seriesList, (series) => {
+    series.text = [];
+    series.sourceData.forEach((item) => {
+      let text = formatNumber(item.y);
+      if (item.yError !== undefined) {
+        text = `${text} \u00B1 ${formatNumber(item.yError)}`;
+      }
+
+      if (options.series.percentValues) {
+        text = `${formatPercent(Math.abs(item.yPercent))}% (${text})`;
+      }
+
+      series.text.push(text);
+    });
+  });
+  return seriesList;
+}
+
+function updatePercentValues(seriesList, options) {
+  if (options.series.percentValues && (seriesList.length > 0)) {
+    // Some series may not have corresponding x-values;
+    // do calculations for each x only for series that do have that x
+    const sumOfCorrespondingPoints = new Map();
+    each(seriesList, (series) => {
+      series.sourceData.forEach((item) => {
+        const sum = sumOfCorrespondingPoints.get(item.x) || 0;
+        sumOfCorrespondingPoints.set(item.x, sum + Math.abs(item.y));
+      });
+    });
+
+    each(seriesList, (series) => {
+      const yValues = [];
+
+      series.sourceData.forEach((item) => {
+        const sum = sumOfCorrespondingPoints.get(item.x);
+        item.yPercent = Math.sign(item.y) * Math.abs(item.y) / sum * 100;
+        yValues.push(item.yPercent);
+      });
+
+      series.y = yValues;
+    });
+  }
+
+  return seriesList;
+}
+
+function updateUnifiedXAxisValues(seriesList, options, sorted, defaultY) {
+  const unifiedX = getUnifiedXAxisValues(seriesList, sorted);
+  defaultY = defaultY === undefined ? null : defaultY;
+  each(seriesList, (series) => {
+    series.x = [];
+    series.y = [];
+    series.error_y.array = [];
+    each(unifiedX, (x) => {
+      series.x.push(x);
+      const item = series.sourceData.get(x);
+      if (item) {
+        series.y.push(options.series.percentValues ? item.yPercent : item.y);
+        series.error_y.array.push(item.yError);
+      } else {
+        series.y.push(defaultY);
+        series.error_y.array.push(null);
+      }
+    });
+  });
+}
+
+export function updateData(seriesList, options) {
   if (seriesList.length === 0) {
     return seriesList;
   }
@@ -419,27 +446,36 @@ export function updateStacking(seriesList, options) {
     return seriesList;
   }
 
+  // Use only visible series
+  seriesList = filter(seriesList, s => s.visible === true);
+
+  // Apply "percent values" modification
+  updatePercentValues(seriesList, options);
+
+  const sortX = (options.sortX === true) || (options.sortX === undefined);
+
   if (options.series.stacking) {
-    seriesList = filter(seriesList, s => s.visible === true);
-
-    // Restore original values
-    each(seriesList, (series) => {
-      series.y = series.savedY;
-    });
-
-    // Apply "percent values" modification
-    preparePercentValues(seriesList, options);
-
     if (['line', 'area'].indexOf(options.globalSeriesType) >= 0) {
+      updateUnifiedXAxisValues(seriesList, options, sortX, 0);
+
       // Calculate cumulative value for each x tick
-      each(seriesList, (series, index, list) => {
-        if (index > 0) {
-          const prevSeries = list[index - 1];
-          series.y = map(series.y, (v, i) => v + prevSeries.y[i]);
+      let prevSeries = null;
+      each(seriesList, (series) => {
+        if (prevSeries) {
+          series.y = map(series.y, (y, i) => prevSeries.y[i] + y);
         }
+        prevSeries = series;
       });
     }
+  } else {
+    const useUnifiedXAxis = sortX && (options.xAxis.type === 'category') && (options.globalSeriesType !== 'box');
+    if (useUnifiedXAxis) {
+      updateUnifiedXAxisValues(seriesList, options, sortX);
+    }
   }
+
+  // Finally - update text labels
+  updateSeriesText(seriesList, options);
 }
 
 export function calculateMargins(element) {
@@ -463,13 +499,23 @@ export function calculateMargins(element) {
   return result;
 }
 
-export function applyMargins(target, source) {
+export function updateDimensions(layout, element, margins) {
   let changed = false;
-  each(source, (value, key) => {
-    if (target[key] !== source[key]) {
-      target[key] = source[key];
+  each(layout.margin, (value, key) => {
+    if (value !== margins[key]) {
+      layout.margin[key] = margins[key];
       changed = true;
     }
   });
+
+  const width = Math.floor(element.offsetWidth);
+  const height = Math.floor(element.offsetHeight);
+
+  if ((width !== layout.width) || (height !== layout.height)) {
+    layout.width = element.offsetWidth;
+    layout.height = element.offsetHeight;
+    changed = true;
+  }
+
   return changed;
 }
