@@ -452,7 +452,18 @@ edit-in-place p.editable:hover {
   visibility: hidden;
 }
 
+.query-fullscreen .query-metadata__mobile {
+  display: none;
+}
+
 @media (max-width: 880px) {
+  .query-fullscreen .query-metadata__mobile {
+    display: block;
+    border-bottom: 1px solid #efefef;
+    padding: 10px 0;
+
+    min-height: auto !important;
+  }
 
   .page-header--query {
     padding-left: 0px !important;
@@ -460,6 +471,10 @@ edit-in-place p.editable:hover {
     h3 {
       line-height: 1.25;
     }
+  }
+
+  .query-fullscreen .content {
+    height: 100%;
   }
 
   .datasource-small {
@@ -500,8 +515,32 @@ edit-in-place p.editable:hover {
   }
 }
 
+
 @media (max-width: 438px) {
   .btn--showhide {
     margin-bottom: 5px;
+  }
+
+  .source-control {
+    display: flex;
+    flex-direction: column;
+
+    .btn-group.dropdown {
+      align-self: flex-end;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .editor__left__schema, .editor__left__data-source {
+    display: none;
+  }
+
+  .filter-container {
+    padding-right: 0;
+  }
+
+  .btn-edit-visualisation {
+    display: none;
   }
 }

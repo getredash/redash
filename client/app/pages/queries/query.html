@@ -133,24 +133,27 @@
 
             <div class="editor__control">
               <div class="row form-inline">
-                <div class="col-xs-6 text-left">
+                <div class="col-xs-5 text-left">
                   <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
                           ng-options="ds.id as ds.name for ds in dataSources"></select>
                 </div>
 
-                <div class="col-xs-6">
+                <div class="col-xs-7">
                   <div class="editor__control--right">
                     <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
                       <span class="fa fa-paper-plane"></span> Publish
                     </button>
 
                     <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
-                      <span class="fa fa-floppy-o"></span> Save<span
+                      <span class="fa fa-floppy-o"></span>
+                      <span class="hidden-xs">Save</span>
+                      <span
                       ng-show="isDirty">&#42;</span>
                     </button>
 
                     <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
-                      <span class="zmdi zmdi-play"></span> Execute
+                      <span class="zmdi zmdi-play"></span>
+                      <span class="hidden-xs">Execute</span>
                     </button>
                   </div>
                 </div>
@@ -160,6 +163,16 @@
           </div>
 
         </section>
+      </div>
+
+      <div class="row query-metadata__mobile">
+        <div class="col-xs-12">
+          Created by <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong> ·
+          Updated by <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong> ·
+          <span class="query-metadata__property"></span> Refresh Schedule</span>
+          <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
+          <span ng-if="query.isNew()">Never</span>
+        </div>
       </div>
 
       <div class="row">
@@ -227,7 +240,7 @@
                   </div>
 
                   <div class="bottom-controller">
-                    <button class="btn btn-default" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
+                    <button class="btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
                     <button class="btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><i class="zmdi zmdi-code"></i> Embed</button>
 
                     <div class="btn-group dropup" uib-dropdown>
@@ -257,7 +270,7 @@
                                           'other': ' rows'}">
                         </ng-pluralize>
                       </span>
-                      <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> runtime</span>
+                      <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> <span class="hidden-xs">runtime</span></span>
                       <span class="query-metadata__property" ng-if="queryResult.query_result.data.metadata.data_scanned">Data Scanned <strong>{{ queryResult.query_result.data.metadata.data_scanned | prettySize}}</strong></span>
                     </span>
                   </div>
