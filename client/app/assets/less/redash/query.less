@@ -1,5 +1,5 @@
 body.fixed-layout {
-  padding-bottom: 60px;
+  padding-bottom: 50px;
 }
 
 .bottom-controller {
@@ -27,6 +27,10 @@ body.fixed-layout {
   }
 }
 
+.p-b-60 {
+ padding-bottom: 60px !important;
+}
+
 .bottom-controller-container {
   position: fixed;
   bottom: 0;
@@ -38,17 +42,20 @@ body.fixed-layout {
   height: 50px;
   border: none !important;
   margin-left: 0;
+  line-height: 2.1;
 
   pointer-events: none; //so we can access bottom-controller's buttons below
 
-  .btn {
+  .btn, span {
     pointer-events: auto;
   }
 }
 
 .query-metadata__bottom {
   margin: 0 10px;
+}
 
+.bottom-controller, .bottom-controller-container {
   .query-metadata__property {
     margin-right: 5px;
   }
@@ -68,10 +75,6 @@ edit-in-place p.editable:hover {
 
   .dropdown-toggle {
     margin-right: 0;
-  }
-
-  button.btn-primary {
-    //margin-left: 5px;
   }
 }
 
@@ -275,10 +278,8 @@ edit-in-place p.editable:hover {
 
   nav {
     position: relative;
-    z-index: 2;
     display: flex;
     flex-flow: column;
-    //border-right: 1px solid #efefef;
     z-index: 1;
     width: 25%;
     max-width: 600px;
@@ -314,6 +315,7 @@ edit-in-place p.editable:hover {
     height: 100%;
   }
   .content {
+    height: calc(~'100vh - 160px');
     z-index: 9;
     background: #fff;
     flex: 1;
@@ -322,8 +324,6 @@ edit-in-place p.editable:hover {
     justify-content: space-around;
     align-content: space-around;
     padding: 0;
-    height: calc(~'100% - 137px');
-    height: auto;
     width: 75%;
 
     .editor {
@@ -438,15 +438,28 @@ edit-in-place p.editable:hover {
     top: 0;
     margin-left: -@spacing;
   }
-
 }
-
 
 .datasource-small {
   visibility: hidden;
 }
 
+.query-fullscreen .query-metadata__mobile {
+  display: none;
+}
+
 @media (max-width: 880px) {
+  .query-fullscreen .query-metadata__mobile {
+    display: block;
+    border-bottom: 1px solid #efefef;
+    padding: 10px 0;
+    min-height: auto !important;
+    flex: initial;
+  }
+
+  a.navbar-brand {
+    display: none;
+  }
 
   .page-header--query {
     padding-left: 0px !important;
@@ -454,6 +467,10 @@ edit-in-place p.editable:hover {
     h3 {
       line-height: 1.25;
     }
+  }
+
+  .query-fullscreen .content {
+    height: 100%;
   }
 
   .datasource-small {
@@ -482,20 +499,40 @@ edit-in-place p.editable:hover {
 
     .content {
       width: 100%;
-
-      .resizable {
-        //margin-bottom: 25px;
-
-        .rg-bottom {
-          //bottom: -30px;
-        }
-      }
     }
   }
 }
 
+
 @media (max-width: 438px) {
   .btn--showhide {
     margin-bottom: 5px;
+  }
+
+  .source-control {
+    display: flex;
+    flex-direction: column;
+
+    .btn-group.dropdown {
+      align-self: flex-end;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .editor__left__schema, .editor__left__data-source {
+    display: none;
+  }
+
+  a.navbar-brand {
+    display: block;
+  }
+
+  .filter-container {
+    padding-right: 0;
+  }
+
+  .btn-edit-visualisation {
+    display: none;
   }
 }
