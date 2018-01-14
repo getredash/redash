@@ -42,17 +42,20 @@ body.fixed-layout {
   height: 50px;
   border: none !important;
   margin-left: 0;
+  line-height: 2.1;
 
   pointer-events: none; //so we can access bottom-controller's buttons below
 
-  .btn {
+  .btn, span {
     pointer-events: auto;
   }
 }
 
 .query-metadata__bottom {
   margin: 0 10px;
+}
 
+.bottom-controller, .bottom-controller-container {
   .query-metadata__property {
     margin-right: 5px;
   }

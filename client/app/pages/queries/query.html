@@ -251,7 +251,6 @@
                     </div>
 
                     <span class="query-metadata__bottom" ng-if="queryResult.getData()">
-                      &nbsp;
                       <span class="query-metadata__property"><strong>{{queryResult.getData().length}}</strong><ng-pluralize count="queryResult.getData().length"
                                       when="{'0': ' rows',
                                           'one': ' row',
@@ -260,7 +259,6 @@
                       </span>
                       <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> runtime</span>
                       <span class="query-metadata__property" ng-if="queryResult.query_result.data.metadata.data_scanned">Data Scanned <strong>{{ queryResult.query_result.data.metadata.data_scanned | prettySize}}</strong></span>
-                      <span class="query-metadata__property"><span class="hidden-xs">&nbsp; &nbsp; Updated</span></span><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
                     </span>
                   </div>
                 </div>
@@ -277,6 +275,8 @@
 
   <div class="bottom-controller-container">
     <div class="pull-right">
+      <span class="query-metadata__property"><span class="hidden-xs">Updated </span><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago></span>
+
       <button class="btn btn-primary" ng-click="executeQuery()"
         ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
         ng-if="!sourceMode"><span class="zmdi zmdi-play"></span>
