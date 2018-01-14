@@ -25,15 +25,15 @@ function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
 
   this.createdAtSort = row => row.created_at.valueOf();
   this.createdBySort = row => row.user.name;
-  this.scheduleSort = function (row) {
+  this.scheduleSort = (row) => {
     if (!row.schedule) {
       return null;
     }
     if (row.schedule.match(/\d\d:\d\d/) !== null) {
       const parts = row.schedule.split(':');
       const localTime = moment.utc()
-            .hour(parts[0])
-            .minute(parts[1]);
+        .hour(parts[0])
+        .minute(parts[1]);
       return localTime.valueOf();
     }
     return parseInt(row.schedule, 10);
