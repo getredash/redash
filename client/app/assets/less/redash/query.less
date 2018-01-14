@@ -461,8 +461,11 @@ edit-in-place p.editable:hover {
     display: block;
     border-bottom: 1px solid #efefef;
     padding: 10px 0;
-
     min-height: auto !important;
+  }
+
+  a.navbar-brand {
+    display: none;
   }
 
   .page-header--query {
@@ -534,6 +537,10 @@ edit-in-place p.editable:hover {
 @media (max-width: 768px) {
   .editor__left__schema, .editor__left__data-source {
     display: none;
+  }
+
+  a.navbar-brand {
+    display: block;
   }
 
   .filter-container {
