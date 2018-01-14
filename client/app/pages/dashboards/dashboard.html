@@ -71,12 +71,13 @@
     </div>
   </div>
 
-  <div class="m-b-10 tiled">
+  <!-- TODO: only show if we have global parameters -->
+  <div class="m-b-10 p-15 bg-white tiled">
     <parameters parameters="$ctrl.globalParameters" on-change="$ctrl.onGlobalParametersChange()"></parameters>
   </div>
 
-  <div class="m-b-10 tiled">
-    <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled" filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.dashboard.dashboard_filters_enabled">
+    <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
   </div>
 
   <div style="overflow: hidden; padding-bottom: 5px;">
