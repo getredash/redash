@@ -73,6 +73,24 @@ body {
   }
 }
 
+body {
+  .ace-tm .ace_gutter {
+    background: #fff;
+  }
+
+  .ace_editor {
+    border: 1px solid fade(@redash-gray, 15%);
+  }
+
+  .ace-tm .ace_gutter-active-line {
+    background-color: fade(@redash-gray, 20%);
+  }
+
+  .ace-tm .ace_marker-layer .ace_active-line {
+    background: fade(@redash-gray, 9%);
+  }
+}
+
 .database-source {
   display: inline-flex;
   flex-wrap: wrap;
