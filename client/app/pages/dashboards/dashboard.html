@@ -71,8 +71,7 @@
     </div>
   </div>
 
-  <!-- TODO: only show if we have global parameters -->
-  <div class="m-b-10 p-15 bg-white tiled">
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
     <parameters parameters="$ctrl.globalParameters" on-change="$ctrl.onGlobalParametersChange()"></parameters>
   </div>
 
@@ -80,7 +79,7 @@
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
   </div>
 
-  <div style="overflow: hidden; padding-bottom: 5px;">
+  <div style="overflow: hidden; padding-bottom: 5px;" ng-if="$ctrl.dashboard.widgets.length > 0">
     <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper"
       ng-class="{'preview-mode': !$ctrl.layoutEditing, 'editing-mode': $ctrl.layoutEditing}">
       <div ng-repeat="widget in $ctrl.dashboard.widgets" gridster-item="widget.options.position"
