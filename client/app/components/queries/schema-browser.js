@@ -22,9 +22,10 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     return this.schema === undefined || this.schema.length === 0;
   };
 
-  this.itemSelected = (hierarchy) => {
+  this.itemSelected = ($event, hierarchy) => {
     $rootScope.$broadcast('schema-browser-select', hierarchy);
-    window.getSelection().removeAllRanges();
+    $event.preventDefault();
+    $event.stopPropagation();
   };
 }
 
