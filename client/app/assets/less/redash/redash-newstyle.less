@@ -305,14 +305,13 @@ page-header, .page-header--new {
   }
 }
 
-.dashboard-header.fixed {
-  position: fixed;
-  top: 0;
-  width: 100%;
+.dashboard-header {
+  position: -webkit-sticky;  // required for Safari
+  position: sticky;
   background: #f6f7f9;
-  z-index: 9999;
-  left: 0;
-  padding: 5px 30px !important;
+  z-index: 99;
+  width: 100%;
+  top: 0;
 }
 
 .widget-wrapper {
