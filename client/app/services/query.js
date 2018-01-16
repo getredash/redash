@@ -146,7 +146,7 @@ class Parameter {
       };
     }
     return {
-      [`p_${this.name}`]: this.value,
+      [`p_${this.name}_${this.queryId}`]: this.value,
     };
   }
 
@@ -158,7 +158,7 @@ class Parameter {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
-      const key = `p_${this.name}`;
+      const key = `p_${this.name}_${this.queryId}`;
       if (has(query, key)) {
         this.setValue(query[key]);
       }
@@ -221,7 +221,9 @@ class Parameters {
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    this.query.options.parameters = this.query.options.parameters
+      .filter(parameterExists)
+      .map(p => new Parameter(Object.assign({ queryId: this.query.id }, p)));
   }
 
   initFromQueryString(query) {
@@ -486,7 +488,7 @@ function QueryResource(
           params += '&';
         }
 
-        params += `p_${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+        params += `p_${encodeURIComponent(name)}_${this.id}=${encodeURIComponent(value)}`;
       });
     }
 
