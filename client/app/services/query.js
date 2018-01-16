@@ -175,7 +175,7 @@ export class Parameter {
       };
     }
     return {
-      [`${prefix}${this.name}`]: this.value,
+      [`${prefix}${this.name}_${this.queryId}`]: this.value,
     };
   }
 
@@ -188,7 +188,7 @@ export class Parameter {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
-      const key = `${prefix}${this.name}`;
+      const key = `${prefix}${this.name}_${this.queryId}`;
       if (has(query, key)) {
         this.setValue(query[key]);
       }
@@ -551,7 +551,7 @@ function QueryResource(
         extend(params, param.toUrlParams());
       });
     }
-    params = map(params, (value, name) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
+    params = map(params, (value, name) => `${encodeURIComponent(name)}_${this.id}=${encodeURIComponent(value)}`).join('&');
 
     if (params !== '') {
       url += `?${params}`;
