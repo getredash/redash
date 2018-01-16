@@ -81,13 +81,16 @@ function pivotTableEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('pivotTableRenderer', pivotTableRenderer);
   ngModule.directive('pivotTableEditor', pivotTableEditor);
 
   ngModule.config((VisualizationProvider) => {
     const editTemplate = '<pivot-table-editor></pivot-table-editor>';
     const defaultOptions = {
+      defaultRows: 10,
+      defaultColumns: 3,
+      minColumns: 2,
     };
 
     VisualizationProvider.registerVisualization({

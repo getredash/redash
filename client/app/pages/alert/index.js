@@ -1,6 +1,5 @@
 import { template as templateBuilder } from 'underscore';
 import template from './alert.html';
-import alertSubscriptions from './alert-subscriptions';
 
 function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {
   this.alertId = $routeParams.alertId;
@@ -60,33 +59,37 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
     if (this.alert.rearm === '' || this.alert.rearm === 0) {
       this.alert.rearm = null;
     }
-    this.alert.$save((alert) => {
-      toastr.success('Saved.');
-      if (this.alertId === 'new') {
-        $location.path(`/alerts/${alert.id}`).replace();
-      }
-    }, () => {
-      toastr.error('Failed saving alert.');
-    });
+    this.alert.$save(
+      (alert) => {
+        toastr.success('Saved.');
+        if (this.alertId === 'new') {
+          $location.path(`/alerts/${alert.id}`).replace();
+        }
+      },
+      () => {
+        toastr.error('Failed saving alert.');
+      },
+    );
   };
 
   this.delete = () => {
-    this.alert.$delete(() => {
-      $location.path('/alerts');
-      toastr.success('Alert deleted.');
-    }, () => {
-      toastr.error('Failed deleting alert.');
-    });
+    this.alert.$delete(
+      () => {
+        $location.path('/alerts');
+        toastr.success('Alert deleted.');
+      },
+      () => {
+        toastr.error('Failed deleting alert.');
+      },
+    );
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('alertPage', {
     template,
     controller: AlertCtrl,
   });
-
-  ngModule.directive('alertSubscriptions', alertSubscriptions);
 
   return {
     '/alerts/:alertId': {

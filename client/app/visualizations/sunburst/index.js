@@ -1,19 +1,22 @@
-import jQuery from 'jquery';
-import Sunburst from './sunburst';
+import { debounce } from 'underscore';
+import Sunburst from '@/lib/visualizations/sunburst';
 import editorTemplate from './sunburst-sequence-editor.html';
 
 function sunburstSequenceRenderer() {
   return {
     restrict: 'E',
+    template: '<div class="sunburst-visualization-container" resize-event="handleResize()"></div>',
     link(scope, element) {
-      let sunburst = new Sunburst(scope, element);
+      const container = element[0].querySelector('.sunburst-visualization-container');
+      let sunburst = new Sunburst(scope, container);
 
       function resize() {
         sunburst.remove();
-        sunburst = new Sunburst(scope, element);
+        sunburst = new Sunburst(scope, container);
       }
 
-      jQuery(window).on('resize', resize);
+      scope.handleResize = debounce(resize, 50);
+
       scope.$watch('visualization.options.height', (oldValue, newValue) => {
         if (oldValue !== newValue) {
           resize();
@@ -30,7 +33,7 @@ function sunburstSequenceEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('sunburstSequenceRenderer', sunburstSequenceRenderer);
   ngModule.directive('sunburstSequenceEditor', sunburstSequenceEditor);
 
@@ -40,7 +43,7 @@ export default function (ngModule) {
 
     const editTemplate = '<sunburst-sequence-editor></sunburst-sequence-editor>';
     const defaultOptions = {
-      height: 300,
+      defaultRows: 7,
     };
 
     VisualizationProvider.registerVisualization({
@@ -50,6 +53,5 @@ export default function (ngModule) {
       editorTemplate: editTemplate,
       defaultOptions,
     });
-  }
-  );
+  });
 }

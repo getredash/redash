@@ -2,9 +2,6 @@ import moment from 'moment';
 import _capitalize from 'underscore.string/capitalize';
 import { isEmpty } from 'underscore';
 
-// eslint-disable-next-line
-const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
-
 export function durationHumanize(duration) {
   let humanized = '';
 
@@ -32,10 +29,10 @@ export function scheduleHumanize(schedule) {
   } else if (schedule.match(/\d\d:\d\d/) !== null) {
     const parts = schedule.split(':');
     const localTime = moment.utc()
-                            .hour(parts[0])
-                            .minute(parts[1])
-                            .local()
-                            .format('HH:mm');
+      .hour(parts[0])
+      .minute(parts[1])
+      .local()
+      .format('HH:mm');
 
     return `Every day at ${localTime}`;
   }
@@ -45,8 +42,7 @@ export function scheduleHumanize(schedule) {
 
 export function toHuman(text) {
   return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a =>
-     a.toUpperCase()
-  );
+    a.toUpperCase());
 }
 
 export function colWidth(widgetWidth) {
@@ -66,10 +62,6 @@ export function capitalize(text) {
   }
 
   return null;
-}
-
-export function linkify(text) {
-  return text.replace(urlPattern, "$1<a href='$2' target='_blank'>$2</a>");
 }
 
 export function remove(items, item) {
@@ -100,7 +92,7 @@ export function notEmpty(collection) {
   return !isEmpty(collection);
 }
 
-export function showError(field, form) {
-  return (field.$touched && field.$invalid) || form.$submitted;
+export function showError(field) {
+  return field.$touched && field.$invalid;
 }
 

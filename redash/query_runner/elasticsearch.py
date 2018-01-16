@@ -218,6 +218,8 @@ class BaseElasticSearch(BaseQueryRunner):
                 for value in data:
                     result_row = get_row(rows, row)
                     collect_aggregations(mappings, rows, parent_key, value, result_row, result_columns, result_columns_index)
+                    if 'doc_count' in value:
+                        collect_value(mappings, result_row, 'doc_count', value['doc_count'], 'integer')
                     if 'key' in value:
                         if 'key_as_string' in value:
                             collect_value(mappings, result_row, parent_key, value['key_as_string'], 'string')
@@ -269,7 +271,7 @@ class BaseElasticSearch(BaseQueryRunner):
 
                 result_rows.append(row)
         else:
-            raise Exception("Redash failed to parse the results it got from ElasticSearch.")
+            raise Exception("Redash failed to parse the results it got from Elasticsearch.")
 
     def test_connection(self):
         try:
@@ -392,6 +394,10 @@ class ElasticSearch(BaseElasticSearch):
     @classmethod
     def annotate_query(cls):
         return False
+
+    @classmethod
+    def name(cls):
+        return 'Elasticsearch'
 
     def run_query(self, query, user):
         try:

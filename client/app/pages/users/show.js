@@ -1,8 +1,11 @@
 import { each } from 'underscore';
 import template from './show.html';
+import './settings.less';
 
-function UserCtrl($scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, Events, User) {
+function UserCtrl(
+  $scope, $routeParams, $http, $location, toastr,
+  clientConfig, currentUser, Events, User,
+) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
   $scope.clientConfig = clientConfig;
@@ -94,6 +97,8 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr,
     });
   };
 
+  $scope.isCollapsed = true;
+
   $scope.sendPasswordReset = () => {
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
@@ -103,7 +108,7 @@ function UserCtrl($scope, $routeParams, $http, $location, toastr,
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.controller('UserCtrl', UserCtrl);
 
   return {

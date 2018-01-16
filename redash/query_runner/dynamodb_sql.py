@@ -11,7 +11,7 @@ try:
     from dql import Engine, FragmentEngine
     from pyparsing import ParseException
     enabled = True
-except ImportError, e:
+except ImportError as e:
     enabled = False
 
 types_map = {

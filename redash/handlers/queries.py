@@ -37,16 +37,23 @@ class QuerySearchResource(BaseResource):
     @require_permission('view_query')
     def get(self):
         """
-        Search query text, titles, and descriptions.
+        Search query text, names, and descriptions.
 
         :qparam string q: Search term
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
         term = request.args.get('q', '')
+        if not term:
+            return []
+
         include_drafts = request.args.get('include_drafts') is not None
 
-        return [q.to_dict(with_last_modified_by=False) for q in models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts)]
+        return [q.to_dict(with_last_modified_by=False)
+                for q in models.Query.search(term,
+                                             self.current_user.group_ids,
+                                             include_drafts=include_drafts,
+                                             limit=None)]
 
 
 class QueryRecentResource(BaseResource):
@@ -251,6 +258,7 @@ class QueryForkResource(BaseResource):
         Responds with created :ref:`query <query-response-label>` object.
         """
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
         return forked_query.to_dict(with_visualizations=True)
@@ -265,6 +273,12 @@ class QueryRefreshResource(BaseResource):
 
         Responds with query task details.
         """
+        # TODO: this should actually check for permissions, but because currently you can only
+        # get here either with a user API key or a query one, we can just check whether it's
+        # an api key (meaning this is a query API key, which only grants read access).
+        if self.current_user.is_api_user():
+            abort(403, message="Please use a user API key.")
+
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.groups, self.current_user, not_view_only)
 

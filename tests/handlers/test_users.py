@@ -26,11 +26,35 @@ class TestUserListResourcePost(BaseTestCase):
         self.assertEqual(rv.json['name'], test_user['name'])
         self.assertEqual(rv.json['email'], test_user['email'])
 
+    def test_creates_user_case_insensitive_email(self):
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': 'User@Example.com', 'password': 'test'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['name'], test_user['name'])
+        self.assertEqual(rv.json['email'], 'user@example.com')
+
     def test_returns_400_when_email_taken(self):
         admin = self.factory.create_admin()
 
         test_user = {'name': 'User', 'email': admin.email, 'password': 'test'}
         rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+
+        self.assertEqual(rv.status_code, 400)
+
+    def test_returns_400_when_email_taken_case_insensitive(self):
+        admin = self.factory.create_admin()
+
+        test_user1 = {'name': 'User', 'email': 'user@example.com', 'password': 'test'}
+        rv = self.make_request('post', '/api/users', data=test_user1, user=admin)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json['email'], 'user@example.com')
+
+        test_user2 = {'name': 'User', 'email': 'user@Example.com', 'password': 'test'}
+        rv = self.make_request('post', '/api/users', data=test_user2, user=admin)
 
         self.assertEqual(rv.status_code, 400)
 

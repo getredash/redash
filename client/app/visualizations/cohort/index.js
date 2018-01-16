@@ -7,6 +7,56 @@ import 'cornelius/src/cornelius.css';
 
 import editorTemplate from './cohort-editor.html';
 
+const momentInterval = {
+  weekly: 'weeks',
+  daily: 'days',
+  monthly: 'months',
+};
+
+function prepareData(rawData, timeInterval) {
+  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.day_number, 10));
+  const grouped = _.groupBy(sortedData, 'date');
+  const initialDate = moment(sortedData[0].date).toDate();
+  const lastDate = moment(sortedData[sortedData.length - 1].date);
+  const zeroBased = _.min(_.pluck(rawData, 'day_number')) === 0;
+
+  let previousDay = null;
+  const data = [];
+
+  _.each(grouped, (values) => {
+    if (previousDay !== null) {
+      let diff = Math.abs(previousDay.diff(values[0].date, momentInterval[timeInterval]));
+      while (diff > 1) {
+        data.push([0]);
+        diff -= 1;
+      }
+    }
+
+    previousDay = moment(values[0].date);
+
+    const row = [parseInt(values[0].total, 10)];
+    let maxDays = lastDate.diff(moment(values[0].date), momentInterval[timeInterval]);
+    if (zeroBased) {
+      maxDays += 1;
+    }
+
+    _.each(values, (value) => {
+      const index = zeroBased ? value.day_number + 1 : value.day_number;
+      row[index] = parseInt(value.value, 10);
+    });
+
+    for (let i = 0; i <= maxDays; i += 1) {
+      if (row[i] === undefined) {
+        row[i] = 0;
+      }
+    }
+
+    data.push(row);
+  });
+
+  return { data, initialDate };
+}
+
 function cohortRenderer() {
   return {
     restrict: 'E',
@@ -24,28 +74,11 @@ function cohortRenderer() {
           return;
         }
 
-        const sortedData = _.sortBy($scope.queryResult.getData(), r =>
-           r.date + parseInt(r.day_number, 10)
+        const { data, initialDate } = prepareData(
+          $scope.queryResult.getData(),
+          $scope.options.timeInterval,
         );
 
-        const grouped = _.groupBy(sortedData, 'date');
-
-        const maxColumns = _.reduce(grouped, (memo, data) =>
-           ((data.length > memo) ? data.length : memo)
-        , 0);
-
-        const data = _.map(grouped, (values) => {
-          const row = [parseInt(values[0].total, 10)];
-          _.each(values, (value) => {
-            row.push(parseInt(value.value, 10));
-          });
-          _.each(_.range(values.length, maxColumns), () => {
-            row.push(null);
-          });
-          return row;
-        });
-
-        const initialDate = moment(sortedData[0].date).toDate();
         const container = angular.element(element)[0];
 
         Cornelius.draw({
@@ -75,7 +108,7 @@ function cohortEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('cohortRenderer', cohortRenderer);
   ngModule.directive('cohortEditor', cohortEditor);
 

@@ -21,6 +21,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_COOKIE_SECRET: veryverysecret
       REDASH_WEB_WORKERS: 4
+    restart: always
   worker:
     image: redash/redash:latest
     command: scheduler
@@ -31,12 +32,15 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
+    restart: always
   redis:
     image: redis:3.0-alpine
+    restart: always
   postgres:
     image: postgres:9.5.6-alpine
     # volumes:
     #   - /opt/postgres-data:/var/lib/postgresql/data
+    restart: always
   nginx:
     image: redash/nginx:latest
     ports:
@@ -45,3 +49,4 @@ services:
       - server
     links:
       - server:redash
+    restart: always

@@ -60,7 +60,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
         models.db.session.commit()
         return query_result
-    except Exception, e:
+    except Exception as e:
         if max_age > 0:
             abort(404, message="Unable to get result from the database, and no cached query result found.")
         else:
@@ -185,14 +185,19 @@ class QueryResultResource(BaseResource):
 
         if query_result_id:
             query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
-        elif query_id is not None:
+
+        if query_id is not None:
             query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-            if query is not None:
+            if query_result is None and query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
                     query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
+                
+            if query is not None and query_result is not None and self.current_user.is_api_user():
+                if query.query_hash != query_result.query_hash:
+                    abort(404, message='No cached result found for this query.')
 
         if query_result:
             require_access(query_result.data_source.groups, self.current_user, view_only)
@@ -229,7 +234,7 @@ class QueryResultResource(BaseResource):
                 self.add_cors_headers(response.headers)
 
             if should_cache:
-                response.headers.add_header('Cache-Control', 'max-age=%d' % ONE_YEAR)
+                response.headers.add_header('Cache-Control', 'private,max-age=%d' % ONE_YEAR)
 
             return response
 

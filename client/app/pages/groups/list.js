@@ -1,4 +1,5 @@
-import { Paginator } from '../../utils';
+import settingsMenu from '@/lib/settings-menu';
+import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
 function GroupsCtrl($scope, $uibModal, currentUser, Events, Group) {
@@ -22,7 +23,14 @@ function GroupsCtrl($scope, $uibModal, currentUser, Events, Group) {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
+  settingsMenu.add({
+    permission: 'list_users',
+    title: 'Groups',
+    path: 'groups',
+    order: 3,
+  });
+
   ngModule.controller('GroupsCtrl', GroupsCtrl);
 
   return {

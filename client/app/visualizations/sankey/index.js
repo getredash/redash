@@ -1,9 +1,8 @@
 import angular from 'angular';
 import _ from 'underscore';
-import $ from 'jquery';
 import d3 from 'd3';
 
-import d3sankey from './d3sankey';
+import d3sankey from '@/lib/visualizations/d3sankey';
 import editorTemplate from './sankey-editor.html';
 
 function getConnectedNodes(node) {
@@ -83,8 +82,7 @@ function spreadNodes(height, data) {
 
   nodesByBreadth.forEach((nodes) => {
     nodes = _.filter(_.sortBy(nodes, node => -node.value), node =>
-       node.name !== 'Exit'
-    );
+      node.name !== 'Exit');
 
     const sum = d3.sum(nodes, o => o.dy);
     const padding = (height - sum) / nodes.length;
@@ -96,15 +94,27 @@ function spreadNodes(height, data) {
   });
 }
 
-function createSankey(element, sankeyHeight, data) {
-  const margin = { top: 10, right: 10, bottom: 10, left: 10 };
-  const width = $(element).parent().width() - margin.left - margin.right;
-  const height = sankeyHeight - margin.top - margin.bottom;
+function createSankey(element, data) {
+  const margin = {
+    top: 10, right: 10, bottom: 10, left: 10,
+  };
+  const width = element.offsetWidth - margin.left - margin.right;
+  const height = element.offsetHeight - margin.top - margin.bottom;
 
-  data = graph(data);
+  if ((width <= 0) || (height <= 0)) {
+    return;
+  }
 
   const format = d => d3.format(',.0f')(d);
   const color = d3.scale.category20();
+
+  data = graph(data);
+  data.nodes = _.map(
+    data.nodes,
+    d => _.extend(d, {
+      color: color(d.name.replace(/ .*/, '')),
+    }),
+  );
 
   // append the svg canvas to the page
   const svg = d3.select(element).append('svg')
@@ -112,8 +122,10 @@ function createSankey(element, sankeyHeight, data) {
     .attr('width', width + margin.left + margin.right)
     .attr('height', height + margin.top + margin.bottom)
     .append('g')
-    .attr('transform',
-    `translate(${margin.left},${margin.top})`);
+    .attr(
+      'transform',
+      `translate(${margin.left},${margin.top})`,
+    );
 
   // Set the sankey diagram properties
   const sankey = d3sankey()
@@ -145,8 +157,7 @@ function createSankey(element, sankeyHeight, data) {
   // add the link titles
   link.append('title')
     .text(d =>
-       `${d.source.name} → ${d.target.name}\n${format(d.value)}`
-    );
+      `${d.source.name} → ${d.target.name}\n${format(d.value)}`);
 
   const node = svg.append('g').selectAll('.node')
     .data(data.nodes)
@@ -171,8 +182,7 @@ function createSankey(element, sankeyHeight, data) {
       return true;
     }).style('opacity', 0.2);
     link.filter(l =>
-       !(_.include(currentNode.sourceLinks, l) || _.include(currentNode.targetLinks, l))
-    ).style('opacity', 0.2);
+      !(_.include(currentNode.sourceLinks, l) || _.include(currentNode.targetLinks, l))).style('opacity', 0.2);
   }
 
   function nodeMouseOut() {
@@ -182,13 +192,13 @@ function createSankey(element, sankeyHeight, data) {
 
   // add in the nodes
   node.on('mouseover', nodeMouseOver)
-      .on('mouseout', nodeMouseOut);
+    .on('mouseout', nodeMouseOut);
 
   // add the rectangles for the nodes
   node.append('rect')
     .attr('height', d => d.dy)
     .attr('width', sankey.nodeWidth())
-    .style('fill', d => (d.color = color(d.name.replace(/ .*/, ''))))
+    .style('fill', d => d.color)
     .style('stroke', d => d3.rgb(d.color).darker(2))
     .append('title')
     .text(d => `${d.name}\n${format(d.value)}`);
@@ -209,17 +219,20 @@ function createSankey(element, sankeyHeight, data) {
 function sankeyRenderer() {
   return {
     restrict: 'E',
+    template: '<div class="sankey-visualization-container" resize-event="handleResize()"></div>',
     link(scope, element) {
+      const container = element[0].querySelector('.sankey-visualization-container');
+
       function refreshData() {
         const queryData = scope.queryResult.getData();
         if (queryData) {
           // do the render logic.
-          angular.element(element[0]).empty();
-          createSankey(element[0], scope.visualization.options.height, queryData);
+          angular.element(container).empty();
+          createSankey(container, queryData);
         }
       }
 
-      angular.element(window).on('resize', refreshData);
+      scope.handleResize = _.debounce(refreshData, 50);
       scope.$watch('queryResult && queryResult.getData()', refreshData);
       scope.$watch('visualization.options.height', (oldValue, newValue) => {
         if (oldValue !== newValue) {
@@ -237,17 +250,17 @@ function sankeyEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('sankeyRenderer', sankeyRenderer);
   ngModule.directive('sankeyEditor', sankeyEditor);
 
   ngModule.config((VisualizationProvider) => {
     const renderTemplate =
-        '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>';
+      '<sankey-renderer options="visualization.options" query-result="queryResult"></sankey-renderer>';
 
     const editTemplate = '<sankey-editor></sankey-editor>';
     const defaultOptions = {
-      height: 300,
+      defaultRows: 7,
     };
 
     VisualizationProvider.registerVisualization({

@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import d3 from 'd3';
-import angular from 'angular';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import 'leaflet/dist/leaflet.css';
@@ -47,7 +46,7 @@ function mapRenderer() {
 
         if (b) {
           map.fitBounds([[b._southWest.lat, b._southWest.lng],
-                         [b._northEast.lat, b._northEast.lng]]);
+            [b._northEast.lat, b._northEast.lng]]);
         } else if (layers) {
           const allMarkers = _.flatten(_.map(_.values(layers), l => l.getLayers()));
           // eslint-disable-next-line new-cap
@@ -204,9 +203,12 @@ function mapRenderer() {
         }
       }
 
+      $scope.handleResize = () => {
+        resize();
+      };
+
       $scope.$watch('queryResult && queryResult.getData()', render);
       $scope.$watch('visualization.options', render, true);
-      angular.element(window).on('resize', resize);
       $scope.$watch('visualization.options.height', resize);
     },
   };
@@ -275,7 +277,7 @@ function mapEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('mapRenderer', mapRenderer);
   ngModule.directive('mapEditor', mapEditor);
   ngModule.config((VisualizationProvider) => {
@@ -286,7 +288,9 @@ export default function (ngModule) {
 
     const editTemplate = '<map-editor></map-editor>';
     const defaultOptions = {
-      height: 500,
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
       classify: 'none',
       clusterMarkers: true,
     };

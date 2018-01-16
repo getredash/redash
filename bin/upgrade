@@ -3,6 +3,7 @@ import argparse
 import os
 import subprocess
 import sys
+import urllib
 from collections import namedtuple
 from fnmatch import fnmatch
 
@@ -80,10 +81,11 @@ def get_latest_release_from_ci():
         exit("Failed getting releases (status code: %s)." % response.status_code)
 
     tarball_asset = filter(lambda asset: asset['url'].endswith('.tar.gz'), response.json())[0]
-    url = tarball_asset['url'].replace('%252B', '+')
-    filename = url.split('/')[-1]
-    version = filename.replace('redash', '').replace('.tar.gz', '')
-    release = Release(version, url, filename, '')
+    filename = tarball_asset['pretty_path'].replace('$CIRCLE_ARTIFACTS/', '')
+    filename = os.path.basename(urllib.unquote(filename))
+    version = filename.replace('redash.', '').replace('.tar.gz', '')
+
+    release = Release(version, tarball_asset['url'], filename, '')
 
     return release
 

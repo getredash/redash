@@ -12,10 +12,18 @@ const FiltersComponent = {
     this.filterChangeListener = (filter, modal) => {
       this.onChange({ filter, $modal: modal });
     };
+
+    this.itemGroup = (item) => {
+      if (item === '*' || item === '-') {
+        return '';
+      }
+
+      return 'Values';
+    };
   },
 };
 
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('filters', FiltersComponent);
 }

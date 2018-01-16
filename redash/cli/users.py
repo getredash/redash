@@ -1,3 +1,4 @@
+from __future__ import print_function
 from sys import exit
 
 from click import BOOL, argument, option, prompt
@@ -41,14 +42,14 @@ def grant_admin(email, organization='default'):
         user = models.User.get_by_email_and_org(email, org)
 
         if admin_group.id in user.group_ids:
-            print "User is already an admin."
+            print("User is already an admin.")
         else:
             user.group_ids = user.group_ids + [org.admin_group.id]
             models.db.session.add(user)
             models.db.session.commit()
-            print "User updated."
+            print("User updated.")
     except NoResultFound:
-        print "User [%s] not found." % email
+        print("User [%s] not found." % email)
 
 
 @manager.command()
@@ -72,10 +73,10 @@ def create(email, name, groups, is_admin=False, google_auth=False,
     """
     Create user EMAIL with display name NAME.
     """
-    print "Creating user (%s, %s) in organization %s..." % (email, name,
-                                                            organization)
-    print "Admin: %r" % is_admin
-    print "Login with Google Auth: %r\n" % google_auth
+    print("Creating user (%s, %s) in organization %s..." % (email, name,
+                                                            organization))
+    print("Admin: %r" % is_admin)
+    print("Login with Google Auth: %r\n" % google_auth)
 
     org = models.Organization.get_by_slug(organization)
     groups = build_groups(org, groups, is_admin)
@@ -90,8 +91,56 @@ def create(email, name, groups, is_admin=False, google_auth=False,
     try:
         models.db.session.add(user)
         models.db.session.commit()
-    except Exception, e:
-        print "Failed creating user: %s" % e.message
+    except Exception as e:
+        print("Failed creating user: %s" % e.message)
+        exit(1)
+
+
+@manager.command()
+@argument('email')
+@argument('name')
+@option('--org', 'organization', default='default',
+        help="The organization the root user belongs to (leave blank for 'default').")
+@option('--google', 'google_auth', is_flag=True,
+        default=False, help="user uses Google Auth to login")
+@option('--password', 'password', default=None,
+        help="Password for root user who don't use Google Auth "
+        "(leave blank for prompt).")
+def create_root(email, name, google_auth=False, password=None, organization='default'):
+    """
+    Create root user.
+    """
+    print("Creating root user (%s, %s) in organization %s..." % (email, name, organization))
+    print("Login with Google Auth: %r\n" % google_auth)
+
+    user = models.User.query.filter(models.User.email == email).first()
+    if user is not None:
+        print("User [%s] is already exists." % email)
+        exit(1)
+
+    slug = 'default'
+    default_org = models.Organization.query.filter(models.Organization.slug == slug).first()
+    if default_org is None:
+        default_org = models.Organization(name=organization, slug=slug, settings={})
+
+    admin_group = models.Group(name='admin', permissions=['admin', 'super_admin'],
+                               org=default_org, type=models.Group.BUILTIN_GROUP)
+    default_group = models.Group(name='default', permissions=models.Group.DEFAULT_PERMISSIONS,
+                                 org=default_org, type=models.Group.BUILTIN_GROUP)
+
+    models.db.session.add_all([default_org, admin_group, default_group])
+    models.db.session.commit()
+
+    user = models.User(org=default_org, email=email, name=name,
+                       group_ids=[admin_group.id, default_group.id])
+    if not google_auth:
+        user.hash_password(password)
+
+    try:
+        models.db.session.add(user)
+        models.db.session.commit()
+    except Exception as e:
+        print("Failed creating root user: %s" % e.message)
         exit(1)
 
 
@@ -111,9 +160,10 @@ def delete(email, organization=None):
             models.User.org == org.id,
         ).delete()
     else:
-        deleted_count = models.User.query.filter(models.User.email == email).delete()
+        deleted_count = models.User.query.filter(models.User.email == email).delete(
+            synchronize_session=False)
     models.db.session.commit()
-    print "Deleted %d users." % deleted_count
+    print("Deleted %d users." % deleted_count)
 
 
 @manager.command()
@@ -139,9 +189,9 @@ def password(email, password, organization=None):
         user.hash_password(password)
         models.db.session.add(user)
         models.db.session.commit()
-        print "User updated."
+        print("User updated.")
     else:
-        print "User [%s] not found." % email
+        print("User [%s] not found." % email)
         exit(1)
 
 
@@ -169,14 +219,14 @@ def invite(email, name, inviter_email, groups, is_admin=False,
         try:
             models.db.session.commit()
             invite_user(org, user_from, user)
-            print "An invitation was sent to [%s] at [%s]." % (name, email)
+            print("An invitation was sent to [%s] at [%s]." % (name, email))
         except IntegrityError as e:
             if "email" in e.message:
-                print "Cannot invite. User already exists [%s]" % email
+                print("Cannot invite. User already exists [%s]" % email)
             else:
-                print e
+                print(e)
     except NoResultFound:
-        print "The inviter [%s] was not found." % inviter_email
+        print("The inviter [%s] was not found." % inviter_email)
 
 
 @manager.command()
@@ -192,7 +242,7 @@ def list(organization=None):
         users = models.User.query
     for i, user in enumerate(users):
         if i > 0:
-            print "-" * 20
+            print("-" * 20)
 
-        print "Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(
-            user.id, user.name.encode('utf-8'), user.email, user.org.name)
+        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(
+            user.id, user.name.encode('utf-8'), user.email, user.org.name))

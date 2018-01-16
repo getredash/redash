@@ -1,5 +1,4 @@
 import { some, extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
-import plotly from './plotly';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
@@ -87,10 +86,12 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
 
-      scope.options.customCode = `// Available variables are x, ys, element, and Plotly
+      if (scope.options.customCode === undefined) {
+        scope.options.customCode = `// Available variables are x, ys, element, and Plotly
 // Type console.log(x, ys); for more info about x and ys
 // To plot your graph call Plotly.plot(element, ...)
 // Plotly examples and docs: https://plot.ly/javascript/`;
+      }
 
       function refreshColumns() {
         scope.columns = scope.queryResult.getColumns();
@@ -162,8 +163,7 @@ function ChartEditor(ColorPalette, clientConfig) {
       scope.form = {
         yAxisColumns: [],
         seriesList: sortBy(keys(scope.options.seriesOptions), name =>
-           scope.options.seriesOptions[name].zIndex
-        ),
+          scope.options.seriesOptions[name].zIndex),
       };
 
       scope.$watchCollection('form.seriesList', (value) => {
@@ -251,7 +251,7 @@ const ColorBox = {
   template: "<span style='width: 12px; height: 12px; background-color: {{$ctrl.color}}; display: inline-block; margin-right: 5px;'></span>",
 };
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('colorBox', ColorBox);
   ngModule.directive('chartRenderer', ChartRenderer);
   ngModule.directive('chartEditor', ChartEditor);
@@ -270,6 +270,10 @@ export default function (ngModule) {
       seriesOptions: {},
       columnMapping: {},
       bottomMargin: 50,
+      defaultColumns: 3,
+      defaultRows: 8,
+      minColumns: 2,
+      minRows: 5,
     };
 
     VisualizationProvider.registerVisualization({
@@ -280,5 +284,4 @@ export default function (ngModule) {
       defaultOptions,
     });
   });
-  plotly(ngModule);
 }

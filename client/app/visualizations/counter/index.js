@@ -1,3 +1,6 @@
+import numberFormat from 'underscore.string/numberFormat';
+import * as _ from 'underscore';
+
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
 
@@ -13,11 +16,40 @@ function getRowNumber(index, size) {
   return size + index;
 }
 
-function CounterRenderer() {
+function CounterRenderer($timeout) {
   return {
     restrict: 'E',
     template: counterTemplate,
-    link($scope) {
+    link($scope, $element) {
+      $scope.fontSize = '1em';
+
+      const rootNode = $element[0].querySelector('counter');
+      $scope.handleResize = () => {
+        const rootMeasures = {
+          height: Math.floor(rootNode.offsetHeight),
+          fontSize: parseFloat(window.getComputedStyle(rootNode).fontSize),
+        };
+        const rulers = rootNode.querySelectorAll('.ruler');
+        const rulerMeasures = _.chain(rulers)
+          .map(ruler => ({
+            height: ruler.offsetHeight,
+            fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
+          }))
+          .reduce((result, value) => ({
+            height: result.height + value.height,
+            fontSize: result.fontSize + value.fontSize,
+          }))
+          .value();
+
+        /* eslint-disable function-paren-newline */
+        const fontSize = Math.floor(
+          (rootMeasures.height / rulerMeasures.height * rulerMeasures.fontSize) /
+          (rulerMeasures.fontSize / rootMeasures.fontSize),
+        );
+        /* eslint-enable function-paren-newline */
+        $scope.fontSize = fontSize + 'px';
+      };
+
       const refreshData = () => {
         const queryData = $scope.queryResult.getData();
         if (queryData) {
@@ -42,7 +74,33 @@ function CounterRenderer() {
           } else {
             $scope.targetValue = null;
           }
+
+          $scope.isNumber = _.isNumber($scope.counterValue);
+          if ($scope.isNumber) {
+            $scope.stringPrefix = $scope.visualization.options.stringPrefix;
+            $scope.stringSuffix = $scope.visualization.options.stringSuffix;
+
+            const stringDecimal = $scope.visualization.options.stringDecimal;
+            const stringDecChar = $scope.visualization.options.stringDecChar;
+            const stringThouSep = $scope.visualization.options.stringThouSep;
+            if (stringDecimal || stringDecChar || stringThouSep) {
+              $scope.counterValue = numberFormat(
+                $scope.counterValue,
+                stringDecimal,
+                stringDecChar,
+                stringThouSep,
+              );
+              $scope.isNumber = false;
+            }
+          } else {
+            $scope.stringPrefix = null;
+            $scope.stringSuffix = null;
+          }
         }
+
+        $timeout(() => {
+          $scope.handleResize();
+        });
       };
 
       $scope.$watch('visualization.options', refreshData, true);
@@ -55,11 +113,31 @@ function CounterEditor() {
   return {
     restrict: 'E',
     template: counterEditorTemplate,
+    link(scope) {
+      scope.currentTab = 'general';
+      scope.changeTab = (tab) => {
+        scope.currentTab = tab;
+      };
+      scope.isValueNumber = () => {
+        const queryData = scope.queryResult.getData();
+        if (queryData) {
+          const rowNumber = getRowNumber(scope.visualization.options.rowNumber, queryData.length);
+          const counterColName = scope.visualization.options.counterColName;
+
+          if (scope.visualization.options.countRow) {
+            scope.counterValue = queryData.length;
+          } else if (counterColName) {
+            scope.counterValue = queryData[rowNumber][counterColName];
+          }
+        }
+        return _.isNumber(scope.counterValue);
+      };
+    },
   };
 }
 
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('counterEditor', CounterEditor);
   ngModule.directive('counterRenderer', CounterRenderer);
 
@@ -74,6 +152,11 @@ export default function (ngModule) {
       counterColName: 'counter',
       rowNumber: 1,
       targetRowNumber: 1,
+      stringDecimal: 0,
+      stringDecChar: '.',
+      stringThouSep: ',',
+      defaultColumns: 2,
+      defaultRows: 5,
     };
 
     VisualizationProvider.registerVisualization({

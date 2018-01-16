@@ -1,5 +1,5 @@
 import d3 from 'd3';
-import box from './d3box';
+import box from '@/lib/visualizations/d3box';
 import editorTemplate from './box-plot-editor.html';
 
 function boxPlotRenderer() {
@@ -31,7 +31,9 @@ function boxPlotRenderer() {
 
         const data = $scope.queryResult.getData();
         const parentWidth = d3.select(elm[0].parentNode).node().getBoundingClientRect().width;
-        const margin = { top: 10, right: 50, bottom: 40, left: 50, inner: 25 };
+        const margin = {
+          top: 10, right: 50, bottom: 40, left: 50, inner: 25,
+        };
         const width = parentWidth - margin.right - margin.left;
         const height = 500 - margin.top - margin.bottom;
 
@@ -71,10 +73,10 @@ function boxPlotRenderer() {
           .range([height, 0]);
 
         const chart = box()
-            .whiskers(calcIqr(1.5))
-            .width(boxWidth - 2 * margin.inner)
-            .height(height)
-            .domain([min * 0.99, max * 1.01]);
+          .whiskers(calcIqr(1.5))
+          .width(boxWidth - 2 * margin.inner)
+          .height(height)
+          .domain([min * 0.99, max * 1.01]);
         const xAxis = d3.svg.axis()
           .scale(xscale)
           .orient('bottom');
@@ -102,54 +104,54 @@ function boxPlotRenderer() {
 
         const plot = d3.select(elm[0])
           .append('svg')
-            .attr('width', parentWidth)
-            .attr('height', height + margin.bottom + margin.top)
+          .attr('width', parentWidth)
+          .attr('height', height + margin.bottom + margin.top)
           .append('g')
-            .attr('width', parentWidth - margin.left - margin.right)
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+          .attr('width', parentWidth - margin.left - margin.right)
+          .attr('transform', `translate(${margin.left},${margin.top})`);
 
         d3.select('svg').append('text')
-            .attr('class', 'box')
-            .attr('x', parentWidth / 2.0)
-            .attr('text-anchor', 'middle')
-            .attr('y', height + margin.bottom)
-            .text(xAxisLabel);
+          .attr('class', 'box')
+          .attr('x', parentWidth / 2.0)
+          .attr('text-anchor', 'middle')
+          .attr('y', height + margin.bottom)
+          .text(xAxisLabel);
 
         d3.select('svg').append('text')
-            .attr('class', 'box')
-            .attr('transform', `translate(10,${(height + margin.top + margin.bottom) / 2.0})rotate(-90)`)
-            .attr('text-anchor', 'middle')
-            .text(yAxisLabel);
+          .attr('class', 'box')
+          .attr('transform', `translate(10,${(height + margin.top + margin.bottom) / 2.0})rotate(-90)`)
+          .attr('text-anchor', 'middle')
+          .text(yAxisLabel);
 
         plot.append('rect')
-            .attr('class', 'grid-background')
-            .attr('width', width)
-            .attr('height', height);
+          .attr('class', 'grid-background')
+          .attr('width', width)
+          .attr('height', height);
 
         plot.append('g')
-            .attr('class', 'grid')
-            .call(yLines);
+          .attr('class', 'grid')
+          .call(yLines);
 
         plot.append('g')
-            .attr('class', 'grid')
-            .call(xLines);
+          .attr('class', 'grid')
+          .call(xLines);
 
         plot.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', `translate(0,${height})`)
-            .call(xAxis);
+          .attr('class', 'x axis')
+          .attr('transform', `translate(0,${height})`)
+          .call(xAxis);
 
         plot.append('g')
-            .attr('class', 'y axis')
-            .call(yAxis);
+          .attr('class', 'y axis')
+          .call(yAxis);
 
         plot.selectAll('.box').data(mydata)
           .enter().append('g')
-            .attr('class', 'box')
-            .attr('width', boxWidth)
-            .attr('height', height)
-            .attr('transform', (_, i) => `translate(${barOffset(i)},${0})`)
-            .call(chart);
+          .attr('class', 'box')
+          .attr('width', boxWidth)
+          .attr('height', height)
+          .attr('transform', (_, i) => `translate(${barOffset(i)},${0})`)
+          .call(chart);
       }, true);
     },
   };
@@ -162,7 +164,7 @@ function boxPlotEditor() {
   };
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.directive('boxplotRenderer', boxPlotRenderer);
   ngModule.directive('boxplotEditor', boxPlotEditor);
 

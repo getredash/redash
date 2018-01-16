@@ -1,0 +1,282 @@
+/* --------------------------------------------------------
+    Paths
+-----------------------------------------------------------*/
+@imgpath:                               ~'../img';
+@fontpath:                              ~'../fonts';
+
+
+/* --------------------------------------------------------
+    Container
+-----------------------------------------------------------*/
+@container-tablet:                      100%;
+@container-desktop:                     100%;
+@container-large-desktop:               100%;
+
+
+/* --------------------------------------------------------
+    Template Variables
+-----------------------------------------------------------*/
+@header-height:                         60px;
+@footer-height:                         95px;
+@sidebar-left-width:                    240px;
+@sidebar-left-mid-width:                64px;
+@logo-width:                            @sidebar-left-width;
+@logo-height:                           @header-height;
+@boxed-width:                           1170px;
+@body-bg:                               #edecec;
+
+
+/* --------------------------------------------------------
+    Branding
+-----------------------------------------------------------*/
+@brand-bg:                              #191C22;
+@sidebar:                               @brand-bg;
+@sidebar-active-bg:                     #121419;
+@color-dark:                            #9BA1B1;
+
+
+/* --------------------------------------------------------
+    Font
+-----------------------------------------------------------*/
+@font-icon:                             'Material-Design-Iconic-Font';
+@font-family-sans-serif:                'Roboto', sans-serif;
+@font-size-base:                        13px;
+
+
+/* --------------------------------------------------------
+    Typograpgy
+-----------------------------------------------------------*/
+@text-color:                            #767676;
+@link:                                  #02a4c4;
+@link-hover-decoration:                 none;
+@headings-color:                        #333;
+
+
+/* --------------------------------------------------------
+    Form
+-----------------------------------------------------------*/
+@input-color-placeholder:               #b4b4b4;
+@input-border:                          #e8e8e8;
+@input-border-radius:                   0;
+@input-border-radius-large:             0px;
+@input-height-large:                    40px;
+@input-height-base:                     35px;
+@input-height-small:                    30px;
+@input-border-focus:                    #79c2ff;
+@input-group-addon-bg:                  @light-gray;
+
+/* --------------------------------------------------------
+    Colors
+-----------------------------------------------------------*/
+@white:                                 #ffffff;
+@black:                                 #000000;
+@blue:                                  #2196F3;
+@red:                                   #F44336;
+@purple:                                #9C27B0;
+@deeppurple:                            #673AB7;
+@lightblue:                             #03A9F4;
+@cyan:                                  #00BCD4;
+@teal:                                  #009688;
+@green:                                 #4CAF50;
+@lightgreen:                            #8BC34A;
+@lime:                                  #CDDC39;
+@yellow:                                #FFEB3B;
+@amber:                                 #FFC107;
+@orange:                                #FF9800;
+@deeporange:                            #FF5722;
+@gray:                                  #9E9E9E;
+@bluegray:                              #607D8B;
+@indigo:                                #3F51B5;
+@pink:                                  #E91E63;
+@brown:                                 #795548;
+@light-gray:                            #FCFCFC;
+@gray-light:                            #828282;
+@ace:                                   #f8f8f8;
+
+ /** Form States **/
+@state-success-text:                    @green;
+@state-info-text:                       @blue;
+@state-danger-text:                     lighten(@red, 5%);
+@state-warning-text:                    @orange;
+
+
+/* --------------------------------------------------------
+    Alert
+-----------------------------------------------------------*/
+@alert-success-border:                  transparent;
+@alert-info-border:                     transparent;
+@alert-warning-border:		 	        transparent;
+@alert-danger-border:		 	        transparent;
+@alert-inverse-border:		 	        transparent;
+
+@alert-success-bg:                      fade(@green, 70%);
+@alert-info-bg:		 		            fade(@blue, 70%);
+@alert-warning-bg:                      fade(@amber, 70%);
+@alert-danger-bg:                       fade(@red, 70%);
+@alert-inverse-bg:                      #333;
+
+@alert-success-text:                    #fff;
+@alert-info-text:                       #fff;
+@alert-warning-text:                    #fff;
+@alert-danger-text:                     #fff;
+@alert-inverse-text:                    #fff;
+
+
+/* --------------------------------------------------------
+    Bootstrap Brands
+-----------------------------------------------------------*/
+@brand-default:                         #eee;
+@brand-primary:                         @blue;
+@brand-info:                            @cyan;
+@brand-success:                         @green;
+@brand-warning:                         @orange;
+@brand-danger:                          @red;
+
+
+/* --------------------------------------------------------
+    Border Radius
+-----------------------------------------------------------*/
+@border-radius-base:                    2px;
+@border-radius-large:                   2px;
+@border-radius-small:                   2px;
+
+
+/* --------------------------------------------------------
+    Dropdown
+-----------------------------------------------------------*/
+@dropdown-fallback-border:              transparent;
+@dropdown-border:                       transparent;
+@dropdown-divider-bg:                   '';
+@dropdown-link-hover-bg:                rgba(0,0,0,0.075);
+@dropdown-link-color:                   #333;
+@dropdown-link-hover-color:             #333;
+@dropdown-link-disabled-color:          #e4e4e4;
+@dropdown-divider-bg:                   rgba(0,0,0,0.08);
+@dropdown-link-active-color:            #333;
+@dropdown-link-active-bg:               rgba(0, 0, 0, 0.075);
+@zindex-dropdown:                       9;
+@dropdown-shadow:                       0 2px 10px rgba(0, 0, 0, 0.2);
+
+/* --------------------------------------------------------
+    Page Header
+-----------------------------------------------------------*/
+@page-header-border-color:              transparent;
+
+
+/* --------------------------------------------------------
+    Buttons
+-----------------------------------------------------------*/
+@btn-default-border:                    @input-border;
+@btn-font-weight:				        400;
+
+
+/* --------------------------------------------------------
+    Tables
+-----------------------------------------------------------*/
+@table-bg:                              #fff;
+@table-border-color:                    #f0f0f0;
+@table-cell-padding:                    10px;
+@table-condensed-cell-padding:          7px;
+@table-bg-accent:                       @light-gray;
+@table-bg-active:                       #FFFCBE;
+@table-bg-hover:                        lighten(@light-gray, 2%);
+
+
+/* --------------------------------------------------------
+    Pagination
+-----------------------------------------------------------*/
+@pagination-bg:                         #E2E2E2;
+@pagination-border:                     #fff;
+@pagination-color:                      #7E7E7E;
+@pagination-active-bg:                  @lightblue;
+@pagination-active-border:              @pagination-border;
+@pagination-disabled-bg:                #E2E2E2;
+@pagination-disabled-border:            @pagination-border;
+@pagination-hover-color:                #333;
+@pagination-hover-bg:                   #d7d7d7;
+@pagination-hover-border:               @pagination-border;
+@pager-border-radius:                   5px;
+
+
+/* --------------------------------------------------------
+    Thumbnail
+-----------------------------------------------------------*/
+@thumbnail-bg:                          #fff;
+@thumbnail-border:                      #eee;
+
+/* --------------------------------------------------------
+    Carousel
+-----------------------------------------------------------*/
+@carousel-caption-color:                #fff;
+
+
+/* --------------------------------------------------------
+    Modal
+-----------------------------------------------------------*/
+@modal-content-fallback-border-color:	transparent;
+@modal-content-border-color:			transparent;
+@modal-backdrop-bg:						#000;
+@modal-header-border-color:				transparent;
+@modal-title-line-height:				transparent;
+@modal-footer-border-color:				transparent;
+@zindex-modal-background: 				10;
+
+
+/* --------------------------------------------------------
+    Tooltips
+-----------------------------------------------------------*/
+@tooltip-bg:                            #333;
+@tooltip-opacity:                       1;
+
+
+/* --------------------------------------------------------
+    Popobver
+-----------------------------------------------------------*/
+@zindex-popover:                        9;
+@popover-title-bg:                      #fff;
+@popover-border-color:                  #fff;
+@popover-fallback-border-color:         #fff;
+
+
+/* --------------------------------------------------------
+    Breacrumb
+-----------------------------------------------------------*/
+@breadcrumb-bg:                         transparent;
+@breadcrumb-padding-horizontal:         20px;
+@breadcrumb-active-color:               #7c7c7c;
+
+
+/* --------------------------------------------------------
+    Jumbotron
+-----------------------------------------------------------*/
+@jumbotron-bg:                          #F7F7F7;
+
+
+/* --------------------------------------------------------
+    List Group
+-----------------------------------------------------------*/
+@list-group-border:                     #f4f4f4;
+@list-group-active-color:               #000;
+@list-group-active-bg:                  #f5f5f5;
+@list-group-active-border:              @list-group-border;
+@list-group-disabled-color:             #B5B4B4;
+@list-group-disabled-bg:                #fff;
+@list-group-disabled-text-color:        #B5B4B4;
+
+
+/* --------------------------------------------------------
+    Badges
+-----------------------------------------------------------*/
+@badge-color:                           #fff;
+@badge-bg:                              @brand-primary;
+@badge-border-radius:                   2px;
+@badge-font-weight:                     400;
+@badge-active-color:                    #fff;
+@badge-active-bg:                       @brand-primary;
+
+
+/* --------------------------------------------------------
+    Misc
+-----------------------------------------------------------*/
+@code-bg:                               transparent;
+@tile-shadow:                           0 1px 1px rgba(0,0,0,0.07);

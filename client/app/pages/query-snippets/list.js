@@ -1,4 +1,5 @@
-import { Paginator } from '../../utils';
+import settingsMenu from '@/lib/settings-menu';
+import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
 function SnippetsCtrl($location, currentUser, Events, QuerySnippet) {
@@ -10,7 +11,13 @@ function SnippetsCtrl($location, currentUser, Events, QuerySnippet) {
   });
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
+  settingsMenu.add({
+    permission: 'create_query',
+    title: 'Query Snippets',
+    path: 'query_snippets',
+  });
+
   ngModule.component('snippetsListPage', {
     template,
     controller: SnippetsCtrl,

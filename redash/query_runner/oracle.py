@@ -14,18 +14,14 @@ try:
         cx_Oracle.LOB: TYPE_STRING,
         cx_Oracle.FIXED_CHAR: TYPE_STRING,
         cx_Oracle.FIXED_NCHAR: TYPE_STRING,
-        cx_Oracle.FIXED_UNICODE: TYPE_STRING,
         cx_Oracle.INTERVAL: TYPE_DATETIME,
-        cx_Oracle.LONG_NCHAR: TYPE_STRING,
         cx_Oracle.LONG_STRING: TYPE_STRING,
-        cx_Oracle.LONG_UNICODE: TYPE_STRING,
         cx_Oracle.NATIVE_FLOAT: TYPE_FLOAT,
         cx_Oracle.NCHAR: TYPE_STRING,
         cx_Oracle.NUMBER: TYPE_FLOAT,
         cx_Oracle.ROWID: TYPE_INTEGER,
         cx_Oracle.STRING: TYPE_STRING,
         cx_Oracle.TIMESTAMP: TYPE_DATETIME,
-        cx_Oracle.UNICODE: TYPE_STRING,
     }
 
 
@@ -146,17 +142,19 @@ class Oracle(BaseSQLQueryRunner):
 
         try:
             cursor.execute(query)
-
+            rows_count = cursor.rowcount
             if cursor.description is not None:
                 columns = self.fetch_columns([(i[0], Oracle.get_col_type(i[1], i[5])) for i in cursor.description])
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in cursor]
-
                 data = {'columns': columns, 'rows': rows}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
             else:
-                error = 'Query completed but it returned no data.'
-                json_data = None
+                columns = [{'name': 'Row(s) Affected', 'type': 'TYPE_INTEGER'}]
+                rows = [{'Row(s) Affected': rows_count}]
+                data = {'columns': columns, 'rows': rows}
+                json_data = json.dumps(data, cls=JSONEncoder)
+                connection.commit()   
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None

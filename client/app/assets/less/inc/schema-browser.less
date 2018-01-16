@@ -1,0 +1,48 @@
+div.table-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 2px 10px;
+  border-radius: @redash-radius;
+
+  &:hover {
+    background: fade(@redash-gray, 10%);
+  }
+}
+
+.schema-container {
+  height: 100%;
+  z-index: 10;
+  background-color: white;
+}
+
+.schema-browser {
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: calc(85%);
+  border: none;
+  margin-top: 10px;
+
+  .collapse.in {
+    background: transparent;
+  }
+
+  .table-open {
+    padding-left: 26px;
+  }
+}
+
+.schema-control {
+  display: flex;
+  padding: 0;
+
+ .form-control {
+   height: 30px;
+   margin-right: 5px;
+ }
+}
+
+.parameter-label {
+  display: block;
+}

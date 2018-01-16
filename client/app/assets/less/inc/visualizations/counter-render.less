@@ -1,0 +1,54 @@
+counter-renderer {
+  display: block;
+  text-align: center;
+  padding: 15px 10px;
+  overflow: hidden;
+}
+
+counter-renderer counter {
+  margin: 0;
+  padding: 0;
+  display: block;
+  font-size: 80px;
+  overflow: hidden;
+  height: 200px;
+}
+
+counter-renderer value,
+counter-renderer counter-name,
+counter-renderer counter-target {
+  font-size: 1em;
+  line-height: 1em;
+  display: block;
+}
+
+counter-renderer value .ruler,
+counter-renderer counter-name .ruler,
+counter-renderer counter-target .ruler {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+counter-renderer counter-target {
+  color: #ccc;
+}
+
+counter-renderer counter.positive value {
+  color: #5cb85c;
+}
+
+counter-renderer counter.negative value {
+  color: #d9534f;
+  margin-right: 15px;
+}
+
+counter-renderer counter-name {
+  font-size: 0.5em;
+  display: block;
+}

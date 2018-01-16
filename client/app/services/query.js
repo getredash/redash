@@ -1,6 +1,9 @@
 import moment from 'moment';
+import debug from 'debug';
 import Mustache from 'mustache';
 import { each, object, isEmpty, pluck, filter, contains, union, uniq, has } from 'underscore';
+
+const logger = debug('redash:services:query');
 
 function collectParams(parts) {
   let parameters = [];
@@ -42,7 +45,6 @@ class QueryResultError {
   }
 }
 
-
 class Parameter {
   constructor(parameter) {
     this.title = parameter.title;
@@ -51,10 +53,15 @@ class Parameter {
     this.value = parameter.value;
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
+    this.queryId = parameter.queryId;
   }
 
   get ngModel() {
-    if (this.type === 'date' || this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
+    if (
+      this.type === 'date' ||
+      this.type === 'datetime-local' ||
+      this.type === 'datetime-with-seconds'
+    ) {
       this.$$value = this.$$value || moment(this.value).toDate();
       return this.$$value;
     } else if (this.type === 'number') {
@@ -89,8 +96,13 @@ class Parameters {
   }
 
   parseQuery() {
-    const parts = Mustache.parse(this.query.query);
-    const parameters = uniq(collectParams(parts));
+    let parameters = [];
+    try {
+      const parts = Mustache.parse(this.query.query);
+      parameters = uniq(collectParams(parts));
+    } catch (e) {
+      logger('Failed parsing parameters: ', e);
+    }
     return parameters;
   }
 
@@ -122,8 +134,9 @@ class Parameters {
     });
 
     const parameterExists = p => contains(parameterNames, p.name);
-    this.query.options.parameters =
-      this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    this.query.options.parameters = this.query.options.parameters
+      .filter(parameterExists)
+      .map(p => new Parameter(p));
   }
 
   initFromQueryString(queryString) {
@@ -155,7 +168,9 @@ class Parameters {
 }
 
 function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
-  const Query = $resource('api/queries/:id', { id: '@id' },
+  const Query = $resource(
+    'api/queries/:id',
+    { id: '@id' },
     {
       search: {
         method: 'get',
@@ -181,7 +196,13 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         url: 'api/queries/:id/fork',
         params: { id: '@id' },
       },
-    });
+      resultById: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/:id/results.json',
+      },
+    },
+  );
 
   Query.newQuery = function newQuery() {
     return new Query({
@@ -202,9 +223,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         return $q.reject(String(err));
       }
     } else if (syntax === 'sql') {
-      return $http.post('api/queries/format', { query }).then(response =>
-         response.data.query
-      );
+      return $http.post('api/queries/format', { query }).then(response => response.data.query);
     } else {
       return $q.reject('Query formatting is not supported for your data source syntax.');
     }
@@ -219,16 +238,17 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
   };
 
   Query.prototype.hasDailySchedule = function hasDailySchedule() {
-    return (this.schedule && this.schedule.match(/\d\d:\d\d/) !== null);
+    return this.schedule && this.schedule.match(/\d\d:\d\d/) !== null;
   };
 
   Query.prototype.scheduleInLocalTime = function scheduleInLocalTime() {
     const parts = this.schedule.split(':');
-    return moment.utc()
-                 .hour(parts[0])
-                 .minute(parts[1])
-                 .local()
-                 .format('HH:mm');
+    return moment
+      .utc()
+      .hour(parts[0])
+      .minute(parts[1])
+      .local()
+      .format('HH:mm');
   };
 
   Query.prototype.hasResult = function hasResult() {
@@ -256,7 +276,12 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         valuesWord = 'values';
       }
 
-      return new QueryResult({ job: { error: `missing ${valuesWord} for ${missingParams.join(', ')} ${paramsWord}.`, status: 4 } });
+      return new QueryResult({
+        job: {
+          error: `missing ${valuesWord} for ${missingParams.join(', ')} ${paramsWord}.`,
+          status: 4,
+        },
+      });
     }
 
     if (parameters.isRequired()) {
@@ -269,7 +294,9 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 
     if (this.latest_query_data && maxAge !== 0) {
       if (!this.queryResult) {
-        this.queryResult = new QueryResult({ query_result: this.latest_query_data });
+        this.queryResult = new QueryResult({
+          query_result: this.latest_query_data,
+        });
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
       if (!this.queryResult) {
@@ -336,6 +363,6 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
   return Query;
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.factory('Query', QueryResource);
 }

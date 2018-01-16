@@ -13,7 +13,7 @@
               <label class="control-label">Visualization Type</label>
 
               <select required ng-model="$ctrl.visualization.type"
-                      ng-options="value as key for (key, value) in $ctrl.visTypes" class="form-control"
+                      ng-options="type.type as type.name for type in $ctrl.visTypes" class="form-control"
                       ng-change="$ctrl.typeChanged('{{$ctrl.visualization.type}}')"></select>
             </div>
 
@@ -30,7 +30,7 @@
           </form>
         </div>
       </div>
-      <div class="col-md-7" style="border: 1px solid #eee">
+      <div class="col-md-7" style="border: 1px solid #eee;">
         <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult"></visualization-renderer>
       </div>
     </div>

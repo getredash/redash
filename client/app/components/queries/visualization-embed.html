@@ -1,0 +1,51 @@
+<div class="tile m-l-10 m-r-10 embed__vis">
+  <div class="embed-heading p-t-10 p-b-10 p-r-15 p-l-15">
+    <h3>
+      <img ng-src="{{$ctrl.logoUrl}}" style="height: 24px;"/>
+      {{$ctrl.query.name}}
+      <small><visualization-name visualization="$ctrl.visualization"/></small>
+
+      <small ng-if="$ctrl.showQueryDescription">
+        <div class="text-muted" ng-bind-html="$ctrl.query.description | markdown"></div>
+      </small>
+    </h3>
+  </div>
+
+  <div class="col-md-12 query__vis">
+    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
+    </visualization-renderer>
+  </div>
+
+  <div class="clearfix tile__bottom-control">
+    <div class="row">
+      <div class="col-xs-6">
+        <span class="small hidden-print"><i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span></span>
+        <span class="small visible-print"><i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}}</span>
+      </div>
+      <div class="col-xs-6 text-right hidden-print">
+        <a class="btn btn-default btn-sm" ng-href="queries/{{$ctrl.query.id}}#{{$ctrl.visualization.id}}" target="_blank" tooltip="Open in Redash">
+          <span class="zmdi zmdi-link"></span>
+        </a>
+
+        <div class="btn-group" uib-dropdown>
+          <button type="button" class="btn btn-default btn-sm dropdown-toggle" aria-haspopup="true" uib-dropdown-toggle
+                  aria-expanded="false">
+            Download Dataset <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+            <li>
+              <a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'csv', $ctrl.apiKey)}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'csv')}}" target="_self">
+                <span class="fa fa-file-o"></span> Download as CSV File
+              </a>
+            </li>
+            <li>
+              <a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'xlsx', $ctrl.apiKey)}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'xlsx')}}"  target="_self">
+                <span class="fa fa-file-excel-o"></span> Download as Excel File
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

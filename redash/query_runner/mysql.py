@@ -115,7 +115,7 @@ class Mysql(BaseSQLQueryRunner):
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
-                table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+                table_name = u'{}.{}'.format(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
 
@@ -137,12 +137,16 @@ class Mysql(BaseSQLQueryRunner):
                                          db=self.configuration['db'],
                                          port=self.configuration.get('port', 3306),
                                          charset='utf8', use_unicode=True,
-                                         ssl=self._get_ssl_parameters())
+                                         ssl=self._get_ssl_parameters(),
+                                         connect_timeout=60)
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
             cursor.execute(query)
 
             data = cursor.fetchall()
+
+            while cursor.nextset():
+                data = cursor.fetchall()
 
             # TODO - very similar to pg.py
             if cursor.description is not None:
@@ -161,6 +165,7 @@ class Mysql(BaseSQLQueryRunner):
             json_data = None
             error = e.args[1]
         except KeyboardInterrupt:
+            cursor.close()
             error = "Query cancelled by user."
             json_data = None
         finally:

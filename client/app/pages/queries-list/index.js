@@ -1,6 +1,6 @@
 import moment from 'moment';
 
-import { LivePaginator } from '../../utils';
+import { LivePaginator } from '@/lib/pagination';
 import template from './queries-list.html';
 
 class QueriesListCtrl {
@@ -27,8 +27,10 @@ class QueriesListCtrl {
     function queriesFetcher(requestedPage, itemsPerPage, paginator) {
       $location.search('page', requestedPage);
 
-      const request = Object.assign({}, self.defaultOptions,
-        { page: requestedPage, page_size: itemsPerPage });
+      const request = Object.assign(
+        {}, self.defaultOptions,
+        { page: requestedPage, page_size: itemsPerPage },
+      );
 
       return self.resource(request).$promise.then((data) => {
         const rows = data.results.map((query) => {
@@ -44,25 +46,27 @@ class QueriesListCtrl {
     this.paginator = new LivePaginator(queriesFetcher, { page });
 
     this.tabs = [
-      { name: 'My Queries', path: 'queries/my' },
       { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
+      { name: 'My Queries', path: 'queries/my' },
+      { name: 'Search', path: 'queries/search' },
     ];
   }
 }
 
-export default function (ngModule) {
+export default function init(ngModule) {
   ngModule.component('pageQueriesList', {
     template,
     controller: QueriesListCtrl,
   });
 
-  const route = {
-    template: '<page-queries-list></page-queries-list>',
-    reloadOnSearch: false,
-  };
-
   return {
-    '/queries': route,
-    '/queries/my': route,
+    '/queries': {
+      template: '<page-queries-list></page-queries-list>',
+      reloadOnSearch: false,
+    },
+    '/queries/my': {
+      template: '<page-queries-list></page-queries-list>',
+      reloadOnSearch: false,
+    },
   };
 }

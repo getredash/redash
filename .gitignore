@@ -1,7 +1,10 @@
+.cache
+.coverage.*
 .coveralls.yml
 .idea
 *.pyc
 .coverage
+coverage.xml
 client/dist
 .DS_Store
 celerybeat-schedule*
@@ -9,14 +12,8 @@ celerybeat-schedule*
 \#*#
 *~
 _build
-
-# Vagrant related
-.vagrant
-Berksfile.lock
-redash/dump.rdb
+.vscode
 .env
-.ruby-version
-venv
 
 dump.rdb
 

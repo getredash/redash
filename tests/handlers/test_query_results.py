@@ -118,6 +118,39 @@ class TestQueryResultAPI(BaseTestCase):
         rv = self.make_request('get', '/api/query_results/{}'.format(query_result.id))
         self.assertEquals(rv.status_code, 200)
 
+    def test_access_with_query_api_key(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
+        query = self.factory.create_query()
+        query_result = self.factory.create_query_result(data_source=ds, query_text=query.query_text)
+
+        rv = self.make_request('get', '/api/queries/{}/results/{}.json?api_key={}'.format(query.id, query_result.id, query.api_key), user=False)
+        self.assertEquals(rv.status_code, 200)
+
+    def test_access_with_query_api_key_without_query_result_id(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
+        query = self.factory.create_query()
+        query_result = self.factory.create_query_result(data_source=ds, query_text=query.query_text, query_hash=query.query_hash)
+        query.latest_query_data = query_result
+
+        rv = self.make_request('get', '/api/queries/{}/results.json?api_key={}'.format(query.id, query.api_key), user=False)
+        self.assertEquals(rv.status_code, 200)
+    
+    def test_query_api_key_and_different_query_result(self):
+        ds = self.factory.create_data_source(group=self.factory.org.default_group, view_only=False)
+        query = self.factory.create_query(query_text="SELECT 8")
+        query_result2 = self.factory.create_query_result(data_source=ds, query_hash='something-different')
+
+        rv = self.make_request('get', '/api/queries/{}/results/{}.json?api_key={}'.format(query.id, query_result2.id, query.api_key), user=False)
+        self.assertEquals(rv.status_code, 404)
+
+    def test_signed_in_user_and_different_query_result(self):
+        ds2 = self.factory.create_data_source(group=self.factory.org.admin_group, view_only=False)
+        query = self.factory.create_query(query_text="SELECT 8")
+        query_result2 = self.factory.create_query_result(data_source=ds2, query_hash='something-different')
+
+        rv = self.make_request('get', '/api/queries/{}/results/{}.json'.format(query.id, query_result2.id))
+        self.assertEquals(rv.status_code, 403)
+
 
 class TestQueryResultExcelResponse(BaseTestCase):
     def test_renders_excel_file(self):

@@ -18,12 +18,12 @@ from redash.query_runner import import_query_runners
 from redash.destinations import import_destinations
 
 
-__version__ = '3.0.0'
+__version__ = '4.0.0'
 
 
 def setup_logging():
     handler = logging.StreamHandler(sys.stdout if settings.LOG_STDOUT else sys.stderr)
-    formatter = logging.Formatter('[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')
+    formatter = logging.Formatter(settings.LOG_FORMAT)
     handler.setFormatter(formatter)
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(settings.LOG_LEVEL)
@@ -37,6 +37,7 @@ def setup_logging():
 
 
 def create_redis_connection():
+    logging.debug("Creating Redis connection (%s)", settings.REDIS_URL)
     redis_url = urlparse.urlparse(settings.REDIS_URL)
 
     if redis_url.scheme == 'redis+socket':
@@ -64,7 +65,7 @@ mail = Mail()
 migrate = Migrate()
 mail.init_mail(settings.all_settings())
 statsd_client = StatsClient(host=settings.STATSD_HOST, port=settings.STATSD_PORT, prefix=settings.STATSD_PREFIX)
-limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.REDIS_URL)
+limiter = Limiter(key_func=get_ipaddr, storage_uri=settings.LIMITER_STORAGE)
 
 import_query_runners(settings.QUERY_RUNNERS)
 import_destinations(settings.DESTINATIONS)

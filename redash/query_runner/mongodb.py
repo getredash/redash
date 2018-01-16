@@ -237,7 +237,8 @@ class MongoDB(BaseQueryRunner):
                 cursor = cursor.count()
 
         elif aggregate:
-            r = db[collection].aggregate(aggregate)
+            allow_disk_use = query_data.get('allowDiskUse', False)
+            r = db[collection].aggregate(aggregate, allowDiskUse=allow_disk_use)
 
             # Backwards compatibility with older pymongo versions.
             #

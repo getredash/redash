@@ -1,28 +1,35 @@
 /* eslint-disable */
 
-var webpack = require('webpack');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
-var WebpackBuildNotifierPlugin = require('webpack-build-notifier');
-var path = require('path');
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
+const LessPluginAutoPrefix = require('less-plugin-autoprefix');
+const path = require('path');
 
-var redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
+const redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
-var config = {
+const config = {
   entry: {
-    app: './client/app/index.js'
+    app: ['./client/app/index.js', './client/app/assets/less/main.less'],
   },
   output: {
     path: path.join(__dirname, 'client', 'dist'),
     filename: '[name].js',
     publicPath: '/'
   },
-
+  resolve: {
+    alias: {
+      '@': path.join(__dirname, 'client/app')
+    }
+  },
   plugins: [
     new WebpackBuildNotifierPlugin({title: 'Redash'}),
     new webpack.DefinePlugin({
       ON_TEST: process.env.NODE_ENV === 'test'
     }),
+    // Enforce angular to use jQuery instead of jqLite
+    new webpack.ProvidePlugin({'window.jQuery': 'jquery'}),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
       minChunks: function (module, count) {
@@ -59,7 +66,7 @@ var config = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: ['ng-annotate-loader', 'babel-loader', 'eslint-loader']
+        use: ['babel-loader', 'eslint-loader']
       },
       {
         test: /\.html$/,
@@ -78,7 +85,7 @@ var config = {
         }])
       },
       {
-        test: /\.scss$/,
+        test: /\.less$/,
         use: ExtractTextPlugin.extract([
           {
             loader: 'css-loader',
@@ -86,7 +93,12 @@ var config = {
               minimize: process.env.NODE_ENV === 'production'
             }
           }, {
-            loader: 'sass-loader'
+            loader: 'less-loader',
+            options: {
+              plugins: [
+                new LessPluginAutoPrefix({browsers: ['last 3 versions']})
+              ]
+            }
           }
         ])
       },
@@ -113,48 +125,26 @@ var config = {
     ]
   },
   devtool: 'cheap-eval-module-source-map',
+  stats: {
+    modules: false,
+    chunkModules: false,
+  },
   devServer: {
     inline: true,
     historyApiFallback: true,
     contentBase: path.join(__dirname, 'client', 'app'),
-    proxy: {
-      '/login': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/invite': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/setup': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/images': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/js': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/styles': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/status.json': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/api/admin': {
-        target: redashBackend + '/',
-        secure: false
-      },
-      '/api': {
-        target: redashBackend,
-        secure: false
-      }
-    }
+    proxy: [{
+      context: [
+        '/login', '/invite', '/setup', '/images', '/js', '/styles',
+        '/status.json', '/api', '/oauth'],
+      target: redashBackend + '/',
+      changeOrigin: true,
+      secure: false,
+    }],
+    stats: {
+      modules: false,
+      chunkModules: false,
+    },
   }
 };
 

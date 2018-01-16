@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import select
@@ -69,6 +70,11 @@ class PostgreSQL(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "sslmode": {
+                   "type": "string",
+                   "title": "SSL Mode",
+                   "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -125,14 +131,19 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return schema.values()
 
-    def run_query(self, query, user):
+    def _get_connection(self):
         connection = psycopg2.connect(user=self.configuration.get('user'),
                                       password=self.configuration.get('password'),
                                       host=self.configuration.get('host'),
                                       port=self.configuration.get('port'),
                                       dbname=self.configuration.get('dbname'),
+                                      sslmode=self.configuration.get('sslmode'),
                                       async=True)
 
+        return connection
+
+    def run_query(self, query, user):
+        connection = self._get_connection()
         _wait(connection, timeout=10)
 
         cursor = connection.cursor()
@@ -172,8 +183,23 @@ class Redshift(PostgreSQL):
     def type(cls):
         return "redshift"
 
+    def _get_connection(self):
+        sslrootcert_path = os.path.join(os.path.dirname(__file__), './files/redshift-ca-bundle.crt')
+
+        connection = psycopg2.connect(user=self.configuration.get('user'),
+                                      password=self.configuration.get('password'),
+                                      host=self.configuration.get('host'),
+                                      port=self.configuration.get('port'),
+                                      dbname=self.configuration.get('dbname'),
+                                      sslmode=self.configuration.get('sslmode', 'prefer'),
+                                      sslrootcert=sslrootcert_path,
+                                      async=True)
+
+        return connection
+
     @classmethod
     def configuration_schema(cls):
+
         return {
             "type": "object",
             "properties": {
@@ -192,11 +218,48 @@ class Redshift(PostgreSQL):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "sslmode": {
+                   "type": "string",
+                   "title": "SSL Mode",
+                   "default": "prefer"
                 }
             },
+            "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]
         }
 
+    def _get_tables(self, schema):
+        # Use svv_columns to include internal & external (Spectrum) tables and views data for Redshift
+        # http://docs.aws.amazon.com/redshift/latest/dg/r_SVV_COLUMNS.html
+        # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
+        # http://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
+        query = """
+        SELECT DISTINCT table_name, table_schema, column_name
+        FROM svv_columns
+        WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+        UNION ALL
+        SELECT DISTINCT view_name::varchar AS table_name,
+                        view_schema::varchar AS table_schema,
+                        col_name::varchar AS column_name
+        FROM pg_get_late_binding_view_cols()
+             cols(view_schema name, view_name name, col_name name, col_type varchar, col_num int);
+        """
+
+        self._get_definitions(schema, query)
+
+        return schema.values()
+
+
+class CockroachDB(PostgreSQL):
+    def __init__(self, configuration):
+        super(CockroachDB, self).__init__(configuration)
+
+    @classmethod
+    def type(cls):
+        return "cockroach"
+
 register(PostgreSQL)
 register(Redshift)
+register(CockroachDB)
