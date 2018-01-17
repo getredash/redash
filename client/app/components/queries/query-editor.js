@@ -42,8 +42,8 @@ function queryEditor(QuerySnippet) {
             autoScrollEditorIntoView: true,
           },
           onLoad(editor) {
-            $scope.$on('schema-browser-select', ($event, hierarchy) => {
-              editor.session.doc.replace(editor.selection.getRange(), hierarchy.join('.'));
+            $scope.$on('query-editor.paste', ($event, text) => {
+              editor.session.doc.replace(editor.selection.getRange(), text);
             });
 
             // Release Cmd/Ctrl+L to the browser
