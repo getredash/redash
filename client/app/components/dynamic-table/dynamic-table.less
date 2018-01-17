@@ -35,4 +35,18 @@
       text-align: center;
     }
   }
+
+  .table {
+    > thead,
+    > tbody,
+    > tfoot {
+      > tr {
+        > th.dynamic-table-spacer,
+        > td.dynamic-table-spacer {
+          padding-left: 0;
+          padding-right: 5px;
+        }
+      }
+    }
+  }
 }

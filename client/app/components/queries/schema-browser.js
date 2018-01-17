@@ -9,7 +9,7 @@ function SchemaBrowserCtrl($scope) {
   };
 
   this.getSize = (table) => {
-    let size = 18;
+    let size = 22;
 
     if (!table.collapsed) {
       size += 18 * table.columns.length;

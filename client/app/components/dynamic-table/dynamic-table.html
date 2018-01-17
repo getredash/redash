@@ -3,7 +3,8 @@
     <thead>
       <tr>
         <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick($event, column)"
-          class="sortable-column" ng-class="'content-align-' + column.alignContent">
+          class="sortable-column" ng-class="'content-align-' + column.alignContent"
+          width="{{ ['number', 'boolean', 'datetime'].indexOf(column.displayAs) >= 0 ? '1%' : undefined }}">
           <span ng-if="($ctrl.orderBy.length > 1) && ($ctrl.orderByColumnsIndex[column.name] > 0)"
             class="sort-order-indicator">{{ $ctrl.orderByColumnsIndex[column.name] }}</span>
           <span>{{column.title}}</span>
@@ -14,6 +15,7 @@
               'fa-caret-up': $ctrl.orderByColumnsDirection[column.name] < 0
             }"></i>
         </th>
+        <th class="dynamic-table-spacer"></th>
       </tr>
     </thead>
     <thead ng-if="$ctrl.searchColumns.length > 0">
