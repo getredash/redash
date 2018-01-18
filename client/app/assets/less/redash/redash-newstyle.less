@@ -74,11 +74,19 @@ body {
 }
 
 .add-widget-container {
-  background: fade(@redash-gray, 10%);
+  background: #fff;
   border-radius: @redash-radius;
-  margin-top: 15px;
-  //box-shadow: fade(@redash-gray, 15%) 0px 4px 9px -3px;
-  border: 2px dashed fade(@redash-gray, 25%);
+  padding: 20px;
+  position: fixed;
+  left: calc(~'50% - 200px');
+  bottom: 25px;
+  width: 400px;
+  z-index: 99;
+  box-shadow: fade(@redash-gray, 50%) 0px 7px 29px -3px;
+
+  h2 {
+    margin-top: 0;
+  }
 }
 
 body {
