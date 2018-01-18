@@ -1,6 +1,6 @@
 import template from './schema-browser.html';
 
-function SchemaBrowserCtrl($scope) {
+function SchemaBrowserCtrl($rootScope, $scope) {
   'ngInject';
 
   this.showTable = (table) => {
@@ -20,6 +20,12 @@ function SchemaBrowserCtrl($scope) {
 
   this.isEmpty = function isEmpty() {
     return this.schema === undefined || this.schema.length === 0;
+  };
+
+  this.itemSelected = ($event, hierarchy) => {
+    $rootScope.$broadcast('query-editor.paste', hierarchy.join('.'));
+    $event.preventDefault();
+    $event.stopPropagation();
   };
 }
 
