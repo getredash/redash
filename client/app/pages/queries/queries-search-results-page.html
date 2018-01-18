@@ -1,4 +1,6 @@
 <div class="container">
+    <page-header title="Queries"></page-header>
+    <tab-nav tabs="$ctrl.tabs"></tab-nav>
     <div class="bg-white tiled p-5 m-t-10 m-b-10">
       <form class="form-inline" role="form" ng-submit="$ctrl.search()">
         <div class="input-group">
@@ -15,10 +17,10 @@
       <table class="table table-condensed table-hover">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Created By</th>
-            <th>Created At</th>
-            <th>Update Schedule</th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('name')">Name <sort-icon column="'name'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.createdBySort)">Created By <sort-icon column="$ctrl.createdBySort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.createdAtSort)">Created At <sort-icon column="$ctrl.createdAtSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.scheduleSort)">Update Schedule <sort-icon column="$ctrl.scheduleSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
           </tr>
         </thead>
         <tbody>
@@ -29,6 +31,9 @@
               {{query.user.name}}</td>
             <td>{{query.created_at | dateTime}}</td>
             <td>{{query.schedule | scheduleHumanize}}</td>
+          </tr>
+          <tr ng-if="$ctrl.paginator.rows.length == 0">
+            <td>No results found.</td>
           </tr>
         </tbody>
       </table>
