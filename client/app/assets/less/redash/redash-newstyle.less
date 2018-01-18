@@ -308,6 +308,21 @@ page-header, .page-header--new {
   text-transform: none;
 }
 
+.dashboard-header {
+  position: -webkit-sticky;  // required for Safari
+  position: sticky;
+  background: #f6f7f9;
+  z-index: 99;
+  width: 100%;
+  top: 0;
+}
+
+.widget-wrapper {
+  .parameter-container {
+    padding: 0 15px;
+  }
+}
+
 .dashboard__control {
   margin: 8px 0;
 }
