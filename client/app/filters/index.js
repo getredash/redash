@@ -93,6 +93,33 @@ export function notEmpty(collection) {
 }
 
 export function showError(field) {
+  // In case of booleans, we get an undefined here.
+  if (field === undefined) {
+    return false;
+  }
   return field.$touched && field.$invalid;
 }
 
+const units = [
+  'bytes',
+  'KB',
+  'MB',
+  'GB',
+  'TB',
+  'PB',
+];
+
+export function prettySize(bytes) {
+  if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {
+    return '?';
+  }
+
+  let unit = 0;
+
+  while (bytes >= 1024) {
+    bytes /= 1024;
+    unit += 1;
+  }
+
+  return bytes.toFixed(3) + ' ' + units[unit];
+}
