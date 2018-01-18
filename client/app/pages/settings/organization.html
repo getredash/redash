@@ -1,7 +1,7 @@
 <settings-screen>
-    <div class="row m-t-5">
-        <div class="col-md-12">
-            <h3>General</h3>
+    <div class="row">
+        <div class="col-md-offset-4 col-md-4">
+            <h3 class="m-t-0">General</h3>
             <p>
                 <label>
                     Date Format
@@ -12,10 +12,11 @@
                     <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                 </select>
             </p>
+            <hr>
             <h3>Authentication</h3>
             <p>
                 <label>
-                    <input name="input" type="checkbox" ng-model="$ctrl.settings.auth_password_login_enabled" 
+                    <input name="input" type="checkbox" ng-model="$ctrl.settings.auth_password_login_enabled"
                            ng-change="$ctrl.update('auth_password_login_enabled')" accesskey="tab">
                     Password Login Enabled
                 </label>
@@ -24,7 +25,7 @@
             <h4>SAML</h4>
             <p>
                 <label>
-                    <input name="input" type="checkbox" ng-model="$ctrl.settings.auth_saml_enabled" 
+                    <input name="input" type="checkbox" ng-model="$ctrl.settings.auth_saml_enabled"
                            ng-change="$ctrl.update('auth_saml_enabled')" accesskey="tab">
                     SAML Enabled
                 </label>

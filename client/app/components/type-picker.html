@@ -1,0 +1,20 @@
+<div class="col-lg-12 creation-container">
+    <h3 class="text-center">{{$ctrl.title}}</h3>
+
+    <div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search..." ng-model="$ctrl.filter.name" autofocus>
+        </div>
+    </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 database-source">
+            <div class="visual-card" ng-repeat="type in $ctrl.types | filter:$ctrl.filter:strict" ng-click="$ctrl.onTypeSelect(type)">
+            <img ng-src="{{$ctrl.imgRoot}}/{{type.type}}.png" alt="{{type.name}}">
+            <h3>{{type.name}}</h3>
+        </div>
+    </div>
+</div>
+</div>

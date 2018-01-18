@@ -1,11 +1,14 @@
 <settings-screen>
-  <div class="row m-t-5">
-    <div class="col-md-4">
+  <div class="row">
+    <div class="col-md-12">
       <p>
         <a href="data_sources/new" class="btn btn-default"><i class="fa fa-plus"></i> New Data Source</a>
       </p>
-      <div class="list-group">
-        <a ng-href="data_sources/{{dataSource.id}}" class="list-group-item" ng-repeat="dataSource in dataSources"><i class="fa fa-database"></i> {{dataSource.name}}</a>
+      <div class="database-source">
+        <a class="visual-card" ng-href="data_sources/{{dataSource.id}}" ng-repeat="dataSource in dataSources">
+          <img ng-src="/img/db-logos/{{dataSource.type}}.png" alt="{{dataSource.name}}">
+          <h3>{{dataSource.name}}</h3>
+        </a>
       </div>
     </div>
   </div>
