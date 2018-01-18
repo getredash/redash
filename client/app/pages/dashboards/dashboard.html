@@ -89,15 +89,9 @@
     </div>
   </div>
 
-  <div ng-if="$ctrl.layoutEditing">
-    <div class="col-md-12 text-center add-widget-container">
-      <div class="col-md-4 col-md-offset-4">
-        <br>
-        <h2><i class="zmdi zmdi-widgets"></i></h2>
-        <p>Widgets are individual query visualisations you can place on your dashboard in various arrangements.</p>
-        <a class="btn btn-primary" ng-click="$ctrl.addWidget()">Add Widget</a>
-        <br><br>
-      </div>
-    </div>
+  <div class="text-center add-widget-container" ng-if="$ctrl.layoutEditing">
+    <h2><i class="zmdi zmdi-widgets"></i></h2>
+    <p>Widgets are individual query visualisations you can place on your dashboard in various arrangements.</p>
+    <a class="btn btn-primary" ng-click="$ctrl.addWidget()">Add Widget</a>
   </div>
 </div>
