@@ -502,7 +502,7 @@ export function calculateMargins(element) {
 export function updateDimensions(layout, element, margins) {
   let changed = false;
   each(layout.margin, (value, key) => {
-    if (value !== margins[key]) {
+    if (isNumber(margins[key]) && (value !== margins[key])) {
       layout.margin[key] = margins[key];
       changed = true;
     }
