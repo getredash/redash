@@ -38,29 +38,34 @@
     </div>
 
     <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
-       <span ng-show="query.id && canViewSource">
-          <a ng-show="!sourceMode"
-             ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-code" aria-hidden="true"></i> Edit Source</i>
-          </a>
-          <a ng-show="sourceMode"
-             ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
-          </a>
-        </span>
 
-        <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
-          <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
-            <span class="zmdi zmdi-more"></span>
-          </button>
-          <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-            <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
-            <li class="divider"></li>
-            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
-            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
-            <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish</a></li>
-            <li class="divider"></li>
-            <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
-          </ul>
-        </div>
+      <button class="btn btn-default btn-publish" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+        <span class="fa fa-paper-plane"></span> Publish
+      </button>
+
+      <span ng-show="query.id && canViewSource">
+        <a ng-show="!sourceMode"
+           ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-code" aria-hidden="true"></i> Edit Source</i>
+        </a>
+        <a ng-show="sourceMode"
+           ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
+        </a>
+      </span>
+
+      <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
+        <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+          <span class="zmdi zmdi-more"></span>
+        </button>
+        <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+          <li><a ng-click="duplicateQuery()" ng-disabled="query.id === undefined || !canForkQuery()"> Fork</a></li>
+          <li class="divider"></li>
+          <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
+          <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
+          <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish</a></li>
+          <li class="divider"></li>
+          <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -144,10 +149,6 @@
 
                 <div class="col-xs-7">
                   <div class="editor__control--right">
-                    <button class="btn btn-default" ng-click="togglePublished()" ng-if="query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
-                      <span class="fa fa-paper-plane"></span> Publish
-                    </button>
-
                     <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
                       <span class="fa fa-floppy-o"></span>
                       <span class="hidden-xs">Save</span>
