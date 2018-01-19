@@ -458,7 +458,7 @@ nav .rg-bottom {
   bottom: 0;
   height: 50px;
   border: none !important;
-  width: 39%;
+  width: 50%;
 
   .query-metadata__property {
     width: auto;
@@ -466,6 +466,18 @@ nav .rg-bottom {
 
   p {
     display: block;
+  }
+}
+
+@media (min-width: 880px) {
+  .query-metadata--history {
+    width: 50%;
+    position: fixed;
+    bottom: 50px;
+
+    table {
+      width: 35%;
+    }
   }
 }
 
