@@ -83,7 +83,7 @@
         </ui-select>
       </div>
 
-      <div class="editor__left__schema" resizable r-directions="['bottom']" r-flex="true" style="min-height: 0px; height: 300px;" ng-if="sourceMode">
+      <div class="editor__left__schema" resizable r-directions="['bottom']" r-flex="true" style="height: calc(100vh - 310px)" ng-if="sourceMode">
         <schema-browser class="schema-container"
                         schema="schema"
                         on-refresh="refreshSchema()">

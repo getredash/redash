@@ -18,11 +18,11 @@ body.fixed-layout {
 
   &:before {
     content: '';
-    //background: #fff;
     height: 50px;
     position: fixed;
     bottom: 0;
     width: 100%;
+    pointer-events: none;
     left: 0;
   }
 }
@@ -248,16 +248,6 @@ edit-in-place p.editable:hover {
   }
 }
 
-.query-metadata--refresh {
-  position: fixed;
-  bottom: 0;
-  height: 50px;
-
-  .query-metadata__property {
-    width: auto;
-  }
-}
-
 .page-header--query {
   display: flex;
   align-items: center;
@@ -456,6 +446,30 @@ edit-in-place p.editable:hover {
 .query-fullscreen .query-metadata__mobile {
   display: none;
 }
+
+
+//Left nav fixes for filling all the space
+nav .rg-bottom {
+  visibility: hidden;
+}
+
+.query-metadata--refresh {
+  position: fixed;
+  bottom: 0;
+  height: 50px;
+  border: none !important;
+  width: 39%;
+
+  .query-metadata__property {
+    width: auto;
+  }
+
+  p {
+    display: block;
+  }
+}
+
+// Smaller screens
 
 @media (max-width: 880px) {
   .query-fullscreen .query-metadata__mobile {
