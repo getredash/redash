@@ -16,7 +16,7 @@ export default function init(ngModule) {
       $scope.$watch('render', () => {
         if (isFunction($scope.render)) {
           $scope.render($scope, (clonedElement) => {
-            $element.empty().append(clonedElement);
+            $element.empty().append(clonedElement).append('<td></td>');
           });
         }
       });
