@@ -111,7 +111,7 @@
         </table>
       </div>
 
-      <div class="query-metadata" style="height: 20%">
+      <div class="query-metadata query-metadata--refresh">
         <p>
           <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
           <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
