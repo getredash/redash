@@ -245,7 +245,7 @@
 
                     <div class="btn-group dropup" uib-dropdown>
                       <button type="button" class="btn btn-default dropup-toggle"
-                              ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
+                              ng-disabled="query.id === undefined || queryExecuting || !queryResult.getData()" aria-haspopup="true"
                               uib-dropdown-toggle aria-expanded="false">
                         Download <span class="hidden-xs">Dataset </span><span class="caret"></span>
                       </button>
