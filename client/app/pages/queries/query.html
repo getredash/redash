@@ -130,7 +130,7 @@
                     schema="schema"
                     syntax="dataSource.syntax"></query-editor>
 
-                  <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
+                  <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-disabled="!query.query" ng-click="formatQuery()" title="Format">
                     <span class="zmdi zmdi-format-indent-increase"></span>
                   </button>
                 </p>
@@ -151,7 +151,7 @@
                             ng-show="isDirty">&#42;</span>
                         </button>
 
-                        <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
+                        <button type="button" class="btn btn-primary" ng-disabled="!query.query || queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
                           <span class="zmdi zmdi-play"></span>
                           <span class="hidden-xs">Execute</span>
                         </button>
