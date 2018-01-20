@@ -5,9 +5,20 @@ import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.less';
 
 function DashboardCtrl(
-  $rootScope, $routeParams, $location, $timeout, $q, $uibModal,
-  Title, AlertDialog, Dashboard, currentUser, clientConfig, Events,
-  dashboardGridOptions, toastr,
+  $rootScope,
+  $routeParams,
+  $location,
+  $timeout,
+  $q,
+  $uibModal,
+  Title,
+  AlertDialog,
+  Dashboard,
+  currentUser,
+  clientConfig,
+  Events,
+  dashboardGridOptions,
+  toastr,
 ) {
   this.saveInProgress = false;
   const saveDashboardLayout = () => {
@@ -20,7 +31,8 @@ function DashboardCtrl(
     // Temporarily disable grid editing (but allow user to use UI controls)
     this.dashboardGridOptions.draggable.enabled = false;
     this.dashboardGridOptions.resizable.enabled = false;
-    return $q.all(_.map(this.dashboard.widgets, widget => widget.$save()))
+    return $q
+      .all(_.map(this.dashboard.widgets, widget => widget.$save()))
       .then(() => {
         if (showMessages) {
           toastr.success('Dashboard layout saved.');
@@ -39,7 +51,6 @@ function DashboardCtrl(
       });
   };
 
-
   this.layoutEditing = false;
   this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
     resizable: {
@@ -57,7 +68,6 @@ function DashboardCtrl(
   this.refreshRate = null;
   this.isGridDisabled = false;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
-  this.currentUser = currentUser;
   this.globalParameters = [];
   this.refreshRates = [
     { name: '10 seconds', rate: 10 },
@@ -75,7 +85,6 @@ function DashboardCtrl(
     this.isGridDisabled = gridster.isMobile;
   });
 
-
   this.setRefreshRate = (rate) => {
     this.refreshRate = rate;
     if (rate !== null) {
@@ -88,13 +97,17 @@ function DashboardCtrl(
     let globalParams = {};
     this.dashboard.widgets.forEach((widget) => {
       if (widget.getQuery()) {
-        widget.getQuery().getParametersDefs().filter(p => p.global).forEach((param) => {
-          const defaults = {};
-          defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
-          defaults[param.name].locals = [];
-          globalParams = _.defaults(globalParams, defaults);
-          globalParams[param.name].locals.push(param);
-        });
+        widget
+          .getQuery()
+          .getParametersDefs()
+          .filter(p => p.global)
+          .forEach((param) => {
+            const defaults = {};
+            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name].locals = [];
+            globalParams = _.defaults(globalParams, defaults);
+            globalParams[param.name].locals.push(param);
+          });
       }
     });
     this.globalParameters = _.values(globalParams);
@@ -162,20 +175,28 @@ function DashboardCtrl(
   };
 
   this.loadDashboard = _.throttle((force) => {
-    this.dashboard = Dashboard.get({ slug: $routeParams.dashboardSlug }, (dashboard) => {
-      Events.record('view', 'dashboard', dashboard.id);
-      renderDashboard(dashboard, force);
-    }, (rejection) => {
-      const statusGroup = Math.floor(rejection.status / 100);
-      if (statusGroup === 5) {
-        // recoverable errors - all 5** (server is temporarily unavailable
-        // for some reason, but it should get up soon).
-        this.loadDashboard();
-      } else {
-        // all kind of 4** errors are not recoverable, so just display them
-        throw new PromiseRejectionError(rejection);
-      }
-    });
+    this.dashboard = Dashboard.get(
+      { slug: $routeParams.dashboardSlug },
+      (dashboard) => {
+        Events.record('view', 'dashboard', dashboard.id);
+        renderDashboard(dashboard, force);
+
+        if ($location.search().edit === true) {
+          this.editLayout(true);
+        }
+      },
+      (rejection) => {
+        const statusGroup = Math.floor(rejection.status / 100);
+        if (statusGroup === 5) {
+          // recoverable errors - all 5** (server is temporarily unavailable
+          // for some reason, but it should get up soon).
+          this.loadDashboard();
+        } else {
+          // all kind of 4** errors are not recoverable, so just display them
+          throw new PromiseRejectionError(rejection);
+        }
+      },
+    );
   }, 1000);
 
   this.loadDashboard();
@@ -245,44 +266,69 @@ function DashboardCtrl(
 
   this.editDashboard = () => {
     const previousFiltersState = this.dashboard.dashboard_filters_enabled;
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => this.dashboard,
-      },
-    }).result.then((dashboard) => {
-      const shouldRenderDashboard = !previousFiltersState && dashboard.dashboard_filters_enabled;
-      this.dashboard = dashboard;
+    $uibModal
+      .open({
+        component: 'editDashboardDialog',
+        resolve: {
+          dashboard: () => this.dashboard,
+        },
+      })
+      .result.then((dashboard) => {
+        const shouldRenderDashboard = !previousFiltersState && dashboard.dashboard_filters_enabled;
+        this.dashboard = dashboard;
 
-      if (shouldRenderDashboard) {
-        renderDashboard(this.dashboard);
-      }
-    });
+        if (shouldRenderDashboard) {
+          renderDashboard(this.dashboard);
+        }
+      });
+  };
+
+  this.saveName = () => {
+    Dashboard.save(
+      { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
+      (dashboard) => {
+        this.dashboard = dashboard;
+        $rootScope.$broadcast('reloadDashboards');
+      },
+      (error) => {
+        if (error.status === 403) {
+          toastr.error('Name update failed: Permission denied.');
+        } else if (error.status === 409) {
+          toastr.error(
+            'It seems like the dashboard has been modified by another user. ' +
+              'Please copy/backup your changes and reload this page.',
+            { autoDismiss: false },
+          );
+        }
+      },
+    );
   };
 
   this.addWidget = () => {
-    $uibModal.open({
-      component: 'addWidgetDialog',
-      resolve: {
-        dashboard: () => this.dashboard,
-      },
-    }).result.then(() => {
-      this.extractGlobalParameters();
-      if (this.layoutEditing) {
-        // Save position of newly added widget (but not entire layout)
-        const widget = _.last(this.dashboard.widgets);
-        if (_.isObject(widget)) {
-          return widget.$save().then(() => {
-            if (this.layoutEditing) {
-              widget.$savedPosition = _.clone(widget.options.position);
-            }
-          });
+    $uibModal
+      .open({
+        component: 'addWidgetDialog',
+        resolve: {
+          dashboard: () => this.dashboard,
+        },
+      })
+      .result.then(() => {
+        this.extractGlobalParameters();
+        if (this.layoutEditing) {
+          // Save position of newly added widget (but not entire layout)
+          const widget = _.last(this.dashboard.widgets);
+          if (_.isObject(widget)) {
+            return widget.$save().then(() => {
+              if (this.layoutEditing) {
+                widget.$savedPosition = _.clone(widget.options.position);
+              }
+            });
+          }
+        } else {
+          // Update entire layout
+          return saveDashboardLayout();
         }
-      } else {
-        // Update entire layout
-        return saveDashboardLayout();
-      }
-    });
+      });
   };
 
   this.removeWidget = () => {
@@ -307,15 +353,18 @@ function DashboardCtrl(
     Events.record('toggle_published', 'dashboard', this.dashboard.id);
     this.dashboard.is_draft = !this.dashboard.is_draft;
     this.saveInProgress = true;
-    Dashboard.save({
-      slug: this.dashboard.id,
-      name: this.dashboard.name,
-      is_draft: this.dashboard.is_draft,
-    }, (dashboard) => {
-      this.saveInProgress = false;
-      this.dashboard.version = dashboard.version;
-      $rootScope.$broadcast('reloadDashboards');
-    });
+    Dashboard.save(
+      {
+        slug: this.dashboard.id,
+        name: this.dashboard.name,
+        is_draft: this.dashboard.is_draft,
+      },
+      (dashboard) => {
+        this.saveInProgress = false;
+        this.dashboard.version = dashboard.version;
+        $rootScope.$broadcast('reloadDashboards');
+      },
+    );
   };
 
   if (_.has($location.search(), 'fullscreen')) {
@@ -349,21 +398,27 @@ const ShareDashboardComponent = {
 
       if (!this.dashboard.publicAccessEnabled) {
         // disable
-        $http.delete(url).success(() => {
-          this.dashboard.publicAccessEnabled = false;
-          delete this.dashboard.public_url;
-        }).error(() => {
-          this.dashboard.publicAccessEnabled = true;
-          // TODO: show message
-        });
+        $http
+          .delete(url)
+          .success(() => {
+            this.dashboard.publicAccessEnabled = false;
+            delete this.dashboard.public_url;
+          })
+          .error(() => {
+            this.dashboard.publicAccessEnabled = true;
+            // TODO: show message
+          });
       } else {
-        $http.post(url).success((data) => {
-          this.dashboard.publicAccessEnabled = true;
-          this.dashboard.public_url = data.public_url;
-        }).error(() => {
-          this.dashboard.publicAccessEnabled = false;
-          // TODO: show message
-        });
+        $http
+          .post(url)
+          .success((data) => {
+            this.dashboard.publicAccessEnabled = true;
+            this.dashboard.public_url = data.public_url;
+          })
+          .error(() => {
+            this.dashboard.publicAccessEnabled = false;
+            // TODO: show message
+          });
       }
     };
   },
