@@ -45,7 +45,8 @@ const AddWidgetDialog = {
     };
 
     this.searchQueries = (term) => {
-      if (!term || term.length < 3) {
+      if (!term || term.length === 0) {
+        this.queries = [];
         return;
       }
 
