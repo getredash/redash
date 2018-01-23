@@ -585,6 +585,10 @@ page-header, .page-header--new {
     padding: 17px;
   }
 
+  h2 {
+    margin: 0 0 15px;
+  }
+
   h4 {
     margin-top: 0;
     color: #767676;
@@ -593,6 +597,18 @@ page-header, .page-header--new {
 
   p {
     margin-bottom: 0;
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+
+    .empty-state__summary {
+      margin-bottom: 25px;
+    }
+
+    .empty-state__summary, .empty-state__steps {
+      width: 100%;
+    }
   }
 }
 
