@@ -627,6 +627,24 @@ page-header, .page-header--new {
   line-height: 31px;
 }
 
+// Error state
+.error-state {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 35px;
+  font-size: 14px;
+  line-height: 21px;
+
+  .error-state__icon {
+    margin-right: 25px; 
+    .zmdi {
+      font-size: 64px;
+      color: @redash-gray;
+    }
+  }
+}
+
 // Forms
 .form-control {
   border-radius: 2px;
