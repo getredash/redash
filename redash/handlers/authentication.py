@@ -114,7 +114,7 @@ def login(org_slug=None):
         elif settings.LDAP_LOGIN_ENABLED:
             return redirect(url_for("ldap_auth.login", next=next_path))
         else:
-            return redirect(url_for("google_oauth.authorize", next=next_path))
+            return redirect(get_google_auth_url(next_path))
 
     if request.method == 'POST':
         try:
