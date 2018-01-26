@@ -1,3 +1,4 @@
+import { isEmpty } from 'underscore';
 import template from './filters.html';
 
 const FiltersComponent = {
@@ -10,6 +11,14 @@ const FiltersComponent = {
     'ngInject';
 
     this.filterChangeListener = (filter, modal) => {
+      if (filter.multiple && !isEmpty(filter.current)) {
+        if (modal === '-') {
+          filter.current = [];
+        } else if (modal === '*') {
+          filter.current = ['*'];
+        }
+      }
+
       this.onChange({ filter, $modal: modal });
     };
 
