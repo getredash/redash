@@ -55,8 +55,8 @@ class Python(BaseQueryRunner):
                     'type': 'string',
                     'title': 'Modules to import prior to running the script'
                 },
-                'additionalModulesPaths' : {
-                    'type' : 'string'
+                'additionalModulesPaths': {
+                    'type': 'string'
                 }
             },
         }
