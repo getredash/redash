@@ -90,8 +90,8 @@ class Prometheus(BaseQueryRunner):
 
     def run_query(self, query, user):
         """
-        query syntax, it is the actual url query string.
-        check the prometheus http API for the detail of supported query string.
+        Query Syntax, actually it is the URL query string.
+        Check the Prometheus HTTP API for the details of the supported query string.
 
         https://prometheus.io/docs/prometheus/latest/querying/api/
 
@@ -100,6 +100,10 @@ class Prometheus(BaseQueryRunner):
 
         example: range query
             query=http_requests_total&start=2018-01-20T00:00:00.000Z&end=2018-01-25T00:00:00.000Z&step=60s
+
+        example: until now range query
+            query=http_requests_total&start=2018-01-20T00:00:00.000Z&step=60s
+            query=http_requests_total&start=2018-01-20T00:00:00.000Z&end=now&step=60s
         """
 
         base_url = self.configuration["url"]
@@ -112,6 +116,12 @@ class Prometheus(BaseQueryRunner):
 
             payload = parse_qs(query)
             query_type = 'query_range' if 'step' in payload.keys() else 'query'
+
+            # for the range of until now
+            if query_type == 'query_range' and ('end' not in payload.keys() or 'now' in payload['end']):
+                date_now = datetime.now()
+                payload.update({"end": [date_now.isoformat("T") + "Z"]})
+
             api_endpoint = base_url + '/api/v1/{}'.format(query_type)
 
             response = requests.get(api_endpoint, params=payload)
