@@ -82,8 +82,9 @@ def parse_issue(issue, field_mapping):
     return result
 
 
-def parse_issues(data, field_mapping):
-    results = ResultSet()
+def parse_issues(data, field_mapping, results = None):
+    if results == None:
+        results = ResultSet()
 
     for issue in data['issues']:
         results.add_row(parse_issue(issue, field_mapping))
@@ -200,6 +201,16 @@ class JiraJQL(BaseQueryRunner):
                 results = parse_count(data)
             else:
                 results = parse_issues(data, field_mapping)
+
+                last_one = data['startAt'] + data['maxResults']
+                while last_one < query['maxResults'] and data['total'] > last_one:
+                    query['startAt'] = last_one
+                    if last_one + data['maxResults'] > query['maxResults']:
+                         query['maxResults'] = query['maxResults'] - last_one
+                    response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
+                    data = response.json()
+                    results = parse_issues(data, field_mapping, results)
+                    last_one = data['startAt'] + data['maxResults']
 
             return results.to_json(), None
         except KeyboardInterrupt:
