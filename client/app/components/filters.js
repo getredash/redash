@@ -1,4 +1,4 @@
-import { isEmpty } from 'underscore';
+import { includes, without } from 'underscore';
 import template from './filters.html';
 
 const FiltersComponent = {
@@ -11,24 +11,18 @@ const FiltersComponent = {
     'ngInject';
 
     this.filterChangeListener = (filter, modal) => {
-      if (filter.multiple && !isEmpty(filter.current)) {
-        if (modal === '-') {
-          filter.current = [];
-        } else if (modal === '*') {
-          filter.current = ['*'];
-        }
+      this.onChange({ filter, $modal: modal });
+    };
+
+    this.multiFilterSelectListener = (filter, modal) => {
+      if (includes(['*', '-'], modal)) {
+        filter.current = without([modal], '-');
       }
 
       this.onChange({ filter, $modal: modal });
     };
 
-    this.itemGroup = (item) => {
-      if (item === '*' || item === '-') {
-        return '';
-      }
-
-      return 'Values';
-    };
+    this.itemGroup = item => (includes(['*', '-'], item) ? '' : 'Values');
   },
 };
 

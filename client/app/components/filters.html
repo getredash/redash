@@ -11,7 +11,7 @@
         </ui-select-choices>
       </ui-select>
 
-      <ui-select ng-model="filter.current" multiple ng-if="filter.multiple" on-select="$ctrl.filterChangeListener(filter, $model)"
+      <ui-select ng-model="filter.current" multiple ng-if="filter.multiple" on-select="$ctrl.multiFilterSelectListener(filter, $model)"
                  on-remove="$ctrl.filterChangeListener(filter, $model)" remove-selected="false">
         <ui-select-match placeholder="Select value for {{filter.friendlyName}}...">{{$item | filterValue:filter}}</ui-select-match>
         <ui-select-choices ui-disable-choice="filter.current[0] == '*' && value != '-'"
