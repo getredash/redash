@@ -4,6 +4,7 @@ import 'pivottable';
 import 'pivottable/dist/pivot.css';
 
 import editorTemplate from './pivottable-editor.html';
+import './pivot.less';
 
 
 function pivotTableRenderer() {
