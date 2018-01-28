@@ -25,6 +25,21 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     return this.query;
   };
 
+  WidgetResource.prototype.getQueryResult = function getQueryResult(force, maxAge) {
+    if (!this.visualization) {
+      return undefined;
+    }
+
+    if (force || this.queryResult === undefined) {
+      if (maxAge === undefined || force) {
+        maxAge = force ? 0 : undefined;
+      }
+      this.queryResult = this.getQuery().getQueryResult(maxAge);
+    }
+
+    return this.queryResult;
+  };
+
   WidgetResource.prototype.getName = function getName() {
     if (this.visualization) {
       return `${this.visualization.query.name} (${this.visualization.name})`;

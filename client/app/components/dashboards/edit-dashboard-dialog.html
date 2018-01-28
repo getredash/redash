@@ -6,13 +6,6 @@
   <p>
     <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name" autofocus>
   </p>
-
-  <p ng-if="$ctrl.dashboard.id">
-    <label>
-        <input name="input" type="checkbox" ng-model="$ctrl.dashboard.dashboard_filters_enabled">
-        Use Dashboard Level Filters
-    </label>
-  </p>
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.dismiss()">Close</button>

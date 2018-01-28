@@ -186,7 +186,9 @@
             <div class="t-body">
               <div class="row">
                 <div class="col-lg-12">
-                  <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
+                  <div class="p-t-15 p-b-15" ng-if="query.getParametersDefs().length > 0">
+                    <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
+                  </div>
                   <!-- Query Execution Status -->
 
                   <div class="query-alerts">
