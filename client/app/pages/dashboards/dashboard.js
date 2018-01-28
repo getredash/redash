@@ -35,12 +35,12 @@ function DashboardCtrl(
       .all(_.map(this.dashboard.widgets, widget => widget.$save()))
       .then(() => {
         if (showMessages) {
-          toastr.success('Dashboard layout saved.');
+          toastr.success('Changes saved.');
         }
       })
       .catch(() => {
         if (showMessages) {
-          toastr.error('Cannot save dashboard layout.');
+          toastr.error('Error saving changes.');
         }
       })
       .finally(() => {
@@ -56,11 +56,9 @@ function DashboardCtrl(
     resizable: {
       enabled: false,
       handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-      // stop: saveDashboardLayout,
     },
     draggable: {
       enabled: false,
-      // stop: saveDashboardLayout,
     },
   });
 
@@ -121,23 +119,11 @@ function DashboardCtrl(
     });
   };
 
-  const renderDashboard = (dashboard, force) => {
-    Title.set(dashboard.name);
-    const promises = [];
+  const collectFilters = (dashboard, forceRefresh) => {
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.getQueryResult(forceRefresh)))
+      .map(queryResult => queryResult.toPromise());
 
-    this.dashboard.widgets.forEach((widget) => {
-      if (widget.visualization) {
-        const maxAge = force ? 0 : undefined;
-        const queryResult = widget.getQuery().getQueryResult(maxAge);
-        if (!_.isUndefined(queryResult)) {
-          promises.push(queryResult.toPromise());
-        }
-      }
-    });
-
-    this.extractGlobalParameters();
-
-    $q.all(promises).then((queryResults) => {
+    $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
       queryResults.forEach((queryResult) => {
         const queryFilters = queryResult.getFilters();
@@ -174,6 +160,12 @@ function DashboardCtrl(
     });
   };
 
+  const renderDashboard = (dashboard, force) => {
+    Title.set(dashboard.name);
+    this.extractGlobalParameters();
+    collectFilters(dashboard, force);
+  };
+
   this.loadDashboard = _.throttle((force) => {
     this.dashboard = Dashboard.get(
       { slug: $routeParams.dashboardSlug },
@@ -182,6 +174,7 @@ function DashboardCtrl(
         renderDashboard(dashboard, force);
 
         if ($location.search().edit === true) {
+          $location.search('edit', null);
           this.editLayout(true);
         }
       },
@@ -264,25 +257,6 @@ function DashboardCtrl(
     }
   };
 
-  this.editDashboard = () => {
-    const previousFiltersState = this.dashboard.dashboard_filters_enabled;
-    $uibModal
-      .open({
-        component: 'editDashboardDialog',
-        resolve: {
-          dashboard: () => this.dashboard,
-        },
-      })
-      .result.then((dashboard) => {
-        const shouldRenderDashboard = !previousFiltersState && dashboard.dashboard_filters_enabled;
-        this.dashboard = dashboard;
-
-        if (shouldRenderDashboard) {
-          renderDashboard(this.dashboard);
-        }
-      });
-  };
-
   this.saveName = () => {
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
@@ -302,6 +276,11 @@ function DashboardCtrl(
         }
       },
     );
+  };
+
+  this.updateDashboardFiltersState = () => {
+    // / do something for humanity.
+    collectFilters(this.dashboard, false);
   };
 
   this.addWidget = () => {

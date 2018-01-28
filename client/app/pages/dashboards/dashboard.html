@@ -71,7 +71,7 @@
 
   <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.layoutEditing">
     <label>
-        <input name="input" type="checkbox" ng-model="$ctrl.dashboard.dashboard_filters_enabled">
+        <input name="input" type="checkbox" ng-model="$ctrl.dashboard.dashboard_filters_enabled" ng-change="$ctrl.updateDashboardFiltersState()">
         Use Dashboard Level Filters
     </label>
   </div>

@@ -82,11 +82,8 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
   Events.record('view', 'widget', this.widget.id);
 
   this.reload = (force) => {
-    let maxAge = $location.search().maxAge;
-    if (force) {
-      maxAge = 0;
-    }
-    this.queryResult = this.query.getQueryResult(maxAge);
+    const maxAge = $location.search().maxAge;
+    this.queryResult = this.widget.getQueryResult(force, maxAge);
   };
 
   if (this.widget.visualization) {
