@@ -119,7 +119,7 @@
     </nav>
 
     <div class="content">
-      <div class="content-scrollbox p-l-15 p-r-15">
+      <div class="flex-fill d-flex flex-column p-l-15 p-r-15">
         <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle
           style="min-height: 11px; max-height: 460px;" ng-if="sourceMode">
           <section>
@@ -181,13 +181,12 @@
           </div>
         </div>
 
-        <section>
-          <div class="container">
-            <div class="t-body p-b-15">
-              <div class="p-t-15 p-b-15" ng-if="query.getParametersDefs().length > 0">
-                <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
-              </div>
-              <!-- Query Execution Status -->
+        <section class="flex-fill d-flex flex-column">
+          <div class="t-body p-b-15 flex-fill d-flex flex-column">
+            <div class="p-t-15 p-b-15" ng-if="query.getParametersDefs().length > 0">
+              <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
+            </div>
+            <!-- Query Execution Status -->
 
             <div class="query-alerts">
               <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
@@ -210,36 +209,25 @@
             <!-- End of Query Execution Status -->
 
             <!-- tabs and data -->
-            <div ng-if="showDataset">
-              <div class="row p-10" ng-show="showLog">
-                <div class="col-lg-12">
-                  <p>Log Information:</p>
-                  <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
-                </div>
+            <div ng-if="showDataset" class="flex-fill d-flex flex-column">
+              <div class="p-10" ng-show="showLog">
+                <p>Log Information:</p>
+                <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
               </div>
-              <div class="row">
-                <div class="col-lg-12">
-                  <ul class="tab-nav">
-                    <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
-                    <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
-                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> &times;</span>
-                    </rd-tab>
-                    <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
-                  </ul>
-                </div>
+              <ul class="tab-nav">
+                <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
+                <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
+                  <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> &times;</span>
+                </rd-tab>
+                <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
+              </ul>
+              <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
+                <filters filters="filters"></filters>
+                <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
               </div>
-              <div class="row">
-                <div class="col-lg-12">
-                  <div ng-if="!query.visualizations.length" class="query__vis p-b-15">
-                    <filters filters="filters"></filters>
-                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-                  </div>
 
-                  <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis">
-                    <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-                  </div>
-
-                </div>
+              <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
+                <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
               </div>
             </div>
           </div>
