@@ -82,8 +82,8 @@ def parse_issue(issue, field_mapping):
     return result
 
 
-def parse_issues(data, field_mapping, results = None):
-    if results == None:
+def parse_issues(data, field_mapping, results=None):
+    if results is None:
         results = ResultSet()
 
     for issue in data['issues']:
@@ -173,8 +173,19 @@ class JiraJQL(BaseQueryRunner):
         super(JiraJQL, self).__init__(configuration)
         self.syntax = 'json'
 
-    def run_query(self, query, user):
+    def run_query_iteration(self, query):
         jql_url = '{}/rest/api/2/search'.format(self.configuration["url"])
+        response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
+
+        if response.status_code == 401 or response.status_code == 403:
+            return None, "Authentication error. Please check username/password."
+
+        if response.status_code != 200:
+            return None, "JIRA returned unexpected status code ({})".format(response.status_code)
+
+        return response.json(), None
+
+    def run_query(self, query, user):
 
         try:
             query = json.loads(query)
@@ -187,16 +198,9 @@ class JiraJQL(BaseQueryRunner):
             else:
                 query['maxResults'] = query.get('maxResults', 1000)
 
-            response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
-
-            if response.status_code == 401 or response.status_code == 403:
-                return None, "Authentication error. Please check username/password."
-
-            if response.status_code != 200:
-                return None, "JIRA returned unexpected status code ({})".format(response.status_code)
-
-            data = response.json()
-
+            data, error = self.run_query_iteration(query)
+            if error:
+                return None, error
             if query_type == 'count':
                 results = parse_count(data)
             else:
@@ -206,9 +210,12 @@ class JiraJQL(BaseQueryRunner):
                 while last_one < query['maxResults'] and data['total'] > last_one:
                     query['startAt'] = last_one
                     if last_one + data['maxResults'] > query['maxResults']:
-                         query['maxResults'] = query['maxResults'] - last_one
-                    response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
-                    data = response.json()
+                        query['maxResults'] = query['maxResults'] - last_one
+
+                    data, error = self.run_query_iteration(query)
+                    if error:
+                        return None, error
+
                     results = parse_issues(data, field_mapping, results)
                     last_one = data['startAt'] + data['maxResults']
 
