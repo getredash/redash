@@ -1,4 +1,7 @@
-import { some, extend, has, partial, intersection, without, contains, isUndefined, sortBy, each, pluck, keys, difference } from 'underscore';
+import {
+  some, extend, has, partial, intersection, without, contains, isUndefined,
+  sortBy, each, pluck, keys, difference,
+} from 'underscore';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
@@ -53,8 +56,7 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       scope.stackingOptions = {
         Disabled: null,
-        Enabled: 'normal',
-        Percent: 'percent',
+        Stack: 'stack',
       };
 
       scope.changeTab = (tab) => {
@@ -83,6 +85,7 @@ function ChartEditor(ColorPalette, clientConfig) {
           scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
       };
+      scope.chartTypeChanged();
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
 
@@ -218,10 +221,6 @@ function ChartEditor(ColorPalette, clientConfig) {
         scope.options.legend = { enabled: true };
       }
 
-      if (!has(scope.options, 'bottomMargin')) {
-        scope.options.bottomMargin = 50;
-      }
-
       if (scope.columnNames) {
         each(scope.options.columnMapping, (value, key) => {
           if (scope.columnNames.length > 0 && !contains(scope.columnNames, key)) {
@@ -269,7 +268,6 @@ export default function init(ngModule) {
       series: { stacking: null, error_y: { type: 'data', visible: true } },
       seriesOptions: {},
       columnMapping: {},
-      bottomMargin: 50,
       defaultColumns: 3,
       defaultRows: 8,
       minColumns: 2,
