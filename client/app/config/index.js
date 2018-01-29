@@ -60,7 +60,6 @@ function registerAll(context) {
   return modules.filter(isFunction).map(f => f(ngModule));
 }
 
-
 function requireImages() {
   // client/app/assets/images/<path> => /img/<path>
   const ctx = require.context('@/assets/images/', true, /\.(png|jpe?g|gif|svg)$/);
