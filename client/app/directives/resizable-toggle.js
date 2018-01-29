@@ -12,6 +12,8 @@ function resizableToggle() {
     link($scope, $element, $attrs) {
       if ($attrs.resizable === 'false') return;
 
+      let ignoreResizeEvents = false;
+
       let resizeStartInfo = null;
       let allowHClick = true;
       let allowVClick = true;
@@ -21,19 +23,37 @@ function resizableToggle() {
       const isFlex = $scope.$eval($attrs.rFlex);
 
       $scope.$on('angular-resizable.resizeStart', ($event, info) => {
-        resizeStartInfo = Object.assign({}, info);
+        if (!ignoreResizeEvents) {
+          resizeStartInfo = Object.assign({}, info);
+        }
       });
 
       $scope.$on('angular-resizable.resizeEnd', ($event, info) => {
-        allowHClick = true;
-        if (info.width !== false) {
-          allowHClick = sameNumber(info.width, resizeStartInfo.width);
-        }
-        allowVClick = true;
-        if (info.height !== false) {
-          allowVClick = sameNumber(info.height, resizeStartInfo.height);
+        if (!ignoreResizeEvents) {
+          allowHClick = true;
+          if (info.width !== false) {
+            allowHClick = sameNumber(info.width, resizeStartInfo.width);
+          }
+          allowVClick = true;
+          if (info.height !== false) {
+            allowVClick = sameNumber(info.height, resizeStartInfo.height);
+          }
         }
       });
+
+      function emulateAngularResizableEvents(width, height) {
+        ignoreResizeEvents = true;
+        const info = {
+          width,
+          height,
+          id: $element.attr('id'),
+          evt: null,
+        };
+        $scope.$emit('angular-resizable.resizeStart', info);
+        $scope.$emit('angular-resizable.resizing', info);
+        $scope.$emit('angular-resizable.resizeEnd', info);
+        ignoreResizeEvents = false;
+      }
 
       $element.on('click', '.rg-left, .rg-right', () => {
         if (allowHClick) {
@@ -42,12 +62,16 @@ function resizableToggle() {
           const isCollapsed = currentSize <= minSize;
           const animateProp = isFlex ? flexBasis : 'width';
           if (isCollapsed) {
-            $element.animate({ [animateProp]: lastWidth + 'px' }, 300);
+            $element.animate({ [animateProp]: lastWidth + 'px' }, 300, () => {
+              emulateAngularResizableEvents(lastWidth, false);
+            });
           } else {
             lastWidth = currentSize;
             $element
               .css({ [animateProp]: currentSize + 'px' })
-              .animate({ [animateProp]: 0 }, 300);
+              .animate({ [animateProp]: 0 }, 300, () => {
+                emulateAngularResizableEvents(0, false);
+              });
           }
         }
       });
@@ -59,12 +83,16 @@ function resizableToggle() {
           const isCollapsed = currentSize <= minSize;
           const animateProp = isFlex ? flexBasis : 'height';
           if (isCollapsed) {
-            $element.animate({ [animateProp]: lastHeight + 'px' }, 300);
+            $element.animate({ [animateProp]: lastHeight + 'px' }, 300, () => {
+              emulateAngularResizableEvents(false, lastHeight);
+            });
           } else {
             lastHeight = currentSize;
             $element
               .css({ [animateProp]: currentSize + 'px' })
-              .animate({ [animateProp]: 0 }, 300);
+              .animate({ [animateProp]: 0 }, 300, () => {
+                emulateAngularResizableEvents(false, 0);
+              });
           }
         }
       });
