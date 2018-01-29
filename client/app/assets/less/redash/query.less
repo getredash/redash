@@ -204,8 +204,6 @@ edit-in-place p.editable:hover {
 }
 
 .query__vis {
-  padding-top: 15px;
-
   table {
     border: 1px solid #f0f0f0;
   }
@@ -324,15 +322,16 @@ edit-in-place p.editable:hover {
     padding: 0;
     overflow-x: hidden;
 
-    .content-scrollbox {
-      flex-grow: 1;
-      overflow: auto;
-      display: flex;
-      flex-direction: column;
-    }
-
     .editor {
       border-bottom: 1px solid #efefef;
+    }
+
+    pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+      overflow: visible;
+    }
+
+    .tab-nav {
+      flex-shrink: 0;
     }
   }
   .row {
