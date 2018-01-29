@@ -1,7 +1,6 @@
 import json
 import os
 import urlparse
-import urllib
 
 
 def parse_db_url(url):
