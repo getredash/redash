@@ -15,8 +15,7 @@ def parse_db_url(url):
         connection['host'] = url_parts.hostname
         connection['port'] = url_parts.port
         connection['user'] = url_parts.username
-        # Passwords might be quoted with special characters
-        connection['password'] = urllib.unquote(url_parts.password)
+        connection['password'] = url_parts.password
 
     return connection
 
