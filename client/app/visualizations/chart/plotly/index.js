@@ -34,11 +34,11 @@ const PlotlyChart = () => ({
     let layout = {};
     let data = [];
 
-    const updateChartDimensions = debounce(() => {
+    const updateChartDimensions = () => {
       if (updateDimensions(layout, plotlyElement, calculateMargins(plotlyElement))) {
         Plotly.relayout(plotlyElement, layout);
       }
-    }, 100);
+    };
 
     function update() {
       if (['normal', 'percent'].indexOf(scope.options.series.stacking) >= 0) {
@@ -78,7 +78,7 @@ const PlotlyChart = () => ({
       }
     }, true);
 
-    scope.handleResize = updateChartDimensions;
+    scope.handleResize = debounce(updateChartDimensions, 100);
   },
 });
 
