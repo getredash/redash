@@ -8,7 +8,7 @@ const PublicDashboardPage = {
   bindings: {
     dashboard: '<',
   },
-  controller($routeParams, dashboardGridOptions, Dashboard) {
+  controller(dashboardGridOptions, Dashboard) {
     'ngInject';
 
     this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
@@ -16,12 +16,7 @@ const PublicDashboardPage = {
       draggable: { enabled: false },
     });
 
-    // embed in params == headless
     this.logoUrl = logoUrl;
-    this.headless = $routeParams.embed;
-    if (this.headless) {
-      document.querySelector('body').classList.add('headless');
-    }
     this.public = true;
     this.dashboard.widgets = Dashboard.prepareDashboardWidgets(this.dashboard.widgets);
   },

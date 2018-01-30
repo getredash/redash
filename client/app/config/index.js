@@ -60,6 +60,12 @@ function registerAll(context) {
   return modules.filter(isFunction).map(f => f(ngModule));
 }
 
+function requireImages() {
+  // client/app/assets/images/<path> => /img/<path>
+  const ctx = require.context('@/assets/images/', true, /\.(png|jpe?g|gif|svg)$/);
+  ctx.keys().forEach(ctx);
+}
+
 function registerComponents() {
   // We repeat this code in other register functions, because if we don't use a literal for the path
   // Webpack won't be able to statcily analyze our imports.
@@ -97,6 +103,7 @@ function registerFilters() {
   });
 }
 
+requireImages();
 registerDirectives(ngModule);
 registerServices();
 registerFilters();

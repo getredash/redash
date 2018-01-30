@@ -1,11 +1,14 @@
 <settings-screen>
-  <div class="row m-t-5">
-    <div class="col-md-4">
+  <div class="row">
+    <div class="col-md-12">
       <p>
         <a href="destinations/new" class="btn btn-default"><i class="fa fa-plus"></i> New Alert Destination</a>
       </p>
-      <div class="list-group">
-        <a ng-href="destinations/{{destination.id}}" class="list-group-item" ng-repeat="destination in destinations"><i class="fa {{destination.icon}}"></i> {{destination.name}}</a>
+      <div class="database-source">
+        <a class="visual-card" ng-href="destinations/{{destination.id}}" ng-repeat="destination in destinations">
+          <img ng-src="/img/destinations/{{destination.type}}.png" alt="{{destination.name}}">
+          <h3>{{destination.name}}</h3>
+        </a>
       </div>
     </div>
   </div>

@@ -1,3 +1,5 @@
+import PromiseRejectionError from '@/lib/promise-rejection-error';
+
 // eslint-disable-next-line import/prefer-default-export
 export class ErrorHandler {
   constructor() {
@@ -10,18 +12,17 @@ export class ErrorHandler {
   }
 
   process(error) {
-    if (!(error instanceof Error)) {
-      if (error.status && error.data) {
-        switch (error.status) {
-          case 403: error = new Error(''); break;
-          default: error = new Error(error.data.message); break;
-        }
-      }
-    }
-    this.error = error;
+    this.reset();
     if (this.logToConsole) {
+      // Log raw error object
       // eslint-disable-next-line no-console
       console.error(error);
+    }
+    if (
+      (error === null) ||
+      (error instanceof PromiseRejectionError)
+    ) {
+      this.error = error;
     }
   }
 }

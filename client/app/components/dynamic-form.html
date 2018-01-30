@@ -1,14 +1,12 @@
-<form name="dataSourceForm">
-    <div class="form-group">
-        <label for="type">Type</label>
-        <select name="type" class="form-control" ng-options="type.type as type.name for type in types" ng-model="target.type" autofocus></select>
+<form name="dynamicForm">
+    <div class="form-group required" ng-class='{"has-error": (dynamicForm.targetName | showError)}'>
+        <label class="control-label" for="dataSourceName">Name</label>
+        <input type="string" class="form-control" name="targetName" ng-model="target.name" autofocus required>
+        <error-messages input="dynamicForm.targetName" form="dynamicForm"></error-messages>
     </div>
-    <div class="form-group">
-        <label for="dataSourceName">Name</label>
-        <input type="string" class="form-control" name="dataSourceName" ng-model="target.name" required>
-    </div>
-    <div class="form-group" ng-class='{"has-error": !inner.input.$valid}' ng-form="inner" ng-repeat="field in fields">
-        <label ng-if="field.property.type !== 'checkbox'">{{field.property.title || field.name | capitalize}}</label>
+    <hr>
+    <div class="form-group" ng-class='{"has-error": (inner.input | showError), "required": field.property.required}' ng-form="inner" ng-repeat="field in fields">
+        <label ng-if="field.property.type !== 'checkbox'" class="control-label">{{field.property.title || field.name | capitalize}}</label>
         <input name="input" type="{{field.property.type}}" class="form-control" ng-model="target.options[field.name]" ng-required="field.property.required"
                ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox'" accesskey="tab" placeholder="{{field.property.default}}">
 
@@ -21,14 +19,16 @@
         <input name="input" type="file" class="form-control" ng-model="files[field.name]" ng-required="field.property.required && !target.options[field.name]"
                base-sixty-four-input
                ng-if="field.property.type === 'file'">
+
+        <error-messages input="inner.input" form="inner"></error-messages>
     </div>
 
-    <button class="btn btn-primary" ng-disabled="!dataSourceForm.$valid" ng-click="saveChanges()">Save</button>
+    <button class="btn btn-block btn-primary m-b-10" ng-disabled="!dynamicForm.$valid" ng-click="saveChanges()">Save</button>
     <span ng-repeat="action in actions">
         <button class="btn"
                 ng-class="action.class"
                 ng-if="target.id"
-                ng-disabled="(action.disableWhenDirty && dataSourceForm.$dirty) || inProgressActions[action.name]"
+                ng-disabled="(action.disableWhenDirty && dynamicForm.$dirty) || inProgressActions[action.name]"
                 ng-click="action.callback()" ng-bind-html="action.name"></button>
     </span>
 

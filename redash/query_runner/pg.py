@@ -191,7 +191,7 @@ class Redshift(PostgreSQL):
                                       host=self.configuration.get('host'),
                                       port=self.configuration.get('port'),
                                       dbname=self.configuration.get('dbname'),
-                                      sslmode='prefer',
+                                      sslmode=self.configuration.get('sslmode', 'prefer'),
                                       sslrootcert=sslrootcert_path,
                                       async=True)
 
@@ -218,6 +218,11 @@ class Redshift(PostgreSQL):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "sslmode": {
+                   "type": "string",
+                   "title": "SSL Mode",
+                   "default": "prefer"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
