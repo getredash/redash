@@ -1,5 +1,6 @@
 import * as _ from 'underscore';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import { durationHumanize } from '@/filters';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.less';
@@ -78,6 +79,9 @@ function DashboardCtrl(
     { name: '12 hour', rate: 12 * 60 * 60 },
     { name: '24 hour', rate: 24 * 60 * 60 },
   ];
+
+  this.refreshRates =
+    clientConfig.dashboardRefreshIntervals.map(interval => ({ name: durationHumanize(interval), rate: interval }));
 
   $rootScope.$on('gridster-mobile-changed', ($event, gridster) => {
     this.isGridDisabled = gridster.isMobile;
