@@ -175,7 +175,8 @@ def client_config():
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
         'dateFormat': date_format,
         'dateTimeFormat': "{0} HH:mm".format(date_format),
-        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None
+        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
+        'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS
     }
 
     client_config.update(defaults)
