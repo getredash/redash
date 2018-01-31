@@ -44,6 +44,7 @@ function queryEditor(QuerySnippet) {
           onLoad(editor) {
             $scope.$on('query-editor.paste', ($event, text) => {
               editor.session.doc.replace(editor.selection.getRange(), text);
+              $scope.query.query = editor.session.getValue();
             });
 
             // Release Cmd/Ctrl+L to the browser
