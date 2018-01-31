@@ -1,7 +1,7 @@
 // This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
 import 'core-js/fn/typed/array-buffer';
 
-import 'pace-progress';
+import * as Pace from 'pace-progress';
 import debug from 'debug';
 import angular from 'angular';
 import ngSanitize from 'angular-sanitize';
@@ -29,6 +29,14 @@ import dateTimeFilter from '@/filters/datetime';
 import dashboardGridOptions from './dashboard-grid-options';
 
 const logger = debug('redash:config');
+
+Pace.options.shouldHandlePushState = (prevUrl, newUrl) => {
+  // Show pace progress bar only if URL path changed; when query params
+  // or hash changed - ignore that history event
+  const [prevPrefix] = prevUrl.split('?');
+  const [newPrefix] = newUrl.split('?');
+  return prevPrefix !== newPrefix;
+};
 
 const requirements = [
   ngRoute,
