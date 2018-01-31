@@ -629,18 +629,23 @@ page-header, .page-header--new {
 // Error state
 .error-state {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-start;
+  text-align: center;
+  margin-top: 25vh;
   padding: 35px;
   font-size: 14px;
   line-height: 21px;
 
   .error-state__icon {
-    margin-right: 25px;
     .zmdi {
       font-size: 64px;
       color: @redash-gray;
     }
+  }
+
+  @media (max-width: 767px) {
+    margin-top: 10vh;
   }
 }
 
