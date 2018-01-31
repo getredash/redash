@@ -18,7 +18,7 @@ defineDummySnippets('python');
 defineDummySnippets('sql');
 defineDummySnippets('json');
 
-function queryEditor(QuerySnippet) {
+function queryEditor(QuerySnippet, $timeout) {
   return {
     restrict: 'E',
     scope: {
@@ -44,7 +44,11 @@ function queryEditor(QuerySnippet) {
           onLoad(editor) {
             $scope.$on('query-editor.paste', ($event, text) => {
               editor.session.doc.replace(editor.selection.getRange(), text);
+              const range = editor.selection.getRange();
               $scope.query.query = editor.session.getValue();
+              $timeout(() => {
+                editor.selection.setRange(range);
+              });
             });
 
             // Release Cmd/Ctrl+L to the browser
