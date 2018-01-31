@@ -33,7 +33,9 @@
           <div class="text-muted query--description" ng-bind-html="$ctrl.query.description | markdown"></div>
         </div>
       </div>
-      <parameters parameters="$ctrl.localParametersDefs()"></parameters>
+      <div class="m-b-10" ng-if="$ctrl.localParametersDefs().length > 0">
+        <parameters parameters="$ctrl.localParametersDefs()"></parameters>
+      </div>
     </div>
 
     <div ng-switch-when="failed" class="body-row-auto scrollbox">
