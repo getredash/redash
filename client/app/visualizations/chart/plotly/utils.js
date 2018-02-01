@@ -7,25 +7,25 @@ import createFormatter from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
-  Blue: '#4572A7',
-  Red: '#AA4643',
-  Green: '#89A54E',
-  Purple: '#80699B',
+  Blue: '#2158F3',
+  Red: '#FF2929',
+  Green: '#42E57B',
+  Purple: '#5040D8',
   Cyan: '#3D96AE',
-  Orange: '#DB843D',
+  Orange: '#FF9B4D',
   'Light Blue': '#92A8CD',
   Lilac: '#A47D7C',
   'Light Green': '#B5CA92',
   Brown: '#A52A2A',
   Black: '#000000',
-  Gray: '#808080',
+  Gray: '#494949',
   Pink: '#FFC0CB',
   'Dark Blue': '#00008b',
 };
 
 // Additional colors for the user to choose from:
 export const ColorPalette = Object.assign({}, BaseColors, {
-  'Indian Red': '#F8766D',
+  'Indian Red': '#C42121',
   'Green 2': '#53B400',
   'Green 3': '#00C094',
   DarkTurquoise: '#00B6EB',
@@ -191,7 +191,7 @@ function preparePieData(seriesList, options) {
       marker: { colors: ColorPaletteArray },
       text: serie.name,
       textposition: 'inside',
-      textfont: { color: '#f5f5f5' },
+      textfont: { color: '#ffffff' },
       name: serie.name,
       domain: {
         x: [xPosition, xPosition + cellWidth - xPadding],
