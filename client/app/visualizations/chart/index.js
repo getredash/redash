@@ -270,7 +270,7 @@ export default function init(ngModule) {
       columnMapping: {},
       defaultColumns: 3,
       defaultRows: 8,
-      minColumns: 2,
+      minColumns: 1,
       minRows: 5,
     };
 

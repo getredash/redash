@@ -38,8 +38,8 @@ class TestDashboardResourceGet(BaseTestCase):
 
         rv = self.make_request('get', '/api/dashboards/{0}'.format(dashboard.slug))
         self.assertEquals(rv.status_code, 200)
-        self.assertTrue(rv.json['widgets'][0][1]['restricted'])
-        self.assertNotIn('restricted', rv.json['widgets'][0][0])
+        self.assertTrue(rv.json['widgets'][0]['restricted'])
+        self.assertNotIn('restricted', rv.json['widgets'][1])
 
     def test_get_non_existing_dashboard(self):
         rv = self.make_request('get', '/api/dashboards/not_existing')
