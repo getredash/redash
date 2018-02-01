@@ -515,6 +515,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         groups.append(self.org.default_group)
         self.group_ids = [g.id for g in groups]
         db.session.add(self)
+        db.session.commit()
 
     def has_access(self, obj, access_type):
         return AccessPermission.exists(obj, access_type, grantee=self)

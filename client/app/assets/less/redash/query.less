@@ -1,28 +1,43 @@
 body.fixed-layout {
-  padding-bottom: 50px;
+  padding: 0;
+  overflow: hidden;
+
+  app-view {
+    display: flex;
+    flex-direction: column;
+
+    width: 100vw;
+    height: 100vh;
+
+    > div {
+      flex-grow: 1;
+      display: flex;
+    }
+  }
 }
 
 .bottom-controller {
-  position: fixed;
-  bottom: 0;
-
-  padding: 10px;
-  margin-left: -15px;
-  z-index: 999;
+  padding: 10px 15px;
   background: #fff;
-  width: 100%;
+  display: flex;
+  align-items: center;
 
   button, div, span {
     position: relative;
   }
 
+  div:last-child {
+    flex-grow: 1;
+    text-align: right;
+  }
+
   &:before {
     content: '';
-    background: #fff;
     height: 50px;
     position: fixed;
     bottom: 0;
     width: 100%;
+    pointer-events: none;
     left: 0;
   }
 }
@@ -32,23 +47,10 @@ body.fixed-layout {
 }
 
 .bottom-controller-container {
-  position: fixed;
-  bottom: 0;
-
-  z-index: 99;
-  box-shadow: rgba(102, 136, 153, 0.15) 0px -4px 9px -3px;
-  width: 100%;
-  padding: 10px;
-  height: 50px;
+  box-shadow: 0 0 9px 0 rgba(102, 136, 153, 0.15);
+  z-index: 1;
   border: none !important;
-  margin-left: 0;
-  line-height: 2.1;
-
-  pointer-events: none; //so we can access bottom-controller's buttons below
-
-  .btn, span {
-    pointer-events: auto;
-  }
+  flex-shrink: 0;
 }
 
 .query-metadata__bottom {
@@ -101,21 +103,11 @@ edit-in-place p.editable:hover {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  z-index: 9;
-
 
   table {
     width: 100%;
     white-space: nowrap;
     text-overflow: ellipsis;
-
-    td::last-word {
-      font-size: 25%;
-    }
-
-    .meta__name::last-word  {
-        font-size: 50%;
-    }
 
     td {
       padding: 3px 0;
@@ -131,7 +123,7 @@ edit-in-place p.editable:hover {
 
   p {
     &:last-of-type {
-      margin-bottom: 0px;
+      margin-bottom: 0;
     }
 
     display: flex;
@@ -156,8 +148,9 @@ edit-in-place p.editable:hover {
 
 .schema-container {
   background: transparent;
-  padding-bottom: 15px;
-  height: calc(100% - 15px);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .editor__left {
@@ -168,10 +161,6 @@ edit-in-place p.editable:hover {
   .form-control {
     height: 30px;
   }
-}
-
-.schema-browser {
-  height: calc(83%);
 }
 
 .query-alerts {
@@ -215,8 +204,6 @@ edit-in-place p.editable:hover {
 }
 
 .query__vis {
-  padding-top: 15px;
-
   table {
     border: 1px solid #f0f0f0;
   }
@@ -259,16 +246,21 @@ edit-in-place p.editable:hover {
 }
 
 .schema-browser {
-  min-height: 150px;
   overflow-y: auto;
-  max-height: 275px;
+}
+
+.query-page-wrapper {
+  display: flex;
+  flex-direction: column;
 }
 
 .query-fullscreen {
-  //height: calc(~'100% - 137px');
   background: #fff;
   padding: 0;
-  box-shadow: rgba(102, 136, 153, 0.15) 0px 4px 9px -3px;
+  box-shadow: rgba(102, 136, 153, 0.15) 0 4px 9px -3px;
+  flex-grow: 1;
+  display: flex;
+  width: 100vw;
 
   .tile, .tiled {
     box-shadow: none;
@@ -279,18 +271,25 @@ edit-in-place p.editable:hover {
     position: relative;
     display: flex;
     flex-flow: column;
-    z-index: 1;
-    width: 25%;
+    flex-basis: 25%;
+    flex-shrink: 0;
     max-width: 600px;
     min-width: 10px;
+    overflow-x: hidden;
 
-    .schema-container {
-      height: calc(~'100% - 40px');
+    > .rg-right {
+      height: auto;
+      bottom: 50px;
     }
 
-    .schema-browser {
-      height: 100%;
-      max-height: 100%;
+    .schema-container {
+    }
+
+    .editor__left__data-source,
+    .schema-control,
+    .query-metadata--history,
+    .editor {
+      flex-shrink: 0;
     }
 
     .query-metadata {
@@ -302,10 +301,10 @@ edit-in-place p.editable:hover {
     }
 
     .editor__left__schema {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
       padding-bottom: 0;
-    }
-
-    .editor__left__schema {
       padding-top: 0 !important;
     }
   }
@@ -314,32 +313,42 @@ edit-in-place p.editable:hover {
     height: 100%;
   }
   .content {
-    height: calc(~'100vh - 160px');
-    z-index: 9;
     background: #fff;
-    flex: 1;
+    flex-grow: 1;
     display: flex;
     flex-flow: column nowrap;
     justify-content: space-around;
     align-content: space-around;
     padding: 0;
-    width: 75%;
+    overflow-x: hidden;
 
     .editor {
       border-bottom: 1px solid #efefef;
+    }
+
+    pivot-table-renderer > table, grid-renderer > div, visualization-renderer > div {
+      overflow: visible;
+    }
+
+    .tab-nav {
+      flex-shrink: 0;
     }
   }
   .row {
     background: #fff;
     z-index: 9;
     min-height: 50px;
-    flex: 1;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-around;
-    align-content: space-around;
+
     &.resizable {
       flex: 0 0 300px;
+    }
+
+    &.editor {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-around;
+      align-content: space-around;
+      overflow: hidden;
     }
 
     .row {
@@ -384,7 +393,7 @@ edit-in-place p.editable:hover {
   .rg-right, .rg-left {
     span {
       border-width: 0 1px;
-      top: 50%; margin-top: -10px;
+      top: 50%;
       margin: -10px 0 0 @spacing/4;
       height: 20px;
       width: 3px;
@@ -447,13 +456,47 @@ edit-in-place p.editable:hover {
   display: none;
 }
 
+
+// Left nav fixes for filling all the space
+nav .rg-bottom {
+  visibility: hidden;
+}
+
+.query-metadata--refresh {
+  height: 50px;
+  border: none !important;
+
+  .query-metadata__property {
+    width: auto;
+  }
+
+  p {
+    display: block;
+  }
+}
+
+// Smaller screens
+
 @media (max-width: 880px) {
+  .query-fullscreen {
+    flex-direction: column;
+    overflow: hidden;
+
+    nav {
+      display: none;
+    }
+
+    .schema-container {
+      display: none;
+    }
+  }
+
   .query-fullscreen .query-metadata__mobile {
     display: block;
     border-bottom: 1px solid #efefef;
     padding: 10px 0;
-    min-height: auto !important;
-    flex: initial;
+    min-height: 0 !important;
+    flex-shrink: 0;
   }
 
   a.navbar-brand {
@@ -486,8 +529,8 @@ edit-in-place p.editable:hover {
         max-width: 100%;
         border-right: none;
 
-        .schema-browser {
-          max-height: 250px;
+        .editor__left__schema {
+          height: 300px !important;
         }
 
         .rg-right {
@@ -508,13 +551,8 @@ edit-in-place p.editable:hover {
     margin-bottom: 5px;
   }
 
-  .source-control {
-    display: flex;
-    flex-direction: column;
-
-    .btn-group.dropdown {
-      align-self: flex-end;
-    }
+  .btn-publish {
+    margin-bottom: 5px;
   }
 }
 
