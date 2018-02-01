@@ -1,8 +1,53 @@
-<div class="form-group">
+<ul class="tab-nav">
+  <li ng-class="{active: currentTab == 'options'}">
+    <a ng-click="setCurrentTab('options')">Options</a>
+  </li>
+  <li ng-class="{active: currentTab == 'columns'}">
+    <a ng-click="setCurrentTab('columns')">Columns</a>
+  </li>
+</ul>
+
+<div ng-if="currentTab == 'options'" class="m-t-10 m-b-10">
+  <div class="form-group">
     <label class="control-label">Time Interval</label>
     <select class="form-control" ng-model="visualization.options.timeInterval">
       <option value="daily">Daily</option>
       <option value="weekly">Weekly</option>
       <option value="monthly">Monthly</option>
     </select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Mode</label>
+    <select class="form-control" ng-model="visualization.options.mode">
+      <option value="diagonal">Diagonal</option>
+      <option value="simple">Simple</option>
+    </select>
+  </div>
+</div>
+
+<div ng-if="currentTab == 'columns'" class="m-t-10 m-b-10">
+  <div class="form-group">
+    <label class="control-label">Date</label>
+    <select class="form-control" ng-model="visualization.options.dateColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Day Number</label>
+    <select class="form-control" ng-model="visualization.options.dayNumberColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Total</label>
+    <select class="form-control" ng-model="visualization.options.totalColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Value</label>
+    <select class="form-control" ng-model="visualization.options.valueColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
 </div>
