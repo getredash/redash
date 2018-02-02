@@ -4,7 +4,7 @@
       <tr>
         <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick($event, column)"
           class="sortable-column" ng-class="'content-align-' + column.alignContent"
-          width="{{ ['number', 'boolean', 'datetime'].indexOf(column.displayAs) >= 0 ? '1%' : undefined }}">
+          width="{{ ['number', 'boolean', 'datetime', 'image'].indexOf(column.displayAs) >= 0 ? '1%' : undefined }}">
           <span ng-if="($ctrl.orderBy.length > 1) && ($ctrl.orderByColumnsIndex[column.name] > 0)"
             class="sort-order-indicator">{{ $ctrl.orderByColumnsIndex[column.name] }}</span>
           <span>{{column.title}}</span>
@@ -19,7 +19,7 @@
       </tr>
     </thead>
     <thead ng-if="$ctrl.searchColumns.length > 0">
-      <th class="p-t-10 p-b-10 p-l-15 p-r-15" colspan="{{ $ctrl.columns.length }}">
+      <th class="p-t-10 p-b-10 p-l-15 p-r-15" colspan="{{ $ctrl.columns.length + 1 }}">
         <input type="text" class="form-control" placeholder="Search..."
           ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           ng-change="$ctrl.onSearchTermChanged()">
