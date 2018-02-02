@@ -191,11 +191,11 @@ class TestRemoteUserAuth(BaseTestCase):
 
     def setUp(self):
         # Apply default setting overrides to every test
-        self.overrideSettings(None)
+        self.override_settings(None)
 
         super(TestRemoteUserAuth, self).setUp()
 
-    def overrideSettings(self, overrides):
+    def override_settings(self, overrides):
         """Override settings for testing purposes.
 
         This helper method can be used to override specific environmental
@@ -218,7 +218,7 @@ class TestRemoteUserAuth(BaseTestCase):
         # once the test ends
         self.addCleanup(lambda: reload(settings))
 
-    def assertCorrectUserAttributes(self, user, email='test@example.com', name='test@example.com', groups=None, org=None):
+    def assert_correct_user_attributes(self, user, email='test@example.com', name='test@example.com', groups=None, org=None):
         """Helper to assert that the user attributes are correct."""
         groups = groups or []
         if self.factory.org.default_group.id not in groups:
@@ -230,7 +230,7 @@ class TestRemoteUserAuth(BaseTestCase):
         self.assertEqual(user.org, org or self.factory.org)
         self.assertItemsEqual(user.group_ids, groups)
 
-    def getTestUser(self, email='test@example.com', org=None):
+    def get_test_user(self, email='test@example.com', org=None):
         """Helper to fetch an user from the database."""
 
         # Expire all cached objects to ensure these values are read directly
@@ -240,7 +240,7 @@ class TestRemoteUserAuth(BaseTestCase):
         return models.User.get_by_email_and_org(email, org or self.factory.org)
 
     def test_remote_login_disabled(self):
-        self.overrideSettings({
+        self.override_settings({
             'REDASH_REMOTE_USER_LOGIN_ENABLED': 'false'
         })
 
@@ -249,17 +249,17 @@ class TestRemoteUserAuth(BaseTestCase):
         })
 
         with self.assertRaises(NoResultFound):
-            self.getTestUser()
+            self.get_test_user()
 
     def test_remote_login_default_header(self):
         self.get_request('/remote_user/login', org=self.factory.org, headers={
             'X-Forwarded-Remote-User': 'test@example.com'
         })
 
-        self.assertCorrectUserAttributes(self.getTestUser())
+        self.assert_correct_user_attributes(self.get_test_user())
 
     def test_remote_login_custom_header(self):
-        self.overrideSettings({
+        self.override_settings({
             'REDASH_REMOTE_USER_HEADER': 'X-Custom-User'
         })
 
@@ -267,4 +267,4 @@ class TestRemoteUserAuth(BaseTestCase):
             'X-Custom-User': 'test@example.com'
         })
 
-        self.assertCorrectUserAttributes(self.getTestUser())
+        self.assert_correct_user_attributes(self.get_test_user())
