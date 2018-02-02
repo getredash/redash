@@ -26,7 +26,7 @@ const BaseColors = {
 // Additional colors for the user to choose from:
 export const ColorPalette = Object.assign({}, BaseColors, {
   'Indian Red': '#C42121',
-  'Green 2': '#53B400',
+  'Green 2': '#17BF51',
   'Green 3': '#00C094',
   DarkTurquoise: '#00B6EB',
   'Dark Violet': '#A58AFF',
