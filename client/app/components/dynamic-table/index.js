@@ -68,6 +68,10 @@ function createRowRenderTemplate(columns, $compile) {
             <dynamic-table-json-cell column="columns[${index}]" 
               value="row[columns[${index}].name]"></dynamic-table-json-cell>
           `;
+      case 'image':
+        return `
+            <dynamic-table-image-cell column="columns[${index}]" row="row"></dynamic-table-image-cell>
+          `;
       default:
         return `
             <dynamic-table-default-cell column="columns[${index}]" 
