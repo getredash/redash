@@ -13,6 +13,7 @@ const DISPLAY_AS_OPTIONS = [
   { name: 'Date/Time', value: 'datetime' },
   { name: 'Boolean', value: 'boolean' },
   { name: 'JSON', value: 'json' },
+  { name: 'Image', value: 'image' },
 ];
 
 const DEFAULT_OPTIONS = {
@@ -46,6 +47,10 @@ function getDefaultColumnsOptions(columns) {
     allowHTML: false,
     highlightLinks: false,
     alignContent: getColumnContentAlignment(col.type),
+    imageUrlTemplate: '{{ @ }}',
+    imageTitleTemplate: '{{ @ }}',
+    imageWidth: '',
+    imageHeight: '',
   }));
 }
 
