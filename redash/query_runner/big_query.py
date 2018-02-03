@@ -206,7 +206,7 @@ class BigQuery(BaseQueryRunner):
         data = {
             "columns": columns,
             "rows": rows, 
-            'metadata': {'data_scanned': query_reply['totalBytesProcessed']}
+            'metadata': {'data_scanned': int(query_reply['totalBytesProcessed'])}
         }
 
         return data
