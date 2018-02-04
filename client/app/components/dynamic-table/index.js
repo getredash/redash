@@ -65,18 +65,14 @@ function createRowRenderTemplate(columns, $compile) {
     switch (column.displayAs) {
       case 'json':
         return `
-            <dynamic-table-json-cell column="columns[${index}]" 
-              value="row[columns[${index}].name]"></dynamic-table-json-cell>
-          `;
-      case 'image':
-        return `
-            <dynamic-table-image-cell column="columns[${index}]" row="row"></dynamic-table-image-cell>
-          `;
+          <dynamic-table-json-cell column="columns[${index}]" 
+            value="row[columns[${index}].name]"></dynamic-table-json-cell>
+        `;
       default:
         return `
-            <dynamic-table-default-cell column="columns[${index}]" 
-              value="row[columns[${index}].name]"></dynamic-table-default-cell>
-          `;
+          <dynamic-table-default-cell column="columns[${index}]" 
+            row="row"></dynamic-table-default-cell>
+        `;
     }
   }).join('');
   return $compile(rowTemplate);
