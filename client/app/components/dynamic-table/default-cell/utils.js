@@ -1,4 +1,4 @@
-import { isUndefined } from 'underscore';
+import { isUndefined, isFunction } from 'underscore';
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
@@ -6,8 +6,8 @@ function trim(str) {
   return str.replace(/^\s+|\s+$/g, '');
 }
 
-function processTags(template, data, defaultColumn) {
-  return template.replace(/{{\s*([^\s]+)\s*}}/g, (match, column) => {
+function processTags(str, data, defaultColumn) {
+  return str.replace(/{{\s*([^\s]+)\s*}}/g, (match, column) => {
     if (column === '@') {
       column = defaultColumn;
     }
@@ -18,7 +18,15 @@ function processTags(template, data, defaultColumn) {
   });
 }
 
-function buildImgTag(column, row) {
+export function renderDefault(column, row) {
+  const value = row[column.name];
+  if (isFunction(column.formatFunction)) {
+    return column.formatFunction(value);
+  }
+  return value;
+}
+
+export function renderImage(column, row) {
   const url = trim(processTags(column.imageUrlTemplate, row, column.name));
   const width = parseInt(processTags(column.imageWidth, row, column.name), 10);
   const height = parseInt(processTags(column.imageHeight, row, column.name), 10);
@@ -44,23 +52,22 @@ function buildImgTag(column, row) {
   return result.join(' ');
 }
 
-export default function init(ngModule) {
-  ngModule.directive('dynamicTableImageCell', $sanitize => ({
-    template: '<td ng-bind-html="value"></td>',
-    restrict: 'E',
-    replace: true,
-    scope: {
-      column: '=',
-      row: '=',
-    },
-    link: ($scope) => {
-      $scope.value = $sanitize(buildImgTag($scope.column, $scope.row));
+export function renderLink(column, row) {
+  const url = trim(processTags(column.linkUrlTemplate, row, column.name));
+  const title = trim(processTags(column.linkTitleTemplate, row, column.name));
+  const text = trim(processTags(column.linkTextTemplate, row, column.name));
 
-      $scope.$watch('row', (newValue, oldValue) => {
-        if (newValue !== oldValue) {
-          $scope.value = $sanitize(buildImgTag($scope.column, $scope.row));
-        }
-      });
-    },
-  }));
+  const result = [];
+  if (url !== '') {
+    result.push('<a href="' + url + '"');
+    if (title !== '') {
+      result.push('title="' + title + '"');
+    }
+    if (column.linkOpenInNewTab) {
+      result.push('target="_blank"');
+    }
+    result.push('>' + (text === '' ? url : text) + '</a>');
+  }
+
+  return result.join(' ');
 }
