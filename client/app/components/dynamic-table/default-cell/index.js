@@ -2,6 +2,11 @@ import { contains } from 'underscore';
 import { renderDefault, renderImage, renderLink } from './utils';
 import template from './template.html';
 
+const renderFunctions = {
+  image: renderImage,
+  link: renderLink,
+};
+
 export default function init(ngModule) {
   ngModule.directive('dynamicTableDefaultCell', $sanitize => ({
     template,
@@ -24,12 +29,7 @@ export default function init(ngModule) {
         $scope.allowHTML = contains(['image', 'link'], $scope.column.displayAs);
       }
 
-      let renderValue;
-      switch ($scope.column.displayAs) {
-        case 'image': renderValue = renderImage; break;
-        case 'link': renderValue = renderLink; break;
-        default: renderValue = renderDefault; break;
-      }
+      const renderValue = renderFunctions[$scope.column.displayAs] || renderDefault;
 
       $scope.value = $sanitize(renderValue($scope.column, $scope.row));
 
