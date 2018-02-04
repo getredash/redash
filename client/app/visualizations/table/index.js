@@ -14,6 +14,7 @@ const DISPLAY_AS_OPTIONS = [
   { name: 'Boolean', value: 'boolean' },
   { name: 'JSON', value: 'json' },
   { name: 'Image', value: 'image' },
+  { name: 'Link', value: 'link' },
 ];
 
 const DEFAULT_OPTIONS = {
@@ -44,13 +45,10 @@ function getDefaultColumnsOptions(columns) {
     order: 100000 + index,
     title: getColumnCleanName(col.name),
     allowSearch: false,
+    alignContent: getColumnContentAlignment(col.type),
+    // `string` cell options
     allowHTML: false,
     highlightLinks: false,
-    alignContent: getColumnContentAlignment(col.type),
-    imageUrlTemplate: '{{ @ }}',
-    imageTitleTemplate: '{{ @ }}',
-    imageWidth: '',
-    imageHeight: '',
   }));
 }
 
@@ -67,6 +65,16 @@ function getDefaultFormatOptions(column, clientConfig) {
     dateTimeFormat: dateTimeFormat[column.type],
     numberFormat: numberFormat[column.type],
     booleanValues: clientConfig.booleanValues || ['false', 'true'],
+    // `image` cell options
+    imageUrlTemplate: '{{ @ }}',
+    imageTitleTemplate: '{{ @ }}',
+    imageWidth: '',
+    imageHeight: '',
+    // `link` cell options
+    linkUrlTemplate: '{{ @ }}',
+    linkTextTemplate: '{{ @ }}',
+    linkTitleTemplate: '{{ @ }}',
+    linkOpenInNewTab: true,
   };
 }
 
@@ -196,6 +204,12 @@ function GridEditor(clientConfig) {
           );
         }
       });
+
+      $scope.templateHint = `
+        All columns can be referenced using <code>{{ column_name }}</code> syntax.
+        Use <code>{{ @ }}</code> to reference current (this) column.
+        This syntax is applicable to URL, Title and Size options.
+      `;
     },
   };
 }
