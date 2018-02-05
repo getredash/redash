@@ -463,17 +463,23 @@ edit-in-place p.editable:hover {
 }
 
 .visualization-editor {
+  .modal-title {
+    font-weight: 600;
+    font-size: 20px;
+  }
+
   .modal-body {
     bottom: 50px;
   }
 
   .modal-footer {
     height: auto;
-    background: fade(@redash-gray, 6%);
   }
 
   .visualization-editor__right {
     margin-top: 23px;
+    border: 1px solid #eee;
+    border-radius: 3px;
 
     .parameter-container {
       padding-left: 25px;
