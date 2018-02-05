@@ -1,4 +1,4 @@
-import { contains } from 'underscore';
+import { contains, identity } from 'underscore';
 import { renderDefault, renderImage, renderLink } from './utils';
 import template from './template.html';
 
@@ -29,13 +29,15 @@ export default function init(ngModule) {
         $scope.allowHTML = contains(['image', 'link'], $scope.column.displayAs);
       }
 
+      const sanitize = $scope.allowHTML ? $sanitize : identity;
+
       const renderValue = renderFunctions[$scope.column.displayAs] || renderDefault;
 
-      $scope.value = $sanitize(renderValue($scope.column, $scope.row));
+      $scope.value = sanitize(renderValue($scope.column, $scope.row));
 
       $scope.$watch('row', (newValue, oldValue) => {
         if (newValue !== oldValue) {
-          $scope.value = $sanitize(renderValue($scope.column, $scope.row));
+          $scope.value = sanitize(renderValue($scope.column, $scope.row));
         }
       });
     },
