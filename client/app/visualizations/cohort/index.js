@@ -16,7 +16,7 @@ const DEFAULT_OPTIONS = {
   timeInterval: 'daily',
   mode: 'diagonal',
   dateColumn: 'date',
-  dayNumberColumn: 'day_number',
+  stageColumn: 'day_number',
   totalColumn: 'total',
   valueColumn: 'value',
 };
@@ -31,7 +31,7 @@ function groupData(sortedData) {
       total: parseInt(item.total, 10),
       values: {},
     };
-    result[groupKey].values[item.dayNumber] = parseInt(item.value, 10);
+    result[groupKey].values[item.stage] = parseInt(item.value, 10);
   });
 
   return _.values(result);
@@ -40,36 +40,36 @@ function groupData(sortedData) {
 function prepareDiagonalData(sortedData, options) {
   const timeInterval = options.timeInterval;
   const grouped = groupData(sortedData);
-  const firstDayNumber = _.min(_.pluck(sortedData, 'dayNumber'));
-  const dayCount = moment(_.last(grouped).date).diff(_.first(grouped).date, momentInterval[timeInterval]);
-  let lastDayNumber = firstDayNumber + dayCount;
+  const firstStage = _.min(_.pluck(sortedData, 'stage'));
+  const stageCount = moment(_.last(grouped).date).diff(_.first(grouped).date, momentInterval[timeInterval]);
+  let lastStage = firstStage + stageCount;
 
-  let previousDay = null;
+  let previousDate = null;
 
   const data = [];
   _.each(grouped, (group) => {
-    if (previousDay !== null) {
-      let diff = Math.abs(previousDay.diff(group.date, momentInterval[timeInterval]));
+    if (previousDate !== null) {
+      let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
         const row = [0];
-        for (let dayNumber = firstDayNumber; dayNumber <= lastDayNumber; dayNumber += 1) {
-          row.push(group.values[dayNumber] || 0);
+        for (let stage = firstStage; stage <= lastStage; stage += 1) {
+          row.push(group.values[stage] || 0);
         }
         data.push(row);
-        // It should be diagonal, so decrease count of days for each next row
-        lastDayNumber -= 1;
+        // It should be diagonal, so decrease count of stages for each next row
+        lastStage -= 1;
         diff -= 1;
       }
     }
 
-    previousDay = group.date;
+    previousDate = group.date;
 
     const row = [group.total];
-    for (let dayNumber = firstDayNumber; dayNumber <= lastDayNumber; dayNumber += 1) {
-      row.push(group.values[dayNumber] || 0);
+    for (let stage = firstStage; stage <= lastStage; stage += 1) {
+      row.push(group.values[stage] || 0);
     }
-    // It should be diagonal, so decrease count of days for each next row
-    lastDayNumber -= 1;
+    // It should be diagonal, so decrease count of stages for each next row
+    lastStage -= 1;
 
     data.push(row);
   });
@@ -80,27 +80,27 @@ function prepareDiagonalData(sortedData, options) {
 function prepareSimpleData(sortedData, options) {
   const timeInterval = options.timeInterval;
   const grouped = groupData(sortedData);
-  const dayNumbers = _.pluck(sortedData, 'dayNumber');
-  const firstDayNumber = _.min(dayNumbers);
-  const lastDayNumber = _.max(dayNumbers);
+  const stages = _.pluck(sortedData, 'stage');
+  const firstStage = _.min(stages);
+  const lastStage = _.max(stages);
 
-  let previousDay = null;
+  let previousDate = null;
 
   const data = [];
   _.each(grouped, (group) => {
-    if (previousDay !== null) {
-      let diff = Math.abs(previousDay.diff(group.date, momentInterval[timeInterval]));
+    if (previousDate !== null) {
+      let diff = Math.abs(previousDate.diff(group.date, momentInterval[timeInterval]));
       while (diff > 1) {
         data.push([0]);
         diff -= 1;
       }
     }
 
-    previousDay = group.date;
+    previousDate = group.date;
 
     const row = [group.total];
-    for (let dayNumber = firstDayNumber; dayNumber <= lastDayNumber; dayNumber += 1) {
-      row.push(group.values[dayNumber]);
+    for (let stage = firstStage; stage <= lastStage; stage += 1) {
+      row.push(group.values[stage]);
     }
 
     data.push(row);
@@ -112,11 +112,11 @@ function prepareSimpleData(sortedData, options) {
 function prepareData(rawData, options) {
   rawData = _.map(rawData, item => ({
     date: item[options.dateColumn],
-    dayNumber: item[options.dayNumberColumn],
+    stage: item[options.stageColumn],
     total: item[options.totalColumn],
     value: item[options.valueColumn],
   }));
-  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.dayNumber, 10));
+  const sortedData = _.sortBy(rawData, r => r.date + parseInt(r.stage, 10));
   const initialDate = moment(sortedData[0].date).toDate();
 
   let data;
@@ -150,7 +150,7 @@ function cohortRenderer() {
         const columnNames = _.pluck($scope.queryResult.getColumns(), 'name');
         if (
           !_.contains(columnNames, $scope.options.dateColumn) ||
-          !_.contains(columnNames, $scope.options.dayNumberColumn) ||
+          !_.contains(columnNames, $scope.options.stageColumn) ||
           !_.contains(columnNames, $scope.options.totalColumn) ||
           !_.contains(columnNames, $scope.options.valueColumn)
         ) {
@@ -189,7 +189,7 @@ function cohortEditor() {
     link: ($scope) => {
       $scope.visualization.options = _.extend({}, DEFAULT_OPTIONS, $scope.visualization.options);
 
-      $scope.currentTab = 'options';
+      $scope.currentTab = 'columns';
       $scope.setCurrentTab = (tab) => {
         $scope.currentTab = tab;
       };
