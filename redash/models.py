@@ -1296,8 +1296,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     name = Column(db.String(100))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
-    # TODO: The layout should dynamically be built from position and size information on each widget.
-    # Will require update in the frontend code to support this.
+    # layout is no longer used, but kept so we know how to render old dashboards.
     layout = Column(db.Text)
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
@@ -1312,39 +1311,22 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def to_dict(self, with_widgets=False, user=None):
         layout = json.loads(self.layout)
 
+        widgets = []
+
         if with_widgets:
-            widget_list = Widget.query.filter(Widget.dashboard == self)
-
-            widgets = {}
-
-            for w in widget_list:
+            for w in self.widgets:
+                pass
                 if w.visualization_id is None:
-                    widgets[w.id] = w.to_dict()
+                    widgets.append(w.to_dict())
                 elif user and has_access(w.visualization.query_rel.groups, user, view_only):
-                    widgets[w.id] = w.to_dict()
+                    widgets.append(w.to_dict())
                 else:
-                    widgets[w.id] = project(w.to_dict(),
-                                            ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
-                    widgets[w.id]['restricted'] = True
-
-            # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
-            # updated. This happens for users with old databases that didn't have a foreign key relationship between
-            # visualizations and widgets.
-            # It's temporary until better solution is implemented (we probably should move the position information
-            # to the widget).
-            widgets_layout = []
-            for row in layout:
-                if not row:
-                    continue
-                new_row = []
-                for widget_id in row:
-                    widget = widgets.get(widget_id, None)
-                    if widget:
-                        new_row.append(widget)
-
-                widgets_layout.append(new_row)
+                    widget = project(w.to_dict(),
+                                    ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
+                    widget['restricted'] = True
+                    widgets.append(widget)
         else:
-            widgets_layout = None
+            widgets = None
 
         return {
             'id': self.id,
@@ -1353,7 +1335,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             'user_id': self.user_id,
             'layout': layout,
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
-            'widgets': widgets_layout,
+            'widgets': widgets,
             'is_archived': self.is_archived,
             'is_draft': self.is_draft,
             'updated_at': self.updated_at,
@@ -1465,10 +1447,6 @@ class Widget(TimestampMixin, db.Model):
     options = Column(db.Text)
     dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id"), index=True)
 
-    # unused; kept for backward compatability:
-    type = Column(db.String(100), nullable=True)
-    query_id = Column(db.Integer, nullable=True)
-
     __tablename__ = 'widgets'
 
     def to_dict(self):
@@ -1486,15 +1464,6 @@ class Widget(TimestampMixin, db.Model):
             d['visualization'] = self.visualization.to_dict()
 
         return d
-
-    def delete(self):
-        layout = json.loads(self.dashboard.layout)
-        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
-        layout = filter(lambda row: len(row) > 0, layout)
-        self.dashboard.layout = json.dumps(layout)
-
-        db.session.add(self.dashboard)
-        db.session.delete(self)
 
     def __unicode__(self):
         return u"%s" % self.id
