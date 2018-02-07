@@ -1,19 +1,7 @@
-import requests
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseHTTPQueryRunner, register
 
 
-class Url(BaseQueryRunner):
-    @classmethod
-    def configuration_schema(cls):
-        return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': 'URL base path'
-                }
-            }
-        }
+class Url(BaseHTTPQueryRunner):
 
     @classmethod
     def annotate_query(cls):
@@ -26,7 +14,6 @@ class Url(BaseQueryRunner):
         base_url = self.configuration.get("url", None)
 
         try:
-            error = None
             query = query.strip()
 
             if base_url is not None and base_url != "":
@@ -38,20 +25,18 @@ class Url(BaseQueryRunner):
 
             url = base_url + query
 
-            response = requests.get(url)
-            response.raise_for_status()
+            response, error = self.get_response(url)
+            if error is not None:
+                return None, error
+
             json_data = response.content.strip()
 
-            if not json_data:
-                error = "Got empty response from '{}'.".format(url)
-
-            return json_data, error
-        except requests.RequestException as e:
-            return None, str(e)
+            if json_data:
+                return json_data, None
+            else:
+                return None, "Got empty response from '{}'.".format(url)
         except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
+            return None, "Query cancelled by user."
 
-        return json_data, error
 
 register(Url)
