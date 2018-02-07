@@ -77,10 +77,10 @@ reset_new_version_status()
 class SlugConverter(BaseConverter):
     def to_python(self, value):
         # This is ay workaround for when we enable multi-org and some files are being called by the index rule:
-        for path in settings.STATIC_ASSETS_PATHS:
-            full_path = safe_join(path, value)
-            if os.path.isfile(full_path):
-                raise ValidationError()
+        # for path in settings.STATIC_ASSETS_PATHS:
+        #     full_path = safe_join(path, value)
+        #     if os.path.isfile(full_path):
+        #         raise ValidationError()
 
         return value
 
@@ -97,8 +97,8 @@ def create_app(load_admin=True):
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
-                template_folder=settings.STATIC_ASSETS_PATHS[0],
-                static_folder=settings.STATIC_ASSETS_PATHS[-1],
+                template_folder=settings.STATIC_ASSETS_PATH,
+                static_folder=settings.STATIC_ASSETS_PATH,
                 static_path='/static')
 
     # Make sure we get the right referral address even behind proxies like nginx.
