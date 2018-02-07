@@ -4,6 +4,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
+const ManifestPlugin = require('webpack-manifest-plugin');
 const LessPluginAutoPrefix = require('less-plugin-autoprefix');
 const path = require('path');
 
@@ -58,6 +59,9 @@ const config = {
     }),
     new ExtractTextPlugin({
       filename: 'styles.[chunkhash].css'
+    }),
+    new ManifestPlugin({
+      fileName: 'asset-manifest.json'
     })
   ],
 
