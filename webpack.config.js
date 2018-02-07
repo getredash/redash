@@ -143,8 +143,11 @@ const config = {
   },
   devServer: {
     inline: true,
-    historyApiFallback: true,
+    historyApiFallback: {rewrites: [
+      { from: /./, to: '/static/index.html' }
+    ]},
     contentBase: path.join(__dirname, 'client', 'app'),
+    publicPath: '/static/',
     proxy: [{
       context: [
         '/login', '/invite', '/setup', '/images', '/js', '/styles',
