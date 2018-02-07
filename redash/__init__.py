@@ -90,6 +90,7 @@ class SlugConverter(BaseConverter):
 
 def create_app(load_admin=True):
     from redash import handlers
+    from redash.handlers.webpack import configure_webpack
     from redash.admin import init_admin
     from redash.models import db
     from redash.authentication import setup_authentication
@@ -133,5 +134,6 @@ def create_app(load_admin=True):
     setup_authentication(app)
     limiter.init_app(app)
     handlers.init_app(app)
+    configure_webpack(app)
 
     return app
