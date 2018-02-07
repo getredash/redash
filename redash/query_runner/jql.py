@@ -1,5 +1,4 @@
 import json
-import requests
 import re
 
 from collections import OrderedDict
@@ -137,28 +136,13 @@ class FieldMapping:
         return None
 
 
-class JiraJQL(BaseQueryRunner):
+class JiraJQL(BaseHTTPQueryRunner):
     noop_query = '{"queryType": "count"}'
-
-    @classmethod
-    def configuration_schema(cls):
-        return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': 'JIRA URL'
-                },
-                'username': {
-                    'type': 'string',
-                },
-                'password': {
-                    'type': 'string'
-                }
-            },
-            'required': ['url', 'username', 'password'],
-            'secret': ['password']
-        }
+    response_error = "JIRA returned unexpected status code"
+    requires_authentication = True
+    url_title = 'JIRA URL'
+    username_title = 'Username'
+    password_title = 'Password'
 
     @classmethod
     def name(cls):
@@ -186,13 +170,9 @@ class JiraJQL(BaseQueryRunner):
             else:
                 query['maxResults'] = query.get('maxResults', 1000)
 
-            response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
-
-            if response.status_code == 401 or response.status_code == 403:
-                return None, "Authentication error. Please check username/password."
-
-            if response.status_code != 200:
-                return None, "JIRA returned unexpected status code ({})".format(response.status_code)
+            response, error = self.get_response(jql_url, params=query)
+            if error is not None:
+                return None, error
 
             data = response.json()
 
@@ -206,4 +186,3 @@ class JiraJQL(BaseQueryRunner):
             return None, "Query cancelled by user."
 
 register(JiraJQL)
-
