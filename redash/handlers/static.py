@@ -20,8 +20,8 @@ def render_index():
     return response
 
 
-@login_required
 @routes.route(org_scoped_rule('/<path:path>'))
 @routes.route(org_scoped_rule('/'))
+@login_required
 def index(**kwargs):
     return render_index()
