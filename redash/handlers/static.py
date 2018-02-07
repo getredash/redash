@@ -14,7 +14,7 @@ def render_index():
     if settings.MULTI_ORG:
         response = render_template("multi_org.html", base_href=base_href())
     else:
-        full_path = safe_join(settings.STATIC_ASSETS_PATHS[0], 'index.html')
+        full_path = safe_join(settings.STATIC_ASSETS_PATH, 'index.html')
         response = send_file(full_path, **dict(cache_timeout=0, conditional=True))
 
     return response
