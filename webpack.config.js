@@ -146,9 +146,6 @@ const config = {
     index: '/static/index.html',
     historyApiFallback: {
       index: '/static/index.html',
-      rewrites: [
-        { from: /.?/, to: '/static/index.html' },
-      ],
     },
     contentBase: path.join(__dirname, 'client', 'dist'),
     publicPath: '/static/',
