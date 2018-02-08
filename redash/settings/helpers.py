@@ -1,6 +1,7 @@
 import json
 import os
 import urlparse
+import urllib
 
 
 def parse_db_url(url):
@@ -14,7 +15,8 @@ def parse_db_url(url):
         connection['host'] = url_parts.hostname
         connection['port'] = url_parts.port
         connection['user'] = url_parts.username
-        connection['password'] = url_parts.password
+        # Passwords might be quoted with special characters
+        connection['password'] = url_parts.password and urllib.unquote(url_parts.password)
 
     return connection
 

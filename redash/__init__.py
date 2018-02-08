@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import urlparse
+import urllib
 import redis
 from flask import Flask, safe_join
 from flask_sslify import SSLify
@@ -53,8 +54,9 @@ def create_redis_connection():
             redis_db = redis_url.path[1]
         else:
             redis_db = 0
-
-        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_url.password)
+        # Redis passwords might be quoted with special characters
+        redis_password = redis_url.password and urllib.unquote(redis_url.password)
+        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
 
     return r
 
