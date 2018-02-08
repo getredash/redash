@@ -103,6 +103,18 @@ function registerPages() {
       });
     });
   });
+
+  ngModule.config(($routeProvider) => {
+    $routeProvider.otherwise({
+      resolve: {
+        // Ugly hack to show 404 when hitting an unknown route.
+        error: () => {
+          const error = { status: 404 };
+          throw error;
+        },
+      },
+    });
+  });
 }
 
 function registerFilters() {
