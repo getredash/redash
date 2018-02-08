@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString } from 'underscore';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -210,16 +210,6 @@ function QueryResultService($resource, $timeout, $q) {
         this.filterFreeze = filterFreeze;
 
         if (filters) {
-          filters.forEach((filter) => {
-            if (filter.multiple && includes(filter.current, ALL_VALUES)) {
-              filter.current = filter.values.slice(2);
-            }
-
-            if (filter.multiple && includes(filter.current, NONE_VALUES)) {
-              filter.current = [];
-            }
-          });
-
           this.filteredData = this.query_result.data.rows.filter(row =>
             filters.reduce((memo, filter) => {
               if (!isArray(filter.current)) {

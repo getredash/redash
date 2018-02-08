@@ -1,3 +1,4 @@
+import { includes } from 'underscore';
 import template from './filters.html';
 
 const FiltersComponent = {
@@ -13,13 +14,17 @@ const FiltersComponent = {
       this.onChange({ filter, $modal: modal });
     };
 
-    this.itemGroup = (item) => {
-      if (item === '*' || item === '-') {
-        return '';
+    this.multiFilterChangeListener = (filter, modal) => {
+      if (modal === '-') {
+        filter.current = [];
+      } else if (modal === '*') {
+        filter.current = filter.values.slice(2);
       }
 
-      return 'Values';
+      this.onChange({ filter, $modal: modal });
     };
+
+    this.itemGroup = item => (includes(['*', '-'], item) ? '' : 'Values');
   },
 };
 
