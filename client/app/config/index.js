@@ -69,7 +69,7 @@ function registerAll(context) {
 }
 
 function requireImages() {
-  // client/app/assets/images/<path> => /img/<path>
+  // client/app/assets/images/<path> => /images/<path>
   const ctx = require.context('@/assets/images/', true, /\.(png|jpe?g|gif|svg)$/);
   ctx.keys().forEach(ctx);
 }
