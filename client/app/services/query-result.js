@@ -216,6 +216,10 @@ function QueryResultService($resource, $timeout, $q) {
                 filter.current = [filter.current];
               }
 
+              if (filter.current.length === 0) {
+                return memo;
+              }
+
               return (memo && some(filter.current, (v) => {
                 const value = row[filter.name];
                 if (moment.isMoment(value)) {
