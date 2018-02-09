@@ -52,15 +52,15 @@ const config = {
       chunks: ['vendor']
     }),
     new HtmlWebpackPlugin({
-      template: './client/app/index.html'
+      template: './client/app/index.html',
+      filename: 'index.html',
     }),
     new HtmlWebpackPlugin({
       template: './client/app/multi_org.html',
-      filename: 'multi_org.html'
+      filename: 'multi_org.html',
     }),
     new ExtractTextPlugin({
       filename: 'styles.[chunkhash].css',
-      publicPath: '/assets/'
     }),
     new ManifestPlugin({
       fileName: 'asset-manifest.json'
@@ -146,17 +146,27 @@ const config = {
     index: '/static/index.html',
     historyApiFallback: {
       index: '/static/index.html',
+      rewrites: [{from: /./, to: '/static/index.html'}],
     },
-    contentBase: path.join(__dirname, 'client', 'dist'),
+    contentBase: false,
     publicPath: '/static/',
-    proxy: [{
-      context: [
-        '/login', '/invite', '/setup', '/images', '/js', '/styles',
-        '/status.json', '/api', '/oauth'],
-      target: redashBackend + '/',
-      changeOrigin: true,
-      secure: false,
-    }],
+    proxy: [
+      {
+        context: ['/login', '/logout', '/invite', '/setup', '/status.json', '/api', '/oauth'],
+        target: redashBackend + '/',
+        changeOrigin: true,
+        secure: false,
+      },
+      {
+        context: (path) => {
+          // CSS/JS for server-rendered pages should be served from backend
+          return /^\/static\/[a-z]+\.[0-9a-fA-F]+\.(css|js)$/.test(path);
+        },
+        target: redashBackend + '/',
+        changeOrigin: true,
+        secure: false,
+      }
+    ],
     stats: {
       modules: false,
       chunkModules: false,
@@ -169,7 +179,6 @@ if (process.env.DEV_SERVER_HOST) {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  config.output.path = __dirname + '/client/dist';
   config.output.filename = '[name].[chunkhash].js';
   config.plugins.push(new webpack.optimize.UglifyJsPlugin({
     sourceMap: true,
