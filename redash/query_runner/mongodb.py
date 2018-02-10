@@ -99,7 +99,7 @@ def parse_results(results):
                             "friendly_name": column_name,
                             "type": TYPES_MAP.get(type(row[key][inner_key]), TYPE_STRING)
                         })
-                    
+
                     parsed_row[column_name] = row[key][inner_key]
 
             else:
@@ -109,7 +109,7 @@ def parse_results(results):
                         "friendly_name": key,
                         "type": TYPES_MAP.get(type(row[key]), TYPE_STRING)
                     })
-                
+
                 parsed_row[key] = row[key]
 
         rows.append(parsed_row)
