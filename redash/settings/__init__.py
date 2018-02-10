@@ -167,6 +167,7 @@ default_query_runners = [
     'redash.query_runner.axibase_tsd',
     'redash.query_runner.salesforce',
     'redash.query_runner.query_results',
+    'redash.query_runner.prometheus',
     'redash.query_runner.qubole'
 ]
 
