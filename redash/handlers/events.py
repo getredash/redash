@@ -3,6 +3,7 @@ from geoip import geolite2
 from user_agents import parse as parse_ua
 
 from redash.handlers.base import BaseResource, paginate
+from redash.permissions import require_admin
 
 
 def get_location(ip):
@@ -59,6 +60,7 @@ class EventsResource(BaseResource):
         for event in events_list:
             self.record_event(event)
 
+    @require_admin
     def get(self):
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
