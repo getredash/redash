@@ -22,6 +22,14 @@ server() {
   exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
 }
 
+create_db() {
+  while ! bash -c "echo > /dev/tcp/postgres/5432" &> /dev/null ; do
+    echo "Waiting for PostgreSQL container to become available."
+    sleep 5
+  done
+  exec /app/manage.py database create_tables
+}
+
 help() {
   echo "Redash Docker."
   echo ""
@@ -70,7 +78,7 @@ case "$1" in
     exec /app/manage.py shell
     ;;
   create_db)
-    exec /app/manage.py database create_tables
+    create_db
     ;;
   manage)
     shift
