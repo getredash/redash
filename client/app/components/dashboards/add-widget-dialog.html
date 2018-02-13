@@ -10,7 +10,7 @@
 
   <div ng-show="$ctrl.isTextBox">
     <div class="form-group">
-      <textarea class="form-control" ng-model="$ctrl.text" ng-model-options="{ debounce: 200 }" rows="3"></textarea>
+      <textarea class="form-control" ng-model="$ctrl.text" ng-model-options="{ debounce: 200 }" rows="3" autofocus></textarea>
     </div>
     <div ng-show="$ctrl.text">
       <strong>Preview:</strong>
@@ -20,9 +20,8 @@
 
   <div ng-show="$ctrl.isVisualization">
     <div class="form-group">
-      <input type="text" placeholder="Search a query by name" class="form-control" autofocus="autofocus"
-        ng-if="!$ctrl.selectedQuery" ng-change="$ctrl.searchQueries($ctrl.searchTerm)"
-        ng-model="$ctrl.searchTerm" ng-model-options="{ debounce: 200 }">
+      <input type="text" placeholder="Search a query by name" class="form-control" autofocus
+        ng-if="!$ctrl.selectedQuery" ng-model="$ctrl.searchTerm" ng-change="$ctrl.searchQueries($ctrl.searchTerm)">
       <div ng-if="$ctrl.selectedQuery" class="p-relative">
         <input type="text" class="form-control bg-white"
           ng-value="$ctrl.selectedQuery.name" readonly="readonly">
@@ -33,34 +32,30 @@
       </div>
     </div>
 
-    <div ng-if="!$ctrl.selectedQuery && ($ctrl.searchTerm == '')" class="scrollbox" style="max-height: 50vh">
-      <div class="list-group" ng-if="$ctrl.recentQueries.length > 0">
-        <a href="javascript:void(0)" class="list-group-item"
-          ng-repeat="query in $ctrl.recentQueries" ng-click="$ctrl.selectQuery(query.id)"
-        >
-          <span>{{query.name}}</span>
-          <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-        </a>
+    <div ng-if="!$ctrl.selectedQuery" class="scrollbox" style="max-height: 50vh">
+      <div ng-if="$ctrl.searchTerm == ''">
+        <div class="list-group" ng-if="$ctrl.recentQueries.length > 0">
+          <a class="list-group-item" ng-repeat="query in $ctrl.recentQueries"
+            ng-click="$ctrl.selectQuery(query.id)">{{query.name}}</a>
+        </div>
       </div>
-    </div>
 
-    <div ng-if="!$ctrl.selectedQuery && ($ctrl.searchTerm != '')" class="scrollbox" style="max-height: 50vh">
-      <div ng-if="$ctrl.searchedQueries.length == 0" class="text-muted">
-        No results matching search term.
-      </div>
-      <div class="list-group" ng-if="$ctrl.searchedQueries.length > 0">
-        <a href="javascript:void(0)" class="list-group-item"
-          ng-repeat="query in $ctrl.searchedQueries" ng-click="$ctrl.selectQuery(query.id)"
-        >
-          <span ng-bind-html="$ctrl.trustAsHtml(query.name | highlight: $ctrl.searchTerm)"></span>
-          <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-        </a>
+      <div ng-if="$ctrl.searchTerm != ''">
+        <div ng-if="$ctrl.searchedQueries.length == 0" class="text-muted">
+          No results matching search term.
+        </div>
+        <div class="list-group" ng-if="$ctrl.searchedQueries.length > 0">
+          <a class="list-group-item"
+            ng-repeat="query in $ctrl.searchedQueries" ng-click="$ctrl.selectQuery(query.id)"
+            ng-bind-html="$ctrl.trustAsHtml(query.name | highlight: $ctrl.searchTerm)"
+          ></a>
+        </div>
       </div>
     </div>
 
     <div ng-show="$ctrl.selectedQuery">
       <div class="form-group">
-        <label for="">Choose Visualization</label>
+        <label>Choose Visualization</label>
         <select ng-model="$ctrl.selectedVis" class="form-control"
           ng-options="vis as vis.name group by vis.type for vis in $ctrl.selectedQuery.visualizations"></select>
       </div>

@@ -21,7 +21,13 @@ const AddWidgetDialog = {
     // Visualization
     this.selectedQuery = null;
     this.searchTerm = '';
-    this.recentQueries = Query.recent();
+    this.recentQueries = [];
+
+    // Don't show draft (unpublished) queries
+    Query.recent().$promise.then((items) => {
+      this.recentQueries = items.filter(item => !item.is_draft);
+    });
+
     this.searchedQueries = [];
     this.selectedVis = null;
 
