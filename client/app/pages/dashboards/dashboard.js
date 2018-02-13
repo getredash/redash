@@ -317,7 +317,11 @@ function DashboardCtrl(
   this.removeWidget = () => {
     this.extractGlobalParameters();
     if (!this.layoutEditing) {
-      saveDashboardLayout();
+      // We need to wait a bit for `angular-gridster` before it updates widgets,
+      // and only then save new layout
+      $timeout(() => {
+        saveDashboardLayout();
+      }, 50);
     }
   };
 
