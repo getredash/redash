@@ -22,7 +22,6 @@ deployment:
     branch: [master, /release.*/]
     commands:
       - bin/pack
-      # - python bin/release_manager.py $(CIRCLE_SHA1) $(BASE_VERSION) $(FILENAME)
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
       - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
