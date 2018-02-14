@@ -1,6 +1,6 @@
 # Change Log
 
-## v4.0.0 - UNRELEASED
+## v4.0.0-beta - 2018-02-14
 
 ### Added
 
