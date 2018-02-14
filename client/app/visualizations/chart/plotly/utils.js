@@ -279,7 +279,7 @@ function prepareHeatmapData(seriesList, options) {
     if (isFinite(zMax) && options.showDataLabels) {
       return [plotlySeries, dataLabels];
     }
-    return plotlySeries;
+    return [plotlySeries];
   });
 }
 
@@ -363,10 +363,7 @@ export function prepareData(seriesList, options) {
     return preparePieData(seriesList, options);
   }
   if (options.globalSeriesType === 'heatmap') {
-    if (options.showDataLabels) {
-      return flatten(prepareHeatmapData(seriesList, options));
-    }
-    return prepareHeatmapData(seriesList, options);
+    return flatten(prepareHeatmapData(seriesList, options));
   }
   return prepareChartData(seriesList, options);
 }
