@@ -1,36 +1,39 @@
 {% extends "layouts/signed_out.html" %}
 
-{% block content %}
+{% block title %}Welcome to Redash!{% endblock %}
 
-<h2>Welcome to Redash!</h2>
-<p class="lead">
+{% block content %}
+<div class="fixed-width-page">
+  <div class="bg-white tiled">
+    <div class="m-b-default">
+      {% if google_auth_url %}
+        To create your account, please choose a password or login with your Google account ({{ user.email }}).
+      {% else %}
+        To create your account, please choose a password.
+      {% endif %}
+    </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     {% if google_auth_url %}
-    To create your account, please choose a password or login with your Google account ({{ user.email }}).
-    {% else %}
-    To create your account, please choose a password.
+      <a href="{{ google_auth_url }}" class="login-button btn btn-default btn-block">
+        <img src="/static/images/google_logo.svg">
+        Login with Google
+      </a>
+      <hr>
     {% endif %}
-</p>
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-{% for message in messages %}
-<div class="alert alert-danger" role="alert">{{ message }}</div>
-{% endfor %}
-{% endif %}
-{% endwith %}
-{% if google_auth_url %}
-<div class="row">
-    <a href="{{ google_auth_url }}"><img src="/static/images/google_login.png" class="login-button"/></a>
-</div>
-<div class="login-or">
-    <hr class="hr-or">
-    <span class="span-or">or</span>
-</div>
-{% endif %}
-<form role="form" method="post" name="invite">
-    <div class="form-group">
+    <form role="form" method="post" name="invite">
+      <div class="form-group">
         <label for="password">Password</label>
         <input type="password" class="form-control" id="password" name="password">
-    </div>
-    <button type="submit" class="btn btn btn-primary">Set Password</button>
-</form>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block m-t-default">Set Password</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
