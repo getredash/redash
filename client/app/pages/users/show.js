@@ -5,7 +5,7 @@ import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, Events, User,
+  clientConfig, currentUser, Events, User, Utils,
 ) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
@@ -104,7 +104,7 @@ function UserCtrl(
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
       $scope.disablePasswordResetButton = false;
-      $scope.passwordResetLink = data.reset_link;
+      $scope.passwordResetLink = Utils.fullUrl(data.reset_link);
     });
   };
 }

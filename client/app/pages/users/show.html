@@ -82,7 +82,7 @@
             <p ng-if="clientConfig.mailSettingsMissing">
               You don't have mail server configured, please send the following link
               to {{user.name}} to reset their password:<br/>
-              <a ng-href="passwordResetLink">{{passwordResetLink}}</a>
+              <textarea class="form-control m-t-10" rows="2" readonly>{{ passwordResetLink }}</textarea>
             </p>
           </div>
         </div>
