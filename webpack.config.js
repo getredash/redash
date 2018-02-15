@@ -13,7 +13,13 @@ const redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
 
 const config = {
   entry: {
-    app: ['./client/app/index.js', './client/app/assets/less/main.less'],
+    app: [
+      './client/app/index.js',
+      './client/app/assets/less/main.less',
+    ],
+    server: [
+      './client/app/assets/less/server.less',
+    ],
   },
   output: {
     path: path.join(__dirname, 'client', 'dist'),
@@ -54,13 +60,15 @@ const config = {
     new HtmlWebpackPlugin({
       template: './client/app/index.html',
       filename: 'index.html',
+      excludeChunks: ['server'],
     }),
     new HtmlWebpackPlugin({
       template: './client/app/multi_org.html',
       filename: 'multi_org.html',
+      excludeChunks: ['server'],
     }),
     new ExtractTextPlugin({
-      filename: 'styles.[chunkhash].css',
+      filename: '[name].[chunkhash].css',
     }),
     new ManifestPlugin({
       fileName: 'asset-manifest.json'
