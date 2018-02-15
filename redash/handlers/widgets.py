@@ -21,9 +21,6 @@ class WidgetListResource(BaseResource):
         :<json number width: Width for widget display
 
         :>json object widget: The created widget
-        :>json array layout: The new layout of the dashboard this widget was added to
-        :>json boolean new_row: Whether this widget was added on a new row or not
-        :>json number version: The revision number of the dashboard
         """
         widget_properties = request.get_json(force=True)
         dashboard = models.Dashboard.get_by_id_and_org(widget_properties.pop('dashboard_id'), self.current_org)
@@ -46,25 +43,8 @@ class WidgetListResource(BaseResource):
         models.db.session.add(widget)
         models.db.session.commit()
 
-        layout = json.loads(widget.dashboard.layout)
-        new_row = True
-
-        if len(layout) == 0 or widget.width == 2:
-            layout.append([widget.id])
-        elif len(layout[-1]) == 1:
-            neighbour_widget = models.Widget.query.get(layout[-1][0])
-            if neighbour_widget.width == 1:
-                layout[-1].append(widget.id)
-                new_row = False
-            else:
-                layout.append([widget.id])
-        else:
-            layout.append([widget.id])
-
-        widget.dashboard.layout = json.dumps(layout)
-        models.db.session.add(widget.dashboard)
         models.db.session.commit()
-        return {'widget': widget.to_dict(), 'layout': layout, 'new_row': new_row, 'version': dashboard.version}
+        return {'widget': widget.to_dict()}
 
 
 class WidgetResource(BaseResource):
@@ -92,12 +72,8 @@ class WidgetResource(BaseResource):
         Remove a widget from a dashboard.
 
         :param number widget_id: ID of widget to remove
-
-        :>json array layout: New layout of dashboard this widget was removed from
-        :>json number version: Revision number of dashboard
         """
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
-        widget.delete()
+        models.db.session.delete(widget)
         models.db.session.commit()
-        return {'layout': widget.dashboard.layout, 'version': widget.dashboard.version}

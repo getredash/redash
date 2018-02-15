@@ -68,7 +68,7 @@ class Athena(BaseQueryRunner):
                 },
                 's3_staging_dir': {
                     'type': 'string',
-                    'title': 'S3 Staging Path'
+                    'title': 'S3 Staging (Query Results) Bucket Path'
                 },
                 'schema': {
                     'type': 'string',

@@ -10,7 +10,7 @@
   {% endwith %}
   {% if show_google_openid %}
   <div class="row">
-    <a href="{{ google_auth_url }}"><img src="/images/google_login.png" class="login-button"/></a>
+    <a href="{{ google_auth_url }}"><img src="/static/images/google_login.png" class="login-button"/></a>
   </div>
 
   <div class="login-or">
@@ -71,7 +71,7 @@
       Log In
     </button>
   </form>
-  
+
   {% if not hide_forgot_password %}
     <hr>
     <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>

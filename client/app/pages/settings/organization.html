@@ -34,17 +34,17 @@
                     <div class="form-group">
                         <label>SAML Metadata URL</label>
                         <input name="input" type="string" class="form-control" ng-model="$ctrl.settings.auth_saml_metadata_url" accesskey="tab"
-                               ng-change="$ctrl.update('auth_saml_metadata_url')">
+                               ng-change="$ctrl.update('auth_saml_metadata_url')" ng-model-options="{ debounce: 200 }">
                     </div>
                     <div class="form-group">
                         <label>SAML Entity ID</label>
                         <input name="input" type="string" class="form-control" ng-model="$ctrl.settings.auth_saml_entity_id" accesskey="tab"
-                               ng-change="$ctrl.update('auth_saml_metadata_entity_id')">
+                               ng-change="$ctrl.update('auth_saml_entity_id')" ng-model-options="{ debounce: 200 }">
                     </div>
                     <div class="form-group">
                         <label>SAML NameID Format</label>
                         <input name="input" type="string" class="form-control" ng-model="$ctrl.settings.auth_saml_nameid_format" accesskey="tab"
-                               ng-change="$ctrl.update('auth_saml_metadata_nameid_format')">
+                               ng-change="$ctrl.update('auth_saml_nameid_format')" ng-model-options="{ debounce: 200 }">
                     </div>
                 </div>
             </p>

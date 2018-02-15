@@ -74,6 +74,49 @@ def parse_query_json(query):
     return query_data
 
 
+def _get_column_by_name(columns, column_name):
+    for c in columns:
+        if "name" in c and c["name"] == column_name:
+            return c
+
+    return None
+
+
+def parse_results(results):
+    rows = []
+    columns = []
+
+    for row in results:
+        parsed_row = {}
+
+        for key in row:
+            if isinstance(row[key], dict):
+                for inner_key in row[key]:
+                    column_name = '{}.{}'.format(key, inner_key)
+                    if _get_column_by_name(columns, column_name) is None:
+                        columns.append({
+                            "name": column_name,
+                            "friendly_name": column_name,
+                            "type": TYPES_MAP.get(type(row[key][inner_key]), TYPE_STRING)
+                        })
+
+                    parsed_row[column_name] = row[key][inner_key]
+
+            else:
+                if _get_column_by_name(columns, key) is None:
+                    columns.append({
+                        "name": key,
+                        "friendly_name": key,
+                        "type": TYPES_MAP.get(type(row[key]), TYPE_STRING)
+                    })
+
+                parsed_row[key] = row[key]
+
+        rows.append(parsed_row)
+
+    return rows, columns
+
+
 class MongoDB(BaseQueryRunner):
     @classmethod
     def configuration_schema(cls):
@@ -112,13 +155,6 @@ class MongoDB(BaseQueryRunner):
         self.db_name = self.configuration["dbName"]
 
         self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
-
-    def _get_column_by_name(self, columns, column_name):
-        for c in columns:
-            if "name" in c and c["name"] == column_name:
-                return c
-
-        return None
 
     def _get_db(self):
         if self.is_replica_set:
@@ -259,21 +295,14 @@ class MongoDB(BaseQueryRunner):
 
             rows.append({ "count" : cursor })
         else:
-            for r in cursor:
-                for k in r:
-                    if self._get_column_by_name(columns, k) is None:
-                        columns.append({
-                            "name": k,
-                            "friendly_name": k,
-                            "type": TYPES_MAP.get(type(r[k]), TYPE_STRING)
-                        })
-
-                rows.append(r)
+            rows, columns = parse_results(cursor)
 
         if f:
             ordered_columns = []
             for k in sorted(f, key=f.get):
-                ordered_columns.append(self._get_column_by_name(columns, k))
+                column = _get_column_by_name(columns, k)
+                if column:
+                    ordered_columns.append(column)
 
             columns = ordered_columns
 

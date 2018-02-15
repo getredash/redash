@@ -8,7 +8,7 @@ from redash.handlers.permissions import ObjectPermissionsListResource, CheckPerm
 from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscriptionListResource, AlertSubscriptionResource
 from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource, PublicDashboardResource 
 from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
-from redash.handlers.events import EventResource
+from redash.handlers.events import EventsResource
 from redash.handlers.queries import QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
 from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
 from redash.handlers.users import UserResource, UserListResource, UserInviteResource, UserResetPasswordResource
@@ -65,7 +65,7 @@ api.add_org_resource(GroupMemberResource, '/api/groups/<group_id>/members/<user_
 api.add_org_resource(GroupDataSourceListResource, '/api/groups/<group_id>/data_sources', endpoint='group_data_sources')
 api.add_org_resource(GroupDataSourceResource, '/api/groups/<group_id>/data_sources/<data_source_id>', endpoint='group_data_source')
 
-api.add_org_resource(EventResource, '/api/events', endpoint='events')
+api.add_org_resource(EventsResource, '/api/events', endpoint='events')
 
 api.add_org_resource(QuerySearchResource, '/api/queries/search', endpoint='queries_search')
 api.add_org_resource(QueryRecentResource, '/api/queries/recent', endpoint='recent_queries')

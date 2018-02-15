@@ -476,26 +476,6 @@ class TestEvents(BaseTestCase):
         self.assertDictEqual(event.additional_properties, additional_properties)
 
 
-class TestWidgetDeleteInstance(BaseTestCase):
-    def test_delete_removes_from_layout(self):
-        widget = self.factory.create_widget()
-        widget2 = self.factory.create_widget(dashboard=widget.dashboard)
-        db.session.flush()
-        widget.dashboard.layout = json.dumps([[widget.id, widget2.id]])
-        widget.delete()
-        self.assertEquals(json.dumps([[widget2.id]]), widget.dashboard.layout)
-
-    def test_delete_removes_empty_rows(self):
-        widget = self.factory.create_widget()
-        widget2 = self.factory.create_widget(dashboard=widget.dashboard)
-        db.session.flush()
-        widget.dashboard.layout = json.dumps([[widget.id, widget2.id]])
-        db.session.flush()
-        widget.delete()
-        widget2.delete()
-        self.assertEquals("[]", widget.dashboard.layout)
-
-
 def _set_up_dashboard_test(d):
     d.g1 = d.factory.create_group(name='First', permissions=['create', 'view'])
     d.g2 = d.factory.create_group(name='Second',  permissions=['create', 'view'])

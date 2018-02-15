@@ -1,8 +1,53 @@
-<div class="form-group">
+<ul class="tab-nav">
+  <li ng-class="{active: currentTab == 'columns'}">
+    <a ng-click="setCurrentTab('columns')">Columns</a>
+  </li>
+  <li ng-class="{active: currentTab == 'options'}">
+    <a ng-click="setCurrentTab('options')">Options</a>
+  </li>
+</ul>
+
+<div ng-if="currentTab == 'options'" class="m-t-10 m-b-10">
+  <div class="form-group">
     <label class="control-label">Time Interval</label>
     <select class="form-control" ng-model="visualization.options.timeInterval">
       <option value="daily">Daily</option>
       <option value="weekly">Weekly</option>
       <option value="monthly">Monthly</option>
     </select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Mode</label>
+    <select class="form-control" ng-model="visualization.options.mode">
+      <option value="diagonal">Fill gaps with zeros</option>
+      <option value="simple">Show data as is</option>
+    </select>
+  </div>
+</div>
+
+<div ng-if="currentTab == 'columns'" class="m-t-10 m-b-10">
+  <div class="form-group">
+    <label class="control-label">Date (Bucket)</label>
+    <select class="form-control" ng-model="visualization.options.dateColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Stage</label>
+    <select class="form-control" ng-model="visualization.options.stageColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Bucket Population Size</label>
+    <select class="form-control" ng-model="visualization.options.totalColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
+
+  <div class="form-group">
+    <label class="control-label">Stage Value</label>
+    <select class="form-control" ng-model="visualization.options.valueColumn"
+      ng-options="column for column in columnNames"></select>
+  </div>
 </div>

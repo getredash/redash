@@ -420,7 +420,7 @@ class ElasticSearch(BaseElasticSearch):
             if error:
                 return None, error
 
-            params = {"source": json.dumps(query_dict)}
+            params = {"source": json.dumps(query_dict), "source_content_type": "application/json"}
             logger.debug("Using URL: %s", url)
             logger.debug("Using params : %s", params)
             r = requests.get(url, params=params, auth=self.auth)
