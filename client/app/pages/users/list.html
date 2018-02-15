@@ -15,7 +15,7 @@
         <tbody>
           <tr ng-repeat="row in $ctrl.users.getPageRows()">
             <td>
-              <img ng-src="{{row.gravatar_url}}" height="32px" class="profile__image--settings"/> <a href="users/{{row.id}}">{{row.name}}</a>
+              <img ng-src="{{row.profile_image_url}}" height="32px" class="profile__image--settings"/> <a href="users/{{row.id}}">{{row.name}}</a>
             </td>
             <td>
               <span am-time-ago="row.created_at"></span>
