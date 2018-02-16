@@ -16,7 +16,6 @@ const AddWidgetDialog = {
 
     // Textbox
     this.text = '';
-    this.isHidden = false;
 
     // Visualization
     this.selectedQuery = null;
@@ -84,7 +83,7 @@ const AddWidgetDialog = {
         visualization_id: selectedVis && selectedVis.id,
         dashboard_id: this.dashboard.id,
         options: {
-          isHidden: this.isTextBox && this.isHidden,
+          isHidden: false,
           position: {},
         },
         visualization: selectedVis,
