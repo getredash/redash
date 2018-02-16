@@ -154,7 +154,7 @@ class Oracle(BaseSQLQueryRunner):
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
-                connection.commit()   
+                connection.commit()
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None
@@ -162,8 +162,6 @@ class Oracle(BaseSQLQueryRunner):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        finally:
-            connection.close()
 
         return json_data, error
 
