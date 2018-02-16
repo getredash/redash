@@ -36,7 +36,7 @@
     {% endwith %}
 
     <form role="form" method="post" name="create_account">
-      <h4 class="m-t-default">Admin User</h4>
+      <h4 class="m-t-25">Admin User</h4>
       {{ render_field(form.name) }}
       {{ render_field(form.email) }}
       {{ render_field(form.password) }}
@@ -55,11 +55,11 @@
         </label>
       </div>
 
-      <h4 class="m-t-default">General</h4>
+      <h4 class="m-t-25">General</h4>
 
       {{ render_field(form.org_name, help_block="Used in email notifications and the UI.") }}
 
-      <button type="submit" class="btn btn-primary btn-block m-t-default">Setup</button>
+      <button type="submit" class="btn btn-primary btn-block m-t-25">Setup</button>
     </form>
   </div>
 </div>
