@@ -27,9 +27,9 @@ const layouts = {
 function selectLayout(route) {
   let layout = layouts.default;
   if (route.layout) {
-    layout = layouts[route.layout];
+    layout = layouts[route.layout] || layouts.default;
   } else if (!route.authenticated) {
-    layout = layout.defaultSignedOut;
+    layout = layouts.defaultSignedOut;
   }
   return layout;
 }
