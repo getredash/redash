@@ -7,30 +7,30 @@ import createFormatter from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
-  Blue: '#2158F3',
+  Blue: '#2D64FF',
   Red: '#FF2929',
   Green: '#42E57B',
   Purple: '#5040D8',
-  Cyan: '#3D96AE',
-  Orange: '#FF9B4D',
-  'Light Blue': '#92A8CD',
-  Lilac: '#A47D7C',
-  'Light Green': '#B5CA92',
-  Brown: '#A52A2A',
+  Cyan: '#50F5ED',
+  Orange: '#FFB229',
+  'Light Blue': '#799CFF',
+  Lilac: '#B554FF',
+  'Light Green': '#8CFFB4',
+  Brown: '#A55F2A',
   Black: '#000000',
   Gray: '#494949',
-  Pink: '#FFC0CB',
-  'Dark Blue': '#00008b',
+  Pink: '#FF7DE3',
+  'Dark Blue': '#002FB4',
 };
 
 // Additional colors for the user to choose from:
 export const ColorPalette = Object.assign({}, BaseColors, {
-  'Indian Red': '#C42121',
+  'Indian Red': '#981717',
   'Green 2': '#17BF51',
-  'Green 3': '#00C094',
+  'Green 3': '#049235',
   DarkTurquoise: '#00B6EB',
   'Dark Violet': '#A58AFF',
-  'Pink 2': '#FB61D7',
+  'Pink 2': '#C63FA9',
 });
 
 const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.]00' });
