@@ -118,7 +118,6 @@ visualization_factory = ModelFactory(redash.models.Visualization,
                                      options='{}')
 
 widget_factory = ModelFactory(redash.models.Widget,
-                              type='chart',
                               width=1,
                               options='{}',
                               dashboard=dashboard_factory.create,
