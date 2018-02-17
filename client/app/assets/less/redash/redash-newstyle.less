@@ -38,7 +38,7 @@ body {
 
 // Fixed width layout for specific pages
 @media (min-width: 768px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 750px;
     }
@@ -46,7 +46,7 @@ body {
 }
 
 @media (min-width: 992px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 970px;
     }
@@ -54,15 +54,14 @@ body {
 }
 
 @media (min-width: 1200px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page {
-    .container, home-page {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
+    .container {
       width: 1170px;
     }
   }
 }
 
 .creation-container {
-
   h5 {
     color: #a7a7a7;
   }
@@ -625,6 +624,29 @@ page-header, .page-header--new {
   width: 33px;
   height: 33px;
   line-height: 31px;
+}
+
+// Error state
+.error-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  margin-top: 25vh;
+  padding: 35px;
+  font-size: 14px;
+  line-height: 21px;
+
+  .error-state__icon {
+    .zmdi {
+      font-size: 64px;
+      color: @redash-gray;
+    }
+  }
+
+  @media (max-width: 767px) {
+    margin-top: 10vh;
+  }
 }
 
 // Forms

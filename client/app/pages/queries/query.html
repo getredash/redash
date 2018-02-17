@@ -104,17 +104,16 @@
               updated <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
             </td>
           </tr>
+          <tr>
+            <td class="p-t-15">
+              <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
+            </td>
+            <td class="p-t-15 text-right">
+              <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
+              <span ng-if="query.isNew()">Never</span>
+            </td>
+          </tr>
         </table>
-      </div>
-
-      <div class="bottom-controller-container">
-        <div class="query-metadata query-metadata--refresh">
-          <p>
-            <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
-            <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
-            <span ng-if="query.isNew()">Never</span>
-          </p>
-        </div>
       </div>
     </nav>
 

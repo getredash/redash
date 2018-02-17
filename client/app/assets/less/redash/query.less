@@ -277,11 +277,6 @@ edit-in-place p.editable:hover {
     min-width: 10px;
     overflow-x: hidden;
 
-    > .rg-right {
-      height: auto;
-      bottom: 50px;
-    }
-
     .schema-container {
     }
 
@@ -454,6 +449,38 @@ edit-in-place p.editable:hover {
 
 .query-fullscreen .query-metadata__mobile {
   display: none;
+}
+
+
+// Visualization editor
+.modal-xl .modal-content {
+  border: none;
+}
+
+.visualization-editor {
+  .modal-title {
+    font-weight: 600;
+    font-size: 20px;
+  }
+
+  .modal-body {
+    bottom: 50px;
+  }
+
+  .modal-footer {
+    height: auto;
+  }
+
+  .visualization-editor__right {
+    margin-top: 23px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+
+    .parameter-container {
+      padding-left: 25px;
+      margin-top: 10px;
+    }
+  }
 }
 
 

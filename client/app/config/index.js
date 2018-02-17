@@ -69,7 +69,7 @@ function registerAll(context) {
 }
 
 function requireImages() {
-  // client/app/assets/images/<path> => /img/<path>
+  // client/app/assets/images/<path> => /images/<path>
   const ctx = require.context('@/assets/images/', true, /\.(png|jpe?g|gif|svg)$/);
   ctx.keys().forEach(ctx);
 }
@@ -101,6 +101,18 @@ function registerPages() {
         route.authenticated = true;
         $routeProvider.when(path, route);
       });
+    });
+  });
+
+  ngModule.config(($routeProvider) => {
+    $routeProvider.otherwise({
+      resolve: {
+        // Ugly hack to show 404 when hitting an unknown route.
+        error: () => {
+          const error = { status: 404 };
+          throw error;
+        },
+      },
     });
   });
 }
