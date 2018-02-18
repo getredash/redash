@@ -1,8 +1,18 @@
+{% set hide_page_header = true %}
+
 {% extends "layouts/signed_out.html" %}
 
+{% block title %}Error :-({% endblock %}
+
 {% block content %}
-    <h2>Error :-(</h2>
-    <p class="lead">
-        {{ error_message }}
-    </p>
+<div class="fixed-width-page">
+  <div class="bg-white tiled error-state m-t-0">
+    <div class="error-state__icon">
+      <i class="zmdi zmdi-alert-circle-o"></i>
+    </div>
+    <div class="error-state__details">
+      <h4>{{ error_message }}</h4>
+    </div>
+  </div>
+</div>
 {% endblock %}
