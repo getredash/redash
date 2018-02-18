@@ -7,12 +7,12 @@ import createFormatter from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
-  Blue: '#2D64FF',
-  Red: '#FF2929',
-  Green: '#42E57B',
-  Purple: '#5040D8',
+  Blue: '#356AFF',
+  Red: '#E92828',
+  Green: '#3BD973',
+  Purple: '#604FE9',
   Cyan: '#50F5ED',
-  Orange: '#FFB229',
+  Orange: '#FB8D3D',
   'Light Blue': '#799CFF',
   Lilac: '#B554FF',
   'Light Green': '#8CFFB4',
