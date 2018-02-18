@@ -1,0 +1,75 @@
+/** LESS Plugins **/
+@import 'inc/less-plugins/for';
+
+/** Load Main Bootstrap LESS files **/
+@import '~bootstrap/less/bootstrap';
+@import '~material-design-iconic-font/dist/css/material-design-iconic-font.css';
+
+@import 'inc/variables';
+@import 'inc/mixins';
+@import 'inc/font';
+@import 'inc/print';
+
+@import 'inc/bootstrap-overrides';
+@import 'inc/base';
+@import 'inc/generics';
+@import 'inc/form';
+@import 'inc/button';
+@import 'inc/404';
+@import 'inc/ie-warning';
+@import 'inc/flex';
+
+@import 'redash/redash-newstyle';
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #F6F8F9;
+}
+
+hr {
+  border-top-width: 2px;
+  margin: 25px 0;
+}
+
+.tiled {
+  padding: 25px;
+}
+
+.header {
+  margin-top: -100px;
+
+  img {
+    height: 40px;
+  }
+}
+
+.fixed-width-page {
+  width: 500px;
+}
+
+.login-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+  &:last-of-type {
+    margin-bottom: 0;
+  }
+
+  img {
+    height: 25px;
+    margin-right: 5px;
+  }
+
+  &:before {
+    content: "";
+    display: inline-block;
+    height: 25px;
+  }
+}
