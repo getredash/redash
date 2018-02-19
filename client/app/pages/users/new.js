@@ -14,7 +14,7 @@ function NewUserCtrl($scope, Utils, toastr, currentUser, Events, User) {
     $scope.user.$save((user) => {
       $scope.user = user;
       $scope.user.created = true;
-      $scope.inviteLink = Utils.fullUrl(user.invite_link);
+      $scope.inviteLink = Utils.absoluteUrl(user.invite_link);
       toastr.success('Saved.');
     }, (error) => {
       const message = error.data.message || 'Failed saving.';
