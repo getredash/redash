@@ -7,30 +7,30 @@ import createFormatter from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
-  Blue: '#4572A7',
-  Red: '#AA4643',
-  Green: '#89A54E',
-  Purple: '#80699B',
-  Cyan: '#3D96AE',
-  Orange: '#DB843D',
-  'Light Blue': '#92A8CD',
-  Lilac: '#A47D7C',
-  'Light Green': '#B5CA92',
-  Brown: '#A52A2A',
+  Blue: '#356AFF',
+  Red: '#E92828',
+  Green: '#3BD973',
+  Purple: '#604FE9',
+  Cyan: '#50F5ED',
+  Orange: '#FB8D3D',
+  'Light Blue': '#799CFF',
+  Lilac: '#B554FF',
+  'Light Green': '#8CFFB4',
+  Brown: '#A55F2A',
   Black: '#000000',
-  Gray: '#808080',
-  Pink: '#FFC0CB',
-  'Dark Blue': '#00008b',
+  Gray: '#494949',
+  Pink: '#FF7DE3',
+  'Dark Blue': '#002FB4',
 };
 
 // Additional colors for the user to choose from:
 export const ColorPalette = Object.assign({}, BaseColors, {
-  'Indian Red': '#F8766D',
-  'Green 2': '#53B400',
-  'Green 3': '#00C094',
+  'Indian Red': '#981717',
+  'Green 2': '#17BF51',
+  'Green 3': '#049235',
   DarkTurquoise: '#00B6EB',
   'Dark Violet': '#A58AFF',
-  'Pink 2': '#FB61D7',
+  'Pink 2': '#C63FA9',
 });
 
 const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.]00' });
@@ -191,7 +191,7 @@ function preparePieData(seriesList, options) {
       marker: { colors: ColorPaletteArray },
       text: serie.name,
       textposition: 'inside',
-      textfont: { color: '#f5f5f5' },
+      textfont: { color: '#ffffff' },
       name: serie.name,
       domain: {
         x: [xPosition, xPosition + cellWidth - xPadding],
