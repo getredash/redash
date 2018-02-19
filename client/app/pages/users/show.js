@@ -104,7 +104,7 @@ function UserCtrl(
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
       $scope.disablePasswordResetButton = false;
-      $scope.passwordResetLink = Utils.fullUrl(data.reset_link);
+      $scope.passwordResetLink = Utils.absoluteUrl(data.reset_link);
     });
   };
 }

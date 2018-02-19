@@ -1,4 +1,4 @@
-function fullUrl(url) {
+function absoluteUrl(url) {
   const location = window.location;
 
   const scheme = location.protocol.toLowerCase();
@@ -9,6 +9,6 @@ function fullUrl(url) {
 
 export default function init(ngModule) {
   ngModule.factory('Utils', () => ({
-    fullUrl,
+    absoluteUrl,
   }));
 }
