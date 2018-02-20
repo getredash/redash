@@ -9,10 +9,11 @@
   </p>
 
   <div ng-show="$ctrl.isTextBox">
-    <div class="form-group">
-      <textarea class="form-control" ng-model="$ctrl.text" ng-model-options="{ debounce: 200 }" rows="3" autofocus></textarea>
+    <div class="form-group m-b-0">
+      <textarea class="form-control resize-vertical" style="min-height: 100px"
+        ng-model="$ctrl.text" ng-model-options="{ debounce: 200 }" rows="5" autofocus></textarea>
     </div>
-    <div ng-show="$ctrl.text">
+    <div ng-show="$ctrl.text" class="m-t-15">
       <strong>Preview:</strong>
       <p ng-bind-html="$ctrl.text | markdown"></p>
     </div>
@@ -60,10 +61,6 @@
           ng-options="vis as vis.name group by vis.type for vis in $ctrl.selectedQuery.visualizations"></select>
       </div>
     </div>
-  </div>
-
-  <div class="form-group" ng-if="$ctrl.isTextBox">
-    <label><input type="checkbox" ng-model="$ctrl.isHidden">&nbsp;Hidden</label>
   </div>
 </div>
 

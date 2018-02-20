@@ -1,4 +1,4 @@
-<div class="container m-t-10 m-b-20">
+<div class="container p-t-10 p-b-20">
   <page-header title="{{$ctrl.dashboard.name}}">
   </page-header>
 
@@ -6,7 +6,7 @@
     <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
   </div>
 
-  <div style="overflow: hidden">
+  <div style="overflow: hidden; padding-bottom: 5px">
     <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper">
       <div ng-repeat="widget in $ctrl.dashboard.widgets" gridster-item="widget.options.position"
         gridster-auto-height=".scrollbox, .spinner-container">

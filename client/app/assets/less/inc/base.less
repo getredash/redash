@@ -72,3 +72,17 @@ strong {
     position: relative;
 
 }
+
+.resize-vertical {
+    resize: vertical !important;
+    transition: height 0s !important;
+}
+.resize-horizontal {
+    resize: horizontal !important;
+    transition: width 0s !important;
+}
+.resize-both,
+.resize-vertical.resize-horizontal {
+    resize: both !important;
+    transition: height 0s, width 0s !important;
+}
