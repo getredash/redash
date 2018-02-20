@@ -9,16 +9,20 @@ export function durationHumanize(duration) {
     humanized = '-';
   } else if (duration < 60) {
     const seconds = Math.round(duration);
-    humanized = `${seconds}s`;
+    humanized = `${seconds} seconds`;
   } else if (duration > 3600 * 24) {
     const days = Math.round(parseFloat(duration) / 60.0 / 60.0 / 24.0);
-    humanized = `${days}days`;
+    humanized = `${days} days`;
+  } else if (duration === 3600) {
+    humanized = '1 hour';
   } else if (duration >= 3600) {
     const hours = Math.round(parseFloat(duration) / 60.0 / 60.0);
-    humanized = `${hours}h`;
+    humanized = `${hours} hours`;
+  } else if (duration === 60) {
+    humanized = '1 minute';
   } else {
     const minutes = Math.round(parseFloat(duration) / 60.0);
-    humanized = `${minutes}m`;
+    humanized = `${minutes} minutes`;
   }
   return humanized;
 }

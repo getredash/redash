@@ -3,62 +3,64 @@
 {% block title %}Redash Initial Setup{% endblock %}
 
 {% macro render_field_errors(field) -%}
-    {% if field.errors %}
-        {% for e in field.errors %}
-            <p class="help-block">{{ e }}</p>
-        {% endfor %}
-    {% endif %}
+  {% if field.errors %}
+    {% for e in field.errors %}
+      <p class="help-block">{{ e }}</p>
+    {% endfor %}
+  {% endif %}
 {%- endmacro %}
 
 {% macro render_field(field, help_block=None) -%}
-    <div class="form-group {% if field.errors %}has-error{% endif %}">
-        {{ field.label() }}
-        {{ field(class='form-control') }}
-        {% if help_block %}
-            <p class="help-block">{{ help_block }}</p>
-        {% endif %}
-        {{ render_field_errors(field) }}
-    </div>
+  <div class="form-group {% if field.errors %}has-error{% endif %}">
+    {{ field.label() }}
+    {{ field(class='form-control') }}
+    {% if help_block %}
+        <p class="help-block">{{ help_block }}</p>
+    {% endif %}
+    {{ render_field_errors(field) }}
+  </div>
 {%- endmacro %}
 
 {% block content %}
-    <h2>
-        Welcome to Redash!<br/><small>Before you can use your instance, you need to do a quick setup.</small>
-    </h2>
+<div class="fixed-width-page">
+  <div class="bg-white tiled">
+    <h4 class="m-t-0">Welcome to Redash!</h4>
+    <div>Before you can use your instance, you need to do a quick setup.</div>
 
     {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-warning" role="alert">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-warning" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
 
     <form role="form" method="post" name="create_account">
-        <h3>Admin User</h3>
-        {{ render_field(form.name) }}
-        {{ render_field(form.email) }}
-        {{ render_field(form.password) }}
+      <h4 class="m-t-25">Admin User</h4>
+      {{ render_field(form.name) }}
+      {{ render_field(form.email) }}
+      {{ render_field(form.password) }}
 
-        <div class="checkbox">
-            <label>
-                {{ form.security_notifications() }}
-                Subscribe to Security Notifications
-            </label>
-        </div>
+      <div class="checkbox">
+        <label>
+          {{ form.security_notifications() }}
+          Subscribe to Security Notifications
+        </label>
+      </div>
 
-        <div class="checkbox">
-            <label>
-                {{ form.newsletter() }}
-                Subscribe to newsletter (version updates, no more than once a month)
-            </label>
-        </div>
+      <div class="checkbox">
+        <label>
+          {{ form.newsletter() }}
+          Subscribe to newsletter (version updates, no more than once a month)
+        </label>
+      </div>
 
-        <h3>General</h3>
+      <h4 class="m-t-25">General</h4>
 
-        {{ render_field(form.org_name, help_block="Used in email notifications and the UI.") }}
+      {{ render_field(form.org_name, help_block="Used in email notifications and the UI.") }}
 
-        <button type="submit" class="btn btn btn-primary">Setup</button>
+      <button type="submit" class="btn btn-primary btn-block m-t-25">Setup</button>
     </form>
+  </div>
+</div>
 {% endblock %}
-

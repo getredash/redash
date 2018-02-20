@@ -91,17 +91,17 @@ class BaseTestCase(TestCase):
 
         return response
 
-    def get_request(self, path, org=None):
+    def get_request(self, path, org=None, headers=None):
         if org:
             path = "/{}{}".format(org.slug, path)
 
-        return self.client.get(path)
+        return self.client.get(path, headers=headers)
 
-    def post_request(self, path, data=None, org=None):
+    def post_request(self, path, data=None, org=None, headers=None):
         if org:
             path = "/{}{}".format(org.slug, path)
 
-        return self.client.post(path, data=data)
+        return self.client.post(path, data=data, headers=headers)
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():

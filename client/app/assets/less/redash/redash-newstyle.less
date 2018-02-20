@@ -38,7 +38,7 @@ body {
 
 // Fixed width layout for specific pages
 @media (min-width: 768px) {
-  settings-screen, home-page, page-dashboard-list, alerts-list-page, alert-page {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 750px;
     }
@@ -46,7 +46,7 @@ body {
 }
 
 @media (min-width: 992px) {
-  settings-screen, home-page, page-dashboard-list, alerts-list-page, alert-page {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
     .container {
       width: 970px;
     }
@@ -54,15 +54,14 @@ body {
 }
 
 @media (min-width: 1200px) {
-  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page {
-    .container, home-page {
+  settings-screen, home-page, page-dashboard-list, page-queries-list, alerts-list-page, alert-page, queries-search-results-page, .fixed-container {
+    .container {
       width: 1170px;
     }
   }
 }
 
 .creation-container {
-
   h5 {
     color: #a7a7a7;
   }
@@ -70,6 +69,43 @@ body {
   h3 {
     margin: 0px;
     margin-bottom: 15px;
+  }
+}
+
+.add-widget-container {
+  background: #fff;
+  border-radius: @redash-radius;
+  padding: 15px;
+  position: fixed;
+  left: 15px;
+  bottom: 20px;
+  width: calc(~'100% - 30px');
+  z-index: 99;
+  box-shadow: fade(@redash-gray, 50%) 0px 7px 29px -3px;
+  display: flex;
+  justify-content: space-between;
+
+  h2 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 2.1;
+    font-weight: 400;
+
+    .zmdi {
+      margin: 0;
+      margin-right: 5px;
+      font-size: 24px;
+      position: absolute;
+      bottom: 18px;
+    }
+
+    span {
+      padding-left: 30px;
+    }
+  }
+
+  .btn {
+    align-self: center;
   }
 }
 
@@ -285,6 +321,11 @@ page-header, .page-header--new {
 .label {
   border-radius: 2px;
   padding: 3px 6px 4px;
+  font-weight: 500;
+}
+
+.label-default {
+  background: fade(@redash-gray, 85%);
 }
 
 .tab-nav > li > a {
@@ -293,6 +334,15 @@ page-header, .page-header--new {
 
 .table > thead > tr > th {
   text-transform: none;
+}
+
+.dashboard-header {
+  position: -webkit-sticky;  // required for Safari
+  position: sticky;
+  background: #f6f7f9;
+  z-index: 99;
+  width: 100%;
+  top: 0;
 }
 
 .dashboard__control {
@@ -307,6 +357,21 @@ page-header, .page-header--new {
 
   .th-title {
     cursor: move;
+  }
+}
+
+.dashboard-header {
+  position: -webkit-sticky;  // required for Safari
+  position: sticky;
+  background: #f6f7f9;
+  z-index: 99;
+  width: 100%;
+  top: 0;
+}
+
+.widget-wrapper {
+  .parameter-container {
+    padding: 0 15px;
   }
 }
 
@@ -568,10 +633,6 @@ page-header, .page-header--new {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 35px;
-  font-size: 14px;
-  line-height: 21px;
-
   .empty-state__summary, .empty-state__steps {
     width: 48%;
   }
@@ -609,6 +670,29 @@ page-header, .page-header--new {
     .empty-state__summary, .empty-state__steps {
       width: 100%;
     }
+  }
+}
+
+// Error state
+.error-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  margin-top: 25vh;
+  padding: 35px;
+  font-size: 14px;
+  line-height: 21px;
+
+  .error-state__icon {
+    .zmdi {
+      font-size: 64px;
+      color: @redash-gray;
+    }
+  }
+
+  @media (max-width: 767px) {
+    margin-top: 10vh;
   }
 }
 
