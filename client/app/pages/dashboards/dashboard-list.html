@@ -1,21 +1,10 @@
 <div class='container'>
   <page-header title="Dashboards"></page-header>
 
-  <div class="empty-state bg-white tiled">
-    <div class="empty-state__summary">
-      <h2><i class="zmdi zmdi-view-quilt"></i></h2>
-      <p>See the big picture</p>
-    </div>
-    <div class="empty-state__steps">
-      <h4>Let's get started</h4>
-      <ol>
-        <li><del><a href="/data_sources">Connect</a> a Data Source</del></li>
-        <li><a href="/queries/new/">Create</a> your first Query</li>
-        <li><a href="">Create</a> your first Dashboard</li>
-      </ol>
-      <p>Need more support? <a href="http://help.redash.io/category/22-dashboards" target="_blank">See our Help <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
-    </div>
-  </div>
+  <empty-state icon="zmdi zmdi-view-quilt"
+               description="See the big picture"
+               show-dashboard-step="true"
+               help-link="http://help.redash.io/category/22-dashboards"></empty-state>
 
   <div class="row">
     <div class="col-lg-3">

@@ -1,21 +1,10 @@
 <div class="container">
   <page-header title="Alerts"></page-header>
 
-  <div class="empty-state bg-white tiled">
-    <div class="empty-state__summary">
-      <h2><i class="fa fa-bell-o" aria-hidden="true"></i></h2>
-      <p>Get notified on certain events</p>
-    </div>
-    <div class="empty-state__steps">
-      <h4>Let's get started</h4>
-      <ol>
-        <li><del><a href="/data_sources">Connect</a> a Data Source</del></li>
-        <li><del><a href="/queries/new/">Create</a> your first Query</del></li>
-        <li><a href="/alerts/new/">Create</a> your first Alert</li>
-      </ol>
-      <p>Need more support? <a href="http://help.redash.io/category/23-alerts" target="_blank">See our Help <i class="fa fa-external-link" aria-hidden="true"></i></a></p>
-    </div>
-  </div>
+  <empty-state icon="fa fa-bell-o"
+               description="Get notified on certain events"
+               show-alert-step="true"
+               help-link="http://help.redash.io/category/23-alerts"></empty-state>
 
   <div class="bg-white tiled">
     <table class="table table-condensed table-hover">
