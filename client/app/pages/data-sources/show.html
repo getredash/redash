@@ -1,6 +1,6 @@
 <settings-screen>
   <div class="row">
-    <type-picker img-root="/img/db-logos"
+    <type-picker img-root="/static/images/db-logos"
                  types="types"
                  title="New Data Source"
                  on-type-select="setType"
@@ -13,7 +13,7 @@
         </div>
 
         <div class="col-xs-12 col-sm-4 text-center">
-          <img ng-src="/img/db-logos/{{dataSource.type}}.png" alt="{{type.name}}" width="64">
+          <img ng-src="/static/images/db-logos/{{dataSource.type}}.png" alt="{{type.name}}" width="64">
           <h3>{{type.name}}</h3>
         </div>
 

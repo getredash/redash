@@ -13,7 +13,7 @@
       <a ng-click="changeTab('series')">Series</a>
     </li>
   </ul>
-  <div ng-show="currentTab == 'general'">
+  <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
     <div class="form-group">
       <label class="control-label">Chart Type</label>
       <div ng-if="chartTypes"><!--the if is a weird workaround-->
@@ -32,6 +32,9 @@
       </div>
     </div>
 
+    <div ng-if="['line', 'area', 'column', 'scatter'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
+      <label><input type="checkbox" ng-model="options.showDataLabels"> Show data labels</label>
+    </div>
 
     <div class="form-group" ng-class="{'has-error': chartEditor.xAxisColumn.$invalid}">
       <label class="control-label">X Column</label>
@@ -115,12 +118,19 @@
 
       <div ng-if="stackingOptions"><!--the if is a weird workaround-->
         <ui-select ng-model="options.series.stacking"
-                   ng-disabled="['line', 'area', 'column'].indexOf(options.globalSeriesType) == -1">
-          <ui-select-match placeholder="Choose Stacking...">{{$select.selected.key | capitalize}}</ui-select-match>
+          ng-disabled="['line', 'area', 'column'].indexOf(options.globalSeriesType) == -1">
+          <ui-select-match placeholder="Choose stacking...">{{ $select.selected.key }}</ui-select-match>
           <ui-select-choices repeat="value.value as (key, value) in stackingOptions">
             <div ng-bind-html="value.key | highlight: $select.search"></div>
           </ui-select-choices>
         </ui-select>
+      </div>
+
+      <div ng-if="['line', 'area', 'column'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
+        <label class="control-label">
+          <input type="checkbox" ng-model="options.series.percentValues">
+          Normalize values to percentage
+        </label>
       </div>
     </div>
   </div>
@@ -145,7 +155,7 @@
     </label>
   </div>
 
-  <div ng-show="currentTab == 'xAxis'">
+  <div ng-if="currentTab == 'xAxis'" class="m-t-10 m-b-10">
     <div class="form-group">
       <label class="control-label">Scale</label>
       <ui-select ng-model="options.xAxis.type">
@@ -174,14 +184,9 @@
         <i class="input-helper"></i> Show Labels
       </label>
     </div>
-
-    <div class="form-group">
-      <label class="control-label">Height</label>
-      <input name="x-axis-height" type="number" class="form-control" ng-model="options.bottomMargin">
-    </div>
   </div>
 
-  <div ng-show="currentTab == 'yAxis'">
+  <div ng-if="currentTab == 'yAxis'" class="m-t-10 m-b-10">
     <div ng-repeat="yAxis in options.yAxis">
       <h4>{{$index == 0 ? 'Left' : 'Right'}} Y Axis</h4>
 
@@ -209,7 +214,7 @@
     </div>
   </div>
 
-  <div ng-show="currentTab=='series'">
+  <div ng-if="currentTab == 'series'" class="m-t-10 m-b-10">
     <table class="table table-condensed col-table">
       <thead>
       <th>zIndex</th>
@@ -262,3 +267,4 @@
       </tbody>
     </table>
   </div>
+</div>

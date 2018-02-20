@@ -55,11 +55,16 @@ def render_token_login_page(template, org_slug, token):
             login_user(user)
             models.db.session.commit()
             return redirect(url_for('redash.index', org_slug=org_slug))
-    if settings.GOOGLE_OAUTH_ENABLED:
-        google_auth_url = get_google_auth_url(url_for('redash.index', org_slug=org_slug))
-    else:
-        google_auth_url = ''
-    return render_template(template, google_auth_url=google_auth_url, user=user), status_code
+
+    google_auth_url = get_google_auth_url(url_for('redash.index', org_slug=org_slug))
+
+    return render_template(template,
+                           show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
+                           google_auth_url=google_auth_url,
+                           show_saml_login=current_org.get_setting('auth_saml_enabled'),
+                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
+                           show_ldap_login=settings.LDAP_LOGIN_ENABLED,
+                           user=user), status_code
 
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
@@ -114,7 +119,7 @@ def login(org_slug=None):
         elif settings.LDAP_LOGIN_ENABLED:
             return redirect(url_for("ldap_auth.login", next=next_path))
         else:
-            return redirect(url_for("google_oauth.authorize", next=next_path))
+            return redirect(get_google_auth_url(next_path))
 
     if request.method == 'POST':
         try:
@@ -175,7 +180,8 @@ def client_config():
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
         'dateFormat': date_format,
         'dateTimeFormat': "{0} HH:mm".format(date_format),
-        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None
+        'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
+        'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS
     }
 
     client_config.update(defaults)

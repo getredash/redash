@@ -1,12 +1,14 @@
 from tests import BaseTestCase
 
-from redash.models import User
+from redash.models import User, db
 
 class TestUserUpdateGroupAssignments(BaseTestCase):
     def test_default_group_always_added(self):
         user = self.factory.create_user()
 
         user.update_group_assignments(["g_unknown"])
+        db.session.refresh(user)
+
         self.assertItemsEqual([user.org.default_group.id], user.group_ids)
 
     def test_update_group_assignments(self):
@@ -14,6 +16,8 @@ class TestUserUpdateGroupAssignments(BaseTestCase):
         new_group = self.factory.create_group(name="g1")
 
         user.update_group_assignments(["g1"])
+        db.session.refresh(user)
+
         self.assertItemsEqual([user.org.default_group.id, new_group.id], user.group_ids)
 
 

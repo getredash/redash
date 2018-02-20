@@ -1,15 +1,14 @@
 {% extends "layouts/signed_out.html" %}
 
 {% block title %}Password Reset{% endblock %}
+
 {% block content %}
-<h2>Password Reset</h2>
-<div class="row">
-  <div class="col-md-6" style="">
-      <hr>
+<div class="fixed-width-page">
+  <div class="bg-white tiled">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-danger" role="alert">{{ message }}</div>
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
@@ -18,7 +17,7 @@
         <label for="password">Enter your new password:</label>
         <input type="password" class="form-control" id="password" name="password" placeholder="Password">
       </div>
-      <button type="submit" class="btn btn btn-primary">Change my password</button>
+      <button type="submit" class="btn btn-primary btn-block m-t-25">Change my password</button>
     </form>
   </div>
 </div>
