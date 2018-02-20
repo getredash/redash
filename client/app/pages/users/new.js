@@ -1,6 +1,7 @@
+import { absoluteUrl } from '@/services/utils';
 import template from './new.html';
 
-function NewUserCtrl($scope, Utils, toastr, currentUser, Events, User) {
+function NewUserCtrl($scope, toastr, currentUser, Events, User) {
   Events.record('view', 'page', 'users/new');
 
   $scope.inviteLink = '';
@@ -14,7 +15,7 @@ function NewUserCtrl($scope, Utils, toastr, currentUser, Events, User) {
     $scope.user.$save((user) => {
       $scope.user = user;
       $scope.user.created = true;
-      $scope.inviteLink = Utils.absoluteUrl(user.invite_link);
+      $scope.inviteLink = absoluteUrl(user.invite_link);
       toastr.success('Saved.');
     }, (error) => {
       const message = error.data.message || 'Failed saving.';

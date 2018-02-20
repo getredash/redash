@@ -1,14 +1,8 @@
-function absoluteUrl(url) {
-  const location = window.location;
+/* eslint-disable import/prefer-default-export */
 
-  const scheme = location.protocol.toLowerCase();
-  const host = location.host;
-
-  return scheme + '//' + host + url;
-}
-
-export default function init(ngModule) {
-  ngModule.factory('Utils', () => ({
-    absoluteUrl,
-  }));
+export function absoluteUrl(url) {
+  const urlObj = new URL(url, window.location);
+  urlObj.protocol = window.location.protocol;
+  urlObj.host = window.location.host;
+  return urlObj.toString();
 }

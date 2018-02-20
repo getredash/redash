@@ -1,11 +1,12 @@
 import { each } from 'underscore';
 import settingsMenu from '@/lib/settings-menu';
+import { absoluteUrl } from '@/services/utils';
 import template from './show.html';
 import './settings.less';
 
 function UserCtrl(
   $scope, $routeParams, $http, $location, toastr,
-  clientConfig, currentUser, Events, User, Utils,
+  clientConfig, currentUser, Events, User,
 ) {
   $scope.userId = $routeParams.userId;
   $scope.currentUser = currentUser;
@@ -104,7 +105,7 @@ function UserCtrl(
     $scope.disablePasswordResetButton = true;
     $http.post(`api/users/${$scope.user.id}/reset_password`).success((data) => {
       $scope.disablePasswordResetButton = false;
-      $scope.passwordResetLink = Utils.absoluteUrl(data.reset_link);
+      $scope.passwordResetLink = absoluteUrl(data.reset_link);
     });
   };
 }
