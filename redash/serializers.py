@@ -1,6 +1,7 @@
 """
-This will eventually replace all the `to_dict` methods of the different model classes we have. This will ensure cleaner
-code and better separation of concerns.
+This will eventually replace all the `to_dict` methods of the different model
+classes we have. This will ensure cleaner code and better
+separation of concerns.
 """
 
 import json
@@ -40,22 +41,15 @@ def public_widget(widget):
 
 
 def public_dashboard(dashboard):
-    dashboard_dict = project(dashboard.to_dict(), ('name', 'layout', 'dashboard_filters_enabled', 'updated_at', 'created_at'))
+    dashboard_dict = project(dashboard.to_dict(), (
+        'name', 'layout', 'dashboard_filters_enabled', 'updated_at',
+        'created_at'
+    ))
 
     widget_list = (models.Widget.query
                    .filter(models.Widget.dashboard_id == dashboard.id)
                    .outerjoin(models.Visualization)
                    .outerjoin(models.Query))
-    widgets = {w.id: public_widget(w) for w in widget_list}
 
-    widgets_layout = []
-    for row in dashboard_dict['layout']:
-        new_row = []
-        for widget_id in row:
-            widget = widgets.get(widget_id, None)
-            if widget:
-                new_row.append(widget)
-        widgets_layout.append(new_row)
-
-    dashboard_dict['widgets'] = widgets_layout
+    dashboard_dict['widgets'] = [public_widget(w) for w in widget_list]
     return dashboard_dict
