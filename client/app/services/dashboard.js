@@ -2,7 +2,11 @@ import * as _ from 'underscore';
 
 function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
-    return widgets.map(widget => new Widget(widget));
+    const widgetObjects = widgets.map(widget => new Widget(widget));
+    // This sorting is needed for converted dashboards, whose widgets don't have size yet. In such cases
+    // Gridster might position them wrong on the dashboard (unless sorted by col/row).
+    const sortedByCol = _.sortBy(widgetObjects, widget => widget.options.position && widget.options.position.col);
+    return _.sortBy(sortedByCol, widget => widget.options.position && widget.options.position.row * -1);
   }
 
   function transformSingle(dashboard) {
