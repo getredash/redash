@@ -1,0 +1,31 @@
+@lightgrey: rgb(211, 211, 211);
+@lightblue: rgb(135, 206, 250);
+
+.funnel-visualization-container {
+  table {
+    max-width: 800px;
+  }
+  .table-borderless td, .table-borderless th {
+    border: 0;
+    vertical-align: middle;
+  }
+  div.bar {
+    height: 30px;
+    background-color: @lightgrey;
+  }
+  div.bar.centered {
+    margin: auto;
+    background-color: @lightblue;
+  }
+  .value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .container {
+    position: relative;
+    padding: 0;
+    text-align: center;
+  }
+}
