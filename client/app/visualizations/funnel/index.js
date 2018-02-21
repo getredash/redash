@@ -2,6 +2,7 @@ import { debounce, sortBy } from 'underscore';
 import d3 from 'd3';
 import angular from 'angular';
 
+import { ColorPalette } from '@/visualizations/chart/plotly/utils';
 import editorTemplate from './funnel-editor.html';
 import './funnel.less';
 
@@ -46,6 +47,7 @@ function Funnel(scope, element) {
       .style('min-width', '200px');
     valContainers.append('div')
       .attr('class', 'bar centered')
+      .style('background-color', ColorPalette.Cyan)
       .style('width', d => d.pctTotal + '%');
     valContainers.append('div')
       .attr('class', 'value')
@@ -63,6 +65,8 @@ function Funnel(scope, element) {
       .attr('class', 'container');
     pctContainers.append('div')
       .attr('class', 'bar')
+      .style('background-color', ColorPalette.Gray)
+      .style('opacity', '0.2')
       .style('width', d => d.pctPrevious.toFixed(2) + '%');
     pctContainers.append('div')
       .attr('class', 'value')
