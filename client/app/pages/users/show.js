@@ -114,6 +114,7 @@ export default function init(ngModule) {
   settingsMenu.add({
     title: 'Account',
     path: 'users/me',
+    order: 7,
   });
 
   ngModule.controller('UserCtrl', UserCtrl);

@@ -24,6 +24,7 @@ export default function init(ngModule) {
     permission: 'admin',
     title: 'Settings',
     path: 'settings/organization',
+    order: 6,
   });
 
   ngModule.component('organizationSettingsPage', {
