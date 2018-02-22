@@ -16,8 +16,7 @@ def organization_status():
         'users': models.User.query.count(),
         'alerts': models.Alert.query.count(),
         'data_sources': models.DataSource.query.count(),
-        # todo: not archived
-        'queries': models.Query.query.count(),
-        'dashboards': models.Dashboard.query.count(),
+        'queries': models.Query.query.filter(models.Query.is_archived==False).count(),
+        'dashboards': models.Dashboard.query.filter(models.Dashboard.is_archived==False).count(),
     }
     return json_response(dict(object_counters=counters))
