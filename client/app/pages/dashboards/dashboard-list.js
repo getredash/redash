@@ -35,7 +35,15 @@ function DashboardListCtrl(Dashboard, $location) {
   };
 
   this.allTags = [];
+  this.showList = false;
+  this.showEmptyState = false;
+
   this.dashboards.$promise.then((data) => {
+    if (data.length > 0) {
+      this.showList = true;
+    } else {
+      this.showEmptyState = true;
+    }
     const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
     this.allTags = _.unique(_.flatten(out)).filter(e => e).map(tag => tag.replace(/:$/, ''));
     this.allTags.sort();
