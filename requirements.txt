@@ -27,7 +27,7 @@ six==1.10.0
 SQLAlchemy==1.1.4
 SQLAlchemy-Searchable==0.10.6
 SQLAlchemy-Utils>=0.29.0
-sqlparse==0.1.8
+sqlparse==0.2.4
 wsgiref==0.1.2
 honcho==0.5.0
 statsd==2.1.2
