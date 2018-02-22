@@ -1,0 +1,56 @@
+// Empty states
+.empty-state {
+  width: 100%;
+  margin: 0px auto 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 35px;
+  font-size: 14px;
+  line-height: 21px;
+
+  .empty-state__summary,
+  .empty-state__steps {
+    width: 48%;
+  }
+
+  .empty-state__summary {
+    align-self: flex-start;
+  }
+
+  ol {
+    margin-bottom: 15px;
+    padding: 17px;
+  }
+
+  li.done {
+    text-decoration: line-through;
+  }
+
+  h2 {
+    margin: 0 0 15px;
+  }
+
+  h4 {
+    margin-top: 0;
+    color: #767676;
+    margin-bottom: 15px;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+
+  @media (max-width: 767px) {
+    flex-direction: column;
+
+    .empty-state__summary {
+      margin-bottom: 25px;
+    }
+
+    .empty-state__summary,
+    .empty-state__steps {
+      width: 100%;
+    }
+  }
+}

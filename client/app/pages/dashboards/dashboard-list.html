@@ -1,7 +1,13 @@
 <div class='container'>
   <page-header title="Dashboards"></page-header>
 
-  <div class="row">
+  <empty-state icon="zmdi zmdi-view-quilt"
+               description="See the big picture"
+               show-dashboard-step="true"
+               help-link="http://help.redash.io/category/22-dashboards"
+               ng-if="$ctrl.showEmptyState"></empty-state>
+
+  <div class="row" ng-if="$ctrl.showList">
     <div class="col-lg-3">
       <input type='text' class='form-control' placeholder="Search Dashboards..."
         ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>

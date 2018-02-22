@@ -1,33 +1,41 @@
 <div class="container">
   <page-header title="Queries"></page-header>
-  <tab-nav tabs="$ctrl.tabs"></tab-nav>
 
-  <div class="bg-white tiled">
-    <table class="table table-condensed table-hover">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Created By</th>
-        <th>Created At</th>
-        <th>Runtime</th>
-        <th>Last Executed At</th>
-        <th>Update Schedule</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
-        <td><a href="queries/{{query.id}}">{{query.name}}</a> <span class="label label-default" ng-if="query.is_draft">Unpublished</span></td>
-        <td>
-          <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/>
-          {{query.user.name}}
-        </td>
-        <td>{{query.created_at | dateTime}}</td>
-        <td>{{query.runtime | durationHumanize}}</td>
-        <td>{{query.retrieved_at | dateTime}}</td>
-        <td>{{query.schedule | scheduleHumanize}}</td>
-      </tr>
-      </tbody>
-    </table>
-    <paginator paginator="$ctrl.paginator"></paginator>
+  <empty-state icon="fa fa-code" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"
+    ng-if="$ctrl.showEmptyState()"></empty-state>
+
+  <div ng-if="$ctrl.showList()">
+    <tab-nav tabs="$ctrl.tabs"></tab-nav>
+
+    <div class="bg-white tiled">
+      <table class="table table-condensed table-hover">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Created By</th>
+            <th>Created At</th>
+            <th>Runtime</th>
+            <th>Last Executed At</th>
+            <th>Update Schedule</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
+            <td>
+              <a href="queries/{{query.id}}">{{query.name}}</a>
+              <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
+            </td>
+            <td>
+              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" /> {{query.user.name}}
+            </td>
+            <td>{{query.created_at | dateTime}}</td>
+            <td>{{query.runtime | durationHumanize}}</td>
+            <td>{{query.retrieved_at | dateTime}}</td>
+            <td>{{query.schedule | scheduleHumanize}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <paginator paginator="$ctrl.paginator"></paginator>
+    </div>
   </div>
 </div>
