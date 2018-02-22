@@ -1,9 +1,34 @@
 <div class="form-horizontal">
   <div>
-    This visualization expects the query result to be in the following formats:
+    This visualization constructs funnel chart. Please notice that:
     <ul>
-      <li><strong>steps</strong> - the name of the funnel steps</li>
-      <li><strong>values</strong> - value of the funnel steps</li>
+      <li>Records would be sorted first</li>
+      <li>Value column only accept number for values</li>
     </ul>
+  </div>
+
+  <div class="form-group">
+    <label class="col-lg-6">Step Column Name</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.stepCol.colName" class="form-control"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Step Column Dispaly Name</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.stepCol.dispAs" class="form-control">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Funnel Value Column Name</label>
+    <div class="col-lg-6">
+      <select ng-options="name for name in queryResult.getColumnNames()" ng-model="visualization.options.valueCol.colName" class="form-control"></select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-lg-6">Funnel Value Column Dispaly Name</label>
+    <div class="col-lg-6">
+      <input type="text" ng-model="visualization.options.valueCol.dispAs" class="form-control">
+    </div>
   </div>
 </div>

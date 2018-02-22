@@ -1,19 +1,27 @@
-import { debounce, sortBy } from 'underscore';
+import { debounce, sortBy, isNumber, every, difference } from 'underscore';
 import d3 from 'd3';
 import angular from 'angular';
 
-import { ColorPalette } from '@/visualizations/chart/plotly/utils';
+import { ColorPalette, normalizeValue } from '@/visualizations/chart/plotly/utils';
 import editorTemplate from './funnel-editor.html';
 import './funnel.less';
+
+function isNoneNaNNum(val) {
+  if (!isNumber(val) || isNaN(val)) {
+    return false;
+  }
+  return true;
+}
+
+function normalizePercentage(num) {
+  return num < 0.01 ? '<0.01%' : num.toFixed(2) + '%';
+}
 
 function Funnel(scope, element) {
   this.element = element;
   this.watches = [];
   const vis = d3.select(element);
-
-  function normalizePercentage(num) {
-    return num < 0.01 ? '<0.01%' : num.toFixed(2) + '%';
-  }
+  const options = scope.visualization.options;
 
   function drawFunnel(data) {
     // Table
@@ -22,8 +30,8 @@ function Funnel(scope, element) {
 
     // Header
     const header = table.append('thead').append('tr');
-    header.append('th').text('Step');
-    header.append('th');
+    header.append('th').text(options.stepCol.dispAs);
+    header.append('th').attr('class', 'text-center').text(options.valueCol.dispAs);
     header.append('th').attr('class', 'text-center').text('% Total');
     header.append('th').attr('class', 'text-center').text('% Previous');
 
@@ -41,7 +49,6 @@ function Funnel(scope, element) {
 
     // Funnel bars
     const valContainers = trs.append('td')
-      .attr('class', 'col-md-5')
       .append('div')
       .attr('class', 'container')
       .style('min-width', '200px');
@@ -73,7 +80,6 @@ function Funnel(scope, element) {
       .text(d => normalizePercentage(d.pctPrevious));
   }
 
-  // visualize funnel data
   function createVisualization(data) {
     drawFunnel(data); // draw funnel
   }
@@ -83,32 +89,46 @@ function Funnel(scope, element) {
   }
 
   function prepareData(queryData, stepCol, valCol) {
-    // Column validity
-    const sortedData = sortBy(queryData, valCol).reverse();
-    return sortedData.map((row, i) => ({
-      step: row[stepCol],
-      value: row[valCol],
-      pctTotal: row[valCol] / sortedData[0][valCol] * 100.0,
-      pctPrevious: i === 0 ? 100.0 : row[valCol] / sortedData[i - 1][valCol] * 100.0,
+    const data = queryData.map(row => ({
+      step: normalizeValue(row[stepCol]),
+      value: Number(row[valCol]),
     }), []);
+    const sortedData = sortBy(data, 'value').reverse();
+
+    // Column validity
+    if (sortedData[0].value === 0 || !every(sortedData, d => isNoneNaNNum(d.value))) {
+      return;
+    }
+    sortedData.forEach((d, i) => {
+      d.pctTotal = d.value / sortedData[0].value * 100.0;
+      d.pctPrevious = i === 0 ? 100.0 : d.value / sortedData[i - 1].value * 100.0;
+    });
+    return sortedData;
   }
 
-  function render(queryData) {
-    const data = prepareData(queryData, 'steps', 'values'); // build funnel data
-    removeVisualization(); // remove existing visualization if any
-    createVisualization(data); // visualize funnel data
+  function invalidColNames() {
+    const colNames = scope.queryResult.getColumnNames();
+    const colToCheck = [options.stepCol.colName, options.valueCol.colName];
+    if (difference(colToCheck, colNames).length > 0) {
+      return true;
+    }
+    return false;
   }
 
-  function refreshData() {
+  function refresh() {
+    removeVisualization();
+    if (invalidColNames()) { return; }
+
     const queryData = scope.queryResult.getData();
-    if (queryData) {
-      render(queryData);
+    const data = prepareData(queryData, options.stepCol.colName, options.valueCol.colName);
+    if (data) {
+      createVisualization(data); // draw funnel
     }
   }
 
-  refreshData();
-  this.watches.push(scope.$watch('visualization.options', refreshData, true));
-  this.watches.push(scope.$watch('queryResult && queryResult.getData()', refreshData));
+  refresh();
+  this.watches.push(scope.$watch('visualization.options', refresh, true));
+  this.watches.push(scope.$watch('queryResult && queryResult.getData()', refresh));
 }
 
 Funnel.prototype.remove = function remove() {
@@ -133,7 +153,7 @@ function funnelRenderer() {
 
       scope.handleResize = debounce(resize, 50);
 
-      scope.$watch('visualization.options.height', (oldValue, newValue) => {
+      scope.$watch('visualization.options', (oldValue, newValue) => {
         if (oldValue !== newValue) {
           resize();
         }
@@ -159,7 +179,9 @@ export default function init(ngModule) {
 
     const editTemplate = '<funnel-editor></funnel-editor>';
     const defaultOptions = {
-      defaultrs: 7,
+      stepCol: { colName: '', dispAs: 'Steps' },
+      valueCol: { colName: '', dispAs: 'Value' },
+      defaultRows: 10,
     };
 
     VisualizationProvider.registerVisualization({
