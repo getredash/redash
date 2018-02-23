@@ -14,7 +14,9 @@ function isNoneNaNNum(val) {
 }
 
 function normalizePercentage(num) {
-  return num < 0.01 ? '<0.01%' : num.toFixed(2) + '%';
+  if (num < 0.01) { return '<0.01%'; }
+  if (num > 1000) { return '>1000%'; }
+  return num.toFixed(2) + '%';
 }
 
 function Funnel(scope, element) {
@@ -24,6 +26,7 @@ function Funnel(scope, element) {
   const options = scope.visualization.options;
 
   function drawFunnel(data) {
+    const maxToPrevious = d3.max(data, d => d.pctPrevious);
     // Table
     const table = vis.append('table')
       .attr('class', 'table table-condensed table-hover table-borderless');
@@ -32,7 +35,7 @@ function Funnel(scope, element) {
     const header = table.append('thead').append('tr');
     header.append('th').text(options.stepCol.dispAs);
     header.append('th').attr('class', 'text-center').text(options.valueCol.dispAs);
-    header.append('th').attr('class', 'text-center').text('% Total');
+    header.append('th').attr('class', 'text-center').text('% Max');
     header.append('th').attr('class', 'text-center').text('% Previous');
 
     // Body
@@ -55,15 +58,15 @@ function Funnel(scope, element) {
     valContainers.append('div')
       .attr('class', 'bar centered')
       .style('background-color', ColorPalette.Cyan)
-      .style('width', d => d.pctTotal + '%');
+      .style('width', d => d.pctMax + '%');
     valContainers.append('div')
       .attr('class', 'value')
       .text(d => d.value.toLocaleString());
 
-    // pctTotal
+    // pctMax
     trs.append('td')
       .attr('class', 'col-md-2 text-center')
-      .text(d => normalizePercentage(d.pctTotal));
+      .text(d => normalizePercentage(d.pctMax));
 
     // pctPrevious
     const pctContainers = trs.append('td')
@@ -74,7 +77,7 @@ function Funnel(scope, element) {
       .attr('class', 'bar')
       .style('background-color', ColorPalette.Gray)
       .style('opacity', '0.2')
-      .style('width', d => d.pctPrevious.toFixed(2) + '%');
+      .style('width', d => (d.pctPrevious / maxToPrevious * 100.0) + '%');
     pctContainers.append('div')
       .attr('class', 'value')
       .text(d => normalizePercentage(d.pctPrevious));
@@ -88,19 +91,21 @@ function Funnel(scope, element) {
     vis.selectAll('table').remove();
   }
 
-  function prepareData(queryData, stepCol, valCol) {
+  function prepareData(queryData) {
     const data = queryData.map(row => ({
-      step: normalizeValue(row[stepCol]),
-      value: Number(row[valCol]),
+      step: normalizeValue(row[options.stepCol.colName]),
+      value: Number(row[options.valueCol.colName]),
+      sortVal: options.autoSort ? '' : row[options.sortKeyCol.colName],
     }), []);
-    const sortedData = sortBy(data, 'value').reverse();
+    const maxVal = d3.max(data, d => d.value);
+    const sortedData = sortBy(data, options.autoSort ? 'value' : 'sortVal').reverse();
 
     // Column validity
     if (sortedData[0].value === 0 || !every(sortedData, d => isNoneNaNNum(d.value))) {
       return;
     }
     sortedData.forEach((d, i) => {
-      d.pctTotal = d.value / sortedData[0].value * 100.0;
+      d.pctMax = d.value / maxVal * 100.0;
       d.pctPrevious = i === 0 ? 100.0 : d.value / sortedData[i - 1].value * 100.0;
     });
     return sortedData;
@@ -109,6 +114,7 @@ function Funnel(scope, element) {
   function invalidColNames() {
     const colNames = scope.queryResult.getColumnNames();
     const colToCheck = [options.stepCol.colName, options.valueCol.colName];
+    if (!options.autoSort) { colToCheck.push(options.sortKeyCol.colName); }
     if (difference(colToCheck, colNames).length > 0) {
       return true;
     }
@@ -120,7 +126,7 @@ function Funnel(scope, element) {
     if (invalidColNames()) { return; }
 
     const queryData = scope.queryResult.getData();
-    const data = prepareData(queryData, options.stepCol.colName, options.valueCol.colName);
+    const data = prepareData(queryData, options);
     if (data) {
       createVisualization(data); // draw funnel
     }
@@ -181,6 +187,8 @@ export default function init(ngModule) {
     const defaultOptions = {
       stepCol: { colName: '', dispAs: 'Steps' },
       valueCol: { colName: '', dispAs: 'Value' },
+      sortKeyCol: { colName: '' },
+      autoSort: true,
       defaultRows: 10,
     };
 
