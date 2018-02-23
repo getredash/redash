@@ -97,13 +97,18 @@ function Funnel(scope, element) {
       value: Number(row[options.valueCol.colName]),
       sortVal: options.autoSort ? '' : row[options.sortKeyCol.colName],
     }), []);
-    const maxVal = d3.max(data, d => d.value);
-    const sortedData = sortBy(data, options.autoSort ? 'value' : 'sortVal').reverse();
+    let sortedData;
+    if (options.autoSort) {
+      sortedData = sortBy(data, 'value').reverse();
+    } else {
+      sortedData = sortBy(data, 'sortVal');
+    }
 
     // Column validity
     if (sortedData[0].value === 0 || !every(sortedData, d => isNoneNaNNum(d.value))) {
       return;
     }
+    const maxVal = d3.max(data, d => d.value);
     sortedData.forEach((d, i) => {
       d.pctMax = d.value / maxVal * 100.0;
       d.pctPrevious = i === 0 ? 100.0 : d.value / sortedData[i - 1].value * 100.0;
