@@ -3,8 +3,7 @@
     <thead>
       <tr>
         <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick($event, column)"
-          class="sortable-column" ng-class="'content-align-' + column.alignContent"
-          width="{{ ['number', 'boolean', 'datetime', 'image'].indexOf(column.displayAs) >= 0 ? '1%' : undefined }}">
+          class="sortable-column" ng-class="'content-align-' + column.alignContent + ' display-as-' + column.displayAs">
           <span ng-if="($ctrl.orderBy.length > 1) && ($ctrl.orderByColumnsIndex[column.name] > 0)"
             class="sort-order-indicator">{{ $ctrl.orderByColumnsIndex[column.name] }}</span>
           <span>{{column.title}}</span>
