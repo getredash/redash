@@ -38,21 +38,6 @@ def get_range_rows(metrics_data):
 
 
 class Prometheus(BaseQueryRunner):
-    def __init__(self, configuration):
-        self.columns = [
-            {
-                'friendly_name': 'timestamp',
-                'type': TYPE_DATETIME,
-                'name': 'timestamp'
-            },
-            {
-                'friendly_name': 'value',
-                'type': TYPE_STRING,
-                'name': 'value'
-            },
-        ]
-
-        super(Prometheus, self).__init__(configuration)
 
     @classmethod
     def configuration_schema(cls):
@@ -70,6 +55,10 @@ class Prometheus(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
+
+    @classmethod
+    def type(cls):
+        return "Prometheus"
 
     def test_connection(self):
         resp = requests.get(self.configuration.get("url", None))
@@ -107,6 +96,18 @@ class Prometheus(BaseQueryRunner):
         """
 
         base_url = self.configuration["url"]
+        columns = [
+            {
+                'friendly_name': 'timestamp',
+                'type': TYPE_DATETIME,
+                'name': 'timestamp'
+            },
+            {
+                'friendly_name': 'value',
+                'type': TYPE_STRING,
+                'name': 'value'
+            },
+        ]
 
         try:
             error = None
@@ -135,17 +136,21 @@ class Prometheus(BaseQueryRunner):
             metric_labels = metrics[0]['metric'].keys()
 
             for label_name in metric_labels:
-                self.columns.append({
+                columns.append({
                     'friendly_name': label_name,
                     'type': TYPE_STRING,
                     'name': label_name
                 })
 
-            rows = get_range_rows(metrics) if query_type == 'query_range' else get_instant_rows(metrics)
+            if query_type == 'query_range':
+                rows = get_range_rows(metrics)
+            else:
+                rows = get_instant_rows(metrics)
+
             json_data = json_dumps(
                 {
                     'rows': rows,
-                    'columns': self.columns
+                    'columns': columns
                 }
             )
 
