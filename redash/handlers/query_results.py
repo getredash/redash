@@ -3,7 +3,7 @@ import json
 import time
 
 import pystache
-from flask import make_response, request
+from flask import make_response, request, redirect
 from flask_login import current_user
 from flask_restful import abort
 from redash import models, settings, utils
@@ -227,6 +227,9 @@ class QueryResultResource(BaseResource):
                 response = self.make_json_response(query_result)
             elif filetype == 'xlsx':
                 response = self.make_excel_response(query_result)
+            elif filetype == 'spreadsheet':
+                response = self.make_spreadsheet_response(query_result, query.name,
+                                                          current_user.email, self.current_org)
             else:
                 response = self.make_csv_response(query_result)
 
@@ -255,6 +258,11 @@ class QueryResultResource(BaseResource):
     def make_excel_response(query_result):
         headers = {'Content-Type': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
         return make_response(query_result.make_excel_content(), 200, headers)
+
+    @staticmethod
+    def make_spreadsheet_response(query_result, query_name, email, org):
+        url = query_result.make_spreadsheet(query_name, email, org)
+        return redirect(url)
 
 
 class JobResource(BaseResource):

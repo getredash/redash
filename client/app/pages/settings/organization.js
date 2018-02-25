@@ -27,6 +27,11 @@ function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
 
   this.disablePasswordLoginToggle = () =>
     (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
+
+  this.submitJsonKeyFile = () => {
+    this.settings.google_spreadsheet_json_key_file = this.settings.google_spreadsheet_json_key_file.base64;
+    this.update('google_spreadsheet_json_key_file');
+  };
 }
 
 export default function init(ngModule) {

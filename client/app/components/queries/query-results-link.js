@@ -22,6 +22,7 @@ function queryResultLink() {
             url = `api/query_results/${scope.queryResult.getId()}.${fileType}`;
           }
           element.attr('href', url);
+          if (fileType === 'spreadsheet') return;
           element.attr(
             'download',
             `${scope.query.name.replace(' ', '_') +

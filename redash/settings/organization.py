@@ -23,5 +23,6 @@ settings = {
     "auth_saml_entity_id": SAML_ENTITY_ID,
     "auth_saml_metadata_url": SAML_METADATA_URL,
     "auth_saml_nameid_format": SAML_NAMEID_FORMAT,
-    "date_format": DATE_FORMAT
+    "date_format": DATE_FORMAT,
+    "google_spreadsheet_json_key_file": ""
 }

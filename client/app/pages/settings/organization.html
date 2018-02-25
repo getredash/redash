@@ -13,6 +13,16 @@
                 </select>
             </p>
             <hr>
+            <h3>Export</h3>
+            <h4>Spreadsheet</h4>
+            <form name="form" type="type" actions="actions">
+            <p>
+                <label>JSON Key File</label>
+                <input type="file" file-model ng-model="$ctrl.settings.google_spreadsheet_json_key_file" base-sixty-four-input class="form-control" accesskey="tab">
+                <button ng-click="$ctrl.submitJsonKeyFile()" class="btn btn-primary m-t-10">submit</button>
+            </p>
+            </form>
+            <hr>
             <h3>Authentication</h3>
             <p>
                 <label>

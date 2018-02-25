@@ -10,9 +10,12 @@ import time
 
 from funcy import project
 
+import gspread
 import xlsxwriter
+from base64 import b64decode
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
+from oauth2client.service_account import ServiceAccountCredentials
 from passlib.apps import custom_app_context as pwd_context
 from redash import settings, redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
@@ -778,6 +781,39 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     @property
     def groups(self):
         return self.data_source.groups
+
+    def make_spreadsheet(self, query_name, email, org):
+        scope = [
+            'https://spreadsheets.google.com/feeds',
+            'https://www.googleapis.com/auth/drive'
+        ]
+
+        key_file = org.get_setting('google_spreadsheet_json_key_file')
+        key = json.loads(b64decode(key_file))
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
+        gc = gspread.authorize(creds)
+
+        sh = gc.create(query_name)
+        sh.share(email, perm_type='user', role='owner')
+        worksheet = sh.get_worksheet(0)
+        data = json.loads(self.data)
+        columns = data['columns']
+        rows = data['rows']
+        cell_list = worksheet.range(1, 1, len(rows) + 1, len(columns))
+
+        row_index = 0
+        header = [column['name'] for column in columns]
+        for h in header:
+            cell_list[row_index].value = header[row_index]
+            row_index += 1
+
+        for row in rows:
+            for value in row.values():
+                cell_list[row_index].value = value
+                row_index += 1
+
+        worksheet.update_cells(cell_list)
+        return 'https://docs.google.com/spreadsheets/d/%s' % sh.id
 
     def make_csv_content(self):
         s = cStringIO.StringIO()
