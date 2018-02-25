@@ -1,5 +1,6 @@
 /* eslint-disable */
 
+const fs = require('fs');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
@@ -10,6 +11,9 @@ const LessPluginAutoPrefix = require('less-plugin-autoprefix');
 const path = require('path');
 
 const redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
+
+const basePath = fs.realpathSync(path.join(__dirname, 'client'));
+const appPath = fs.realpathSync(path.join(__dirname, 'client', 'app'));
 
 const config = {
   entry: {
@@ -22,13 +26,13 @@ const config = {
     ],
   },
   output: {
-    path: path.join(__dirname, 'client', 'dist'),
+    path: path.join(basePath, './dist'),
     filename: '[name].js',
     publicPath: '/static/'
   },
   resolve: {
     alias: {
-      '@': path.join(__dirname, 'client/app')
+      '@': appPath
     }
   },
   plugins: [
@@ -126,7 +130,7 @@ const config = {
         use: [{
           loader: 'file-loader',
           options: {
-            context: path.resolve(__dirname, './client/app/assets/images/'),
+            context: path.resolve(appPath, './assets/images/'),
             outputPath: 'images/',
             name: '[path][name].[ext]',
           }
