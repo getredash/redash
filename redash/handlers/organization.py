@@ -4,14 +4,14 @@ from flask import request
 from flask_login import login_required
 from redash import models
 from redash.handlers import routes
-from redash.handlers.base import json_response
+from redash.handlers.base import json_response, org_scoped_rule
 from redash.permissions import require_admin
 
 
-@routes.route('/api/organization/status', methods=['GET'])
+@routes.route(org_scoped_rule('/api/organization/status'), methods=['GET'])
 @require_admin
 @login_required
-def organization_status():
+def organization_status(org_slug=None):
     counters = {
         'users': models.User.query.count(),
         'alerts': models.Alert.query.count(),

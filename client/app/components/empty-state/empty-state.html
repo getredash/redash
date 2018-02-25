@@ -10,15 +10,15 @@
         <h4>Let's get started</h4>
         <ol>
             <li ng-class="{done: $ctrl.dataSourceStepCompleted}">
-                <a href="/data_sources">Connect</a> a Data Source</li>
+                <a href="data_sources">Connect</a> a Data Source</li>
             <li ng-class="{done: $ctrl.queryStepCompleted}">
-                <a href="/queries/new">Create</a> your first Query</li>
+                <a href="queries/new">Create</a> your first Query</li>
             <li ng-if="$ctrl.showAlertStep" ng-class="{done: $ctrl.alertStepCompleted}">
-                <a href="/alerts/new">Create</a> your first Alert</li>
+                <a href="alerts/new">Create</a> your first Alert</li>
             <li ng-if="$ctrl.showDashboardStep" ng-class="{done: $ctrl.dashboardStepCompleted}">
                 <a ng-click="$ctrl.newDashboard()">Create</a> your first Dashboard</li>
             <li ng-if="$ctrl.showInviteStep"  ng-class="{done: $ctrl.inviteStepCompleted}">
-                <a href="/users/new">Invite</a> your team members</li>
+                <a href="users/new">Invite</a> your team members</li>
         </ol>
         <p>Need more support?
             <a href="{{$ctrl.helpLink}}" target="_blank">See our Help
