@@ -1,10 +1,16 @@
 .funnel-visualization-container {
   table {
-    max-width: 800px;
+    min-width: 450px;
   }
   .table-borderless td, .table-borderless th {
     border: 0;
     vertical-align: middle;
+  }
+  .step {
+    max-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   div.bar {
     height: 30px;
