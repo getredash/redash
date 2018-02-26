@@ -9,7 +9,6 @@ from redash.permissions import require_admin
 
 
 @routes.route(org_scoped_rule('/api/organization/status'), methods=['GET'])
-@require_admin
 @login_required
 def organization_status(org_slug=None):
     counters = {
