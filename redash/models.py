@@ -791,11 +791,11 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         key_file = org.get_setting('google_spreadsheet_json_key_file')
         key = json.loads(b64decode(key_file))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
-        gc = gspread.authorize(creds)
 
-        sh = gc.create(query_name)
+        sh = gspread.authorize(creds).create(query_name)
         sh.share(email, perm_type='user', role='owner')
         worksheet = sh.get_worksheet(0)
+
         data = json.loads(self.data)
         columns = data['columns']
         rows = data['rows']
