@@ -47,14 +47,14 @@ function Funnel(scope, element) {
 
     // Steps row
     trs.append('td')
-      .attr('class', 'col-md-3')
+      .attr('class', 'col-xs-3 step')
       .text(d => d.step);
 
     // Funnel bars
     const valContainers = trs.append('td')
+      .attr('class', 'col-xs-5')
       .append('div')
-      .attr('class', 'container')
-      .style('min-width', '200px');
+      .attr('class', 'container');
     valContainers.append('div')
       .attr('class', 'bar centered')
       .style('background-color', ColorPalette.Cyan)
@@ -65,12 +65,12 @@ function Funnel(scope, element) {
 
     // pctMax
     trs.append('td')
-      .attr('class', 'col-md-2 text-center')
+      .attr('class', 'col-xs-2 text-center')
       .text(d => normalizePercentage(d.pctMax));
 
     // pctPrevious
     const pctContainers = trs.append('td')
-      .attr('class', 'col-md-2')
+      .attr('class', 'col-xs-2')
       .append('div')
       .attr('class', 'container');
     pctContainers.append('div')
@@ -113,7 +113,7 @@ function Funnel(scope, element) {
       d.pctMax = d.value / maxVal * 100.0;
       d.pctPrevious = i === 0 ? 100.0 : d.value / sortedData[i - 1].value * 100.0;
     });
-    return sortedData;
+    return sortedData.slice(0, 100);
   }
 
   function invalidColNames() {
