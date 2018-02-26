@@ -56,10 +56,6 @@ class Prometheus(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    @classmethod
-    def type(cls):
-        return "Prometheus"
-
     def test_connection(self):
         resp = requests.get(self.configuration.get("url", None))
         return resp.ok
