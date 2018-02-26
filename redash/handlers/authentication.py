@@ -111,16 +111,6 @@ def login(org_slug=None):
     if current_user.is_authenticated:
         return redirect(next_path)
 
-    if not current_org.get_setting('auth_password_login_enabled'):
-        if settings.REMOTE_USER_LOGIN_ENABLED:
-            return redirect(url_for("remote_user_auth.login", next=next_path))
-        elif current_org.get_setting('auth_saml_enabled'):  # settings.SAML_LOGIN_ENABLED:
-            return redirect(url_for("saml_auth.sp_initiated", next=next_path))
-        elif settings.LDAP_LOGIN_ENABLED:
-            return redirect(url_for("ldap_auth.login", next=next_path))
-        else:
-            return redirect(get_google_auth_url(next_path))
-
     if request.method == 'POST':
         try:
             org = current_org._get_current_object()
@@ -142,6 +132,7 @@ def login(org_slug=None):
                            email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
+                           show_password_login=current_org.get_setting('auth_password_login_enabled'),
                            show_saml_login=current_org.get_setting('auth_saml_enabled'),
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
                            show_ldap_login=settings.LDAP_LOGIN_ENABLED)
