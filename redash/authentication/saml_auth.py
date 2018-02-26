@@ -20,7 +20,7 @@ def get_saml_client(org):
     """
     metadata_url = org.get_setting("auth_saml_metadata_url")
     entity_id = org.get_setting("auth_saml_entity_id")
-    acs_url = url_for("saml_auth.idp_initiated", _external=True)
+    acs_url = url_for("saml_auth.idp_initiated", org_slug=org.slug, _external=True)
 
     saml_settings = {
         'metadata': {
@@ -61,10 +61,10 @@ def get_saml_client(org):
 
 
 @blueprint.route(org_scoped_rule('/saml/callback'), methods=['POST'])
-def idp_initiated():
+def idp_initiated(org_slug=None):
     if not current_org.get_setting("auth_saml_enabled"):
         logger.error("SAML Login is not enabled")
-        return redirect(url_for('redash.index'))
+        return redirect(url_for('redash.index', org_slug=org_slug))
 
     saml_client = get_saml_client(current_org)
     authn_response = saml_client.parse_authn_request_response(
@@ -84,16 +84,16 @@ def idp_initiated():
         group_names = authn_response.ava.get('RedashGroups')
         user.update_group_assignments(group_names)
 
-    url = url_for('redash.index')
+    url = url_for('redash.index', org_slug=org_slug)
 
     return redirect(url)
 
 
 @blueprint.route(org_scoped_rule("/saml/login"))
-def sp_initiated():
+def sp_initiated(org_slug=None):
     if not current_org.get_setting("auth_saml_enabled"):
         logger.error("SAML Login is not enabled")
-        return redirect(url_for('redash.index'))
+        return redirect(url_for('redash.index', org_slug=org_slug))
 
     saml_client = get_saml_client(current_org)
     nameid_format = current_org.get_setting('auth_saml_nameid_format')
