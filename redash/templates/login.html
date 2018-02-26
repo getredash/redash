@@ -32,6 +32,7 @@
       <a href="{{ url_for('ldap_auth.login', next=next) }}" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
     {% endif %}
 
+    {% if show_password_login %}
     {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
       <hr>
     {% endif %}
@@ -49,11 +50,11 @@
 
       <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>
     </form>
-
     {% if not hide_forgot_password %}
       <div class="m-t-25">
         <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
       </div>
+    {% endif %}
     {% endif %}
   </div>
 </div>
