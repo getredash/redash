@@ -243,7 +243,7 @@
               uib-dropdown-toggle aria-expanded="false">
               Download <span class="hidden-xs">Dataset </span><span class="caret"></span>
             </button>
-            <ul class="dropdown-menu pull-right" uib-dropdown-menu>
+            <ul class="dropdown-menu" ng-class="{'pull-right': !query.isNew()}" uib-dropdown-menu>
               <li>
                 <a query-result-link target="_self">
                   <span class="fa fa-file-o"></span> Download as CSV File
