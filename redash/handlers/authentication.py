@@ -172,7 +172,8 @@ def client_config():
         'dateFormat': date_format,
         'dateTimeFormat': "{0} HH:mm".format(date_format),
         'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
-        'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS
+        'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
+        'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED
     }
 
     client_config.update(defaults)
