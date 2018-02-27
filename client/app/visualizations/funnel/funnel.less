@@ -12,6 +12,23 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  .step .step-name {
+    visibility: hidden;
+    width: inherit;
+    padding: 3px 5px;
+    background-color: white;
+    border: 1px solid;
+    border-radius: 3px;
+    position: absolute;
+    z-index: 1;
+    white-space: initial;
+    word-wrap: break-word;
+  }
+
+  .step:hover .step-name {
+    visibility: visible;
+  }
+
   div.bar {
     height: 30px;
   }
