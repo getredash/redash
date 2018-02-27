@@ -29,15 +29,15 @@
     {% endif %}
 
     {% if show_saml_login %}
-      <a href="/saml/login" class="login-button btn btn-default btn-block">SAML Login</a>
+      <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug) }}" class="login-button btn btn-default btn-block">SAML Login</a>
     {% endif %}
 
     {% if show_remote_user_login %}
-      <a href="/remote_user/login" class="login-button btn btn-default btn-block">Remote User Login</a>
+      <a href="{{ url_for('remote_user_auth.login') }}" class="login-button btn btn-default btn-block">Remote User Login</a>
     {% endif %}
 
     {% if show_ldap_login %}
-      <a href="/ldap_auth/login" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
+      <a href="{{ url_for('ldap_auth.login') }}" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
     {% endif %}
 
     {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}

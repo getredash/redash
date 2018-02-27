@@ -64,6 +64,7 @@ def render_token_login_page(template, org_slug, token):
                            show_saml_login=current_org.get_setting('auth_saml_enabled'),
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
                            show_ldap_login=settings.LDAP_LOGIN_ENABLED,
+                           org_slug=org_slug,
                            user=user), status_code
 
 
