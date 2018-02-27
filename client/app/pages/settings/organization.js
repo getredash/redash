@@ -10,6 +10,10 @@ function OrganizationSettingsCtrl($http, toastr, Events) {
   });
 
   this.update = (key) => {
+    if (!this.validateSamlSigningSettings()) {
+      return;
+    }
+
     $http.post('api/settings/organization', { [key]: this.settings[key] }).then((response) => {
       this.settings = response.data.settings;
       toastr.success('Settings changes saved.');
@@ -17,6 +21,11 @@ function OrganizationSettingsCtrl($http, toastr, Events) {
       toastr.error('Failed saving changes.');
     });
   };
+
+  this.validateSamlSigningSettings = () =>
+    // One of these must be enabled for secure SAML authentication
+    this.settings.auth_saml_want_response_signed ||
+    this.settings.auth_saml_want_assertions_signed;
 }
 
 export default function init(ngModule) {
