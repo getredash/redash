@@ -97,12 +97,17 @@ export default function init(ngModule) {
   ngModule.directive('wordCloudEditor', wordCloudEditor);
   ngModule.directive('wordCloudRenderer', wordCloudRenderer);
 
+  const defaultOptions = {
+    defaultRows: -1,
+  };
+
   ngModule.config((VisualizationProvider) => {
     VisualizationProvider.registerVisualization({
       type: 'WORD_CLOUD',
       name: 'Word Cloud',
       renderTemplate: '<word-cloud-renderer options="visualization.options" query-result="queryResult"></word-cloud-renderer>',
       editorTemplate: '<word-cloud-editor></word-cloud-editor>',
+      defaultOptions,
     });
   });
 }
