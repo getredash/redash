@@ -48,6 +48,9 @@ function Funnel(scope, element) {
     // Steps row
     trs.append('td')
       .attr('class', 'col-xs-3 step')
+      .text(d => d.step)
+      .append('div')
+      .attr('class', 'step-name')
       .text(d => d.step);
 
     // Funnel bars
