@@ -9,34 +9,36 @@ function gridsterAutoHeight($timeout) {
       let destroyed = false;
 
       function updateHeight() {
-        const wrapper = $element[0];
-        // Query element, but keep selector order
-        const element = _.chain(attr.gridsterAutoHeight.split(','))
-          .map(selector => wrapper.querySelector(selector))
-          .filter(_.isObject)
-          .first()
-          .value();
-        if (element) {
-          const childrenBounds = _.chain(element.children)
-            .map(child => child.getBoundingClientRect())
-            .reduce((result, bounds) => ({
-              left: Math.min(result.left, bounds.left),
-              top: Math.min(result.top, bounds.top),
-              right: Math.min(result.right, bounds.right),
-              bottom: Math.min(result.bottom, bounds.bottom),
-            }))
+        if (controller.gridster) {
+          const wrapper = $element[0];
+          // Query element, but keep selector order
+          const element = _.chain(attr.gridsterAutoHeight.split(','))
+            .map(selector => wrapper.querySelector(selector))
+            .filter(_.isObject)
+            .first()
             .value();
+          if (element) {
+            const childrenBounds = _.chain(element.children)
+              .map(child => child.getBoundingClientRect())
+              .reduce((result, bounds) => ({
+                left: Math.min(result.left, bounds.left),
+                top: Math.min(result.top, bounds.top),
+                right: Math.min(result.right, bounds.right),
+                bottom: Math.min(result.bottom, bounds.bottom),
+              }))
+              .value();
 
-          const additionalHeight = 100 + _.last(controller.gridster.margins);
-          const contentsHeight = childrenBounds.bottom - childrenBounds.top;
-          $timeout(() => {
-            controller.sizeY = Math.ceil((contentsHeight + additionalHeight) /
-              controller.gridster.curRowHeight);
-          });
-        }
+            const additionalHeight = 100 + _.last(controller.gridster.margins);
+            const contentsHeight = childrenBounds.bottom - childrenBounds.top;
+            $timeout(() => {
+              controller.sizeY = Math.ceil((contentsHeight + additionalHeight) /
+                controller.gridster.curRowHeight);
+            });
+          }
 
-        if (!destroyed) {
-          requestAnimationFrame(updateHeight);
+          if (!destroyed) {
+            requestAnimationFrame(updateHeight);
+          }
         }
       }
 
