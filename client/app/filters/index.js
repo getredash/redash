@@ -127,3 +127,11 @@ export function prettySize(bytes) {
 
   return bytes.toFixed(3) + ' ' + units[unit];
 }
+
+export function join(arr) {
+  if (arr === undefined || arr === null) {
+    return '';
+  }
+
+  return arr.join(' / ');
+}
