@@ -261,7 +261,16 @@ class QueryResultResource(BaseResource):
 
     @staticmethod
     def make_spreadsheet_response(query_result, query_name, email, org):
-        url = query_result.make_spreadsheet(query_name, email, org)
+        url = ''
+        try:
+            url = query_result.make_spreadsheet(query_name, email, org)
+        except ValueError:
+            url = '/settings/organization'
+            logging.error("JSON key file of Google Spreadsheet doesn't exist or wrong.")
+        except Exception, e:
+            logging.error("Something wrong error. " + str(e))
+            abort(500, message='Something wrong error.')
+
         return redirect(url)
 
 
