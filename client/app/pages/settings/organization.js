@@ -1,7 +1,7 @@
 import settingsMenu from '@/lib/settings-menu';
 import template from './organization.html';
 
-function OrganizationSettingsCtrl($http, toastr, Events) {
+function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
   Events.record('view', 'page', 'org_settings');
 
   this.settings = {};
@@ -13,10 +13,20 @@ function OrganizationSettingsCtrl($http, toastr, Events) {
     $http.post('api/settings/organization', { [key]: this.settings[key] }).then((response) => {
       this.settings = response.data.settings;
       toastr.success('Settings changes saved.');
+
+      if (this.disablePasswordLoginToggle() && this.settings.auth_password_login_enabled === false) {
+        this.settings.auth_password_login_enabled = true;
+        this.update('auth_password_login_enabled');
+      }
     }).catch(() => {
       toastr.error('Failed saving changes.');
     });
   };
+
+  this.googleLoginEnabled = clientConfig.googleLoginEnabled;
+
+  this.disablePasswordLoginToggle = () =>
+    (clientConfig.googleLoginEnabled || this.settings.auth_saml_enabled) === false;
 }
 
 export default function init(ngModule) {
