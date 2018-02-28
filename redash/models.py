@@ -341,14 +341,17 @@ class Organization(TimestampMixin, db.Model):
         self.settings['settings'][key] = value
         flag_modified(self, 'settings')
 
-    def get_setting(self, key):
+    def get_setting(self, key, raise_on_missing=True):
         if key in self.settings.get('settings', {}):
             return self.settings['settings'][key]
 
         if key in org_settings:
             return org_settings[key]
 
-        raise KeyError(key)
+        if raise_on_missing:
+            raise KeyError(key)
+
+        return None
 
     @property
     def admin_group(self):
