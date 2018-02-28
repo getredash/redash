@@ -68,7 +68,7 @@ def load_bundles():
         setup(
             # ...
             entry_points={
-                "redash.bundles": [
+                "redash.extensions": [
                     "wide_footer = my_extensions.wide_footer",
                 ]
                 # ...
@@ -78,7 +78,7 @@ def load_bundles():
 
     """
     bundles = odict()
-    for entry_point in entry_points().get("redash.bundles", []):
+    for entry_point in entry_points().get("redash.extensions", []):
         logger.info('Loading Redash bundle "%s".', entry_point.name)
         module = entry_point_module(entry_point)
         # Try to get a list of bundle files
