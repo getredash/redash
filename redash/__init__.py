@@ -91,7 +91,7 @@ class SlugConverter(BaseConverter):
 
 
 def create_app(load_admin=True):
-    from redash import handlers
+    from redash import extensions, handlers
     from redash.handlers.webpack import configure_webpack
     from redash.admin import init_admin
     from redash.models import db
@@ -137,5 +137,5 @@ def create_app(load_admin=True):
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
-
+    extensions.init_extensions(app)
     return app
