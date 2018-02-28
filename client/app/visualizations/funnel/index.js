@@ -33,8 +33,8 @@ function Funnel(scope, element) {
 
     // Header
     const header = table.append('thead').append('tr');
-    header.append('th').text(options.stepCol.dispAs);
-    header.append('th').attr('class', 'text-center').text(options.valueCol.dispAs);
+    header.append('th').text(options.stepCol.displayAs);
+    header.append('th').attr('class', 'text-center').text(options.valueCol.displayAs);
     header.append('th').attr('class', 'text-center').text('% Max');
     header.append('th').attr('class', 'text-center').text('% Previous');
 
@@ -193,8 +193,8 @@ export default function init(ngModule) {
 
     const editTemplate = '<funnel-editor></funnel-editor>';
     const defaultOptions = {
-      stepCol: { colName: '', dispAs: 'Steps' },
-      valueCol: { colName: '', dispAs: 'Value' },
+      stepCol: { colName: '', displayAs: 'Steps' },
+      valueCol: { colName: '', displayAs: 'Value' },
       sortKeyCol: { colName: '' },
       autoSort: true,
       defaultRows: 10,
