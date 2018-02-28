@@ -61,7 +61,7 @@ jobs:
     steps:
       - checkout
       - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo pip install -r requirements_bundles.txt -r requirements.txt
       - run: npm install
       - run: npm run bundle
       - run: npm test
@@ -72,7 +72,7 @@ jobs:
     steps:
       - checkout
       - run: sudo apt install python-pip
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo pip install -r requirements_bundles.txt  -r requirements.txt
       - run: npm install
       - run: .circleci/update_version
       - run: npm run bundle
@@ -87,7 +87,8 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python-pip npm
+      - run: sudo pip install -r requirements_bundles.txt  -r requirements.txt
       - run: .circleci/update_version "master"
       - run: npm run bundle
       - run: .circleci/docker_build "master"
@@ -97,7 +98,8 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python-pip npm
+      - run: sudo pip install -r requirements_bundles.txt  -r requirements.txt
       - run: .circleci/update_version "rc"
       - run: npm run bundle
       - run: .circleci/docker_build "rc"
@@ -107,7 +109,8 @@ jobs:
     steps:
       - setup_remote_docker
       - checkout
-      - run: sudo pip install -r requirements_bundles.txt
+      - run: sudo apt install python-pip npm
+      - run: sudo pip install -r requirements_bundles.txt  -r requirements.txt
       - run: .circleci/update_version "$CIRCLE_TAG"
       - run: npm run bundle
       - run: .circleci/docker_build "$CIRCLE_TAG"

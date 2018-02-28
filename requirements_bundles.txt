@@ -3,7 +3,9 @@
 # when moved to Python 3.
 # It's automatically installed when running npm run bundle
 
+redash-stmo>=2019.5.0
 # These can be removed when upgrading to Python 3.x
 importlib-metadata==0.9  # remove when on 3.8
 importlib_resources==1.0.2  # remove when on 3.7
 pathlib2==2.3.3  # remove when on 3.x
+
