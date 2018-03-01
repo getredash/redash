@@ -118,7 +118,7 @@
     </nav>
 
     <div class="content">
-      <div class="flex-fill d-flex flex-column p-l-15 p-r-15">
+      <div class="flex-fill d-flex flex-column p-l-15 p-r-15" style="height: 0; overflow-y: hidden;">
         <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle
           style="min-height: 11px; max-height: 460px;" ng-if="sourceMode">
           <section>
@@ -225,7 +225,7 @@
                 <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
               </div>
 
-              <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
+              <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox" style="max-height: 100vh; overflow-y: auto;">
                 <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
               </div>
             </div>
