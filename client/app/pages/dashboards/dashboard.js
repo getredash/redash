@@ -242,6 +242,7 @@ function DashboardCtrl(
           // Clear saved data and save layout
           _.each(this.dashboard.widgets, (widget) => {
             widget.$savedPosition = undefined;
+            widget.options.position.autoHeight = false;
           });
           saveDashboardLayout();
         } else {
