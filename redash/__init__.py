@@ -3,7 +3,7 @@ import sys
 import logging
 import urlparse
 import urllib
-import redis
+from redis import StrictRedis
 from flask import Flask, safe_join
 from flask_sslify import SSLify
 from werkzeug.contrib.fixers import ProxyFix
@@ -39,26 +39,7 @@ def setup_logging():
 
 def create_redis_connection():
     logging.debug("Creating Redis connection (%s)", settings.REDIS_URL)
-    redis_url = urlparse.urlparse(settings.REDIS_URL)
-
-    if redis_url.scheme == 'redis+socket':
-        qs = urlparse.parse_qs(redis_url.query)
-        if 'virtual_host' in qs:
-            db = qs['virtual_host'][0]
-        else:
-            db = 0
-
-        r = redis.StrictRedis(unix_socket_path=redis_url.path, db=db)
-    else:
-        if redis_url.path:
-            redis_db = redis_url.path[1]
-        else:
-            redis_db = 0
-        # Redis passwords might be quoted with special characters
-        redis_password = redis_url.password and urllib.unquote(redis_url.password)
-        r = redis.StrictRedis(host=redis_url.hostname, port=redis_url.port, db=redis_db, password=redis_password)
-
-    return r
+    return StrictRedis.from_url(settings.REDIS_URL)
 
 
 setup_logging()
