@@ -10,10 +10,15 @@ function gridsterAutoHeight($timeout, $parse) {
 
       const itemGetter = $parse(attr.gridsterItem);
 
-      $scope.$watch(attr.gridsterItem, () => {
+      $scope.$watch(attr.gridsterItem, (newValue, oldValue) => {
         const item = _.extend({}, itemGetter($scope));
-        if (!autoSized) {
-          item.autoHeight = false;
+        if (_.isObject(newValue) && _.isObject(oldValue)) {
+          if ((newValue.sizeY !== oldValue.sizeY) && !autoSized) {
+            item.autoHeight = false;
+            if (_.isFunction(itemGetter.assign)) {
+              itemGetter.assign($scope, item);
+            }
+          }
         }
         if (item.autoHeight) {
           $element.addClass('gridster-auto-height-enabled');
