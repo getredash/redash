@@ -67,22 +67,24 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
 
 
 @routes.route(org_scoped_rule('/embed/query/<query_id>/visualization/<visualization_id>'), methods=['GET'])
-@login_required
+#@login_required
 def embed(query_id, visualization_id, org_slug=None):
-    record_event(current_org, current_user._get_current_object(), {
-        'action': 'view',
-        'object_id': visualization_id,
-        'object_type': 'visualization',
-        'query_id': query_id,
-        'embed': True,
-        'referer': request.headers.get('Referer')
-    })
-
+    if(type(current_user)==models.AnonymousUser):
+       print("@#anonymous user, not to record_events") 
+    else:
+       record_event(current_org, current_user._get_current_object(), {
+         'action': 'view',
+         'object_id': visualization_id,
+         'object_type': 'visualization',
+         'query_id': query_id,
+         'embed': True,
+         'referer': request.headers.get('Referer')
+        })
     return render_index()
 
 
 @routes.route(org_scoped_rule('/public/dashboards/<token>'), methods=['GET'])
-@login_required
+#@login_required
 def public_dashboard(token, org_slug=None):
     if current_user.is_api_user():
         dashboard = current_user.object

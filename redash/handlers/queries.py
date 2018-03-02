@@ -191,6 +191,7 @@ class QueryResource(BaseResource):
 
         Responds with the updated :ref:`query <query-response-label>` object.
         """
+        print("QueryResource POST...")
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         query_def = request.get_json(force=True)
 

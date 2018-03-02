@@ -100,12 +100,11 @@ def login(org_slug=None):
         return redirect('/setup')
     elif current_org == None:
         return redirect('/')
-
+   
     index_url = url_for("redash.index", org_slug=org_slug)
     next_path = request.args.get('next', index_url)
     if current_user.is_authenticated:
         return redirect(next_path)
-
     if not current_org.get_setting('auth_password_login_enabled'):
         if settings.REMOTE_USER_LOGIN_ENABLED:
             return redirect(url_for("remote_user_auth.login", next=next_path))
@@ -130,7 +129,6 @@ def login(org_slug=None):
             flash("Wrong email or password.")
 
     google_auth_url = get_google_auth_url(next_path)
-
     return render_template("login.html",
                            org_slug=org_slug,
                            next=next_path,
@@ -196,22 +194,35 @@ def config(org_slug=None):
 
 
 @routes.route(org_scoped_rule('/api/session'), methods=['GET'])
-@login_required
+#@login_required
 def session(org_slug=None):
-    if current_user.is_api_user():
-        user = {
-            'permissions': [],
-            'apiKey': current_user.id
-        }
+    if(current_user.is_api_user()):
+       user = {
+          'permissions': [],
+          'apiKey': current_user.id 
+       }
     else:
-        user = {
-            'profile_image_url': current_user.profile_image_url,
-            'id': current_user.id,
-            'name': current_user.name,
-            'email': current_user.email,
-            'groups': current_user.group_ids,
-            'permissions': current_user.permissions
-        }
+       try:
+          myid= current_user.id
+          user = {
+             'profile_image_url': current_user.profile_image_url,
+             'id': current_user.id,
+             'name': current_user.name,
+             'email': current_user.email,
+             'groups': current_user.group_ids,
+             'permissions': current_user.permissions
+         }
+       except:
+          myid =1987
+          name ="anonymous"
+          email="anonymous@ccpg.com"
+          permissions = ["anonymous", "edit_query",  "execute_query"]
+          user = {
+            'id': myid,
+            'name': name,
+            'email': email,
+            'permissions': permissions
+          }
 
     return json_response({
         'user': user,

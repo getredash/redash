@@ -8,8 +8,12 @@ const ManifestPlugin = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const LessPluginAutoPrefix = require('less-plugin-autoprefix');
 const path = require('path');
+const redashBackend = process.env.REDASH_BACKEND || 'http://127.0.0.1:5000';
+//const redashBackend = process.env.REDASH_BACKEND || 'http://l92.168.5.241:8080';
 
-const redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
+ 
+//const redashBackend = process.env.REDASH_BACKEND || 'http://192.168.5.241:8080';
+//const redashBackend = 'http://192.168.5.241:5000';
 
 const config = {
   entry: {
@@ -177,6 +181,7 @@ const config = {
 if (process.env.DEV_SERVER_HOST) {
   config.devServer.host = process.env.DEV_SERVER_HOST;
 }
+//config.devServer.host = '192.168.5.241'
 
 if (process.env.NODE_ENV === 'production') {
   config.output.filename = '[name].[chunkhash].js';

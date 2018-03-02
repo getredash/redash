@@ -47,7 +47,7 @@ function CounterRenderer($timeout) {
           (rulerMeasures.fontSize / rootMeasures.fontSize),
         );
         /* eslint-enable function-paren-newline */
-        $scope.fontSize = fontSize + 'px';
+        $scope.fontSize = Math.round(0.5 * fontSize) + 'px';
       };
 
       const refreshData = () => {

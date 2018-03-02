@@ -22,6 +22,7 @@ def get_login_url(external=False, next="/"):
     else:
         login_url = url_for('redash.login', next=next, _external=external)
 
+    print login_url
     return login_url
 
 
@@ -129,10 +130,11 @@ def log_user_logged_in(app, user):
 @login_manager.unauthorized_handler
 def redirect_to_login():
     if request.is_xhr or '/api/' in request.path:
-        response = jsonify({'message': "Couldn't find resource. Please login and try again."})
-        response.status_code = 404
-        return response
-
+      
+       response = jsonify({'message': "Couldn't find resource. Please login and try again."})
+       response.status_code = 404
+       return response
+      
     login_url = get_login_url(next=request.url, external=False)
 
     return redirect(login_url)

@@ -109,8 +109,9 @@ class BaseQueryRunner(object):
         raise NotSupported()
 
     def _run_query_internal(self, query):
+        print("...  run_query_internal")
         results, error = self.run_query(query, None)
-
+        print("...  run_quey end", result)
         if error is not None:
             raise Exception("Failed running query [%s]." % query)
         return json.loads(results)['rows']

@@ -46,6 +46,7 @@ class HipChat(BaseDestination):
                 'color': colors.get(new_state, 'green')
             }
             headers = {'Content-Type': 'application/json'}
+            print("@@@@@notify!")
             response = requests.post(options['url'], data=json.dumps(data), headers=headers)
 
             if response.status_code != 204:

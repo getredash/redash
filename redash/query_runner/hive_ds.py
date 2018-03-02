@@ -6,13 +6,18 @@ from redash.query_runner import *
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
+#reload(sys)
+#sys.setdefaultencoding("utf8")
+#print("^^^^^^^^UTF-8")
 
 try:
     from pyhive import hive
     enabled = True
 except ImportError:
     enabled = False
-
+import sys
+reload(sys)
+sys.setdefaultencoding('utf-8')
 COLUMN_NAME = 0
 COLUMN_TYPE = 1
 
@@ -80,7 +85,6 @@ class Hive(BaseSQLQueryRunner):
             tables_query = "show tables in %s"
 
             columns_query = "show columns in %s.%s"
-
             for schema_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['database_name']), self._run_query_internal(schemas_query))):
                 for table_name in filter(lambda a: len(a) > 0, map(lambda a: str(a['tab_name']), self._run_query_internal(tables_query % schema_name))):
                     columns = filter(lambda a: len(a) > 0, map(lambda a: str(a['field']), self._run_query_internal(columns_query % (schema_name, table_name))))
@@ -94,7 +98,7 @@ class Hive(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-
+        print("@# hive run_query : ",query)
         connection = None
         try:
             connection = hive.connect(**self.configuration.to_dict())

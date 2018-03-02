@@ -128,7 +128,7 @@ ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE = os.environ.get('REDASH_ALERTS_DEFAULT_MAI
 # being throttled?
 # See https://flask-limiter.readthedocs.io/en/stable/#rate-limit-string-notation
 
-THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50/hour')
+THROTTLE_LOGIN_PATTERN = os.environ.get('REDASH_THROTTLE_LOGIN_PATTERN', '50000/hour')
 LIMITER_STORAGE = os.environ.get("REDASH_LIMITER_STORAGE", REDIS_URL)
 
 # CORS settings for the Query Result API (and possbily future external APIs).
@@ -196,7 +196,9 @@ EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORT
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
-ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "false"))
+#ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean(os.environ.get("REDASH_ALLOW_SCRIPTS_IN_USER_INPUT", "true"))
+ALLOW_SCRIPTS_IN_USER_INPUT = parse_boolean("false")
+
 DATE_FORMAT = os.environ.get("REDASH_DATE_FORMAT", "DD/MM/YY")
 DASHBOARD_REFRESH_INTERVALS = map(int, array_from_string(os.environ.get("REDASH_DASHBOARD_REFRESH_INTERVALS", "60,300,600,1800,3600,43200,86400")))
 

@@ -105,9 +105,9 @@ class Mysql(BaseSQLQueryRunner):
         FROM `information_schema`.`columns` col
         WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
         """
-
+        print("@mysql run queryi get tables")
         results, error = self.run_query(query, None)
-
+        print("@mysql get result")
         if error is not None:
             raise Exception("Failed getting schema.")
 
@@ -128,7 +128,7 @@ class Mysql(BaseSQLQueryRunner):
 
     def run_query(self, query, user):
         import MySQLdb
-
+        print("@Mysql  run query")
         connection = None
         try:
             connection = MySQLdb.connect(host=self.configuration.get('host', ''),
@@ -141,6 +141,7 @@ class Mysql(BaseSQLQueryRunner):
                                          connect_timeout=60)
             cursor = connection.cursor()
             logger.debug("MySQL running query: %s", query)
+            print("@mysql running qury :%s",query)
             cursor.execute(query)
 
             data = cursor.fetchall()

@@ -3,7 +3,7 @@ import os
 from flask import current_app, render_template, safe_join, send_file
 from werkzeug.exceptions import NotFound
 
-from flask_login import login_required
+#from flask_login import login_required
 from redash import settings
 from redash.handlers import routes
 from redash.handlers.authentication import base_href
@@ -22,6 +22,6 @@ def render_index():
 
 @routes.route(org_scoped_rule('/<path:path>'))
 @routes.route(org_scoped_rule('/'))
-@login_required
+#@login_required
 def index(**kwargs):
     return render_index()

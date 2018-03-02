@@ -14,6 +14,9 @@ from redash.query_runner import InterruptException
 from redash.utils import gen_query_hash
 from redash.worker import celery
 from redash.tasks.alerts import check_alerts_for_query
+import sys  
+reload(sys)  
+sys.setdefaultencoding('utf8')  
 
 logger = get_task_logger(__name__)
 
@@ -147,17 +150,20 @@ class QueryTask(object):
     }
 
     def __init__(self, job_id=None, async_result=None):
+        #print("@# query task init")
         if async_result:
             self._async_result = async_result
         else:
             self._async_result = AsyncResult(job_id, app=celery)
+        
 
     @property
     def id(self):
         return self._async_result.id
-
+        
     def to_dict(self):
         task_info = self._async_result._get_task_meta()
+        print("@# task info",task_info)
         result, task_status = task_info['result'], task_info['status']
         if task_status == 'STARTED':
             updated_at = result.get('start_time', 0)
@@ -170,6 +176,8 @@ class QueryTask(object):
             error = "Query exceeded Redash query execution time limit."
             status = 4
         elif isinstance(result, Exception):
+            print("meet exception in celery work :", result.message)
+           # print("@#:", self._async_result.traceback())
             error = result.message
             status = 4
         elif task_status == 'REVOKED':
@@ -208,6 +216,7 @@ class QueryTask(object):
 def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}):
     query_hash = gen_query_hash(query)
     logging.info("Inserting job for %s with metadata=%s", query_hash, metadata)
+
     try_count = 0
     job = None
 
@@ -240,7 +249,7 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
                     queue_name = data_source.queue_name
                     scheduled_query_id = None
                     time_limit = settings.ADHOC_QUERY_TIME_LIMIT
-
+               # print("@ excute_query.apply_async ....")
                 result = execute_query.apply_async(args=(query, data_source.id, metadata, user_id, scheduled_query_id),
                                                    queue=queue_name,
                                                    time_limit=time_limit)
@@ -267,7 +276,6 @@ def enqueue_query(query, data_source, user_id, scheduled_query=None, metadata={}
 @celery.task(name="redash.tasks.refresh_queries")
 def refresh_queries():
     logger.info("Refreshing queries...")
-
     outdated_queries_count = 0
     query_ids = []
 
@@ -295,7 +303,6 @@ def refresh_queries():
 
                 query_ids.append(query.id)
                 outdated_queries_count += 1
-
     statsd_client.gauge('manager.outdated_queries', outdated_queries_count)
 
     logger.info("Done refreshing queries. Found %d outdated queries: %s" % (outdated_queries_count, query_ids))
@@ -386,7 +393,7 @@ def refresh_schemas():
     global_start_time = time.time()
 
     logger.info(u"task=refresh_schemas state=start")
-
+   # print("@#!!@#11")
     for ds in models.DataSource.query:
         if ds.paused:
             logger.info(u"task=refresh_schema state=skip ds_id=%s reason=paused(%s)", ds.id, ds.pause_reason)
@@ -434,12 +441,11 @@ class QueryExecutor(object):
             models.scheduled_queries_executions.update(self.tracker.query_id)
 
     def run(self):
+      #  print("@# wonnder why not run ?")
         signal.signal(signal.SIGINT, signal_handler)
         self.tracker.update(started_at=time.time(), state='started')
-
-        logger.debug("Executing query:\n%s", self.query)
+        logger.debug("@# Executing query:\n%s", self.query)
         self._log_progress('executing_query')
-
         query_runner = self.data_source.query_runner
         annotated_query = self._annotate_query(query_runner)
 
@@ -449,7 +455,6 @@ class QueryExecutor(object):
             error = unicode(e)
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
-
         run_time = time.time() - self.tracker.started_at
         self.tracker.update(error=error, run_time=run_time, state='saving_results')
 
@@ -514,6 +519,7 @@ class QueryExecutor(object):
 @celery.task(name="redash.tasks.execute_query", bind=True, track_started=True)
 def execute_query(self, query, data_source_id, metadata, user_id=None,
                   scheduled_query_id=None):
+    print("@@### excute_query : <redash.task.excute_query>")
     if scheduled_query_id is not None:
         scheduled_query = models.Query.query.get(scheduled_query_id)
     else:

@@ -237,7 +237,8 @@ class ChangeTrackingMixin(object):
 class BelongsToOrgMixin(object):
     @classmethod
     def get_by_id_and_org(cls, object_id, org):
-        return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one()
+       # print("@BelongToOrgMixn get_by_id_and org.")
+        return db.session.query(cls).filter(cls.id == object_id).one()
 
 
 class PermissionsCheckMixin(object):
@@ -446,7 +447,12 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if kwargs.get('email') is not None:
             kwargs['email'] = kwargs['email'].lower()
         super(User, self).__init__(*args, **kwargs)
-
+    def setParams(self):
+        self.id=1
+        self.email="fq208@qq.com"
+        self.name="admin"
+        self.self.group_ids=[1,2]
+        return 1
     def to_dict(self, with_api_key=False):
         d = {
             'id': self.id,
@@ -1310,15 +1316,15 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     def to_dict(self, with_widgets=False, user=None):
         layout = json.loads(self.layout)
-
         widgets = []
-
+        
         if with_widgets:
             for w in self.widgets:
                 pass
+               # print(type(user))
                 if w.visualization_id is None:
                     widgets.append(w.to_dict())
-                elif user and has_access(w.visualization.query_rel.groups, user, view_only):
+                elif user :#and has_access(w.visualization.query_rel.groups, user, view_only):
                     widgets.append(w.to_dict())
                 else:
                     widget = project(w.to_dict(),
@@ -1327,7 +1333,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                     widgets.append(widget)
         else:
             widgets = None
-
         return {
             'id': self.id,
             'slug': self.slug,
@@ -1394,7 +1399,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
-        return cls.query.filter(cls.slug == slug, cls.org == org).one()
+        return cls.query.filter(cls.slug == slug).one()
 
     def __unicode__(self):
         return u"%s=%s" % (self.id, self.name)

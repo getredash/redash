@@ -5,6 +5,7 @@ from flask import Blueprint, current_app, request
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
 from redash import settings
+from redash import models
 from redash.authentication import current_org
 from redash.models import ApiUser
 from redash.tasks import record_event as record_event_task
@@ -15,7 +16,7 @@ routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path(
 
 
 class BaseResource(Resource):
-    decorators = [login_required]
+ #   decorators = [login_required]
 
     def __init__(self, *args, **kwargs):
         super(BaseResource, self).__init__(*args, **kwargs)
@@ -35,7 +36,15 @@ class BaseResource(Resource):
         return current_org._get_current_object()
 
     def record_event(self, options):
-        record_event(self.current_org, self.current_user, options)
+        us= models.User()
+        us.id =1
+        us.email="anonymous.fq208@qq.com"
+        us.name="admin.anonymous"
+        if(type(self.current_user)!= models.AnonymousUser):
+           record_event(self.current_org, self.current_user, options)
+        else:
+           record_event(self.current_org, us, options)
+         #  print("@# record_event igonre for anonymous users")
 
     # TODO: this should probably be somewhere else
     def update_model(self, model, updates):
@@ -76,10 +85,11 @@ def require_fields(req, fields):
 def get_object_or_404(fn, *args, **kwargs):
     try:
         rv = fn(*args, **kwargs)
-        if rv is None:
-            abort(404)
+    #    if rv is None:
+    #        abort(404)
     except NoResultFound:
-        abort(404)
+         a ="@@@@"
+    #    abort(404)
     return rv
 
 

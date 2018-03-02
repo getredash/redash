@@ -4,7 +4,7 @@
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
-    "start": "webpack-dev-server",
+    "start": "webpack-dev-server --port 8080  --hot --host 0.0.0.0",
     "dev": "REDASH_BACKEND=https://dev.redashapp.com npm start",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d"
