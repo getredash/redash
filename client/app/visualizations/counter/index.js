@@ -72,7 +72,7 @@ function CounterRenderer($timeout) {
               $scope.trendPositive = $scope.delta >= 0;
             }
           } else {
-            $scope.targetValue = null;
+            $scope.targetValue = $scope.visualization.options.targetValue;
           }
 
           $scope.isNumber = _.isNumber($scope.counterValue);
@@ -151,6 +151,7 @@ export default function init(ngModule) {
     const defaultOptions = {
       counterColName: 'counter',
       rowNumber: 1,
+      targetValue: null,
       targetRowNumber: 1,
       stringDecimal: 0,
       stringDecChar: '.',
