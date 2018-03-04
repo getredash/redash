@@ -1,9 +1,13 @@
+import { find } from 'underscore';
+
 function sameNumber(a, b) {
   return (isNaN(a) && isNaN(b)) || (a === b);
 }
 
-const flexBasis = ['flexBasis', 'webkitFlexBasis', 'msFlexPreferredSize']
-  .find(prop => prop in document.documentElement.style) || 'flexBasis';
+const flexBasis = find(
+  ['flexBasis', 'webkitFlexBasis', 'msFlexPreferredSize'],
+  prop => prop in document.documentElement.style,
+) || 'flexBasis';
 
 const threshold = 5;
 

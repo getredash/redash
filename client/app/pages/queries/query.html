@@ -118,119 +118,123 @@
     </nav>
 
     <div class="content">
-      <div class="flex-fill d-flex flex-column p-l-15 p-r-15">
-        <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle
-          style="min-height: 11px; max-height: 460px;" ng-if="sourceMode">
-          <section>
+      <div class="flex-fill p-relative">
+        <div class="p-absolute d-flex flex-column p-l-15 p-r-15" style="left: 0; top: 0; right: 0; bottom: 0;">
+          <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle
+            style="min-height: 11px; max-height: 460px;" ng-if="sourceMode">
+            <section>
 
-            <div class="container p-15 m-b-10" style="height:100%;">
-              <p style="height:calc(100% - 40px); margin-bottom: 0px;" class="editor__container">
-                <query-editor query="query"
-                  schema="schema"
-                  syntax="dataSource.syntax"></query-editor>
+              <div class="container p-15 m-b-10" style="height:100%;">
+                <p style="height:calc(100% - 40px); margin-bottom: 0px;" class="editor__container">
+                  <query-editor query="query"
+                    schema="schema"
+                    syntax="dataSource.syntax"></query-editor>
 
-                <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
-                  <span class="zmdi zmdi-format-indent-increase"></span>
-                </button>
-              </p>
+                  <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
+                    <span class="zmdi zmdi-format-indent-increase"></span>
+                  </button>
+                </p>
 
-              <div class="editor__control">
-                <div class="row form-inline">
-                  <div class="col-xs-5 text-left">
-                    <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
-                      ng-options="ds.id as ds.name for ds in dataSources"></select>
-                  </div>
-
-                  <div class="col-xs-7">
-                    <div class="editor__control--right">
-                      <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
-                        <span class="fa fa-floppy-o"></span>
-                        <span class="hidden-xs">Save</span>
-                        <span
-                          ng-show="isDirty">&#42;</span>
-                      </button>
-
-                      <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
-                        <span class="zmdi zmdi-play"></span>
-                        <span class="hidden-xs">Execute</span>
-                      </button>
+                <div class="editor__control">
+                  <div class="row form-inline">
+                    <div class="col-xs-5 text-left">
+                      <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
+                        ng-options="ds.id as ds.name for ds in dataSources"></select>
                     </div>
+
+                    <div class="col-xs-7">
+                      <div class="editor__control--right">
+                        <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
+                          <span class="fa fa-floppy-o"></span>
+                          <span class="hidden-xs">Save</span>
+                          <span
+                            ng-show="isDirty">&#42;</span>
+                        </button>
+
+                        <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
+                          <span class="zmdi zmdi-play"></span>
+                          <span class="hidden-xs">Execute</span>
+                        </button>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+            </section>
+          </div>
+
+          <div class="row query-metadata__mobile">
+            <div class="col-xs-4 text-left">
+              <span class="m-r-5">Created by</span>
+              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
+            </div>
+            <div class="col-xs-4 text-center">
+              <span class="m-r-5">Updated by</span>
+              <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
+            </div>
+            <div class="col-xs-4 text-right">
+              <span class="query-metadata__property"></span> Refresh Schedule</span>
+              <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
+              <span ng-if="query.isNew()">Never</span>
+            </div>
+          </div>
+
+          <section class="flex-fill p-relative t-body">
+            <div class="d-flex flex-column p-b-15 p-absolute" style="left: 0; top: 0; right: 0; bottom: 0;">
+              <div class="p-t-15 p-b-15" ng-if="query.getParametersDefs().length > 0">
+                <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
+              </div>
+              <!-- Query Execution Status -->
+
+              <div class="query-alerts">
+                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
+                  Executing query&hellip;
+                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
+                    ng-click="cancelExecution()">Cancel
+                  </button>
+                </div>
+                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
+                  Query in queue&hellip;
+                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
+                    ng-click="cancelExecution()">Cancel
+                  </button>
+                </div>
+                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong>
+                </div>
+              </div>
+              <!-- End of Query Execution Status -->
+
+              <!-- tabs and data -->
+              <div ng-if="showDataset" class="flex-fill p-relative">
+                <div class="d-flex flex-column p-absolute" style="left: 0; top: 0; right: 0; bottom: 0;">
+                  <div class="p-10" ng-show="showLog">
+                    <p>Log Information:</p>
+                    <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
+                  </div>
+                  <ul class="tab-nav">
+                    <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
+                    <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
+                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> &times;</span>
+                    </rd-tab>
+                    <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
+                  </ul>
+                  <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
+                    <filters filters="filters"></filters>
+                    <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
                   </div>
 
+                  <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
+                    <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                  </div>
                 </div>
               </div>
             </div>
-
           </section>
         </div>
-
-        <div class="row query-metadata__mobile">
-          <div class="col-xs-4 text-left">
-            <span class="m-r-5">Created by</span>
-            <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
-          </div>
-          <div class="col-xs-4 text-center">
-            <span class="m-r-5">Updated by</span>
-            <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
-          </div>
-          <div class="col-xs-4 text-right">
-            <span class="query-metadata__property"></span> Refresh Schedule</span>
-            <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
-            <span ng-if="query.isNew()">Never</span>
-          </div>
-        </div>
-
-        <section class="flex-fill d-flex flex-column">
-          <div class="t-body p-b-15 flex-fill d-flex flex-column">
-            <div class="p-t-15 p-b-15" ng-if="query.getParametersDefs().length > 0">
-              <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
-            </div>
-            <!-- Query Execution Status -->
-
-            <div class="query-alerts">
-              <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
-                Executing query&hellip;
-                <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
-                  ng-click="cancelExecution()">Cancel
-                </button>
-              </div>
-              <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
-                Query in queue&hellip;
-                <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
-                  ng-click="cancelExecution()">Cancel
-                </button>
-              </div>
-              <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong>
-              </div>
-            </div>
-            <!-- End of Query Execution Status -->
-
-            <!-- tabs and data -->
-            <div ng-if="showDataset" class="flex-fill d-flex flex-column">
-              <div class="p-10" ng-show="showLog">
-                <p>Log Information:</p>
-                <p ng-repeat="l in queryResult.getLog()">{{l}}</p>
-              </div>
-              <ul class="tab-nav">
-                <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
-                <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
-                  <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> &times;</span>
-                </rd-tab>
-                <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
-              </ul>
-              <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
-                <filters filters="filters"></filters>
-                <grid-renderer query-result="queryResult" items-per-page="50"></grid-renderer>
-              </div>
-
-              <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
-                <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
-              </div>
-            </div>
-          </div>
-        </section>
       </div>
       <div class="bottom-controller-container">
         <div class="bottom-controller">
