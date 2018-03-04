@@ -1,10 +1,44 @@
 import requests
-import datetime
+from datetime import datetime
+from urlparse import parse_qs
 from redash.query_runner import BaseQueryRunner, register, TYPE_DATETIME, TYPE_STRING
 from redash.utils import json_dumps
 
 
+def get_instant_rows(metrics_data):
+    rows = []
+
+    for metric in metrics_data:
+        row_data = metric['metric']
+
+        timestamp, value = metric['value']
+        date_time = datetime.fromtimestamp(timestamp)
+
+        row_data.update({"timestamp": date_time, "value": value})
+        rows.append(row_data)
+    return rows
+
+
+def get_range_rows(metrics_data):
+    rows = []
+
+    for metric in metrics_data:
+        ts_values = metric['values']
+        metric_labels = metric['metric']
+
+        for values in ts_values:
+            row_data = metric_labels.copy()
+
+            timestamp, value = values
+            date_time = datetime.fromtimestamp(timestamp)
+
+            row_data.update({'timestamp': date_time, 'value': value})
+            rows.append(row_data)
+    return rows
+
+
 class Prometheus(BaseQueryRunner):
+
     @classmethod
     def configuration_schema(cls):
         return {
@@ -40,45 +74,74 @@ class Prometheus(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
+        """
+        Query Syntax, actually it is the URL query string.
+        Check the Prometheus HTTP API for the details of the supported query string.
+
+        https://prometheus.io/docs/prometheus/latest/querying/api/
+
+        example: instant query
+            query=http_requests_total
+
+        example: range query
+            query=http_requests_total&start=2018-01-20T00:00:00.000Z&end=2018-01-25T00:00:00.000Z&step=60s
+
+        example: until now range query
+            query=http_requests_total&start=2018-01-20T00:00:00.000Z&step=60s
+            query=http_requests_total&start=2018-01-20T00:00:00.000Z&end=now&step=60s
+        """
+
         base_url = self.configuration["url"]
+        columns = [
+            {
+                'friendly_name': 'timestamp',
+                'type': TYPE_DATETIME,
+                'name': 'timestamp'
+            },
+            {
+                'friendly_name': 'value',
+                'type': TYPE_STRING,
+                'name': 'value'
+            },
+        ]
 
         try:
             error = None
             query = query.strip()
+            # for backward compatibility
+            query = 'query={}'.format(query) if not query.startswith('query=') else query
 
-            local_query = '/api/v1/query'
-            url = base_url + local_query
-            payload = {'query': query}
-            response = requests.get(url, params=payload)
+            payload = parse_qs(query)
+            query_type = 'query_range' if 'step' in payload.keys() else 'query'
+
+            # for the range of until now
+            if query_type == 'query_range' and ('end' not in payload.keys() or 'now' in payload['end']):
+                date_now = datetime.now()
+                payload.update({"end": [date_now.isoformat("T") + "Z"]})
+
+            api_endpoint = base_url + '/api/v1/{}'.format(query_type)
+
+            response = requests.get(api_endpoint, params=payload)
             response.raise_for_status()
-            raw_data = response.json()['data']['result']
-            columns = [
-                {
-                    'friendly_name': 'timestamp',
-                    'type': TYPE_DATETIME,
-                    'name': 'timestamp'
-                },
-                {
-                    'friendly_name': 'value',
-                    'type': TYPE_STRING,
-                    'name': 'value'
-                },
-            ]
-            columns_name = raw_data[0]['metric'].keys()
-            for column_name in columns_name:
+
+            metrics = response.json()['data']['result']
+
+            if len(metrics) == 0:
+                return None, 'query result is empty.'
+
+            metric_labels = metrics[0]['metric'].keys()
+
+            for label_name in metric_labels:
                 columns.append({
-                    'friendly_name': column_name,
+                    'friendly_name': label_name,
                     'type': TYPE_STRING,
-                    'name': column_name
+                    'name': label_name
                 })
-            rows = []
-            for row in raw_data:
-                h = {}
-                for r in row['metric']:
-                    h[r] = row['metric'][r]
-                    h['value'] = row['value'][1]
-                    h['timestamp'] = datetime.datetime.fromtimestamp(row['value'][0])
-                rows.append(h)
+
+            if query_type == 'query_range':
+                rows = get_range_rows(metrics)
+            else:
+                rows = get_instant_rows(metrics)
 
             json_data = json_dumps(
                 {
@@ -86,6 +149,7 @@ class Prometheus(BaseQueryRunner):
                     'columns': columns
                 }
             )
+
         except requests.RequestException as e:
             return None, str(e)
         except KeyboardInterrupt:
