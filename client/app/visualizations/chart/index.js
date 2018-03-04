@@ -90,7 +90,7 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       scope.colorScheme = ['Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric',
         'Greens', 'Greys', 'Hot', 'Jet', 'Picnic', 'Portland',
-        'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd'];
+        'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd', 'Custom..'];
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
       scope.showZColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'heatmap');

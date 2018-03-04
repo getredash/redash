@@ -222,6 +222,16 @@ function prepareHeatmapData(seriesList, options) {
     [1, '#e92827'],
   ];
 
+  let colorScheme = [];
+
+  if (!options.colorScheme) {
+    colorScheme = defaultColorScheme;
+  } else if (options.colorScheme === 'Custom..') {
+    colorScheme = [[0, options.heatMinColor], [1, options.heatMaxColor]];
+  } else {
+    colorScheme = options.colorScheme;
+  }
+
   return map(seriesList, (series) => {
     const plotlySeries = {
       x: [],
@@ -229,7 +239,7 @@ function prepareHeatmapData(seriesList, options) {
       z: [],
       type: 'heatmap',
       name: '',
-      colorscale: options.colorScheme || defaultColorScheme,
+      colorscale: colorScheme,
     };
 
     plotlySeries.x = uniq(pluck(series.data, 'x'));

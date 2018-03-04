@@ -157,6 +157,16 @@
     </div>
   </div>
 
+  <div class="form-group" ng-if="options.colorScheme == 'Custom..'">
+      <label class="control-label">Min Color</label>
+      <input ng-model="options.heatMinColor" type="text" class="form-control"></input>
+  </div>
+
+  <div class="form-group" ng-if="options.colorScheme == 'Custom..'">
+      <label class="control-label">Max Color</label>
+      <input ng-model="options.heatMaxColor" type="text" class="form-control"></input>
+  </div>
+
   <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
     <label class="control-label">Custom code</label>
     <textarea ng-model="options.customCode" class="form-control v-resizable" rows="10">
