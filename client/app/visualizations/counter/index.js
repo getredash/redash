@@ -4,6 +4,12 @@ import * as _ from 'underscore';
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
 
+const availableAggregations = {
+  count: memo => memo + 1,
+  sum: (memo, val) => memo + val,
+  average: (memo, val, iter, collection) => 1.0 * memo + val / collection.length,
+};
+
 function getRowNumber(index, size) {
   if (index >= 0) {
     return index - 1;
@@ -14,6 +20,14 @@ function getRowNumber(index, size) {
   }
 
   return size + index;
+}
+
+// Function to migrateRowCounter to rowAggregation
+function migrateRowCounter(options) {
+  if (_.isUndefined(options.aggregateRow)) {
+    return options.countRow || false;
+  }
+  return options.aggregateRow;
 }
 
 function CounterRenderer($timeout) {
@@ -53,14 +67,19 @@ function CounterRenderer($timeout) {
       const refreshData = () => {
         const queryData = $scope.queryResult.getData();
         if (queryData) {
-          const rowNumber = getRowNumber($scope.visualization.options.rowNumber, queryData.length);
-          const targetRowNumber =
-            getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
-          const counterColName = $scope.visualization.options.counterColName;
-          const targetColName = $scope.visualization.options.targetColName;
+          const options = $scope.visualization.options;
+          const rowNumber = getRowNumber(options.rowNumber, queryData.length);
+          const targetRowNumber = getRowNumber(options.targetRowNumber, queryData.length);
+          const counterColName = options.counterColName;
+          const targetColName = options.targetColName;
+          // Backward support rowCounter
+          const aggregateRow = migrateRowCounter(options);
+          const aggregation = availableAggregations[aggregateRow ?
+            options.aggregationMethod || 'count' : ''];
 
-          if ($scope.visualization.options.countRow) {
-            $scope.counterValue = queryData.length;
+          if (aggregateRow) {
+            const colToAggregate = queryData.map(row => row[counterColName]);
+            $scope.counterValue = _.reduce(colToAggregate, aggregation, 0);
           } else if (counterColName) {
             $scope.counterValue = queryData[rowNumber][counterColName];
           }
@@ -114,7 +133,12 @@ function CounterEditor() {
     restrict: 'E',
     template: counterEditorTemplate,
     link(scope) {
+      const options = scope.visualization.options;
+      scope.availableAggregations = Object.keys(availableAggregations);
       scope.currentTab = 'general';
+      options.aggregateRow = migrateRowCounter(options);
+      options.aggregationMethod =
+        options.aggregateRow ? options.aggregationMethod || 'count' : '';
       scope.changeTab = (tab) => {
         scope.currentTab = tab;
       };
