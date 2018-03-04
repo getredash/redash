@@ -211,6 +211,17 @@ function preparePieData(seriesList, options) {
 }
 
 function prepareHeatmapData(seriesList, options) {
+  const defaultColorScheme = [
+    [0, '#356aff'],
+    [0.14, '#4a7aff'],
+    [0.28, '#5d87ff'],
+    [0.42, '#7398ff'],
+    [0.56, '#fb8c8c'],
+    [0.71, '#ec6463'],
+    [0.86, '#ec4949'],
+    [1, '#e92827'],
+  ];
+
   return map(seriesList, (series) => {
     const plotlySeries = {
       x: [],
@@ -218,7 +229,7 @@ function prepareHeatmapData(seriesList, options) {
       z: [],
       type: 'heatmap',
       name: '',
-      colorscale: options.colorScheme || 'RdBu',
+      colorscale: options.colorScheme || defaultColorScheme,
     };
 
     plotlySeries.x = uniq(pluck(series.data, 'x'));
