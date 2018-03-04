@@ -1,5 +1,40 @@
 # Change Log
 
+## v4.0.0-rc.1 - 2018-03-04
+
+### Added
+
+- [Prometheus] Support for range queries. @jubel-han
+- Extensions system based on Python entrypoints. @jezdez
+- Funnel visualization. @tonyjiangh
+- UI to edit allowed Google OAuth domains. @arikfr
+- Empty state for homepage, alerts, queries and dashboards pages. @kocsmy, @arikfr
+
+### Changed
+
+- Maintain widget's auto-height state until it's been resized by the user. @kravets-levko
+- Change default table viz width from 4 to 3 columns. @kravets-levko
+- When saving dashboard adding or removing widgets, save only modified widgets (with changed size and/or position). @kravets-levko
+- Don't allow disabling Password based login if no SSO is enabled. @arikfr
+- Always show login page, even if password based login disabled. @arikfr
+- Upgrade `sqlparse` to 0.2.4. @ariarijp
+- Make sure datetime/number columns in table visualization don't wrap. @kravets-levko
+- Explicitly set order of tabs in settings page. @kravets-levko
+- User can no longer change the type of a saved visualization. @kravets-levko
+- Update docker-compose.yml to restart postgres/redis containers `unless-stopped`. @benmanns
+- New default colors for chart visualizations. @kocsmy
+- Updated design of all the authentication pages (login, forgot password, etc). @kravets-levko
+
+### Fixed
+
+- Glue schemas with more than 100 tables were showing only first 100 tables. @jezdez
+- Long visualizations dind't render scrollbars on some browsers. @kravets-levko
+- When the dataset was returning some columns name as non strings, table couldn't be rendered. @kravets-levko
+- Missing logos for Prometheus and Snowflake. @kocsmy
+- Render correct link to LDAP login on login page. @arikfr
+- Sort widgets by column/row to make sure they are placed correctly. @arikfr
+- Public dashboards were not rendered due to Javascript error. @kravets-levko
+
 ## v4.0.0-beta - 2018-02-14
 
 ### Added
