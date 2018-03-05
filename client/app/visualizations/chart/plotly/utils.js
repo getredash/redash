@@ -291,7 +291,11 @@ function prepareHeatmapData(seriesList, options) {
           dataLabels.x.push(plotlySeries.x[j]);
           dataLabels.y.push(plotlySeries.y[i]);
           dataLabels.text.push(String(zValue));
-          dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
+          if (options.colorScheme && options.colorScheme === 'Custom..') {
+            dataLabels.textfont.color.push('white');
+          } else {
+            dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
+          }
         }
       }
       plotlySeries.z.push(item);

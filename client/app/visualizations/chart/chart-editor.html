@@ -158,13 +158,29 @@
   </div>
 
   <div class="form-group" ng-if="options.colorScheme == 'Custom..'">
-      <label class="control-label">Min Color</label>
-      <input ng-model="options.heatMinColor" type="text" class="form-control"></input>
+    <label class="control-label">Min Color</label>
+    <ui-select ng-model="options.heatMinColor">
+      <ui-select-match>
+        <color-box color="$select.selected.value"></color-box>
+      </ui-select-match>
+      <ui-select-choices repeat="color.value as (key, color) in colors">
+        <color-box color="color.value"></color-box>
+        <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+      </ui-select-choices>
+    </ui-select>
   </div>
 
   <div class="form-group" ng-if="options.colorScheme == 'Custom..'">
-      <label class="control-label">Max Color</label>
-      <input ng-model="options.heatMaxColor" type="text" class="form-control"></input>
+    <label class="control-label">Max Color</label>
+    <ui-select ng-model="options.heatMaxColor">
+      <ui-select-match>
+        <color-box color="$select.selected.value"></color-box>
+      </ui-select-match>
+      <ui-select-choices repeat="color.value as (key, color) in colors">
+        <color-box color="color.value"></color-box>
+        <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+      </ui-select-choices>
+    </ui-select>
   </div>
 
   <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
