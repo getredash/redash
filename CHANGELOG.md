@@ -1,9 +1,10 @@
 # Change Log
 
-## v4.0.0-rc.1 - 2018-03-04
+## v4.0.0-rc.1 - 2018-03-05
 
 ### Added
 
+- Configuration for query refresh intervals.
 - [Prometheus] Support for range queries. @jubel-han
 - Extensions system based on Python entrypoints. @jezdez
 - Funnel visualization. @tonyjiangh
