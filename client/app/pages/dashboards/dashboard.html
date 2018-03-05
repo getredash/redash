@@ -1,6 +1,6 @@
 <div class="container">
 
-  <div class="row p-l-15 p-r-15 m-b-10 m-l-0 m-r-0 dashboard-header">
+  <div class="row p-l-15 p-r-15 m-b-10 m-l-0 m-r-0 dashboard-header" ng-if="!$ctrl.isFullscreen">
     <div class="col-xs-5 col-sm-5 col-lg-5 page-header--new p-l-0">
       <h3>
         <edit-in-place editable="$ctrl.layoutEditing" done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name"></edit-in-place>
@@ -69,18 +69,18 @@
     </div>
   </div>
 
-  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.layoutEditing">
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.layoutEditing && !$ctrl.isFullscreen">
     <label>
         <input name="input" type="checkbox" ng-model="$ctrl.dashboard.dashboard_filters_enabled" ng-change="$ctrl.updateDashboardFiltersState()">
         Use Dashboard Level Filters
     </label>
   </div>
 
-  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0">
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.globalParameters.length > 0 && !$ctrl.isFullscreen">
     <parameters parameters="$ctrl.globalParameters" on-change="$ctrl.onGlobalParametersChange()"></parameters>
   </div>
 
-  <div class="m-b-10 p-15 bg-white tiled" ng-if="$ctrl.filters | notEmpty">
+  <div class="m-b-10 p-15 bg-white tiled" ng-if="($ctrl.filters | notEmpty) && !$ctrl.isFullscreen">
     <filters filters="$ctrl.filters" on-change="$ctrl.filtersOnChange(filter, $modal)"></filters>
   </div>
 

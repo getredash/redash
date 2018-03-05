@@ -2,7 +2,9 @@ import * as _ from 'underscore';
 
 function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
-    return widgets.map(widget => new Widget(widget));
+    const widgetObjects = widgets.map(widget => new Widget(widget));
+    const sortedByRow = _.sortBy(widgetObjects, widget => widget.options.position && widget.options.position.row);
+    return sortedByRow;
   }
 
   function transformSingle(dashboard) {
