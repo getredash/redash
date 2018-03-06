@@ -3,7 +3,7 @@ import {
   each, values, sortBy, pluck, identity, filter, map,
 } from 'underscore';
 import moment from 'moment';
-import createFormatter from '@/lib/value-format';
+import { createFormatter } from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {

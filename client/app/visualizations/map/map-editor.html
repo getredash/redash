@@ -5,7 +5,7 @@
     <li ng-class="{active: currentTab == 'map'}"><a ng-click="currentTab='map'">Map Settings</a></li>
   </ul>
 
-  <div ng-show="currentTab == 'general'">
+  <div ng-show="currentTab == 'general'" class="m-t-10 m-b-10">
     <div class="form-group">
       <label class="control-label">Latitude Column Name</label>
       <ui-select name="form-control" required ng-model="visualization.options.latColName">
@@ -40,7 +40,7 @@
     </div>
   </div>
 
-  <div ng-show="currentTab == 'groups'">
+  <div ng-show="currentTab == 'groups'" class="m-b-10">
     <table class="table table-condensed col-table">
       <thead>
       <th>Name</th>
@@ -50,14 +50,14 @@
       <tr ng-repeat="(name, options) in visualization.options.groups">
         <td>{{name}}</td>
         <td>
-            <input class="form-control" type="color" ng-model="options.color"/>
+          <input class="form-control" type="color" ng-model="options.color"/>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
 
-  <div ng-show="currentTab == 'map'">
+  <div ng-show="currentTab == 'map'" class="m-t-10 m-b-10">
     <div class="checkbox">
       <label>
         <input type="checkbox" ng-model="visualization.options.clusterMarkers">
@@ -67,8 +67,8 @@
 
     <div class="form-group">
       <label class="control-label">Map Tiles</label>
-      <select ng-options="tile.url as tile.name for tile in mapTiles" ng-model="visualization.options.mapTileUrl"
-              class="form-control"></select>
+      <select ng-options="tile.url as tile.name for tile in mapTiles"
+        ng-model="visualization.options.mapTileUrl" class="form-control"></select>
     </div>
   </div>
 
