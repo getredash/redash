@@ -113,6 +113,7 @@ function choroplethRenderer($sanitize, $http) {
           scrollWheelZoom: false,
           maxBounds: choroplethBounds,
           maxBoundsViscosity: 1,
+          attributionControl: false,
         });
       }
 
@@ -235,6 +236,7 @@ export default function init(ngModule) {
       legend: {
         visible: true,
         position: 'bottom-left',
+        alignText: 'right',
       },
       tooltip: {
         enabled: true,
