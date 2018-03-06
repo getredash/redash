@@ -64,7 +64,12 @@ function choroplethRenderer($sanitize, $http) {
           onEachFeature: (feature, layer) => {
             const value = getValueForFeature(feature, data, $scope.options.countryCodeType);
             const valueFormatted = $scope.formatValue(value);
-            const featureData = prepareFeatureProperties(feature, valueFormatted);
+            const featureData = prepareFeatureProperties(
+              feature,
+              valueFormatted,
+              data,
+              $scope.options.countryCodeType,
+            );
             const color = getColorByValue(value, limits, colors, $scope.options.colors.noValue);
 
             layer.setStyle({
