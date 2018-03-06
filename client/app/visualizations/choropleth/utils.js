@@ -44,13 +44,14 @@ export function prepareData(data, countryCodeField, valueField) {
   return result;
 }
 
-export function prepareFeatureProperties(feature, valueFormatted) {
+export function prepareFeatureProperties(feature, valueFormatted, data, countryCodeType) {
   const result = {};
   _.each(feature.properties, (value, key) => {
     result['@@' + key] = value;
   });
   result['@@value'] = valueFormatted;
-  return result;
+  const datum = data[feature.properties[countryCodeType]] || {};
+  return _.extend(result, datum.item);
 }
 
 export function getValueForFeature(feature, data, countryCodeType) {
