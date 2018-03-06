@@ -27,7 +27,6 @@ function DashboardCtrl(
     if (!this.dashboard.canEdit()) {
       return;
     }
-//    this.dashboad.widgets=  prepareDashboardWidgets(this.dashboard.widgets)
     this.saveInProgress = true;
     const showMessages = true; // this.layoutEditing;
     // Temporarily disable grid editing (but allow user to use UI controls)
@@ -234,7 +233,6 @@ function DashboardCtrl(
         if (!this.layoutEditing) {
           // Save current positions of widgets
           _.each(this.dashboard.widgets, (widget) => {
-            console.log("Body tag is %s", widget.options.postion);
             widget.$savedPosition = _.clone(widget.options.position);
           });
         }
@@ -302,14 +300,10 @@ function DashboardCtrl(
         if (this.layoutEditing) {
           // Save position of newly added widget (but not entire layout)
           const widget = _.last(this.dashboard.widgets);
-          console.log("add widget")
-          console.log("print the wigget position %s", widget.options.position)
           if (_.isObject(widget)) {
             return widget.$save().then(() => {
               if (this.layoutEditing) {
                 widget.$savedPosition = _.clone(widget.options.position);
-                console.log("print the wigget 2 position %s", widget.options.position)
-
               }
             });
           }
