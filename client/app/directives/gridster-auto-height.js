@@ -50,7 +50,9 @@ function gridsterAutoHeight($timeout, $parse) {
               }))
               .value();
 
-            const additionalHeight = 100 + _.last(controller.gridster.margins);
+            // Height of controls outside visualization area
+            const additionalHeight = $element[0].offsetHeight - element.offsetHeight
+              + _.last(controller.gridster.margins);
             const contentsHeight = childrenBounds.bottom - childrenBounds.top;
             $timeout(() => {
               const sizeY = Math.ceil((contentsHeight + additionalHeight) /
