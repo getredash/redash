@@ -23,7 +23,6 @@ L.Icon.Default.mergeOptions({
 
 delete L.Icon.Default.prototype._getIconUrl;
 
-
 function mapRenderer() {
   return {
     restrict: 'E',
@@ -209,7 +208,6 @@ function mapRenderer() {
 
       $scope.$watch('queryResult && queryResult.getData()', render);
       $scope.$watch('visualization.options', render, true);
-      $scope.$watch('visualization.options.height', resize);
     },
   };
 }
