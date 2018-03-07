@@ -31,6 +31,7 @@ function choroplethRenderer($sanitize, $http) {
     link($scope, $element) {
       let countriesData;
       let map;
+      let choropleth;
 
       function render() {
         if (map) {
@@ -60,7 +61,7 @@ function choroplethRenderer($sanitize, $http) {
         // Update data for legend block
         $scope.legendItems = legend;
 
-        const choropleth = L.geoJson(countriesData, {
+        choropleth = L.geoJson(countriesData, {
           onEachFeature: (feature, layer) => {
             const value = getValueForFeature(feature, data, $scope.options.countryCodeType);
             const valueFormatted = $scope.formatValue(value);
@@ -113,7 +114,6 @@ function choroplethRenderer($sanitize, $http) {
         map = L.map($element[0].children[0].children[0], {
           center: choroplethBounds.getCenter(),
           zoom: 1,
-          minZoom: 1,
           layers: [choropleth],
           scrollWheelZoom: false,
           maxBounds: choroplethBounds,
@@ -125,6 +125,7 @@ function choroplethRenderer($sanitize, $http) {
       function resize() {
         if (map) {
           map.invalidateSize(false);
+          map.fitBounds(choropleth.getBounds());
         }
       }
 
@@ -249,7 +250,7 @@ export default function init(ngModule) {
       },
       popup: {
         enabled: true,
-        template: 'Country: <b>{{ @@name_long }} ({{ @@iso_a2 }})\n</b>\n<br>Value: <b>{{ @@value }}</b>',
+        template: 'Country: <b>{{ @@name_long }} ({{ @@iso_a2 }})</b>\n<br>\nValue: <b>{{ @@value }}</b>',
       },
     };
 
