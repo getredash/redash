@@ -444,8 +444,20 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
                      default=lambda: generate_token(40),
                      unique=True)
 
+    disabled_at = Column(db.DateTime(True), default=None, nullable=True)
+
     __tablename__ = 'users'
     __table_args__ = (db.Index('users_org_id_email', 'org_id', 'email', unique=True),)
+
+    @property
+    def is_disabled(self):
+        return self.disabled_at is not None
+
+    def disable(self):
+        self.disabled_at = db.func.now()
+
+    def enable(self):
+        self.disabled_at = None
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('email') is not None:
@@ -460,7 +472,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'profile_image_url': self.profile_image_url,
             'groups': self.group_ids,
             'updated_at': self.updated_at,
-            'created_at': self.created_at
+            'created_at': self.created_at,
+            'disabled_at': self.disabled_at,
+            'is_disabled': self.is_disabled,
         }
 
         if self.password_hash is None:
