@@ -25,6 +25,7 @@ import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
+import profileImageFilter from '@/filters/profile-image';
 import dashboardGridOptions from './dashboard-grid-options';
 
 const logger = debug('redash:config');
@@ -127,6 +128,7 @@ registerServices();
 registerFilters();
 markdownFilter(ngModule);
 dateTimeFilter(ngModule);
+profileImageFilter(ngModule);
 registerComponents();
 registerPages();
 registerVisualizations(ngModule);
