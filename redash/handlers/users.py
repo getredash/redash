@@ -1,6 +1,7 @@
 import time
 from flask import request
 from flask_restful import abort
+from flask_login import current_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
 
@@ -133,3 +134,23 @@ class UserResource(BaseResource):
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
 
+class UserDisableResource(BaseResource):
+    @require_admin
+    def post(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        # admin cannot disable self; current user is an admin (`@require_admin`)
+        # so just check user id
+        if user.id == current_user.id:
+            abort(403)
+        user.disable()
+        models.db.session.commit()
+
+        return user.to_dict(with_api_key=is_admin_or_owner(user_id))
+
+    @require_admin
+    def delete(self, user_id):
+        user = models.User.get_by_id_and_org(user_id, self.current_org)
+        user.enable()
+        models.db.session.commit()
+
+        return user.to_dict(with_api_key=is_admin_or_owner(user_id))
