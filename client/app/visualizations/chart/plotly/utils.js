@@ -226,7 +226,7 @@ function prepareHeatmapData(seriesList, options) {
 
   if (!options.colorScheme) {
     colorScheme = defaultColorScheme;
-  } else if (options.colorScheme === 'Custom..') {
+  } else if (options.colorScheme === 'Custom...') {
     colorScheme = [[0, options.heatMinColor], [1, options.heatMaxColor]];
   } else {
     colorScheme = options.colorScheme;
@@ -291,7 +291,7 @@ function prepareHeatmapData(seriesList, options) {
           dataLabels.x.push(plotlySeries.x[j]);
           dataLabels.y.push(plotlySeries.y[i]);
           dataLabels.text.push(String(zValue));
-          if (options.colorScheme && options.colorScheme === 'Custom..') {
+          if (options.colorScheme && options.colorScheme === 'Custom...') {
             dataLabels.textfont.color.push('white');
           } else {
             dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
