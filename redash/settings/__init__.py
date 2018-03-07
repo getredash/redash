@@ -223,6 +223,6 @@ ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETE
 
 # sqlparse
 SQLPARSE_FORMAT_OPTIONS = {
-    'reindent': True,
-    'keyword_case': 'upper',
+    'reindent': parse_boolean(os.environ.get('SQLPARSE_FORMAT_REINDENT', 'true')),
+    'keyword_case': os.environ.get('SQLPARSE_FORMAT_KEYWORD_CASE', 'upper'),
 }
