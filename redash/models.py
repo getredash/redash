@@ -751,7 +751,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
-        query_result = cls(org=org,
+        query_result = cls(org_id=org,
                            query_hash=query_hash,
                            query_text=query,
                            runtime=run_time,

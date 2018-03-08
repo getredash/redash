@@ -208,7 +208,7 @@ class QueryArchiveTest(BaseTestCase):
         query = self.factory.create_query(schedule="1")
         yesterday = utcnow() - datetime.timedelta(days=1)
         query_result, _ = models.QueryResult.store_result(
-            query.org, query.data_source, query.query_hash, query.query_text,
+            query.org_id, query.data_source, query.query_hash, query.query_text,
             "1", 123, yesterday)
 
         query.latest_query_data = query_result
@@ -390,7 +390,7 @@ class TestQueryResultStoreResult(BaseTestCase):
 
     def test_stores_the_result(self):
         query_result, _ = models.QueryResult.store_result(
-            self.data_source.org, self.data_source, self.query_hash,
+            self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
         self.assertEqual(query_result.data, self.data)
@@ -406,7 +406,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         query3 = self.factory.create_query(query_text=self.query)
 
         query_result, _ = models.QueryResult.store_result(
-            self.data_source.org, self.data_source, self.query_hash,
+            self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
         self.assertEqual(query1.latest_query_data, query_result)
@@ -419,7 +419,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         query3 = self.factory.create_query(query_text=self.query + "123")
 
         query_result, _ = models.QueryResult.store_result(
-            self.data_source.org, self.data_source, self.query_hash,
+            self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
         self.assertEqual(query1.latest_query_data, query_result)
@@ -432,7 +432,7 @@ class TestQueryResultStoreResult(BaseTestCase):
         query3 = self.factory.create_query(query_text=self.query, data_source=self.factory.create_data_source())
 
         query_result, _ = models.QueryResult.store_result(
-            self.data_source.org, self.data_source, self.query_hash,
+            self.data_source.org_id, self.data_source, self.query_hash,
             self.query, self.data, self.runtime, self.utcnow)
 
         self.assertEqual(query1.latest_query_data, query_result)
