@@ -20,6 +20,13 @@ import editorTemplate from './choropleth-editor.html';
 
 import countriesDataUrl from './countries.geo.json';
 
+const loadCountriesData = _.bind(function loadCountriesData($http, url) {
+  if (!this[url]) {
+    this[url] = $http.get(url).then(response => response.data);
+  }
+  return this[url];
+}, {});
+
 function choroplethRenderer($sanitize, $http) {
   return {
     restrict: 'E',
@@ -29,15 +36,40 @@ function choroplethRenderer($sanitize, $http) {
       options: '=?',
     },
     link($scope, $element) {
-      let countriesData;
-      let map;
-      let choropleth;
+      let countriesData = null;
+      let map = null;
+      let choropleth = null;
+      let updateBoundsLock = false;
+
+      function getBounds() {
+        if (!updateBoundsLock) {
+          const bounds = map.getBounds();
+          $scope.options.bounds = [
+            [bounds._southWest.lat, bounds._southWest.lng],
+            [bounds._northEast.lat, bounds._northEast.lng],
+          ];
+          $scope.$applyAsync();
+        }
+      }
+
+      function setBounds({ disableAnimation = false } = {}) {
+        if (map && choropleth) {
+          const bounds = $scope.options.bounds || choropleth.getBounds();
+          const options = disableAnimation ? {
+            animate: false,
+            duration: 0,
+          } : null;
+          map.fitBounds(bounds, options);
+        }
+      }
 
       function render() {
         if (map) {
           map.remove();
+          map = null;
+          choropleth = null;
         }
-        if (!_.isObject(countriesData)) {
+        if (!countriesData) {
           return;
         }
 
@@ -114,32 +146,43 @@ function choroplethRenderer($sanitize, $http) {
         map = L.map($element[0].children[0].children[0], {
           center: choroplethBounds.getCenter(),
           zoom: 1,
+          zoomSnap: 0,
           layers: [choropleth],
           scrollWheelZoom: false,
           maxBounds: choroplethBounds,
           maxBoundsViscosity: 1,
           attributionControl: false,
         });
+
+        map.on('focus', () => { map.on('moveend', getBounds); });
+        map.on('blur', () => { map.off('moveend', getBounds); });
+
+        setBounds({ disableAnimation: true });
       }
 
-      function resize() {
-        if (map) {
-          map.invalidateSize(false);
-          map.fitBounds(choropleth.getBounds());
+      loadCountriesData($http, countriesDataUrl).then((data) => {
+        if (_.isObject(data)) {
+          countriesData = data;
+          render();
         }
-      }
-
-      $scope.handleResize = () => {
-        resize();
-      };
-
-      $http.get(countriesDataUrl).then((response) => {
-        countriesData = response.data;
-        render();
       });
 
+      $scope.handleResize = _.debounce(() => {
+        if (map) {
+          map.invalidateSize(false);
+          setBounds({ disableAnimation: true });
+        }
+      }, 50);
+
       $scope.$watch('queryResult && queryResult.getData()', render);
-      $scope.$watch('options', render, true);
+      $scope.$watch(() => _.omit($scope.options, 'bounds'), render, true);
+      $scope.$watch('options.bounds', () => {
+        // Prevent infinite digest loop
+        const savedLock = updateBoundsLock;
+        updateBoundsLock = true;
+        setBounds();
+        updateBoundsLock = savedLock;
+      }, true);
     },
   };
 }
