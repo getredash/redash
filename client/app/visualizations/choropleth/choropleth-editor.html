@@ -6,6 +6,9 @@
     <li ng-class="{active: currentTab == 'colors'}">
       <a ng-click="changeTab('colors')">Colors</a>
     </li>
+    <li ng-class="{active: currentTab == 'bounds'}">
+      <a ng-click="changeTab('bounds')">Bounds</a>
+    </li>
   </ul>
   <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
     <div class="row">
@@ -211,6 +214,36 @@
               <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
             </ui-select-choices>
           </ui-select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="currentTab == 'bounds'" class="m-t-10 m-b-10">
+    <div class="form-group">
+      <label>North-East latitude and longitude</label>
+      <div class="row">
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[1][0]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[1][1]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>South-West latitude and longitude</label>
+      <div class="row">
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[0][0]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[0][1]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
         </div>
       </div>
     </div>
