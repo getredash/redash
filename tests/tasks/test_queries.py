@@ -115,6 +115,7 @@ class QueryExecutorTests(BaseTestCase):
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
             qr.exception = ValueError("broken")
             execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
+            q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
             execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
             q = models.Query.get_by_id(q.id)
