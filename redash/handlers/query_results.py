@@ -54,7 +54,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
             return None
 
         run_time = time.time() - started_at
-        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org, data_source,
+        query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
                                                                               query_hash, query_text, data,
                                                                               run_time, utils.utcnow())
 
