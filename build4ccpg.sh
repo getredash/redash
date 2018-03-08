@@ -30,7 +30,7 @@ case $1 in
     echo "@ to run the celery and server"
     export SQLALCHEMY_MAX_OVERFLOW=200
     export SQLALCHEMY_POOL_SIZE=100
-    nohup ./bin/run  celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1| tee redash_worker.log >/dev/null & nohup ./bin/run ./manage.py runserver -h 0.0.0.0 -p 8080 2>&1 | tee redash_server.log >/dev/null &
+    nohup ./bin/run  celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1| tee redash_worker.log >/dev/null & nohup ./bin/run ./manage.py runserver --with-threads -h 0.0.0.0 -p 8080 2>&1 | tee redash_server.log >/dev/null &
     ;;
 -D | -d)
      echo "to kill the redash related process..."
@@ -44,7 +44,7 @@ case $1 in
      echo "Debug Mode.. you may modify the webpack related files first : webpack.config.js and package.json "
 #     unset $REDASH_BACKEND
      echo "to run server"
-     nohup ./bin/run ./manage.py runserver --debugger --reload 2>&1| tee redash_server.log >/dev/null & nohup ./bin/run celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1| tee redash_worker.log >/dev/null& nohup npm run start 2>&1| tee npm_run.log >/dev/null&
+     nohup ./bin/run ./manage.py runserver --debugger --reload --with-threads  2>&1| tee redash_server.log >/dev/null & nohup ./bin/run celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1| tee redash_worker.log >/dev/null& nohup npm run start 2>&1| tee npm_run.log >/dev/null&
       ;;
 *)
     echo "illegal command!"  
