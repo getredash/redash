@@ -14,8 +14,9 @@ const EmptyStateComponent = {
     showInviteStep: '<',
     onboardingMode: '<',
   },
-  controller($http, $uibModal) {
+  controller($http, $uibModal, currentUser) {
     this.loading = true;
+    this.isAdmin = currentUser.isAdmin;
 
     $http.get('api/organization/status').then((response) => {
       this.loading = false;
