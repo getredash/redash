@@ -24,8 +24,9 @@
               ng-readonly="user.is_disabled">
             <error-messages input="userSettingsForm.email" form="userSettingsForm"></error-messages>
           </div>
-          <div class="form-group" ng-if="!user.is_disabled">
-            <button class="btn btn-primary">Save</button>
+          <div class="form-group d-flex justify-content-between" ng-if="!user.is_disabled">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-default" ng-click="disableUser(user)">Disable</button>
           </div>
         </form>
 

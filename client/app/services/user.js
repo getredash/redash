@@ -16,11 +16,12 @@ function transform(data) {
   return data;
 }
 
-function enableUser(user, toastr) {
+function enableUser(user, toastr, $sanitize) {
+  const userName = $sanitize(user.name);
   return user.$enable()
     .then((data) => {
       toastr.success(
-        `User <b>${user.name}</b> is now enabled.`,
+        `User <b>${userName}</b> is now enabled.`,
         { allowHtml: true },
       );
       return data;
@@ -31,17 +32,18 @@ function enableUser(user, toastr) {
         message = 'Unknown error';
       }
       toastr.error(
-        `Cannot enable user <b>${user.name}</b><br>${message}`,
+        `Cannot enable user <b>${userName}</b><br>${message}`,
         { allowHtml: true },
       );
     });
 }
 
-function disableUser(user, toastr) {
+function disableUser(user, toastr, $sanitize) {
+  const userName = $sanitize(user.name);
   return user.$disable()
     .then((data) => {
       toastr.warning(
-        `User <b>${user.name}</b> is now disabled.`,
+        `User <b>${userName}</b> is now disabled.`,
         { allowHtml: true },
       );
       return data;
@@ -52,13 +54,13 @@ function disableUser(user, toastr) {
         message = 'Unknown error';
       }
       toastr.error(
-        `Cannot disable user <b>${user.name}</b><br>${message}`,
+        `Cannot disable user <b>${userName}</b><br>${message}`,
         { allowHtml: true },
       );
     });
 }
 
-function User($resource, $http, toastr) {
+function User($resource, $http, $sanitize, toastr) {
   const transformResponse = $http.defaults.transformResponse.concat(transform);
 
   const actions = {
@@ -72,8 +74,8 @@ function User($resource, $http, toastr) {
 
   const UserResource = $resource('api/users/:id', { id: '@id' }, actions);
 
-  UserResource.enableUser = user => enableUser(user, toastr);
-  UserResource.disableUser = user => disableUser(user, toastr);
+  UserResource.enableUser = user => enableUser(user, toastr, $sanitize);
+  UserResource.disableUser = user => disableUser(user, toastr, $sanitize);
 
   return UserResource;
 }
