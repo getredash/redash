@@ -4,7 +4,7 @@ import settingsMenu from '@/lib/settings-menu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
-function UsersCtrl($sce, currentUser, Events, User) {
+function UsersCtrl(currentUser, Events, User) {
   Events.record('view', 'page', 'users');
 
   this.currentUser = currentUser;

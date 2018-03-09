@@ -1,10 +1,8 @@
 <settings-screen>
   <div class="row">
     <div class="col-md-12">
-      <div class="clearfix m-b-10">
-        <a ng-if="$ctrl.currentUser.hasPermission('admin')"
-          href="users/new" class="btn btn-default pull-left"
-        ><i class="fa fa-plus"></i> New User</a>
+      <div class="clearfix m-b-10" ng-if="$ctrl.currentUser.hasPermission('admin')">
+        <a href="users/new" class="btn btn-default pull-left"><i class="fa fa-plus"></i> New User</a>
 
         <div class="btn-group pull-right">
           <button class="btn btn-default" type="button"
