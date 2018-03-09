@@ -12,8 +12,8 @@
     var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
     // 生产环境
     // var host = "http://portal.einwin.com";
-    // var queryId = 1;
-    // var apiKey = "HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5";
+    // var queryId = 22;
+    // var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
     var cellphone = "18566795138";
 
     function pollJob(url, job) {
@@ -39,7 +39,7 @@
     }
 
     function refreshQuery() {
-        var refreshUrl = host + "/api/queries/" + queryId + "/refresh?p_cellphone=" + cellphone;
+        var refreshUrl = host + "/api/queries/" + queryId + "/refresh?p_cellphone=" + {{p_cellphone}};
         $.ajax({
             type: 'POST',
             url: refreshUrl,

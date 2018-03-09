@@ -92,7 +92,8 @@ def forgot_password(org_slug=None):
 
 @routes.route(org_scoped_rule('/pcr'), methods=['GET', 'POST'])
 def pcr():
-    return render_template("propertyCollectionRate.html")
+    phone=  request.args.get('p_cellphone')
+    return render_template("propertyCollectionRate.html",p_cellphone=phone)
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)

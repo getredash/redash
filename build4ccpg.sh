@@ -16,10 +16,15 @@ cpCCPGprj()
       -p | -P)
            echo "product env.. use ip "
            sed -i 's/192.168.5.241/10.11.3.146/' ccpgPj/*.html
+           sed -i 's/var queryId = 22/var queryId = 1/' ccpgPj/*.html
+           sed -i 's/86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj/HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5/' ccpgPj/*.html
+
            ;;
       -T | -t)
            echo "test env .. use ip."
            sed -i 's/10.11.3.146/192.168.5.241/' ccpgPj/*.html
+           sed -i 's/var queryId = 1/var queryId = 22/' ccpgPj/*.html
+           sed -i 's/HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5/86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj/' ccpgPj/*.html
            ;;
       *)
           ;;
