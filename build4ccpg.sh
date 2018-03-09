@@ -12,6 +12,18 @@ cpCCPGprj()
 {
    if [ -d "ccpgPj" ]; then
       echo "cp pj.."
+      case $1 in
+      -p | -P)
+           echo "product env.. use ip "
+           sed -i 's/192.168.5.241/10.11.3.146/' ccpgPj/*.html
+           ;;
+      -T | -t)
+           echo "test env .. use ip."
+           sed -i 's/10.11.3.146/192.168.5.241/' ccpgPj/*.html
+           ;;
+      *)
+          ;;
+      esac
       cp -rf ccpgPj/*.html client/dist
       if [ ! -d "client/dist/static" ]; then
          mkdir "client/dist/static"
@@ -46,7 +58,7 @@ case $1 in
       ;;
 -P | -p)
       echo "Patch ...  "
-      cpCCPGprj
+      cpCCPGprj $2
       ;;
 -b | -B)
     echo "Packing... " 
@@ -55,7 +67,7 @@ case $1 in
        exit 1
     fi  
     npm run build | tee npm_run_build.log 
-    cpCCPGprj
+    cpCCPGprj $2
     ps aux|grep node|awk '{print $2}'|xargs kill -9
     ;;
 -R | -r)
