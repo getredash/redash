@@ -226,8 +226,9 @@
                 </p>
             </div>
         </div>
-        <div id="OrgBI" class="OrgBI pxp100 ofh dpnone">
-            <iframe id="OrgBIIframe" src="#" class="pxp100" frameborder="0"></iframe>
+        <div id="OrgBI" class="OrgBI pxp100 dpnone">
+            <iframe id="OrgBIIframe" src="#" width="100%" frameborder="0"></iframe>
+
         </div>
     </div>
     <!--筛选组织弹出层-->
@@ -244,13 +245,13 @@
 </body>
 <script type="text/javascript">
     // 测试环境
-  //  var host = "http://192.168.5.241:8080";
-  //  var queryId = 22;
-  //  var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
+    var host = "http://192.168.5.241:8080";
+    var queryId = 22;
+    var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
     // 生产环境
-    var host = "http://portal.einwin.com/redash";
-    var queryId = 1;
-    var apiKey = "HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5";
+//     var host = "http://portal.einwin.com/redash";
+//     var queryId = 1;
+//     var apiKey = "HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5";
     /*显示和隐藏加载页面事件*/
     var loadingPageObj=null;
     function showLoadingPage() {
@@ -345,6 +346,9 @@
                 $('#OrgName').text(orgData[0].orgname);
                 $('#OrgBIIframe').attr('src',orgData[0].url);
                 $('#OrgBI').show();
+                $("#OrgBIIframe")[0].onload = function () {
+	          iosIframeWidthBug();
+		}
 
                 var strHTML='';
 
@@ -368,6 +372,13 @@
         hideMasker('.organizeMasker');
         $('#OrgName').text($(obj).text());
         $('#OrgBIIframe').attr('src',url);
+    }
+    function iosIframeWidthBug(){
+    //不是 iphone ipad就不执行了
+     if (!navigator.userAgent.match(/iPad|iPhone/i))return false;
+   //获取子iframevar 
+     iframebody = document.getElementById('OrgBIIframe').contentWindow.document.body;
+     iframebody.style.width = document.body.clientWidth+'px';
     }
 
 </script>
