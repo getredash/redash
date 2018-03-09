@@ -121,7 +121,7 @@ class TestCreateAndLoginUser(BaseTestCase):
     def test_logins_valid_user(self):
         user = self.factory.create_user(email='test@example.com')
 
-        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+        with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, user.name, user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
@@ -129,7 +129,7 @@ class TestCreateAndLoginUser(BaseTestCase):
         email = 'test@example.com'
         name = 'Test User'
 
-        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+        with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, name, email)
 
             self.assertTrue(login_user_mock.called)
@@ -139,7 +139,7 @@ class TestCreateAndLoginUser(BaseTestCase):
     def test_updates_user_name(self):
         user = self.factory.create_user(email='test@example.com')
 
-        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+        with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, "New Name", user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
