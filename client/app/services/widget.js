@@ -25,6 +25,21 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     return this.query;
   };
 
+  WidgetResource.prototype.getQueryResult = function getQueryResult(force, maxAge) {
+    if (!this.visualization) {
+      return undefined;
+    }
+
+    if (force || this.queryResult === undefined) {
+      if (maxAge === undefined || force) {
+        maxAge = force ? 0 : undefined;
+      }
+      this.queryResult = this.getQuery().getQueryResult(maxAge);
+    }
+
+    return this.queryResult;
+  };
+
   WidgetResource.prototype.getName = function getName() {
     if (this.visualization) {
       return `${this.visualization.query.name} (${this.visualization.name})`;
@@ -88,8 +103,12 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     widget.options.position = extend(
       {},
       visualizationOptions,
-      pick(widget.options.position, ['col', 'row', 'sizeX', 'sizeY']),
+      pick(widget.options.position, ['col', 'row', 'sizeX', 'sizeY', 'autoHeight']),
     );
+
+    if (widget.options.position.sizeY < 0) {
+      widget.options.position.autoHeight = true;
+    }
 
     return new WidgetResource(widget);
   }

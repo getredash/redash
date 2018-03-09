@@ -16,7 +16,7 @@
           <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
             <li ng-class="{'disabled': $ctrl.queryResult.isEmpty()}"><a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'csv')}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'csv')}}" target="_self">Download as CSV File</a></li>
             <li ng-class="{'disabled': $ctrl.queryResult.isEmpty()}"><a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'xlsx')}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'xlsx')}}" target="_self">Download as Excel File</a></li>
-            <li><a ng-href="queries/{{$ctrl.query.id}}#{{$ctrl.widget.visualization.id}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
+            <li><a ng-href="{{$ctrl.query.getUrl(true, $ctrl.widget.visualization.id)}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
             <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
           </ul>
         </div>
@@ -33,7 +33,9 @@
           <div class="text-muted query--description" ng-bind-html="$ctrl.query.description | markdown"></div>
         </div>
       </div>
-      <parameters parameters="$ctrl.localParametersDefs()"></parameters>
+      <div class="m-b-10" ng-if="$ctrl.localParametersDefs().length > 0">
+        <parameters parameters="$ctrl.localParametersDefs()"></parameters>
+      </div>
     </div>
 
     <div ng-switch-when="failed" class="body-row-auto scrollbox">
@@ -52,6 +54,9 @@
       <a class="small hidden-print" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public">
         <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span>
       </a>
+      <span class="small hidden-print" ng-if="$ctrl.public">
+        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span>
+      </span>
       <span class="visible-print">
         <i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}}
       </span>
@@ -89,6 +94,6 @@
         </ul>
       </div>
     </div>
-    <div class="body-row-auto scrollbox t-body p-5" ng-bind-html="$ctrl.widget.text | markdown"></div>
+    <div class="body-row-auto scrollbox tiled t-body p-15" ng-bind-html="$ctrl.widget.text | markdown"></div>
   </div>
 </div>

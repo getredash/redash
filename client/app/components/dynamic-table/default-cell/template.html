@@ -1,4 +1,4 @@
-<td ng-class="'content-align-' + column.alignContent">
-  <div ng-if="column.allowHTML" ng-bind-html="sanitize(column.formatFunction(value))"></div>
-  <div ng-if="!column.allowHTML" ng-bind="column.formatFunction(value)"></div>
+<td ng-class="'content-align-' + column.alignContent + ' display-as-' + column.displayAs">
+  <div ng-if="allowHTML" ng-bind-html="value"></div>
+  <div ng-if="!allowHTML" ng-bind="value"></div>
 </td>

@@ -5,10 +5,9 @@ import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 
-function DashboardListCtrl(Dashboard, $location, clientConfig) {
+function DashboardListCtrl(Dashboard, $location) {
   const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/ig;
 
-  this.logoUrl = clientConfig.logoUrl;
   const page = parseInt($location.search().page || 1, 10);
 
   this.defaultOptions = {};
@@ -36,7 +35,15 @@ function DashboardListCtrl(Dashboard, $location, clientConfig) {
   };
 
   this.allTags = [];
+  this.showList = false;
+  this.showEmptyState = false;
+
   this.dashboards.$promise.then((data) => {
+    if (data.length > 0) {
+      this.showList = true;
+    } else {
+      this.showEmptyState = true;
+    }
     const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
     this.allTags = _.unique(_.flatten(out)).filter(e => e).map(tag => tag.replace(/:$/, ''));
     this.allTags.sort();

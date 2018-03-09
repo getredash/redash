@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th ng-repeat="column in $ctrl.columns" ng-click="$ctrl.onColumnHeaderClick($event, column)"
-          class="sortable-column" ng-class="'content-align-' + column.alignContent">
+          class="sortable-column" ng-class="'content-align-' + column.alignContent + ' display-as-' + column.displayAs">
           <span ng-if="($ctrl.orderBy.length > 1) && ($ctrl.orderByColumnsIndex[column.name] > 0)"
             class="sort-order-indicator">{{ $ctrl.orderByColumnsIndex[column.name] }}</span>
           <span>{{column.title}}</span>
@@ -14,10 +14,11 @@
               'fa-caret-up': $ctrl.orderByColumnsDirection[column.name] < 0
             }"></i>
         </th>
+        <th class="dynamic-table-spacer"></th>
       </tr>
     </thead>
     <thead ng-if="$ctrl.searchColumns.length > 0">
-      <th class="p-t-10 p-b-10 p-l-15 p-r-15" colspan="{{ $ctrl.columns.length }}">
+      <th class="p-t-10 p-b-10 p-l-15 p-r-15" colspan="{{ $ctrl.columns.length + 1 }}">
         <input type="text" class="form-control" placeholder="Search..."
           ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           ng-change="$ctrl.onSearchTermChanged()">
@@ -31,7 +32,7 @@
     </tbody>
   </table>
 </div>
-<div class="text-center" ng-if="$ctrl.preparedRows.length > $ctrl.itemsPerPage">
+<div class="paginator-container" ng-if="$ctrl.preparedRows.length > $ctrl.itemsPerPage">
   <ul uib-pagination total-items="$ctrl.preparedRows.length"
       items-per-page="$ctrl.itemsPerPage"
       ng-model="$ctrl.currentPage"

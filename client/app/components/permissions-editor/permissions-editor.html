@@ -11,7 +11,7 @@
                          refresh-delay="0"
                          ui-disable-choice="user.alreadyGrantee">
         <div>
-          <img ng-src="{{user.gravatar_url}}" height="24px">&nbsp;{{user.name}}
+          <img ng-src="{{user.profile_image_url}}" height="24px">&nbsp;{{user.name}}
           <small ng-if="user.alreadyGrantee">(already has permission)</small>
         </div>
        </ui-select-choices>
@@ -28,7 +28,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="grantee in $ctrl.grantees">
-          <td width="50px"><img ng-src="{{grantee.gravatar_url}}" height="40px"/></td>
+          <td width="50px"><img ng-src="{{grantee.profile_image_url}}" height="40px"/></td>
           <td>{{grantee.name}} </td>
           <td>{{grantee.access_type}}</td>
           <td><button class="pull-right btn btn-sm btn-danger" ng-click="$ctrl.removeGrantee(grantee)">Remove</button></td>

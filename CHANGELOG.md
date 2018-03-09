@@ -1,6 +1,120 @@
 # Change Log
 
-## v4.0.0 - UNRELEASED
+## v4.0.0-rc.1 - 2018-03-05
+
+### Added
+
+- Configuration for query refresh intervals.
+- [Prometheus] Support for range queries. @jubel-han
+- Extensions system based on Python entrypoints. @jezdez
+- Funnel visualization. @tonyjiangh
+- UI to edit allowed Google OAuth domains. @arikfr
+- Empty state for homepage, alerts, queries and dashboards pages. @kocsmy, @arikfr
+
+### Changed
+
+- Maintain widget's auto-height state until it's been resized by the user. @kravets-levko
+- Change default table viz width from 4 to 3 columns. @kravets-levko
+- When saving dashboard adding or removing widgets, save only modified widgets (with changed size and/or position). @kravets-levko
+- Don't allow disabling Password based login if no SSO is enabled. @arikfr
+- Always show login page, even if password based login disabled. @arikfr
+- Upgrade `sqlparse` to 0.2.4. @ariarijp
+- Make sure datetime/number columns in table visualization don't wrap. @kravets-levko
+- Explicitly set order of tabs in settings page. @kravets-levko
+- User can no longer change the type of a saved visualization. @kravets-levko
+- Update docker-compose.yml to restart postgres/redis containers `unless-stopped`. @benmanns
+- New default colors for chart visualizations. @kocsmy
+- Updated design of all the authentication pages (login, forgot password, etc). @kravets-levko
+
+### Fixed
+
+- Glue schemas with more than 100 tables were showing only first 100 tables. @jezdez
+- Long visualizations dind't render scrollbars on some browsers. @kravets-levko
+- When the dataset was returning some columns name as non strings, table couldn't be rendered. @kravets-levko
+- Missing logos for Prometheus and Snowflake. @kocsmy
+- Render correct link to LDAP login on login page. @arikfr
+- Sort widgets by column/row to make sure they are placed correctly. @arikfr
+- Public dashboards were not rendered due to Javascript error. @kravets-levko
+
+## v4.0.0-beta - 2018-02-14
+
+### Added
+
+- Massive update to the UI/UX of the whole application. @kocsmy, @kravets-levko, @arikfr
+- Flexible dashboard layout: resize widgets both vertically and horizonally. @kravets-levko
+- Configuration and new options for the table visualization. @kravets-levko
+- API to return internal usage events. @arikfr
+- Add an option to set a common prefix to the backend logs. @arikfr
+- [MongoDB] support nested fields in results. @arikfr
+- Cohort visualization: add options and fix rendering logic. @kravets-levko
+- Table visualization: `URL` column type. @kravets-levko
+- Table visualization: `Image` column type. @kravets-levko
+- [BigQuery] show amount of data scanned. @arikfr
+- Make dashboard refresh intervals configurable. @arikfr
+- Button to insert table/column name from schema into the query text. @kravets-levko
+- [Athena] show amount of data scanned. @washort
+- [Salesforce] Add setting to set the API version. @mayconbordin
+- UI for configuration options (auth, date format, etc). @arikfr
+- CLI command to create the root user. @kyoshidajp
+- [Redshift] support for loading late binding views in schema browser. @tonyjiangh
+- Show user's profile picture and load it from Google when using Google OAuth. @kyoshidajp
+- CockroachDB query runner. @yershalom
+- MAPD query runner. @cdessanti
+- Pie chart: show subplot titles. @deecay
+
+### Changed
+
+- Make trusted header authentication compatible with multiorg mode. @sjakthol
+- Update AWS RDS certificate bundle. @arikfr
+- Add Prometheus to the default query runners list. @arikfr
+- [Athena] update botocore version to support Glue. @arikfr
+- Support for quotes passwords in the Redis and Postgres connection URLs. @javier-sanz
+- Change the way static assets are served. @arikfr
+- [BigQuery] Properly handle RECORD fields in schema (show the nested fields). @arikfr
+- Upgrade to Celery 3.1.25 in preparation to Celery 4. @jezdez
+- Remove loading indicator when updating query parameter value (before executing). @kravets-levko
+- Improvements to the chart visualization (see #2156 for details). @kravets-levko
+- Start searching for queries immediately instead of waiting for 3 characters. @kyoshidajp
+- Make all references to Elasticsearch be properly capitalized. @kakakakakku
+- Use PostgreSQL's FTS/tsvector type for query searches. @jezdez
+- [Redshift] Make sslmode configurable. @sjakthol
+- Allow passing options to tests Docker command. @arikfr
+- Improve error handling mechanism and make error pages friendlier. @kravets-levko, @kocsmy, @arikfr
+- Make LDAP settings names more consistent. @gramakri
+- [Oracle] support for non SELECT queries. @doddjc21
+- Admin can no longer remove themselves from the built-in groups. @negibouze
+- Update pie charts font style. @deecay
+- Upgrade psycopg2 for support PostgreSQL 10.0. @kyoshidajp
+- Convert all stylesheets to LESS. @kravets-levko
+- [Elasticsearch] Collect doc_count field from aggregation. @arjan
+- Switch to pytest. @jezdez
+- Ensure email is case-insensitive. @miketheman
+- [Redshift] change default SSL mode to prefer. @arikfr
+- Return Redis memory usage in bytes for easier monitoring. @kakakakakku
+- create_db command in docker-entrypoint waits for Postgres to become available first. @ariarijp
+- [Elasticsearch] set source_content_type on ES queries to support Elasticsearch 6.0. @alexdrans
+- Show `-` instead of `Invalid Date` for null values given to `dateTime` filter. @kyoshidajp
+
+### Fixed
+
+- Parameters list was resetting when adding a new parameter. @arikfr
+- Don't escape values in non-html columns. @kravets-levko
+- Commit SAML user group assignment to the database. @sjakthol
+- Update correct settings in SAML settings form. @sjakthol
+- Fix Google OAuth login in MULTIORG mode. @shinji19
+- Strip annotation from query when path is specified in Script query runner. @ariarijp
+- Fix filter headers when there are multiple rows of filters. @kocsmy
+- Update query version when changing query data source. @washort
+- Fix upgrade script to support changes in CircleCI. @rgjodekerken
+- Don't show error indicators after submitting the user form. @bamboo-yujiro
+- [Query Results] support unicode column names. @tonyjiangh
+- Issue with Google OAuth caused by old pyOpenSSL version. @crooy
+- Fix layout of outdated queries admin view. @bamboo-yujiro
+- User can't download query results of a new query. @arikfr
+- Typo in celery logs format. @ariarijp
+- Handling whitespace characters in Query Results data source. @ariarijp
+- [MySQL] Close cursor when cancellig the query. @jasonsmithj
+
 
 ## v3.0.0 - 2017-11-13
 

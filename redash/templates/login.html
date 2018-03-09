@@ -1,79 +1,61 @@
 {% extends "layouts/signed_out.html" %}
-{% block title %}Login | Redash{% endblock %}
+
+{% block title %}Login to Redash{% endblock %}
+
 {% block content %}
-  {% with messages = get_flashed_messages() %}
-  {% if messages %}
-  {% for message in messages %}
-  <div class="alert alert-danger" role="alert">{{ message }}</div>
-  {% endfor %}
-  {% endif %}
-  {% endwith %}
-  {% if show_google_openid %}
-  <div class="row">
-    <a href="{{ google_auth_url }}"><img src="/images/google_login.png" class="login-button"/></a>
+<div class="fixed-width-page">
+  <div class="bg-white tiled">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% if show_google_openid %}
+      <a href="{{ google_auth_url }}" class="login-button btn btn-default btn-block">
+        <img src="/static/images/google_logo.svg">
+        Login with Google
+      </a>
+    {% endif %}
+
+    {% if show_saml_login %}
+      <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">SAML Login</a>
+    {% endif %}
+
+    {% if show_remote_user_login %}
+      <a href="{{ url_for('remote_user_auth.login', next=next) }}" class="login-button btn btn-default btn-block">Remote User Login</a>
+    {% endif %}
+
+    {% if show_ldap_login %}
+      <a href="{{ url_for('ldap_auth.login', next=next) }}" class="login-button btn btn-default btn-block">LDAP/SSO Login</a>
+    {% endif %}
+
+    {% if show_password_login %}
+    {% if show_google_openid or show_saml_login or show_remote_user_login or show_ldap_login %}
+      <hr>
+    {% endif %}
+
+    <form role="form" method="post" name="login">
+      <input type="hidden" name="remember" value="on">
+      <div class="form-group">
+        <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
+        <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
+      </div>
+      <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <input type="password" class="form-control" id="inputPassword" name="password">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>
+    </form>
+    {% if not hide_forgot_password %}
+      <div class="m-t-25">
+        <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
+      </div>
+    {% endif %}
+    {% endif %}
   </div>
-
-  <div class="login-or">
-    <hr class="hr-or">
-    <span class="span-or">or</span>
-  </div>
-  {% endif %}
-
-  {% if show_saml_login %}
-  <div class="row">
-    <a href="/saml/login">SAML Login</a>
-  </div>
-
-  <div class="login-or">
-    <hr class="hr-or">
-    <span class="span-or">or</span>
-  </div>
-  {% endif %}
-
-  {% if show_remote_user_login %}
-  <div class="row">
-    <a href="/remote_user/login">Remote User Login</a>
-  </div>
-
-  <div class="login-or">
-    <hr class="hr-or">
-    <span class="span-or">or</span>
-  </div>
-  {% endif %}
-
-  {% if show_ldap_login %}
-  <div class="row">
-    <a href="/ldap_auth/login">LDAP/SSO Login</a>
-  </div>
-
-  <div class="login-or">
-    <hr class="hr-or">
-    <span class="span-or">or</span>
-  </div>
-  {% endif %}
-
-  <form role="form" method="post" name="login">
-    <div class="form-group">
-      <label for="inputEmail">{{ username_prompt or 'Email' }}</label>
-      <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}">
-    </div>
-    <div class="form-group">
-      <label for="inputPassword">Password</label>
-      <input type="password" class="form-control" id="inputPassword" name="password">
-    </div>
-    <div class="checkbox pull-right">
-      <label>
-        <input type="checkbox" name="remember">
-        Remember me </label>
-    </div>
-
-    <button type="submit" class="btn btn btn-primary">
-      Log In
-    </button>
-  </form>
-  
-  {% if not hide_forgot_password %}
-    <hr>
-    <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">I forgot my password</a>
-  {% endif %}
+</div>
 {% endblock %}

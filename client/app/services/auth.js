@@ -66,6 +66,23 @@ function AuthService($window, $location, $q, $http) {
     getApiKey() {
       return this.apiKey;
     },
+    requireSession() {
+      logger('Requested authentication');
+      if (Auth.isAuthenticated()) {
+        return $q.when(getLocalSessionData());
+      }
+      return Auth.loadSession().then(() => {
+        if (Auth.isAuthenticated()) {
+          logger('Loaded session');
+          return getLocalSessionData();
+        }
+        logger('Need to login, redirecting');
+        this.login();
+      }).catch(() => {
+        logger('Need to login, redirecting');
+        this.login();
+      });
+    },
   };
 
   return Auth;
@@ -111,22 +128,5 @@ export default function init(ngModule) {
 
   ngModule.config(($httpProvider) => {
     $httpProvider.interceptors.push('apiKeyHttpInterceptor');
-  });
-
-  ngModule.run(($location, $window, $rootScope, $route, Auth) => {
-    $rootScope.$on('$routeChangeStart', (event, to) => {
-      if (to.authenticated && !Auth.isAuthenticated()) {
-        logger('Requested authenticated route: ', to);
-        event.preventDefault();
-        // maybe we only miss the session? try to load session
-        Auth.loadSession().then(() => {
-          logger('Loaded session');
-          $route.reload();
-        }).catch(() => {
-          logger('Need to login, redirecting');
-          Auth.login();
-        });
-      }
-    });
   });
 }

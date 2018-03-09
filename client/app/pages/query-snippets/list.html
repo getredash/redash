@@ -1,11 +1,11 @@
 <settings-screen>
-    <div class="row m-t-5">
+    <div class="row">
         <div class="col-md-12">
           <p>
             <a href="query_snippets/new" class="btn btn-default"><i class="fa fa-plus"></i> New Snippet</a>
           </p>
 
-          <table class="table table-condensed table-hover">
+          <table class="table table-border table-hover">
             <thead>
               <tr>
                 <th>Trigger</th>
@@ -27,6 +27,7 @@
                   {{row.snippet}}
                 </td>
                 <td>
+                  <img ng-src="{{row.user.profile_image_url}}" class="profile__image_thumb"/>
                   {{row.user.name}}
                 </td>
                 <td>

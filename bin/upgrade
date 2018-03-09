@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import urllib
 import argparse
 import os
 import subprocess
@@ -74,13 +75,13 @@ class Release(namedtuple('Release', ('version', 'download_url', 'filename', 'des
 
 
 def get_latest_release_from_ci():
-    response = requests.get('https://circleci.com/api/v1.1/project/github/getredash/redash/latest/artifacts')
+    response = requests.get('https://circleci.com/api/v1.1/project/github/getredash/redash/latest/artifacts?branch=master')
 
     if response.status_code != 200:
         exit("Failed getting releases (status code: %s)." % response.status_code)
 
     tarball_asset = filter(lambda asset: asset['url'].endswith('.tar.gz'), response.json())[0]
-    filename = tarball_asset['pretty_path'].replace('$CIRCLE_ARTIFACTS/', '')
+    filename = urllib.unquote(tarball_asset['pretty_path'].split('/')[-1])
     version = filename.replace('redash.', '').replace('.tar.gz', '')
 
     release = Release(version, tarball_asset['url'], filename, '')
@@ -203,8 +204,10 @@ def show_description_and_confirm(description):
 
 def verify_newer_version(release):
     if not release.is_newer(current_version()):
-        red("The found release is not newer than your current deployed release ({}). Aborting upgrade.".format(current_version()))
-        exit(1)
+        red("The found release is not newer than your current deployed release ({}).".format(current_version()))
+        if not confirm("Continue with upgrade?"):
+            red("Cancelling upgrade.")
+            exit(1)
 
 
 def deploy_release(channel):

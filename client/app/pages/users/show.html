@@ -1,23 +1,23 @@
 <settings-screen>
   <email-settings-warning function="'invite emails'"></email-settings-warning>
 
-  <div ng-show="selectedTab == 'profile'" class="p-10">
+  <div ng-show="selectedTab == 'profile'">
     <div class="row">
-      <div class="col-md-4 col-md-offset-4 profile__cointainer">
+      <div class="col-md-4 col-md-offset-4 profile__container">
 
-        <img ng-src="{{user.gravatar_url}}" class="profile__image"/>
+        <img ng-src="{{user.profile_image_url}}" class="profile__image"/>
 
         <h3 class="profile__h3">{{user.name}}</h3>
 
         <hr>
 
         <form class="form" name="userSettingsForm" ng-submit="updateUser(userSettingsForm)" novalidate>
-          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError:userSettingsForm )}">
+          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.name | showError )}">
             <label class="control-label" for="name" >Name</label>
             <input name="name" id="name" type="text" class="form-control" ng-model="user.name" required/>
             <error-messages input="userSettingsForm.name" form="userSettingsForm"></error-messages>
           </div>
-          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.email | showError:userSettingsForm )}">
+          <div class="form-group" ng-class="{ 'has-error':  (userSettingsForm.email | showError )}">
             <label class="control-label" for="email" >Email</label>
             <input name="email" id="email" type="email" class="form-control" ng-model="user.email" required/>
             <error-messages input="userSettingsForm.email" form="userSettingsForm"></error-messages>
@@ -82,7 +82,7 @@
             <p ng-if="clientConfig.mailSettingsMissing">
               You don't have mail server configured, please send the following link
               to {{user.name}} to reset their password:<br/>
-              <a ng-href="passwordResetLink">{{passwordResetLink}}</a>
+              <textarea class="form-control m-t-10" rows="2" readonly>{{ passwordResetLink }}</textarea>
             </p>
           </div>
         </div>

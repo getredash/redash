@@ -6,9 +6,15 @@ export default function init(ngModule) {
   ngModule.filter('dateTime', clientConfig =>
     function dateTime(value) {
       if (!value) {
+        return '';
+      }
+
+      const parsed = moment(value);
+
+      if (!parsed.isValid()) {
         return '-';
       }
 
-      return moment(value).format(clientConfig.dateTimeFormat);
+      return parsed.format(clientConfig.dateTimeFormat);
     });
 }

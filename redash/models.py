@@ -12,7 +12,7 @@ from funcy import project
 
 import xlsxwriter
 from flask_login import AnonymousUserMixin, UserMixin
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from passlib.apps import custom_app_context as pwd_context
 from redash import settings, redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
@@ -24,15 +24,19 @@ from redash.query_runner import (get_configuration_schema_for_query_runner_type,
 from redash.utils import generate_token, json_dumps
 from redash.utils.comparators import CaseInsensitiveComparator
 from redash.utils.configuration import ConfigurationContainer
+from redash.settings.organization import settings as org_settings
 from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session, subqueryload
+from sqlalchemy.orm import backref, joinedload, object_session
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
+from sqlalchemy.orm.attributes import flag_modified
 from functools import reduce
+from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
+from sqlalchemy_utils.types import TSVectorType
 
 
 class SQLAlchemyExt(SQLAlchemy):
@@ -47,6 +51,21 @@ class SQLAlchemyExt(SQLAlchemy):
 db = SQLAlchemyExt(session_options={
     'expire_on_commit': False
 })
+# Make sure the SQLAlchemy mappers are all properly configured first.
+# This is required by SQLAlchemy-Searchable as it adds DDL listeners
+# on the configuration phase of models.
+db.configure_mappers()
+
+# listen to a few database events to set up functions, trigger updates
+# and indexes for the full text search
+make_searchable(options={'regconfig': 'pg_catalog.simple'})
+
+
+class SearchBaseQuery(BaseQuery, SearchQueryMixin):
+    """
+    The SQA query class to use when full text search is wanted.
+    """
+
 
 Column = functools.partial(db.Column, nullable=False)
 
@@ -314,6 +333,26 @@ class Organization(TimestampMixin, db.Model):
     def enable(self):
         self.settings['is_disabled'] = False
 
+    def set_setting(self, key, value):
+        if key not in org_settings:
+            raise KeyError(key)
+
+        self.settings.setdefault('settings', {})
+        self.settings['settings'][key] = value
+        flag_modified(self, 'settings')
+
+    def get_setting(self, key, raise_on_missing=True):
+        if key in self.settings.get('settings', {}):
+            return self.settings['settings'][key]
+
+        if key in org_settings:
+            return org_settings[key]
+
+        if raise_on_missing:
+            raise KeyError(key)
+
+        return None
+
     @property
     def admin_group(self):
         return self.groups.filter(Group.name == 'admin', Group.type == Group.BUILTIN_GROUP).first()
@@ -395,6 +434,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     org = db.relationship(Organization, backref=db.backref("users", lazy="dynamic"))
     name = Column(db.String(320))
     email = Column(LowercasedString)
+    _profile_image_url = Column('profile_image_url', db.String(320), nullable=True)
     password_hash = Column(db.String(128), nullable=True)
     # XXX replace with association table
     group_ids = Column('groups', MutableList.as_mutable(postgresql.ARRAY(db.Integer)), nullable=True)
@@ -415,7 +455,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'gravatar_url': self.gravatar_url,
+            'profile_image_url': self.profile_image_url,
             'groups': self.group_ids,
             'updated_at': self.updated_at,
             'created_at': self.created_at
@@ -435,9 +475,12 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         return False
 
     @property
-    def gravatar_url(self):
+    def profile_image_url(self):
+        if self._profile_image_url is not None:
+            return self._profile_image_url
+
         email_md5 = hashlib.md5(self.email.lower()).hexdigest()
-        return "https://www.gravatar.com/avatar/%s?s=40" % email_md5
+        return "https://www.gravatar.com/avatar/{}?s=40&d=identicon".format(email_md5)
 
     @property
     def permissions(self):
@@ -475,6 +518,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         groups.append(self.org.default_group)
         self.group_ids = [g.id for g in groups]
         db.session.add(self)
+        db.session.commit()
 
     def has_access(self, obj, access_type):
         return AccessPermission.exists(obj, access_type, grantee=self)
@@ -818,7 +862,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     schedule_failures = Column(db.Integer, default=0)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
+    search_vector = Column(TSVectorType('id', 'name', 'description', 'query',
+                                        weights={'name': 'A',
+                                                 'id': 'B',
+                                                 'description': 'C',
+                                                 'query': 'D'}),
+                           nullable=True)
 
+    query_class = SearchBaseQuery
     __tablename__ = 'queries'
     __mapper_args__ = {
         "version_id_col": version,
@@ -941,27 +992,24 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids, include_drafts=False):
-        # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
-        where = (Query.name.ilike(u"%{}%".format(term)) |
-                 Query.description.ilike(u"%{}%".format(term)))
-
-        if term.isdigit():
-            where |= Query.id == term
-
-        where &= Query.is_archived == False
+    def search(cls, term, group_ids, include_drafts=False, limit=20):
+        where = cls.is_archived == False
 
         if not include_drafts:
-            where &= Query.is_draft == False
+            where &= cls.is_draft == False
 
         where &= DataSourceGroup.group_id.in_(group_ids)
-        query_ids = (
-            db.session.query(Query.id).join(
-                DataSourceGroup,
-                Query.data_source_id == DataSourceGroup.data_source_id)
-            .filter(where)).distinct()
 
-        return Query.query.options(joinedload(Query.user)).filter(Query.id.in_(query_ids))
+        return cls.query.join(
+            DataSourceGroup,
+            cls.data_source_id == DataSourceGroup.data_source_id
+        ).options(
+            joinedload(cls.user)
+        ).filter(where).search(
+            term,
+            # sort the result using the weight as defined in the search vector column
+            sort=True
+        ).distinct().limit(limit)
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
@@ -1026,6 +1074,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def __unicode__(self):
         return unicode(self.id)
+
+    def __repr__(self):
+        return '<Query %s: "%s">' % (self.id, self.name or 'untitled')
+
+
+@vectorizer(db.Integer)
+def integer_vectorizer(column):
+    return db.func.cast(column, db.Text)
 
 
 @listens_for(Query.query_text, 'set')
@@ -1243,8 +1299,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     name = Column(db.String(100))
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User)
-    # TODO: The layout should dynamically be built from position and size information on each widget.
-    # Will require update in the frontend code to support this.
+    # layout is no longer used, but kept so we know how to render old dashboards.
     layout = Column(db.Text)
     dashboard_filters_enabled = Column(db.Boolean, default=False)
     is_archived = Column(db.Boolean, default=False, index=True)
@@ -1259,39 +1314,22 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def to_dict(self, with_widgets=False, user=None):
         layout = json.loads(self.layout)
 
+        widgets = []
+
         if with_widgets:
-            widget_list = Widget.query.filter(Widget.dashboard == self)
-
-            widgets = {}
-
-            for w in widget_list:
+            for w in self.widgets:
+                pass
                 if w.visualization_id is None:
-                    widgets[w.id] = w.to_dict()
+                    widgets.append(w.to_dict())
                 elif user and has_access(w.visualization.query_rel.groups, user, view_only):
-                    widgets[w.id] = w.to_dict()
+                    widgets.append(w.to_dict())
                 else:
-                    widgets[w.id] = project(w.to_dict(),
-                                            ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
-                    widgets[w.id]['restricted'] = True
-
-            # The following is a workaround for cases when the widget object gets deleted without the dashboard layout
-            # updated. This happens for users with old databases that didn't have a foreign key relationship between
-            # visualizations and widgets.
-            # It's temporary until better solution is implemented (we probably should move the position information
-            # to the widget).
-            widgets_layout = []
-            for row in layout:
-                if not row:
-                    continue
-                new_row = []
-                for widget_id in row:
-                    widget = widgets.get(widget_id, None)
-                    if widget:
-                        new_row.append(widget)
-
-                widgets_layout.append(new_row)
+                    widget = project(w.to_dict(),
+                                    ('id', 'width', 'dashboard_id', 'options', 'created_at', 'updated_at'))
+                    widget['restricted'] = True
+                    widgets.append(widget)
         else:
-            widgets_layout = None
+            widgets = None
 
         return {
             'id': self.id,
@@ -1300,7 +1338,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             'user_id': self.user_id,
             'layout': layout,
             'dashboard_filters_enabled': self.dashboard_filters_enabled,
-            'widgets': widgets_layout,
+            'widgets': widgets,
             'is_archived': self.is_archived,
             'is_draft': self.is_draft,
             'updated_at': self.updated_at,
@@ -1412,10 +1450,6 @@ class Widget(TimestampMixin, db.Model):
     options = Column(db.Text)
     dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id"), index=True)
 
-    # unused; kept for backward compatability:
-    type = Column(db.String(100), nullable=True)
-    query_id = Column(db.Integer, nullable=True)
-
     __tablename__ = 'widgets'
 
     def to_dict(self):
@@ -1433,15 +1467,6 @@ class Widget(TimestampMixin, db.Model):
             d['visualization'] = self.visualization.to_dict()
 
         return d
-
-    def delete(self):
-        layout = json.loads(self.dashboard.layout)
-        layout = map(lambda row: filter(lambda w: w != self.id, row), layout)
-        layout = filter(lambda row: len(row) > 0, layout)
-        self.dashboard.layout = json.dumps(layout)
-
-        db.session.add(self.dashboard)
-        db.session.delete(self)
 
     def __unicode__(self):
         return u"%s" % self.id

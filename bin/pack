@@ -1,0 +1,8 @@
+#!/bin/bash
+NAME=redash
+VERSION=$(python ./manage.py version)
+FULL_VERSION=$VERSION+b$CIRCLE_BUILD_NUM
+FILENAME=$CIRCLE_ARTIFACTS/$NAME.$FULL_VERSION.tar.gz
+
+sed -ri "s/^__version__ = '([A-Za-z0-9.-]*)'/__version__ = '$FULL_VERSION'/" redash/__init__.py
+tar -zcv -f $FILENAME --exclude="optipng*" --exclude=".git*" --exclude="*.pyc" --exclude="*.pyo" --exclude="venv" --exclude="node_modules" *

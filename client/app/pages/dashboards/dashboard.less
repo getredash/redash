@@ -75,7 +75,6 @@
         }
       }
 
-      .dynamic-table-container,
       .sunburst-visualization-container,
       .sankey-visualization-container,
       .map-visualization-container,
@@ -96,6 +95,7 @@
         top: 15px;
         right: 10px;
         bottom: 15px;
+        height: auto;
         overflow: hidden;
         padding: 0;
       }
@@ -105,6 +105,10 @@
   .gridster-auto-height-enabled {
     .spinner {
       position: static;
+    }
+
+    .scrollbox {
+      overflow-y: hidden;
     }
   }
 }

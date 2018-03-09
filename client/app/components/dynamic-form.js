@@ -1,22 +1,53 @@
-import { isUndefined, each, contains, find } from 'underscore';
+import { isUndefined, each, contains } from 'underscore';
 import endsWith from 'underscore.string/endsWith';
 import template from './dynamic-form.html';
 
-function DynamicForm($http, toastr, $q) {
-  function orderedInputs(properties, order) {
-    const inputs = new Array(order.length);
-    Object.keys(properties).forEach((key) => {
-      const position = order.indexOf(key);
-      const input = { name: key, property: properties[key] };
-      if (position > -1) {
-        inputs[position] = input;
-      } else {
-        inputs.push(input);
+function orderedInputs(properties, order) {
+  const inputs = new Array(order.length);
+  Object.keys(properties).forEach((key) => {
+    const position = order.indexOf(key);
+    const input = { name: key, property: properties[key] };
+    if (position > -1) {
+      inputs[position] = input;
+    } else {
+      inputs.push(input);
+    }
+  });
+  return inputs;
+}
+
+function normalizeSchema(configurationSchema) {
+  each(configurationSchema.properties, (prop, name) => {
+    if (name === 'password' || name === 'passwd') {
+      prop.type = 'password';
+    }
+
+    if (endsWith(name, 'File')) {
+      prop.type = 'file';
+    }
+
+    if (prop.type === 'boolean') {
+      prop.type = 'checkbox';
+    }
+
+    prop.required = contains(configurationSchema.required, name);
+  });
+
+  configurationSchema.order = configurationSchema.order || [];
+}
+
+function setDefaults(configurationSchema, options) {
+  if (Object.keys(options).length === 0) {
+    const properties = configurationSchema.properties;
+    Object.keys(properties).forEach((property) => {
+      if (!isUndefined(properties[property].default)) {
+        options[property] = properties[property].default;
       }
     });
-    return inputs;
   }
+}
 
+function DynamicForm($http, toastr) {
   return {
     restrict: 'E',
     replace: 'true',
@@ -24,25 +55,14 @@ function DynamicForm($http, toastr, $q) {
     template,
     scope: {
       target: '=',
-      type: '@type',
+      type: '=',
       actions: '=',
     },
     link($scope) {
-      function setType(types) {
-        if ($scope.target.type === undefined) {
-          $scope.target.type = types[0].type;
-        }
-
-        const type = find(types, t => t.type === $scope.target.type);
-        const configurationSchema = type.configuration_schema;
-
-        $scope.fields = orderedInputs(
-          configurationSchema.properties,
-          configurationSchema.order || [],
-        );
-
-        return type;
-      }
+      const configurationSchema = $scope.type.configuration_schema;
+      normalizeSchema(configurationSchema);
+      $scope.fields = orderedInputs(configurationSchema.properties, configurationSchema.order);
+      setDefaults(configurationSchema, $scope.target.options);
 
       $scope.inProgressActions = {};
       if ($scope.actions) {
@@ -70,7 +90,7 @@ function DynamicForm($http, toastr, $q) {
           // THis is needed because angular-base64-upload sets the value to null at initialization,
           // causing the field to be marked as dirty even if it wasn't changed.
           if (!v && $scope.target.options[k]) {
-            $scope.dataSourceForm.$setPristine();
+            $scope.dynamicForm.$setPristine();
           }
           if (v) {
             $scope.target.options[k] = v.base64;
@@ -78,58 +98,11 @@ function DynamicForm($http, toastr, $q) {
         });
       });
 
-      const typesPromise = $http.get(`api/${$scope.type}/types`);
-
-      $q.all([typesPromise, $scope.target.$promise]).then((responses) => {
-        const types = responses[0].data;
-        setType(types);
-
-        $scope.types = types;
-
-        types.forEach((type) => {
-          each(type.configuration_schema.properties, (prop, name) => {
-            if (name === 'password' || name === 'passwd') {
-              prop.type = 'password';
-            }
-
-            if (endsWith(name, 'File')) {
-              prop.type = 'file';
-            }
-
-            if (prop.type === 'boolean') {
-              prop.type = 'checkbox';
-            }
-
-            prop.required = contains(type.configuration_schema.required, name);
-          });
-        });
-
-        $scope.$watch('target.type', (current, prev) => {
-          if (prev !== current) {
-            if (prev !== undefined) {
-              $scope.target.options = {};
-            }
-
-            const type = setType($scope.types);
-
-            if (Object.keys($scope.target.options).length === 0) {
-              const properties = type.configuration_schema.properties;
-              Object.keys(properties).forEach((property) => {
-                if (!isUndefined(properties[property].default)) {
-                  $scope.target.options[property] = properties[property].default;
-                }
-              });
-            }
-          }
-        });
-      });
-
-
       $scope.saveChanges = () => {
         $scope.target.$save(
           () => {
             toastr.success('Saved.');
-            $scope.dataSourceForm.$setPristine();
+            $scope.dynamicForm.$setPristine();
           },
           (error) => {
             if (error.status === 400 && 'message' in error.data) {

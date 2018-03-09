@@ -9,4 +9,4 @@ import 'pace-progress/themes/blue/pace-theme-minimal.css';
 import '@/assets/css/superflat_redash.css';
 import '@/assets/css/redash.css';
 import '@/assets/css/main.scss';
-import '@/assets/less/redash-newstyle.less';
+import '@/assets/less/redash/redash-newstyle.less';

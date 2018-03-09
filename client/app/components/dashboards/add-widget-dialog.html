@@ -4,46 +4,67 @@
 </div>
 <div class="modal-body">
   <p class="btn-group">
-      <button type="button" class="btn btn-default" ng-class="{active: $ctrl.isVisualization()}" ng-click="$ctrl.setType('visualization')">Visualization</button>
-      <button type="button" class="btn btn-default" ng-class="{active: $ctrl.isTextBox()}" ng-click="$ctrl.setType('textbox')">Text Box</button>
+    <button type="button" class="btn btn-default" ng-class="{active: $ctrl.isVisualization}" ng-click="$ctrl.setType('visualization')">Visualization</button>
+    <button type="button" class="btn btn-default" ng-class="{active: $ctrl.isTextBox}" ng-click="$ctrl.setType('textbox')">Text Box</button>
   </p>
 
-  <div ng-show="$ctrl.isTextBox()">
-      <div class="form-group">
-          <textarea class="form-control" ng-model="$ctrl.text" rows="3"></textarea>
-      </div>
-      <div ng-show="$ctrl.text">
-          <strong>Preview:</strong>
-          <p ng-bind-html="$ctrl.text | markdown"></p>
-      </div>
+  <div ng-show="$ctrl.isTextBox">
+    <div class="form-group m-b-0">
+      <textarea class="form-control resize-vertical" style="min-height: 100px"
+        ng-model="$ctrl.text" ng-model-options="{ debounce: 200 }" rows="5" autofocus></textarea>
+    </div>
+    <div ng-show="$ctrl.text" class="m-t-15">
+      <strong>Preview:</strong>
+      <p ng-bind-html="$ctrl.text | markdown"></p>
+    </div>
   </div>
 
-  <div ng-show="$ctrl.isVisualization()">
+  <div ng-show="$ctrl.isVisualization">
+    <div class="form-group">
+      <input type="text" placeholder="Search a query by name" class="form-control" autofocus
+        ng-if="!$ctrl.selectedQuery" ng-model="$ctrl.searchTerm" ng-change="$ctrl.searchQueries($ctrl.searchTerm)">
+      <div ng-if="$ctrl.selectedQuery" class="p-relative">
+        <input type="text" class="form-control bg-white"
+          ng-value="$ctrl.selectedQuery.name" readonly="readonly">
+        <a href="javascript:void(0)" ng-click="$ctrl.selectQuery(null)"
+          class="d-flex align-items-center justify-content-center"
+          style="position: absolute; right: 1px; top: 1px; bottom: 1px; width: 30px; background: #fff; border-radius: 3px;"
+        ><i class="text-muted fa fa-times"></i></a>
+      </div>
+    </div>
+
+    <div ng-if="!$ctrl.selectedQuery" class="scrollbox" style="max-height: 50vh">
+      <div ng-if="$ctrl.searchTerm == ''">
+        <div class="list-group" ng-if="$ctrl.recentQueries.length > 0">
+          <a class="list-group-item" ng-repeat="query in $ctrl.recentQueries"
+            ng-click="$ctrl.selectQuery(query.id)">{{query.name}}</a>
+        </div>
+      </div>
+
+      <div ng-if="$ctrl.searchTerm != ''">
+        <div ng-if="$ctrl.searchedQueries.length == 0" class="text-muted">
+          No results matching search term.
+        </div>
+        <div class="list-group" ng-if="$ctrl.searchedQueries.length > 0">
+          <a class="list-group-item"
+            ng-repeat="query in $ctrl.searchedQueries" ng-click="$ctrl.selectQuery(query.id)"
+            ng-bind-html="$ctrl.trustAsHtml(query.name | highlight: $ctrl.searchTerm)"
+          ></a>
+        </div>
+      </div>
+    </div>
+
+    <div ng-show="$ctrl.selectedQuery">
       <div class="form-group">
-          <ui-select ng-model="$ctrl.query.selected" theme="bootstrap" reset-search-input="false" on-select="$ctrl.onQuerySelect($item, $model)">
-              <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
-              <ui-select-choices repeat="q in $ctrl.queries"
-                                 refresh="$ctrl.searchQueries($select.search)"
-                                 refresh-delay="0">
-                  <div ng-bind-html="$ctrl.trustAsHtml(q.name | highlight: $select.search)"></div>
-              </ui-select-choices>
-          </ui-select>
+        <label>Choose Visualization</label>
+        <select ng-model="$ctrl.selectedVis" class="form-control"
+          ng-options="vis as vis.name group by vis.type for vis in $ctrl.selectedQuery.visualizations"></select>
       </div>
-
-      <div ng-show="$ctrl.selected_query">
-          <div class="form-group">
-              <label for="">Choose Visualization</label>
-              <select ng-model="$ctrl.selectedVis" ng-options="vis as vis.name group by vis.type for vis in $ctrl.selected_query.visualizations" class="form-control"></select>
-          </div>
-      </div>
-  </div>
-
-  <div class="form-group" ng-if="$ctrl.isTextBox()">
-      <label><input type="checkbox" ng-model="$ctrl.isHidden">&nbsp;Hidden</label>
+    </div>
   </div>
 </div>
 
 <div class="modal-footer">
   <button type="button" class="btn btn-default" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.dismiss()">Close</button>
-  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || !($ctrl.selectedVis || $ctrl.isTextBox())" ng-click="$ctrl.saveWidget()">Add to Dashboard</button>
+  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || !($ctrl.selectedVis || $ctrl.isTextBox)" ng-click="$ctrl.saveWidget()">Add to Dashboard</button>
 </div>

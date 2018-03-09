@@ -2,32 +2,17 @@ import * as _ from 'underscore';
 
 function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
-    if (_.isArray(widgets) && (widgets.length > 0) && _.isArray(widgets[0])) {
-      // Dashboard v1 processing
-      // v1 dashboard has two columns, and widget can occupy one of them or both;
-      // this means, that there can be at most two widgets per row.
-      // Here we will map gridster columns and rows to v1-style grid
-      const dashboardV1ColumnSize = Math.round(dashboardGridOptions.columns / 2);
-      widgets = _.map(
-        widgets,
-        (row, rowIndex) => _.map(row, (widget, widgetIndex) => {
-          widget.options = widget.options || {};
-          widget.options.position = _.extend({}, {
-            row: rowIndex,
-            col: widgetIndex * dashboardV1ColumnSize,
-            sizeX: dashboardV1ColumnSize * widget.width,
-            // do not set sizeY - let widget to use defaults for visualization
-          }, widget.options.position);
-          return widget;
-        }),
-      );
-    }
-
-    return _.map(_.flatten(widgets), widget => new Widget(widget));
+    const widgetObjects = widgets.map(widget => new Widget(widget));
+    // This sorting is needed for converted dashboards, whose widgets don't have size yet. In such cases
+    // Gridster might position them wrong on the dashboard (unless sorted by col/row).
+    const sortedByCol = _.sortBy(widgetObjects, widget => widget.options.position && widget.options.position.col);
+    return _.sortBy(sortedByCol, widget => widget.options.position && widget.options.position.row * -1);
   }
 
   function transformSingle(dashboard) {
-    dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
+    if (dashboard.widgets) {
+      dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
+    }
     dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
   }
 

@@ -1,0 +1,17 @@
+<app-header ng-if="$ctrl.layout.showHeader"></app-header>
+<div ng-if="$ctrl.handler.error" class="fixed-container">
+  <div class="container">
+    <div class="col-md-8 col-md-push-2">
+      <div class="error-state bg-white tiled">
+         <div class="error-state__icon">
+           <i class="zmdi zmdi-alert-circle-o"></i>
+         </div>
+         <div class="error-state__details">
+           <h4>{{ $ctrl.handler.error.message }}</h4>
+         </div>
+       </div>
+    </div>
+  </div>
+</div>
+<div ng-if="!$ctrl.handler.error" ng-view></div>
+<footer ng-if="$ctrl.layout.showFooter"></footer>

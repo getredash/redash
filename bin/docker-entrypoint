@@ -22,6 +22,14 @@ server() {
   exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
 }
 
+create_db() {
+  while ! bash -c "echo > /dev/tcp/postgres/5432" &> /dev/null ; do
+    echo "Waiting for PostgreSQL container to become available."
+    sleep 5
+  done
+  exec /app/manage.py database create_tables
+}
+
 help() {
   echo "Redash Docker."
   echo ""
@@ -36,11 +44,18 @@ help() {
   echo "dev_server -- start Flask development server with debugger and auto reload"
   echo "create_db -- create database tables"
   echo "manage -- CLI to manage redash"
+  echo "tests -- run tests"
 }
 
 tests() {
   export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
-  exec make test
+
+  if [ $# -eq 0 ]; then
+    TEST_ARGS=tests/
+  else
+    TEST_ARGS=$@
+  fi
+  exec pytest $TEST_ARGS
 }
 
 case "$1" in
@@ -57,22 +72,25 @@ case "$1" in
     scheduler
     ;;
   dev_server)
+    export FLASK_DEBUG=1
     exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
     ;;
   shell)
     exec /app/manage.py shell
     ;;
   create_db)
-    exec /app/manage.py database create_tables
+    create_db
     ;;
   manage)
     shift
     exec /app/manage.py $*
     ;;
   tests)
-    tests
+    shift
+    tests $@
     ;;
   help)
+    shift
     help
     ;;
   *)

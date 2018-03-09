@@ -47,6 +47,13 @@ class QueryTest(BaseTestCase):
         self.assertNotIn(q1, queries)
         self.assertNotIn(q2, queries)
 
+    def test_search_by_number(self):
+        q = self.factory.create_query(description="Testing search 12345")
+        db.session.flush()
+        queries = Query.search('12345', [self.factory.default_group.id])
+
+        self.assertIn(q, queries)
+
     def test_search_respects_groups(self):
         other_group = Group(org=self.factory.org, name="Other Group")
         db.session.add(other_group)
@@ -97,6 +104,56 @@ class QueryTest(BaseTestCase):
         q = self.factory.create_query(name="Testing search")
 
         self.assertIn(q, Query.search('testing', [self.factory.default_group.id]))
+
+    def test_search_query_parser_or(self):
+        q1 = self.factory.create_query(name="Testing")
+        q2 = self.factory.create_query(name="search")
+
+        queries = list(Query.search('testing or search', [self.factory.default_group.id]))
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+
+    def test_search_query_parser_negation(self):
+        q1 = self.factory.create_query(name="Testing")
+        q2 = self.factory.create_query(name="search")
+
+        queries = list(Query.search('testing -search', [self.factory.default_group.id]))
+        self.assertIn(q1, queries)
+        self.assertNotIn(q2, queries)
+
+    def test_search_query_parser_parenthesis(self):
+        q1 = self.factory.create_query(name="Testing search")
+        q2 = self.factory.create_query(name="Testing searching")
+        q3 = self.factory.create_query(name="Testing finding")
+
+        queries = list(Query.search('(testing search) or finding', [self.factory.default_group.id]))
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+        self.assertIn(q3, queries)
+
+    def test_search_query_parser_hyphen(self):
+        q1 = self.factory.create_query(name="Testing search")
+        q2 = self.factory.create_query(name="Testing-search")
+
+        queries = list(Query.search('testing search', [self.factory.default_group.id]))
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+
+    def test_search_query_parser_emails(self):
+        q1 = self.factory.create_query(name="janedoe@example.com")
+        q2 = self.factory.create_query(name="johndoe@example.com")
+
+        queries = list(Query.search('example', [self.factory.default_group.id]))
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+
+        queries = list(Query.search('com', [self.factory.default_group.id]))
+        self.assertIn(q1, queries)
+        self.assertIn(q2, queries)
+
+        queries = list(Query.search('johndoe', [self.factory.default_group.id]))
+        self.assertNotIn(q1, queries)
+        self.assertIn(q2, queries)
 
 
 class QueryRecentTest(BaseTestCase):

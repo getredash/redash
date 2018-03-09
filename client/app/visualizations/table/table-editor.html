@@ -41,7 +41,7 @@
       </div>
 
       <div class="form-group">
-        <label><input type="checkbox" ng-model="column.allowSearch"> Use for search</label>
+        <label class="ui-sortable-bypass"><input type="checkbox" ng-model="column.allowSearch"> Use for search</label>
       </div>
 
       <div class="form-group">
@@ -96,6 +96,76 @@
           <label for="table-editor-{{ column.name }}-boolean-true">Value for <code>true</code></label>
           <input class="form-control" ng-model="column.booleanValues[1]" ng-model-options="{ allowInvalid: true, debounce: 200 }"
             id="table-editor-{{ column.name }}-boolean-true">
+        </div>
+      </div>
+
+      <div ng-if="column.displayAs == 'image'">
+        <div class="form-group">
+          <label for="table-editor-{{ column.name }}-image-url-template">URL template</label>
+          <input class="form-control" ng-model="column.imageUrlTemplate" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            id="table-editor-{{ column.name }}-image-url-template">
+        </div>
+
+        <div class="form-group">
+          <label>
+            Size
+            <span class="m-l-5"
+              uib-popover-html="'Any positive integer value that specifies size in pixels. Leave empty to use default value.'"
+              popover-trigger="'click outsideClick'" popover-placement="top-left"><i class="fa fa-question-circle"></i></span>
+          </label>
+          <div class="d-flex">
+            <input class="form-control" ng-model="column.imageWidth" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+              placeholder="Width">
+            <span class="form-control-static m-l-5 m-r-5">&times;</span>
+            <input class="form-control" ng-model="column.imageHeight" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+              placeholder="Height">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="table-editor-{{ column.name }}-image-title-template">Title template</label>
+          <input class="form-control" ng-model="column.imageTitleTemplate" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            id="table-editor-{{ column.name }}-image-title-template">
+        </div>
+
+        <div class="form-group">
+          <label class="ui-sortable-bypass text-muted" style="font-weight: normal; cursor: pointer;"
+            uib-popover-html="templateHint"
+            popover-trigger="'click outsideClick'" popover-placement="top-left">
+            Format specs <i class="fa fa-question-circle m-l-5"></i>
+          </label>
+        </div>
+      </div>
+
+      <div ng-if="column.displayAs == 'link'">
+        <div class="form-group">
+          <label for="table-editor-{{ column.name }}-link-url-template">URL template</label>
+          <input class="form-control" ng-model="column.linkUrlTemplate" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            id="table-editor-{{ column.name }}-link-url-template">
+        </div>
+
+        <div class="form-group">
+          <label for="table-editor-{{ column.name }}-link-text-template">Text template</label>
+          <input class="form-control" ng-model="column.linkTextTemplate" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            id="table-editor-{{ column.name }}-link-text-template">
+        </div>
+
+        <div class="form-group">
+          <label for="table-editor-{{ column.name }}-link-title-template">Title template</label>
+          <input class="form-control" ng-model="column.linkTitleTemplate" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            id="table-editor-{{ column.name }}-link-title-template">
+        </div>
+
+        <div class="form-group">
+          <label class="ui-sortable-bypass"><input type="checkbox" ng-model="column.linkOpenInNewTab"> Open in new tab</label>
+        </div>
+
+        <div class="form-group">
+          <label class="ui-sortable-bypass text-muted" style="font-weight: normal; cursor: pointer;"
+            uib-popover-html="templateHint"
+            popover-trigger="'click outsideClick'" popover-placement="top-left">
+            Format specs <i class="fa fa-question-circle m-l-5"></i>
+          </label>
         </div>
       </div>
     </div>

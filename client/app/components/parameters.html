@@ -1,8 +1,8 @@
-<div class="form-inline bg-white p-5"
+<div class="parameter-container form-inline bg-white"
      ng-if="parameters | notEmpty"
      ui-sortable="{ 'ui-floating': true, 'disabled': !editable }"
      ng-model="parameters">
-  <div class="form-group m-l-10 m-r-10"
+  <div class="form-group m-r-10"
        ng-repeat="param in parameters">
     <label class="parameter-label">{{param.title}}</label>
     <button class="btn btn-default btn-xs"

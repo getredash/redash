@@ -1,23 +1,21 @@
+import settingsMenu from '@/lib/settings-menu';
 import startsWith from 'underscore.string/startsWith';
+import { isFunction } from 'underscore';
 import template from './settings-screen.html';
 
 export default function init(ngModule) {
-  ngModule.directive('settingsScreen', $location => ({
-    restrict: 'E',
+  ngModule.component('settingsScreen', {
     transclude: true,
     template,
-    controller($scope, currentUser) {
-      $scope.usersPage = startsWith($location.path(), '/users');
-      $scope.groupsPage = startsWith($location.path(), '/groups');
-      $scope.dsPage = startsWith($location.path(), '/data_sources');
-      $scope.destinationsPage = startsWith($location.path(), '/destinations');
-      $scope.snippetsPage = startsWith($location.path(), '/query_snippets');
-
-      $scope.showGroupsLink = currentUser.hasPermission('list_users');
-      $scope.showUsersLink = currentUser.hasPermission('list_users');
-      $scope.showDsLink = currentUser.hasPermission('admin');
-      $scope.showDestinationsLink = currentUser.hasPermission('admin');
-      $scope.showQuerySnippetsLink = currentUser.hasPermission('create_query');
+    controller($location, currentUser) {
+      this.settingsMenu = settingsMenu;
+      this.isActive = (menuItem) => {
+        if (isFunction(menuItem.isActive)) {
+          return menuItem.isActive($location);
+        }
+        return startsWith($location.path(), menuItem.pathPrefix);
+      };
+      this.isAvailable = permission => permission === undefined || currentUser.hasPermission(permission);
     },
-  }));
+  });
 }

@@ -1,0 +1,122 @@
+.table {
+  margin-bottom: 0;
+
+  [class*="bg-"] {
+    & > tr > th {
+      color: #fff;
+      border-bottom: 0;
+      background: transparent !important;
+    }
+
+    & + tbody > tr:first-child > td {
+      border-top: 0;
+    }
+  }
+
+  & > thead > tr > th {
+    vertical-align: middle;
+    font-weight: 500;
+    color: #333;
+    border-width: 1px;
+    text-transform: none;
+    padding: 15px 10px;
+  }
+
+  & > thead > tr,
+  & > tbody > tr,
+  & > tfoot > tr {
+
+    & > th, & > td {
+
+      &:first-child {
+        padding-left: 15px;
+      }
+
+      &:last-child {
+        padding-right: 15px;
+      }
+
+    }
+  }
+
+  tbody > tr:last-child > td {
+    padding-bottom: 10px;
+  }
+}
+
+.table.table-condensed {
+  tbody > tr:last-child > td {
+    padding-bottom: 7px;
+  }
+}
+
+.table-bordered {
+  border: 0;
+
+  & > tbody > tr {
+    & > td, & > th {
+      border-bottom: 0;
+      border-left: 0;
+
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+
+  & > thead > tr > th {
+    border-left: 0;
+
+    &:last-child {
+      border-right: 0;
+    }
+  }
+}
+
+.table-vmiddle {
+  td {
+    vertical-align: middle !important;
+  }
+}
+
+.table-responsive {
+  border: 0;
+}
+
+.tile .table  {
+
+  & > thead:not([class*="bg-"]) > tr > th {
+    border-top: 1px solid @table-border-color;
+
+  }
+}
+
+.table-hover > tbody > tr:hover {
+  background-color: #fff !important;
+  background-color: fade(@redash-gray, 5%) !important;
+}
+
+.table:not(.table-striped) > thead > tr > th {
+  background-color: #fff !important;
+  background-color: fade(@redash-gray, 3%) !important;
+}
+
+
+.table > thead > tr > th,
+.table > tbody > tr > th,
+.table > tfoot > tr > th,
+.table > thead > tr > td,
+.table > tbody > tr > td,
+.table > tfoot > tr > td {
+  vertical-align: middle;
+}
+
+
+.table-condensed > tbody > tr > td {
+  padding: 7px 10px;
+}
+
+.table-border {
+  border: 1px solid rgb(240, 240, 240);
+}
+
