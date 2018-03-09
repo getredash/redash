@@ -18,6 +18,7 @@ cpCCPGprj()
          echo ""
       fi
       cp -rf ccpgPj/*.js  client/dist/static
+      cp -rf ccpgPj/*.js  client/dist
    fi
 }
 envExp()
