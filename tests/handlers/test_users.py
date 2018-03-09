@@ -136,3 +136,75 @@ class TestUserResourcePost(BaseTestCase):
 
         user = models.User.query.get(self.factory.user.id)
         self.assertTrue(user.verify_password(new_password))
+
+
+class TestUserDisable(BaseTestCase):
+    def test_non_admin_cannot_disable_user(self):
+        other_user = self.factory.create_user()
+        self.assertFalse(other_user.is_disabled)
+
+        rv = self.make_request('post', "/api/users/{}/disable".format(other_user.id), user=other_user)
+        self.assertEqual(rv.status_code, 403)
+
+        # user should stay enabled
+        other_user = models.User.query.get(other_user.id)
+        self.assertFalse(other_user.is_disabled)
+
+    def test_admin_can_disable_user(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user()
+        self.assertFalse(other_user.is_disabled)
+
+        rv = self.make_request('post', "/api/users/{}/disable".format(other_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        # user should become disabled
+        other_user = models.User.query.get(other_user.id)
+        self.assertTrue(other_user.is_disabled)
+
+    def test_admin_can_disable_another_admin(self):
+        admin_user1 = self.factory.create_admin()
+        admin_user2 = self.factory.create_admin()
+        self.assertFalse(admin_user2.is_disabled)
+
+        rv = self.make_request('post', "/api/users/{}/disable".format(admin_user2.id), user=admin_user1)
+        self.assertEqual(rv.status_code, 200)
+
+        # user should become disabled
+        admin_user2 = models.User.query.get(admin_user2.id)
+        self.assertTrue(admin_user2.is_disabled)
+
+    def test_admin_cannot_disable_self(self):
+        admin_user = self.factory.create_admin()
+        self.assertFalse(admin_user.is_disabled)
+
+        rv = self.make_request('post', "/api/users/{}/disable".format(admin_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 400)
+
+        # user should stay enabled
+        admin_user = models.User.query.get(admin_user.id)
+        self.assertFalse(admin_user.is_disabled)
+
+    def test_admin_can_enable_user(self):
+        admin_user = self.factory.create_admin()
+        other_user = self.factory.create_user(disabled_at='2018-03-08 00:00')
+        self.assertTrue(other_user.is_disabled)
+
+        rv = self.make_request('delete', "/api/users/{}/disable".format(other_user.id), user=admin_user)
+        self.assertEqual(rv.status_code, 200)
+
+        # user should become enabled
+        other_user = models.User.query.get(other_user.id)
+        self.assertFalse(other_user.is_disabled)
+
+    def test_admin_can_enable_another_admin(self):
+        admin_user1 = self.factory.create_admin()
+        admin_user2 = self.factory.create_admin(disabled_at='2018-03-08 00:00')
+        self.assertTrue(admin_user2.is_disabled)
+
+        rv = self.make_request('delete', "/api/users/{}/disable".format(admin_user2.id), user=admin_user1)
+        self.assertEqual(rv.status_code, 200)
+
+        # user should become enabled
+        admin_user2 = models.User.query.get(admin_user2.id)
+        self.assertFalse(admin_user2.is_disabled)
