@@ -1,21 +1,308 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+   
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"/>  
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
+<style>
+    /*common style begin*/
+    * {
+        margin: 0;
+        padding: 0; }
+
+    html {
+        width: 100%;
+        height: 100%;
+        background: #f3f3f3; }
+
+    body {
+        width: 100%;
+        height: 100%;
+        background: #f3f3f3;
+        max-width: 640px;
+        margin: 0 auto; }
+
+    a:link, a:focus {
+        text-decoration: none;
+        outline: none;
+        outline-style: none; }
+    .dpb {
+        display: block; }
+
+    .dpnone {
+        display: none; }
+    .potr {
+        position: relative; }
+
+    .pota {
+        position: absolute; }
+
+    .potf {
+        position: fixed; }
+
+    .ofh {
+        overflow: hidden; }
+    .pxp100{
+        width: 100%;
+    }
+    .clearfix:after{
+        display: block;
+        height: 0;
+        content: '';
+        clear: both;
+    }
+    .fl{
+        float: left;
+    }
+    .fr{
+        float: right;
+    }
+    /*common style end*/
+    /*加载提示的样式*/
+    .load-page {
+        width: 3rem;
+        height: 3rem;
+        position: fixed!important;
+        z-index: 10000;
+        left: 50%;
+        top: 50%;
+        border-radius: 0.2rem;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.3); }
+    .load-page .load-item {
+        width: 1.25rem;
+        height: 1.25rem;
+        z-index: 10001;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%); }
+    /*加载提示的样式*/
+    /*错误提示信息的样式*/
+    .tips {
+        position: fixed;
+        width: 100%;
+        max-width: 300px;
+        margin: auto;
+        bottom: 20%;
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 1001; }
+
+    .tiptxt {
+        font-family: "微软雅黑";
+        display: inline-block;
+        max-width: 80%;
+        font-size: 1.6rem;
+        color: #ffffff;
+        text-align: center;
+        border-radius: 2.08rem;
+        background-color: rgba(51, 51, 51, 0.8);
+        padding: 1.28rem 5%;
+        word-break: break-all; }
+
+    /*错误提示信息的样式*/
+    .mainCon .organize{
+        margin-bottom: 1.4rem;
+    }
+    .mainCon .organizeTitle{
+        width: 4rem;
+        height: 2.4rem;
+        line-height: 2.4rem;
+        font-family: "\5FAE\8F6F\96C5\9ED1", "微软雅黑";
+        font-weight: normal;
+        font-size: 1.4rem;
+        color: #333;
+        text-align: center;
+        background-color: #ffffff;
+    }
+    .mainCon .organizeSort{
+        height: 2.4rem;
+        line-height: 2.4rem;
+        font-size: 1rem;
+        font-family: "\5FAE\8F6F\96C5\9ED1", "微软雅黑";
+        color: #333;
+        background-color: #f9f9f9;
+        box-sizing: border-box;
+        margin-left: 4rem;
+        z-index: 1;
+    }
+    .mainCon .organizeSort .OrgName{
+        width: 74%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        box-sizing: border-box;
+        z-index: 1;
+    }
+    .mainCon .organizeSort .show_arr_default{
+        width: 1.6rem;
+        height: auto;
+        top:50%;
+       left: 76%;
+        transform: translateY(-50%);
+        -webkit-transform: translateY(-50%);
+        z-index: 2;
+    }
+    .mainCon .organizeSort .show_arr_default img{
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+    .mainCon .OrgBI iframe{
+        height: 60rem;
+    }
+    .organizeMasker{
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        background-color: rgba(0,0,0,0.75);
+    }
+    .organizeMasker .winCon{
+        width: 90%;
+        position: absolute;
+        z-index: 1001;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        -webkit-transform: translate(-50%,-50%);
+        box-sizing: border-box;
+    }
+    .organizeMasker .winConTitle{
+        width: 100%;
+        height: 2.4rem;
+        line-height: 2.4rem;
+        font-family: "\5FAE\8F6F\96C5\9ED1", "微软雅黑";
+        font-size: 1rem;
+        text-align: center;
+        color: #333;
+        border-bottom: 1px solid #CCCCCC;
+        background-color: #ffffff;
+    }
+    .organizeMasker .organizeList{
+        width: 100%;
+        max-height: 20rem;
+        overflow: scroll;
+    }
+    .organizeMasker .organizeItem{
+        height: 2.4rem;
+        line-height: 2.4rem;
+        list-style-type: none;
+        font-family: "\5FAE\8F6F\96C5\9ED1", "微软雅黑";
+        font-size: 1rem;
+        color: #333;
+        background-color: #f9f9f9;
+        border-bottom: 1px solid #CCCCCC;
+    }
+    .organizeMasker .organizeList .organizeItem:last-of-type{
+        border-bottom-width: 0;
+    }
+    .organizeMasker .close_masker_btn{
+        margin: 0 auto;
+        width: 3rem;
+    }
+    .organizeMasker .close_masker_btn img{
+        width: 100%;
+        height: auto;
+    }
+</style>
+
 <script src="/static/Zepto.js"></script>
+
+<body>
+   <div class="mainCon pxp100 ofh">
+        <div class="organize pxp100 ofh clearfix">
+            <h1 class="organizeTitle ofh pota">组织</h1>
+            <div class="organizeSort fl pxp100 potr" onclick="openMasker('.organizeMasker')">
+                <p id="OrgName" class="OrgName potr">请选择组织</p>
+                <p class="show_arr_default pota">
+                    <img src="/static/show_arr_default.png">
+                </p>
+            </div>
+        </div>
+        <div id="OrgBI" class="OrgBI pxp100 ofh dpnone">
+            <iframe id="OrgBIIframe" src="#" class="pxp100" frameborder="0"></iframe>
+        </div>
+    </div>
+    <!--筛选组织弹出层-->
+    <div id="organizeMasker" class="organizeMasker dpnone">
+        <div class="winCon">
+            <div class="winConTitle">请选择组织</div>
+            <ul class="organizeList"></ul>
+            <div class="close_masker_btn" onclick="hideMasker('.organizeMasker')">
+                <img src="/static/close_masker_btn.png" class="dpb">
+            </div>
+        </div>
+    </div>
+    <!--筛选组织弹出层-->
+</body>
 <script type="text/javascript">
     // 测试环境
-    var host = "http://192.168.5.241:8080";
-    var queryId = 22;
-    var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
+  //  var host = "http://192.168.5.241:8080";
+  //  var queryId = 22;
+  //  var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
     // 生产环境
-    // var host = "http://portal.einwin.com";
-    // var queryId = 22;
-    // var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
-    var cellphone = "18566795138";
+    var host = "http://portal.einwin.com/redash";
+    var queryId = 1;
+    var apiKey = "HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5";
+    /*显示和隐藏加载页面事件*/
+    var loadingPageObj=null;
+    function showLoadingPage() {
+        var strHtml='<div class="load-page pota" >'
+            +'<div class="load-item pota">'
+            +'<img src="/static/load_page.gif" width="100%" />'
+            +'</div>'
+            +'</div>';
 
+        var loadingPageObj=$(strHtml).appendTo(document.body);
+
+        return loadingPageObj;
+    }
+    function hideLoadingPage(loadingPageObj) {
+        $(loadingPageObj).remove();
+    }
+    /*显示和隐藏加载页面事件*/
+    /*打开弹窗 点击事件*/
+    function openMasker(id,fn){
+        $(id).show();
+        fn&&fn();
+    }
+    /*打开弹窗 点击事件*/
+    /*关闭弹窗 点击事件*/
+    function hideMasker(id){
+        $(id).hide();
+    }
+    /*关闭弹窗 点击事件*/
+
+    //测试cellphone:18566795138
+    refreshQuery();
+    function refreshQuery() {
+        //加载页面事件
+        loadingPageObj=showLoadingPage();
+        var refreshUrl = host + "/api/queries/" + queryId + "/refresh?p_cellphone=" + {{p_cellphone}};
+        $.ajax({
+            type: 'POST',
+            url: refreshUrl,
+            // data : JSON.stringify({"p_cellphone" : cellphone}),
+            dataType: 'json',
+            headers: { 'Authorization': "Key " + apiKey },
+            success: function (data) {
+                var job = data.job;
+                pollJob(host, job);
+            },
+            error: function (data) {
+                //关闭页面加载事件
+                loadingPageObj&&hideLoadingPage(loadingPageObj);
+                console.log("Refresh ERROR: " + JSON.stringify(data));
+            }
+        });
+    }
     function pollJob(url, job) {
         if (job.status == 3) {
             queryOrg(job.query_result_id);
@@ -32,28 +319,12 @@
                     }, 1000, url, response.job);
                 },
                 error : function (error) {
+                    //关闭页面加载事件
+                    loadingPageObj&&hideLoadingPage(loadingPageObj);
                     console.log("Jobs ERROR: " + JSON.stringify(error));
                 }
             });
         }
-    }
-
-    function refreshQuery() {
-        var refreshUrl = host + "/api/queries/" + queryId + "/refresh?p_cellphone=" + {{p_cellphone}};
-        $.ajax({
-            type: 'POST',
-            url: refreshUrl,
-            // data : JSON.stringify({"p_cellphone" : cellphone}),
-            dataType: 'json',
-            headers: { 'Authorization': "Key " + apiKey },
-            success: function (data) {
-                var job = data.job;
-                pollJob(host, job);
-            },
-            error: function (data) {
-                console.log("Refresh ERROR: " + JSON.stringify(data));
-            }
-        });
     }
 
     function queryOrg(resultId) {
@@ -64,20 +335,41 @@
             dataType : "json",
             headers : { 'Authorization': "Key " + apiKey },
             success : function (data) {
-                alert("org: " + JSON.stringify(data.query_result.data.rows));
+//                alert("org: " + JSON.stringify(data.query_result.data.rows));
+                //关闭页面加载事件
+                loadingPageObj&&hideLoadingPage(loadingPageObj);
+                var orgData=data.query_result.data.rows;
+
+                if(!orgData.length>0) return;
+
+                $('#OrgName').text(orgData[0].orgname);
+                $('#OrgBIIframe').attr('src',orgData[0].url);
+                $('#OrgBI').show();
+
+                var strHTML='';
+
+                for(var i=0,len=orgData.length;i<len;i++){
+                    strHTML+='<li class="organizeItem" data-url="'+orgData[i].url+'"  onclick="openBIPage(this)">'+orgData[i].orgname+'</li>'
+                }
+
+                $('#organizeMasker .organizeList').html(strHTML);
             },
             error : function (error) {
+                //关闭页面加载事件
+                loadingPageObj&&hideLoadingPage(loadingPageObj);
                 console.log("Org ERROR: " + JSON.stringify(error));
             }
-         });
+        });
+    }
+    /*打开新的组织BI数据*/
+    function openBIPage(obj) {
+        var url=$(obj).attr('data-url');
+
+        hideMasker('.organizeMasker');
+        $('#OrgName').text($(obj).text());
+        $('#OrgBIIframe').attr('src',url);
     }
 
-
 </script>
-
-<body>
-    <input type="button" value="refresh" onClick="refreshQuery()" />
-</body>
-
 </html>
 
