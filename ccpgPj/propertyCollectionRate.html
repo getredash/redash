@@ -1,0 +1,83 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<script src="/static/Zepto.js"></script>
+<script type="text/javascript">
+    // 测试环境
+    var host = "http://192.168.5.241:8080";
+    var queryId = 22;
+    var apiKey = "86azADZ3umXfbWvW3qnABGVC4EkNxiMVALbFYATj";
+    // 生产环境
+    // var host = "http://portal.einwin.com";
+    // var queryId = 1;
+    // var apiKey = "HStbC9PzjutsRnFpq3Ntx7tmbMBjvxsMNtA6cUb5";
+    var cellphone = "18566795138";
+
+    function pollJob(url, job) {
+        if (job.status == 3) {
+            queryOrg(job.query_result_id);
+        } else {
+            var urlAddress = url + "/api/jobs/" + job.id;
+            $.ajax({
+                type : "GET",
+                url : urlAddress,
+                dataType : "json",
+                headers : { 'Authorization': "Key " + apiKey },
+                success : function (response) {
+                    setTimeout(function (tempUrl, tempjob) {
+                        pollJob(tempUrl, tempjob);
+                    }, 1000, url, response.job);
+                },
+                error : function (error) {
+                    console.log("Jobs ERROR: " + JSON.stringify(error));
+                }
+            });
+        }
+    }
+
+    function refreshQuery() {
+        var refreshUrl = host + "/api/queries/" + queryId + "/refresh?p_cellphone=" + cellphone;
+        $.ajax({
+            type: 'POST',
+            url: refreshUrl,
+            // data : JSON.stringify({"p_cellphone" : cellphone}),
+            dataType: 'json',
+            headers: { 'Authorization': "Key " + apiKey },
+            success: function (data) {
+                var job = data.job;
+                pollJob(host, job);
+            },
+            error: function (data) {
+                console.log("Refresh ERROR: " + JSON.stringify(data));
+            }
+        });
+    }
+
+    function queryOrg(resultId) {
+        var orgUrl = host + "/api/queries/" + queryId + "/results/" + resultId + ".json";
+        $.ajax({
+            type : "GET",
+            url : orgUrl,
+            dataType : "json",
+            headers : { 'Authorization': "Key " + apiKey },
+            success : function (data) {
+                alert("org: " + JSON.stringify(data.query_result.data.rows));
+            },
+            error : function (error) {
+                console.log("Org ERROR: " + JSON.stringify(error));
+            }
+         });
+    }
+
+
+</script>
+
+<body>
+    <input type="button" value="refresh" onClick="refreshQuery()" />
+</body>
+
+</html>
+

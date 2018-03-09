@@ -2,50 +2,79 @@
 
 echo "Redash cmdline for ccpg "
 echo "you can use -B/b for webpacking , -R/r for restarting , -D/d for restart in node-debugging mode, -S/s to stop the redash"
+
+killall()
+{
+  ps aux|grep redash|awk '{print $2}'|xargs kill -9
+  ps aux|grep celery|awk '{print $2}'|xargs kill -9
+}
+cpCCPGprj()
+{
+   if [ -d "ccpgPj" ]; then
+      echo "cp pj.."
+      cp -rf ccpgPj/*.html client/dist
+      if [ ! -d "client/dist/static" ]; then
+         mkdir "client/dist/static"
+         echo ""
+      fi
+      cp -rf ccpgPj/*.js  client/dist/static
+   fi
+}
+envExp()
+{
+   export SQLALCHEMY_MAX_OVERFLOW=200
+   export SQLALCHEMY_POOL_SIZE=100
+}
+
+startWorker()
+{
+   nohup ./bin/run  celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1 | tee redash_worker.log >/dev/null &
+}
+startServer()
+{
+   echo $1
+   echo $2
+   echo $3 
+   nohup ./bin/run ./manage.py runserver --with-threads -h 0.0.0.0 -p 8080 $1 $2 $3 2>&1 | tee redash_server.log >/dev/null & 
+}
+
 case $1 in
 -s | -S)
       echo "ShutDown redash ...  "
-      ps aux|grep redash|awk '{print $2}'|xargs kill -9
-      ps aux|grep celery|awk '{print $2}'|xargs kill -9
+      killall
       ;;
-
+-P | -p)
+      echo "Patch ...  "
+      cpCCPGprj
+      ;;
 -b | -B)
     echo "Packing... " 
     if [ ! -d "node_modules" ];then
        echo "node_modules not exist, return"
        exit 1
     fi  
-    ps aux|grep redash|awk '{print $2}'|xargs kill -9
-    ps aux|grep celery|awk '{print $2}'|xargs kill -9
-
     npm run build | tee npm_run_build.log 
+    cpCCPGprj
     ps aux|grep node|awk '{print $2}'|xargs kill -9
     ;;
 -R | -r)
     echo "Run ..."
     echo "to kill the redash related processes..." 
-    ps aux|grep redash|awk '{print $2}'|xargs kill -9
-    ps aux|grep celery|awk '{print $2}'|xargs kill -9
-
+    killall
     echo "@ to run the celery and server"
-    export SQLALCHEMY_MAX_OVERFLOW=200
-    export SQLALCHEMY_POOL_SIZE=100
-    nohup ./bin/run  celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1| tee redash_worker.log >/dev/null & nohup ./bin/run ./manage.py runserver --with-threads -h 0.0.0.0 -p 8080 2>&1 | tee redash_server.log >/dev/null &
+    envExp
+    startServer 
+    startWorker
     ;;
 -D | -d)
      echo "to kill the redash related process..."
-     ps aux|grep redash|awk '{print $2}'|xargs kill -9
-     ps aux|grep celery|awk '{print $2}'|xargs kill -9
-     export SQLALCHEMY_MAX_OVERFLOW=200
-     export SQLALCHEMY_POOL_SIZE=100
-   
-   #  ps aux|grep node|awk '{print $2}'|xargs kill -9&
-     
+     killall
+     envExp 
      echo "Debug Mode.. you may modify the webpack related files first : webpack.config.js and package.json "
-#     unset $REDASH_BACKEND
      echo "to run server"
-     nohup ./bin/run ./manage.py runserver --debugger --reload --with-threads  2>&1| tee redash_server.log >/dev/null & nohup ./bin/run celery worker --app=redash.worker --beat -Qscheduled_queries,queries,celery -c2 2>&1| tee redash_worker.log >/dev/null& nohup npm run start 2>&1| tee npm_run.log >/dev/null&
-      ;;
+     startServer --debugger --reload 
+     startWorker
+     ;;
 *)
     echo "illegal command!"  
     ;;

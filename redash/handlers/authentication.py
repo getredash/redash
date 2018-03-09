@@ -90,6 +90,9 @@ def forgot_password(org_slug=None):
 
     return render_template("forgot.html", submitted=submitted)
 
+@routes.route(org_scoped_rule('/pcr'), methods=['GET', 'POST'])
+def pcr():
+    return render_template("propertyCollectionRate.html")
 
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
