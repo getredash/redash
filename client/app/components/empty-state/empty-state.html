@@ -10,14 +10,18 @@
         <h4>Let's get started</h4>
         <ol>
             <li ng-class="{done: $ctrl.dataSourceStepCompleted}">
-                <a href="data_sources">Connect</a> a Data Source</li>
+                <span ng-if="!$ctrl.isAdmin">Ask an account admin to connect a data source.</span>
+                <span ng-if="$ctrl.isAdmin">
+                    <a href="data_sources">Connect</a> a Data Source
+                </span>
+            </li>
             <li ng-class="{done: $ctrl.queryStepCompleted}">
                 <a href="queries/new">Create</a> your first Query</li>
             <li ng-if="$ctrl.showAlertStep" ng-class="{done: $ctrl.alertStepCompleted}">
                 <a href="alerts/new">Create</a> your first Alert</li>
             <li ng-if="$ctrl.showDashboardStep" ng-class="{done: $ctrl.dashboardStepCompleted}">
                 <a ng-click="$ctrl.newDashboard()">Create</a> your first Dashboard</li>
-            <li ng-if="$ctrl.showInviteStep"  ng-class="{done: $ctrl.inviteStepCompleted}">
+            <li ng-if="$ctrl.showInviteStep" ng-class="{done: $ctrl.inviteStepCompleted}">
                 <a href="users/new">Invite</a> your team members</li>
         </ol>
         <p>Need more support?
