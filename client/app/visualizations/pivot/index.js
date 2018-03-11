@@ -2,12 +2,13 @@ import angular from 'angular';
 import $ from 'jquery';
 import 'pivottable';
 import 'pivottable/dist/pivot.css';
+import { each } from 'underscore';
 
 import editorTemplate from './pivottable-editor.html';
 import './pivot.less';
 
 
-function pivotTableRenderer() {
+function pivotTableRenderer(clientConfig) {
   return {
     restrict: 'E',
     scope: {
@@ -41,6 +42,22 @@ function pivotTableRenderer() {
             // We need to give the pivot table its own copy of the data, because it changes
             // it which interferes with other visualizations.
             data = angular.copy($scope.queryResult.getData());
+
+            // override moment.fn.toString for formatting.
+            const dateTimeFormat = {
+              date: clientConfig.dateFormat || 'DD/MM/YY',
+              datetime: clientConfig.dateTimeFormat || 'DD/MM/YY HH:mm',
+            };  
+            each($scope.queryResult.getColumns(), (column) => {
+              if (['date', 'datetime'].indexOf(column.type) >= 0) {
+                each(data, (datum) => {
+                  datum[column.name].toString = function f() {
+                    return this.format(dateTimeFormat[column.type]);
+                  };
+                });
+              }
+            });
+
             const options = {
               renderers: $.pivotUtilities.renderers,
               onRefresh(config) {
