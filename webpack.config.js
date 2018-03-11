@@ -153,6 +153,9 @@ const config = {
     modules: false,
     chunkModules: false,
   },
+  watchOptions: {
+    ignored: /\.sw.$/,
+  },
   devServer: {
     inline: true,
     index: '/static/index.html',
