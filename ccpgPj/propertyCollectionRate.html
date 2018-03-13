@@ -1,8 +1,8 @@
 <html>
 
 <head>
-   
-    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"/>  
+
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no"/>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 </head>
 <style>
@@ -214,7 +214,9 @@
 </style>
 
 <script src="/static/Zepto.js"></script>
-
+<head>
+    <title>收缴率</title>
+</head>
 <body>
    <div class="mainCon pxp100 ofh">
         <div class="organize pxp100 ofh clearfix">
@@ -376,7 +378,7 @@
     function iosIframeWidthBug(){
     //不是 iphone ipad就不执行了
      if (!navigator.userAgent.match(/iPad|iPhone/i))return false;
-   //获取子iframevar 
+   //获取子iframevar
      iframebody = document.getElementById('OrgBIIframe').contentWindow.document.body;
      iframebody.style.width = document.body.clientWidth+'px';
     }
