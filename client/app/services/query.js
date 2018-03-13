@@ -67,6 +67,12 @@ class Parameter {
     } else if (this.type === 'number') {
       this.$$value = this.$$value || parseInt(this.value, 10);
       return this.$$value;
+    } else if (this.type === 'enum') {
+      const options = this.enumOptions.split('\n');
+      if (options.some(option => option.startsWith('$'))) {
+        this.$$value = this.$$value || moment(this.value).toDate();
+        return this.$$value;
+      }
     }
 
     return this.value;

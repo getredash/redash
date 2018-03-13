@@ -1,7 +1,10 @@
 import { find } from 'underscore';
+import moment from 'moment';
+
 import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';
+
 
 const ParameterSettingsComponent = {
   template: parameterSettingsTemplate,
@@ -136,6 +139,46 @@ function ParametersDirective($location, $uibModal) {
           return enumOptions.split('\n');
         }
         return [];
+      };
+      scope.mapOptions = (option) => {
+        if (option) {
+          if (option.startsWith('$')) {
+            return option.slice(1).replace('_', ' ');
+          }
+          return option;
+        }
+        return [];
+      };
+      scope.mapOptionValues = (option) => {
+        const humanTimeEnum = ['today', 'yesterday', 'last week'];
+        if (humanTimeEnum.indexOf(scope.mapOptions(option).toLowerCase()) > -1) {
+          let date;
+          const today = moment();
+          switch (scope.mapOptions(option).toLowerCase()) {
+            case 'today': {
+              const fmt = today.format('YYYY-MM-DD');
+              date = fmt;
+              break;
+            }
+            case 'yesterday': {
+              const yesterday = moment().add(-1, 'days');
+              const fmt = yesterday.format('YYYY-MM-DD');
+              date = fmt;
+              break;
+            }
+            case 'last week': {
+              const lastweek = moment().add(-7, 'days');
+              const fmt = lastweek.format('YYYY-MM-DD');
+              date = fmt;
+              break;
+            }
+            default: {
+              return '';
+            }
+          }
+          return date;
+        }
+        return option;
       };
       scope.showParameterSettings = (param) => {
         $uibModal.open({
