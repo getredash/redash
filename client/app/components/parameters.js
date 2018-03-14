@@ -107,6 +107,14 @@ const QueryBasedParameterComponent = {
 };
 
 function ParametersDirective($location, $uibModal) {
+  function getChangeIndex(n, o) {
+    for (let i = 0; i < n.length; i += 1) {
+      if (n[i] !== o[i]) {
+        return i;
+      }
+    }
+    return [];
+  }
   return {
     restrict: 'E',
     transclude: true,
@@ -118,6 +126,30 @@ function ParametersDirective($location, $uibModal) {
     },
     template,
     link(scope) {
+      scope.getPairedToInputIndex = (param) => {
+        let index;
+        if (param.type === 'enum' && param.name.endsWith('$From')) {
+          scope.parameters.forEach((searchParam, i) => {
+            if (searchParam.type === 'enum' && searchParam.name.split('$')[0] === param.name.split('$')[0]
+              && searchParam.name.split('$')[1] === 'To') {
+              index = i;
+            }
+          });
+        }
+        return index;
+      };
+      scope.getPairedFromInputIndex = (param) => {
+        let index;
+        if (param.name.endsWith('$To')) {
+          scope.parameters.forEach((searchParam, i) => {
+            if (searchParam.type === 'enum' && searchParam.name.split('$')[0] === param.name.split('$')[0]
+              && searchParam.name.split('$')[1] === 'From') {
+              index = i;
+            }
+          });
+        }
+        return index;
+      };
       // is this the correct location for this logic?
       if (scope.syncValues !== false) {
         scope.$watch('parameters', () => {
@@ -130,23 +162,23 @@ function ParametersDirective($location, $uibModal) {
             }
           });
         }, true);
-        scope.enumValue = [];
+        scope.enumValue = Array(scope.parameters.length);
         scope.$watch('enumValue', (n, o) => {
           if (scope.changed) {
-            const changedIndex = (function () {
-              for (let i = 0; i < n.length; i += 1) {
-                if (n[i] !== o[i]) {
-                  return i;
-                }
-              }
-              return [];
-            }());
+            const changedIndex = getChangeIndex(n, o);
             if (n[changedIndex]) {
-              console.log(changedIndex, n[changedIndex], o[changedIndex]);
-              if (n[changedIndex] !== '$Custom_date') {
-                scope.parameters[changedIndex].value = moment(n[changedIndex]).format('YYYY-MM-DD');
+              if (n[changedIndex] === '$Custom_date') {
+                scope.parameters[changedIndex].ngModel = moment().format('YYYY-MM-DD');
+              } else if (n[changedIndex] === moment().add(-1, 'days').format('YYYY-MM-DD') && scope.parameters[changedIndex].name.endsWith('$From')) {
+                scope.parameters[changedIndex].ngModel = moment(n[changedIndex]).format('YYYY-MM-DD');
+                scope.parameters[scope.getPairedToInputIndex(scope.parameters[changedIndex])].ngModel
+                  = scope.parameters[changedIndex].ngModel;
+              } else if (scope.parameters[changedIndex].name.endsWith('$From')) {
+                scope.parameters[changedIndex].ngModel = moment(n[changedIndex]).format('YYYY-MM-DD');
+                scope.parameters[scope.getPairedToInputIndex(scope.parameters[changedIndex])].ngModel
+                  = moment().format('YYYY-MM-DD');
               } else {
-                scope.parameters[changedIndex].value = moment(scope.parameters[changedIndex].value).format('YYYY-MM-DD');
+                scope.parameters[changedIndex].ngModel = moment(n[changedIndex]).format('YYYY-MM-DD');
               }
             }
             scope.changed({});
@@ -179,20 +211,17 @@ function ParametersDirective($location, $uibModal) {
             const today = moment();
             switch (scope.mapOptions(option).toLowerCase()) {
               case 'today': {
-                const fmt = today.format('YYYY-MM-DD');
-                date = fmt;
+                date = today.format('YYYY-MM-DD');
                 break;
               }
               case 'yesterday': {
                 const yesterday = moment().add(-1, 'days');
-                const fmt = yesterday.format('YYYY-MM-DD');
-                date = fmt;
+                date = yesterday.format('YYYY-MM-DD');
                 break;
               }
               case 'last week': {
-                const lastweek = moment().add(-7, 'days');
-                const fmt = lastweek.format('YYYY-MM-DD');
-                date = fmt;
+                const lastweek = moment().add(-6, 'days');
+                date = lastweek.format('YYYY-MM-DD');
                 break;
               }
               default: {
@@ -206,6 +235,13 @@ function ParametersDirective($location, $uibModal) {
         }
         return option;
       };
+      scope.hideEnumToDate = (index) => {
+        if (scope.parameters[index].type === 'enum' && scope.parameters[index].name.endsWith('$To') &&
+          scope.enumValue[scope.getPairedFromInputIndex(scope.parameters[index])] !== '$Custom_date') {
+          return true;
+        }
+        return false;
+      };
       scope.showParameterSettings = (param) => {
         $uibModal.open({
           component: 'parameterSettings',
@@ -213,6 +249,18 @@ function ParametersDirective($location, $uibModal) {
             parameter: param,
           },
         });
+      };
+      scope.clearParam = (param, index) => {
+        if (param.name.endsWith('$To')) {
+          param.value = '';
+          scope.enumValue[index] = '';
+        } else {
+          param.value = '';
+          scope.enumValue[index] = '';
+          const pairedIndex = scope.getPairedToInputIndex(param);
+          scope.parameters[pairedIndex].value = '';
+          scope.enumValue[pairedIndex] = '';
+        }
       };
     },
   };

@@ -69,10 +69,9 @@ class Parameter {
       return this.$$value;
     } else if (this.type === 'enum') {
       const options = this.enumOptions.split('\n');
-      if (options.some(option => option.startsWith('$'))) {
-        console.log('ngmodel: ', typeof this.value, this.value, typeof this.$$value, this.$$value);
+      if (options.every(option => option.startsWith('$'))) {
         this.$$value = this.$$value || moment(this.value).toDate();
-        return moment(this.value).toDate();
+        return this.$$value;
       }
     }
 
@@ -89,8 +88,12 @@ class Parameter {
     } else if (value && this.type === 'datetime-with-seconds') {
       this.value = moment(value).format('YYYY-MM-DD HH:mm:ss');
       this.$$value = moment(this.value).toDate();
-    } else {
-      this.value = this.$$value = value;
+    } else if (value && this.type === 'enum') {
+      const options = this.enumOptions.split('\n');
+      if (options.every(option => option.startsWith('$'))) {
+        this.value = moment(value).format('YYYY-MM-DD');
+        this.$$value = moment(this.value).toDate();
+      }
     }
   }
 }
