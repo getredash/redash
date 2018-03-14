@@ -70,8 +70,9 @@ class Parameter {
     } else if (this.type === 'enum') {
       const options = this.enumOptions.split('\n');
       if (options.some(option => option.startsWith('$'))) {
+        console.log('ngmodel: ', typeof this.value, this.value, typeof this.$$value, this.$$value);
         this.$$value = this.$$value || moment(this.value).toDate();
-        return this.$$value;
+        return moment(this.value).toDate();
       }
     }
 

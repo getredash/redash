@@ -15,11 +15,12 @@
       <input ng-switch-when="datetime-local" type="datetime-local" class="form-control" ng-model="param.ngModel">
       <input ng-switch-when="date" type="date" class="form-control" ng-model="param.ngModel">
       <span ng-switch-when="enum">
-        <input ng-hide="param.value !== '$Custom_date'" type="date" class="form-control" ng-model="param.ngModel">
-        <select ng-hide="param.value === '$Custom_date'" ng-model="param.value" class="form-control">
+        <p>{{param.value}}, {{enumValue[$index]}}, {{$index}}</p>
+        <input ng-hide="enumValue[$index] !== '$Custom_date'" type="date" class="form-control" ng-model="param.ngModel">
+        <select ng-hide="enumValue[$index] === '$Custom_date'" ng-model="enumValue[$index]" class="form-control">
           <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{mapOptionValues(option)}}">{{mapOptions(option)}}</option>
         </select>
-        <span ng-hide="param.value !== '$Custom_date'" class="arrow-down" ng-click="param.value = ''">&#x25bc;</span>
+        <span ng-hide="enumValue[$index] !== '$Custom_date'" class="arrow-down" ng-click="enumValue[$index] = param.value = ''">&#x25bc;</span>
       </span>
       <span ng-switch-when="query">
         <query-based-parameter param="param" query-id="param.queryId"></query-based-parameter>

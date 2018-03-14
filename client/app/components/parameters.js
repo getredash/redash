@@ -130,6 +130,28 @@ function ParametersDirective($location, $uibModal) {
             }
           });
         }, true);
+        scope.enumValue = [];
+        scope.$watch('enumValue', (n, o) => {
+          if (scope.changed) {
+            const changedIndex = (function () {
+              for (let i = 0; i < n.length; i += 1) {
+                if (n[i] !== o[i]) {
+                  return i;
+                }
+              }
+              return [];
+            }());
+            if (n[changedIndex]) {
+              console.log(changedIndex, n[changedIndex], o[changedIndex]);
+              if (n[changedIndex] !== '$Custom_date') {
+                scope.parameters[changedIndex].value = moment(n[changedIndex]).format('YYYY-MM-DD');
+              } else {
+                scope.parameters[changedIndex].value = moment(scope.parameters[changedIndex].value).format('YYYY-MM-DD');
+              }
+            }
+            scope.changed({});
+          }
+        }, true);
       }
 
       // These are input as newline delimited values,
@@ -151,32 +173,36 @@ function ParametersDirective($location, $uibModal) {
       };
       scope.mapOptionValues = (option) => {
         const humanTimeEnum = ['today', 'yesterday', 'last week'];
-        if (humanTimeEnum.indexOf(scope.mapOptions(option).toLowerCase()) > -1) {
-          let date;
-          const today = moment();
-          switch (scope.mapOptions(option).toLowerCase()) {
-            case 'today': {
-              const fmt = today.format('YYYY-MM-DD');
-              date = fmt;
-              break;
+        if (option.startsWith('$')) {
+          if (humanTimeEnum.indexOf(scope.mapOptions(option).toLowerCase()) > -1) {
+            let date;
+            const today = moment();
+            switch (scope.mapOptions(option).toLowerCase()) {
+              case 'today': {
+                const fmt = today.format('YYYY-MM-DD');
+                date = fmt;
+                break;
+              }
+              case 'yesterday': {
+                const yesterday = moment().add(-1, 'days');
+                const fmt = yesterday.format('YYYY-MM-DD');
+                date = fmt;
+                break;
+              }
+              case 'last week': {
+                const lastweek = moment().add(-7, 'days');
+                const fmt = lastweek.format('YYYY-MM-DD');
+                date = fmt;
+                break;
+              }
+              default: {
+                return '';
+              }
             }
-            case 'yesterday': {
-              const yesterday = moment().add(-1, 'days');
-              const fmt = yesterday.format('YYYY-MM-DD');
-              date = fmt;
-              break;
-            }
-            case 'last week': {
-              const lastweek = moment().add(-7, 'days');
-              const fmt = lastweek.format('YYYY-MM-DD');
-              date = fmt;
-              break;
-            }
-            default: {
-              return '';
-            }
+            return date;
           }
-          return date;
+        } else {
+          return moment(option).format('YYYY-MM-DD');
         }
         return option;
       };
