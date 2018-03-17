@@ -118,10 +118,10 @@ class SQLServerODBC(BaseSQLQueryRunner):
             charset = self.configuration.get('charset', 'UTF-8')
             driver = self.configuration.get('driver', '{ODBC Driver 13 for SQL Server}')
 
-            connection_string_fmt = 'DRIVER={};PORT={};SERVER={};DATABASE={};UID={};PWD={}'
+            connection_string_fmt = 'DRIVER={};SERVER={},{};DATABASE={};UID={};PWD={}'
             connection_string = connection_string_fmt.format(driver,
-                                                             port,
                                                              server,
+                                                             port,
                                                              db,
                                                              user,
                                                              password)
