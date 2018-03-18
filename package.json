@@ -55,6 +55,7 @@
     "moment": "^2.19.3",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
+    "node-fetch": "^2.1.1",
     "numeral": "^2.0.6",
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.15.0",
