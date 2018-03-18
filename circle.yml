@@ -11,6 +11,7 @@ dependencies:
     - pip install -r requirements_dev.txt
     - pip install -r requirements.txt
     - npm install
+    - npm run sec
     - npm run build
   cache_directories:
     - node_modules/

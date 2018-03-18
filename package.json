@@ -7,7 +7,8 @@
     "start": "webpack-dev-server",
     "dev": "REDASH_BACKEND=https://dev.redashapp.com npm start",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
-    "watch": "webpack --watch --progress --colors -d"
+    "watch": "webpack --watch --progress --colors -d",
+    "sec": "node ./scripts/sec.js"
   },
   "repository": {
     "type": "git",
@@ -54,6 +55,7 @@
     "moment": "^2.19.3",
     "mousetrap": "^1.6.1",
     "mustache": "^2.3.0",
+    "node-fetch": "^2.1.1",
     "numeral": "^2.0.6",
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.15.0",
