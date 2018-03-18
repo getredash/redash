@@ -8,7 +8,7 @@
     "dev": "REDASH_BACKEND=https://dev.redashapp.com npm start",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
     "watch": "webpack --watch --progress --colors -d",
-    "sec": "./scripts/sec.js"
+    "sec": "node ./scripts/sec.js"
   },
   "repository": {
     "type": "git",
