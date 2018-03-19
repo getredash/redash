@@ -110,7 +110,12 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
       widget.options.position.autoHeight = true;
     }
 
-    return new WidgetResource(widget);
+    const result = new WidgetResource(widget);
+
+    // Save original position (create a shallow copy)
+    result.$originalPosition = extend({}, result.options.position);
+
+    return result;
   }
 
   return WidgetConstructor;
