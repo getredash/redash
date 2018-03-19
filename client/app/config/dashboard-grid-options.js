@@ -18,9 +18,9 @@ const dashboardGridOptions = {
   defaultSizeX: 3,
   defaultSizeY: 3,
   minSizeX: 1,
-  maxSizeX: null,
+  maxSizeX: 6,
   minSizeY: 1,
-  maxSizeY: null,
+  maxSizeY: 1000,
   resizable: {
     enabled: false,
     handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],

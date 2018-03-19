@@ -12,20 +12,12 @@ function isWidgetPositionChanged(oldPosition, newPosition) {
   return !!_.find(fields, key => newPosition[key] !== oldPosition[key]);
 }
 
-function collectWidgetPositions(widgets) {
-  return _.chain(widgets)
-    .map(widget => [widget.id, _.clone(widget.options.position)])
-    .object()
-    .value();
-}
-
-function getWidgetsWithChangedPositions(widgets, savedPositions) {
+function getWidgetsWithChangedPositions(widgets) {
   return _.filter(widgets, (widget) => {
-    const savedPosition = savedPositions[widget.id];
-    if (!_.isObject(savedPosition)) {
+    if (!_.isObject(widget.$originalPosition)) {
       return true;
     }
-    return isWidgetPositionChanged(savedPosition, widget.options.position);
+    return isWidgetPositionChanged(widget.$originalPosition, widget.options.position);
   });
 }
 
@@ -42,13 +34,9 @@ function DashboardCtrl(
   currentUser,
   clientConfig,
   Events,
-  dashboardGridOptions,
   toastr,
 ) {
   this.saveInProgress = false;
-
-  // This variable should always be in sync with widgets
-  let savedWidgetPositions = {};
 
   const saveDashboardLayout = (widgets) => {
     if (!this.dashboard.canEdit()) {
@@ -56,16 +44,17 @@ function DashboardCtrl(
     }
 
     this.saveInProgress = true;
-    const showMessages = true; // this.layoutEditing;
-    // Temporarily disable grid editing (but allow user to use UI controls)
-    this.dashboardGridOptions.draggable.enabled = false;
-    this.dashboardGridOptions.resizable.enabled = false;
+    const showMessages = true;
     return $q
       .all(_.map(widgets, widget => widget.$save()))
       .then(() => {
         if (showMessages) {
           toastr.success('Changes saved.');
         }
+        // Update original widgets positions
+        _.each(widgets, (widget) => {
+          _.extend(widget.$originalPosition, widget.options.position);
+        });
       })
       .catch(() => {
         if (showMessages) {
@@ -74,26 +63,14 @@ function DashboardCtrl(
       })
       .finally(() => {
         this.saveInProgress = false;
-        // If user didn't disable editing mode while saving - restore grid
-        this.dashboardGridOptions.draggable.enabled = this.layoutEditing;
-        this.dashboardGridOptions.resizable.enabled = this.layoutEditing;
       });
   };
 
   this.layoutEditing = false;
-  this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
-    resizable: {
-      enabled: false,
-      handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-    },
-    draggable: {
-      enabled: false,
-    },
-  });
-
   this.isFullscreen = false;
   this.refreshRate = null;
   this.isGridDisabled = false;
+  this.updateGridItems = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
 
@@ -101,10 +78,6 @@ function DashboardCtrl(
     name: durationHumanize(interval),
     rate: interval,
   }));
-
-  $rootScope.$on('gridster-mobile-changed', ($event, gridster) => {
-    this.isGridDisabled = gridster.isMobile;
-  });
 
   this.setRefreshRate = (rate, load = true) => {
     this.refreshRate = rate;
@@ -214,8 +187,6 @@ function DashboardCtrl(
             }, false);
           }
         }
-
-        savedWidgetPositions = collectWidgetPositions(dashboard.widgets);
       },
       (rejection) => {
         const statusGroup = Math.floor(rejection.status / 100);
@@ -265,31 +236,24 @@ function DashboardCtrl(
 
   this.editLayout = (enableEditing, applyChanges) => {
     if (!this.isGridDisabled) {
-      if (enableEditing) {
-        if (!this.layoutEditing) {
-          // Save current positions of widgets
-          savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
-        }
-      } else {
+      if (!enableEditing) {
         if (applyChanges) {
-          const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets, savedWidgetPositions);
-          saveDashboardLayout(changedWidgets).finally(() => {
-            savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
-          });
+          const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
+          saveDashboardLayout(changedWidgets);
         } else {
           // Revert changes
+          const items = {};
           _.each(this.dashboard.widgets, (widget) => {
-            if (_.isObject(savedWidgetPositions[widget.id])) {
-              widget.options.position = savedWidgetPositions[widget.id];
-            }
+            _.extend(widget.options.position, widget.$originalPosition);
+            items[widget.id] = widget.options.position;
           });
+          if (this.updateGridItems) {
+            this.updateGridItems(items);
+          }
         }
-        savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
       }
 
       this.layoutEditing = enableEditing;
-      this.dashboardGridOptions.draggable.enabled = this.layoutEditing && !this.saveInProgress;
-      this.dashboardGridOptions.resizable.enabled = this.layoutEditing && !this.saveInProgress;
     }
   };
 
@@ -332,11 +296,7 @@ function DashboardCtrl(
         // Save position of newly added widget (but not entire layout)
         const widget = _.last(this.dashboard.widgets);
         if (_.isObject(widget)) {
-          return widget.$save().then(() => {
-            if (this.layoutEditing) {
-              savedWidgetPositions[widget.id] = _.clone(widget.options.position);
-            }
-          });
+          return widget.$save();
         }
       });
   };
@@ -347,10 +307,8 @@ function DashboardCtrl(
       // We need to wait a bit for `angular-gridster` before it updates widgets,
       // and only then save new layout
       $timeout(() => {
-        const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets, savedWidgetPositions);
-        saveDashboardLayout(changedWidgets).finally(() => {
-          savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
-        });
+        const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets);
+        saveDashboardLayout(changedWidgets);
       }, 50);
     }
   };
