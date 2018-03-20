@@ -1,5 +1,4 @@
 import json
-import requests
 import re
 
 from collections import OrderedDict
@@ -137,41 +136,15 @@ class FieldMapping:
         return None
 
 
-class JiraJQL(BaseQueryRunner):
+class JiraJQL(BaseHTTPQueryRunner):
     noop_query = '{"queryType": "count"}'
     default_doc_url = ("https://confluence.atlassian.com/jirasoftwarecloud/"
                        "advanced-searching-764478330.html")
-
-    @classmethod
-    def configuration_schema(cls):
-        return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': 'JIRA URL'
-                },
-                'username': {
-                    'type': 'string',
-                },
-                'password': {
-                    'type': 'string'
-                },
-                "doc_url": {
-                    "type": "string",
-                    "title": "Documentation URL",
-                    "default": cls.default_doc_url
-                },
-                "toggle_table_string": {
-                    "type": "string",
-                    "title": "Toggle Table String",
-                    "default": "_v",
-                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
-                }
-            },
-            'required': ['url', 'username', 'password'],
-            'secret': ['password']
-        }
+    response_error = "JIRA returned unexpected status code"
+    requires_authentication = True
+    url_title = 'JIRA URL'
+    username_title = 'Username'
+    password_title = 'Password'
 
     @classmethod
     def name(cls):
@@ -199,13 +172,9 @@ class JiraJQL(BaseQueryRunner):
             else:
                 query['maxResults'] = query.get('maxResults', 1000)
 
-            response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
-
-            if response.status_code == 401 or response.status_code == 403:
-                return None, "Authentication error. Please check username/password."
-
-            if response.status_code != 200:
-                return None, "JIRA returned unexpected status code ({})".format(response.status_code)
+            response, error = self.get_response(jql_url, params=query)
+            if error is not None:
+                return None, error
 
             data = response.json()
 
@@ -219,4 +188,3 @@ class JiraJQL(BaseQueryRunner):
             return None, "Query cancelled by user."
 
 register(JiraJQL)
-
