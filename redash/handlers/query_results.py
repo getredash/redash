@@ -104,7 +104,7 @@ class QueryResultListResource(BaseResource):
 
         :qparam string query: The query text to execute
         :qparam number query_id: The query object to update with the result (optional)
-        :qparam number max_age: If query results less than `max_age` seconds old are available, return them, otherwise execute the query; if omitted, always execute
+        :qparam number max_age: If query results less than `max_age` seconds old are available, return them, otherwise execute the query; set to -1 return latest indepenent of max_age; if omitted, -1
         :qparam number data_source_id: ID of data source to query
         """
         params = request.get_json(force=True)
