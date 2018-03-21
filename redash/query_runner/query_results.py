@@ -4,6 +4,7 @@ import numbers
 import re
 import sqlite3
 
+import sqlparse
 from dateutil import parser
 
 from redash import models
@@ -43,8 +44,31 @@ def _guess_type(value):
 
 
 def extract_query_ids(query):
-    queries = re.findall(r'(?:join|from)\s+query_(\d+)', query, re.IGNORECASE)
-    return [int(q) for q in queries]
+    pattern = re.compile(r'query_(\d+)', re.IGNORECASE)
+    query_ids = []
+    prev_token = None
+
+    for token in sqlparse.parse(query)[0].tokens:
+        if not isinstance(token, sqlparse.sql.Identifier):
+            if token.ttype not in [sqlparse.sql.T.Whitespace, sqlparse.sql.T.Newline]:
+                prev_token = token
+
+            continue
+
+        if prev_token.value.encode().upper() not in ['FROM', 'JOIN']:
+            continue
+
+        table_name = token.value
+        if token.is_group:
+            table_name = token.tokens[0].value
+
+        m = pattern.match(table_name)
+        if not m:
+            continue
+
+        query_ids.append(m.group(1))
+
+    return [int(q) for q in query_ids]
 
 
 def _load_query(user, query_id):
