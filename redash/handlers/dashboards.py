@@ -21,6 +21,7 @@ from redash.serializers import (
     DashboardSerializer,
     public_dashboard,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError
 
 
@@ -218,7 +219,11 @@ class DashboardResource(BaseResource):
         try:
             models.db.session.commit()
         except StaleDataError:
+            models.db.session.rollback()
             abort(409)
+        except IntegrityError:
+            models.db.session.rollback()
+            abort(400)
 
         result = DashboardSerializer(
             dashboard, with_widgets=True, user=self.current_user
