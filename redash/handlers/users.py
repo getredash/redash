@@ -138,6 +138,7 @@ class UserListResource(BaseResource):
             models.db.session.add(user)
             models.db.session.commit()
         except IntegrityError as e:
+            models.db.session.rollback()
             if "email" in e.message:
                 abort(400, message='Email already taken.')
             abort(500)
@@ -267,7 +268,7 @@ class UserResource(BaseResource):
                 message = "Email already taken."
             else:
                 message = "Error updating record"
-
+            models.db.session.rollback()
             abort(400, message=message)
 
         self.record_event({
