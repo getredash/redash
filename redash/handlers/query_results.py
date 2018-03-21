@@ -33,7 +33,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
     if query_parameters:
         query_text = pystache.render(query_text, parameter_values)
 
-    if max_age <= 0:
+    if max_age == 0:
         query_result = None
     else:
         query_result = models.QueryResult.get_latest(data_source, query_text, max_age)
@@ -179,7 +179,7 @@ class QueryResultResource(BaseResource):
         should_cache = query_result_id is not None
 
         parameter_values = collect_parameters_from_request(request.args)
-        max_age = int(request.args.get('maxAge', 0))
+        max_age = int(request.args.get('max_age', -1))
 
         query_result = None
 
