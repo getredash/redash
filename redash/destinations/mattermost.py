@@ -35,18 +35,10 @@ class Mattermost(BaseDestination):
         return 'fa-bolt'
 
     def notify(self, alert, query, user, new_state, app, host, options):
-        alert_url = '[Alert link]({host}/alerts/{alert_id})'.format(host=host, alert_id=alert.id)
-        query_url = '[Query link]({host}/queries/{query_id})'.format(host=host, query_id=query.id)
-        text_content = '''
-                   | Name       | Link          |
-                   |:-----------|:--------------|
-                   | Query      | {query_url}   | 
-                   | Alert      | {alert_url}   | 
-                   '''.format(alert_url=alert_url, query_url=query_url)
         if new_state == "triggered":
-            text = "####" + alert.name + " just triggered \n" + text_content
+            text = "####" + alert.name + " just triggered"
         else:
-            text = "####" + alert.name + " went back to normal \n" + text_content
+            text = "####" + alert.name + " went back to normal"
 
         payload = {'text': text}
         if options.get('username'): payload['username'] = options.get('username')
@@ -56,10 +48,11 @@ class Mattermost(BaseDestination):
         try:
             resp = requests.post(options.get('url'), data=json.dumps(payload))
             logging.warning(resp.text)
+
             if resp.status_code != 200:
-                logging.error("Mattermost send ERROR. status_code => {status}".format(status=resp.status_code))
+                logging.error("Mattermost webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
-            logging.exception("Mattermost send ERROR.")
+            logging.exception("Mattermost webhook send ERROR.")
 
 
 register(Mattermost)
