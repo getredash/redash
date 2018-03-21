@@ -10,6 +10,7 @@ from redash.serializers import serialize_dashboard
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission)
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import StaleDataError
 
 
@@ -127,7 +128,7 @@ class DashboardResource(BaseResource):
 
         require_object_modify_permission(dashboard, self.current_user)
 
-        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags', 
+        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags',
                                                  'is_draft', 'dashboard_filters_enabled'))
 
         # SQLAlchemy handles the case where a concurrent transaction beats us
@@ -143,7 +144,11 @@ class DashboardResource(BaseResource):
         try:
             models.db.session.commit()
         except StaleDataError:
+            models.db.session.rollback()
             abort(409)
+        except IntegrityError:
+            models.db.session.rollback()
+            abort(400)
 
         result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
         self.record_event({
