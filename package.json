@@ -6,8 +6,10 @@
   "scripts": {
     "start": "webpack-dev-server",
     "dev": "REDASH_BACKEND=https://dev.redashapp.com npm start",
-    "build": "rm -rf ./client/dist/ && NODE_ENV=production node node_modules/.bin/webpack",
-    "watch": "webpack --watch --progress --colors -d"
+    "build": "rm -rf ./client/dist/ && NODE_ENV=production webpack",
+    "watch": "webpack --watch --progress --colors -d",
+    "analyze": "rm -rf ./client/dist/ && BUNDLE_ANALYZER=on webpack",
+    "analyze:build": "rm -rf ./client/dist/ && NODE_ENV=production BUNDLE_ANALYZER=on webpack"
   },
   "repository": {
     "type": "git",
@@ -26,7 +28,6 @@
   "dependencies": {
     "angular": "~1.5.8",
     "angular-base64-upload": "^0.1.23",
-    "angular-gridster": "^0.13.14",
     "angular-messages": "~1.5.8",
     "angular-moment": "^1.1.0",
     "angular-resizable": "^1.2.0",
@@ -89,6 +90,7 @@
     "url-loader": "^0.5.9",
     "webpack": "^3.6.0",
     "webpack-build-notifier": "^0.1.16",
+    "webpack-bundle-analyzer": "^2.11.1",
     "webpack-dev-server": "^2.9.1",
     "webpack-manifest-plugin": "^1.3.2"
   }

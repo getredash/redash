@@ -6,10 +6,14 @@
     <filters ng-if="$ctrl.dashboard.dashboard_filters_enabled"></filters>
   </div>
 
-  <div style="padding-bottom: 5px">
-    <div gridster="$ctrl.dashboardGridOptions" class="dashboard-wrapper">
-      <div ng-repeat="widget in $ctrl.dashboard.widgets" gridster-item="widget.options.position" gridster-auto-height>
-        <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" public="true"></dashboard-widget>
+  <div style="padding-bottom: 5px" ng-if="$ctrl.dashboard.widgets.length > 0">
+    <div gridstack editing="false" class="dashboard-wrapper preview-mode">
+      <div class="dashboard-widget-wrapper"
+        ng-repeat="widget in $ctrl.dashboard.widgets"
+        gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
+        <div class="grid-stack-item-content">
+          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" public="true"></dashboard-widget>
+        </div>
       </div>
     </div>
   </div>

@@ -5,9 +5,6 @@ import 'jquery-ui/ui/widgets/droppable';
 import 'jquery-ui/ui/widgets/resizable';
 import 'gridstack/dist/gridstack.css';
 
-window.$ = window.jQuery = $;
-window._ = _;
-
 // eslint-disable-next-line import/first
 import gridstack from 'gridstack';
 

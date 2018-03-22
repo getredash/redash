@@ -59,13 +59,14 @@ function computeAutoHeight($element, grid, node, minHeight, maxHeight) {
   return Math.min(Math.max(minHeight, resultHeight), maxHeight);
 }
 
-function gridstack() {
+function gridstack($parse, dashboardGridOptions) {
   return {
     restrict: 'A',
     replace: false,
     scope: {
       editing: '=',
       batchUpdate: '=', // set by directive - for using in wrapper components
+      isOneColumnMode: '=',
     },
     controller() {
       this.$el = null;
@@ -205,16 +206,22 @@ function gridstack() {
       };
     },
     link: ($scope, $element, $attr, controller) => {
+      const batchUpdateAssignable = _.isFunction($parse($attr.batchUpdate).assign);
+      const isOneColumnModeAssignable = _.isFunction($parse($attr.batchUpdate).assign);
+
+      let enablePolling = true;
+
       $element.addClass('grid-stack');
       $element.gridstack({
         auto: false,
-        verticalMargin: 15,
-        cellHeight: 35, // real row height will be `cellHeight` + `verticalMargin`
-        width: 6, // columns
+        verticalMargin: dashboardGridOptions.margins,
+        // real row height will be `cellHeight` + `verticalMargin`
+        cellHeight: dashboardGridOptions.rowHeight - dashboardGridOptions.margins,
+        width: dashboardGridOptions.columns, // columns
         height: 0, // max rows (0 for unlimited)
         animate: true,
         float: false,
-        minWidth: 800,
+        minWidth: dashboardGridOptions.mobileBreakPoint,
         resizable: {
           handles: 'e, se, s, sw, w',
           start: (event, ui) => {
@@ -253,25 +260,56 @@ function gridstack() {
       });
       controller.$el = $element;
 
-      $element.on('change', (event, nodes) => {
-        nodes = _.isArray(nodes) ? nodes : [];
-        console.log('+', nodes.length);
-        _.each(nodes, (node) => {
+      // `change` events sometimes fire too frequently (for example,
+      // on initial rendering when all widgets add themselves to grid, grid
+      // will fire `change` event will _all_ items available at that moment).
+      // Collect changed items, and then delegate event with some delay
+      let changedNodes = {};
+      const triggerChange = _.debounce(() => {
+        _.each(changedNodes, (node) => {
           if (node.el) {
             $(node.el).trigger('gridstack.changed', node);
           }
         });
+        changedNodes = {};
+      });
+
+      $element.on('change', (event, nodes) => {
+        nodes = _.isArray(nodes) ? nodes : [];
+        _.each(nodes, (node) => {
+          changedNodes[node.id] = node;
+        });
+        triggerChange();
       });
 
       $scope.$watch('editing', (value) => {
         controller.setEditing(!!value);
       });
 
-      $scope.batchUpdate = controller.batchUpdateWidgets;
+      if (batchUpdateAssignable) {
+        $scope.batchUpdate = controller.batchUpdateWidgets;
+      }
 
       $scope.$on('$destroy', () => {
+        enablePolling = false;
         controller.$el = null;
       });
+
+      function updateOneColumnMode() {
+        const grid = controller.grid();
+        if (grid) {
+          $scope.isOneColumnMode = $element.hasClass(grid.opts.oneColumnModeClass);
+          $scope.$applyAsync();
+        }
+
+        if (enablePolling) {
+          setTimeout(updateOneColumnMode, 150);
+        }
+      }
+
+      if (isOneColumnModeAssignable) {
+        updateOneColumnMode();
+      }
     },
   };
 }
