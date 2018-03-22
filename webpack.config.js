@@ -8,6 +8,7 @@ const WebpackBuildNotifierPlugin = require('webpack-build-notifier');
 const ManifestPlugin = require('webpack-manifest-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const LessPluginAutoPrefix = require('less-plugin-autoprefix');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const path = require('path');
 
 const redashBackend = process.env.REDASH_BACKEND || 'http://localhost:5000';
@@ -202,6 +203,10 @@ if (process.env.NODE_ENV === 'production') {
     }
   }));
   config.devtool = 'source-map';
+}
+
+if (process.env.BUNDLE_ANALYZER) {
+  config.plugins.push(new BundleAnalyzerPlugin());
 }
 
 module.exports = config;
