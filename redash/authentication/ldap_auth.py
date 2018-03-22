@@ -45,6 +45,7 @@ def login(org_slug=None):
                            org_slug=org_slug,
                            next=next_path,
                            email=request.form.get('email', ''),
+                           show_password_login=True,
                            username_prompt=settings.LDAP_CUSTOM_USERNAME_PROMPT,
                            hide_forgot_password=True)
 
