@@ -1,9 +1,9 @@
 import { truncate } from 'underscore.string';
-import { pick, omit, flatten, extend, isObject } from 'underscore';
+import { pick, flatten, extend, isObject } from 'underscore';
 
 function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   function prepareForSave(data) {
-    return omit(data, 'query');
+    return pick(data, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
   }
 
   const WidgetResource = $resource('api/widgets/:id', { id: '@id' }, {
