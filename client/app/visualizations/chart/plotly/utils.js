@@ -33,7 +33,7 @@ export const ColorPalette = Object.assign({}, BaseColors, {
   'Pink 2': '#C63FA9',
 });
 
-const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.]00' });
+const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.]00000' });
 const formatPercent = createFormatter({ displayAs: 'number', numberFormat: '0[.]00' });
 
 const ColorPaletteArray = values(BaseColors);
