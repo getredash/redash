@@ -31,7 +31,7 @@ def array_from_string(s):
     if "" in array:
         array.remove("")
 
-    return array
+    return [item.strip() for item in array]
 
 
 def set_from_string(s):

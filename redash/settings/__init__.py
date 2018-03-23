@@ -83,6 +83,13 @@ GOOGLE_OAUTH_ENABLED = GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
 REMOTE_USER_LOGIN_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_USER_LOGIN_ENABLED", "false"))
 REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Remote-User")
 
+# When enabled this will match the given remote groups request header with a
+# configured list of allowed user groups using UNIX shell-style wildcards such
+# as * and ?.
+REMOTE_GROUPS_ENABLED = parse_boolean(os.environ.get("REDASH_REMOTE_GROUPS_ENABLED", "false"))
+REMOTE_GROUPS_HEADER = os.environ.get("REDASH_REMOTE_GROUPS_HEADER", "X-Forwarded-Remote-Groups")
+REMOTE_GROUPS_ALLOWED = set_from_string(os.environ.get("REDASH_REMOTE_GROUPS_ALLOWED", ""))
+
 # If the organization setting auth_password_login_enabled is not false, then users will still be
 # able to login through Redash instead of the LDAP server
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
