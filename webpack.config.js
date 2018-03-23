@@ -33,7 +33,12 @@ const config = {
   },
   resolve: {
     alias: {
-      '@': appPath
+      '@': appPath,
+      // Currently `lodash` is used only by `gridstack.js`, but it can work
+      // with `underscore` as well, so set an alias to avoid bundling both `lodash` and
+      // `underscore`. When adding new libraries, check if they can work
+      // with `underscore`, otherwise remove this line
+      'lodash': 'underscore',
     }
   },
   plugins: [
@@ -43,6 +48,8 @@ const config = {
     }),
     // Enforce angular to use jQuery instead of jqLite
     new webpack.ProvidePlugin({'window.jQuery': 'jquery'}),
+    // bundle only default `moment` locale (`en`)
+    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
       minChunks: function (module, count) {
