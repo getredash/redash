@@ -30,5 +30,10 @@ def get_status():
             'data_sources': ', '.join(sources),
             'size': redis_connection.llen(queue)
         }
+    
+    status['manager']['queues']['celery'] = {
+        'size': redis_connection.llen('celery'),
+        'data_sources': ''
+    }
 
     return status

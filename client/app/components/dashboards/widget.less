@@ -39,12 +39,26 @@
 
   .t-header.widget {
     .dropdown {
-      margin-top: -5px;
-      margin-right: -5px;
+      margin-top: -15px;
+      margin-right: -15px;
 
       .actions {
         position: static;
       }
+    }
+  }
+
+  .scrollbox:empty {
+    padding: 0 !important;
+    font-size: 1px !important;
+  }
+
+  .widget-text {
+    :first-child {
+      margin-top: 0;
+    }
+    :last-child {
+      margin-bottom: 0;
     }
   }
 }

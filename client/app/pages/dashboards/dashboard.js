@@ -96,29 +96,22 @@ function DashboardCtrl(
   this.isGridDisabled = false;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
-  this.refreshRates = [
-    { name: '10 seconds', rate: 10 },
-    { name: '30 seconds', rate: 30 },
-    { name: '1 minute', rate: 60 },
-    { name: '5 minutes', rate: 60 * 5 },
-    { name: '10 minutes', rate: 60 * 10 },
-    { name: '30 minutes', rate: 60 * 30 },
-    { name: '1 hour', rate: 60 * 60 },
-    { name: '12 hour', rate: 12 * 60 * 60 },
-    { name: '24 hour', rate: 24 * 60 * 60 },
-  ];
 
-  this.refreshRates =
-    clientConfig.dashboardRefreshIntervals.map(interval => ({ name: durationHumanize(interval), rate: interval }));
+  this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
+    name: durationHumanize(interval),
+    rate: interval,
+  }));
 
   $rootScope.$on('gridster-mobile-changed', ($event, gridster) => {
     this.isGridDisabled = gridster.isMobile;
   });
 
-  this.setRefreshRate = (rate) => {
+  this.setRefreshRate = (rate, load = true) => {
     this.refreshRate = rate;
     if (rate !== null) {
-      this.loadDashboard(true);
+      if (load) {
+        this.loadDashboard(true);
+      }
       this.autoRefresh();
     }
   };
@@ -199,15 +192,27 @@ function DashboardCtrl(
   };
 
   this.loadDashboard = _.throttle((force) => {
-    this.dashboard = Dashboard.get(
+    Dashboard.get(
       { slug: $routeParams.dashboardSlug },
       (dashboard) => {
+        this.dashboard = dashboard;
         Events.record('view', 'dashboard', dashboard.id);
         renderDashboard(dashboard, force);
 
         if ($location.search().edit === true) {
           $location.search('edit', null);
           this.editLayout(true);
+        }
+
+        if ($location.search().refresh !== undefined) {
+          if (this.refreshRate === null) {
+            const refreshRate = Math.max(30, parseFloat($location.search().refresh));
+
+            this.setRefreshRate({
+              name: durationHumanize(refreshRate),
+              rate: refreshRate,
+            }, false);
+          }
         }
 
         savedWidgetPositions = collectWidgetPositions(dashboard.widgets);
@@ -267,10 +272,7 @@ function DashboardCtrl(
         }
       } else {
         if (applyChanges) {
-          const changedWidgets = getWidgetsWithChangedPositions(
-            this.dashboard.widgets,
-            savedWidgetPositions,
-          );
+          const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets, savedWidgetPositions);
           saveDashboardLayout(changedWidgets).finally(() => {
             savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
           });
@@ -345,10 +347,7 @@ function DashboardCtrl(
       // We need to wait a bit for `angular-gridster` before it updates widgets,
       // and only then save new layout
       $timeout(() => {
-        const changedWidgets = getWidgetsWithChangedPositions(
-          this.dashboard.widgets,
-          savedWidgetPositions,
-        );
+        const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets, savedWidgetPositions);
         saveDashboardLayout(changedWidgets).finally(() => {
           savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
         });
