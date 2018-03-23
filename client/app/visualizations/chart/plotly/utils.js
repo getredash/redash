@@ -148,8 +148,10 @@ function calculateDimensions(series, options) {
 
   const hasX = contains(values(options.columnMapping), 'x');
   const hasY2 = !!find(series, (serie) => {
-    const serieOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
-    return (serieOptions.yAxis === 1) && (options.series.stacking === null);
+    const seriesOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
+    return (seriesOptions.yAxis === 1) && (
+      (options.series.stacking === null) || (seriesOptions.type === 'line')
+    );
   });
 
   return {
@@ -249,7 +251,10 @@ function prepareChartData(seriesList, options) {
       sourceData,
     };
 
-    if ((seriesOptions.yAxis === 1) && (options.series.stacking === null)) {
+    if (
+      (seriesOptions.yAxis === 1) &&
+      ((options.series.stacking === null) || (seriesOptions.type === 'line'))
+    ) {
       plotlySeries.yaxis = 'y2';
     }
 
@@ -326,6 +331,10 @@ export function prepareLayout(element, seriesList, options, data) {
       type: getScaleType(options.xAxis.type),
     };
 
+    if (options.sortX && result.xaxis.type === 'category') {
+      result.xaxis.categoryorder = 'category ascending';
+    }
+
     if (!isUndefined(options.xAxis.labels)) {
       result.xaxis.showticklabels = options.xAxis.labels.enabled;
     }
@@ -373,14 +382,18 @@ export function prepareLayout(element, seriesList, options, data) {
 function updateSeriesText(seriesList, options) {
   each(seriesList, (series) => {
     series.text = [];
-    series.sourceData.forEach((item) => {
-      let text = formatNumber(item.y);
-      if (item.yError !== undefined) {
-        text = `${text} \u00B1 ${formatNumber(item.yError)}`;
-      }
+    series.x.forEach((x) => {
+      let text = null;
+      const item = series.sourceData.get(x);
+      if (item) {
+        text = formatNumber(item.y);
+        if (item.yError !== undefined) {
+          text = `${text} \u00B1 ${formatNumber(item.yError)}`;
+        }
 
-      if (options.series.percentValues) {
-        text = `${formatPercent(Math.abs(item.yPercent))}% (${text})`;
+        if (options.series.percentValues) {
+          text = `${formatPercent(Math.abs(item.yPercent))}% (${text})`;
+        }
       }
 
       series.text.push(text);

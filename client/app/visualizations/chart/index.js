@@ -85,7 +85,6 @@ function ChartEditor(ColorPalette, clientConfig) {
           scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
       };
-      scope.chartTypeChanged();
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
 

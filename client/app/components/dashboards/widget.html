@@ -1,5 +1,5 @@
 <div class="widget-wrapper">
-  <div class="tile body-container" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
+  <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
     ng-switch="$ctrl.queryResult.getStatus()">
     <div class="body-row">
       <div class="t-header widget clearfix">
@@ -41,7 +41,7 @@
     <div ng-switch-when="failed" class="body-row-auto scrollbox">
       <div class="alert alert-danger m-5" ng-show="$ctrl.queryResult.getError()">Error running query: <strong>{{$ctrl.queryResult.getError()}}</strong></div>
     </div>
-    <div ng-switch-when="done" class="body-row-auto scrollbox" ng-style="$ctrl.getWidgetStyles()">
+    <div ng-switch-when="done" class="body-row-auto scrollbox">
       <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.queryResult" class="t-body"></visualization-renderer>
     </div>
     <div ng-switch-default class="body-row-auto spinner-container">
@@ -65,7 +65,7 @@
     </div>
   </div>
 
-  <div class="tile body-container" ng-if="$ctrl.type=='restricted'" ng-class="$ctrl.type">
+  <div class="tile body-container widget-restricted" ng-if="$ctrl.type=='restricted'" ng-class="$ctrl.type">
     <div class="t-body body-row-auto scrollbox">
       <div class="text-center">
         <h1><span class="zmdi zmdi-lock"></span></h1>
@@ -76,7 +76,7 @@
     </div>
   </div>
 
-  <div class="tile body-container" ng-hide="$ctrl.widget.width === 0" ng-if="$ctrl.type=='textbox'" ng-class="$ctrl.type">
+  <div class="tile body-container widget-text" ng-hide="$ctrl.widget.width === 0" ng-if="$ctrl.type=='textbox'" ng-class="$ctrl.type">
     <div class="body-row clearfix t-body">
       <div class="dropdown pull-right widget-menu-remove" ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
         <div class="dropdown-header">
