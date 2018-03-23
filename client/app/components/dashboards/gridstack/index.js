@@ -101,6 +101,10 @@ function gridstack($parse, dashboardGridOptions) {
       };
 
       this.batchUpdateWidgets = (items) => {
+        // This method is used to update multiple widgets with a single
+        // reflow (for example, restore positions when dashboard editing cancelled).
+        // "dirty" part of code: updating grid and DOM nodes directly.
+        // layout reflow is triggered by `batchUpdate`/`commit` calls
         this.update((grid) => {
           _.each(grid.grid.nodes, (node) => {
             const item = items[node.id];
@@ -167,11 +171,14 @@ function gridstack($parse, dashboardGridOptions) {
       this.getNodeByElement = (element) => {
         const grid = this.grid();
         if (grid && grid.grid) {
+          // This method seems to be internal
           return grid.grid.getNodeDataByDOMEl($(element));
         }
       };
 
       this.setWidgetId = ($element, id) => {
+        // `gridstack` has no API method to change node id; but since it's not used
+        // by library, we can just update grid and DOM node
         const node = this.getNodeByElement($element);
         if (node) {
           node.id = id;
@@ -198,6 +205,8 @@ function gridstack($parse, dashboardGridOptions) {
             if (_.isFunction(callback)) {
               callback(grid);
             }
+            // `_updateStyles` is internal, but grid sometimes "forgets"
+            // to rebuild stylesheet, so we need to force it
             grid._updateStyles(grid.grid.getGridHeight());
           } finally {
             grid.commit();
@@ -295,11 +304,16 @@ function gridstack($parse, dashboardGridOptions) {
         controller.$el = null;
       });
 
+      // `gridstack` does not provide API to detect when one-column mode changes.
+      // Just watch `$element` for specific class
       function updateOneColumnMode() {
         const grid = controller.grid();
         if (grid) {
-          $scope.isOneColumnMode = $element.hasClass(grid.opts.oneColumnModeClass);
-          $scope.$applyAsync();
+          const isOneColumnMode = $element.hasClass(grid.opts.oneColumnModeClass);
+          if ($scope.isOneColumnMode !== isOneColumnMode) {
+            $scope.isOneColumnMode = isOneColumnMode;
+            $scope.$applyAsync();
+          }
         }
 
         if (enablePolling) {
@@ -307,6 +321,8 @@ function gridstack($parse, dashboardGridOptions) {
         }
       }
 
+      // Start polling only if we can update scope binding; otherwise it
+      // will just waisting CPU time (example: public dashboards don't need it)
       if (isOneColumnModeAssignable) {
         updateOneColumnMode();
       }
@@ -329,6 +345,7 @@ function gridstackItem($timeout) {
 
       controller.addWidget($element, $scope.gridstackItem, $scope.gridstackItemId);
 
+      // these events are triggered only on user interaction
       $element.on('gridstack.resize-start', () => {
         const node = controller.getNodeByElement($element);
         heightBeforeResize = _.isObject(node) ? node.height : null;
