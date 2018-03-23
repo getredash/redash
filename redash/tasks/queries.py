@@ -462,8 +462,8 @@ class QueryExecutor(object):
         if error:
             self.tracker.update(state='failed')
             result = QueryExecutionError(error)
-            self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
-            if self.scheduled_query:
+            if self.scheduled_query is not None:
+                self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
         else:
