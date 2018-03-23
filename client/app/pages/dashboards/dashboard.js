@@ -110,7 +110,7 @@ function DashboardCtrl(
     this.refreshRate = rate;
     if (rate !== null) {
       if (load) {
-      this.loadDashboard(true);
+        this.loadDashboard(true);
       }
       this.autoRefresh();
     }
@@ -272,10 +272,7 @@ function DashboardCtrl(
         }
       } else {
         if (applyChanges) {
-          const changedWidgets = getWidgetsWithChangedPositions(
-            this.dashboard.widgets,
-            savedWidgetPositions,
-          );
+          const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets, savedWidgetPositions);
           saveDashboardLayout(changedWidgets).finally(() => {
             savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
           });
@@ -350,10 +347,7 @@ function DashboardCtrl(
       // We need to wait a bit for `angular-gridster` before it updates widgets,
       // and only then save new layout
       $timeout(() => {
-        const changedWidgets = getWidgetsWithChangedPositions(
-          this.dashboard.widgets,
-          savedWidgetPositions,
-        );
+        const changedWidgets = getWidgetsWithChangedPositions(this.dashboard.widgets, savedWidgetPositions);
         saveDashboardLayout(changedWidgets).finally(() => {
           savedWidgetPositions = collectWidgetPositions(this.dashboard.widgets);
         });
