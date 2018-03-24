@@ -266,6 +266,7 @@ function prepareChartData(seriesList, options) {
       };
     } else if (seriesOptions.type === 'box') {
       plotlySeries.boxpoints = 'outliers';
+      plotlySeries.hoverinfo = false;
       plotlySeries.marker = {
         color: seriesColor,
         size: 3,
