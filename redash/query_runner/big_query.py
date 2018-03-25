@@ -173,8 +173,7 @@ class BigQuery(BaseQueryRunner):
         if self.configuration.get('useStandardSql', False):
             job_data['configuration']['query']['useLegacySql'] = False
 
-
-        if "userDefinedFunctionResourceUri" in self.configuration:
+        if self.configuration.get('userDefinedFunctionResourceUri'):
             resource_uris = self.configuration["userDefinedFunctionResourceUri"].split(',')
             job_data["configuration"]["query"]["userDefinedFunctionResources"] = map(
                 lambda resource_uri: {"resourceUri": resource_uri}, resource_uris)
