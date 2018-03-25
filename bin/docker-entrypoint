@@ -23,19 +23,6 @@ server() {
 }
 
 create_db() {
-  DATABASE_FULLURL=$(echo $REDASH_DATABASE_URL |cut -d '@' -f2 |sed 's,/.*,,g')
-
-  if [[ $DATABASE_FULLURL = *":"* ]]; then
-    DATABASE_URL=$(echo $DATABASE_FULLURL |cut -d ':' -f1)
-    DATABASE_PORT=$(echo $DATABASE_FULLURL |cut -d ':' -f2)
-  else 
-    DATABASE_URL=$(echo $DATABASE_FULLURL)
-    DATABASE_PORT="5432"
-  fi 
-  while ! bash -c "echo > /dev/tcp/$DATABASE_URL/$DATABASE_PORT" &> /dev/null ; do
-    echo "Waiting for PostgreSQL container to become available."
-    sleep 5
-  done
   exec /app/manage.py database create_tables
 }
 
