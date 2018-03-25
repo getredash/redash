@@ -5,6 +5,8 @@ import _ from 'underscore';
 // eslint-disable-next-line
 const urlPattern = /(^|[\s\n]|<br\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u2019@#\/%?=()~_|!:,.;]*[\-A-Z0-9+\u0026@#\/%=~()_|])/gi;
 
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+
 function createDefaultFormatter(highlightLinks) {
   if (highlightLinks) {
     return (value) => {
@@ -50,11 +52,23 @@ function createNumberFormatter(format) {
   return value => value;
 }
 
-export default function createFormatter(column) {
+export function createFormatter(column) {
   switch (column.displayAs) {
     case 'number': return createNumberFormatter(column.numberFormat);
     case 'boolean': return createBooleanFormatter(column.booleanValues);
     case 'datetime': return createDateTimeFormatter(column.dateTimeFormat);
     default: return createDefaultFormatter(column.allowHTML && column.highlightLinks);
   }
+}
+
+export function formatSimpleTemplate(str, data) {
+  if (!_.isString(str)) {
+    return '';
+  }
+  return str.replace(/{{\s*([^\s]+)\s*}}/g, (match, prop) => {
+    if (hasOwnProperty.call(data, prop) && !_.isUndefined(data[prop])) {
+      return data[prop];
+    }
+    return match;
+  });
 }

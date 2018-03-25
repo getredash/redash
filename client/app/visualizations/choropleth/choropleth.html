@@ -1,0 +1,11 @@
+<div class="map-visualization-container">
+  <div resize-event="handleResize()" ng-style="{ background: options.colors.background }"></div>
+  <div ng-if="options.legend.visible && (legendItems.length > 0)"
+    class="leaflet-bar map-custom-control" ng-class="options.legend.position"
+  >
+    <div ng-repeat="item in legendItems" class="d-flex align-items-center">
+      <color-box color="item.color" class="m-0" style="line-height: 1px"></color-box>
+      <div class="flex-fill text-{{ options.legend.alignText }}">{{ formatValue(item.limit) }}</div>
+    </div>
+  </div>
+</div>
