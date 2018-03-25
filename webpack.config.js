@@ -145,6 +145,16 @@ const config = {
         }]
       },
       {
+        test: /\.geo\.json$/,
+        use: [{
+          loader: 'file-loader',
+          options: {
+            outputPath: 'data/',
+            name: '[hash:7].[name].[ext]',
+          }
+        }]
+      },
+      {
         test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
         use: [{
           loader: 'url-loader',
