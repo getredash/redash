@@ -100,7 +100,7 @@ def create(email, name, groups, is_admin=False, google_auth=False,
 @argument('email')
 @argument('name')
 @option('--org', 'organization', default='default',
-        help="The organization the root user belongs to (leave blank for 'default').")
+        help="The organization (slug) the root user belongs to (leave blank for 'default').")
 @option('--google', 'google_auth', is_flag=True,
         default=False, help="user uses Google Auth to login")
 @option('--password', 'password', default=None,
@@ -118,20 +118,31 @@ def create_root(email, name, google_auth=False, password=None, organization='def
         print("User [%s] is already exists." % email)
         exit(1)
 
-    slug = 'default'
-    default_org = models.Organization.query.filter(models.Organization.slug == slug).first()
-    if default_org is None:
-        default_org = models.Organization(name=organization, slug=slug, settings={})
+    org = models.Organization.get_by_slug(organization)
 
-    admin_group = models.Group(name='admin', permissions=['admin', 'super_admin'],
-                               org=default_org, type=models.Group.BUILTIN_GROUP)
+    if org is None:
+        org = models.Organization(name=organization, slug=organization, settings={})
+        print("Creating Organization")
+        models.db.session.add(org)
+
+    # non-default org should not have the super_admin permission
+    admin_permissions = ['admin', 'super_admin'] if organization == 'default' else ['admin']
+
+    admin_group = models.Group(name='admin', permissions=admin_permissions,
+                            org=org, type=models.Group.BUILTIN_GROUP)
+
     default_group = models.Group(name='default', permissions=models.Group.DEFAULT_PERMISSIONS,
-                                 org=default_org, type=models.Group.BUILTIN_GROUP)
+                                 org=org, type=models.Group.BUILTIN_GROUP)
 
-    models.db.session.add_all([default_org, admin_group, default_group])
+    print("Creating Groups")
+    models.db.session.add_all([admin_group, default_group])
+
+    # this commit is necessary because we don't have the ids for the
+    print("Committing to database to retrieve IDs")
     models.db.session.commit()
 
-    user = models.User(org=default_org, email=email, name=name,
+    print("Creating User")
+    user = models.User(org=org, email=email, name=name,
                        group_ids=[admin_group.id, default_group.id])
     if not google_auth:
         user.hash_password(password)
@@ -141,6 +152,7 @@ def create_root(email, name, google_auth=False, password=None, organization='def
         models.db.session.commit()
     except Exception as e:
         print("Failed creating root user: %s" % e.message)
+        print("You cannot run this 'create_root' command again, you must use 'users create' as the org and groups have been created")
         exit(1)
 
 
