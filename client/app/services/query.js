@@ -449,7 +449,11 @@ function QueryResource(
       this.latest_query_data_id = null;
     }
 
-    if (this.latest_query_data && maxAge !== 0) {
+    if (this.schedule_resultset_size) {
+      if (!this.queryResult) {
+        this.queryResult = QueryResult.getResultSet(this.id);
+      }
+    } else if (this.latest_query_data && maxAge !== 0) {
       if (!this.queryResult) {
         this.queryResult = new QueryResult({
           query_result: this.latest_query_data,

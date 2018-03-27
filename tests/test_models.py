@@ -335,21 +335,73 @@ class QueryResultTest(BaseTestCase):
 class TestUnusedQueryResults(BaseTestCase):
     def test_returns_only_unused_query_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
-        qr = self.factory.create_query_result()
-        query = self.factory.create_query(latest_query_data=qr)
+        qt = "SELECT 1"
+        qr = self.factory.create_query_result(query_text=qt, retrieved_at=two_weeks_ago)
+        query = self.factory.create_query(query_text=qt, latest_query_data=qr)
+        unused_qr = self.factory.create_query_result(query_text=qt, retrieved_at=two_weeks_ago)
         db.session.flush()
-        unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
         self.assertIn((unused_qr.id,), models.QueryResult.unused())
         self.assertNotIn((qr.id,), list(models.QueryResult.unused()))
 
     def test_returns_only_over_a_week_old_results(self):
         two_weeks_ago = utcnow() - datetime.timedelta(days=14)
-        unused_qr = self.factory.create_query_result(retrieved_at=two_weeks_ago)
+        qt = "SELECT 1"
+        unused_qr = self.factory.create_query_result(query_text=qt, retrieved_at=two_weeks_ago)
         db.session.flush()
-        new_unused_qr = self.factory.create_query_result()
-
+        new_unused_qr = self.factory.create_query_result(query_text=qt)
         self.assertIn((unused_qr.id,), models.QueryResult.unused())
         self.assertNotIn((new_unused_qr.id,), models.QueryResult.unused())
+
+    def test_doesnt_return_live_incremental_results(self):
+        two_weeks_ago = utcnow() - datetime.timedelta(days=14)
+        qt = "SELECT 1"
+        qrs = [self.factory.create_query_result(query_text=qt, retrieved_at=two_weeks_ago)
+               for _ in range(5)]
+        q = self.factory.create_query(query_text=qt, latest_query_data=qrs[0],
+                                      schedule_resultset_size=3)
+        for qr in qrs:
+            self.factory.create_query_resultset(query_rel=q, result=qr)
+        db.session.flush()
+        self.assertEqual([], list(models.QueryResult.unused()))
+
+    def test_deletes_stale_resultsets(self):
+        qt = "SELECT 17"
+        query = self.factory.create_query(query_text=qt,
+                                          schedule_resultset_size=5)
+        for _ in range(10):
+            r = self.factory.create_query_result(query_text=qt)
+            self.factory.create_query_resultset(query_rel=query, result=r)
+        qt2 = "SELECT 100"
+        query2 = self.factory.create_query(query_text=qt2, schedule_resultset_size=5)
+        for _ in range(10):
+            r = self.factory.create_query_result(query_text=qt2)
+            self.factory.create_query_resultset(query_rel=query2, result=r)
+        db.session.flush()
+        self.assertEqual(models.QueryResultSet.query.count(), 20)
+        self.assertEqual(models.Query.delete_stale_resultsets(), 10)
+        self.assertEqual(models.QueryResultSet.query.count(), 10)
+
+    def test_deletes_stale_resultsets_with_dupe_queries(self):
+        qt = "SELECT 17"
+        query = self.factory.create_query(query_text=qt,
+                                          schedule_resultset_size=5)
+        for _ in range(10):
+            r = self.factory.create_query_result(query_text=qt)
+            self.factory.create_query_resultset(query_rel=query, result=r)
+        query2 = self.factory.create_query(query_text=qt,
+                                           schedule_resultset_size=3)
+        for _ in range(10):
+            self.factory.create_query_result(query_text=qt)
+            self.factory.create_query_resultset(query_rel=query2)
+        qt2 = "SELECT 100"
+        query3 = self.factory.create_query(query_text=qt2, schedule_resultset_size=5)
+        for _ in range(10):
+            r = self.factory.create_query_result(query_text=qt2)
+            self.factory.create_query_resultset(query_rel=query3, result=r)
+        db.session.flush()
+        self.assertEqual(models.QueryResultSet.query.count(), 30)
+        self.assertEqual(models.Query.delete_stale_resultsets(), 10)
+        self.assertEqual(models.QueryResultSet.query.count(), 13)
 
 
 class TestQueryAll(BaseTestCase):

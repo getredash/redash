@@ -9,7 +9,6 @@ const stateClass = {
 
 class AlertsListCtrl {
   constructor(Alert) {
-
     this.showEmptyState = false;
     this.showList = false;
 
