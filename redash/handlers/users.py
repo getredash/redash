@@ -77,6 +77,8 @@ class UserResetPasswordResource(BaseResource):
     @require_admin
     def post(self, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
+        if user.is_disabled:
+            abort(404, message='Not found')
         reset_link = send_password_reset_email(user)
 
         return {

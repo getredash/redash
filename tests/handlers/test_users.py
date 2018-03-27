@@ -1,5 +1,6 @@
 from redash import models
 from tests import BaseTestCase
+from mock import patch
 
 
 class TestUserListResourcePost(BaseTestCase):
@@ -208,3 +209,56 @@ class TestUserDisable(BaseTestCase):
         # user should become enabled
         admin_user2 = models.User.query.get(admin_user2.id)
         self.assertFalse(admin_user2.is_disabled)
+
+    def test_disabled_user_cannot_login(self):
+        user = self.factory.create_user(disabled_at='2018-03-08 00:00')
+        user.hash_password('password')
+
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        with patch('redash.handlers.authentication.login_user') as login_user_mock:
+            rv = self.client.post('/login', data={'email': user.email, 'password': 'password'})
+            # login handler should not be called
+            login_user_mock.assert_not_called()
+            # check for redirect back to login page
+            self.assertEquals(rv.status_code, 301)
+            self.assertIn('/login', rv.headers.get('Location', None))
+
+    def test_disabled_user_should_not_access_api(self):
+        # Note: some API does not require user, so check the one which requires
+
+        # 1. create user; the user should have access to API
+        user = self.factory.create_user()
+        rv = self.make_request('get', '/api/dashboards', user=user)
+        self.assertEquals(rv.status_code, 200)
+
+        # 2. disable user; now API access should be forbidden
+        user.disable()
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        rv = self.make_request('get', '/api/dashboards', user=user)
+        self.assertNotEquals(rv.status_code, 200)
+
+    def test_disabled_user_should_not_receive_restore_password_email(self):
+        admin_user = self.factory.create_admin()
+
+        # user should receive email
+        user = self.factory.create_user()
+        with patch('redash.handlers.users.send_password_reset_email') as send_password_reset_email_mock:
+            send_password_reset_email_mock.return_value = 'reset_token'
+            rv = self.make_request('post', '/api/users/{}/reset_password'.format(user.id), user=admin_user)
+            self.assertEqual(rv.status_code, 200)
+            send_password_reset_email_mock.assert_called_with(user)
+
+        # disable user; now should not receive email
+        user.disable()
+        self.db.session.add(user)
+        self.db.session.commit()
+
+        with patch('redash.handlers.users.send_password_reset_email') as send_password_reset_email_mock:
+            send_password_reset_email_mock.return_value = 'reset_token'
+            rv = self.make_request('post', '/api/users/{}/reset_password'.format(user.id), user=admin_user)
+            self.assertEqual(rv.status_code, 404)
+            send_password_reset_email_mock.assert_not_called()
