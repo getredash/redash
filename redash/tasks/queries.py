@@ -355,6 +355,7 @@ def cleanup_query_results():
     deleted_count = models.QueryResult.query.filter(
         models.QueryResult.id.in_(unused_query_results.subquery())
     ).delete(synchronize_session=False)
+    deleted_count += models.Query.delete_stale_resultsets()
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
 
