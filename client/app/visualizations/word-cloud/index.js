@@ -9,7 +9,7 @@ function findWordFrequencies(data, columnName) {
   const wordsHash = {};
 
   data.forEach((row) => {
-    const wordsList = typeof row[columnName] === 'string' ? row[columnName].toString().split(' ') : '';
+    const wordsList = typeof row[columnName] === 'string' ? row[columnName].split(' ') : '';
     wordsList.forEach((d) => {
       if (d in wordsHash) {
         wordsHash[d] += 1;
