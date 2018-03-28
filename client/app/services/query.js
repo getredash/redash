@@ -52,6 +52,7 @@ class Parameter {
     this.type = parameter.type;
     this.value = parameter.value;
     this.global = parameter.global;
+    this.allowEmpty = parameter.allowEmpty;
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
   }
@@ -156,7 +157,7 @@ class Parameters {
   }
 
   getMissing() {
-    return pluck(filter(this.get(), p => p.value === null || p.value === ''), 'title');
+    return pluck(filter(this.get(), p => (p.value === null || p.value === '') && !p.allowEmpty), 'title');
   }
 
   isRequired() {

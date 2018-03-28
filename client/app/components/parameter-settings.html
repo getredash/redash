@@ -20,11 +20,19 @@
           <option value="datetime-with-seconds">Date and Time (with seconds)</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>
-          <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.global">
-          Global
-        </label>
+      <div class="row">
+        <div class="col-xs-3 form-group">
+          <label>
+            <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.global">
+            Global
+          </label>
+        </div>
+        <div class="col-xs-3 form-group">
+          <label>
+            <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.allowEmpty">
+            Allow empty
+          </label>
+        </div>
       </div>
       <div class="form-group" ng-if="$ctrl.parameter.type === 'enum'">
         <label>Dropdown List Values (newline delimited)</label>
