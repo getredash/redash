@@ -24,7 +24,7 @@ services:
     restart: always
   worker:
     image: redash/redash:latest
-    command: scheduler
+    command: worker
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
@@ -32,6 +32,17 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
+    restart: always
+  schceduler:
+    image: redash/redash:latest
+    command: scheduler
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      QUEUES: "queries,scheduled_queries,celery"
+      WORKERS_COUNT: 1
     restart: always
   redis:
     image: redis:3.0-alpine
@@ -49,4 +60,5 @@ services:
       - server
     links:
       - server:redash
+      - worker
     restart: always

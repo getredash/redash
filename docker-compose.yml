@@ -19,7 +19,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
   worker:
     build: .
-    command: scheduler
+    command: worker
     volumes_from:
       - server
     depends_on:
@@ -31,6 +31,20 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
+  scheduler:
+    build: .
+    command: scheduler
+    volumes_from:
+      - server
+    depends_on:
+      - server
+    environment:
+      PYTHONUNBUFFERED: 0
+      REDASH_LOG_LEVEL: "INFO"
+      REDASH_REDIS_URL: "redis://redis:6379/0"
+      REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
+      QUEUES: "queries,scheduled_queries,celery"
+      WORKERS_COUNT: 1
   redis:
     image: redis:3.0-alpine
     restart: unless-stopped
