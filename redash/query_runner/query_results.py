@@ -85,7 +85,7 @@ def create_table(connection, table_name, query_results):
                for column in query_results['columns']]
     safe_columns = [fix_column_name(column) for column in columns]
 
-    column_list = ', '.join('"{0}"'.format(c) for c in safe_columns)
+    column_list = ', '.join(u'"{0}"'.format(c) for c in safe_columns)
     create_table = u"CREATE TABLE {table_name} ({column_list})".format(
         table_name=table_name, column_list=column_list)
     logger.debug("CREATE TABLE query: %s", create_table)
