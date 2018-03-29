@@ -7,6 +7,12 @@ RUN pip install -r requirements.txt -r requirements_dev.txt -r requirements_all_
 
 COPY . ./
 RUN npm install && npm run build && rm -rf node_modules
+
+# Prepare for mounting the host's docker socket, when actually mounted it
+# should inherit the permissions set here and allow the redash user to connect.
+RUN touch /var/run/docker.sock \
+ && chown redash:redash /var/run/docker.sock
+
 RUN chown -R redash /app
 USER redash
 

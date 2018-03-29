@@ -24,6 +24,8 @@ pymapd>=0.2.1
 qds-sdk>=1.9.6
 # certifi is needed to support MongoDB and SSL:
 certifi
+# required to interact with the docker daemon
+docker==3.1.4
 # We don't install snowflake connector by default, as it's causing conflicts with
 # other packages. To properly support it we probably need to switch from pyOpenSSL
 # to the other package snowflake is using (that's compatible with it).
