@@ -5,6 +5,8 @@ import re
 
 from dateutil.parser import parse
 
+import yaml
+
 from redash.query_runner import *
 from redash.utils import JSONEncoder, parse_human_time
 
@@ -69,8 +71,10 @@ def datetime_parser(dct):
     return bson_object_hook(dct)
 
 
-def parse_query_json(query):
-    query_data = json.loads(query, object_hook=datetime_parser)
+def parse_query_yaml(query):
+    query_data = yaml.load(query)
+    # HACK: round trip to JSON so we can handle object_hook easily
+    query_data = json.loads(json.dumps(query_data), object_hook=datetime_parser)
     return query_data
 
 
@@ -150,7 +154,7 @@ class MongoDB(BaseQueryRunner):
     def __init__(self, configuration):
         super(MongoDB, self).__init__(configuration)
 
-        self.syntax = 'json'
+        self.syntax = 'yaml'
 
         self.db_name = self.configuration["dbName"]
 
@@ -216,9 +220,16 @@ class MongoDB(BaseQueryRunner):
         logger.debug("mongodb got query: %s", query)
 
         try:
-            query_data = parse_query_json(query)
-        except ValueError:
-            return None, "Invalid query format. The query is not a valid JSON."
+            query_data = parse_query_yaml(query)
+        except yaml.YAMLError as e:
+            if hasattr(e, 'problem_mark'):
+                mark = e.problem_mark
+                error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
+            else:
+                error = "Syntax error: {}".format(e)
+            return None, error
+        except Exception as e:
+            return None, str(e)
 
         if "collection" not in query_data:
             return None, "'collection' must have a value to run a query"

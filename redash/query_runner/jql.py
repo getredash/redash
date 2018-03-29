@@ -4,6 +4,8 @@ import re
 
 from collections import OrderedDict
 
+import yaml
+
 from redash.query_runner import *
 
 
@@ -170,13 +172,13 @@ class JiraJQL(BaseQueryRunner):
 
     def __init__(self, configuration):
         super(JiraJQL, self).__init__(configuration)
-        self.syntax = 'json'
+        self.syntax = 'yaml'
 
     def run_query(self, query, user):
         jql_url = '{}/rest/api/2/search'.format(self.configuration["url"])
 
         try:
-            query = json.loads(query)
+            query = yaml.load(query)
             query_type = query.pop('queryType', 'select')
             field_mapping = FieldMapping(query.pop('fieldMapping', {}))
 
@@ -202,6 +204,13 @@ class JiraJQL(BaseQueryRunner):
                 results = parse_issues(data, field_mapping)
 
             return results.to_json(), None
+        except yaml.YAMLError as e:
+            if hasattr(e, 'problem_mark'):
+                mark = e.problem_mark
+                error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
+            else:
+                error = "Syntax error: {}".format(e)
+            return None, error
         except KeyboardInterrupt:
             return None, "Query cancelled by user."
 
