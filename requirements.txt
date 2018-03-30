@@ -45,9 +45,12 @@ pystache==0.5.4
 parsedatetime==2.1
 cryptography==2.0.2
 simplejson==3.10.0
-ua-parser==0.7.3 
+ua-parser==0.7.3
 user-agents==1.1.0
 python-geoip-geolite2==2015.303
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4
+
+# Uncomment for PubNub support
+#pubnub>=4.0.13

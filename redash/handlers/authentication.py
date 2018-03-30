@@ -158,7 +158,9 @@ def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
             'newVersionAvailable': get_latest_version(),
-            'version': __version__
+            'version': __version__,
+            'pubnubSubscribeKey': settings.PUBNUB_SUBSCRIBE_KEY,
+            'pubnubQueryChannel': settings.PUBNUB_QUERY_CHANNEL
         }
     else:
         client_config = {}

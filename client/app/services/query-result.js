@@ -52,7 +52,7 @@ function addPointToSeries(point, seriesCollection, seriesName) {
 }
 
 
-function QueryResultService($resource, $timeout, $q) {
+function QueryResultService($resource, $timeout, $q, clientConfig, PubNubSubscriber) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const statuses = {
@@ -61,6 +61,11 @@ function QueryResultService($resource, $timeout, $q) {
     3: 'done',
     4: 'failed',
   };
+
+  let pubnub = null;
+  if (clientConfig.pubnubSubscribeKey) {
+    pubnub = new PubNubSubscriber(clientConfig.pubnubSubscribeKey, clientConfig.pubnubQueryChannel);
+  }
 
   class QueryResult {
     constructor(props) {
@@ -456,7 +461,7 @@ function QueryResultService($resource, $timeout, $q) {
         if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
           this.loadResult();
         } else if (this.getStatus() !== 'failed') {
-          $timeout(() => {
+          this.scheduledRefresh = $timeout(() => {
             this.refreshStatus(query);
           }, 3000);
         }
@@ -491,6 +496,17 @@ function QueryResultService($resource, $timeout, $q) {
         queryResult.update(response);
 
         if ('job' in response) {
+          if (pubnub) {
+            const pnRef = pubnub.on(queryResult.job.id, ({ state }) => {
+              if (state === 'finished') {
+                logger('Triggering refresh from PubNub message');
+                pubnub.off(pnRef);
+                $timeout.cancel(queryResult.scheduledRefresh);
+                queryResult.refreshStatus(query);
+              }
+            });
+          }
+
           queryResult.refreshStatus(query);
         }
       }, (error) => {

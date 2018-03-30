@@ -18,6 +18,20 @@ from redash.tasks.alerts import check_alerts_for_query
 logger = get_task_logger(__name__)
 
 
+pubnub = None
+if settings.PUBNUB_PUBLISH_KEY and settings.PUBNUB_SUBSCRIBE_KEY:
+    try:
+        from pubnub.pnconfiguration import PNConfiguration
+        from pubnub.pubnub import PubNub
+        pncfg = PNConfiguration()
+        pncfg.ssl = settings.PUBNUB_SSL
+        pncfg.publish_key = settings.PUBNUB_PUBLISH_KEY
+        pncfg.subscribe_key = settings.PUBNUB_SUBSCRIBE_KEY
+        pubnub = PubNub(pncfg)
+    except ImportError:
+        logger.warning('PubNub dependency is not installed but PUBNUB_PUBLISH_KEY is set')
+
+
 def _job_lock_id(query_hash, data_source_id):
     return "query_hash_job:%s:%s" % (data_source_id, query_hash)
 
@@ -70,6 +84,19 @@ class QueryTaskTracker(object):
     def update(self, **kwargs):
         self.data.update(kwargs)
         self.save()
+
+        try:
+            if pubnub:
+                pubnub.publish() \
+                .channel(settings.PUBNUB_QUERY_CHANNEL) \
+                .message({
+                    'task_id': self.data['task_id'],
+                    'state': self.data['state']
+                }) \
+                .meta({'id': self.data['task_id']}) \
+                .sync()
+        except Exception as e:
+            logger.warning('Unable to notify PubNub: %s', e)
 
     @staticmethod
     def _key_name(task_id):

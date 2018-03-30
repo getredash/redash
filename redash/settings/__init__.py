@@ -221,3 +221,9 @@ SCHEMA_RUN_TABLE_SIZE_CALCULATIONS = parse_boolean(os.environ.get("REDASH_SCHEMA
 # Allow Parameters in Embeds
 # WARNING: With this option enabled, Redash reads query parameters from the request URL (risk of SQL injection!)
 ALLOW_PARAMETERS_IN_EMBEDS = parse_boolean(os.environ.get("REDASH_ALLOW_PARAMETERS_IN_EMBEDS", "false"))
+
+# PubNub
+PUBNUB_SSL = parse_boolean(os.environ.get("PUBNUB_SSL", "true"))
+PUBNUB_PUBLISH_KEY = os.environ.get("PUBNUB_PUBLISH_KEY")
+PUBNUB_SUBSCRIBE_KEY = os.environ.get("PUBNUB_SUBSCRIBE_KEY")
+PUBNUB_QUERY_CHANNEL = os.environ.get("PUBNUB_QUERY_CHANNEL", 'redash-query')
