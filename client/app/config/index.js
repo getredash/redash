@@ -20,12 +20,12 @@ import 'angular-resizable';
 import { each, isFunction } from 'underscore';
 
 import '@/lib/sortable';
+import '@/lib/visualizations/angular-vis';
 
 import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
-import '@/visualizations/timeline/angular-vis';
 import dashboardGridOptions from './dashboard-grid-options';
 
 const logger = debug('redash:config');

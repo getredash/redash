@@ -13,64 +13,64 @@ function TimelineRenderer(VisDataSet) {
     template,
     replace: false,
     controller($scope) {
-      $scope.timelineData = {
-        items: new VisDataSet(),
-        groups: new VisDataSet(),
+      $scope.timelineOptions = {
+        // start: null,
+        // end: null,
+      };
+
+      const getTimelineItems = (queryData) => {
+        const timelineItems = [];
+
+        _.each(queryData, (row) => {
+          const content = row[$scope.options.content];
+          const start = row[$scope.options.start];
+          const end = row[$scope.options.end];
+          const group = row[$scope.options.groupBy];
+
+          // skip rows where required fields are null
+          if (content === null || start === null) return;
+
+          const item = {
+            content,
+            start,
+            ...$scope.options.end && { end },
+            ...$scope.options.groupBy && { group },
+          };
+
+          timelineItems.push(item);
+        });
+
+        return timelineItems;
+      };
+
+      const getTimelineGroups = (queryData) => {
+        const groupBy = $scope.options.groupBy;
+
+        if (!isNullOrUndefined(groupBy)) {
+          return _.chain(queryData)
+            .pluck(groupBy)
+            .unique()
+            .map(group => ({
+              id: group,
+              content: _.isNumber(group) ? group.toString() : group,
+            }))
+            .value();
+        }
+
+        return [];
       };
 
       const getTimelineData = () => {
         const queryData = $scope.queryResult.getData();
 
-        // reset data
-        $scope.timelineData.items.clear();
-        $scope.timelineData.groups.clear();
-
         if (queryData) {
-          const itemContent = $scope.options.content;
-          const startDate = $scope.options.start;
-          const endDate = $scope.options.end;
-          const groupBy = $scope.options.groupBy;
-
           // Required fields
-          if (isNullOrUndefined(itemContent) || isNullOrUndefined(startDate)) return;
+          if (isNullOrUndefined($scope.options.content) || isNullOrUndefined($scope.options.start)) return;
 
-          // Extract groups
-          if (!isNullOrUndefined(groupBy)) {
-            const groups = _.chain(queryData)
-              .pluck(groupBy)
-              .unique()
-              .map(group => ({
-                id: group,
-                content: _.isNumber(group) ? group.toString() : group,
-              }))
-              .value();
-
-            // Add to groups dataset
-            $scope.timelineData.groups.add(groups);
-            console.log($scope.timelineData.groups);
-          }
-
-          // Create timeline items
-          _.each(queryData, (row) => {
-            const content = row[itemContent];
-            const start = row[startDate];
-            const end = row[endDate];
-            const group = row[groupBy];
-
-            // required fields; avoid timeline error
-            if (content === null || start === null) return;
-
-            const item = {
-              content,
-              start,
-              ...endDate && { end },
-              ...groupBy && { group },
-            };
-
-            // Add to items dataset
-            $scope.timelineData.items.add(item);
-          });
-          console.log($scope.timelineData.items);
+          $scope.timelineData = {
+            items: new VisDataSet(getTimelineItems(queryData)),
+            groups: new VisDataSet(getTimelineGroups(queryData)),
+          };
         }
       };
 

@@ -3,7 +3,7 @@
 /*  Credits to https://github.com/visjs/angular-visjs for this angular module.
 
     Partially modified by Andros Rosa:
-      - Options and events are now optional.
+      - Events are now optional.
       - Deleted other directives for other types of visualizations. */
 
 import angular from 'angular';
@@ -33,11 +33,11 @@ angular.module('ngVis', [])
       transclude: false,
       scope: {
         data: '=',
-        options: '=?',
+        options: '=',
         events: '=?'
       },
       link: function (scope, element, attr) {
-        var timelineEvents = [
+        const timelineEvents = [
           'rangechange',
           'rangechanged',
           'timechange',
@@ -49,9 +49,9 @@ angular.module('ngVis', [])
         ];
 
         // Declare the timeline
-        var timeline = null;
+        let timeline = null;
 
-        scope.$watch('data', function () {
+        const refreshTimeline = () => {
           // Sanity check
           if (scope.data == null) {
             return;
@@ -75,20 +75,20 @@ angular.module('ngVis', [])
             });
 
             // onLoad callback
-            if (scope.events.onload != null && angular.isFunction(scope.events.onload)) {
+            if (!isNullOrUndefined(scope.events.onload) && angular.isFunction(scope.events.onload)) {
               scope.events.onload(timeline);
             }
           }
-        });
+        };
+
+        scope.$watch('data', refreshTimeline);
 
         scope.$watchCollection('options', function (options) {
           if (timeline == null) {
             return;
           }
 
-          if (!isNullOrUndefined(scope.options)) {
-            timeline.setOptions(options);
-          }
+          timeline.setOptions(options);
         });
       }
     };
