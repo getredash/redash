@@ -53,18 +53,11 @@ class Docker(BaseQueryRunner):
             return True
         except Exception as ex:
             logger.warn(
-                'Disabling Docker query runner'
+                'Disabling Docker query runner. '
                 'Unable to connect to Docker Daemon at %s: %s',
                 client.api.base_url, ex)
             # TODO: enabled by default while developing
             return True
-
-        # try:
-        #     devnull = open(os.devnull)
-        #     subprocess.Popen(['docker'], stdout=devnull, stderr=devnull).communicate()
-        #     return True
-        # except OSError as e:
-        #     return e.errno != os.errno.ENOENT
 
     @classmethod
     def configuration_schema(cls):
@@ -141,7 +134,9 @@ class Docker(BaseQueryRunner):
         container = client.containers.create(
             self.image,
             auto_remove=False,  # the container might finish too soon
+            tty=False,
             detach=False,
+            stdin_open=True,
             environment=self.env,
             command=self.args,
             labels={
@@ -161,13 +156,28 @@ class Docker(BaseQueryRunner):
         try:
             container.start()
             logger.info('Started')
+
+            socket = container.attach_socket(params={'stdin': 1, 'stream': 1})
+
+            # TODO: TLS Docker daemons require a different approach
+            data = query.encode()
+            written = os.write(socket.fileno(), data)
+            if written != len(data):
+                logger.warn('Unable to write the whole data: %s (wanted %s)', written, len(data))
+
+            socket.close()
+
+            logger.info('Query sent')
+
             result = container.wait(timeout=30)  # TODO: Make timeout configurable?
             logger.info('Waited')
 
-
-            # TODO: collect stderr
-            logs = container.logs(stdout=True)
-            logger.info('Logs')
+            # TODO: collect both in one call?
+            # FIXME: Both seem to provide the same info
+            stdout = container.logs(stdout=True)
+            logger.info('Logs STDOUT %s', stdout)
+            stderr = container.logs(stderr=True)
+            logger.info('Logs STDERR %s', stderr)
 
             try:
                 container.remove()
@@ -181,7 +191,7 @@ class Docker(BaseQueryRunner):
                 return None, 'Execution terminated with an error {}'.format(result['StatusCode'])
 
             # TODO: parse stdout JSON
-            return None, logs
+            return None, stdout
 
         except requests.exceptions.ReadTimeout:
             logger.warn('Timeout waiting for <%s>, forcing removal', container.id)
