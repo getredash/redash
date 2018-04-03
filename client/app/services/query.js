@@ -29,6 +29,34 @@ function collectParams(parts) {
   return parameters;
 }
 
+export class QueryResultError {
+  constructor(errorMessage) {
+    this.errorMessage = errorMessage;
+    this.status = 'failed';
+    this.data = this.log = this.chartData = null;
+  }
+
+  getError() {
+    return this.errorMessage;
+  }
+
+  getStatus() {
+    return this.status;
+  }
+
+  getData() {
+    return this.data;
+  }
+
+  getLog() {
+    return this.log;
+  }
+
+  getChartData() {
+    return this.chartData;
+  }
+}
+
 class Parameter {
   constructor(parameter) {
     this.title = parameter.title;
@@ -325,7 +353,11 @@ function QueryResource(
     }
 
     if (parameters.isRequired()) {
-      queryText = Mustache.render(queryText, parameters.getValues());
+      try {
+        queryText = Mustache.render(queryText, parameters.getValues());
+      } catch (e) {
+        return new QueryResultError('Malformed query with parameters. Please edit the query to fix the error.');
+      }
 
       // Need to clear latest results, to make sure we don't use results for different params.
       this.latest_query_data = null;

@@ -1,10 +1,14 @@
 import * as _ from 'lodash';
+import debug from 'debug';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
+import { QueryResultError } from '@/services/query';
 import { durationHumanize } from '@/filters';
 import { getTags } from '@/services/tags';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.less';
+
+const logger = debug('redash:pages:dashboards:dashboard');
 
 function isWidgetPositionChanged(oldPosition, newPosition) {
   const fields = ['col', 'row', 'sizeX', 'sizeY', 'autoHeight'];
@@ -128,7 +132,14 @@ function DashboardCtrl(
   };
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)))
+      .map((queryResult) => {
+        if (queryResult instanceof QueryResultError) {
+          logger('Found and error on query: %s', queryResult.getError());
+          return $q.reject(queryResult);
+        }
+        return queryResult.toPromise();
+      });
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -164,6 +175,8 @@ function DashboardCtrl(
           originFilter.current = filter.current;
         });
       };
+    }, (rejection) => {
+      throw new PromiseRejectionError(rejection);
     });
   };
 
