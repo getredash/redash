@@ -16,6 +16,7 @@ dependencies:
     - node_modules/
 test:
   override:
+    - echo $DOCKER_EMAIL
     - pytest --junitxml=$CIRCLE_TEST_REPORTS/junit.xml tests/
 deployment:
   tarball:
