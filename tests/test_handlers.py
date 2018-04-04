@@ -1,10 +1,12 @@
+from time import time
 from flask import url_for
 from flask_login import current_user
 from funcy import project
-from mock import patch
+from mock import patch, MagicMock, PropertyMock
 from tests import BaseTestCase, authenticated_user
 
 from redash import models, settings
+from redash.utils import gen_query_hash
 
 
 class AuthenticationTestMixin(object):
@@ -68,6 +70,29 @@ class JobAPITest(BaseTestCase, AuthenticationTestMixin):
     def setUp(self):
         self.paths = []
         super(JobAPITest, self).setUp()
+
+    @patch('redash.handlers.query_results.QueryTaskTracker.get_by_task_id')
+    @patch('redash.handlers.query_results.QueryTask', autospec=True)
+    def test_sends_retry_after_header(self, m_QueryTask, m_get_by_task_id):
+        query_result = self.factory.create_query_result(
+            runtime=11,
+            query_hash='test-query-hash')
+
+        m_task = m_QueryTask.return_value
+        m_task.celery_status = 'STARTED'
+        m_task.to_dict.return_value = {}
+
+        tracker = MagicMock(query_hash=query_result.query_hash, started_at=time() - 5)
+        m_get_by_task_id.return_value = tracker
+
+        rv = self.make_request('get', '/api/jobs/1')
+
+        assert rv.status_code == 200
+        assert m_get_by_task_id.called
+        assert 'Retry-After' in rv.headers
+
+        retry_after = float(rv.headers['Retry-After'])
+        assert retry_after < ( 11 - 5 )
 
 
 class TestLogin(BaseTestCase):

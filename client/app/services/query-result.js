@@ -450,15 +450,20 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     refreshStatus(query) {
-      Job.get({ id: this.job.id }, (jobResponse) => {
+      Job.get({ id: this.job.id }, (jobResponse, getHeader) => {
         this.update(jobResponse);
 
         if (this.getStatus() === 'processing' && this.job.query_result_id && this.job.query_result_id !== 'None') {
           this.loadResult();
         } else if (this.getStatus() !== 'failed') {
+          let retryAfter = parseFloat(getHeader('Retry-After'));
+          if (isNaN(retryAfter)) {
+            retryAfter = 3;
+          }
+          debug('RetryAfter: %s', retryAfter);
           $timeout(() => {
             this.refreshStatus(query);
-          }, 3000);
+          }, 1000 * Math.max(0.250, retryAfter));
         }
       }, (error) => {
         logger('Connection error', error);
@@ -491,7 +496,8 @@ function QueryResultService($resource, $timeout, $q) {
         queryResult.update(response);
 
         if ('job' in response) {
-          queryResult.refreshStatus(query);
+          // Allow some time for fast queries to complete before we check them
+          $timeout(() => queryResult.refreshStatus(query), 1000 * 0.3);
         }
       }, (error) => {
         if (error.status === 403) {

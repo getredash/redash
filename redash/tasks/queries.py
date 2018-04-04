@@ -157,8 +157,9 @@ class QueryTask(object):
         return self._async_result.id
 
     def to_dict(self):
-        task_info = self._async_result._get_task_meta()
-        result, task_status = task_info['result'], task_info['status']
+        task_status = self._async_result.state
+        result = self._async_result.result
+
         if task_status == 'STARTED':
             updated_at = result.get('start_time', 0)
         else:

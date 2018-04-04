@@ -11,7 +11,7 @@ from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
 from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash
-from redash.tasks.queries import enqueue_query
+from redash.tasks.queries import enqueue_query, QueryTaskTracker
 
 
 def error_response(message):
@@ -92,7 +92,13 @@ def run_query(data_source, parameter_values, query_text, query_id, max_age=0):
     if query_result:
         return {'query_result': query_result.to_dict()}
     else:
-        job = enqueue_query(query_text, data_source, current_user.id, metadata={"Username": current_user.email, "Query ID": query_id})
+        metadata = {
+            'Username': current_user.email,
+            'Query ID': query_id,
+        }
+
+        job = enqueue_query(query_text, data_source, current_user.id, metadata=metadata)
+
         return {'job': job.to_dict()}
 
 
@@ -194,7 +200,7 @@ class QueryResultResource(BaseResource):
                     query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
-                
+
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
                     abort(404, message='No cached result found for this query.')
@@ -257,13 +263,47 @@ class QueryResultResource(BaseResource):
         return make_response(query_result.make_excel_content(), 200, headers)
 
 
+POLLING_MIN = 0.3
+POLLING_MAX = 30.0
+POLLING_UNKNOWN = 3.0
+POLLING_EASING = lambda x: x**3
+
 class JobResource(BaseResource):
+
     def get(self, job_id):
         """
         Retrieve info about a running query job.
+
+        For ongoing jobs the Retry-After header will indicate an estimation
+        about when a client that is polling for the job to finish should issue
+        its next request. The standard header only offers up to seconds
+        precission, however given that the header is not widely used we use
+        a float instead of an integer to provide sub-second precission.
         """
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
         job = QueryTask(job_id=job_id)
-        return {'job': job.to_dict()}
+
+        if job.celery_status in ('PENDING', 'STARTED'):
+            tracker = QueryTaskTracker.get_by_task_id(job_id)
+
+            estimated = models.QueryResult.get_estimated_runtime(tracker.query_hash)
+            if not estimated:
+                estimated = POLLING_UNKNOWN
+
+            if tracker.started_at:
+                elapsed = time.time() - tracker.started_at
+            else:
+                elapsed = 0
+
+            relative = abs(estimated - elapsed)
+            eased = POLLING_EASING(relative / estimated) * (POLLING_MAX - POLLING_MIN)
+            seconds = POLLING_MIN + min(relative, eased, POLLING_MAX)
+            headers['Retry-After'] = '{0:.2f}'.format(seconds)
+
+        return make_response(json.dumps({'job': job.to_dict()}), 200, headers)
 
     def delete(self, job_id):
         """

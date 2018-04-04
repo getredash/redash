@@ -781,6 +781,14 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return q.first()
 
     @classmethod
+    def get_estimated_runtime(cls, query_hash):
+        q = db.session.query(db.func.avg(QueryResult.runtime)).filter(
+                QueryResult.query_hash == query_hash
+            )
+
+        return q.scalar()
+
+    @classmethod
     def store_result(cls, org, data_source, query_hash, query, data, run_time, retrieved_at):
         query_result = cls(org_id=org,
                            query_hash=query_hash,

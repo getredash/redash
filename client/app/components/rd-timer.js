@@ -8,12 +8,21 @@ function rdTimer() {
     controller($scope) {
       $scope.currentTime = '00:00:00';
 
+      const compute = () => {
+        $scope.currentTime = moment(moment() - moment($scope.timestamp)).utc().format('HH:mm:ss');
+      };
+
       // We're using setInterval directly instead of $timeout, to avoid using $apply, to
       // prevent the digest loop being run every second.
       let currentTimer = setInterval(() => {
-        $scope.currentTime = moment(moment() - moment($scope.timestamp)).utc().format('HH:mm:ss');
+        compute();
         $scope.$digest();
       }, 1000);
+
+      // When the timestamp changes we need to recompute the time
+      $scope.$watch('timestamp', () => {
+        compute();
+      });
 
       $scope.$on('$destroy', () => {
         if (currentTimer) {
