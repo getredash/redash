@@ -9,7 +9,7 @@ export default function init(ngModule) {
 
       let html = markdown.toHTML(String(text));
       if (clientConfig.allowScriptsInUserInput) {
-        html = $sce.trustAsHtml(html);
+        html = $sce.trustAsHtml(text);
       }
 
       return html;
