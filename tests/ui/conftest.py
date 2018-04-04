@@ -160,6 +160,50 @@ def fixture_factory(app):
     return Factory()
 
 
+@pytest.fixture(name='create_user')
+def fixture_create_user(factory):
+    """Return a function to create a user with password."""
+    def create(password=None, **kwargs):
+        """Create a user with password."""
+        user = factory.create_user(**kwargs)
+
+        if password is not None:
+            user.hash_password(password)
+            db.session.commit()
+
+        return user
+
+    return create
+
+
+@pytest.fixture(name='user_password')
+def fixture_user_password():
+    """Return a password str."""
+    return 'a#12B%@c3D'
+
+
+@pytest.fixture(name='user_name')
+def fixture_user_name():
+    """Return a name str."""
+    return 'Ashley McTest'
+
+
+@pytest.fixture(name='user_email')
+def fixture_user_email():
+    """Return an email address str."""
+    return 'ashley@example.com'
+
+
+@pytest.fixture(name='user')
+def fixture_user(create_user, user_name, user_email, user_password):
+    """Return a user with a password."""
+    return create_user(
+        name=user_name,
+        email=user_email,
+        password=user_password,
+    )
+
+
 def pytest_addoption(parser):
     """Add custom options to pytest."""
     group = parser.getgroup('flask')
