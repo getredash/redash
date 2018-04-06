@@ -121,7 +121,7 @@ def fixture_user(create_user, user_name, user_email, user_password):
 
 def pytest_addoption(parser):
     """Add custom options to pytest."""
-    group = parser.getgroup('flask')
+    group = parser.getgroup('ui')
 
     group.addoption(
         '--live-server-timeout',
