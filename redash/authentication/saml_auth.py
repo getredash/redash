@@ -1,5 +1,5 @@
 import logging
-from flask import redirect, url_for, Blueprint, request
+from flask import flash, redirect, url_for, Blueprint, request
 from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
@@ -67,9 +67,15 @@ def idp_initiated(org_slug=None):
         return redirect(url_for('redash.index', org_slug=org_slug))
 
     saml_client = get_saml_client(current_org)
-    authn_response = saml_client.parse_authn_request_response(
-        request.form['SAMLResponse'],
-        entity.BINDING_HTTP_POST)
+    try:
+        authn_response = saml_client.parse_authn_request_response(
+            request.form['SAMLResponse'],
+            entity.BINDING_HTTP_POST)
+    except Exception:
+        logger.error('Failed to parse SAML response', exc_info=True)
+        flash('SAML login failed. Please try again later.')
+        return redirect(url_for('redash.login', org_slug=org_slug))
+
     authn_response.get_identity()
     user_info = authn_response.get_subject()
     email = user_info.text
