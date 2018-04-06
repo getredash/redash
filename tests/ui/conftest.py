@@ -119,6 +119,17 @@ def fixture_user(create_user, user_name, user_email, user_password):
     )
 
 
+def pytest_collection_modifyitems(items):
+    """Add a 'ui' marker to all test items under 'ui/'.
+
+    If you wish to only run UI tests add the '-m ui' CLI option. If you wish
+    to exclude UI tests from your test run add the '-m not ui' CLI option.
+    """
+    for item in items:
+        if item.fspath is not None and 'ui/' in str(item.fspath):
+            item.add_marker(pytest.mark.ui)
+
+
 def pytest_addoption(parser):
     """Add custom options to pytest."""
     group = parser.getgroup('ui')
