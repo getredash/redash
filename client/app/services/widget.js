@@ -6,7 +6,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     return pick(data, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
   }
 
-  const WidgetResource = $resource('api/widgets/:id', { id: '@id' }, {
+  const WidgetResource = $resource(
+    'api/widgets/:id',
+    { id: '@id' },
+    {
     get: { method: 'GET' },
     save: {
       method: 'POST',
@@ -15,7 +18,8 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     query: { method: 'GET', isArray: true },
     remove: { method: 'DELETE' },
     delete: { method: 'DELETE' },
-  });
+    },
+  );
 
   WidgetResource.prototype.getQuery = function getQuery() {
     if (!this.query && this.visualization) {
@@ -26,6 +30,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   };
 
   WidgetResource.prototype.getQueryResult = function getQueryResult(force, maxAge) {
+    return this.load(force, maxAge);
+  };
+
+  WidgetResource.prototype.load = function load(force, maxAge) {
     if (!this.visualization) {
       return undefined;
     }
@@ -38,6 +46,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     }
 
     return this.queryResult;
+  };
+
+  WidgetResource.prototype.loadPromise = function loadPromise(force, maxAge) {
+    return this.load(force, maxAge).toPromise();
   };
 
   WidgetResource.prototype.getName = function getName() {

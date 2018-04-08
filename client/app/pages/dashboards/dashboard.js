@@ -118,8 +118,7 @@ function DashboardCtrl(
   };
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.getQueryResult(forceRefresh)))
-      .map(queryResult => queryResult.toPromise());
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.loadPromise(forceRefresh)));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
