@@ -5,4 +5,4 @@ coverage==4.0.3
 mock==2.0.0
 
 # PyMongo is needed for one of the unit tests:
-pymongo==3.2.1
+pymongo==3.6.1
