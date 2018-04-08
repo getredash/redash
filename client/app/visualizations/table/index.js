@@ -19,7 +19,8 @@ const DISPLAY_AS_OPTIONS = [
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 15,
-  defaultRows: -1,
+  autoHeight: true,
+  defaultRows: 14,
   defaultColumns: 3,
   minColumns: 2,
 };
