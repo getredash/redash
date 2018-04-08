@@ -18,13 +18,17 @@ const EditTextBoxComponent = {
       this.saveInProgress = true;
       if (this.widget.new_text !== this.widget.existing_text) {
         this.widget.text = this.widget.new_text;
-        this.widget.$save().then(() => {
-          this.close();
-        }).catch(() => {
-          toastr.error('Widget can not be updated');
-        }).finally(() => {
-          this.saveInProgress = false;
-        });
+        this.widget
+          .$save()
+          .then(() => {
+            this.close();
+          })
+          .catch(() => {
+            toastr.error('Widget can not be updated');
+          })
+          .finally(() => {
+            this.saveInProgress = false;
+          });
       } else {
         this.close();
       }
@@ -48,7 +52,10 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   this.localParametersDefs = () => {
     if (!this.localParameters) {
-      this.localParameters = this.widget.getQuery().getParametersDefs().filter(p => !p.global);
+      this.localParameters = this.widget
+        .getQuery()
+        .getParametersDefs()
+        .filter(p => !p.global);
     }
     return this.localParameters;
   };
@@ -61,8 +68,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
     Events.record('delete', 'widget', this.widget.id);
 
     this.widget.$delete((response) => {
-      this.dashboard.widgets = this.dashboard.widgets
-        .filter(widget => (widget.id !== undefined) && (widget.id !== this.widget.id));
+      this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== this.widget.id);
       this.dashboard.version = response.version;
       if (this.deleted) {
         this.deleted({});
@@ -74,14 +80,13 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   this.reload = (force) => {
     const maxAge = $location.search().maxAge;
-    this.queryResult = this.widget.getQueryResult(force, maxAge);
+    this.widget.load(force, maxAge);
   };
 
   if (this.widget.visualization) {
     Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
     Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
 
-    this.query = this.widget.getQuery();
     this.reload(false);
 
     this.type = 'visualization';
