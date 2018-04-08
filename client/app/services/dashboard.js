@@ -29,6 +29,9 @@ function prepareWidgetsForDashboard(widgets) {
             : widget.options.position.sizeY,
         );
         widget.options.position.row = row;
+        if (widget.options.position.sizeY < 1) {
+          widget.options.position.sizeY = defaultWidgetSizeY;
+        }
       });
       return row + height;
     }, 0)
@@ -125,6 +128,7 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
   };
 
   resource.prepareDashboardWidgets = prepareDashboardWidgets;
+  resource.prepareWidgetsForDashboard = prepareWidgetsForDashboard;
 
   return resource;
 }
