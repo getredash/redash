@@ -52,6 +52,7 @@
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.2.0",
     "leaflet.markercluster": "^1.1.0",
+    "leaflet-fullscreen": "^1.0.2",
     "markdown": "0.5.0",
     "material-design-iconic-font": "^2.2.0",
     "moment": "^2.19.3",
