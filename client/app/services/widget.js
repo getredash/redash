@@ -6,16 +6,20 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     return pick(data, 'options', 'text', 'id', 'width', 'dashboard_id', 'visualization_id');
   }
 
-  const WidgetResource = $resource('api/widgets/:id', { id: '@id' }, {
-    get: { method: 'GET' },
-    save: {
-      method: 'POST',
-      transformRequest: flatten([prepareForSave, $http.defaults.transformRequest]),
+  const WidgetResource = $resource(
+    'api/widgets/:id',
+    { id: '@id' },
+    {
+      get: { method: 'GET' },
+      save: {
+        method: 'POST',
+        transformRequest: flatten([prepareForSave, $http.defaults.transformRequest]),
+      },
+      query: { method: 'GET', isArray: true },
+      remove: { method: 'DELETE' },
+      delete: { method: 'DELETE' },
     },
-    query: { method: 'GET', isArray: true },
-    remove: { method: 'DELETE' },
-    delete: { method: 'DELETE' },
-  });
+  );
 
   WidgetResource.prototype.getQuery = function getQuery() {
     if (!this.query && this.visualization) {
@@ -26,6 +30,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
   };
 
   WidgetResource.prototype.getQueryResult = function getQueryResult(force, maxAge) {
+    return this.load(force, maxAge);
+  };
+
+  WidgetResource.prototype.load = function load(force, maxAge) {
     if (!this.visualization) {
       return undefined;
     }
@@ -40,6 +48,10 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     return this.queryResult;
   };
 
+  WidgetResource.prototype.loadPromise = function loadPromise(force, maxAge) {
+    return this.load(force, maxAge).toPromise();
+  };
+
   WidgetResource.prototype.getName = function getName() {
     if (this.visualization) {
       return `${this.visualization.query.name} (${this.visualization.name})`;
@@ -51,25 +63,29 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
     widget.width = 1; // Backward compatibility, user on back-end
 
     const visualizationOptions = {
+      autoHeight: false,
       sizeX: Math.round(dashboardGridOptions.columns / 2),
-      sizeY: -1, // auto-height
+      sizeY: dashboardGridOptions.defaultSizeY,
       minSizeX: dashboardGridOptions.minSizeX,
       maxSizeX: dashboardGridOptions.maxSizeX,
       minSizeY: dashboardGridOptions.minSizeY,
       maxSizeY: dashboardGridOptions.maxSizeY,
     };
-    const visualization = widget.visualization ?
-      Visualization.visualizations[widget.visualization.type] : null;
+    const visualization = widget.visualization ? Visualization.visualizations[widget.visualization.type] : null;
     if (isObject(visualization)) {
       const options = extend({}, visualization.defaultOptions);
 
+      if (Object.prototype.hasOwnProperty.call(options, 'autoHeight')) {
+        visualizationOptions.autoHeight = options.autoHeight;
+      }
+
       // Width constraints
       const minColumns = parseInt(options.minColumns, 10);
-      if (isFinite(minColumns) && (minColumns >= 0)) {
+      if (isFinite(minColumns) && minColumns >= 0) {
         visualizationOptions.minSizeX = minColumns;
       }
       const maxColumns = parseInt(options.maxColumns, 10);
-      if (isFinite(maxColumns) && (maxColumns >= 0)) {
+      if (isFinite(maxColumns) && maxColumns >= 0) {
         visualizationOptions.maxSizeX = Math.min(maxColumns, dashboardGridOptions.columns);
       }
 
@@ -84,17 +100,17 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
         visualizationOptions.minSizeY = minRows;
       }
       const maxRows = parseInt(options.maxRows, 10);
-      if (isFinite(maxRows) && (maxRows >= 0)) {
+      if (isFinite(maxRows) && maxRows >= 0) {
         visualizationOptions.maxSizeY = maxRows;
       }
 
       // Default dimensions
       const defaultWidth = parseInt(options.defaultColumns, 10);
-      if (isFinite(defaultWidth) && (defaultWidth > 0)) {
+      if (isFinite(defaultWidth) && defaultWidth > 0) {
         visualizationOptions.sizeX = defaultWidth;
       }
       const defaultHeight = parseInt(options.defaultRows, 10);
-      if (isFinite(defaultHeight) && (defaultHeight > 0)) {
+      if (isFinite(defaultHeight) && defaultHeight > 0) {
         visualizationOptions.sizeY = defaultHeight;
       }
     }
@@ -120,7 +136,6 @@ function Widget($resource, $http, Query, Visualization, dashboardGridOptions) {
 
   return WidgetConstructor;
 }
-
 
 export default function init(ngModule) {
   ngModule.factory('Widget', Widget);
