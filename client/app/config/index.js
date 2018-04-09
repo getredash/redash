@@ -20,7 +20,7 @@ import 'angular-resizable';
 import { each, isFunction } from 'underscore';
 
 import '@/lib/sortable';
-import '@/lib/visualizations/angular-vis';
+import ngVis from '@/lib/visualizations/angular-vis';
 
 import * as filters from '@/filters';
 import registerDirectives from '@/directives';
@@ -52,7 +52,7 @@ const requirements = [
   'angularResizable',
   vsRepeat,
   'ui.sortable',
-  'ngVis',
+  ngVis.name,
 ];
 
 const ngModule = angular.module('app', requirements);
