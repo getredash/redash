@@ -1,3 +1,4 @@
+import { isMoment } from 'moment';
 import { _ } from 'underscore';
 import { isNullOrUndefined } from 'util';
 import template from './timeline.html';
@@ -13,11 +14,6 @@ function TimelineRenderer(VisDataSet) {
     template,
     replace: false,
     controller($scope) {
-      $scope.timelineOptions = {
-        // start: null,
-        // end: null,
-      };
-
       const getTimelineItems = (queryData) => {
         const timelineItems = [];
 
@@ -27,8 +23,11 @@ function TimelineRenderer(VisDataSet) {
           const end = row[$scope.options.end];
           const group = row[$scope.options.groupBy];
 
-          // skip rows where required fields are null
-          if (content === null || start === null) return;
+          // Skip rows where content is not a string, or start/end are non-dates
+          if (!_.isString(content) || !isMoment(start) ||
+            (!isNullOrUndefined($scope.options.end) && end !== null && !isMoment(end))) {
+            return;
+          }
 
           const item = {
             content,
@@ -69,13 +68,13 @@ function TimelineRenderer(VisDataSet) {
 
           $scope.timelineData = {
             items: new VisDataSet(getTimelineItems(queryData)),
-            groups: new VisDataSet(getTimelineGroups(queryData)),
+            ...$scope.options.groupBy && { groups: new VisDataSet(getTimelineGroups(queryData)) },
           };
         }
       };
 
-      $scope.$watch('options', getTimelineData, true);
       $scope.$watch('queryResult && queryResult.getData()', getTimelineData);
+      $scope.$watchGroup(['options.content', 'options.start', 'options.end', 'options.groupBy'], getTimelineData);
     },
   };
 }
@@ -88,6 +87,140 @@ function TimelineEditor() {
       $scope.currentTab = 'general';
       $scope.columns = $scope.queryResult.getColumns();
       $scope.columnNames = _.pluck($scope.columns, 'name');
+      $scope.getterSetters = {};
+
+      // TODO: Move to its own package for reusability
+      // Taken from https://github.com/joshuacc/drabs
+      // Modified by Andros Rosa to also support setting properties
+      const dynamicAccess = (_obj, _props, _isSetter, _newValue, _errorValue) => {
+        // Make sure props is defined and not empty
+        if (isNullOrUndefined(_props) || _props.length === 0) {
+          return _errorValue;
+        }
+
+        // If the property list is in dot notation, convert to array
+        if (_.isString(_props)) {
+          _props = _props.split('.');
+        }
+
+        const dynamicAccessByArray = (obj, propsArray, isSetter, newValue, errorValue) => {
+          // Parent properties are invalid... exit with error message
+          if (isNullOrUndefined(obj)) {
+            return errorValue;
+          }
+
+          // the path array has only 1 more element (the target property)
+          if (propsArray.length === 1) {
+            // Update property if called as setter
+            if (isSetter) {
+              obj[propsArray[0]] = newValue;
+            }
+            return obj[propsArray[0]];
+          }
+
+          // Prepare our found property and path array for recursion
+          const foundSoFar = obj[propsArray[0]];
+          const remainingProps = _.rest(propsArray);
+
+          return dynamicAccessByArray(foundSoFar, remainingProps, isSetter, newValue, errorValue);
+        };
+
+        return dynamicAccessByArray(_obj, _props, _isSetter, _newValue, _errorValue);
+      };
+
+      // TODO: turn into a factory ?
+      const getterSetterGenerator = () => {
+        const generatorBlueprints = [
+          {
+            property: 'margin.axis',
+            emptyValue: 0,
+          },
+          {
+            property: 'margin.item.horizontal',
+            emptyValue: 0,
+          },
+          {
+            property: 'margin.item.vertical',
+            emptyValue: 0,
+          },
+          {
+            property: 'timeAxis.scale',
+            emptyValue: undefined,
+          },
+          {
+            property: 'timeAxis.step',
+            emptyValue: 1,
+          },
+          {
+            property: 'type',
+            emptyValue: '',
+          },
+        ];
+
+        _.each(generatorBlueprints, (blueprint) => {
+          const getterSetter = (newValue) => {
+            let option = dynamicAccess($scope.visualization.options.timelineConfig, blueprint.property);
+
+            // Called as a setter
+            if (!_.isUndefined(newValue)) {
+              // Switch null to custom empty value
+              const finalValue = _.isNull(newValue) ? blueprint.emptyValue : newValue;
+              option = dynamicAccess($scope.visualization.options.timelineConfig, blueprint.property, true, finalValue);
+            }
+            return option;
+          };
+
+          // Save getter/setter in scope object
+          $scope.getterSetters[blueprint.property] = getterSetter;
+        });
+      };
+
+      getterSetterGenerator();
+
+      $scope.alignOptions = [
+        'auto',
+        'center',
+        'left',
+        'right',
+      ];
+
+      $scope.axisOrientations = [
+        'top',
+        'bottom',
+        'both',
+        'none',
+      ];
+
+      $scope.axisScales = [
+        'millisecond',
+        'second',
+        'minute',
+        'hour',
+        'weekday',
+        'week',
+        'day',
+        'month',
+        'year',
+      ];
+
+      $scope.itemOrientations = [
+        'top',
+        'bottom',
+      ];
+
+      $scope.itemTypes = [
+        'box',
+        'point',
+        'range',
+        'background',
+      ];
+
+      $scope.zoomKeys = [
+        { name: 'None', value: '' },
+        { name: 'Alt', value: 'altKey' },
+        { name: 'Control (Ctrl)', value: 'ctrlKey' },
+        { name: 'Meta', value: 'metaKey' },
+      ];
     },
   };
 }
@@ -100,16 +233,41 @@ export default function init(ngModule) {
     const renderTemplate = '<timeline-renderer options="visualization.options" query-result="queryResult"></timeline-renderer>';
     const editTemplate = '<timeline-editor></timeline-editor>';
 
-    // const defaultOptions = {
-
-    // };
+    const defaultOptions = {
+      timelineConfig: {
+        align: 'auto',
+        clickToUse: false,
+        horizontalScroll: false,
+        margin: {
+          axis: 20,
+          item: {
+            horizontal: 10,
+            vertical: 10,
+          },
+        },
+        moveable: true,
+        orientation: {
+          axis: 'bottom',
+          item: 'bottom',
+        },
+        showCurrentTime: true,
+        stack: true,
+        timeAxis: {
+          scale: undefined,
+          step: 1,
+        },
+        type: '',
+        zoomable: true,
+        zoomKey: '',
+      },
+    };
 
     VisualizationProvider.registerVisualization({
       type: 'TIMELINE',
       name: 'Timeline',
       renderTemplate,
       editorTemplate: editTemplate,
-      // defaultOptions,
+      defaultOptions,
     });
   });
 }

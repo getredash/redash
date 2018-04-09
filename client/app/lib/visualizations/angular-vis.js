@@ -4,11 +4,14 @@
 
     Partially modified by Andros Rosa:
       - Events are now optional.
+      - Support timelines without groups.
+      - Deeply watch options object.
       - Deleted other directives for other types of visualizations. */
 
 import angular from 'angular';
 import vis from 'vis';
 import 'vis/dist/vis-timeline-graph2d.min.css';
+import { _ } from 'underscore';
 import { isNullOrUndefined } from 'util';
 
 angular.module('ngVis', [])
@@ -63,8 +66,14 @@ angular.module('ngVis', [])
             timeline.destroy();
           }
 
-          // Create the timeline object
-          timeline = new vis.Timeline(element[0], scope.data.items, scope.data.groups, scope.options);
+          // Timeline without groups
+          if (isNullOrUndefined(scope.data.groups)) {
+            timeline = new vis.Timeline(element[0], scope.data.items, scope.options);
+          }
+          // Timeline with groups
+          else {
+            timeline = new vis.Timeline(element[0], scope.data.items, scope.data.groups, scope.options);
+          }
 
           // Attach an event handler if defined
           if (!isNullOrUndefined(scope.events)) {
@@ -81,15 +90,15 @@ angular.module('ngVis', [])
           }
         };
 
+        const updateOptions = (newOptions) => {
+          if (timeline === null) return;
+
+          // Update timeline options
+          timeline.setOptions(newOptions);
+        };
+
         scope.$watch('data', refreshTimeline);
-
-        scope.$watchCollection('options', function (options) {
-          if (timeline == null) {
-            return;
-          }
-
-          timeline.setOptions(options);
-        });
+        scope.$watch('options', updateOptions, true);
       }
     };
   });

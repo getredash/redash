@@ -3,55 +3,208 @@
     <li ng-class="{active: currentTab == 'general'}">
       <a ng-click="currentTab='general'">General</a>
     </li>
+    <li ng-class="{active: currentTab == 'items'}">
+      <a ng-click="currentTab='items'">Items</a>
+    </li>
+    <li ng-class="{active: currentTab == 'timeAxis'}">
+      <a ng-click="currentTab='timeAxis'">Time Axis</a>
+    </li>
+    <li ng-class="{active: currentTab == 'behavior'}">
+      <a ng-click="currentTab='behavior'">Behavior</a>
+    </li>
   </ul>
 
   <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
-    <div class="form-group">
-      <label class="control-label">Item content</label>
-      <ui-select name="form-control" required ng-model="visualization.options.content">
-        <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
-        <ui-select-choices repeat="column in columnNames | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.groupBy">
-          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
-          <small class="text-muted" ng-bind="columns[column].type"></small>
-        </ui-select-choices>
-      </ui-select>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Item content</label>
+        <ui-select name="form-control" ng-model="visualization.options.content" required>
+          <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.groupBy">
+            <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="columns[column].type"></small>
+          </ui-select-choices>
+        </ui-select>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label class="control-label">Start</label>
-      <ui-select name="form-control" required ng-model="visualization.options.start">
-        <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
-        <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.end | remove:visualization.options.groupBy">
-          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
-          <small class="text-muted" ng-bind="columns[column].type"></small>
-        </ui-select-choices>
-      </ui-select>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Start date</label>
+        <ui-select name="form-control" ng-model="visualization.options.start" required>
+          <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.end | remove:visualization.options.groupBy">
+            <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="columns[column].type"></small>
+          </ui-select-choices>
+        </ui-select>
+      </div>
+
+      <div class="form-group col-sm-6">
+        <label class="control-label">End date</label>
+        <ui-select name="form-control" ng-model="visualization.options.end" class="clearable">
+          <ui-select-match allow-clear="true" placeholder="Choose column...">
+            {{$select.selected}}
+          </ui-select-match>
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.groupBy">
+            <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="columns[column].type"></small>
+          </ui-select-choices>
+        </ui-select>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label class="control-label">End</label>
-      <ui-select name="form-control" ng-model="visualization.options.end" class="clearable">
-        <ui-select-match allow-clear="true" placeholder="Choose column...">
-          {{$select.selected}}
-        </ui-select-match>
-        <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.groupBy">
-          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
-          <small class="text-muted" ng-bind="columns[column].type"></small>
-        </ui-select-choices>
-      </ui-select>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Group by</label>
+        <ui-select name="groupby" ng-model="visualization.options.groupBy" class="clearable">
+          <ui-select-match allow-clear="true" placeholder="Choose column...">
+            {{$select.selected}}
+          </ui-select-match>
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.end">
+            <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="columns[column].type"></small>
+          </ui-select-choices>
+        </ui-select>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label class="control-label">Group by</label>
-      <ui-select name="groupby" ng-model="visualization.options.groupBy" class="clearable">
-        <ui-select-match allow-clear="true" placeholder="Choose column...">
-          {{$select.selected}}
-        </ui-select-match>
-        <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.end">
-          <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
-          <small class="text-muted" ng-bind="columns[column].type"></small>
-        </ui-select-choices>
-      </ui-select>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.stack">
+        <i class="input-helper"></i> Stack items
+      </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.showCurrentTime">
+        <i class="input-helper"></i> Display a marker at the current time
+      </label>
+    </div>
+  </div>
+
+  <div ng-if="currentTab == 'items'" class="m-t-10 m-b-10">
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Alignment</label>
+        <select ng-options="option for option in alignOptions" ng-model="visualization.options.timelineConfig.align"
+                class="form-control"></select>
+      </div>
+
+      <div class="form-group col-sm-6">
+        <label class="control-label">Orientation</label>
+        <select ng-options="option for option in itemOrientations" class="form-control"
+                ng-model="visualization.options.timelineConfig.orientation.item"></select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Forced item type</label>
+        <ui-select name="itemType" ng-model="getterSetters['type']" class="clearable" ng-model-options="{ getterSetter: true }">
+          <ui-select-match allow-clear="true" placeholder="Choose an item type...">
+            {{$select.selected}}
+          </ui-select-match>
+          <ui-select-choices repeat="type in itemTypes">
+            <span ng-bind-html="type | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="itemTypes[type].type"></small>
+          </ui-select-choices>
+        </ui-select>
+        <small class="text-muted">Leave blank to determine automatically based on the item's data.</small>
+      </div>
+    </div>
+
+    <h4>Item margins</h4>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Horizontal</label>
+        <input type="number" ng-model="getterSetters['margin.item.horizontal']" class="form-control" min="0"
+               ng-model-options="{ getterSetter: true }" required>
+      </div>
+
+      <div class="form-group col-sm-6">
+        <label class="control-label">Vertical</label>
+        <input type="number" ng-model="getterSetters['margin.item.vertical']" class="form-control" min="0"
+               ng-model-options="{ getterSetter: true }" required>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="currentTab == 'timeAxis'" class="m-t-10 m-b-10">
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Location</label>
+        <select ng-options="option for option in axisOrientations" ng-model="visualization.options.timelineConfig.orientation.axis"
+                class="form-control"></select>
+      </div>
+
+      <div class="form-group col-sm-6">
+        <label class="control-label">Margin</label>
+        <input type="number" ng-model="getterSetters['margin.axis']" class="form-control" min="0"
+               ng-model-options="{ getterSetter: true }" required>
+      </div>
+    </div>
+
+    <h4>Fixed time axis</h4>
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Time scale</label>
+        <ui-select name="fixedAxisScale" ng-model="getterSetters['timeAxis.scale']" class="clearable" ng-model-options="{ getterSetter: true }">
+          <ui-select-match allow-clear="true" placeholder="Choose a time scale...">
+            {{$select.selected}}
+          </ui-select-match>
+          <ui-select-choices repeat="scale in axisScales">
+            <span ng-bind-html="scale | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="axisScales[scale].type"></small>
+          </ui-select-choices>
+        </ui-select>
+      </div>
+
+      <div class="form-group col-sm-6">
+        <label class="control-label">Step size</label>
+        <input type="number" ng-model="getterSetters['timeAxis.step']" class="form-control" ng-model-options="{ getterSetter: true }"
+               ng-disabled="!visualization.options.timelineConfig.timeAxis.scale" min="1" required>
+      </div>
+    </div>
+  </div>
+  
+  <div ng-if="currentTab == 'behavior'" class="m-t-10 m-b-10">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.clickToUse">
+        <i class="input-helper"></i> Require a click inside the timeline to interact with it. Click outside or press the ESC key to deactivate.
+      </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.horizontalScroll"
+               ng-disabled="visualization.options.timelineConfig.zoomable && visualization.options.timelineConfig.zoomKey === ''">
+        <i class="input-helper"></i> Enable horizontal scroll
+      </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.moveable">
+        <i class="input-helper"></i> Enable drag to scroll (and zoom, if marked below)
+      </label>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.zoomable" ng-disabled="!visualization.options.timelineConfig.moveable">
+        <i class="input-helper"></i> Enable zoom
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Key required to zoom</label>
+        <select ng-options="key.value as key.name for key in zoomKeys" ng-model="visualization.options.timelineConfig.zoomKey"
+                class="form-control" ng-disabled="!visualization.options.timelineConfig.moveable || !visualization.options.timelineConfig.zoomable"></select>
+      </div>
     </div>
   </div>
 </div>
