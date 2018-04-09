@@ -1,6 +1,6 @@
 <div class="widget-wrapper">
   <div class="tile body-container widget-visualization" ng-if="$ctrl.type=='visualization'" ng-class="$ctrl.type"
-    ng-switch="$ctrl.queryResult.getStatus()">
+    ng-switch="$ctrl.widget.getQueryResult().getStatus()">
     <div class="body-row">
       <div class="t-header widget clearfix">
         <div class="dropdown pull-right widget-menu-remove"  ng-if="!$ctrl.public && $ctrl.dashboard.canEdit()">
@@ -14,23 +14,23 @@
           </div>
 
           <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
-            <li ng-class="{'disabled': $ctrl.queryResult.isEmpty()}"><a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'csv')}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'csv')}}" target="_self">Download as CSV File</a></li>
-            <li ng-class="{'disabled': $ctrl.queryResult.isEmpty()}"><a ng-href="{{$ctrl.queryResult.getLink($ctrl.query.id, 'xlsx')}}" download="{{$ctrl.queryResult.getName($ctrl.query.name, 'xlsx')}}" target="_self">Download as Excel File</a></li>
-            <li><a ng-href="{{$ctrl.query.getUrl(true, $ctrl.widget.visualization.id)}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
+            <li ng-class="{'disabled': $ctrl.widget.getQueryResult().isEmpty()}"><a ng-href="{{$ctrl.widget.getQueryResult().getLink($ctrl.widget.getQuery().id, 'csv')}}" download="{{$ctrl.widget.getQueryResult().getName($ctrl.widget.getQuery().name, 'csv')}}" target="_self">Download as CSV File</a></li>
+            <li ng-class="{'disabled': $ctrl.widget.getQueryResult().isEmpty()}"><a ng-href="{{$ctrl.widget.getQueryResult().getLink($ctrl.widget.getQuery().id, 'xlsx')}}" download="{{$ctrl.widget.getQueryResult().getName($ctrl.widget.getQuery().name, 'xlsx')}}" target="_self">Download as Excel File</a></li>
+            <li><a ng-href="{{$ctrl.widget.getQuery().getUrl(true, $ctrl.widget.visualization.id)}}" ng-show="$ctrl.canViewQuery">View Query</a></li>
             <li><a ng-show="$ctrl.dashboard.canEdit()" ng-click="$ctrl.deleteWidget()">Remove From Dashboard</a></li>
           </ul>
         </div>
         <div class="th-title">
           <p class="hidden-print">
-            <span ng-hide="$ctrl.canViewQuery">{{$ctrl.query.name}}</span>
-            <query-link query="$ctrl.query" visualization="$ctrl.widget.visualization" ng-show="$ctrl.canViewQuery"></query-link>
+            <span ng-hide="$ctrl.canViewQuery">{{$ctrl.widget.getQuery().name}}</span>
+            <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization" ng-show="$ctrl.canViewQuery"></query-link>
             <small><visualization-name visualization="$ctrl.widget.visualization"/></small>
           </p>
           <p class="visible-print">
-            {{$ctrl.query.name}}
+            {{$ctrl.widget.getQuery().name}}
             <visualization-name visualization="$ctrl.widget.visualization"/>
           </p>
-          <div class="text-muted query--description" ng-bind-html="$ctrl.query.description | markdown"></div>
+          <div class="text-muted query--description" ng-bind-html="$ctrl.widget.getQuery().description | markdown"></div>
         </div>
       </div>
       <div class="m-b-10" ng-if="$ctrl.localParametersDefs().length > 0">
@@ -39,10 +39,10 @@
     </div>
 
     <div ng-switch-when="failed" class="body-row-auto scrollbox">
-      <div class="alert alert-danger m-5" ng-show="$ctrl.queryResult.getError()">Error running query: <strong>{{$ctrl.queryResult.getError()}}</strong></div>
+      <div class="alert alert-danger m-5" ng-show="$ctrl.widget.getQueryResult().getError()">Error running query: <strong>{{$ctrl.widget.getQueryResult().getError()}}</strong></div>
     </div>
     <div ng-switch-when="done" class="body-row-auto scrollbox">
-      <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.queryResult" class="t-body"></visualization-renderer>
+      <visualization-renderer visualization="$ctrl.widget.visualization" query-result="$ctrl.widget.getQueryResult()" class="t-body"></visualization-renderer>
     </div>
     <div ng-switch-default class="body-row-auto spinner-container">
       <div class="spinner">
@@ -52,13 +52,13 @@
 
     <div class="body-row clearfix tile__bottom-control">
       <a class="small hidden-print" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public">
-        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span>
+        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
       </a>
       <span class="small hidden-print" ng-if="$ctrl.public">
-        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.queryResult.getUpdatedAt()"></span>
+        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
       </span>
       <span class="visible-print">
-        <i class="zmdi zmdi-time-restore"></i> {{$ctrl.queryResult.getUpdatedAt() | dateTime}}
+        <i class="zmdi zmdi-time-restore"></i> {{$ctrl.widget.getQueryResult().getUpdatedAt() | dateTime}}
       </span>
 
       <button class="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public"><i class="zmdi zmdi-refresh"></i></button>

@@ -118,8 +118,7 @@ function DashboardCtrl(
   };
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.getQueryResult(forceRefresh)))
-      .map(queryResult => queryResult.toPromise());
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.loadPromise(forceRefresh)));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -181,10 +180,13 @@ function DashboardCtrl(
           if (this.refreshRate === null) {
             const refreshRate = Math.max(30, parseFloat($location.search().refresh));
 
-            this.setRefreshRate({
-              name: durationHumanize(refreshRate),
-              rate: refreshRate,
-            }, false);
+            this.setRefreshRate(
+              {
+                name: durationHumanize(refreshRate),
+                rate: refreshRate,
+              },
+              false,
+            );
           }
         }
       },
@@ -247,6 +249,7 @@ function DashboardCtrl(
             _.extend(widget.options.position, widget.$originalPosition);
             items[widget.id] = widget.options.position;
           });
+          this.dashboard.widgets = Dashboard.prepareWidgetsForDashboard(this.dashboard.widgets);
           if (this.updateGridItems) {
             this.updateGridItems(items);
           }

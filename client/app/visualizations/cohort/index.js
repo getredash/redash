@@ -20,7 +20,8 @@ const DEFAULT_OPTIONS = {
   totalColumn: 'total',
   valueColumn: 'value',
 
-  defaultRows: -1,
+  autoHeight: true,
+  defaultRows: 8,
 };
 
 function groupData(sortedData) {

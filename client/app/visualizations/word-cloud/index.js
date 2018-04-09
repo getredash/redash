@@ -98,7 +98,7 @@ export default function init(ngModule) {
   ngModule.directive('wordCloudRenderer', wordCloudRenderer);
 
   const defaultOptions = {
-    defaultRows: -1,
+    defaultRows: 8,
   };
 
   ngModule.config((VisualizationProvider) => {
