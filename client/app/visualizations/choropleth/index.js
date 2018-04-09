@@ -302,7 +302,7 @@ export default function init(ngModule) {
 
     VisualizationProvider.registerVisualization({
       type: 'CHOROPLETH',
-      name: 'Choropleth',
+      name: 'Map (Choropleth)',
       renderTemplate,
       editorTemplate: editTemplate,
       defaultOptions,
