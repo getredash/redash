@@ -1,10 +1,11 @@
 import { isMoment } from 'moment';
 import { _ } from 'underscore';
 import { isNullOrUndefined } from 'util';
+import { getColumnCleanName } from '@/services/query-result';
 import template from './timeline.html';
 import editorTemplate from './timeline-editor.html';
 
-function TimelineRenderer(VisDataSet) {
+function TimelineRenderer(VisDataSet, clientConfig) {
   return {
     restrict: 'E',
     scope: {
@@ -14,6 +15,31 @@ function TimelineRenderer(VisDataSet) {
     template,
     replace: false,
     controller($scope) {
+      // TODO: Move to separate module
+      function nullToEmptyString(value) {
+        if (value !== null) {
+          return value;
+        }
+        return '';
+      }
+
+      // TODO: Move to separate module
+      function buildTooltipTemplate(row) {
+        let popoverTemplate = '<ul>';
+
+        _.each($scope.options.tooltipItems, (column) => {
+          const cleanColumn = getColumnCleanName(column);
+          const value = row[column];
+
+          popoverTemplate += `<li><strong>${cleanColumn}: </strong>`;
+          popoverTemplate += `${isMoment(value) ? value.format(clientConfig.dateTimeFormat) : nullToEmptyString(value)}</li>`;
+        });
+
+        popoverTemplate += '</ul>';
+
+        return popoverTemplate;
+      }
+
       const getTimelineItems = (queryData) => {
         const timelineItems = [];
 
@@ -34,6 +60,7 @@ function TimelineRenderer(VisDataSet) {
             start,
             ...$scope.options.end && { end },
             ...$scope.options.groupBy && { group },
+            ...$scope.options.tooltipItems.length > 0 && { title: buildTooltipTemplate(row) },
           };
 
           timelineItems.push(item);
@@ -74,7 +101,7 @@ function TimelineRenderer(VisDataSet) {
       };
 
       $scope.$watch('queryResult && queryResult.getData()', getTimelineData);
-      $scope.$watchGroup(['options.content', 'options.start', 'options.end', 'options.groupBy'], getTimelineData);
+      $scope.$watchGroup(['options.content', 'options.start', 'options.end', 'options.groupBy', 'options.tooltipItems'], getTimelineData);
     },
   };
 }
@@ -215,6 +242,11 @@ function TimelineEditor() {
         'background',
       ];
 
+      $scope.overflowMethods = [
+        'cap',
+        'flip',
+      ];
+
       $scope.zoomKeys = [
         { name: 'None', value: '' },
         { name: 'Alt', value: 'altKey' },
@@ -251,15 +283,21 @@ export default function init(ngModule) {
           item: 'bottom',
         },
         showCurrentTime: true,
+        showTooltips: true,
         stack: true,
         timeAxis: {
           scale: undefined,
           step: 1,
         },
+        tooltip: {
+          followMouse: false,
+          overflowMethod: 'flip',
+        },
         type: '',
         zoomable: true,
         zoomKey: '',
       },
+      tooltipItems: [],
     };
 
     VisualizationProvider.registerVisualization({

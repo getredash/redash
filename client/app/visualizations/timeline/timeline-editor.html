@@ -15,6 +15,7 @@
   </ul>
 
   <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
+    <h4>Column mapping</h4>
     <div class="row">
       <div class="form-group col-sm-6">
         <label class="control-label">Item content</label>
@@ -69,6 +70,44 @@
       </div>
     </div>
 
+    <h4>Item tooltips</h4>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.showTooltips">
+        <i class="input-helper"></i> Show tooltips
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Tooltip content</label>
+        <ui-select multiple name="tooltipItems" ng-model="visualization.options.tooltipItems" ng-disabled="!visualization.options.timelineConfig.showTooltips">
+          <ui-select-match placeholder="Choose tooltip fields...">{{$item}}</ui-select-match>
+          <ui-select-choices repeat="item in columnNames">
+            <span ng-bind-html="item | highlight: $select.search"></span><span> </span>
+          </ui-select-choices>
+        </ui-select>
+      </div>
+    </div>
+
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.tooltip.followMouse" ng-disabled="!visualization.options.timelineConfig.showTooltips">
+        <i class="input-helper"></i> Tooltip follows the mouse
+      </label>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Tooltip overflow method</label>
+        <select ng-options="option for option in overflowMethods" ng-model="visualization.options.timelineConfig.tooltip.overflowMethod"
+                class="form-control" ng-disabled="!visualization.options.timelineConfig.showTooltips"></select>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="currentTab == 'items'" class="m-t-10 m-b-10">
+    <h4>Item settings</h4>
     <div class="checkbox">
       <label>
         <input type="checkbox" ng-model="visualization.options.timelineConfig.stack">
@@ -76,22 +115,15 @@
       </label>
     </div>
 
-    <div class="checkbox">
-      <label>
-        <input type="checkbox" ng-model="visualization.options.timelineConfig.showCurrentTime">
-        <i class="input-helper"></i> Display a marker at the current time
-      </label>
-    </div>
-  </div>
-
-  <div ng-if="currentTab == 'items'" class="m-t-10 m-b-10">
     <div class="row">
       <div class="form-group col-sm-6">
         <label class="control-label">Alignment</label>
         <select ng-options="option for option in alignOptions" ng-model="visualization.options.timelineConfig.align"
                 class="form-control"></select>
       </div>
+    </div>
 
+    <div class="row">
       <div class="form-group col-sm-6">
         <label class="control-label">Orientation</label>
         <select ng-options="option for option in itemOrientations" class="form-control"
@@ -132,13 +164,23 @@
   </div>
 
   <div ng-if="currentTab == 'timeAxis'" class="m-t-10 m-b-10">
+    <h4>Axis settings</h4>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="visualization.options.timelineConfig.showCurrentTime">
+        <i class="input-helper"></i> Display a marker at the current time
+      </label>
+    </div>
+
     <div class="row">
       <div class="form-group col-sm-6">
         <label class="control-label">Location</label>
         <select ng-options="option for option in axisOrientations" ng-model="visualization.options.timelineConfig.orientation.axis"
                 class="form-control"></select>
       </div>
-
+    </div>
+  
+    <div class="row">
       <div class="form-group col-sm-6">
         <label class="control-label">Margin</label>
         <input type="number" ng-model="getterSetters['margin.axis']" class="form-control" min="0"
@@ -168,7 +210,7 @@
       </div>
     </div>
   </div>
-  
+
   <div ng-if="currentTab == 'behavior'" class="m-t-10 m-b-10">
     <div class="checkbox">
       <label>
