@@ -39,7 +39,10 @@ function computeAutoHeight($element, grid, node, minHeight, maxHeight) {
       const elementStyle = window.getComputedStyle(element);
       const controlsHeight = _.chain(bodyWrapper.children)
         .filter(n => n !== element)
-        .reduce((result, n) => result + n.offsetHeight, 0)
+        .reduce((result, n) => {
+          const b = n.getBoundingClientRect();
+          return result + (b.bottom - b.top);
+        }, 0)
         .value();
 
       const additionalHeight = grid.opts.verticalMargin +
@@ -51,7 +54,7 @@ function computeAutoHeight($element, grid, node, minHeight, maxHeight) {
       const contentsHeight = childrenBounds.bottom - childrenBounds.top;
 
       const cellHeight = grid.cellHeight() + grid.opts.verticalMargin;
-      resultHeight = Math.ceil((controlsHeight + contentsHeight + additionalHeight) / cellHeight);
+      resultHeight = Math.ceil(Math.round(controlsHeight + contentsHeight + additionalHeight) / cellHeight);
     }
   }
 
