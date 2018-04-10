@@ -47,7 +47,8 @@ function createBooleanFormatter(values) {
 function createNumberFormatter(format) {
   if (_.isString(format) && (format !== '')) {
     const n = numeral(0); // cache `numeral` instance
-    return value => n.set(value).format(format);
+    return value =>
+      value === null || value === '' ? '' : n.set(value).format(format);
   }
   return value => value;
 }
