@@ -1,3 +1,4 @@
+import d3 from 'd3';
 import { isMoment } from 'moment';
 import { _ } from 'underscore';
 import { isNullOrUndefined } from 'util';
@@ -15,6 +16,8 @@ function TimelineRenderer(VisDataSet, clientConfig) {
     template,
     replace: false,
     controller($scope) {
+      const colorScale = d3.scale.category10();
+
       // TODO: Move to separate module
       function nullToEmptyString(value) {
         if (value !== null) {
@@ -40,14 +43,47 @@ function TimelineRenderer(VisDataSet, clientConfig) {
         return popoverTemplate;
       }
 
-      const getTimelineItems = (queryData) => {
+      function getColorGroups(queryData) {
+        let groups = [];
+
+        if (isNullOrUndefined($scope.options.colorGroupBy)) {
+          // Grouping disabled
+          groups = ['All'];
+        } else {
+          // Grouping enabled
+          groups = _.chain(queryData)
+            .pluck($scope.options.colorGroupBy)
+            .unique()
+            .value();
+        }
+
+        // Assign each group a color. Use the configured one if it exists, otherwise give it a new one.
+        const colors = _.map(groups, (group) => {
+          if ($scope.options.colorGroups && $scope.options.colorGroups[group]) {
+            return $scope.options.colorGroups[group];
+          }
+          return { background: colorScale(group) };
+        });
+
+        // Object used in the editor
+        $scope.options.colorGroups = _.object(groups, colors);
+
+        // Make style strings for each group
+        const styles = _.map(colors, color => `color: black; background-color: ${color.background}; border-color: ${color.background};`);
+
+        return _.object(groups, styles);
+      }
+
+      function getTimelineItems(queryData) {
         const timelineItems = [];
+        const itemStyles = getColorGroups(queryData);
 
         _.each(queryData, (row) => {
           const content = row[$scope.options.content];
           const start = row[$scope.options.start];
           const end = row[$scope.options.end];
           const group = row[$scope.options.groupBy];
+          const colorGroup = isNullOrUndefined($scope.options.colorGroupBy) ? 'All' : row[$scope.options.colorGroupBy];
 
           // Skip rows where content is not a string, or start/end are non-dates
           if (!_.isString(content) || !isMoment(start) ||
@@ -61,32 +97,27 @@ function TimelineRenderer(VisDataSet, clientConfig) {
             ...$scope.options.end && { end },
             ...$scope.options.groupBy && { group },
             ...$scope.options.tooltipItems.length > 0 && { title: buildTooltipTemplate(row) },
+            style: itemStyles[colorGroup],
           };
 
           timelineItems.push(item);
         });
 
         return timelineItems;
-      };
+      }
 
-      const getTimelineGroups = (queryData) => {
-        const groupBy = $scope.options.groupBy;
+      function getTimelineGroups(queryData) {
+        return _.chain(queryData)
+          .pluck($scope.options.groupBy)
+          .unique()
+          .map(group => ({
+            id: group,
+            content: _.isNumber(group) ? group.toString() : group,
+          }))
+          .value();
+      }
 
-        if (!isNullOrUndefined(groupBy)) {
-          return _.chain(queryData)
-            .pluck(groupBy)
-            .unique()
-            .map(group => ({
-              id: group,
-              content: _.isNumber(group) ? group.toString() : group,
-            }))
-            .value();
-        }
-
-        return [];
-      };
-
-      const getTimelineData = () => {
+      function getTimelineData() {
         const queryData = $scope.queryResult.getData();
 
         if (queryData) {
@@ -98,10 +129,13 @@ function TimelineRenderer(VisDataSet, clientConfig) {
             ...$scope.options.groupBy && { groups: new VisDataSet(getTimelineGroups(queryData)) },
           };
         }
-      };
+      }
 
-      $scope.$watch('queryResult && queryResult.getData()', getTimelineData);
-      $scope.$watchGroup(['options.content', 'options.start', 'options.end', 'options.groupBy', 'options.tooltipItems'], getTimelineData);
+      const rendererTriggers = ['options.content', 'options.start', 'options.end', 'options.groupBy',
+        'options.tooltipItems', 'options.colorGroupBy', 'queryResult && queryResult.getData()'];
+
+      $scope.$watchGroup(rendererTriggers, getTimelineData);
+      $scope.$watch('options.colorGroups', getTimelineData, true);
     },
   };
 }
@@ -119,7 +153,7 @@ function TimelineEditor() {
       // TODO: Move to its own package for reusability
       // Taken from https://github.com/joshuacc/drabs
       // Modified by Andros Rosa to also support setting properties
-      const dynamicAccess = (_obj, _props, _isSetter, _newValue, _errorValue) => {
+      function dynamicAccess(_obj, _props, _isSetter, _newValue, _errorValue) {
         // Make sure props is defined and not empty
         if (isNullOrUndefined(_props) || _props.length === 0) {
           return _errorValue;
@@ -130,7 +164,7 @@ function TimelineEditor() {
           _props = _props.split('.');
         }
 
-        const dynamicAccessByArray = (obj, propsArray, isSetter, newValue, errorValue) => {
+        function dynamicAccessByArray(obj, propsArray, isSetter, newValue, errorValue) {
           // Parent properties are invalid... exit with error message
           if (isNullOrUndefined(obj)) {
             return errorValue;
@@ -150,38 +184,20 @@ function TimelineEditor() {
           const remainingProps = _.rest(propsArray);
 
           return dynamicAccessByArray(foundSoFar, remainingProps, isSetter, newValue, errorValue);
-        };
+        }
 
         return dynamicAccessByArray(_obj, _props, _isSetter, _newValue, _errorValue);
-      };
+      }
 
       // TODO: turn into a factory ?
-      const getterSetterGenerator = () => {
+      function getterSetterGenerator() {
         const generatorBlueprints = [
-          {
-            property: 'margin.axis',
-            emptyValue: 0,
-          },
-          {
-            property: 'margin.item.horizontal',
-            emptyValue: 0,
-          },
-          {
-            property: 'margin.item.vertical',
-            emptyValue: 0,
-          },
-          {
-            property: 'timeAxis.scale',
-            emptyValue: undefined,
-          },
-          {
-            property: 'timeAxis.step',
-            emptyValue: 1,
-          },
-          {
-            property: 'type',
-            emptyValue: '',
-          },
+          { property: 'margin.axis', emptyValue: 0 },
+          { property: 'margin.item.horizontal', emptyValue: 0 },
+          { property: 'margin.item.vertical', emptyValue: 0 },
+          { property: 'timeAxis.scale', emptyValue: undefined },
+          { property: 'timeAxis.step', emptyValue: 1 },
+          { property: 'type', emptyValue: '' },
         ];
 
         _.each(generatorBlueprints, (blueprint) => {
@@ -200,52 +216,21 @@ function TimelineEditor() {
           // Save getter/setter in scope object
           $scope.getterSetters[blueprint.property] = getterSetter;
         });
-      };
+      }
 
       getterSetterGenerator();
 
-      $scope.alignOptions = [
-        'auto',
-        'center',
-        'left',
-        'right',
-      ];
+      $scope.alignOptions = ['auto', 'center', 'left', 'right'];
 
-      $scope.axisOrientations = [
-        'top',
-        'bottom',
-        'both',
-        'none',
-      ];
+      $scope.axisOrientations = ['top', 'bottom', 'both', 'none'];
 
-      $scope.axisScales = [
-        'millisecond',
-        'second',
-        'minute',
-        'hour',
-        'weekday',
-        'week',
-        'day',
-        'month',
-        'year',
-      ];
+      $scope.axisScales = ['millisecond', 'second', 'minute', 'hour', 'weekday', 'week', 'day', 'month', 'year'];
 
-      $scope.itemOrientations = [
-        'top',
-        'bottom',
-      ];
+      $scope.itemOrientations = ['top', 'bottom'];
 
-      $scope.itemTypes = [
-        'box',
-        'point',
-        'range',
-        'background',
-      ];
+      $scope.itemTypes = ['box', 'point', 'range', 'background'];
 
-      $scope.overflowMethods = [
-        'cap',
-        'flip',
-      ];
+      $scope.overflowMethods = ['cap', 'flip'];
 
       $scope.zoomKeys = [
         { name: 'None', value: '' },
