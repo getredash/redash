@@ -7,7 +7,7 @@ from redash.handlers.base import org_scoped_rule
 from redash.handlers.permissions import ObjectPermissionsListResource, CheckPermissionResource
 from redash.handlers.alerts import AlertResource, AlertListResource, AlertSubscriptionListResource, AlertSubscriptionResource
 from redash.handlers.dashboards import DashboardListResource, RecentDashboardsResource, DashboardResource, DashboardShareResource, PublicDashboardResource 
-from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource
+from redash.handlers.data_sources import DataSourceTypeListResource, DataSourceListResource, DataSourceSchemaResource, DataSourceResource, DataSourcePauseResource, DataSourceTestResource, DataSourceVersionResource
 from redash.handlers.events import EventsResource
 from redash.handlers.queries import QueryForkResource, QueryRefreshResource, QueryListResource, QueryRecentResource, QuerySearchResource, QueryResource, MyQueriesResource
 from redash.handlers.query_results import QueryResultListResource, QueryResultResource, JobResource
@@ -56,6 +56,7 @@ api.add_org_resource(DataSourceListResource, '/api/data_sources', endpoint='data
 api.add_org_resource(DataSourceSchemaResource, '/api/data_sources/<data_source_id>/schema')
 api.add_org_resource(DataSourcePauseResource, '/api/data_sources/<data_source_id>/pause')
 api.add_org_resource(DataSourceTestResource, '/api/data_sources/<data_source_id>/test')
+api.add_org_resource(DataSourceVersionResource, '/api/data_sources/<data_source_id>/version')
 api.add_org_resource(DataSourceResource, '/api/data_sources/<data_source_id>', endpoint='data_source')
 
 api.add_org_resource(GroupListResource, '/api/groups', endpoint='groups')

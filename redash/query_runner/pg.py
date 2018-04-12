@@ -47,6 +47,8 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take second"
 
     @classmethod
     def configuration_schema(cls):
@@ -179,6 +181,9 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take last"
+
     @classmethod
     def type(cls):
         return "redshift"

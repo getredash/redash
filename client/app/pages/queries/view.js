@@ -306,6 +306,7 @@ function QueryViewCtrl(
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
     getSchema();
     $scope.executeQuery();
+    document.getElementById('data-source-version').innerHTML = '<span class=\'fa fa-refresh\' data-toggle=\'tooltip\' data-placement=\'right\' tooltip title=\'It seems the data source was changed since the page loaded, refresh page to get version\'></span>';
   };
 
   $scope.setVisualizationTab = (visualization) => {
