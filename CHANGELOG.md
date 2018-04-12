@@ -1,5 +1,54 @@
 # Change Log
 
+## UNRELEASED
+
+### Added
+
+- MatterMost alert destination. @alon710
+- Full screen view on map visualizations. @deecay
+- Choropleth map visualization 🗺. @kravets-levko
+- Report Celery queue size. @arikfr
+- Load dashboard refresh rate from URL. @arikfr
+- Configuration for query refresh intervals. @arikfr
+
+### Changed
+
+- TreasureData: improve query failure message. @toru-takahashi
+- Update botocore version (fixes an issue with loading Athena tables). @arikfr
+- Changed Map visualization name to "Map (Markers)" to distinguish from the Choropleth one. @arikfr
+- Use MongoClient for ReplicaSet connections. @fmy
+- Update pymongo version to support newer MongoDB versions. @arikfr
+- Changed "his" to "their" in user creation form success message. @tnetennba3
+- Show friendly names in dynamic forms labels. @arikfr
+- Render safe HTML by default in tables to remain backward compatible. @arikfr
+- Apply time limit to alert status checking task. @arikfr
+- Plotly: increase Y value accuracy. @arikfr
+- close metadata database connection early in the execute query Celery task. @arikfr
+
+### Fixed
+
+- Query page layout gets messed up when clicking on "cancel" in "Do you want to leave this page?" dialog. @kravets-levko
+- docker-entrypoint broke for other database names than "postgres". @valentin2105
+- (BigQuery) UDF URI was used even if empty. @arikfr
+- Show correct Box Plot chart hover data. @deeccay
+- Fork button shows in data only view, but not working. @arikfr
+- Saving widget sends too much data to the server, sometimes making dashboard save fail. @arikfr
+- DynamoDB: always return counter as a number rather than string. @arikfr
+- MSSQL: UUID fields were detected as booleans. @arikfr
+- The whole dashboard page reloads when clicking on refresh. @arikfr
+- Line chart with category x-axis: when some values missing, wrong hints displayed on hover. @kravets-levko
+- Second Y-axis not displayed when stacking enabled. @kravets-levko
+- Widget with empty contents had extra 40px of white space (paddings of container). @kravets-levko
+- Add scrollbars to pivot table widgets. @kravets-levko
+- Multiple performance, usability and auto-height related fixes to the dashboard rendering engine (also switched to GridStack). @kravets-levko
+- Login form missing on LDAP logging page. @idalin
+- Empty state: show connect data source link only to admins. @arikfr
+- Dashboard "dancing" widgets (when auto-height enabled). @kravets-levko
+
+### Other
+
+- Webpack: ignore vim swap files. @deecay
+
 ## v4.0.0-rc.1 - 2018-03-05
 
 ### Added
