@@ -1,5 +1,5 @@
 import d3 from 'd3';
-import { isMoment } from 'moment';
+import moment from 'moment';
 import { _ } from 'underscore';
 import { isNullOrUndefined } from 'util';
 import { getColumnCleanName } from '@/services/query-result';
@@ -19,23 +19,17 @@ function TimelineRenderer(VisDataSet, clientConfig) {
       const colorScale = d3.scale.category10();
 
       // TODO: Move to separate module
-      function nullToEmptyString(value) {
-        if (value !== null) {
-          return value;
-        }
-        return '';
-      }
-
-      // TODO: Move to separate module
       function buildTooltipTemplate(row) {
         let popoverTemplate = '<ul>';
 
         _.each($scope.options.tooltipItems, (column) => {
           const cleanColumn = getColumnCleanName(column);
-          const value = row[column];
+
+          // Change nulls to empty strings
+          const value = _.isNull(row[column]) ? '' : row[column];
 
           popoverTemplate += `<li><strong>${cleanColumn}: </strong>`;
-          popoverTemplate += `${isMoment(value) ? value.format(clientConfig.dateTimeFormat) : nullToEmptyString(value)}</li>`;
+          popoverTemplate += `${moment.isMoment(value) ? value.format(clientConfig.dateTimeFormat) : value}</li>`;
         });
 
         popoverTemplate += '</ul>';
@@ -86,15 +80,15 @@ function TimelineRenderer(VisDataSet, clientConfig) {
           const colorGroup = isNullOrUndefined($scope.options.colorGroupBy) ? 'All' : row[$scope.options.colorGroupBy];
 
           // Skip rows where content is not a string, or start/end are non-dates
-          if (!_.isString(content) || !isMoment(start) ||
-            (!isNullOrUndefined($scope.options.end) && end !== null && !isMoment(end))) {
+          if (!_.isString(content) || !moment.isMoment(start) ||
+            (!isNullOrUndefined($scope.options.end) && end !== null && !moment.isMoment(end))) {
             return;
           }
 
           const item = {
             content,
-            start,
-            ...$scope.options.end && { end },
+            start: moment(start.format(clientConfig.dateTimeFormat)),
+            ...$scope.options.end && { end: moment.isMoment(end) ? moment(end.format(clientConfig.dateTimeFormat)) : end },
             ...$scope.options.groupBy && { group },
             ...$scope.options.tooltipItems.length > 0 && { title: buildTooltipTemplate(row) },
             style: itemStyles[colorGroup],
