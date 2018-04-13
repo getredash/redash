@@ -5,6 +5,10 @@ machine:
   node:
     version:
       6.9.1
+  environment:
+    FIREFOX_VERSION: "59.0"
+    GECKODRIVER_VERSION: "0.20.0"
+    MOZ_HEADLESS: 1
 dependencies:
   override:
     - pip install --upgrade setuptools
@@ -12,6 +16,11 @@ dependencies:
     - pip install -r requirements.txt
     - npm install
     - npm run build
+    - sudo apt-get -qq update
+    - sudo apt-get -qq install --no-install-recommends -y bzip2 curl firefox
+    - sudo apt-get -y purge firefox
+    - ./bin/install-firefox.sh
+    - ./bin/install-geckodriver.sh
   cache_directories:
     - node_modules/
 test:
