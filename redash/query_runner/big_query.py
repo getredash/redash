@@ -221,17 +221,24 @@ class BigQuery(BaseQueryRunner):
         for dataset in datasets.get('datasets', []):
             dataset_id = dataset['datasetReference']['datasetId']
             tables = service.tables().list(projectId=project_id, datasetId=dataset_id).execute()
-            for table in tables.get('tables', []):
-                table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
+            while True:
+                for table in tables.get('tables', []):
+                    table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
 
-                columns = []
-                for column in table_data['schema']['fields']:
-                    if column['type'] == 'RECORD':
-                        for field in column['fields']:
-                            columns.append(u"{}.{}".format(column['name'], field['name']))
-                    else:
-                        columns.append(column['name'])
-                schema.append({'name': table_data['id'], 'columns': columns})
+                    columns = []
+                    for column in table_data['schema']['fields']:
+                        if column['type'] == 'RECORD':
+                            for field in column['fields']:
+                                columns.append(u"{}.{}".format(column['name'], field['name']))
+                        else:
+                            columns.append(column['name'])
+                    schema.append({'name': table_data['id'], 'columns': columns})
+
+                next_token = tables.get('nextPageToken', None)
+                if next_token is None:
+                    break
+
+                tables = service.tables().list(projectId=project_id, datasetId=dataset_id, pageToken=next_token).execute()
 
         return schema
 
