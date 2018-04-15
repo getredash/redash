@@ -63,5 +63,8 @@ create_directories
 
 cd $REDASH_BASE_PATH
 wget $FILES_BASE_URL/docker-compose.yml
+echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
+echo "export COMPOSE_FILE=/opt/redash/docker-compose.yml" >> ~/.profile
+source ~/.profile
 docker-compose run --rm server create_db
 docker-compose up -d
