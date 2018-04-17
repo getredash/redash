@@ -26,14 +26,14 @@ def fixture_host():
 @pytest.fixture(name='port')
 def fixture_port():
     """Return a free port as int."""
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('', 0))
-    port = s.getsockname()[1]
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('', 0))
+    port = sock.getsockname()[1]
 
     # Avoid 'address already in use' errors
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    s.close()
+    sock.close()
     return port
 
 
@@ -128,8 +128,8 @@ def fixture_user(create_user, user_name, user_email, user_password):
 @pytest.fixture(name='login_page')
 def fixture_login_page(selenium, live_server, factory):
     """Return a page object model for login."""
-    p = LoginPage(selenium, live_server.url, org=factory.org.slug)
-    return p.open()
+    login_page = LoginPage(selenium, live_server.url, org=factory.org.slug)
+    return login_page.open()
 
 
 def pytest_collection_modifyitems(items):
