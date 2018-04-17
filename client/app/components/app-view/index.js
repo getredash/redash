@@ -52,9 +52,7 @@ class AppViewComponent {
         // For routes that need authentication, check if session is already
         // loaded, and load it if not.
         logger('Requested authenticated route: ', route);
-        if (Auth.isAuthenticated()) {
-          this.applyLayout($$route);
-        } else {
+        if (!Auth.isAuthenticated()) {
           event.preventDefault();
           // Auth.requireSession resolves only if session loaded
           Auth.requireSession().then(() => {
@@ -62,12 +60,17 @@ class AppViewComponent {
             $route.reload();
           });
         }
-      } else {
-        this.applyLayout(route.$$route);
       }
     });
 
+    $rootScope.$on('$routeChangeSuccess', (event, route) => {
+      const $$route = route.$$route || { authenticated: true };
+      this.applyLayout($$route);
+    });
+
     $rootScope.$on('$routeChangeError', (event, current, previous, rejection) => {
+      const $$route = current.$$route || { authenticated: true };
+      this.applyLayout($$route);
       throw new PromiseRejectionError(rejection);
     });
   }
