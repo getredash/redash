@@ -27,12 +27,12 @@ def fixture_host():
 def fixture_port():
     """Return a free port as int."""
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('', 0))
-    port = sock.getsockname()[1]
 
     # Avoid 'address already in use' errors
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
+    sock.bind(('', 0))
+    port = sock.getsockname()[1]
     sock.close()
     return port
 
