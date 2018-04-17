@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import tdclient
+    from tdclient import errors
     enabled = True
 
 except ImportError:
@@ -102,22 +103,24 @@ class TreasureData(BaseQueryRunner):
                 db=self.configuration.get('db'))
 
         cursor = connection.cursor()
+        try:
+            cursor.execute(query)
+            columns_data = [(row[0], cursor.show_job()['hive_result_schema'][i][1]) for i,row in enumerate(cursor.description)]
 
-        cursor.execute(query)
-        columns_data = [(row[0], cursor.show_job()['hive_result_schema'][i][1]) for i,row in enumerate(cursor.description)]
+            columns = [{'name': col[0],
+                'friendly_name': col[0],
+                'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
 
-        columns = [{'name': col[0],
-            'friendly_name': col[0],
-            'type': TD_TYPES_MAPPING.get(col[1], None)} for col in columns_data]
-
-        if cursor.rowcount == 0:
-            rows = []
-        else:
-            rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
-        data = {'columns': columns, 'rows': rows}
-        json_data = json.dumps(data, cls=JSONEncoder)
-        error = None
-
+            if cursor.rowcount == 0:
+                rows = []
+            else:
+                rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
+            data = {'columns': columns, 'rows': rows}
+            json_data = json.dumps(data, cls=JSONEncoder)
+            error = None
+        except errors.InternalError as e:
+            json_data = None
+            error = "%s: %s" % (e.message, cursor.show_job().get('debug', {}).get('stderr', 'No stderr message in the response'))
         return json_data, error
 
 register(TreasureData)
