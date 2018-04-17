@@ -22,10 +22,10 @@
 
     <div class="row">
       <div class="form-group col-sm-6">
-        <label class="control-label">Item content</label>
+        <label class="control-label">Item label</label>
         <ui-select name="form-control" ng-model="visualization.options.content" required>
           <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
-          <ui-select-choices repeat="column in columnNames | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.groupBy">
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.groupBy | remove:visualization.options.type">
             <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
             <small class="text-muted" ng-bind="columns[column].type"></small>
           </ui-select-choices>
@@ -38,7 +38,7 @@
         <label class="control-label">Start date</label>
         <ui-select name="form-control" ng-model="visualization.options.start" required>
           <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
-          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.end | remove:visualization.options.groupBy">
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.end | remove:visualization.options.groupBy | remove:visualization.options.type">
             <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
             <small class="text-muted" ng-bind="columns[column].type"></small>
           </ui-select-choices>
@@ -51,7 +51,7 @@
           <ui-select-match allow-clear="true" placeholder="Choose column...">
             {{$select.selected}}
           </ui-select-match>
-          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.groupBy">
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.groupBy | remove:visualization.options.type">
             <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
             <small class="text-muted" ng-bind="columns[column].type"></small>
           </ui-select-choices>
@@ -66,11 +66,29 @@
           <ui-select-match allow-clear="true" placeholder="Choose column...">
             {{$select.selected}}
           </ui-select-match>
-          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.end">
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.type">
             <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
             <small class="text-muted" ng-bind="columns[column].type"></small>
           </ui-select-choices>
         </ui-select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="control-label">Item type</label>
+        <ui-select name="groupby" ng-model="visualization.options.type" class="clearable">
+          <ui-select-match allow-clear="true" placeholder="Choose column...">
+            {{$select.selected}}
+          </ui-select-match>
+          <ui-select-choices repeat="column in columnNames | remove:visualization.options.content | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.groupBy">
+            <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+            <small class="text-muted" ng-bind="columns[column].type"></small>
+          </ui-select-choices>
+        </ui-select>
+        <small class="text-muted" style="display: block; margin-top: 3px;">Selected column must have any of the following values:<br>
+          <code>box</code>, <code>point</code>, <code>range</code>, or <code>background</code>
+        </small>
       </div>
     </div>
 
@@ -172,7 +190,7 @@
 
     <div class="row">
       <div class="form-group col-sm-6">
-        <label class="control-label">Forced item type</label>
+        <label class="control-label">Default item type</label>
         <ui-select name="itemType" ng-model="getterSetters['type']" class="clearable" ng-model-options="{ getterSetter: true }">
           <ui-select-match allow-clear="true" placeholder="Choose an item type...">
             {{$select.selected}}
@@ -182,7 +200,8 @@
             <small class="text-muted" ng-bind="itemTypes[type].type"></small>
           </ui-select-choices>
         </ui-select>
-        <small class="text-muted">Leave blank to determine automatically based on the item's data.</small>
+        <!-- TODO: move to css class -->
+        <small class="text-muted" style="display: block; margin-top: 3px;">Individual items can override this property.</small>
       </div>
     </div>
 

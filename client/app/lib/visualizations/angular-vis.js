@@ -6,6 +6,7 @@
       - Events are now optional.
       - Support timelines without groups.
       - Deeply watch options object.
+      - VisOptions factory to hold inputs' values.
       - Deleted other directives for other types of visualizations. */
 
 import angular from 'angular';
@@ -17,6 +18,23 @@ function VisDataSet() {
   return (data, options) =>
     // Create a new DataSet object
     new vis.DataSet(data, options);
+}
+
+function VisOptions() {
+  return {
+    alignOptions: ['auto', 'center', 'left', 'right'],
+    axisOrientations: ['top', 'bottom', 'both', 'none'],
+    axisScales: ['millisecond', 'second', 'minute', 'hour', 'weekday', 'week', 'day', 'month', 'year'],
+    itemOrientations: ['top', 'bottom'],
+    itemTypes: ['box', 'point', 'range', 'background'],
+    overflowMethods: ['cap', 'flip'],
+    zoomKeys: [
+      { name: 'None', value: '' },
+      { name: 'Alt', value: 'altKey' },
+      { name: 'Control (Ctrl)', value: 'ctrlKey' },
+      { name: 'Meta', value: 'metaKey' },
+    ],
+  };
 }
 
 function VisTimeline() {
@@ -43,7 +61,7 @@ function VisTimeline() {
       // Declare the timeline
       let timeline = null;
 
-      const refreshTimeline = () => {
+      function refreshTimeline() {
         // Sanity check
         if (scope.data == null) {
           return;
@@ -77,14 +95,14 @@ function VisTimeline() {
             scope.events.onload(timeline);
           }
         }
-      };
+      }
 
-      const updateOptions = (newOptions) => {
+      function updateOptions() {
         if (timeline === null) return;
 
         // Update timeline options
-        timeline.setOptions(newOptions);
-      };
+        timeline.setOptions(scope.options);
+      }
 
       scope.$watch('data', refreshTimeline);
       scope.$watch('options', updateOptions, true);
@@ -94,6 +112,7 @@ function VisTimeline() {
 
 const ngVis = angular.module('ngVis', [])
   .factory('VisDataSet', VisDataSet)
+  .factory('VisOptions', VisOptions)
   .directive('visTimeline', VisTimeline);
 
 export default ngVis;

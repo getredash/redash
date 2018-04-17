@@ -6,7 +6,7 @@ import { getColumnCleanName } from '@/services/query-result';
 import template from './timeline.html';
 import editorTemplate from './timeline-editor.html';
 
-function TimelineRenderer(VisDataSet, clientConfig) {
+function TimelineRenderer(VisDataSet, VisOptions, clientConfig) {
   return {
     restrict: 'E',
     scope: {
@@ -77,21 +77,40 @@ function TimelineRenderer(VisDataSet, clientConfig) {
           const start = row[$scope.options.start];
           const end = row[$scope.options.end];
           const group = row[$scope.options.groupBy];
+          const type = row[$scope.options.type];
           const colorGroup = isNullOrUndefined($scope.options.colorGroupBy) ? 'All' : row[$scope.options.colorGroupBy];
 
-          // Skip rows where content is not a string, or start/end are non-dates
-          if (!_.isString(content) || !moment.isMoment(start) ||
-            (!isNullOrUndefined($scope.options.end) && end !== null && !moment.isMoment(end))) {
+          // Skip rows where content is not a string, or start is not a date, or ...
+          if (!_.isString(content) || !moment.isMoment(start) || (
+            // End is mapped, allow nulls
+            ((!isNullOrUndefined($scope.options.end) && end !== null) ||
+            // Range or background is selected as default item type, and item has no individual type
+            (['range', 'background'].includes($scope.options.timelineConfig.type) && isNullOrUndefined(type)) ||
+            // Item type is range or background
+            ['range', 'background'].includes(type))
+            // ... and End is not a date
+            && !moment.isMoment(end))) {
             return;
           }
 
           const item = {
+            // Item label
             content,
-            start: moment(start.format(clientConfig.dateTimeFormat)),
-            ...$scope.options.end && { end: moment.isMoment(end) ? moment(end.format(clientConfig.dateTimeFormat)) : end },
+            // Start date
+            start: moment(start.format(clientConfig.dateTimeFormat), clientConfig.dateTimeFormat),
+            // End date
+            ...$scope.options.end && {
+              end: moment.isMoment(end) ?
+                moment(end.format(clientConfig.dateTimeFormat), clientConfig.dateTimeFormat) : end,
+            },
+            // Group
             ...$scope.options.groupBy && { group },
+            // Tooltip content
             ...$scope.options.tooltipItems.length > 0 && { title: buildTooltipTemplate(row) },
+            // Item styling
             style: itemStyles[colorGroup],
+            // Item type must be a string, check if it's a valid type
+            ..._.isString(type) && VisOptions.itemTypes.includes(type) && { type },
           };
 
           timelineItems.push(item);
@@ -125,8 +144,8 @@ function TimelineRenderer(VisDataSet, clientConfig) {
         }
       }
 
-      const rendererTriggers = ['options.content', 'options.start', 'options.end', 'options.groupBy',
-        'options.tooltipItems', 'options.colorGroupBy', 'queryResult && queryResult.getData()'];
+      const rendererTriggers = ['options.content', 'options.start', 'options.end', 'options.groupBy', 'options.type',
+        'options.tooltipItems', 'options.colorGroupBy', 'options.timelineConfig.type', 'queryResult && queryResult.getData()'];
 
       $scope.$watchGroup(rendererTriggers, getTimelineData);
       $scope.$watch('options.colorGroups', getTimelineData, true);
@@ -134,7 +153,7 @@ function TimelineRenderer(VisDataSet, clientConfig) {
   };
 }
 
-function TimelineEditor() {
+function TimelineEditor(VisOptions) {
   return {
     restrict: 'E',
     template: editorTemplate,
@@ -214,24 +233,13 @@ function TimelineEditor() {
 
       getterSetterGenerator();
 
-      $scope.alignOptions = ['auto', 'center', 'left', 'right'];
-
-      $scope.axisOrientations = ['top', 'bottom', 'both', 'none'];
-
-      $scope.axisScales = ['millisecond', 'second', 'minute', 'hour', 'weekday', 'week', 'day', 'month', 'year'];
-
-      $scope.itemOrientations = ['top', 'bottom'];
-
-      $scope.itemTypes = ['box', 'point', 'range', 'background'];
-
-      $scope.overflowMethods = ['cap', 'flip'];
-
-      $scope.zoomKeys = [
-        { name: 'None', value: '' },
-        { name: 'Alt', value: 'altKey' },
-        { name: 'Control (Ctrl)', value: 'ctrlKey' },
-        { name: 'Meta', value: 'metaKey' },
-      ];
+      $scope.alignOptions = VisOptions.alignOptions;
+      $scope.axisOrientations = VisOptions.axisOrientations;
+      $scope.axisScales = VisOptions.axisScales;
+      $scope.itemOrientations = VisOptions.itemOrientations;
+      $scope.itemTypes = VisOptions.itemTypes;
+      $scope.overflowMethods = VisOptions.overflowMethods;
+      $scope.zoomKeys = VisOptions.zoomKeys;
     },
   };
 }
