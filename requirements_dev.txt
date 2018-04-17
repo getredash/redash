@@ -8,4 +8,5 @@ mock==2.0.0
 pymongo==3.6.1
 
 # uitests
+PyPOM==1.3.0
 pytest-selenium==1.12.0
