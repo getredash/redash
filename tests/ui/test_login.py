@@ -2,69 +2,22 @@
 
 """UI tests for the login page."""
 
-import pytest
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
-
-@pytest.fixture
-def login_url(live_server, factory):
-    """Return the URL for the login page of the org."""
-    return '{live_server.url}/{org.slug}/login'.format(
-        live_server=live_server,
-        org=factory.org,
-    )
-
-
-def test_login_wrong_user_credentials(selenium, login_url):
+def test_login_wrong_user_credentials(login_page):
     """Test for a failed login attempt."""
-    selenium.get(login_url)
+    assert login_page.title == 'Login to Redash'
 
-    assert selenium.title == 'Login to Redash'
+    login_page.login(email='wrong@example.com', password='wrong')
 
-    email = selenium.find_element_by_id('inputEmail')
-    email.send_keys('wrong@example.com')
-
-    password = selenium.find_element_by_id('inputPassword')
-    password.send_keys('wrong')
-
-    btn = selenium.find_element_by_css_selector("button[type='submit']")
-    btn.click()
-
-    alert = WebDriverWait(selenium, 10).until(
-        EC.visibility_of_element_located((
-            By.CSS_SELECTOR,
-            ".alert-danger",
-        ))
-    )
-    assert alert.text == 'Wrong email or password.'
-
-    assert selenium.title == 'Login to Redash'
+    assert login_page.alert.text == 'Wrong email or password.'
+    assert login_page.title == 'Login to Redash'
 
 
-def test_login(selenium, login_url, user, user_password):
+def test_login(login_page, user, user_password):
     """Test for a successful login attempt."""
-    selenium.get(login_url)
+    assert login_page.title == 'Login to Redash'
 
-    assert selenium.title == 'Login to Redash'
+    login_page.login(email=user.email, password=user_password)
 
-    email = selenium.find_element_by_id('inputEmail')
-    email.send_keys(user.email)
-
-    password = selenium.find_element_by_id('inputPassword')
-    password.send_keys(user_password)
-
-    btn = selenium.find_element_by_css_selector("button[type='submit']")
-    btn.click()
-
-    dropdown = WebDriverWait(selenium, 10).until(
-        EC.visibility_of_element_located((
-            By.CSS_SELECTOR,
-            ".dropdown--profile__username",
-        ))
-    )
-    assert dropdown.text == user.name
-
-    assert selenium.title == 'Redash'
+    assert login_page.profile_dropdown.text == user.name
+    assert login_page.title == 'Redash'

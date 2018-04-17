@@ -11,8 +11,10 @@ from redash import (
     redis_connection,
 )
 from redash.models import db
+
 from tests.factories import Factory
 from tests.ui.live_server import LiveServer
+from tests.ui.pages.login import LoginPage
 
 
 @pytest.fixture(name='host')
@@ -121,6 +123,13 @@ def fixture_user(create_user, user_name, user_email, user_password):
         email=user_email,
         password=user_password,
     )
+
+
+@pytest.fixture(name='login_page')
+def fixture_login_page(selenium, live_server, factory):
+    """Return a page object model for login."""
+    p = LoginPage(selenium, live_server.url, org=factory.org.slug)
+    return p.open()
 
 
 def pytest_collection_modifyitems(items):

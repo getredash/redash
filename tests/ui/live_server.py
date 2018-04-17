@@ -61,7 +61,7 @@ class LiveServer(object):
 
         try:
             s.connect((self.host, self.port))
-        except socket.error as e:
+        except socket.error:
             success = False
         else:
             success = True
