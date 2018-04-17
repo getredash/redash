@@ -150,12 +150,20 @@
       <thead>
       <th>Group</th>
       <th>Background color</th>
+      <th>Border color</th>
+      <th>Text color</th>
       </thead>
       <tbody>
       <tr ng-repeat="(name, options) in visualization.options.colorGroups">
         <td>{{name}}</td>
         <td>
           <input class="form-control" type="color" ng-model="options.background"/>
+        </td>
+        <td>
+          <input class="form-control" type="color" ng-model="options.border"/>
+        </td>
+        <td>
+          <input class="form-control" type="color" ng-model="options.text"/>
         </td>
       </tr>
       </tbody>

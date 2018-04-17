@@ -56,21 +56,34 @@ function TimelineRenderer(VisDataSet, VisOptions, clientConfig) {
           if ($scope.options.colorGroups && $scope.options.colorGroups[group]) {
             return $scope.options.colorGroups[group];
           }
-          return { background: colorScale(group) };
+
+          return {
+            background: colorScale(group),
+            border: '#1a1a1a',
+            text: '#1a1a1a',
+          };
         });
 
-        // Object used in the editor
-        $scope.options.colorGroups = _.object(groups, colors);
+        return _.object(groups, colors);
+      }
 
-        // Make style strings for each group
-        const styles = _.map(colors, color => `color: black; background-color: ${color.background}; border-color: ${color.background};`);
+      function buildStyleString(colorGroup, type) {
+        const color = $scope.options.colorGroups[colorGroup];
 
-        return _.object(groups, styles);
+        let style = `color: ${color.text};`;
+
+        // Individual type not defined, and default type is not point
+        if ((isNullOrUndefined(type) && $scope.options.timelineConfig.type !== 'point') ||
+          // Individual type is defined, and is not point
+          (!isNullOrUndefined(type) && type !== 'point')) {
+          style += ` background-color: ${color.background}; border-color: ${color.border};`;
+        }
+
+        return style;
       }
 
       function getTimelineItems(queryData) {
         const timelineItems = [];
-        const itemStyles = getColorGroups(queryData);
 
         _.each(queryData, (row) => {
           const content = row[$scope.options.content];
@@ -108,7 +121,7 @@ function TimelineRenderer(VisDataSet, VisOptions, clientConfig) {
             // Tooltip content
             ...$scope.options.tooltipItems.length > 0 && { title: buildTooltipTemplate(row) },
             // Item styling
-            style: itemStyles[colorGroup],
+            style: buildStyleString(colorGroup, type),
             // Item type must be a string, check if it's a valid type
             ..._.isString(type) && VisOptions.itemTypes.includes(type) && { type },
           };
@@ -137,6 +150,10 @@ function TimelineRenderer(VisDataSet, VisOptions, clientConfig) {
           // Required fields
           if (isNullOrUndefined($scope.options.content) || isNullOrUndefined($scope.options.start)) return;
 
+          // Item colors
+          $scope.options.colorGroups = getColorGroups(queryData);
+
+          // Feed the timeline
           $scope.timelineData = {
             items: new VisDataSet(getTimelineItems(queryData)),
             ...$scope.options.groupBy && { groups: new VisDataSet(getTimelineGroups(queryData)) },
