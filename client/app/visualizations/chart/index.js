@@ -1,9 +1,34 @@
 import {
-  some, extend, has, partial, intersection, without, contains, isUndefined,
+  some, extend, defaults, has, partial, intersection, without, contains, isUndefined,
   sortBy, each, pluck, keys, difference,
 } from 'underscore';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
+
+const DEFAULT_OPTIONS = {
+  globalSeriesType: 'column',
+  sortX: true,
+  legend: { enabled: true },
+  yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
+  xAxis: { type: 'datetime', labels: { enabled: true } },
+  error_y: { type: 'data', visible: true },
+  series: { stacking: null, error_y: { type: 'data', visible: true } },
+  seriesOptions: {},
+  columnMapping: {},
+
+  numberFormat: '0,0[.]00000',
+  percentFormat: '0[.]00%',
+  dateTimeFormat: 'DD/MM/YYYY HH:mm',
+  textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
+  tooltipHeader: '<b>{{ @@x }}</b>',
+  tooltipLine: '<b><font color="{{ @@color }}">{{ @@name }}</font></b>: {{ @@label }})',
+  tooltipFooter: '',
+
+  defaultColumns: 3,
+  defaultRows: 8,
+  minColumns: 1,
+  minRows: 5,
+};
 
 function ChartRenderer() {
   return {
@@ -33,7 +58,7 @@ function ChartRenderer() {
 
       function reloadChart() {
         reloadData();
-        $scope.plotlyOptions = $scope.options;
+        $scope.plotlyOptions = extend({}, DEFAULT_OPTIONS, $scope.options);
       }
 
       $scope.$watch('options', reloadChart, true);
@@ -238,6 +263,27 @@ function ChartEditor(ColorPalette, clientConfig) {
           }
         });
       }
+
+      scope.$watch('options', () => {
+        if (scope.options) {
+          // For existing visualization - set default options
+          defaults(scope.options, DEFAULT_OPTIONS);
+        }
+      });
+
+      scope.templateHint = `
+        <div class="p-b-5">Use special names to access additional properties:</div>
+        <div><code>{{ @@x }}</code> x-value;</div>
+        <div><code>{{ @@name }}</code> series name;</div>
+        <div class="m-t-5"><u>Tooltip lines only:</u></div>       
+        <div><code>{{ @@color }}</code> color of current point;</div>
+        <div><code>{{ @@y }}</code> y-value;</div>
+        <div><code>{{ @@yPercent }}</code> relative y-value;</div>
+        <div><code>{{ @@yError }}</code> y deviation;</div>
+        <div><code>{{ @@label }}</code> formatted "Data label".</div>
+        <div class="p-t-5">Also, all query result columns can be referenced using 
+          <code class="text-nowrap">{{ column_name }}</code> syntax.</div>       
+      `;
     },
   };
 }
@@ -257,28 +303,12 @@ export default function init(ngModule) {
     const renderTemplate = '<chart-renderer options="visualization.options" query-result="queryResult"></chart-renderer>';
     const editTemplate = '<chart-editor options="visualization.options" query-result="queryResult"></chart-editor>';
 
-    const defaultOptions = {
-      globalSeriesType: 'column',
-      sortX: true,
-      legend: { enabled: true },
-      yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
-      xAxis: { type: 'datetime', labels: { enabled: true } },
-      error_y: { type: 'data', visible: true },
-      series: { stacking: null, error_y: { type: 'data', visible: true } },
-      seriesOptions: {},
-      columnMapping: {},
-      defaultColumns: 3,
-      defaultRows: 8,
-      minColumns: 1,
-      minRows: 5,
-    };
-
     VisualizationProvider.registerVisualization({
       type: 'CHART',
       name: 'Chart',
       renderTemplate,
       editorTemplate: editTemplate,
-      defaultOptions,
+      defaultOptions: DEFAULT_OPTIONS,
     });
   });
 }

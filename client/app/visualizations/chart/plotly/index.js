@@ -1,10 +1,13 @@
 import { each, debounce, isArray, isObject } from 'underscore';
+import $ from 'jquery';
 
 import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
 import box from 'plotly.js/lib/box';
+
+import './plotly.less';
 
 import {
   ColorPalette,
@@ -14,14 +17,17 @@ import {
   updateDimensions,
   updateData,
   normalizeValue,
+  prepareTooltipPoints,
+  calculateTooltipPosition,
+  renderTooltipContents,
 } from './utils';
 
 Plotly.register([bar, pie, histogram, box]);
 Plotly.setPlotConfig({
-  modeBarButtonsToRemove: ['sendDataToCloud'],
+  modeBarButtonsToRemove: ['sendDataToCloud', 'hoverClosestCartesian', 'hoverCompareCartesian', 'toggleSpikelines'],
 });
 
-const PlotlyChart = () => ({
+const PlotlyChart = $sanitize => ({
   restrict: 'E',
   template: '<div class="plotly-chart-container" resize-event="handleResize()"></div>',
   scope: {
@@ -33,6 +39,10 @@ const PlotlyChart = () => ({
     const plotlyOptions = { showLink: false, displaylogo: false };
     let layout = {};
     let data = [];
+
+    const tooltip = $('<div>')
+      .addClass('plotly-chart-tooltip')
+      .appendTo('body');
 
     const updateChartDimensions = () => {
       if (updateDimensions(layout, plotlyElement, calculateMargins(plotlyElement))) {
@@ -64,6 +74,36 @@ const PlotlyChart = () => ({
       });
 
       plotlyElement.on('plotly_afterplot', updateChartDimensions);
+
+      plotlyElement.on('plotly_hover', (hoverData) => {
+        const points = prepareTooltipPoints(hoverData.points, data);
+        if (points.length > 0) {
+          const bounds = plotlyElement.getBoundingClientRect();
+          const offsetLeft = bounds.left + window.scrollX;
+          const offsetTop = bounds.top + window.scrollY;
+
+
+          const { left, top } = calculateTooltipPosition(points, scope.options);
+          tooltip
+            .css({
+              left: Math.round(left + offsetLeft) + 'px',
+              top: Math.round(top + offsetTop) + 'px',
+            })
+            .html($sanitize(renderTooltipContents(points, data, scope.options)))
+            .show();
+
+          const tooltipBounds = tooltip[0].getBoundingClientRect();
+          if (tooltipBounds.top < 0) {
+            tooltip
+              .css({
+                top: Math.round(top + offsetTop - tooltipBounds.top) + 'px',
+              });
+          }
+        }
+      });
+      plotlyElement.on('plotly_unhover', () => {
+        tooltip.hide();
+      });
     }
     update();
 
@@ -79,6 +119,10 @@ const PlotlyChart = () => ({
     }, true);
 
     scope.handleResize = debounce(updateChartDimensions, 50);
+
+    scope.$on('$destroy', () => {
+      tooltip.remove();
+    });
   },
 });
 

@@ -1,0 +1,38 @@
+.plotly-chart-tooltip {
+  pointer-events: none;
+  display: none;
+  position: absolute;
+  z-index: 999999;
+  transform: translate(-50%, -100%);
+  margin: -10px 0 0 0;
+
+  background: #fff;
+  border: 1px solid #ccc;
+  color: #333;
+  left: 100px;
+  top: 100px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+
+  &:after {
+    content: '';
+    font-size: 1px;
+    display: block;
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    border: inherit;
+    border-top: 0;
+    border-left: 0;
+    background: inherit;
+    transform-origin: 50% 50%;
+    transform: translate(-50%, 50%) rotate(45deg);
+  }
+
+  > div {
+    white-space: nowrap;
+  }
+}
