@@ -9,7 +9,7 @@ def test_login_wrong_user_credentials(login_page):
 
     login_page.login(email='wrong@example.com', password='wrong')
 
-    assert login_page.alert.text == 'Wrong email or password.'
+    assert login_page.alert == 'Wrong email or password.'
     assert login_page.title == 'Login to Redash'
 
 
@@ -19,5 +19,5 @@ def test_login(login_page, user, user_password):
 
     login_page.login(email=user.email, password=user_password)
 
-    assert login_page.profile_dropdown.text == user.name
+    assert login_page.profile_dropdown == user.name
     assert login_page.title == 'Redash'

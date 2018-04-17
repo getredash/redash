@@ -16,24 +16,25 @@ class LoginPage(Page):
     @property
     def title(self):
         """Return the page title."""
-        self.wait.until(lambda s: self.selenium.title)
-        return self.selenium.title
+        return self.wait.until(lambda s: self.selenium.title)
 
     @property
     def alert(self):
         """Return the alert element."""
-        return self.wait.until(expected.visibility_of_element_located((
+        element = self.wait.until(expected.visibility_of_element_located((
             By.CSS_SELECTOR,
             ".alert-danger",
         )))
+        return element.text
 
     @property
     def profile_dropdown(self):
         """Return the profile dropdown element."""
-        return self.wait.until(expected.visibility_of_element_located((
+        element = self.wait.until(expected.visibility_of_element_located((
             By.CSS_SELECTOR,
             ".dropdown--profile__username",
         )))
+        return element.text
 
     def enter_email(self, email):
         """Enter the given user email."""
