@@ -27,6 +27,10 @@ def fixture_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 0))
     port = s.getsockname()[1]
+
+    # Avoid 'address already in use' errors
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
     s.close()
     return port
 
