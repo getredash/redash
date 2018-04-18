@@ -178,78 +178,11 @@ function TimelineEditor(VisOptions) {
       $scope.currentTab = 'general';
       $scope.columns = $scope.queryResult.getColumns();
       $scope.columnNames = _.pluck($scope.columns, 'name');
-      $scope.getterSetters = {};
 
-      // TODO: Move to its own package for reusability
-      // Taken from https://github.com/joshuacc/drabs
-      // Modified by Andros Rosa to also support setting properties
-      function dynamicAccess(_obj, _props, _isSetter, _newValue, _errorValue) {
-        // Make sure props is defined and not empty
-        if (isNullOrUndefined(_props) || _props.length === 0) {
-          return _errorValue;
-        }
+      // Ng-model getter/setters for switching nulls to custom values.
+      $scope.getterSetters = VisOptions.getGetterSetters($scope.visualization.options.timelineConfig);
 
-        // If the property list is in dot notation, convert to array
-        if (_.isString(_props)) {
-          _props = _props.split('.');
-        }
-
-        function dynamicAccessByArray(obj, propsArray, isSetter, newValue, errorValue) {
-          // Parent properties are invalid... exit with error message
-          if (isNullOrUndefined(obj)) {
-            return errorValue;
-          }
-
-          // the path array has only 1 more element (the target property)
-          if (propsArray.length === 1) {
-            // Update property if called as setter
-            if (isSetter) {
-              obj[propsArray[0]] = newValue;
-            }
-            return obj[propsArray[0]];
-          }
-
-          // Prepare our found property and path array for recursion
-          const foundSoFar = obj[propsArray[0]];
-          const remainingProps = _.rest(propsArray);
-
-          return dynamicAccessByArray(foundSoFar, remainingProps, isSetter, newValue, errorValue);
-        }
-
-        return dynamicAccessByArray(_obj, _props, _isSetter, _newValue, _errorValue);
-      }
-
-      // TODO: turn into a factory ?
-      function getterSetterGenerator() {
-        const generatorBlueprints = [
-          { property: 'margin.axis', emptyValue: 0 },
-          { property: 'margin.item.horizontal', emptyValue: 0 },
-          { property: 'margin.item.vertical', emptyValue: 0 },
-          { property: 'timeAxis.scale', emptyValue: undefined },
-          { property: 'timeAxis.step', emptyValue: 1 },
-          { property: 'type', emptyValue: '' },
-        ];
-
-        _.each(generatorBlueprints, (blueprint) => {
-          const getterSetter = (newValue) => {
-            let option = dynamicAccess($scope.visualization.options.timelineConfig, blueprint.property);
-
-            // Called as a setter
-            if (!_.isUndefined(newValue)) {
-              // Switch null to custom empty value
-              const finalValue = _.isNull(newValue) ? blueprint.emptyValue : newValue;
-              option = dynamicAccess($scope.visualization.options.timelineConfig, blueprint.property, true, finalValue);
-            }
-            return option;
-          };
-
-          // Save getter/setter in scope object
-          $scope.getterSetters[blueprint.property] = getterSetter;
-        });
-      }
-
-      getterSetterGenerator();
-
+      // Dropdown values
       $scope.alignOptions = VisOptions.alignOptions;
       $scope.axisOrientations = VisOptions.axisOrientations;
       $scope.axisScales = VisOptions.axisScales;

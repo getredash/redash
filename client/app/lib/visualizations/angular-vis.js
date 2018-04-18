@@ -13,6 +13,7 @@ import angular from 'angular';
 import vis from 'vis';
 import 'vis/dist/vis-timeline-graph2d.min.css';
 import { isNullOrUndefined } from 'util';
+import getterSetterGenerator from '@/lib/getter-setter-generator';
 
 function VisDataSet() {
   return (data, options) =>
@@ -21,7 +22,31 @@ function VisDataSet() {
 }
 
 function VisOptions() {
+  let getterSetters = null;
+
+  function getGetterSetters(parentObject) {
+    // Generate getter/setters once
+    if (getterSetters === null) {
+      // Getter/Setter configuration
+      const generatorBlueprints = [
+        { property: 'margin.axis', emptyValue: 0 },
+        { property: 'margin.item.horizontal', emptyValue: 0 },
+        { property: 'margin.item.vertical', emptyValue: 0 },
+        { property: 'timeAxis.scale', emptyValue: undefined },
+        { property: 'timeAxis.step', emptyValue: 1 },
+        { property: 'type', emptyValue: '' },
+      ];
+
+      // Cache them
+      getterSetters = getterSetterGenerator(generatorBlueprints, parentObject);
+    }
+
+    // Return cached getter/setters on subsequent requests
+    return getterSetters;
+  }
+
   return {
+    // Editor options
     alignOptions: ['auto', 'center', 'left', 'right'],
     axisOrientations: ['top', 'bottom', 'both', 'none'],
     axisScales: ['millisecond', 'second', 'minute', 'hour', 'weekday', 'week', 'day', 'month', 'year'],
@@ -34,6 +59,8 @@ function VisOptions() {
       { name: 'Control (Ctrl)', value: 'ctrlKey' },
       { name: 'Meta', value: 'metaKey' },
     ],
+    // getter/setter provider
+    getGetterSetters,
   };
 }
 
