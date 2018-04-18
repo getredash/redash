@@ -206,6 +206,7 @@ export default function init(ngModule) {
       timelineConfig: {
         align: 'auto',
         clickToUse: false,
+        groupOrder: 'content',
         horizontalScroll: false,
         margin: {
           axis: 20,
