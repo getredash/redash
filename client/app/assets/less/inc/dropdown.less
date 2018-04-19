@@ -29,10 +29,12 @@
 
     &:not([class*="bg-"]) {
         & > li > a {
-            color: #4C4C4C;
+            &:not([disabled*="disabled"]) {
+                color: #4C4C4C;
 
-            &:hover {
-                color: #000;
+                &:hover {
+                    color: #000;
+                }
             }
         }
     }
