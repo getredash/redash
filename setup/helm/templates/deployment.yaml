@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: {{ .Values.global.podName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    k8s-app: {{ .Values.global.podName }}
+spec:
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: {{ .Values.global.podName }}
+  template:
+    metadata:
+      labels:
+        k8s-app: {{ .Values.global.podName }}
+        version: {{ .Values.global.tag }}
+    spec:
+      containers:
+      - image: {{ .Values.global.image }}:{{ .Values.global.tag }}
+        name: {{ .Values.global.podName }}
+        command: ["bash", "/tmp/start.sh"]
+        imagePullPolicy: Always
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_LOG_LEVEL
+          value: "INFO"
+        - name: REDASH_REDIS_URL
+          value: "redis://{{ .Values.global.redisUrl }}:6379/0"
+        - name: REDASH_DATABASE_URL
+          value: "postgresql://{{ .Values.global.postgresUser }}:{{ .Values.global.postgresDbPassword }}@{{ .Values.global.postgresUrl }}:{{ .Values.global.postgresPort }}/{{ .Values.global.postgresDbName }}"
+        - name: QUEUES
+          value: "queries,scheduled_queries,celery"
+        - name: REDASH_WEB_WORKERS
+          value: "{{ .Values.global.workers }}"
+        - name: REDASH_COOKIE_SECRET
+          value: "{{ .Values.global.redashCookie }}"
+        - name: REDASH_ADDITIONAL_QUERY_RUNNERS
+          value: "redash.query_runner.python"
+        - name: REDASH_ALLOW_PARAMETERS_IN_EMBEDS
+          value: "True"
+        - name: REDASH_GOOGLE_CLIENT_ID
+          value: "{{ .Values.global.googleClientID }}"
+        - name: REDASH_GOOGLE_CLIENT_SECRET
+          value: "{{ .Values.global.googleClientSecret }}"
+        - name: REDASH_MAIL_SERVER
+          value: "{{ .Values.global.mailServer }}"
+        - name: REDASH_MAIL_PORT
+          value: "{{ .Values.global.mailPort }}"
+        - name: REDASH_MAIL_USE_TLS
+          value: "{{ .Values.global.mailUseTls }}"
+        - name: REDASH_MAIL_USE_SSL
+          value: "false"
+        - name: REDASH_MAIL_USERNAME
+          value: "{{ .Values.global.mailUsername }}"
+        - name: REDASH_MAIL_PASSWORD
+          value: "{{ .Values.global.mailPassword }}"
+        - name: REDASH_MAIL_DEFAULT_SENDER
+          value: "{{ .Values.global.mailSender }}"
+        - name: REDASH_HOST
+          value: "{{ .Values.global.vhost }}"
+
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 150
+        volumeMounts:
+            - mountPath: /tmp/
+              name: redash-start
+      volumes:
+        - name: redash-start
+          configMap:
+             name: redash-start
+             items:
+              - key: config
+                path:  start.sh
+---
+apiVersion: v1
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: {{ .Values.global.schedName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    k8s-app: {{ .Values.global.schedName }}
+spec:
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: {{ .Values.global.schedName }}
+  template:
+    metadata:
+      labels:
+        k8s-app: {{ .Values.global.schedName }}
+        version: {{ .Values.global.tag }}
+    spec:
+      containers:
+      - image: {{ .Values.global.image }}:{{ .Values.global.tag }}
+        name: {{ .Values.global.schedName }}
+        command: ["/app/bin/docker-entrypoint", "scheduler"]
+        imagePullPolicy: Always
+        env:
+        - name: PYTHONUNBUFFERED
+          value: "0"
+        - name: REDASH_LOG_LEVEL
+          value: "INFO"
+        - name: REDASH_REDIS_URL
+          value: "redis://{{ .Values.global.redisUrl }}:6379/0"
+        - name: REDASH_DATABASE_URL
+          value: "postgresql://{{ .Values.global.postgresUser }}:{{ .Values.global.postgresDbPassword }}@{{ .Values.global.postgresUrl }}:{{ .Values.global.postgresPort }}/{{ .Values.global.postgresDbName }}"
+        - name: QUEUES
+          value: "queries,scheduled_queries,celery"
+        - name: REDASH_WEB_WORKERS
+          value: "{{ .Values.global.workers }}"
+        - name: REDASH_COOKIE_SECRET
+          value: "{{ .Values.global.redashCookie }}"
+        - name: REDASH_ADDITIONAL_QUERY_RUNNERS
+          value: "redash.query_runner.python"
+        - name: REDASH_ALLOW_PARAMETERS_IN_EMBEDS
+          value: "True"
+        - name: REDASH_GOOGLE_CLIENT_ID
+          value: "{{ .Values.global.googleClientID }}"
+        - name: REDASH_GOOGLE_CLIENT_SECRET
+          value: "{{ .Values.global.googleClientSecret }}"
+        - name: REDASH_MAIL_SERVER
+          value: "{{ .Values.global.mailServer }}"
+        - name: REDASH_MAIL_PORT
+          value: "{{ .Values.global.mailPort }}"
+        - name: REDASH_MAIL_USE_TLS
+          value: "{{ .Values.global.mailUseTls }}"
+        - name: REDASH_MAIL_USE_SSL
+          value: "false"
+        - name: REDASH_MAIL_USERNAME
+          value: "{{ .Values.global.mailUsername }}"
+        - name: REDASH_MAIL_PASSWORD
+          value: "{{ .Values.global.mailPassword }}"
+        - name: REDASH_MAIL_DEFAULT_SENDER
+          value: "{{ .Values.global.mailSender }}"
+        - name: REDASH_HOST
+          value: "{{ .Values.global.vhost }}"
+
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 150
+---
+apiVersion: v1
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: {{ .Values.global.redisName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    k8s-app: {{ .Values.global.redisName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: {{ .Values.global.redisName }}
+  template:
+    metadata:
+      labels:
+        k8s-app: {{ .Values.global.redisName }}
+    spec:
+      containers:
+      - image: {{ .Values.global.redisImage }}
+        name: {{ .Values.global.redisName }}
+        imagePullPolicy: Always

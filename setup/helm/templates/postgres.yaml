@@ -1,0 +1,68 @@
+{{ if eq .Values.global.deployDB true }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.global.dbVolName }} 
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+     requests:
+       storage: {{ .Values.global.volumeSize }}
+---
+apiVersion: v1
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: {{ .Values.global.dbName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    k8s-app: {{ .Values.global.dbName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: {{ .Values.global.dbName }}
+  template:
+    metadata:
+      labels:
+        k8s-app: {{ .Values.global.dbName }}
+    spec:
+      imagePullSecrets:
+      - name: {{ .Values.global.pullSecret }}
+      containers:
+      - image: {{ .Values.global.dbImage }}
+        name: {{ .Values.global.dbName }}
+        imagePullPolicy: Always
+        env:
+        - name: POSTGRES_USER
+          value: {{ .Values.global.postgresUser }}
+        - name: POSTGRES_DB
+          value: {{ .Values.global.postgresDbName }}
+        - name: POSTGRES_PASSWORD
+          value: {{ .Values.global.postgresDbPassword }}
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - name: db-folder
+          mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-folder
+          persistentVolumeClaim:
+            claimName: {{ .Values.global.dbVolName }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.global.dbName }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    name: db
+  selector:
+    k8s-app: {{ .Values.global.dbName }}
+{{ end }}
