@@ -11,6 +11,7 @@
         // The real magic ;)
         > a {
             pointer-events: none;
+            color: @dropdown-link-disabled-color;
         }
     }
 
@@ -29,12 +30,8 @@
 
     &:not([class*="bg-"]) {
         & > li > a {
-            &:not([disabled*="disabled"]) {
-                color: #4C4C4C;
-
-                &:hover {
-                    color: #000;
-                }
+            &:hover {
+                color: #000;
             }
         }
     }
