@@ -61,6 +61,7 @@ if [[ $var != $AVAILABLE_IMAGE_VERSION ]]; then
         docker stop redash_server_1 redash_worker_1 > /dev/null
         docker rm redash_server_1 redash_worker_1 > /dev/null
         docker-compose pull
+        docker-compose run --rm server manage db upgrade
         docker-compose up -d
         echo "Docker image and services were upgraded. Exiting."
     else
