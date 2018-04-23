@@ -5,3 +5,4 @@ REDASH_DATABASE_URL="postgresql://postgres@postgres/postgres"
 REDASH_WEB_WORKERS=4
 QUEUES="queries,scheduled_queries,celery"
 WORKERS_COUNT=2
+CHANNEL=stable

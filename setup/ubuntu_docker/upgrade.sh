@@ -38,7 +38,18 @@ fi
 wget -O $REDASH_BASE_PATH/upgrade/upgrade.sh $FILES_BASE_URL/upgrade.sh
 
 CURRENT_IMAGE_VERSION=`docker inspect redash_server_1 | grep "Image" | grep "redash" | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
-AVAILABLE_IMAGE_VERSION=`curl  -s https://version.redash.io/api/releases  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+echo -e "Current Redash Docker image version is: $CURRENT_IMAGE_VERSION \n"
+
+requested_channel=`cat $REDASH_BASE_PATH/env | grep "CHANNEL" | awk 'BEGIN{FS="="}{print $2}'`
+if [[ "$requested_channel" = "stable" ]]; then
+    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/api/releases"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+elif [[ "$requested_channel" = "beta" ]]; then
+    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/releases?channel=beta"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+else
+    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/api/releases"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+fi
+
+echo -e "Available Redash Docker image version is: $AVAILABLE_IMAGE_VERSION \n"
 
 var=`echo -e "$AVAILABLE_IMAGE_VERSION\n$CURRENT_IMAGE_VERSION"| sort -n | head -n 1`
 if [[ $var != $AVAILABLE_IMAGE_VERSION ]]; then
