@@ -42,9 +42,10 @@ AVAILABLE_IMAGE_VERSION=`curl  -s https://version.redash.io/api/releases  | json
 
 var=`echo -e "$AVAILABLE_IMAGE_VERSION\n$CURRENT_IMAGE_VERSION"| sort -r | head -n 1`
 if [[ $var -eq $AVAILABLE_IMAGE_VERSION ]]; then
-    echo "There is a newer version of Redash docker Image"
+    echo "There is a newer version of Redash Docker Image"
     read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
+        cd $REDASH_BASE_PATH
         docker stop redash_server_1 redash_worker_1 > /dev/null
         docker rm redash_server_1 redash_worker_1 > /dev/null
         docker-compose pull
