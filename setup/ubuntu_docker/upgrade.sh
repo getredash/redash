@@ -57,6 +57,7 @@ if [[ $var != $AVAILABLE_IMAGE_VERSION ]]; then
     read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
         cd $REDASH_BASE_PATH
+        sed -i "/redash\/redash:*/c \    \image: redash\/redash:${AVAILABLE_IMAGE_VERSION}" docker-compose.yml
         docker stop redash_server_1 redash_worker_1 > /dev/null
         docker rm redash_server_1 redash_worker_1 > /dev/null
         docker-compose pull
