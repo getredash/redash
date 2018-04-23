@@ -66,5 +66,5 @@ if [[ $var != $AVAILABLE_IMAGE_VERSION ]]; then
         echo "Docker image and services were not upgraded. Exiting."
     fi
 else
-    echo "Not Newer"
+    echo "There is no new Redash Docker image. Exiting"
 fi
