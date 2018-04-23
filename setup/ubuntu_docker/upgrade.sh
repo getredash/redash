@@ -31,11 +31,6 @@ verify_ubuntu() {
 verify_root
 verify_ubuntu
 
-if [[ ! -d $REDASH_BASE_PATH/upgrade ]]; then
-	mkdir -p $REDASH_BASE_PATH/upgrade
-fi
-
-wget -O $REDASH_BASE_PATH/upgrade/upgrade.sh $FILES_BASE_URL/upgrade.sh
 wget -O /usr/local/bin/semver $FILES_BASE_URL/files/semver
 chmod +x /usr/local/bin/semver
 
