@@ -37,8 +37,22 @@ fi
 
 wget -O $REDASH_BASE_PATH/upgrade/upgrade.sh $FILES_BASE_URL/upgrade.sh
 
-cd $REDASH_BASE_PATH
-docker-compose stop
-docker-compose rm -f
-docker-compose pull
-docker-compose up -d
+CURRENT_IMAGE_VERSION=`docker inspect redash_server_1 | grep "Image" | grep "redash" | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+AVAILABLE_IMAGE_VERSION=`curl  -s https://version.redash.io/api/releases  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+
+var=`echo -e "$AVAILABLE_IMAGE_VERSION\n$CURRENT_IMAGE_VERSION"| sort -r | head -n 1`
+if [[ $var -eq $AVAILABLE_IMAGE_VERSION ]]; then
+    echo "There is a newer version of Redash docker Image"
+    read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
+    if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
+        docker stop redash_server_1 redash_worker_1 > /dev/null
+        docker rm redash_server_1 redash_worker_1 > /dev/null
+        docker-compose pull
+        docker-compose up -d
+        echo "Docker image and services were upgraded. Exiting."
+    else
+        echo "Docker image and services were not upgraded. Exiting."
+    fi
+else
+    echo "Not Newer"
+fi
