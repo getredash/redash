@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script updates dockerized Redash on Ubuntu 16.04.
+# This script upgrades dockerized Redash on Ubuntu 16.04.
 
 set -eu
 
@@ -35,9 +35,7 @@ if [[ ! -d $REDASH_BASE_PATH/upgrade ]]; then
 	mkdir -p $REDASH_BASE_PATH/upgrade
 fi
 
-wget $FILES_BASE_URL/upgrade.sh -o $REDASH_BASE_PATH/upgrade/upgrade.sh
-
-REDASH_BASE_PATH=/opt/redash
+wget -O $REDASH_BASE_PATH/upgrade/upgrade.sh $FILES_BASE_URL/upgrade.sh
 
 cd $REDASH_BASE_PATH
 docker-compose stop
