@@ -7,7 +7,7 @@
 version: '2'
 services:
   server:
-    image: redash/redash:3.0.0.b3134
+    image: redash/redash:${TAG}
     command: server
     depends_on:
       - postgres
@@ -18,7 +18,7 @@ services:
       - /opt/redash/env
     restart: always
   worker:
-    image: redash/redash:3.0.0.b3134
+    image: redash/redash:${TAG}
     command: scheduler
     env_file:
       - /opt/redash/env    
