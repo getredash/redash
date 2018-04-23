@@ -40,8 +40,8 @@ wget -O $REDASH_BASE_PATH/upgrade/upgrade.sh $FILES_BASE_URL/upgrade.sh
 CURRENT_IMAGE_VERSION=`docker inspect redash_server_1 | grep "Image" | grep "redash" | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 AVAILABLE_IMAGE_VERSION=`curl  -s https://version.redash.io/api/releases  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 
-var=`echo -e "$AVAILABLE_IMAGE_VERSION\n$CURRENT_IMAGE_VERSION"| sort -r | head -n 1`
-if [[ $var -eq $AVAILABLE_IMAGE_VERSION ]]; then
+var=`echo -e "$AVAILABLE_IMAGE_VERSION\n$CURRENT_IMAGE_VERSION"| sort -n | head -n 1`
+if [[ $var != $AVAILABLE_IMAGE_VERSION ]]; then
     echo "There is a newer version of Redash Docker Image"
     read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
