@@ -6,7 +6,7 @@ set -eu
 
 REDASH_BASE_PATH=/opt/redash
 REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
-FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu_docker/files
+FILES_BASE_URL=https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu_docker
 
 verify_root() {
     # Verify running as root:
@@ -42,10 +42,13 @@ create_directories() {
     if [[ ! -e $REDASH_BASE_PATH ]]; then
     	mkdir -p $REDASH_BASE_PATH
     fi
-   
+   	
+   	mkdir $REDASH_BASE_PATH/upgrade
+   	wget $FILES_BASE_URL/upgrade.sh -O $REDASH_BASE_PATH/upgrade/upgrade.sh
+
     # Default config file
     if [[ ! -f "$REDASH_BASE_PATH/env" ]]; then
-        wget "$FILES_BASE_URL/env" -O $REDASH_BASE_PATH/env
+        wget "$FILES_BASE_URL/files/env" -O $REDASH_BASE_PATH/env
     fi
 
     COOKIE_SECRET=$(pwgen -1s 32)
@@ -62,7 +65,7 @@ install_docker
 create_directories
 
 cd $REDASH_BASE_PATH
-wget $FILES_BASE_URL/docker-compose.yml
+wget $FILES_BASE_URL/files/docker-compose.yml
 echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
 echo "export COMPOSE_FILE=/opt/redash/docker-compose.yml" >> ~/.profile
 source ~/.profile

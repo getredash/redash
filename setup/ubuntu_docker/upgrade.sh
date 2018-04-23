@@ -36,28 +36,38 @@ if [[ ! -d $REDASH_BASE_PATH/upgrade ]]; then
 fi
 
 wget -O $REDASH_BASE_PATH/upgrade/upgrade.sh $FILES_BASE_URL/upgrade.sh
+wget -O /usr/local/bin/semver $FILES_BASE_URL/files/semver
+chmod +x /usr/local/bin/semver
 
 CURRENT_IMAGE_VERSION=`docker inspect redash_server_1 | grep "Image" | grep "redash" | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 echo -e "Current Redash Docker image version is: $CURRENT_IMAGE_VERSION \n"
 
-requested_channel=`cat $REDASH_BASE_PATH/env | grep "CHANNEL" | awk 'BEGIN{FS="="}{print $2}'`
-if [[ "$requested_channel" = "stable" ]]; then
-    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/api/releases"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
-elif [[ "$requested_channel" = "beta" ]]; then
+REQUESTED_CHANNEL="$1"
+if [[ "$REQUESTED_CHANNEL" = "beta" ]]; then
     AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/releases?channel=beta"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 else
-    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/api/releases"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/api/releases?channel=stable"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 fi
 
 echo -e "Available Redash Docker image version is: $AVAILABLE_IMAGE_VERSION \n"
 
-var=`echo -e "$AVAILABLE_IMAGE_VERSION\n$CURRENT_IMAGE_VERSION"| sort -n | head -n 1`
-if [[ $var != $AVAILABLE_IMAGE_VERSION ]]; then
+var=`semver compare $CURRENT_IMAGE_VERSION $AVAILABLE_IMAGE_VERSION`
+if [[ "$var" = "-1" ]]; then
     echo "There is a newer version of Redash Docker Image"
     read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
+        if [[ -e $REDASH_BASE_PATH/.env ]]; then
+            count=`cat $REDASH_BASE_PATH/.env | grep "TAG=" | wc -l`
+            if [[ $count -gt 0 ]]; then
+                sed -i "/TAG=*/c TAG=${AVAILABLE_IMAGE_VERSION}" $REDASH_BASE_PATH/.env
+            else
+                echo "TAG=${AVAILABLE_IMAGE_VERSION}" >> $REDASH_BASE_PATH/.env
+            fi
+        else
+            touch $REDASH_BASE_PATH/.env
+            echo "TAG=${AVAILABLE_IMAGE_VERSION}" >> $REDASH_BASE_PATH/.env
+        fi
         cd $REDASH_BASE_PATH
-        sed -i "/redash\/redash:*/c \    \image: redash\/redash:${AVAILABLE_IMAGE_VERSION}" docker-compose.yml
         docker stop redash_server_1 redash_worker_1 > /dev/null
         docker rm redash_server_1 redash_worker_1 > /dev/null
         docker-compose pull
