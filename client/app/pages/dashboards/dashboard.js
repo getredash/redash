@@ -282,8 +282,28 @@ function DashboardCtrl(
   };
 
   this.updateDashboardFiltersState = () => {
-    // / do something for humanity.
     collectFilters(this.dashboard, false);
+    Dashboard.save(
+      {
+        slug: this.dashboard.id,
+        version: this.dashboard.version,
+        dashboard_filters_enabled: this.dashboard.dashboard_filters_enabled,
+      },
+      (dashboard) => {
+        this.dashboard = dashboard;
+      },
+      (error) => {
+        if (error.status === 403) {
+          toastr.error('Name update failed: Permission denied.');
+        } else if (error.status === 409) {
+          toastr.error(
+            'It seems like the dashboard has been modified by another user. ' +
+              'Please copy/backup your changes and reload this page.',
+            { autoDismiss: false },
+          );
+        }
+      },
+    );
   };
 
   this.addWidget = () => {
