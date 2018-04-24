@@ -23,15 +23,18 @@ Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 
 ## Demo
 
-<img src="https://cloud.githubusercontent.com/assets/71468/17391289/8e83878e-5a1d-11e6-8938-af9054a33b19.gif" width="60%"/>
+<img src="https://raw.githubusercontent.com/getredash/website/8e820cd02c73a8ddf4f946a9d293c54fd3fb08b9/website/_assets/images/redash-anim.gif" width="60%"/>
 
-You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
+Try out the demo instance: http://demo.redash.io/ (login with any Google account).
 
 ## Getting Started
 
 * [Setting up Redash instance](https://redash.io/help-onpremise/setup/setting-up-redash-instance.html) (includes links to ready made AWS/GCE images).
 * [Documentation](https://redash.io/help/).
 
+## Supported Data Sources
+
+More than 25 [data sources](https://redash.io/help/data-sources/supported-data-sources) supported. 
 
 ## Getting Help
 
