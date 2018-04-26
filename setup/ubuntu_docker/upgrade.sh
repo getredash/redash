@@ -44,12 +44,7 @@ if [[ "$var" = "-1" ]]; then
     echo "There is a newer version of Redash Docker Image"
     read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
-        count=`cat $REDASH_BASE_PATH/.env | grep "TAG=" | wc -l`
-        if [[ $count -gt 0 ]]; then
-            sed -i "/TAG=*/c TAG=${AVAILABLE_IMAGE_VERSION}" $REDASH_BASE_PATH/.env
-        else
-            echo "TAG=${AVAILABLE_IMAGE_VERSION}" >> $REDASH_BASE_PATH/.env
-        fi
+        sed -i "/TAG=*/c TAG=${AVAILABLE_IMAGE_VERSION}" $REDASH_BASE_PATH/.env
         cd $REDASH_BASE_PATH
         docker stop redash_server_1 redash_worker_1 > /dev/null
         docker rm redash_server_1 redash_worker_1 > /dev/null

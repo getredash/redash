@@ -69,6 +69,10 @@ create_directories
 wget -O /usr/local/bin/semver $FILES_BASE_URL/files/semver
 chmod +x /usr/local/bin/semver
 
+REQUESTED_CHANNEL=stable
+AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/releases?channel=$REQUESTED_CHANNEL"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
+echo "TAG=${AVAILABLE_IMAGE_VERSION}" >> $REDASH_BASE_PATH/.env
+
 cd $REDASH_BASE_PATH
 wget $FILES_BASE_URL/files/docker-compose.yml
 echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
