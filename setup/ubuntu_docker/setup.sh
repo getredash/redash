@@ -51,6 +51,8 @@ create_directories() {
         wget "$FILES_BASE_URL/files/env" -O $REDASH_BASE_PATH/env
     fi
 
+    touch $REDASH_BASE_PATH/.env
+
     COOKIE_SECRET=$(pwgen -1s 32)
     echo "REDASH_COOKIE_SECRET=$COOKIE_SECRET" >> $REDASH_BASE_PATH/env
 
@@ -63,6 +65,9 @@ verify_root
 verify_ubuntu
 install_docker
 create_directories
+
+wget -O /usr/local/bin/semver $FILES_BASE_URL/files/semver
+chmod +x /usr/local/bin/semver
 
 cd $REDASH_BASE_PATH
 wget $FILES_BASE_URL/files/docker-compose.yml

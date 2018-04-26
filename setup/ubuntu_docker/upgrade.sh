@@ -31,18 +31,11 @@ verify_ubuntu() {
 verify_root
 verify_ubuntu
 
-wget -O /usr/local/bin/semver $FILES_BASE_URL/files/semver
-chmod +x /usr/local/bin/semver
-
 CURRENT_IMAGE_VERSION=`docker inspect redash_server_1 | grep "Image" | grep "redash" | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 echo -e "Current Redash Docker image version is: $CURRENT_IMAGE_VERSION \n"
 
 REQUESTED_CHANNEL="$1"
-if [[ "$REQUESTED_CHANNEL" = "beta" ]]; then
-    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/releases?channel=beta"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
-else
-    AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/api/releases?channel=stable"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
-fi
+AVAILABLE_IMAGE_VERSION=`curl -s "https://version.redash.io/releases?channel=$REQUESTED_CHANNEL"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 
 echo -e "Available Redash Docker image version is: $AVAILABLE_IMAGE_VERSION \n"
 
@@ -51,15 +44,10 @@ if [[ "$var" = "-1" ]]; then
     echo "There is a newer version of Redash Docker Image"
     read -p "Do you want to upgrade it?  [Y/n] : " doUpgrade
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
-        if [[ -e $REDASH_BASE_PATH/.env ]]; then
-            count=`cat $REDASH_BASE_PATH/.env | grep "TAG=" | wc -l`
-            if [[ $count -gt 0 ]]; then
-                sed -i "/TAG=*/c TAG=${AVAILABLE_IMAGE_VERSION}" $REDASH_BASE_PATH/.env
-            else
-                echo "TAG=${AVAILABLE_IMAGE_VERSION}" >> $REDASH_BASE_PATH/.env
-            fi
+        count=`cat $REDASH_BASE_PATH/.env | grep "TAG=" | wc -l`
+        if [[ $count -gt 0 ]]; then
+            sed -i "/TAG=*/c TAG=${AVAILABLE_IMAGE_VERSION}" $REDASH_BASE_PATH/.env
         else
-            touch $REDASH_BASE_PATH/.env
             echo "TAG=${AVAILABLE_IMAGE_VERSION}" >> $REDASH_BASE_PATH/.env
         fi
         cd $REDASH_BASE_PATH
