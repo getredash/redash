@@ -46,8 +46,8 @@ if [[ "$var" = "-1" ]]; then
     if [[ "$doUpgrade" = "y" || "$doUpgrade" = "Y" ]]; then
         sed -i "/TAG=*/c TAG=${AVAILABLE_IMAGE_VERSION}" $REDASH_BASE_PATH/.env
         cd $REDASH_BASE_PATH
-        docker stop redash_server_1 redash_worker_1 > /dev/null
-        docker rm redash_server_1 redash_worker_1 > /dev/null
+        docker-compose stop server worker > /dev/null
+        docker-compose rm -f server worker > /dev/null
         docker-compose pull
         docker-compose run --rm server manage db upgrade
         docker-compose up -d
