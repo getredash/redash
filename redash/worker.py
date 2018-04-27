@@ -78,3 +78,10 @@ celery.Task = ContextTask
 def init_celery_flask_app(**kwargs):
     app = create_app()
     app.app_context().push()
+
+@celery.on_after_configure.connect
+def add_periodic_tasks(sender, **kwargs):
+    app = create_app()
+    periodic_tasks = getattr(app, 'periodic_tasks', {})
+    for params in periodic_tasks.values():
+        sender.add_periodic_task(**params)
