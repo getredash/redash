@@ -33,7 +33,7 @@ services:
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
     restart: always
-  schceduler:
+  scheduler:
     image: redash/redash:latest
     command: scheduler
     environment:
