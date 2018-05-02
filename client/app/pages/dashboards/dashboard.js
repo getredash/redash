@@ -46,7 +46,7 @@ function DashboardCtrl(
     this.saveInProgress = true;
     const showMessages = true;
     return $q
-      .all(_.map(widgets, widget => widget.$save()))
+      .all(_.map(widgets, widget => widget.save()))
       .then(() => {
         if (showMessages) {
           toastr.success('Changes saved.');
@@ -83,7 +83,7 @@ function DashboardCtrl(
     this.refreshRate = rate;
     if (rate !== null) {
       if (load) {
-        this.loadDashboard(true);
+        this.refreshDashboard();
       }
       this.autoRefresh();
     }
@@ -118,7 +118,7 @@ function DashboardCtrl(
   };
 
   const collectFilters = (dashboard, forceRefresh) => {
-    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.loadPromise(forceRefresh)));
+    const queryResultPromises = _.compact(this.dashboard.widgets.map(widget => widget.load(forceRefresh)));
 
     $q.all(queryResultPromises).then((queryResults) => {
       const filters = {};
@@ -206,9 +206,13 @@ function DashboardCtrl(
 
   this.loadDashboard();
 
+  this.refreshDashboard = () => {
+    renderDashboard(this.dashboard, true);
+  };
+
   this.autoRefresh = () => {
     $timeout(() => {
-      this.loadDashboard(true);
+      this.refreshDashboard();
     }, this.refreshRate.rate * 1000).then(() => this.autoRefresh());
   };
 
@@ -319,12 +323,13 @@ function DashboardCtrl(
         // Save position of newly added widget (but not entire layout)
         const widget = _.last(this.dashboard.widgets);
         if (_.isObject(widget)) {
-          return widget.$save();
+          return widget.save();
         }
       });
   };
 
-  this.removeWidget = () => {
+  this.removeWidget = (widgetId) => {
+    this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== widgetId);
     this.extractGlobalParameters();
     if (!this.layoutEditing) {
       // We need to wait a bit while `angular` updates widgets, and only then save new layout

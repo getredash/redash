@@ -31,7 +31,7 @@
           <div class="btn-group" uib-dropdown ng-if="!$ctrl.layoutEditing">
             <button id="split-button" type="button"
                     ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}"
-                    class="btn btn-sm" ng-click="$ctrl.loadDashboard(true)">
+                    class="btn btn-sm" ng-click="$ctrl.refreshDashboard()">
               <i class="zmdi zmdi-refresh"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
             </button>
             <button type="button" class="btn" uib-dropdown-toggle
@@ -92,7 +92,7 @@
         ng-repeat="widget in $ctrl.dashboard.widgets track by widget.id"
         gridstack-item="widget.options.position" gridstack-item-id="{{ widget.id }}">
         <div class="grid-stack-item-content">
-          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget()"></dashboard-widget>
+          <dashboard-widget widget="widget" dashboard="$ctrl.dashboard" on-delete="$ctrl.removeWidget(widget.id)"></dashboard-widget>
         </div>
       </div>
     </div>
