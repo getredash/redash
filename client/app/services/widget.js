@@ -143,18 +143,13 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
         url = `${url}/${this.id}`;
       }
 
-      return $http.post(url, data).then(
-        (response) => {
-          each(response.data, (v, k) => {
-            this[k] = v;
-          });
+      return $http.post(url, data).then((response) => {
+        each(response.data, (v, k) => {
+          this[k] = v;
+        });
 
-          return this;
-        },
-        (error) => {
-          console.log(error);
-        },
-      );
+        return this;
+      });
     }
 
     delete() {
