@@ -223,7 +223,9 @@ class BigQuery(BaseQueryRunner):
             tables = service.tables().list(projectId=project_id, datasetId=dataset_id).execute()
             while True:
                 for table in tables.get('tables', []):
-                    table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
+                    table_data = service.tables().get(projectId=project_id,
+                                                      datasetId=dataset_id,
+                                                      tableId=table['tableReference']['tableId']).execute()
 
                     columns = []
                     for column in table_data['schema']['fields']:
@@ -238,7 +240,9 @@ class BigQuery(BaseQueryRunner):
                 if next_token is None:
                     break
 
-                tables = service.tables().list(projectId=project_id, datasetId=dataset_id, pageToken=next_token).execute()
+                tables = service.tables().list(projectId=project_id,
+                                               datasetId=dataset_id,
+                                               pageToken=next_token).execute()
 
         return schema
 
