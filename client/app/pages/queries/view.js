@@ -145,6 +145,8 @@ function QueryViewCtrl(
 
   $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
 
+  $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
+
   $scope.canScheduleQuery = currentUser.hasPermission('schedule_query');
 
   if ($route.current.locals.dataSources) {
