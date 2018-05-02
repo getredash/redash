@@ -204,11 +204,28 @@ class BigQuery(BaseQueryRunner):
 
         data = {
             "columns": columns,
-            "rows": rows, 
+            "rows": rows,
             'metadata': {'data_scanned': int(query_reply['totalBytesProcessed'])}
         }
 
         return data
+
+    def _get_columns_schema(self, table_data):
+        columns = []
+        for column in table_data['schema']['fields']:
+            columns.extend(self._get_columns_schema_column(column))
+
+        return {'name': table_data['id'], 'columns': columns}
+
+    def _get_columns_schema_column(self, column):
+        columns = []
+        if column['type'] == 'RECORD':
+            for field in column['fields']:
+                columns.append(u"{}.{}".format(column['name'], field['name']))
+        else:
+            columns.append(column['name'])
+
+        return columns
 
     def get_schema(self, get_stats=False):
         if not self.configuration.get('loadSchema', False):
@@ -226,15 +243,8 @@ class BigQuery(BaseQueryRunner):
                     table_data = service.tables().get(projectId=project_id,
                                                       datasetId=dataset_id,
                                                       tableId=table['tableReference']['tableId']).execute()
-
-                    columns = []
-                    for column in table_data['schema']['fields']:
-                        if column['type'] == 'RECORD':
-                            for field in column['fields']:
-                                columns.append(u"{}.{}".format(column['name'], field['name']))
-                        else:
-                            columns.append(column['name'])
-                    schema.append({'name': table_data['id'], 'columns': columns})
+                    table_schema = self._get_columns_schema(table_data)
+                    schema.append(table_schema)
 
                 next_token = tables.get('nextPageToken', None)
                 if next_token is None:
