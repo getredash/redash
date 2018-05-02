@@ -65,12 +65,12 @@ function createRowRenderTemplate(columns, $compile) {
     switch (column.displayAs) {
       case 'json':
         return `
-          <dynamic-table-json-cell column="columns[${index}]" 
+          <dynamic-table-json-cell column="columns[${index}]"
             value="row[columns[${index}].name]"></dynamic-table-json-cell>
         `;
       default:
         return `
-          <dynamic-table-default-cell column="columns[${index}]" 
+          <dynamic-table-default-cell column="columns[${index}]"
             row="row"></dynamic-table-default-cell>
         `;
     }
@@ -78,10 +78,10 @@ function createRowRenderTemplate(columns, $compile) {
   return $compile(rowTemplate);
 }
 
-function DynamicTable($compile) {
+function DynamicTable($compile, clientConfig) {
   'ngInject';
 
-  this.itemsPerPage = validateItemsPerPage(this.itemsPerPage);
+  this.itemsPerPage = validateItemsPerPage(this.itemsPerPage, clientConfig.itemsPerPage);
   this.currentPage = 1;
   this.searchTerm = '';
 
