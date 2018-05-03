@@ -231,7 +231,10 @@ class BigQuery(BaseQueryRunner):
                             columns.append(u"{}.{}".format(column['name'], field['name']))
                     else:
                         columns.append(column['name'])
-                schema.append({'name': table_data['id'], 'columns': columns})
+
+                table_reference = table_data['tableReference']
+                table_name = "{}.{}".format(table_reference['datasetId'], table_reference['tableId'])
+                schema.append({'name': table_name, 'columns': columns})
 
         return schema
 
