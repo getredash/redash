@@ -80,7 +80,7 @@ const config = {
     }),
     new CopyWebpackPlugin([
       { from: "client/app/assets/robots.txt" },
-      { from: "client/app/assets/css/login.css", to: "styles/login.css" },
+      { from: "client/app/assets/css/*.css", to: "styles/", flatten: true },
       { from: "node_modules/jquery/dist/jquery.min.js", to: "js/jquery.min.js" }
     ])
   ],
