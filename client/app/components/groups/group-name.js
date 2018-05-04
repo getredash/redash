@@ -22,7 +22,7 @@ export default function init(ngModule) {
     },
     transclude: true,
     template: `
-      <h2 class="p-l-5">
+      <h2 class="m-t-0">
         <edit-in-place editable="$ctrl.canEdit()" done="$ctrl.saveName" ignore-blanks='true' value="$ctrl.group.name"></edit-in-place>&nbsp;
         <button class="btn btn-xs btn-danger" ng-if="$ctrl.canEdit()" ng-click="$ctrl.deleteGroup()">Delete this group</button>
       </h2>
