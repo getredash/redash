@@ -47,7 +47,7 @@ def _guess_type(value):
     return TYPE_STRING
 
 
-def _value_eval_list(row_values,col_types):
+def _value_eval_list(row_values, col_types):
     value_list = []
     raw_values = zip(col_types, row_values)
     for typ, rval in raw_values:
