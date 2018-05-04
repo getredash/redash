@@ -24,12 +24,12 @@ class TestGuessType(TestCase):
 class TestValueEvalList(TestCase):
     def test_handles_unicode(self):
         values = [u'יוניקוד', 'test', 'value']
-        self.assertEqual(values, _value_eval_list(values))
+        self.assertEqual(values, _value_eval_list(values, [TYPE_STRING]*len(values)))
 
     def test_handles_boolean(self):
         values = ['true', 'false', 'True', 'False', 'TRUE', 'FALSE']
         converted_values = [True, False, True, False, True, False]
-        self.assertEqual(converted_values, _value_eval_list(values))
+        self.assertEqual(converted_values, _value_eval_list(values, [TYPE_BOOLEAN]*len(values)))
 
 
 class TestParseSpreadsheet(TestCase):
