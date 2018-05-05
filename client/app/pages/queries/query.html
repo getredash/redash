@@ -75,7 +75,7 @@
       <div class="editor__left__data-source">
         <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode" on-select="updateDataSource()">
           <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
-          <ui-select-choices repeat="ds.id as ds in dataSources">
+          <ui-select-choices repeat="ds.id as ds in dataSources | filter:$select.search">
             {{ds.name}}
           </ui-select-choices>
         </ui-select>
