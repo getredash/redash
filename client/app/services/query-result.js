@@ -252,7 +252,7 @@ function QueryResultService($resource, $timeout, $q) {
       const series = {};
 
       this.getData().forEach((row) => {
-        let point = {};
+        let point = { $raw: row };
         let seriesName;
         let xValue = 0;
         const yValues = {};
@@ -302,7 +302,7 @@ function QueryResultService($resource, $timeout, $q) {
 
         if (seriesName === undefined) {
           each(yValues, (yValue, ySeriesName) => {
-            point = { x: xValue, y: yValue };
+            point = { x: xValue, y: yValue, $raw: point.$raw };
             if (eValue !== null) {
               point.yError = eValue;
             }
