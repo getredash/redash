@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="844px" height="844px" viewBox="0 0 844 844" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="844px" height="593px" viewBox="0 0 844 593" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
     <title>query</title>
     <desc>Created with Sketch.</desc>
@@ -26,7 +26,7 @@
         </linearGradient>
     </defs>
     <g id="query" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="Layer_1" transform="translate(167.000000, 154.000000)">
+        <g id="Layer_1" transform="translate(167.000000, 28.000000)">
             <g id="desk" transform="translate(0.000000, 101.000000)" fill-rule="nonzero">
                 <path d="M502.141,362.828 L370.998,295.665 C370.794,295.561 370.594,295.471 370.393,295.377 L417.319,271.676 C428.527,266.076 428.739,257.047 417.794,251.506 L297.438,191.237 C286.493,185.691 268.535,185.736 257.331,191.332 L8.721,316.89 C-2.483,322.488 -2.693,331.516 8.249,337.063 L128.608,397.332 C139.55,402.877 157.508,402.832 168.713,397.238 L235.15,363.683 L365.942,430.664 C376.884,436.209 394.842,436.164 406.047,430.57 L501.667,382.998 C512.874,377.398 513.086,368.369 502.141,362.828 Z" id="Shape" fill="#95BFE8" opacity="0.2"></path>
                 <g id="Group" transform="translate(21.000000, 141.000000)">
