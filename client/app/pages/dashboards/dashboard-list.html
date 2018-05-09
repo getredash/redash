@@ -25,7 +25,6 @@
           <thead>
           <tr>
             <th>Name</th>
-            <th>Created By</th>
             <th>Created At</th>
           </tr>
           </thead>
@@ -40,8 +39,11 @@
                 <span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
                 <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
               </a>
+
+              <span class="float-right">
+                <img ng-src="{{ dashboard.user.profile_image_url }}" class="profile__image_thumb" title="Created by {{ dashboard.user.name }}"/>
+              </span>
             </td>
-            <td><img ng-src="{{dashboard.user.profile_image_url}}" class="profile__image_thumb" title="{{dashboard.user.name}}"/></td>
             <td>{{ dashboard.created_at | dateTime }}</td>
           </tr>
           </tbody>

@@ -13,7 +13,11 @@
           <p class="f-500 m-b-20 c-black">Favourite Dashboards</p>
           <div class="list-group">
             <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.recentDashboards">
-               {{dashboard.name}} <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
+                <span href="" class="btn-favourite">
+                  <i class="fa fa-star" aria-hidden="true"></i>
+                </span>
+
+                {{dashboard.name}} <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
               </a>
           </div>
         </div>
@@ -21,7 +25,12 @@
         <div class="col-md-6">
           <p class="f-500 m-b-20 c-black">Favourite Queries</p>
           <div class="list-group">
-            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.recentQueries">{{query.name}}
+            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.recentQueries">
+              <span class="btn-favourite">
+                <i class="fa fa-star" aria-hidden="true"></i>
+              </span>
+
+              {{query.name}}
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
             </a>
           </div>
