@@ -6,7 +6,10 @@ import './app-header.css';
 
 const logger = debug('redash:appHeader');
 
-function controller($rootScope, $location, $uibModal, Auth, currentUser, clientConfig, Dashboard) {
+function controller(
+  $rootScope, $location, $uibModal, Auth, currentUser,
+  clientConfig, Dashboard, Query,
+) {
   this.logoUrl = logoUrl;
   this.basePath = clientConfig.basePath;
   this.currentUser = currentUser;
@@ -16,14 +19,15 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
   this.showSettingsMenu = currentUser.hasPermission('list_users');
   this.showDashboardsMenu = currentUser.hasPermission('list_dashboards');
 
-  this.reloadDashboards = () => {
-    logger('Reloading dashboards.');
-    this.dashboards = Dashboard.recent();
+  this.reload = () => {
+    logger('Reloading dashboards and queries.');
+    this.dashboards = Dashboard.favorites();
+    this.queries = Query.favorites();
   };
 
-  this.reloadDashboards();
+  this.reload();
 
-  $rootScope.$on('reloadDashboards', this.reloadDashboards);
+  $rootScope.$on('reloadFavorites', this.reload);
 
   this.newDashboard = () => {
     $uibModal.open({
