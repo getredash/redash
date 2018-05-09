@@ -99,11 +99,11 @@ class Mysql(BaseSQLQueryRunner):
 
     def _get_tables(self, schema):
         query = """
-        SELECT col.table_schema,
-               col.table_name,
-               col.column_name
+        SELECT col.TABLE_SCHEMA as table_schema,
+               col.TABLE_NAME as table_name,
+               col.COLUMN_NAME as column_name
         FROM `information_schema`.`columns` col
-        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
+        WHERE col.TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'mysql');
         """
 
         results, error = self.run_query(query, None)
