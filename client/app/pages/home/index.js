@@ -8,8 +8,8 @@ function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
   this.canCreateDashboard = currentUser.hasPermission('create_dashboard');
   this.canCreateAlert = currentUser.hasPermission('list_alerts');
 
-  this.recentQueries = Query.recent();
-  this.recentDashboards = Dashboard.recent();
+  this.favoriteQueries = Query.favorites();
+  this.favoriteDashboards = Dashboard.favorites();
 
   this.newDashboard = () => {
     $uibModal.open({
