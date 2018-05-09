@@ -20,8 +20,6 @@
             <span class="caret caret--nav"></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
-            <li><a href="dashboards">All Dashboards</a></li>
-            <li class="divider" ng-if="$ctrl.dashboards | notEmpty"></li>
             <li ng-repeat="dashboard in $ctrl.dashboards">
               <a href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
             </li>
