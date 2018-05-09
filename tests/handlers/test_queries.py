@@ -2,6 +2,7 @@ from tests import BaseTestCase
 from redash import models
 from redash.models import db
 
+from redash.serializers import serialize_query
 from redash.permissions import ACCESS_TYPE_MODIFY
 
 
@@ -12,8 +13,9 @@ class TestQueryResourceGet(BaseTestCase):
         rv = self.make_request('get', '/api/queries/{0}'.format(query.id))
 
         self.assertEquals(rv.status_code, 200)
-        expected = query.to_dict(with_visualizations=True)
+        expected = serialize_query(query, with_visualizations=True)
         expected['can_edit'] = True
+        expected['is_favorite'] = False
         self.assertResponseEqual(expected, rv.json)
 
     def test_get_all_queries(self):
@@ -200,21 +202,3 @@ WHERE x=1
 
         self.assertEqual(rv.json['query'], expected)
 
-
-class TestQueryFavoriteResource(BaseTestCase):
-    def test_favorite(self):
-        query = self.factory.create_query()
-
-        rv = self.make_request('post', '/api/queries/{}/favorite'.format(query.id))
-        self.assertEqual(rv.status_code, 200)
-        # self.assertEqual(rv.json['query'], expected)
-
-    def test_unfavorite(self):
-        query = self.factory.create_query()
-        rv = self.make_request('delete', '/api/queries/{}/favorite'.format(query.id))
-        self.assertEqual(rv.status_code, 200)
-
-class TestQueryFavoriteListResource(BaseTestCase):
-    def test_get_favorites(self):
-        rv = self.make_request('get', '/api/queries/favorites')
-        self.assertEqual(rv.status_code, 200)

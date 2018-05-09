@@ -4,6 +4,7 @@ from flask import request
 
 from redash import models
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.serializers import serialize_visualization
 from redash.permissions import (require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission)
@@ -23,8 +24,7 @@ class VisualizationListResource(BaseResource):
         vis = models.Visualization(**kwargs)
         models.db.session.add(vis)
         models.db.session.commit()
-        d = vis.to_dict(with_query=False)
-        return d
+        return serialize_visualization(vis, with_query=False)
 
 
 class VisualizationResource(BaseResource):
@@ -41,7 +41,7 @@ class VisualizationResource(BaseResource):
         kwargs.pop('query_id', None)
 
         self.update_model(vis, kwargs)
-        d = vis.to_dict(with_query=False)
+        d = serialize_visualization(vis, with_query=False)
         models.db.session.commit()
         return d
 
