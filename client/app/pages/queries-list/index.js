@@ -14,11 +14,11 @@ class QueriesListCtrl {
     switch ($location.path()) {
       case '/queries':
         Title.set('Queries');
-        this.resource = Query.query;
+        this.resource = Query.query.bind(Query);
         break;
       case '/queries/my':
         Title.set('My Queries');
-        this.resource = Query.myQueries;
+        this.resource = Query.myQueries.bind(Query);
         break;
       default:
         break;
@@ -36,7 +36,7 @@ class QueriesListCtrl {
         const rows = data.results.map((query) => {
           query.created_at = moment(query.created_at);
           query.retrieved_at = moment(query.retrieved_at);
-          return query;
+          return new Query(query);
         });
 
         paginator.updateRows(rows, data.count);
