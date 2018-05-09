@@ -1,5 +1,6 @@
 import time
 
+from inspect import isclass
 from flask import Blueprint, current_app, request
 
 from flask_login import current_user, login_required
@@ -83,7 +84,7 @@ def get_object_or_404(fn, *args, **kwargs):
     return rv
 
 
-def paginate(query_set, page, page_size, serializer):
+def paginate(query_set, page, page_size, serializer, **kwargs):
     count = query_set.count()
 
     if page < 1:
@@ -97,11 +98,17 @@ def paginate(query_set, page, page_size, serializer):
 
     results = query_set.paginate(page, page_size)
 
+    # support for old function based serializers
+    if isclass(serializer):
+        items = serializer(results.items, **kwargs).serialize()
+    else:
+        items = [serializer(result) for result in results.items]
+
     return {
         'count': count,
         'page': page,
         'page_size': page_size,
-        'results': [serializer(result) for result in results.items],
+        'results': items,
     }
 
 

@@ -2,6 +2,7 @@ import json
 from tests import BaseTestCase
 from redash.models import ApiKey, Dashboard, AccessPermission, db
 from redash.permissions import ACCESS_TYPE_MODIFY
+from redash.serializers import serialize_dashboard
 
 
 class TestDashboardListResource(BaseTestCase):
@@ -20,7 +21,7 @@ class TestDashboardResourceGet(BaseTestCase):
         rv = self.make_request('get', '/api/dashboards/{0}'.format(d1.slug))
         self.assertEquals(rv.status_code, 200)
 
-        expected = d1.to_dict(with_widgets=True)
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
         actual = json.loads(rv.data)
 
         self.assertResponseEqual(expected, actual)
