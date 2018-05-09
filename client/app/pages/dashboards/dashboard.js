@@ -228,9 +228,7 @@ function DashboardCtrl(
   this.archiveDashboard = () => {
     const archive = () => {
       Events.record('archive', 'dashboard', this.dashboard.id);
-      this.dashboard.$delete(() => {
-        $rootScope.$broadcast('reloadDashboards');
-      });
+      this.dashboard.$delete();
     };
 
     const title = 'Archive Dashboard';
@@ -278,7 +276,6 @@ function DashboardCtrl(
       { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
       (dashboard) => {
         this.dashboard = dashboard;
-        $rootScope.$broadcast('reloadDashboards');
       },
       (error) => {
         if (error.status === 403) {
@@ -373,7 +370,6 @@ function DashboardCtrl(
       (dashboard) => {
         this.saveInProgress = false;
         this.dashboard.version = dashboard.version;
-        $rootScope.$broadcast('reloadDashboards');
       },
     );
   };

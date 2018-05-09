@@ -22,9 +22,7 @@
       <div class="col-sm-8 col-xs-7 p-0">
         <favorites-control item="query"></favorites-control>
         <h3>
-          <a href="" class="btn-favourite">
-            <i class="fa fa-star-o" aria-hidden="true"></i>
-          </a>
+          <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
 
           <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
           <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
