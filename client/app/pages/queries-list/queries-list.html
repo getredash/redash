@@ -21,7 +21,11 @@
         </thead>
         <tbody>
           <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
-            <td>
+            <td class="table-main-title">
+              <a href="" class="btn-favourite">
+                <i class="fa fa-star-o" aria-hidden="true"></i>
+              </a>
+
               <a href="queries/{{query.id}}">{{query.name}}</a>
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
             </td>
