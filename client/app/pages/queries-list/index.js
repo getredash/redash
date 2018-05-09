@@ -48,7 +48,7 @@ class QueriesListCtrl {
     this.tabs = [
       { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
       { name: 'My Queries', path: 'queries/my' },
-      { name: 'Search', path: 'queries/search' },
+      //{ name: 'Search', path: 'queries/search' },
     ];
 
     this.showList = () => this.paginator.getPageRows() !== undefined && this.paginator.getPageRows().length > 0;
