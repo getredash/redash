@@ -3,9 +3,7 @@
   <div class="row p-l-15 p-r-15 m-b-10 m-l-0 m-r-0 dashboard-header">
     <div class="col-xs-5 col-sm-5 col-lg-5 page-header--new p-l-0">
       <h3>
-        <a href="" class="btn-favourite">
-          <i class="fa fa-star-o" aria-hidden="true"></i>
-        </a>
+        <favorites-control item="$ctrl.dashboard"></favorites-control>
 
         <edit-in-place editable="$ctrl.layoutEditing" done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name"></edit-in-place>
         <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
