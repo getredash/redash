@@ -11,19 +11,31 @@
     <div class="col-lg-3">
       <input type='text' class='form-control' placeholder="Search Dashboards..."
         ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
-      <div class='list-group m-t-10 m-b-10 tags-list tiled'>
-        <a href="" class="list-group-item">
+      <div class="list-group m-t-10 m-b-10 tags-list tiled">
+        <a href="dashboards" class="list-group-item"
+          ng-class="{active: $ctrl.currentPage == 'all'}">
+          <span style="padding-left: 13px;"></span>
+          All Dashboards
+        </a>
+
+        <a href="dashboards/favorite" class="list-group-item"
+          ng-class="{active: $ctrl.currentPage == 'favorites'}">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
           </span>
           Favorites
         </a>
-        <a href="" class="list-group-item">
-          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="16" style="margin-right: 0;"/>My Dashboards
+        <a href="dashboards/my" class="list-group-item"
+          ng-class="{active: $ctrl.currentPage == 'my'}">
+          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar"
+            width="13" style="margin-right: 0;"/>
+          My Dashboards
         </a>
+      </div>
 
-        <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
-        class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
+      <div class="list-group m-t-10 tags-list tiled" ng-if="$ctrl.allTags.length > 0">
+        <a ng-repeat="tag in $ctrl.allTags" ng-class="{active: $ctrl.selectedTags.has(tag)}"
+          class="list-group-item" ng-click="$ctrl.toggleTag($event, tag)">
           {{ tag }}
         </a>
       </div>

@@ -9,14 +9,23 @@
       <input type='text' class='form-control' placeholder="Search Queries..."
              ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
       <div class='list-group m-t-10 m-b-10 tags-list tiled'>
-        <a href="" class="list-group-item">
+        <a href="queries" class="list-group-item"
+          ng-class="{active: $ctrl.currentPage == 'all'}">
+          <span style="padding-left: 13px;"></span>
+          All Queries
+        </a>
+        <a href="queries/favorite" class="list-group-item"
+          ng-class="{active: $ctrl.currentPage == 'favorites'}">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
           </span>
           Favorites
         </a>
-        <a href="" class="list-group-item">
-          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="16" style="margin-right: 0;"/>My Queries
+        <a href="queries/my" class="list-group-item"
+          ng-class="{active: $ctrl.currentPage == 'my'}">
+          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar"
+            width="13" style="margin-right: 0;"/>
+          My Queries
         </a>
 
         <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
