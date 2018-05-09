@@ -21,9 +21,7 @@
         <tbody>
           <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
             <td class="table-main-title">
-              <a href="" class="btn-favourite">
-                <i class="fa fa-star-o" aria-hidden="true"></i>
-              </a>
+              <favorites-control item="query"></favorites-control>
 
               <a href="queries/{{query.id}}">{{query.name}}</a>
 
