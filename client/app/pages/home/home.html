@@ -10,26 +10,27 @@
     <div class="t-body tb-padding">
       <div class="row">
         <div class="col-md-6">
-          <p class="f-500 m-b-20 c-black">Favourite Dashboards</p>
+          <p class="f-500 m-b-20 c-black">Favorite Dashboards</p>
           <div class="list-group">
-            <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.recentDashboards">
-                <span href="" class="btn-favourite">
-                  <i class="fa fa-star" aria-hidden="true"></i>
-                </span>
-
-                {{dashboard.name}} <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
-              </a>
+            <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item"
+              ng-repeat="dashboard in $ctrl.favoriteDashboards"
+              ng-if="dashboard.is_favorite"
+            >
+              <favorites-control item="dashboard"></favorites-control>
+              {{dashboard.name}}
+              <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
+            </a>
           </div>
         </div>
 
         <div class="col-md-6">
-          <p class="f-500 m-b-20 c-black">Favourite Queries</p>
+          <p class="f-500 m-b-20 c-black">Favorite Queries</p>
           <div class="list-group">
-            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.recentQueries">
-              <span class="btn-favourite">
-                <i class="fa fa-star" aria-hidden="true"></i>
-              </span>
-
+            <a ng-href="queries/{{query.id}}" class="list-group-item"
+              ng-repeat="query in $ctrl.favoriteQueries"
+              ng-if="query.is_favorite"
+            >
+              <favorites-control item="query"></favorites-control>
               {{query.name}}
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
             </a>
