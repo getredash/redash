@@ -890,6 +890,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             'api_key': self.api_key,
             'is_archived': self.is_archived,
             'is_draft': self.is_draft,
+            'is_favorite': False,
             'updated_at': self.updated_at,
             'created_at': self.created_at,
             'data_source_id': self.data_source_id,
