@@ -12,7 +12,6 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th>Created By</th>
             <th>Created At</th>
             <th>Runtime</th>
             <th>Last Executed At</th>
@@ -27,10 +26,13 @@
               </a>
 
               <a href="queries/{{query.id}}">{{query.name}}</a>
+
+
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-            </td>
-            <td>
-              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" /> {{query.user.name}}
+
+              <span class="float-right">
+                <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}"/>
+              </span>
             </td>
             <td>{{query.created_at | dateTime}}</td>
             <td>{{query.runtime | durationHumanize}}</td>
