@@ -285,3 +285,16 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query_text, query.id)
+
+
+class QueryFavoriteListResource(BaseResource):
+    def get(self):
+        pass
+
+    
+class QueryFavoriteResource(BaseResource):
+    def post(self, query_id):
+        pass
+    
+    def delete(self, query_id):
+        pass
