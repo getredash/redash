@@ -4,31 +4,40 @@ import { Paginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
 import './dashboard-list.css';
 
-
-function DashboardListCtrl(Dashboard, $location) {
+function DashboardListCtrl($scope, currentUser, $location) {
   const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/ig;
 
   const page = parseInt($location.search().page || 1, 10);
 
-  this.defaultOptions = {};
-  this.dashboards = Dashboard.query({}); // shared promise
+  // use $parent because we're using a component as route target instead of controller;
+  // $parent refers to scope created for the page by router
+  this.resource = $scope.$parent.$resolve.resource;
+  this.currentPage = $scope.$parent.$resolve.currentPage;
 
-  this.selectedTags = []; // in scope because it needs to be accessed inside a table refresh
+  this.defaultOptions = {};
+  this.dashboards = this.resource({}); // shared promise
+
+  this.selectedTags = new Set();
   this.searchText = '';
 
-  this.tagIsSelected = tag => this.selectedTags.indexOf(tag) > -1;
+  this.currentUser = currentUser;
 
   this.toggleTag = ($event, tag) => {
-    if (this.tagIsSelected(tag)) {
-      if ($event.shiftKey) {
-        this.selectedTags = this.selectedTags.filter(e => e !== tag);
+    if ($event.shiftKey) {
+      // toggle tag
+      if (this.selectedTags.has(tag)) {
+        this.selectedTags.delete(tag);
       } else {
-        this.selectedTags = [];
+        this.selectedTags.add(tag);
       }
-    } else if ($event.shiftKey) {
-      this.selectedTags.push(tag);
     } else {
-      this.selectedTags = [tag];
+      // if the tag is the only selected, deselect it, otherwise select only it
+      if (this.selectedTags.has(tag) && (this.selectedTags.size === 1)) {
+        this.selectedTags.clear();
+      } else {
+        this.selectedTags.clear();
+        this.selectedTags.add(tag);
+      }
     }
 
     this.update();
@@ -59,13 +68,13 @@ function DashboardListCtrl(Dashboard, $location) {
         dashboard.untagged_name = dashboard.name.replace(TAGS_REGEX, '').trim();
         return dashboard;
       }).filter((value) => {
-        if (this.selectedTags.length) {
-          const valueTags = new Set(value.tags);
-          const tagMatch = this.selectedTags;
-          const filteredMatch = tagMatch.filter(x => valueTags.has(x));
-          if (tagMatch.length !== filteredMatch.length) {
-            return false;
-          }
+        const valueTags = new Set(value.tags);
+        const matchesAllTags = _.all(
+          [...this.selectedTags.values()],
+          tag => valueTags.has(tag),
+        );
+        if (!matchesAllTags) {
+          return false;
         }
         if (this.searchText && this.searchText.length) {
           if (!value.untagged_name.toLowerCase().includes(this.searchText.toLowerCase())) {
@@ -91,10 +100,41 @@ export default function init(ngModule) {
   const route = {
     template: '<page-dashboard-list></page-dashboard-list>',
     reloadOnSearch: false,
-    title: 'Dashboards',
   };
 
   return {
-    '/dashboards': route,
+    '/dashboards': _.extend({
+      title: 'Dashboards',
+      resolve: {
+        currentPage: () => 'all',
+        resource(Dashboard) {
+          'ngInject';
+
+          return Dashboard.query.bind(Dashboard);
+        },
+      },
+    }, route),
+    '/dashboards/my': _.extend({
+      title: 'My Dashboards',
+      resolve: {
+        currentPage: () => 'my',
+        resource(Dashboard) {
+          'ngInject';
+
+          return Dashboard.myDashboards.bind(Dashboard);
+        },
+      },
+    }, route),
+    '/dashboards/favorite': _.extend({
+      title: 'Favorite Dashboards',
+      resolve: {
+        currentPage: () => 'favorites',
+        resource(Dashboard) {
+          'ngInject';
+
+          return Dashboard.favorites.bind(Dashboard);
+        },
+      },
+    }, route),
   };
 }

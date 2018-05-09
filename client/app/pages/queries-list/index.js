@@ -1,28 +1,23 @@
 import moment from 'moment';
+import _ from 'underscore';
 
 import { LivePaginator } from '@/lib/pagination';
 import template from './queries-list.html';
 
 class QueriesListCtrl {
-  constructor($location, Title, Query) {
+  constructor($scope, $location, Query, currentUser) {
     const page = parseInt($location.search().page || 1, 10);
 
     this.defaultOptions = {};
 
-    const self = this;
+    // use $parent because we're using a component as route target instead of controller;
+    // $parent refers to scope created for the page by router
+    this.resource = $scope.$parent.$resolve.resource;
+    this.currentPage = $scope.$parent.$resolve.currentPage;
 
-    switch ($location.path()) {
-      case '/queries':
-        Title.set('Queries');
-        this.resource = Query.query.bind(Query);
-        break;
-      case '/queries/my':
-        Title.set('My Queries');
-        this.resource = Query.myQueries.bind(Query);
-        break;
-      default:
-        break;
-    }
+    this.currentUser = currentUser;
+
+    const self = this;
 
     function queriesFetcher(requestedPage, itemsPerPage, paginator) {
       $location.search('page', requestedPage);
@@ -62,14 +57,62 @@ export default function init(ngModule) {
     controller: QueriesListCtrl,
   });
 
+  const route = {
+    template: '<page-queries-list></page-queries-list>',
+    reloadOnSearch: false,
+  };
+
   return {
-    '/queries': {
-      template: '<page-queries-list></page-queries-list>',
-      reloadOnSearch: false,
-    },
-    '/queries/my': {
-      template: '<page-queries-list></page-queries-list>',
-      reloadOnSearch: false,
-    },
+    '/queries': _.extend({
+      title: 'Queries',
+      resolve: {
+        currentPage: () => 'all',
+        resource(Query) {
+          'ngInject';
+
+          return Query.query.bind(Query);
+        },
+      },
+    }, route),
+    '/queries/my': _.extend({
+      title: 'My Queries',
+      resolve: {
+        currentPage: () => 'my',
+        resource: (Query) => {
+          'ngInject';
+
+          return Query.myQueries.bind(Query);
+        },
+      },
+    }, route),
+    '/queries/favorite': _.extend({
+      title: 'Favorite Queries',
+      resolve: {
+        currentPage: () => 'favorites',
+        resource: (Query, $q) => {
+          'ngInject';
+
+          return (request) => {
+            const result = {
+              results: [],
+            };
+            result.$promise = $q((resolve, reject) => {
+              // convert plain array to paginator
+              Query.favorites(request).$promise
+                .then((data) => {
+                  result.count = data.length;
+                  result.results = data;
+                  result.page = 1;
+                  result.page_size = data.length;
+
+                  resolve(result);
+                })
+                .catch(reject);
+            });
+            return result;
+          };
+        },
+      },
+    }, route),
   };
 }
