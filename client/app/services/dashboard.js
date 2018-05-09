@@ -75,6 +75,23 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
       url: 'api/dashboards/recent',
       transformResponse: transform,
     },
+    favorites: {
+      method: 'get',
+      isArray: true,
+      url: 'api/dashboards/favorites',
+    },
+    favorite: {
+      method: 'post',
+      isArray: false,
+      url: 'api/dashboards/:slug/favorite',
+      transformRequest: [() => ''], // body not needed
+    },
+    unfavorite: {
+      method: 'delete',
+      isArray: false,
+      url: 'api/dashboards/:slug/favorite',
+      transformRequest: [() => ''], // body not needed
+    },
   });
 
   resource.prototype.canEdit = function canEdit() {
