@@ -16,16 +16,18 @@ export default function init(ngModule) {
     bindings: {
       item: '=',
     },
-    controller() {
+    controller($rootScope) {
       this.toggleItem = (item) => {
         if (item) {
           if (item.is_favorite) {
             item.$unfavorite().then(() => {
               item.is_favorite = false;
+              $rootScope.$broadcast('reloadFavorites');
             });
           } else {
             item.$favorite().then(() => {
               item.is_favorite = true;
+              $rootScope.$broadcast('reloadFavorites');
             });
           }
         }

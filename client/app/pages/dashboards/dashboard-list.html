@@ -11,7 +11,17 @@
     <div class="col-lg-3">
       <input type='text' class='form-control' placeholder="Search Dashboards..."
         ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
-      <div class='list-group m-t-20 tags-list tiled'>
+      <div class='list-group m-t-10 tags-list tiled'>
+        <a href="" class="list-group-item">
+          <span class="btn-favourite">
+            <i class="fa fa-star" aria-hidden="true"></i>
+          </span>
+          Favorites
+        </a>
+        <a href="" class="list-group-item">
+          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="16" style="margin-right: 0;"/>My Dashboards
+        </a>
+
         <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
         class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
           {{ tag }}
