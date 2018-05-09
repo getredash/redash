@@ -44,7 +44,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
+function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, $q) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
@@ -93,6 +93,24 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
       transformRequest: [() => ''], // body not needed
     },
   });
+
+  // TODO: This is polyfill; move it to resource definition when API will be available
+  resource.myDashboards = (request) => {
+    const result = [];
+    result.$promise = $q((resolve, reject) => {
+      resource.query(request).$promise
+        .then((data) => {
+          _.each(data, (item) => {
+            if (item.user_id === currentUser.id) {
+              result.push(item);
+            }
+          });
+          resolve(result);
+        })
+        .catch(reject);
+    });
+    return result;
+  };
 
   resource.prototype.canEdit = function canEdit() {
     return currentUser.canEdit(this) || this.can_edit;
