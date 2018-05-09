@@ -104,6 +104,29 @@ class TestParseQueryJson(TestCase):
         query_data = parse_query_json(json.dumps(query))
         self.assertEqual(query_data['ts'], one_hour_ago)
 
+    def test_json5_syntax(self):
+        json = """
+        {
+            "column1": 1,
+            "nested": {
+                "inside": 2
+            }
+        }
+        """
+
+        json5 = """
+        // comment
+        {
+            column1: 1,
+            nested: {
+                inside: 2,
+            },
+        }
+        """
+
+        query_json = parse_query_json(json)
+        query_json5 = parse_query_json(json5)
+        self.assertDictEqual(query_json, query_json5)
 
 class TestMongoResults(TestCase):
     def test_parses_regular_results(self):

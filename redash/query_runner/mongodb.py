@@ -1,5 +1,5 @@
 import datetime
-import json
+import json5
 import logging
 import re
 
@@ -70,7 +70,7 @@ def datetime_parser(dct):
 
 
 def parse_query_json(query):
-    query_data = json.loads(query, object_hook=datetime_parser)
+    query_data = json5.loads(query, object_hook=datetime_parser)
     return query_data
 
 
@@ -150,7 +150,7 @@ class MongoDB(BaseQueryRunner):
     def __init__(self, configuration):
         super(MongoDB, self).__init__(configuration)
 
-        self.syntax = 'json'
+        self.syntax = 'json5'
 
         self.db_name = self.configuration["dbName"]
 
@@ -312,7 +312,7 @@ class MongoDB(BaseQueryRunner):
             "rows": rows
         }
         error = None
-        json_data = json.dumps(data, cls=MongoDBJSONEncoder)
+        json_data = json5.dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
 
