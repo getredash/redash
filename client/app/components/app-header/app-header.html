@@ -15,18 +15,26 @@
 
       <ul class="nav navbar-nav nav__main">
         <li class="dropdown btn-group" ng-show="$ctrl.showDashboardsMenu" uib-dropdown>
-          <a id="split-button" class="btn" href="dashboards">Dashboards</a>
+          <a class="btn" href="dashboards">Dashboards</a>
           <a type="button" class="btn hidden-xs" uib-dropdown-toggle>
             <span class="caret caret--nav"></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li ng-repeat="dashboard in $ctrl.dashboards">
-              <a href="dashboard/{{dashboard.slug}}" ng-bind="dashboard.name"></a>
+              <a href="dashboard/{{ dashboard.slug }}" ng-bind="dashboard.name"></a>
             </li>
           </ul>
         </li>
-        <li class="dropdown" ng-show="$ctrl.showQueriesMenu" uib-dropdown>
-          <a href="queries">Queries</a>
+        <li class="dropdown btn-group" ng-show="$ctrl.showQueriesMenu" uib-dropdown>
+          <a class="btn" href="queries">Queries</a>
+          <a type="button" class="btn hidden-xs" uib-dropdown-toggle>
+            <span class="caret caret--nav"></span>
+          </a>
+          <ul class="dropdown-menu" uib-dropdown-menu>
+            <li ng-repeat="query in $ctrl.queries">
+              <a href="queries/{{ query.id }}" ng-bind="query.name"></a>
+            </li>
+          </ul>
         </li>
         <li ng-if="$ctrl.showAlertsLink">
           <a href="alerts">Alerts</a>
