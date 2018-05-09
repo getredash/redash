@@ -4,42 +4,64 @@
   <empty-state icon="fa fa-code" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"
     ng-if="$ctrl.showEmptyState()"></empty-state>
 
-  <div ng-if="$ctrl.showList()">
-    <tab-nav tabs="$ctrl.tabs"></tab-nav>
+  <div class="row" ng-if="$ctrl.showList()">
+    <div class="col-lg-3">
+      <input type='text' class='form-control' placeholder="Search Queries..."
+             ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
+      <div class='list-group m-t-10 tags-list tiled'>
+        <a href="" class="list-group-item">
+          <span class="btn-favourite">
+            <i class="fa fa-star" aria-hidden="true"></i>
+          </span>
+          Favorites
+        </a>
+        <a href="" class="list-group-item">
+          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar" width="16" style="margin-right: 0;"/>My Queries
+        </a>
 
-    <div class="bg-white tiled">
-      <table class="table table-condensed table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Created At</th>
-            <th>Runtime</th>
-            <th>Last Executed At</th>
-            <th>Update Schedule</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
-            <td class="table-main-title">
-              <favorites-control item="query"></favorites-control>
+        <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
+           class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
+          {{ tag }}
+        </a>
+      </div>
+    </div>
 
-              <a href="queries/{{query.id}}">{{query.name}}</a>
+    <div class="col-lg-9">
+
+      <div class="bg-white tiled">
+        <table class="table table-condensed table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Created At</th>
+              <th>Runtime</th>
+              <th>Last Executed At</th>
+              <th>Update Schedule</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
+              <td class="table-main-title">
+                <favorites-control item="query"></favorites-control>
+
+                <a href="queries/{{query.id}}">{{query.name}}</a>
 
 
-              <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
+                <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
 
-              <span class="float-right">
-                <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}"/>
-              </span>
-            </td>
-            <td>{{query.created_at | dateTime}}</td>
-            <td>{{query.runtime | durationHumanize}}</td>
-            <td>{{query.retrieved_at | dateTime}}</td>
-            <td>{{query.schedule | scheduleHumanize}}</td>
-          </tr>
-        </tbody>
-      </table>
-      <paginator paginator="$ctrl.paginator"></paginator>
+                <span class="float-right">
+                  <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}"/>
+                </span>
+              </td>
+              <td>{{query.created_at | dateTime}}</td>
+              <td>{{query.runtime | durationHumanize}}</td>
+              <td>{{query.retrieved_at | dateTime}}</td>
+              <td>{{query.schedule | scheduleHumanize}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <paginator paginator="$ctrl.paginator"></paginator>
+      </div>
     </div>
   </div>
 </div>
