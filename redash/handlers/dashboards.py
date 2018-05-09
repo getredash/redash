@@ -6,31 +6,11 @@ from funcy import distinct, project, take
 from flask_restful import abort
 from redash import models, serializers, settings
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash.serializers import serialize_dashboard
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission)
 from sqlalchemy.orm.exc import StaleDataError
-
-
-class RecentDashboardsResource(BaseResource):
-    @require_permission('list_dashboards')
-    def get(self):
-        """
-        Lists dashboards modified in the last 7 days.
-        """
-        if settings.FEATURE_DUMB_RECENTS:
-            dashboards = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id).order_by(models.Dashboard.updated_at.desc()).limit(10)
-            dashboards = [d.to_dict() for d in dashboards]
-        else:
-            recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id, for_user=True)]
-
-            global_recent = []
-            if len(recent) < 10:
-                global_recent = [d.to_dict() for d in models.Dashboard.recent(self.current_org, self.current_user.group_ids, self.current_user.id)]
-
-            dashboards = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
-
-        return dashboards
 
 
 class DashboardListResource(BaseResource):
@@ -40,7 +20,7 @@ class DashboardListResource(BaseResource):
         Lists all accessible dashboards.
         """
         results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
-        return [q.to_dict() for q in results]
+        return [serialize_dashboard(d) for d in results]
 
     @require_permission('create_dashboard')
     def post(self):
@@ -59,7 +39,7 @@ class DashboardListResource(BaseResource):
                                      layout='[]')
         models.db.session.add(dashboard)
         models.db.session.commit()
-        return dashboard.to_dict()
+        return serialize_dashboard(dashboard)
 
 
 class DashboardResource(BaseResource):
@@ -99,7 +79,7 @@ class DashboardResource(BaseResource):
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, dashboard_slug, self.current_org)
-        response = dashboard.to_dict(with_widgets=True, user=self.current_user)
+        response = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:
@@ -146,7 +126,7 @@ class DashboardResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        result = dashboard.to_dict(with_widgets=True, user=self.current_user)
+        result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
         return result
 
     @require_permission('edit_dashboard')
@@ -162,7 +142,7 @@ class DashboardResource(BaseResource):
         dashboard.is_archived = True
         dashboard.record_changes(changed_by=self.current_user)
         models.db.session.add(dashboard)
-        d = dashboard.to_dict(with_widgets=True, user=self.current_user)
+        d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
         models.db.session.commit()
         return d
 
