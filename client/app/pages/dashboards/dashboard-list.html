@@ -32,9 +32,7 @@
           <tbody>
           <tr ng-repeat="dashboard in $ctrl.paginator.getPageRows()">
             <td class="table-main-title">
-              <a href="" class="btn-favourite">
-                <i class="fa fa-star-o" aria-hidden="true"></i>
-              </a>
+              <favorites-control item="dashboard"></favorites-control>
 
               <a href="dashboard/{{ dashboard.slug }}">
                 <span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
