@@ -8,7 +8,7 @@
     <div class="col-lg-3">
       <input type='text' class='form-control' placeholder="Search Queries..."
              ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
-      <div class='list-group m-t-10 tags-list tiled'>
+      <div class='list-group m-t-10 m-b-10 tags-list tiled'>
         <a href="" class="list-group-item">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
@@ -26,13 +26,15 @@
       </div>
     </div>
 
-    <div class="col-lg-9">
+    <div class="col-lg-9 p-l-0">
 
       <div class="bg-white tiled">
-        <table class="table table-condensed table-hover">
+        <table class="table table-condensed table-hover table-data">
           <thead>
             <tr>
+              <th></th>
               <th>Name</th>
+              <th></th>
               <th>Created At</th>
               <th>Runtime</th>
               <th>Last Executed At</th>
@@ -41,17 +43,17 @@
           </thead>
           <tbody>
             <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
+              <td class="p-r-0"><favorites-control item="query"></favorites-control></td>
               <td class="table-main-title">
-                <favorites-control item="query"></favorites-control>
-
                 <a href="queries/{{query.id}}">{{query.name}}</a>
-
 
                 <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
 
-                <span class="float-right">
-                  <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}"/>
-                </span>
+                <br>
+                <span class="label label-tag">#sales</span><span class="label label-tag">#2018</span><span class="label label-tag">#ops</span>
+              </td>
+              <td class="p-r-0">
+                <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}"/>
               </td>
               <td>{{query.created_at | dateTime}}</td>
               <td>{{query.runtime | durationHumanize}}</td>
