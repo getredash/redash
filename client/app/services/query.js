@@ -203,6 +203,23 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         isArray: false,
         url: 'api/queries/:id/results.json',
       },
+      favorites: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/favorites',
+      },
+      favorite: {
+        method: 'post',
+        isArray: false,
+        url: 'api/queries/:id/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
+      unfavorite: {
+        method: 'delete',
+        isArray: false,
+        url: 'api/queries/:id/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
     },
   );
 
