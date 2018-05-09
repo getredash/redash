@@ -12,7 +12,7 @@
     <div class="col-lg-3">
       <input type='text' class='form-control' placeholder="Search Dashboards..."
         ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
-      <div class='list-group m-t-10 tags-list tiled'>
+      <div class='list-group m-t-10 m-b-10 tags-list tiled'>
         <a href="" class="list-group-item">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
@@ -30,29 +30,27 @@
       </div>
     </div>
 
-    <div class="col-lg-9">
+    <div class="col-lg-9 p-l-0">
       <div class="bg-white tiled">
-        <table class="table table-condensed table-hover">
+        <table class="table table-condensed table-hover table-data">
           <thead>
           <tr>
+            <th style="width: 33px"></th>
             <th>Name</th>
+            <th></th>
             <th>Created At</th>
           </tr>
           </thead>
           <tbody>
           <tr ng-repeat="dashboard in $ctrl.paginator.getPageRows()">
+            <td class="p-r-0"><favorites-control item="dashboard"></favorites-control></td>
             <td class="table-main-title">
-              <favorites-control item="dashboard"></favorites-control>
-
               <a href="dashboard/{{ dashboard.slug }}">
-                <span class="label label-primary m-2" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
+                <span class="label label-tag" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span> {{ dashboard.untagged_name }}
                 <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
               </a>
-
-              <span class="float-right">
-                <img ng-src="{{ dashboard.user.profile_image_url }}" class="profile__image_thumb" title="Created by {{ dashboard.user.name }}"/>
-              </span>
             </td>
+            <td class="p-r-0"><img ng-src="{{ dashboard.user.profile_image_url }}" class="profile__image_thumb" title="Created by {{ dashboard.user.name }}"/></td>
             <td>{{ dashboard.created_at | dateTime }}</td>
           </tr>
           </tbody>
