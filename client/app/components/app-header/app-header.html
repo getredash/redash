@@ -21,7 +21,9 @@
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li ng-repeat="dashboard in $ctrl.dashboards">
-              <a href="dashboard/{{ dashboard.slug }}" ng-bind="dashboard.name"></a>
+              <a href="dashboard/{{ dashboard.slug }}">
+                {{ dashboard.name }}
+              </a>
             </li>
           </ul>
         </li>
@@ -32,7 +34,9 @@
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
             <li ng-repeat="query in $ctrl.queries">
-              <a href="queries/{{ query.id }}" ng-bind="query.name"></a>
+              <a href="queries/{{ query.id }}">
+                {{ query.name }}
+              </a>
             </li>
           </ul>
         </li>
