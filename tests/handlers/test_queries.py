@@ -199,3 +199,22 @@ WHERE x=1
         rv = self.make_request('post', '/api/queries/format', user=admin, data={'query': query})
 
         self.assertEqual(rv.json['query'], expected)
+
+
+class TestQueryFavoriteResource(BaseTestCase):
+    def test_favorite(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request('post', '/api/queries/{}/favorite'.format(query.id))
+        self.assertEqual(rv.status_code, 200)
+        # self.assertEqual(rv.json['query'], expected)
+
+    def test_unfavorite(self):
+        query = self.factory.create_query()
+        rv = self.make_request('delete', '/api/queries/{}/favorite'.format(query.id))
+        self.assertEqual(rv.status_code, 200)
+
+class TestQueryFavoriteListResource(BaseTestCase):
+    def test_get_favorites(self):
+        rv = self.make_request('get', '/api/queries/favorites')
+        self.assertEqual(rv.status_code, 200)
