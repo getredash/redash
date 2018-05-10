@@ -2,6 +2,7 @@ import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
 import { each, object, isEmpty, pluck, filter, contains, union, uniq, has } from 'underscore';
+import { processTags } from './utils';
 
 const logger = debug('redash:services:query');
 
@@ -232,6 +233,9 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
       options: {},
     });
   };
+
+  Query.getAllTags = () => $http.get('api/queries/tags')
+    .then(response => processTags(response.data));
 
   Query.format = function formatQuery(syntax, query) {
     if (syntax === 'json') {
