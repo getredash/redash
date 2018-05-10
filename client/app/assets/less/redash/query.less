@@ -236,18 +236,29 @@ edit-in-place p.editable:hover {
   }
 }
 
+.page-header--new {
+  .label-default {
+    margin-right: 3px;
+  }
+}
+
 .page-header--query {
   display: flex;
   align-items: center;
 
   h3 {
     display: inline-block;
+    margin-right: 5px;
   }
+}
 
-  button.label {
-    background: fade(@redash-gray, 15%);
-    border: 1px solid rgb(224, 231, 235);
-    color: fade(@redash-gray, 91%);
+a.label-tag {
+  background: fade(@redash-gray, 15%);
+  color: #333;
+
+  &:hover {
+    color: #333;
+    background: fade(@redash-gray, 25%);
   }
 }
 
