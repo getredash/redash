@@ -24,6 +24,7 @@ class QueriesListCtrl {
     this.showMyQueries = currentUser.hasPermission('create_query');
 
     this.showEmptyState = false;
+    this.loaded = false;
 
     const self = this;
 
@@ -41,6 +42,7 @@ class QueriesListCtrl {
       }
 
       return self.resource(request).$promise.then((data) => {
+        self.loaded = true;
         const rows = data.results.map((query) => {
           query.created_at = moment(query.created_at);
           query.retrieved_at = moment(query.retrieved_at);
