@@ -1,25 +1,27 @@
-from redash.handlers.base import BaseResource
 from redash import models
-from redash.serializers import QuerySerializer
+from redash.permissions import require_access, view_only
+from redash.handlers.base import BaseResource, get_object_or_404
+from redash.serializers import QuerySerializer, serialize_dashboard
 
 
 class QueryFavoriteListResource(BaseResource):
     def get(self):
-        favorites = models.Favorite.query.filter(models.Favorite.object.is_type(models.Query)).filter(models.Favorite.user_id==self.current_user.id)
-        return QuerySerializer([fav.object for fav in favorites]).serialize()
+        return QuerySerializer(models.Query.favorites(self.current_user)).serialize()
 
     
 class QueryFavoriteResource(BaseResource):
     def post(self, query_id):
-        # check access to the given query
-        query = models.Query.get_by_id(query_id)
-        fav = models.Favorite(object=query, user=self.current_user)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.groups, self.current_user, view_only)
+
+        fav = models.Favorite(org_id=self.current_org.id, object=query, user=self.current_user)
         models.db.session.add(fav)
         models.db.session.commit()
     
     def delete(self, query_id):
-        # get_by_id_and_org
-        query = models.Query.get_by_id(query_id)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        require_access(query.groups, self.current_user, view_only)
+
         models.Favorite.query.filter(models.Favorite.object==query, models.Favorite.user==self.current_user).delete()
         models.db.session.commit()
 
@@ -27,18 +29,17 @@ class QueryFavoriteResource(BaseResource):
 class DashboardFavoriteListResource(BaseResource):
     def get(self):
         favorites = models.Favorite.query.filter(models.Favorite.object.is_type(models.Dashboard)).filter(models.Favorite.user==self.current_user)
-        return [fav.object.to_dict() for fav in favorites]
+        return [serialize_dashboard(fav.object) for fav in favorites]
 
     
 class DashboardFavoriteResource(BaseResource):
     def post(self, object_id):
-        # check access to the given query
-        dashboard = models.Dashboard.get_by_slug_and_org(object_id, self.current_org)
-        fav = models.Favorite(object=dashboard, user=self.current_user)
+        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, object_id, self.current_org)
+        fav = models.Favorite(org_id=self.current_org.id, object=dashboard, user=self.current_user)
         models.db.session.add(fav)
         models.db.session.commit()
     
     def delete(self, object_id):
-        dashboard = models.Dashboard.get_by_slug_and_org(object_id, self.current_org)
+        dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, object_id, self.current_org)
         models.Favorite.query.filter(models.Favorite.object==dashboard, models.Favorite.user==self.current_user).delete()
         models.db.session.commit()
