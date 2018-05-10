@@ -44,11 +44,11 @@
             <td class="p-r-0"><favorites-control item="dashboard"></favorites-control></td>
             <td class="table-main-title">
               <a href="dashboard/{{ dashboard.slug }}">
-                {{ dashboard.untagged_name }}
+                {{ dashboard.name }}
               </a>
               <br>
               <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
-              <span class="label label-tag" ng-bind="tag" ng-repeat="tag in dashboard.tags"></span>
+              <tags-control item="dashboard"></tags-control>
             </td>
             <td class="p-r-0"><img ng-src="{{ dashboard.user.profile_image_url }}" class="profile__image_thumb" title="Created by {{ dashboard.user.name }}"/></td>
             <td>{{ dashboard.created_at | dateTime }}</td>
