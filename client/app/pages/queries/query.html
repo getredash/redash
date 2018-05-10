@@ -28,17 +28,7 @@
           <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
           <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
         </h3>
-
-        <em>
-          <edit-in-place editable="canEdit"
-            done="saveDescription"
-            editor="textarea"
-            placeholder="No description"
-            ignore-blanks='false'
-            value="query.description"
-            markdown="true">
-          </edit-in-place>
-        </em>
+        <span class="label label-tag">#sales</span><span class="label label-tag">#2018</span><span class="label label-tag">#ops</span>
       </div>
 
       <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
@@ -88,6 +78,17 @@
         <schema-browser class="schema-container" schema="schema" on-refresh="refreshSchema()"></schema-browser>
       </div>
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
+
+      <div class="query-metadata query-metadata--description">
+        <edit-in-place editable="canEdit"
+                       done="saveDescription"
+                       editor="textarea"
+                       placeholder="Add description"
+                       ignore-blanks='false'
+                       value="query.description"
+                       markdown="true">
+        </edit-in-place>
+      </div>
 
       <div class="query-metadata query-metadata--history" ng-if="!query.isNew()">
         <table>
