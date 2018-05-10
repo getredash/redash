@@ -1,7 +1,12 @@
 <div class="container">
   <page-header title="Queries"></page-header>
+
   <div class="row">
-    <div ng-if="$ctrl.showEmptyState" class="col-lg-9 p-r-0">
+    <div ng-if="!$ctrl.loaded" class="col-lg-9 p-r-0 text-center p-t-15 p-b-15">
+      <i class="fa fa-spinner fa-2x fa-pulse"></i>
+    </div>
+
+    <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-lg-9 p-r-0">
       <div ng-if="$ctrl.currentPage == 'all'">
         <empty-state icon="fa fa-code"
 	  illustration="query"
@@ -21,7 +26,7 @@
       </div>
     </div>
 
-    <div ng-if="!$ctrl.showEmptyState" class="col-lg-9 p-r-0">
+    <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-lg-9 p-r-0">
 
       <div class="bg-white tiled">
         <table class="table table-condensed table-hover table-data">

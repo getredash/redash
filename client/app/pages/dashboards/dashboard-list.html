@@ -2,8 +2,12 @@
   <page-header title="Dashboards"></page-header>
 
   <div class="row">
-    <div ng-if="$ctrl.showEmptyState" class="col-lg-9 p-r-0">
-      <div ng-if="$ctrl.currentPage == 'all'">
+    <div ng-if="!$ctrl.loaded" class="col-lg-9 p-r-0 text-center p-t-15 p-b-15">
+      <i class="fa fa-spinner fa-2x fa-pulse"></i>
+    </div>
+
+    <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-lg-9 p-r-0">
+      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0)">
         <empty-state icon="zmdi zmdi-view-quilt"
           description="See the big picture"
           show-dashboard-step="true"
@@ -11,15 +15,18 @@
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
 
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'my'">
+      <div class="tiled bg-white p-15"
+        ng-if="($ctrl.currentPage == 'my') && ($ctrl.searchText.length == 0)">
         Create a dashboard to populate My Dashboards list.
       </div>
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
+      <div class="tiled bg-white p-15"
+        ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == 0)">
         Mark dashboards as favorite <span class="btn-favourite"><i class="fa fa-star" aria-hidden="true"></i></span> to list them here.
       </div>
+      <div ng-if="$ctrl.searchText.length > 0">Empty state for search</div>
     </div>
 
-    <div ng-if="!$ctrl.showEmptyState" class="col-lg-9 p-r-0">
+    <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-lg-9 p-r-0">
       <div class="bg-white tiled">
         <table class="table table-condensed table-hover table-data">
           <thead>
