@@ -19,15 +19,15 @@
     <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
     <div class="row p-l-15 p-b-10 m-l-0 m-r-0 page-header--new page-header--query">
-      <div class="col-sm-8 col-xs-7 p-0">
+      <div class="page-title col-sm-8 col-xs-7 p-0">
+        <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
         <h3>
-          <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
-
           <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
-          <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
-          <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
         </h3>
-        <span class="label label-tag">#sales</span><span class="label label-tag">#2018</span><span class="label label-tag">#ops</span><button class="label label-tag"><i class="zmdi zmdi-edit"></i></button>
+        <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
+        <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+
+        <span class="label label-tag">#sales</span><span class="label label-tag">#2018</span><span class="label label-tag">#ops</span><a class="label label-tag"><i class="zmdi zmdi-edit"></i></a>
       </div>
 
       <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
