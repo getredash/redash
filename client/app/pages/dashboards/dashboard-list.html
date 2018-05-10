@@ -1,14 +1,24 @@
 <div class='container'>
   <page-header title="Dashboards"></page-header>
 
-  <empty-state icon="zmdi zmdi-view-quilt"
-               description="See the big picture"
-               show-dashboard-step="true"
-               help-link="http://help.redash.io/category/22-dashboards"
-               ng-if="$ctrl.showEmptyState"></empty-state>
+  <div class="row">
+    <div ng-if="$ctrl.showEmptyState" class="col-lg-9 p-r-0">
+      <div ng-if="$ctrl.currentPage == 'all'">
+        <empty-state icon="zmdi zmdi-view-quilt"
+          description="See the big picture"
+          show-dashboard-step="true"
+          help-link="http://help.redash.io/category/22-dashboards"></empty-state>
+      </div>
 
-  <div class="row" ng-if="$ctrl.showList">
-    <div class="col-lg-9 p-r-0">
+      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'my'">
+        Create a dashboard to populate My Dashboards list.
+      </div>
+      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
+        Mark dashboards as favorite <span class="btn-favourite"><i class="fa fa-star" aria-hidden="true"></i></span> to list them here.
+      </div>
+    </div>
+
+    <div ng-if="!$ctrl.showEmptyState" class="col-lg-9 p-r-0">
       <div class="bg-white tiled">
         <table class="table table-condensed table-hover table-data">
           <thead>
@@ -41,31 +51,31 @@
 
     <div class="col-lg-3">
       <input type='text' class='form-control' placeholder="Search Dashboards..."
-             ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
+        ng-change="$ctrl.update()" ng-model="$ctrl.searchText" autofocus/>
       <div class="list-group m-t-10 m-b-10 tags-list tiled">
         <a href="dashboards" class="list-group-item"
-           ng-class="{active: $ctrl.currentPage == 'all'}">
+          ng-class="{active: $ctrl.currentPage == 'all'}">
           All Dashboards
         </a>
 
         <a href="dashboards/favorite" class="list-group-item"
-           ng-class="{active: $ctrl.currentPage == 'favorites'}">
+          ng-class="{active: $ctrl.currentPage == 'favorites'}">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
           </span>
           Favorites
         </a>
         <a href="dashboards/my" class="list-group-item"
-           ng-class="{active: $ctrl.currentPage == 'my'}">
+          ng-class="{active: $ctrl.currentPage == 'my'}">
           <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar"
-               width="13" style="margin-right: 0;"/>
+            width="13" style="margin-right: 0;"/>
           My Dashboards
         </a>
       </div>
 
       <div class="list-group m-t-10 tags-list tiled" ng-if="$ctrl.allTags.length > 0">
         <a ng-repeat="tag in $ctrl.allTags" ng-class="{active: $ctrl.selectedTags.has(tag)}"
-           class="list-group-item" ng-click="$ctrl.toggleTag($event, tag)">
+          class="list-group-item" ng-click="$ctrl.toggleTag($event, tag)">
           {{ tag }}
         </a>
       </div>
