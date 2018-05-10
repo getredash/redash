@@ -242,7 +242,12 @@ edit-in-place p.editable:hover {
 
   h3 {
     display: inline-block;
-    margin-right: 10px;
+  }
+
+  button.label {
+    background: fade(@redash-gray, 15%);
+    border: 1px solid rgb(224, 231, 235);
+    color: fade(@redash-gray, 91%);
   }
 }
 
@@ -493,7 +498,6 @@ edit-in-place p.editable:hover {
   }
 }
 
-
 // Left nav fixes for filling all the space
 nav .rg-bottom {
   visibility: hidden;
@@ -501,7 +505,15 @@ nav .rg-bottom {
 
 .query-metadata--description {
   max-height: 125px;
-  overflow-y: scroll;
+  overflow-y: auto;
+
+  .edit-in-place.active {
+    width: 100% !important;
+  }
+
+  .edit-in-place .rd-form-control {
+    width: 100% !important;
+  }
 }
 
 .query-metadata--refresh {
