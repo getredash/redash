@@ -40,6 +40,8 @@ class QueriesListCtrl {
       });
     }
 
+    this.navigateTo = url => $location.url(url);
+
     this.paginator = new LivePaginator(queriesFetcher, { page });
   }
 }
