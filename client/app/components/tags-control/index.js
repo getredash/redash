@@ -1,19 +1,66 @@
-const template = `
-  <span class="label label-tag" ng-repeat="tag in $ctrl.item.tags">{{ tag }}</span
-  ><a ng-if="$ctrl.canEdit && $ctrl.item.tags.length == 0" class="label label-tag"
-    ><i class="zmdi zmdi-plus"></i> Add tag</a
-  ><a ng-if="$ctrl.canEdit && $ctrl.item.tags.length > 0" class="label label-tag"
-    ><i class="zmdi zmdi-edit"></i></a>
-`;
+import { isObject, isArray, isFunction, map } from 'underscore';
+
+import controlTemplate from './control-template.html';
+import modalTemplate from './modal-template.html';
+
+function trim(str) {
+  return str.replace(/^\s+|\s+$/g, '');
+}
 
 export default function init(ngModule) {
+  ngModule.component('tagsEditorModal', {
+    template: modalTemplate,
+    bindings: {
+      resolve: '<',
+      close: '&',
+      dismiss: '&',
+    },
+    controller() {
+      this.save = () => {
+        this.close({
+          $value: map(this.resolve.items, trim),
+        });
+      };
+    },
+  });
+
   ngModule.component('tagsControl', {
-    template,
+    template: controlTemplate,
     bindings: {
       item: '=',
       canEdit: '<',
+      getAvailableTags: '<',
+      onEdit: '&',
     },
-    controller() {
+    controller($q, $uibModal) {
+      this.editTags = () => {
+        let tags = [];
+        if (isObject(this.item) && isArray(this.item.tags)) {
+          tags = map(this.item.tags, trim);
+        }
+
+        let promise = $q.resolve([]);
+        if (isFunction(this.getAvailableTags)) {
+          promise = this.getAvailableTags();
+        }
+        promise.then((availableTags) => {
+          availableTags = map(isArray(availableTags) ? availableTags : [], trim);
+          $uibModal.open({
+            component: 'tagsEditorModal',
+            resolve: {
+              items: () => tags,
+              availableTags: () => availableTags,
+            },
+          }).result.then((newTags) => {
+            if (isObject(this.item)) {
+              this.item.tags = newTags;
+              if (isFunction(this.onEdit)) {
+                this.onEdit();
+              }
+            }
+          });
+        });
+      };
     },
   });
 }

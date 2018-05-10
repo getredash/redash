@@ -4,7 +4,7 @@ import { Paginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
 import './dashboard-list.css';
 
-function DashboardListCtrl($scope, currentUser, $location) {
+function DashboardListCtrl($scope, currentUser, $location, Dashboard) {
   const page = parseInt($location.search().page || 1, 10);
 
   // use $parent because we're using a component as route target instead of controller;
@@ -49,7 +49,9 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.dashboards.$promise.then((data) => {
     this.loaded = true;
     this.showEmptyState = data.length === 0;
-    this.allTags = []; // TODO: Load via API
+    Dashboard.getAllTags().then((tags) => {
+      this.allTags = _.isArray(tags) ? tags : [];
+    });
   });
 
   this.paginator = new Paginator([], { page });
