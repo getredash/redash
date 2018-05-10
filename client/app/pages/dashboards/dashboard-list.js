@@ -5,8 +5,6 @@ import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 function DashboardListCtrl($scope, currentUser, $location) {
-  const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/gi;
-
   const page = parseInt($location.search().page || 1, 10);
 
   // use $parent because we're using a component as route target instead of controller;
@@ -51,11 +49,7 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.dashboards.$promise.then((data) => {
     this.loaded = true;
     this.showEmptyState = data.length === 0;
-    const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
-    this.allTags = _.unique(_.flatten(out))
-      .filter(e => e)
-      .map(tag => tag.replace(/:$/, ''));
-    this.allTags.sort();
+    this.allTags = []; // TODO: Load via API
   });
 
   this.paginator = new Paginator([], { page });
@@ -65,25 +59,25 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.update = () => {
     this.dashboards.$promise.then((data) => {
       data = _.sortBy(data, 'name');
-      const filteredDashboards = data
-        .map((dashboard) => {
-          dashboard.tags = (dashboard.name.match(TAGS_REGEX) || []).map(tag => tag.replace(/:$/, ''));
-          dashboard.untagged_name = dashboard.name.replace(TAGS_REGEX, '').trim();
-          return dashboard;
-        })
-        .filter((value) => {
-          const valueTags = new Set(value.tags);
-          const matchesAllTags = _.all([...this.selectedTags.values()], tag => valueTags.has(tag));
+      const filteredDashboards = _.filter(
+        data,
+        (dashboard) => {
+          const dashboardTags = new Set(dashboard.tags);
+          const matchesAllTags = _.all(
+            [...this.selectedTags.values()],
+            tag => dashboardTags.has(tag),
+          );
           if (!matchesAllTags) {
             return false;
           }
           if (_.isString(this.searchText) && (this.searchText !== '')) {
-            if (!value.untagged_name.toLowerCase().includes(this.searchText.toLowerCase())) {
+            if (!dashboard.name.toLowerCase().includes(this.searchText.toLowerCase())) {
               return false;
             }
           }
           return true;
-        });
+        },
+      );
 
       this.paginator.updateRows(filteredDashboards);
       this.showEmptyState = filteredDashboards.length === 0;
