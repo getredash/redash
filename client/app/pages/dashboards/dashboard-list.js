@@ -5,7 +5,7 @@ import template from './dashboard-list.html';
 import './dashboard-list.css';
 
 function DashboardListCtrl($scope, currentUser, $location) {
-  const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/ig;
+  const TAGS_REGEX = /(^([\w\s]|[^\u0000-\u007F])+):|(#([\w-]|[^\u0000-\u007F])+)/gi;
 
   const page = parseInt($location.search().page || 1, 10);
 
@@ -21,6 +21,7 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.searchText = '';
 
   this.currentUser = currentUser;
+  this.showMyDashboards = currentUser.hasPermission('create_dashboard');
 
   this.toggleTag = ($event, tag) => {
     if ($event.shiftKey) {
@@ -32,7 +33,7 @@ function DashboardListCtrl($scope, currentUser, $location) {
       }
     } else {
       // if the tag is the only selected, deselect it, otherwise select only it
-      if (this.selectedTags.has(tag) && (this.selectedTags.size === 1)) {
+      if (this.selectedTags.has(tag) && this.selectedTags.size === 1) {
         this.selectedTags.clear();
       } else {
         this.selectedTags.clear();
@@ -49,7 +50,9 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.dashboards.$promise.then((data) => {
     this.showEmptyState = data.length === 0;
     const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
-    this.allTags = _.unique(_.flatten(out)).filter(e => e).map(tag => tag.replace(/:$/, ''));
+    this.allTags = _.unique(_.flatten(out))
+      .filter(e => e)
+      .map(tag => tag.replace(/:$/, ''));
     this.allTags.sort();
   });
 
@@ -60,26 +63,25 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.update = () => {
     this.dashboards.$promise.then((data) => {
       data = _.sortBy(data, 'name');
-      const filteredDashboards = data.map((dashboard) => {
-        dashboard.tags = (dashboard.name.match(TAGS_REGEX) || []).map(tag => tag.replace(/:$/, ''));
-        dashboard.untagged_name = dashboard.name.replace(TAGS_REGEX, '').trim();
-        return dashboard;
-      }).filter((value) => {
-        const valueTags = new Set(value.tags);
-        const matchesAllTags = _.all(
-          [...this.selectedTags.values()],
-          tag => valueTags.has(tag),
-        );
-        if (!matchesAllTags) {
-          return false;
-        }
-        if (this.searchText && this.searchText.length) {
-          if (!value.untagged_name.toLowerCase().includes(this.searchText.toLowerCase())) {
+      const filteredDashboards = data
+        .map((dashboard) => {
+          dashboard.tags = (dashboard.name.match(TAGS_REGEX) || []).map(tag => tag.replace(/:$/, ''));
+          dashboard.untagged_name = dashboard.name.replace(TAGS_REGEX, '').trim();
+          return dashboard;
+        })
+        .filter((value) => {
+          const valueTags = new Set(value.tags);
+          const matchesAllTags = _.all([...this.selectedTags.values()], tag => valueTags.has(tag));
+          if (!matchesAllTags) {
             return false;
           }
-        }
-        return true;
-      });
+          if (this.searchText && this.searchText.length) {
+            if (!value.untagged_name.toLowerCase().includes(this.searchText.toLowerCase())) {
+              return false;
+            }
+          }
+          return true;
+        });
 
       this.paginator.updateRows(filteredDashboards, data.count);
     });
@@ -100,38 +102,47 @@ export default function init(ngModule) {
   };
 
   return {
-    '/dashboards': _.extend({
-      title: 'Dashboards',
-      resolve: {
-        currentPage: () => 'all',
-        resource(Dashboard) {
-          'ngInject';
+    '/dashboards': _.extend(
+      {
+        title: 'Dashboards',
+        resolve: {
+          currentPage: () => 'all',
+          resource(Dashboard) {
+            'ngInject';
 
-          return Dashboard.query.bind(Dashboard);
+            return Dashboard.query.bind(Dashboard);
+          },
         },
       },
-    }, route),
-    '/dashboards/my': _.extend({
-      title: 'My Dashboards',
-      resolve: {
-        currentPage: () => 'my',
-        resource(Dashboard) {
-          'ngInject';
+      route,
+    ),
+    '/dashboards/my': _.extend(
+      {
+        title: 'My Dashboards',
+        resolve: {
+          currentPage: () => 'my',
+          resource(Dashboard) {
+            'ngInject';
 
-          return Dashboard.myDashboards.bind(Dashboard);
+            return Dashboard.myDashboards.bind(Dashboard);
+          },
         },
       },
-    }, route),
-    '/dashboards/favorite': _.extend({
-      title: 'Favorite Dashboards',
-      resolve: {
-        currentPage: () => 'favorites',
-        resource(Dashboard) {
-          'ngInject';
+      route,
+    ),
+    '/dashboards/favorite': _.extend(
+      {
+        title: 'Favorite Dashboards',
+        resolve: {
+          currentPage: () => 'favorites',
+          resource(Dashboard) {
+            'ngInject';
 
-          return Dashboard.favorites.bind(Dashboard);
+            return Dashboard.favorites.bind(Dashboard);
+          },
         },
       },
-    }, route),
+      route,
+    ),
   };
 }
