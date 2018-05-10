@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import { processTags } from './utils';
 
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.
@@ -111,6 +112,9 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, 
     });
     return result;
   };
+
+  resource.getAllTags = () => $http.get('api/dashboards/tags')
+    .then(response => processTags(response.data));
 
   resource.prototype.canEdit = function canEdit() {
     return currentUser.canEdit(this) || this.can_edit;

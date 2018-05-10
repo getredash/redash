@@ -73,6 +73,7 @@ function DashboardCtrl(
   this.updateGridItems = null;
   this.showPermissionsControl = clientConfig.showPermissionsControl;
   this.globalParameters = [];
+  this.isDashboardOwner = false;
 
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
@@ -168,6 +169,7 @@ function DashboardCtrl(
       { slug: $routeParams.dashboardSlug },
       (dashboard) => {
         this.dashboard = dashboard;
+        this.isDashboardOwner = currentUser.id === dashboard.user.id || currentUser.hasPermission('admin');
         Events.record('view', 'dashboard', dashboard.id);
         renderDashboard(dashboard, force);
 
@@ -262,6 +264,8 @@ function DashboardCtrl(
     }
   };
 
+  this.loadTags = () => Dashboard.getAllTags();
+
   this.saveName = () => {
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
@@ -275,6 +279,26 @@ function DashboardCtrl(
           toastr.error(
             'It seems like the dashboard has been modified by another user. ' +
               'Please copy/backup your changes and reload this page.',
+            { autoDismiss: false },
+          );
+        }
+      },
+    );
+  };
+
+  this.saveTags = () => {
+    Dashboard.save(
+      { slug: this.dashboard.id, version: this.dashboard.version, tags: this.dashboard.tags },
+      (dashboard) => {
+        this.dashboard = dashboard;
+      },
+      (error) => {
+        if (error.status === 403) {
+          toastr.error('Tags update failed: Permission denied.');
+        } else if (error.status === 409) {
+          toastr.error(
+            'It seems like the dashboard has been modified by another user. ' +
+            'Please copy/backup your changes and reload this page.',
             { autoDismiss: false },
           );
         }
