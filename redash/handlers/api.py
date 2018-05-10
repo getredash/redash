@@ -21,7 +21,8 @@ from redash.handlers.destinations import DestinationTypeListResource, Destinatio
 from redash.handlers.query_snippets import QuerySnippetListResource, QuerySnippetResource
 from redash.handlers.settings import OrganizationSettings
 from redash.handlers.favorites import QueryFavoriteListResource, QueryFavoriteResource, DashboardFavoriteListResource, DashboardFavoriteResource
-
+from redash.handlers.queries import QueryTagsResource
+from redash.handlers.dashboards import DashboardTagsResource
 
 
 class ApiExt(Api):
@@ -72,6 +73,9 @@ api.add_org_resource(QueryFavoriteListResource, '/api/queries/favorites', endpoi
 api.add_org_resource(QueryFavoriteResource, '/api/queries/<query_id>/favorite', endpoint='query_fovorite')
 api.add_org_resource(DashboardFavoriteListResource, '/api/dashboards/favorites', endpoint='dashboard_fovorites')
 api.add_org_resource(DashboardFavoriteResource, '/api/dashboards/<object_id>/favorite', endpoint='dashboard_fovorite')
+
+api.add_org_resource(QueryTagsResource, '/api/queries/tags', endpoint='query_tags')
+api.add_org_resource(DashboardTagsResource, '/api/dashboards/tags', endpoint='dashboard_tags')
 
 api.add_org_resource(QuerySearchResource, '/api/queries/search', endpoint='queries_search')
 api.add_org_resource(QueryRecentResource, '/api/queries/recent', endpoint='recent_queries')

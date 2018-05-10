@@ -141,7 +141,8 @@ class QueryListResource(BaseResource):
         results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
+        response = paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
+        return response
 
 
 class MyQueriesResource(BaseResource):
@@ -272,3 +273,7 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query_text, query.id)
+
+class QueryTagsResource(BaseResource):
+    def get(self):
+        return {t[0]: t[1] for t in models.Query.all_tags(self.current_user)}
