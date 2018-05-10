@@ -20,6 +20,16 @@
             <span class="caret caret--nav"></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
+            <li ng-if="$ctrl.dashboards.length == 0">
+              <a>
+                <em>
+                  <span class="btn-favourite">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                  </span>
+                  Dashboards will appear here
+                </em>
+              </a>
+            </li>
             <li ng-repeat="dashboard in $ctrl.dashboards">
               <a href="dashboard/{{ dashboard.slug }}">
                 {{ dashboard.name }}
@@ -33,6 +43,16 @@
             <span class="caret caret--nav"></span>
           </a>
           <ul class="dropdown-menu" uib-dropdown-menu>
+            <li ng-if="$ctrl.queries.length == 0">
+              <a>
+                <em>
+                  <span class="btn-favourite">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                  </span>
+                  Queries will appear here
+                </em>
+              </a>
+            </li>
             <li ng-repeat="query in $ctrl.queries">
               <a href="queries/{{ query.id }}">
                 {{ query.name }}
