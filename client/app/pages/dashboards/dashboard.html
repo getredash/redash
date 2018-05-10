@@ -8,7 +8,8 @@
       </h3>
       <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
       <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-      <tags-control item="$ctrl.dashboard" can-edit="true"></tags-control>
+      <tags-control item="$ctrl.dashboard" can-edit="$ctrl.isDashboardOwner"
+        get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags()"></tags-control>
     </div>
     <div class="col-xs-6 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
       <span ng-if="!$ctrl.dashboard.is_archived && !public" class="hidden-print">
