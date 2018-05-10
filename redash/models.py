@@ -39,6 +39,8 @@ from functools import reduce
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import relationship
 
 
 class SQLAlchemyExt(SQLAlchemy):
@@ -529,7 +531,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
 
 class Configuration(TypeDecorator):
-
     impl = db.Text
 
     def process_bind_param(self, value, dialect):
@@ -819,6 +820,24 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         return s.getvalue()
 
 
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = Column(db.Integer, primary_key=True)
+    name = Column(db.Unicode)
+
+    def __init__(self, name):
+        self.name = name
+
+
+query_tags_table = db.Table('query_tags',
+                db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
+                db.Column('query_id', db.Integer, db.ForeignKey('queries.id'), primary_key=True))
+
+dashboard_tags_table = db.Table('dashboard_tags',
+                db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True),
+                db.Column('dashboard_id', db.Integer, db.ForeignKey('dashboards.id'), primary_key=True))
+
+
 def should_schedule_next(previous_iteration, now, schedule, failures):
     if schedule.isdigit():
         ttl = int(schedule)
@@ -872,6 +891,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                                                  'description': 'C',
                                                  'query': 'D'}),
                            nullable=True)
+    query_tags = db.relationship('Tag', secondary=query_tags_table, backref='queries')
+    tags = association_proxy('query_tags', 'name')
 
     query_class = SearchBaseQuery
     __tablename__ = 'queries'
@@ -1275,6 +1296,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     is_archived = Column(db.Boolean, default=False, index=True)
     is_draft = Column(db.Boolean, default=True, index=True)
     widgets = db.relationship('Widget', backref='dashboard', lazy='dynamic')
+    dashboard_tags = db.relationship('Tag', secondary=dashboard_tags_table, backref='dashboards')
+    tags = association_proxy('dashboard_tags', 'name')
 
     __tablename__ = 'dashboards'
     __mapper_args__ = {
