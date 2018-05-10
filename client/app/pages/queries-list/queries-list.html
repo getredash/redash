@@ -20,7 +20,9 @@
       <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
         Mark queries as favorite <span class="btn-favourite"><i class="fa fa-star" aria-hidden="true"></i></span> to list them here.
       </div>
-      <div ng-if="$ctrl.currentPage == 'search'">Empty state for search</div>
+      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'search'">
+        Sorry, we couldn't find anything.
+      </div>
     </div>
 
     <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-lg-9 p-r-0">
@@ -45,7 +47,7 @@
                 <a href="queries/{{query.id}}">{{query.name}}</a>
                 <br>
                 <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-                <span class="label label-tag">#sales</span><span class="label label-tag">#2018</span><span class="label label-tag">#ops</span>
+                <tags-control item="query"></tags-control>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}"/>

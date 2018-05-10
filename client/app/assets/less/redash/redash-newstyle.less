@@ -150,7 +150,7 @@ body {
   > tbody > tr > td {
     padding-top: 5px !important;
   }
-  
+
   tr:hover {
     cursor: pointer;
   }
@@ -181,8 +181,40 @@ body {
   }
 }
 
-h3 .btn-favourite {
+.page-header--new .btn-favourite {
   font-size: 19px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+
+  h3 {
+    margin-right: 5px !important;
+  }
+
+  .label {
+    margin-top: 3px;
+    display: inline-block;
+  }
+
+  favorites-control {
+    margin-right: 5px;
+  }
+
+  @media (max-width: 767px) {
+    display: block;
+
+    favorites-control {
+      float: left;
+    }
+
+    h3 {
+      width: 100%;
+      margin-bottom: 5px !important;
+      display: block !important;
+    }
+  }
 }
 
 .navbar li a .btn-favourite .fa {
