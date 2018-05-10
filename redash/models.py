@@ -26,7 +26,7 @@ from redash.utils import generate_token, json_dumps
 from redash.utils.comparators import CaseInsensitiveComparator
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
-from sqlalchemy import distinct, or_
+from sqlalchemy import distinct, or_, and_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
@@ -922,6 +922,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
 
         return q
+    
+    @classmethod
+    def favorites(cls, user):
+        return cls.all_queries(user.group_ids, user.id, drafts=True).join((Favorite, and_(Favorite.object_type==u'Query', Favorite.object_id==Query.id))).filter(Favorite.user_id==user.id)
 
     @classmethod
     def by_user(cls, user):
@@ -1064,8 +1068,7 @@ class Favorite(TimestampMixin, db.Model):
     object = generic_relationship(object_type, object_id)
 
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
-    user = db.relationship(User, backref='favorite_queries')
-
+    user = db.relationship(User, backref='favorites')
     # UniqueConstraint(, 'col3', name='uix_1')
 
     @classmethod
@@ -1074,9 +1077,10 @@ class Favorite(TimestampMixin, db.Model):
     
     @classmethod
     def are_favorites(cls, user, objects):
+        objects = list(objects)
         if not objects:
             return []
-
+        
         object_type = six.text_type(objects[0].__class__.__name__)
         return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type==object_type, cls.user_id==user))
 
@@ -1295,35 +1299,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
         return query
-
-    @classmethod
-    def recent(cls, org, group_ids, user_id, for_user=False, limit=20):
-        query = (Dashboard.query
-                 .outerjoin(Event, Dashboard.id == Event.object_id.cast(db.Integer))
-                 .outerjoin(Widget)
-                 .outerjoin(Visualization)
-                 .outerjoin(Query)
-                 .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-                 .filter(
-                     Event.created_at > (db.func.current_date() - 7),
-                     Event.action.in_(['edit', 'view']),
-                     Event.object_id != None,
-                     Event.object_type == 'dashboard',
-                     Dashboard.org == org,
-                     Dashboard.is_archived == False,
-                     or_(Dashboard.is_draft == False, Dashboard.user_id == user_id),
-                     DataSourceGroup.group_id.in_(group_ids) |
-                     (Dashboard.user_id == user_id) |
-                     ((Widget.dashboard != None) & (Widget.visualization == None)))
-                 .group_by(Event.object_id, Dashboard.id)
-                 .order_by(db.desc(db.func.count(0))))
-
-        if for_user:
-            query = query.filter(Event.user_id == user_id)
-
-        query = query.limit(limit)
-
-        return query
+    
+    def favorites(cls, org, user):
+        return cls.all(org, user.group_ids, user.id).join((Favorite, and_(Favorite.object_type==u'Dashboard', Favorite.object_id==Dashboard.id))).filter(Favorite.user_id==user.id)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
