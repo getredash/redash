@@ -52,7 +52,7 @@ class QuerySearchResource(BaseResource):
 
         queries = models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts, limit=None)
 
-        return QuerySerializer(queries, with_last_modified_by=False)
+        return QuerySerializer(queries, with_last_modified_by=False).serialize()
 
 
 class QueryRecentResource(BaseResource):
