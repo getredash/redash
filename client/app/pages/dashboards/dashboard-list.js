@@ -55,6 +55,8 @@ function DashboardListCtrl($scope, currentUser, $location) {
 
   this.paginator = new Paginator([], { page });
 
+  this.navigateTo = url => $location.url(url);
+
   this.update = () => {
     this.dashboards.$promise.then((data) => {
       data = _.sortBy(data, 'name');
