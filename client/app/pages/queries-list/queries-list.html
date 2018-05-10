@@ -8,8 +8,13 @@
           help-link="http://help.redash.io/category/21-querying"
         ></empty-state>
       </div>
-      <div ng-if="$ctrl.currentPage == 'my'">Empty state for my queries</div>
-      <div ng-if="$ctrl.currentPage == 'favorites'">Empty state for favorite queries</div>
+      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'my'">
+        <a href="/queries/new" class="btn btn-primary btn-sm">Create your first query</a> to populate My Queries list. Need help? Check out our
+        <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
+      </div>
+      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
+        Mark queries as favorite <span class="btn-favourite"><i class="fa fa-star" aria-hidden="true"></i></span> to list them here.
+      </div>
     </div>
 
     <div ng-if="!$ctrl.showEmptyState" class="col-lg-9 p-r-0">
