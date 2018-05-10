@@ -46,8 +46,10 @@ function DashboardListCtrl($scope, currentUser, $location) {
 
   this.allTags = [];
   this.showEmptyState = false;
+  this.loaded = false;
 
   this.dashboards.$promise.then((data) => {
+    this.loaded = true;
     this.showEmptyState = data.length === 0;
     const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
     this.allTags = _.unique(_.flatten(out))
@@ -75,7 +77,7 @@ function DashboardListCtrl($scope, currentUser, $location) {
           if (!matchesAllTags) {
             return false;
           }
-          if (this.searchText && this.searchText.length) {
+          if (_.isString(this.searchText) && (this.searchText !== '')) {
             if (!value.untagged_name.toLowerCase().includes(this.searchText.toLowerCase())) {
               return false;
             }
@@ -83,7 +85,8 @@ function DashboardListCtrl($scope, currentUser, $location) {
           return true;
         });
 
-      this.paginator.updateRows(filteredDashboards, data.count);
+      this.paginator.updateRows(filteredDashboards);
+      this.showEmptyState = filteredDashboards.length === 0;
     });
   };
 
