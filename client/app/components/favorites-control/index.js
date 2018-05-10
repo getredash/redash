@@ -1,6 +1,6 @@
 const template = `
   <a href="javascript:void(0)" class="btn-favourite" 
-    ng-click="$ctrl.toggleItem($ctrl.item)"
+    ng-click="$ctrl.toggleItem($event, $ctrl.item)"
     ng-attr-title="{{ $ctrl.item.is_favorite ? 'Remove from favorites' : 'Add to favorites' }}">
     <i class="fa" ng-class="{
       'fa-star-o': !$ctrl.item.is_favorite, 
@@ -17,7 +17,9 @@ export default function init(ngModule) {
       item: '=',
     },
     controller($rootScope) {
-      this.toggleItem = (item) => {
+      this.toggleItem = ($event, item) => {
+        $event.preventDefault();
+        $event.stopPropagation();
         if (item) {
           if (item.is_favorite) {
             item.$unfavorite().then(() => {
