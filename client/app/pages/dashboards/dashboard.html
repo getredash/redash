@@ -8,6 +8,8 @@
         <edit-in-place editable="$ctrl.layoutEditing" done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name"></edit-in-place>
         <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+
+        <span class="label label-tag">#sales</span><span class="label label-tag">#2018</span><span class="label label-tag">#ops</span>
       </h3>
     </div>
     <div class="col-xs-7 col-sm-7 col-lg-7 text-right dashboard__control p-r-0">
