@@ -27,13 +27,7 @@
         <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
           popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-
-        <span class="label label-tag">#sales</span>
-        <span class="label label-tag">#2018</span>
-        <span class="label label-tag">#ops</span>
-        <a class="label label-tag">
-          <i class="zmdi zmdi-edit"></i>
-        </a>
+        <tags-control item="query" can-edit="true"></tags-control>
       </div>
 
       <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
@@ -244,7 +238,7 @@
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
                       <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
-                      &times;</span>
+                        &times;</span>
                     </rd-tab>
                     <li class="rd-tab">
                       <a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a>
