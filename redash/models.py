@@ -928,6 +928,24 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     @classmethod
     def favorites(cls, user):
         return cls.all_queries(user.group_ids, user.id, drafts=True).join((Favorite, and_(Favorite.object_type==u'Query', Favorite.object_id==Query.id))).filter(Favorite.user_id==user.id)
+    
+    @classmethod
+    def all_tags(cls, user, include_drafts=False):
+        from sqlalchemy import func
+        where = cls.is_archived == False
+
+        if not include_drafts:
+            where &= cls.is_draft == False
+
+        where &= DataSourceGroup.group_id.in_(user.group_ids)
+
+        tag_column = func.unnest(cls.tags).label('tag')
+        usage_count = func.count(1).label('usage_count')
+
+        return db.session.query(tag_column, usage_count).join(
+            DataSourceGroup,
+            cls.data_source_id == DataSourceGroup.data_source_id
+        ).filter(where).distinct().group_by(tag_column).order_by(usage_count.desc())# .limit(limit)
 
     @classmethod
     def by_user(cls, user):
@@ -1304,6 +1322,31 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
         return query
     
+    @classmethod
+    def all_tags(cls, org, user):
+        from sqlalchemy import func
+        tag_column = func.unnest(cls.tags).label('tag')
+        usage_count = func.count(1).label('usage_count')
+
+        query = (
+            db.session.query(tag_column, usage_count)
+            .outerjoin(Widget)
+            .outerjoin(Visualization)
+            .outerjoin(Query)
+            .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .filter(
+                Dashboard.is_archived == False,
+                (DataSourceGroup.group_id.in_(user.group_ids) |
+                 (Dashboard.user_id == user.id) |
+                 ((Widget.dashboard != None) & (Widget.visualization == None))),
+                Dashboard.org == org)
+            .group_by(tag_column))
+
+        query = query.filter(or_(Dashboard.user_id == user.id, Dashboard.is_draft == False))
+
+        return query.order_by(usage_count.desc())
+
+    @classmethod
     def favorites(cls, org, user):
         return cls.all(org, user.group_ids, user.id).join((Favorite, and_(Favorite.object_type==u'Dashboard', Favorite.object_id==Dashboard.id))).filter(Favorite.user_id==user.id)
 
