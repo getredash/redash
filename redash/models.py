@@ -1087,6 +1087,7 @@ class Favorite(TimestampMixin, db.Model):
     __tablename__ = "favorites"
 
     id = Column(db.Integer, primary_key=True)
+    org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
 
     object_type = Column(db.Unicode(255))
     object_id = Column(db.Integer)
