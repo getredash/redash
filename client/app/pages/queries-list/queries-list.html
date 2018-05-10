@@ -16,7 +16,9 @@
       <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
         Mark queries as favorite <span class="btn-favourite"><i class="fa fa-star" aria-hidden="true"></i></span> to list them here.
       </div>
-      <div ng-if="$ctrl.currentPage == 'search'">Empty state for search</div>
+      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'search'">
+        Sorry, we couldn't find anything.
+      </div>
     </div>
 
     <div ng-if="!$ctrl.showEmptyState" class="col-lg-9 p-r-0">
