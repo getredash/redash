@@ -14,7 +14,7 @@ class QueryFavoriteResource(BaseResource):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query.groups, self.current_user, view_only)
 
-        fav = models.Favorite(object=query, user=self.current_user)
+        fav = models.Favorite(org_id=self.current_org.id, object=query, user=self.current_user)
         models.db.session.add(fav)
         models.db.session.commit()
     
@@ -35,7 +35,7 @@ class DashboardFavoriteListResource(BaseResource):
 class DashboardFavoriteResource(BaseResource):
     def post(self, object_id):
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, object_id, self.current_org)
-        fav = models.Favorite(object=dashboard, user=self.current_user)
+        fav = models.Favorite(org_id=self.current_org.id, object=dashboard, user=self.current_user)
         models.db.session.add(fav)
         models.db.session.commit()
     
