@@ -17,6 +17,8 @@ class QueriesListCtrl {
 
     this.currentUser = currentUser;
 
+    this.showEmptyState = false;
+
     const self = this;
 
     function queriesFetcher(requestedPage, itemsPerPage, paginator) {
@@ -35,13 +37,12 @@ class QueriesListCtrl {
         });
 
         paginator.updateRows(rows, data.count);
+
+        self.showEmptyState = data.count === 0;
       });
     }
 
     this.paginator = new LivePaginator(queriesFetcher, { page });
-
-    this.showList = () => this.paginator.getPageRows() !== undefined && this.paginator.getPageRows().length > 0;
-    this.showEmptyState = () => this.paginator.getPageRows() !== undefined && this.paginator.getPageRows().length === 0;
   }
 }
 
