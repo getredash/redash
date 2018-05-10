@@ -65,7 +65,7 @@
           </span>
           Favorites
         </a>
-        <a href="dashboards/my" class="list-group-item"
+        <a href="dashboards/my" class="list-group-item" ng-if="$ctrl.showMyDashboards"
           ng-class="{active: $ctrl.currentPage == 'my'}">
           <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar"
             width="13" style="margin-right: 0;"/>
