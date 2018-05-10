@@ -55,16 +55,17 @@ class QueriesListCtrl {
 
     this.navigateTo = url => $location.url(url);
 
+    this.updateSearch = () => {
+      this.paginator.setPage(1);
+      queriesFetcher(this.paginator.page, this.paginator.itemsPerPage, this.paginator);
+    };
+
     if (['favorites', 'search'].indexOf(this.currentPage) >= 0) {
       this.paginator = new Paginator([], { page });
-      queriesFetcher(this.paginator.page, this.paginator.itemsPerPage, this.paginator);
+      this.updateSearch();
     } else {
       this.paginator = new LivePaginator(queriesFetcher, { page });
     }
-
-    this.update = () => {
-      this.paginator.setPage(1);
-    };
   }
 }
 
