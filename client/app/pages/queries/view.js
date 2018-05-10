@@ -182,6 +182,12 @@ function QueryViewCtrl(
     });
   };
 
+  $scope.saveTags = () => $scope.saveQuery({}, {
+    tags: $scope.query.tags,
+  });
+
+  $scope.loadTags = () => Query.getAllTags();
+
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
 
