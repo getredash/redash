@@ -21,6 +21,7 @@
             <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.createdBySort)">Created By <sort-icon column="$ctrl.createdBySort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
             <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.createdAtSort)">Created At <sort-icon column="$ctrl.createdAtSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
             <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.scheduleSort)">Update Schedule <sort-icon column="$ctrl.scheduleSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+            <th class="sortable-column" ng-click="$ctrl.paginator.orderBy($ctrl.dataSourceSort)">Data Source <sort-icon column="$ctrl.dataSourceSort" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
           </tr>
         </thead>
         <tbody>
@@ -31,6 +32,7 @@
               {{query.user.name}}</td>
             <td>{{query.created_at | dateTime}}</td>
             <td>{{query.schedule | scheduleHumanize}}</td>
+            <td>{{query.data_source.name}}</td>
           </tr>
           <tr ng-if="$ctrl.paginator.rows.length == 0">
             <td>No results found.</td>
