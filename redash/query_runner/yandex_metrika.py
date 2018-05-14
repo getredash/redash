@@ -6,31 +6,33 @@ import requests
 from urlparse import parse_qs, urlparse
 logger = logging.getLogger(__name__)
 
+COLUMN_TYPES = {
+    'date': (
+        'firstVisitDate', 'firstVisitStartOfYear', 'firstVisitStartOfQuarter',
+        'firstVisitStartOfMonth', 'firstVisitStartOfWeek',
+    ),
+    'datetime': (
+        'firstVisitStartOfHour', 'firstVisitStartOfDekaminute', 'firstVisitStartOfMinute',
+        'firstVisitDateTime', 'firstVisitHour', 'firstVisitHourMinute'
+
+    ),
+    'int': (
+        'pageViewsInterval', 'pageViews', 'firstVisitYear', 'firstVisitMonth',
+        'firstVisitDayOfMonth', 'firstVisitDayOfWeek', 'firstVisitMinute',
+        'firstVisitDekaminute',
+    )
+}
+
 
 def parse_ym_response(response):
     columns = []
-    COLUMN_TYPES = {
-        'date': (
-            'firstVisitDate', 'firstVisitStartOfYear', 'firstVisitStartOfQuarter',
-            'firstVisitStartOfMonth', 'firstVisitStartOfWeek', 
-        ),
-        'datetime': (
-            'firstVisitStartOfHour', 'firstVisitStartOfDekaminute', 'firstVisitStartOfMinute',
-            'firstVisitDateTime', 'firstVisitHour', 'firstVisitHourMinute'
 
-        ),
-        'int': (
-            'pageViewsInterval', 'pageViews', 'firstVisitYear', 'firstVisitMonth',
-            'firstVisitDayOfMonth', 'firstVisitDayOfWeek', 'firstVisitMinute',
-            'firstVisitDekaminute', 
-        )
-    }
     for type_, elements in COLUMN_TYPES.items():
         for el in elements:
             if 'first' in el:
                 el = el.replace('first', 'last')
                 COLUMN_TYPES[type_] += (el, )
-    
+
     dimensions_len = len(response['query']['dimensions'])
 
     for h in response['query']['dimensions'] + response['query']['metrics']:
@@ -46,7 +48,7 @@ def parse_ym_response(response):
             'friendly_name': friendly_name,
             'type': data_type,
         })
-    
+
     rows = []
     columns_fixed = False
     for row in response['data']:
@@ -58,10 +60,10 @@ def parse_ym_response(response):
             if not columns_fixed:
                 if isinstance(d, float):
                     columns[dimensions_len + i]['type'] = TYPE_FLOAT
-        
+
         columns_fixed = True
         rows.append(res)
-    
+
     return {'columns': columns, 'rows': rows}
 
 
