@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redash-start
+  labels:
+    name: redash-start 
+  namespace: {{ .Release.Namespace }}
+data:
+  config: |-
+    sleep 5 && /app/bin/docker-entrypoint create_db && /app/bin/docker-entrypoint server

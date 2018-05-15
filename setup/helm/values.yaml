@@ -1,0 +1,36 @@
+global:
+  # Redash
+  podName: redash
+  schedName: redash-scheduler
+  dbName: redash-db 
+  redisName: redash-redis
+  image: redash/redash
+  tag: latest
+  redashCookie: averylongcookieforredashinstallation
+  workers: 4
+  # DB & Redis
+  deployDB: true
+  dbImage: postgres:latest
+  redisImage: redis:latest
+  redisUrl: redash-redis
+  dbVolName: redash-db
+  postgresUrl: redash-db
+  postgresUser: redash
+  postgresDbName: redash
+  postgresDbPassword: averylongpassword
+  postgresPort: 5432
+  volumeSize: 10Gi
+  # Ingress
+  vhost: redash.domain.tld
+  # Cluster
+  clusterDomain: cluster.local
+  # Google 
+  googleClientID: googleclientID
+  googleClientSecret: googlesecret
+  # Mail
+  mailServer: smtp.domain.tld
+  mailPort: 587
+  mailUseTls: true
+  mailUsername: user
+  mailPassword: averylongpassword
+  mailsSender: redash@domain.tld
