@@ -44,12 +44,13 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         'schedule': timedelta(minutes=5)
     }
 
-celery.conf.update(CELERY_RESULT_BACKEND=settings.CELERY_BACKEND,
-                   CELERYBEAT_SCHEDULE=celery_schedule,
-                   CELERY_TIMEZONE='UTC',
-                   CELERY_TASK_RESULT_EXPIRES=settings.CELERY_TASK_RESULT_EXPIRES,
-                   CELERYD_LOG_FORMAT=settings.CELERYD_LOG_FORMAT,
-                   CELERYD_TASK_LOG_FORMAT=settings.CELERYD_TASK_LOG_FORMAT)
+celery.conf.update(result_backend=settings.CELERY_BACKEND,
+                   beat_schedule=celery_schedule,
+                   timezone='UTC',
+                   result_expires=settings.CELERY_TASK_RESULT_EXPIRES,
+                   worker_log_format=settings.CELERYD_LOG_FORMAT,
+                   worker_task_log_format=settings.CELERYD_TASK_LOG_FORMAT,
+                   worker_max_memory_per_child=settings.CELERY_WORKER_MAX_MEMORY_PER_CHILD)
 
 if settings.SENTRY_DSN:
     from raven import Client

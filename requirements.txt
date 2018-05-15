@@ -32,7 +32,7 @@ wsgiref==0.1.2
 honcho==0.5.0
 statsd==2.1.2
 gunicorn==19.7.1
-celery==3.1.25
+celery==4.1.0
 jsonschema==2.4.0
 RestrictedPython==3.6.0
 pysaml2==4.5.0
@@ -45,7 +45,7 @@ pystache==0.5.4
 parsedatetime==2.1
 cryptography==2.0.2
 simplejson==3.10.0
-ua-parser==0.7.3 
+ua-parser==0.7.3
 user-agents==1.1.0
 python-geoip-geolite2==2015.303
 # Uncomment the requirement for ldap3 if using ldap.
