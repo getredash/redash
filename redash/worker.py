@@ -49,7 +49,8 @@ celery.conf.update(result_backend=settings.CELERY_BACKEND,
                    timezone='UTC',
                    result_expires=settings.CELERY_TASK_RESULT_EXPIRES,
                    worker_log_format=settings.CELERYD_LOG_FORMAT,
-                   worker_task_log_format=settings.CELERYD_TASK_LOG_FORMAT)
+                   worker_task_log_format=settings.CELERYD_TASK_LOG_FORMAT,
+                   worker_max_memory_per_child=settings.CELERY_WORKER_MAX_MEMORY_PER_CHILD)
 
 if settings.SENTRY_DSN:
     from raven import Client
