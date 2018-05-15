@@ -252,7 +252,7 @@ function QueryResultService($resource, $timeout, $q) {
       const series = {};
 
       this.getData().forEach((row) => {
-        let point = {};
+        let point = { $raw: row };
         let seriesName;
         let xValue = 0;
         const yValues = {};
