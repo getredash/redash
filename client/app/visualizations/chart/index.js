@@ -20,7 +20,6 @@ const DEFAULT_OPTIONS = {
   percentFormat: '0[.]00%',
   dateTimeFormat: 'DD/MM/YYYY HH:mm',
   textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
-  tooltipLine: '{{ @@label }}',
 
   defaultColumns: 3,
   defaultRows: 8,
