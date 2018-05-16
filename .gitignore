@@ -22,3 +22,5 @@ node_modules
 .tmp
 .sass-cache
 npm-debug.log
+.history
+postgresql-data
