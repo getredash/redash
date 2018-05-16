@@ -161,6 +161,7 @@ class SqlServer(BaseSQLQueryRunner):
                 json_data = None
 
             cursor.close()
+            connection.commit()
         except pymssql.Error as e:
             try:
                 # Query errors are at `args[1]`
