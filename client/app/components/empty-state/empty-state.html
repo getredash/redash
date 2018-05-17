@@ -4,7 +4,9 @@
         <h2 ng-if="$ctrl.icon">
             <i ng-class="$ctrl.icon" aria-hidden="true"></i>
         </h2>
-        <p>{{$ctrl.description}}</p>
+      <p>{{$ctrl.description}}</p>
+
+      <img src="/static/images/illustrations/{{$ctrl.illustration}}.svg" alt="{{$ctrl.illustration}} Illustration" width="75%">
     </div>
     <div class="empty-state__steps">
         <h4>Let's get started</h4>
