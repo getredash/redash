@@ -23,18 +23,17 @@ COLUMN_TYPES = {
     )
 }
 
+for type_, elements in COLUMN_TYPES.items():
+    for el in elements:
+        if 'first' in el:
+            el = el.replace('first', 'last')
+            COLUMN_TYPES[type_] += (el, )
+
 
 def parse_ym_response(response):
     columns = []
-
-    for type_, elements in COLUMN_TYPES.items():
-        for el in elements:
-            if 'first' in el:
-                el = el.replace('first', 'last')
-                COLUMN_TYPES[type_] += (el, )
-
     dimensions_len = len(response['query']['dimensions'])
-
+   
     for h in response['query']['dimensions'] + response['query']['metrics']:
         friendly_name = h.split(':')[-1]
         if friendly_name in COLUMN_TYPES['date']:
@@ -42,26 +41,18 @@ def parse_ym_response(response):
         elif friendly_name in COLUMN_TYPES['datetime']:
             data_type = TYPE_DATETIME
         else:
-            data_type = 'STRING'
-        columns.append({
-            'name': h,
-            'friendly_name': friendly_name,
-            'type': data_type,
-        })
+            data_type = TYPE_STRING
+        columns.append({'name': h, 'friendly_name': friendly_name, 'type': data_type})
 
     rows = []
-    columns_fixed = False
-    for row in response['data']:
+    for num, row in enumerate(response['data']):
         res = {}
         for i, d in enumerate(row['dimensions']):
             res[columns[i]['name']] = d['name']
         for i, d in enumerate(row['metrics']):
             res[columns[dimensions_len + i]['name']] = d
-            if not columns_fixed:
-                if isinstance(d, float):
-                    columns[dimensions_len + i]['type'] = TYPE_FLOAT
-
-        columns_fixed = True
+            if num == 0 and isinstance(d, float):
+                columns[dimensions_len + i]['type'] = TYPE_FLOAT
         rows.append(res)
 
     return {'columns': columns, 'rows': rows}
@@ -100,7 +91,7 @@ class YandexMetrika(BaseSQLQueryRunner):
         self.list_path = 'counters'
 
     def _get_tables(self, schema):
-        
+
         counters = self._send_query('management/v1/{0}'.format(self.list_path))
 
         for row in counters[self.list_path]:
@@ -114,7 +105,7 @@ class YandexMetrika(BaseSQLQueryRunner):
             schema[owner]['columns'].append(counter)
 
         return schema.values()
-    
+
     def test_connection(self):
         self._send_query('management/v1/{0}'.format(self.list_path))
 
