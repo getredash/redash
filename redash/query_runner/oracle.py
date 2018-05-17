@@ -78,12 +78,13 @@ class Oracle(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Oracle, self).__init__(configuration)
 
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"])
+        dsn = "{host}:{port}/{servicename}".format(host=self.configuration["host"], port=self.configuration["port"], servicename=self.configuration["servicename"])
 
-        self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
+        self.connection_string = {
+            "user": self.configuration["user"],
+            "password": self.configuration["password"],
+            "dsn": dsn
+        }
 
     def _get_tables(self, schema):
         query = """
@@ -135,7 +136,7 @@ class Oracle(BaseSQLQueryRunner):
                 return cursor.var(cx_Oracle.STRING, 255, outconverter=Oracle._convert_number, arraysize=cursor.arraysize)
 
     def run_query(self, query, user):
-        connection = cx_Oracle.connect(self.connection_string)
+        connection = cx_Oracle.connect(self.connection_string["user"], self.connection_string["password"], self.connection_string["dsn"])
         connection.outputtypehandler = Oracle.output_handler
 
         cursor = connection.cursor()
@@ -154,7 +155,7 @@ class Oracle(BaseSQLQueryRunner):
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
-                connection.commit()   
+                connection.commit()
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None
