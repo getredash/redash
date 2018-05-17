@@ -8,6 +8,7 @@ const EmptyStateComponent = {
     icon: '@',
     title: '@',
     description: '@',
+    illustration: '@',
     helpLink: '@',
     showAlertStep: '<',
     showDashboardStep: '<',
