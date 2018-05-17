@@ -35,13 +35,23 @@ function createBooleanFormatter(values) {
   if (_.isArray(values)) {
     if (values.length >= 2) {
       // Both `true` and `false` specified
-      return value => '' + values[value ? 1 : 0];
+      return (value) => {
+        if (value === null || value === undefined) {
+          return '';
+        }
+        return '' + values[value ? 1 : 0];
+      };
     } else if (values.length === 1) {
       // Only `true`
       return value => (value ? values[0] : '');
     }
   }
-  return value => (value ? 'true' : 'false');
+  return (value) => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    return value ? 'true' : 'false';
+  };
 }
 
 function createNumberFormatter(format) {
