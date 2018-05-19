@@ -154,6 +154,16 @@ def base_href():
     return base_href
 
 
+def date_format_config():
+    date_format = current_org.get_setting('date_format')
+    date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    return {
+        'dateFormat': date_format,
+        'dateFormatList': list(date_format_list),
+        'dateTimeFormat': "{0} HH:mm".format(date_format),
+    }
+
+
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
@@ -163,15 +173,11 @@ def client_config():
     else:
         client_config = {}
 
-    date_format = current_org.get_setting('date_format')
-
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         'showPermissionsControl': settings.FEATURE_SHOW_PERMISSIONS_CONTROL,
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        'dateFormat': date_format,
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
         'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
         'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
         'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
@@ -182,6 +188,7 @@ def client_config():
     client_config.update({
         'basePath': base_href()
     })
+    client_config.update(date_format_config())
 
     return client_config
 

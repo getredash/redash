@@ -23,6 +23,7 @@ function OrganizationSettingsCtrl($http, toastr, clientConfig, Events) {
     });
   };
 
+  this.dateFormatList = clientConfig.dateFormatList;
   this.googleLoginEnabled = clientConfig.googleLoginEnabled;
 
   this.disablePasswordLoginToggle = () =>
