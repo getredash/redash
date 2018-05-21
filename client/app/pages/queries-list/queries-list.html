@@ -2,11 +2,41 @@
   <page-header title="Queries"></page-header>
 
   <div class="row">
-    <div ng-if="!$ctrl.loaded" class="col-lg-9 p-r-0 text-center p-t-15 p-b-15">
+    <div class="col-md-3 list-control-t">
+      <input type="text" class="form-control" placeholder="Search Queries..." autofocus
+             ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+             ng-change="$ctrl.updateSearch()">
+      <div class='list-group m-t-10 m-b-10 tags-list tiled'>
+        <a href="queries" class="list-group-item"
+           ng-class="{active: $ctrl.currentPage == 'all'}">
+          All Queries
+        </a>
+        <a href="queries/favorite" class="list-group-item"
+           ng-class="{active: $ctrl.currentPage == 'favorites'}">
+          <span class="btn-favourite">
+            <i class="fa fa-star" aria-hidden="true"></i>
+          </span>
+          Favorites
+        </a>
+        <a href="queries/my" class="list-group-item" ng-if="$ctrl.showMyQueries"
+           ng-class="{active: $ctrl.currentPage == 'my'}">
+          <img ng-src="{{$ctrl.currentUser.profile_image_url}}" class="profile__image--navbar"
+               width="13" style="margin-right: 0;"/>
+          My Queries
+        </a>
+
+        <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.tagIsSelected(tag)}'
+           class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
+          {{ tag }}
+        </a>
+      </div>
+    </div>
+
+    <div ng-if="!$ctrl.loaded" class="col-md-9 list-content text-center p-t-15 p-b-15">
       <i class="fa fa-spinner fa-2x fa-pulse"></i>
     </div>
 
-    <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-lg-9 p-r-0">
+    <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <div ng-if="$ctrl.currentPage == 'all'">
         <empty-state icon="fa fa-code"
           description="Getting the data from your datasources."
@@ -25,7 +55,7 @@
       </div>
     </div>
 
-    <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-lg-9 p-r-0">
+    <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-md-9 list-content">
 
       <div class="bg-white tiled">
         <table class="table table-condensed table-hover table-data">
@@ -63,7 +93,7 @@
       </div>
     </div>
 
-    <div class="col-lg-3">
+    <div class="col-md-3 list-control-r-b">
       <input type="text" class="form-control" placeholder="Search Queries..." autofocus
         ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
         ng-change="$ctrl.updateSearch()">
