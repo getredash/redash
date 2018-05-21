@@ -141,8 +141,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         return schema.values()
 
     def _get_connection(self):
-    
-    connection = psycopg2.connect(user=self.configuration.get('user'),
+        connection = psycopg2.connect(user=self.configuration.get('user'),
                                       password=self.configuration.get('password'),
                                       host=self.configuration.get('host'),
                                       port=self.configuration.get('port'),
