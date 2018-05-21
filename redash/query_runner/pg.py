@@ -120,7 +120,6 @@ class PostgreSQL(BaseSQLQueryRunner):
         c = composite type
         '''
 
-
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
