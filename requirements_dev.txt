@@ -6,3 +6,7 @@ mock==2.0.0
 
 # PyMongo is needed for one of the unit tests:
 pymongo==3.6.1
+
+# uitests
+PyPOM==1.3.0
+pytest-selenium==1.12.0
