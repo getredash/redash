@@ -98,7 +98,7 @@ def serialize_query(query, with_stats=False, with_visualizations=False, with_use
         'data_source_id': query.data_source_id,
         'options': query.options,
         'version': query.version,
-        'tags': list(query.tags)
+        'tags': query.tags or [],
     }
 
     if with_user:
@@ -212,7 +212,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         'widgets': widgets,
         'is_archived': obj.is_archived,
         'is_draft': obj.is_draft,
-        'tags': list(obj.tags),
+        'tags': obj.tags or [],
         # TODO: bulk load favorites
         'updated_at': obj.updated_at,
         'created_at': obj.created_at,
