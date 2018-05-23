@@ -31,6 +31,7 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
+      # REDASH_WORKER_MAX_MEMORY_PER_CHILD: 10000
   redis:
     image: redis:3.0-alpine
     restart: unless-stopped
