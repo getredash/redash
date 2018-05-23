@@ -4,6 +4,7 @@ import uuid
 
 from redash.query_runner import BaseQueryRunner, register
 from redash.utils import JSONEncoder
+from ssl import PROTOCOL_TLSv1, CERT_NONE, CERT_REQUIRED
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +66,20 @@ class Cassandra(BaseQueryRunner):
                     'type': 'number',
                     'title': 'Timeout',
                     'default': 10
-                }
+                },
+                'use_ssl': {
+                    'type': 'boolean',
+                    'title': 'Use SSL',
+                    'default': False
+                },
+                'ssl_cacert': {
+                    'type': 'string',
+                    'title': 'Path to CA certificate file to verify peer against (Validate SSL)'
+                },
             },
-            'required': ['keyspace', 'host']
+            'required': ['keyspace', 'host'],
+            'order': ['host', 'port', 'username', 'password', 'keyspace',
+                      'protocol', 'timeout', 'use_ssl', 'ssl_cacert']
         }
 
     @classmethod
@@ -110,6 +122,7 @@ class Cassandra(BaseQueryRunner):
 
     def run_query(self, query, user):
         connection = None
+        ssl_opts = self.get_ssl_options()
         try:
             if self.configuration.get('username', '') and self.configuration.get('password', ''):
                 auth_provider = PlainTextAuthProvider(username='{}'.format(self.configuration.get('username', '')),
@@ -117,11 +130,13 @@ class Cassandra(BaseQueryRunner):
                 connection = Cluster([self.configuration.get('host', '')],
                                      auth_provider=auth_provider,
                                      port=self.configuration.get('port', ''),
-                                     protocol_version=self.configuration.get('protocol', 3))
+                                     protocol_version=self.configuration.get('protocol', 3),
+                                     ssl_options=ssl_opts)
             else:
                 connection = Cluster([self.configuration.get('host', '')],
                                      port=self.configuration.get('port', ''),
-                                     protocol_version=self.configuration.get('protocol', 3))
+                                     protocol_version=self.configuration.get('protocol', 3),
+                                     ssl_options=ssl_opts)
             session = connection.connect()
             session.set_keyspace(self.configuration['keyspace'])
             session.default_timeout = self.configuration.get('timeout', 10)
@@ -143,6 +158,17 @@ class Cassandra(BaseQueryRunner):
             json_data = None
 
         return json_data, error
+
+    def get_ssl_options(self):
+        verify = CERT_REQUIRED if self.configuration.get('ssl_cacert') else CERT_NONE
+        if self.configuration['use_ssl']:
+            return {
+                'ca_certs': self.configuration.get('ssl_cacert'),
+                'ssl_version': PROTOCOL_TLSv1,
+                'cert_reqs': verify
+            }
+        else:
+            return None
 
 
 class ScyllaDB(Cassandra):
