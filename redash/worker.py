@@ -44,12 +44,12 @@ if settings.QUERY_RESULTS_CLEANUP_ENABLED:
         'schedule': timedelta(minutes=5)
     }
 
-celery.conf.update(result_backend=settings.CELERY_BACKEND,
+celery.conf.update(result_backend=settings.CELERY_RESULT_BACKEND,
                    beat_schedule=celery_schedule,
                    timezone='UTC',
-                   result_expires=settings.CELERY_TASK_RESULT_EXPIRES,
-                   worker_log_format=settings.CELERYD_LOG_FORMAT,
-                   worker_task_log_format=settings.CELERYD_TASK_LOG_FORMAT,
+                   result_expires=settings.CELERY_RESULT_EXPIRES,
+                   worker_log_format=settings.CELERYD_WORKER_LOG_FORMAT,
+                   worker_task_log_format=settings.CELERYD_WORKER_TASK_LOG_FORMAT,
                    worker_max_memory_per_child=settings.CELERY_WORKER_MAX_MEMORY_PER_CHILD)
 
 if settings.SENTRY_DSN:

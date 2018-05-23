@@ -19,7 +19,7 @@ const EditTextBoxComponent = {
       if (this.widget.new_text !== this.widget.existing_text) {
         this.widget.text = this.widget.new_text;
         this.widget
-          .$save()
+          .save()
           .then(() => {
             this.close();
           })
@@ -67,9 +67,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
     Events.record('delete', 'widget', this.widget.id);
 
-    this.widget.$delete((response) => {
-      this.dashboard.widgets = this.dashboard.widgets.filter(w => w.id !== undefined && w.id !== this.widget.id);
-      this.dashboard.version = response.version;
+    this.widget.delete().then(() => {
       if (this.deleted) {
         this.deleted({});
       }
@@ -78,18 +76,21 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   Events.record('view', 'widget', this.widget.id);
 
-  this.reload = (force) => {
+  this.load = (refresh = false) => {
     const maxAge = $location.search().maxAge;
-    this.widget.load(force, maxAge);
+    this.widget.load(refresh, maxAge);
+  };
+
+  this.refresh = () => {
+    this.load(true);
   };
 
   if (this.widget.visualization) {
     Events.record('view', 'query', this.widget.visualization.query.id, { dashboard: true });
     Events.record('view', 'visualization', this.widget.visualization.id, { dashboard: true });
 
-    this.reload(false);
-
     this.type = 'visualization';
+    this.load();
   } else if (this.widget.restricted) {
     this.type = 'restricted';
   } else {

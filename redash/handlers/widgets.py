@@ -44,7 +44,7 @@ class WidgetListResource(BaseResource):
         models.db.session.commit()
 
         models.db.session.commit()
-        return {'widget': widget.to_dict()}
+        return widget.to_dict()
 
 
 class WidgetResource(BaseResource):

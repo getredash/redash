@@ -1,5 +1,31 @@
 # Change Log
 
+## v4.0.1 - 2018-05-02
+
+### Added
+
+- Log user's screen resolution. @arikfr
+
+### Changed
+
+- [Redshift] fix the order of columns in the schema browser. @akiray03
+- Improve dashboard refresh UX: show previous data while refreshing. @arikfr
+
+### Fixed
+
+- Disable fork button to view_only users. @tonyjiangh
+- Hide overflowing data source and alert destination names. @kocsmy
+- Login pages were broken on mobile. @kocsmy
+- Cohort visualization wasn't rendering if value wasn't properly detected as date. @kravets-levko
+- Dashboard filters setting wasn't persisting. @arikfr
+- Display nulls and empty values as blank in table numeric fields. @chriszs
+- Date column on alerts page is labeled "Created By". @dbravender
+- Bootstrap script was breaking due to incompatability with pip 10. @ariarijp
+
+### Other
+
+- Updated README. @kocsmy
+
 ## v4.0.0 - 2018-04-16
 
 ### Added

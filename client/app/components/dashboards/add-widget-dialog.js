@@ -94,11 +94,10 @@ const AddWidgetDialog = {
       widget.options.position.col = position.col;
       widget.options.position.row = position.row;
 
-      widget.$save()
-        .then((response) => {
-          // update dashboard layout
-          this.dashboard.version = response.version;
-          this.dashboard.widgets.push(new Widget(response.widget));
+      widget
+        .save()
+        .then(() => {
+          this.dashboard.widgets.push(widget);
           this.close();
         })
         .catch(() => {

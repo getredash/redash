@@ -10,7 +10,7 @@
         </div>
         <div class="dropdown pull-right widget-menu-regular" ng-if="!$ctrl.public" uib-dropdown>
           <div class="actions">
-            <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more"></i></a>
+            <a data-toggle="dropdown" uib-dropdown-toggle><i class="zmdi zmdi-more-vert"></i></a>
           </div>
 
           <ul class="dropdown-menu pull-right" uib-dropdown-menu style="z-index:1000000">
@@ -51,8 +51,10 @@
     </div>
 
     <div class="body-row clearfix tile__bottom-control">
-      <a class="small hidden-print" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public">
-        <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
+      <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public">
+        <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i> 
+        <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()" ng-if="!$ctrl.widget.loading"></span>
+        <rd-timer timestamp="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
       </a>
       <span class="small hidden-print" ng-if="$ctrl.public">
         <i class="zmdi zmdi-time-restore"></i> <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()"></span>
@@ -61,7 +63,7 @@
         <i class="zmdi zmdi-time-restore"></i> {{$ctrl.widget.getQueryResult().getUpdatedAt() | dateTime}}
       </span>
 
-      <button class="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh" ng-click="$ctrl.reload(true)" ng-if="!$ctrl.public"><i class="zmdi zmdi-refresh"></i></button>
+      <button class="btn btn-sm btn-default pull-right hidden-print btn-transparent btn__refresh" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public"><i class="zmdi zmdi-refresh"></i></button>
     </div>
   </div>
 
