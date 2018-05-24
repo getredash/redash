@@ -1,6 +1,5 @@
 import moment from 'moment';
-import { truncate } from 'underscore.string';
-import { each, pick, extend, isObject } from 'underscore';
+import { each, pick, extend, isObject, truncate } from 'lodash';
 
 function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   widget.width = 1; // Backward compatibility, user on back-end

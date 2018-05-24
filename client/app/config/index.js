@@ -20,7 +20,7 @@ import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
-import { each, isFunction, extend } from 'underscore';
+import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
 

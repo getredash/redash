@@ -1,5 +1,5 @@
 import numberFormat from 'underscore.string/numberFormat';
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';

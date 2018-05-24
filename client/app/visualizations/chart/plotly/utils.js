@@ -1,7 +1,7 @@
 import {
-  isArray, isNumber, isString, isUndefined, contains, min, max, has, find,
-  each, values, sortBy, pluck, identity, filter, map, extend, reduce,
-} from 'underscore';
+  isArray, isNumber, isString, isUndefined, includes, min, max, has, find,
+each, values, sortBy, identity, filter, map, extend, reduce,
+} from 'lodash';
 import moment from 'moment';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 
@@ -177,7 +177,7 @@ function calculateDimensions(series, options) {
   const xPadding = 0.02;
   const yPadding = 0.1;
 
-  const hasX = contains(values(options.columnMapping), 'x');
+  const hasX = includes(values(options.columnMapping), 'x');
   const hasY2 = !!find(series, (serie) => {
     const seriesOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
     return (seriesOptions.yAxis === 1) && (
@@ -251,7 +251,7 @@ function preparePieData(seriesList, options) {
     });
 
     return {
-      values: pluck(serie.data, 'y'),
+      values: map(serie.data, i => i.y),
       labels: map(serie.data, row => (hasX ? normalizeValue(row.x) : `Slice ${index}`)),
       type: 'pie',
       hole: 0.4,
@@ -356,7 +356,7 @@ function prepareChartData(seriesList, options) {
 
     if (seriesOptions.type === 'bubble') {
       plotlySeries.marker = {
-        size: pluck(data, 'size'),
+        size: map(data, i => i.size),
       };
     } else if (seriesOptions.type === 'box') {
       plotlySeries.boxpoints = 'outliers';

@@ -1,4 +1,4 @@
-import { find } from 'underscore';
+import { find } from 'lodash';
 
 function sameNumber(a, b) {
   return (isNaN(a) && isNaN(b)) || (a === b);
