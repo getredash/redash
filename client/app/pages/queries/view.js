@@ -1,4 +1,4 @@
-import { pick, any, some, find, min, isObject } from 'underscore';
+import { pick, some, find, minBy, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import template from './query.html';
 
@@ -98,7 +98,7 @@ function QueryViewCtrl(
 
     $scope.dataSource = find(dataSources, ds => ds.id === $scope.query.data_source_id);
 
-    $scope.canCreateQuery = any(dataSources, ds => !ds.view_only);
+    $scope.canCreateQuery = some(dataSources, ds => !ds.view_only);
 
     getSchema();
   }
@@ -443,7 +443,7 @@ function QueryViewCtrl(
     (hash) => {
       // eslint-disable-next-line eqeqeq
       const exists = find($scope.query.visualizations, item => item.id == hash);
-      let visualization = min($scope.query.visualizations, viz => viz.id);
+      let visualization = minBy($scope.query.visualizations, viz => viz.id);
       if (!isObject(visualization)) {
         visualization = {};
       }

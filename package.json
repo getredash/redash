@@ -72,7 +72,6 @@
     "react-dom": "^16.3.2",
     "react2angular": "^3.2.1",
     "ui-select": "^0.19.8",
-    "underscore": "^1.8.3",
     "underscore.string": "^3.3.4"
   },
   "devDependencies": {

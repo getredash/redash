@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { map, range, partial, each, isArray } from 'underscore';
+import { map, range, partial, each, isArray } from 'lodash';
 import { durationHumanize } from '@/filters';
 
 import template from './schedule-dialog.html';

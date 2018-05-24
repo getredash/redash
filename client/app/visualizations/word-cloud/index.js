@@ -1,7 +1,7 @@
 import d3 from 'd3';
 import angular from 'angular';
 import cloud from 'd3-cloud';
-import { each } from 'underscore';
+import { each } from 'lodash';
 
 import editorTemplate from './word-cloud-editor.html';
 

@@ -1,4 +1,4 @@
-import { debounce } from 'underscore';
+import { debounce } from 'lodash';
 import template from './add-widget-dialog.html';
 import './add-widget-dialog.less';
 
