@@ -1,4 +1,5 @@
 import json
+import yaml
 import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -86,7 +87,7 @@ class YandexMetrika(BaseSQLQueryRunner):
 
     def __init__(self, configuration):
         super(YandexMetrika, self).__init__(configuration)
-        self.syntax = 'json'
+        self.syntax = 'yaml'
         self.host = 'https://api-metrika.yandex.ru'
         self.list_path = 'counters'
 
@@ -119,13 +120,23 @@ class YandexMetrika(BaseSQLQueryRunner):
     def run_query(self, query, user):
         logger.debug("Metrika is about to execute query: %s", query)
         data = None
+        query = query.strip()
         if query == "":
             error = "Query is empty"
             return data, error
         try:
-            params = json.loads(query)
-        except ValueError:
-            params = parse_qs(urlparse(query).query, keep_blank_values=True)
+            params = yaml.load(query)
+        except ValueError as e:
+            logging.exception(e)
+            error = unicode(e)
+            return data, error
+
+        if isinstance(params, dict):
+            if 'url' in params:
+                params = parse_qs(urlparse(params['url']).query, keep_blank_values=True)
+        else:
+            error = 'The query format must be JSON or YAML'
+            return data, error
 
         try:
             data = json.dumps(parse_ym_response(self._send_query(**params)), cls=JSONEncoder)
