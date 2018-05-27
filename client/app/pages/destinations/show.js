@@ -46,7 +46,7 @@ function DestinationCtrl(
     };
 
     const title = 'Delete Destination';
-    const message = 'Are you sure you want to delete this destination?';
+    const message = `Are you sure you want to delete {${$scope.destination.name}} destination?`;
     const confirm = { class: 'btn-warning', title: 'Delete' };
 
     AlertDialog.open(title, message, confirm).then(doDelete);

@@ -41,7 +41,7 @@ function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertD
     };
 
     const title = 'Delete Snippet';
-    const message = 'Are you sure you want to delete this snippet?';
+    const message = `Are you sure you want to delete {${this.snippet.trigger}} snippet?`;
     const confirm = { class: 'btn-warning', title: 'Delete' };
 
     AlertDialog.open(title, message, confirm).then(doDelete);
