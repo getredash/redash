@@ -6,7 +6,7 @@ const logger = debug('redash:http');
 
 function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, Events, DataSource,
+  currentUser, AlertDialog, Events, DataSource,
 ) {
   Events.record('view', 'page', 'admin/data_source');
 
@@ -43,16 +43,24 @@ function DataSourceCtrl(
     $scope.dataSource = new DataSource({ options: {} });
   };
 
-  function deleteDataSource() {
-    Events.record('delete', 'datasource', $scope.dataSource.id);
+  function deleteDataSource(callback) {
+    const doDelete = () => {
+      Events.record('delete', 'datasource', $scope.dataSource.id);
 
-    $scope.dataSource.$delete(() => {
-      toastr.success('Data source deleted successfully.');
-      $location.path('/data_sources/');
-    }, (httpResponse) => {
-      logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-      toastr.error('Failed to delete data source.');
-    });
+      $scope.dataSource.$delete(() => {
+        toastr.success('Data source deleted successfully.');
+        $location.path('/data_sources/');
+      }, (httpResponse) => {
+        logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
+        toastr.error('Failed to delete data source.');
+      });
+    };
+
+    const title = 'Delete Data source';
+    const message = 'Are you sure you want to delete this data source?';
+    const confirm = { class: 'btn-warning', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(doDelete, callback);
   }
 
   function testConnection(callback) {
