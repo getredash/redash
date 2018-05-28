@@ -25,7 +25,7 @@
         <tbody>
           <tr ng-repeat="user in $ctrl.users.getPageRows()">
             <td>
-              <img ng-src="{{ user | profileImage }}" height="32px" class="profile__image--settings"/>
+              <img ng-src="{{ user.profile_image_url }}" height="32px" class="profile__image--settings"/>
               <a href="users/{{ user.id }}" ng-class="{'text-muted': user.is_disabled}">{{ user.name }}</a>
             </td>
             <td>

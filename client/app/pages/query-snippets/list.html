@@ -27,7 +27,7 @@
                   {{snippet.snippet}}
                 </td>
                 <td>
-                  <img ng-src="{{ snippet.user | profileImage }}" class="profile__image_thumb"/>
+                  <img ng-src="{{ snippet.user.profile_image_url }}" class="profile__image_thumb"/>
                   <span ng-class="{'text-muted': snippet.user.is_disabled}">{{snippet.user.name}}</span>
                 </td>
                 <td>

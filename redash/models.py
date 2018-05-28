@@ -11,6 +11,7 @@ import time
 from funcy import project
 
 import xlsxwriter
+from flask import current_app as app, url_for
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from passlib.apps import custom_app_context as pwd_context
@@ -465,11 +466,17 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         super(User, self).__init__(*args, **kwargs)
 
     def to_dict(self, with_api_key=False):
+        profile_image_url = self.profile_image_url
+        if self.is_disabled:
+            assets = app.extensions['webpack']['assets'] or {}
+            path = 'images/avatar.svg'
+            profile_image_url = url_for('static', filename=assets.get(path, path))
+
         d = {
             'id': self.id,
             'name': self.name,
             'email': self.email,
-            'profile_image_url': self.profile_image_url,
+            'profile_image_url': profile_image_url,
             'groups': self.group_ids,
             'updated_at': self.updated_at,
             'created_at': self.created_at,

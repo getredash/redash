@@ -1,6 +1,9 @@
 // This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
 import 'core-js/fn/typed/array-buffer';
 
+// Ensure that this image will be available in assets folder
+import '@/assets/images/avatar.svg';
+
 import * as Pace from 'pace-progress';
 import debug from 'debug';
 import angular from 'angular';
@@ -25,7 +28,6 @@ import * as filters from '@/filters';
 import registerDirectives from '@/directives';
 import markdownFilter from '@/filters/markdown';
 import dateTimeFilter from '@/filters/datetime';
-import profileImageFilter from '@/filters/profile-image';
 import dashboardGridOptions from './dashboard-grid-options';
 
 const logger = debug('redash:config');
@@ -128,7 +130,6 @@ registerServices();
 registerFilters();
 markdownFilter(ngModule);
 dateTimeFilter(ngModule);
-profileImageFilter(ngModule);
 registerComponents();
 registerPages();
 registerVisualizations(ngModule);

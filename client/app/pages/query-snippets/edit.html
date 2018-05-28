@@ -23,7 +23,7 @@
       </div>
       <small ng-if="$ctrl.snippet.user">
         Created by:
-        <img ng-src="{{ $ctrl.snippet.user | profileImage }}" class="profile__image_thumb"/>
+        <img ng-src="{{ $ctrl.snippet.user.profile_image_url }}" class="profile__image_thumb"/>
         <span ng-class="{'text-muted': $ctrl.snippet.user.is_disabled}">{{$ctrl.snippet.user.name}}</span>
       </small>
     </form>

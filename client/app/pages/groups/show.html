@@ -17,7 +17,7 @@
                            refresh-delay="0"
                            ui-disable-choice="user.alreadyMember">
           <div class="d-flex align-items-center">
-            <img ng-src="{{ user | profileImage }}" class="profile__image" height="24px">&nbsp;<span
+            <img ng-src="{{ user.profile_image_url }}" class="profile__image" height="24px">&nbsp;<span
               ng-class="{'text-muted': user.is_disabled}">{{user.name}}</span>
             <small ng-if="user.alreadyMember">(already member in this group)</small>
           </div>
@@ -30,7 +30,7 @@
       <table class="table table-condensed table-hover" ng-show="members">
         <tbody>
         <tr ng-repeat="member in members">
-          <td width="50px"><img ng-src="{{ member | profileImage }}" class="profile__image" height="40px"/></td>
+          <td width="50px"><img ng-src="{{ member.profile_image_url }}" class="profile__image" height="40px"/></td>
           <td ng-class="{'text-muted': member.is_disabled}">{{member.name}}
             <button class="pull-right btn btn-sm btn-danger"
               ng-click="removeMember(member)"
