@@ -57,7 +57,7 @@ function DataSourceCtrl(
     };
 
     const title = 'Delete Data source';
-    const message = 'Are you sure you want to delete this data source?';
+    const message = `Are you sure you want to delete the "${$scope.dataSource.name}" data source?`;
     const confirm = { class: 'btn-warning', title: 'Delete' };
 
     AlertDialog.open(title, message, confirm).then(doDelete, callback);
