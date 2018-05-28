@@ -45,6 +45,9 @@ class Presto(BaseQueryRunner):
                 'port': {
                     'type': 'number'
                 },
+                'source_prefix': {
+                    'type': 'string'
+                },
                 'schema': {
                     'type': 'string'
                 },
@@ -95,12 +98,18 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
+        if user is None:
+            user_string = "system"
+        else:
+            user_string = user.email
+
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
                 username=self.configuration.get('username', 'redash'),
                 catalog=self.configuration.get('catalog', 'hive'),
-                schema=self.configuration.get('schema', 'default'))
+                schema=self.configuration.get('schema', 'default'),
+                source=self.configuration.get('source_prefix', 'redash-') + user_string)
 
         cursor = connection.cursor()
 
