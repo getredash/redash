@@ -281,6 +281,7 @@ function ChartEditor(ColorPalette, clientConfig) {
         <div><code>{{ @@y }}</code> y-value;</div>
         <div><code>{{ @@yPercent }}</code> relative y-value;</div>
         <div><code>{{ @@yError }}</code> y deviation;</div>       
+        <div><code>{{ @@size }}</code> bubble size;</div>       
         <div class="p-t-5">Also, all query result columns can be referenced using 
           <code class="text-nowrap">{{ column_name }}</code> syntax.</div>       
       `;

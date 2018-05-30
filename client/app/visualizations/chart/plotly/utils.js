@@ -43,6 +43,9 @@ function defaultFormatSeriesText(item) {
   if (item['@@yPercent'] !== undefined) {
     result = `${item['@@yPercent']} (${result})`;
   }
+  if (item['@@size'] !== undefined) {
+    result = `${result}: ${item['@@size']}`;
+  }
   return result;
 }
 
@@ -230,23 +233,26 @@ function preparePieData(seriesList, options) {
 
     const sourceData = new Map();
     const seriesTotal = reduce(serie.data, (result, row) => {
-      const y = normalizeValue(row.y, options.dateTimeFormat);
+      const y = normalizeValue(row.y);
       return result + Math.abs(y);
     }, 0);
     each(serie.data, (row) => {
-      const x = normalizeValue(row.x, options.dateTimeFormat);
-      const y = normalizeValue(row.y, options.dateTimeFormat);
+      const x = normalizeValue(row.x);
+      const y = normalizeValue(row.y);
       sourceData.set(x, {
         x,
         y,
         yPercent: y / seriesTotal * 100,
-        raw: row.$raw,
+        raw: extend({}, row.$raw, {
+          // use custom display format - see also `updateSeriesText`
+          '@@x': normalizeValue(row.x, options.dateTimeFormat),
+        }),
       });
     });
 
     return {
       values: pluck(serie.data, 'y'),
-      labels: map(serie.data, row => (hasX ? normalizeValue(row.x, options.dateTimeFormat) : `Slice ${index}`)),
+      labels: map(serie.data, row => (hasX ? normalizeValue(row.x) : `Slice ${index}`)),
       type: 'pie',
       hole: 0.4,
       marker: { colors: ColorPaletteArray },
@@ -292,22 +298,27 @@ function prepareChartData(seriesList, options) {
     const seriesColor = getSeriesColor(seriesOptions, index);
 
     // Sort by x - `Map` preserves order of items
-    const data = sortX ? sortBy(series.data, d => normalizeValue(d.x, options.dateTimeFormat)) : series.data;
+    const data = sortX ? sortBy(series.data, d => normalizeValue(d.x)) : series.data;
 
     const sourceData = new Map();
     const xValues = [];
     const yValues = [];
     const yErrorValues = [];
     each(data, (row) => {
-      const x = normalizeValue(row.x, options.dateTimeFormat);
-      const y = normalizeValue(row.y, options.dateTimeFormat);
-      const yError = normalizeValue(row.yError, options.dateTimeFormat);
+      const x = normalizeValue(row.x);
+      const y = normalizeValue(row.y);
+      const yError = normalizeValue(row.yError);
+      const size = normalizeValue(row.size);
       sourceData.set(x, {
         x,
         y,
         yError,
+        size,
         yPercent: null, // will be updated later
-        raw: row.$raw,
+        raw: extend({}, row.$raw, {
+          // use custom display format - see also `updateSeriesText`
+          '@@x': normalizeValue(row.x, options.dateTimeFormat),
+        }),
       });
       xValues.push(x);
       yValues.push(y);
@@ -475,15 +486,17 @@ function updateSeriesText(seriesList, options) {
     const xValues = (options.globalSeriesType === 'pie') ? series.labels : series.x;
     xValues.forEach((x) => {
       const text = {
-        // for pie charts we should swap these values - just for consistency
         '@@name': series.name,
-        '@@x': x,
+        // '@@x' is already in `item.$raw`
       };
       const item = series.sourceData.get(x);
       if (item) {
         text['@@y'] = series.formatNumber(item.y);
         if (item.yError !== undefined) {
           text['@@yError'] = series.formatNumber(item.yError);
+        }
+        if (item.size !== undefined) {
+          text['@@size'] = series.formatNumber(item.size);
         }
 
         if (options.series.percentValues || (options.globalSeriesType === 'pie')) {
