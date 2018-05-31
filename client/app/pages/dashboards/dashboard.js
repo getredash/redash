@@ -35,6 +35,7 @@ function DashboardCtrl(
   clientConfig,
   Events,
   toastr,
+  Policy,
 ) {
   this.saveInProgress = false;
 
@@ -77,7 +78,15 @@ function DashboardCtrl(
   this.refreshRates = clientConfig.dashboardRefreshIntervals.map(interval => ({
     name: durationHumanize(interval),
     rate: interval,
+    enabled: true,
   }));
+
+  const allowedIntervals = Policy.getDashboardRefreshIntervals();
+  if (_.isArray(allowedIntervals)) {
+    _.each(this.refreshRates, (rate) => {
+      rate.enabled = allowedIntervals.indexOf(rate.rate) >= 0;
+    });
+  }
 
   this.setRefreshRate = (rate, load = true) => {
     this.refreshRate = rate;
