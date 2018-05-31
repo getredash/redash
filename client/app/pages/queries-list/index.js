@@ -31,6 +31,11 @@ class QueriesListCtrl {
         Title.set('My Queries');
         this.resource = Query.myQueries;
         break;
+      // Redirect to the real search view.
+      // TODO: check if that really always works.
+      case '/queries/search':
+        window.location.replace('/queries?q=' + this.oldSearchTerm);
+        break;
       default:
         break;
     }
@@ -133,6 +138,11 @@ export default function init(ngModule) {
       reloadOnSearch: false,
     },
     '/queries/my': {
+      template: '<page-queries-list></page-queries-list>',
+      reloadOnSearch: false,
+    },
+    // just for backward-compatible routes
+    '/queries/search': {
       template: '<page-queries-list></page-queries-list>',
       reloadOnSearch: false,
     },
