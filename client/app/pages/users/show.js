@@ -108,6 +108,13 @@ function UserCtrl(
       $scope.passwordResetLink = absoluteUrl(data.reset_link);
     });
   };
+
+  $scope.enableUser = (user) => {
+    User.enableUser(user);
+  };
+  $scope.disableUser = (user) => {
+    User.disableUser(user);
+  };
 }
 
 export default function init(ngModule) {

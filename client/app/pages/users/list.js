@@ -1,3 +1,4 @@
+import { filter } from 'underscore';
 import startsWith from 'underscore.string/startsWith';
 import settingsMenu from '@/lib/settings-menu';
 import { Paginator } from '@/lib/pagination';
@@ -8,9 +9,40 @@ function UsersCtrl(currentUser, Events, User) {
 
   this.currentUser = currentUser;
   this.users = new Paginator([], { itemsPerPage: 20 });
-  User.query((users) => {
-    this.users.updateRows(users);
-  });
+
+  this.userCategories = {
+    all: [],
+    enabled: [],
+    disabled: [],
+  };
+
+  const updateUsers = (users) => {
+    this.userCategories.all = users;
+    this.userCategories.enabled = filter(users, user => !user.is_disabled);
+    this.userCategories.disabled = filter(users, user => user.is_disabled);
+    this.setUsersCategory(this.usersCategory);
+  };
+
+  this.usersCategory = null;
+  this.setUsersCategory = (usersCategory) => {
+    this.usersCategory = usersCategory;
+    this.users.updateRows(this.userCategories[usersCategory]);
+  };
+  this.setUsersCategory('enabled');
+
+  this.enableUser = (user) => {
+    User.enableUser(user).then(() => {
+      updateUsers(this.userCategories.all);
+    });
+  };
+
+  this.disableUser = (user) => {
+    User.disableUser(user).then(() => {
+      updateUsers(this.userCategories.all);
+    });
+  };
+
+  User.query(updateUsers);
 }
 
 export default function init(ngModule) {

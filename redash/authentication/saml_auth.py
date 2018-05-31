@@ -1,6 +1,6 @@
 import logging
 from flask import redirect, url_for, Blueprint, request
-from redash.authentication.google_oauth import create_and_login_user
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
@@ -79,6 +79,8 @@ def idp_initiated(org_slug=None):
     # What that means is that, if a user in a SAML assertion
     # isn't in the user store, we create that user first, then log them in
     user = create_and_login_user(current_org, name, email)
+    if user is None:
+        return logout_and_redirect_to_index()
 
     if 'RedashGroups' in authn_response.ava:
         group_names = authn_response.ava.get('RedashGroups')

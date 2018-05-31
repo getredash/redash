@@ -1,24 +1,45 @@
 <settings-screen>
   <div class="row">
     <div class="col-md-12">
-      <p ng-if="$ctrl.currentUser.hasPermission('admin')">
-        <a href="users/new" class="btn btn-default"><i class="fa fa-plus"></i> New User</a>
-      </p>
+      <div class="clearfix m-b-10" ng-if="$ctrl.currentUser.hasPermission('admin')">
+        <a href="users/new" class="btn btn-default pull-left"><i class="fa fa-plus"></i> New User</a>
+
+        <div class="btn-group pull-right">
+          <button class="btn btn-default" type="button"
+            ng-click="$ctrl.setUsersCategory('enabled')" ng-class="{ active: $ctrl.usersCategory == 'enabled' }"
+          >Enabled ({{ $ctrl.userCategories.enabled.length }})</button>
+          <button class="btn btn-default" type="button"
+            ng-click="$ctrl.setUsersCategory('disabled')" ng-class="{ active: $ctrl.usersCategory == 'disabled' }"
+          >Disabled ({{ $ctrl.userCategories.disabled.length }})</button>
+        </div>
+      </div>
 
       <table class="table table-hover table-border">
         <thead>
           <tr>
             <th>Name</th>
             <th>Joined</th>
+            <th width="1%"></th>
           </tr>
         </thead>
         <tbody>
-          <tr ng-repeat="row in $ctrl.users.getPageRows()">
+          <tr ng-repeat="user in $ctrl.users.getPageRows()">
             <td>
-              <img ng-src="{{row.profile_image_url}}" height="32px" class="profile__image--settings"/> <a href="users/{{row.id}}">{{row.name}}</a>
+              <img ng-src="{{ user.profile_image_url }}" height="32px" class="profile__image--settings"/>
+              <a href="users/{{ user.id }}" ng-class="{'text-muted': user.is_disabled}">{{ user.name }}</a>
             </td>
             <td>
-              <span am-time-ago="row.created_at"></span>
+              <span am-time-ago="user.created_at"></span>
+            </td>
+            <td>
+              <div ng-if="$ctrl.currentUser.hasPermission('admin') && (user.id != $ctrl.currentUser.id)">
+                <button type="button" class="btn btn-primary"
+                  ng-if="user.is_disabled" ng-click="$ctrl.enableUser(user)"
+                >Enable</button>
+                <button type="button" class="btn btn-default"
+                  ng-if="!user.is_disabled" ng-click="$ctrl.disableUser(user)"
+                >Disable</button>
+              </div>
             </td>
           </tr>
         </tbody>
