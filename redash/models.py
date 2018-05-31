@@ -1097,6 +1097,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
         return self.data_source.groups
 
+    @hybrid_property
+    def lowercase_name(self):
+        "Optional property useful for sorting purposes."
+        return self.name.lower()
+
+    @lowercase_name.expression
+    def lowercase_name(cls):
+        "The SQLAlchemy expression for the property above."
+        return func.lower(cls.name)
+
     def __unicode__(self):
         return unicode(self.id)
 
