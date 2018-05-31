@@ -10,7 +10,7 @@ export class Policy {
   }
 
   get organizationStatus() {
-    return this.$injector.get('organizationStatus');
+    return this.$injector.get('OrganizationStatus');
   }
 
   refresh() {
