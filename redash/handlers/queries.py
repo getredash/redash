@@ -1,7 +1,7 @@
 from itertools import chain
 
 import sqlparse
-from flask import jsonify, request
+from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
 from funcy import distinct, take
@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import StaleDataError
 from sqlalchemy_utils import sort_query
 
 from redash import models, settings
+from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (BaseResource, get_object_or_404,
                                   org_scoped_rule, paginate, routes)
 from redash.handlers.query_results import run_query
@@ -69,6 +70,7 @@ class QuerySearchResource(BaseResource):
         Search query text, names, and descriptions.
 
         :qparam string q: Search term
+        :qparam number include_drafts: Whether to include draft in results
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
@@ -78,11 +80,14 @@ class QuerySearchResource(BaseResource):
 
         include_drafts = request.args.get('include_drafts') is not None
 
-        return [q.to_dict(with_last_modified_by=False)
-                for q in models.Query.search(term,
-                                             self.current_user.group_ids,
-                                             include_drafts=include_drafts,
-                                             limit=None)]
+        # this redirects to the new query list API that is aware of search
+        new_location = url_for(
+            'queries',
+            org_slug=current_org.slug,
+            search=term,
+            drafts='true' if include_drafts else 'false'
+        )
+        return {}, 301, {'Location': new_location}
 
 
 class QueryRecentResource(BaseResource):
