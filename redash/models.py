@@ -1027,24 +1027,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids, include_drafts=False, limit=20):
-        where = cls.is_archived == False
+    def search(cls, term, group_ids, user_id=None, include_drafts=False, limit=None):
+        all_queries = cls.all_queries(group_ids, user_id=user_id, drafts=include_drafts)
+        # sort the result using the weight as defined in the search vector column
+        return all_queries.search(term, sort=True).limit(limit)
 
-        if not include_drafts:
-            where &= cls.is_draft == False
-
-        where &= DataSourceGroup.group_id.in_(group_ids)
-
-        return cls.query.join(
-            DataSourceGroup,
-            cls.data_source_id == DataSourceGroup.data_source_id
-        ).options(
-            joinedload(cls.user)
-        ).filter(where).search(
-            term,
-            # sort the result using the weight as defined in the search vector column
-            sort=True
-        ).distinct().limit(limit)
+    @classmethod
+    def search_by_user(cls, term, user, limit=None):
+        return cls.by_user(user).search(term, sort=True).limit(limit)
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
