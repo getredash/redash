@@ -49,6 +49,35 @@ class TestQueryResourceGet(BaseTestCase):
         rv = self.make_request('get', '/api/queries/{}'.format(query.id), user=self.factory.create_admin())
         self.assertEquals(rv.status_code, 200)
 
+    def test_query_search(self):
+        names = [
+            'Harder',
+            'Better',
+            'Faster',
+            'Stronger',
+        ]
+        for name in names:
+            self.factory.create_query(name=name)
+
+        rv = self.make_request('get', '/api/queries?search=better')
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertEquals(len(rv.json['results']), 1)
+
+        rv = self.make_request('get', '/api/queries?search=better OR faster')
+
+        self.assertEquals(rv.status_code, 200)
+        self.assertEquals(len(rv.json['results']), 2)
+
+        # test the old search API and that it redirects to the new one
+        rv = self.make_request('get', '/api/queries/search?q=stronger')
+        self.assertEquals(rv.status_code, 301)
+        self.assertIn('/api/queries?search=stronger', rv.headers['Location'])
+
+        rv = self.make_request('get', '/api/queries/search?q=stronger', follow_redirects=True)
+        self.assertEquals(rv.status_code, 200)
+        self.assertEquals(len(rv.json['results']), 1)
+
 
 class TestQueryResourcePost(BaseTestCase):
     def test_update_query(self):
@@ -158,7 +187,7 @@ class QueryRefreshTest(BaseTestCase):
         user = self.factory.create_user(group_ids=[group.id])
         response = self.make_request('post', self.path, user=user)
         self.assertEqual(403, response.status_code)
-    
+
     def test_refresh_forbiden_with_query_api_key(self):
         response = self.make_request('post', '{}?api_key={}'.format(self.path, self.query.api_key), user=False)
         self.assertEqual(403, response.status_code)

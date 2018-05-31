@@ -6,6 +6,7 @@ from flask_login import login_required
 from flask_restful import abort
 from funcy import distinct, take
 from sqlalchemy.orm.exc import StaleDataError
+from sqlalchemy_utils import sort_query
 
 from redash import models, settings
 from redash.handlers.base import (BaseResource, get_object_or_404,
@@ -16,6 +17,34 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_object_modify_permission,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
+
+
+# Ordering map for relationships
+order_map = {
+    'name': 'lowercase_name',
+    '-name': '-lowercase_name',
+    'runtime': 'query_results-runtime',
+    '-runtime': '-query_results-runtime',
+    'executed_at': 'query_results-retrieved_at',
+    '-executed_at': '-query_results-retrieved_at',
+    'created_by': 'users-name',
+    '-created_by': '-users-name',
+}
+
+
+def order_results(results, default_order='-created_at'):
+    """
+    Orders the given results with the sort order as requested in the
+    "order" request query parameter or the given default order.
+    """
+    # See if a particular order has been requested
+    order = request.args.get('order', '').strip() or default_order
+    # and if it matches a long-form for related fields, falling
+    # back to the default order
+    selected_order = order_map.get(order, order)
+    # The query may already have an ORDER BY statement attached
+    # so we clear it here and apply the selected order
+    return sort_query(results.order_by(None), selected_order)
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -145,13 +174,30 @@ class QueryListResource(BaseResource):
         """
         Retrieve a list of queries.
 
-        :qparam number page_size: Number of queries to return
+        :qparam number page_size: Number of queries to return per page
         :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number search: Full text search term
+        :qparam number drafts: Whether to include draft in results
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
+        # See if we want to do full-text search or just regular queries
+        term = request.args.get('search', '')
+        drafts = request.args.get('drafts', '').lower() == 'true'
+        if term:
+            self.record_event({
+                'action': 'search',
+                'object_id': term,
+                'object_type': 'query',
+            })
+            results = models.Query.search(term, self.current_user.group_ids, self.current_user.id, include_drafts=drafts)
+        else:
+            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id, drafts=drafts)
 
-        results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+        # order results according to passed order parameter
+        results = order_results(results)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
@@ -165,13 +211,29 @@ class MyQueriesResource(BaseResource):
 
         :qparam number page_size: Number of queries to return
         :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number search: Full text search term
+        :qparam number include_drafts: Whether to include draft in results
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        drafts = request.args.get('drafts') is not None
-        results = models.Query.by_user(self.current_user)
+        term = request.args.get('search', '')
+        if term:
+            self.record_event({
+                'action': 'search',
+                'object_id': term,
+                'object_type': 'query',
+            })
+            results = models.Query.search_by_user(term, self.current_user)
+        else:
+            results = models.Query.by_user(self.current_user)
+
+        # order results according to passed order parameter
+        results = order_results(results)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
+
         return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
 
 
