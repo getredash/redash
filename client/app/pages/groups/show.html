@@ -16,8 +16,9 @@
                            refresh="findUser($select.search)"
                            refresh-delay="0"
                            ui-disable-choice="user.alreadyMember">
-          <div>
-            <img ng-src="{{user.profile_image_url}}" height="24px">&nbsp;{{user.name}}
+          <div class="d-flex align-items-center">
+            <img ng-src="{{ user.profile_image_url }}" class="profile__image" height="24px">&nbsp;<span
+              ng-class="{'text-muted': user.is_disabled}">{{user.name}}</span>
             <small ng-if="user.alreadyMember">(already member in this group)</small>
           </div>
         </ui-select-choices>
@@ -29,8 +30,13 @@
       <table class="table table-condensed table-hover" ng-show="members">
         <tbody>
         <tr ng-repeat="member in members">
-          <td width="50px"><img ng-src="{{member.profile_image_url}}" height="40px"/></td>
-          <td>{{member.name}} <button class="pull-right btn btn-sm btn-danger" ng-click="removeMember(member)" ng-if="currentUser.isAdmin && (group.type != 'builtin' || currentUser.id != member.id)">Remove</button></td>
+          <td width="50px"><img ng-src="{{ member.profile_image_url }}" class="profile__image" height="40px"/></td>
+          <td ng-class="{'text-muted': member.is_disabled}">{{member.name}}
+            <button class="pull-right btn btn-sm btn-danger"
+              ng-click="removeMember(member)"
+              ng-if="currentUser.isAdmin && (group.type != 'builtin' || currentUser.id != member.id)"
+            >Remove</button>
+          </td>
         </tr>
         </tbody>
       </table>

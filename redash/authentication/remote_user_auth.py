@@ -1,6 +1,6 @@
 import logging
 from flask import redirect, url_for, Blueprint, request
-from redash.authentication.google_oauth import create_and_login_user
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import org_scoped_rule
 from redash import settings
@@ -31,5 +31,9 @@ def login(org_slug=None):
         return redirect(url_for('redash.index', next=next_path, org_slug=org_slug))
 
     logger.info("Logging in " + email + " via remote user")
-    create_and_login_user(current_org, email, email)
+
+    user = create_and_login_user(current_org, email, email)
+    if user is None:
+        return logout_and_redirect_to_index()
+
     return redirect(next_path or url_for('redash.index', org_slug=org_slug), code=302)

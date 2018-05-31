@@ -90,7 +90,8 @@
         <table>
           <tr>
             <td>
-              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong class="meta__name">{{query.user.name}}</strong>
+              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb"/>
+              <strong class="meta__name" ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</strong>
             </td>
             <td class="text-right">
               created <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
@@ -98,7 +99,9 @@
           </tr>
           <tr>
             <td>
-              <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong class="meta__name">{{query.last_modified_by.name}}</strong>
+              <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb"/>
+              <strong class="meta__name"
+                ng-class="{'text-muted': query.last_modified_by.is_disabled}">{{query.last_modified_by.name}}</strong>
             </td>
             <td class="text-right">
               updated <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
@@ -168,11 +171,13 @@
           <div class="row query-metadata__mobile">
             <div class="col-xs-4 text-left">
               <span class="m-r-5">Created by</span>
-              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
+              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb">
+              <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
             </div>
             <div class="col-xs-4 text-center">
               <span class="m-r-5">Updated by</span>
-              <img ng-src="{{query.last_modified_by.profile_image_url}}" class="profile__image_thumb"/> <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
+              <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb">
+              <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
             </div>
             <div class="col-xs-4 text-right">
               <span class="query-metadata__property"></span> Refresh Schedule</span>

@@ -26,7 +26,8 @@
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
             </td>
             <td>
-              <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" /> {{query.user.name}}
+              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb" />
+              <span ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</span>
             </td>
             <td>{{query.created_at | dateTime}}</td>
             <td>{{query.runtime | durationHumanize}}</td>

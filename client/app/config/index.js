@@ -1,6 +1,9 @@
 // This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
 import 'core-js/fn/typed/array-buffer';
 
+// Ensure that this image will be available in assets folder
+import '@/assets/images/avatar.svg';
+
 import * as Pace from 'pace-progress';
 import debug from 'debug';
 import angular from 'angular';

@@ -116,7 +116,7 @@ def login(org_slug=None):
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form['email'], org)
-            if user and user.verify_password(request.form['password']):
+            if user and not user.is_disabled and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(next_path)
