@@ -12,6 +12,6 @@
   <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || !$ctrl.isFormValid()" ng-click="$ctrl.saveDashboard()">Save</button>
 </div>
 
-<div class="modal-body" ng-if="!ctrl.policy.isCreateDashboardEnabled()">
+<div class="modal-body" ng-if="!$ctrl.policy.isCreateDashboardEnabled()">
   <edit-dashboard-dialog-disabled></edit-dashboard-dialog-disabled>
 </div>
