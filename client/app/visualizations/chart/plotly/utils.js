@@ -395,8 +395,6 @@ export function prepareLayout(element, seriesList, options, data) {
       t: 20,
       pad: 4,
     },
-    width: Math.floor(element.offsetWidth),
-    height: Math.floor(element.offsetHeight),
     autosize: true,
     showlegend: has(options, 'legend') ? options.legend.enabled : true,
   };
