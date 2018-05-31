@@ -522,6 +522,10 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     @classmethod
     def all(cls, org):
         return cls.query.filter(cls.org == org)
+    
+    @classmethod
+    def all_not_disabled(cls, org):
+        return cls.all(org).filter(cls.disabled_at == None)
 
     @classmethod
     def find_by_email(cls, email):

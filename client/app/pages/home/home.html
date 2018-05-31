@@ -1,11 +1,8 @@
 <div class="container">
-  <empty-state title="Welcome to Redash 👋"
-               description="Connect to any data source, easily visualize and share your data"
-               show-dashboard-step="true"
-               show-invite-step="true"
-               onboarding-mode="true"
-               illustration="dashboard"
-               help-link="http://help.redash.io/article/32-getting-started"></empty-state>
+  <empty-state title="Welcome to Redash 👋" description="Connect to any data source, easily visualize and share your data"
+    show-dashboard-step="true" show-invite-step="true" onboarding-mode="true" illustration="dashboard" help-link="http://help.redash.io/article/32-getting-started"></empty-state>
+
+  <home-extra></home-extra>
 
   <div class="tile">
     <div class="t-body tb-padding">
@@ -14,15 +11,18 @@
           <p class="f-500 m-b-20 c-black">Recent Dashboards</p>
           <div class="list-group">
             <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.recentDashboards">
-                {{dashboard.name}} <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
-              </a>
+              {{dashboard.name}}
+              <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
+            </a>
           </div>
         </div>
 
         <div class="col-md-6">
           <p class="f-500 m-b-20 c-black">Recent Queries</p>
           <div class="list-group">
-            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.recentQueries">{{query.name}} <span class="label label-default" ng-if="query.is_draft">Unpublished</span></a>
+            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.recentQueries">{{query.name}}
+              <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
+            </a>
           </div>
         </div>
       </div>

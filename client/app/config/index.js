@@ -20,7 +20,7 @@ import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
-import { each, isFunction } from 'underscore';
+import { each, isFunction, extend } from 'underscore';
 
 import '@/lib/sortable';
 
@@ -100,6 +100,16 @@ function registerPages() {
       each(routes, (route, path) => {
         logger('Registering route: %s', path);
         route.authenticated = true;
+        route.resolve = extend(
+          {
+            __organizationStatus: (OrganizationStatus) => {
+              'ngInject';
+
+              return OrganizationStatus.refresh();
+            },
+          },
+          route.resolve,
+        );
         $routeProvider.when(path, route);
       });
     });
