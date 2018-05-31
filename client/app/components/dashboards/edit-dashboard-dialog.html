@@ -1,10 +1,10 @@
 <div class="modal-header">
   <button type="button" class="close" ng-click="$ctrl.dismiss()" ng-disabled="$ctrl.saveInProgress" aria-hidden="true">&times;</button>
-  <h4 class="modal-title">Dashboard name: {{$ctrl.dashboard.name}}</h4>
+  <h4 class="modal-title">New Dashboard</h4>
 </div>
 <div class="modal-body">
   <p>
-    <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name" autofocus>
+    <input type="text" class="form-control" placeholder="Dashboard Name" ng-model="$ctrl.dashboard.name" autofocus ng-keyup="$event.keyCode === 13 && $ctrl.saveDashboard()">
   </p>
 </div>
 <div class="modal-footer">
