@@ -12,6 +12,9 @@
     <li ng-class="{active: currentTab == 'series'}" ng-if="options.globalSeriesType != 'custom'">
       <a ng-click="changeTab('series')">Series</a>
     </li>
+    <li ng-class="{active: currentTab == 'appearance'}" ng-if="options.globalSeriesType != 'custom'">
+      <a ng-click="changeTab('appearance')">Appearance</a>
+    </li>
   </ul>
   <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
     <div class="form-group">
@@ -30,10 +33,6 @@
           </ui-select-choices>
         </ui-select>
       </div>
-    </div>
-
-    <div ng-if="['line', 'area', 'column', 'scatter'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
-      <label><input type="checkbox" ng-model="options.showDataLabels"> Show data labels</label>
     </div>
 
     <div class="form-group" ng-class="{'has-error': chartEditor.xAxisColumn.$invalid}">
@@ -135,24 +134,26 @@
     </div>
   </div>
 
-  <div class="form-group" ng-if="options.globalSeriesType == 'custom'">
-    <label class="control-label">Custom code</label>
-    <textarea ng-model="options.customCode" class="form-control v-resizable" rows="10">
-    </textarea>
-  </div>
+  <div ng-if="options.globalSeriesType == 'custom'">
+    <div class="form-group">
+      <label class="control-label">Custom code</label>
+      <textarea ng-model="options.customCode" class="form-control v-resizable" rows="10">
+      </textarea>
+    </div>
 
-  <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
-    <label>
-      <input type="checkbox" ng-model="options.enableConsoleLogs">
-      <i class="input-helper"></i> Show errors in the console
-    </label>
-  </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="options.enableConsoleLogs">
+        <i class="input-helper"></i> Show errors in the console
+      </label>
+    </div>
 
-  <div class="checkbox" ng-if="options.globalSeriesType == 'custom'">
-    <label>
-      <input type="checkbox" ng-model="options.autoRedraw">
-      <i class="input-helper"></i> Auto update graph
-    </label>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="options.autoRedraw">
+        <i class="input-helper"></i> Auto update graph
+      </label>
+    </div>
   </div>
 
   <div ng-if="currentTab == 'xAxis'" class="m-t-10 m-b-10">
@@ -266,5 +267,56 @@
       </tr>
       </tbody>
     </table>
+  </div>
+
+  <div ng-if="currentTab == 'appearance'" class="m-t-10 m-b-10">
+    <div ng-if="['line', 'area', 'column', 'scatter', 'pie'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
+      <label><input type="checkbox" ng-model="options.showDataLabels"> Show data labels</label>
+    </div>
+
+    <div class="form-group">
+      <label for="chart-editor-number-format">
+        Number format
+        <span class="m-l-5"
+          uib-popover-html="'Format <a href=&quot;http://numeraljs.com/&quot; target=&quot;_blank&quot;>specs.</a>'"
+          popover-trigger="'click outsideClick'"><i class="fa fa-question-circle"></i></span>
+      </label>
+      <input class="form-control" ng-model="options.numberFormat" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+        id="chart-editor-number-format">
+    </div>
+
+    <div class="form-group">
+      <label for="chart-editor-percent-format">
+        Percent format
+        <span class="m-l-5"
+          uib-popover-html="'Format <a href=&quot;http://numeraljs.com/&quot; target=&quot;_blank&quot;>specs.</a>'"
+          popover-trigger="'click outsideClick'"><i class="fa fa-question-circle"></i></span>
+      </label>
+      <input class="form-control" ng-model="options.percentFormat" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+        id="chart-editor-percent-format">
+    </div>
+
+    <div class="form-group">
+      <label for="chart-editor-datetime-format">
+        Date/Time format
+        <span class="m-l-5"
+          uib-popover-html="'Format <a href=&quot;http://momentjs.com/docs/#/displaying/format/&quot; target=&quot;_blank&quot;>specs.</a>'"
+          popover-trigger="'click outsideClick'"><i class="fa fa-question-circle"></i></span>
+      </label>
+      <input class="form-control" ng-model="options.dateTimeFormat" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+        id="chart-editor-datetime-format">
+    </div>
+
+    <div class="form-group">
+      <label for="chart-editor-text">
+        Data labels
+        <i class="fa fa-question-circle m-l-5"
+          uib-popover-html="templateHint"
+          popover-trigger="'click outsideClick'"
+          popover-placement="top-left"></i>
+      </label>
+      <input class="form-control" ng-model="options.textFormat" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+        id="chart-editor-text" placeholder="(auto)">
+    </div>
   </div>
 </div>

@@ -1,9 +1,32 @@
 import {
-  some, extend, has, partial, intersection, without, contains, isUndefined,
+  some, extend, defaults, has, partial, intersection, without, contains, isUndefined,
   sortBy, each, pluck, keys, difference,
 } from 'underscore';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
+
+const DEFAULT_OPTIONS = {
+  globalSeriesType: 'column',
+  sortX: true,
+  legend: { enabled: true },
+  yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
+  xAxis: { type: 'datetime', labels: { enabled: true } },
+  error_y: { type: 'data', visible: true },
+  series: { stacking: null, error_y: { type: 'data', visible: true } },
+  seriesOptions: {},
+  columnMapping: {},
+
+  // showDataLabels: false, // depends on chart type
+  numberFormat: '0,0[.]00000',
+  percentFormat: '0[.]00%',
+  // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
+  textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
+
+  defaultColumns: 3,
+  defaultRows: 8,
+  minColumns: 1,
+  minRows: 5,
+};
 
 function ChartRenderer() {
   return {
@@ -14,7 +37,7 @@ function ChartRenderer() {
     },
     template,
     replace: false,
-    controller($scope) {
+    controller($scope, clientConfig) {
       $scope.chartSeries = [];
 
       function zIndexCompare(series) {
@@ -33,7 +56,10 @@ function ChartRenderer() {
 
       function reloadChart() {
         reloadData();
-        $scope.plotlyOptions = $scope.options;
+        $scope.plotlyOptions = extend({
+          showDataLabels: $scope.options.globalSeriesType === 'pie',
+          dateTimeFormat: clientConfig.dateTimeFormat,
+        }, DEFAULT_OPTIONS, $scope.options);
       }
 
       $scope.$watch('options', reloadChart, true);
@@ -84,6 +110,8 @@ function ChartEditor(ColorPalette, clientConfig) {
         keys(scope.options.seriesOptions).forEach((key) => {
           scope.options.seriesOptions[key].type = scope.options.globalSeriesType;
         });
+        scope.options.showDataLabels = scope.options.globalSeriesType === 'pie';
+        scope.$applyAsync();
       };
 
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
@@ -238,6 +266,28 @@ function ChartEditor(ColorPalette, clientConfig) {
           }
         });
       }
+
+      scope.$watch('options', () => {
+        if (scope.options) {
+          // For existing visualization - set default options
+          defaults(scope.options, extend({}, DEFAULT_OPTIONS, {
+            showDataLabels: scope.options.globalSeriesType === 'pie',
+            dateTimeFormat: clientConfig.dateTimeFormat,
+          }));
+        }
+      });
+
+      scope.templateHint = `
+        <div class="p-b-5">Use special names to access additional properties:</div>
+        <div><code>{{ @@name }}</code> series name;</div>
+        <div><code>{{ @@x }}</code> x-value;</div>       
+        <div><code>{{ @@y }}</code> y-value;</div>
+        <div><code>{{ @@yPercent }}</code> relative y-value;</div>
+        <div><code>{{ @@yError }}</code> y deviation;</div>       
+        <div><code>{{ @@size }}</code> bubble size;</div>       
+        <div class="p-t-5">Also, all query result columns can be referenced using 
+          <code class="text-nowrap">{{ column_name }}</code> syntax.</div>       
+      `;
     },
   };
 }
@@ -257,28 +307,12 @@ export default function init(ngModule) {
     const renderTemplate = '<chart-renderer options="visualization.options" query-result="queryResult"></chart-renderer>';
     const editTemplate = '<chart-editor options="visualization.options" query-result="queryResult"></chart-editor>';
 
-    const defaultOptions = {
-      globalSeriesType: 'column',
-      sortX: true,
-      legend: { enabled: true },
-      yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
-      xAxis: { type: 'datetime', labels: { enabled: true } },
-      error_y: { type: 'data', visible: true },
-      series: { stacking: null, error_y: { type: 'data', visible: true } },
-      seriesOptions: {},
-      columnMapping: {},
-      defaultColumns: 3,
-      defaultRows: 8,
-      minColumns: 1,
-      minRows: 5,
-    };
-
     VisualizationProvider.registerVisualization({
       type: 'CHART',
       name: 'Chart',
       renderTemplate,
       editorTemplate: editTemplate,
-      defaultOptions,
+      defaultOptions: DEFAULT_OPTIONS,
     });
   });
 }

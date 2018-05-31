@@ -55,8 +55,8 @@ function getDefaultColumnsOptions(columns) {
 
 function getDefaultFormatOptions(column, clientConfig) {
   const dateTimeFormat = {
-    date: clientConfig.dateFormat || 'DD/MM/YY',
-    datetime: clientConfig.dateTimeFormat || 'DD/MM/YY HH:mm',
+    date: clientConfig.dateFormat || 'DD/MM/YYYY',
+    datetime: clientConfig.dateTimeFormat || 'DD/MM/YYYY HH:mm',
   };
   const numberFormat = {
     integer: clientConfig.integerFormat || '0,0',
