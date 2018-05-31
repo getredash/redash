@@ -12,8 +12,8 @@
     <li ng-class="{active: currentTab == 'series'}" ng-if="options.globalSeriesType != 'custom'">
       <a ng-click="changeTab('series')">Series</a>
     </li>
-    <li ng-class="{active: currentTab == 'appearance'}" ng-if="options.globalSeriesType != 'custom'">
-      <a ng-click="changeTab('appearance')">Appearance</a>
+    <li ng-class="{active: currentTab == 'dataLabels'}" ng-if="options.globalSeriesType != 'custom'">
+      <a ng-click="changeTab('dataLabels')">Data Labels</a>
     </li>
   </ul>
   <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
@@ -281,7 +281,7 @@
     </table>
   </div>
 
-  <div ng-if="currentTab == 'appearance'" class="m-t-10 m-b-10">
+  <div ng-if="currentTab == 'dataLabels'" class="m-t-10 m-b-10">
     <div ng-if="['line', 'area', 'column', 'scatter', 'pie'].indexOf(options.globalSeriesType) >= 0" class="checkbox">
       <label>
         <input type="checkbox" ng-model="options.showDataLabels"> Show Data Labels</label>
