@@ -6,7 +6,7 @@ import './app-header.css';
 
 const logger = debug('redash:appHeader');
 
-function controller($rootScope, $location, $uibModal, Auth, currentUser, clientConfig, Dashboard) {
+function controller($rootScope, $location, $route, $uibModal, Auth, currentUser, clientConfig, Dashboard) {
   this.logoUrl = logoUrl;
   this.basePath = clientConfig.basePath;
   this.currentUser = currentUser;
@@ -35,7 +35,8 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
   };
 
   this.searchQueries = () => {
-    $location.path('/queries/search').search({ q: this.term });
+    $location.path('/queries').search({ search: this.term });
+    $route.reload();
   };
 
   this.logout = () => {
