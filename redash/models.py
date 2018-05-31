@@ -29,9 +29,10 @@ from redash.settings.organization import settings as org_settings
 from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session
+from sqlalchemy.orm import backref, joinedload, object_session, contains_eager
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
@@ -522,7 +523,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     @classmethod
     def all(cls, org):
         return cls.query.filter(cls.org == org)
-    
+
     @classmethod
     def all_not_disabled(cls, org):
         return cls.all(org).filter(cls.disabled_at == None)
@@ -982,6 +983,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 .options(joinedload(Query.user),
                          joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
                 .filter(cls.id.in_(query_ids))
+                # Adding outer joins to be able to order by relationship
+                .outerjoin(User, User.id == Query.user_id)
+                .outerjoin(QueryResult, QueryResult.id == Query.latest_query_data_id)
+                .options(
+                    contains_eager(Query.user),
+                    contains_eager(Query.latest_query_data),
+                )
                 .order_by(Query.created_at.desc()))
 
         if not drafts:
