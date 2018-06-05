@@ -290,7 +290,8 @@ function DashboardCtrl(
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, tags: this.dashboard.tags },
       (dashboard) => {
-        this.dashboard = dashboard;
+        this.dashboard.tags = dashboard.tags;
+        this.dashboard.version = dashboard.version;
       },
       (error) => {
         if (error.status === 403) {
