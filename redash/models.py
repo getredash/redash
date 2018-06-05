@@ -974,27 +974,50 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_queries(cls, group_ids, user_id=None, drafts=False):
-        query_ids = (db.session.query(distinct(cls.id))
-                               .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-                               .filter(Query.is_archived == False)
-                               .filter(DataSourceGroup.group_id.in_(group_ids)))
+        query_ids = (
+            db.session
+            .query(distinct(cls.id))
+            .join(
+                DataSourceGroup,
+                Query.data_source_id == DataSourceGroup.data_source_id
+            )
+            .filter(Query.is_archived == False)
+            .filter(DataSourceGroup.group_id.in_(group_ids))
+        )
 
-        q = (cls.query
-                .options(joinedload(Query.user),
-                         joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
-                .filter(cls.id.in_(query_ids))
-                # Adding outer joins to be able to order by relationship
-                .outerjoin(User, User.id == Query.user_id)
-                .outerjoin(QueryResult, QueryResult.id == Query.latest_query_data_id)
-                .options(
-                    contains_eager(Query.user),
-                    contains_eager(Query.latest_query_data),
+        q = (
+            cls
+            .query
+            .options(
+                joinedload(Query.user),
+                joinedload(
+                    Query.latest_query_data
+                ).load_only(
+                    'runtime',
+                    'retrieved_at',
                 )
-                .order_by(Query.created_at.desc()))
+            )
+            .filter(cls.id.in_(query_ids))
+            # Adding outer joins to be able to order by relationship
+            .outerjoin(User, User.id == Query.user_id)
+            .outerjoin(
+                QueryResult,
+                QueryResult.id == Query.latest_query_data_id
+            )
+            .options(
+                contains_eager(Query.user),
+                contains_eager(Query.latest_query_data),
+            )
+            .order_by(Query.created_at.desc())
+        )
 
         if not drafts:
-            q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
-
+            q = q.filter(
+                or_(
+                    Query.is_draft == False,
+                    Query.user_id == user_id
+                )
+            )
         return q
 
     @classmethod

@@ -196,16 +196,31 @@ class QueryListResource(BaseResource):
                 'object_id': term,
                 'object_type': 'query',
             })
-            results = models.Query.search(term, self.current_user.group_ids, self.current_user.id, include_drafts=drafts)
+            results = models.Query.search(
+                term,
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=drafts,
+            )
         else:
-            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id, drafts=drafts)
+            results = models.Query.all_queries(
+                self.current_user.group_ids,
+                self.current_user.id,
+                drafts=drafts,
+            )
 
         # order results according to passed order parameter
-        results = order_results(results)
+        ordered_results = order_results(results)
 
-        page = request.args.get('page', 1, type=int)
-        page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+        return paginate(
+            ordered_results,
+            page=request.args.get('page', 1, type=int),
+            page_size=request.args.get('page_size', 25, type=int),
+            serializer=lambda q: q.to_dict(
+                with_stats=True,
+                with_last_modified_by=False
+            ),
+        )
 
 
 class MyQueriesResource(BaseResource):
