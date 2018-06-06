@@ -1,4 +1,4 @@
-import { filter } from 'underscore';
+import { filter } from 'lodash';
 import settingsMenu from '@/lib/settings-menu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
