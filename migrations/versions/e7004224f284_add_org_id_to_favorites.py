@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column('favorites', sa.Column('org_id', sa.Integer(), nullable=True))
+    op.add_column('favorites', sa.Column('org_id', sa.Integer(), nullable=False))
     op.create_foreign_key(None, 'favorites', 'organizations', ['org_id'], ['id'])
 
 
