@@ -63,7 +63,7 @@
             <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
               <a ng-click="togglePublished()">Unpublish</a>
             </li>
-            <li class="divider"></li>
+            <li class="divider" ng-if="!query.is_archived"></li>
             <li ng-if="query.id != undefined">
               <a ng-click="showApiKey()">Show API Key</a>
             </li>
