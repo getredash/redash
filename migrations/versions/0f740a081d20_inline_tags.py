@@ -9,6 +9,7 @@ import re
 from funcy import flatten, compact
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import text
 from redash import models
 
 
@@ -21,12 +22,16 @@ depends_on = None
 
 def upgrade():
     tags_regex = re.compile('^([\w\s]+):|#([\w-]+)', re.I | re.U)
-    for dashboard in models.Dashboard.query:
-        tags = compact(flatten(tags_regex.findall(dashboard.name)))
-        if tags:
-            dashboard.tags = tags
+    connection = op.get_bind()
+
+    dashboards = connection.execute("SELECT id, name FROM dashboards")
+
+    update_query = text("UPDATE dashboards SET tags = :tags WHERE id = :id")
     
-    models.db.session.commit()
+    for dashboard in dashboards:
+        tags = compact(flatten(tags_regex.findall(dashboard[1])))
+        if tags:
+            connection.execute(update_query, tags=tags, id=dashboard[0])
 
 
 def downgrade():
