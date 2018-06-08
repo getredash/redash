@@ -7,8 +7,6 @@ from redash.utils import JSONEncoder
 
 try:
     import cx_Oracle
-    os.environ["NLS_LANG"] = "BRAZILIAN PORTUGUESE_BRAZIL.WE8MSWIN1252"
-    os.environ["NLS_NUMERIC_CHARACTERS"] = ".,"
 
     TYPES_MAP = {
         cx_Oracle.DATETIME: TYPE_DATETIME,
