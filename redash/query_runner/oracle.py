@@ -7,6 +7,8 @@ from redash.utils import JSONEncoder
 
 try:
     import cx_Oracle
+    os.environ["NLS_LANG"] = "BRAZILIAN PORTUGUESE_BRAZIL.WE8MSWIN1252"
+    os.environ["NLS_NUMERIC_CHARACTERS"] = ".,"
 
     TYPES_MAP = {
         cx_Oracle.DATETIME: TYPE_DATETIME,
@@ -65,8 +67,13 @@ class Oracle(BaseSQLQueryRunner):
                 "servicename": {
                     "type": "string",
                     "title": "DSN Service Name"
+                },
+                "tns": {
+                    "type": "string",
+                    "title": "TNS Connect String (Override properties above)"
                 }
             },
+            "order": ["host", "port", "user", "password", "servicename"],
             "required": ["servicename", "user", "password", "host", "port"],
             "secret": ["password"]
         }
@@ -78,10 +85,13 @@ class Oracle(BaseSQLQueryRunner):
     def __init__(self, configuration):
         super(Oracle, self).__init__(configuration)
 
-        dsn = cx_Oracle.makedsn(
-            self.configuration["host"],
-            self.configuration["port"],
-            service_name=self.configuration["servicename"])
+        if "tns" not in self.configuration or self.configuration["tns"] is None:
+            dsn = cx_Oracle.makedsn(
+                self.configuration["host"],
+                self.configuration["port"],
+                service_name=self.configuration["servicename"])
+        else:
+            dsn = self.configuration["tns"]
 
         self.connection_string = "{}/{}@{}".format(self.configuration["user"], self.configuration["password"], dsn)
 
@@ -149,12 +159,17 @@ class Oracle(BaseSQLQueryRunner):
                 data = {'columns': columns, 'rows': rows}
                 error = None
                 json_data = json.dumps(data, cls=JSONEncoder)
+
+                del columns
+                del rows
+                del data
             else:
                 columns = [{'name': 'Row(s) Affected', 'type': 'TYPE_INTEGER'}]
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
-                connection.commit()   
+                connection.commit()
+            cursor.close()
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None
