@@ -66,10 +66,7 @@ class Oracle(BaseSQLQueryRunner):
                     "type": "string",
                     "title": "DSN Service Name"
                 },
-                "tns": {
-                    "type": "string",
-                    "title": "TNS Connect String (Override properties above)"
-                }
+                "tns": {"type": "string", "title": "TNS Connect String"}
             },
             "order": ["host", "port", "user", "password", "servicename"],
             "required": ["servicename", "user", "password", "host", "port"],
