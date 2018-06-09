@@ -4,9 +4,25 @@ import { isString } from 'underscore';
 import { Paginator } from '@/lib/pagination';
 import template from './queries-search-results-page.html';
 
-function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
+
+function QuerySearchCtrl($location, $filter, currentUser, Events, Query, DataSource) {
   this.term = $location.search().q;
   this.paginator = new Paginator([], { itemsPerPage: 20 });
+  this.queries = [];
+  const dataSources = {};
+  const updateDataSources = (datas) => {
+    datas.map((d) => {
+      dataSources[d.id] = d;
+      return d;
+    });
+    this.queries = this.queries.map((query) => {
+      query.data_source = dataSources[query.data_source_id];
+      return query;
+    });
+    this.paginator.updateRows(this.queries);
+  };
+
+  DataSource.query(updateDataSources);
 
   this.tabs = [
     { path: 'queries', name: 'All Queries', isActive: path => path === '/queries' },
@@ -15,12 +31,13 @@ function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
   ];
 
   Query.search({ q: this.term, include_drafts: true }, (results) => {
-    const queries = results.map((query) => {
+    this.queries = results.map((query) => {
       query.created_at = moment(query.created_at);
+      query.data_source = dataSources[query.data_source_id];
       return query;
     });
 
-    this.paginator.updateRows(queries);
+    this.paginator.updateRows(this.queries);
   });
 
   this.createdAtSort = row => row.created_at.valueOf();
@@ -38,6 +55,7 @@ function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
     }
     return parseInt(row.schedule, 10);
   };
+  this.dataSourceSort = row => row.data_source.name;
 
   this.search = () => {
     if (!isString(this.term) || this.term.trim() === '') {
