@@ -1,5 +1,6 @@
 import { debounce } from 'underscore';
 import template from './add-widget-dialog.html';
+import './add-widget-dialog.less';
 
 const AddWidgetDialog = {
   template,
