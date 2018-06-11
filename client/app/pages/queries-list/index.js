@@ -87,7 +87,14 @@ class QueriesListCtrl {
       });
     }
 
-    this.navigateTo = url => $location.url(url);
+    this.navigateTo = ($event, url) => {
+      if ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey) {
+        // keep default browser behavior
+        return;
+      }
+      $event.preventDefault();
+      $location.url(url);
+    };
 
     if (['favorites', 'search'].indexOf(this.currentPage) >= 0) {
       this.paginator = new Paginator([], { page });

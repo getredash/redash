@@ -67,7 +67,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="query in $ctrl.paginator.getPageRows()" ng-click="$ctrl.navigateTo('queries/' + query.id)">
+            <tr ng-repeat="query in $ctrl.paginator.getPageRows()" ng-click="$ctrl.navigateTo($event, 'queries/' + query.id)">
               <td class="p-r-0">
                 <favorites-control item="query"></favorites-control>
               </td>
