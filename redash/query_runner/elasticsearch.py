@@ -430,8 +430,8 @@ class ElasticSearch(BaseElasticSearch):
                 if sql_query.lower().startswith("select"):
                     logger.debug("Query using SQL statement")
                     index_name = get_index_from_sql(sql_query)
-                    url = "{0}/_sql".format(self.server_url)
-                    params = {"sql": sql_query}
+                    url = "{0}/_sql?sql={1}".format(self.server_url, sql_query)
+                    params = {}
 
             mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
             mappings, error = self._get_query_mappings(mapping_url)
