@@ -1,9 +1,11 @@
 import logging
+import re
 import sys
 import urllib
 
 import requests
 import simplejson as json
+from simplejson import JSONDecodeError
 from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
@@ -402,25 +404,37 @@ class ElasticSearch(BaseElasticSearch):
     def run_query(self, query, user):
         try:
             error = None
+            index_name = None
+            result_fields = None
 
             logger.debug(query)
-            query_dict = json.loads(query)
-
-            index_name = query_dict.pop("index", "")
-            result_fields = query_dict.pop("result_fields", None)
 
             if not self.server_url:
                 error = "Missing configuration key 'server'"
                 return None, error
 
-            url = "{0}/{1}/_search".format(self.server_url, index_name)
-            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
+            try:
+                query_dict = json.loads(query)
+                index_name = query_dict.pop("index", "")
+                result_fields = query_dict.pop("result_fields", None)
+                url = "{0}/{1}/_search".format(self.server_url, index_name)
+                params = {"source": json.dumps(query_dict), "source_content_type": "application/json"}
+            except JSONDecodeError:
+                sql_query = query.strip() if isinstance(query, str) or isinstance(query, unicode) else ''
+                if sql_query.lower().startswith("select"):
+                    logger.debug("Query using SQL statement")
+                    # matches index name from sql statement Ex. "select * from movies" index_name will be "movies"
+                    matches = re.search(r"from ([\w\d]+)", sql_query, flags=re.IGNORECASE)
+                    if matches:
+                        index_name = matches.groups()[0]
+                    url = "{0}/_sql".format(self.server_url)
+                    params = {"sql": sql_query}
 
+            mapping_url = "{0}/{1}/_mapping".format(self.server_url, index_name)
             mappings, error = self._get_query_mappings(mapping_url)
             if error:
                 return None, error
 
-            params = {"source": json.dumps(query_dict), "source_content_type": "application/json"}
             logger.debug("Using URL: %s", url)
             logger.debug("Using params : %s", params)
             r = requests.get(url, params=params, auth=self.auth)
