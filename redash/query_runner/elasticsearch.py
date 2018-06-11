@@ -51,6 +51,7 @@ def get_index_from_sql(sql):
         return None
     return matches.groups()[0]
 
+
 class BaseElasticSearch(BaseQueryRunner):
     DEBUG_ENABLED = False
 
