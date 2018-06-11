@@ -276,4 +276,4 @@ class QueryRefreshResource(BaseResource):
 
 class QueryTagsResource(BaseResource):
     def get(self):
-        return {t[0]: t[1] for t in models.Query.all_tags(self.current_user)}
+        return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}
