@@ -26,12 +26,44 @@ class QueriesListCtrl {
     this.showEmptyState = false;
     this.loaded = false;
 
+    this.allTags = [];
+    this.selectedTags = new Set();
+
     const self = this;
+
+    this.toggleTag = ($event, tag) => {
+      if ($event.shiftKey) {
+        // toggle tag
+        if (this.selectedTags.has(tag)) {
+          this.selectedTags.delete(tag);
+        } else {
+          this.selectedTags.add(tag);
+        }
+      } else {
+        // if the tag is the only selected, deselect it, otherwise select only it
+        if (this.selectedTags.has(tag) && this.selectedTags.size === 1) {
+          this.selectedTags.clear();
+        } else {
+          this.selectedTags.clear();
+          this.selectedTags.add(tag);
+        }
+      }
+
+      this.update();
+    };
+
+    Query.getAllTags().then((tags) => {
+      self.allTags = _.isArray(tags) ? tags : [];
+    });
 
     function queriesFetcher(requestedPage, itemsPerPage, paginator) {
       $location.search('page', requestedPage);
 
-      const request = Object.assign({}, self.defaultOptions, { page: requestedPage, page_size: itemsPerPage });
+      const request = Object.assign({}, self.defaultOptions, {
+        page: requestedPage,
+        page_size: itemsPerPage,
+        tags: [...self.selectedTags], // convert Set to Array
+      });
 
       if (_.isString(self.term) && (self.term !== '')) {
         request.q = self.term;
@@ -57,16 +89,22 @@ class QueriesListCtrl {
 
     this.navigateTo = url => $location.url(url);
 
-    this.updateSearch = () => {
-      this.paginator.setPage(1);
-      queriesFetcher(this.paginator.page, this.paginator.itemsPerPage, this.paginator);
-    };
-
     if (['favorites', 'search'].indexOf(this.currentPage) >= 0) {
       this.paginator = new Paginator([], { page });
-      this.updateSearch();
+
+      this.update = () => {
+        this.paginator.setPage(1);
+        queriesFetcher(this.paginator.page, this.paginator.itemsPerPage, this.paginator);
+      };
+
+      this.update();
     } else {
       this.paginator = new LivePaginator(queriesFetcher, { page });
+
+      this.update = () => {
+        // `queriesFetcher` will be called by paginator
+        this.paginator.setPage(1);
+      };
     }
   }
 }
