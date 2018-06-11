@@ -45,6 +45,12 @@ PYTHON_TYPES_MAPPING = {
 }
 
 
+def get_index_from_sql(sql):
+    matches = re.search(r"from ([\w\d]+)", sql, flags=re.IGNORECASE)
+    if not matches:
+        return None
+    return matches.groups()[0]
+
 class BaseElasticSearch(BaseQueryRunner):
     DEBUG_ENABLED = False
 
@@ -423,10 +429,7 @@ class ElasticSearch(BaseElasticSearch):
                 sql_query = query.strip() if isinstance(query, str) or isinstance(query, unicode) else ''
                 if sql_query.lower().startswith("select"):
                     logger.debug("Query using SQL statement")
-                    # matches index name from sql statement Ex. "select * from movies" index_name will be "movies"
-                    matches = re.search(r"from ([\w\d]+)", sql_query, flags=re.IGNORECASE)
-                    if matches:
-                        index_name = matches.groups()[0]
+                    index_name = get_index_from_sql(sql_query)
                     url = "{0}/_sql".format(self.server_url)
                     params = {"sql": sql_query}
 
