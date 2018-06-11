@@ -65,7 +65,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr ng-repeat="dashboard in $ctrl.paginator.getPageRows()" ng-click="$ctrl.navigateTo('dashboard/' + dashboard.slug)">
+            <tr ng-repeat="dashboard in $ctrl.paginator.getPageRows()" ng-click="$ctrl.navigateTo($event, 'dashboard/' + dashboard.slug)">
               <td class="p-r-0">
                 <favorites-control item="dashboard"></favorites-control>
               </td>
