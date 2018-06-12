@@ -6,19 +6,51 @@
     </div>
     <hr>
     <div class="form-group" ng-class='{"has-error": (inner.input | showError), "required": field.property.required}' ng-form="inner" ng-repeat="field in fields">
-        <label ng-if="field.property.type !== 'checkbox'" class="control-label">{{field.property.title || field.name | toHuman}}</label>
-        <input name="input" type="{{field.property.type}}" class="form-control" ng-model="target.options[field.name]" ng-required="field.property.required"
-               ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox'" accesskey="tab" placeholder="{{field.property.default}}">
+        <label 
+            ng-if="field.property.type !== 'checkbox'" 
+            class="control-label"
+        >{{field.property.title || field.name | toHuman}}</label>
+        <input 
+            name="input" 
+            type="{{field.property.type}}" 
+            class="form-control" 
+            ng-model="target.options[field.name]" 
+            ng-required="field.property.required"
+            ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox' && field.property.type !== 'enum'"
+            accesskey="tab" 
+            placeholder="{{field.property.default}}"
+        >
+
+        <select 
+            class="form-control"
+            ng-model="target.options[field.name]"
+            ng-required="field.property.required"
+            ng-if="field.property.type == 'enum'"
+            accesskey="tab"
+            ng-options="option for option in field.property.options"
+        ></select>
 
         <label ng-if="field.property.type=='checkbox'">
-            <input name="input" type="{{field.property.type}}" ng-model="target.options[field.name]" ng-required="field.property.required"
-                   ng-if="field.property.type !== 'file'" accesskey="tab" placeholder="{{field.property.default}}">
-            {{field.property.title || field.name | toHuman}}
+            <input 
+                name="input" 
+                type="{{field.property.type}}" 
+                ng-model="target.options[field.name]" 
+                ng-required="field.property.required"
+                ng-if="field.property.type !== 'file'" 
+                accesskey="tab" 
+                placeholder="{{field.property.default}}"
+            >{{field.property.title || field.name | toHuman}}
         </label>
 
-        <input name="input" type="file" class="form-control" ng-model="files[field.name]" ng-required="field.property.required && !target.options[field.name]"
-               base-sixty-four-input
-               ng-if="field.property.type === 'file'">
+        <input 
+            name="input" 
+            type="file" 
+            class="form-control" 
+            ng-model="files[field.name]" 
+            ng-required="field.property.required && !target.options[field.name]"
+            base-sixty-four-input
+            ng-if="field.property.type === 'file'"
+        >
 
         <error-messages input="inner.input" form="inner"></error-messages>
     </div>
