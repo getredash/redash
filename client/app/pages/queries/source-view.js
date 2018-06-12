@@ -6,10 +6,6 @@ function QuerySourceCtrl(
 ) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
-  // TODO:
-  // This doesn't get inherited. Setting it on this didn't work either (which is weird).
-  // Obviously it shouldn't be repeated, but we got bigger fish to fry.
-  const DEFAULT_TAB = 'table';
 
   Events.record('view_source', 'query', $scope.query.id);
 
@@ -20,8 +16,6 @@ function QuerySourceCtrl(
   $scope.sourceMode = true;
   $scope.isDirty = false;
   $scope.base_url = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
-
-  $scope.newVisualization = undefined;
 
   // @override
   Object.defineProperty($scope, 'showDataset', {
@@ -69,28 +63,6 @@ function QuerySourceCtrl(
     Query.format($scope.dataSource.syntax, $scope.query.query)
       .then((query) => { $scope.query.query = query; })
       .catch(error => toastr.error(error));
-  };
-
-  $scope.deleteVisualization = ($e, vis) => {
-    $e.preventDefault();
-
-    const title = undefined;
-    const message = `Are you sure you want to delete ${vis.name} ?`;
-    const confirm = { class: 'btn-danger', title: 'Delete' };
-
-    AlertDialog.open(title, message, confirm).then(() => {
-      Events.record('delete', 'visualization', vis.id);
-
-      Visualization.delete({ id: vis.id }, () => {
-        if ($scope.selectedTab === String(vis.id)) {
-          $scope.selectedTab = DEFAULT_TAB;
-          $location.hash($scope.selectedTab);
-        }
-        $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
-      }, () => {
-        toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
-      });
-    });
   };
 
   $scope.$watch('query.query', (newQueryText) => {
