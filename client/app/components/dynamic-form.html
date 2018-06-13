@@ -16,7 +16,7 @@
             class="form-control" 
             ng-model="target.options[field.name]" 
             ng-required="field.property.required"
-            ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox' && field.property.type !== 'enum'"
+            ng-if="field.property.type !== 'file' && field.property.type !== 'checkbox' && field.property.options === undefined"
             accesskey="tab" 
             placeholder="{{field.property.default}}"
         >
@@ -25,7 +25,7 @@
             class="form-control"
             ng-model="target.options[field.name]"
             ng-required="field.property.required"
-            ng-if="field.property.type == 'enum'"
+            ng-if="field.property.options !== undefined"
             accesskey="tab"
             ng-options="option for option in field.property.options"
         ></select>
