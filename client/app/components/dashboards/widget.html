@@ -23,7 +23,6 @@
         <div class="th-title">
           <p class="hidden-print">
             <span ng-hide="$ctrl.canViewQuery">{{$ctrl.widget.getQuery().name}}</span>
-            <visualization-name visualization="$ctrl.widget.visualization"/>
             <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization" ng-show="$ctrl.canViewQuery"></query-link>
           </p>
           <p class="visible-print">
