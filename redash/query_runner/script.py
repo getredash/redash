@@ -51,9 +51,6 @@ class Script(BaseQueryRunner):
 
     def run_query(self, query, user):
         try:
-            json_data = None
-            error = None
-
             script = query
 
             if self.configuration["path"] != "*":
@@ -69,16 +66,13 @@ class Script(BaseQueryRunner):
                 if output != "":
                     return output, None
 
-            error = "Error reading output"
+            return None, "Error reading output"
         except subprocess.CalledProcessError as e:
             return None, str(e)
         except KeyboardInterrupt:
-            error = "Query cancelled by user."
-            json_data = None
-        except Exception as e:
+            return None, "Query cancelled by user."
+        except Exception:
             raise sys.exc_info()[1], None, sys.exc_info()[2]
-
-        return json_data, error
 
 
 register(Script)
