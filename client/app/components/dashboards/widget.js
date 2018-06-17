@@ -1,6 +1,7 @@
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import './widget.less';
+import './add-widget-dialog.less';
 
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
