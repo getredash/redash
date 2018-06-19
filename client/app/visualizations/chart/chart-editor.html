@@ -168,9 +168,9 @@
     <div class="form-group">
       <label class="control-label">Scale</label>
       <ui-select ng-model="options.xAxis.type">
-        <ui-select-match placeholder="Choose Scale...">{{$select.selected | capitalize}}</ui-select-match>
-        <ui-select-choices repeat="scaleType in xAxisScales">
-          <div ng-bind-html="scaleType | capitalize | highlight: $select.search"></div>
+        <ui-select-match placeholder="Choose Scale...">{{$select.selected.label}}</ui-select-match>
+        <ui-select-choices repeat="scaleType.value as scaleType in xAxisScales">
+          <div ng-bind-html="scaleType.label | highlight: $select.search"></div>
         </ui-select-choices>
       </ui-select>
     </div>
