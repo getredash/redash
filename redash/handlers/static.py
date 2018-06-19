@@ -1,4 +1,5 @@
 import os
+from flask import jsonify
 
 from flask import current_app, render_template, safe_join, send_file
 from werkzeug.exceptions import NotFound
@@ -25,3 +26,8 @@ def render_index():
 @login_required
 def index(**kwargs):
     return render_index()
+
+
+@routes.route('/health')
+def health_check():
+    return jsonify({}), 204
