@@ -10,7 +10,7 @@ const DEFAULT_OPTIONS = {
   sortX: true,
   legend: { enabled: true },
   yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
-  xAxis: { type: 'datetime', labels: { enabled: true } },
+  xAxis: { type: '-', labels: { enabled: true } },
   error_y: { type: 'data', visible: true },
   series: { stacking: null, error_y: { type: 'data', visible: true } },
   seriesOptions: {},
@@ -103,7 +103,13 @@ function ChartEditor(ColorPalette, clientConfig) {
         scope.chartTypes.custom = { name: 'Custom', icon: 'code' };
       }
 
-      scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
+      scope.xAxisScales = [
+        { label: 'Auto Detect', value: '-' },
+        { label: 'Datetime', value: 'datetime' },
+        { label: 'Linear', value: 'linear' },
+        { label: 'Logarithmic', value: 'logarithmic' },
+        { label: 'Category', value: 'category' },
+      ];
       scope.yAxisScales = ['linear', 'logarithmic', 'datetime', 'category'];
 
       scope.chartTypeChanged = () => {
