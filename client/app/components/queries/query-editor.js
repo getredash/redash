@@ -24,6 +24,7 @@ function queryEditor(QuerySnippet, $timeout) {
     scope: {
       query: '=',
       schema: '=',
+      type: '=',
       syntax: '=',
     },
     template: '<div ui-ace="editorOptions" ng-model="query.query"></div>',
@@ -42,13 +43,62 @@ function queryEditor(QuerySnippet, $timeout) {
             autoScrollEditorIntoView: true,
           },
           onLoad(editor) {
-            $scope.$on('query-editor.paste', ($event, text) => {
+            function handleDefaultPaste(text) {
               editor.session.doc.replace(editor.selection.getRange(), text);
               const range = editor.selection.getRange();
               $scope.query.query = editor.session.getValue();
               $timeout(() => {
                 editor.selection.setRange(range);
               });
+            }
+
+            function handleMetricName(metric) {
+              const parsedQuery = JSON.parse($scope.query.query);
+
+              if (parsedQuery.MetricName) {
+                $scope.query.query = $scope.query.query.replace(parsedQuery.MetricName, metric);
+              } else {
+                parsedQuery.MetricName = metric;
+                $scope.query.query = JSON.stringify(parsedQuery, null, 4);
+              }
+            }
+
+            function handleDimension(dimension, metric) {
+              const parsedQuery = JSON.parse($scope.query.query);
+              const tmpDim = dimension.split('=');
+              const parsedDimension = {
+                Name: tmpDim[0],
+                Value: tmpDim[1],
+              };
+
+              if (parsedQuery.MetricName !== metric) {
+                parsedQuery.MetricName = metric;
+                parsedQuery.Dimensions = [parsedDimension];
+                $scope.query.query = JSON.stringify(parsedQuery, null, 4);
+                return;
+              }
+
+              const existingDim = parsedQuery.Dimensions
+                && parsedQuery.Dimensions.find(d => d.Name === parsedDimension.Name);
+
+              if (existingDim) {
+                $scope.query.query = $scope.query.query.replace(existingDim.Value, parsedDimension.Value);
+              } else {
+                parsedQuery.Dimensions.push(parsedDimension);
+                $scope.query.query = JSON.stringify(parsedQuery, null, 4);
+              }
+            }
+
+            $scope.$on('query-editor.paste', ($event, text, table) => {
+              if ($scope.type === 'cloudwatch') {
+                if (table) {
+                  handleDimension(text, table);
+                } else {
+                  handleMetricName(text);
+                }
+              } else {
+                handleDefaultPaste(text);
+              }
             });
 
             // Release Cmd/Ctrl+L to the browser

@@ -22,8 +22,8 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     return this.schema === undefined || this.schema.length === 0;
   };
 
-  this.itemSelected = ($event, hierarchy) => {
-    $rootScope.$broadcast('query-editor.paste', hierarchy.join('.'));
+  this.itemSelected = ($event, hierarchy, parent) => {
+    $rootScope.$broadcast('query-editor.paste', hierarchy.join('.'), parent);
     $event.preventDefault();
     $event.stopPropagation();
   };

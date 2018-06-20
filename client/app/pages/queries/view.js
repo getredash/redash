@@ -328,6 +328,17 @@ function QueryViewCtrl(
   $scope.updateNamespace = () => {
     Events.record('update_namespace', 'query', $scope.query.id);
     $scope.filteredSchema = $scope.schema.filter(table => table.ns === $scope.query.namespace);
+
+    if ($scope.dataSource.type === 'cloudwatch') {
+      const parsedQuery = JSON.parse($scope.query.query);
+
+      if (parsedQuery.Namespace) {
+        $scope.query.query = $scope.query.query.replace(parsedQuery.Namespace, $scope.query.namespace);
+      } else {
+        parsedQuery.Namespace = $scope.query.namespace;
+        $scope.query.query = JSON.stringify(parsedQuery, null, 4);
+      }
+    }
   };
 
   $scope.setVisualizationTab = (visualization) => {
