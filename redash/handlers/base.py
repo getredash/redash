@@ -7,10 +7,12 @@ from flask_login import current_user, login_required
 from flask_restful import Resource, abort
 from redash import settings
 from redash.authentication import current_org
-from redash.models import ApiUser
+from redash.models import ApiUser, db
 from redash.tasks import record_event as record_event_task
 from redash.utils import json_dumps
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import cast, select, String
+from sqlalchemy.dialects import postgresql
 
 routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
@@ -121,3 +123,11 @@ def org_scoped_rule(rule):
 
 def json_response(response):
     return current_app.response_class(json_dumps(response), mimetype='application/json')
+
+
+def filter_by_tags(result_set, column):
+    if request.args.getlist('tags'):
+        tags = request.args.getlist('tags')
+        result_set = result_set.filter(cast(column, postgresql.ARRAY(db.Text)).contains(tags))
+    
+    return result_set
