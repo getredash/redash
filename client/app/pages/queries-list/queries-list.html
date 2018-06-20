@@ -21,10 +21,8 @@
         </a>
       </div>
 
-      <div class="list-group m-t-10 m-b-10 tags-list tiled" ng-if="$ctrl.allTags.length > 0">
-        <a ng-repeat='tag in $ctrl.allTags' ng-class='{"active": $ctrl.selectedTags.has(tag)}' class='list-group-item' ng-click='$ctrl.toggleTag($event, tag)'>
-          {{ tag }}
-        </a>
+      <div class="m-b-10">
+        <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
     </div>
 
