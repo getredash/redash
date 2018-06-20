@@ -9,7 +9,7 @@ from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models, settings
 from redash.handlers.base import (BaseResource, get_object_or_404,
-                                  org_scoped_rule, paginate, routes)
+                                  org_scoped_rule, paginate, routes, filter_by_tags)
 from redash.handlers.query_results import run_query
 from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_admin_or_owner,
@@ -51,6 +51,7 @@ class QuerySearchResource(BaseResource):
         include_drafts = request.args.get('include_drafts') is not None
 
         queries = models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts, limit=None)
+        queries = filter_by_tags(queries, models.Query.tags)
 
         return QuerySerializer(queries, with_last_modified_by=False).serialize()
 
@@ -139,6 +140,8 @@ class QueryListResource(BaseResource):
         """
 
         results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+        results = filter_by_tags(results, models.Query.tags)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
         response = paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
