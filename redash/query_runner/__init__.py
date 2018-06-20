@@ -76,6 +76,10 @@ class BaseQueryRunner(object):
     def configuration_schema(cls):
         return {}
 
+    @classmethod
+    def cacheable(cls):
+        return True
+
     def test_connection(self):
         if self.noop_query is None:
             raise NotImplementedError()
