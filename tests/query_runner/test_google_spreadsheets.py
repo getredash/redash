@@ -2,10 +2,10 @@
 
 from unittest import TestCase
 
-from mock import Mock, MagicMock
+from mock import MagicMock
 
-from redash.query_runner.google_spreadsheets import _guess_type, _value_eval_list, TYPE_STRING, TYPE_BOOLEAN
-from redash.query_runner.google_spreadsheets import parse_worksheet, parse_spreadsheet, WorksheetNotFoundError
+from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _guess_type, _value_eval_list, parse_query
+from redash.query_runner.google_spreadsheets import WorksheetNotFoundError, parse_spreadsheet, parse_worksheet
 
 
 class TestGuessType(TestCase):
@@ -72,3 +72,8 @@ class TestParseWorksheet(TestCase):
         self.assertEqual(True, parsed['rows'][0]['Another Column'])
         self.assertEqual(1, parsed['rows'][0]['Column1'])
 
+
+class TestParseQuery(TestCase):
+    def test_parse_query(self):
+        parsed = parse_query('key|0')
+        self.assertEqual(('key', 0), parsed)
