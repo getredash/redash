@@ -62,12 +62,24 @@ function QueryViewCtrl(
   function getSchema(refresh = undefined) {
     // TODO: is it possible this will be called before dataSource is set?
     $scope.schema = [];
+    $scope.namespaces = null;
     $scope.dataSource.getSchema(refresh).then((data) => {
       if (data.schema) {
-        $scope.schema = data.schema;
-        $scope.schema.forEach((table) => {
+        $scope.schema = data.schema.filter((table) => {
           table.collapsed = true;
+
+          if (table.name === '_ns') {
+            $scope.namespaces = table.columns;
+            $scope.query.namespace = $scope.namespaces[0];
+            return false;
+          }
+
+          return true;
         });
+
+        if ($scope.query.namespace) {
+          $scope.updateNamespace();
+        }
       } else if (data.error.code === SCHEMA_NOT_SUPPORTED) {
         $scope.schema = undefined;
       } else if (data.error.code === SCHEMA_LOAD_ERROR) {
@@ -311,6 +323,11 @@ function QueryViewCtrl(
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
     getSchema();
     $scope.executeQuery();
+  };
+
+  $scope.updateNamespace = () => {
+    Events.record('update_namespace', 'query', $scope.query.id);
+    $scope.filteredSchema = $scope.schema.filter(table => table.ns === $scope.query.namespace);
   };
 
   $scope.setVisualizationTab = (visualization) => {
