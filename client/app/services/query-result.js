@@ -476,7 +476,7 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getName(queryName, fileType) {
-      return `${queryName.replace(' ', '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
+      return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
     }
 
     static get(dataSourceId, query, maxAge, queryId) {
