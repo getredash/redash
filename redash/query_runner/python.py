@@ -225,7 +225,7 @@ class Python(BaseQueryRunner):
     def test_connection(self):
         pass
 
-    def run_query(self, query, user):   
+    def run_query(self, query, user):
         try:
             error = None
 
