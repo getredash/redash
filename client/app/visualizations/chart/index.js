@@ -14,6 +14,7 @@ const DEFAULT_OPTIONS = {
   error_y: { type: 'data', visible: true },
   series: { stacking: null, error_y: { type: 'data', visible: true } },
   seriesOptions: {},
+  valuesOptions: {},
   columnMapping: {},
 
   // showDataLabels: false, // depends on chart type
@@ -156,7 +157,8 @@ function ChartEditor(ColorPalette, clientConfig) {
       }
 
       function refreshSeries() {
-        const seriesNames = map(scope.queryResult.getChartData(scope.options.columnMapping), i => i.name);
+        const chartData = scope.queryResult.getChartData(scope.options.columnMapping);
+        const seriesNames = map(chartData, i => i.name);
         const existing = keys(scope.options.seriesOptions);
         each(difference(seriesNames, existing), (name) => {
           scope.options.seriesOptions[name] = {
@@ -169,6 +171,31 @@ function ChartEditor(ColorPalette, clientConfig) {
           scope.form.seriesList = without(scope.form.seriesList, name);
           delete scope.options.seriesOptions[name];
         });
+
+        if (scope.options.globalSeriesType === 'pie') {
+          const uniqueValuesNames = new Set();
+          each(chartData, (series) => {
+            each(series.data, (row) => {
+              uniqueValuesNames.add(row.x);
+            });
+          });
+          const valuesNames = [];
+          uniqueValuesNames.forEach(v => valuesNames.push(v));
+
+          // initialize newly added values
+          const newValues = difference(valuesNames, keys(scope.options.valuesOptions));
+          each(newValues, (name) => {
+            scope.options.valuesOptions[name] = {};
+            scope.form.valuesList.push(name);
+          });
+          // remove settings for values that are no longer available
+          each(keys(scope.options.valuesOptions), (name) => {
+            if (valuesNames.indexOf(name) === -1) {
+              delete scope.options.valuesOptions[name];
+            }
+          });
+          scope.form.valuesList = intersection(scope.form.valuesList, valuesNames);
+        }
       }
 
       function setColumnRole(role, column) {
@@ -200,6 +227,7 @@ function ChartEditor(ColorPalette, clientConfig) {
         yAxisColumns: [],
         seriesList: sortBy(keys(scope.options.seriesOptions), name =>
           scope.options.seriesOptions[name].zIndex),
+        valuesList: keys(scope.options.valuesOptions),
       };
 
       scope.$watchCollection('form.seriesList', (value) => {
@@ -273,7 +301,7 @@ function ChartEditor(ColorPalette, clientConfig) {
         });
       }
 
-      scope.$watch('options', () => {
+      function setOptionsDefaults() {
         if (scope.options) {
           // For existing visualization - set default options
           defaults(scope.options, extend({}, DEFAULT_OPTIONS, {
@@ -281,7 +309,9 @@ function ChartEditor(ColorPalette, clientConfig) {
             dateTimeFormat: clientConfig.dateTimeFormat,
           }));
         }
-      });
+      }
+      setOptionsDefaults();
+      scope.$watch('options', setOptionsDefaults);
 
       scope.templateHint = `
         <div class="p-b-5">Use special names to access additional properties:</div>
