@@ -620,8 +620,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return data_source
 
     @classmethod
-    def all(cls, org, group_ids=None):
-        data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
+    def all(cls, org=None, group_ids=None):
+        if org is None:
+            data_sources = cls.query.order_by(cls.id.asc())
+        else:
+            data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
 
         if group_ids:
             data_sources = data_sources.join(DataSourceGroup).filter(

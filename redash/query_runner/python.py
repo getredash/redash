@@ -213,10 +213,19 @@ class Python(BaseQueryRunner):
 
         return json.loads(query.latest_query_data.data)
 
+    def get_schema(self, get_stats=False):
+        schema = {}
+        datasources = models.DataSource.all().all()
+
+        for source in datasources:
+            schema[source.id] = {'name': source.name, 'columns': [source.id]}
+
+        return schema.values()
+
     def test_connection(self):
         pass
 
-    def run_query(self, query, user):
+    def run_query(self, query, user):   
         try:
             error = None
 
