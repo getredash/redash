@@ -293,6 +293,7 @@ edit-in-place p.editable:hover {
     }
 
     .editor__left__data-source,
+    .editor__left__namespaces,
     .schema-control,
     .query-metadata--history,
     .editor {
@@ -303,8 +304,12 @@ edit-in-place p.editable:hover {
       border-top: 1px solid #efefef;
     }
 
-    .query-metadata, .editor__left__schema, .editor__left__data-source {
+    .query-metadata, .editor__left__schema, .editor__left__data-source, .editor__left__namespaces {
       padding: 15px;
+    }
+    
+    .editor__left__namespaces {
+      padding-top: 0;
     }
 
     .editor__left__schema {
@@ -612,7 +617,7 @@ nav .rg-bottom {
 }
 
 @media (max-width: 768px) {
-  .editor__left__schema, .editor__left__data-source {
+  .editor__left__schema, .editor__left__data-source, .editor__left__namespaces {
     display: none;
   }
 

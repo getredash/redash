@@ -81,8 +81,17 @@
         </ui-select>
       </div>
 
+      <div class="editor__left__namespaces" ng-if="sourceMode && namespaces">
+        <ui-select ng-model="query.namespace" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode" on-select="updateNamespace()">
+          <ui-select-match placeholder="Select Namespace...">{{$select.selected}}</ui-select-match>
+          <ui-select-choices repeat="ns in namespaces | filter:$select.search">
+            {{ns}}
+          </ui-select-choices>
+        </ui-select>
+      </div>
+
       <div class="editor__left__schema" ng-if="sourceMode">
-        <schema-browser class="schema-container" schema="schema" on-refresh="refreshSchema()"></schema-browser>
+        <schema-browser class="schema-container" schema="filteredSchema || schema" on-refresh="refreshSchema()"></schema-browser>
       </div>
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
@@ -131,6 +140,7 @@
                 <p style="height:calc(100% - 40px); margin-bottom: 0px;" class="editor__container">
                   <query-editor query="query"
                     schema="schema"
+                    type="dataSource.type"
                     syntax="dataSource.syntax"></query-editor>
 
                   <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
