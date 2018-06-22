@@ -83,7 +83,7 @@ class DataSourceListResource(BaseResource):
             except AttributeError:
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
-        return sorted(response.values(), key=lambda d: d['name'])
+        return sorted(response.values(), key=lambda d: d['name'].lower())
 
     @require_admin
     def post(self):
