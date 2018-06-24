@@ -62,6 +62,7 @@
     "pace-progress": "git+https://github.com/getredash/pace.git",
     "pivottable": "^2.15.0",
     "plotly.js": "1.30.1",
+    "pubnub": "^4.20.2",
     "ui-select": "^0.19.8",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4"
