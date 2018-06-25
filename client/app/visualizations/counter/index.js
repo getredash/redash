@@ -138,7 +138,7 @@ export default function init(ngModule) {
 
   ngModule.config((VisualizationProvider) => {
     const renderTemplate =
-      '<counter-renderer ' + 'options="visualization.options" query-result="queryResult">' + '</counter-renderer>';
+      '<counter-renderer options="visualization.options" query-result="queryResult"></counter-renderer>';
 
     const editTemplate = '<counter-editor></counter-editor>';
     const defaultOptions = {
