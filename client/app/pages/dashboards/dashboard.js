@@ -1,6 +1,7 @@
 import * as _ from 'underscore';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import { durationHumanize } from '@/filters';
+import { getTags } from '@/services/tags';
 import template from './dashboard.html';
 import shareDashboardTemplate from './share-dashboard.html';
 import './dashboard.less';
@@ -22,7 +23,6 @@ function getWidgetsWithChangedPositions(widgets) {
 }
 
 function DashboardCtrl(
-  $rootScope,
   $routeParams,
   $location,
   $timeout,
@@ -273,7 +273,7 @@ function DashboardCtrl(
     }
   };
 
-  this.loadTags = () => Dashboard.getAllTags();
+  this.loadTags = () => getTags('api/dashboards/tags');
 
   this.saveName = () => {
     Dashboard.save(
@@ -308,7 +308,7 @@ function DashboardCtrl(
         } else if (error.status === 409) {
           toastr.error(
             'It seems like the dashboard has been modified by another user. ' +
-            'Please copy/backup your changes and reload this page.',
+              'Please copy/backup your changes and reload this page.',
             { autoDismiss: false },
           );
         }

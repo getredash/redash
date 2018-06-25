@@ -1,17 +1,12 @@
-import { map, sortBy } from 'underscore';
+import { getTags } from '@/services/tags';
 import template from './tags-list.html';
 
-function processTags(tags) {
-  tags = tags || {};
-  return map(sortBy(map(tags, (count, tag) => ({ tag, count })), 'count'), item => item.tag);
-}
-
 class TagsList {
-  constructor($http) {
+  constructor() {
     this.allTags = [];
     this.selectedTags = new Set();
-    $http.get(this.tagsUrl).then((response) => {
-      this.allTags = processTags(response.data);
+    getTags(this.tagsUrl).then((tags) => {
+      this.allTags = tags;
     });
   }
   toggleTag($event, tag) {
