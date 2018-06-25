@@ -216,14 +216,18 @@
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
+                <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'loading-result'">
+                  Loading results&hellip;
+                  <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
+                </div>
                 <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
                   Query in queue&hellip;
                   <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
                   <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
-                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">Error running query:
-                  <strong>{{queryResult.getError()}}</strong>
+                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">
+                  Error running query: <strong>{{queryResult.getError()}}</strong>
                 </div>
               </div>
               <!-- End of Query Execution Status -->
