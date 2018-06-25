@@ -1348,6 +1348,11 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query
     
     @classmethod
+    def search(cls, org, groups_ids, user_id, search_term):
+        # TODO: switch to FTS
+        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike('%{}%'.format(search_term)))
+    
+    @classmethod
     def all_tags(cls, org, user):
         from sqlalchemy import func
         tag_column = func.unnest(cls.tags).label('tag')

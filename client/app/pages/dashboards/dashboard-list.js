@@ -1,6 +1,6 @@
 import _ from 'underscore';
 
-import { Paginator } from '@/lib/pagination';
+import { LivePaginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
 import './dashboard-list.css';
 
@@ -13,12 +13,10 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.currentPage = $scope.$parent.$resolve.currentPage;
 
   this.defaultOptions = {};
-  this.dashboards = this.resource({}); // shared promise
 
-  this.searchText = '';
+  this.searchText = $location.search().q;
 
   this.currentUser = currentUser;
-  this.showMyDashboards = currentUser.hasPermission('create_dashboard');
 
   this.selectedTags = new Set();
   this.onTagsUpdate = (tags) => {
@@ -29,12 +27,31 @@ function DashboardListCtrl($scope, currentUser, $location) {
   this.showEmptyState = false;
   this.loaded = false;
 
-  this.dashboards.$promise.then((data) => {
-    this.loaded = true;
-    this.showEmptyState = data.length === 0;
-  });
+  const fetcher = (requestedPage, itemsPerPage, paginator) => {
+    $location.search('page', requestedPage);
 
-  this.paginator = new Paginator([], { page });
+    const request = Object.assign({}, this.defaultOptions, {
+      page: requestedPage,
+      page_size: itemsPerPage,
+      tags: [...this.selectedTags], // convert Set to Array
+    });
+
+    if (_.isString(this.searchText) && this.term !== '') {
+      request.q = this.searchText;
+    }
+
+    return this.resource(request).$promise.then((data) => {
+      this.loaded = true;
+
+      const rows = data.results;
+
+      paginator.updateRows(rows, data.count);
+
+      this.showEmptyState = data.count === 0;
+    });
+  };
+
+  this.paginator = new LivePaginator(fetcher, { page });
 
   this.navigateTo = ($event, url) => {
     if ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey) {
@@ -46,28 +63,9 @@ function DashboardListCtrl($scope, currentUser, $location) {
   };
 
   this.update = () => {
-    this.dashboards.$promise.then((data) => {
-      data = _.sortBy(data, 'name');
-      const filteredDashboards = _.filter(data, (dashboard) => {
-        const dashboardTags = new Set(dashboard.tags);
-        const matchesAllTags = _.all([...this.selectedTags.values()], tag => dashboardTags.has(tag));
-        if (!matchesAllTags) {
-          return false;
-        }
-        if (_.isString(this.searchText) && this.searchText !== '') {
-          if (!dashboard.name.toLowerCase().includes(this.searchText.toLowerCase())) {
-            return false;
-          }
-        }
-        return true;
-      });
-
-      this.paginator.updateRows(filteredDashboards);
-      this.showEmptyState = filteredDashboards.length === 0;
-    });
+    // trigger paginator refresh
+    this.paginator.setPage(1);
   };
-
-  this.update();
 }
 
 export default function init(ngModule) {
@@ -91,20 +89,6 @@ export default function init(ngModule) {
             'ngInject';
 
             return Dashboard.query.bind(Dashboard);
-          },
-        },
-      },
-      route,
-    ),
-    '/dashboards/my': _.extend(
-      {
-        title: 'My Dashboards',
-        resolve: {
-          currentPage: () => 'my',
-          resource(Dashboard) {
-            'ngInject';
-
-            return Dashboard.myDashboards.bind(Dashboard);
           },
         },
       },

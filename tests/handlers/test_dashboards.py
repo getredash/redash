@@ -15,6 +15,36 @@ class TestDashboardListResource(BaseTestCase):
         self.assertEquals(rv.json['layout'], [])
 
 
+class TestDashboardListGetResource(BaseTestCase):
+    def test_returns_dashboards(self):
+        d1 = self.factory.create_dashboard()
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        rv = self.make_request('get', '/api/dashboards')
+
+        assert len(rv.json['results']) == 3
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id, d2.id, d3.id])
+    
+    def test_filters_with_tags(self):
+        d1 = self.factory.create_dashboard(tags=[u'test'])
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        rv = self.make_request('get', '/api/dashboards?tags=test')
+        assert len(rv.json['results']) == 1
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id])
+    
+    def test_search_term(self):
+        d1 = self.factory.create_dashboard(name="Sales")
+        d2 = self.factory.create_dashboard(name="Q1 sales")
+        d3 = self.factory.create_dashboard(name="Ops")
+
+        rv = self.make_request('get', '/api/dashboards?q=sales')
+        assert len(rv.json['results']) == 2
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([d1.id, d2.id])
+
+
 class TestDashboardResourceGet(BaseTestCase):
     def test_get_dashboard(self):
         d1 = self.factory.create_dashboard()

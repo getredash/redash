@@ -44,7 +44,7 @@ function prepareWidgetsForDashboard(widgets) {
   return widgets;
 }
 
-function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, $q) {
+function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) {
   function prepareDashboardWidgets(widgets) {
     return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
   }
@@ -57,8 +57,8 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, 
   }
 
   const transform = $http.defaults.transformResponse.concat((data) => {
-    if (_.isArray(data)) {
-      data.forEach(transformSingle);
+    if (data.results) {
+      data.results.forEach(transformSingle);
     } else {
       transformSingle(data);
     }
@@ -71,7 +71,7 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, 
     {
       get: { method: 'GET', transformResponse: transform },
       save: { method: 'POST', transformResponse: transform },
-      query: { method: 'GET', isArray: true, transformResponse: transform },
+      query: { method: 'GET', isArray: false, transformResponse: transform },
       recent: {
         method: 'get',
         isArray: true,
@@ -80,7 +80,7 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, 
       },
       favorites: {
         method: 'get',
-        isArray: true,
+        isArray: false,
         url: 'api/dashboards/favorites',
       },
       favorite: {
@@ -97,25 +97,6 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions, 
       },
     },
   );
-
-  // TODO: This is polyfill; move it to resource definition when API will be available
-  resource.myDashboards = (request) => {
-    const result = [];
-    result.$promise = $q((resolve, reject) => {
-      resource
-        .query(request)
-        .$promise.then((data) => {
-          _.each(data, (item) => {
-            if (item.user_id === currentUser.id) {
-              result.push(item);
-            }
-          });
-          resolve(result);
-        })
-        .catch(reject);
-    });
-    return result;
-  };
 
   resource.prototype.canEdit = function canEdit() {
     return currentUser.canEdit(this) || this.can_edit;

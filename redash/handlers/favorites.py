@@ -1,6 +1,7 @@
+from flask import request
 from redash import models
 from redash.permissions import require_access, view_only
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, filter_by_tags, paginate
 from redash.serializers import QuerySerializer, serialize_dashboard
 
 
@@ -28,8 +29,20 @@ class QueryFavoriteResource(BaseResource):
 
 class DashboardFavoriteListResource(BaseResource):
     def get(self):
-        favorites = models.Favorite.query.filter(models.Favorite.object.is_type(models.Dashboard)).filter(models.Favorite.user==self.current_user)
-        return [serialize_dashboard(fav.object) for fav in favorites]
+        search_term = request.args.get('q')
+
+        if search_term:
+            results = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+        else:
+            favorites = models.Favorite.query.filter(models.Favorite.object.is_type(models.Dashboard)).filter(models.Favorite.user==self.current_user)
+
+        favorites = filter_by_tags(favorites, models.Dashboard.tags)
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        response = paginate(favorites, page, page_size, lambda fav: serialize_dashboard(fav.object))
+
+        return response
 
     
 class DashboardFavoriteResource(BaseResource):
