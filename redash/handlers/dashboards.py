@@ -5,7 +5,7 @@ from funcy import distinct, project, take
 
 from flask_restful import abort
 from redash import models, serializers, settings
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, paginate, filter_by_tags
 from redash.serializers import serialize_dashboard
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
@@ -19,8 +19,20 @@ class DashboardListResource(BaseResource):
         """
         Lists all accessible dashboards.
         """
-        results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
-        return [serialize_dashboard(d) for d in results]
+        search_term = request.args.get('q')
+
+        if search_term:
+            results = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+        else:
+            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+
+        results = filter_by_tags(results, models.Dashboard.tags)
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        response = paginate(results, page, page_size, serialize_dashboard)
+
+        return response
 
     @require_permission('create_dashboard')
     def post(self):
