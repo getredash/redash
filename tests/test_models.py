@@ -356,6 +356,20 @@ class TestQueryAll(BaseTestCase):
         q = self.factory.create_query(is_draft=True)
         self.assertIn(q, models.Query.all_queries([self.factory.default_group.id], user_id=q.user_id))
 
+    def test_order_by_relationship(self):
+        u1 = self.factory.create_user(name='alice')
+        u2 = self.factory.create_user(name='bob')
+        self.factory.create_query(user=u1)
+        self.factory.create_query(user=u2)
+        db.session.commit()
+        # have to reset the order here with None since all_queries orders by
+        # created_at by default
+        base = models.Query.all_queries([self.factory.default_group.id]).order_by(None)
+        qs1 = base.order_by(models.User.name)
+        self.assertEqual(['alice', 'bob'], [q.user.name for q in qs1])
+        qs2 = base.order_by(models.User.name.desc())
+        self.assertEqual(['bob', 'alice'], [q.user.name for q in qs2])
+
 
 class TestGroup(BaseTestCase):
     def test_returns_groups_with_specified_names(self):

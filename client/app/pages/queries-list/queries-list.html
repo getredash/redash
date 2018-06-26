@@ -4,39 +4,75 @@
   <empty-state icon="fa fa-code" description="Getting the data from your datasources" illustration="query" help-link="http://help.redash.io/category/21-querying"
     ng-if="$ctrl.showEmptyState()"></empty-state>
 
-  <div ng-if="$ctrl.showList()">
-    <tab-nav tabs="$ctrl.tabs"></tab-nav>
+  <tab-nav tabs="$ctrl.tabs"></tab-nav>
 
-    <div class="bg-white tiled">
-      <table class="table table-condensed table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Created By</th>
-            <th>Created At</th>
-            <th>Runtime</th>
-            <th>Last Executed At</th>
-            <th>Update Schedule</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
-            <td>
-              <a href="queries/{{query.id}}">{{query.name}}</a>
-              <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-            </td>
-            <td>
-              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb" />
-              <span ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</span>
-            </td>
-            <td>{{query.created_at | dateTime}}</td>
-            <td>{{query.runtime | durationHumanize}}</td>
-            <td>{{query.retrieved_at | dateTime}}</td>
-            <td>{{query.schedule | scheduleHumanize}}</td>
-          </tr>
-        </tbody>
-      </table>
-      <paginator paginator="$ctrl.paginator"></paginator>
+  <div class="bg-white tiled p-10">
+    <div class="row">
+      <div class="col-md-3 p-t-5">
+        <form class="form-inline" role="form" ng-submit="$ctrl.update()">
+          <div class="input-group">
+            <input class="form-control input-sm" placeholder="Search..." ng-model="$ctrl.searchTerm" autofocus>
+            <span class="input-group-btn">
+              <button class="btn btn-secondary" type="button" ng-click="$ctrl.clearSearch()">
+                <span class="zmdi zmdi-close"></span>
+              </button>
+              <button class="btn btn-primary" type="submit">
+                <span class="zmdi zmdi-search"></span>
+              </button>
+            </span>
+          </div>
+        </form>
+      </div>
+      <div class="col-md-9 p-t-5">
+        <form class="form-inline" role="form">
+          <div class="form-group">
+            <label class="control-label" for="page_size">Show results:</label>
+            <select id="page_size" ng-change="$ctrl.update()" ng-model="$ctrl.pageSize" class="form-control input-sm"
+              ng-options="value for value in $ctrl.pageSizeOptions"></select>
+          </div>
+          <div class="form-group p-l-20 p-r-20" ng-if="$ctrl.showDraftsCheckbox()">
+            <label class="checkbox" for="show_drafts">
+              <input id="show_drafts" type="checkbox" ng-model="$ctrl.showDrafts" ng-change="$ctrl.update()">
+              Show drafts
+            </label>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
+
+  <div class="bg-white tiled">
+    <table class="table table-condensed table-hover">
+      <thead>
+        <tr>
+          <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('name')">Name <sort-icon column="'name'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+          <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('created_by')">Created By <sort-icon column="'created_by'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+          <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('created_at')">Created At <sort-icon column="'created_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+          <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('runtime')">Runtime <sort-icon column="'runtime'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+          <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('executed_at')">Last Executed At <sort-icon column="'executed_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+          <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('schedule')">Update Schedule <sort-icon column="'schedule'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="query in $ctrl.paginator.getPageRows()">
+          <td>
+            <a href="queries/{{query.id}}">{{query.name}}</a>
+            <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
+          </td>
+          <td>
+            <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb" />
+            <span ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</span>
+          </td>
+          <td>{{query.created_at | dateTime}}</td>
+          <td>{{query.runtime | durationHumanize}}</td>
+          <td>{{query.retrieved_at | dateTime}}</td>
+          <td>{{query.schedule | scheduleHumanize}}</td>
+        </tr>
+        <tr ng-if="$ctrl.paginator.rows.length == 0 && $ctrl.searchTerm !== null">
+          <td>No queries found.</td>
+        </tr>
+        </tbody>
+    </table>
+    <paginator paginator="$ctrl.paginator"></paginator>
   </div>
 </div>

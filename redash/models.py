@@ -29,9 +29,10 @@ from redash.settings.organization import settings as org_settings
 from sqlalchemy import distinct, or_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session
+from sqlalchemy.orm import backref, joinedload, object_session, contains_eager
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
@@ -522,7 +523,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     @classmethod
     def all(cls, org):
         return cls.query.filter(cls.org == org)
-    
+
     @classmethod
     def all_not_disabled(cls, org):
         return cls.all(org).filter(cls.disabled_at == None)
@@ -973,20 +974,50 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all_queries(cls, group_ids, user_id=None, drafts=False):
-        query_ids = (db.session.query(distinct(cls.id))
-                               .join(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
-                               .filter(Query.is_archived == False)
-                               .filter(DataSourceGroup.group_id.in_(group_ids)))
+        query_ids = (
+            db.session
+            .query(distinct(cls.id))
+            .join(
+                DataSourceGroup,
+                Query.data_source_id == DataSourceGroup.data_source_id
+            )
+            .filter(Query.is_archived == False)
+            .filter(DataSourceGroup.group_id.in_(group_ids))
+        )
 
-        q = (cls.query
-                .options(joinedload(Query.user),
-                         joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
-                .filter(cls.id.in_(query_ids))
-                .order_by(Query.created_at.desc()))
+        q = (
+            cls
+            .query
+            .options(
+                joinedload(Query.user),
+                joinedload(
+                    Query.latest_query_data
+                ).load_only(
+                    'runtime',
+                    'retrieved_at',
+                )
+            )
+            .filter(cls.id.in_(query_ids))
+            # Adding outer joins to be able to order by relationship
+            .outerjoin(User, User.id == Query.user_id)
+            .outerjoin(
+                QueryResult,
+                QueryResult.id == Query.latest_query_data_id
+            )
+            .options(
+                contains_eager(Query.user),
+                contains_eager(Query.latest_query_data),
+            )
+            .order_by(Query.created_at.desc())
+        )
 
         if not drafts:
-            q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
-
+            q = q.filter(
+                or_(
+                    Query.is_draft == False,
+                    Query.user_id == user_id
+                )
+            )
         return q
 
     @classmethod
@@ -1019,24 +1050,14 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return outdated_queries.values()
 
     @classmethod
-    def search(cls, term, group_ids, include_drafts=False, limit=20):
-        where = cls.is_archived == False
+    def search(cls, term, group_ids, user_id=None, include_drafts=False, limit=None):
+        all_queries = cls.all_queries(group_ids, user_id=user_id, drafts=include_drafts)
+        # sort the result using the weight as defined in the search vector column
+        return all_queries.search(term, sort=True).limit(limit)
 
-        if not include_drafts:
-            where &= cls.is_draft == False
-
-        where &= DataSourceGroup.group_id.in_(group_ids)
-
-        return cls.query.join(
-            DataSourceGroup,
-            cls.data_source_id == DataSourceGroup.data_source_id
-        ).options(
-            joinedload(cls.user)
-        ).filter(where).search(
-            term,
-            # sort the result using the weight as defined in the search vector column
-            sort=True
-        ).distinct().limit(limit)
+    @classmethod
+    def search_by_user(cls, term, user, limit=None):
+        return cls.by_user(user).search(term, sort=True).limit(limit)
 
     @classmethod
     def recent(cls, group_ids, user_id=None, limit=20):
@@ -1098,6 +1119,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             return {}
 
         return self.data_source.groups
+
+    @hybrid_property
+    def lowercase_name(self):
+        "Optional property useful for sorting purposes."
+        return self.name.lower()
+
+    @lowercase_name.expression
+    def lowercase_name(cls):
+        "The SQLAlchemy expression for the property above."
+        return func.lower(cls.name)
 
     def __unicode__(self):
         return unicode(self.id)
