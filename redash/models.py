@@ -951,8 +951,10 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return q
     
     @classmethod
-    def favorites(cls, user):
-        return cls.all_queries(user.group_ids, user.id, drafts=True).join((Favorite, and_(Favorite.object_type==u'Query', Favorite.object_id==Query.id))).filter(Favorite.user_id==user.id)
+    def favorites(cls, user, base_query=None):
+        if base_query == None:
+            base_query = cls.all_queries(user.group_ids, user.id, drafts=True)
+        return base_query.join((Favorite, and_(Favorite.object_type==u'Query', Favorite.object_id==Query.id))).filter(Favorite.user_id==user.id)
     
     @classmethod
     def all_tags(cls, user, include_drafts=False):
@@ -1346,7 +1348,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
         return query
-    
+
     @classmethod
     def search(cls, org, groups_ids, user_id, search_term):
         # TODO: switch to FTS
@@ -1377,8 +1379,10 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query.order_by(usage_count.desc())
 
     @classmethod
-    def favorites(cls, org, user):
-        return cls.all(org, user.group_ids, user.id).join((Favorite, and_(Favorite.object_type==u'Dashboard', Favorite.object_id==Dashboard.id))).filter(Favorite.user_id==user.id)
+    def favorites(cls, user, base_query=None):
+        if base_query is None:
+            base_query = cls.all(user.org, user.group_ids, user.id)
+        return base_query.join((Favorite, and_(Favorite.object_type==u'Dashboard', Favorite.object_id==Dashboard.id))).filter(Favorite.user_id==user.id)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
