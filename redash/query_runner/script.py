@@ -5,6 +5,17 @@ import sys
 from redash.query_runner import *
 
 
+def query_to_script_path(path, query):
+    if path != "*":
+        script = os.path.join(path, query.split(" ")[0])
+        if not os.path.exists(script):
+            raise IOError("Script '{}' not found in script directory".format(query))
+
+        return os.path.join(path, query).split(" ")
+
+    return query
+
+
 class Script(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
@@ -51,15 +62,7 @@ class Script(BaseQueryRunner):
 
     def run_query(self, query, user):
         try:
-            script = query
-
-            if self.configuration["path"] != "*":
-                script = os.path.join(self.configuration["path"], query.split(" ")[0])
-                if not os.path.exists(script):
-                    return None, "Script '%s' not found in script directory" % query
-
-                script = os.path.join(self.configuration["path"], query).split(" ")
-
+            script = query_to_script_path(self.configuration["path"], query)
             output = subprocess.check_output(script, shell=self.configuration['shell'])
             if output is not None:
                 output = output.strip()
@@ -67,6 +70,8 @@ class Script(BaseQueryRunner):
                     return output, None
 
             return None, "Error reading output"
+        except IOError as e:
+            return None, e.message
         except subprocess.CalledProcessError as e:
             return None, str(e)
         except KeyboardInterrupt:
