@@ -16,12 +16,10 @@
         </a>
       </div>
 
-      <div ng-if="$ctrl.currentPage == 'all'">
-        <div class="m-b-10">
-          <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
-            autofocus/>
-          <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
-        </div>
+      <div class="m-b-10">
+        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
+          autofocus/>
+        <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
     </div>
 
@@ -96,12 +94,10 @@
         </a>
       </div>
 
-      <div ng-if="$ctrl.currentPage == 'all'">
-        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
-          autofocus/>
+      <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
+        autofocus/>
 
-        <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
-      </div>
+      <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
     </div>
   </div>
 </div>

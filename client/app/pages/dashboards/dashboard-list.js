@@ -36,7 +36,7 @@ function DashboardListCtrl($scope, currentUser, $location) {
       tags: [...this.selectedTags], // convert Set to Array
     });
 
-    if (_.isString(this.searchText) && this.term !== '') {
+    if (_.isString(this.searchText) && this.searchText !== '') {
       request.q = this.searchText;
     }
 

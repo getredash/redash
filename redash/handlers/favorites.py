@@ -7,7 +7,21 @@ from redash.serializers import QuerySerializer, serialize_dashboard
 
 class QueryFavoriteListResource(BaseResource):
     def get(self):
-        return QuerySerializer(models.Query.favorites(self.current_user)).serialize()
+        search_term = request.args.get('q')
+
+        if search_term:
+            base_query = models.Query.search(search_term, self.current_user.group_ids, include_drafts=True, limit=None)
+            favorites = models.Query.favorites(self.current_user, base_query=base_query)
+        else:
+            favorites = models.Query.favorites(self.current_user)
+
+        favorites = filter_by_tags(favorites, models.Query.tags)
+
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+        response = paginate(favorites, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
+
+        return response
 
     
 class QueryFavoriteResource(BaseResource):
@@ -32,15 +46,16 @@ class DashboardFavoriteListResource(BaseResource):
         search_term = request.args.get('q')
 
         if search_term:
-            results = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+            base_query = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+            favorites = models.Dashboard.favorites(self.current_user, base_query=base_query)
         else:
-            favorites = models.Favorite.query.filter(models.Favorite.object.is_type(models.Dashboard)).filter(models.Favorite.user==self.current_user)
+            favorites = models.Dashboard.favorites(self.current_user)
 
         favorites = filter_by_tags(favorites, models.Dashboard.tags)
 
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        response = paginate(favorites, page, page_size, lambda fav: serialize_dashboard(fav.object))
+        response = paginate(favorites, page, page_size, serialize_dashboard)
 
         return response
 
