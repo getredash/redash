@@ -1,7 +1,7 @@
 import moment from 'moment';
 import _ from 'underscore';
 
-import { Paginator, LivePaginator } from '@/lib/pagination';
+import { LivePaginator } from '@/lib/pagination';
 import template from './queries-list.html';
 
 class QueriesListCtrl {
@@ -26,33 +26,28 @@ class QueriesListCtrl {
     this.showEmptyState = false;
     this.loaded = false;
 
-    const self = this;
-
     this.selectedTags = new Set();
     this.onTagsUpdate = (tags) => {
       this.selectedTags = tags;
       this.update();
     };
 
-    function queriesFetcher(requestedPage, itemsPerPage, paginator) {
+    const queriesFetcher = (requestedPage, itemsPerPage, paginator) => {
       $location.search('page', requestedPage);
 
-      const request = Object.assign({}, self.defaultOptions, {
+      const request = Object.assign({}, this.defaultOptions, {
         page: requestedPage,
         page_size: itemsPerPage,
-        tags: [...self.selectedTags], // convert Set to Array
+        tags: [...this.selectedTags], // convert Set to Array
       });
 
-      if (_.isString(self.term) && self.term !== '') {
-        request.q = self.term;
-        request.include_drafts = true;
-        $location.path('queries/search').search('q', self.term);
-      } else if (self.currentPage === 'search') {
-        $location.search('q', self.term);
+      if (_.isString(this.term) && this.term !== '') {
+        request.q = this.term;
+        $location.search('q', this.term);
       }
 
-      return self.resource(request).$promise.then((data) => {
-        self.loaded = true;
+      return this.resource(request).$promise.then((data) => {
+        this.loaded = true;
         const rows = data.results.map((query) => {
           query.created_at = moment(query.created_at);
           query.retrieved_at = moment(query.retrieved_at);
@@ -61,9 +56,9 @@ class QueriesListCtrl {
 
         paginator.updateRows(rows, data.count);
 
-        self.showEmptyState = data.count === 0;
+        this.showEmptyState = data.count === 0;
       });
-    }
+    };
 
     this.navigateTo = ($event, url) => {
       if ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey) {
@@ -74,23 +69,12 @@ class QueriesListCtrl {
       $location.url(url);
     };
 
-    if (['favorites', 'search'].indexOf(this.currentPage) >= 0) {
-      this.paginator = new Paginator([], { page });
+    this.paginator = new LivePaginator(queriesFetcher, { page });
 
-      this.update = () => {
-        this.paginator.setPage(1);
-        queriesFetcher(this.paginator.page, this.paginator.itemsPerPage, this.paginator);
-      };
-
-      this.update();
-    } else {
-      this.paginator = new LivePaginator(queriesFetcher, { page });
-
-      this.update = () => {
-        // `queriesFetcher` will be called by paginator
-        this.paginator.setPage(1);
-      };
-    }
+    this.update = () => {
+      // `queriesFetcher` will be called by paginator
+      this.paginator.setPage(1);
+    };
   }
 }
 
@@ -139,64 +123,16 @@ export default function init(ngModule) {
         title: 'Favorite Queries',
         resolve: {
           currentPage: () => 'favorites',
-          resource: (Query, $q) => {
+          resource: (Query) => {
             'ngInject';
 
-            return (request) => {
-              const result = {
-                results: [],
-              };
-              result.$promise = $q((resolve, reject) => {
-                // convert plain array to paginator
-                Query.favorites(request)
-                  .$promise.then((data) => {
-                    result.count = data.length;
-                    result.results = data;
-                    result.page = 1;
-                    result.page_size = data.length;
-
-                    resolve(result);
-                  })
-                  .catch(reject);
-              });
-              return result;
-            };
+            return Query.favorites.bind(Query);
           },
         },
       },
       route,
     ),
-    '/queries/search': _.extend(
-      {
-        title: 'Queries Search',
-        resolve: {
-          currentPage: () => 'search',
-          resource: (Query, $q) => {
-            'ngInject';
-
-            return (request) => {
-              const result = {
-                results: [],
-              };
-              result.$promise = $q((resolve, reject) => {
-                // convert plain array to paginator
-                Query.search(request)
-                  .$promise.then((data) => {
-                    result.count = data.length;
-                    result.results = data;
-                    result.page = 1;
-                    result.page_size = data.length;
-
-                    resolve(result);
-                  })
-                  .catch(reject);
-              });
-              return result;
-            };
-          },
-        },
-      },
-      route,
-    ),
+    // TODO: setup redirect?
+    // '/queries/search': _.extend(
   };
 }
