@@ -168,11 +168,6 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     'api/queries/:id',
     { id: '@id' },
     {
-      search: {
-        method: 'get',
-        isArray: true,
-        url: 'api/queries/search',
-      },
       recent: {
         method: 'get',
         isArray: true,
@@ -199,7 +194,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
       },
       favorites: {
         method: 'get',
-        isArray: true,
+        isArray: false,
         url: 'api/queries/favorites',
       },
       favorite: {

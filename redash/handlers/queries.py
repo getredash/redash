@@ -139,7 +139,13 @@ class QueryListResource(BaseResource):
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
 
-        results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+        search_term = request.args.get('q')
+
+        if search_term:
+            results = models.Query.search(search_term, self.current_user.group_ids, include_drafts=True, limit=None)
+        else:
+            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+
         results = filter_by_tags(results, models.Query.tags)
 
         page = request.args.get('page', 1, type=int)

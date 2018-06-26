@@ -19,7 +19,7 @@
         </a>
       </div>
 
-      <div ng-if="$ctrl.currentPage == 'all'">
+      <div ng-if="$ctrl.currentPage != 'my'">
         <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           ng-change="$ctrl.update()">
 
@@ -109,12 +109,11 @@
           /> My Queries
         </a>
       </div>
-      <div ng-if="$ctrl.currentPage == 'all'">
+      <div ng-if="$ctrl.currentPage != 'my'">
         <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           ng-change="$ctrl.update()">
         <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
-
     </div>
   </div>
 </div>

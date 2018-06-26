@@ -105,6 +105,34 @@ class TestQueryResourcePost(BaseTestCase):
         self.assertEqual(rv.json['name'], 'Testing')
         self.assertEqual(rv.json['last_modified_by']['id'], user.id)
 
+class TestQueryListResourceGet(BaseTestCase):
+    def test_returns_queries(self):
+        q1 = self.factory.create_query()
+        q2 = self.factory.create_query()
+        q3 = self.factory.create_query()
+
+        rv = self.make_request('get', '/api/queries')
+
+        assert len(rv.json['results']) == 3
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id, q3.id])
+    
+    def test_filters_with_tags(self):
+        q1 = self.factory.create_query(tags=[u'test'])
+        q2 = self.factory.create_query()
+        q3 = self.factory.create_query()
+
+        rv = self.make_request('get', '/api/queries?tags=test')
+        assert len(rv.json['results']) == 1
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id])
+    
+    def test_search_term(self):
+        q1 = self.factory.create_query(name="Sales")
+        q2 = self.factory.create_query(name="Q1 sales")
+        q3 = self.factory.create_query(name="Ops")
+
+        rv = self.make_request('get', '/api/queries?q=sales')
+        assert len(rv.json['results']) == 2
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id])
 
 class TestQueryListResourcePost(BaseTestCase):
     def test_create_query(self):
