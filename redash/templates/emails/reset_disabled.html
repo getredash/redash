@@ -1,0 +1,10 @@
+{% extends "emails/layout.html" %}
+
+{% block content %}
+
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">Hi {{ user.name }},</p>
+<h2 class="intercom-align-left" style="color: #282F33; font-size: 18px; font-weight: bold; margin-bottom: 7px; margin-top: 30px; text-align: left !important" align="left">
+    You told us you forgot your password. Unfortunately Your account is disabled so You can't request password reset
+</h2>
+
+{% endblock %}

@@ -1,0 +1,4 @@
+Hi {{ user.name }},
+
+You told us you forgot your password. Unfortunately Your account is disabled so You can't request password reset
+

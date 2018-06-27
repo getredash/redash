@@ -55,3 +55,10 @@ def send_password_reset_email(user):
     return reset_link
 
 
+def send_user_disabled_email(user):
+    html_content = render_template('emails/reset_disabled.html', user=user)
+    text_content = render_template('emails/reset_disabled.txt', user=user)
+    subject = u"Reset your password"
+
+    send_mail.delay([user.email], subject, html_content, text_content)
+
