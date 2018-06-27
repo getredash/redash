@@ -1,4 +1,4 @@
-import { contains } from 'underscore';
+import { includes } from 'lodash';
 import template from './show.html';
 
 function GroupCtrl($scope, $routeParams, $http, currentUser, Events, Group, User) {
@@ -17,7 +17,7 @@ function GroupCtrl($scope, $routeParams, $http, currentUser, Events, Group, User
     if ($scope.foundUsers === undefined) {
       User.query((users) => {
         const existingIds = $scope.members.map(m => m.id);
-        users.forEach((user) => { user.alreadyMember = contains(existingIds, user.id); });
+        users.forEach((user) => { user.alreadyMember = includes(existingIds, user.id); });
         $scope.foundUsers = users;
       });
     }

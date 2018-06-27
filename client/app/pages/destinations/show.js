@@ -1,5 +1,5 @@
 import debug from 'debug';
-import { findWhere } from 'underscore';
+import { find } from 'lodash';
 import template from './show.html';
 
 const logger = debug('redash:http');
@@ -13,7 +13,7 @@ function DestinationCtrl(
   $scope.destination = $route.current.locals.destination;
   $scope.destinationId = $routeParams.destinationId;
   $scope.types = $route.current.locals.types;
-  $scope.type = findWhere($scope.types, { type: $scope.destination.type });
+  $scope.type = find($scope.types, { type: $scope.destination.type });
   $scope.canChangeType = $scope.destination.id === undefined;
 
   $scope.$watch('destination.id', (id) => {

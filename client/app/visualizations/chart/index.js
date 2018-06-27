@@ -1,7 +1,7 @@
 import {
-  some, extend, defaults, has, partial, intersection, without, contains, isUndefined,
-  sortBy, each, pluck, keys, difference,
-} from 'underscore';
+  some, extend, defaults, has, partial, intersection, without, includes, isUndefined,
+  sortBy, each, map, keys, difference,
+} from 'lodash';
 import template from './chart.html';
 import editorTemplate from './chart-editor.html';
 
@@ -10,7 +10,7 @@ const DEFAULT_OPTIONS = {
   sortX: true,
   legend: { enabled: true },
   yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
-  xAxis: { type: 'datetime', labels: { enabled: true } },
+  xAxis: { type: '-', labels: { enabled: true } },
   error_y: { type: 'data', visible: true },
   series: { stacking: null, error_y: { type: 'data', visible: true } },
   seriesOptions: {},
@@ -103,7 +103,13 @@ function ChartEditor(ColorPalette, clientConfig) {
         scope.chartTypes.custom = { name: 'Custom', icon: 'code' };
       }
 
-      scope.xAxisScales = ['datetime', 'linear', 'logarithmic', 'category'];
+      scope.xAxisScales = [
+        { label: 'Auto Detect', value: '-' },
+        { label: 'Datetime', value: 'datetime' },
+        { label: 'Linear', value: 'linear' },
+        { label: 'Logarithmic', value: 'logarithmic' },
+        { label: 'Category', value: 'category' },
+      ];
       scope.yAxisScales = ['linear', 'logarithmic', 'datetime', 'category'];
 
       scope.chartTypeChanged = () => {
@@ -125,7 +131,7 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       function refreshColumns() {
         scope.columns = scope.queryResult.getColumns();
-        scope.columnNames = pluck(scope.columns, 'name');
+        scope.columnNames = map(scope.columns, i => i.name);
         if (scope.columnNames.length > 0) {
           each(difference(keys(scope.options.columnMapping), scope.columnNames), (column) => {
             delete scope.options.columnMapping[column];
@@ -141,16 +147,16 @@ function ChartEditor(ColorPalette, clientConfig) {
           return;
         }
         scope.form.yAxisColumns = intersection(scope.form.yAxisColumns, scope.columnNames);
-        if (!contains(scope.columnNames, scope.form.xAxisColumn)) {
+        if (!includes(scope.columnNames, scope.form.xAxisColumn)) {
           scope.form.xAxisColumn = undefined;
         }
-        if (!contains(scope.columnNames, scope.form.groupby)) {
+        if (!includes(scope.columnNames, scope.form.groupby)) {
           scope.form.groupby = undefined;
         }
       }
 
       function refreshSeries() {
-        const seriesNames = pluck(scope.queryResult.getChartData(scope.options.columnMapping), 'name');
+        const seriesNames = map(scope.queryResult.getChartData(scope.options.columnMapping), i => i.name);
         const existing = keys(scope.options.seriesOptions);
         each(difference(seriesNames, existing), (name) => {
           scope.options.seriesOptions[name] = {
@@ -250,7 +256,7 @@ function ChartEditor(ColorPalette, clientConfig) {
 
       if (scope.columnNames) {
         each(scope.options.columnMapping, (value, key) => {
-          if (scope.columnNames.length > 0 && !contains(scope.columnNames, key)) {
+          if (scope.columnNames.length > 0 && !includes(scope.columnNames, key)) {
             return;
           }
           if (value === 'x') {

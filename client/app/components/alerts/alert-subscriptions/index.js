@@ -1,4 +1,4 @@
-import { contains, without, compact } from 'underscore';
+import { includes, without, compact } from 'lodash';
 import template from './alert-subscriptions.html';
 
 function controller($scope, $q, $sce, currentUser, AlertSubscription, Destination, toastr) {
@@ -23,9 +23,9 @@ function controller($scope, $q, $sce, currentUser, AlertSubscription, Destinatio
 
       const subscribedUsers = compact(subscribers.map(s => !s.destination && s.user.id));
 
-      $scope.destinations = destinations.filter(d => !contains(subscribedDestinations, d.id));
+      $scope.destinations = destinations.filter(d => !includes(subscribedDestinations, d.id));
 
-      if (!contains(subscribedUsers, currentUser.id)) {
+      if (!includes(subscribedUsers, currentUser.id)) {
         $scope.destinations.unshift({ user: { name: currentUser.name } });
       }
 
