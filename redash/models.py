@@ -37,6 +37,7 @@ from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
 from functools import reduce
+from sqlalchemy import func
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
@@ -958,7 +959,6 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     
     @classmethod
     def all_tags(cls, user, include_drafts=False):
-        from sqlalchemy import func
         where = cls.is_archived == False
 
         if not include_drafts:
@@ -1356,7 +1356,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     
     @classmethod
     def all_tags(cls, org, user):
-        from sqlalchemy import func
         tag_column = func.unnest(cls.tags).label('tag')
         usage_count = func.count(1).label('usage_count')
 
