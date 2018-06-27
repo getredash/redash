@@ -23,7 +23,7 @@ class QueryFavoriteListResource(BaseResource):
 
         self.record_event({
             'action': 'load_favorites',
-            'object_type': 'query'
+            'object_type': 'query',
             'params': {
                 'q': search_term,
                 'tags': request.args.getlist('tags'),
@@ -81,7 +81,7 @@ class DashboardFavoriteListResource(BaseResource):
 
         self.record_event({
             'action': 'load_favorites',
-            'object_type': 'dashboard'
+            'object_type': 'dashboard',
             'params': {
                 'q': search_term,
                 'tags': request.args.getlist('tags'),
