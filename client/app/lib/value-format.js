@@ -1,6 +1,6 @@
 import moment from 'moment/moment';
 import numeral from 'numeral';
-import _ from 'underscore';
+import _ from 'lodash';
 
 numeral.options.scalePercentBy100 = false;
 

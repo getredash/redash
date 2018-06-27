@@ -1,5 +1,5 @@
 import angular from 'angular';
-import _ from 'underscore';
+import _ from 'lodash';
 import d3 from 'd3';
 
 import d3sankey from '@/lib/visualizations/d3sankey';
@@ -169,20 +169,20 @@ function createSankey(element, data) {
 
   function nodeMouseOver(currentNode) {
     let nodes = getConnectedNodes(currentNode);
-    nodes = _.pluck(nodes, 'id');
+    nodes = _.map(nodes, i => i.id);
     node.filter((d) => {
       if (d === currentNode) {
         return false;
       }
 
-      if (_.contains(nodes, d.id)) {
+      if (_.includes(nodes, d.id)) {
         return false;
       }
 
       return true;
     }).style('opacity', 0.2);
     link.filter(l =>
-      !(_.include(currentNode.sourceLinks, l) || _.include(currentNode.targetLinks, l))).style('opacity', 0.2);
+      !(_.includes(currentNode.sourceLinks, l) || _.includes(currentNode.targetLinks, l))).style('opacity', 0.2);
   }
 
   function nodeMouseOut() {

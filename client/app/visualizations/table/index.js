@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import { getColumnCleanName } from '@/services/query-result';
 import { createFormatter } from '@/lib/value-format';
 import template from './table.html';
@@ -104,12 +104,12 @@ function getColumnsOptions(columns, visualizationColumns) {
   const options = getDefaultColumnsOptions(columns);
 
   if ((wereColumnsReordered(columns, visualizationColumns))) {
-    visualizationColumns = _.object(_.map(
+    visualizationColumns = _.fromPairs(_.map(
       visualizationColumns,
       (col, index) => [col.name, _.extend({}, col, { order: index })],
     ));
   } else {
-    visualizationColumns = _.object(_.map(
+    visualizationColumns = _.fromPairs(_.map(
       visualizationColumns,
       col => [col.name, _.omit(col, 'order')],
     ));
@@ -121,7 +121,7 @@ function getColumnsOptions(columns, visualizationColumns) {
 }
 
 function getColumnsToDisplay(columns, options, clientConfig) {
-  columns = _.object(_.map(columns, col => [col.name, col]));
+  columns = _.fromPairs(_.map(columns, col => [col.name, col]));
   let result = _.map(options, col => _.extend(
     getDefaultFormatOptions(col, clientConfig),
     col,
