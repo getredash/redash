@@ -223,9 +223,9 @@
                   <ul class="tab-nav">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
-                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> &times;</span>
+                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> <i class="zmdi zmdi-close"></i></span>
                     </rd-tab>
-                    <li class="rd-tab"><a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a></li>
+                    <li class="rd-tab tab-new-vis"><a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit"><i class="zmdi zmdi-plus"></i> New Visualization</a></li>
                   </ul>
                   <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
                     <filters filters="filters"></filters>

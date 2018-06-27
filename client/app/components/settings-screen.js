@@ -1,6 +1,5 @@
 import settingsMenu from '@/lib/settings-menu';
-import startsWith from 'underscore.string/startsWith';
-import { isFunction } from 'underscore';
+import { isFunction } from 'lodash';
 import template from './settings-screen.html';
 
 export default function init(ngModule) {
@@ -13,7 +12,7 @@ export default function init(ngModule) {
         if (isFunction(menuItem.isActive)) {
           return menuItem.isActive($location);
         }
-        return startsWith($location.path(), menuItem.pathPrefix);
+        return $location.path().startsWith(menuItem.pathPrefix);
       };
       this.isAvailable = permission => permission === undefined || currentUser.hasPermission(permission);
     },
