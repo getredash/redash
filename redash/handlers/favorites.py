@@ -21,6 +21,16 @@ class QueryFavoriteListResource(BaseResource):
         page_size = request.args.get('page_size', 25, type=int)
         response = paginate(favorites, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
 
+        self.record_event({
+            'action': 'load_favorites',
+            'object_type': 'query'
+            'params': {
+                'q': search_term,
+                'tags': request.args.getlist('tags'),
+                'page': page
+            }
+        })
+
         return response
 
     
@@ -32,6 +42,12 @@ class QueryFavoriteResource(BaseResource):
         fav = models.Favorite(org_id=self.current_org.id, object=query, user=self.current_user)
         models.db.session.add(fav)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'favorite',
+            'object_id': query.id,
+            'object_type': 'query'
+        })
     
     def delete(self, query_id):
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
@@ -39,6 +55,12 @@ class QueryFavoriteResource(BaseResource):
 
         models.Favorite.query.filter(models.Favorite.object==query, models.Favorite.user==self.current_user).delete()
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'favorite',
+            'object_id': query.id,
+            'object_type': 'query'
+        })
 
 
 class DashboardFavoriteListResource(BaseResource):
@@ -57,6 +79,16 @@ class DashboardFavoriteListResource(BaseResource):
         page_size = request.args.get('page_size', 25, type=int)
         response = paginate(favorites, page, page_size, serialize_dashboard)
 
+        self.record_event({
+            'action': 'load_favorites',
+            'object_type': 'dashboard'
+            'params': {
+                'q': search_term,
+                'tags': request.args.getlist('tags'),
+                'page': page
+            }
+        })
+
         return response
 
     
@@ -66,8 +98,18 @@ class DashboardFavoriteResource(BaseResource):
         fav = models.Favorite(org_id=self.current_org.id, object=dashboard, user=self.current_user)
         models.db.session.add(fav)
         models.db.session.commit()
+        self.record_event({
+            'action': 'favorite',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard'
+        })
     
     def delete(self, object_id):
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, object_id, self.current_org)
         models.Favorite.query.filter(models.Favorite.object==dashboard, models.Favorite.user==self.current_user).delete()
         models.db.session.commit()
+        self.record_event({
+            'action': 'unfavorite',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard'
+        })
