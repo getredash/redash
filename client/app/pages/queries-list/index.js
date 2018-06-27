@@ -43,8 +43,12 @@ class QueriesListCtrl {
 
       if (_.isString(this.term) && this.term !== '') {
         request.q = this.term;
-        $location.search('q', this.term);
       }
+
+      if (this.term === '') {
+        this.term = null;
+      }
+      $location.search('q', this.term);
 
       return this.resource(request).$promise.then((data) => {
         this.loaded = true;
