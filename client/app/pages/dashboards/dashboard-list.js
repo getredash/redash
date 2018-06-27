@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 
 import { Paginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
@@ -45,7 +45,7 @@ function DashboardListCtrl(Dashboard, $location) {
       this.showEmptyState = true;
     }
     const out = data.map(dashboard => dashboard.name.match(TAGS_REGEX));
-    this.allTags = _.unique(_.flatten(out)).filter(e => e).map(tag => tag.replace(/:$/, ''));
+    this.allTags = _.uniq(_.flatten(out)).filter(e => e).map(tag => tag.replace(/:$/, ''));
     this.allTags.sort();
   });
 

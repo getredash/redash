@@ -1,4 +1,4 @@
-import { find } from 'underscore';
+import { find } from 'lodash';
 import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';

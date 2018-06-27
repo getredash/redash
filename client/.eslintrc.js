@@ -4,6 +4,7 @@ module.exports = {
   settings: {
     "import/resolver": "webpack"
   },
+  parser: "babel-eslint",
   env: {
     "browser": true,
     "node": true
@@ -21,6 +22,7 @@ module.exports = {
     "no-multi-assign": "off",
     "no-lonely-if": "off",
     "consistent-return": "off",
+    "no-control-regex": "off",
     "max-len": ['error', 120, 2, {
       ignoreUrls: true,
       ignoreComments: false,

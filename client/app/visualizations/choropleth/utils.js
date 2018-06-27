@@ -1,5 +1,5 @@
 import chroma from 'chroma-js';
-import _ from 'underscore';
+import _ from 'lodash';
 import { createFormatter } from '@/lib/value-format';
 
 export const AdditionalColors = {

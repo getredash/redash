@@ -1,4 +1,4 @@
-import { isFunction, isArray } from 'underscore';
+import { isFunction, isArray } from 'lodash';
 
 export class Policy {
   constructor($injector) {
