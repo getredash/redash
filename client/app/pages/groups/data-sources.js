@@ -1,4 +1,4 @@
-import { contains } from 'underscore';
+import { includes } from 'lodash';
 import template from './data-sources.html';
 
 function GroupDataSourcesCtrl($scope, $routeParams, $http, Events, Group, DataSource) {
@@ -11,7 +11,7 @@ function GroupDataSourcesCtrl($scope, $routeParams, $http, Events, Group, DataSo
     if ($scope.foundDataSources === undefined) {
       DataSource.query((dataSources) => {
         const existingIds = $scope.dataSources.map(m => m.id);
-        $scope.foundDataSources = dataSources.filter(ds => !contains(existingIds, ds.id));
+        $scope.foundDataSources = dataSources.filter(ds => !includes(existingIds, ds.id));
       });
     }
   };

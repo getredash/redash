@@ -1,7 +1,7 @@
 import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
-import { each, object, isEmpty, pluck, filter, contains, union, uniq, has } from 'underscore';
+import { each, zipObject, isEmpty, map, filter, includes, union, uniq, has } from 'lodash';
 
 const logger = debug('redash:services:query');
 
@@ -103,7 +103,7 @@ class Parameters {
     } catch (e) {
       logger('Failed parsing parameters: ', e);
       // Return current parameters so we don't reset the list
-      parameters = pluck(this.query.options.parameters, 'name');
+      parameters = map(this.query.options.parameters, i => i.name);
     }
     return parameters;
   }
@@ -135,7 +135,7 @@ class Parameters {
       }
     });
 
-    const parameterExists = p => contains(parameterNames, p.name);
+    const parameterExists = p => includes(parameterNames, p.name);
     this.query.options.parameters = this.query.options.parameters
       .filter(parameterExists)
       .map(p => new Parameter(p));
@@ -156,7 +156,7 @@ class Parameters {
   }
 
   getMissing() {
-    return pluck(filter(this.get(), p => p.value === null || p.value === ''), 'title');
+    return map(filter(this.get(), p => p.value === null || p.value === ''), i => i.title);
   }
 
   isRequired() {
@@ -165,7 +165,7 @@ class Parameters {
 
   getValues() {
     const params = this.get();
-    return object(pluck(params, 'name'), pluck(params, 'value'));
+    return zipObject(map(params, i => i.name), map(params, i => i.value));
   }
 }
 

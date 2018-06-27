@@ -1,4 +1,4 @@
-import * as _ from 'underscore';
+import * as _ from 'lodash';
 import PromiseRejectionError from '@/lib/promise-rejection-error';
 import { durationHumanize } from '@/filters';
 import template from './dashboard.html';

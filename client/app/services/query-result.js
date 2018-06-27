@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { sortBy, uniq, values, some, each, isArray, isNumber, isString, includes } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -23,7 +23,7 @@ function getColumnNameWithoutType(column) {
     return parts[1];
   }
 
-  if (!contains(filterTypes, parts[1])) {
+  if (!includes(filterTypes, parts[1])) {
     return column;
   }
 
@@ -362,7 +362,7 @@ function QueryResultService($resource, $timeout, $q) {
       this.getColumns().forEach((col) => {
         const name = col.name;
         const type = name.split('::')[1] || name.split('__')[1];
-        if (contains(filterTypes, type)) {
+        if (includes(filterTypes, type)) {
           // filter found
           const filter = {
             name,
