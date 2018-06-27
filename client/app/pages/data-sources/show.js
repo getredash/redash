@@ -1,4 +1,4 @@
-import { findWhere } from 'underscore';
+import { find } from 'lodash';
 import debug from 'debug';
 import template from './show.html';
 
@@ -13,7 +13,7 @@ function DataSourceCtrl(
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
   $scope.types = $route.current.locals.types;
-  $scope.type = findWhere($scope.types, { type: $scope.dataSource.type });
+  $scope.type = find($scope.types, { type: $scope.dataSource.type });
   $scope.canChangeType = $scope.dataSource.id === undefined;
 
   $scope.helpLinks = {

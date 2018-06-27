@@ -1,4 +1,4 @@
-import { debounce, sortBy, isNumber, every, difference } from 'underscore';
+import { debounce, sortBy, isNumber, every, difference } from 'lodash';
 import d3 from 'd3';
 import angular from 'angular';
 

@@ -1,6 +1,8 @@
-import { pick, any, some, find, min, isObject } from 'underscore';
+import { pick, some, find, minBy, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
 import template from './query.html';
+
+const DEFAULT_TAB = 'table';
 
 function QueryViewCtrl(
   $scope,
@@ -20,6 +22,7 @@ function QueryViewCtrl(
   currentUser,
   Query,
   DataSource,
+  Visualization,
 ) {
   function getQueryResult(maxAge) {
     if (maxAge === undefined) {
@@ -95,7 +98,7 @@ function QueryViewCtrl(
 
     $scope.dataSource = find(dataSources, ds => ds.id === $scope.query.data_source_id);
 
-    $scope.canCreateQuery = any(dataSources, ds => !ds.view_only);
+    $scope.canCreateQuery = some(dataSources, ds => !ds.view_only);
 
     getSchema();
   }
@@ -117,7 +120,7 @@ function QueryViewCtrl(
     Notifications.getPermissions();
   };
 
-  $scope.selectedTab = 'table';
+  $scope.selectedTab = DEFAULT_TAB;
   $scope.currentUser = currentUser;
   $scope.dataSource = {};
   $scope.query = $route.current.locals.query;
@@ -315,6 +318,28 @@ function QueryViewCtrl(
     $location.hash(visualization.id);
   };
 
+  $scope.deleteVisualization = ($e, vis) => {
+    $e.preventDefault();
+
+    const title = undefined;
+    const message = `Are you sure you want to delete ${vis.name} ?`;
+    const confirm = { class: 'btn-danger', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(() => {
+      Events.record('delete', 'visualization', vis.id);
+
+      Visualization.delete({ id: vis.id }, () => {
+        if ($scope.selectedTab === String(vis.id)) {
+          $scope.selectedTab = DEFAULT_TAB;
+          $location.hash($scope.selectedTab);
+        }
+        $scope.query.visualizations = $scope.query.visualizations.filter(v => vis.id !== v.id);
+      }, () => {
+        toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
+      });
+    });
+  };
+
   $scope.$watch('query.name', () => {
     Title.set($scope.query.name);
   });
@@ -418,11 +443,11 @@ function QueryViewCtrl(
     (hash) => {
       // eslint-disable-next-line eqeqeq
       const exists = find($scope.query.visualizations, item => item.id == hash);
-      let visualization = min($scope.query.visualizations, viz => viz.id);
+      let visualization = minBy($scope.query.visualizations, viz => viz.id);
       if (!isObject(visualization)) {
         visualization = {};
       }
-      $scope.selectedTab = (exists ? hash : visualization.id) || 'table';
+      $scope.selectedTab = (exists ? hash : visualization.id) || DEFAULT_TAB;
     },
   );
 

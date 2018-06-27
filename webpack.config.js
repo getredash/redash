@@ -29,11 +29,6 @@ const config = {
   resolve: {
     alias: {
       "@": appPath,
-      // Currently `lodash` is used only by `gridstack.js`, but it can work
-      // with `underscore` as well, so set an alias to avoid bundling both `lodash` and
-      // `underscore`. When adding new libraries, check if they can work
-      // with `underscore`, otherwise remove this line
-      lodash: "underscore"
     }
   },
   plugins: [

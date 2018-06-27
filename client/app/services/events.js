@@ -1,4 +1,4 @@
-import { debounce } from 'underscore';
+import { debounce } from 'lodash';
 
 function Events($http) {
   this.events = [];

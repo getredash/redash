@@ -1,6 +1,5 @@
 import moment from 'moment';
-import _capitalize from 'underscore.string/capitalize';
-import { isEmpty } from 'underscore';
+import { capitalize as _capitalize, isEmpty } from 'lodash';
 
 export function durationHumanize(duration) {
   let humanized = '';

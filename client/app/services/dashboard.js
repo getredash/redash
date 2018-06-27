@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 
 function prepareWidgetsForDashboard(widgets) {
   // Default height for auto-height widgets.

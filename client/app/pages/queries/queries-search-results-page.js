@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { isString } from 'underscore';
+import { isString } from 'lodash';
 
 import { Paginator } from '@/lib/pagination';
 import template from './queries-search-results-page.html';
