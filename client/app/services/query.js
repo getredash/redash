@@ -19,32 +19,6 @@ function collectParams(parts) {
   return parameters;
 }
 
-class QueryResultError {
-  constructor(errorMessage) {
-    this.errorMessage = errorMessage;
-  }
-
-  getError() {
-    return this.errorMessage;
-  }
-
-  static getStatus() {
-    return 'failed';
-  }
-
-  static getData() {
-    return null;
-  }
-
-  static getLog() {
-    return null;
-  }
-
-  static getChartData() {
-    return null;
-  }
-}
-
 class Parameter {
   constructor(parameter) {
     this.title = parameter.title;
@@ -170,6 +144,36 @@ class Parameters {
 }
 
 function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
+  class QueryResultError {
+    constructor(errorMessage) {
+      this.errorMessage = errorMessage;
+    }
+
+    getError() {
+      return this.errorMessage;
+    }
+
+    toPromise() {
+      return $q.reject(this.getError());
+    }
+
+    static getStatus() {
+      return 'failed';
+    }
+
+    static getData() {
+      return null;
+    }
+
+    static getLog() {
+      return null;
+    }
+
+    static getChartData() {
+      return null;
+    }
+  }
+
   const Query = $resource(
     'api/queries/:id',
     { id: '@id' },
