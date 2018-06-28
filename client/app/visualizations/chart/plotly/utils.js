@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isString, isUndefined, includes, min, max, has, find,
-each, values, sortBy, identity, filter, map, extend, reduce,
+  each, values, sortBy, identity, filter, map, extend, reduce,
 } from 'lodash';
 import moment from 'moment';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
