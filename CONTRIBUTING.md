@@ -56,7 +56,9 @@ If you would like to suggest an enhancement or ask for a new feature:
 - **Code contributions are welcomed**. For big changes or significant features, it's usually better to reach out first and discuss what you want to implement and how (we recommend reading: [Pull Request First](https://medium.com/practical-blend/pull-request-first-f6bb667a9b6#.ozlqxvj36)). This to make sure that what you want to implement is aligned with our goals for the project and that no one else is already working on it.
 - Include screenshots and animated GIFs in your pull request whenever possible.
 - Please add [documentation](#documentation) for new features or changes in functionality along with the code.
-- Please follow existing code style. We use PEP8 for Python and sensible style for JavaScript.
+- Please follow existing code style:
+  - Python: we use PEP8 for Python.
+  - Javascript: we use Airbnb's style guides for [JavaScript](https://github.com/airbnb/javascript#naming-conventions) and [React](https://github.com/airbnb/javascript/blob/master/react) (currently we don't follow Airbnb's convention for naming files, but we're gradually fixing this).
 
 ### Documentation
 
