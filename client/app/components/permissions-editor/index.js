@@ -8,7 +8,7 @@ const PermissionsEditorComponent = {
     close: '&',
     dismiss: '&',
   },
-  controller($http, User) {
+  controller($http, User, toastr) {
     'ngInject';
 
     this.grantees = [];
@@ -53,7 +53,10 @@ const PermissionsEditorComponent = {
       $http.post(this.aclUrl, body).success(() => {
         user.alreadyGrantee = true;
         loadGrantees();
-      });
+      })
+        .catch(() => {
+          toastr.error('You can not add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
+        });
     };
 
     // Remove user from grantees list
