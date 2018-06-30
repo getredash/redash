@@ -36,4 +36,14 @@ def get_status():
         'data_sources': ''
     }
 
+    status['database_metrics'] = []
+    # have to include the fake FROM in the SQL to prevent an IndexError
+    queries = [
+        ['Query Results Size', "pg_size_pretty(pg_total_relation_size('query_results')) as size from (select 1) as a"],
+        ['Redash DB Size', "pg_size_pretty(pg_database_size('postgres')) as size from (select 1) as a"]
+    ]
+    for query_name, query in queries:
+        result = models.db.session.query(query).first()
+        status['database_metrics'].append([query_name, result[0]])
+
     return status
