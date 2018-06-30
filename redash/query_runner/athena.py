@@ -145,7 +145,7 @@ class Athena(BaseQueryRunner):
 
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type as column_type, extra_info
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
         """
@@ -159,7 +159,11 @@ class Athena(BaseQueryRunner):
             table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
-            schema[table_name]['columns'].append(row['column_name'])
+
+            if row['extra_info'] == 'partition key':
+                schema[table_name]['columns'].append('[P] ' + row['column_name'] + ' (' + row['column_type'] + ')')
+            else:
+                schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
 
         return schema.values()
 
