@@ -1394,6 +1394,30 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query
 
     @classmethod
+    def search(cls, term, user_id, group_ids, include_drafts=False):
+        # limit_to_users_dashboards=False, 
+        # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
+        where = (Dashboard.name.ilike(u"%{}%".format(term)))
+
+        if term.isdigit():
+            where |= Dashboard.id == term
+
+        #if limit_to_users_dashboards:
+        #    where &= Dashboard.user_id == user_id
+
+        where &= Dashboard.is_archived == False
+
+        if not include_drafts:
+            where &= Dashboard.is_draft == False
+
+        where &= DataSourceGroup.group_id.in_(group_ids)
+        dashboard_ids = (
+            db.session.query(Dashboard.id)
+            .filter(where)).distinct()
+
+        return Dashboard.query.filter(Dashboard.id.in_(dashboard_ids))
+
+    @classmethod
     def recent(cls, org, group_ids, user_id, for_user=False, limit=20):
         query = (Dashboard.query
                  .outerjoin(Event, Dashboard.id == Event.object_id.cast(db.Integer))
