@@ -150,6 +150,12 @@ class DashboardResource(BaseResource):
             models.db.session.rollback()
             abort(400)
 
+        self.record_event({
+            'action': 'edit',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
 
         self.record_event({
