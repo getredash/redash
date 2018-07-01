@@ -26,10 +26,18 @@ class DataSourceResource(BaseResource):
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         ds = data_source.to_dict(all=True)
+<<<<<<< HEAD
         self.record_event({
             'action': 'view',
             'object_id': data_source.id,
             'object_type': 'data_source',
+=======
+        page = 'admin/data_source/' + str(ds.id)
+        self.record_event({
+            'action': 'view',
+            'object_id': page,
+            'object_type': 'api_call',
+>>>>>>> move events serverside
         })
         return ds
 
@@ -72,6 +80,12 @@ class DataSourceResource(BaseResource):
             'object_type': 'datasource',
         })
 
+        self.record_event({
+            'action': 'delete',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
+
         return make_response('', 204)
 
 
@@ -100,6 +114,10 @@ class DataSourceListResource(BaseResource):
             'object_id': 'admin/data_sources',
             'object_type': 'api_call',
         })
+<<<<<<< HEAD
+=======
+
+>>>>>>> move events serverside
         return sorted(response.values(), key=lambda d: d['name'].lower())
 
     @require_admin

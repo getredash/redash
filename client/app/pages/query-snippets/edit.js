@@ -1,7 +1,7 @@
 import 'brace/mode/snippets';
 import template from './edit.html';
 
-function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertDialog, Events, QuerySnippet) {
+function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertDialog, QuerySnippet) {
   this.snippetId = $routeParams.snippetId;
 
   this.editorOptions = {

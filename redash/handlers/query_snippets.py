@@ -11,11 +11,13 @@ class QuerySnippetResource(BaseResource):
     def get(self, snippet_id):
         snippet = get_object_or_404(models.QuerySnippet.get_by_id_and_org,
                                     snippet_id, self.current_org)
+
         self.record_event({
             'action': 'view',
             'object_id': snippet_id,
             'object_type': 'query_snippet',
         })
+
         return snippet.to_dict()
 
     def post(self, snippet_id):

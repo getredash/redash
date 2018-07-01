@@ -311,6 +311,7 @@ class QueryResource(BaseResource):
             'object_id': query_id,
             'object_type': 'query',
         })
+
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
@@ -340,11 +341,13 @@ class QueryForkResource(BaseResource):
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
+
         self.record_event({
             'action': 'fork',
             'object_id': query_id,
             'object_type': 'query',
         })
+
         return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
 

@@ -8,7 +8,6 @@ function DestinationCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
   currentUser, AlertDialog, Destination,
 ) {
-
   $scope.destination = $route.current.locals.destination;
   $scope.destinationId = $routeParams.destinationId;
   $scope.types = $route.current.locals.types;

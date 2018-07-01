@@ -151,6 +151,7 @@ class DashboardResource(BaseResource):
             abort(400)
 
         result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+
         self.record_event({
             'action': 'edit',
             'object_id': dashboard.id,

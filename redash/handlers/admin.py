@@ -6,9 +6,10 @@ from flask_login import current_user, login_required
 from redash import models, redis_connection
 from redash.authentication import current_org
 from redash.handlers import routes
-from redash.handlers.base import json_response, record_event
+from redash.handlers.base import json_response
 from redash.permissions import require_super_admin
 from redash.tasks.queries import QueryTaskTracker
+from redash.tasks import record_event
 
 
 @routes.route('/api/admin/queries/outdated', methods=['GET'])
@@ -25,11 +26,10 @@ def outdated_queries():
     else:
         outdated_queries = []
 
-    record_event(current_org, current_user, {
+    record_event({
         'action': 'view',
         'object_type': 'api_call',
         'object_id': 'admin/outdated_queries',
-        'timestamp': int(time.time()),
     })
 
     return json_response(
@@ -42,6 +42,12 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
+    record_event({
+        'action': 'view',
+        'object_type': 'api_call',
+        'object_id': 'admin/tasks',
+        'timestamp': int(time.time()),
+    })
     global_limit = int(request.args.get('limit', 50))
     waiting_limit = int(request.args.get('waiting_limit', global_limit))
     progress_limit = int(request.args.get('progress_limit', global_limit))
@@ -50,11 +56,10 @@ def queries_tasks():
     waiting = QueryTaskTracker.all(QueryTaskTracker.WAITING_LIST, limit=waiting_limit)
     in_progress = QueryTaskTracker.all(QueryTaskTracker.IN_PROGRESS_LIST, limit=progress_limit)
     done = QueryTaskTracker.all(QueryTaskTracker.DONE_LIST, limit=done_limit)
-    record_event(current_org, current_user, {
+    record_event({
         'action': 'view',
         'object_type': 'api_call',
         'object_id': 'admin/tasks',
-        'timestamp': int(time.time()),
     })
 
     response = {

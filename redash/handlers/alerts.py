@@ -22,7 +22,6 @@ class AlertResource(BaseResource):
             'object_type': 'alert'
         })
         return serialize_alert(alert)
-        return alert.to_dict()
 
     def post(self, alert_id):
         req = request.get_json(True)
@@ -81,6 +80,12 @@ class AlertListResource(BaseResource):
 
     @require_permission('list_alerts')
     def get(self):
+        self.record_event({
+            'action': 'view',
+            'timestamp': int(time.time()),
+            'object_id': 'alerts',
+            'object_type': 'api_call'
+        })
         return [serialize_alert(alert) for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
 
 

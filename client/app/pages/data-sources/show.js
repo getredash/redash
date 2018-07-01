@@ -8,7 +8,6 @@ function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
   currentUser, AlertDialog, DataSource,
 ) {
-
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
   $scope.types = $route.current.locals.types;
