@@ -1,9 +1,7 @@
 import { includes } from 'lodash';
 import template from './show.html';
 
-function GroupCtrl($scope, $routeParams, $http, currentUser, Events, Group, User) {
-  Events.record('view', 'group', $scope.groupId);
-
+function GroupCtrl($scope, $routeParams, $http, currentUser, Group, User) {
   $scope.currentUser = currentUser;
   $scope.group = Group.get({ id: $routeParams.groupId });
   $scope.members = Group.members({ id: $routeParams.groupId });

@@ -179,7 +179,7 @@ function DashboardCtrl(
       (dashboard) => {
         this.dashboard = dashboard;
         this.isDashboardOwner = currentUser.id === dashboard.user.id || currentUser.hasPermission('admin');
-        Events.record('view', 'dashboard', dashboard.id);
+
         renderDashboard(dashboard, force);
 
         if ($location.search().edit === true) {
@@ -229,7 +229,6 @@ function DashboardCtrl(
 
   this.archiveDashboard = () => {
     const archive = () => {
-      Events.record('archive', 'dashboard', this.dashboard.id);
       this.dashboard.$delete();
     };
 

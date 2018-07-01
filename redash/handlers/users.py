@@ -22,6 +22,11 @@ def invite_user(org, inviter, user):
 class UserListResource(BaseResource):
     @require_permission('list_users')
     def get(self):
+        self.record_event({
+            'action': 'view',
+            'object_id': 'users',
+            'object_type': 'api_call',
+        })
         return [u.to_dict() for u in models.User.all(self.current_org)]
 
     @require_admin
@@ -90,6 +95,12 @@ class UserResource(BaseResource):
     def get(self, user_id):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': user_id,
+            'object_type': 'user',
+        })
 
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 

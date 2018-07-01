@@ -15,6 +15,14 @@ class AlertResource(BaseResource):
     def get(self, alert_id):
         alert = get_object_or_404(models.Alert.get_by_id_and_org, alert_id, self.current_org)
         require_access(alert.groups, self.current_user, view_only)
+
+        self.record_event({
+            'action': 'view',
+            'timestamp': int(time.time()),
+            'object_id': alert.id,
+            'object_type': 'alert'
+        })
+
         return serialize_alert(alert)
 
     def post(self, alert_id):
@@ -74,6 +82,12 @@ class AlertListResource(BaseResource):
 
     @require_permission('list_alerts')
     def get(self):
+        self.record_event({
+            'action': 'view',
+            'timestamp': int(time.time()),
+            'object_id': 'alerts',
+            'object_type': 'api_call'
+        })
         return [serialize_alert(alert) for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
 
 
