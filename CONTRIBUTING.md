@@ -58,7 +58,7 @@ If you would like to suggest an enhancement or ask for a new feature:
 - Please add [documentation](#documentation) for new features or changes in functionality along with the code.
 - Please follow existing code style:
   - Python: we use PEP8 for Python.
-  - Javascript: we use Airbnb's style guides for [JavaScript](https://github.com/airbnb/javascript#naming-conventions) and [React](https://github.com/airbnb/javascript/blob/master/react) (currently we don't follow Airbnb's convention for naming files, but we're gradually fixing this).
+  - Javascript: we use Airbnb's style guides for [JavaScript](https://github.com/airbnb/javascript#naming-conventions) and [React](https://github.com/airbnb/javascript/blob/master/react) (currently we don't follow Airbnb's convention for naming files, but we're gradually fixing this). To make it automatic and easy, we recommend using [Prettier](https://github.com/prettier/prettier).
 
 ### Documentation
 
