@@ -6,10 +6,8 @@ const logger = debug('redash:http');
 
 function DestinationCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, AlertDialog, Events, Destination,
+  currentUser, AlertDialog, Destination,
 ) {
-  Events.record('view', 'page', 'admin/destination');
-
   $scope.destination = $route.current.locals.destination;
   $scope.destinationId = $routeParams.destinationId;
   $scope.types = $route.current.locals.types;
@@ -34,8 +32,6 @@ function DestinationCtrl(
 
   $scope.delete = () => {
     const doDelete = () => {
-      Events.record('delete', 'destination', $scope.destination.id);
-
       $scope.destination.$delete(() => {
         toastr.success('Destination deleted successfully.');
         $location.path('/destinations/');

@@ -3,9 +3,7 @@ import settingsMenu from '@/lib/settings-menu';
 import { Paginator } from '@/lib/pagination';
 import template from './list.html';
 
-function UsersCtrl(currentUser, Policy, Events, User) {
-  Events.record('view', 'page', 'users');
-
+function UsersCtrl(currentUser, Policy, User) {
   this.currentUser = currentUser;
   this.policy = Policy;
   this.users = new Paginator([], { itemsPerPage: 20 });

@@ -1,9 +1,7 @@
 import settingsMenu from '@/lib/settings-menu';
 import template from './list.html';
 
-function DataSourcesCtrl(Policy, Events, DataSource) {
-  Events.record('view', 'page', 'admin/data_sources');
-
+function DataSourcesCtrl(Policy, DataSource) {
   this.policy = Policy;
   this.dataSources = DataSource.query();
 }

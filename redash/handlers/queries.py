@@ -49,6 +49,12 @@ class QuerySearchResource(BaseResource):
 
         include_drafts = request.args.get('include_drafts') is not None
 
+        self.record_event({
+            'action': 'search',
+            'object_id': term,
+            'object_type': 'query',
+        })
+
         return [q.to_dict(with_last_modified_by=False)
                 for q in models.Query.search(term,
                                              self.current_user.group_ids,
@@ -232,6 +238,13 @@ class QueryResource(BaseResource):
 
         result = q.to_dict(with_visualizations=True)
         result['can_edit'] = can_modify(q, self.current_user)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
@@ -261,6 +274,13 @@ class QueryForkResource(BaseResource):
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'fork',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return forked_query.to_dict(with_visualizations=True)
 
 

@@ -3,8 +3,7 @@ import moment from 'moment';
 import { Paginator } from '@/lib/pagination';
 import template from './outdated-queries.html';
 
-function OutdatedQueriesCtrl($scope, Events, $http, $timeout) {
-  Events.record('view', 'page', 'admin/outdated_queries');
+function OutdatedQueriesCtrl($scope, $http, $timeout) {
   $scope.autoUpdate = true;
 
   this.queries = new Paginator([], { itemsPerPage: 50 });

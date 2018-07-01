@@ -136,7 +136,6 @@ function QueryViewCtrl(
     KeyboardShortcuts.unbind(shortcuts);
   });
 
-  Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
     getQueryResult();
   }
@@ -178,8 +177,6 @@ function QueryViewCtrl(
   };
 
   $scope.duplicateQuery = () => {
-    Events.record('fork', 'query', $scope.query.id);
-
     Query.fork({ id: $scope.query.id }, (newQuery) => {
       $location.url(newQuery.getSourceLink()).replace();
     });
@@ -326,8 +323,6 @@ function QueryViewCtrl(
     const confirm = { class: 'btn-danger', title: 'Delete' };
 
     AlertDialog.open(title, message, confirm).then(() => {
-      Events.record('delete', 'visualization', vis.id);
-
       Visualization.delete({ id: vis.id }, () => {
         if ($scope.selectedTab === String(vis.id)) {
           $scope.selectedTab = DEFAULT_TAB;

@@ -4,7 +4,7 @@ import { isString } from 'lodash';
 import { Paginator } from '@/lib/pagination';
 import template from './queries-search-results-page.html';
 
-function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
+function QuerySearchCtrl($location, $filter, currentUser, Query) {
   this.term = $location.search().q;
   this.paginator = new Paginator([], { itemsPerPage: 20 });
 
@@ -46,8 +46,6 @@ function QuerySearchCtrl($location, $filter, currentUser, Events, Query) {
       $location.search({ q: this.term });
     }
   };
-
-  Events.record('search', 'query', '', { term: this.term });
 }
 
 export default function init(ngModule) {
