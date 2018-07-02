@@ -18,12 +18,14 @@ def query_to_script_path(path, query):
 
 def run_script(script, shell):
     output = subprocess.check_output(script, shell=shell)
-    if output is not None:
-        output = output.strip()
-        if output != "":
-            return output, None
+    if output is None:
+        return None, "Error reading output"
 
-    return None, "Error reading output"
+    output = output.strip()
+    if not output:
+        return None, "Empty output from script"
+
+    return output, None
 
 
 class Script(BaseQueryRunner):

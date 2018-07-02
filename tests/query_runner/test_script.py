@@ -31,6 +31,6 @@ class TestRunScript(BaseTestCase):
         self.monkeypatch.setattr(subprocess, "check_output", lambda script, shell: None)
         self.assertEqual((None, "Error reading output"), run_script("/foo/bar/baz.sh", True))
         self.monkeypatch.setattr(subprocess, "check_output", lambda script, shell: "")
-        self.assertEqual((None, "Error reading output"), run_script("/foo/bar/baz.sh", True))
+        self.assertEqual((None, "Empty output from script"), run_script("/foo/bar/baz.sh", True))
         self.monkeypatch.setattr(subprocess, "check_output", lambda script, shell: " ")
-        self.assertEqual((None, "Error reading output"), run_script("/foo/bar/baz.sh", True))
+        self.assertEqual((None, "Empty output from script"), run_script("/foo/bar/baz.sh", True))
