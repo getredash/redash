@@ -267,7 +267,11 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 
   Query.prototype.getQueryResult = function getQueryResult(maxAge) {
     if (!this.query) {
-      return new QueryResultError("Can't execute empty query.");
+      return new QueryResult({
+        job: {
+          status: 4,
+        },
+      });
     }
     let queryText = this.query;
 
