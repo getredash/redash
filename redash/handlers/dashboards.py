@@ -230,6 +230,7 @@ class DashboardShareResource(BaseResource):
             'object_type': 'dashboard',
         })
 
+
 class SearchDashboardResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
@@ -244,5 +245,5 @@ class SearchDashboardResource(BaseResource):
         user_id = request.args.get('user_id', '')
         # limit_to_users_dashboards = request.args.get('limit_to_users_dashboards', '')
 
-        # limit_to_users_dashboards=limit_to_users_dashboards, 
+        # limit_to_users_dashboards=limit_to_users_dashboards,
         return [q.to_dict() for q in models.Dashboard.search(term, user_id, self.current_user.group_ids, include_drafts=include_drafts)]

@@ -1395,14 +1395,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def search(cls, term, user_id, group_ids, include_drafts=False):
-        # limit_to_users_dashboards=False, 
+        # limit_to_users_dashboards=False,
         # TODO: This is very naive implementation of search, to be replaced with PostgreSQL full-text-search solution.
         where = (Dashboard.name.ilike(u"%{}%".format(term)))
 
         if term.isdigit():
             where |= Dashboard.id == term
 
-        #if limit_to_users_dashboards:
+        # if limit_to_users_dashboards:
         #    where &= Dashboard.user_id == user_id
 
         where &= Dashboard.is_archived == False
