@@ -4,6 +4,7 @@ from base64 import b64decode
 
 from dateutil import parser
 from requests import Session
+from xlsxwriter.utility import xl_col_to_name
 
 from redash.query_runner import *
 from redash.utils import json_dumps
@@ -23,6 +24,29 @@ except ImportError:
 def _load_key(filename):
     with open(filename, "rb") as f:
         return json.loads(f.read())
+
+
+def _get_columns_and_column_names(row):
+    column_names = []
+    columns = []
+    duplicate_counter = 1
+
+    for i, column_name in enumerate(row):
+        if not column_name:
+            column_name = 'column_{}'.format(xl_col_to_name(i))
+
+        if column_name in column_names:
+            column_name = u"{}{}".format(column_name, duplicate_counter)
+            duplicate_counter += 1
+
+        column_names.append(column_name)
+        columns.append({
+            'name': column_name,
+            'friendly_name': column_name,
+            'type': TYPE_STRING
+        })
+
+    return columns, column_names
 
 
 def _guess_type(value):
@@ -104,21 +128,7 @@ def parse_worksheet(worksheet):
     if not worksheet:
         return {'columns': [], 'rows': []}
 
-    column_names = []
-    columns = []
-    duplicate_counter = 1
-
-    for j, column_name in enumerate(worksheet[HEADER_INDEX]):
-        if column_name in column_names:
-            column_name = u"{}{}".format(column_name, duplicate_counter)
-            duplicate_counter += 1
-
-        column_names.append(column_name)
-        columns.append({
-            'name': column_name,
-            'friendly_name': column_name,
-            'type': TYPE_STRING
-        })
+    columns, column_names = _get_columns_and_column_names(worksheet[HEADER_INDEX])
 
     if len(worksheet) > 1:
         for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
