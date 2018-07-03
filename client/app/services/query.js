@@ -147,6 +147,11 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
   class QueryResultError {
     constructor(errorMessage) {
       this.errorMessage = errorMessage;
+      this.updatedAt = moment.utc();
+    }
+
+    getUpdatedAt() {
+      return this.updatedAt;
     }
 
     getError() {
@@ -157,19 +162,23 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
       return $q.reject(this.getError());
     }
 
-    static getStatus() {
+    // eslint-disable-next-line class-methods-use-this
+    getStatus() {
       return 'failed';
     }
 
-    static getData() {
+    // eslint-disable-next-line class-methods-use-this
+    getData() {
       return null;
     }
 
-    static getLog() {
+    // eslint-disable-next-line class-methods-use-this
+    getLog() {
       return null;
     }
 
-    static getChartData() {
+    // eslint-disable-next-line class-methods-use-this
+    getChartData() {
       return null;
     }
   }

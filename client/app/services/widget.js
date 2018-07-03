@@ -106,29 +106,27 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
     }
 
     load(force, maxAge) {
-      this.loading = true;
-      this.refreshStartedAt = moment();
-
       if (!this.visualization) {
         return undefined;
       }
 
-      if (force || this.queryResult === undefined) {
+      // Both `this.data` and `this.queryResult` are query result objects;
+      // `this.data` is last loaded query result;
+      // `this.queryResult` is currently loading query result;
+      // while widget is refreshing, `this.data` !== `this.queryResult`
+
+      if (force || (this.queryResult === undefined)) {
         if (maxAge === undefined || force) {
           maxAge = force ? 0 : undefined;
         }
         this.queryResult = this.getQuery().getQueryResult(maxAge);
+        this.loading = true;
+        this.refreshStartedAt = moment();
 
-        this.queryResult.toPromise().then(
-          (queryResult) => {
-            this.data = queryResult;
-            this.loading = false;
-          },
-          () => {
-            this.loading = false;
-            this.data = null;
-          },
-        );
+        this.queryResult.toPromise().finally(() => {
+          this.loading = false;
+          this.data = this.queryResult;
+        });
       }
 
       return this.queryResult.toPromise();
