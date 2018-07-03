@@ -133,6 +133,9 @@ function QueryResultService($resource, $timeout, $q) {
         this.deferred.resolve(this);
       } else if (this.job.status === 3) {
         this.status = 'processing';
+      } else if (this.job.status === 4) {
+        this.status = statuses[this.job.status];
+        this.deferred.reject(this.job.error);
       } else {
         this.status = undefined;
       }
