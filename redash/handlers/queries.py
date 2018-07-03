@@ -75,7 +75,7 @@ class QueryRecentResource(BaseResource):
 
             global_recent = []
             if len(recent) < 10:
-                global_recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in models.Query.recent(self.current_user.group_ids, user_id)]
+                global_recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in models.Query.recent(self.current_user.group_ids, self.current_user.id)]
 
             queries = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
 
