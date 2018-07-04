@@ -978,13 +978,13 @@ class Query(ChangeTrackingMixin, TimestampMixin, db.Model):
                                .filter(Query.is_archived == False)
                                .filter(DataSourceGroup.group_id.in_(group_ids)))
 
+        query_ids = AccessPermission.apply_view_permission_to_query(query_ids, Query, user_id)
+
         q = (cls.query
                 .options(joinedload(Query.user),
                          joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
                 .filter(cls.id.in_(query_ids))
                 .order_by(Query.created_at.desc()))
-
-        q = AccessPermission.apply_view_permission_to_query(q, Query, user_id)
 
         if not drafts:
             q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
