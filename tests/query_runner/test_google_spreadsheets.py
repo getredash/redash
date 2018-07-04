@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-
+import datetime
 from unittest import TestCase
 
 from mock import MagicMock
 
+from redash.query_runner import TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER
 from redash.query_runner.google_spreadsheets import TYPE_BOOLEAN, TYPE_STRING, _guess_type, _value_eval_list, parse_query
 from redash.query_runner.google_spreadsheets import WorksheetNotFoundError, parse_spreadsheet, parse_worksheet
 
@@ -20,6 +21,19 @@ class TestGuessType(TestCase):
         self.assertEqual(_guess_type('False'), TYPE_BOOLEAN)
         self.assertEqual(_guess_type('FALSE'), TYPE_BOOLEAN)
 
+    def test_detects_strings(self):
+        self.assertEqual(TYPE_STRING, _guess_type(''))
+        self.assertEqual(TYPE_STRING, _guess_type('redash'))
+
+    def test_detects_integer(self):
+        self.assertEqual(TYPE_INTEGER, _guess_type('42'))
+
+    def test_detects_float(self):
+        self.assertEqual(TYPE_FLOAT, _guess_type('3.14'))
+
+    def test_detects_date(self):
+        self.assertEqual(TYPE_DATETIME, _guess_type('2018-06-28'))
+
 
 class TestValueEvalList(TestCase):
     def test_handles_unicode(self):
@@ -29,6 +43,21 @@ class TestValueEvalList(TestCase):
     def test_handles_boolean(self):
         values = ['true', 'false', 'True', 'False', 'TRUE', 'FALSE']
         converted_values = [True, False, True, False, True, False]
+        self.assertEqual(converted_values, _value_eval_list(values))
+
+    def test_handles_empty_values(self):
+        values = ['', None]
+        converted_values = [None, None]
+        self.assertEqual(converted_values, _value_eval_list(values))
+
+    def test_handles_float(self):
+        values = ['3.14', '-273.15']
+        converted_values = [3.14, -273.15]
+        self.assertEqual(converted_values, _value_eval_list(values))
+
+    def test_handles_datetime(self):
+        values = ['2018-06-28', '2020-2-29']
+        converted_values = [datetime.datetime(2018, 6, 28, 0, 0), datetime.datetime(2020, 2, 29, 0, 0)]
         self.assertEqual(converted_values, _value_eval_list(values))
 
 
