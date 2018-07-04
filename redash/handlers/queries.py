@@ -192,7 +192,7 @@ class QueryResource(BaseResource):
 
         Responds with the updated :ref:`query <query-response-label>` object.
         """
-        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org, user_id=self.current_user.id)
         query_def = request.get_json(force=True)
 
         require_object_modify_permission(query, self.current_user)

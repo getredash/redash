@@ -26,7 +26,7 @@ from redash.utils import generate_token, json_dumps
 from redash.utils.comparators import CaseInsensitiveComparator
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
-from sqlalchemy import distinct, or_
+from sqlalchemy import distinct, or_, func
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
@@ -237,7 +237,7 @@ class ChangeTrackingMixin(object):
 
 class BelongsToOrgMixin(object):
     @classmethod
-    def get_by_id_and_org(cls, object_id, org):
+    def get_by_id_and_org(cls, object_id, org, user_id=None):
         return db.session.query(cls).filter(cls.id == object_id, cls.org == org).one()
 
 
@@ -1207,12 +1207,15 @@ class AccessPermission(GFKBase, db.Model):
             # related with this dashboard will be viewable by the user.
             if resource == Query:
                 dashboard_ap = aliased(cls)
-                query = (query.outerjoin(Visualization, (resource_id == Visualization.query_id))
+                query = (query.join(User, (User.id == user_id))
+                              .outerjoin(Visualization, (resource_id == Visualization.query_id))
                               .outerjoin(Widget, (Visualization.id == Widget.visualization_id))
                               .outerjoin(dashboard_ap,
                                          ((Widget.dashboard_id == dashboard_ap.object_id) &
                                           (dashboard_ap.object_type == 'dashboards')))
-                              .filter((cls.grantee_id == user_id) |
+                              .outerjoin(Group, ((Group.id == func.any(User.group_ids)) & (Group.name == 'admin')))
+                              .filter((Group.id != None) |
+                                      (cls.grantee_id == user_id) |
                                       (resource_fk == user_id) |
                                       (dashboard_ap.grantee_id == user_id)))
             else:

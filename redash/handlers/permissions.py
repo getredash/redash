@@ -24,7 +24,7 @@ def get_model_from_type(type):
 class ObjectPermissionsListResource(BaseResource):
     def get(self, object_type, object_id):
         model = get_model_from_type(object_type)
-        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org, user_id=self.current_user.id)
 
         # TODO: include grantees in search to avoid N+1 queries
         permissions = AccessPermission.find(obj)
@@ -38,7 +38,7 @@ class ObjectPermissionsListResource(BaseResource):
 
     def post(self, object_type, object_id):
         model = get_model_from_type(object_type)
-        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org, user_id=self.current_user.id)
 
         require_admin_or_owner(obj.user_id)
 
@@ -69,8 +69,7 @@ class ObjectPermissionsListResource(BaseResource):
 
     def delete(self, object_type, object_id):
         model = get_model_from_type(object_type)
-        obj = get_object_or_404(model.get_by_id_and_org, object_id,
-                                self.current_org)
+        obj = get_object_or_404(model.get_by_id_and_org, object_id, self.current_org, user_id=self.current_user.id)
 
         require_admin_or_owner(obj.user_id)
 
