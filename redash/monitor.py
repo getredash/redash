@@ -1,8 +1,10 @@
 from redash import redis_connection, models, __version__, settings
 
+
 def get_redis_status():
     info = redis_connection.info()
     return {'redis_used_memory': info['used_memory'], 'redis_used_memory_human': info['used_memory_human']}
+
 
 def get_object_counts():
     status = {}
@@ -14,6 +16,7 @@ def get_object_counts():
     status['widgets_count'] = models.Widget.query.count()
     return status
 
+
 def get_queues():
     queues = {}
     for ds in models.DataSource.query:
@@ -23,10 +26,10 @@ def get_queues():
 
     return queues
 
+
 def get_queues_status():
     queues = get_queues()
 
-    #status['manager']['queues'] = {}
     for queue, sources in queues.iteritems():
         queues[queue] = {
             'data_sources': ', '.join(sources),
@@ -40,6 +43,7 @@ def get_queues_status():
 
     return queues
 
+
 def get_db_sizes():
     database_metrics = []
     # have to include the fake FROM in the SQL to prevent an IndexError
@@ -49,9 +53,10 @@ def get_db_sizes():
     ]
     for query_name, query in queries:
         result = models.db.session.query(query).first()
-        database_metrics.append([query_name,result[0]])
+        database_metrics.append([query_name, result[0]])
 
     return database_metrics
+
 
 def get_status():
     status = {
@@ -61,7 +66,7 @@ def get_status():
     status.update(get_redis_status())
     status.update(get_object_counts())
     status['manager'] = redis_connection.hgetall('redash:status')
-    status['manager']['queues'] = get_queues_status() 
+    status['manager']['queues'] = get_queues_status()
     status['database_metrics'] = get_db_sizes()
 
     return status
