@@ -184,17 +184,17 @@ class QueryResultResource(BaseResource):
         query_result = None
 
         if query_result_id:
-            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org)
+            query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query_result_id, self.current_org, self.current_user.id)
 
         if query_id is not None:
-            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+            query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org, self.current_user.id)
 
             if query_result is None and query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
                     query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
                 elif query.latest_query_data_id is not None:
-                    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
-                
+                    query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org, self.current_user.id)
+
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
                     abort(404, message='No cached result found for this query.')
