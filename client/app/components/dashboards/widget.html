@@ -26,7 +26,7 @@
             <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization" ng-show="$ctrl.canViewQuery"></query-link>
           </p>
           <p class="visible-print">
-            {{$ctrl.widget.getQuery().name}}
+            <span>{{$ctrl.widget.getQuery().name}}</span>
             <visualization-name visualization="$ctrl.widget.visualization"/>
           </p>
           <div class="text-muted query--description" ng-bind-html="$ctrl.widget.getQuery().description | markdown"></div>

@@ -22,7 +22,7 @@ export default function init(ngModule) {
     template: `
       <a ng-href="{{$ctrl.link}}" class="query-link">
         <visualization-name visualization="$ctrl.visualization"/> 
-        {{$ctrl.query.name}}
+        <span>{{$ctrl.query.name}}</span>
       </a>
     `,
     controller: QueryLinkController,
