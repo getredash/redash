@@ -179,7 +179,7 @@ def import_query_runners(query_runner_imports):
         __import__(runner_import)
 
 
-#for athena and presto
+# for athena and presto
 def format_schema(results):
     schema = {}
     for row in results['rows']:
@@ -193,4 +193,3 @@ def format_schema(results):
         schema[table_name]['columns'].append(row_to_add)
 
     return schema
-
