@@ -67,9 +67,9 @@ class UserListResource(BaseResource):
         users = order_results(users)
 
         self.record_event({
-            'action': 'view',
+            'action': 'list',
             'object_id': 'users',
-            'object_type': 'api_call',
+            'object_type': 'user',
         })
 
         return paginate(users, page, page_size, serialize_user)
@@ -100,7 +100,6 @@ class UserListResource(BaseResource):
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user'
         })
@@ -188,7 +187,6 @@ class UserResource(BaseResource):
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user',
             'updated_fields': params.keys()

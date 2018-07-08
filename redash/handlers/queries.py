@@ -70,8 +70,8 @@ class QuerySearchResource(BaseResource):
         include_drafts = request.args.get('include_drafts') is not None
         self.record_event({
             'action': 'search',
-            'object_id': term,
             'object_type': 'query',
+            'term': term
         })
 
         # this redirects to the new query list API that is aware of search
