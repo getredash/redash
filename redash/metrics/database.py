@@ -13,8 +13,7 @@ metrics_logger = logging.getLogger("metrics")
 
 
 def _table_name_from_select_element(elt):
-    if elt.froms[0]:
-        t = elt.froms[0]
+    t = elt.froms[0]
 
     if isinstance(t, Alias):
         t = t.original.froms[0]
