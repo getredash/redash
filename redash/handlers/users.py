@@ -23,9 +23,9 @@ class UserListResource(BaseResource):
     @require_permission('list_users')
     def get(self):
         self.record_event({
-            'action': 'view',
+            'action': 'list',
             'object_id': 'users',
-            'object_type': 'api_call',
+            'object_type': 'user',
         })
         return [u.to_dict() for u in models.User.all(self.current_org)]
 
@@ -50,7 +50,6 @@ class UserListResource(BaseResource):
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user'
         })
@@ -138,7 +137,6 @@ class UserResource(BaseResource):
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user',
             'updated_fields': params.keys()

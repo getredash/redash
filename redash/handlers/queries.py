@@ -55,8 +55,8 @@ class QuerySearchResource(BaseResource):
 
         self.record_event({
             'action': 'search',
-            'object_id': term,
             'object_type': 'query',
+            'term': term
         })
 
         return QuerySerializer(queries, with_last_modified_by=False).serialize()

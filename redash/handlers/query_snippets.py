@@ -77,9 +77,9 @@ class QuerySnippetListResource(BaseResource):
 
     def get(self):
         self.record_event({
-            'action': 'view',
+            'action': 'list',
             'object_id': 'query_snippets',
-            'object_type': 'api_call',
+            'object_type': 'query_snippet',
         })
         return [snippet.to_dict() for snippet in
                 models.QuerySnippet.all(org=self.current_org)]
