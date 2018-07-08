@@ -427,13 +427,14 @@ function QueryViewCtrl(
     });
   };
 
-  $scope.openAddToDashboardForm = (vis) => {
+  $scope.openAddToDashboardForm = (visId) => {
+    const visualization = getVisualization(visId);
     $uibModal.open({
       component: 'addToDashboardDialog',
       size: 'sm',
       resolve: {
         query: $scope.query,
-        vis,
+        vis: visualization,
         saveAddToDashboard: () => $scope.saveAddToDashboard,
       },
     });

@@ -224,7 +224,6 @@
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
                       <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> <i class="zmdi zmdi-close"></i></span>
-                      <span class="btn btn-xs btn-success" ng-click="openAddToDashboardForm(vis)"> +</span>
                     </rd-tab>
                     <li class="rd-tab tab-new-vis"><a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit"><i class="zmdi zmdi-plus"></i> New Visualization</a></li>
                   </ul>
@@ -245,6 +244,7 @@
       <div class="bottom-controller-container">
         <div class="bottom-controller">
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
+          <button class="m-r-5 btn btn-default" ng-click="openAddToDashboardForm(selectedTab)">Add to Dashboard</button>
           <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><i class="zmdi zmdi-code"></i> Embed</button>
 
           <div class="m-r-5 btn-group dropup" uib-dropdown>

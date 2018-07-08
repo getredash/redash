@@ -34,11 +34,11 @@ const AddToDashboardForm = {
         // (dashboard)
         this.selectedDashboard = Dashboard.get({ slug: dash.slug }, () => {});
         this.close();
+        toastr.success('Widget added to dashboard.');
       }).catch(() => {
-        toastr.error('Widget can not be added');
+        toastr.error('Widget not added.');
       }).finally(() => {
         this.saveInProgress = false;
-        toastr.success('Widget added to dashboard.');
       });
     };
 
