@@ -16,7 +16,6 @@ class AlertResource(BaseResource):
         require_access(alert.groups, self.current_user, view_only)
         self.record_event({
             'action': 'view',
-            'timestamp': int(time.time()),
             'object_id': alert.id,
             'object_type': 'alert'
         })
@@ -33,7 +32,6 @@ class AlertResource(BaseResource):
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': alert.id,
             'object_type': 'alert'
         })
@@ -70,7 +68,6 @@ class AlertListResource(BaseResource):
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': alert.id,
             'object_type': 'alert'
         })
@@ -80,10 +77,9 @@ class AlertListResource(BaseResource):
     @require_permission('list_alerts')
     def get(self):
         self.record_event({
-            'action': 'view',
-            'timestamp': int(time.time()),
+            'action': 'list',
             'object_id': 'alerts',
-            'object_type': 'api_call'
+            'object_type': 'alerts'
         })
         return [alert.to_dict() for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
 
@@ -106,7 +102,6 @@ class AlertSubscriptionListResource(BaseResource):
 
         self.record_event({
             'action': 'subscribe',
-            'timestamp': int(time.time()),
             'object_id': alert_id,
             'object_type': 'alert',
             'destination': req.get('destination_id')
@@ -133,7 +128,6 @@ class AlertSubscriptionResource(BaseResource):
 
         self.record_event({
             'action': 'unsubscribe',
-            'timestamp': int(time.time()),
             'object_id': alert_id,
             'object_type': 'alert'
         })

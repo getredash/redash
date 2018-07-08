@@ -29,8 +29,8 @@ class DataSourceResource(BaseResource):
         page = 'admin/data_source/' + str(ds.id)
         self.record_event({
             'action': 'view',
-            'object_id': page,
-            'object_type': 'api_call',
+            'object_id': ds.id,
+            'object_type': 'datasource',
         })
         return ds
 
@@ -97,9 +97,9 @@ class DataSourceListResource(BaseResource):
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
 
         self.record_event({
-            'action': 'view',
+            'action': 'list',
             'object_id': 'admin/data_sources',
-            'object_type': 'api_call',
+            'object_type': 'data_sources',
         })
 
         return sorted(response.values(), key=lambda d: d['name'].lower())

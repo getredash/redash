@@ -51,8 +51,8 @@ class QuerySearchResource(BaseResource):
 
         self.record_event({
             'action': 'search',
-            'object_id': term,
             'object_type': 'query',
+            'term': term
         })
 
         return [q.to_dict(with_last_modified_by=False)

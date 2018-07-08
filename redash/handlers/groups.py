@@ -16,7 +16,6 @@ class GroupListResource(BaseResource):
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': group.id,
             'object_type': 'group'
         })
@@ -31,9 +30,9 @@ class GroupListResource(BaseResource):
                 models.Group.id.in_(self.current_user.group_ids))
 
         self.record_event({
-            'action': 'view',
+            'action': 'list',
             'object_id': 'groups',
-            'object_type': 'api_call',
+            'object_type': 'group',
         })
 
         return [g.to_dict() for g in groups]
@@ -52,7 +51,6 @@ class GroupResource(BaseResource):
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': group.id,
             'object_type': 'group'
         })
@@ -99,7 +97,6 @@ class GroupMemberListResource(BaseResource):
 
         self.record_event({
             'action': 'add_member',
-            'timestamp': int(time.time()),
             'object_id': group.id,
             'object_type': 'group',
             'member_id': user.id
@@ -124,7 +121,6 @@ class GroupMemberResource(BaseResource):
 
         self.record_event({
             'action': 'remove_member',
-            'timestamp': int(time.time()),
             'object_id': group_id,
             'object_type': 'group',
             'member_id': user.id
@@ -149,7 +145,6 @@ class GroupDataSourceListResource(BaseResource):
 
         self.record_event({
             'action': 'add_data_source',
-            'timestamp': int(time.time()),
             'object_id': group_id,
             'object_type': 'group',
             'member_id': data_source.id
@@ -188,7 +183,6 @@ class GroupDataSourceResource(BaseResource):
 
         self.record_event({
             'action': 'change_data_source_permission',
-            'timestamp': int(time.time()),
             'object_id': group_id,
             'object_type': 'group',
             'member_id': data_source.id,
@@ -207,7 +201,6 @@ class GroupDataSourceResource(BaseResource):
 
         self.record_event({
             'action': 'remove_data_source',
-            'timestamp': int(time.time()),
             'object_id': group_id,
             'object_type': 'group',
             'member_id': data_source.id

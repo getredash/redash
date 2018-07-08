@@ -26,10 +26,9 @@ def outdated_queries():
         outdated_queries = []
 
     record_event({
-        'action': 'view',
-        'object_type': 'api_call',
+        'action': 'list',
         'object_id': 'admin/outdated_queries',
-        'timestamp': int(time.time()),
+        'object_type': 'outdated_queries'
     })
 
     return json_response(
@@ -43,10 +42,9 @@ def outdated_queries():
 @login_required
 def queries_tasks():
     record_event({
-        'action': 'view',
-        'object_type': 'api_call',
+        'action': 'list',
+        'object_type': 'celery_tasks',
         'object_id': 'admin/tasks',
-        'timestamp': int(time.time()),
     })
     global_limit = int(request.args.get('limit', 50))
     waiting_limit = int(request.args.get('waiting_limit', global_limit))

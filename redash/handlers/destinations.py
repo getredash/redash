@@ -22,8 +22,8 @@ class DestinationResource(BaseResource):
         d = destination.to_dict(all=True)
         self.record_event({
             'action': 'view',
-            'object_id': 'admin/destination',
-            'object_type': 'api_call',
+            'object_id': destination_id,
+            'object_type': 'destination',
         })
         return d
 
@@ -76,9 +76,9 @@ class DestinationListResource(BaseResource):
             response[ds.id] = d
 
         self.record_event({
-            'action': 'view',
+            'action': 'list',
             'object_id': 'admin/destinations',
-            'object_type': 'api_call',
+            'object_type': 'destination',
         })
 
         return response.values()
