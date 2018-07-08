@@ -54,8 +54,12 @@ const PermissionsEditorComponent = {
         user.alreadyGrantee = true;
         loadGrantees();
       })
-        .catch(() => {
-          toastr.error('You can not add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
+        .catch((error) => {
+          if (error.status === 403) {
+            toastr.error('You can not add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
+          } else {
+            toastr.error('Something went wrong.');
+          }
         });
     };
 
