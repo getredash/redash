@@ -46,13 +46,12 @@ def get_queues_status():
 
 def get_db_sizes():
     database_metrics = []
-    # have to include the fake FROM in the SQL to prevent an IndexError
     queries = [
-        ['Query Results Size', "pg_total_relation_size('query_results') as size from (select 1) as a"],
-        ['Redash DB Size', "pg_database_size('postgres') as size from (select 1) as a"]
+        ['Query Results Size', "select pg_total_relation_size('query_results') as size from (select 1) as a"],
+        ['Redash DB Size', "select pg_database_size('postgres') as size"]
     ]
     for query_name, query in queries:
-        result = models.db.session.query(query).first()
+        result = models.db.session.execute(query).first()
         database_metrics.append([query_name, result[0]])
 
     return database_metrics
@@ -67,6 +66,7 @@ def get_status():
     status.update(get_object_counts())
     status['manager'] = redis_connection.hgetall('redash:status')
     status['manager']['queues'] = get_queues_status()
-    status['database_metrics'] = get_db_sizes()
+    status['database_metrics'] = {}
+    status['database_metrics']['metrics'] = get_db_sizes()
 
     return status
