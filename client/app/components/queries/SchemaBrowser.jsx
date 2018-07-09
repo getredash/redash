@@ -1,8 +1,10 @@
 import { isNil, map, filter, some, includes } from "lodash";
 import cx from "classnames";
+import { axios } from "@/services/axios";
 import React, { useState, useCallback, useMemo, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
+import Checkbox from "antd/lib/checkbox";
 import Input from "antd/lib/input";
 import Button from "antd/lib/button";
 import Tooltip from "antd/lib/tooltip";
@@ -11,6 +13,8 @@ import List from "react-virtualized/dist/commonjs/List";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import LoadingState from "../items-list/components/LoadingState";
+import { clientConfig } from "@/services/auth";
+import notification from "@/services/notification";
 
 const SchemaItemType = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -135,8 +139,21 @@ export function SchemaList({ loading, schema, expandedFlags, onTableExpand, onIt
   );
 }
 
-export function applyFilterOnSchema(schema, filterString) {
+export function applyFilterOnSchema(schema, filterString, showHidden, toggleString) {
   const filters = filter(filterString.toLowerCase().split(/\s+/), s => s.length > 0);
+
+  // Filter out extra schema that match the provided toggle string
+  if (!showHidden && toggleString) {
+    const toggleStringRegex = new RegExp(toggleString);
+    try {
+        schema = filter(
+          schema,
+          item => !item.name.toLowerCase().match(toggleStringRegex)
+        );
+      } catch (err) {
+        notification.error(`Error while matching schema items: ${err}`);
+      }
+  }
 
   // Empty string: return original schema
   if (filters.length === 0) {
@@ -178,11 +195,16 @@ export default function SchemaBrowser({
 }) {
   const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
-  const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
+  const [showHidden, setShowHidden] = useState(false);
+  const toggleString = useToggleString(dataSource ? dataSource.id : undefined);
+  const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString,
+    showHidden, toggleString), [schema, filterString, showHidden, toggleString]);
   const [handleFilterChange] = useDebouncedCallback(setFilterString, 500);
+  const [handleToggleChange] = useDebouncedCallback(setShowHidden, 100);
   const [expandedFlags, setExpandedFlags] = useState({});
 
   const handleSchemaUpdate = useImmutableCallback(onSchemaUpdate);
+
 
   useEffect(() => {
     setExpandedFlags({});
@@ -200,6 +222,21 @@ export default function SchemaBrowser({
     });
   }
 
+  function useToggleString(dataSourceId) {
+    const [toggleString, setToggleString] = useState("");
+    useMemo(() => {
+      if (!dataSourceId) {
+        return null;
+      }
+      axios.get(
+        `${clientConfig.basePath}api/data_sources/${dataSourceId}/toggle_string`
+      ).then(data => {
+        setToggleString(data.toggle_string);
+      })
+    }, [dataSourceId]);
+    return toggleString;
+  }
+
   return (
     <div className="schema-container" {...props}>
       <div className="schema-control">
@@ -209,12 +246,20 @@ export default function SchemaBrowser({
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />
-
         <Tooltip title="Refresh Schema">
           <Button onClick={() => refreshSchema(true)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} />
           </Button>
         </Tooltip>
+      </div>
+      <div>
+        {toggleString && <Tooltip placement="right" title={`Matching pattern: ${toggleString}`}>
+        <Checkbox
+          className="m-t-10"
+          checked={showHidden}
+          onChange={event => handleToggleChange(event.target.checked)}>
+            Show hidden schema
+        </Checkbox></Tooltip>}
       </div>
       <SchemaList
         loading={isLoading && schema.length === 0}
@@ -230,11 +275,15 @@ export default function SchemaBrowser({
 SchemaBrowser.propTypes = {
   dataSource: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   onSchemaUpdate: PropTypes.func,
+  schema: PropTypes.arrayOf(SchemaItemType),
+  onRefresh: PropTypes.func,
   onItemSelect: PropTypes.func,
 };
 
 SchemaBrowser.defaultProps = {
   dataSource: null,
   onSchemaUpdate: () => {},
+  schema: [],
+  onRefresh: () => {},
   onItemSelect: () => {},
 };

@@ -56,6 +56,12 @@ class BaseElasticSearch(BaseQueryRunner):
                     "type": "string",
                     "title": "Basic Auth Password",
                 },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight.",
+                },
             },
             "order": ["server", "basic_auth_user", "basic_auth_password"],
             "secret": ["basic_auth_password"],

@@ -232,6 +232,12 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
                 "url": {"type": "string", "title": cls.url_title},
                 "username": {"type": "string", "title": cls.username_title},
                 "password": {"type": "string", "title": cls.password_title},
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight.",
+                },
             },
             "secret": ["password"],
             "order": ["url", "username", "password"],

@@ -25,6 +25,7 @@ from redash.handlers.data_sources import (
     DataSourceSchemaResource,
     DataSourceTestResource,
     DataSourceTypeListResource,
+    DataSourceToggleStringResource,
 )
 from redash.handlers.databricks import (
     DatabricksDatabaseListResource,
@@ -163,6 +164,8 @@ api.add_org_resource(DataSourceTestResource, "/api/data_sources/<data_source_id>
 api.add_org_resource(
     DataSourceResource, "/api/data_sources/<data_source_id>", endpoint="data_source"
 )
+api.add_resource(DataSourceToggleStringResource, "/api/data_sources/<data_source_id>/toggle_string")
+
 
 api.add_org_resource(GroupListResource, "/api/groups", endpoint="groups")
 api.add_org_resource(GroupResource, "/api/groups/<group_id>", endpoint="group")
