@@ -65,6 +65,12 @@ class Oracle(BaseSQLQueryRunner):
                 "servicename": {
                     "type": "string",
                     "title": "DSN Service Name"
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "required": ["servicename", "user", "password", "host", "port"],
@@ -154,7 +160,7 @@ class Oracle(BaseSQLQueryRunner):
                 rows = [{'Row(s) Affected': rows_count}]
                 data = {'columns': columns, 'rows': rows}
                 json_data = json.dumps(data, cls=JSONEncoder)
-                connection.commit()   
+                connection.commit()
         except cx_Oracle.DatabaseError as err:
             error = u"Query failed. {}.".format(err.message)
             json_data = None
