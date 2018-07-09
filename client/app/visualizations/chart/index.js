@@ -282,6 +282,19 @@ function ChartEditor(ColorPalette, clientConfig) {
         scope.options.legend = { enabled: true };
       }
 
+      scope.$watch('options.globalSeriesType', (newType, oldType) => {
+        const defaultXAxisLength = 10;
+        if (!has(scope.options, 'xAxisLabelLength')) {
+          scope.options.xAxisLabelLength = defaultXAxisLength;
+        }
+        if (oldType !== newType) {
+          scope.options.xAxisLabelLength = defaultXAxisLength;
+          if (newType === 'pie') {
+            scope.options.xAxisLabelLength = 300;
+          }
+        }
+      }, true);
+
       if (scope.columnNames) {
         each(scope.options.columnMapping, (value, key) => {
           if (scope.columnNames.length > 0 && !includes(scope.columnNames, key)) {

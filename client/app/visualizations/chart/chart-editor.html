@@ -196,6 +196,12 @@
         <i class="input-helper"></i> Show Labels
       </label>
     </div>
+
+    <div class="form-group">
+      <label class="control-label">Label Length</label>
+      <input name="x-axis-label-length" type="number" class="form-control" ng-model="options.xAxisLabelLength">
+      <span class="info">How many characters should X Axis Labels be truncated at in the legend?</span>
+    </div>
   </div>
 
   <div ng-if="currentTab == 'yAxis'" class="m-t-10 m-b-10">
