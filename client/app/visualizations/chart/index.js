@@ -17,7 +17,7 @@ const DEFAULT_OPTIONS = {
   columnMapping: {},
 
   // showDataLabels: false, // depends on chart type
-  numberFormat: '0,0[.]00000',
+  numberFormat: '0[.]00000',
   percentFormat: '0[.]00%',
   // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
   textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
