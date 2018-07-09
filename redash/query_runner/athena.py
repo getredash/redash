@@ -189,7 +189,7 @@ class Athena(BaseQueryRunner):
                 athena_query_id = cursor.query_id
             except AttributeError as e:
                 logger.debug("Athena Upstream can't get query_id: %s", e)
-            data = {  
+            data = {
                 'columns': columns,
                 'rows': rows,
                 'metadata': {
