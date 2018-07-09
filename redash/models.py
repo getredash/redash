@@ -1254,7 +1254,7 @@ class Alert(TimestampMixin, db.Model):
             .options(joinedload(Alert.user), joinedload(Alert.query_rel))\
             .join(Query)\
             .join(DataSourceGroup, DataSourceGroup.data_source_id == Query.data_source_id)\
-            .filter(DataSourceGroup.group_id.in_(group_ids))
+            .filter(DataSourceGroup.group_id.in_(group_ids))\
             .order_by(Alert.name)
 
     @classmethod
