@@ -60,6 +60,12 @@ class Vertica(BaseSQLQueryRunner):
                     "type": "number",
                     "title": "Connection Timeout"
                 },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                },
             },
             'required': ['database'],
             'order': ['host', 'port', 'user', 'password', 'database', 'read_timeout', 'connection_timeout'],
@@ -117,7 +123,7 @@ class Vertica(BaseSQLQueryRunner):
                 'database': self.configuration.get('database', ''),
                 'read_timeout': self.configuration.get('read_timeout', 600)
             }
-            
+
             if self.configuration.get('connection_timeout'):
                 conn_info['connection_timeout'] = self.configuration.get('connection_timeout')
 
