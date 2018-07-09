@@ -83,6 +83,12 @@ class Athena(BaseQueryRunner):
                     'title': 'Athena Work Group',
                     'default': 'primary'
                 },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                },
             },
             'required': ['region', 's3_staging_dir'],
             'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema', 'work_group'],

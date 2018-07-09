@@ -55,6 +55,12 @@ class Hive(BaseSQLQueryRunner):
                 "username": {
                     "type": "string"
                 },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                }
             },
             "order": ["host", "port", "database", "username"],
             "required": ["host"]
@@ -98,14 +104,14 @@ class Hive(BaseSQLQueryRunner):
             database=self.configuration.get('database', 'default'),
             username=self.configuration.get('username', None),
         )
-        
+
         return connection
 
 
     def run_query(self, query, user):
         connection = None
         try:
-            connection = self._get_connection() 
+            connection = self._get_connection()
             cursor = connection.cursor()
 
             cursor.execute(query)
@@ -214,7 +220,7 @@ class HiveHttp(Hive):
 
         # create connection
         connection = hive.connect(thrift_transport=transport)
-        
+
         return connection
 
 
