@@ -243,15 +243,15 @@
       </div>
       <div class="bottom-controller-container">
         <div class="bottom-controller">
-          <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
-          <button class="m-r-5 btn btn-default" ng-click="openAddToDashboardForm(selectedTab)">Add to Dashboard</button>
-          <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><i class="zmdi zmdi-code"></i> Embed</button>
+          <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
+          <button class="m-r-5 btn btn-default" ng-click="openAddToDashboardForm(selectedTab)"><span class="fa fa-plus-circle"></span><span class="hidden-xs hidden-s hidden-m"> Add to Dashboard</span></button>
+          <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><span class="fa fa-code"></span><span class="hidden-xs hidden-s hidden-m"> Embed</span></button>
 
           <div class="m-r-5 btn-group dropup" uib-dropdown>
             <button type="button" class="btn btn-default dropup-toggle"
               ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
               uib-dropdown-toggle aria-expanded="false">
-              Download <span class="hidden-xs">Dataset </span><span class="caret"></span>
+              <span class="fa fa-download"></span><span class="hidden-xs hidden-s hidden-m"> Download Dataset </span><span class="caret"></span>
             </button>
             <ul class="dropdown-menu" ng-class="{'pull-right': !query.isNew()}" uib-dropdown-menu>
               <li>
