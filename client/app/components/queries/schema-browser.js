@@ -1,6 +1,6 @@
 import template from './schema-browser.html';
 
-function SchemaBrowserCtrl($rootScope, $scope) {
+function SchemaBrowserCtrl($rootScope, $scope, toastr) {
   'ngInject';
 
   this.showTable = (table) => {
@@ -26,6 +26,18 @@ function SchemaBrowserCtrl($rootScope, $scope) {
     $rootScope.$broadcast('query-editor.paste', hierarchy.join('.'));
     $event.preventDefault();
     $event.stopPropagation();
+  };
+
+  this.splitFilter = (filter) => {
+    const splitTheFilter = filter.split(' ');
+    console.log(splitTheFilter);
+    if (splitTheFilter.length >= 2) {
+      toastr.error('Only 1 space is allowed in the schema search box.');
+    }
+    $scope.schemaFilterTable = splitTheFilter[0];
+    $scope.schemaFilterColumn = splitTheFilter[1];
+    console.log($scope.schemaFilterTable);
+    console.log($scope.schemaFilterColumn);
   };
 }
 
