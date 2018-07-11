@@ -1,12 +1,9 @@
-import { map, sortBy } from "lodash";
-import { $http } from "@/services/http";
+import { map, sortBy } from 'lodash';
+import { $http } from '@/services/http';
 
 function processTags(tags) {
   tags = tags || {};
-  return map(
-    sortBy(map(tags, (count, tag) => ({ tag, count })), "count"),
-    item => item.tag
-  );
+  return map(sortBy(map(tags, (count, tag) => ({ tag, count })), 'count'), item => item.tag);
 }
 
 export function getTags(url) {
@@ -14,4 +11,4 @@ export function getTags(url) {
 }
 
 // Need a default function, that will be used by the auto register mechanism.
-export default function() {}
+export default function () {}
