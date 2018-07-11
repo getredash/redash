@@ -180,11 +180,23 @@ class Athena(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             qbytes = None
+            athena_query_id = None
             try:
                 qbytes = cursor.data_scanned_in_bytes
             except AttributeError as e:
                 logger.debug("Athena Upstream can't get data_scanned_in_bytes: %s", e)
-            data = {'columns': columns, 'rows': rows, 'metadata': {'data_scanned': qbytes}}
+            try:
+                athena_query_id = cursor.query_id
+            except AttributeError as e:
+                logger.debug("Athena Upstream can't get query_id: %s", e)
+            data = {
+                'columns': columns,
+                'rows': rows,
+                'metadata': {
+                    'data_scanned': qbytes,
+                    'athena_query_id': athena_query_id
+                }
+            }
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
         except KeyboardInterrupt:

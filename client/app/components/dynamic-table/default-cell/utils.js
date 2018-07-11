@@ -1,4 +1,4 @@
-import { isFunction, extend } from 'underscore';
+import { isFunction, extend } from 'lodash';
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function trim(str) {

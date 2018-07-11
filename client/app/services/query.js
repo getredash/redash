@@ -1,48 +1,32 @@
-import moment from 'moment';
-import debug from 'debug';
-import Mustache from 'mustache';
-import { each, object, isEmpty, pluck, filter, contains, union, uniq, has } from 'underscore';
+import moment from "moment";
+import debug from "debug";
+import Mustache from "mustache";
+import {
+  each,
+  zipObject,
+  isEmpty,
+  map,
+  filter,
+  includes,
+  union,
+  uniq,
+  has
+} from "lodash";
 
-const logger = debug('redash:services:query');
+const logger = debug("redash:services:query");
 
 function collectParams(parts) {
   let parameters = [];
 
-  parts.forEach((part) => {
-    if (part[0] === 'name' || part[0] === '&') {
+  parts.forEach(part => {
+    if (part[0] === "name" || part[0] === "&") {
       parameters.push(part[1]);
-    } else if (part[0] === '#') {
+    } else if (part[0] === "#") {
       parameters = union(parameters, collectParams(part[4]));
     }
   });
 
   return parameters;
-}
-
-class QueryResultError {
-  constructor(errorMessage) {
-    this.errorMessage = errorMessage;
-  }
-
-  getError() {
-    return this.errorMessage;
-  }
-
-  static getStatus() {
-    return 'failed';
-  }
-
-  static getData() {
-    return null;
-  }
-
-  static getLog() {
-    return null;
-  }
-
-  static getChartData() {
-    return null;
-  }
 }
 
 class Parameter {
@@ -57,10 +41,14 @@ class Parameter {
   }
 
   get ngModel() {
-    if (this.type === 'date' || this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
+    if (
+      this.type === "date" ||
+      this.type === "datetime-local" ||
+      this.type === "datetime-with-seconds"
+    ) {
       this.$$value = this.$$value || moment(this.value).toDate();
       return this.$$value;
-    } else if (this.type === 'number') {
+    } else if (this.type === "number") {
       this.$$value = this.$$value || parseInt(this.value, 10);
       return this.$$value;
     }
@@ -69,14 +57,14 @@ class Parameter {
   }
 
   set ngModel(value) {
-    if (value && this.type === 'date') {
-      this.value = moment(value).format('YYYY-MM-DD');
+    if (value && this.type === "date") {
+      this.value = moment(value).format("YYYY-MM-DD");
       this.$$value = moment(this.value).toDate();
-    } else if (value && this.type === 'datetime-local') {
-      this.value = moment(value).format('YYYY-MM-DD HH:mm');
+    } else if (value && this.type === "datetime-local") {
+      this.value = moment(value).format("YYYY-MM-DD HH:mm");
       this.$$value = moment(this.value).toDate();
-    } else if (value && this.type === 'datetime-with-seconds') {
-      this.value = moment(value).format('YYYY-MM-DD HH:mm:ss');
+    } else if (value && this.type === "datetime-with-seconds") {
+      this.value = moment(value).format("YYYY-MM-DD HH:mm:ss");
       this.$$value = moment(this.value).toDate();
     } else {
       this.value = this.$$value = value;
@@ -97,9 +85,9 @@ class Parameters {
       const parts = Mustache.parse(this.query.query);
       parameters = uniq(collectParams(parts));
     } catch (e) {
-      logger('Failed parsing parameters: ', e);
+      logger("Failed parsing parameters: ", e);
       // Return current parameters so we don't reset the list
-      parameters = pluck(this.query.options.parameters, 'name');
+      parameters = map(this.query.options.parameters, i => i.name);
     }
     return parameters;
   }
@@ -115,28 +103,32 @@ class Parameters {
     this.query.options.parameters = this.query.options.parameters || [];
 
     const parametersMap = {};
-    this.query.options.parameters.forEach((param) => {
+    this.query.options.parameters.forEach(param => {
       parametersMap[param.name] = param;
     });
 
-    parameterNames.forEach((param) => {
+    parameterNames.forEach(param => {
       if (!has(parametersMap, param)) {
-        this.query.options.parameters.push(new Parameter({
-          title: param,
-          name: param,
-          type: 'text',
-          value: null,
-          global: false,
-        }));
+        this.query.options.parameters.push(
+          new Parameter({
+            title: param,
+            name: param,
+            type: "text",
+            value: null,
+            global: false
+          })
+        );
       }
     });
 
-    const parameterExists = p => contains(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    const parameterExists = p => includes(parameterNames, p.name);
+    this.query.options.parameters = this.query.options.parameters
+      .filter(parameterExists)
+      .map(p => new Parameter(p));
   }
 
   initFromQueryString(queryString) {
-    this.get().forEach((param) => {
+    this.get().forEach(param => {
       const queryStringName = `p_${param.name}`;
       if (has(queryString, queryStringName)) {
         param.value = queryString[queryStringName];
@@ -150,7 +142,10 @@ class Parameters {
   }
 
   getMissing() {
-    return pluck(filter(this.get(), p => p.value === null || p.value === ''), 'title');
+    return map(
+      filter(this.get(), p => p.value === null || p.value === ""),
+      i => i.title
+    );
   }
 
   isRequired() {
@@ -159,81 +154,122 @@ class Parameters {
 
   getValues() {
     const params = this.get();
-    return object(pluck(params, 'name'), pluck(params, 'value'));
+    return zipObject(map(params, i => i.name), map(params, i => i.value));
   }
 }
 
-function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
+function QueryResource(
+  $resource,
+  $http,
+  $q,
+  $location,
+  currentUser,
+  QueryResult
+) {
+  class QueryResultError {
+    constructor(errorMessage) {
+      this.errorMessage = errorMessage;
+    }
+
+    getError() {
+      return this.errorMessage;
+    }
+
+    toPromise() {
+      return $q.reject(this.getError());
+    }
+
+    static getStatus() {
+      return "failed";
+    }
+
+    static getData() {
+      return null;
+    }
+
+    static getLog() {
+      return null;
+    }
+
+    static getChartData() {
+      return null;
+    }
+  }
+
   const Query = $resource(
-    'api/queries/:id',
-    { id: '@id' },
+    "api/queries/:id",
+    { id: "@id" },
     {
       recent: {
-        method: 'get',
+        method: "get",
         isArray: true,
-        url: 'api/queries/recent',
+        url: "api/queries/recent"
       },
       query: {
-        isArray: false,
+        isArray: false
       },
       myQueries: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/my',
+        url: "api/queries/my"
       },
       fork: {
-        method: 'post',
+        method: "post",
         isArray: false,
-        url: 'api/queries/:id/fork',
-        params: { id: '@id' },
+        url: "api/queries/:id/fork",
+        params: { id: "@id" }
       },
       resultById: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/:id/results.json',
+        url: "api/queries/:id/results.json"
       },
       favorites: {
-        method: 'get',
+        method: "get",
         isArray: false,
-        url: 'api/queries/favorites',
+        url: "api/queries/favorites"
       },
       favorite: {
-        method: 'post',
+        method: "post",
         isArray: false,
-        url: 'api/queries/:id/favorite',
-        transformRequest: [() => ''], // body not needed
+        url: "api/queries/:id/favorite",
+        transformRequest: [() => ""] // body not needed
       },
       unfavorite: {
-        method: 'delete',
+        method: "delete",
         isArray: false,
-        url: 'api/queries/:id/favorite',
-        transformRequest: [() => ''], // body not needed
-      },
-    },
+        url: "api/queries/:id/favorite",
+        transformRequest: [() => ""] // body not needed
+      }
+    }
   );
 
   Query.newQuery = function newQuery() {
     return new Query({
-      query: '',
-      name: 'New Query',
+      query: "",
+      name: "New Query",
       schedule: null,
       user: currentUser,
-      options: {},
+      options: {}
     });
   };
 
   Query.format = function formatQuery(syntax, query) {
-    if (syntax === 'json') {
+    if (syntax === "json") {
       try {
-        const formatted = JSON.stringify(JSON.parse(query), ' ', 4);
+        const formatted = JSON.stringify(JSON.parse(query), " ", 4);
         return $q.resolve(formatted);
       } catch (err) {
         return $q.reject(String(err));
       }
-    } else if (syntax === 'sql') {
-      return $http.post('api/queries/format', { query }).then(response => response.data.query);
+    } else if (syntax === "sql") {
+      return $http
+        .post("api/queries/format", { query })
+        .then(response => response.data.query);
     } else {
-      return $q.reject('Query formatting is not supported for your data source syntax.');
+      return $q.reject(
+        "Query formatting is not supported for your data source syntax."
+      );
     }
   };
 
@@ -250,13 +286,13 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
   };
 
   Query.prototype.scheduleInLocalTime = function scheduleInLocalTime() {
-    const parts = this.schedule.split(':');
+    const parts = this.schedule.split(":");
     return moment
       .utc()
       .hour(parts[0])
       .minute(parts[1])
       .local()
-      .format('HH:mm');
+      .format("HH:mm");
   };
 
   Query.prototype.hasResult = function hasResult() {
@@ -277,18 +313,20 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     const missingParams = parameters.getMissing();
 
     if (missingParams.length > 0) {
-      let paramsWord = 'parameter';
-      let valuesWord = 'value';
+      let paramsWord = "parameter";
+      let valuesWord = "value";
       if (missingParams.length > 1) {
-        paramsWord = 'parameters';
-        valuesWord = 'values';
+        paramsWord = "parameters";
+        valuesWord = "values";
       }
 
       return new QueryResult({
         job: {
-          error: `missing ${valuesWord} for ${missingParams.join(', ')} ${paramsWord}.`,
-          status: 4,
-        },
+          error: `missing ${valuesWord} for ${missingParams.join(
+            ", "
+          )} ${paramsWord}.`,
+          status: 4
+        }
       });
     }
 
@@ -303,7 +341,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     if (this.latest_query_data && maxAge !== 0) {
       if (!this.queryResult) {
         this.queryResult = new QueryResult({
-          query_result: this.latest_query_data,
+          query_result: this.latest_query_data
         });
       }
     } else if (this.latest_query_data_id && maxAge !== 0) {
@@ -311,9 +349,16 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge, this.id);
+      this.queryResult = QueryResult.get(
+        this.data_source_id,
+        queryText,
+        maxAge,
+        this.id
+      );
     } else {
-      return new QueryResultError('Please select data source to run this query.');
+      return new QueryResultError(
+        "Please select data source to run this query."
+      );
     }
 
     return this.queryResult;
@@ -323,25 +368,25 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     let url = `queries/${this.id}`;
 
     if (source) {
-      url += '/source';
+      url += "/source";
     }
 
-    let params = '';
+    let params = "";
     if (this.getParameters().isRequired()) {
       each(this.getParameters().getValues(), (value, name) => {
         if (value === null) {
           return;
         }
 
-        if (params !== '') {
-          params += '&';
+        if (params !== "") {
+          params += "&";
         }
 
         params += `p_${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
       });
     }
 
-    if (params !== '') {
+    if (params !== "") {
       url += `?${params}`;
     }
 
@@ -372,5 +417,5 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 }
 
 export default function init(ngModule) {
-  ngModule.factory('Query', QueryResource);
+  ngModule.factory("Query", QueryResource);
 }

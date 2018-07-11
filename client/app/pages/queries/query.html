@@ -203,7 +203,7 @@
 
           <section class="flex-fill p-relative t-body">
             <div class="d-flex flex-column p-b-15 p-absolute" style="left: 0; top: 0; right: 0; bottom: 0;">
-              <div class="p-t-15 p-b-15" ng-if="query.getParametersDefs().length > 0">
+              <div class="p-t-15 p-b-5" ng-if="query.getParametersDefs().length > 0">
                 <parameters parameters="query.getParametersDefs()" sync-values="!query.isNew()" editable="sourceMode && canEdit"></parameters>
               </div>
               <!-- Query Execution Status -->
@@ -238,10 +238,12 @@
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
                       <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
-                        &times;</span>
+                        <i class="zmdi zmdi-close"></i>
+                      </span>
                     </rd-tab>
-                    <li class="rd-tab">
-                      <a ng-click="openVisualizationEditor()" ng-if="sourceMode && canEdit">&plus; New Visualization</a>
+                    <li class="rd-tab tab-new-vis">
+                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit">
+                        <i class="zmdi zmdi-plus"></i> New Visualization</a>
                     </li>
                   </ul>
                   <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">

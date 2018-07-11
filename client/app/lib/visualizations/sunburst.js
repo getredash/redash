@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import _ from 'underscore';
+import _ from 'lodash';
 import angular from 'angular';
 
 const exitNode = '<<<Exit>>>';
@@ -285,7 +285,7 @@ function Sunburst(scope, element) {
         return {
           size: value[0].value,
           sequence: value[0].sequence,
-          nodes: _.pluck(sorted, 'node'),
+          nodes: _.map(sorted, i => i.node),
         };
       });
     } else {

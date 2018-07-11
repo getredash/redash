@@ -6,7 +6,7 @@ from dateutil import parser
 from requests import Session
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +14,7 @@ try:
     import gspread
     from gspread.httpsession import HTTPSession
     from oauth2client.service_account import ServiceAccountCredentials
+
     enabled = True
 except ImportError:
     enabled = False
@@ -89,6 +90,14 @@ class WorksheetNotFoundError(Exception):
     def __init__(self, worksheet_num, worksheet_count):
         message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(worksheet_num, worksheet_count)
         super(WorksheetNotFoundError, self).__init__(message)
+
+
+def parse_query(query):
+    values = query.split("|")
+    key = values[0]  # key of the spreadsheet
+    worksheet_num = 0 if len(values) != 2 else int(values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
+
+    return key, worksheet_num
 
 
 def parse_worksheet(worksheet):
@@ -187,9 +196,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
-        values = query.split("|")
-        key = values[0]  # key of the spreadsheet
-        worksheet_num = 0 if len(values) != 2 else int(values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
+        key, worksheet_num = parse_query(query)
 
         try:
             spreadsheet_service = self._get_spreadsheet_service()
@@ -197,12 +204,9 @@ class GoogleSpreadsheet(BaseQueryRunner):
 
             data = parse_spreadsheet(spreadsheet, worksheet_num)
 
-            json_data = json.dumps(data, cls=JSONEncoder)
-            error = None
+            return json_dumps(data), None
         except gspread.SpreadsheetNotFound:
-            error = "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
-            json_data = None
+            return None, "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
 
-        return json_data, error
 
 register(GoogleSpreadsheet)

@@ -1,4 +1,4 @@
-import { isFunction } from 'underscore';
+import { isFunction } from 'lodash';
 
 export default function init(ngModule) {
   ngModule.directive('dynamicTableRow', () => ({

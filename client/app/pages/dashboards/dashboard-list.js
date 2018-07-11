@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 
 import { LivePaginator } from '@/lib/pagination';
 import template from './dashboard-list.html';

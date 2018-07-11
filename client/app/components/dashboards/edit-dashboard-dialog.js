@@ -1,4 +1,4 @@
-import { isEmpty } from 'underscore';
+import { isEmpty } from 'lodash';
 import template from './edit-dashboard-dialog.html';
 
 const EditDashboardDialog = {
