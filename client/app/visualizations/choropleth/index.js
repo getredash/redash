@@ -276,7 +276,7 @@ export default function init(ngModule) {
       valueColumn: '',
       clusteringMode: 'e',
       steps: 5,
-      valueFormat: '0,0.00',
+      valueFormat: '0.00',
       noValuePlaceholder: 'N/A',
       colors: {
         min: ChoroplethPalette['Light Blue'],

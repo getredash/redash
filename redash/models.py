@@ -396,7 +396,7 @@ class Group(db.Model, BelongsToOrgMixin):
 
     @classmethod
     def all(cls, org):
-        return cls.query.filter(cls.org == org)
+        return cls.query.filter(cls.org == org).order_by(cls.name.asc())
 
     @classmethod
     def members(cls, group_id):
@@ -521,7 +521,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def all(cls, org):
-        return cls.query.filter(cls.org == org)
+        return cls.query.filter(cls.org == org).order_by(cls.name.asc())
     
     @classmethod
     def all_not_disabled(cls, org):
@@ -621,7 +621,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all(cls, org, group_ids=None):
-        data_sources = cls.query.filter(cls.org == org).order_by(cls.id.asc())
+        data_sources = cls.query.filter(cls.org == org).order_by(cls.name.asc())
 
         if group_ids:
             data_sources = data_sources.join(DataSourceGroup).filter(
@@ -1254,7 +1254,8 @@ class Alert(TimestampMixin, db.Model):
             .options(joinedload(Alert.user), joinedload(Alert.query_rel))\
             .join(Query)\
             .join(DataSourceGroup, DataSourceGroup.data_source_id == Query.data_source_id)\
-            .filter(DataSourceGroup.group_id.in_(group_ids))
+            .filter(DataSourceGroup.group_id.in_(group_ids))\
+            .order_by(Alert.name)
 
     @classmethod
     def get_by_id_and_org(cls, id, org):
@@ -1387,7 +1388,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                  (Dashboard.user_id == user_id) |
                  ((Widget.dashboard != None) & (Widget.visualization == None))),
                 Dashboard.org == org)
-            .group_by(Dashboard.id))
+            .group_by(Dashboard.id)
+            .order_by(Dashboard.name))
 
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
@@ -1616,7 +1618,7 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
     @classmethod
     def all(cls, org):
-        notification_destinations = cls.query.filter(cls.org == org).order_by(cls.id.asc())
+        notification_destinations = cls.query.filter(cls.org == org).order_by(cls.name.asc())
 
         return notification_destinations
 
