@@ -27,7 +27,7 @@ from redash.utils import generate_token, json_dumps
 from redash.utils.comparators import CaseInsensitiveComparator
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
-from sqlalchemy import distinct, or_, and_
+from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
@@ -1117,7 +1117,8 @@ class Favorite(TimestampMixin, db.Model):
 
     user_id = Column(db.Integer, db.ForeignKey("users.id"))
     user = db.relationship(User, backref='favorites')
-    # UniqueConstraint(, 'col3', name='uix_1')
+
+    __table_args__ = (UniqueConstraint("object_type", "object_id", "user_id", name="unique_favorite"),)
 
     @classmethod
     def is_favorite(cls, user, object):

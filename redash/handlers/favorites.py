@@ -4,6 +4,8 @@ from redash.permissions import require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404, filter_by_tags, paginate
 from redash.serializers import QuerySerializer, serialize_dashboard
 
+from sqlalchemy.exc import IntegrityError
+
 
 class QueryFavoriteListResource(BaseResource):
     def get(self):
@@ -41,7 +43,15 @@ class QueryFavoriteResource(BaseResource):
 
         fav = models.Favorite(org_id=self.current_org.id, object=query, user=self.current_user)
         models.db.session.add(fav)
-        models.db.session.commit()
+
+        try:
+            models.db.session.commit()
+        except IntegrityError as e:
+            if 'unique_favorite' in e.message:
+                models.db.session.rollback()
+            else:
+                raise e
+
 
         self.record_event({
             'action': 'favorite',
@@ -97,7 +107,15 @@ class DashboardFavoriteResource(BaseResource):
         dashboard = get_object_or_404(models.Dashboard.get_by_slug_and_org, object_id, self.current_org)
         fav = models.Favorite(org_id=self.current_org.id, object=dashboard, user=self.current_user)
         models.db.session.add(fav)
-        models.db.session.commit()
+
+        try:
+            models.db.session.commit()
+        except IntegrityError as e:
+            if 'unique_favorite' in e.message:
+                models.db.session.rollback()
+            else:
+                raise e
+
         self.record_event({
             'action': 'favorite',
             'object_id': dashboard.id,
