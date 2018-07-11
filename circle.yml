@@ -1,38 +1,151 @@
-machine:
-  services:
-    - docker
-    - redis
-  node:
-    version:
-      6.9.1
-dependencies:
-  override:
-    - pip install --upgrade setuptools
-    - pip install -r requirements_dev.txt
-    - pip install -r requirements.txt
-    - npm install
-    - npm run build
-  cache_directories:
-    - node_modules/
-test:
-  override:
-    - pytest --junitxml=$CIRCLE_TEST_REPORTS/junit.xml tests/
-deployment:
-  tarball:
-    branch: [master, /release.*/]
-    commands:
-      - bin/pack
-  docker:
-    tag: /v[0-9]+(\.[0-9\-a-z]+)*/
-    commands:
-      - bin/pack
-      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-      - docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
-      - docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
+version: 2.0
 notify:
   webhooks:
     - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
-general:
-  branches:
-    ignore:
-      - gh-pages
+jobs:
+  build:
+    docker:
+      - image: circleci/node:6
+    working_directory: ~/redash
+    steps:
+      - checkout
+      - restore_cache:
+         keys:
+           - node-modules-
+      - run:
+          name: Setup NPM Environment
+          command: |
+            npm install
+      - run:
+          name: build
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*
+      - save_cache:
+         key: node-modules-
+         paths:
+           - node_modules
+  unit_tests:
+    machine: true
+    working_directory: ~/redash
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            pip install --upgrade pip
+            pip install docker-compose>=1.18
+            docker-compose --version
+      - run:
+          name: Pull images and setup
+          command: |
+            set -x
+            docker-compose up -d
+            sleep 10
+            docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+      - run:
+          name: Run tests
+          command: docker-compose run --user root server tests
+      - store_artifacts:
+          path: junit.xml
+      - store_artifacts:
+          path: coverage.xml
+  integration_tests:
+    working_directory: ~/redash
+    machine: true
+    environment:
+      REDASH_SERVER_URL : "http://127.0.0.1:5000/"
+      DOCKER_IMAGE: mozilla/redash-ui-tests
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            pip install --upgrade pip
+            pip install docker-compose>=1.18
+            docker-compose --version
+      - run:
+          name: Pull redash images
+          command: |
+            set -x
+            docker-compose -f docker-compose.yml up -d
+            sleep 10
+      - run:
+          name: Pull redash-ui-tests
+          command: docker pull "${DOCKER_IMAGE}":latest
+      - run:
+          name: Setup redash instance
+          command: |
+            set -x
+            docker-compose run --rm --user root server create_db
+            docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests"
+            docker-compose run --rm --user root server /app/manage.py users create_root root@example.com "rootuser" --password "IAMROOT" --org default
+            docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"url": "uitests"}'
+            docker-compose run -d -p 5000:5000 --user root server
+      - run:
+          name: Run tests
+          command: |
+            set -x
+            docker run --net="host" --env REDASH_SERVER_URL="${REDASH_SERVER_URL}" "${DOCKER_IMAGE}"
+      - store_artifacts:
+          path: report.html
+  build-deploy: # build for master or release branches
+    docker:
+      - image: circleci/node:6
+    working_directory: ~/redash
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Build
+          command: bin/pack "$CIRCLE_BRANCH"
+  build-release: # build for tags
+    docker:
+      - image: circleci/node:6
+    working_directory: ~/redash
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Tag deploy
+          command: |
+            set -x
+            bin/pack "$CIRCLE_TAG"
+            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
+            docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
+workflows:
+  version: 2
+  build_test_deploy_release:
+    jobs:
+      - build-deploy:
+           requires:
+             - integration_tests
+             - unit_tests
+           filters:
+             branches:
+               only:
+                 - master
+                 - release
+      - build-release:
+           requires:
+             - integration_tests
+             - unit_tests
+           filters:
+             tags:
+               only: /v[0-9]+(\.[0-9\-a-z]+)*/
+             branches:
+               ignore: /.*/
+      - integration_tests:
+          requires:
+            - build
+      - unit_tests:
+          requires:
+            - build
+      - build
