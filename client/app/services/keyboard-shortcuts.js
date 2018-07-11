@@ -1,4 +1,4 @@
-import { each } from 'underscore';
+import { each } from 'lodash';
 import Mousetrap from 'mousetrap';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 

@@ -1,6 +1,6 @@
 <div class="schema-container" ng-if="$ctrl.schema">
   <div class="schema-control">
-    <input type="text" placeholder="Search schema..." class="form-control" ng-model="$ctrl.schemaFilter" ng-disabled="$ctrl.isEmpty()">
+    <input type="text" placeholder="Search schema..." class="form-control" ng-model="$ctrl.schemaFilter" ng-model-options="{ debounce: 500 }" ng-disabled="$ctrl.isEmpty()">
     <button class="btn btn-default"
             title="Refresh Schema"
             ng-click="$ctrl.onRefresh()">

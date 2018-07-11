@@ -1,4 +1,4 @@
-import { isFunction, isArray, isObject, isString, isNumber, isUndefined, each, keys, filter } from 'underscore';
+import { isFunction, isArray, isObject, isString, isNumber, isUndefined, each, keys, filter } from 'lodash';
 import $ from 'jquery';
 import './json-view-interactive.less';
 

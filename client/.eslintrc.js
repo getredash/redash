@@ -1,9 +1,10 @@
 module.exports = {
   root: true,
-  extends: "airbnb-base",
+  extends: "airbnb",
   settings: {
     "import/resolver": "webpack"
   },
+  parser: "babel-eslint",
   env: {
     "browser": true,
     "node": true
@@ -21,6 +22,14 @@ module.exports = {
     "no-multi-assign": "off",
     "no-lonely-if": "off",
     "consistent-return": "off",
+    "no-control-regex": "off",
+    "react/jsx-filename-extension": "off",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "react/prefer-stateless-function": "warn",
+    "react/forbid-prop-types": "warn",
+    "react/prop-types": "warn",
+    "jsx-a11y/anchor-is-valid": "off",
     "max-len": ['error', 120, 2, {
       ignoreUrls: true,
       ignoreComments: false,

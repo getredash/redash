@@ -1,4 +1,4 @@
-import { isArray, isString } from 'underscore';
+import { isArray, isString } from 'lodash';
 
 function transformSingle(user) {
   if (user.groups !== undefined) {
