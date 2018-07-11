@@ -1,36 +1,36 @@
-import { isObject, isArray, isFunction, map } from 'underscore';
+import { isObject, isArray, isFunction, map } from "lodash";
 
-import controlTemplate from './control-template.html';
-import modalTemplate from './modal-template.html';
+import controlTemplate from "./control-template.html";
+import modalTemplate from "./modal-template.html";
 
 function trim(str) {
-  return str.replace(/^\s+|\s+$/g, '');
+  return str.replace(/^\s+|\s+$/g, "");
 }
 
 export default function init(ngModule) {
-  ngModule.component('tagsEditorModal', {
+  ngModule.component("tagsEditorModal", {
     template: modalTemplate,
     bindings: {
-      resolve: '<',
-      close: '&',
-      dismiss: '&',
+      resolve: "<",
+      close: "&",
+      dismiss: "&"
     },
     controller() {
       this.save = () => {
         this.close({
-          $value: map(this.resolve.items, trim),
+          $value: map(this.resolve.items, trim)
         });
       };
-    },
+    }
   });
 
-  ngModule.component('tagsControl', {
+  ngModule.component("tagsControl", {
     template: controlTemplate,
     bindings: {
-      item: '=',
-      canEdit: '<',
-      getAvailableTags: '<',
-      onEdit: '&',
+      item: "=",
+      canEdit: "<",
+      getAvailableTags: "<",
+      onEdit: "&"
     },
     controller($q, $uibModal) {
       this.editTags = () => {
@@ -43,25 +43,29 @@ export default function init(ngModule) {
         if (isFunction(this.getAvailableTags)) {
           promise = this.getAvailableTags();
         }
-        promise.then((availableTags) => {
-          availableTags = map(isArray(availableTags) ? availableTags : [], trim);
-          $uibModal.open({
-            component: 'tagsEditorModal',
-            resolve: {
-              items: () => tags,
-              availableTags: () => availableTags,
-            },
-          }).result.then((newTags) => {
-            if (isObject(this.item)) {
-              this.item.tags = newTags;
-              if (isFunction(this.onEdit)) {
-                this.onEdit();
+        promise.then(availableTags => {
+          availableTags = map(
+            isArray(availableTags) ? availableTags : [],
+            trim
+          );
+          $uibModal
+            .open({
+              component: "tagsEditorModal",
+              resolve: {
+                items: () => tags,
+                availableTags: () => availableTags
               }
-            }
-          });
+            })
+            .result.then(newTags => {
+              if (isObject(this.item)) {
+                this.item.tags = newTags;
+                if (isFunction(this.onEdit)) {
+                  this.onEdit();
+                }
+              }
+            });
         });
       };
-    },
+    }
   });
 }
-
