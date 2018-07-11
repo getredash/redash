@@ -86,7 +86,7 @@ jobs:
             docker-compose run --rm --user root server create_db
             docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests"
             docker-compose run --rm --user root server /app/manage.py users create_root root@example.com "rootuser" --password "IAMROOT" --org default
-            docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"url": "uitests"}'
+            docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"title": "uitests"}'
             docker-compose run -d -p 5000:5000 --user root server
       - run:
           name: Run tests
