@@ -139,6 +139,14 @@ class Parameters {
     return this.query.options.parameters;
   }
 
+  add(parameterDef) {
+    if (isObject(parameterDef)) {
+      this.query.options.parameters = this.query.options.parameters
+        .filter(p => p.name !== parameterDef.name);
+      this.query.options.parameters.push(new Parameter(parameterDef));
+    }
+  }
+
   getMissing() {
     return map(
       filter(this.get(), p => p.value === null || p.value === ''),

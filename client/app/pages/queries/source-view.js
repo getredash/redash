@@ -1,8 +1,10 @@
+import { map } from 'lodash';
 import template from './query.html';
 
 function QuerySourceCtrl(
-  Events, toastr, $controller, $scope, $location, $http, $q,
+  Events, toastr, $controller, $scope, $location, $http, $q, $uibModal,
   AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts,
+  $rootScope,
 ) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
@@ -29,6 +31,9 @@ function QuerySourceCtrl(
       if ($scope.canEdit) {
         $scope.saveQuery();
       }
+    },
+    'shift+alt+p': () => {
+      $scope.addNewParameter();
     },
   };
 
@@ -63,6 +68,25 @@ function QuerySourceCtrl(
     Query.format($scope.dataSource.syntax, $scope.query.query)
       .then((query) => { $scope.query.query = query; })
       .catch(error => toastr.error(error));
+  };
+
+  $scope.addNewParameter = () => {
+    $uibModal.open({
+      component: 'parameterSettings',
+      resolve: {
+        parameter: {
+          title: '',
+          name: '',
+          type: 'text',
+          value: null,
+          global: false,
+        },
+        existingParameters: () => map($scope.query.getParameters().get(), p => p.name),
+      },
+    }).result.then((param) => {
+      $rootScope.$broadcast('query-editor.paste', '{{ ' + param.name + ' }}');
+      $scope.query.getParameters().add(param);
+    });
   };
 
   $scope.$watch('query.query', (newQueryText) => {
