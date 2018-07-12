@@ -26,6 +26,7 @@ class Parameter {
     this.type = parameter.type;
     this.value = parameter.value;
     this.global = parameter.global;
+    this.required = parameter.required;
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
   }
@@ -105,6 +106,7 @@ class Parameters {
           type: 'text',
           value: null,
           global: false,
+          required: true,
         }));
       }
     });
@@ -130,7 +132,7 @@ class Parameters {
   }
 
   getMissing() {
-    return map(filter(this.get(), p => p.value === null || p.value === ''), i => i.title);
+    return map(filter(this.get(), p => p.required === true && (p.value === null || p.value === '')), i => i.title);
   }
 
   isRequired() {

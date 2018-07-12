@@ -25,6 +25,10 @@
           <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.global">
           Global
         </label>
+        <label>
+          <input type="checkbox" class="form-inline" ng-model="$ctrl.parameter.required">
+          Required
+        </label>
       </div>
       <div class="form-group" ng-if="$ctrl.parameter.type === 'enum'">
         <label>Dropdown List Values (newline delimited)</label>
