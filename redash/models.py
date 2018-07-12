@@ -1219,7 +1219,9 @@ class AccessPermission(GFKBase, db.Model):
                                       (resource_fk == user_id) |
                                       (dashboard_ap.grantee_id == user_id)))
             else:
-                query = query.filter((cls.grantee_id == user_id) | (resource_fk == user_id))
+                query = (query.join(User, (User.id == user_id))
+                              .outerjoin(Group, ((Group.id == func.any(User.group_ids)) & (Group.name == 'admin')))
+                              .filter((Group.id != None) | (cls.grantee_id == user_id) | (resource_fk == user_id)))
 
         return query
 
