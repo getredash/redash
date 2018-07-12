@@ -33,7 +33,7 @@
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
 
-      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == 0)">
+      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0)">
         Mark dashboards as favorite
         <span class="btn-favourite">
           <i class="fa fa-star" aria-hidden="true"></i>
