@@ -972,7 +972,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return db.session.query(tag_column, usage_count).join(
             DataSourceGroup,
             cls.data_source_id == DataSourceGroup.data_source_id
-        ).filter(where).distinct().group_by(tag_column).order_by(usage_count.desc())# .limit(limit)
+        ).filter(where).distinct().group_by(tag_column).order_by(usage_count.desc())  # .limit(limit)
 
     @classmethod
     def by_user(cls, user):
@@ -1122,7 +1122,7 @@ class Favorite(TimestampMixin, db.Model):
 
     @classmethod
     def is_favorite(cls, user, object):
-        return cls.query.filter(cls.object==object, cls.user_id==user).count() > 0
+        return cls.query.filter(cls.object == object, cls.user_id == user).count() > 0
     
     @classmethod
     def are_favorites(cls, user, objects):
@@ -1131,7 +1131,7 @@ class Favorite(TimestampMixin, db.Model):
             return []
         
         object_type = six.text_type(objects[0].__class__.__name__)
-        return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type==object_type, cls.user_id==user))
+        return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type == object_type, cls.user_id == user))
 
 
 class AccessPermission(GFKBase, db.Model):
