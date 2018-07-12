@@ -74,7 +74,7 @@ jobs:
           name: Pull redash images
           command: |
             set -x
-            docker-compose -f docker-compose.yml up -d
+            docker-compose -f docker-compose.yml up -d --no-start
             sleep 10
       - run:
           name: Pull redash-ui-tests
@@ -88,6 +88,7 @@ jobs:
             docker-compose run --rm --user root server /app/manage.py users create_root root@example.com "rootuser" --password "IAMROOT" --org default
             docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"title": "uitests"}'
             docker-compose run -d -p 5000:5000 --user root server
+            docker-compose start postgres
       - run:
           name: Run tests
           command: |
@@ -98,6 +99,11 @@ jobs:
   build-deploy: # build for master or release branches
     docker:
       - image: circleci/node:6
+    environment:
+      NAME: redash
+      VERSION: $(python ./manage.py version)
+      FULL_VERSION: $VERSION+b$CIRCLE_BUILD_NUM
+      FILENAME: $NAME.$FULL_VERSION.tar.gz
     working_directory: ~/redash
     steps:
       - attach_workspace:
@@ -105,6 +111,8 @@ jobs:
       - run:
           name: Build
           command: bin/pack "$CIRCLE_BRANCH"
+      - store_artifacts:
+          path: $NAME.$FULL_VERSION.tar.gz
   build-release: # build for tags
     docker:
       - image: circleci/node:6
