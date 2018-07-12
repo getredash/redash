@@ -30,12 +30,12 @@
     <!--Empty states-->
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <!--No dashboards-->
-      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0)">
+      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == undefined)">
         <empty-state icon="zmdi zmdi-view-quilt" description="See the big picture" show-dashboard-step="true" illustration="dashboard"
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
       <!--No favourites-->
-      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == 0)">
+      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == undefined)">
         Mark dashboards as favorite
         <span class="btn-favourite">
           <i class="fa fa-star" aria-hidden="true"></i>

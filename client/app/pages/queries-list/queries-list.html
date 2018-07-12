@@ -37,7 +37,7 @@
     <!--Empty states-->
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
       <!--No queries-->
-      <div ng-if="$ctrl.currentPage == 'all' && ($ctrl.searchText.length == 0)">
+      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == undefined)">
         <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"></empty-state>
       </div>
       <!--My queries, no query-->
@@ -46,7 +46,7 @@
         <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
       </div>
       <!--No favourites-->
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
+      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == undefined)">
         Mark queries as favorite
         <span class="btn-favourite">
           <i class="fa fa-star" aria-hidden="true"></i>
