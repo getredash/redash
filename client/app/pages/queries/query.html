@@ -152,27 +152,28 @@
                 </p>
 
                 <div class="editor__control">
-                  <div class="row form-inline">
-                    <div class="col-xs-5 text-left">
-                      <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id"
-                        ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
-                    </div>
+                  <div class="form-inline d-flex">
+                    <button type="button" class="btn btn-default m-r-5" ng-click="addNewParameter()">
+                      <span ng-non-bindable>{{&nbsp;}}</span>
+                    </button>
 
-                    <div class="col-xs-7">
-                      <div class="editor__control--right">
-                        <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
-                          <span class="fa fa-floppy-o"></span>
-                          <span class="hidden-xs">Save</span>
-                          <span ng-show="isDirty">&#42;</span>
-                        </button>
+                    <select class="form-control datasource-small flex-fill w-100"
+                      ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id"
+                      ng-change="updateDataSource()"
+                      ng-options="ds.id as ds.name for ds in dataSources"></select>
 
-                        <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
-                          <span class="zmdi zmdi-play"></span>
-                          <span class="hidden-xs">Execute</span>
-                        </button>
-                      </div>
-                    </div>
+                    <button class="btn btn-default m-l-5" ng-show="canEdit" ng-click="saveQuery()" title="Save">
+                      <span class="fa fa-floppy-o"></span>
+                      <span class="hidden-xs">Save</span>
+                      <span
+                        ng-show="isDirty">&#42;</span>
+                    </button>
 
+                    <button type="button" class="btn btn-primary m-l-5"
+                      ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
+                      <span class="zmdi zmdi-play"></span>
+                      <span class="hidden-xs">Execute</span>
+                    </button>
                   </div>
                 </div>
               </div>
