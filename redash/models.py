@@ -1334,6 +1334,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def all(cls, org, group_ids, user_id):
         query = (
             Dashboard.query
+            .options(joinedload(Dashboard.user))
             .outerjoin(Widget)
             .outerjoin(Visualization)
             .outerjoin(Query)
@@ -1344,7 +1345,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                  (Dashboard.user_id == user_id) |
                  ((Widget.dashboard != None) & (Widget.visualization == None))),
                 Dashboard.org == org)
-            .group_by(Dashboard.id))
+            .distinct())
 
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
 
