@@ -24,7 +24,7 @@ def log_queries():
 def chrome_log(response):
     request_duration = (time.time() - g.start_time) * 1000
     queries_duration = g.get('queries_duration', 0.0)
-    queries_count = g.get('queries_count', 0.0)
+    queries_count = g.get('queries_count', 0)
 
     group_name = '{} {} ({}, {:.2f}ms runtime, {} queries in {:.2f}ms)'.format(
         request.method, request.path, response.status_code, request_duration, queries_count, queries_duration)
