@@ -1,4 +1,4 @@
-import { find } from 'lodash';
+import { find, includes } from 'lodash';
 import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';
@@ -15,6 +15,9 @@ const ParameterSettingsComponent = {
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
+    this.isNewParameter = this.parameter.name === '';
+
+    this.parameterAlreadyExists = name => includes(this.resolve.existingParameters, name);
 
     if (this.parameter.queryId) {
       Query.get({ id: this.parameter.queryId }, (query) => {
