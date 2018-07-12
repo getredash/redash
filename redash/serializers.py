@@ -77,7 +77,7 @@ class QuerySerializer(Serializer):
                 favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
                 for query in result:
                     query['is_favorite'] = query['id'] in favorite_ids
-        
+  
         return result
 
 
