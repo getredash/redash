@@ -58,6 +58,10 @@
       <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'search'">
         Sorry, we couldn't find anything.
       </div>
+      <!--No query found for this tag-->
+      <div class="tiled bg-white p-15" ng-if="$ctrl.queryNotFoundTag">
+        No query found tagged with 'X' (probably the query is archived by now).
+      </div>
     </div>
 
     <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-md-9 list-content">
