@@ -28,7 +28,7 @@
     </div>
 
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
-      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0)">
+      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0)">
         <empty-state icon="zmdi zmdi-view-quilt" description="See the big picture" show-dashboard-step="true" illustration="dashboard"
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
