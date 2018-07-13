@@ -3,6 +3,9 @@ import template from './schema-browser.html';
 function SchemaBrowserCtrl($rootScope, $scope, toastr) {
   'ngInject';
 
+  $scope.schemaFilterColumn = '';
+  $scope.schemaFilterTable = '';
+
   this.showTable = (table) => {
     table.collapsed = !table.collapsed;
     $scope.$broadcast('vsRepeatTrigger');
@@ -30,12 +33,16 @@ function SchemaBrowserCtrl($rootScope, $scope, toastr) {
 
   this.splitFilter = (filter) => {
     const splitTheFilter = filter.split(' ');
+    $scope.schemaFilterColumn = '';
+    $scope.schemaFilterTable = '';
     console.log(splitTheFilter);
-    if (splitTheFilter.length >= 2) {
-      toastr.error('Only 1 space is allowed in the schema search box.');
+    if (splitTheFilter.length >= 3 || filter.indexOf('  ') >= 0) {
+      toastr.warning('Only 1 space is allowed in the schema search box.');
     }
     $scope.schemaFilterTable = splitTheFilter[0];
-    $scope.schemaFilterColumn = splitTheFilter[1];
+    if (splitTheFilter[1] !== undefined) {
+      $scope.schemaFilterColumn = splitTheFilter[1];
+    }
     console.log($scope.schemaFilterTable);
     console.log($scope.schemaFilterColumn);
   };
