@@ -18,8 +18,12 @@ function controller($rootScope, $location, $uibModal, Auth, currentUser, clientC
 
   this.reload = () => {
     logger('Reloading dashboards and queries.');
-    this.dashboards = Dashboard.favorites();
-    this.queries = Query.favorites();
+    Dashboard.favorites().$promise.then((data) => {
+      this.dashboards = data.results;
+    });
+    Query.favorites().$promise.then((data) => {
+      this.queries = data.results;
+    });
   };
 
   this.reload();

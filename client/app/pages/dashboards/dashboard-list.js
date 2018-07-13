@@ -4,7 +4,7 @@ import { LivePaginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
 import './dashboard-list.css';
 
-function DashboardListCtrl($scope, currentUser, $location) {
+function DashboardListCtrl($scope, currentUser, $location, Dashboard) {
   const page = parseInt($location.search().page || 1, 10);
 
   // use $parent because we're using a component as route target instead of controller;
@@ -42,11 +42,8 @@ function DashboardListCtrl($scope, currentUser, $location) {
 
     return this.resource(request).$promise.then((data) => {
       this.loaded = true;
-
-      const rows = data.results;
-
+      const rows = data.results.map(d => new Dashboard(d));
       paginator.updateRows(rows, data.count);
-
       this.showEmptyState = data.count === 0;
     });
   };
