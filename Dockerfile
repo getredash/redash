@@ -11,3 +11,4 @@ RUN chown -R redash /app
 USER redash
 
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
+CMD ["server"]
