@@ -31,9 +31,11 @@
     </div>
 
     <div ng-if="!$ctrl.loaded" class="col-md-9 list-content text-center p-t-15 p-b-15">
-      <i class="fa fa-spinner fa-2x fa-pulse"></i>
-      <br>
-      Loading queries...
+      <div class="tiled bg-white p-15">
+        <i class="fa fa-spinner fa-2x fa-pulse"></i>
+        <br>
+        Loading queries...
+      </div>
     </div>
 
     <!--Empty states-->
@@ -43,23 +45,31 @@
         <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"></empty-state>
       </div>
       <!--My queries, no query-->
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'my'">
+      <div class="tiled bg-white p-15 text-center" ng-if="$ctrl.currentPage == 'my'">
+        <h3 class="m-t-0 m-b-0"><i class="fa fa-bar-chart" aria-hidden="true"></i></h3>
+        <br>
         <a href="/queries/new" class="btn btn-primary btn-sm">Create your first query</a> to populate My Queries list. Need help? Check out our
         <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
       </div>
       <!--No favourites-->
-      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == undefined)">
+      <div class="tiled bg-white p-15 text-center" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText.length == undefined)">
+        <h3 class="m-t-0 m-b-0"><i class="fa fa-star" aria-hidden="true"></i></h3>
+        <br>
         Mark queries as favorite
         <span class="btn-favourite">
           <i class="fa fa-star" aria-hidden="true"></i>
         </span> to list them here.
       </div>
       <!--No search hits-->
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'search'">
+      <div class="tiled bg-white p-15 text-center" ng-if="$ctrl.currentPage == 'search'">
+        <h3><i class="fa fa-search" aria-hidden="true"></i></h3>
+        <br>
         Sorry, we couldn't find anything.
       </div>
       <!--No query found for this tag-->
-      <div class="tiled bg-white p-15" ng-if="$ctrl.queryNotFoundTag">
+      <div class="tiled bg-white p-15 text-center" ng-if="$ctrl.queryNotFoundTag">
+        <h3><i class="fa fa-tag" aria-hidden="true"></i></h3>
+        <br>
         No query found tagged with 'X' (probably the query is archived by now).
       </div>
     </div>
