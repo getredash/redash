@@ -3,6 +3,9 @@
 
   <div class="row">
     <div class="col-md-3 list-control-t">
+      <input type='text' class='form-control m-b-10' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
+             autofocus/>
+
       <div class="list-group m-b-10 tags-list tiled">
         <a href="dashboards" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Dashboards
@@ -17,30 +20,45 @@
       </div>
 
       <div class="m-b-10">
-        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
-          autofocus/>
         <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
     </div>
 
     <div ng-if="!$ctrl.loaded" class="col-md-9 list-content text-center p-t-15 p-b-15">
-      <i class="fa fa-spinner fa-2x fa-pulse"></i>
+      <div class="tiled bg-white p-15">
+        <i class="fa fa-spinner fa-2x fa-pulse"></i>
+        <br>
+        Loading dashboards...
+      </div>
     </div>
 
+    <!--Empty states-->
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
-      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0)">
+      <!--No dashboards-->
+      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0)">
         <empty-state icon="zmdi zmdi-view-quilt" description="See the big picture" show-dashboard-step="true" illustration="dashboard"
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
-
-      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0)">
+      <!--No favorites-->
+      <div class="tiled bg-white p-15 text-center" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0)">
+        <h3 class="m-t-0 m-b-0"><i class="fa fa-star" aria-hidden="true"></i></h3>
+        <br>
         Mark dashboards as favorite
         <span class="btn-favourite">
           <i class="fa fa-star" aria-hidden="true"></i>
         </span> to list them here.
       </div>
-      <div class="tiled bg-white p-15" ng-if="$ctrl.searchText.length > 0">
+      <!--No search hits-->
+      <div class="tiled bg-white p-15 text-center" ng-if="$ctrl.searchText.length > 0">
+        <h3 class="m-t-0 m-b-0"><i class="fa fa-search" aria-hidden="true"></i></h3>
+        <br>
         Sorry, we couldn't find anything.
+      </div>
+      <!--No dashboard found for this tag-->
+      <div class="tiled bg-white p-15 text-center" ng-if="$ctrl.dashboardNotFoundTag">
+        <h3 class="m-t-0 m-b-0"><i class="fa fa-pie-chart" aria-hidden="true"></i></h3>
+        <br>
+        No dashboards found tagged with 'X' (probably the dashboard is archived by now).
       </div>
     </div>
 
@@ -81,6 +99,9 @@
     </div>
 
     <div class="col-md-3 list-control-r-b">
+      <input type='text' class='form-control m-b-10' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
+             autofocus/>
+
       <div class="list-group m-b-10 tags-list tiled">
         <a href="dashboards" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Dashboards
@@ -93,9 +114,6 @@
           Favorites
         </a>
       </div>
-
-      <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
-        autofocus/>
 
       <tags-list tags-url="api/dashboards/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
     </div>
