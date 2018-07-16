@@ -15,7 +15,7 @@ RUN sudo tar --strip-components 1 -xzvf node-v* -C /usr/local
 # Upgrade npm
 RUN npm upgrade npm
 
-RUN npm install && npm run build && rm -rf node_modules
+RUN npm install && npm run bundle && npm run build && rm -rf node_modules
 RUN chown -R redash /app
 USER redash
 

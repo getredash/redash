@@ -34,6 +34,7 @@ jobs:
       - run: sudo pip install -r requirements_dev.txt
       - run: sudo pip install -r requirements.txt
       - run: sudo npm install
+      - run: sudo npm run bundle
       - run: sudo npm run build
       - run:
           command: pytest --junitxml=/tmp/test-reports/pytest/junit.xml tests/

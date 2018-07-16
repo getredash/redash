@@ -82,6 +82,11 @@ function registerComponents() {
   registerAll(context);
 }
 
+function registerExtensions() {
+  const context = require.context('%', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  registerAll(context);
+}
+
 function registerServices() {
   const context = require.context('@/services', true, /^((?![\\/]test[\\/]).)*\.js$/);
   registerAll(context);
@@ -142,6 +147,7 @@ markdownFilter(ngModule);
 dateTimeFilter(ngModule);
 registerComponents();
 registerPages();
+registerExtensions();
 registerVisualizations(ngModule);
 
 export default ngModule;

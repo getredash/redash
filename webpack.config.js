@@ -17,6 +17,10 @@ const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
 const basePath = fs.realpathSync(path.join(__dirname, "client"));
 const appPath = fs.realpathSync(path.join(__dirname, "client", "app"));
 
+const extensionsRelativePath = process.env.EXTENSIONS_DIRECTORY ||
+  path.join("client", "app", "extensions");
+const extensionPath = fs.realpathSync(path.join(__dirname, extensionsRelativePath));
+
 const config = {
   entry: {
     app: ["./client/app/index.js", "./client/app/assets/less/main.less"],
@@ -29,7 +33,8 @@ const config = {
   },
   resolve: {
     alias: {
-      "@": appPath
+      "@": appPath,
+      "%": extensionPath
     }
   },
   plugins: [
