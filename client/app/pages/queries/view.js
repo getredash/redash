@@ -427,6 +427,19 @@ function QueryViewCtrl(
     });
   };
 
+  $scope.openAddToDashboardForm = (visId) => {
+    const visualization = getVisualization(visId);
+    $uibModal.open({
+      component: 'addToDashboardDialog',
+      size: 'sm',
+      resolve: {
+        query: $scope.query,
+        vis: visualization,
+        saveAddToDashboard: () => $scope.saveAddToDashboard,
+      },
+    });
+  };
+
   $scope.showEmbedDialog = (query, visId) => {
     const visualization = getVisualization(visId);
     $uibModal.open({
