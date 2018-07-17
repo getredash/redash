@@ -139,7 +139,7 @@ export default function init(ngModule) {
       },
       route,
     ),
-    '/queries/favorite': extend(
+    '/queries/favorites': extend(
       {
         title: 'Favorite Queries',
         resolve: {
