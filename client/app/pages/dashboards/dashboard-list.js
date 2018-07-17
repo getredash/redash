@@ -92,7 +92,7 @@ export default function init(ngModule) {
       },
       route,
     ),
-    '/dashboards/favorite': extend(
+    '/dashboards/favorites': extend(
       {
         title: 'Favorite Dashboards',
         resolve: {
