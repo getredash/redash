@@ -32,6 +32,8 @@ class QueriesListCtrl {
       this.update();
     };
 
+    this.isInSearchMode = () => this.term !== undefined && this.term !== null && this.term.length > 0;
+
     const queriesFetcher = (requestedPage, itemsPerPage, paginator) => {
       $location.search('page', requestedPage);
 
@@ -50,6 +52,8 @@ class QueriesListCtrl {
       }
       $location.search('q', this.term);
 
+      this.loaded = false;
+
       return this.resource(request).$promise.then((data) => {
         this.loaded = true;
         const rows = data.results.map((query) => {
@@ -60,6 +64,19 @@ class QueriesListCtrl {
 
         paginator.updateRows(rows, data.count);
 
+        if (data.count === 0) {
+          if (this.isInSearchMode()) {
+            this.emptyType = 'search';
+          } else if (this.selectedTags.size > 0) {
+            this.emptyType = 'tags';
+          } else if (this.currentPage === 'favorites') {
+            this.emptyType = 'favorites';
+          } else if (this.currentPage === 'my') {
+            this.emptyType = 'my';
+          } else {
+            this.emptyType = 'default';
+          }
+        }
         this.showEmptyState = data.count === 0;
       });
     };

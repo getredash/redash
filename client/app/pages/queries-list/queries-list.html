@@ -3,6 +3,11 @@
 
   <div class="row">
     <div class="col-md-3 list-control-t">
+      <div class="m-b-5">
+        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+          ng-change="$ctrl.update()">
+      </div>
+
       <div class='list-group m-b-10 tags-list tiled'>
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Queries
@@ -20,37 +25,32 @@
       </div>
 
       <div ng-if="$ctrl.currentPage != 'my'">
-        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-          ng-change="$ctrl.update()">
-
         <div class="m-b-10">
           <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
         </div>
       </div>
-
     </div>
 
-    <div ng-if="!$ctrl.loaded" class="col-md-9 list-content text-center p-t-15 p-b-15">
-      <i class="fa fa-spinner fa-2x fa-pulse"></i>
+    <div ng-if="!$ctrl.loaded" class="col-md-9 list-content text-center">
+      <big-message icon="'fa-spinner fa-2x fa-pulse'" message="'Loading...'"></big-message>
     </div>
 
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
-      <div ng-if="$ctrl.currentPage == 'all'">
-        <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"></empty-state>
+      <div ng-switch="$ctrl.emptyType">
+        <div ng-switch-when="default">
+          <empty-state icon="fa fa-code" illustration="query" description="Getting the data from your datasources." help-link="http://help.redash.io/category/21-querying"></empty-state>
+        </div>
+
+        <div ng-switch-when="my" class="tiled bg-white p-15">
+          <a href="/queries/new" class="btn btn-primary btn-sm">Create your first query</a> to populate My Queries list. Need help? Check out our
+          <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
+        </div>
+
+        <big-message ng-switch-when="favorites" message="'Mark queries as Favorite to list them here.'" icon="'fa-star'" />
+        <big-message ng-switch-when="search" message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'"></big-message>
+        <no-tagged-objects-found ng-switch-when="tags" object-type="'queries'" tags="$ctrl.selectedTags" />
       </div>
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'my'">
-        <a href="/queries/new" class="btn btn-primary btn-sm">Create your first query</a> to populate My Queries list. Need help? Check out our
-        <a href="https://redash.io/help/user-guide/querying/writing-queries">query writing documentation</a>.
-      </div>
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'favorites'">
-        Mark queries as favorite
-        <span class="btn-favourite">
-          <i class="fa fa-star" aria-hidden="true"></i>
-        </span> to list them here.
-      </div>
-      <div class="tiled bg-white p-15" ng-if="$ctrl.currentPage == 'search'">
-        Sorry, we couldn't find anything.
-      </div>
+
     </div>
 
     <div ng-if="$ctrl.loaded && !$ctrl.showEmptyState" class="col-md-9 list-content">
@@ -94,6 +94,10 @@
     </div>
 
     <div class="col-md-3 list-control-r-b">
+      <div class="m-b-5" ng-if="$ctrl.currentPage != 'my'">
+        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+          ng-change="$ctrl.update()">
+      </div>
       <div class='list-group m-b-10 tags-list tiled'>
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Queries
@@ -110,8 +114,6 @@
         </a>
       </div>
       <div ng-if="$ctrl.currentPage != 'my'">
-        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-          ng-change="$ctrl.update()">
         <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
     </div>

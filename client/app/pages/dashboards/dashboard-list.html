@@ -36,12 +36,8 @@
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
 
-      <div class="tiled bg-white p-15" ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0) && $ctrl.selectedTags.size === 0">
-        Mark dashboards as favorite
-        <span class="btn-favourite">
-          <i class="fa fa-star" aria-hidden="true"></i>
-        </span> to list them here.
-      </div>
+      <big-message ng-if="($ctrl.currentPage == 'favorites') && ($ctrl.searchText === undefined || $ctrl.searchText.length == 0) && $ctrl.selectedTags.size === 0"
+        message="'Mark dashboards as Favorite to list them here.'" icon="'fa-star'" />
 
       <big-message message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'" ng-if="$ctrl.searchText.length > 0"></big-message>
 
