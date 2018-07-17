@@ -247,13 +247,28 @@ edit-in-place p.editable:hover {
   }
 }
 
+.page-header--new {
+  .label-default {
+    margin-right: 3px;
+  }
+}
+
 .page-header--query {
   display: flex;
   align-items: center;
 
   h3 {
     display: inline-block;
-    margin-right: 10px;
+  }
+}
+
+a.label-tag {
+  background: fade(@redash-gray, 15%);
+  color: #333;
+
+  &:hover {
+    color: #333;
+    background: fade(@redash-gray, 25%);
   }
 }
 
@@ -504,10 +519,22 @@ edit-in-place p.editable:hover {
   }
 }
 
-
 // Left nav fixes for filling all the space
 nav .rg-bottom {
   visibility: hidden;
+}
+
+.query-metadata--description {
+  max-height: 125px;
+  overflow-y: auto;
+
+  .edit-in-place.active {
+    width: 100% !important;
+  }
+
+  .edit-in-place .rd-form-control {
+    width: 100% !important;
+  }
 }
 
 .query-metadata--refresh {

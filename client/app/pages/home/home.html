@@ -7,20 +7,23 @@
   <div class="tile">
     <div class="t-body tb-padding">
       <div class="row">
-        <div class="col-md-6">
-          <p class="f-500 m-b-20 c-black">Recent Dashboards</p>
+        <div class="col-sm-6">
+          <p class="f-500 m-b-20 c-black">Favorite Dashboards</p>
           <div class="list-group">
-            <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.recentDashboards">
+            <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.favoriteDashboards" ng-if="dashboard.is_favorite">
+              <favorites-control item="dashboard"></favorites-control>
               {{dashboard.name}}
               <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
             </a>
           </div>
         </div>
 
-        <div class="col-md-6">
-          <p class="f-500 m-b-20 c-black">Recent Queries</p>
+        <div class="col-sm-6">
+          <p class="f-500 m-b-20 c-black">Favorite Queries</p>
           <div class="list-group">
-            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.recentQueries">{{query.name}}
+            <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.favoriteQueries" ng-if="query.is_favorite">
+              <favorites-control item="query"></favorites-control>
+              {{query.name}}
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
             </a>
           </div>

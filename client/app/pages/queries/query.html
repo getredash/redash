@@ -1,41 +1,33 @@
 <div class="query-page-wrapper">
   <div class="container">
     <overlay ng-if="canCreateQuery === false && query.isNew()">
-      You don't have permission to create new queries on any of the data sources available to you. You can either <a
-      href="queries">browse existing queries</a>, or ask for additional permissions from your Redash admin.
+      You don't have permission to create new queries on any of the data sources available to you. You can either
+      <a href="queries">browse existing queries</a>, or ask for additional permissions from your Redash admin.
     </overlay>
     <overlay ng-if="noDataSources && currentUser.isAdmin">
-      Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please
-      create one first, and then start querying.
+      Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please create one
+      first, and then start querying.
       <br/>
-      <a href="data_sources/new" class="btn btn-primary">Create Data Source</a> <a href="groups" class="btn btn-default">Manage
-      Group Permissions</a>
+      <a href="data_sources/new" class="btn btn-primary">Create Data Source</a>
+      <a href="groups" class="btn btn-default">Manage Group Permissions</a>
     </overlay>
     <overlay ng-if="noDataSources && !currentUser.isAdmin">
-      Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please ask
-      your Redash admin to create one first.
+      Looks like no data sources were created yet (or none of them available to the group(s) you're member of). Please ask your
+      Redash admin to create one first.
     </overlay>
 
     <alert-unsaved-changes ng-if="canEdit" is-dirty="isDirty"></alert-unsaved-changes>
 
     <div class="row p-l-15 p-b-10 m-l-0 m-r-0 page-header--new page-header--query">
-      <div class="col-sm-8 col-xs-7 p-0">
+      <div class="page-title col-sm-8 col-xs-7 p-0">
+        <favorites-control ng-if="!query.isNew()" item="query"></favorites-control>
         <h3>
           <edit-in-place editable="canEdit" done="saveName" ignore-blanks="true" value="query.name"></edit-in-place>
-          <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
-          <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
         </h3>
-
-        <em>
-          <edit-in-place editable="canEdit"
-            done="saveDescription"
-            editor="textarea"
-            placeholder="No description"
-            ignore-blanks='false'
-            value="query.description"
-            markdown="true">
-          </edit-in-place>
-        </em>
+        <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
+        <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
+          popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
+        <tags-control item="query" can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags()"></tags-control>
       </div>
 
       <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
@@ -45,26 +37,36 @@
         </button>
 
         <span ng-show="query.id && canViewSource">
-        <a ng-show="!sourceMode"
-          ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-code" aria-hidden="true"></i> Edit Source</i>
-        </a>
-        <a ng-show="sourceMode"
-          ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide"><i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
-        </a>
-      </span>
+          <a ng-show="!sourceMode" ng-href="{{query.getUrl(true, selectedTab)}}" class="btn btn-default btn--showhide">
+            <i class="fa fa-code" aria-hidden="true"></i> Edit Source</i>
+          </a>
+          <a ng-show="sourceMode" ng-href="{{query.getUrl(false, selectedTab)}}" class="btn btn-default btn--showhide">
+            <i class="fa fa-table" aria-hidden="true"></i> Show Data Only</i>
+          </a>
+        </span>
 
         <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
           <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
             <span class="zmdi zmdi-more"></span>
           </button>
           <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-            <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }"><a ng-click="duplicateQuery()"> Fork</a></li>
+            <li ng-class="{'disabled': query.id === undefined || !canForkQuery() }">
+              <a ng-click="duplicateQuery()"> Fork</a>
+            </li>
             <li class="divider"></li>
-            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="archiveQuery()">Archive</a></li>
-            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl"><a ng-click="showManagePermissionsModal()">Manage Permissions</a></li>
-            <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))"><a ng-click="togglePublished()">Unpublish</a></li>
+            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+              <a ng-click="archiveQuery()">Archive</a>
+            </li>
+            <li ng-if="!query.is_archived && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin')) && showPermissionsControl">
+              <a ng-click="showManagePermissionsModal()">Manage Permissions</a>
+            </li>
+            <li ng-if="!query.is_draft && query.id != undefined && (isQueryOwner || currentUser.hasPermission('admin'))">
+              <a ng-click="togglePublished()">Unpublish</a>
+            </li>
             <li class="divider" ng-if="!query.is_archived"></li>
-            <li ng-if="query.id != undefined"><a ng-click="showApiKey()">Show API Key</a></li>
+            <li ng-if="query.id != undefined">
+              <a ng-click="showApiKey()">Show API Key</a>
+            </li>
           </ul>
         </div>
       </div>
@@ -86,30 +88,42 @@
       </div>
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
+      <div class="query-metadata query-metadata--description">
+        <edit-in-place editable="canEdit" done="saveDescription" editor="textarea" placeholder="Add description" ignore-blanks='false'
+          value="query.description" markdown="true">
+        </edit-in-place>
+      </div>
+
       <div class="query-metadata query-metadata--history" ng-if="!query.isNew()">
         <table>
           <tr>
             <td>
-              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb"/>
+              <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb" />
               <strong class="meta__name" ng-class="{'text-muted': query.user.is_disabled}">{{query.user.name}}</strong>
             </td>
             <td class="text-right">
-              created <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
+              created
+              <strong>
+                <rd-time-ago value="query.created_at"></rd-time-ago>
+              </strong>
             </td>
           </tr>
           <tr>
             <td>
-              <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb"/>
-              <strong class="meta__name"
-                ng-class="{'text-muted': query.last_modified_by.is_disabled}">{{query.last_modified_by.name}}</strong>
+              <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb" />
+              <strong class="meta__name" ng-class="{'text-muted': query.last_modified_by.is_disabled}">{{query.last_modified_by.name}}</strong>
             </td>
             <td class="text-right">
-              updated <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
+              updated
+              <strong>
+                <rd-time-ago value="query.updated_at"></rd-time-ago>
+              </strong>
             </td>
           </tr>
           <tr>
             <td class="p-t-15">
-              <span class="query-metadata__property"><span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
+              <span class="query-metadata__property">
+                <span class="zmdi zmdi-refresh"></span> Refresh Schedule</span>
             </td>
             <td class="p-t-15 text-right">
               <a ng-click="openScheduleForm()" ng-if="!query.isNew()">{{query.schedule | scheduleHumanize}}</a>
@@ -130,9 +144,7 @@
 
               <div class="container p-15 m-b-10" style="height:100%;">
                 <p style="height:calc(100% - 40px); margin-bottom: 0px;" class="editor__container">
-                  <query-editor query="query"
-                    schema="schema"
-                    syntax="dataSource.syntax"></query-editor>
+                  <query-editor query="query" schema="schema" syntax="dataSource.syntax"></query-editor>
 
                   <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
                     <span class="zmdi zmdi-format-indent-increase"></span>
@@ -142,8 +154,8 @@
                 <div class="editor__control">
                   <div class="row form-inline">
                     <div class="col-xs-5 text-left">
-                      <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id" ng-change="updateDataSource()"
-                        ng-options="ds.id as ds.name for ds in dataSources"></select>
+                      <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id"
+                        ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
                     </div>
 
                     <div class="col-xs-7">
@@ -151,8 +163,7 @@
                         <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
                           <span class="fa fa-floppy-o"></span>
                           <span class="hidden-xs">Save</span>
-                          <span
-                            ng-show="isDirty">&#42;</span>
+                          <span ng-show="isDirty">&#42;</span>
                         </button>
 
                         <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
@@ -173,12 +184,16 @@
             <div class="col-xs-4 text-left">
               <span class="m-r-5">Created by</span>
               <img ng-src="{{ query.user.profile_image_url }}" class="profile__image_thumb">
-              <strong><rd-time-ago value="query.created_at"></rd-time-ago></strong>
+              <strong>
+                <rd-time-ago value="query.created_at"></rd-time-ago>
+              </strong>
             </div>
             <div class="col-xs-4 text-center">
               <span class="m-r-5">Updated by</span>
               <img ng-src="{{ query.last_modified_by.profile_image_url }}" class="profile__image_thumb">
-              <strong><rd-time-ago value="query.updated_at"></rd-time-ago></strong>
+              <strong>
+                <rd-time-ago value="query.updated_at"></rd-time-ago>
+              </strong>
             </div>
             <div class="col-xs-4 text-right">
               <span class="query-metadata__property"></span> Refresh Schedule</span>
@@ -198,18 +213,17 @@
                 <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'processing'">
                   Executing query&hellip;
                   <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
-                    ng-click="cancelExecution()">Cancel
+                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
                 <div class="alert alert-info m-t-15" ng-show="queryResult.getStatus() == 'waiting'">
                   Query in queue&hellip;
                   <rd-timer timestamp="queryResult.getUpdatedAt()"></rd-timer>
-                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling"
-                    ng-click="cancelExecution()">Cancel
+                  <button type="button" class="btn btn-warning btn-xs pull-right" ng-disabled="cancelling" ng-click="cancelExecution()">Cancel
                   </button>
                 </div>
-                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">Error running query: <strong>{{queryResult.getError()}}</strong>
+                <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">Error running query:
+                  <strong>{{queryResult.getError()}}</strong>
                 </div>
               </div>
               <!-- End of Query Execution Status -->
@@ -224,9 +238,14 @@
                   <ul class="tab-nav">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
-                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))"> <i class="zmdi zmdi-close"></i></span>
+                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
+                        <i class="zmdi zmdi-close"></i>
+                      </span>
                     </rd-tab>
-                    <li class="rd-tab tab-new-vis"><a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit"><i class="zmdi zmdi-plus"></i> New Visualization</a></li>
+                    <li class="rd-tab tab-new-vis">
+                      <a ng-click="openVisualizationEditor()" class="btn btn-default" ng-if="canEdit">
+                        <i class="zmdi zmdi-plus"></i> New Visualization</a>
+                    </li>
                   </ul>
                   <div ng-if="!query.visualizations.length" class="query__vis m-t-15 p-b-15 scrollbox">
                     <filters filters="filters"></filters>
@@ -245,13 +264,15 @@
       <div class="bottom-controller-container">
         <div class="bottom-controller">
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
-          <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><i class="zmdi zmdi-code"></i> Embed</button>
+          <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()">
+            <i class="zmdi zmdi-code"></i> Embed</button>
 
           <div class="m-r-5 btn-group dropup" uib-dropdown>
-            <button type="button" class="btn btn-default dropup-toggle"
-              ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
+            <button type="button" class="btn btn-default dropup-toggle" ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
               uib-dropdown-toggle aria-expanded="false">
-              Download <span class="hidden-xs">Dataset </span><span class="caret"></span>
+              Download
+              <span class="hidden-xs">Dataset </span>
+              <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" ng-class="{'pull-right': !query.isNew()}" uib-dropdown-menu>
               <li>
@@ -268,19 +289,29 @@
           </div>
 
           <span class="query-metadata__bottom" ng-if="queryResult.getData()">
-            <span class="query-metadata__property"><strong>{{queryResult.getData().length}}</strong><ng-pluralize count="queryResult.getData().length"
-              when="{'0': ' rows', 'one': ' row', 'other': ' rows'}"></ng-pluralize>
+            <span class="query-metadata__property">
+              <strong>{{queryResult.getData().length}}</strong>
+              <ng-pluralize count="queryResult.getData().length" when="{'0': ' rows', 'one': ' row', 'other': ' rows'}"></ng-pluralize>
             </span>
-            <span class="query-metadata__property"><strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong><span ng-show="queryExecuting">Running&hellip;</span> <span class="hidden-xs">runtime</span></span>
-            <span class="query-metadata__property" ng-if="queryResult.query_result.data.metadata.data_scanned">Data Scanned <strong>{{ queryResult.query_result.data.metadata.data_scanned | prettySize}}</strong></span>
+            <span class="query-metadata__property">
+              <strong ng-show="!queryExecuting">{{queryResult.getRuntime() | durationHumanize}}</strong>
+              <span ng-show="queryExecuting">Running&hellip;</span>
+              <span class="hidden-xs">runtime</span>
+            </span>
+            <span class="query-metadata__property" ng-if="queryResult.query_result.data.metadata.data_scanned">Data Scanned
+              <strong>{{ queryResult.query_result.data.metadata.data_scanned | prettySize}}</strong>
+            </span>
           </span>
 
           <div>
-            <span class="query-metadata__property"><span class="hidden-xs">Updated </span><rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago></span>
+            <span class="query-metadata__property">
+              <span class="hidden-xs">Updated </span>
+              <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
+            </span>
 
-            <button class="m-l-5 btn btn-primary" ng-click="executeQuery()"
-              ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
-              ng-if="!sourceMode"><span class="zmdi zmdi-play"></span>
+            <button class="m-l-5 btn btn-primary" ng-click="executeQuery()" ng-disabled="queryExecuting || !canExecuteQuery()" title="Refresh Dataset"
+              ng-if="!sourceMode">
+              <span class="zmdi zmdi-play"></span>
             </button>
           </div>
         </div>
