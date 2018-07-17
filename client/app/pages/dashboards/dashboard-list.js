@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isString, extend } from 'lodash';
 
 import { LivePaginator } from '@/lib/pagination';
 import template from './dashboard-list.html';
@@ -36,10 +36,11 @@ function DashboardListCtrl($scope, currentUser, $location, Dashboard) {
       tags: [...this.selectedTags], // convert Set to Array
     });
 
-    if (_.isString(this.searchText) && this.searchText !== '') {
+    if (isString(this.searchText) && this.searchText !== '') {
       request.q = this.searchText;
     }
 
+    this.loaded = false;
     return this.resource(request).$promise.then((data) => {
       this.loaded = true;
       const rows = data.results.map(d => new Dashboard(d));
@@ -77,7 +78,7 @@ export default function init(ngModule) {
   };
 
   return {
-    '/dashboards': _.extend(
+    '/dashboards': extend(
       {
         title: 'Dashboards',
         resolve: {
@@ -91,7 +92,7 @@ export default function init(ngModule) {
       },
       route,
     ),
-    '/dashboards/favorite': _.extend(
+    '/dashboards/favorite': extend(
       {
         title: 'Favorite Dashboards',
         resolve: {
