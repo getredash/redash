@@ -1,5 +1,6 @@
 import { pick, some, find, minBy, isObject } from 'lodash';
 import { SCHEMA_NOT_SUPPORTED, SCHEMA_LOAD_ERROR } from '@/services/data-source';
+import { getTags } from '@/services/tags';
 import template from './query.html';
 
 const DEFAULT_TAB = 'table';
@@ -10,7 +11,6 @@ function QueryViewCtrl(
   $route,
   $routeParams,
   $location,
-  $window,
   $q,
   KeyboardShortcuts,
   Title,
@@ -185,6 +185,16 @@ function QueryViewCtrl(
     });
   };
 
+  $scope.saveTags = () =>
+    $scope.saveQuery(
+      {},
+      {
+        tags: $scope.query.tags,
+      },
+    );
+
+  $scope.loadTags = () => getTags('api/queries/tags');
+
   $scope.saveQuery = (customOptions, data) => {
     let request = data;
 
@@ -299,13 +309,16 @@ function QueryViewCtrl(
     $scope.query.latest_query_data_id = null;
 
     if ($scope.query.id) {
-      Query.save({
-        id: $scope.query.id,
-        data_source_id: $scope.query.data_source_id,
-        latest_query_data_id: null,
-      }, (updatedQuery) => {
-        $scope.query.version = updatedQuery.version;
-      });
+      Query.save(
+        {
+          id: $scope.query.id,
+          data_source_id: $scope.query.data_source_id,
+          latest_query_data_id: null,
+        },
+        (updatedQuery) => {
+          $scope.query.version = updatedQuery.version;
+        },
+      );
     }
 
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);

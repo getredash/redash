@@ -2,6 +2,7 @@ from tests import BaseTestCase
 from redash import models
 from redash.models import db
 
+from redash.serializers import serialize_query
 from redash.permissions import ACCESS_TYPE_MODIFY
 
 
@@ -12,8 +13,9 @@ class TestQueryResourceGet(BaseTestCase):
         rv = self.make_request('get', '/api/queries/{0}'.format(query.id))
 
         self.assertEquals(rv.status_code, 200)
-        expected = query.to_dict(with_visualizations=True)
+        expected = serialize_query(query, with_visualizations=True)
         expected['can_edit'] = True
+        expected['is_favorite'] = False
         self.assertResponseEqual(expected, rv.json)
 
     def test_get_all_queries(self):
@@ -103,6 +105,34 @@ class TestQueryResourcePost(BaseTestCase):
         self.assertEqual(rv.json['name'], 'Testing')
         self.assertEqual(rv.json['last_modified_by']['id'], user.id)
 
+class TestQueryListResourceGet(BaseTestCase):
+    def test_returns_queries(self):
+        q1 = self.factory.create_query()
+        q2 = self.factory.create_query()
+        q3 = self.factory.create_query()
+
+        rv = self.make_request('get', '/api/queries')
+
+        assert len(rv.json['results']) == 3
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id, q3.id])
+    
+    def test_filters_with_tags(self):
+        q1 = self.factory.create_query(tags=[u'test'])
+        q2 = self.factory.create_query()
+        q3 = self.factory.create_query()
+
+        rv = self.make_request('get', '/api/queries?tags=test')
+        assert len(rv.json['results']) == 1
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id])
+    
+    def test_search_term(self):
+        q1 = self.factory.create_query(name="Sales")
+        q2 = self.factory.create_query(name="Q1 sales")
+        q3 = self.factory.create_query(name="Ops")
+
+        rv = self.make_request('get', '/api/queries?q=sales')
+        assert len(rv.json['results']) == 2
+        assert set(map(lambda d: d['id'], rv.json['results'])) == set([q1.id, q2.id])
 
 class TestQueryListResourcePost(BaseTestCase):
     def test_create_query(self):
@@ -199,3 +229,4 @@ WHERE x=1
         rv = self.make_request('post', '/api/queries/format', user=admin, data={'query': query})
 
         self.assertEqual(rv.json['query'], expected)
+

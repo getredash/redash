@@ -3,6 +3,7 @@ import json
 from flask import request
 from redash import models
 from redash.handlers.base import BaseResource
+from redash.serializers import serialize_widget
 from redash.permissions import (require_access,
                                 require_object_modify_permission,
                                 require_permission, view_only)
@@ -44,7 +45,7 @@ class WidgetListResource(BaseResource):
         models.db.session.commit()
 
         models.db.session.commit()
-        return widget.to_dict()
+        return serialize_widget(widget)
 
 
 class WidgetResource(BaseResource):
@@ -64,7 +65,7 @@ class WidgetResource(BaseResource):
         widget.text = widget_properties['text']
         widget.options = json.dumps(widget_properties['options'])
         models.db.session.commit()
-        return widget.to_dict()
+        return serialize_widget(widget)
 
     @require_permission('edit_dashboard')
     def delete(self, widget_id):
