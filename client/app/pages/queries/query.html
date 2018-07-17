@@ -73,7 +73,7 @@
     </div>
   </div>
   <main class="query-fullscreen">
-    <nav resizable r-directions="['right']" r-flex="true" resizable-toggle>
+    <nav resizable r-directions="['right']" r-flex="true" resizable-toggle toggle-shortcut="Alt+Shift+D, Alt+D">
       <div class="editor__left__data-source">
         <ui-select ng-model="query.data_source_id" remove-selected="false" ng-disabled="!isQueryOwner || !sourceMode" on-select="updateDataSource()">
           <ui-select-match placeholder="Select Data Source...">{{$select.selected.name}}</ui-select-match>
@@ -137,8 +137,9 @@
     <div class="content">
       <div class="flex-fill p-relative">
         <div class="p-absolute d-flex flex-column p-l-15 p-r-15" style="left: 0; top: 0; right: 0; bottom: 0;">
-          <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle style="min-height: 11px; max-height: 70vh;"
-            ng-if="sourceMode">
+          <div class="row editor" resizable r-directions="['bottom']" r-flex="true"
+            resizable-toggle toggle-shortcut="Alt+D"
+            style="min-height: 11px; max-height: 70vh;" ng-if="sourceMode">
             <section>
 
               <div class="container p-15 m-b-10" style="height:100%;">
