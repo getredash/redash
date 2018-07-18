@@ -28,6 +28,7 @@ from redash.settings.organization import settings as org_settings
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import backref, contains_eager, joinedload, object_session
@@ -1084,6 +1085,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
             return {}
 
         return self.data_source.groups
+
+    @hybrid_property
+    def lowercase_name(self):
+        "Optional property useful for sorting purposes."
+        return self.name.lower()
+
+    @lowercase_name.expression
+    def lowercase_name(cls):
+        "The SQLAlchemy expression for the property above."
+        return func.lower(cls.name)
 
     def __unicode__(self):
         return unicode(self.id)
