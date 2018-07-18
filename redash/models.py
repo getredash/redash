@@ -9,8 +9,6 @@ import json
 import logging
 import time
 
-from funcy import project
-
 import xlsxwriter
 from flask import current_app as app, url_for
 from flask_login import AnonymousUserMixin, UserMixin
@@ -32,7 +30,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.mutable import Mutable
 from sqlalchemy.inspection import inspect
-from sqlalchemy.orm import backref, joinedload, object_session
+from sqlalchemy.orm import backref, contains_eager, joinedload, object_session
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
@@ -41,8 +39,6 @@ from sqlalchemy import func
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.types import TSVectorType
-from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship
 
 
 class SQLAlchemyExt(SQLAlchemy):
@@ -527,7 +523,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     @classmethod
     def all(cls, org):
         return cls.query.filter(cls.org == org)
-    
+
     @classmethod
     def all_not_disabled(cls, org):
         return cls.all(org).filter(cls.disabled_at == None)
@@ -944,19 +940,26 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
                 .options(joinedload(Query.user),
                          joinedload(Query.latest_query_data).load_only('runtime', 'retrieved_at'))
                 .filter(cls.id.in_(query_ids))
+                # Adding outer joins to be able to order by relationship
+                .outerjoin(User, User.id == Query.user_id)
+                .outerjoin(QueryResult, QueryResult.id == Query.latest_query_data_id)
+                .options(
+                    contains_eager(Query.user),
+                    contains_eager(Query.latest_query_data),
+                )
                 .order_by(Query.created_at.desc()))
 
         if not drafts:
             q = q.filter(or_(Query.is_draft == False, Query.user_id == user_id))
 
         return q
-    
+
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query == None:
             base_query = cls.all_queries(user.group_ids, user.id, drafts=True)
         return base_query.join((Favorite, and_(Favorite.object_type==u'Query', Favorite.object_id==Query.id))).filter(Favorite.user_id==user.id)
-    
+
     @classmethod
     def all_tags(cls, user, include_drafts=False):
         where = cls.is_archived == False
@@ -1123,13 +1126,13 @@ class Favorite(TimestampMixin, db.Model):
     @classmethod
     def is_favorite(cls, user, object):
         return cls.query.filter(cls.object == object, cls.user_id == user).count() > 0
-    
+
     @classmethod
     def are_favorites(cls, user, objects):
         objects = list(objects)
         if not objects:
             return []
-        
+
         object_type = six.text_type(objects[0].__class__.__name__)
         return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type == object_type, cls.user_id == user))
 
@@ -1355,7 +1358,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def search(cls, org, groups_ids, user_id, search_term):
         # TODO: switch to FTS
         return cls.all(org, groups_ids, user_id).filter(cls.name.ilike('%{}%'.format(search_term)))
-    
+
     @classmethod
     def all_tags(cls, org, user):
         tag_column = func.unnest(cls.tags).label('tag')
@@ -1413,7 +1416,7 @@ class Visualization(TimestampMixin, db.Model):
 
     def __unicode__(self):
         return u"%s %s" % (self.id, self.type)
-    
+
     def copy(self):
         return {
             'type': self.type,
