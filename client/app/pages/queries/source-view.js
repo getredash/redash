@@ -32,7 +32,7 @@ function QuerySourceCtrl(
         $scope.saveQuery();
       }
     },
-    'shift+alt+p': () => {
+    'ctrl+p': () => {
       $scope.addNewParameter();
     },
   };
@@ -84,7 +84,8 @@ function QuerySourceCtrl(
         existingParameters: () => map($scope.query.getParameters().get(), p => p.name),
       },
     }).result.then((param) => {
-      $rootScope.$broadcast('query-editor.paste', '{{ ' + param.name + ' }}');
+      $rootScope.$broadcast('query-editor.command', 'paste', '{{ ' + param.name + ' }}');
+      $rootScope.$broadcast('query-editor.command', 'focus');
       $scope.query.getParameters().add(param);
     });
   };
