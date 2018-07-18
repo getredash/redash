@@ -43,13 +43,24 @@ function queryEditor(QuerySnippet, $timeout) {
             autoScrollEditorIntoView: true,
           },
           onLoad(editor) {
-            $scope.$on('query-editor.paste', ($event, text) => {
-              editor.session.doc.replace(editor.selection.getRange(), text);
-              const range = editor.selection.getRange();
-              $scope.query.query = editor.session.getValue();
-              $timeout(() => {
-                editor.selection.setRange(range);
-              });
+            $scope.$on('query-editor.command', ($event, command, ...args) => {
+              switch (command) {
+                case 'focus': {
+                  editor.focus();
+                  break;
+                }
+                case 'paste': {
+                  const [text] = args;
+                  editor.session.doc.replace(editor.selection.getRange(), text);
+                  const range = editor.selection.getRange();
+                  $scope.query.query = editor.session.getValue();
+                  $timeout(() => {
+                    editor.selection.setRange(range);
+                  });
+                  break;
+                }
+                default: break;
+              }
             });
 
             // Release Cmd/Ctrl+L to the browser
