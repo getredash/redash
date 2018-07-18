@@ -140,11 +140,9 @@ class Parameters {
   }
 
   add(parameterDef) {
-    if (isObject(parameterDef)) {
-      this.query.options.parameters = this.query.options.parameters
-        .filter(p => p.name !== parameterDef.name);
-      this.query.options.parameters.push(new Parameter(parameterDef));
-    }
+    this.query.options.parameters = this.query.options.parameters
+      .filter(p => p.name !== parameterDef.name);
+    this.query.options.parameters.push(new Parameter(parameterDef));
   }
 
   getMissing() {

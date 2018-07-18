@@ -1,7 +1,11 @@
-import { find, includes } from 'lodash';
+import { find, includes, words, capitalize } from 'lodash';
 import template from './parameters.html';
 import queryBasedParameterTemplate from './query-based-parameter.html';
 import parameterSettingsTemplate from './parameter-settings.html';
+
+function humanize(str) {
+  return capitalize(words(str).join(' '));
+}
 
 const ParameterSettingsComponent = {
   template: parameterSettingsTemplate,
@@ -16,6 +20,7 @@ const ParameterSettingsComponent = {
     this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
     this.isNewParameter = this.parameter.name === '';
+    this.shouldGenerateTitle = this.isNewParameter && (this.parameter.title === '');
 
     this.parameterAlreadyExists = name => includes(this.resolve.existingParameters, name);
 
@@ -33,6 +38,12 @@ const ParameterSettingsComponent = {
       Query.search({ q: term }, (results) => {
         this.queries = results;
       });
+    };
+
+    this.updateTitle = () => {
+      if (this.shouldGenerateTitle) {
+        this.parameter.title = humanize(this.parameter.name);
+      }
     };
   },
 };

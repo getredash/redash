@@ -8,7 +8,7 @@
     <div class="form-group" ng-if="$ctrl.isNewParameter"
       ng-class="{'has-error': $ctrl.parameterAlreadyExists($ctrl.parameter.name)}">
       <label>Keyword</label>
-      <input type="text" class="form-control" ng-model="$ctrl.parameter.name">
+      <input type="text" class="form-control" ng-model="$ctrl.parameter.name" autofocus ng-change="$ctrl.updateTitle()">
       <div class="help-block" ng-if="!$ctrl.parameterAlreadyExists($ctrl.parameter.name)">
         This is what will be added to your query editor<span ng-if="$ctrl.parameter.name != ''">:
           \{\{&nbsp;{{ $ctrl.parameter.name }}&nbsp;\}\}</span>
@@ -19,7 +19,7 @@
     </div>
     <div class="form-group">
       <label>Title</label>
-      <input type="text" class="form-control" ng-model="$ctrl.parameter.title">
+      <input type="text" class="form-control" ng-model="$ctrl.parameter.title" ng-change="$ctrl.shouldGenerateTitle = false">
     </div>
     <div class="form-group">
       <label>Type</label>
