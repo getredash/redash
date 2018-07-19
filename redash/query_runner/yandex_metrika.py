@@ -125,7 +125,7 @@ class YandexMetrika(BaseSQLQueryRunner):
             error = "Query is empty"
             return data, error
         try:
-            params = yaml.load(query)
+            params = yaml.safe_load(query)
         except ValueError as e:
             logging.exception(e)
             error = unicode(e)
