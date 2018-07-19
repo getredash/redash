@@ -116,17 +116,23 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
       // while widget is refreshing, `this.data` !== `this.queryResult`
 
       if (force || (this.queryResult === undefined)) {
+        this.loading = true;
+        this.refreshStartedAt = moment();
+
         if (maxAge === undefined || force) {
           maxAge = force ? 0 : undefined;
         }
         this.queryResult = this.getQuery().getQueryResult(maxAge);
-        this.loading = true;
-        this.refreshStartedAt = moment();
 
-        this.queryResult.toPromise().finally(() => {
-          this.loading = false;
-          this.data = this.queryResult;
-        });
+        this.queryResult.toPromise()
+          .then((result) => {
+            this.loading = false;
+            this.data = result;
+          })
+          .catch((error) => {
+            this.loading = false;
+            this.data = error;
+          });
       }
 
       return this.queryResult.toPromise();
