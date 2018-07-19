@@ -48,38 +48,25 @@ def _guess_type(value):
     return TYPE_STRING
 
 
-def _value_eval_list(value):
+def _value_eval_list(row_values, col_types):
     value_list = []
-    for member in value:
-        if member == '' or member is None:
-            val = None
-            value_list.append(val)
-            continue
+    raw_values = zip(col_types, row_values)
+    for typ, rval in raw_values:
         try:
-            val = int(member)
-            value_list.append(val)
-            continue
-        except ValueError:
-            pass
-        try:
-            val = float(member)
-            value_list.append(val)
-            continue
-        except ValueError:
-            pass
-        if unicode(member).lower() in ('true', 'false'):
-            if unicode(member).lower() == 'true':
-                value_list.append(True)
+            if typ == TYPE_BOOLEAN:
+                val = True if unicode(rval).lower() == 'true' else False
+            elif typ == TYPE_DATETIME:
+                val = parser.parse(rval)
+            elif typ == TYPE_FLOAT:
+                val = float(rval)
+            elif typ == TYPE_INTEGER:
+                val = int(rval)
             else:
-                value_list.append(False)
-            continue
-        try:
-            val = parser.parse(member)
+                # for TYPE_STRING and default
+                val = unicode(rval)
             value_list.append(val)
-            continue
         except (ValueError, OverflowError):
-            pass
-        value_list.append(member)
+            value_list.append(rval)
     return value_list
 
 
@@ -124,7 +111,8 @@ def parse_worksheet(worksheet):
         for j, value in enumerate(worksheet[HEADER_INDEX + 1]):
             columns[j]['type'] = _guess_type(value)
 
-    rows = [dict(zip(column_names, _value_eval_list(row))) for row in worksheet[HEADER_INDEX + 1:]]
+    column_types = [c['type'] for c in columns]
+    rows = [dict(zip(column_names, _value_eval_list(row, column_types))) for row in worksheet[HEADER_INDEX + 1:]]
     data = {'columns': columns, 'rows': rows}
 
     return data
