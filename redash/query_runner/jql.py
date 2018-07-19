@@ -178,7 +178,7 @@ class JiraJQL(BaseQueryRunner):
         jql_url = '{}/rest/api/2/search'.format(self.configuration["url"])
 
         try:
-            query = yaml.load(query)
+            query = yaml.safe_load(query)
             query_type = query.pop('queryType', 'select')
             field_mapping = FieldMapping(query.pop('fieldMapping', {}))
 

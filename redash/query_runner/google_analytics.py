@@ -150,7 +150,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         query = query.strip()
         if query.startswith('{') or query.startswith('---'):
             try:
-                params = yaml.load(query)
+                params = yaml.safe_load(query)
             except yaml.YAMLError as e:
                 if hasattr(e, 'problem_mark'):
                     mark = e.problem_mark

@@ -72,7 +72,7 @@ def datetime_parser(dct):
 
 
 def parse_query_yaml(query):
-    query_data = yaml.load(query)
+    query_data = yaml.safe_load(query)
     # HACK: round trip to JSON so we can handle object_hook easily
     query_data = json.loads(json.dumps(query_data), object_hook=datetime_parser)
     return query_data

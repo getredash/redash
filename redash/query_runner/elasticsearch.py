@@ -318,7 +318,7 @@ class Kibana(BaseElasticSearch):
             error = None
 
             logger.debug(query)
-            query_params = yaml.load(query)
+            query_params = yaml.safe_load(query)
 
             index_name = query_params["index"]
             query_data = query_params["query"]
