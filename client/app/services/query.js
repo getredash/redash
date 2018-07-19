@@ -143,7 +143,7 @@ class Parameters {
   }
 }
 
-function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
+function QueryResultErrorFactory($q) {
   class QueryResultError {
     constructor(errorMessage) {
       this.errorMessage = errorMessage;
@@ -159,7 +159,7 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     }
 
     toPromise() {
-      return $q.reject(this.getError());
+      return $q.reject(this);
     }
 
     // eslint-disable-next-line class-methods-use-this
@@ -183,6 +183,18 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
     }
   }
 
+  return QueryResultError;
+}
+
+function QueryResource(
+  $resource,
+  $http,
+  $location,
+  $q,
+  currentUser,
+  QueryResultError,
+  QueryResult,
+) {
   const Query = $resource(
     'api/queries/:id',
     { id: '@id' },
@@ -397,5 +409,6 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
 }
 
 export default function init(ngModule) {
+  ngModule.factory('QueryResultError', QueryResultErrorFactory);
   ngModule.factory('Query', QueryResource);
 }

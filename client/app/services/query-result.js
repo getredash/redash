@@ -52,7 +52,7 @@ function addPointToSeries(point, seriesCollection, seriesName) {
 }
 
 
-function QueryResultService($resource, $timeout, $q) {
+function QueryResultService($resource, $timeout, $q, QueryResultError) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const statuses = {
@@ -61,6 +61,22 @@ function QueryResultService($resource, $timeout, $q) {
     3: 'done',
     4: 'failed',
   };
+
+  function handleErrorResponse(queryResult, response) {
+    if (response.status === 403) {
+      queryResult.update(response.data);
+    } else if (response.status === 400 && 'job' in response.data) {
+      queryResult.update(response.data);
+    } else {
+      logger('Unknown error', response);
+      queryResult.update({
+        job: {
+          error: 'unknown error occurred. Please try again later.',
+          status: 4,
+        },
+      });
+    }
+  }
 
   class QueryResult {
     constructor(props) {
@@ -73,7 +89,7 @@ function QueryResultService($resource, $timeout, $q) {
 
       this.updatedAt = moment();
 
-      // exteded status flags
+      // extended status flags
       this.isLoadingResult = false;
 
       if (props) {
@@ -135,7 +151,7 @@ function QueryResultService($resource, $timeout, $q) {
         this.status = 'processing';
       } else if (this.job.status === 4) {
         this.status = statuses[this.job.status];
-        this.deferred.reject(this.job.error);
+        this.deferred.reject(new QueryResultError(this.job.error));
       } else {
         this.status = undefined;
       }
@@ -427,15 +443,10 @@ function QueryResultService($resource, $timeout, $q) {
         // Success handler
         queryResult.isLoadingResult = false;
         queryResult.update(response);
-      }, (response) => {
+      }, (error) => {
         // Error handler
         queryResult.isLoadingResult = false;
-        queryResult.update({
-          job: {
-            error: response.data.message,
-            status: 4,
-          },
-        });
+        handleErrorResponse(queryResult, error);
       });
 
       return queryResult;
@@ -517,14 +528,7 @@ function QueryResultService($resource, $timeout, $q) {
           queryResult.refreshStatus(query);
         }
       }, (error) => {
-        if (error.status === 403) {
-          queryResult.update(error.data);
-        } else if (error.status === 400 && 'job' in error.data) {
-          queryResult.update(error.data);
-        } else {
-          logger('Unknown error', error);
-          queryResult.update({ job: { error: 'unknown error occurred. Please try again later.', status: 4 } });
-        }
+        handleErrorResponse(queryResult, error);
       });
 
       return queryResult;
