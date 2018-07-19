@@ -5,8 +5,6 @@ import re
 
 from dateutil.parser import parse
 
-import yaml
-
 from redash.query_runner import *
 from redash.utils import JSONEncoder, parse_human_time
 
@@ -71,13 +69,6 @@ def datetime_parser(dct):
     return bson_object_hook(dct)
 
 
-def parse_query_yaml(query):
-    query_data = yaml.safe_load(query)
-    # HACK: round trip to JSON so we can handle object_hook easily
-    query_data = json.loads(json.dumps(query_data), object_hook=datetime_parser)
-    return query_data
-
-
 def _get_column_by_name(columns, column_name):
     for c in columns:
         if "name" in c and c["name"] == column_name:
@@ -119,6 +110,11 @@ def parse_results(results):
         rows.append(parsed_row)
 
     return rows, columns
+
+
+def parse_dates(query_data):
+    # HACK: round trip to JSON so we can handle object_hook easily
+    return json.loads(json.dumps(query_data), object_hook=datetime_parser)
 
 
 class MongoDB(BaseQueryRunner):
@@ -219,17 +215,7 @@ class MongoDB(BaseQueryRunner):
         logger.debug("mongodb connection string: %s", self.configuration['connectionString'])
         logger.debug("mongodb got query: %s", query)
 
-        try:
-            query_data = parse_query_yaml(query)
-        except yaml.YAMLError as e:
-            if hasattr(e, 'problem_mark'):
-                mark = e.problem_mark
-                error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
-            else:
-                error = "Syntax error: {}".format(e)
-            return None, error
-        except Exception as e:
-            return None, str(e)
+        query_data = parse_dates(self.parse_query(query))
 
         if "collection" not in query_data:
             return None, "'collection' must have a value to run a query"

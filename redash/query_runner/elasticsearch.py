@@ -4,7 +4,6 @@ import urllib
 
 import requests
 import simplejson as json
-import yaml
 from requests.auth import HTTPBasicAuth
 
 from redash.query_runner import *
@@ -318,7 +317,7 @@ class Kibana(BaseElasticSearch):
             error = None
 
             logger.debug(query)
-            query_params = yaml.safe_load(query)
+            query_params = self.parse_query(query)
 
             index_name = query_params["index"]
             query_data = query_params["query"]
@@ -376,13 +375,6 @@ class Kibana(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except yaml.YAMLError as e:
-            if hasattr(e, 'problem_mark'):
-                mark = e.problem_mark
-                error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
-            else:
-                error = "Syntax error: {}".format(e)
-            json_data = None
         except Exception as e:
             logger.exception(e)
             raise sys.exc_info()[1], None, sys.exc_info()[2]
@@ -412,7 +404,7 @@ class ElasticSearch(BaseElasticSearch):
             error = None
 
             logger.debug(query)
-            query_dict = json.loads(query)
+            query_dict = self.parse_query(query)
 
             index_name = query_dict.pop("index", "")
             result_fields = query_dict.pop("result_fields", None)
@@ -454,13 +446,6 @@ class ElasticSearch(BaseElasticSearch):
         except requests.exceptions.RequestException as e:
             logger.exception(e)
             error = "Connection refused"
-            json_data = None
-        except yaml.YAMLError as e:
-            if hasattr(e, 'problem_mark'):
-                mark = e.problem_mark
-                error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
-            else:
-                error = "Syntax error: {}".format(e)
             json_data = None
         except Exception as e:
             logger.exception(e)

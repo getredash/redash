@@ -6,8 +6,6 @@ from base64 import b64decode
 from datetime import datetime
 from urlparse import parse_qs, urlparse
 
-import yaml
-
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
@@ -149,15 +147,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
         logger.debug("Analytics is about to execute query: %s", query)
         query = query.strip()
         if query.startswith('{') or query.startswith('---'):
-            try:
-                params = yaml.safe_load(query)
-            except yaml.YAMLError as e:
-                if hasattr(e, 'problem_mark'):
-                    mark = e.problem_mark
-                    error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
-                else:
-                    error = "Syntax error: {}".format(e)
-                return None, error
+            params = self.parse_query(query)
         else:
             params = parse_qs(urlparse(query).query, keep_blank_values=True)
             for key in params.keys():

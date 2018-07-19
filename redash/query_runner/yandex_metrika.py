@@ -1,5 +1,4 @@
 import json
-import yaml
 import logging
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -124,13 +123,8 @@ class YandexMetrika(BaseSQLQueryRunner):
         if query == "":
             error = "Query is empty"
             return data, error
-        try:
-            params = yaml.safe_load(query)
-        except ValueError as e:
-            logging.exception(e)
-            error = unicode(e)
-            return data, error
 
+        params = self.parse_query(query)
         if isinstance(params, dict):
             if 'url' in params:
                 params = parse_qs(urlparse(params['url']).query, keep_blank_values=True)

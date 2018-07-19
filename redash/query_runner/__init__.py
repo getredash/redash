@@ -1,6 +1,7 @@
 import sys
 import logging
 import json
+import yaml
 
 from collections import OrderedDict
 from redash import settings
@@ -83,6 +84,21 @@ class BaseQueryRunner(object):
 
         if error is not None:
             raise Exception(error)
+
+    def parse_query(self, query, syntax=None):
+        syntax = syntax if syntax else self.syntax
+        if syntax in ('json', 'yaml'):
+            try:
+                query = yaml.safe_load(query)
+            except yaml.YAMLError as e:
+                if hasattr(e, 'problem_mark'):
+                    mark = e.problem_mark
+                    error = "Syntax error at {}:{}: {}".format(mark.line+1, mark.column+1, e.problem)
+                else:
+                    error = "Syntax error: {}".format(e)
+                raise SyntaxError(error)
+
+        return query
 
     def run_query(self, query, user):
         raise NotImplementedError()

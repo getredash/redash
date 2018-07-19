@@ -1,13 +1,12 @@
 import datetime
-import json
 from unittest import TestCase
 from pytz import utc
-from redash.query_runner.mongodb import parse_query_yaml, parse_results, _get_column_by_name
+from redash.query_runner.mongodb import parse_dates, parse_results, _get_column_by_name
 
 from redash.utils import parse_human_time
 
 
-class TestParseQueryJson(TestCase):
+class TestParseQueryDates(TestCase):
     def test_ignores_non_isodate_fields(self):
         query = {
             'test': 1,
@@ -18,7 +17,7 @@ class TestParseQueryJson(TestCase):
             }
         }
 
-        query_data = parse_query_yaml(json.dumps(query))
+        query_data = parse_dates(query)
         self.assertDictEqual(query_data, query)
 
     def test_parses_isodate_fields(self):
@@ -32,7 +31,7 @@ class TestParseQueryJson(TestCase):
             'testIsoDate': "ISODate(\"2014-10-03T00:00\")"
         }
 
-        query_data = parse_query_yaml(json.dumps(query))
+        query_data = parse_dates(query)
 
         self.assertEqual(query_data['testIsoDate'], datetime.datetime(2014, 10, 3, 0, 0))
 
@@ -49,7 +48,7 @@ class TestParseQueryJson(TestCase):
             'testIsoDate': "ISODate(\"2014-10-03T00:00\")"
         }
 
-        query_data = parse_query_yaml(json.dumps(query))
+        query_data = parse_dates(query)
 
         self.assertEqual(query_data['testIsoDate'], datetime.datetime(2014, 10, 3, 0, 0))
         self.assertEqual(query_data['test_dict']['b']['date'], datetime.datetime(2014, 10, 4, 0, 0))
@@ -71,7 +70,7 @@ class TestParseQueryJson(TestCase):
             ]
         }
 
-        query_data = parse_query_yaml(json.dumps(query))
+        query_data = parse_dates(query)
 
         self.assertDictEqual(query, query_data)
 
@@ -91,7 +90,7 @@ class TestParseQueryJson(TestCase):
                 '$undefined': None
             }
         }
-        query_data = parse_query_yaml(json.dumps(query))
+        query_data = parse_dates(query)
         self.assertEqual(query_data['test$undefined'], None)
         self.assertEqual(query_data['test$date'], datetime.datetime(2014, 10, 3, 0, 0).replace(tzinfo=utc))
 
@@ -101,7 +100,7 @@ class TestParseQueryJson(TestCase):
         }
 
         one_hour_ago = parse_human_time("1 hour ago")
-        query_data = parse_query_yaml(json.dumps(query))
+        query_data = parse_dates(query)
         self.assertEqual(query_data['ts'], one_hour_ago)
 
 
