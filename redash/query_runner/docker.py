@@ -296,6 +296,7 @@ class Docker(BaseQueryRunner):
             return None, unicode(e)
 
         finally:
+            # Clean up but ignore if the container does not exists
             try:
                 container.remove(force=True)
             except requests.exceptions.HTTPError as e:
