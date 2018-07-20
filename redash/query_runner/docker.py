@@ -28,7 +28,10 @@ import csv
 import requests
 import dateutil
 
-from redash.query_runner import BaseQueryRunner, register
+from redash.query_runner import BaseQueryRunner, register, \
+                                TYPE_INTEGER, TYPE_FLOAT, TYPE_DATETIME, \
+                                TYPE_STRING, TYPE_BOOLEAN
+
 
 try:
     import docker
@@ -76,20 +79,22 @@ def normalize_data_mut(data):
         name = column['name']
         parts = name.split(':', 1)
 
-        if 'friendly_name' not in column:
-            column['friendly_name'] = parts[0].replace('_', ' ').title()
-        if 'type' not in column:
-            if len(parts) == 2:
-                column['type'] = parts[1]
-            else:
-                column['type'] = guess_type([r.get(name) for r in data['rows']])
-
-        if parts[0] != name:
-            column['name'] = parts[0]
-            for row in data['rows']:
-                row[parts[0]] = row.get(name)
+        # Cast to string and remove type hint
+        column['name'] = parts[0]
+        for row in data['rows']:
+            row[parts[0]] = unicode(row.get(name, ''))
+            if name != parts[0]:
                 del row[name]
 
+        name = parts[0]
+        type = parts[1] if len(parts) == 2 else None
+        if type:
+            column['type'] = type
+        elif 'type' not in column:
+            column['type'] = guess_type([r.get(name) for r in data['rows']])
+
+        if 'friendly_name' not in column:
+            column['friendly_name'] = name.replace('_', ' ').title()
 
 def guess_type(values):
     def check(cb, *args):
@@ -99,14 +104,22 @@ def guess_type(values):
         except:
             return False
 
+    def boolstr(v):
+        return v.lower() in ('true', 'false')
+
+    if not filter(len, values):
+        return TYPE_STRING
+
     if all(check(int, x) for x in values):
-        return 'integer'
+        return TYPE_INTEGER
     elif all(check(float, x) for x in values):
-        return 'float'
+        return TYPE_FLOAT
+    elif all(boolstr(x) for x in values):
+        return TYPE_BOOLEAN
     elif all(check(dateutil.parser.parse, x) for x in values):
-        return 'datetime'
+        return TYPE_DATETIME
     else:
-        return 'string'
+        return TYPE_STRING
 
 
 class Docker(BaseQueryRunner):
