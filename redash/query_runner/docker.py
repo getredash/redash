@@ -1,27 +1,32 @@
 """
+Query runner for Docker images.
 
-References:
- - Custom QueryRunner: https://discuss.redash.io/t/creating-a-new-query-runner-data-source-in-redash/347
- - Docker logo: https://www.docker.com/brand-guidelines
- - Docker-py: https://docker-py.readthedocs.io
- - Docker run: https://docs.docker.com/engine/reference/run/
- - Integration AWS ECR Registry: https://aws.amazon.com/blogs/compute/authenticating-amazon-ecr-repositories-for-docker-cli-with-credential-helper/
- - Docker In Docker (without root): https://forums.docker.com/t/mounting-using-var-run-docker-sock-in-a-container-not-running-as-root/34390
- - Docker overhead: https://gist.github.com/antoinerg/040d35cf08ae68cae14e
+Allows to run arbitrary code with the well defined isolation of containers.
 
-TODO:
- - Check if an `exec` approach is feasible without much hassle
- - Explore docker-py lower level API to setup configs and have tighter control
- - Map datasource's extra to HostConfig (https://docs.docker.com/engine/api/v1.18/)
+The communication is done via standard streams using UTF-8 encoding. The
+query is provided over stdin, the results are expected on stdout and any
+errors should be writen to stderr.
+
+Supported formats for providing the results:
+
+ - Json (see https://discuss.redash.io/t/creating-a-new-query-runner-data-source-in-redash/347)
+ - CSV (either with commas or tabs)
+
+Regardless of the format a normalization pass is performed to enrich the
+result with type information based on the column values. It also supports
+deriving a type from the column names by using the `name:type` pattern.
+
 """
 from __future__ import absolute_import
 
-import json
-import logging
 import os
+import logging
+import json
 import shlex
+import csv
 
 import requests
+import dateutil
 
 from redash.query_runner import BaseQueryRunner, register
 
@@ -35,12 +40,81 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def parse_result(result):
+    try:
+        result = result.decode('utf-8')
+    except UnicodeDecodeError as e:
+        raise ValueError(unicode(e))
+
+    result = result.strip()
+    if result.startswith('{'):
+        data = json.loads(result)
+    else:
+        lines = result.split('\n')
+        delimiter = '\t' if '\t' in lines[0] else ','
+        headers, rows = [], []
+        for row in csv.reader(lines, delimiter=delimiter):
+            if not headers:
+                headers = [c.strip() for c in row]
+                continue
+
+            rows.append(
+                {headers[i]: c.strip() for i,c in enumerate(row[:len(headers)])}
+            )
+
+        data = {
+            'columns': [{'name': h} for h in headers],
+            'rows': rows
+        }
+
+    normalize_data_mut(data)
+    return data
+
+
+def normalize_data_mut(data):
+    for column in data['columns']:
+        name = column['name']
+        parts = name.split(':', 1)
+
+        if 'friendly_name' not in column:
+            column['friendly_name'] = parts[0].replace('_', ' ').title()
+        if 'type' not in column:
+            if len(parts) == 2:
+                column['type'] = parts[1]
+            else:
+                column['type'] = guess_type([r.get(name) for r in data['rows']])
+
+        if parts[0] != name:
+            column['name'] = parts[0]
+            for row in data['rows']:
+                row[parts[0]] = row.get(name)
+                del row[name]
+
+
+def guess_type(values):
+    def check(cb, *args):
+        try:
+            cb(*args)
+            return True
+        except:
+            return False
+
+    if all(check(int, x) for x in values):
+        return 'integer'
+    elif all(check(float, x) for x in values):
+        return 'float'
+    elif all(check(dateutil.parser.parse, x) for x in values):
+        return 'datetime'
+    else:
+        return 'string'
+
+
 class Docker(BaseQueryRunner):
 
     @classmethod
     def enabled(cls):
         if not deps_ok:
-            logger.debug(
+            logger.warning(
                 'Disabling Docker query runner. '
                 'Dependencies missing: pip install docker')
             return False
@@ -56,8 +130,7 @@ class Docker(BaseQueryRunner):
                 'Disabling Docker query runner. '
                 'Unable to connect to Docker Daemon at %s: %s',
                 client.api.base_url, ex)
-            # TODO: enabled by default while developing
-            return True
+            return False
 
     @classmethod
     def configuration_schema(cls):
@@ -74,44 +147,56 @@ class Docker(BaseQueryRunner):
                 },
                 "secrets": {
                     "type": "string",
-                    "title": "Environment secrets"
+                    "title": "Environment secrets",
+                    "help": "Place here sensitive environment variables."
                 },
-                "args": {
+                "command": {
                     "type": "string",
-                    "title": "Container arguments"
+                    "title": "Command"
                 },
                 "syntax": {
                     "type": "string",
-                    "title": "Editor syntax"
+                    "title": "Editor syntax",
                 },
                 "test": {
                     "type": "string",
-                    "title": "Test query"
+                    "title": "Test input",
+                    "help": "Use it if your image requires some input to work.",
                 },
                 "extra": {
                     "type": "string",
-                    "title": "Extra Docker options (as JSON)"
+                    "title": "Additional Docker-py options",
+                    "help": "JSON with values to be used for Container.create()"
                 },
             },
-            "order": ["image", "env", "secrets", "args", "syntax", "test", "extra"],
+            "order": ["image", "env", "secrets", "command", "syntax", "test", "extra"],
             "required": ["image"],
-            "secret": ["secrets"]
+            "secret": ["secrets"],
+            "multiline": ["env", "secrets", "test", "extra"],
+            "link": 'https://github.com/getredash/redash/pull/2435/files',
         }
 
-    def __init__(self, configuration):
-        self.configuration = configuration
-        self.syntax = configuration.get('syntax', '')
+    @classmethod
+    def annotate_query(cls):
+        return False
 
-        self.image = configuration['image']
+    def __init__(self, config):
+        self.configuration = config
+        self.syntax = config.get('syntax', '')
 
-        self.args = shlex.split(configuration.get('args', ''))
+        self.image = config['image']
+        self.command = config.get('command', '')
 
-        self.env = self.parse_env(configuration.get('env', ''))
-        self.env.update(self.parse_env(configuration.get('secrets', '')))
+        self.env = self.parse_env(config.get('env', ''))
+        self.env.update(self.parse_env(config.get('secrets', '')))
 
-        self.extra = json.loads(configuration.get('extra', '{}'))
+        self.extra = json.loads(config.get('extra', '{}'))
 
     def parse_env(self, env):
+        # Ensure it's utf-8 data, otherwise the call will fail
+        if isinstance(env, unicode):
+            env = env.encode('utf-8')
+
         pairs = shlex.split(env)
         return dict(x.split('=', 1) for x in pairs)
 
@@ -120,6 +205,8 @@ class Docker(BaseQueryRunner):
             client = docker.from_env()
             client.images.get(self.image)
         except docker.errors.ImageNotFound:
+            logger.info('Image <%s> not found, trying to pull it from repository',
+                        self.image)
             client.images.pull(self.image)
 
         query = self.configuration.get('test', "")
@@ -128,17 +215,15 @@ class Docker(BaseQueryRunner):
             raise Exception(error)
 
     def run_query(self, query, user):
-        logger.warn('Query: %s Extra: %s', query, self.extra)
-
         client = docker.from_env()
         container = client.containers.create(
             self.image,
-            auto_remove=False,  # the container might finish too soon
+            auto_remove=False,  # the container may finish too soon!
             tty=False,
             detach=False,
             stdin_open=True,
             environment=self.env,
-            command=self.args,
+            command=self.command,
             labels={
                 'io.redash.query': query,
                 'io.redash.user.id': unicode(user.id) if user else 'n/a',
@@ -148,64 +233,61 @@ class Docker(BaseQueryRunner):
             **self.extra)
 
         logger.info(
-            'Created container <%s> (%s) from image <%s>',
+            'Running container <%s> (%s) from image <%s>',
             container.name,
             container.id,
             self.configuration['image'])
 
         try:
             container.start()
-            logger.info('Started')
 
+            # Send query via stdin
+            encoded = query.encode('utf-8')
             socket = container.attach_socket(params={'stdin': 1, 'stream': 1})
-
-            # TODO: TLS Docker daemons require a different approach
-            data = query.encode()
-            written = os.write(socket.fileno(), data)
-            if written != len(data):
-                logger.warn('Unable to write the whole data: %s (wanted %s)', written, len(data))
-
+            written = os.write(socket.fileno(), encoded)
+            if written != len(encoded):
+                logger.warn('Unable to write the whole data: %s (wanted %s)', written, len(encoded))
             socket.close()
 
-            logger.info('Query sent')
-
             result = container.wait(timeout=30)  # TODO: Make timeout configurable?
-            logger.info('Waited')
 
-            # TODO: collect both in one call?
-            # FIXME: Both seem to provide the same info
-            stdout = container.logs(stdout=True)
-            logger.info('Logs STDOUT %s', stdout)
-            stderr = container.logs(stderr=True)
-            logger.info('Logs STDERR %s', stderr)
-
-            try:
-                container.remove()
-            except requests.exceptions.HTTPError as e:
-                if e.response.status_code == 404:
-                    pass
-                raise
-            logger.info('Remove')
+            # Right now the demuxing of both streams in a single iterator
+            # is not implemented on docker-py so the only way is to query two
+            # times to get them, but then we loose the ordering.
+            stdout = container.logs(stdout=True, stderr=False)
+            stderr = container.logs(stdout=False, stderr=True)
 
             if result['StatusCode'] != 0:
-                return None, 'Execution terminated with an error {}'.format(result['StatusCode'])
+                if not stderr:
+                    stderr = stdout
 
-            # TODO: parse stdout JSON
-            return None, stdout
+                lines = stderr.split('\n')
+                stderr = '\n'.join(lines[-15:])
+
+                logger.warn('Logs: %s', stderr)
+                return None, 'Execution terminated with an error ({}):\n{}'.format(result['StatusCode'], stderr)
+
+            try:
+                data = parse_result(stdout)
+            except ValueError:
+                logger.warn('Malformed result: %s', stdout)
+                return None, 'Malformed result:\n{}'.format(stdout)
+
+            return json.dumps(data, separators=(',',':')), None
 
         except requests.exceptions.ReadTimeout:
             logger.warn('Timeout waiting for <%s>, forcing removal', container.id)
-            try:
-                container.remove(force=True)
-            except requests.exceptions.HTTPError as e:
-                if e.response.status_code == 404:
-                    pass
-                return None, unicode(e)
-
             return None, 'Timeout waiting for execution to end'
         except Exception as e:
             logger.warn('Container <%s> failed: %s', container.id, e)
             return None, unicode(e)
+
+        finally:
+            try:
+                container.remove(force=True)
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code != 404:
+                    return None, unicode(e)
 
 
 register(Docker)

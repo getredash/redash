@@ -12,17 +12,18 @@ services:
       - "5000:5000"
     volumes:
       - ".:/app"
-      # Uncomment to allow the Docker data source to connect to the
-      # host docker engine. Check out:
+      # Uncomment to allow the Docker data source to connect to the host
+      # docker engine. Check out:
       # https://www.lvh.io/posts/dont-expose-the-docker-socket-not-even-to-a-container.html
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      #- "/var/run/docker.sock:/var/run/docker.sock"
     environment:
       PYTHONUNBUFFERED: 0
       REDASH_LOG_LEVEL: "INFO"
       REDASH_REDIS_URL: "redis://redis:6379/0"
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
 
-      REDASH_ADDITIONAL_QUERY_RUNNERS: "redash.query_runner.docker"
+      # Uncomment to allow the Docker query runner
+      #REDASH_ADDITIONAL_QUERY_RUNNERS: "redash.query_runner.docker"
 
   worker:
     build: .
@@ -39,7 +40,8 @@ services:
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
 
-      REDASH_ADDITIONAL_QUERY_RUNNERS: "redash.query_runner.docker"
+      # Uncomment to allow the Docker query runner
+      #REDASH_ADDITIONAL_QUERY_RUNNERS: "redash.query_runner.docker"
 
   redis:
     image: redis:3.0-alpine
