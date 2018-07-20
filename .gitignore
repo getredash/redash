@@ -16,11 +16,10 @@ celerybeat-schedule*
 _build
 .vscode
 .env
-
 dump.rdb
-
 node_modules
 .tmp
 .sass-cache
 npm-debug.log
+.python-version
 

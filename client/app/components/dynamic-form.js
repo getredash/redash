@@ -30,6 +30,7 @@ function normalizeSchema(configurationSchema) {
     }
 
     prop.required = includes(configurationSchema.required, name);
+    prop.multiline = includes(configurationSchema.multiline, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];

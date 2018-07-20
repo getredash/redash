@@ -178,6 +178,12 @@ edit-in-place p.editable:hover {
   .alert {
     margin-bottom: 15px;
   }
+  /* some runners might return multi line errors */
+  .alert-danger {
+    strong {
+      white-space: pre-wrap;
+    }
+  }
 }
 
 .editor__container {

@@ -16,7 +16,7 @@ function DataSourceCtrl(
   $scope.type = find($scope.types, { type: $scope.dataSource.type });
   $scope.canChangeType = $scope.dataSource.id === undefined;
 
-  $scope.helpLinks = {
+  const helpLinks = {
     athena: 'https://redash.io/help/data-sources/amazon-athena-setup',
     bigquery: 'https://redash.io/help/data-sources/bigquery-setup',
     url: 'https://redash.io/help/data-sources/querying-urls',
@@ -41,6 +41,17 @@ function DataSourceCtrl(
   $scope.resetType = () => {
     $scope.type = undefined;
     $scope.dataSource = new DataSource({ options: {} });
+  };
+
+  $scope.getHelpLink = () => {
+    if ($scope.type) {
+      if ($scope.type.configuration_schema.link) {
+        return $scope.type.configuration_schema.link;
+      } else if (helpLinks[$scope.type.type]) {
+        return helpLinks[$scope.type.type];
+      }
+    }
+    return null;
   };
 
   function deleteDataSource(callback) {
