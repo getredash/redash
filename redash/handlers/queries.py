@@ -60,13 +60,13 @@ class QueryRecentResource(BaseResource):
     @require_permission('view_query')
     def get(self):
         """
-        Retrieve up to 10 queries modified in the last 7 days.
+        Retrieve up to 10 queries recently modified by the user.
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
 
         results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
-        return QuerySerializer(results, with_last_modified_by=False, with_user=False)
+        return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
 
 
 class QueryListResource(BaseResource):
