@@ -53,7 +53,9 @@ def _value_eval_list(row_values, col_types):
     raw_values = zip(col_types, row_values)
     for typ, rval in raw_values:
         try:
-            if typ == TYPE_BOOLEAN:
+            if rval is None or rval == '':
+                val = None
+            elif typ == TYPE_BOOLEAN:
                 val = True if unicode(rval).lower() == 'true' else False
             elif typ == TYPE_DATETIME:
                 val = parser.parse(rval)
