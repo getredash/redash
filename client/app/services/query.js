@@ -1,17 +1,7 @@
 import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
-import {
-  each,
-  zipObject,
-  isEmpty,
-  map,
-  filter,
-  includes,
-  union,
-  uniq,
-  has,
-} from 'lodash';
+import { each, zipObject, isEmpty, map, filter, includes, union, uniq, has } from 'lodash';
 
 const logger = debug('redash:services:query');
 
@@ -41,11 +31,7 @@ class Parameter {
   }
 
   get ngModel() {
-    if (
-      this.type === 'date' ||
-      this.type === 'datetime-local' ||
-      this.type === 'datetime-with-seconds'
-    ) {
+    if (this.type === 'date' || this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
       this.$$value = this.$$value || moment(this.value).toDate();
       return this.$$value;
     } else if (this.type === 'number') {
@@ -120,9 +106,7 @@ class Parameters {
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters
-      .filter(parameterExists)
-      .map(p => new Parameter(p));
+    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
   }
 
   initFromQueryString(queryString) {
@@ -140,10 +124,7 @@ class Parameters {
   }
 
   getMissing() {
-    return map(
-      filter(this.get(), p => p.value === null || p.value === ''),
-      i => i.title,
-    );
+    return map(filter(this.get(), p => p.value === null || p.value === ''), i => i.title);
   }
 
   isRequired() {
@@ -156,14 +137,7 @@ class Parameters {
   }
 }
 
-function QueryResource(
-  $resource,
-  $http,
-  $q,
-  $location,
-  currentUser,
-  QueryResult,
-) {
+function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
   class QueryResultError {
     constructor(errorMessage) {
       this.errorMessage = errorMessage;
@@ -239,6 +213,12 @@ function QueryResource(
         url: 'api/queries/:id/favorite',
         transformRequest: [() => ''], // body not needed
       },
+      // This can be removed once #2686 is merged:
+      search: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/search',
+      },
     },
   );
 
@@ -261,9 +241,7 @@ function QueryResource(
         return $q.reject(String(err));
       }
     } else if (syntax === 'sql') {
-      return $http
-        .post('api/queries/format', { query })
-        .then(response => response.data.query);
+      return $http.post('api/queries/format', { query }).then(response => response.data.query);
     } else {
       return $q.reject('Query formatting is not supported for your data source syntax.');
     }
@@ -343,12 +321,7 @@ function QueryResource(
         this.queryResult = QueryResult.getById(this.latest_query_data_id);
       }
     } else if (this.data_source_id) {
-      this.queryResult = QueryResult.get(
-        this.data_source_id,
-        queryText,
-        maxAge,
-        this.id,
-      );
+      this.queryResult = QueryResult.get(this.data_source_id, queryText, maxAge, this.id);
     } else {
       return new QueryResultError('Please select data source to run this query.');
     }
