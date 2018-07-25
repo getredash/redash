@@ -11,12 +11,12 @@
         <i class="zmdi zmdi-settings"></i>
     </button>
     <span ng-switch="param.type">
-      <date-time-input ng-switch-when="datetime-with-seconds" value="param.ngModel" with-seconds="true"
-        on-select="param.updateValue"></date-time-input>
-      <date-time-input ng-switch-when="datetime-local" value="param.ngModel"
-        on-select="param.updateValue"></date-time-input>
-      <date-input ng-switch-when="date" value="param.ngModel"
-        on-select="param.updateValue"></date-input>
+      <date-time-input ng-switch-when="datetime-with-seconds" value="param.normalizedValue"
+        on-select="param.setValue"></date-time-input>
+      <date-time-input ng-switch-when="datetime-local" value="param.normalizedValue"
+        on-select="param.setValue"></date-time-input>
+      <date-input ng-switch-when="date" value="param.normalizedValue"
+        on-select="param.setValue"></date-input>
       <span ng-switch-when="enum">
         <select ng-model="param.value" class="form-control">
           <option ng-repeat="option in extractEnumOptions(param.enumOptions)" value="{{option}}">{{option}}</option>
