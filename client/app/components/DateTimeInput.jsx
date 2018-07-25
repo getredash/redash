@@ -3,12 +3,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { DatePicker } from 'antd';
-import 'antd/dist/antd.less';
 
 function DateTimeInput({
   value,
   withSeconds,
-  placeholder,
   onSelect,
   clientConfig,
 }) {
@@ -20,7 +18,7 @@ function DateTimeInput({
       showTime
       {...(defaultValue.isValid() ? { defaultValue } : {})}
       format={format}
-      placeholder={placeholder}
+      placeholder="Select Date and Time"
       onChange={onSelect}
     />
   );
@@ -29,14 +27,12 @@ function DateTimeInput({
 DateTimeInput.propTypes = {
   value: PropTypes.instanceOf(Date),
   withSeconds: PropTypes.bool,
-  placeholder: PropTypes.string,
   onSelect: PropTypes.func,
 };
 
 DateTimeInput.defaultProps = {
   value: Date.now(),
   withSeconds: false,
-  placeholder: 'Select date and time',
   onSelect: () => {},
 };
 
