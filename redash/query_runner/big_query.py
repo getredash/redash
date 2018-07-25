@@ -115,7 +115,8 @@ class BigQuery(BaseQueryRunner):
                 },
                 'location': {
                     "type": "string",
-                    'title': 'Processing Location (default: US)',
+                    "title": "Processing Location",
+                    "default": "US",
                 },
                 'loadSchema': {
                     "type": "boolean",
@@ -156,8 +157,7 @@ class BigQuery(BaseQueryRunner):
         return self.configuration["projectId"]
 
     def _get_location(self):
-        location = self.configuration.get("location", "")
-        return "US" if location == "" else location
+        return self.configuration.get("location", "US")
 
     def _get_total_bytes_processed(self, jobs, query):
         job_data = {
@@ -318,7 +318,8 @@ class BigQueryGCE(BigQuery):
                 },
                 'location': {
                     "type": "string",
-                    'title': 'Processing Location (default: US)',
+                    "title": "Processing Location",
+                    "default": "US",
                 },
                 'loadSchema': {
                     "type": "boolean",
