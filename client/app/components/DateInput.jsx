@@ -3,11 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { DatePicker } from 'antd';
-import 'antd/dist/antd.less';
 
 function DateInput({
   value,
-  placeholder,
   onSelect,
   clientConfig,
 }) {
@@ -17,7 +15,7 @@ function DateInput({
     <DatePicker
       {...(defaultValue.isValid() ? { defaultValue } : {})}
       format={format}
-      placeholder={placeholder}
+      placeholder="Select Date"
       onChange={onSelect}
     />
   );
@@ -25,13 +23,11 @@ function DateInput({
 
 DateInput.propTypes = {
   value: PropTypes.instanceOf(Date),
-  placeholder: PropTypes.string,
   onSelect: PropTypes.func,
 };
 
 DateInput.defaultProps = {
   value: Date.now(),
-  placeholder: 'Select date',
   onSelect: () => {},
 };
 
