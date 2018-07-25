@@ -2,7 +2,10 @@ import moment from 'moment';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { DatePicker } from 'antd';
+import DatePicker from 'antd/lib/date-picker';
+import 'antd/lib/style/core/iconfont.less';
+import 'antd/lib/input/style/index.less';
+import 'antd/lib/date-picker/style/index.less';
 
 function DateInput({
   value,
@@ -22,12 +25,18 @@ function DateInput({
 }
 
 DateInput.propTypes = {
-  value: PropTypes.instanceOf(Date),
+  value: (props, propName, componentName) => {
+    const value = props[propName];
+    if ((value !== null) && !moment.isMoment(props[propName])) {
+      return new Error('Prop `' + propName + '` supplied to `' + componentName +
+        '` should be a Moment.js instance.');
+    }
+  },
   onSelect: PropTypes.func,
 };
 
 DateInput.defaultProps = {
-  value: Date.now(),
+  value: null,
   onSelect: () => {},
 };
 
