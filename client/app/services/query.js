@@ -28,6 +28,12 @@ class Parameter {
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
+
+    // method to update parameter value from date/time picker component
+    // (react does not support two-way binding with `ngModel`)
+    this.updateValue = (function updateValue(value) {
+      this.ngModel = value;
+    }).bind(this);
   }
 
   get ngModel() {
