@@ -5,6 +5,10 @@
     "transform-object-assign",
     ["babel-plugin-transform-builtin-extend", {
       "globals": ["Error"]
+    }],
+    ["import", {
+      "libraryName": "antd",
+      "style": true
     }]
   ]
 }
