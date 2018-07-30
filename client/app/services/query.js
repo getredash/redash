@@ -1,9 +1,24 @@
 import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
-import { each, zipObject, isEmpty, map, filter, includes, union, uniq, has } from 'lodash';
+import {
+  each, zipObject, isEmpty, map, filter, includes, union, uniq, has,
+  isNull, isUndefined,
+} from 'lodash';
 
 const logger = debug('redash:services:query');
+
+const DATETIME_FORMATS = {
+  // eslint-disable-next-line quote-props
+  'date': 'YYYY-MM-DD',
+  'datetime-local': 'YYYY-MM-DD HH:mm',
+  'datetime-with-seconds': 'YYYY-MM-DD HH:mm:ss',
+};
+
+function normalizeNumericValue(value, defaultValue = null) {
+  const result = parseFloat(value);
+  return isFinite(result) ? result : defaultValue;
+}
 
 function collectParams(parts) {
   let parameters = [];
@@ -24,43 +39,69 @@ class Parameter {
     this.title = parameter.title;
     this.name = parameter.name;
     this.type = parameter.type;
-    this.value = parameter.value;
+    this.useCurrentDateTime = parameter.useCurrentDateTime;
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
 
-    // method to update parameter value from date/time picker component
-    // (react does not support two-way binding with `ngModel`)
-    this.updateValue = (value) => {
-      this.ngModel = value;
-    };
+    // validate value and init internal state
+    this.setValue(parameter.value);
+
+    // explicitly bind it to `this` to allow passing it as callback to Ant's
+    // DatePicker component
+    this.setValue = this.setValue.bind(this);
   }
 
-  get ngModel() {
-    if (this.type === 'date' || this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
-      this.$$value = this.$$value || moment(this.value).toDate();
-      return this.$$value;
-    } else if (this.type === 'number') {
-      this.$$value = this.$$value || parseInt(this.value, 10);
-      return this.$$value;
-    }
+  get isEmpty() {
+    return isNull(this.getValue());
+  }
 
+  getValue() {
+    const isEmptyValue = isNull(this.value) || isUndefined(this.value) || (this.value === '');
+    if (isEmptyValue) {
+      if (
+        includes(['date', 'datetime-local', 'datetime-with-seconds'], this.type) &&
+        this.useCurrentDateTime
+      ) {
+        return moment().format(DATETIME_FORMATS[this.type]);
+      }
+      return null; // normalize empty value
+    }
+    if (this.type === 'number') {
+      return normalizeNumericValue(this.value, null); // normalize empty value
+    }
     return this.value;
   }
 
-  set ngModel(value) {
-    if (value && this.type === 'date') {
-      this.value = moment(value).format('YYYY-MM-DD');
-      this.$$value = moment(this.value).toDate();
-    } else if (value && this.type === 'datetime-local') {
-      this.value = moment(value).format('YYYY-MM-DD HH:mm');
-      this.$$value = moment(this.value).toDate();
-    } else if (value && this.type === 'datetime-with-seconds') {
-      this.value = moment(value).format('YYYY-MM-DD HH:mm:ss');
-      this.$$value = moment(this.value).toDate();
+  setValue(value) {
+    if (includes(['date', 'datetime-local', 'datetime-with-seconds'], this.type)) {
+      value = moment(value);
+      if (value.isValid()) {
+        this.value = value.format(DATETIME_FORMATS[this.type]);
+        this.$$value = value;
+      } else {
+        this.value = null;
+        this.$$value = null;
+      }
+    } else if (this.type === 'number') {
+      this.value = value;
+      this.$$value = normalizeNumericValue(value, null);
     } else {
-      this.value = this.$$value = value;
+      this.value = value;
+      this.$$value = value;
     }
+  }
+
+  get normalizedValue() {
+    return this.$$value;
+  }
+
+  // TODO: Remove this property when finally moved to React
+  get ngModel() {
+    return this.normalizedValue;
+  }
+  set ngModel(value) {
+    this.setValue(value);
   }
 }
 
@@ -130,7 +171,7 @@ class Parameters {
   }
 
   getMissing() {
-    return map(filter(this.get(), p => p.value === null || p.value === ''), i => i.title);
+    return map(filter(this.get(), p => p.isEmpty), i => i.title);
   }
 
   isRequired() {
@@ -139,7 +180,7 @@ class Parameters {
 
   getValues() {
     const params = this.get();
-    return zipObject(map(params, i => i.name), map(params, i => i.value));
+    return zipObject(map(params, i => i.name), map(params, i => i.getValue()));
   }
 }
 
