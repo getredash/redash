@@ -1,4 +1,4 @@
-import { template as templateBuilder } from 'underscore';
+import { template as templateBuilder } from 'lodash';
 import template from './alert.html';
 
 function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Events, Alert) {

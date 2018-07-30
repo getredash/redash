@@ -1,4 +1,4 @@
-import { each } from 'underscore';
+import { each } from 'lodash';
 import settingsMenu from '@/lib/settings-menu';
 import { absoluteUrl } from '@/services/utils';
 import template from './show.html';

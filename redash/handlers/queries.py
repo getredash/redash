@@ -9,13 +9,14 @@ from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models, settings
 from redash.handlers.base import (BaseResource, get_object_or_404,
-                                  org_scoped_rule, paginate, routes)
+                                  org_scoped_rule, paginate, routes, filter_by_tags)
 from redash.handlers.query_results import run_query
 from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_admin_or_owner,
                                 require_object_modify_permission,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
+from redash.serializers import QuerySerializer
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -49,36 +50,23 @@ class QuerySearchResource(BaseResource):
 
         include_drafts = request.args.get('include_drafts') is not None
 
-        return [q.to_dict(with_last_modified_by=False)
-                for q in models.Query.search(term,
-                                             self.current_user.group_ids,
-                                             include_drafts=include_drafts,
-                                             limit=None)]
+        queries = models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts, limit=None)
+        queries = filter_by_tags(queries, models.Query.tags)
+
+        return QuerySerializer(queries, with_last_modified_by=False).serialize()
 
 
 class QueryRecentResource(BaseResource):
     @require_permission('view_query')
     def get(self):
         """
-        Retrieve up to 20 queries modified in the last 7 days.
+        Retrieve up to 10 queries recently modified by the user.
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
 
-        if settings.FEATURE_DUMB_RECENTS:
-            results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
-            queries = [q.to_dict(with_last_modified_by=False, with_user=False) for q in results]
-        else:
-            queries = models.Query.recent(self.current_user.group_ids, self.current_user.id)
-            recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in queries]
-
-            global_recent = []
-            if len(recent) < 10:
-                global_recent = [d.to_dict(with_last_modified_by=False, with_user=False) for d in models.Query.recent(self.current_user.group_ids)]
-
-            queries = take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))
-
-        return queries
+        results = models.Query.by_user(self.current_user).order_by(models.Query.updated_at.desc()).limit(10)
+        return QuerySerializer(results, with_last_modified_by=False, with_user=False).serialize()
 
 
 class QueryListResource(BaseResource):
@@ -138,7 +126,7 @@ class QueryListResource(BaseResource):
             'object_type': 'query'
         })
 
-        return query.to_dict()
+        return QuerySerializer(query).serialize()
 
     @require_permission('view_query')
     def get(self):
@@ -151,10 +139,19 @@ class QueryListResource(BaseResource):
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
 
-        results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+        search_term = request.args.get('q')
+
+        if search_term:
+            results = models.Query.search(search_term, self.current_user.group_ids, include_drafts=True, limit=None)
+        else:
+            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+
+        results = filter_by_tags(results, models.Query.tags)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+        response = paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
+        return response
 
 
 class MyQueriesResource(BaseResource):
@@ -172,7 +169,7 @@ class MyQueriesResource(BaseResource):
         results = models.Query.by_user(self.current_user)
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, lambda q: q.to_dict(with_stats=True, with_last_modified_by=False))
+        return paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
 
 
 class QueryResource(BaseResource):
@@ -216,7 +213,7 @@ class QueryResource(BaseResource):
         except StaleDataError:
             abort(409)
 
-        return query.to_dict(with_visualizations=True)
+        return QuerySerializer(query, with_visualizations=True).serialize()
 
     @require_permission('view_query')
     def get(self, query_id):
@@ -230,7 +227,7 @@ class QueryResource(BaseResource):
         q = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(q.groups, self.current_user, view_only)
 
-        result = q.to_dict(with_visualizations=True)
+        result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
         return result
 
@@ -261,7 +258,7 @@ class QueryForkResource(BaseResource):
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
-        return forked_query.to_dict(with_visualizations=True)
+        return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
 
 class QueryRefreshResource(BaseResource):
@@ -285,3 +282,7 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query_text, query.id)
+
+class QueryTagsResource(BaseResource):
+    def get(self):
+        return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}

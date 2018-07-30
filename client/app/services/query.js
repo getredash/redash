@@ -1,7 +1,7 @@
 import moment from 'moment';
 import debug from 'debug';
 import Mustache from 'mustache';
-import { each, object, isEmpty, pluck, filter, contains, union, uniq, has } from 'underscore';
+import { each, zipObject, isEmpty, map, filter, includes, union, uniq, has } from 'lodash';
 
 const logger = debug('redash:services:query');
 
@@ -19,32 +19,6 @@ function collectParams(parts) {
   return parameters;
 }
 
-class QueryResultError {
-  constructor(errorMessage) {
-    this.errorMessage = errorMessage;
-  }
-
-  getError() {
-    return this.errorMessage;
-  }
-
-  static getStatus() {
-    return 'failed';
-  }
-
-  static getData() {
-    return null;
-  }
-
-  static getLog() {
-    return null;
-  }
-
-  static getChartData() {
-    return null;
-  }
-}
-
 class Parameter {
   constructor(parameter) {
     this.title = parameter.title;
@@ -54,14 +28,16 @@ class Parameter {
     this.global = parameter.global;
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
+
+    // method to update parameter value from date/time picker component
+    // (react does not support two-way binding with `ngModel`)
+    this.updateValue = (value) => {
+      this.ngModel = value;
+    };
   }
 
   get ngModel() {
-    if (
-      this.type === 'date' ||
-      this.type === 'datetime-local' ||
-      this.type === 'datetime-with-seconds'
-    ) {
+    if (this.type === 'date' || this.type === 'datetime-local' || this.type === 'datetime-with-seconds') {
       this.$$value = this.$$value || moment(this.value).toDate();
       return this.$$value;
     } else if (this.type === 'number') {
@@ -103,7 +79,7 @@ class Parameters {
     } catch (e) {
       logger('Failed parsing parameters: ', e);
       // Return current parameters so we don't reset the list
-      parameters = pluck(this.query.options.parameters, 'name');
+      parameters = map(this.query.options.parameters, i => i.name);
     }
     return parameters;
   }
@@ -135,10 +111,8 @@ class Parameters {
       }
     });
 
-    const parameterExists = p => contains(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters
-      .filter(parameterExists)
-      .map(p => new Parameter(p));
+    const parameterExists = p => includes(parameterNames, p.name);
+    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
   }
 
   initFromQueryString(queryString) {
@@ -156,7 +130,7 @@ class Parameters {
   }
 
   getMissing() {
-    return pluck(filter(this.get(), p => p.value === null || p.value === ''), 'title');
+    return map(filter(this.get(), p => p.value === null || p.value === ''), i => i.title);
   }
 
   isRequired() {
@@ -165,20 +139,45 @@ class Parameters {
 
   getValues() {
     const params = this.get();
-    return object(pluck(params, 'name'), pluck(params, 'value'));
+    return zipObject(map(params, i => i.name), map(params, i => i.value));
   }
 }
 
 function QueryResource($resource, $http, $q, $location, currentUser, QueryResult) {
+  class QueryResultError {
+    constructor(errorMessage) {
+      this.errorMessage = errorMessage;
+    }
+
+    getError() {
+      return this.errorMessage;
+    }
+
+    toPromise() {
+      return $q.reject(this.getError());
+    }
+
+    static getStatus() {
+      return 'failed';
+    }
+
+    static getData() {
+      return null;
+    }
+
+    static getLog() {
+      return null;
+    }
+
+    static getChartData() {
+      return null;
+    }
+  }
+
   const Query = $resource(
     'api/queries/:id',
     { id: '@id' },
     {
-      search: {
-        method: 'get',
-        isArray: true,
-        url: 'api/queries/search',
-      },
       recent: {
         method: 'get',
         isArray: true,
@@ -202,6 +201,29 @@ function QueryResource($resource, $http, $q, $location, currentUser, QueryResult
         method: 'get',
         isArray: false,
         url: 'api/queries/:id/results.json',
+      },
+      favorites: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/favorites',
+      },
+      favorite: {
+        method: 'post',
+        isArray: false,
+        url: 'api/queries/:id/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
+      unfavorite: {
+        method: 'delete',
+        isArray: false,
+        url: 'api/queries/:id/favorite',
+        transformRequest: [() => ''], // body not needed
+      },
+      // This can be removed once #2686 is merged:
+      search: {
+        method: 'get',
+        isArray: true,
+        url: 'api/queries/search',
       },
     },
   );

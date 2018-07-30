@@ -8,7 +8,8 @@ const WebpackBuildNotifierPlugin = require("webpack-build-notifier");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const LessPluginAutoPrefix = require("less-plugin-autoprefix");
-const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+  .BundleAnalyzerPlugin;
 const path = require("path");
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5000";
@@ -28,12 +29,7 @@ const config = {
   },
   resolve: {
     alias: {
-      "@": appPath,
-      // Currently `lodash` is used only by `gridstack.js`, but it can work
-      // with `underscore` as well, so set an alias to avoid bundling both `lodash` and
-      // `underscore`. When adding new libraries, check if they can work
-      // with `underscore`, otherwise remove this line
-      lodash: "underscore"
+      "@": appPath
     }
   },
   plugins: [
@@ -88,7 +84,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         use: ["babel-loader", "eslint-loader"]
       },
@@ -124,7 +120,9 @@ const config = {
           {
             loader: "less-loader",
             options: {
-              plugins: [new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })]
+              plugins: [
+                new LessPluginAutoPrefix({ browsers: ["last 3 versions"] })
+              ]
             }
           }
         ])
@@ -187,7 +185,15 @@ const config = {
     publicPath: "/static/",
     proxy: [
       {
-        context: ["/login", "/logout", "/invite", "/setup", "/status.json", "/api", "/oauth"],
+        context: [
+          "/login",
+          "/logout",
+          "/invite",
+          "/setup",
+          "/status.json",
+          "/api",
+          "/oauth"
+        ],
         target: redashBackend + "/",
         changeOrigin: false,
         secure: false

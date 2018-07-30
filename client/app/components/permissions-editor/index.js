@@ -1,4 +1,4 @@
-import { contains, each } from 'underscore';
+import { includes, each } from 'lodash';
 import template from './permissions-editor.html';
 
 const PermissionsEditorComponent = {
@@ -40,7 +40,7 @@ const PermissionsEditorComponent = {
       if (this.foundUsers === undefined) {
         User.query((users) => {
           const existingIds = this.grantees.map(m => m.id);
-          users.forEach((user) => { user.alreadyGrantee = contains(existingIds, user.id); });
+          users.forEach((user) => { user.alreadyGrantee = includes(existingIds, user.id); });
           this.foundUsers = users;
         });
       }

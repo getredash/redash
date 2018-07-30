@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { formatSimpleTemplate } from '@/lib/value-format';

@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, contains, values, some, each, isArray, isNumber, isString, includes } from 'underscore';
+import { sortBy, uniq, values, some, each, isArray, isNumber, isString, includes } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -23,7 +23,7 @@ function getColumnNameWithoutType(column) {
     return parts[1];
   }
 
-  if (!contains(filterTypes, parts[1])) {
+  if (!includes(filterTypes, parts[1])) {
     return column;
   }
 
@@ -72,6 +72,9 @@ function QueryResultService($resource, $timeout, $q) {
       this.filterFreeze = undefined;
 
       this.updatedAt = moment();
+
+      // exteded status flags
+      this.isLoadingResult = false;
 
       if (props) {
         this.update(props);
@@ -148,6 +151,9 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getStatus() {
+      if (this.isLoadingResult) {
+        return 'loading-result';
+      }
       return this.status || statuses[this.job.status];
     }
 
@@ -335,7 +341,6 @@ function QueryResultService($resource, $timeout, $q) {
       return this.columnNames;
     }
 
-
     getColumnCleanNames() {
       return this.getColumnNames().map(col => getColumnCleanName(col));
     }
@@ -362,7 +367,7 @@ function QueryResultService($resource, $timeout, $q) {
       this.getColumns().forEach((col) => {
         const name = col.name;
         const type = name.split('::')[1] || name.split('__')[1];
-        if (contains(filterTypes, type)) {
+        if (includes(filterTypes, type)) {
           // filter found
           const filter = {
             name,
@@ -414,18 +419,32 @@ function QueryResultService($resource, $timeout, $q) {
     static getById(id) {
       const queryResult = new QueryResult();
 
+      queryResult.isLoadingResult = true;
       QueryResultResource.get({ id }, (response) => {
+        // Success handler
+        queryResult.isLoadingResult = false;
         queryResult.update(response);
+      }, (response) => {
+        // Error handler
+        queryResult.isLoadingResult = false;
+        queryResult.update({
+          job: {
+            error: response.data.message,
+            status: 4,
+          },
+        });
       });
 
       return queryResult;
     }
 
     loadResult(tryCount) {
+      this.isLoadingResult = true;
       QueryResultResource.get(
         { id: this.job.query_result_id },
         (response) => {
           this.update(response);
+          this.isLoadingResult = false;
         },
         (error) => {
           if (tryCount === undefined) {
@@ -440,6 +459,7 @@ function QueryResultService($resource, $timeout, $q) {
                 status: 4,
               },
             });
+            this.isLoadingResult = false;
           } else {
             $timeout(() => {
               this.loadResult(tryCount + 1);
@@ -476,7 +496,7 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getName(queryName, fileType) {
-      return `${queryName.replace(' ', '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
+      return `${queryName.replace(/ /g, '_') + moment(this.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`;
     }
 
     static get(dataSourceId, query, maxAge, queryId) {
@@ -507,7 +527,6 @@ function QueryResultService($resource, $timeout, $q) {
       return queryResult;
     }
   }
-
 
   return QueryResult;
 }
