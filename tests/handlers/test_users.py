@@ -16,6 +16,18 @@ class TestUserListResourcePost(BaseTestCase):
 
         rv = self.make_request('post', '/api/users', data={'name': 'User'}, user=admin)
         self.assertEqual(rv.status_code, 400)
+    
+    def test_returns_400_when_using_temporary_email(self):
+        admin = self.factory.create_admin()
+
+        test_user = {'name': 'User', 'email': 'user@mailinator.com', 'password': 'test'}
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
+        test_user['email'] = 'arik@qq.com'
+        rv = self.make_request('post', '/api/users', data=test_user, user=admin)
+        self.assertEqual(rv.status_code, 400)
+
 
     def test_creates_user(self):
         admin = self.factory.create_admin()

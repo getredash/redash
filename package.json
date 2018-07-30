@@ -1,6 +1,6 @@
 {
   "name": "redash-client",
-  "version": "4.0.1",
+  "version": "5.0.0-beta",
   "description": "The frontend part of Redash.",
   "main": "index.js",
   "scripts": {
@@ -41,6 +41,7 @@
     "angular-ui-ace": "^0.2.3",
     "angular-ui-bootstrap": "^2.5.0",
     "angular-vs-repeat": "^1.1.7",
+    "antd": "^3.7.1",
     "babel-preset-react": "^6.24.1",
     "bootstrap": "^3.3.7",
     "brace": "^0.10.0",
@@ -55,8 +56,8 @@
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",
     "leaflet": "^1.2.0",
-    "leaflet.markercluster": "^1.1.0",
     "leaflet-fullscreen": "^1.0.2",
+    "leaflet.markercluster": "^1.1.0",
     "lodash": "^4.17.10",
     "markdown": "0.5.0",
     "material-design-iconic-font": "^2.2.0",
@@ -79,6 +80,7 @@
     "babel-eslint": "^8.2.3",
     "babel-loader": "^7.1.2",
     "babel-plugin-angularjs-annotate": "^0.8.2",
+    "babel-plugin-import": "^1.8.0",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-assign": "^6.22.0",
@@ -110,5 +112,8 @@
     "webpack-bundle-analyzer": "^2.11.1",
     "webpack-dev-server": "^2.9.1",
     "webpack-manifest-plugin": "^1.3.2"
+  },
+  "optionalDependencies": {
+    "fsevents": "^1.2.4"
   }
 }
