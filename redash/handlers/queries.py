@@ -22,6 +22,10 @@ from redash.serializers import QuerySerializer
 order_map = {
     'name': 'lowercase_name',
     '-name': '-lowercase_name',
+    'created_at': 'created_at',
+    '-created_at': '-created_at',
+    'schedule': 'schedule',
+    '-schedule': '-schedule',
     'runtime': 'query_results-runtime',
     '-runtime': '-query_results-runtime',
     'executed_at': 'query_results-retrieved_at',
