@@ -19,10 +19,10 @@
         </div>
       </div>
       <div class="form-group">
-        <div class="form-group">
-          <label>Title</label>
-          <input type="text" class="form-control" ng-model="$ctrl.parameter.title">
-        </div>
+        <label>Title</label>
+        <input type="text" class="form-control" ng-model="$ctrl.parameter.title" ng-change="$ctrl.shouldGenerateTitle = false">
+      </div>
+      <div class="form-group">
         <label>Type</label>
         <select ng-model="$ctrl.parameter.type" class="form-control">
           <option value="text">Text</option>
