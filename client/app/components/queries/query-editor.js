@@ -59,12 +59,14 @@ function queryEditor(QuerySnippet, $timeout) {
                   });
                   break;
                 }
-                default: break;
+                default:
+                  break;
               }
             });
 
             // Release Cmd/Ctrl+L to the browser
             editor.commands.bindKey('Cmd+L', null);
+            editor.commands.bindKey('Ctrl+P', null);
             editor.commands.bindKey('Ctrl+L', null);
 
             QuerySnippet.query((snippets) => {
