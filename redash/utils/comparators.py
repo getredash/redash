@@ -1,7 +1,6 @@
-from sqlalchemy import func
-from sqlalchemy.ext.hybrid import Comparator
+from sqlalchemy import String
 
 
-class CaseInsensitiveComparator(Comparator):
+class CaseInsensitiveComparator(String.Comparator):
     def __eq__(self, other):
         return func.lower(self.__clause_element__()) == func.lower(other)
