@@ -3,6 +3,7 @@
 @redash-orange: rgba(255, 120, 100, 1);
 @redash-black: rgba(0, 0, 0, 1);
 @redash-yellow: rgba(252, 252, 161, 0.75);
+@redash-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
 @spacing: 15px;
 
@@ -10,12 +11,13 @@
 @redash-space: 10px;
 
 @redash-radius: 3px;
+@redash-input-radius: 2px;
 
 // General
 body {
   padding-top: 0;
   background: #F6F8F9;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
+  font-family: @redash-font;
 
   &.headless {
     padding-top: 10px;
@@ -776,12 +778,17 @@ page-header, .page-header--new {
 
 // Forms
 .form-control {
-  border-radius: 2px;
-  color: #6d6d6d;
+  border-radius: @redash-input-radius;
+  color: #9E9E9E;
 
   &:focus {
     box-shadow: none !important;
     color: #111;
+    border-color: @blue;
+  }
+
+  &:hover {
+    border-color: @blue;
   }
 }
 
