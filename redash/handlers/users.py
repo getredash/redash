@@ -5,14 +5,27 @@ from flask_login import current_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
 from disposable_email_domains import blacklist
+from funcy import rpartial
 
 from redash import models
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
     require_permission_or_owner, require_admin
-from redash.handlers.base import BaseResource, require_fields, get_object_or_404
+from redash.handlers.base import BaseResource, require_fields, get_object_or_404, paginate, order_results as _order_results
 
 from redash.authentication.account import invite_link_for_user, send_invite_email, send_password_reset_email
 
+
+# Ordering map for relationships
+order_map = {
+    'name': 'name',
+    '-name': '-name',
+    'created_at': 'created_at',
+    '-created_at': '-created_at',
+    'groups': 'group_ids',
+    '-groups': '-group_ids',
+}
+
+order_results = rpartial(_order_results, '-created_at', order_map)
 
 def invite_user(org, inviter, user):
     invite_url = invite_link_for_user(user)
@@ -23,7 +36,37 @@ def invite_user(org, inviter, user):
 class UserListResource(BaseResource):
     @require_permission('list_users')
     def get(self):
-        return [u.to_dict() for u in models.User.all(self.current_org)]
+        page = request.args.get('page', 1, type=int)
+        page_size = request.args.get('page_size', 25, type=int)
+
+        groups = {group.id: group for group in models.Group.all(self.current_org)}
+
+        def serialize_user(user):
+            d = user.to_dict()
+            user_groups = []
+            for group_id in set(d['groups']):
+                group = groups.get(group_id)
+
+                if group:
+                    user_groups.append({'id': group.id, 'name': group.name})
+            
+            d['groups'] = user_groups
+
+            return d
+
+        search_term = request.args.get('q', '')
+        
+        if request.args.get('disabled', None) is not None:
+            users = models.User.all_disabled(self.current_org)
+        else:
+            users = models.User.all(self.current_org)
+
+        if search_term:
+            users = models.User.search(users, search_term)
+        
+        users = order_results(users)
+
+        return paginate(users, page, page_size, serialize_user)
 
     @require_admin
     def post(self):
@@ -46,7 +89,6 @@ class UserListResource(BaseResource):
         except IntegrityError as e:
             if "email" in e.message:
                 abort(400, message='Email already taken.')
-
             abort(500)
 
         self.record_event({

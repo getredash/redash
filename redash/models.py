@@ -523,7 +523,18 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def all(cls, org):
-        return cls.query.filter(cls.org == org)
+        return cls.query.filter(cls.org == org).filter(cls.disabled_at == None)
+
+    @classmethod
+    def search(cls, base_query, term):
+        term = '%{}%'.format(term)
+        search_filter = or_(cls.name.ilike(term), cls.email.like(term))
+
+        return base_query.filter(search_filter)
+
+    @classmethod
+    def all_disabled(cls, org):
+        return cls.query.filter(cls.org == org).filter(cls.disabled_at != None)
 
     @classmethod
     def all_not_disabled(cls, org):
