@@ -1,8 +1,6 @@
-import debug from 'debug';
 import { find } from 'lodash';
 import template from './show.html';
-
-const logger = debug('redash:http');
+import { deleteConfirm, logAndToastrError, toastrSuccessAndPath } from '../data-sources/show';
 
 function DestinationCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
@@ -33,19 +31,16 @@ function DestinationCtrl(
   $scope.delete = () => {
     const doDelete = () => {
       $scope.destination.$delete(() => {
-        toastr.success('Destination deleted successfully.');
-        $location.path('/destinations/');
+        toastrSuccessAndPath('Destination', 'destionations', toastr, $location);
       }, (httpResponse) => {
-        logger('Failed to delete destination: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-        toastr.error('Failed to delete destination.');
+        logAndToastrError('destination', httpResponse, toastr);
       });
     };
 
     const title = 'Delete Destination';
     const message = `Are you sure you want to delete the "${$scope.destination.name}" destination?`;
-    const confirm = { class: 'btn-warning', title: 'Delete' };
 
-    AlertDialog.open(title, message, confirm).then(doDelete);
+    AlertDialog.open(title, message, deleteConfirm).then(doDelete);
   };
 }
 
