@@ -4,7 +4,7 @@ import { capitalize as _capitalize, isEmpty } from 'lodash';
 export function durationHumanize(duration) {
   let humanized = '';
 
-  if (duration === undefined) {
+  if (duration === undefined || duration === null) {
     humanized = '-';
   } else if (duration < 60) {
     const seconds = Math.round(duration);
@@ -31,7 +31,8 @@ export function scheduleHumanize(schedule) {
     return 'Never';
   } else if (schedule.match(/\d\d:\d\d/) !== null) {
     const parts = schedule.split(':');
-    const localTime = moment.utc()
+    const localTime = moment
+      .utc()
       .hour(parts[0])
       .minute(parts[1])
       .local()
@@ -44,8 +45,7 @@ export function scheduleHumanize(schedule) {
 }
 
 export function toHuman(text) {
-  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a =>
-    a.toUpperCase());
+  return text.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, a => a.toUpperCase());
 }
 
 export function colWidth(widgetWidth) {
@@ -103,14 +103,7 @@ export function showError(field) {
   return field.$touched && field.$invalid;
 }
 
-const units = [
-  'bytes',
-  'KB',
-  'MB',
-  'GB',
-  'TB',
-  'PB',
-];
+const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB'];
 
 export function prettySize(bytes) {
   if (isNaN(parseFloat(bytes)) || !isFinite(bytes)) {

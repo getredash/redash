@@ -1,15 +1,14 @@
-from itertools import chain
-
 import sqlparse
-from flask import jsonify, request
+from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
-from funcy import distinct, take
 from sqlalchemy.orm.exc import StaleDataError
+from sqlalchemy_utils import sort_query
 
-from redash import models, settings
-from redash.handlers.base import (BaseResource, get_object_or_404,
-                                  org_scoped_rule, paginate, routes, filter_by_tags)
+from redash import models
+from redash.authentication.org_resolving import current_org
+from redash.handlers.base import (BaseResource, filter_by_tags, get_object_or_404,
+                                  org_scoped_rule, paginate, routes)
 from redash.handlers.query_results import run_query
 from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_admin_or_owner,
@@ -17,6 +16,38 @@ from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_permission, view_only)
 from redash.utils import collect_parameters_from_request
 from redash.serializers import QuerySerializer
+
+
+# Ordering map for relationships
+order_map = {
+    'name': 'lowercase_name',
+    '-name': '-lowercase_name',
+    'created_at': 'created_at',
+    '-created_at': '-created_at',
+    'schedule': 'schedule',
+    '-schedule': '-schedule',
+    'runtime': 'query_results-runtime',
+    '-runtime': '-query_results-runtime',
+    'executed_at': 'query_results-retrieved_at',
+    '-executed_at': '-query_results-retrieved_at',
+    'created_by': 'users-name',
+    '-created_by': '-users-name',
+}
+
+
+def order_results(results, default_order='-created_at'):
+    """
+    Orders the given results with the sort order as requested in the
+    "order" request query parameter or the given default order.
+    """
+    # See if a particular order has been requested
+    order = request.args.get('order', '').strip() or default_order
+    # and if it matches a long-form for related fields, falling
+    # back to the default order
+    selected_order = order_map.get(order, default_order)
+    # The query may already have an ORDER BY statement attached
+    # so we clear it here and apply the selected order
+    return sort_query(results.order_by(None), selected_order)
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
@@ -41,6 +72,7 @@ class QuerySearchResource(BaseResource):
         Search query text, names, and descriptions.
 
         :qparam string q: Search term
+        :qparam number include_drafts: Whether to include draft in results
 
         Responds with a list of :ref:`query <query-response-label>` objects.
         """
@@ -50,10 +82,14 @@ class QuerySearchResource(BaseResource):
 
         include_drafts = request.args.get('include_drafts') is not None
 
-        queries = models.Query.search(term, self.current_user.group_ids, include_drafts=include_drafts, limit=None)
-        queries = filter_by_tags(queries, models.Query.tags)
-
-        return QuerySerializer(queries, with_last_modified_by=False).serialize()
+        # this redirects to the new query list API that is aware of search
+        new_location = url_for(
+            'queries',
+            q=term,
+            org_slug=current_org.slug,
+            drafts='true' if include_drafts else 'false',
+        )
+        return {}, 301, {'Location': new_location}
 
 
 class QueryRecentResource(BaseResource):
@@ -133,24 +169,47 @@ class QueryListResource(BaseResource):
         """
         Retrieve a list of queries.
 
-        :qparam number page_size: Number of queries to return
+        :qparam number page_size: Number of queries to return per page
         :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number q: Full text search term
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-
-        search_term = request.args.get('q')
+        # See if we want to do full-text search or just regular queries
+        search_term = request.args.get('q', '')
 
         if search_term:
-            results = models.Query.search(search_term, self.current_user.group_ids, include_drafts=True, limit=None)
+            results = models.Query.search(
+                search_term,
+                self.current_user.group_ids,
+                self.current_user.id,
+                include_drafts=True,
+            )
         else:
-            results = models.Query.all_queries(self.current_user.group_ids, self.current_user.id)
+            results = models.Query.all_queries(
+                self.current_user.group_ids,
+                self.current_user.id,
+                drafts=True,
+            )
 
         results = filter_by_tags(results, models.Query.tags)
 
+        # order results according to passed order parameter
+        ordered_results = order_results(results)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        response = paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
+
+        response = paginate(
+            ordered_results,
+            page=page,
+            page_size=page_size,
+            serializer=QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False
+        )
+
         return response
 
 
@@ -160,16 +219,34 @@ class MyQueriesResource(BaseResource):
         """
         Retrieve a list of queries created by the current user.
 
-        :qparam number page_size: Number of queries to return
+        :qparam number page_size: Number of queries to return per page
         :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number search: Full text search term
 
         Responds with an array of :ref:`query <query-response-label>` objects.
         """
-        drafts = request.args.get('drafts') is not None
-        results = models.Query.by_user(self.current_user)
+        search_term = request.args.get('q', '')
+        if search_term:
+            results = models.Query.search_by_user(search_term, self.current_user)
+        else:
+            results = models.Query.by_user(self.current_user)
+
+        results = filter_by_tags(results, models.Query.tags)
+
+        # order results according to passed order parameter
+        ordered_results = order_results(results)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        return paginate(results, page, page_size, QuerySerializer, with_stats=True, with_last_modified_by=False)
+        return paginate(
+            ordered_results,
+            page,
+            page_size,
+            QuerySerializer,
+            with_stats=True,
+            with_last_modified_by=False,
+        )
 
 
 class QueryResource(BaseResource):
@@ -282,6 +359,7 @@ class QueryRefreshResource(BaseResource):
         parameter_values = collect_parameters_from_request(request.args)
 
         return run_query(query.data_source, parameter_values, query.query_text, query.id)
+
 
 class QueryTagsResource(BaseResource):
     def get(self):

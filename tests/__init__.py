@@ -45,6 +45,7 @@ class BaseTestCase(TestCase):
         self.app = create_app()
         self.db = db
         self.app.config['TESTING'] = True
+        self.app.config['SERVER_NAME'] = 'localhost'
         self.app_ctx = self.app.app_context()
         self.app_ctx.push()
         db.session.close()
@@ -60,7 +61,7 @@ class BaseTestCase(TestCase):
         redis_connection.flushdb()
 
     def make_request(self, method, path, org=None, user=None, data=None,
-                     is_json=True):
+                     is_json=True, follow_redirects=False):
         if user is None:
             user = self.factory.user
 
@@ -84,7 +85,13 @@ class BaseTestCase(TestCase):
         else:
             content_type = None
 
-        response = method_fn(path, data=data, headers=headers, content_type=content_type)
+        response = method_fn(
+            path,
+            data=data,
+            headers=headers,
+            content_type=content_type,
+            follow_redirects=follow_redirects,
+        )
 
         if response.data and is_json:
             response.json = json.loads(response.data)
