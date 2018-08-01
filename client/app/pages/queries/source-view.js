@@ -96,9 +96,9 @@ function QuerySourceCtrl(
         },
       })
       .result.then((param) => {
-        $rootScope.$broadcast('query-editor.command', 'paste', '{{ ' + param.name + ' }}');
+        param = $scope.query.getParameters().add(param);
+        $rootScope.$broadcast('query-editor.command', 'paste', param.toQueryTextFragment());
         $rootScope.$broadcast('query-editor.command', 'focus');
-        $scope.query.getParameters().add(param);
       });
   };
 
