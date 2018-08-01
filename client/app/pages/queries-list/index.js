@@ -3,14 +3,23 @@ import { extend, isString } from 'lodash';
 
 import { LivePaginator } from '@/lib/pagination';
 import template from './queries-list.html';
+import './queries-list.css';
 
 class QueriesListCtrl {
   constructor($scope, $location, Events, Query, currentUser) {
     const page = parseInt($location.search().page || 1, 10);
+    const orderSeparator = '-';
+    const pageOrder = $location.search().order || 'created_at';
+    const pageOrderReverse = pageOrder.startsWith(orderSeparator);
 
     this.term = $location.search().q;
+    this.pageSize = parseInt($location.search().page_size || 20, 10);
+    this.pageSizeOptions = [5, 10, 20, 50, 100];
+
     if (isString(this.term) && this.term !== '') {
       Events.record('search', 'query', '', { term: this.term });
+    } else {
+      this.term = '';
     }
 
     this.defaultOptions = {};
@@ -32,15 +41,30 @@ class QueriesListCtrl {
       this.update();
     };
 
+    const setSearchOrClear = (name, value) => {
+      if (value) {
+        $location.search(name, value);
+      } else {
+        $location.search(name, undefined);
+      }
+    };
+
     this.isInSearchMode = () => this.term !== undefined && this.term !== null && this.term.length > 0;
 
-    const queriesFetcher = (requestedPage, itemsPerPage, paginator) => {
+    const queriesFetcher = (requestedPage, itemsPerPage, orderByField, orderByReverse, paginator) => {
       $location.search('page', requestedPage);
+      $location.search('page_size', itemsPerPage);
+
+      if (orderByReverse && !orderByField.startsWith(orderSeparator)) {
+        orderByField = orderSeparator + orderByField;
+      }
+      setSearchOrClear('order', orderByField);
 
       const request = Object.assign({}, this.defaultOptions, {
         page: requestedPage,
         page_size: itemsPerPage,
         tags: [...this.selectedTags], // convert Set to Array
+        order: orderByField,
       });
 
       if (isString(this.term) && this.term !== '') {
@@ -49,6 +73,8 @@ class QueriesListCtrl {
 
       if (this.term === '') {
         this.term = null;
+      } else {
+        this.currentPage = 'search';
       }
       $location.search('q', this.term);
 
@@ -90,11 +116,23 @@ class QueriesListCtrl {
       $location.url(url);
     };
 
-    this.paginator = new LivePaginator(queriesFetcher, { page });
+    this.paginator = new LivePaginator(queriesFetcher, {
+      page,
+      itemsPerPage: this.pageSize,
+      orderByField: pageOrder,
+      orderByReverse: pageOrderReverse,
+    });
+
+    this.pageSizeLabel = value => `${value} results`;
+
+    this.clearSearch = () => {
+      this.term = '';
+      this.update();
+    };
 
     this.update = () => {
       // `queriesFetcher` will be called by paginator
-      this.paginator.setPage(1);
+      this.paginator.setPage(page, this.pageSize);
     };
   }
 }

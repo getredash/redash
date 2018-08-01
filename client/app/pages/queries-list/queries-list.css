@@ -1,0 +1,4 @@
+.search input[type="text"],
+.search button {
+  height: 35px;
+}
