@@ -3,9 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import DatePicker from 'antd/lib/date-picker';
-import 'antd/lib/style/core/iconfont.less';
-import 'antd/lib/input/style/index.less';
-import 'antd/lib/date-picker/style/index.less';
 
 function DateInput({
   value,
