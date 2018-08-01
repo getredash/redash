@@ -3,12 +3,12 @@ from flask import jsonify, request, url_for
 from flask_login import login_required
 from flask_restful import abort
 from sqlalchemy.orm.exc import StaleDataError
-from sqlalchemy_utils import sort_query
+from funcy import rpartial
 
 from redash import models
 from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (BaseResource, filter_by_tags, get_object_or_404,
-                                  org_scoped_rule, paginate, routes)
+                                  org_scoped_rule, paginate, routes, order_results as _order_results)
 from redash.handlers.query_results import run_query
 from redash.permissions import (can_modify, not_view_only, require_access,
                                 require_admin_or_owner,
@@ -34,20 +34,7 @@ order_map = {
     '-created_by': '-users-name',
 }
 
-
-def order_results(results, default_order='-created_at'):
-    """
-    Orders the given results with the sort order as requested in the
-    "order" request query parameter or the given default order.
-    """
-    # See if a particular order has been requested
-    order = request.args.get('order', '').strip() or default_order
-    # and if it matches a long-form for related fields, falling
-    # back to the default order
-    selected_order = order_map.get(order, default_order)
-    # The query may already have an ORDER BY statement attached
-    # so we clear it here and apply the selected order
-    return sort_query(results.order_by(None), selected_order)
+order_results = rpartial(_order_results, '-created_at', order_map)
 
 
 @routes.route(org_scoped_rule('/api/queries/format'), methods=['POST'])
