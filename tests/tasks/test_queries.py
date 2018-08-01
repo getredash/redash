@@ -7,7 +7,8 @@ import mock
 from tests import BaseTestCase
 from redash import redis_connection, models
 from redash.query_runner.pg import PostgreSQL
-from redash.tasks.queries import QueryTaskTracker, enqueue_query, execute_query
+from redash.tasks.queries import (QueryExecutionError, QueryTaskTracker,
+                                    enqueue_query, execute_query)
 
 
 class TestPrune(TestCase):
@@ -113,11 +114,15 @@ class QueryExecutorTests(BaseTestCase):
                         {'routing_key': 'test'})
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
-            qr.exception = ValueError("broken")
-            execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
+            qr.side_effect = ValueError("broken")
+            with self.assertRaises(QueryExecutionError):
+                execute_query("SELECT 1, 2", self.factory.data_source.id, {},
+                              scheduled_query_id=q.id)
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
-            execute_query("SELECT 1, 2", self.factory.data_source.id, {}, scheduled_query_id=q.id)
+            with self.assertRaises(QueryExecutionError):
+                execute_query("SELECT 1, 2", self.factory.data_source.id, {},
+                              scheduled_query_id=q.id)
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 2)
 
@@ -129,10 +134,11 @@ class QueryExecutorTests(BaseTestCase):
                         {'routing_key': 'test'})
         q = self.factory.create_query(query_text="SELECT 1, 2", schedule=300)
         with cm, mock.patch.object(PostgreSQL, "run_query") as qr:
-            qr.exception = ValueError("broken")
-            execute_query("SELECT 1, 2",
-                          self.factory.data_source.id, {},
-                          scheduled_query_id=q.id)
+            qr.side_effect = ValueError("broken")
+            with self.assertRaises(QueryExecutionError):
+                execute_query("SELECT 1, 2",
+                              self.factory.data_source.id, {},
+                              scheduled_query_id=q.id)
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 1)
 
