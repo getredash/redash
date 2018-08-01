@@ -127,8 +127,7 @@ class Athena(BaseQueryRunner):
         schema = {}
         database_paginator = client.get_paginator('get_databases')
         table_paginator = client.get_paginator('get_tables')
-        databases = (database for databases in database_paginator.paginate()
-                     for database in databases['DatabaseList'])
+
         for databases in database_paginator.paginate():
             for database in databases['DatabaseList']:
                 iterator = table_paginator.paginate(DatabaseName=database['Name'])
