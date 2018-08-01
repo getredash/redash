@@ -44,24 +44,23 @@ class PrettyConnection(presto.Connection):
     def _pretty_(self, column, data):
         try:
             iter(data)  # check if the data is iterable
+            if column["rawType"] == "row":  # records should have their fields associated with types
+                keys = column["literalArguments"]
+                values = [self._pretty_(c, d) for c, d in zip(column["typeArguments"], data)]
+                to_return = dict(zip(keys, values))
+            elif column["rawType"] == "array":  # arrays should have their element types associated with each element
+                rep = [column["typeArguments"][0]]*len(data)
+                to_return = [self._pretty_(c, d) for c, d in zip(rep, data)]
+            elif column["rawType"] == "map":
+                # maps should have their value types associated with each value (note that keys are always strings)
+                value_type = column["typeArguments"][1]
+                to_return = {k: self._pretty_(value_type, v) for k, v in data.iteritems()}
+            else:
+                to_return = data  # unknown type, don't process it
+
+            return to_return
         except TypeError:
             return data  # non-iterables can simply be directly shown
-
-        if column["rawType"] == "row":  # records should have their fields associated with types
-            keys = column["literalArguments"]
-            values = [self._pretty_(c, d) for c, d in zip(column["typeArguments"], data)]
-            to_return = dict(zip(keys, values))
-        elif column["rawType"] == "array":  # arrays should have their element types associated with each element
-            rep = [column["typeArguments"][0]]*len(data)
-            to_return = [self._pretty_(c, d) for c, d in zip(rep, data)]
-        elif column["rawType"] == "map":
-            # maps should have their value types associated with each value (note that keys are always strings)
-            value_type = column["typeArguments"][1]
-            to_return = {k: self._pretty_(value_type, v) for k, v in data.iteritems()}
-        else:
-            to_return = data  # unknown type, don't process it
-
-        return to_return
 
     def cursor(self):
         return PrettyCursor(*self._args, **self._kwargs)
