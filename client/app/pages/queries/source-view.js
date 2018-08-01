@@ -1,8 +1,17 @@
+import { map } from 'lodash';
 import template from './query.html';
 
 function QuerySourceCtrl(
-  Events, toastr, $controller, $scope, $location, $http, $q,
-  AlertDialog, currentUser, Query, Visualization, KeyboardShortcuts,
+  Events,
+  toastr,
+  $controller,
+  $scope,
+  $location,
+  $uibModal,
+  currentUser,
+  Query,
+  KeyboardShortcuts,
+  $rootScope,
 ) {
   // extends QueryViewCtrl
   $controller('QueryViewCtrl', { $scope });
@@ -16,6 +25,7 @@ function QuerySourceCtrl(
   $scope.sourceMode = true;
   $scope.isDirty = false;
   $scope.base_url = `${$location.protocol()}://${$location.host()}:${$location.port()}`;
+  $scope.modKey = KeyboardShortcuts.modKey;
 
   // @override
   Object.defineProperty($scope, 'showDataset', {
@@ -29,6 +39,9 @@ function QuerySourceCtrl(
       if ($scope.canEdit) {
         $scope.saveQuery();
       }
+    },
+    'mod+p': () => {
+      $scope.addNewParameter();
     },
   };
 
@@ -61,12 +74,36 @@ function QuerySourceCtrl(
 
   $scope.formatQuery = () => {
     Query.format($scope.dataSource.syntax, $scope.query.query)
-      .then((query) => { $scope.query.query = query; })
+      .then((query) => {
+        $scope.query.query = query;
+      })
       .catch(error => toastr.error(error));
   };
 
+  $scope.addNewParameter = () => {
+    $uibModal
+      .open({
+        component: 'parameterSettings',
+        resolve: {
+          parameter: {
+            title: '',
+            name: '',
+            type: 'text',
+            value: null,
+            global: false,
+          },
+          existingParameters: () => map($scope.query.getParameters().get(), p => p.name),
+        },
+      })
+      .result.then((param) => {
+        $rootScope.$broadcast('query-editor.command', 'paste', '{{ ' + param.name + ' }}');
+        $rootScope.$broadcast('query-editor.command', 'focus');
+        $scope.query.getParameters().add(param);
+      });
+  };
+
   $scope.$watch('query.query', (newQueryText) => {
-    $scope.isDirty = (newQueryText !== queryText);
+    $scope.isDirty = newQueryText !== queryText;
   });
 }
 

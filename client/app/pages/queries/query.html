@@ -137,42 +137,41 @@
     <div class="content">
       <div class="flex-fill p-relative">
         <div class="p-absolute d-flex flex-column p-l-15 p-r-15" style="left: 0; top: 0; right: 0; bottom: 0;">
-          <div class="row editor" resizable r-directions="['bottom']" r-flex="true"
-            resizable-toggle toggle-shortcut="Alt+D"
-            style="min-height: 11px; max-height: 70vh;" ng-if="sourceMode">
+          <div class="row editor" resizable r-directions="['bottom']" r-flex="true" resizable-toggle toggle-shortcut="Alt+D" style="min-height: 11px; max-height: 70vh;"
+            ng-if="sourceMode">
             <section>
 
               <div class="container p-15 m-b-10" style="height:100%;">
                 <p style="height:calc(100% - 40px); margin-bottom: 0px;" class="editor__container">
                   <query-editor query="query" schema="schema" syntax="dataSource.syntax"></query-editor>
-
-                  <button type="button" class="btn btn-default btn-s btn__format pull-right" ng-click="formatQuery()" title="Format">
-                    <span class="zmdi zmdi-format-indent-increase"></span>
-                  </button>
                 </p>
 
                 <div class="editor__control">
-                  <div class="row form-inline">
-                    <div class="col-xs-5 text-left">
-                      <select class="form-control datasource-small" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id"
-                        ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
-                    </div>
+                  <div class="form-inline d-flex">
+                    <button type="button" class="btn btn-default m-r-5" ng-click="addNewParameter()" uib-tooltip-html="'Add New Parameter (<i>' + modKey + ' + P</i>)'"
+                      tooltip-append-to-body="true">
+                      <span ng-non-bindable>{{&nbsp;}}</span>
+                    </button>
 
-                    <div class="col-xs-7">
-                      <div class="editor__control--right">
-                        <button class="btn btn-default" ng-show="canEdit" ng-click="saveQuery()" title="Save">
-                          <span class="fa fa-floppy-o"></span>
-                          <span class="hidden-xs">Save</span>
-                          <span ng-show="isDirty">&#42;</span>
-                        </button>
+                    <button type="button" class="btn btn-default" ng-click="formatQuery()" uib-tooltip="Format Query">
+                      <span class="zmdi zmdi-format-indent-increase"></span>
+                    </button>
 
-                        <button type="button" class="btn btn-primary" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()">
-                          <span class="zmdi zmdi-play"></span>
-                          <span class="hidden-xs">Execute</span>
-                        </button>
-                      </div>
-                    </div>
+                    <select class="form-control datasource-small flex-fill w-100" ng-disabled="!isQueryOwner || !sourceMode" ng-model="query.data_source_id"
+                      ng-change="updateDataSource()" ng-options="ds.id as ds.name for ds in dataSources"></select>
 
+                    <button class="btn btn-default m-l-5" ng-show="canEdit" ng-click="saveQuery()" title="Save" uib-tooltip-html="modKey + ' + S'"
+                      tooltip-append-to-body="true">
+                      <span class="fa fa-floppy-o"></span>
+                      <span class="hidden-xs">Save</span>
+                      <span ng-show="isDirty">&#42;</span>
+                    </button>
+
+                    <button type="button" class="btn btn-primary m-l-5" ng-disabled="queryExecuting || !canExecuteQuery()" ng-click="executeQuery()"
+                      uib-tooltip-html="modKey + ' + Enter'" tooltip-append-to-body="true">
+                      <span class="zmdi zmdi-play"></span>
+                      <span class="hidden-xs">Execute</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -227,7 +226,8 @@
                   </button>
                 </div>
                 <div class="alert alert-danger m-t-15" ng-show="queryResult.getError()">
-                  Error running query: <strong>{{queryResult.getError()}}</strong>
+                  Error running query:
+                  <strong>{{queryResult.getError()}}</strong>
                 </div>
               </div>
               <!-- End of Query Execution Status -->
