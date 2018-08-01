@@ -24,3 +24,4 @@ node_modules
 .sass-cache
 npm-debug.log
 
+migrations/versions/ac2b14227d94_.py
