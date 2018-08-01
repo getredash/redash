@@ -1,13 +1,14 @@
 import moment from 'moment';
+import { isArray } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import DatePicker from 'antd/lib/date-picker';
+import { RangePicker } from 'antd/lib/date-picker';
 import 'antd/lib/style/core/iconfont.less';
 import 'antd/lib/input/style/index.less';
 import 'antd/lib/date-picker/style/index.less';
 
-function DateInput({
+function DateRangeInput({
   value,
   onSelect,
   // eslint-disable-next-line react/prop-types
@@ -15,36 +16,40 @@ function DateInput({
 }) {
   const format = clientConfig.dateFormat || 'YYYY-MM-DD';
   const additionalAttributes = {};
-  if (value && value.isValid()) {
+  if (isArray(value) && value[0].isValid() && value[1].isValid()) {
     additionalAttributes.defaultValue = value;
   }
   return (
-    <DatePicker
+    <RangePicker
       {...additionalAttributes}
       format={format}
-      placeholder="Select Date"
       onChange={onSelect}
     />
   );
 }
 
-DateInput.propTypes = {
+DateRangeInput.propTypes = {
   value: (props, propName, componentName) => {
     const value = props[propName];
-    if ((value !== null) && !moment.isMoment(value)) {
+    if (
+      (value !== null) && !(
+        isArray(value) && (value.length === 2) &&
+        moment.isMoment(value[0]) && moment.isMoment(value[1])
+      )
+    ) {
       return new Error('Prop `' + propName + '` supplied to `' + componentName +
-        '` should be a Moment.js instance.');
+        '` should be an array of two Moment.js instances.');
     }
   },
   onSelect: PropTypes.func,
 };
 
-DateInput.defaultProps = {
+DateRangeInput.defaultProps = {
   value: null,
   onSelect: () => {},
 };
 
 export default function init(ngModule) {
-  ngModule.component('dateInput', react2angular(DateInput, null, ['clientConfig']));
+  ngModule.component('dateRangeInput', react2angular(DateRangeInput, null, ['clientConfig']));
 }
 

@@ -11,15 +11,19 @@ function DateTimeInput({
   value,
   withSeconds,
   onSelect,
+  // eslint-disable-next-line react/prop-types
   clientConfig,
 }) {
   const format = (clientConfig.dateFormat || 'YYYY-MM-DD') +
     (withSeconds ? ' HH:mm:ss' : ' HH:mm');
-  const defaultValue = moment(value, format);
+  const additionalAttributes = {};
+  if (value && value.isValid()) {
+    additionalAttributes.defaultValue = value;
+  }
   return (
     <DatePicker
       showTime
-      {...(defaultValue.isValid() ? { defaultValue } : {})}
+      {...additionalAttributes}
       format={format}
       placeholder="Select Date and Time"
       onChange={onSelect}
@@ -30,7 +34,7 @@ function DateTimeInput({
 DateTimeInput.propTypes = {
   value: (props, propName, componentName) => {
     const value = props[propName];
-    if ((value !== null) && !moment.isMoment(props[propName])) {
+    if ((value !== null) && !moment.isMoment(value)) {
       return new Error('Prop `' + propName + '` supplied to `' + componentName +
         '` should be a Moment.js instance.');
     }
