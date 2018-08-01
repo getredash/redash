@@ -49,6 +49,8 @@ simplejson==3.10.0
 ua-parser==0.7.3 
 user-agents==1.1.0
 python-geoip-geolite2==2015.303
+chromelogger==0.4.3
+disposable-email-domains
 # Uncomment the requirement for ldap3 if using ldap.
 # It is not included by default because of the GPL license conflict.
 # ldap3==2.2.4

@@ -78,7 +78,7 @@ function requireImages() {
 function registerComponents() {
   // We repeat this code in other register functions, because if we don't use a literal for the path
   // Webpack won't be able to statcily analyze our imports.
-  const context = require.context('@/components', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/components', true, /^((?![\\/]test[\\/]).)*\.jsx?$/);
   registerAll(context);
 }
 

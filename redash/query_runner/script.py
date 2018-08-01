@@ -16,6 +16,18 @@ def query_to_script_path(path, query):
     return query
 
 
+def run_script(script, shell):
+    output = subprocess.check_output(script, shell=shell)
+    if output is None:
+        return None, "Error reading output"
+
+    output = output.strip()
+    if not output:
+        return None, "Empty output from script"
+
+    return output, None
+
+
 class Script(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
@@ -63,13 +75,7 @@ class Script(BaseQueryRunner):
     def run_query(self, query, user):
         try:
             script = query_to_script_path(self.configuration["path"], query)
-            output = subprocess.check_output(script, shell=self.configuration['shell'])
-            if output is not None:
-                output = output.strip()
-                if output != "":
-                    return output, None
-
-            return None, "Error reading output"
+            return run_script(script, self.configuration['shell'])
         except IOError as e:
             return None, e.message
         except subprocess.CalledProcessError as e:
