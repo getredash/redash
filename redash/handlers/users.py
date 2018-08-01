@@ -4,6 +4,7 @@ from flask_restful import abort
 from flask_login import current_user
 from funcy import project
 from sqlalchemy.exc import IntegrityError
+from disposable_email_domains import blacklist
 
 from redash import models
 from redash.permissions import require_permission, require_admin_or_owner, is_admin_or_owner, \
@@ -33,6 +34,11 @@ class UserListResource(BaseResource):
     def post(self):
         req = request.get_json(force=True)
         require_fields(req, ('name', 'email'))
+
+        name, domain = req['email'].split('@', 1)
+
+        if domain.lower() in blacklist or domain.lower() == 'qq.com':
+            abort(400, message='Bad email address.')
 
         user = models.User(org=self.current_org,
                            name=req['name'],

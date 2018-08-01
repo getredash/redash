@@ -631,7 +631,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
             data_sources = data_sources.join(DataSourceGroup).filter(
                 DataSourceGroup.group_id.in_(group_ids))
 
-        return data_sources
+        return data_sources.distinct()
 
     @classmethod
     def get_by_id(cls, _id):

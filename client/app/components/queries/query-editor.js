@@ -3,6 +3,7 @@ import 'brace/mode/python';
 import 'brace/mode/sql';
 import 'brace/mode/json';
 import 'brace/ext/language_tools';
+import 'brace/ext/searchbox';
 import { map } from 'lodash';
 
 // By default Ace will try to load snippet files for the different modes and fail.
