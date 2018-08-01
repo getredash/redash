@@ -31,7 +31,7 @@ function DestinationCtrl(
   $scope.delete = () => {
     const doDelete = () => {
       $scope.destination.$delete(() => {
-        toastrSuccessAndPath('Destination', 'destionations', toastr, $location);
+        toastrSuccessAndPath('Destination', 'destinations', toastr, $location);
       }, (httpResponse) => {
         logAndToastrError('destination', httpResponse, toastr);
       });
