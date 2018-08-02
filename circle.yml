@@ -5,7 +5,7 @@ notify:
 jobs:
   build:
     docker:
-      - image: circleci/node:6
+      - image: circleci/node:8
     working_directory: ~/redash
     steps:
       - checkout
@@ -98,7 +98,7 @@ jobs:
           path: report.html
   build-deploy: # build for master or release branches
     docker:
-      - image: circleci/node:6
+      - image: circleci/node:8
     environment:
       NAME: redash
       VERSION: $(python ./manage.py version)
@@ -115,7 +115,7 @@ jobs:
           path: $NAME.$FULL_VERSION.tar.gz
   build-release: # build for tags
     docker:
-      - image: circleci/node:6
+      - image: circleci/node:8
     working_directory: ~/redash
     steps:
       - attach_workspace:
