@@ -100,7 +100,7 @@ def create_app(load_admin=True):
     from redash.metrics.request import provision_app
 
     app = Flask(__name__,
-                template_folder=settings.STATIC_ASSETS_PATH,
+                template_folder=settings.TEMPLATES_PATH,
                 static_folder=settings.STATIC_ASSETS_PATH,
                 static_path='/static')
 
