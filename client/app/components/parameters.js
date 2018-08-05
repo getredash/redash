@@ -20,7 +20,7 @@ const ParameterSettingsComponent = {
     this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
     this.isNewParameter = this.parameter.name === '';
-    this.shouldGenerateTitle = this.isNewParameter && (this.parameter.title === '');
+    this.shouldGenerateTitle = this.isNewParameter && this.parameter.title === '';
 
     this.parameterAlreadyExists = name => includes(this.resolve.existingParameters, name);
 
@@ -35,8 +35,8 @@ const ParameterSettingsComponent = {
         return;
       }
 
-      Query.search({ q: term }, (results) => {
-        this.queries = results;
+      Query.query({ q: term }, (results) => {
+        this.queries = results.results;
       });
     };
 
@@ -131,16 +131,20 @@ function ParametersDirective($location, $uibModal) {
     link(scope) {
       // is this the correct location for this logic?
       if (scope.syncValues !== false) {
-        scope.$watch('parameters', () => {
-          if (scope.changed) {
-            scope.changed({});
-          }
-          scope.parameters.forEach((param) => {
-            if (param.value !== null || param.value !== '') {
-              $location.search(`p_${param.name}`, param.value);
+        scope.$watch(
+          'parameters',
+          () => {
+            if (scope.changed) {
+              scope.changed({});
             }
-          });
-        }, true);
+            scope.parameters.forEach((param) => {
+              if (param.value !== null || param.value !== '') {
+                $location.search(`p_${param.name}`, param.value);
+              }
+            });
+          },
+          true,
+        );
       }
 
       // These are input as newline delimited values,
