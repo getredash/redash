@@ -27,7 +27,11 @@
         <big-message icon="'fa-spinner fa-2x fa-pulse'" message="'Loading...'"></big-message>
       </div>
 
-      <table class="table table-hover table-border" ng-if="$ctrl.loaded">
+      <div ng-if="$ctrl.notFound" class="list-content text-center">
+        <big-message message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'"></big-message>
+      </div>
+
+      <table class="table table-hover table-border" ng-if="$ctrl.loaded && !$ctrl.notFound">
         <thead>
           <tr>
             <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('name')">
