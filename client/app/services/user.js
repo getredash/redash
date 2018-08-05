@@ -1,11 +1,19 @@
 import { isString } from 'lodash';
+import { $http } from '@/services/http';
+
+function disableResource(user) {
+  return `api/users/${user.id}/disable`;
+}
 
 function enableUser(user, toastr, $sanitize) {
   const userName = $sanitize(user.name);
-  return user
-    .$enable()
+
+  return $http
+    .delete(disableResource(user))
     .then((data) => {
       toastr.success(`User <b>${userName}</b> is now enabled.`, { allowHtml: true });
+      user.is_disabled = false;
+      user.profile_image_url = data.data.profile_image_url;
       return data;
     })
     .catch((response) => {
@@ -19,10 +27,12 @@ function enableUser(user, toastr, $sanitize) {
 
 function disableUser(user, toastr, $sanitize) {
   const userName = $sanitize(user.name);
-  return user
-    .$disable()
+  return $http
+    .post(disableResource(user))
     .then((data) => {
       toastr.warning(`User <b>${userName}</b> is now disabled.`, { allowHtml: true });
+      user.is_disabled = true;
+      user.profile_image_url = data.data.profile_image_url;
       return data;
     })
     .catch((response) => {
@@ -34,7 +44,7 @@ function disableUser(user, toastr, $sanitize) {
     });
 }
 
-function User($resource, $http, $sanitize, toastr) {
+function User($resource, $sanitize, toastr) {
   const actions = {
     get: { method: 'GET' },
     save: { method: 'POST' },
