@@ -21,7 +21,7 @@ const ParameterSettingsComponent = {
     this.trustAsHtml = html => $sce.trustAsHtml(html);
     this.parameter = this.resolve.parameter;
     this.isNewParameter = this.parameter.name === '';
-    this.shouldGenerateTitle = this.isNewParameter && (this.parameter.title === '');
+    this.shouldGenerateTitle = this.isNewParameter && this.parameter.title === '';
 
     this.parameterAlreadyExists = name => includes(this.resolve.existingParameters, name);
 
@@ -36,8 +36,8 @@ const ParameterSettingsComponent = {
         return;
       }
 
-      Query.search({ q: term }, (results) => {
-        this.queries = results;
+      Query.query({ q: term }, (results) => {
+        this.queries = results.results;
       });
     };
 
