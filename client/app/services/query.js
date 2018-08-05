@@ -287,12 +287,6 @@ function QueryResource(
         url: 'api/queries/:id/favorite',
         transformRequest: [() => ''], // body not needed
       },
-      // This can be removed once #2686 is merged:
-      search: {
-        method: 'get',
-        isArray: true,
-        url: 'api/queries/search',
-      },
     },
   );
 

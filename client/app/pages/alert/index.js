@@ -47,8 +47,8 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
       return;
     }
 
-    Query.search({ q: term }, (results) => {
-      this.queries = results;
+    Query.query({ q: term }, (results) => {
+      this.queries = results.results;
     });
   };
 
