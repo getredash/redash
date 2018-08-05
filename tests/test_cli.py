@@ -331,20 +331,20 @@ class UserCommandTests(BaseTestCase):
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         self.assertEqual(User.query.filter(User.email ==
-                                           "foobar@example.com").count(), 0)
+                                           u"foobar@example.com").count(), 0)
         self.assertEqual(User.query.count(), ucount - 1)
 
     def test_delete_bad(self):
         ucount = User.query.count()
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'delete', 'foobar@example.com'])
+        result = runner.invoke(manager, ['users', 'delete', u'foobar@example.com'])
         self.assertIn('Deleted 0 users', result.output)
         self.assertEqual(User.query.count(), ucount)
 
     def test_password(self):
         self.factory.create_user(email='foobar@example.com')
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'password', 'foobar@example.com', 'xyzzy'])
+        result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         u = User.query.filter(User.email == "foobar@example.com").first()
@@ -352,23 +352,23 @@ class UserCommandTests(BaseTestCase):
 
     def test_password_bad(self):
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'password', 'foobar@example.com', 'xyzzy'])
+        result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy'])
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('not found', result.output)
 
     def test_password_bad_org(self):
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'password', 'foobar@example.com', 'xyzzy', '--org', 'default'])
+        result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy', '--org', 'default'])
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
         self.assertIn('not found', result.output)
 
     def test_invite(self):
-        admin = self.factory.create_user(email='redash-admin@example.com')
+        admin = self.factory.create_user(email=u'redash-admin@example.com')
         runner = CliRunner()
         with mock.patch('redash.cli.users.invite_user') as iu:
-            result = runner.invoke(manager, ['users', 'invite', 'foobar@example.com', 'Fred Foobar', 'redash-admin@example.com'])
+            result = runner.invoke(manager, ['users', 'invite', u'foobar@example.com', 'Fred Foobar', u'redash-admin@example.com'])
             self.assertFalse(result.exception)
             self.assertEqual(result.exit_code, 0)
             self.assertTrue(iu.called)
