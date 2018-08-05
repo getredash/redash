@@ -23,8 +23,8 @@ class TestUserUpdateGroupAssignments(BaseTestCase):
 
 class TestUserFindByEmail(BaseTestCase):
     def test_finds_users(self):
-        user = self.factory.create_user(email='test@example.com')
-        user2 = self.factory.create_user(email='test@example.com', org=self.factory.create_org())
+        user = self.factory.create_user(email=u'test@example.com')
+        user2 = self.factory.create_user(email=u'test@example.com', org=self.factory.create_org())
 
         users = User.find_by_email(user.email)
         self.assertIn(user, users)

@@ -314,10 +314,10 @@ class UserCommandTests(BaseTestCase):
         self.assertEqual(u.group_ids, [u.org.default_group.id])
 
     def test_create_bad(self):
-        self.factory.create_user(email='foobar@example.com')
+        self.factory.create_user(email=u'foobar@example.com')
         runner = CliRunner()
         result = runner.invoke(
-            manager, ['users', 'create', 'foobar@example.com', 'Fred Foobar'],
+            manager, ['users', 'create', u'foobar@example.com', 'Fred Foobar'],
             input="password1\npassword1\n")
         self.assertTrue(result.exception)
         self.assertEqual(result.exit_code, 1)
