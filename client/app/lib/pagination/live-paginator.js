@@ -1,9 +1,6 @@
 export default class LivePaginator {
   constructor(rowsFetcher, {
-    page = 1,
-    itemsPerPage = 20,
-    orderByField,
-    orderByReverse = false,
+    page = 1, itemsPerPage = 20, orderByField, orderByReverse = false,
   } = {}) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
@@ -14,13 +11,7 @@ export default class LivePaginator {
   }
 
   fetchPage(page) {
-    this.rowsFetcher(
-      page,
-      this.itemsPerPage,
-      this.orderByField,
-      this.orderByReverse,
-      this,
-    );
+    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse, this);
   }
 
   setPage(page, pageSize) {

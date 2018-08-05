@@ -27,7 +27,7 @@ function DashboardListCtrl($scope, currentUser, $location, Dashboard) {
   this.showEmptyState = false;
   this.loaded = false;
 
-  const fetcher = (requestedPage, itemsPerPage, paginator) => {
+  const fetcher = (requestedPage, itemsPerPage, orderByField, orderByReverse, paginator) => {
     $location.search('page', requestedPage);
 
     const request = Object.assign({}, this.defaultOptions, {
