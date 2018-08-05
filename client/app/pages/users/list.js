@@ -79,11 +79,11 @@ function UsersCtrl($location, currentUser, Policy, Events, User) {
   };
 
   this.enableUser = (user) => {
-    User.enableUser(user);
+    User.enableUser(user).then(this.update);
   };
 
   this.disableUser = (user) => {
-    User.disableUser(user);
+    User.disableUser(user).then(this.update);
   };
 }
 
