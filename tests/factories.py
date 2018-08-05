@@ -40,7 +40,7 @@ class Sequence(object):
 
 
 user_factory = ModelFactory(redash.models.User,
-                            name='John Doe', email=Sequence('test{}@example.com'),
+                            name='John Doe', email=Sequence(u'test{}@example.com'),
                             group_ids=[2],
                             org_id=1)
 
