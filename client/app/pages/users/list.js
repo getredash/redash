@@ -1,4 +1,4 @@
-import { isString, filter } from 'lodash';
+import { isString } from 'lodash';
 import settingsMenu from '@/lib/settings-menu';
 import { LivePaginator } from '@/lib/pagination';
 import template from './list.html';
@@ -73,36 +73,17 @@ function UsersCtrl($location, currentUser, Policy, Events, User) {
     this.paginator.setPage(page);
   };
 
-  this.userCategories = {
-    all: [],
-    enabled: [],
-    disabled: [],
+  this.search = () => {
+    $location.search('page', 1);
+    this.paginator.setPage(1);
   };
-
-  const updateUsers = (users) => {
-    this.userCategories.all = users;
-    this.userCategories.enabled = filter(users, user => !user.is_disabled);
-    this.userCategories.disabled = filter(users, user => user.is_disabled);
-    this.setUsersCategory(this.usersCategory);
-  };
-
-  this.usersCategory = null;
-  this.setUsersCategory = (usersCategory) => {
-    this.usersCategory = usersCategory;
-    // this.users.updateRows(this.userCategories[usersCategory]);
-  };
-  this.setUsersCategory('enabled');
 
   this.enableUser = (user) => {
-    User.enableUser(user).then(() => {
-      updateUsers(this.userCategories.all);
-    });
+    User.enableUser(user);
   };
 
   this.disableUser = (user) => {
-    User.disableUser(user).then(() => {
-      updateUsers(this.userCategories.all);
-    });
+    User.disableUser(user);
   };
 }
 
