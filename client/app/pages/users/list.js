@@ -52,27 +52,17 @@ function UsersCtrl($location, currentUser, Policy, Events, User) {
     $location.search('q', this.term);
 
     this.loaded = false;
+    this.notFound = false;
 
     return User.query(request).$promise.then((data) => {
       this.loaded = true;
       const rows = data.results;
 
-      paginator.updateRows(rows, data.count);
+      if (this.term !== null && data.count === 0) {
+        this.notFound = true;
+      }
 
-      // if (data.count === 0) {
-      //   if (this.isInSearchMode()) {
-      //     this.emptyType = 'search';
-      //   } else if (this.selectedTags.size > 0) {
-      //     this.emptyType = 'tags';
-      //   } else if (this.currentPage === 'favorites') {
-      //     this.emptyType = 'favorites';
-      //   } else if (this.currentPage === 'my') {
-      //     this.emptyType = 'my';
-      //   } else {
-      //     this.emptyType = 'default';
-      //   }
-      // }
-      // this.showEmptyState = data.count === 0;
+      paginator.updateRows(rows, data.count);
     });
   };
 
