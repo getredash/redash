@@ -80,7 +80,7 @@ class TestUserListGet(BaseTestCase):
         user3 = self.factory.create_user(org=org)
 
         rv = self.make_request('get', "/api/users")
-        user_ids = map(lambda u: u['id'], rv.json)
+        user_ids = map(lambda u: u['id'], rv.json['results'])
         self.assertIn(user1.id, user_ids)
         self.assertIn(user2.id, user_ids)
         self.assertNotIn(user3.id, user_ids)
