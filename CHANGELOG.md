@@ -1,6 +1,6 @@
 # Change Log
 
-## v5.0.0-Beta - UNRELEASED
+## v5.0.0-Beta - 2018-08-06
 
 This is the first beta of the V5 release (and hopefully the last one). This version includes a lot of exciting new additions along with bug fixes and other changes.
 
