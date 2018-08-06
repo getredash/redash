@@ -2,22 +2,44 @@
 
 ## v5.0.0-Beta - UNRELEASED
 
+This is the first beta of the V5 release (and hopefully the last one). This version includes a lot of exciting new additions along with bug fixes and other changes.
+
+Some notable changes:
+
+* Extensive work on parameters UI:
+  * New Date Range parameter type.
+  * UI for creating new parameters.
+  * Support for Now/Today as default value of date/time parameter.
+* Tagging and favorites ⭐️ support for queries and dashboards.
+* Users list page was improved (search, additional information) and you can now disable users.
+* Query editor improvements: additional keyboard shortcuts and support for searching in query text.
+* Visualizations improvements: option to select colors of pie chart sectors, X Axis type auto detect and option to format values, labels and tooltips.
+* Data Sources:
+  * Support for Yandex Metrika and AppMetrika.
+  * BigQuery: location property support and schema will load all tables now.
+  * Elasticsearch: stop sending source_content_type parameter which wasn't supported in older versions.
+* Started migrating the frontend codebase to React.
+
+And much more!
+
+🙏 Thanks to @kravets-levko, @arikfr, @ariarijp, @alison985, @kyoshidajp, @kocsmy, @denisov-vlad, @deecay, @yuua, @emtwo, @Pablohn26, @sieben, @atharvai, @matsumo, @tdawber, @innovia, @gabrieldutra, @coreyhuinker, @maxv, @sjakthol, @mtrbean and @washort who contributed to this release!
+
 ### Added
 
 * #2712: Date/Time Range parameter type (@kravets-levko)
-* #2482: add support ChatWork Alert Destination. (@matsumo)
-* #2678: Explicit "Add Parameter" Button in Query Editor (@kravets-levko)
-* #2513: Add location property to BigQuery data source settings (@kyoshidajp)
-* #2616: Pie chart: sectors colors (@kravets-levko)
-* #2697: Date/Time parameters: dynamic default value (current date/time) (@kravets-levko)
+* #2482: Add support for ChatWork Alert Destination. (@matsumo)
+* #2678: Explicit "Add Parameter" Button in Query Editor. (@kravets-levko)
+* #2513: Add location property to BigQuery data source settings. (@kyoshidajp)
+* #2616: Pie chart: support setting pie chart sector colors. (@kravets-levko)
+* #2697: Date/Time parameters: support for "Now" as default value. (@kravets-levko)
 * #2693: Enable search function in Query Editor. (@arikfr)
 * #2573: Tagging and favorites for Queries and Dashboards (@arikfr)
-* #2640:  Keyboard shortcut to collapse query editor/schema browser (@kravets-levko)
+* #2640: Keyboard shortcut to collapse query editor/schema browser (@kravets-levko)
 * #2674: Add support for the Chrome Logger extension (@arikfr)
 * #2653: Add redash db size to status page (@alison985)
 * #2669: Store Athena query id with result metadata (@tdawber)
 * #2546: Configuration for incorporating React components (@washort)
-* #2533: New datasource: Yandex Metrika&AppMetrika (@denisov-vlad)
+* #2533: New datasource: Yandex Metrika & AppMetrika (@denisov-vlad)
 * #2536: Chart: formats for values, labels and tooltips (@kravets-levko)
 * #2560: Introduce Policy object (@arikfr)
 * #2380: Admin should be able to disable a user (@kravets-levko)
