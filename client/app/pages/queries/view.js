@@ -112,6 +112,15 @@ function QueryViewCtrl(
       return;
     }
 
+    // クエリの編集権限がなく、元クエリを編集した場合はクエリを実行させない。
+    if (!$scope.canEdit && $scope.isDirty) {
+      toastr.error(
+        '元のクエリを編集すると実行できません。クエリをForkしてください。',
+        { autoDismiss: false },
+      );
+      return;
+    }
+
     getQueryResult(0);
     $scope.lockButton(true);
     $scope.cancelling = false;
@@ -146,7 +155,7 @@ function QueryViewCtrl(
   $scope.canEdit = currentUser.canEdit($scope.query) || $scope.query.can_edit;
   $scope.canViewSource = currentUser.hasPermission('view_source');
 
-  $scope.canExecuteQuery = () => currentUser.hasPermission('execute_query') && !$scope.dataSource.view_only;
+  $scope.canExecuteQuery = () => currentUser.hasPermission('view_source');
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
