@@ -506,7 +506,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def search(cls, base_query, term):
-        term = '%{}%'.format(term)
+        term = u'%{}%'.format(term)
         search_filter = or_(cls.name.ilike(term), cls.email.like(term))
 
         return base_query.filter(search_filter)
