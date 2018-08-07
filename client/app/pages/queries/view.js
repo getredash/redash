@@ -115,7 +115,7 @@ function QueryViewCtrl(
     // 閲覧権限かつ元クエリを編集した場合はクエリを実行させない。
     if (!$scope.canEdit && $scope.isDirty) {
       toastr.error(
-        '閲覧権限の場合は、元のクエリを編集すると実行できません。',
+        '元のクエリを編集すると実行できません。クエリをForkしてください。',
         { autoDismiss: false },
       );
       return;
