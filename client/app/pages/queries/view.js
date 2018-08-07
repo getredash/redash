@@ -112,7 +112,7 @@ function QueryViewCtrl(
       return;
     }
 
-    // 閲覧権限かつ元クエリを編集した場合はクエリを実行させない。
+    // クエリの編集権限がなく、元クエリを編集した場合はクエリを実行させない。
     if (!$scope.canEdit && $scope.isDirty) {
       toastr.error(
         '元のクエリを編集すると実行できません。クエリをForkしてください。',
