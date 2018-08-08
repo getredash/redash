@@ -6,6 +6,12 @@ from redash.query_runner import *
 from redash.settings import parse_boolean
 from redash.utils import JSONEncoder
 
+try:
+    import MySQLdb
+    enabled = True
+except ImportError:
+    enabled = False
+
 logger = logging.getLogger(__name__)
 types_map = {
     0: TYPE_FLOAT,
@@ -90,12 +96,7 @@ class Mysql(BaseSQLQueryRunner):
 
     @classmethod
     def enabled(cls):
-        try:
-            import MySQLdb
-        except ImportError:
-            return False
-
-        return True
+        return enabled
 
     def _get_tables(self, schema):
         query = """
@@ -127,8 +128,6 @@ class Mysql(BaseSQLQueryRunner):
         return schema.values()
 
     def run_query(self, query, user):
-        import MySQLdb
-
         connection = None
         try:
             connection = MySQLdb.connect(host=self.configuration.get('host', ''),
