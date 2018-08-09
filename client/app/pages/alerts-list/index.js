@@ -11,8 +11,17 @@ class AlertsListCtrl {
   constructor(Events, Alert) {
     Events.record('view', 'page', 'alerts');
 
+    this.showEmptyState = false;
+    this.showList = false;
+
     this.alerts = new Paginator([], { itemsPerPage: 20 });
     Alert.query((alerts) => {
+      if (alerts.length > 0) {
+        this.showList = true;
+      } else {
+        this.showEmptyState = true;
+      }
+
       this.alerts.updateRows(alerts.map(alert => ({
         id: alert.id,
         name: alert.name,

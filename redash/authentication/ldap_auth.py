@@ -13,7 +13,7 @@ except ImportError:
         logger.error("The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt).")
         exit()
 
-from redash.authentication.google_oauth import create_and_login_user
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 
 
@@ -33,10 +33,17 @@ def login(org_slug=None):
         return redirect(next_path)
 
     if request.method == 'POST':
-        user = auth_ldap_user(request.form['email'], request.form['password'])
+        ldap_user = auth_ldap_user(request.form['email'], request.form['password'])
 
-        if user is not None:
-            create_and_login_user(current_org, user[settings.LDAP_DISPLAY_NAME_KEY][0], user[settings.LDAP_EMAIL_KEY][0])
+        if ldap_user is not None:
+            user = create_and_login_user(
+                current_org,
+                ldap_user[settings.LDAP_DISPLAY_NAME_KEY][0],
+                ldap_user[settings.LDAP_EMAIL_KEY][0]
+            )
+            if user is None:
+                return logout_and_redirect_to_index()
+
             return redirect(next_path or url_for('redash.index'))
         else:
             flash("Incorrect credentials.")
@@ -45,6 +52,7 @@ def login(org_slug=None):
                            org_slug=org_slug,
                            next=next_path,
                            email=request.form.get('email', ''),
+                           show_password_login=True,
                            username_prompt=settings.LDAP_CUSTOM_USERNAME_PROMPT,
                            hide_forgot_password=True)
 

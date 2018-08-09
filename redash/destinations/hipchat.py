@@ -33,8 +33,8 @@ class HipChat(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, options):
         try:
-            alert_url = '{host}/alerts/{alert_id}'.format(host=host, alert_id=alert.id);
-            query_url = '{host}/queries/{query_id}'.format(host=host, query_id=query.id);
+            alert_url = '{host}/alerts/{alert_id}'.format(host=host, alert_id=alert.id)
+            query_url = '{host}/queries/{query_id}'.format(host=host, query_id=query.id)
 
             message = u'<a href="{alert_url}">{alert_name}</a> changed state to {new_state} (based on <a href="{query_url}">this query</a>).'.format(
                 alert_name=alert.name, new_state=new_state.upper(),

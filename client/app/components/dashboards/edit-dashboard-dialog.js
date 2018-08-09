@@ -1,4 +1,4 @@
-import { isEmpty } from 'underscore';
+import { isEmpty } from 'lodash';
 import template from './edit-dashboard-dialog.html';
 
 const EditDashboardDialog = {
@@ -8,14 +8,19 @@ const EditDashboardDialog = {
     dismiss: '&',
   },
   template,
-  controller($rootScope, $location, $http, toastr, Events) {
+  controller($location, $http, Policy, Events) {
     'ngInject';
 
     this.dashboard = this.resolve.dashboard;
+    this.policy = Policy;
 
     this.isFormValid = () => !isEmpty(this.dashboard.name);
 
     this.saveDashboard = () => {
+      if (!this.isFormValid()) {
+        return;
+      }
+
       this.saveInProgress = true;
 
       $http

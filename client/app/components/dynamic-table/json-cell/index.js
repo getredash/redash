@@ -1,4 +1,4 @@
-import { isUndefined, isString } from 'underscore';
+import { isUndefined, isString } from 'lodash';
 import renderJsonView from './json-view-interactive';
 import template from './template.html';
 

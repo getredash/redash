@@ -1,0 +1,251 @@
+<div>
+  <ul class="tab-nav">
+    <li ng-class="{active: currentTab == 'general'}">
+      <a ng-click="changeTab('general')">General</a>
+    </li>
+    <li ng-class="{active: currentTab == 'colors'}">
+      <a ng-click="changeTab('colors')">Colors</a>
+    </li>
+    <li ng-class="{active: currentTab == 'bounds'}">
+      <a ng-click="changeTab('bounds')">Bounds</a>
+    </li>
+  </ul>
+  <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Country code column</label>
+          <select ng-options="name for name in queryResult.getColumnNames()"
+            ng-model="options.countryCodeColumn" class="form-control"></select>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Country code type</label>
+          <select ng-options="key as value for (key, value) in countryCodeTypes"
+            ng-model="options.countryCodeType" class="form-control"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Value column</label>
+          <select ng-options="name for name in queryResult.getColumnNames()"
+            ng-model="options.valueColumn" class="form-control"></select>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label for="legend-value-format">
+            Value format
+            <span class="m-l-5"
+              uib-popover-html="'Format <a href=&quot;http://numeraljs.com/&quot; target=&quot;_blank&quot;>specs.</a>'"
+              popover-trigger="'click outsideClick'"><i class="fa fa-question-circle"></i></span>
+          </label>
+          <input class="form-control" id="legend-value-format"
+            ng-model="options.valueFormat" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label for="legend-value-placeholder">Value placeholder</label>
+          <input class="form-control" id="legend-value-placeholder"
+            ng-model="options.noValuePlaceholder" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label><input type="checkbox" ng-model="options.legend.visible"> Show legend</label>
+    </div>
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label for="legend-position">Legend position</label>
+          <select class="form-control" id="legend-position"
+            ng-options="key as value for (key, value) in legendPositions"
+            ng-model="options.legend.position"
+            ng-disabled="!options.legend.visible"
+          ></select>
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label for="legend-position">Legend text alignment</label>
+          <div class="btn-group d-flex">
+            <button type="button" class="btn btn-default btn-md flex-fill"
+              ng-click="options.legend.alignText = 'left'"
+              ng-class="{active: options.legend.alignText == 'left'}"><i class="fa fa-align-left"></i></button>
+            <button type="button" class="btn btn-default btn-md flex-fill"
+              ng-click="options.legend.alignText = 'center'"
+              ng-class="{active: options.legend.alignText == 'center'}"><i class="fa fa-align-center"></i></button>
+            <button type="button" class="btn btn-default btn-md flex-fill"
+              ng-click="options.legend.alignText = 'right'"
+              ng-class="{active: options.legend.alignText == 'right'}"><i class="fa fa-align-right"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <label><input type="checkbox" ng-model="options.tooltip.enabled"> Show tooltip</label>
+    <div class="form-group">
+      <label for="tooltip-template">Tooltip template</label>
+      <input class="form-control" id="tooltip-template"
+        ng-model="options.tooltip.template" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+        ng-disabled="!options.tooltip.enabled">
+    </div>
+
+    <label><input type="checkbox" ng-model="options.popup.enabled"> Show popup</label>
+    <div class="form-group">
+      <label for="popup-template">Popup template</label>
+      <textarea class="form-control resize-vertical" id="popup-template" rows="3"
+        ng-model="options.popup.template" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+        ng-disabled="!options.popup.enabled"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="ui-sortable-bypass text-muted" style="font-weight: normal; cursor: pointer;"
+        uib-popover-html="templateHint"
+        popover-trigger="'click outsideClick'" popover-placement="top-left">
+        Format specs <i class="fa fa-question-circle m-l-5"></i>
+      </label>
+    </div>
+  </div>
+
+  <div ng-if="currentTab == 'colors'" class="m-t-10 m-b-10">
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Steps</label>
+          <input type="number" min="3" max="11" class="form-control"
+            ng-model="options.steps">
+        </div>
+      </div>
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Clustering mode</label>
+          <select ng-options="key as value for (key, value) in clusteringModes"
+            ng-model="options.clusteringMode" class="form-control"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Min color</label>
+          <ui-select ng-model="options.colors.min">
+            <ui-select-match>
+              <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="color.value as (key, color) in colors">
+              <color-box color="color.value"></color-box>
+              <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Max color</label>
+          <ui-select ng-model="options.colors.max">
+            <ui-select-match>
+              <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="color.value as (key, color) in colors">
+              <color-box color="color.value"></color-box>
+              <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>No value color</label>
+          <ui-select ng-model="options.colors.noValue">
+            <ui-select-match>
+              <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="color.value as (key, color) in colors">
+              <color-box color="color.value"></color-box>
+              <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Background color</label>
+          <ui-select ng-model="options.colors.background">
+            <ui-select-match>
+              <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="color.value as (key, color) in colors">
+              <color-box color="color.value"></color-box>
+              <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+
+      <div class="col-xs-6">
+        <div class="form-group">
+          <label>Borders color</label>
+          <ui-select ng-model="options.colors.borders">
+            <ui-select-match>
+              <color-box color="$select.selected.value"></color-box>
+              <span ng-bind-html="$select.selected.key | capitalize"></span>
+            </ui-select-match>
+            <ui-select-choices repeat="color.value as (key, color) in colors">
+              <color-box color="color.value"></color-box>
+              <span ng-bind-html="color.key | capitalize | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="currentTab == 'bounds'" class="m-t-10 m-b-10">
+    <div class="form-group">
+      <label>North-East latitude and longitude</label>
+      <div class="row">
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[1][0]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[1][1]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>South-West latitude and longitude</label>
+      <div class="row">
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[0][0]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+        <div class="col-xs-6">
+          <input class="form-control" type="text"
+            ng-model="options.bounds[0][1]" ng-model-options="{ allowInvalid: true, debounce: 200 }">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

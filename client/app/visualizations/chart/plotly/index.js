@@ -1,4 +1,4 @@
-import { each, debounce, isArray, isObject } from 'underscore';
+import { each, debounce, isArray, isObject } from 'lodash';
 
 import Plotly from 'plotly.js/lib/core';
 import bar from 'plotly.js/lib/bar';
@@ -79,7 +79,7 @@ const PlotlyChart = () => ({
       }
     }, true);
 
-    scope.handleResize = debounce(updateChartDimensions, 100);
+    scope.handleResize = debounce(updateChartDimensions, 50);
   },
 });
 

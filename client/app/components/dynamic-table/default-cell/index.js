@@ -1,4 +1,4 @@
-import { contains, identity } from 'underscore';
+import { includes, identity } from 'lodash';
 import { renderDefault, renderImage, renderLink } from './utils';
 import template from './template.html';
 
@@ -26,7 +26,7 @@ export default function init(ngModule) {
       if ($scope.column.displayAs === 'string') {
         $scope.allowHTML = $scope.column.allowHTML;
       } else {
-        $scope.allowHTML = contains(['image', 'link'], $scope.column.displayAs);
+        $scope.allowHTML = includes(['image', 'link'], $scope.column.displayAs);
       }
 
       const sanitize = $scope.allowHTML ? $sanitize : identity;

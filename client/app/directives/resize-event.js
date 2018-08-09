@@ -1,5 +1,4 @@
-import * as _ from 'underscore';
-import { requestAnimationFrame } from './utils';
+import { findIndex } from 'lodash';
 
 const items = new Map();
 
@@ -18,7 +17,7 @@ function checkItems() {
     }
   });
 
-  requestAnimationFrame(checkItems);
+  setTimeout(checkItems, 50);
 }
 
 checkItems(); // ensure it was called only once!
@@ -36,7 +35,7 @@ function resizeEvent() {
         });
 
         $scope.$on('$destroy', () => {
-          const index = _.findIndex(items, item => item.node === node);
+          const index = findIndex(items, item => item.node === node);
           if (index >= 0) {
             items.splice(index, 1); // remove item
           }

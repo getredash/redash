@@ -1,6 +1,6 @@
-import _ from 'underscore';
+import _ from 'lodash';
 import { getColumnCleanName } from '@/services/query-result';
-import createFormatter from '@/lib/value-format';
+import { createFormatter } from '@/lib/value-format';
 import template from './table.html';
 import editorTemplate from './table-editor.html';
 import './table-editor.less';
@@ -19,8 +19,9 @@ const DISPLAY_AS_OPTIONS = [
 
 const DEFAULT_OPTIONS = {
   itemsPerPage: 15,
+  autoHeight: true,
   defaultRows: 14,
-  defaultColumns: 4,
+  defaultColumns: 3,
   minColumns: 2,
 };
 
@@ -47,15 +48,15 @@ function getDefaultColumnsOptions(columns) {
     allowSearch: false,
     alignContent: getColumnContentAlignment(col.type),
     // `string` cell options
-    allowHTML: false,
+    allowHTML: true,
     highlightLinks: false,
   }));
 }
 
 function getDefaultFormatOptions(column, clientConfig) {
   const dateTimeFormat = {
-    date: clientConfig.dateFormat || 'DD/MM/YY',
-    datetime: clientConfig.dateTimeFormat || 'DD/MM/YY HH:mm',
+    date: clientConfig.dateFormat || 'DD/MM/YYYY',
+    datetime: clientConfig.dateTimeFormat || 'DD/MM/YYYY HH:mm',
   };
   const numberFormat = {
     integer: clientConfig.integerFormat || '0,0',
@@ -103,12 +104,12 @@ function getColumnsOptions(columns, visualizationColumns) {
   const options = getDefaultColumnsOptions(columns);
 
   if ((wereColumnsReordered(columns, visualizationColumns))) {
-    visualizationColumns = _.object(_.map(
+    visualizationColumns = _.fromPairs(_.map(
       visualizationColumns,
       (col, index) => [col.name, _.extend({}, col, { order: index })],
     ));
   } else {
-    visualizationColumns = _.object(_.map(
+    visualizationColumns = _.fromPairs(_.map(
       visualizationColumns,
       col => [col.name, _.omit(col, 'order')],
     ));
@@ -120,7 +121,7 @@ function getColumnsOptions(columns, visualizationColumns) {
 }
 
 function getColumnsToDisplay(columns, options, clientConfig) {
-  columns = _.object(_.map(columns, col => [col.name, col]));
+  columns = _.fromPairs(_.map(columns, col => [col.name, col]));
   let result = _.map(options, col => _.extend(
     getDefaultFormatOptions(col, clientConfig),
     col,

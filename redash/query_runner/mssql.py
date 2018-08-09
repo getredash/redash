@@ -17,7 +17,7 @@ except ImportError:
 # from _mssql.pyx ## DB-API type definitions & http://www.freetds.org/tds.html#types ##
 types_map = {
     1: TYPE_STRING,
-    2: TYPE_BOOLEAN,
+    2: TYPE_STRING,
     # Type #3 supposed to be an integer, but in some cases decimals are returned
     # with this type. To be on safe side, marking it as float.
     3: TYPE_FLOAT,

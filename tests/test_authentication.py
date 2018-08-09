@@ -119,17 +119,17 @@ class TestHMACAuthentication(BaseTestCase):
 
 class TestCreateAndLoginUser(BaseTestCase):
     def test_logins_valid_user(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
-        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+        with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, user.name, user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
     def test_creates_vaild_new_user(self):
-        email = 'test@example.com'
+        email = u'test@example.com'
         name = 'Test User'
 
-        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+        with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, name, email)
 
             self.assertTrue(login_user_mock.called)
@@ -137,25 +137,25 @@ class TestCreateAndLoginUser(BaseTestCase):
             self.assertEqual(user.email, email)
 
     def test_updates_user_name(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
-        with patch('redash.authentication.google_oauth.login_user') as login_user_mock:
+        with patch('redash.authentication.login_user') as login_user_mock:
             create_and_login_user(self.factory.org, "New Name", user.email)
             login_user_mock.assert_called_once_with(user, remember=True)
 
 
 class TestVerifyProfile(BaseTestCase):
     def test_no_domain_allowed_for_org(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.assertFalse(verify_profile(self.factory.org, profile))
 
     def test_domain_not_in_org_domains_list(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
         self.assertFalse(verify_profile(self.factory.org, profile))
 
     def test_domain_in_org_domains_list(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.com']
         self.assertTrue(verify_profile(self.factory.org, profile))
 
@@ -163,14 +163,14 @@ class TestVerifyProfile(BaseTestCase):
         self.assertTrue(verify_profile(self.factory.org, profile))
 
     def test_org_in_public_mode_accepts_any_domain(self):
-        profile = dict(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_IS_PUBLIC] = True
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = []
         self.assertTrue(verify_profile(self.factory.org, profile))
 
     def test_user_not_in_domain_but_account_exists(self):
-        profile = dict(email='arik@example.com')
-        self.factory.create_user(email='arik@example.com')
+        profile = dict(email=u'arik@example.com')
+        self.factory.create_user(email=u'arik@example.com')
         self.factory.org.settings[models.Organization.SETTING_GOOGLE_APPS_DOMAINS] = ['example.org']
         self.assertTrue(verify_profile(self.factory.org, profile))
 

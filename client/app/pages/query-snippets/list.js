@@ -16,6 +16,7 @@ export default function init(ngModule) {
     permission: 'create_query',
     title: 'Query Snippets',
     path: 'query_snippets',
+    order: 5,
   });
 
   ngModule.component('snippetsListPage', {

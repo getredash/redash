@@ -16,22 +16,22 @@
               </tr>
             </thead>
             <tbody>
-              <tr ng-repeat="row in $ctrl.snippets.getPageRows()">
+              <tr ng-repeat="snippet in $ctrl.snippets.getPageRows()">
                 <td>
-                  <a href="query_snippets/{{row.id}}">{{row.trigger}}</a>
+                  <a href="query_snippets/{{snippet.id}}">{{snippet.trigger}}</a>
                 </td>
                 <td>
-                  {{row.description}}
+                  {{snippet.description}}
                 </td>
                 <td>
-                  {{row.snippet}}
+                  {{snippet.snippet}}
                 </td>
                 <td>
-                  <img ng-src="{{row.user.profile_image_url}}" class="profile__image_thumb"/>
-                  {{row.user.name}}
+                  <img ng-src="{{ snippet.user.profile_image_url }}" class="profile__image_thumb"/>
+                  <span ng-class="{'text-muted': snippet.user.is_disabled}">{{snippet.user.name}}</span>
                 </td>
                 <td>
-                  <span am-time-ago="row.created_at"></span>
+                  <span am-time-ago="snippet.created_at"></span>
                 </td>
               </tr>
             </tbody>

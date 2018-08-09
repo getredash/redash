@@ -1,4 +1,4 @@
-import { debounce } from 'underscore';
+import { debounce } from 'lodash';
 
 function Events($http) {
   this.events = [];
@@ -16,6 +16,7 @@ function Events($http) {
       object_type: objectType,
       object_id: objectId,
       timestamp: Date.now() / 1000.0,
+      screen_resolution: `${window.screen.width}x${window.screen.height}`,
     };
     Object.assign(event, additionalProperties);
     this.events.push(event);

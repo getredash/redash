@@ -1,11 +1,10 @@
 import logging
 import requests
 from flask import redirect, url_for, Blueprint, flash, request, session
-from flask_login import login_user
 from flask_oauthlib.client import OAuth
-from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models, settings
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index
 from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger('google_oauth')
@@ -58,25 +57,6 @@ def verify_profile(org, profile):
     return False
 
 
-def create_and_login_user(org, name, email, picture=None):
-    try:
-        user_object = models.User.get_by_email_and_org(email, org)
-        if user_object.name != name:
-            logger.debug("Updating user name (%r -> %r)", user_object.name, name)
-            user_object.name = name
-            models.db.session.commit()
-    except NoResultFound:
-        logger.debug("Creating user object (%r)", name)
-        user_object = models.User(org=org, name=name, email=email, _profile_image_url=picture,
-                                  group_ids=[org.default_group.id])
-        models.db.session.add(user_object)
-        models.db.session.commit()
-
-    login_user(user_object, remember=True)
-
-    return user_object
-
-
 @blueprint.route('/<org_slug>/oauth/google', endpoint="authorize_org")
 def org_login(org_slug):
     session['org_slug'] = current_org.slug
@@ -118,7 +98,9 @@ def authorized():
         return redirect(url_for('redash.login', org_slug=org.slug))
 
     picture_url = "%s?sz=40" % profile['picture']
-    create_and_login_user(org, profile['name'], profile['email'], picture_url)
+    user = create_and_login_user(org, profile['name'], profile['email'], picture_url)
+    if user is None:
+        return logout_and_redirect_to_index()
 
     next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
 

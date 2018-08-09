@@ -1,4 +1,4 @@
-import { findWhere } from 'underscore';
+import { find } from 'lodash';
 import debug from 'debug';
 import template from './show.html';
 
@@ -6,25 +6,25 @@ const logger = debug('redash:http');
 
 function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, Events, DataSource,
+  currentUser, AlertDialog, Events, DataSource,
 ) {
   Events.record('view', 'page', 'admin/data_source');
 
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
   $scope.types = $route.current.locals.types;
-  $scope.type = findWhere($scope.types, { type: $scope.dataSource.type });
+  $scope.type = find($scope.types, { type: $scope.dataSource.type });
   $scope.canChangeType = $scope.dataSource.id === undefined;
 
   $scope.helpLinks = {
-    athena: 'http://help.redash.io/article/122-amazon-athena-setup',
-    bigquery: 'http://help.redash.io/article/124-bigquery-setup',
-    url: 'http://help.redash.io/article/120-using-a-url-as-a-data-source',
-    mongodb: 'http://help.redash.io/article/157-mongodb-setup',
-    google_spreadsheets: 'http://help.redash.io/article/126-google-spreadsheets-setup',
-    google_analytics: 'http://help.redash.io/article/125-google-analytics-setup',
-    axibasetsd: 'http://help.redash.io/article/123-axibase-time-series-database',
-    results: 'http://help.redash.io/article/152-query-results-data-source',
+    athena: 'https://redash.io/help/data-sources/amazon-athena-setup',
+    bigquery: 'https://redash.io/help/data-sources/bigquery-setup',
+    url: 'https://redash.io/help/data-sources/querying-urls',
+    mongodb: 'https://redash.io/help/data-sources/mongodb-setup',
+    google_spreadsheets: 'https://redash.io/help/data-sources/querying-a-google-spreadsheet',
+    google_analytics: 'https://redash.io/help/data-sources/google-analytics-setup',
+    axibasetsd: 'https://redash.io/help/data-sources/axibase-time-series-database',
+    results: 'https://redash.io/help/user-guide/querying/query-results-data-source',
   };
 
   $scope.$watch('dataSource.id', (id) => {
@@ -43,16 +43,24 @@ function DataSourceCtrl(
     $scope.dataSource = new DataSource({ options: {} });
   };
 
-  function deleteDataSource() {
-    Events.record('delete', 'datasource', $scope.dataSource.id);
+  function deleteDataSource(callback) {
+    const doDelete = () => {
+      Events.record('delete', 'datasource', $scope.dataSource.id);
 
-    $scope.dataSource.$delete(() => {
-      toastr.success('Data source deleted successfully.');
-      $location.path('/data_sources/');
-    }, (httpResponse) => {
-      logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-      toastr.error('Failed to delete data source.');
-    });
+      $scope.dataSource.$delete(() => {
+        toastr.success('Data source deleted successfully.');
+        $location.path('/data_sources/');
+      }, (httpResponse) => {
+        logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
+        toastr.error('Failed to delete data source.');
+      });
+    };
+
+    const title = 'Delete Data source';
+    const message = `Are you sure you want to delete the "${$scope.dataSource.name}" data source?`;
+    const confirm = { class: 'btn-warning', title: 'Delete' };
+
+    AlertDialog.open(title, message, confirm).then(doDelete, callback);
   }
 
   function testConnection(callback) {

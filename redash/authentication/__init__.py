@@ -1,4 +1,5 @@
-from flask_login import LoginManager, user_logged_in
+from flask_login import LoginManager, user_logged_in, login_user, logout_user
+from sqlalchemy.orm.exc import NoResultFound
 import hashlib
 import hmac
 import time
@@ -39,7 +40,10 @@ def sign(key, path, expires):
 def load_user(user_id):
     org = current_org._get_current_object()
     try:
-        return models.User.get_by_id_and_org(user_id, org)
+        user = models.User.get_by_id_and_org(user_id, org)
+        if user.is_disabled:
+            return None
+        return user
     except models.NoResultFound:
         return None
 
@@ -138,6 +142,19 @@ def redirect_to_login():
     return redirect(login_url)
 
 
+def logout_and_redirect_to_index():
+    logout_user()
+
+    if settings.MULTI_ORG and current_org == None:
+        index_url = '/'
+    elif settings.MULTI_ORG:
+        index_url = url_for('redash.index', org_slug=current_org.slug, _external=False)
+    else:
+        index_url = url_for('redash.index', _external=False)
+
+    return redirect(index_url)
+
+
 def setup_authentication(app):
     from redash.authentication import google_oauth, saml_auth, remote_user_auth, ldap_auth
 
@@ -159,3 +176,24 @@ def setup_authentication(app):
     else:
         logger.warning("Unknown authentication type ({}). Using default (HMAC).".format(settings.AUTH_TYPE))
         login_manager.request_loader(hmac_load_user_from_request)
+
+
+def create_and_login_user(org, name, email, picture=None):
+    try:
+        user_object = models.User.get_by_email_and_org(email, org)
+        if user_object.is_disabled:
+            return None
+        if user_object.name != name:
+            logger.debug("Updating user name (%r -> %r)", user_object.name, name)
+            user_object.name = name
+            models.db.session.commit()
+    except NoResultFound:
+        logger.debug("Creating user object (%r)", name)
+        user_object = models.User(org=org, name=name, email=email, _profile_image_url=picture,
+                                  group_ids=[org.default_group.id])
+        models.db.session.add(user_object)
+        models.db.session.commit()
+
+    login_user(user_object, remember=True)
+
+    return user_object

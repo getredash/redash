@@ -106,28 +106,36 @@ class PostgreSQL(BaseSQLQueryRunner):
             schema[table_name]['columns'].append(row['column_name'])
 
     def _get_tables(self, schema):
+        '''
+        relkind constants per https://www.postgresql.org/docs/10/static/catalog-pg-class.html
+        r = regular table
+        v = view
+        m = materialized view
+        f = foreign table
+        p = partitioned table (new in 10)
+        ---
+        i = index
+        S = sequence
+        t = TOAST table
+        c = composite type
+        '''
+
         query = """
-        SELECT table_schema, table_name, column_name
-        FROM information_schema.columns
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema');
+        SELECT s.nspname as table_schema,
+               c.relname as table_name,
+               a.attname as column_name
+        FROM pg_class c
+        JOIN pg_namespace s
+        ON c.relnamespace = s.oid
+        AND s.nspname NOT IN ('pg_catalog', 'information_schema')
+        JOIN pg_attribute a
+        ON a.attrelid = c.oid
+        AND a.attnum > 0
+        AND NOT a.attisdropped
+        WHERE c.relkind IN ('r', 'v', 'm', 'f', 'p')
         """
 
         self._get_definitions(schema, query)
-
-        materialized_views_query = """
-        SELECT ns.nspname as table_schema,
-               mv.relname as table_name,
-               atr.attname as column_name
-        FROM pg_class mv
-          JOIN pg_namespace ns ON mv.relnamespace = ns.oid
-          JOIN pg_attribute atr
-            ON atr.attrelid = mv.oid
-           AND atr.attnum > 0
-           AND NOT atr.attisdropped
-        WHERE mv.relkind = 'm';
-        """
-
-        self._get_definitions(schema, materialized_views_query)
 
         return schema.values()
 
@@ -236,15 +244,24 @@ class Redshift(PostgreSQL):
         # Use PG_GET_LATE_BINDING_VIEW_COLS to include schema for late binding views data for Redshift
         # http://docs.aws.amazon.com/redshift/latest/dg/PG_GET_LATE_BINDING_VIEW_COLS.html
         query = """
-        SELECT DISTINCT table_name, table_schema, column_name
-        FROM svv_columns
-        WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
-        UNION ALL
-        SELECT DISTINCT view_name::varchar AS table_name,
-                        view_schema::varchar AS table_schema,
-                        col_name::varchar AS column_name
-        FROM pg_get_late_binding_view_cols()
-             cols(view_schema name, view_name name, col_name name, col_type varchar, col_num int);
+        WITH tables AS (
+            SELECT DISTINCT table_name,
+                            table_schema,
+                            column_name,
+                            ordinal_position AS pos
+            FROM svv_columns
+            WHERE table_schema NOT IN ('pg_internal','pg_catalog','information_schema')
+            UNION ALL
+            SELECT DISTINCT view_name::varchar AS table_name,
+                            view_schema::varchar AS table_schema,
+                            col_name::varchar AS column_name,
+                            col_num AS pos
+            FROM pg_get_late_binding_view_cols()
+                 cols(view_schema name, view_name name, col_name name, col_type varchar, col_num int)
+        )
+        SELECT table_name, table_schema, column_name
+        FROM tables
+        ORDER BY table_name, pos
         """
 
         self._get_definitions(schema, query)

@@ -1,4 +1,3 @@
-import * as _ from 'underscore';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './public-dashboard-page.html';
 import './dashboard.less';
@@ -11,7 +10,7 @@ const PublicDashboardPage = {
   controller(dashboardGridOptions, Dashboard) {
     'ngInject';
 
-    this.dashboardGridOptions = _.extend({}, dashboardGridOptions, {
+    this.dashboardGridOptions = Object.assign({}, dashboardGridOptions, {
       resizable: { enabled: false },
       draggable: { enabled: false },
     });

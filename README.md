@@ -19,19 +19,22 @@ Presto, Google Spreadsheets, Cloudera Impala, Hive and custom scripts.
 **_Redash_** consists of two parts:
 
 1. **Query Editor**: think of [JS Fiddle](http://jsfiddle.net) for SQL queries. It's your way to share data in the organization in an open way, by sharing both the dataset and the query that generated it. This way everyone can peer review not only the resulting dataset but also the process that generated it. Also it's possible to fork it and generate new datasets and reach new insights.
-2. **Dashboards/Visualizations**: once you have a dataset, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently it supports charts, pivot table and cohorts.
+2. **Visualizations and Dashboards**: once you have a dataset, you can create different visualizations out of it, and then combine several visualizations into a single dashboard. Currently Redash supports charts, pivot table, cohorts and [more](https://redash.io/help/user-guide/visualizations/visualization-types).
 
 ## Demo
 
-<img src="https://cloud.githubusercontent.com/assets/71468/17391289/8e83878e-5a1d-11e6-8938-af9054a33b19.gif" width="60%"/>
+<img src="https://raw.githubusercontent.com/getredash/website/8e820cd02c73a8ddf4f946a9d293c54fd3fb08b9/website/_assets/images/redash-anim.gif" width="80%"/>
 
-You can try out the demo instance: http://demo.redash.io/ (login with any Google account).
+Try out the [demo instance](http://demo.redash.io/) (login with any Google account).
 
 ## Getting Started
 
 * [Setting up Redash instance](https://redash.io/help-onpremise/setup/setting-up-redash-instance.html) (includes links to ready made AWS/GCE images).
 * [Documentation](https://redash.io/help/).
 
+## Supported Data Sources
+
+Redash supports more than 25 [data sources](https://redash.io/help/data-sources/supported-data-sources). 
 
 ## Getting Help
 

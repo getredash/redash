@@ -1,32 +1,63 @@
-import { isArray } from 'underscore';
+import { isString } from 'lodash';
+import { $http } from '@/services/http';
 
-function transformSingle(user) {
-  if (user.groups !== undefined) {
-    user.admin = user.groups.indexOf('admin') !== -1;
-  }
+function disableResource(user) {
+  return `api/users/${user.id}/disable`;
 }
 
-function transform(data) {
-  if (isArray(data)) {
-    data.forEach(transformSingle);
-  } else {
-    transformSingle(data);
-  }
+function enableUser(user, toastr, $sanitize) {
+  const userName = $sanitize(user.name);
 
-  return data;
+  return $http
+    .delete(disableResource(user))
+    .then((data) => {
+      toastr.success(`User <b>${userName}</b> is now enabled.`, { allowHtml: true });
+      user.is_disabled = false;
+      user.profile_image_url = data.data.profile_image_url;
+      return data;
+    })
+    .catch((response) => {
+      let message = response instanceof Error ? response.message : response.statusText;
+      if (!isString(message)) {
+        message = 'Unknown error';
+      }
+      toastr.error(`Cannot enable user <b>${userName}</b><br>${message}`, { allowHtml: true });
+    });
 }
 
-function User($resource, $http) {
-  const transformResponse = $http.defaults.transformResponse.concat(transform);
+function disableUser(user, toastr, $sanitize) {
+  const userName = $sanitize(user.name);
+  return $http
+    .post(disableResource(user))
+    .then((data) => {
+      toastr.warning(`User <b>${userName}</b> is now disabled.`, { allowHtml: true });
+      user.is_disabled = true;
+      user.profile_image_url = data.data.profile_image_url;
+      return data;
+    })
+    .catch((response) => {
+      let message = response instanceof Error ? response.message : response.statusText;
+      if (!isString(message)) {
+        message = 'Unknown error';
+      }
+      toastr.error(`Cannot disable user <b>${userName}</b><br>${message}`, { allowHtml: true });
+    });
+}
 
+function User($resource, $sanitize, toastr) {
   const actions = {
-    get: { method: 'GET', transformResponse },
-    save: { method: 'POST', transformResponse },
-    query: { method: 'GET', isArray: true, transformResponse },
-    delete: { method: 'DELETE', transformResponse },
+    get: { method: 'GET' },
+    save: { method: 'POST' },
+    query: { method: 'GET', isArray: false },
+    delete: { method: 'DELETE' },
+    disable: { method: 'POST', url: 'api/users/:id/disable' },
+    enable: { method: 'DELETE', url: 'api/users/:id/disable' },
   };
 
   const UserResource = $resource('api/users/:id', { id: '@id' }, actions);
+
+  UserResource.enableUser = user => enableUser(user, toastr, $sanitize);
+  UserResource.disableUser = user => disableUser(user, toastr, $sanitize);
 
   return UserResource;
 }

@@ -158,7 +158,8 @@ class MongoDB(BaseQueryRunner):
 
     def _get_db(self):
         if self.is_replica_set:
-            db_connection = pymongo.MongoReplicaSetClient(self.configuration["connectionString"], replicaSet=self.configuration["replicaSetName"])
+            db_connection = pymongo.MongoClient(self.configuration["connectionString"],
+                                                replicaSet=self.configuration["replicaSetName"])
         else:
             db_connection = pymongo.MongoClient(self.configuration["connectionString"])
 

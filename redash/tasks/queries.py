@@ -422,6 +422,8 @@ class QueryExecutor(object):
             self.user = models.User.query.get(user_id)
         else:
             self.user = None
+        # Close DB connection to prevent holding a connection for a long time while the query is executing.
+        models.db.session.close()
         self.query_hash = gen_query_hash(self.query)
         self.scheduled_query = scheduled_query
         # Load existing tracker or create a new one if the job was created before code update:
@@ -460,18 +462,20 @@ class QueryExecutor(object):
         if error:
             self.tracker.update(state='failed')
             result = QueryExecutionError(error)
-            if self.scheduled_query:
+            if self.scheduled_query is not None:
+                self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
         else:
-            if (self.scheduled_query and
-                    self.scheduled_query.schedule_failures > 0):
+            if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):
+                self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures = 0
                 models.db.session.add(self.scheduled_query)
             query_result, updated_query_ids = models.QueryResult.store_result(
-                self.data_source.org, self.data_source,
+                self.data_source.org_id, self.data_source,
                 self.query_hash, self.query, data,
                 run_time, utils.utcnow())
+            models.db.session.commit()  # make sure that alert sees the latest query result
             self._log_progress('checking_alerts')
             for query_id in updated_query_ids:
                 check_alerts_for_query.delay(query_id)

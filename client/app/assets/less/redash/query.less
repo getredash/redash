@@ -16,6 +16,17 @@ body.fixed-layout {
   }
 }
 
+.tab-nav .tab-new-vis {
+  margin: 0 5px;
+
+  > a {
+    color: @headings-color;
+    margin-top: 8px;
+    padding: 7px;
+    font-weight: 400;
+  }
+}
+
 .bottom-controller {
   padding: 10px 15px;
   background: #fff;
@@ -82,10 +93,6 @@ edit-in-place p.editable:hover {
 
 .filter-container {
   margin-bottom: 10px;
-}
-
-.editor__control--right {
-  text-align: right;
 }
 
 .source-control {
@@ -169,25 +176,6 @@ edit-in-place p.editable:hover {
   }
 }
 
-.editor__container {
-  .btn__format {
-    margin-top: -50px;
-    margin-right: 10px;
-    z-index: 999;
-    position: relative;
-    opacity: 0;
-    transition: transform 0.12s ease-out;
-    transition-duration: 0.3s;
-    transition-property: opacity;
-  }
-
-  &:hover {
-    .btn__format {
-      opacity: 1;
-    }
-  }
-}
-
 .paginator-container {
   text-align: center;
 }
@@ -209,7 +197,7 @@ edit-in-place p.editable:hover {
   }
 
   .paginator-container {
-    text-align: left;
+    text-align: center;
     margin-top: 10px;
 
     li:first-of-type {
@@ -230,8 +218,15 @@ edit-in-place p.editable:hover {
 .widget-wrapper {
   .body-container {
     filters {
+      display: block;
       padding-left: 15px;
     }
+  }
+}
+
+.page-header--new {
+  .label-default {
+    margin-right: 3px;
   }
 }
 
@@ -241,7 +236,16 @@ edit-in-place p.editable:hover {
 
   h3 {
     display: inline-block;
-    margin-right: 10px;
+  }
+}
+
+a.label-tag {
+  background: fade(@redash-gray, 15%);
+  color: #333;
+
+  &:hover {
+    color: #333;
+    background: fade(@redash-gray, 25%);
   }
 }
 
@@ -301,6 +305,15 @@ edit-in-place p.editable:hover {
       flex-direction: column;
       padding-bottom: 0;
       padding-top: 0 !important;
+      position: relative;
+
+      schema-browser {
+        position: absolute;
+        left: 15px;
+        top: 0;
+        right: 15px;
+        bottom: 0;
+      }
     }
   }
   main {
@@ -483,10 +496,22 @@ edit-in-place p.editable:hover {
   }
 }
 
-
 // Left nav fixes for filling all the space
 nav .rg-bottom {
   visibility: hidden;
+}
+
+.query-metadata--description {
+  max-height: 125px;
+  overflow-y: auto;
+
+  .edit-in-place.active {
+    width: 100% !important;
+  }
+
+  .edit-in-place .rd-form-control {
+    width: 100% !important;
+  }
 }
 
 .query-metadata--refresh {
@@ -515,6 +540,13 @@ nav .rg-bottom {
 
     .schema-container {
       display: none;
+    }
+  }
+
+  .query-page-wrapper {
+    .container {
+      margin-left: 0;
+      margin-right: 0;
     }
   }
 

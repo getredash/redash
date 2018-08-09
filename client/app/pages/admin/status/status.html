@@ -4,9 +4,15 @@
 
   <div class="bg-white tiled">
     <ul class="tab-nav">
-      <li class="active"><a href="admin/status">System Status</a></li>
-      <li><a href="admin/queries/tasks">Queries Queue</a></li>
-      <li><a href="admin/queries/outdated">Outdated Queries</a></li>
+      <li class="active">
+        <a href="admin/status">System Status</a>
+      </li>
+      <li>
+        <a href="admin/queries/tasks">Queries Queue</a>
+      </li>
+      <li>
+        <a href="admin/queries/outdated">Outdated Queries</a>
+      </li>
     </ul>
 
 
@@ -39,10 +45,21 @@
         <li class="list-group-item active">Queues</li>
         <li class="list-group-item" ng-repeat="(name, value) in manager.queues">
           <span class="badge">{{value.size}}</span>
-          {{name}} <span uib-popover="{{value.data_sources}}" popover-trigger="'mouseenter'"><i class="fa fa-question-circle"></i></span>
+          {{name}}
+          <span uib-popover="{{value.data_sources}}" popover-trigger="'mouseenter'">
+            <i class="fa fa-question-circle"></i>
+          </span>
         </li>
       </ul>
     </div>
-
+    <div class="row p-15">
+      <ul class="list-group col-lg-4">
+        <li class="list-group-item active">Redash Database</li>
+        <li class="list-group-item" ng-repeat="(name, size) in database_metrics.metrics">
+          <span class="badge">{{size[1] | prettySize}}</span>
+          <span> {{size[0]}} </span>
+        </li>
+      </ul>
+    </div>
   </div>
 </div>

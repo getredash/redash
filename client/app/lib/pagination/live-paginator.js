@@ -1,14 +1,25 @@
 export default class LivePaginator {
-  constructor(rowsFetcher, { page = 1, itemsPerPage = 20 } = {}) {
+  constructor(rowsFetcher, {
+    page = 1, itemsPerPage = 20, orderByField, orderByReverse = false,
+  } = {}) {
     this.page = page;
     this.itemsPerPage = itemsPerPage;
+    this.orderByField = orderByField;
+    this.orderByReverse = orderByReverse;
     this.rowsFetcher = rowsFetcher;
-    this.rowsFetcher(this.page, this.itemsPerPage, this);
+    this.fetchPage(page);
   }
 
-  setPage(page) {
+  fetchPage(page) {
+    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse, this);
+  }
+
+  setPage(page, pageSize) {
+    if (pageSize) {
+      this.itemsPerPage = pageSize;
+    }
     this.page = page;
-    this.rowsFetcher(page, this.itemsPerPage, this);
+    this.fetchPage(page);
   }
 
   getPageRows() {
@@ -23,5 +34,17 @@ export default class LivePaginator {
       this.totalCount = 0;
     }
   }
-}
 
+  orderBy(column) {
+    if (column === this.orderByField) {
+      this.orderByReverse = !this.orderByReverse;
+    } else {
+      this.orderByField = column;
+      this.orderByReverse = false;
+    }
+
+    if (this.orderByField) {
+      this.fetchPage(this.page);
+    }
+  }
+}

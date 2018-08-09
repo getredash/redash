@@ -1,4 +1,4 @@
-import { pluck } from 'underscore';
+import { map } from 'lodash';
 import { copy } from 'angular';
 import template from './edit-visualization-dialog.html';
 
@@ -18,6 +18,9 @@ const EditVisualizationDialog = {
     this.onNewSuccess = this.resolve.onNewSuccess;
     this.visualization = copy(this.originalVisualization);
     this.visTypes = Visualization.visualizationTypes;
+
+    // Don't allow to change type after creating visualization
+    this.canChangeType = !(this.visualization && this.visualization.id);
 
     this.newVisualization = () =>
       ({
@@ -57,7 +60,7 @@ const EditVisualizationDialog = {
       Visualization.save(this.visualization, (result) => {
         toastr.success('Visualization saved');
 
-        const visIds = pluck(this.query.visualizations, 'id');
+        const visIds = map(this.query.visualizations, i => i.id);
         const index = visIds.indexOf(result.id);
         if (index > -1) {
           this.query.visualizations[index] = result;

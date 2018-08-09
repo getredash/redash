@@ -1,4 +1,6 @@
 .dynamic-table-container {
+  overflow-x: scroll;
+
   th {
     white-space: nowrap;
     span {
@@ -48,5 +50,13 @@
         }
       }
     }
+  }
+
+  .display-as-number,
+  .display-as-boolean,
+  .display-as-datetime,
+  .display-as-image {
+    width: 1%;
+    white-space: nowrap;
   }
 }

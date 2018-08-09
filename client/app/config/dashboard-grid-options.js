@@ -1,33 +1,15 @@
 const dashboardGridOptions = {
-  columns: 6,
-  pushing: true,
-  floating: true,
-  swapping: true,
-  width: 'auto',
-  colWidth: 'auto',
-  rowHeight: 50,
-  margins: [15, 15],
-  outerMargin: false,
-  sparse: false,
-  isMobile: false,
+  columns: 6, // grid columns count
+  rowHeight: 50, // grid row height (incl. bottom padding)
+  margins: 15, // widget margins
   mobileBreakPoint: 800,
-  mobileModeEnabled: true,
-  minColumns: 1,
-  minRows: 1,
-  maxRows: 100,
+  // defaults for widgets
   defaultSizeX: 3,
   defaultSizeY: 3,
   minSizeX: 1,
-  maxSizeX: null,
-  minSizeY: 4,
-  maxSizeY: null,
-  resizable: {
-    enabled: false,
-    handles: ['n', 'e', 's', 'w', 'ne', 'se', 'sw', 'nw'],
-  },
-  draggable: {
-    enabled: false,
-  },
+  maxSizeX: 6,
+  minSizeY: 1,
+  maxSizeY: 1000,
 };
 
 export default function init(ngModule) {

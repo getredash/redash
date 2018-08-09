@@ -55,11 +55,17 @@ def render_token_login_page(template, org_slug, token):
             login_user(user)
             models.db.session.commit()
             return redirect(url_for('redash.index', org_slug=org_slug))
-    if settings.GOOGLE_OAUTH_ENABLED:
-        google_auth_url = get_google_auth_url(url_for('redash.index', org_slug=org_slug))
-    else:
-        google_auth_url = ''
-    return render_template(template, google_auth_url=google_auth_url, user=user), status_code
+
+    google_auth_url = get_google_auth_url(url_for('redash.index', org_slug=org_slug))
+
+    return render_template(template,
+                           show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
+                           google_auth_url=google_auth_url,
+                           show_saml_login=current_org.get_setting('auth_saml_enabled'),
+                           show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
+                           show_ldap_login=settings.LDAP_LOGIN_ENABLED,
+                           org_slug=org_slug,
+                           user=user), status_code
 
 
 @routes.route(org_scoped_rule('/invite/<token>'), methods=['GET', 'POST'])
@@ -106,21 +112,11 @@ def login(org_slug=None):
     if current_user.is_authenticated:
         return redirect(next_path)
 
-    if not current_org.get_setting('auth_password_login_enabled'):
-        if settings.REMOTE_USER_LOGIN_ENABLED:
-            return redirect(url_for("remote_user_auth.login", next=next_path))
-        elif current_org.get_setting('auth_saml_enabled'):  # settings.SAML_LOGIN_ENABLED:
-            return redirect(url_for("saml_auth.sp_initiated", next=next_path))
-        elif settings.LDAP_LOGIN_ENABLED:
-            return redirect(url_for("ldap_auth.login", next=next_path))
-        else:
-            return redirect(get_google_auth_url(next_path))
-
     if request.method == 'POST':
         try:
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form['email'], org)
-            if user and user.verify_password(request.form['password']):
+            if user and not user.is_disabled and user.verify_password(request.form['password']):
                 remember = ('remember' in request.form)
                 login_user(user, remember=remember)
                 return redirect(next_path)
@@ -137,6 +133,7 @@ def login(org_slug=None):
                            email=request.form.get('email', ''),
                            show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
                            google_auth_url=google_auth_url,
+                           show_password_login=current_org.get_setting('auth_password_login_enabled'),
                            show_saml_login=current_org.get_setting('auth_saml_enabled'),
                            show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
                            show_ldap_login=settings.LDAP_LOGIN_ENABLED)
@@ -157,6 +154,16 @@ def base_href():
     return base_href
 
 
+def date_format_config():
+    date_format = current_org.get_setting('date_format')
+    date_format_list = set(["DD/MM/YY", "MM/DD/YY", "YYYY-MM-DD", settings.DATE_FORMAT])
+    return {
+        'dateFormat': date_format,
+        'dateFormatList': list(date_format_list),
+        'dateTimeFormat': "{0} HH:mm".format(date_format),
+    }
+
+
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
@@ -166,23 +173,22 @@ def client_config():
     else:
         client_config = {}
 
-    date_format = current_org.get_setting('date_format')
-
     defaults = {
         'allowScriptsInUserInput': settings.ALLOW_SCRIPTS_IN_USER_INPUT,
         'showPermissionsControl': settings.FEATURE_SHOW_PERMISSIONS_CONTROL,
         'allowCustomJSVisualizations': settings.FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS,
         'autoPublishNamedQueries': settings.FEATURE_AUTO_PUBLISH_NAMED_QUERIES,
-        'dateFormat': date_format,
-        'dateTimeFormat': "{0} HH:mm".format(date_format),
         'mailSettingsMissing': settings.MAIL_DEFAULT_SENDER is None,
-        'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS
+        'dashboardRefreshIntervals': settings.DASHBOARD_REFRESH_INTERVALS,
+        'queryRefreshIntervals': settings.QUERY_REFRESH_INTERVALS,
+        'googleLoginEnabled': settings.GOOGLE_OAUTH_ENABLED,
     }
 
     client_config.update(defaults)
     client_config.update({
         'basePath': base_href()
     })
+    client_config.update(date_format_config())
 
     return client_config
 

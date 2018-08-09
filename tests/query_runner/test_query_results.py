@@ -1,7 +1,8 @@
 import sqlite3
 from unittest import TestCase
 
-from redash.query_runner.query_results import (PermissionError, _load_query, create_table,
+from redash.query_runner import TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER, TYPE_STRING
+from redash.query_runner.query_results import (PermissionError, _guess_type, _load_query, create_table,
                                                extract_query_ids)
 from tests import BaseTestCase
 
@@ -97,3 +98,23 @@ class TestGetQuery(BaseTestCase):
 
         loaded = _load_query(user, query.id)
         self.assertEquals(query, loaded)
+
+
+class TestGuessType(TestCase):
+    def test_string(self):
+        self.assertEqual(TYPE_STRING, _guess_type(''))
+        self.assertEqual(TYPE_STRING, _guess_type(None))
+        self.assertEqual(TYPE_STRING, _guess_type('redash'))
+
+    def test_integer(self):
+        self.assertEqual(TYPE_INTEGER, _guess_type(42))
+
+    def test_float(self):
+        self.assertEqual(TYPE_FLOAT, _guess_type(3.14))
+
+    def test_boolean(self):
+        self.assertEqual(TYPE_BOOLEAN, _guess_type('true'))
+        self.assertEqual(TYPE_BOOLEAN, _guess_type('false'))
+
+    def test_date(self):
+        self.assertEqual(TYPE_DATETIME, _guess_type('2018-06-28'))

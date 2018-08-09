@@ -1,6 +1,9 @@
 // This polyfill is needed to support PhantomJS which we use to generate PNGs from embeds.
 import 'core-js/fn/typed/array-buffer';
 
+// Ensure that this image will be available in assets folder
+import '@/assets/images/avatar.svg';
+
 import * as Pace from 'pace-progress';
 import debug from 'debug';
 import angular from 'angular';
@@ -17,8 +20,7 @@ import 'angular-moment';
 import 'brace';
 import 'angular-ui-ace';
 import 'angular-resizable';
-import ngGridster from 'angular-gridster';
-import { each, isFunction } from 'underscore';
+import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
 
@@ -52,7 +54,6 @@ const requirements = [
   'angularResizable',
   vsRepeat,
   'ui.sortable',
-  ngGridster.name,
 ];
 
 const ngModule = angular.module('app', requirements);
@@ -77,7 +78,7 @@ function requireImages() {
 function registerComponents() {
   // We repeat this code in other register functions, because if we don't use a literal for the path
   // Webpack won't be able to statcily analyze our imports.
-  const context = require.context('@/components', true, /^((?![\\/]test[\\/]).)*\.js$/);
+  const context = require.context('@/components', true, /^((?![\\/]test[\\/]).)*\.jsx?$/);
   registerAll(context);
 }
 
@@ -99,6 +100,16 @@ function registerPages() {
       each(routes, (route, path) => {
         logger('Registering route: %s', path);
         route.authenticated = true;
+        route.resolve = extend(
+          {
+            __organizationStatus: (OrganizationStatus) => {
+              'ngInject';
+
+              return OrganizationStatus.refresh();
+            },
+          },
+          route.resolve,
+        );
         $routeProvider.when(path, route);
       });
     });

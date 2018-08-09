@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { map, range, partial } from 'underscore';
+import { map, range, partial, each, isArray } from 'lodash';
+import { durationHumanize } from '@/filters';
 
 import template from './schedule-dialog.html';
 
@@ -20,8 +21,10 @@ function queryTimePicker() {
       saveQuery: '=',
     },
     template: `
-      <select ng-disabled="refreshType != 'daily'" ng-model="hour" ng-change="updateSchedule()" ng-options="c as c for c in hourOptions"></select> :
-      <select ng-disabled="refreshType != 'daily'" ng-model="minute" ng-change="updateSchedule()" ng-options="c as c for c in minuteOptions"></select>
+      <select ng-disabled="refreshType != 'daily'" ng-model="hour" ng-change="updateSchedule()" 
+        ng-options="c as c for c in hourOptions"></select> :
+      <select ng-disabled="refreshType != 'daily'" ng-model="minute" ng-change="updateSchedule()" 
+        ng-options="c as c for c in minuteOptions"></select>
     `,
     link($scope) {
       $scope.hourOptions = map(range(0, 24), partial(padWithZeros, 2));
@@ -57,7 +60,7 @@ function queryTimePicker() {
   };
 }
 
-function queryRefreshSelect() {
+function queryRefreshSelect(clientConfig, Policy) {
   return {
     restrict: 'E',
     scope: {
@@ -69,47 +72,23 @@ function queryRefreshSelect() {
                 ng-disabled="refreshType != 'periodic'"
                 ng-model="query.schedule"
                 ng-change="saveQuery()"
-                ng-options="c.value as c.name for c in refreshOptions">
+                ng-options="c.value as c.name disable when !c.enabled for c in refreshOptions">
                 <option value="">No Refresh</option>
                 </select>`,
     link($scope) {
-      $scope.refreshOptions = [
-        {
-          value: '60',
-          name: 'Every minute',
-        },
-      ];
+      $scope.refreshOptions =
+        clientConfig.queryRefreshIntervals.map(interval => ({
+          value: String(interval),
+          name: `Every ${durationHumanize(interval)}`,
+          enabled: true,
+        }));
 
-      [5, 10, 15, 30].forEach((i) => {
-        $scope.refreshOptions.push({
-          value: String(i * 60),
-          name: `Every ${i} minutes`,
+      const allowedIntervals = Policy.getQueryRefreshIntervals();
+      if (isArray(allowedIntervals)) {
+        each($scope.refreshOptions, (interval) => {
+          interval.enabled = allowedIntervals.indexOf(Number(interval.value)) >= 0;
         });
-      });
-
-      range(1, 13).forEach((i) => {
-        $scope.refreshOptions.push({
-          value: String(i * 3600),
-          name: `Every ${i}h`,
-        });
-      });
-
-      $scope.refreshOptions.push({
-        value: String(24 * 3600),
-        name: 'Every 24h',
-      });
-      $scope.refreshOptions.push({
-        value: String(7 * 24 * 3600),
-        name: 'Every 7 days',
-      });
-      $scope.refreshOptions.push({
-        value: String(14 * 24 * 3600),
-        name: 'Every 14 days',
-      });
-      $scope.refreshOptions.push({
-        value: String(30 * 24 * 3600),
-        name: 'Every 30 days',
-      });
+      }
 
       $scope.$watch('refreshType', () => {
         if ($scope.refreshType === 'periodic') {

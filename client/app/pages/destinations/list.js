@@ -12,6 +12,7 @@ export default function init(ngModule) {
     permission: 'admin',
     title: 'Alert Destinations',
     path: 'destinations',
+    order: 4,
   });
 
   ngModule.controller('DestinationsCtrl', DestinationsCtrl);

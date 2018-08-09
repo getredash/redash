@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { isEmpty } from 'underscore';
+import { isEmpty } from 'lodash';
 
 // From: http://jsfiddle.net/joshdmiller/NDFHg/
 function EditInPlace() {

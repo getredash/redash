@@ -1,5 +1,4 @@
-import { isUndefined, each, contains } from 'underscore';
-import endsWith from 'underscore.string/endsWith';
+import { isUndefined, each, includes } from 'lodash';
 import template from './dynamic-form.html';
 
 function orderedInputs(properties, order) {
@@ -22,7 +21,7 @@ function normalizeSchema(configurationSchema) {
       prop.type = 'password';
     }
 
-    if (endsWith(name, 'File')) {
+    if (name.endsWith('File')) {
       prop.type = 'file';
     }
 
@@ -30,7 +29,7 @@ function normalizeSchema(configurationSchema) {
       prop.type = 'checkbox';
     }
 
-    prop.required = contains(configurationSchema.required, name);
+    prop.required = includes(configurationSchema.required, name);
   });
 
   configurationSchema.order = configurationSchema.order || [];

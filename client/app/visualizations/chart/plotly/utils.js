@@ -1,42 +1,58 @@
 import {
-  isArray, isNumber, isString, isUndefined, contains, min, max, has, find,
-  each, values, sortBy, pluck, identity, filter, map, uniq, findWhere, flatten,
-} from 'underscore';
+  isArray, isNumber, isString, isUndefined, includes, min, max, has, find,
+  each, values, sortBy, identity, filter, map, extend, reduce,
+} from 'lodash';
 import moment from 'moment';
-import createFormatter from '@/lib/value-format';
+import d3 from 'd3';
+import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
 const BaseColors = {
-  Blue: '#4572A7',
-  Red: '#AA4643',
-  Green: '#89A54E',
-  Purple: '#80699B',
-  Cyan: '#3D96AE',
-  Orange: '#DB843D',
-  'Light Blue': '#92A8CD',
-  Lilac: '#A47D7C',
-  'Light Green': '#B5CA92',
-  Brown: '#A52A2A',
+  Blue: '#356AFF',
+  Red: '#E92828',
+  Green: '#3BD973',
+  Purple: '#604FE9',
+  Cyan: '#50F5ED',
+  Orange: '#FB8D3D',
+  'Light Blue': '#799CFF',
+  Lilac: '#B554FF',
+  'Light Green': '#8CFFB4',
+  Brown: '#A55F2A',
   Black: '#000000',
-  Gray: '#808080',
-  Pink: '#FFC0CB',
-  'Dark Blue': '#00008b',
+  Gray: '#494949',
+  Pink: '#FF7DE3',
+  'Dark Blue': '#002FB4',
 };
 
 // Additional colors for the user to choose from:
 export const ColorPalette = Object.assign({}, BaseColors, {
-  'Indian Red': '#F8766D',
-  'Green 2': '#53B400',
-  'Green 3': '#00C094',
+  'Indian Red': '#981717',
+  'Green 2': '#17BF51',
+  'Green 3': '#049235',
   DarkTurquoise: '#00B6EB',
   'Dark Violet': '#A58AFF',
-  'Pink 2': '#FB61D7',
+  'Pink 2': '#C63FA9',
 });
 
-const formatNumber = createFormatter({ displayAs: 'number', numberFormat: '0,0[.]00' });
-const formatPercent = createFormatter({ displayAs: 'number', numberFormat: '0[.]00' });
-
 const ColorPaletteArray = values(BaseColors);
+
+function defaultFormatSeriesText(item) {
+  let result = item['@@y'];
+  if (item['@@yError'] !== undefined) {
+    result = `${result} \u00B1 ${item['@@yError']}`;
+  }
+  if (item['@@yPercent'] !== undefined) {
+    result = `${item['@@yPercent']} (${result})`;
+  }
+  if (item['@@size'] !== undefined) {
+    result = `${result}: ${item['@@size']}`;
+  }
+  return result;
+}
+
+function defaultFormatSeriesTextForPie(item) {
+  return item['@@yPercent'] + ' (' + item['@@y'] + ')';
+}
 
 function getFontColor(bgcolor) {
   let result = '#333333';
@@ -69,9 +85,25 @@ function getFontColor(bgcolor) {
   return result;
 }
 
-export function normalizeValue(value) {
+function getPieHoverInfoPattern(options) {
+  const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
+  let result = 'text';
+  if (!hasX) result += '+label';
+  return result;
+}
+
+function getHoverInfoPattern(options) {
+  const hasX = /{{\s*@@x\s*}}/.test(options.textFormat);
+  const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
+  let result = 'text';
+  if (!hasX) result += '+x';
+  if (!hasName) result += '+name';
+  return result;
+}
+
+export function normalizeValue(value, dateTimeFormat = 'YYYY-MM-DD HH:mm:ss') {
   if (moment.isMoment(value)) {
-    return value.format('YYYY-MM-DD HH:mm:ss');
+    return value.format(dateTimeFormat);
   }
   return value;
 }
@@ -155,10 +187,12 @@ function calculateDimensions(series, options) {
   const xPadding = 0.02;
   const yPadding = 0.1;
 
-  const hasX = contains(values(options.columnMapping), 'x');
+  const hasX = includes(values(options.columnMapping), 'x');
   const hasY2 = !!find(series, (serie) => {
-    const serieOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
-    return (serieOptions.yAxis === 1) && (options.series.stacking === null);
+    const seriesOptions = options.seriesOptions[serie.name] || { type: options.globalSeriesType };
+    return (seriesOptions.yAxis === 1) && (
+      (options.series.stacking === null) || (seriesOptions.type === 'line')
+    );
   });
 
   return {
@@ -189,23 +223,74 @@ function preparePieData(seriesList, options) {
     cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
   } = calculateDimensions(seriesList, options);
 
+  const formatNumber = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.numberFormat,
+  });
+  const formatPercent = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.percentFormat,
+  });
+  const formatText = options.textFormat === ''
+    ? defaultFormatSeriesTextForPie :
+    item => formatSimpleTemplate(options.textFormat, item);
+
+  const hoverinfo = getPieHoverInfoPattern(options);
+
+  // we will use this to assign colors for values that have not explicitly set color
+  const getDefaultColor = d3.scale.ordinal().domain([]).range(ColorPaletteArray);
+  const valuesColors = {};
+  each(options.valuesOptions, (item, key) => {
+    if (isString(item.color) && (item.color !== '')) {
+      valuesColors[key] = item.color;
+    }
+  });
+
   return map(seriesList, (serie, index) => {
     const xPosition = (index % cellsInRow) * cellWidth;
     const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+
+    const sourceData = new Map();
+    const seriesTotal = reduce(serie.data, (result, row) => {
+      const y = normalizeValue(row.y);
+      return result + Math.abs(y);
+    }, 0);
+    each(serie.data, (row) => {
+      const x = normalizeValue(row.x);
+      const y = normalizeValue(row.y);
+      sourceData.set(x, {
+        x,
+        y,
+        yPercent: y / seriesTotal * 100,
+        raw: extend({}, row.$raw, {
+          // use custom display format - see also `updateSeriesText`
+          '@@x': normalizeValue(row.x, options.dateTimeFormat),
+        }),
+      });
+    });
+
     return {
-      values: pluck(serie.data, 'y'),
-      labels: map(serie.data, row => (hasX ? row.x : `Slice ${index}`)),
+      values: map(serie.data, i => i.y),
+      labels: map(serie.data, row => (hasX ? normalizeValue(row.x) : `Slice ${index}`)),
       type: 'pie',
       hole: 0.4,
-      marker: { colors: ColorPaletteArray },
-      text: serie.name,
+      marker: {
+        colors: map(serie.data, row => valuesColors[row.x] || getDefaultColor(row.x)),
+      },
+      hoverinfo,
+      text: [],
+      textinfo: options.showDataLabels ? 'percent' : 'none',
       textposition: 'inside',
-      textfont: { color: '#f5f5f5' },
+      textfont: { color: '#ffffff' },
       name: serie.name,
       domain: {
         x: [xPosition, xPosition + cellWidth - xPadding],
         y: [yPosition, yPosition + cellHeight - yPadding],
       },
+      sourceData,
+      formatNumber,
+      formatPercent,
+      formatText,
     };
   });
 }
@@ -311,6 +396,20 @@ function prepareHeatmapData(seriesList, options) {
 function prepareChartData(seriesList, options) {
   const sortX = (options.sortX === true) || (options.sortX === undefined);
 
+  const formatNumber = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.numberFormat,
+  });
+  const formatPercent = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.percentFormat,
+  });
+  const formatText = options.textFormat === ''
+    ? defaultFormatSeriesText :
+    item => formatSimpleTemplate(options.textFormat, item);
+
+  const hoverinfo = getHoverInfoPattern(options);
+
   return map(seriesList, (series, index) => {
     const seriesOptions = options.seriesOptions[series.name] ||
       { type: options.globalSeriesType };
@@ -328,11 +427,17 @@ function prepareChartData(seriesList, options) {
       const x = normalizeValue(row.x);
       const y = normalizeValue(row.y);
       const yError = normalizeValue(row.yError);
+      const size = normalizeValue(row.size);
       sourceData.set(x, {
         x,
         y,
         yError,
+        size,
         yPercent: null, // will be updated later
+        raw: extend({}, row.$raw, {
+          // use custom display format - see also `updateSeriesText`
+          '@@x': normalizeValue(row.x, options.dateTimeFormat),
+        }),
       });
       xValues.push(x);
       yValues.push(y);
@@ -341,7 +446,7 @@ function prepareChartData(seriesList, options) {
 
     const plotlySeries = {
       visible: true,
-      hoverinfo: 'x+text+name',
+      hoverinfo,
       x: xValues,
       y: yValues,
       error_y: {
@@ -354,9 +459,15 @@ function prepareChartData(seriesList, options) {
         color: getFontColor(seriesColor),
       },
       sourceData,
+      formatNumber,
+      formatPercent,
+      formatText,
     };
 
-    if ((seriesOptions.yAxis === 1) && (options.series.stacking === null)) {
+    if (
+      (seriesOptions.yAxis === 1) &&
+      ((options.series.stacking === null) || (seriesOptions.type === 'line'))
+    ) {
       plotlySeries.yaxis = 'y2';
     }
 
@@ -364,7 +475,7 @@ function prepareChartData(seriesList, options) {
 
     if (seriesOptions.type === 'bubble') {
       plotlySeries.marker = {
-        size: pluck(data, 'size'),
+        size: map(data, i => i.size),
       };
     } else if (seriesOptions.type === 'box') {
       plotlySeries.boxpoints = 'outliers';
@@ -413,18 +524,24 @@ export function prepareLayout(element, seriesList, options, data) {
   };
 
   if (options.globalSeriesType === 'pie') {
-    result.annotations = filter(map(seriesList, (series, index) => {
-      const xPosition = (index % cellsInRow) * cellWidth;
-      const yPosition = Math.floor(index / cellsInRow) * cellHeight;
-      return {
-        x: xPosition + ((cellWidth - xPadding) / 2),
-        y: yPosition + cellHeight - 0.015,
-        xanchor: 'center',
-        yanchor: 'top',
-        text: series.name,
-        showarrow: false,
-      };
-    }));
+    const hasName = /{{\s*@@name\s*}}/.test(options.textFormat);
+
+    if (hasName) {
+      result.annotations = [];
+    } else {
+      result.annotations = filter(map(seriesList, (series, index) => {
+        const xPosition = (index % cellsInRow) * cellWidth;
+        const yPosition = Math.floor(index / cellsInRow) * cellHeight;
+        return {
+          x: xPosition + ((cellWidth - xPadding) / 2),
+          y: yPosition + cellHeight - 0.015,
+          xanchor: 'center',
+          yanchor: 'top',
+          text: series.name,
+          showarrow: false,
+        };
+      }));
+    }
   } else {
     if (options.globalSeriesType === 'box') {
       result.boxmode = 'group';
@@ -435,6 +552,10 @@ export function prepareLayout(element, seriesList, options, data) {
       title: getTitle(options.xAxis),
       type: getScaleType(options.xAxis.type),
     };
+
+    if (options.sortX && result.xaxis.type === 'category') {
+      result.xaxis.categoryorder = 'category ascending';
+    }
 
     if (!isUndefined(options.xAxis.labels)) {
       result.xaxis.showticklabels = options.xAxis.labels.enabled;
@@ -483,17 +604,31 @@ export function prepareLayout(element, seriesList, options, data) {
 function updateSeriesText(seriesList, options) {
   each(seriesList, (series) => {
     series.text = [];
-    series.sourceData.forEach((item) => {
-      let text = formatNumber(item.y);
-      if (item.yError !== undefined) {
-        text = `${text} \u00B1 ${formatNumber(item.yError)}`;
+    series.hover = [];
+    const xValues = (options.globalSeriesType === 'pie') ? series.labels : series.x;
+    xValues.forEach((x) => {
+      const text = {
+        '@@name': series.name,
+        // '@@x' is already in `item.$raw`
+      };
+      const item = series.sourceData.get(x);
+      if (item) {
+        text['@@y'] = series.formatNumber(item.y);
+        if (item.yError !== undefined) {
+          text['@@yError'] = series.formatNumber(item.yError);
+        }
+        if (item.size !== undefined) {
+          text['@@size'] = series.formatNumber(item.size);
+        }
+
+        if (options.series.percentValues || (options.globalSeriesType === 'pie')) {
+          text['@@yPercent'] = series.formatPercent(Math.abs(item.yPercent));
+        }
+
+        extend(text, item.raw);
       }
 
-      if (options.series.percentValues) {
-        text = `${formatPercent(Math.abs(item.yPercent))}% (${text})`;
-      }
-
-      series.text.push(text);
+      series.text.push(series.formatText(text));
     });
   });
   return seriesList;
@@ -553,6 +688,7 @@ export function updateData(seriesList, options) {
     return seriesList;
   }
   if (options.globalSeriesType === 'pie') {
+    updateSeriesText(seriesList, options);
     return seriesList;
   }
   if (options.globalSeriesType === 'heatmap') {

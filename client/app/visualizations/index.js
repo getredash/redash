@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { isArray, reduce } from 'underscore';
+import { isArray, reduce } from 'lodash';
 
 function VisualizationProvider() {
   this.visualizations = {};

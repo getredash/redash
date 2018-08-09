@@ -1,4 +1,4 @@
-import { find, filter, map, each } from 'underscore';
+import { find, filter, map, each } from 'lodash';
 import template from './dynamic-table.html';
 import './dynamic-table.less';
 

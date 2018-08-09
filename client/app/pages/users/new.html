@@ -26,7 +26,7 @@
         <div ng-if="user.created" class="alert alert-success alert-invited">
           <h4>The user has been created and should receive an invite email soon</h4>
           <p>You can use the following link to invite them yourself:</p>
-          <textarea class="form-control" rows="2" disabled>{{user.invite_link}}</textarea>
+          <textarea class="form-control m-t-10" rows="2" readonly>{{ inviteLink }}</textarea>
         </div>
       </form>
     </div>
