@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, values, some, each, isArray, isNumber, isString, includes } from 'lodash';
+import { sortBy, uniq, values, some, each, isArray, isNumber, isString, includes, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -111,7 +111,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         // on the column type set by the backend. This logic is prone to errors,
         // and better be removed. Kept for now, for backward compatability.
         each(this.query_result.data.rows, (row) => {
-          each(row, (v, k) => {
+          forOwn(row, (v, k) => {
             let newType = null;
             if (isNumber(v)) {
               newType = 'float';
@@ -284,7 +284,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         let eValue = null;
         let sizeValue = null;
 
-        each(row, (v, definition) => {
+        forOwn(row, (v, definition) => {
           definition = '' + definition;
           const definitionParts = definition.split('::') || definition.split('__');
           const name = definitionParts[0];
