@@ -777,4 +777,3 @@ export function updateDimensions(layout, element, margins) {
 
   return changed;
 }
-

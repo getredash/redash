@@ -333,7 +333,7 @@
     <div class="form-group" ng-if="options.globalSeriesType == 'heatmap'">
       <label class="control-label">Color Scheme</label>
 
-      <ui-select ng-model="options.colorScheme"">
+      <ui-select ng-model="options.colorScheme">
         <ui-select-match allow-clear="true" placeholder="Choose Color Scheme...">{{$select.selected | capitalize}}</ui-select-match>
         <ui-select-choices repeat="value in colorScheme">
           <div ng-bind-html="value | highlight: $select.search"></div>
