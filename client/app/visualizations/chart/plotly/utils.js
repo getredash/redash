@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isString, isUndefined, includes, min, max, has, find,
-  each, values, sortBy, identity, filter, map, extend, reduce,
+  each, values, sortBy, identity, filter, map, extend, reduce, flatten, uniq,
 } from 'lodash';
 import moment from 'moment';
 import d3 from 'd3';
@@ -307,6 +307,11 @@ function prepareHeatmapData(seriesList, options) {
     [1, '#e92827'],
   ];
 
+  const formatNumber = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.numberFormat,
+  });
+
   let colorScheme = [];
 
   if (!options.colorScheme) {
@@ -327,8 +332,8 @@ function prepareHeatmapData(seriesList, options) {
       colorscale: colorScheme,
     };
 
-    plotlySeries.x = uniq(pluck(series.data, 'x'));
-    plotlySeries.y = uniq(pluck(series.data, 'y'));
+    plotlySeries.x = uniq(map(series.data, 'x'));
+    plotlySeries.y = uniq(map(series.data, 'y'));
 
     if (options.sortX) {
       plotlySeries.x.sort(naturalSort);
@@ -346,7 +351,7 @@ function prepareHeatmapData(seriesList, options) {
       plotlySeries.y.reverse();
     }
 
-    const zMax = max(pluck(series.data, 'zVal'));
+    const zMax = max(map(series.data, 'zVal'));
 
     // Use text trace instead of default annotation for better performance
     const dataLabels = {
@@ -364,7 +369,7 @@ function prepareHeatmapData(seriesList, options) {
     for (let i = 0; i < plotlySeries.y.length; i += 1) {
       const item = [];
       for (let j = 0; j < plotlySeries.x.length; j += 1) {
-        const datum = findWhere(
+        const datum = find(
           series.data,
           { x: plotlySeries.x[j], y: plotlySeries.y[i] },
         );
@@ -375,7 +380,7 @@ function prepareHeatmapData(seriesList, options) {
         if (isFinite(zMax) && options.showDataLabels) {
           dataLabels.x.push(plotlySeries.x[j]);
           dataLabels.y.push(plotlySeries.y[i]);
-          dataLabels.text.push(String(zValue));
+          dataLabels.text.push(formatNumber(zValue));
           if (options.colorScheme && options.colorScheme === 'Custom...') {
             dataLabels.textfont.color.push('white');
           } else {
@@ -554,7 +559,11 @@ export function prepareLayout(element, seriesList, options, data) {
     };
 
     if (options.sortX && result.xaxis.type === 'category') {
-      result.xaxis.categoryorder = 'category ascending';
+      if (options.reverseX) {
+        result.xaxis.categoryorder = 'category descending';
+      } else {
+        result.xaxis.categoryorder = 'category ascending';
+      }
     }
 
     if (!isUndefined(options.xAxis.labels)) {
