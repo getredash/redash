@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import select
+import re
 
 import psycopg2
 
@@ -94,11 +95,17 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         results = json.loads(results)
 
+        hidden_tables = self.configuration.get('hidden_tables')
+        hidden_tables_re = re.compile(hidden_tables) if hidden_tables else None
+
         for row in results['rows']:
             if row['table_schema'] != 'public':
                 table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
             else:
                 table_name = row['table_name']
+
+            if hidden_tables_re and hidden_tables_re.match(table_name):
+                continue
 
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
@@ -231,6 +238,10 @@ class Redshift(PostgreSQL):
                    "type": "string",
                    "title": "SSL Mode",
                    "default": "prefer"
+                },
+                "hidden_tables": {
+                    "type": "string",
+                    "title": "Tables to Hide (Pattern)"
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
