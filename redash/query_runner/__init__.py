@@ -183,7 +183,7 @@ def import_query_runners(query_runner_imports):
 def format_schema(results):
     schema = {}
     for row in results['rows']:
-        table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
+        table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
         if table_name not in schema:
             schema[table_name] = {'name': table_name, 'columns': []}
 

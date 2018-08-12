@@ -151,7 +151,7 @@ class Athena(BaseQueryRunner):
 
         results, error = self.run_query(query, None)
         if error is not None:
-            raise Exception("Failed getting schema from query.")
+            raise Exception("Failed getting schema.")
 
         schema = format_schema(json.loads(results))
         return schema.values()
