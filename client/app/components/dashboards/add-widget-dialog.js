@@ -64,13 +64,13 @@ const AddWidgetDialog = {
         return;
       }
 
-      Query.search({ q: term }, (results) => {
+      Query.query({ q: term }, (results) => {
         // If user will type too quick - it's possible that there will be
         // several requests running simultaneously. So we need to check
         // which results are matching current search term and ignore
         // outdated results.
         if (this.searchTerm === term) {
-          this.searchedQueries = results;
+          this.searchedQueries = results.results;
         }
       });
     }, 200);

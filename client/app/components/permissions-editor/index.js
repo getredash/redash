@@ -34,16 +34,18 @@ const PermissionsEditorComponent = {
     // Search for user
     this.findUser = (search) => {
       if (search === '') {
+        this.foundUsers = [];
         return;
       }
 
-      if (this.foundUsers === undefined) {
-        User.query((users) => {
-          const existingIds = this.grantees.map(m => m.id);
-          users.forEach((user) => { user.alreadyGrantee = includes(existingIds, user.id); });
-          this.foundUsers = users;
+      User.query({ q: search }, (response) => {
+        const users = response.results;
+        const existingIds = this.grantees.map(m => m.id);
+        users.forEach((user) => {
+          user.alreadyGrantee = includes(existingIds, user.id);
         });
-      }
+        this.foundUsers = users;
+      });
     };
 
     // Add new user to grantees list
@@ -68,7 +70,11 @@ const PermissionsEditorComponent = {
         this.grantees = this.grantees.filter(m => m !== user);
 
         if (this.foundUsers) {
-          this.foundUsers.forEach((u) => { if (u.id === user.id) { u.alreadyGrantee = false; } });
+          this.foundUsers.forEach((u) => {
+            if (u.id === user.id) {
+              u.alreadyGrantee = false;
+            }
+          });
         }
       });
     };

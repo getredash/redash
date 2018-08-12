@@ -13,6 +13,7 @@ from redash.utils import json_dumps
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import cast, select, String
 from sqlalchemy.dialects import postgresql
+from sqlalchemy_utils import sort_query
 
 routes = Blueprint('redash', __name__, template_folder=settings.fix_assets_path('templates'))
 
@@ -131,3 +132,18 @@ def filter_by_tags(result_set, column):
         result_set = result_set.filter(cast(column, postgresql.ARRAY(db.Text)).contains(tags))
     
     return result_set
+
+
+def order_results(results, default_order, orders_whitelist):
+    """
+    Orders the given results with the sort order as requested in the
+    "order" request query parameter or the given default order.
+    """
+    # See if a particular order has been requested
+    order = request.args.get('order', '').strip() or default_order
+    # and if it matches a long-form for related fields, falling
+    # back to the default order
+    selected_order = orders_whitelist.get(order, default_order)
+    # The query may already have an ORDER BY statement attached
+    # so we clear it here and apply the selected order
+    return sort_query(results.order_by(None), selected_order)

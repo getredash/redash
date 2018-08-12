@@ -3,6 +3,7 @@ import {
   each, values, sortBy, identity, filter, map, extend, reduce,
 } from 'lodash';
 import moment from 'moment';
+import d3 from 'd3';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
@@ -227,6 +228,15 @@ function preparePieData(seriesList, options) {
 
   const hoverinfo = getPieHoverInfoPattern(options);
 
+  // we will use this to assign colors for values that have not explicitly set color
+  const getDefaultColor = d3.scale.ordinal().domain([]).range(ColorPaletteArray);
+  const valuesColors = {};
+  each(options.valuesOptions, (item, key) => {
+    if (isString(item.color) && (item.color !== '')) {
+      valuesColors[key] = item.color;
+    }
+  });
+
   return map(seriesList, (serie, index) => {
     const xPosition = (index % cellsInRow) * cellWidth;
     const yPosition = Math.floor(index / cellsInRow) * cellHeight;
@@ -255,7 +265,9 @@ function preparePieData(seriesList, options) {
       labels: map(serie.data, row => (hasX ? normalizeValue(row.x) : `Slice ${index}`)),
       type: 'pie',
       hole: 0.4,
-      marker: { colors: ColorPaletteArray },
+      marker: {
+        colors: map(serie.data, row => valuesColors[row.x] || getDefaultColor(row.x)),
+      },
       hoverinfo,
       text: [],
       textinfo: options.showDataLabels ? 'percent' : 'none',

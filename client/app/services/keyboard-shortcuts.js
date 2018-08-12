@@ -11,9 +11,14 @@ function onShortcut(event, shortcut) {
 }
 
 function KeyboardShortcuts() {
+  this.modKey = /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'Cmd' : 'Ctrl';
+
   this.bind = function bind(keymap) {
     each(keymap, (fn, key) => {
-      const keys = key.toLowerCase().split(',').map(trim);
+      const keys = key
+        .toLowerCase()
+        .split(',')
+        .map(trim);
       each(keys, (k) => {
         handlers[k] = [...without(handlers[k], fn), fn];
         Mousetrap.bindGlobal(k, onShortcut);
@@ -23,7 +28,10 @@ function KeyboardShortcuts() {
 
   this.unbind = function unbind(keymap) {
     each(keymap, (fn, key) => {
-      const keys = key.toLowerCase().split(',').map(trim);
+      const keys = key
+        .toLowerCase()
+        .split(',')
+        .map(trim);
       each(keys, (k) => {
         handlers[k] = without(handlers[k], fn);
         if (handlers[k].length === 0) {
