@@ -3,7 +3,7 @@ import settingsMenu from '@/lib/settings-menu';
 import { LivePaginator } from '@/lib/pagination';
 import template from './list.html';
 
-function UsersCtrl(currentUser, Policy, User) {
+function UsersCtrl($location, currentUser, Policy, User) {
   this.currentUser = currentUser;
   if ($location.path() === '/users/disabled') {
     this.currentPage = 'disabled_users';
