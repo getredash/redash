@@ -53,7 +53,24 @@ class Hive(BaseSQLQueryRunner):
                 },
                 "username": {
                     "type": "string"
-                }
+                },
+                "use_http": {
+                    "type": "boolean",
+                    "title": "Use HTTP transport"
+                },
+                "http_scheme": {
+                    "type": "string",
+                    "title": "Scheme when using HTTP transport",
+                    "default": "https"
+                },
+                "http_path": {
+                    "type": "string",
+                    "title": "Path when using HTTP transport"
+                },
+                "http_password": {
+                    "type": "string",
+                    "title": "Password when using HTTP transport"
+                },
             },
             "required": ["host"]
         }
@@ -97,7 +114,42 @@ class Hive(BaseSQLQueryRunner):
 
         connection = None
         try:
-            connection = hive.connect(**self.configuration.to_dict())
+            if self.configuration.get('use_http', False):
+                # default to https
+                scheme = self.configuration.get('http_scheme', 'https')
+
+                # if path is set but is missing initial slash, append it
+                path = self.configuration.get('http_path', '')
+                if path and path[0] != '/':
+                    path = '/' + path
+
+                # if port is set prepend colon
+                port = self.configuration.get('port', '')
+                if port:
+                    port = ':' + port
+
+                # build uri
+                http_uri = "{}://{}{}{}".format(scheme, host, port, path)
+
+                # create transport
+                transport = THttpClient.THttpClient(http_uri)
+
+                # if username or password is set, add Authorization header
+                username = self.configuration.get('username', '')
+                password = self.configuration.get('http_password', '')
+                if username || password:
+                    auth = base64.b64encode(username + ':' + password)
+                    transport.setCustomHeaders({'Authorization': 'Basic ' + auth})
+
+                # create connection
+                connection = hive.connect(thrift_transport=transport, **self.configuration.to_dict())
+            else:
+                connection = hive.connect(
+                    host=self.configuration['host'],
+                    port=self.configiration.get('port', None),
+                    database=self.configuration.get('database', 'default'),
+                    username=self.configuration.get('username', None),
+                )
 
             cursor = connection.cursor()
 
