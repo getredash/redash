@@ -10,6 +10,8 @@ function AdminStatusCtrl($scope, $http, $timeout, currentUser, Events) {
       delete data.workers;
       $scope.manager = data.manager;
       delete data.manager;
+      $scope.database_metrics = data.database_metrics;
+      delete data.database_metrics;
       $scope.status = data;
     });
 

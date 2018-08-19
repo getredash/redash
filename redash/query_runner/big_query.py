@@ -68,12 +68,15 @@ def _load_key(filename):
         f.close()
 
 
-def _get_query_results(jobs, project_id, job_id, start_index):
-    query_reply = jobs.getQueryResults(projectId=project_id, jobId=job_id, startIndex=start_index).execute()
+def _get_query_results(jobs, project_id, location, job_id, start_index):
+    query_reply = jobs.getQueryResults(projectId=project_id,
+                                       location=location,
+                                       jobId=job_id,
+                                       startIndex=start_index).execute()
     logging.debug('query_reply %s', query_reply)
     if not query_reply['jobComplete']:
         time.sleep(10)
-        return _get_query_results(jobs, project_id, job_id, start_index)
+        return _get_query_results(jobs, project_id, location, job_id, start_index)
 
     return query_reply
 
@@ -110,6 +113,11 @@ class BigQuery(BaseQueryRunner):
                     "type": "boolean",
                     'title': "Use Standard SQL (Beta)",
                 },
+                'location': {
+                    "type": "string",
+                    "title": "Processing Location",
+                    "default": "US",
+                },
                 'loadSchema': {
                     "type": "boolean",
                     "title": "Load Schema"
@@ -120,7 +128,7 @@ class BigQuery(BaseQueryRunner):
                 }
             },
             'required': ['jsonKeyFile', 'projectId'],
-            "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
+            "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'location', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']
         }
 
@@ -148,10 +156,14 @@ class BigQuery(BaseQueryRunner):
     def _get_project_id(self):
         return self.configuration["projectId"]
 
+    def _get_location(self):
+        return self.configuration.get("location", "US")
+
     def _get_total_bytes_processed(self, jobs, query):
         job_data = {
             "query": query,
             "dryRun": True,
+            'location': self._get_location()
         }
 
         if self.configuration.get('useStandardSql', False):
@@ -169,6 +181,9 @@ class BigQuery(BaseQueryRunner):
                 }
             }
         }
+        job_data['jobReference'] = {
+                'location': self._get_location()
+        }
 
         if self.configuration.get('useStandardSql', False):
             job_data['configuration']['query']['useLegacySql'] = False
@@ -183,7 +198,7 @@ class BigQuery(BaseQueryRunner):
 
         insert_response = jobs.insert(projectId=project_id, body=job_data).execute()
         current_row = 0
-        query_reply = _get_query_results(jobs, project_id=project_id,
+        query_reply = _get_query_results(jobs, project_id=project_id, location=self._get_location(),
                                          job_id=insert_response['jobReference']['jobId'], start_index=current_row)
 
         logger.debug("bigquery replied: %s", query_reply)
@@ -195,7 +210,9 @@ class BigQuery(BaseQueryRunner):
                 rows.append(transform_row(row, query_reply["schema"]["fields"]))
 
             current_row += len(query_reply['rows'])
-            query_reply = jobs.getQueryResults(projectId=project_id, jobId=query_reply['jobReference']['jobId'],
+            query_reply = jobs.getQueryResults(projectId=project_id,
+                                               location=self._get_location(),
+                                               jobId=query_reply['jobReference']['jobId'],
                                                startIndex=current_row).execute()
 
         columns = [{'name': f["name"],
@@ -204,11 +221,28 @@ class BigQuery(BaseQueryRunner):
 
         data = {
             "columns": columns,
-            "rows": rows, 
+            "rows": rows,
             'metadata': {'data_scanned': int(query_reply['totalBytesProcessed'])}
         }
 
         return data
+
+    def _get_columns_schema(self, table_data):
+        columns = []
+        for column in table_data['schema']['fields']:
+            columns.extend(self._get_columns_schema_column(column))
+
+        return {'name': table_data['id'], 'columns': columns}
+
+    def _get_columns_schema_column(self, column):
+        columns = []
+        if column['type'] == 'RECORD':
+            for field in column['fields']:
+                columns.append(u"{}.{}".format(column['name'], field['name']))
+        else:
+            columns.append(column['name'])
+
+        return columns
 
     def get_schema(self, get_stats=False):
         if not self.configuration.get('loadSchema', False):
@@ -221,17 +255,21 @@ class BigQuery(BaseQueryRunner):
         for dataset in datasets.get('datasets', []):
             dataset_id = dataset['datasetReference']['datasetId']
             tables = service.tables().list(projectId=project_id, datasetId=dataset_id).execute()
-            for table in tables.get('tables', []):
-                table_data = service.tables().get(projectId=project_id, datasetId=dataset_id, tableId=table['tableReference']['tableId']).execute()
+            while True:
+                for table in tables.get('tables', []):
+                    table_data = service.tables().get(projectId=project_id,
+                                                      datasetId=dataset_id,
+                                                      tableId=table['tableReference']['tableId']).execute()
+                    table_schema = self._get_columns_schema(table_data)
+                    schema.append(table_schema)
 
-                columns = []
-                for column in table_data['schema']['fields']:
-                    if column['type'] == 'RECORD':
-                        for field in column['fields']:
-                            columns.append(u"{}.{}".format(column['name'], field['name']))
-                    else:
-                        columns.append(column['name'])
-                schema.append({'name': table_data['id'], 'columns': columns})
+                next_token = tables.get('nextPageToken', None)
+                if next_token is None:
+                    break
+
+                tables = service.tables().list(projectId=project_id,
+                                               datasetId=dataset_id,
+                                               pageToken=next_token).execute()
 
         return schema
 
@@ -298,6 +336,11 @@ class BigQueryGCE(BigQuery):
                 'useStandardSql': {
                     "type": "boolean",
                     'title': "Use Standard SQL (Beta)",
+                },
+                'location': {
+                    "type": "string",
+                    "title": "Processing Location",
+                    "default": "US",
                 },
                 'loadSchema': {
                     "type": "boolean",

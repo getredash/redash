@@ -24,10 +24,9 @@
           <p class="hidden-print">
             <span ng-hide="$ctrl.canViewQuery">{{$ctrl.widget.getQuery().name}}</span>
             <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization" ng-show="$ctrl.canViewQuery"></query-link>
-            <small><visualization-name visualization="$ctrl.widget.visualization"/></small>
           </p>
           <p class="visible-print">
-            {{$ctrl.widget.getQuery().name}}
+            <span>{{$ctrl.widget.getQuery().name}}</span>
             <visualization-name visualization="$ctrl.widget.visualization"/>
           </p>
           <div class="text-muted query--description" ng-bind-html="$ctrl.widget.getQuery().description | markdown"></div>
@@ -52,7 +51,7 @@
 
     <div class="body-row clearfix tile__bottom-control">
       <a class="small hidden-print" ng-click="$ctrl.refresh()" ng-if="!$ctrl.public">
-        <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i> 
+        <i ng-class='{"zmdi-hc-spin": $ctrl.widget.loading}' class="zmdi zmdi-refresh"></i>
         <span am-time-ago="$ctrl.widget.getQueryResult().getUpdatedAt()" ng-if="!$ctrl.widget.loading"></span>
         <rd-timer timestamp="$ctrl.widget.refreshStartedAt" ng-if="$ctrl.widget.loading"></rd-timer>
       </a>

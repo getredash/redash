@@ -52,7 +52,7 @@ function addPointToSeries(point, seriesCollection, seriesName) {
 }
 
 
-function QueryResultService($resource, $timeout, $q) {
+function QueryResultService($resource, $timeout, $q, QueryResultError) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const statuses = {
@@ -61,6 +61,22 @@ function QueryResultService($resource, $timeout, $q) {
     3: 'done',
     4: 'failed',
   };
+
+  function handleErrorResponse(queryResult, response) {
+    if (response.status === 403) {
+      queryResult.update(response.data);
+    } else if (response.status === 400 && 'job' in response.data) {
+      queryResult.update(response.data);
+    } else {
+      logger('Unknown error', response);
+      queryResult.update({
+        job: {
+          error: 'unknown error occurred. Please try again later.',
+          status: 4,
+        },
+      });
+    }
+  }
 
   class QueryResult {
     constructor(props) {
@@ -72,6 +88,9 @@ function QueryResultService($resource, $timeout, $q) {
       this.filterFreeze = undefined;
 
       this.updatedAt = moment();
+
+      // extended status flags
+      this.isLoadingResult = false;
 
       if (props) {
         this.update(props);
@@ -130,6 +149,9 @@ function QueryResultService($resource, $timeout, $q) {
         this.deferred.resolve(this);
       } else if (this.job.status === 3) {
         this.status = 'processing';
+      } else if (this.job.status === 4) {
+        this.status = statuses[this.job.status];
+        this.deferred.reject(new QueryResultError(this.job.error));
       } else {
         this.status = undefined;
       }
@@ -148,6 +170,9 @@ function QueryResultService($resource, $timeout, $q) {
     }
 
     getStatus() {
+      if (this.isLoadingResult) {
+        return 'loading-result';
+      }
       return this.status || statuses[this.job.status];
     }
 
@@ -335,7 +360,6 @@ function QueryResultService($resource, $timeout, $q) {
       return this.columnNames;
     }
 
-
     getColumnCleanNames() {
       return this.getColumnNames().map(col => getColumnCleanName(col));
     }
@@ -414,18 +438,27 @@ function QueryResultService($resource, $timeout, $q) {
     static getById(id) {
       const queryResult = new QueryResult();
 
+      queryResult.isLoadingResult = true;
       QueryResultResource.get({ id }, (response) => {
+        // Success handler
+        queryResult.isLoadingResult = false;
         queryResult.update(response);
+      }, (error) => {
+        // Error handler
+        queryResult.isLoadingResult = false;
+        handleErrorResponse(queryResult, error);
       });
 
       return queryResult;
     }
 
     loadResult(tryCount) {
+      this.isLoadingResult = true;
       QueryResultResource.get(
         { id: this.job.query_result_id },
         (response) => {
           this.update(response);
+          this.isLoadingResult = false;
         },
         (error) => {
           if (tryCount === undefined) {
@@ -440,6 +473,7 @@ function QueryResultService($resource, $timeout, $q) {
                 status: 4,
               },
             });
+            this.isLoadingResult = false;
           } else {
             $timeout(() => {
               this.loadResult(tryCount + 1);
@@ -494,20 +528,12 @@ function QueryResultService($resource, $timeout, $q) {
           queryResult.refreshStatus(query);
         }
       }, (error) => {
-        if (error.status === 403) {
-          queryResult.update(error.data);
-        } else if (error.status === 400 && 'job' in error.data) {
-          queryResult.update(error.data);
-        } else {
-          logger('Unknown error', error);
-          queryResult.update({ job: { error: 'unknown error occurred. Please try again later.', status: 4 } });
-        }
+        handleErrorResponse(queryResult, error);
       });
 
       return queryResult;
     }
   }
-
 
   return QueryResult;
 }

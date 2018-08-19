@@ -1,5 +1,108 @@
 # Change Log
 
+## v5.0.0-Beta - 2018-08-06
+
+This is the first beta of the V5 release (and hopefully the last one). This version includes a lot of exciting new additions along with bug fixes and other changes.
+
+Some notable changes:
+
+* Extensive work on parameters UI:
+  * New Date Range parameter type.
+  * UI for creating new parameters.
+  * Support for Now/Today as default value of date/time parameter.
+* Tagging and favorites ⭐️ support for queries and dashboards.
+* Users list page was improved (search, additional information) and you can now disable users.
+* Query editor improvements: additional keyboard shortcuts and support for searching in query text.
+* Visualizations improvements: option to select colors of pie chart sectors, X Axis type auto detect and option to format values, labels and tooltips.
+* Data Sources:
+  * Support for Yandex Metrika and AppMetrika.
+  * BigQuery: location property support and schema will load all tables now.
+  * Elasticsearch: stop sending source_content_type parameter which wasn't supported in older versions.
+* Started migrating the frontend codebase to React.
+
+And much more!
+
+🙏 Thanks to @kravets-levko, @arikfr, @ariarijp, @alison985, @kyoshidajp, @kocsmy, @denisov-vlad, @deecay, @yuua, @emtwo, @Pablohn26, @sieben, @atharvai, @matsumo, @tdawber, @innovia, @gabrieldutra, @coreyhuinker, @maxv, @sjakthol, @mtrbean and @washort who contributed to this release!
+
+### Added
+
+* #2712: Date/Time Range parameter type (@kravets-levko)
+* #2482: Add support for ChatWork Alert Destination. (@matsumo)
+* #2678: Explicit "Add Parameter" Button in Query Editor. (@kravets-levko)
+* #2513: Add location property to BigQuery data source settings. (@kyoshidajp)
+* #2616: Pie chart: support setting pie chart sector colors. (@kravets-levko)
+* #2697: Date/Time parameters: support for "Now" as default value. (@kravets-levko)
+* #2693: Enable search function in Query Editor. (@arikfr)
+* #2573: Tagging and favorites for Queries and Dashboards (@arikfr)
+* #2640: Keyboard shortcut to collapse query editor/schema browser (@kravets-levko)
+* #2674: Add support for the Chrome Logger extension (@arikfr)
+* #2653: Add redash db size to status page (@alison985)
+* #2669: Store Athena query id with result metadata (@tdawber)
+* #2546: Configuration for incorporating React components (@washort)
+* #2533: New datasource: Yandex Metrika & AppMetrika (@denisov-vlad)
+* #2536: Chart: formats for values, labels and tooltips (@kravets-levko)
+* #2560: Introduce Policy object (@arikfr)
+* #2380: Admin should be able to disable a user (@kravets-levko)
+* #2509: Show custom date format on settings page (@kyoshidajp)
+
+### Changed
+
+* #2715: Improve users list page (@arikfr)
+* #2710: Update Ant variables to fit Redash's style (@kocsmy)
+* #2709: Move format button next Add New Param button. (@arikfr)
+* #2664: Dashboard shows a spinner when query failed to load (@kravets-levko)
+* #2626: Show real status when loading cached query result (@kravets-levko)
+* #2663: Set column name implicitly when column name is blank (@ariarijp)
+* #2695: Improve Date/DateTime type parameters (@kravets-levko)
+* #2694: Block users with disposable email addresses (@arikfr)
+* #2687: YAML: changed load to safe_load (@denisov-vlad)
+* #2514: Update value parsing for google spreadsheets source (@atharvai)
+* #2570: fixes query pagination alignment (@alison985)
+* #2584: keep query result pagination out of scroll (@alison985)
+* #2647: Improve Script Query Runner (@ariarijp)
+* #2583: Query header improvements on widgets (@kocsmy)
+* #2671: Save some space (@kocsmy)
+* #2658: delaying schema filtering to improve responsiveness (@alison985)
+* #2648: Update datasource documentation links (@Pablohn26)
+* #2613: Improve Script Query Runner (@ariarijp)
+* #2619: data source sort case insensitive (@alison985)
+* #2604: Improve Google Spreadsheets Query Runner (@ariarijp)
+* #2542: Closes #2541: x-axis improvements. (@emtwo)
+* #2590: Remove redundant variables (@ariarijp)
+* #2585: Show data only mode: allow to add and delete visualizations (@kravets-levko)
+* #2549: Allow get_tables to see views and v10-style partitioned tables (@coreyhuinker)
+* #2568: sort datasources alphabetically (@alison985)
+* #2444: feat: show error if saml response cannot be parsed (@sjakthol)
+* #2554: Display name to be delete (@kyoshidajp)
+* #2510: Display confirmation dialog when deleting a item (@kyoshidajp)
+* #2518: Design improvements (@kocsmy)
+* #2520: Filter data sources in a data source input area (@kyoshidajp)
+
+### Fixed
+
+* #2722: Elasticsearch: Don't send source_content_type parameter. (@arikfr)
+* #2719: Remove closing input tags (@maxv)
+* #2458: Get all tables in the BigQuery (@kyoshidajp)
+* #2698: Make sure we return distinct data source values (@arikfr)
+* #2315: Fix: pyHive type matches (@yuua)
+* #2638: Dashboard stops rendering when adding widget with empty query (@kravets-levko)
+* #2610: Fix export query results output file name (@gabrieldutra)
+* #2574: commit query result to db before evaluating alerts (@mtrbean)
+* #2580: add break-word wrap to add/edit text box on dashboard (@alison985)
+* #2578: Fix connection error when you run "create_tables" (@ariarijp)
+* #2572: remove extra menu line if query is archived (@alison985)
+* #2526: Fix pivot hide control in dashboards (@deecay)
+* #2511: Fixing signed_out.html template (@kocsmy)
+* #2523: Frontend: fix boolean field with null value display as null. (@innovia)
+
+### Other
+
+* #2682: Add Zeit's now support to have preview builds for every PR (@arikfr)
+* #2668: Upgrade bootstrap script to Redash 4.0.1 (@ariarijp)
+* #2639: Add tests for SpreadSheets (@ariarijp)
+* #2635: Add tests for Query Results (@ariarijp)
+* #2537: Remove trailing semicolon (@sieben)
+
 ## v4.0.1 - 2018-05-02
 
 ### Added
@@ -223,11 +326,11 @@
 - Reduce boilerplate in frontend code.
 - Set auto focus in first input items. @kyoshidajp
 - Update gunicorn to latest version.
-- Make log format configurable. 
-- Sort series by name. 
+- Make log format configurable.
+- Sort series by name.
 - Allow setting test file with Docker test run. @meinac
 - Use outdated queries count stored already in Redis.
-- Show links based on permissions the user have. 
+- Show links based on permissions the user have.
 - Cassandra: update driver version. @yershalom
 - Docker-Compose: update configuration to always restart services. @muddydixon
 - Modernize Python 2 code to get ready for Python 3. @cclauss
@@ -236,7 +339,7 @@
 - Salesforce: improve error messages we receive from the API. @akiray03
 - Custom JS code visualization improvements. @deecay
 - DQL: Update version to 0.5.24. @aterreno
-- Cassandra: get_schema support for both C* 2.x and 3.x, support for SortedSet type serialization. (@mfouilleul)
+- Cassandra: get_schema support for both C* 2.x and 3.x, support for SortedSet type serialization. (@mfouilleul))
 - Replace deprecated ng-annotate with babel plugin. @44px
 - Update Python dependencies to recent versions. @alison985
 - Bootstrap script: create /opt/redash directory only if it doesn't exist. @isomura
@@ -256,7 +359,7 @@
 - Use series color for Boxplot. @deecay
 - Revoke permission should respect to given grantee and access type. @meinac
 - Fixed eslint "Cannot read property 'length' of undefined" error. @kravets-levko
-- Don't crash query editor when there are unclosed curly brackets. 
+- Don't crash query editor when there are unclosed curly brackets.
 - Error value in charts wasn't displayed if it was 0.
 - Prevent line breaks in EditInPlace description when using Firefox. @alexmuller
 - Queries#all_queries was sometimes returning wrong number of queries.
@@ -459,7 +562,7 @@ This is a patch release, that adds support for Redshift ACM certificates (see #2
 - Fix: extra whitespace created by the filters component.
 - Fix: query results cleanup task was trying to delete query objects.
 - Fix: alert subscriptions were not triggered.
-- [DynamoDB] Fix: count(*) queries were broken. (@kopanitsa)
+- [DynamoDB] Fix: count(*) queries were broken. (@kopanitsa))
 - Fix: Redash is using too many database connections.
 - Fix: download links were not working in dashboards.
 - Fix: the first selection in multi filters was broken in dashboards.
@@ -476,9 +579,9 @@ This is a patch release, that adds support for Redshift ACM certificates (see #2
 
 This version has two big changes behind the scenes:
 
-* Refactor the frontend to use latest (at the time) Angular version (1.5) along with better frontend pipeline based on
+* Refactor the frontend to use latest (at the time) Angular version (1.5) along with better frontend pipeline based on)
   WebPack.
-* Refactor the backend code to use SQLAlchemy and Alembic, for easier migrations/upgrades.
+* Refactor the backend code to use SQLAlchemy and Alembic, for easier migrations/upgrades.)
 
 Along with that we have many fixes, additions, new data sources (Google Analytics, ClickHouse, Amazon Athena, Snowflake)
 and fixes to the existing ones (mainly ElasticSearch and Cassandra).
