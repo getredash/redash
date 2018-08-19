@@ -82,7 +82,7 @@ class AlertListResource(BaseResource):
         self.record_event({
             'action': 'list',
             'object_id': 'alerts',
-            'object_type': 'alerts'
+            'object_type': 'alert'
         })
         return [serialize_alert(alert) for alert in models.Alert.all(group_ids=self.current_user.group_ids)]
 
