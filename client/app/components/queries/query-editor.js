@@ -133,8 +133,8 @@ function queryEditor(QuerySnippet, $timeout) {
 
               $scope.autoCompleteSchema.forEach((table) => {
                 keywords[table.name] = 'Table';
-
-                table.columns.forEach((c) => { // autoCompleteColumns
+                // remove special characters from display schema that aren't okay in sql syntax
+                table.columns.forEach((c) => {
                   if (c.charAt(c.length - 1) === ')') {
                     let parensStartAt = c.indexOf('(') - 1;
                     c = c.substring(0, parensStartAt);
