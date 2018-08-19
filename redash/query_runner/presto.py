@@ -31,6 +31,26 @@ PRESTO_TYPES_MAPPING = {
 }
 
 
+# for athena and presto
+def format_schema(results):
+    """
+    This function formats the schema, table, and columsn of Athena and Presto
+    for display in the UI schema browser.
+    """
+    schema = {}
+    for row in results['rows']:
+        table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+        if table_name not in schema:
+            schema[table_name] = {'name': table_name, 'columns': []}
+
+        row_to_add = row['column_name'] + ' (' + row['column_type'] + ')'
+        if row['extra_info'] == 'partition key':
+            row_to_add = '[P] ' + row_to_add
+        schema[table_name]['columns'].append(row_to_add)
+
+    return schema
+
+
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
 

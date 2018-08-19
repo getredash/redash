@@ -5,6 +5,7 @@ import os
 from redash.query_runner import *
 from redash.settings import parse_boolean
 from redash.utils import JSONEncoder
+from .presto import format_schema
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
