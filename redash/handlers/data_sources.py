@@ -111,7 +111,7 @@ class DataSourceListResource(BaseResource):
         self.record_event({
             'action': 'list',
             'object_id': 'admin/data_sources',
-            'object_type': 'data_sources',
+            'object_type': 'datasource',
         })
 
         return sorted(response.values(), key=lambda d: d['name'].lower())
