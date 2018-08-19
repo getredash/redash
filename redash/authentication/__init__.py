@@ -138,13 +138,19 @@ def jwt_token_load_user_from_request(request):
     org = current_org._get_current_object()
 
     payload = None
-    cookie_name = org_settings['auth_jwt_auth_cookie_name']
 
-    jwt_token = request.cookies.get(cookie_name, None)
+    if org_settings['auth_jwt_auth_cookie_name']:
+        jwt_token = request.cookies.get(org_settings['auth_jwt_auth_cookie_name'], None)
+    elif org_settings['auth_jwt_auth_header_name']:
+        jwt_token = request.headers.get(org_settings['auth_jwt_auth_header_name'], None)
+    else:
+        return None
+
     if jwt_token:
         payload, token_is_valid = jwt_auth.verify_jwt_token(
             jwt_token,
-            audience=org_settings['auth_jwt_auth_audience'],
+            expected_issuer=org_settings['auth_jwt_auth_issuer'],
+            expected_audience=org_settings['auth_jwt_auth_audience'],
             algorithms=org_settings['auth_jwt_auth_algorithms'],
             public_certs_url=org_settings['auth_jwt_auth_public_certs_url'],
         )
