@@ -1,0 +1,6 @@
+schedule: "every day"
+search: False
+update: insecure
+requirements:
+  - requirements.txt:
+      update: insecure

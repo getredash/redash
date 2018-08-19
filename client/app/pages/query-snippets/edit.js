@@ -3,7 +3,6 @@ import template from './edit.html';
 
 function SnippetCtrl($routeParams, $http, $location, toastr, currentUser, AlertDialog, Events, QuerySnippet) {
   this.snippetId = $routeParams.snippetId;
-  Events.record('view', 'query_snippet', this.snippetId);
 
   this.editorOptions = {
     mode: 'snippets',

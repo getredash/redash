@@ -103,11 +103,32 @@ function queryRefreshSelect(clientConfig, Policy) {
   };
 }
 
+function scheduleUntil() {
+  return {
+    restrict: 'E',
+    scope: {
+      query: '=',
+      saveQuery: '=',
+    },
+    template: '<input type="datetime-local" step="1" class="form-control" ng-model="query.scheduleUntil" ng-change="saveQuery()">',
+  };
+}
+
+function scheduleKeepResults() {
+  return {
+    restrict: 'E',
+    scope: {
+      query: '=',
+      saveQuery: '=',
+    },
+    template: '<input type="number" class="form-control" ng-model="query.schedule_resultset_size" ng-change="saveQuery()" ng-disabled="!query.schedule">',
+  };
+}
+
 const ScheduleForm = {
   controller() {
     this.query = this.resolve.query;
     this.saveQuery = this.resolve.saveQuery;
-
     if (this.query.hasDailySchedule()) {
       this.refreshType = 'daily';
     } else {
@@ -125,5 +146,7 @@ const ScheduleForm = {
 export default function init(ngModule) {
   ngModule.directive('queryTimePicker', queryTimePicker);
   ngModule.directive('queryRefreshSelect', queryRefreshSelect);
+  ngModule.directive('scheduleUntil', scheduleUntil);
+  ngModule.directive('scheduleKeepResults', scheduleKeepResults);
   ngModule.component('scheduleDialog', ScheduleForm);
 }

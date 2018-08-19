@@ -2,23 +2,32 @@
 set -e
 
 worker() {
+  /app/manage.py db upgrade
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery}
+  MAX_MEMORY=$(($(/usr/bin/awk '/MemTotal/ {print $2}' /proc/meminfo)/4))
 
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker -c$WORKERS_COUNT -Q$QUEUES -linfo \
+      --max-tasks-per-child=10 \
+      --max-memory-per-child=$MAX_MEMORY \
+      -Ofair
 }
 
 scheduler() {
+  /app/manage.py db upgrade
   WORKERS_COUNT=${WORKERS_COUNT:-1}
   QUEUES=${QUEUES:-celery}
 
   echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
 
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo \
+      --max-tasks-per-child=10 \
+      -Ofair
 }
 
 server() {
+  /app/manage.py db upgrade
   exec /usr/local/bin/gunicorn -b 0.0.0.0:5000 --name redash -w${REDASH_WEB_WORKERS:-4} redash.wsgi:app
 }
 

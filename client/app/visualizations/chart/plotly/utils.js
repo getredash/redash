@@ -209,6 +209,19 @@ function getUnifiedXAxisValues(seriesList, sorted) {
   return sorted ? sortBy(result, identity) : result;
 }
 
+const DEFAULT_XAXIS_LABEL_LENGTH = 300;
+
+// We only truncate category x-axis labels because the other types
+// are correctly formatted by Plotly.
+function truncateCategoryAxis(oldXLabel, options) {
+  const xAxisLabelLength = parseInt(options.xAxisLabelLength, 10) || DEFAULT_XAXIS_LABEL_LENGTH;
+
+  if (options && options.xAxis && options.xAxis.type === 'category') {
+    return String(oldXLabel).substr(0, xAxisLabelLength);
+  }
+  return oldXLabel;
+}
+
 function preparePieData(seriesList, options) {
   const {
     cellWidth, cellHeight, xPadding, yPadding, cellsInRow, hasX,
@@ -260,9 +273,17 @@ function preparePieData(seriesList, options) {
       });
     });
 
+    const colorPalette = ColorPaletteArray.slice();
     return {
       values: map(serie.data, i => i.y),
-      labels: map(serie.data, row => (hasX ? normalizeValue(row.x) : `Slice ${index}`)),
+      labels: map(serie.data, (row, rowIdx) => {
+        const rowX = hasX ? truncateCategoryAxis(normalizeValue(row.x), options) : `Slice ${index}`;
+        const rowOpts = options.seriesOptions[rowX];
+        if (rowOpts) {
+          colorPalette[rowIdx] = rowOpts.color;
+        }
+        return rowX;
+      }),
       type: 'pie',
       hole: 0.4,
       marker: {
@@ -317,7 +338,7 @@ function prepareChartData(seriesList, options) {
     const yValues = [];
     const yErrorValues = [];
     each(data, (row) => {
-      const x = normalizeValue(row.x);
+      const x = truncateCategoryAxis(normalizeValue(row.x), options);
       const y = normalizeValue(row.y);
       const yError = normalizeValue(row.yError);
       const size = normalizeValue(row.size);

@@ -355,6 +355,7 @@ def cleanup_query_results():
     deleted_count = models.QueryResult.query.filter(
         models.QueryResult.id.in_(unused_query_results.subquery())
     ).delete(synchronize_session=False)
+    deleted_count += models.Query.delete_stale_resultsets()
     models.db.session.commit()
     logger.info("Deleted %d unused query results.", deleted_count)
 
@@ -466,6 +467,8 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
+            models.db.session.commit()
+            raise result
         else:
             if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
@@ -482,8 +485,8 @@ class QueryExecutor(object):
             self._log_progress('finished')
 
             result = query_result.id
-        models.db.session.commit()
-        return result
+            models.db.session.commit()
+            return result
 
     def _annotate_query(self, query_runner):
         if query_runner.annotate_query():
