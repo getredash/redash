@@ -4,9 +4,6 @@ logger = logging.getLogger('jwt_auth')
 import json
 import jwt
 import requests
-from flask import Blueprint, request, jsonify
-
-blueprint = Blueprint('jwt_auth', __name__)
 
 
 def get_public_keys(url):
@@ -66,34 +63,3 @@ def verify_jwt_token(jwt_token, expected_issuer, expected_audience, algorithms, 
         except Exception as e:
             logging.exception(e)
     return payload, valid_token
-
-
-@blueprint.route('/headers')
-def show_headers():
-    from redash.settings.organization import settings as org_settings
-    from flask import session as flask_session
-
-    if org_settings['auth_jwt_auth_cookie_name']:
-        jwt_token = request.cookies.get(org_settings['auth_jwt_auth_cookie_name'], None)
-    elif org_settings['auth_jwt_auth_header_name']:
-        jwt_token = request.headers.get(org_settings['auth_jwt_auth_header_name'], None)
-    else:
-        return None
-
-    jwt_payload = None
-
-    if jwt_token:
-        try:
-            jwt_payload = jwt.decode(
-                jwt_token,
-                verify=False,
-                algorithms=['HS256', 'RS256', 'ES256']
-            )
-        except Exception as e:
-            jwt_payload = repr(e)
-
-    return jsonify({
-        'jwt_payload': jwt_payload,
-        'headers': dict(request.headers),
-        'session': dict(flask_session)
-    })
