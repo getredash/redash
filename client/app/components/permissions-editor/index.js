@@ -54,12 +54,12 @@ const PermissionsEditorComponent = {
         user.alreadyGrantee = true;
         loadGrantees();
       }).catch((error) => {
-          if (error.status === 403) {
-            toastr.error('You cannot add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
-          } else {
-            toastr.error('Something went wrong.');
-          }
-        });
+        if (error.status === 403) {
+          toastr.error('You cannot add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
+        } else {
+          toastr.error('Something went wrong.');
+        }
+      });
     };
 
     // Remove user from grantees list
