@@ -53,10 +53,9 @@ const PermissionsEditorComponent = {
       $http.post(this.aclUrl, body).success(() => {
         user.alreadyGrantee = true;
         loadGrantees();
-      })
-        .catch((error) => {
+      }).catch((error) => {
           if (error.status === 403) {
-            toastr.error('You can not add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
+            toastr.error('You cannot add a user to this dashboard. Ask the dashboard owner to grant them permissions.');
           } else {
             toastr.error('Something went wrong.');
           }
