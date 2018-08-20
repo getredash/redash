@@ -182,3 +182,31 @@ class TestDashboardShareResourceDelete(BaseTestCase):
 
         res = self.make_request('delete', '/api/dashboards/{}/share'.format(dashboard.id), user=user)
         self.assertEqual(res.status_code, 200)
+
+class TestDashboardSearchResourceGet(BaseTestCase):
+    def create_dashboard_sequence(self):
+        d1 = self.factory.create_dashboard()
+        new_name = 'Analytics'
+        rv1 = self.make_request('post', '/api/dashboards/{0}'.format(d1.id),
+                               data={'name': new_name, 'layout': '[]', 'is_draft': False})
+        d2 = self.factory.create_dashboard()
+        rv2 = self.make_request('post', '/api/dashboards/{0}'.format(d2.id),
+                               data={'name': 'Metrics', 'layout': '[]', 'is_draft': True})
+        user = self.factory.create_user()
+        return d1, d2, user
+
+    def test_get_dashboard_search_results_does_not_contain_deleted(self):
+        d1, d2, user = self.create_dashboard_sequence()
+        res = self.make_request('delete', '/api/dashboards/{}/share'.format(d2.id))
+        dash_search_list = self.make_request('get','/api/dashboards/search?q=Metrics')
+        dash_search_list_json = json.loads(dash_search_list.data)
+        self.assertNotIn(d2.id, dash_search_list_json)
+
+    def test_get_dashboard_search_results_obeys_draft_flag(self):
+        d1, d2, user = self.create_dashboard_sequence()
+        dash_search_list = self.make_request('get','/api/dashboards/search?q=Metrics&test=True&user_id={}'.format(user.id))
+        dash_search_list_json = json.loads(dash_search_list.data)
+        self.assertNotIn(d2.id, dash_search_list_json)
+        #self.assertIn(d1.id, dash_search_list_json)
+
+

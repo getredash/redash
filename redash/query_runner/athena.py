@@ -79,6 +79,17 @@ class Athena(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Use Glue Data Catalog',
                 },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
+                }
             },
             'required': ['region', 's3_staging_dir'],
             'order': ['region', 'aws_access_key', 'aws_secret_key', 's3_staging_dir', 'schema'],
@@ -145,9 +156,10 @@ class Athena(BaseQueryRunner):
 
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type as column_type, comment as extra_info
         FROM information_schema.columns
         WHERE table_schema NOT IN ('information_schema')
+        ORDER BY 1, 5 DESC
         """
 
         results, error = self.run_query(query, None)
@@ -159,7 +171,16 @@ class Athena(BaseQueryRunner):
             table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
-            schema[table_name]['columns'].append(row['column_name'])
+
+            if row['extra_info'] == 'Partition Key':
+                schema[table_name]['columns'].append('[P] ' + row['column_name'] + ' (' + row['column_type'] + ')')
+            elif row['column_type'] == 'integer' or row['column_type'] == 'varchar' or row['column_type'] == 'timestamp' or row['column_type'] == 'boolean' or row['column_type'] == 'bigint':
+                schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
+            elif row['column_type'][0:2] == 'row' or row['column_type'][0:2] == 'map' or row['column_type'][0:2] == 'arr':
+                schema[table_name]['columns'].append(row['column_name'] + ' (row or map or array)')
+            else:
+                schema[table_name]['columns'].append(row['column_name'])
+
 
         return schema.values()
 

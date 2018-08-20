@@ -64,3 +64,15 @@ class WidgetAPITest(BaseTestCase):
         self.assertEquals(rv.status_code, 200)
         dashboard = models.Dashboard.get_by_slug_and_org(widget.dashboard.slug, widget.dashboard.org)
         self.assertEquals(dashboard.widgets.count(), 0)
+
+    def test_updates_textbox_widget(self):
+        widget = self.factory.create_widget()
+
+        rv = self.make_request('post', '/api/widgets/{0}'.format(widget.id), data={'width':2,'text':'sing and shine on', 'options': {}})
+
+        self.assertEquals(rv.status_code, 200)
+        dashboard = models.Dashboard.get_by_slug_and_org(widget.dashboard.slug, widget.dashboard.org)
+        self.assertEquals(dashboard.widgets.count(), 1)
+        self.assertEquals(dashboard.layout, '[]')
+
+

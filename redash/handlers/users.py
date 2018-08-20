@@ -38,7 +38,6 @@ class UserListResource(BaseResource):
     def get(self):
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-
         groups = {group.id: group for group in models.Group.all(self.current_org)}
 
         def serialize_user(user):
@@ -49,13 +48,12 @@ class UserListResource(BaseResource):
 
                 if group:
                     user_groups.append({'id': group.id, 'name': group.name})
-            
-            d['groups'] = user_groups
 
+            d['groups'] = user_groups
             return d
 
         search_term = request.args.get('q', '')
-        
+
         if request.args.get('disabled', None) is not None:
             users = models.User.all_disabled(self.current_org)
         else:
@@ -63,9 +61,14 @@ class UserListResource(BaseResource):
 
         if search_term:
             users = models.User.search(users, search_term)
-        
-        users = order_results(users)
 
+        users = order_results(users)
+        self.record_event({
+            'action': 'list',
+            'object_id': 'users',
+            'object_type': 'user',
+        })
+        
         return paginate(users, page, page_size, serialize_user)
 
     @require_admin
@@ -87,13 +90,13 @@ class UserListResource(BaseResource):
             models.db.session.add(user)
             models.db.session.commit()
         except IntegrityError as e:
+            models.db.session.rollback()
             if "email" in e.message:
                 abort(400, message='Email already taken.')
             abort(500)
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user'
         })
@@ -139,6 +142,12 @@ class UserResource(BaseResource):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
 
+        self.record_event({
+            'action': 'view',
+            'object_id': user_id,
+            'object_type': 'user',
+        })
+
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
     def post(self, user_id):
@@ -170,12 +179,11 @@ class UserResource(BaseResource):
                 message = "Email already taken."
             else:
                 message = "Error updating record"
-
+            models.db.session.rollback()
             abort(400, message=message)
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user',
             'updated_fields': params.keys()

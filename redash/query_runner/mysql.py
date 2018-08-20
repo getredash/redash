@@ -29,6 +29,9 @@ types_map = {
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = 'https://dev.mysql.com/doc/refman/5.7/en/'
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "none"
 
     @classmethod
     def configuration_schema(cls):
@@ -55,6 +58,12 @@ class Mysql(BaseSQLQueryRunner):
                 'port': {
                     'type': 'number',
                     'default': 3306,
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "order": ['host', 'port', 'user', 'passwd', 'db'],
@@ -79,6 +88,11 @@ class Mysql(BaseSQLQueryRunner):
                 'ssl_key': {
                     'type': 'string',
                     'title': 'Path to private key file (SSL)'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             })
 
@@ -91,7 +105,7 @@ class Mysql(BaseSQLQueryRunner):
     @classmethod
     def enabled(cls):
         try:
-            import MySQLdb
+            import pymysql
         except ImportError:
             return False
 
@@ -101,7 +115,8 @@ class Mysql(BaseSQLQueryRunner):
         query = """
         SELECT col.table_schema,
                col.table_name,
-               col.column_name
+               col.column_name,
+               col.column_type
         FROM `information_schema`.`columns` col
         WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
         """
@@ -122,16 +137,16 @@ class Mysql(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
 
         return schema.values()
 
     def run_query(self, query, user):
-        import MySQLdb
+        import pymysql
 
         connection = None
         try:
-            connection = MySQLdb.connect(host=self.configuration.get('host', ''),
+            connection = pymysql.connect(host=self.configuration.get('host', ''),
                                          user=self.configuration.get('user', ''),
                                          passwd=self.configuration.get('passwd', ''),
                                          db=self.configuration['db'],
@@ -161,7 +176,7 @@ class Mysql(BaseSQLQueryRunner):
                 error = "No data was returned."
 
             cursor.close()
-        except MySQLdb.Error as e:
+        except pymysql.Error as e:
             json_data = None
             error = e.args[1]
         except KeyboardInterrupt:

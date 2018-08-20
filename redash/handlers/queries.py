@@ -68,6 +68,11 @@ class QuerySearchResource(BaseResource):
             return []
 
         include_drafts = request.args.get('include_drafts') is not None
+        self.record_event({
+            'action': 'search',
+            'object_type': 'query',
+            'term': term
+        })
 
         # this redirects to the new query list API that is aware of search
         new_location = url_for(
@@ -103,6 +108,8 @@ class QueryListResource(BaseResource):
         :<json string name:
         :<json string description:
         :<json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json string schedule_until: Time in ISO format to stop scheduling this query (may be null to run indefinitely)
+        :<json number schedule_resultset_size: Number of result sets to keep (null to keep only one)
         :<json object options: Query options
 
         .. _query-response-label:
@@ -114,6 +121,7 @@ class QueryListResource(BaseResource):
         :>json string query: Query text
         :>json string query_hash: Hash of query text
         :>json string schedule: Schedule interval, in seconds, for repeated execution of this query
+        :<json string schedule_until: Time in ISO format to stop scheduling this query (may be null to run indefinitely)
         :>json string api_key: Key for public access to this query's results.
         :>json boolean is_archived: Whether this query is displayed in indexes and search results or not.
         :>json boolean is_draft: Whether this query is a draft or not
@@ -139,7 +147,10 @@ class QueryListResource(BaseResource):
         query_def['data_source'] = data_source
         query_def['org'] = self.current_org
         query_def['is_draft'] = True
+        if query_def.get('schedule_resultset_size') == 1:
+            query_def['schedule_resultset_size'] = None
         query = models.Query.create(**query_def)
+        query.record_changes(changed_by=self.current_user)
         models.db.session.add(query)
         models.db.session.commit()
 
@@ -273,6 +284,7 @@ class QueryResource(BaseResource):
 
         try:
             self.update_model(query, query_def)
+            query.record_changes(self.current_user)
             models.db.session.commit()
         except StaleDataError:
             abort(409)
@@ -293,6 +305,13 @@ class QueryResource(BaseResource):
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
@@ -322,6 +341,13 @@ class QueryForkResource(BaseResource):
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'fork',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
 
@@ -351,3 +377,16 @@ class QueryRefreshResource(BaseResource):
 class QueryTagsResource(BaseResource):
     def get(self):
         return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}
+
+
+class QueryVersionListResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id):
+        results = models.Change.list_versions(models.Query.get_by_id(query_id))
+        return [q.to_dict() for q in results]
+
+
+class ChangeResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, change_id):
+        return models.Change.query.get(change_id).to_dict()

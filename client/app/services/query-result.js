@@ -54,6 +54,7 @@ function addPointToSeries(point, seriesCollection, seriesName) {
 
 function QueryResultService($resource, $timeout, $q, QueryResultError) {
   const QueryResultResource = $resource('api/query_results/:id', { id: '@id' }, { post: { method: 'POST' } });
+  const QueryResultSetResource = $resource('api/queries/:id/resultset', { id: '@id' });
   const Job = $resource('api/jobs/:id', { id: '@id' });
   const statuses = {
     1: 'waiting',
@@ -452,6 +453,15 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       return queryResult;
     }
 
+    static getResultSet(queryId) {
+      const queryResult = new QueryResult();
+
+      QueryResultSetResource.get({ id: queryId }, (response) => {
+        queryResult.update(response);
+      });
+
+      return queryResult;
+    }
     loadResult(tryCount) {
       this.isLoadingResult = true;
       QueryResultResource.get(
@@ -496,8 +506,16 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         }
       }, (error) => {
         logger('Connection error', error);
-        // TODO: use QueryResultError, or better yet: exception/reject of promise.
-        this.update({ job: { error: 'failed communicating with server. Please check your Internet connection and try again.', status: 4 } });
+        this.update({
+          job: {
+            error: 'Failed communicating with server. Retrying...',
+            status: 4,
+            id: this.job.id,
+          },
+        });
+        $timeout(() => {
+          this.refreshStatus(query);
+        }, 3000);
       });
     }
 

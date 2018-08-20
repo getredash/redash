@@ -25,7 +25,14 @@ class DataSourceResource(BaseResource):
     @require_admin
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
-        return data_source.to_dict(all=True)
+        ds = data_source.to_dict(all=True)
+        page = 'admin/data_source/' + str(ds.id)
+        self.record_event({
+            'action': 'view',
+            'object_id': ds.id,
+            'object_type': 'datasource',
+        })
+        return ds
 
     @require_admin
     def post(self, data_source_id):
@@ -48,6 +55,7 @@ class DataSourceResource(BaseResource):
         try:
             models.db.session.commit()
         except IntegrityError as e:
+            models.db.session.rollback()
             if req['name'] in e.message:
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
 
@@ -59,6 +67,11 @@ class DataSourceResource(BaseResource):
     def delete(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         data_source.delete()
+        self.record_event({
+            'action': 'delete',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
 
         return make_response('', 204)
 
@@ -82,6 +95,12 @@ class DataSourceListResource(BaseResource):
                 response[ds.id] = d
             except AttributeError:
                 logging.exception("Error with DataSource#to_dict (data source id: %d)", ds.id)
+
+        self.record_event({
+            'action': 'list',
+            'object_id': 'admin/data_sources',
+            'object_type': 'datasource',
+        })
 
         return sorted(response.values(), key=lambda d: d['name'].lower())
 
@@ -111,6 +130,7 @@ class DataSourceListResource(BaseResource):
 
             models.db.session.commit()
         except IntegrityError as e:
+            models.db.session.rollback()
             if req['name'] in e.message:
                 abort(400, message="Data source with the name {} already exists.".format(req['name']))
 
@@ -186,9 +206,32 @@ class DataSourceTestResource(BaseResource):
     def post(self, data_source_id):
         data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
 
+        self.record_event({
+            'action': 'test',
+            'object_id': data_source_id,
+            'object_type': 'datasource',
+        })
+
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
             return {"message": unicode(e), "ok": False}
         else:
             return {"message": "success", "ok": True}
+
+
+class DataSourceVersionResource(BaseResource):
+    def get(self, data_source_id):
+        data_source = get_object_or_404(models.DataSource.get_by_id_and_org, data_source_id, self.current_org)
+        require_access(data_source.groups, self.current_user, view_only)
+        self.record_event({
+            'action': 'test',
+            'object_id': data_source_id,
+            'object_type': 'data_source_version',
+        })
+        try:
+            version_info = data_source.query_runner.get_data_source_version()
+        except Exception as e:
+            return {"message": unicode(e), "ok": False}
+        else:
+            return {"message": version_info, "ok": True}

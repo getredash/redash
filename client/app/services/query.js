@@ -144,7 +144,7 @@ class Parameter {
       };
     }
     return {
-      [`p_${this.name}`]: this.value,
+      [`p_${this.name}_${this.queryId}`]: this.value,
     };
   }
 
@@ -156,7 +156,7 @@ class Parameter {
         this.setValue([query[keyStart], query[keyEnd]]);
       }
     } else {
-      const key = `p_${this.name}`;
+      const key = `p_${this.name}_${this.query.id}`;
       if (has(query, key)) {
         this.setValue(query[key]);
       }
@@ -219,7 +219,9 @@ class Parameters {
     });
 
     const parameterExists = p => includes(parameterNames, p.name);
-    this.query.options.parameters = this.query.options.parameters.filter(parameterExists).map(p => new Parameter(p));
+    this.query.options.parameters = this.query.options.parameters
+      .filter(parameterExists)
+      .map(p => new Parameter(Object.assign({ queryId: this.query.id }, p)));
   }
 
   initFromQueryString(query) {
@@ -402,6 +404,10 @@ function QueryResource(
       .format('HH:mm');
   };
 
+  Query.prototype.hasScheduleExpiry = function hasScheduleExpiry() {
+    return (this.schedule && this.schedule_until);
+  };
+
   Query.prototype.hasResult = function hasResult() {
     return !!(this.latest_query_data || this.latest_query_data_id);
   };
@@ -443,7 +449,11 @@ function QueryResource(
       this.latest_query_data_id = null;
     }
 
-    if (this.latest_query_data && maxAge !== 0) {
+    if (this.schedule_resultset_size) {
+      if (!this.queryResult) {
+        this.queryResult = QueryResult.getResultSet(this.id);
+      }
+    } else if (this.latest_query_data && maxAge !== 0) {
       if (!this.queryResult) {
         this.queryResult = new QueryResult({
           query_result: this.latest_query_data,
@@ -480,7 +490,7 @@ function QueryResource(
           params += '&';
         }
 
-        params += `p_${encodeURIComponent(name)}=${encodeURIComponent(value)}`;
+        params += `p_${encodeURIComponent(name)}_${this.id}=${encodeURIComponent(value)}`;
       });
     }
 

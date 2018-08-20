@@ -121,7 +121,6 @@ class QueryResultListResource(BaseResource):
 
         self.record_event({
             'action': 'execute_query',
-            'timestamp': int(time.time()),
             'object_id': data_source.id,
             'object_type': 'data_source',
             'query': query
@@ -130,6 +129,33 @@ class QueryResultListResource(BaseResource):
 
 
 ONE_YEAR = 60 * 60 * 24 * 365.25
+
+
+class QueryResultSetResource(BaseResource):
+    @require_permission('view_query')
+    def get(self, query_id=None, filetype='json'):
+        query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
+        if not query.schedule_resultset_size:
+            abort(404, message="query does not keep multiple results")
+
+        # Synthesize a result set from the last N results.
+        total = len(query.query_results)
+        offset = max(total - query.schedule_resultset_size, 0)
+        results = [qr.to_dict() for qr in query.query_results[offset:]]
+        if not results:
+            aggregate_result = {}
+        else:
+            # Start a synthetic data set with the data from the first result...
+            aggregate_result = results[0].copy()
+            aggregate_result['data'] = {'columns': results[0]['data']['columns'],
+                                        'rows': []}
+            # .. then add each subsequent result set into it.
+            for r in results:
+                aggregate_result['data']['rows'].extend(r['data']['rows'])
+
+        data = json.dumps({'query_result': aggregate_result}, cls=utils.JSONEncoder)
+        headers = {'Content-Type': "application/json"}
+        return make_response(data, 200, headers)
 
 
 class QueryResultResource(BaseResource):
@@ -194,7 +220,7 @@ class QueryResultResource(BaseResource):
                     query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
-                
+
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
                     abort(404, message='No cached result found for this query.')
@@ -207,7 +233,6 @@ class QueryResultResource(BaseResource):
                     'user_id': None,
                     'org_id': self.current_org.id,
                     'action': 'api_get',
-                    'timestamp': int(time.time()),
                     'api_key': self.current_user.name,
                     'file_type': filetype,
                     'user_agent': request.user_agent.string,
