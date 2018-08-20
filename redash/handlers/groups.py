@@ -161,7 +161,7 @@ class GroupDataSourceListResource(BaseResource):
         data_sources = (models.DataSource.query
                         .join(models.DataSourceGroup)
                         .filter(models.DataSourceGroup.group == group))
-        
+
         self.record_event({
             'action': 'view',
             'object_id': group_id,

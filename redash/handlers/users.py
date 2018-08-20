@@ -38,7 +38,6 @@ class UserListResource(BaseResource):
     def get(self):
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-
         groups = {group.id: group for group in models.Group.all(self.current_org)}
 
         def serialize_user(user):
@@ -51,7 +50,6 @@ class UserListResource(BaseResource):
                     user_groups.append({'id': group.id, 'name': group.name})
 
             d['groups'] = user_groups
-
             return d
 
         search_term = request.args.get('q', '')
@@ -65,13 +63,12 @@ class UserListResource(BaseResource):
             users = models.User.search(users, search_term)
 
         users = order_results(users)
-
         self.record_event({
             'action': 'list',
             'object_id': 'users',
             'object_type': 'user',
         })
-
+        
         return paginate(users, page, page_size, serialize_user)
 
     @require_admin

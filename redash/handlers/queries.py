@@ -378,6 +378,7 @@ class QueryTagsResource(BaseResource):
     def get(self):
         return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}
 
+
 class QueryVersionListResource(BaseResource):
     @require_permission('view_query')
     def get(self, query_id):
