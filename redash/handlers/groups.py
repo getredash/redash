@@ -168,18 +168,6 @@ class GroupDataSourceListResource(BaseResource):
             'object_type': 'group_data_sources',
         })
 
-        self.record_event({
-            'action': 'view',
-            'object_id': group_id,
-            'object_type': 'group_data_sources',
-        })
-
-        self.record_event({
-            'action': 'view',
-            'object_id': group_id,
-            'object_type': 'group_data_sources',
-        })
-
         return [ds.to_dict(with_permissions_for=group) for ds in data_sources]
 
 

@@ -73,18 +73,6 @@ class DataSourceResource(BaseResource):
             'object_type': 'datasource',
         })
 
-        self.record_event({
-            'action': 'delete',
-            'object_id': data_source_id,
-            'object_type': 'datasource',
-        })
-
-        self.record_event({
-            'action': 'delete',
-            'object_id': data_source_id,
-            'object_type': 'datasource',
-        })
-
         return make_response('', 204)
 
 
