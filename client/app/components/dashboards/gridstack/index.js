@@ -89,7 +89,8 @@ function gridstack($parse, dashboardGridOptions) {
             item.minSizeX, item.maxSizeX, item.minSizeY, item.maxSizeY,
             itemId,
           );
-          grid._updateStyles(grid.grid.getGridHeight());
+          const gridHeight = grid.grid.getGridHeight() + 10;
+          grid._updateStyles(gridHeight);
         }
       };
 
@@ -203,6 +204,7 @@ function gridstack($parse, dashboardGridOptions) {
       this.update = (callback) => {
         const grid = this.grid();
         if (grid) {
+          const gridHeight = grid.grid.getGridHeight() + 10;
           grid.batchUpdate();
           try {
             if (_.isFunction(callback)) {
@@ -210,9 +212,10 @@ function gridstack($parse, dashboardGridOptions) {
             }
             // `_updateStyles` is internal, but grid sometimes "forgets"
             // to rebuild stylesheet, so we need to force it
-            grid._updateStyles(grid.grid.getGridHeight());
+            grid._updateStyles(gridHeight);
           } finally {
             grid.commit();
+            grid._updateStyles(gridHeight);
           }
         }
       };
