@@ -110,6 +110,12 @@ class Python(BaseQueryRunner):
         return obj
 
     @staticmethod
+    def custom_inplacevar(op, x, y):
+        globs = {'x': x, 'y': y}
+        exec 'x'+op+'y' in globs
+        return globs['x']
+
+    @staticmethod
     def custom_get_item(obj, key):
         return obj[key]
 
@@ -232,6 +238,7 @@ class Python(BaseQueryRunner):
             builtins["_getitem_"] = self.custom_get_item
             builtins["_getiter_"] = self.custom_get_iter
             builtins["_print_"] = self._custom_print
+            builtins["_inplacevar_"] = self.custom_inplacevar
 
             # Layer in our own additional set of builtins that we have
             # considered safe.
