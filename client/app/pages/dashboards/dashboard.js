@@ -342,10 +342,14 @@ function DashboardCtrl(
     );
   };
 
-  this.addWidget = () => {
+  this.addWidget = (widgetType) => {
+    const widgetTypes = {
+      textbox: 'addTextboxDialog',
+      widget: 'addWidgetDialog',
+    };
     $uibModal
       .open({
-        component: 'addWidgetDialog',
+        component: widgetTypes[widgetType],
         resolve: {
           dashboard: () => this.dashboard,
         },

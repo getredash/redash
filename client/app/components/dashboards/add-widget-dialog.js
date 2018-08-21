@@ -1,6 +1,5 @@
 import { debounce } from 'lodash';
 import template from './add-widget-dialog.html';
-import './add-widget-dialog.less';
 
 const AddWidgetDialog = {
   template,
@@ -15,10 +14,6 @@ const AddWidgetDialog = {
     this.dashboard = this.resolve.dashboard;
     this.saveInProgress = false;
 
-    // Textbox
-    this.text = '';
-
-    // Visualization
     this.selectedQuery = null;
     this.searchTerm = '';
     this.recentQueries = [];
@@ -32,13 +27,6 @@ const AddWidgetDialog = {
     this.selectedVis = null;
 
     this.trustAsHtml = html => $sce.trustAsHtml(html);
-
-    this.setType = (type) => {
-      this.type = type;
-      this.isVisualization = this.type === 'visualization';
-      this.isTextBox = this.type === 'textbox';
-    };
-    this.setType('visualization');
 
     this.selectQuery = (queryId) => {
       // Clear previously selected query (if any)
@@ -78,17 +66,15 @@ const AddWidgetDialog = {
     this.saveWidget = () => {
       this.saveInProgress = true;
 
-      const selectedVis = this.isVisualization ? this.selectedVis : null;
-
       const widget = new Widget({
-        visualization_id: selectedVis && selectedVis.id,
+        visualization_id: this.selectedVis && this.selectedVis.id,
         dashboard_id: this.dashboard.id,
         options: {
           isHidden: false,
           position: {},
         },
-        visualization: selectedVis,
-        text: this.isTextBox ? this.text : '',
+        visualization: this.selectedVis,
+        text: '',
       });
 
       const position = this.dashboard.calculateNewWidgetPosition(widget);
