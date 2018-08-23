@@ -90,9 +90,6 @@ class SqlServer(BaseSQLQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration):
-        super(SqlServer, self).__init__(configuration)
-
     def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name

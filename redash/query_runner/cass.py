@@ -146,8 +146,6 @@ class Cassandra(BaseQueryRunner):
 
 
 class ScyllaDB(Cassandra):
-    def __init__(self, configuration):
-        super(ScyllaDB, self).__init__(configuration)
 
     @classmethod
     def type(cls):

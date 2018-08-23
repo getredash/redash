@@ -136,9 +136,6 @@ class BigQuery(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration):
-        super(BigQuery, self).__init__(configuration)
-
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
