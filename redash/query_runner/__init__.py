@@ -125,8 +125,6 @@ class BaseQueryRunner(object):
 
 
 class BaseSQLQueryRunner(BaseQueryRunner):
-    def __init__(self, configuration):
-        super(BaseSQLQueryRunner, self).__init__(configuration)
 
     def get_schema(self, get_stats=False):
         schema_dict = {}

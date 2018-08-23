@@ -39,9 +39,6 @@ class ClickHouse(BaseSQLQueryRunner):
     def type(cls):
         return "clickhouse"
 
-    def __init__(self, configuration):
-        super(ClickHouse, self).__init__(configuration)
-
     def _get_tables(self, schema):
         query = "SELECT database, table, name FROM system.columns WHERE database NOT IN ('system')"
 

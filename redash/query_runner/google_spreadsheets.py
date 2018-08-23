@@ -174,9 +174,6 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'secret': ['jsonKeyFile']
         }
 
-    def __init__(self, configuration):
-        super(GoogleSpreadsheet, self).__init__(configuration)
-
     def _get_spreadsheet_service(self):
         scope = [
             'https://spreadsheets.google.com/feeds',
