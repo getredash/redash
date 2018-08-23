@@ -14,7 +14,6 @@ import os
 from funcy import distinct, select_values
 from sqlalchemy.orm.query import Query
 
-from .human_time import parse_human_time
 from redash import settings
 
 COMMENTS_REGEX = re.compile("/\*.*?\*/")
@@ -46,14 +45,10 @@ def slugify(s):
 
 def gen_query_hash(sql):
     """Return hash of the given query after stripping all comments, line breaks
-    and multiple spaces, and lower casing all text.
-
-    TODO: possible issue - the following queries will get the same id:
-        1. SELECT 1 FROM table WHERE column='Value';
-        2. SELECT 1 FROM table where column='value';
+    and multiple spaces.
     """
     sql = COMMENTS_REGEX.sub("", sql)
-    sql = "".join(sql.split()).lower()
+    sql = "".join(sql.split())
     return hashlib.md5(sql.encode('utf-8')).hexdigest()
 
 
