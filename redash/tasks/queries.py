@@ -466,6 +466,8 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
+            models.db.session.commit()
+            raise result
         else:
             if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
@@ -482,8 +484,8 @@ class QueryExecutor(object):
             self._log_progress('finished')
 
             result = query_result.id
-        models.db.session.commit()
-        return result
+            models.db.session.commit()
+            return result
 
     def _annotate_query(self, query_runner):
         if query_runner.annotate_query():
