@@ -69,9 +69,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def name(cls):
         return "DynamoDB (with DQL)"
 
-    def __init__(self, configuration):
-        super(DynamoDBSQL, self).__init__(configuration)
-
     def _connect(self):
         engine = FragmentEngine()
         config = self.configuration.to_dict()

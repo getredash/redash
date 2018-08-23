@@ -34,7 +34,7 @@ for type_, elements in COLUMN_TYPES.items():
 def parse_ym_response(response):
     columns = []
     dimensions_len = len(response['query']['dimensions'])
-   
+
     for h in response['query']['dimensions'] + response['query']['metrics']:
         friendly_name = h.split(':')[-1]
         if friendly_name in COLUMN_TYPES['date']:

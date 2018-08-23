@@ -76,9 +76,6 @@ class TreasureData(BaseQueryRunner):
     def type(cls):
         return "treasuredata"
 
-    def __init__(self, configuration):
-        super(TreasureData, self).__init__(configuration)
-
     def get_schema(self, get_stats=False):
         schema = {}
         if self.configuration.get('get_schema', False):

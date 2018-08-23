@@ -114,9 +114,6 @@ class Athena(BaseQueryRunner):
     def type(cls):
         return "athena"
 
-    def __init__(self, configuration):
-        super(Athena, self).__init__(configuration)
-
     def __get_schema_from_glue(self):
         client = boto3.client(
                 'glue',

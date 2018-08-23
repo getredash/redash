@@ -56,7 +56,7 @@ class Vertica(BaseSQLQueryRunner):
                 "read_timeout": {
                     "type": "number",
                     "title": "Read Timeout"
-                },                                
+                },
             },
             'required': ['database'],
             'secret': ['password']
@@ -70,9 +70,6 @@ class Vertica(BaseSQLQueryRunner):
             return False
 
         return True
-
-    def __init__(self, configuration):
-        super(Vertica, self).__init__(configuration)
 
     def _get_tables(self, schema):
         query = """
