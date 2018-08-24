@@ -64,6 +64,14 @@ jobs:
       - attach_workspace:
           at: .
       - run:
+          name: Check commit for running ui-tests
+          command:
+            UI_TESTS=$(git show -s --format=%s | grep -q -w '!run-ui-tests' && echo true || echo false)
+            if [[ $UI_TESTS != 'true' ]]; then
+              echo "Skipping Ui tests.";
+              circleci step halt
+            fi
+      - run:
           name: Install Docker Compose
           command: |
             set -x
