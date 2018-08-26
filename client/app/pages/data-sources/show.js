@@ -6,9 +6,8 @@ const logger = debug('redash:http');
 
 function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, AlertDialog, Events, DataSource,
+  currentUser, AlertDialog, DataSource,
 ) {
-  Events.record('view', 'page', 'admin/data_source');
 
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
@@ -45,8 +44,6 @@ function DataSourceCtrl(
 
   function deleteDataSource(callback) {
     const doDelete = () => {
-      Events.record('delete', 'datasource', $scope.dataSource.id);
-
       $scope.dataSource.$delete(() => {
         toastr.success('Data source deleted successfully.');
         $location.path('/data_sources/');
@@ -64,8 +61,6 @@ function DataSourceCtrl(
   }
 
   function testConnection(callback) {
-    Events.record('test', 'datasource', $scope.dataSource.id);
-
     DataSource.test({ id: $scope.dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
         toastr.success('Success');
@@ -80,10 +75,29 @@ function DataSourceCtrl(
     });
   }
 
+  function getDataSourceVersion(callback) {
+    DataSource.version({ id: $scope.dataSource.id }, (httpResponse) => {
+      if (httpResponse.ok) {
+        const versionNumber = httpResponse.message;
+        toastr.success(`Success. Version: ${versionNumber}`);
+      } else {
+        toastr.error(httpResponse.message, 'Version Test Failed:', { timeOut: 10000 });
+      }
+      callback();
+    }, (httpResponse) => {
+      logger('Failed to get data source version: ', httpResponse.status, httpResponse.statusText, httpResponse);
+      toastr.error('Unknown error occurred while performing data source version test. Please try again later.', 'Data Source Version Test Failed:', { timeOut: 10000 });
+      callback();
+    });
+  }
+
   $scope.actions = [
     { name: 'Delete', class: 'btn-danger', callback: deleteDataSource },
     {
       name: 'Test Connection', class: 'btn-default pull-right', callback: testConnection, disableWhenDirty: true,
+    },
+    {
+      name: 'Test Data Source Version', class: 'btn-default', callback: getDataSourceVersion, disableWhenDirty: true,
     },
   ];
 }

@@ -8,7 +8,7 @@ from tests import BaseTestCase
 from redash import redis_connection, models
 from redash.query_runner.pg import PostgreSQL
 from redash.tasks.queries import (QueryExecutionError, QueryTaskTracker,
-                                    enqueue_query, execute_query)
+                                  enqueue_query, execute_query)
 
 
 class TestPrune(TestCase):

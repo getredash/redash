@@ -27,6 +27,7 @@ class CassandraJSONEncoder(JSONEncoder):
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
+    default_doc_url = "http://cassandra.apache.org/doc/latest/cql/index.html"
 
     @classmethod
     def enabled(cls):
@@ -65,6 +66,17 @@ class Cassandra(BaseQueryRunner):
                     'type': 'number',
                     'title': 'Timeout',
                     'default': 10
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             'required': ['keyspace', 'host']

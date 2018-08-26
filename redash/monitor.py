@@ -35,7 +35,7 @@ def get_queues_status():
             'data_sources': ', '.join(sources),
             'size': redis_connection.llen(queue)
         }
-    
+
     queues['celery'] = {
         'size': redis_connection.llen('celery'),
         'data_sources': ''

@@ -30,6 +30,21 @@ def login(org_slug=None):
         logger.error("Cannot use remote user for login when it's not provided in the request (looked in headers['" + settings.REMOTE_USER_HEADER + "'])")
         return redirect(url_for('redash.index', next=next_path, org_slug=org_slug))
 
+    # Check if there is a header of user groups and if yes
+    # check it against a list of allowed user groups from the settings
+    if settings.REMOTE_GROUPS_ENABLED:
+        remote_groups = settings.set_from_string(
+            request.headers.get(settings.REMOTE_GROUPS_HEADER) or ''
+        )
+        allowed_groups = settings.REMOTE_GROUPS_ALLOWED
+        if not allowed_groups.intersection(remote_groups):
+            logger.error(
+                "User groups provided in the %s header are not "
+                "matching the allowed groups.",
+                settings.REMOTE_GROUPS_HEADER
+            )
+            return redirect(url_for('redash.index', next=next_path))
+
     logger.info("Logging in " + email + " via remote user")
 
     user = create_and_login_user(current_org, email, email)

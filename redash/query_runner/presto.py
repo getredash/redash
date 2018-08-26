@@ -1,4 +1,5 @@
 import json
+from markupsafe import Markup, escape
 
 from redash.utils import JSONEncoder
 from redash.query_runner import *
@@ -31,8 +32,29 @@ PRESTO_TYPES_MAPPING = {
 }
 
 
+# for athena and presto
+def format_schema(results):
+    """
+    This function formats the schema, table, and columsn of Athena and Presto
+    for display in the UI schema browser.
+    """
+    schema = {}
+    for row in results['rows']:
+        table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+        if table_name not in schema:
+            schema[table_name] = {'name': table_name, 'columns': []}
+
+        row_to_add = row['column_name'] + ' (' + row['column_type'] + ')'
+        if row['extra_info'] == 'partition key':
+            row_to_add = '[P] ' + row_to_add
+        schema[table_name]['columns'].append(row_to_add)
+
+    return schema
+
+
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
+    default_doc_url = 'https://prestodb.io/docs/current/'
 
     @classmethod
     def configuration_schema(cls):
@@ -53,6 +75,17 @@ class Presto(BaseQueryRunner):
                 },
                 'username': {
                     'type': 'string'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             'required': ['host']
@@ -67,11 +100,11 @@ class Presto(BaseQueryRunner):
         return "presto"
 
     def get_schema(self, get_stats=False):
-        schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type as column_type, extra_info
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+        ORDER BY 1, 5 DESC
         """
 
         results, error = self.run_query(query, None)
@@ -79,15 +112,7 @@ class Presto(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
-
-        for row in results['rows']:
-            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-
-            if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
-
-            schema[table_name]['columns'].append(row['column_name'])
+        schema = format_schema(json.loads(results))
 
         return schema.values()
 
@@ -107,6 +132,9 @@ class Presto(BaseQueryRunner):
             column_tuples = [(i[0], PRESTO_TYPES_MAPPING.get(i[1], None)) for i in cursor.description]
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
+            for row in rows:
+                for field in row:
+                    field = escape(field)
             data = {'columns': columns, 'rows': rows}
             json_data = json.dumps(data, cls=JSONEncoder)
             error = None
