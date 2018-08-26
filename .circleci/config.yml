@@ -1,0 +1,134 @@
+# These environment variables must be set in CircleCI UI
+#
+# DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
+# DOCKER_USER
+# DOCKER_PASS
+#
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker:18.02.0-ce
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: docker build -t app:build .
+          no_output_timeout: 20m
+
+  test:
+    docker:
+      - image: circleci/node:6.14.3-stretch
+      - image: redis
+      - image: circleci/postgres:10-alpine-postgis
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
+      - run: mkdir -p /tmp/test-reports/pytest
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y python-pip python-dev
+      - run: sudo apt-get install -y redis-tools redis-server
+      - run: sudo pip install --upgrade setuptools
+      - run: sudo pip install -r requirements_dev.txt
+      - run: sudo pip install -r requirements.txt
+      - run: sudo npm install
+      - run: sudo npm run build
+      - run: 
+          command: pytest --junitxml=/tmp/test-reports/pytest/junit.xml tests/
+          environment:
+            REDASH_REDIS_URL: redis://localhost:6379/0
+            REDASH_DATABASE_URL: "postgresql://postgres@localhost/postgres"
+      - store_artifacts: 
+          path: /tmp/test-reports/
+          destination: tr1
+      - store_test_results:
+          path: /tmp/test-reports/
+
+  deploy-master:
+    machine:
+      enable: true
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
+      - run:
+          name: Deploy to Dockerhub
+          no_output_timeout: 20m
+          command: |
+            ./bin/deploy "master"
+
+  deploy-rc:
+    machine:
+      enable: true
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
+      - run:
+          name: Deploy to Dockerhub
+          no_output_timeout: 20m
+          command: |
+            ./bin/deploy "rc"
+
+  deploy-milestone:
+    machine:
+      enable: true
+    working_directory: ~/mozilla/redash
+    steps:
+      - checkout
+      - run:
+          name: Deploy milestone to Dockerhub
+          no_output_timeout: 20m
+          command: |
+            ./bin/deploy "$CIRCLE_TAG"
+            ./bin/alias "$CIRCLE_TAG" "latest"
+
+
+workflows:
+  version: 2
+  build-test-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore:
+                - gh-pages
+
+      - test:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore:
+                - gh-pages
+
+      - deploy-master:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only:
+                - master
+
+      - deploy-rc:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only:
+                - release
+
+      - deploy-milestone:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^m[0-9]+(\.[0-9]+)?$/
+            branches:
+              ignore: /.*/

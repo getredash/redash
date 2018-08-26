@@ -56,6 +56,12 @@ class MemSQL(BaseSQLQueryRunner):
                 },
                 "password": {
                     "type": "string"
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
 
             },
@@ -74,9 +80,6 @@ class MemSQL(BaseSQLQueryRunner):
     @classmethod
     def enabled(cls):
         return enabled
-
-    def __init__(self, configuration):
-        super(MemSQL, self).__init__(configuration)
 
     def _get_tables(self, schema):
         schemas_query = "show schemas"

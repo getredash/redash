@@ -50,6 +50,8 @@ def _transform_result(results):
 
 class InfluxDB(BaseQueryRunner):
     noop_query = "show measurements limit 1"
+    default_doc_url = ("https://docs.influxdata.com/influxdb/v1.0/"
+                       "query_language/spec/")
 
     @classmethod
     def configuration_schema(cls):
@@ -58,6 +60,17 @@ class InfluxDB(BaseQueryRunner):
             'properties': {
                 'url': {
                     'type': 'string'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             'required': ['url']
@@ -74,9 +87,6 @@ class InfluxDB(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "influxdb"
-
-    def __init__(self, configuration):
-        super(InfluxDB, self).__init__(configuration)
 
     def run_query(self, query, user):
         client = InfluxDBClusterClient.from_DSN(self.configuration['url'])

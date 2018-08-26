@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -eo pipefail
+
+[ ! -z $DOCKERHUB_REPO ] && [ $# -eq 2 ]
+
+VERSION="$1"
+ALIAS="$2"
+
+docker login -u $DOCKER_USER -p $DOCKER_PASS
+docker tag $DOCKERHUB_REPO:$VERSION $DOCKERHUB_REPO:$ALIAS
+docker push $DOCKERHUB_REPO:$ALIAS

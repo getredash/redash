@@ -44,7 +44,8 @@ PYTHON_TYPES_MAPPING = {
 
 
 class BaseElasticSearch(BaseQueryRunner):
-    DEBUG_ENABLED = False
+    DEBUG_ENABLED = True
+    default_doc_url = "https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html"
 
     @classmethod
     def configuration_schema(cls):
@@ -62,6 +63,17 @@ class BaseElasticSearch(BaseQueryRunner):
                 'basic_auth_password': {
                     'type': 'string',
                     'title': 'Basic Auth Password'
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "secret": ["basic_auth_password"],
@@ -286,8 +298,6 @@ class BaseElasticSearch(BaseQueryRunner):
 
 
 class Kibana(BaseElasticSearch):
-    def __init__(self, configuration):
-        super(Kibana, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -383,9 +393,6 @@ class Kibana(BaseElasticSearch):
 
 
 class ElasticSearch(BaseElasticSearch):
-
-    def __init__(self, configuration):
-        super(ElasticSearch, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):

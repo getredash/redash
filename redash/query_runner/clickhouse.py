@@ -29,6 +29,12 @@ class ClickHouse(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "required": ["dbname"],
@@ -38,9 +44,6 @@ class ClickHouse(BaseSQLQueryRunner):
     @classmethod
     def type(cls):
         return "clickhouse"
-
-    def __init__(self, configuration):
-        super(ClickHouse, self).__init__(configuration)
 
     def _get_tables(self, schema):
         query = "SELECT database, table, name FROM system.columns WHERE database NOT IN ('system')"

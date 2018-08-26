@@ -35,6 +35,7 @@ class MSSQLJSONEncoder(JSONEncoder):
 
 class SqlServer(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://msdn.microsoft.com/en-us/library/bb510741.aspx"
 
     @classmethod
     def configuration_schema(cls):
@@ -68,6 +69,17 @@ class SqlServer(BaseSQLQueryRunner):
                 "db": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "required": ["db"],
@@ -89,9 +101,6 @@ class SqlServer(BaseSQLQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
-
-    def __init__(self, configuration):
-        super(SqlServer, self).__init__(configuration)
 
     def _get_tables(self, schema):
         query = """

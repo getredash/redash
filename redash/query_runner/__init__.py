@@ -1,14 +1,16 @@
-import sys
 import logging
 import json
+import sys
 
-from collections import OrderedDict
+import requests
+
 from redash import settings
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
     'BaseQueryRunner',
+    'BaseHTTPQueryRunner',
     'InterruptException',
     'BaseSQLQueryRunner',
     'TYPE_DATETIME',
@@ -51,6 +53,8 @@ class NotSupported(Exception):
 
 class BaseQueryRunner(object):
     noop_query = None
+    default_doc_url = None
+    data_source_version_query = None
 
     def __init__(self, configuration):
         self.syntax = 'sql'
@@ -75,6 +79,28 @@ class BaseQueryRunner(object):
     @classmethod
     def configuration_schema(cls):
         return {}
+
+    def get_data_source_version(self):
+        if self.data_source_version_query is None:
+            raise NotImplementedError
+        data, error = self.run_query(self.data_source_version_query, None)
+
+        if error is not None:
+            raise Exception(error)
+
+        try:
+            version = json.loads(data)['rows'][0]['version']
+        except KeyError as e:
+            raise Exception(e)
+
+        if self.data_source_version_post_process == "split by space take second":
+            version = version.split(" ")[1]
+        elif self.data_source_version_post_process == "split by space take last":
+            version = version.split(" ")[-1]
+        elif self.data_source_version_post_process == "none":
+            version = version
+
+        return version
 
     def test_connection(self):
         if self.noop_query is None:
@@ -125,8 +151,6 @@ class BaseQueryRunner(object):
 
 
 class BaseSQLQueryRunner(BaseQueryRunner):
-    def __init__(self, configuration):
-        super(BaseSQLQueryRunner, self).__init__(configuration)
 
     def get_schema(self, get_stats=False):
         schema_dict = {}
@@ -143,6 +167,107 @@ class BaseSQLQueryRunner(BaseQueryRunner):
             if type(tables_dict[t]) == dict:
                 res = self._run_query_internal('select count(*) as cnt from %s' % t)
                 tables_dict[t]['size'] = res[0]['cnt']
+
+
+class BaseHTTPQueryRunner(BaseQueryRunner):
+    response_error = "Endpoint returned unexpected status code"
+    requires_authentication = False
+    url_title = 'URL base path'
+    username_title = 'HTTP Basic Auth Username'
+    password_title = 'HTTP Basic Auth Password'
+
+    @classmethod
+    def configuration_schema(cls):
+        schema = {
+            'type': 'object',
+            'properties': {
+                'url': {
+                    'type': 'string',
+                    'title': cls.url_title,
+                },
+                'username': {
+                    'type': 'string',
+                    'title': cls.username_title,
+                },
+                'password': {
+                    'type': 'string',
+                    'title': cls.password_title,
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url,
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": (
+                        "This string will be used to toggle visibility of "
+                        "tables in the schema browser when editing a query "
+                        "in order to remove non-useful tables from sight."
+                    ),
+                }
+            },
+            'required': ['url'],
+            'secret': ['password']
+        }
+        if cls.requires_authentication:
+            schema['required'] += ['username', 'password']
+        return schema
+
+    def get_auth(self):
+        username = self.configuration.get('username')
+        password = self.configuration.get('password')
+        if username and password:
+            return (username, password)
+        if self.requires_authentication:
+            raise ValueError("Username and Password required")
+        else:
+            return None
+
+    def get_response(self, url, auth=None, **kwargs):
+        # Get authentication values if not given
+        if auth is None:
+            auth = self.get_auth()
+
+        # Then call requests to get the response from the given endpoint
+        # URL optionally, with the additional requests parameters.
+        error = None
+        response = None
+        try:
+            response = requests.get(url, auth=auth, **kwargs)
+            # Raise a requests HTTP exception with the appropriate reason
+            # for 4xx and 5xx response status codes which is later caught
+            # and passed back.
+            response.raise_for_status()
+
+            # Any other responses (e.g. 2xx and 3xx):
+            if response.status_code != 200:
+                error = '{} ({}).'.format(
+                    self.response_error,
+                    response.status_code,
+                )
+
+        except requests.HTTPError as exc:
+            logger.exception(exc)
+            error = (
+                "Failed to execute query. "
+                "Return Code: {} Reason: {}".format(
+                    response.status_code,
+                    response.text
+                )
+            )
+        except requests.RequestException as exc:
+            # Catch all other requests exceptions and return the error.
+            logger.exception(exc)
+            error = str(exc)
+        except Exception as exc:
+            # Catch any other exceptions, log it and reraise it.
+            logger.exception(exc)
+            raise sys.exc_info()[1], None, sys.exc_info()[2]
+
+        return response, error
 
 
 query_runners = {}

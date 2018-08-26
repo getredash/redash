@@ -3,8 +3,7 @@ import moment from 'moment';
 import { Paginator } from '@/lib/pagination';
 import template from './tasks.html';
 
-function TasksCtrl($scope, $location, $http, $timeout, Events) {
-  Events.record('view', 'page', 'admin/tasks');
+function TasksCtrl($scope, $location, $http, $timeout) {
   $scope.autoUpdate = true;
 
   $scope.selectedTab = 'in_progress';

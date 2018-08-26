@@ -36,6 +36,7 @@ TD_TYPES_MAPPING = {
 
 class TreasureData(BaseQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://docs.treasuredata.com/categories/hive"
 
     @classmethod
     def configuration_schema(cls):
@@ -59,6 +60,17 @@ class TreasureData(BaseQueryRunner):
                     'type': 'boolean',
                     'title': 'Auto Schema Retrieval',
                     'default': False
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             'required': ['apikey','db']
@@ -75,9 +87,6 @@ class TreasureData(BaseQueryRunner):
     @classmethod
     def type(cls):
         return "treasuredata"
-
-    def __init__(self, configuration):
-        super(TreasureData, self).__init__(configuration)
 
     def get_schema(self, get_stats=False):
         schema = {}

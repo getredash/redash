@@ -199,10 +199,6 @@ class ChangeTrackingMixin(object):
     skipped_fields = ('id', 'created_at', 'updated_at', 'version')
     _clean_values = None
 
-    def __init__(self, *a, **kw):
-        super(ChangeTrackingMixin, self).__init__(*a, **kw)
-        self.record_changes(self.user)
-
     def prep_cleanvalues(self):
         self.__dict__['_clean_values'] = {}
         for attr in inspect(self.__class__).column_attrs:
@@ -213,10 +209,10 @@ class ChangeTrackingMixin(object):
     def __setattr__(self, key, value):
         if self._clean_values is None:
             self.prep_cleanvalues()
-        for attr in inspect(self.__class__).column_attrs:
-            col, = attr.columns
-            previous = getattr(self, attr.key, None)
-            self._clean_values[col.name] = previous
+
+        if key in inspect(self.__class__).column_attrs:
+            previous = getattr(self, key, None)
+            self._clean_values[key] = previous
 
         super(ChangeTrackingMixin, self).__setattr__(key, value)
 
@@ -227,13 +223,19 @@ class ChangeTrackingMixin(object):
         for attr in inspect(self.__class__).column_attrs:
             col, = attr.columns
             if attr.key not in self.skipped_fields:
-                changes[col.name] = {'previous': self._clean_values[col.name],
-                                     'current': getattr(self, attr.key)}
+                prev = self._clean_values[col.name]
+                current = getattr(self, attr.key)
+                if prev != current:
+                    changes[col.name] = {'previous': prev, 'current': current}
 
-        db.session.add(Change(object=self,
-                              object_version=self.version,
-                              user=changed_by,
-                              change=changes))
+        if changes:
+            self.version = (self.version or 0) + 1
+            change = Change(object=self,
+                            object_version=self.version,
+                            user=changed_by,
+                            change=changes)
+            db.session.add(change)
+            return change
 
 
 class BelongsToOrgMixin(object):
@@ -473,6 +475,8 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         if with_api_key:
             d['api_key'] = self.api_key
 
+        d['last_active_at'] = Event.query.filter(Event.user_id == self.id).with_entities(Event.created_at).order_by(Event.created_at.desc()).first()
+
         return d
 
     def is_api_user(self):
@@ -580,13 +584,14 @@ class DataSource(BelongsToOrgMixin, db.Model):
             'type': self.type,
             'syntax': self.query_runner.syntax,
             'paused': self.paused,
-            'pause_reason': self.pause_reason
+            'pause_reason': self.pause_reason,
+            'type_name': self.query_runner.name(),
         }
 
+        schema = get_configuration_schema_for_query_runner_type(self.type)
+        self.options.set_schema(schema)
+        d['options'] = self.options.to_dict(mask_secrets=True)
         if all:
-            schema = get_configuration_schema_for_query_runner_type(self.type)
-            self.options.set_schema(schema)
-            d['options'] = self.options.to_dict(mask_secrets=True)
             d['queue_name'] = self.queue_name
             d['scheduled_queue_name'] = self.scheduled_queue_name
             d['groups'] = self.groups
@@ -670,6 +675,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
         db.session.add(dsg)
         return dsg
 
+        setattr(self, 'data_source_groups', dsg)
+
     def remove_group(self, group):
         db.session.query(DataSourceGroup).filter(
             DataSourceGroup.group == group,
@@ -741,9 +748,11 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def unused(cls, days=7):
         age_threshold = datetime.datetime.now() - datetime.timedelta(days=days)
 
-        unused_results = (db.session.query(QueryResult.id).filter(
-            Query.id == None, QueryResult.retrieved_at < age_threshold)
-            .outerjoin(Query))
+        unused_results = db.session.query(QueryResult.id).filter(
+            QueryResult.retrieved_at < age_threshold,
+            Query.id == None,
+            ~QueryResultSet.query.filter(QueryResultSet.result_id == QueryResult.id).exists()
+        ).outerjoin(Query)
 
         return unused_results
 
@@ -785,6 +794,8 @@ class QueryResult(db.Model, BelongsToOrgMixin):
         for q in queries:
             q.latest_query_data = query_result
             db.session.add(q)
+            if q.schedule_resultset_size > 0:
+                q.query_results.append(query_result)
         query_ids = [q.id for q in queries]
         logging.info("Updated %s queries with result (%s).", len(query_ids), query_hash)
 
@@ -857,13 +868,14 @@ def should_schedule_next(previous_iteration, now, schedule, failures):
 
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
-    version = Column(db.Integer, default=1)
+    version = Column(db.Integer, default=0)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
     org = db.relationship(Organization, backref="queries")
     data_source_id = Column(db.Integer, db.ForeignKey("data_sources.id"), nullable=True)
     data_source = db.relationship(DataSource, backref='queries')
     latest_query_data_id = Column(db.Integer, db.ForeignKey("query_results.id"), nullable=True)
     latest_query_data = db.relationship(QueryResult)
+    query_results = db.relationship("QueryResult", secondary="query_resultsets")
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     query_text = Column("query", db.Text)
@@ -878,6 +890,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     is_draft = Column(db.Boolean, default=True, index=True)
     schedule = Column(db.String(10), nullable=True)
     schedule_failures = Column(db.Integer, default=0)
+    schedule_until = Column(db.DateTime(True), nullable=True)
+    schedule_resultset_size = Column(db.Integer, nullable=True)
     visualizations = db.relationship("Visualization", cascade="all, delete-orphan")
     options = Column(MutableDict.as_mutable(PseudoJSON), default={})
     search_vector = Column(TSVectorType('id', 'name', 'description', 'query',
@@ -998,7 +1012,9 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     def outdated_queries(cls):
         queries = (db.session.query(Query)
                    .options(joinedload(Query.latest_query_data).load_only('retrieved_at'))
-                   .filter(Query.schedule != None)
+                   .filter(Query.schedule != None,
+                           (Query.schedule_until == None) |
+                           (Query.schedule_until > db.func.now()))
                    .order_by(Query.id))
 
         now = utils.utcnow()
@@ -1024,6 +1040,37 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         all_queries = cls.all_queries(group_ids, user_id=user_id, drafts=include_drafts)
         # sort the result using the weight as defined in the search vector column
         return all_queries.search(term, sort=True).limit(limit)
+
+    @classmethod
+    def delete_stale_resultsets(cls):
+        delete_count = 0
+        texts = [c[0] for c in db.session.query(Query.query_text)
+                 .filter(Query.schedule_resultset_size != None).distinct()]
+        for text in texts:
+            queries = (Query.query.filter(Query.query_text == text,
+                                          Query.schedule_resultset_size != None)
+                       .order_by(Query.schedule_resultset_size.desc()))
+            # Multiple queries with the same text may request multiple result sets
+            # be kept. We start with the one that keeps the most, and delete both
+            # the unneeded bridge rows and result sets.
+            first_query = queries.first()
+            if first_query is not None and first_query.schedule_resultset_size:
+                resultsets = QueryResultSet.query.filter(QueryResultSet.query_rel == first_query).order_by(QueryResultSet.result_id)
+                resultset_count = resultsets.count()
+                if resultset_count > first_query.schedule_resultset_size:
+                    n_to_delete = resultset_count - first_query.schedule_resultset_size
+                    r_ids = [r.result_id for r in resultsets][:n_to_delete]
+                    QueryResultSet.query.filter(QueryResultSet.result_id.in_(r_ids)).delete(synchronize_session=False)
+                    delete_count += QueryResult.query.filter(QueryResult.id.in_(r_ids)).delete(synchronize_session=False)
+            # By this point there are no stale result sets left.
+            # Delete unneeded bridge rows for the remaining queries.
+            for q in queries[1:]:
+                resultsets = db.session.query(QueryResultSet.result_id).filter(QueryResultSet.query_rel == q).order_by(QueryResultSet.result_id)
+                n_to_delete = resultsets.count() - q.schedule_resultset_size
+                if n_to_delete > 0:
+                    stale_r = QueryResultSet.query.filter(QueryResultSet.result_id.in_(resultsets.limit(n_to_delete).subquery()))
+                    stale_r.delete(synchronize_session=False)
+        return delete_count
 
     @classmethod
     def search_by_user(cls, term, user, limit=None):
@@ -1063,6 +1110,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         kwargs = {a: getattr(self, a) for a in forked_list}
         forked_query = Query.create(name=u'Copy of (#{}) {}'.format(self.id, self.name),
                                     user=user, **kwargs)
+        forked_query.record_changes(changed_by=user)
 
         for v in self.visualizations:
             if v.type == 'TABLE':
@@ -1103,6 +1151,16 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def __repr__(self):
         return '<Query %s: "%s">' % (self.id, self.name or 'untitled')
+
+
+class QueryResultSet(db.Model):
+    query_id = Column(db.Integer, db.ForeignKey("queries.id"),
+                      primary_key=True)
+    query_rel = db.relationship(Query)
+    result_id = Column(db.Integer, db.ForeignKey("query_results.id"),
+                       primary_key=True)
+    result = db.relationship(QueryResult)
+    __tablename__ = 'query_resultsets'
 
 
 @vectorizer(db.Integer)
@@ -1236,7 +1294,6 @@ class Change(GFKBase, db.Model):
             'id': self.id,
             'object_id': self.object_id,
             'object_type': self.object_type,
-            'change_type': self.change_type,
             'object_version': self.object_version,
             'change': self.change,
             'created_at': self.created_at
@@ -1255,6 +1312,12 @@ class Change(GFKBase, db.Model):
             cls.object_id == obj.id,
             cls.object_type == obj.__class__.__tablename__).order_by(
                 cls.object_version.desc()).first()
+
+    @classmethod
+    def list_versions(cls, query):
+        return cls.query.filter(
+            cls.object_id == query.id,
+            cls.object_type == 'queries')
 
 
 class Alert(TimestampMixin, db.Model):
@@ -1347,7 +1410,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         }
 
     @classmethod
-    def all(cls, org, group_ids, user_id):
+    def all(cls, org, group_ids, user_id, include_drafts=False):
         query = (
             Dashboard.query
             .options(joinedload(Dashboard.user))
@@ -1363,14 +1426,14 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
                 Dashboard.org == org)
             .distinct())
 
-        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == False))
+        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft == include_drafts))
 
         return query
 
     @classmethod
-    def search(cls, org, groups_ids, user_id, search_term):
+    def search(cls, org, groups_ids, user_id, search_term, include_drafts):
         # TODO: switch to FTS
-        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike('%{}%'.format(search_term)))
+        return cls.all(org, groups_ids, user_id, include_drafts).filter(cls.name.ilike(u'%{}%'.format(search_term)))
 
     @classmethod
     def all_tags(cls, org, user):

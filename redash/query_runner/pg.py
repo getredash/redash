@@ -47,6 +47,9 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    default_doc_url = "https://www.postgresql.org/docs/current/"
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take second"
 
     @classmethod
     def configuration_schema(cls):
@@ -75,6 +78,17 @@ class PostgreSQL(BaseSQLQueryRunner):
                    "type": "string",
                    "title": "SSL Mode",
                    "default": "prefer"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -103,7 +117,7 @@ class PostgreSQL(BaseSQLQueryRunner):
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
-            schema[table_name]['columns'].append(row['column_name'])
+            schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
 
     def _get_tables(self, schema):
         '''
@@ -123,6 +137,7 @@ class PostgreSQL(BaseSQLQueryRunner):
         query = """
         SELECT s.nspname as table_schema,
                c.relname as table_name,
+               t.typname as column_type,
                a.attname as column_name
         FROM pg_class c
         JOIN pg_namespace s
@@ -132,6 +147,8 @@ class PostgreSQL(BaseSQLQueryRunner):
         ON a.attrelid = c.oid
         AND a.attnum > 0
         AND NOT a.attisdropped
+        JOIN pg_type t
+        ON c.reltype = t.oid
         WHERE c.relkind IN ('r', 'v', 'm', 'f', 'p')
         """
 
@@ -187,6 +204,11 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    default_doc_url = ("http://docs.aws.amazon.com/redshift/latest/"
+                       "dg/cm_chap_SQLCommandRef.html")
+    data_source_version_query = "select version()"
+    data_source_version_post_process = "split by space take last"
+
     @classmethod
     def type(cls):
         return "redshift"
@@ -231,6 +253,11 @@ class Redshift(PostgreSQL):
                    "type": "string",
                    "title": "SSL Mode",
                    "default": "prefer"
+                },
+                "doc_url": {
+                    "type": "string",
+                    "title": "Documentation URL",
+                    "default": cls.default_doc_url
                 }
             },
             "order": ['host', 'port', 'user', 'password'],
@@ -270,8 +297,6 @@ class Redshift(PostgreSQL):
 
 
 class CockroachDB(PostgreSQL):
-    def __init__(self, configuration):
-        super(CockroachDB, self).__init__(configuration)
 
     @classmethod
     def type(cls):

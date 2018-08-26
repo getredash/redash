@@ -136,7 +136,6 @@ function QueryViewCtrl(
     KeyboardShortcuts.unbind(shortcuts);
   });
 
-  Events.record('view', 'query', $scope.query.id);
   if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
     getQueryResult();
   }
@@ -178,8 +177,6 @@ function QueryViewCtrl(
   };
 
   $scope.duplicateQuery = () => {
-    Events.record('fork', 'query', $scope.query.id);
-
     Query.fork({ id: $scope.query.id }, (newQuery) => {
       $location.url(newQuery.getSourceLink()).replace();
     });
@@ -208,6 +205,7 @@ function QueryViewCtrl(
     } else {
       request = pick($scope.query, [
         'schedule',
+        'schedule_resultset_size',
         'query',
         'id',
         'description',
@@ -322,8 +320,8 @@ function QueryViewCtrl(
     }
 
     $scope.dataSource = find($scope.dataSources, ds => ds.id === $scope.query.data_source_id);
+    document.getElementById('data-source-version').innerHTML = '<span class=\'fa fa-refresh\' data-toggle=\'tooltip\' data-placement=\'right\' tooltip title=\'It seems the data source was changed since the page loaded, refresh page to get version\'></span>';
     getSchema();
-    $scope.executeQuery();
   };
 
   $scope.setVisualizationTab = (visualization) => {
@@ -350,6 +348,21 @@ function QueryViewCtrl(
       }, () => {
         toastr.error("Error deleting visualization. Maybe it's used in a dashboard?");
       });
+    });
+  };
+
+  $scope.compareQueryVersion = () => {
+    if (!$scope.query.query) {
+      return;
+    }
+
+    $uibModal.open({
+      windowClass: 'modal-xl',
+      component: 'compareQueryDialog',
+      resolve: {
+        query: $scope.query,
+        saveQuery: () => $scope.saveQuery,
+      },
     });
   };
 
@@ -440,6 +453,18 @@ function QueryViewCtrl(
     });
   };
 
+  $scope.openAddToDashboardForm = (vis) => {
+    $uibModal.open({
+      component: 'addToDashboardDialog',
+      size: 'sm',
+      resolve: {
+        query: $scope.query,
+        vis,
+        saveAddToDashboard: () => $scope.saveAddToDashboard,
+      },
+    });
+  };
+
   $scope.showEmbedDialog = (query, visId) => {
     const visualization = getVisualization(visId);
     $uibModal.open({
@@ -471,6 +496,17 @@ function QueryViewCtrl(
         aclUrl: { url: `api/queries/${$routeParams.queryId}/acl` },
       },
     });
+  };
+
+  $scope.moreMenuIsPopulated = () => {
+    const menuParent = document.getElementById('query-more-menu');
+
+    if (menuParent) {
+      if (menuParent.querySelectorAll('.dropdown-menu li').length) {
+        return true;
+      }
+    }
+    return false;
   };
 }
 
