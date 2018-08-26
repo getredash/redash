@@ -298,8 +298,6 @@ class BaseElasticSearch(BaseQueryRunner):
 
 
 class Kibana(BaseElasticSearch):
-    def __init__(self, configuration):
-        super(Kibana, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -395,9 +393,6 @@ class Kibana(BaseElasticSearch):
 
 
 class ElasticSearch(BaseElasticSearch):
-
-    def __init__(self, configuration):
-        super(ElasticSearch, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):

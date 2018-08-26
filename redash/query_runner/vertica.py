@@ -86,9 +86,6 @@ class Vertica(BaseSQLQueryRunner):
 
         return True
 
-    def __init__(self, configuration):
-        super(Vertica, self).__init__(configuration)
-
     def _get_tables(self, schema):
         query = """
         Select table_schema, table_name, column_name from columns where is_system_table=false

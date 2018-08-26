@@ -79,9 +79,6 @@ class Presto(BaseQueryRunner):
     def type(cls):
         return "presto"
 
-    def __init__(self, configuration):
-        super(Presto, self).__init__(configuration)
-
     def get_schema(self, get_stats=False):
         schema = {}
         query = """
@@ -100,7 +97,7 @@ class Presto(BaseQueryRunner):
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-            
+
             if table_name not in schema:
                 schema[table_name] = {'name': table_name, 'columns': []}
 
