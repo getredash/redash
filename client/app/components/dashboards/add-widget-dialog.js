@@ -23,7 +23,7 @@ const AddWidgetDialog = {
     this.searchTerm = '';
     this.recentQueries = [];
 
-    // Don't show draft (unpublished) queries
+    // Don't show draft (unpublished) queries in Add Widget modal list
     Query.recent().$promise.then((items) => {
       this.recentQueries = items.filter(item => !item.is_draft);
     });
@@ -47,6 +47,9 @@ const AddWidgetDialog = {
 
       if (queryId) {
         Query.get({ id: queryId }, (query) => {
+          if (query.is_draft === true) {
+            toastr.error('Unpublished queries cant not be used in dashboards.');
+          }
           if (query) {
             this.selectedQuery = query;
             if (query.visualizations.length) {

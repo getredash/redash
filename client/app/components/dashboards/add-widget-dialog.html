@@ -66,5 +66,5 @@
 
 <div class="modal-footer">
   <button type="button" class="btn btn-default" ng-disabled="$ctrl.saveInProgress" ng-click="$ctrl.dismiss()">Close</button>
-  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || !($ctrl.selectedVis || $ctrl.isTextBox)" ng-click="$ctrl.saveWidget()">Add to Dashboard</button>
+  <button type="button" class="btn btn-primary" ng-disabled="$ctrl.saveInProgress || !($ctrl.selectedVis || $ctrl.isTextBox) || $ctrl.selectedQuery.is_draft === true" ng-click="$ctrl.saveWidget()">Add to Dashboard</button>
 </div>
