@@ -1,5 +1,5 @@
 import base64
-from .hive_ds import Hive 
+from .hive_ds import Hive
 
 try:
     from pyhive import hive
@@ -7,6 +7,7 @@ try:
     enabled = True
 except ImportError:
     enabled = False
+
 
 class DataBricks(Hive):
 
