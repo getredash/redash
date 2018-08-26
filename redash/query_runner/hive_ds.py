@@ -137,7 +137,7 @@ class Hive(BaseSQLQueryRunner):
                 # if username or password is set, add Authorization header
                 username = self.configuration.get('username', '')
                 password = self.configuration.get('http_password', '')
-                if username || password:
+                if username | password:
                     auth = base64.b64encode(username + ':' + password)
                     transport.setCustomHeaders({'Authorization': 'Basic ' + auth})
 

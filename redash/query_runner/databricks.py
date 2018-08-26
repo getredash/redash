@@ -14,7 +14,4 @@ class DataBricks(Hive):
     def type(cls):
         return "databricks"
 
-    def __init__(self, configuration):
-        super(DataBricks, self).__init__(configuration)
-
 register(DataBricks)
