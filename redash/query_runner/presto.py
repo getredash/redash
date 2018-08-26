@@ -30,6 +30,7 @@ PRESTO_TYPES_MAPPING = {
     "date": TYPE_DATE,
 }
 
+
 # for athena and presto
 def format_schema(results):
     schema = {}
