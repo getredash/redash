@@ -121,7 +121,6 @@ class QueryResultListResource(BaseResource):
 
         self.record_event({
             'action': 'execute_query',
-            'timestamp': int(time.time()),
             'object_id': data_source.id,
             'object_type': 'data_source',
             'query': query
@@ -207,7 +206,6 @@ class QueryResultResource(BaseResource):
                     'user_id': None,
                     'org_id': self.current_org.id,
                     'action': 'api_get',
-                    'timestamp': int(time.time()),
                     'api_key': self.current_user.name,
                     'file_type': filetype,
                     'user_agent': request.user_agent.string,

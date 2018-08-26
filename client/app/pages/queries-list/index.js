@@ -6,7 +6,7 @@ import template from './queries-list.html';
 import './queries-list.css';
 
 class QueriesListCtrl {
-  constructor($scope, $location, Events, Query, currentUser) {
+  constructor($scope, $location, Query, currentUser) {
     const page = parseInt($location.search().page || 1, 10);
     const orderSeparator = '-';
     const pageOrder = $location.search().order || 'created_at';
@@ -16,9 +16,7 @@ class QueriesListCtrl {
     this.pageSize = parseInt($location.search().page_size || 20, 10);
     this.pageSizeOptions = [5, 10, 20, 50, 100];
 
-    if (isString(this.term) && this.term !== '') {
-      Events.record('search', 'query', '', { term: this.term });
-    } else {
+    if (!(isString(this.term) && this.term !== '')) {
       this.term = '';
     }
 

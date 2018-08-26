@@ -63,6 +63,16 @@ class UserListResource(BaseResource):
 
         if search_term:
             users = models.User.search(users, search_term)
+            self.record_event({
+                'action': 'list',
+                'object_type': 'user',
+                'term': search_term,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'user',
+            })
         
         users = order_results(users)
 
@@ -93,7 +103,6 @@ class UserListResource(BaseResource):
 
         self.record_event({
             'action': 'create',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user'
         })
@@ -139,6 +148,12 @@ class UserResource(BaseResource):
         require_permission_or_owner('list_users', user_id)
         user = get_object_or_404(models.User.get_by_id_and_org, user_id, self.current_org)
 
+        self.record_event({
+            'action': 'view',
+            'object_id': user_id,
+            'object_type': 'user',
+        })
+
         return user.to_dict(with_api_key=is_admin_or_owner(user_id))
 
     def post(self, user_id):
@@ -175,7 +190,6 @@ class UserResource(BaseResource):
 
         self.record_event({
             'action': 'edit',
-            'timestamp': int(time.time()),
             'object_id': user.id,
             'object_type': 'user',
             'updated_fields': params.keys()

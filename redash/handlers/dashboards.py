@@ -100,6 +100,12 @@ class DashboardResource(BaseResource):
 
         response['can_edit'] = can_modify(dashboard, self.current_user)
 
+        self.record_event({
+            'action': 'view',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return response
 
     @require_permission('edit_dashboard')
@@ -139,6 +145,13 @@ class DashboardResource(BaseResource):
             abort(409)
 
         result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+
+        self.record_event({
+            'action': 'edit',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return result
 
     @require_permission('edit_dashboard')
@@ -156,6 +169,13 @@ class DashboardResource(BaseResource):
         models.db.session.add(dashboard)
         d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'archive',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return d
 
 

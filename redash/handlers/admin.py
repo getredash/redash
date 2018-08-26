@@ -7,6 +7,7 @@ from redash.handlers import routes
 from redash.handlers.base import json_response
 from redash.permissions import require_super_admin
 from redash.tasks.queries import QueryTaskTracker
+from redash.tasks import record_event
 
 
 @routes.route('/api/admin/queries/outdated', methods=['GET'])
@@ -23,6 +24,11 @@ def outdated_queries():
     else:
         outdated_queries = []
 
+    record_event({
+        'action': 'list',
+        'object_type': 'outdated_queries',
+    })
+
     return json_response(
         dict(queries=[q.to_dict(with_stats=True, with_last_modified_by=False)
                       for q in outdated_queries],
@@ -33,6 +39,12 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
+    record_event({
+        'action': 'list',
+        'object_id': 'admin/tasks',
+        'object_type': 'celery_tasks'
+    })
+
     global_limit = int(request.args.get('limit', 50))
     waiting_limit = int(request.args.get('waiting_limit', global_limit))
     progress_limit = int(request.args.get('progress_limit', global_limit))
