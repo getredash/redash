@@ -5,6 +5,7 @@ import os
 from redash.query_runner import *
 from redash.settings import parse_boolean
 from redash.utils import JSONEncoder
+from .presto import format_schema
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
@@ -140,7 +141,6 @@ class Athena(BaseQueryRunner):
         if self.configuration.get('glue', False):
             return self.__get_schema_from_glue()
 
-        schema = {}
         query = """
         SELECT table_schema, table_name, column_name, data_type as column_type, extra_info
         FROM information_schema.columns
@@ -151,16 +151,7 @@ class Athena(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
-        for row in results['rows']:
-            table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
-            if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
-
-            if row['extra_info'] == 'partition key':
-                schema[table_name]['columns'].append('[P]' + row['column_name'] + ' (' + row['column_type'] + ')')
-            else:
-                schema[table_name]['columns'].append(row['column_name'] + ' (' + row['column_type'] + ')')
+        schema = format_schema(json.loads(results))
 
         return schema.values()
 
