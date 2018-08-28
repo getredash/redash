@@ -57,10 +57,10 @@ class Parameter {
 
     // validate value and init internal state
     this.setValue(parameter.value);
+  }
 
-    // explicitly bind it to `this` to allow passing it as callback to Ant's
-    // DatePicker component
-    this.setValue = this.setValue.bind(this);
+  clone() {
+    return new Parameter(this);
   }
 
   get isEmpty() {
