@@ -3,7 +3,7 @@
 
   <div class="row">
     <div class="col-md-3 list-control-t">
-      <div class="m-b-5">
+      <div class="m-b-10">
         <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           ng-change="$ctrl.update()">
       </div>
@@ -115,14 +115,9 @@
     </div>
 
     <div class="col-md-3 list-control-r-b">
-      <div class="m-b-5 input-group search">
+      <div class="m-b-10">
         <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           ng-change="$ctrl.update()">
-        <span class="input-group-btn">
-          <button class="btn btn-secondary" type="button" title="Clear search" ng-click="$ctrl.clearSearch()">
-            <span class="zmdi zmdi-close"></span>
-          </button>
-        </span>
       </div>
       <div class='list-group m-b-10 tags-list tiled'>
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
