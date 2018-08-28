@@ -8,9 +8,13 @@ import './queries-list.css';
 class QueriesListCtrl {
   constructor($scope, $location, Events, Query, currentUser) {
     const page = parseInt($location.search().page || 1, 10);
+
     const orderSeparator = '-';
-    const pageOrder = $location.search().order || 'created_at';
-    const pageOrderReverse = pageOrder.startsWith(orderSeparator);
+    this.pageOrder = $location.search().order || '-created_at';
+    this.pageOrderReverse = this.pageOrder.startsWith(orderSeparator);
+    if (this.pageOrderReverse) {
+      this.pageOrder = this.pageOrder.substr(1);
+    }
 
     this.term = $location.search().q;
     this.pageSize = parseInt($location.search().page_size || 20, 10);
@@ -119,8 +123,8 @@ class QueriesListCtrl {
     this.paginator = new LivePaginator(queriesFetcher, {
       page,
       itemsPerPage: this.pageSize,
-      orderByField: pageOrder,
-      orderByReverse: pageOrderReverse,
+      orderByField: this.pageOrder,
+      orderByReverse: this.pageOrderReverse,
     });
 
     this.pageSizeLabel = value => `${value} results`;
