@@ -1,7 +1,4 @@
 version: 2.0
-notify:
-  webhooks:
-    - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
 jobs:
   build:
     docker:
@@ -138,11 +135,20 @@ jobs:
             docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 workflows:
   version: 2
+  integration_tests:
+    jobs:
+      - build
+      - integration_tests:
+          requires:
+            - build
   build_test_deploy_release:
     jobs:
+      - build
+      - unit_tests:
+          requires:
+            - build
       - build-deploy:
            requires:
-             - integration_tests
              - unit_tests
            filters:
              branches:
@@ -151,17 +157,9 @@ workflows:
                  - release
       - build-release:
            requires:
-             - integration_tests
              - unit_tests
            filters:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
              branches:
                ignore: /.*/
-      - integration_tests:
-          requires:
-            - build
-      - unit_tests:
-          requires:
-            - build
-      - build
