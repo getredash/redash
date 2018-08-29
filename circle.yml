@@ -127,7 +127,10 @@ jobs:
 workflows:
   version: 2
   integration_tests:
+    jobs:
       - integration-tests:
+          requires:
+            - build
           filters:
              branches:
                only:
@@ -148,7 +151,7 @@ workflows:
                  - release
       - build-docker-image:
            requires:
-             - unit_tests
+             - unit-tests
            filters:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
