@@ -1,9 +1,9 @@
 import logging
-logger = logging.getLogger('jwt_auth')
-
 import json
 import jwt
 import requests
+
+logger = logging.getLogger('jwt_auth')
 
 
 def get_public_keys(url):
