@@ -71,7 +71,7 @@ jobs:
           name: Pull redash images
           command: |
             set -x
-            docker-compose -f docker-compose.yml up -d --no-start
+            docker-compose -f docker-compose.yml up --no-start
             sleep 10
       - run:
           name: Pull redash-ui-tests
