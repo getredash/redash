@@ -129,7 +129,7 @@ workflows:
   version: 2
   integration_tests:
     jobs:
-      - build
+      - build:
           filters:
              branches:
                only:
