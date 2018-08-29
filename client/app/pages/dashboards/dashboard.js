@@ -109,7 +109,7 @@ function DashboardCtrl(
           .filter(p => p.global)
           .forEach((param) => {
             const defaults = {};
-            defaults[param.name] = _.create(Object.getPrototypeOf(param), param);
+            defaults[param.name] = param.clone();
             defaults[param.name].locals = [];
             globalParams = _.defaults(globalParams, defaults);
             globalParams[param.name].locals.push(param);
