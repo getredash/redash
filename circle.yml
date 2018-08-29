@@ -129,8 +129,6 @@ workflows:
   integration_tests:
     jobs:
       - integration-tests:
-          requires:
-            - build
           filters:
              branches:
                only:
