@@ -1,9 +1,6 @@
 version: 2.0
-notify:
-  webhooks:
-    - url: https://webhooks.gitter.im/e/895d09c3165a0913ac2f
 jobs:
-  build:
+  npm-build:
     docker:
       - image: circleci/node:8
     working_directory: ~/redash
@@ -27,7 +24,7 @@ jobs:
          key: node-modules-
          paths:
            - node_modules
-  unit_tests:
+  unit-tests:
     machine: true
     working_directory: ~/redash
     steps:
@@ -54,7 +51,7 @@ jobs:
           path: junit.xml
       - store_artifacts:
           path: coverage.xml
-  integration_tests:
+  integration-tests:
     working_directory: ~/redash
     machine: true
     environment:
@@ -63,14 +60,6 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run:
-          name: Check commit for running ui-tests
-          command:
-            UI_TESTS=$(git show -s --format=%s | grep -q -w '!run-ui-tests' && echo true || echo false)
-            if [[ $UI_TESTS != 'true' ]]; then
-              echo "Skipping Ui tests.";
-              circleci step halt
-            fi
       - run:
           name: Install Docker Compose
           command: |
@@ -82,7 +71,7 @@ jobs:
           name: Pull redash images
           command: |
             set -x
-            docker-compose -f docker-compose.yml up -d --no-start
+            docker-compose -f docker-compose.yml up --no-start
             sleep 10
       - run:
           name: Pull redash-ui-tests
@@ -104,7 +93,7 @@ jobs:
             docker run --net="host" --env REDASH_SERVER_URL="${REDASH_SERVER_URL}" "${DOCKER_IMAGE}"
       - store_artifacts:
           path: report.html
-  build-deploy: # build for master or release branches
+  build-tarball: # build for master or release branches
     docker:
       - image: circleci/node:8
     environment:
@@ -117,11 +106,11 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Build
+          name: Pack Tarball
           command: bin/pack "$CIRCLE_BRANCH"
       - store_artifacts:
           path: $NAME.$FULL_VERSION.tar.gz
-  build-release: # build for tags
+  build-docker-image: # build for tags
     docker:
       - image: circleci/node:8
     working_directory: ~/redash
@@ -132,36 +121,37 @@ jobs:
           name: Tag deploy
           command: |
             set -x
-            bin/pack "$CIRCLE_TAG"
             docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
             docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
             docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 workflows:
   version: 2
-  build_test_deploy_release:
+  integration_tests:
     jobs:
-      - build-deploy:
+      - integration-tests:
+          filters:
+             branches:
+               only:
+                 - master
+  build:
+    jobs:
+      - npm-build
+      - unit-tests:
+          requires:
+            - npm-build
+      - build-tarball:
            requires:
-             - integration_tests
-             - unit_tests
+             - unit-tests
            filters:
              branches:
                only:
                  - master
                  - release
-      - build-release:
+      - build-docker-image:
            requires:
-             - integration_tests
-             - unit_tests
+             - unit-tests
            filters:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
              branches:
                ignore: /.*/
-      - integration_tests:
-          requires:
-            - build
-      - unit_tests:
-          requires:
-            - build
-      - build
