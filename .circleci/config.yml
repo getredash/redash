@@ -44,8 +44,7 @@ jobs:
     docker:
       - image: circleci/node:8
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
       - run:
           name: Tag deploy
           command: |

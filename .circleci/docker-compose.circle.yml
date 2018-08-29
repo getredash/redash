@@ -2,7 +2,7 @@ version: '2'
 services:
   redash:
     build: ../
-    command: tests
+    command: manage version
     depends_on:
       - postgres
       - redis
