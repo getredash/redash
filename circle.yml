@@ -130,9 +130,17 @@ workflows:
   integration_tests:
     jobs:
       - build
+          filters:
+             branches:
+               only:
+                 - master
       - integration_tests:
           requires:
             - build
+          filters:
+             branches:
+               only:
+                 - master
   build_test_deploy_release:
     jobs:
       - build
