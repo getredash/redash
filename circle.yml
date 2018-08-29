@@ -131,8 +131,7 @@ workflows:
       - integration-tests:
           filters:
              branches:
-               only:
-                 - master
+               only: master
   build:
     jobs:
       - npm-build
@@ -143,6 +142,8 @@ workflows:
            requires:
              - unit-tests
            filters:
+             tags:
+               only: /v[0-9]+(\.[0-9\-a-z]+)*/
              branches:
                only:
                  - master
@@ -154,4 +155,6 @@ workflows:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
              branches:
-               ignore: /.*/
+               only:
+                 - master
+                 - release
