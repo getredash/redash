@@ -5,7 +5,6 @@
     <img title="Build Status" src='https://circleci.com/gh/getredash/redash.png?circle-token=8a695aa5ec2cbfa89b48c275aea298318016f040'/>
 </p>
 
-[![Join the chat at https://gitter.im/getredash/redash](https://badges.gitter.im/getredash/redash.svg)](https://gitter.im/getredash/redash?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
 
 **_Redash_** is our take on freeing the data within our company in a way that will better fit our culture and usage patterns.
@@ -41,7 +40,6 @@ Redash supports more than 25 [data sources](https://redash.io/help/data-sources/
 * Issues: https://github.com/getredash/redash/issues
 * Discussion Forum: https://discuss.redash.io/
 * Slack: http://slack.redash.io/
-* Gitter (chat): https://gitter.im/getredash/redash
 
 ## Reporting Bugs and Contributing Code
 
