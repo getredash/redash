@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   unit-tests:
     environment:
-      COMPOSE_FILE: ~/project/.circleci/docker-compose.circle.yml
+      COMPOSE_FILE: .circleci/docker-compose.circle.yml
       COMPOSE_PROJECT_NAME: redash
     docker:
       - image: circleci/buildpack-deps:xenial
