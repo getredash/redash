@@ -1,56 +1,55 @@
 version: 2.0
 jobs:
-  npm-build:
-    docker:
-      - image: circleci/node:8
-    working_directory: ~/redash
-    steps:
-      - checkout
-      - restore_cache:
-         keys:
-           - node-modules-
-      - run:
-          name: Setup NPM Environment
-          command: |
-            npm install
-      - run:
-          name: build
-          command: npm run build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - ./*
-      - save_cache:
-         key: node-modules-
-         paths:
-           - node_modules
   unit-tests:
-    machine: true
-    working_directory: ~/redash
+    docker:
+      - image: circleci/buildpack-deps:xenial
     steps:
-      - attach_workspace:
-          at: .
+      - setup_remote_docker
+      - checkout
       - run:
-          name: Install Docker Compose
-          command: |
-            set -x
-            pip install --upgrade pip
-            pip install docker-compose>=1.18
-            docker-compose --version
-      - run:
-          name: Pull images and setup
+          name: Build Docker Images
           command: |
             set -x
             docker-compose up -d
             sleep 10
-            docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
-          name: Run tests
-          command: docker-compose run --user root server tests
-      - store_artifacts:
+          name: Create Test Database
+          command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
+      - run:
+          name: Run Tests
+          command: docker-compose run --name tests --user root server tests
+      - run:
+          name: Copy Test Results
+          command: |
+            docker cp "$(docker-compose ps -q tests)":/app/junit.xml ./junit.xml
+            docker cp "$(docker-compose ps -q tests)":/app/coverage.xml ./coverage.xml 
+      - store_test_results:
           path: junit.xml
       - store_artifacts:
           path: coverage.xml
+  build-tarball: # build for master or release branches
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run:
+          name: Pack Tarball
+          command: bin/pack "$CIRCLE_BRANCH"
+      - store_artifacts:
+          path: $NAME.$FULL_VERSION.tar.gz
+  build-docker-image: # build for tags
+    docker:
+      - image: circleci/node:8
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Tag deploy
+          command: |
+            set -x
+            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+            docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
+            docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
   integration-tests:
     working_directory: ~/redash
     machine: true
@@ -58,8 +57,7 @@ jobs:
       REDASH_SERVER_URL : "http://127.0.0.1:5000/"
       DOCKER_IMAGE: mozilla/redash-ui-tests
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
       - run:
           name: Install Docker Compose
           command: |
@@ -93,37 +91,6 @@ jobs:
             docker run --net="host" --env REDASH_SERVER_URL="${REDASH_SERVER_URL}" "${DOCKER_IMAGE}"
       - store_artifacts:
           path: report.html
-  build-tarball: # build for master or release branches
-    docker:
-      - image: circleci/node:8
-    environment:
-      NAME: redash
-      VERSION: $(python ./manage.py version)
-      FULL_VERSION: $VERSION+b$CIRCLE_BUILD_NUM
-      FILENAME: $NAME.$FULL_VERSION.tar.gz
-    working_directory: ~/redash
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Pack Tarball
-          command: bin/pack "$CIRCLE_BRANCH"
-      - store_artifacts:
-          path: $NAME.$FULL_VERSION.tar.gz
-  build-docker-image: # build for tags
-    docker:
-      - image: circleci/node:8
-    working_directory: ~/redash
-    steps:
-      - attach_workspace:
-          at: .
-      - run:
-          name: Tag deploy
-          command: |
-            set -x
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-            docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
-            docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
 workflows:
   version: 2
   integration_tests:
@@ -134,10 +101,7 @@ workflows:
                only: master
   build:
     jobs:
-      - npm-build
-      - unit-tests:
-          requires:
-            - npm-build
+      - unit-tests
       - build-tarball:
            requires:
              - unit-tests
