@@ -1,6 +1,9 @@
 version: 2.0
 jobs:
   unit-tests:
+    environment:
+      COMPOSE_FILE: ~/project/.circleci/docker-compose.circle.yml
+      COMPOSE_PROJECT_NAME: redash
     docker:
       - image: circleci/buildpack-deps:xenial
     steps:
@@ -17,17 +20,17 @@ jobs:
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: Run Tests
-          command: docker-compose run --name tests --user root server tests
+          command: docker-compose run --name tests --user root redash tests
       - run:
           name: Copy Test Results
           command: |
-            docker cp "$(docker-compose ps -q tests)":/app/junit.xml ./junit.xml
-            docker cp "$(docker-compose ps -q tests)":/app/coverage.xml ./coverage.xml 
+            docker cp tests:/app/junit.xml ./junit.xml
+            docker cp tests:/app/coverage.xml ./coverage.xml 
       - store_test_results:
           path: junit.xml
       - store_artifacts:
           path: coverage.xml
-  build-tarball: # build for master or release branches
+  build-tarball:
     docker:
       - image: circleci/node:8
     steps:
@@ -37,7 +40,7 @@ jobs:
           command: bin/pack "$CIRCLE_BRANCH"
       - store_artifacts:
           path: $NAME.$FULL_VERSION.tar.gz
-  build-docker-image: # build for tags
+  build-docker-image:
     docker:
       - image: circleci/node:8
     steps:
