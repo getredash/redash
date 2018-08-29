@@ -58,8 +58,7 @@ jobs:
       REDASH_SERVER_URL : "http://127.0.0.1:5000/"
       DOCKER_IMAGE: mozilla/redash-ui-tests
     steps:
-      - attach_workspace:
-          at: .
+      - checkout
       - run:
           name: Install Docker Compose
           command: |
