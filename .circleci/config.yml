@@ -28,7 +28,7 @@ jobs:
             docker cp tests:/app/coverage.xml ./coverage.xml 
             docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - store_test_results:
-          path: /tmp/test-results/unit-tests/results.xml
+          path: /tmp/test-results
       - store_artifacts:
           path: coverage.xml
   build-tarball:
