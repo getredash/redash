@@ -46,6 +46,7 @@ jobs:
     docker:
       - image: circleci/buildpack-deps:xenial
     steps:
+      - setup_remote_docker
       - checkout
       - run: .circleci/update_version
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
