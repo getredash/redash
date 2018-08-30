@@ -20,12 +20,12 @@ jobs:
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: Run Tests
-          command: docker-compose run --name tests redash tests
+          command: docker-compose run --name tests redash tests --junitxml=junit.xml tests/
       - run:
           name: Copy Test Results
           command: |
-            docker cp tests:/app/junit.xml ./junit.xml
             docker cp tests:/app/coverage.xml ./coverage.xml 
+            docker cp tests:/app/junit.xml ./junit.xml
       - store_test_results:
           path: junit.xml
       - store_artifacts:
