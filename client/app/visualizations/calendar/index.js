@@ -37,9 +37,7 @@ function CalendarRenderer(clientConfig, uiCalendarOptions) {
 
             // Change nulls to empty strings
             const value = isNull(event[column]) ? '' : event[column];
-
-            tooltipTemplate += `<li><strong>${cleanColumn}: </strong>`;
-            tooltipTemplate += `${moment.isMoment(value) ? value.format(clientConfig.dateTimeFormat) : value}</li>`;
+            tooltipTemplate += `<li>${cleanColumn}: ${moment.isMoment(value) ? value.format(clientConfig.dateTimeFormat) : value}</li>`;
           });
 
           tooltipTemplate += "</ul>'";
@@ -106,18 +104,14 @@ function CalendarRenderer(clientConfig, uiCalendarOptions) {
         $scope.calendarEvents.length = 0;
 
         if (queryData) {
-          const eventTitle = $scope.options.title;
-          const startDate = $scope.options.start;
-          const endDate = $scope.options.end;
-          const groupByProp = $scope.options.groupBy;
-          let groupedEvents;
-
           // Required fields
           if (isNullOrUndefined($scope.options.title) || isNullOrUndefined($scope.options.start)) return;
 
           // Group events
-          if (!isNullOrUndefined(groupByProp)) {
-            groupedEvents = groupBy(queryData, groupByProp);
+          let groupedEvents;
+
+          if (!isNullOrUndefined($scope.options.groupBy)) {
+            groupedEvents = groupBy(queryData, $scope.options.groupBy);
           } else {
             groupedEvents = { All: queryData };
           }
@@ -150,9 +144,9 @@ function CalendarRenderer(clientConfig, uiCalendarOptions) {
             };
 
             forEach(events, (row) => {
-              const title = row[eventTitle];
-              const start = row[startDate];
-              const end = row[endDate];
+              const title = row[$scope.options.title];
+              const start = row[$scope.options.start];
+              const end = row[$scope.options.end];
 
               // Skip rows where title is not a string, or start is not a date, or ...
               if (!isString(title) || !moment.isMoment(start) ||
@@ -164,7 +158,7 @@ function CalendarRenderer(clientConfig, uiCalendarOptions) {
               const event = {
                 title,
                 start,
-                ...endDate && { end },
+                ...$scope.options.end && { end },
                 ...row,
               };
 
