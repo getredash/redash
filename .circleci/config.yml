@@ -36,23 +36,21 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
-      - run:
-          name: Pack Tarball
-          command: bin/pack "$CIRCLE_BRANCH"
+      - run: npm install
+      - run: npm run build
+      - run: .circleci/update_version
+      - run: .circleci/pack
       - store_artifacts:
-          path: $NAME.$FULL_VERSION.tar.gz
+          path: /tmp/artifacts/
   build-docker-image:
     docker:
-      - image: circleci/node:8
+      - image: circleci/buildpack-deps:xenial
     steps:
       - checkout
-      - run:
-          name: Tag deploy
-          command: |
-            set -x
-            docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
-            docker build -t redash/redash:$(./manage.py version | sed -e "s/\+/./") .
-            docker push redash/redash:$(./manage.py version | sed -e "s/\+/./")
+      - run: .circleci/update_version
+      - run: docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker build -t redash/redash:$(.circleci/docker_tag) .
+      - run: docker push redash/redash:$(.circleci/docker_tag)
   integration-tests:
     working_directory: ~/redash
     machine: true
@@ -121,7 +119,3 @@ workflows:
            filters:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
-             branches:
-               only:
-                 - master
-                 - release
