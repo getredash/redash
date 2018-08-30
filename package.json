@@ -52,6 +52,7 @@
     "d3-cloud": "^1.2.4",
     "debug": "^3.1.0",
     "font-awesome": "^4.7.0",
+    "fullcalendar": "^3.9.0",
     "gridstack": "^0.3.0",
     "jquery": "^3.2.1",
     "jquery-ui": "^1.12.1",

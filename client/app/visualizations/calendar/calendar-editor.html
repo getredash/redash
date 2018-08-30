@@ -1,0 +1,177 @@
+<div>
+    <ul class="tab-nav">
+      <li ng-class="{active: currentTab == 'general'}">
+        <a ng-click="currentTab='general'">General</a>
+      </li>
+      <li ng-class="{active: currentTab == 'colors'}">
+        <a ng-click="currentTab='colors'">Colors</a>
+      </li>
+      <li ng-class="{active: currentTab == 'settings'}">
+        <a ng-click="currentTab='settings'">Settings</a>
+      </li>
+    </ul>
+  
+    <div ng-if="currentTab == 'general'" class="m-t-10 m-b-10">
+      <h4>Column mapping</h4>
+  
+      <div class="row">
+        <div class="form-group col-sm-6">
+          <label class="control-label">Event title</label>
+          <ui-select name="form-control" required ng-model="visualization.options.title">
+            <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:visualization.options.start | remove:visualization.options.end | remove:visualization.options.groupBy">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+              <small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="form-group col-sm-6">
+          <label class="control-label">Start date</label>
+          <ui-select name="form-control" required ng-model="visualization.options.start">
+            <ui-select-match placeholder="Choose column...">{{$select.selected}}</ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:visualization.options.title | remove:visualization.options.end | remove:visualization.options.groupBy">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+              <small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+  
+        <div class="form-group col-sm-6">
+          <label class="control-label">End date</label>
+          <ui-select name="form-control" ng-model="visualization.options.end" class="clearable">
+            <ui-select-match allow-clear="true" placeholder="Choose column...">
+              {{$select.selected}}
+            </ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:visualization.options.title | remove:visualization.options.start | remove:visualization.options.groupBy">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+              <small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="form-group col-sm-6">
+          <label class="control-label">Group by</label>
+          <ui-select name="groupby" ng-model="visualization.options.groupBy" class="clearable">
+            <ui-select-match allow-clear="true" placeholder="Choose column...">
+              {{$select.selected}}
+            </ui-select-match>
+            <ui-select-choices repeat="column in columnNames | remove:visualization.options.title | remove:visualization.options.start | remove:visualization.options.end">
+              <span ng-bind-html="column | highlight: $select.search"></span><span> </span>
+              <small class="text-muted" ng-bind="columns[column].type"></small>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+  
+      <h4>Event tooltips</h4>
+  
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="visualization.options.calendarConfig.showTooltips">
+          <i class="input-helper"></i> Show tooltips
+        </label>
+      </div>
+  
+      <div class="row">
+        <div class="form-group col-sm-6">
+          <label class="control-label">Tooltip content</label>
+          <ui-select multiple name="tooltipItems" ng-model="visualization.options.tooltipItems" ng-disabled="!visualization.options.calendarConfig.showTooltips">
+            <ui-select-match placeholder="Choose tooltip fields...">{{$item}}</ui-select-match>
+            <ui-select-choices repeat="item in columnNames">
+              <span ng-bind-html="item | highlight: $select.search"></span><span> </span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+    </div>
+  
+    <div ng-if="currentTab == 'colors'" class="m-t-10 m-b-10">
+      <table class="table table-condensed col-table">
+        <thead>
+          <tr>
+            <th>Group</th>
+            <th>Background color</th>
+            <th>Border color</th>
+            <th>Text color</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td></td>
+            <td></td>
+            <td>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="visualization.options.matchBackground">
+                  <i class="input-helper"></i> Match background color
+                </label>
+              </div>
+            </td>
+            <td></td>
+          </tr>
+          <tr ng-repeat="(name, colors) in visualization.options.groups">
+            <td>{{name}}</td>
+            <td>
+              <input class="form-control" type="color" ng-model="colors.background"/>
+            </td>
+            <td>
+              <input class="form-control" type="color" ng-model="colors.border" ng-disabled="visualization.options.matchBackground"/>
+            </td>
+            <td>
+              <input class="form-control" type="color" ng-model="colors.text"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <div ng-if="currentTab == 'settings'" class="m-t-10 m-b-10">
+      <div class="row">
+        <!-- not using regular validation (chartEditor.yAxisColumns.$invalid) due to a bug in ui-select with multiple choices-->
+        <div class="form-group col-sm-6" ng-class="{'has-error': !visualization.options.calendarConfig.views || visualization.options.calendarConfig.views.length == 0}">
+          <label class="control-label">Available views</label>
+          <ui-select multiple name="calendarViews" required ng-model="visualization.options.calendarConfig.views">
+            <ui-select-match placeholder="Choose views...">{{$item.name}}</ui-select-match>
+            <ui-select-choices group-by="'type'" repeat="view.value as view in calendarViews">
+              <span ng-bind-html="view.name | highlight: $select.search"></span><span> </span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+  
+      <div class="row">
+        <div class="form-group col-sm-6">
+          <label class="control-label">First day of the week</label>
+          <select ng-options="day.value as day.name for day in weekDays" ng-model="visualization.options.calendarConfig.firstDay"
+                  class="form-control"></select>
+        </div>
+      </div>
+  
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="visualization.options.calendarConfig.weekends">
+          <i class="input-helper"></i> Show weekends
+        </label>
+      </div>
+  
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="visualization.options.calendarConfig.weekNumbers">
+          <i class="input-helper"></i> Show week numbers
+        </label>
+      </div>
+  
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="visualization.options.calendarConfig.eventLimit">
+          <i class="input-helper"></i> Limit events per day
+        </label>
+      </div>
+    </div>
+  </div>
+  

@@ -23,6 +23,7 @@ import 'angular-resizable';
 import { each, isFunction, extend } from 'lodash';
 
 import '@/lib/sortable';
+import angularUICalendar from '@/lib/visualizations/angular-ui-calendar';
 
 import * as filters from '@/filters';
 import registerDirectives from '@/directives';
@@ -54,6 +55,7 @@ const requirements = [
   'angularResizable',
   vsRepeat,
   'ui.sortable',
+  angularUICalendar.name,
 ];
 
 const ngModule = angular.module('app', requirements);
