@@ -48,7 +48,7 @@ jobs:
     steps:
       - checkout
       - run: .circleci/update_version
-      - run: docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker build -t redash/redash:$(.circleci/docker_tag) .
       - run: docker push redash/redash:$(.circleci/docker_tag)
   integration-tests:
