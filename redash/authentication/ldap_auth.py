@@ -58,7 +58,7 @@ def login(org_slug=None):
 
 
 def auth_ldap_user(username, password):
-    server = Server(settings.LDAP_HOST_URL, settings.LDAP_SSL)
+    server = Server(settings.LDAP_HOST_URL, use_ssl=settings.LDAP_SSL)
     conn = Connection(server, settings.LDAP_BIND_DN, password=settings.LDAP_BIND_DN_PASSWORD, authentication=settings.LDAP_AUTH_BIND, auto_bind=True)
 
     conn.search(settings.LDAP_SEARCH_DN, settings.LDAP_SEARCH_TEMPLATE % {"username": username}, attributes=[settings.LDAP_DISPLAY_NAME_KEY, settings.LDAP_EMAIL_KEY])
