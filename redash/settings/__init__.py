@@ -82,9 +82,9 @@ REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Re
 # able to login through Redash instead of the LDAP server
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
 # Bind LDAP using SSL. Default is False
-LDAP_SSL = os.environ.get('REDASH_LDAP_USE_SSL', 'false')
+LDAP_SSL = parse_boolean(os.environ.get('REDASH_LDAP_USE_SSL', 'false'))
 #Choose authentication method(SIMPLE or ANONYMOUS). Default is SIMPLE
-LDAP_AUTH_BIND = os.environ.get('REDASH_LDAP_AUTH_BIND', 'SIMPLE')
+LDAP_AUTH_METHOD = os.environ.get('REDASH_LDAP_AUTH_METHOD', 'SIMPLE')
 # The LDAP directory address (ex. ldap://10.0.10.1:389)
 LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
 # The DN & password used to connect to LDAP to determine the identity of the user being authenticated.
