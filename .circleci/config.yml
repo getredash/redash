@@ -24,10 +24,11 @@ jobs:
       - run:
           name: Copy Test Results
           command: |
+            mkdir -p /tmp/test-results/unit-tests
             docker cp tests:/app/coverage.xml ./coverage.xml 
-            docker cp tests:/app/junit.xml ./junit.xml
+            docker cp tests:/app/junit.xml /tmp/test-results/unit-tests/results.xml
       - store_test_results:
-          path: junit.xml
+          path: /tmp/test-results/unit-tests/results.xml
       - store_artifacts:
           path: coverage.xml
   build-tarball:
