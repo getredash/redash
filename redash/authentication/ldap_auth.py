@@ -7,7 +7,7 @@ from flask import flash, redirect, render_template, request, url_for, Blueprint
 from flask_login import current_user, login_required, login_user, logout_user
 
 try:
-    from ldap3 import Server, Connection, SIMPLE
+    from ldap3 import Server, Connection, SIMPLE, ANONYMOUS
 except ImportError:
     if settings.LDAP_LOGIN_ENABLED:
         logger.error("The ldap3 library was not found. This is required to use LDAP authentication (see requirements.txt).")
