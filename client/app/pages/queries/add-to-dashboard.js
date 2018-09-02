@@ -18,7 +18,6 @@ const AddToDashboardForm = {
         type: 'visualization',
       });
       widget.save().then(() => {
-        this.selectedDashboard = Dashboard.get({ slug: dash.slug }, () => {});
         this.close();
         toastr.success('Widget added to dashboard.');
       }).catch(() => {

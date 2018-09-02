@@ -448,7 +448,6 @@ function QueryViewCtrl(
       resolve: {
         query: $scope.query,
         vis: visualization,
-        saveAddToDashboard: () => $scope.saveAddToDashboard,
       },
     });
   };
