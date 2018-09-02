@@ -49,6 +49,7 @@
           <a class="list-group-item"
             ng-repeat="query in $ctrl.searchedQueries" ng-click="$ctrl.selectQuery(query.id)"
             ng-bind-html="$ctrl.trustAsHtml(query.name | highlight: $ctrl.searchTerm)"
+            ng-class="query.is_draft === false ? '' : 'inactive'"
           ></a>
         </div>
       </div>

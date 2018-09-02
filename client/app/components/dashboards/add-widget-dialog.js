@@ -47,9 +47,6 @@ const AddWidgetDialog = {
 
       if (queryId) {
         Query.get({ id: queryId }, (query) => {
-          if (query.is_draft === true) {
-            toastr.error('Unpublished queries cant not be used in dashboards.');
-          }
           if (query) {
             this.selectedQuery = query;
             if (query.visualizations.length) {
@@ -74,6 +71,11 @@ const AddWidgetDialog = {
         // outdated results.
         if (this.searchTerm === term) {
           this.searchedQueries = results.results;
+          this.searchedQueries.forEach((q) => {
+            if (q.is_draft === true) {
+              q.name += ' (Unpublished)';
+            }
+          });
         }
       });
     }, 200);
