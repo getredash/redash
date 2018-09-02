@@ -15,7 +15,8 @@
               <ui-select-match placeholder="Search a query by name">{{$select.selected.name}}</ui-select-match>
               <ui-select-choices repeat="q in $ctrl.queries"
                                  refresh="$ctrl.searchQueries($select.search)"
-                                 refresh-delay="0">
+                                 refresh-delay="0"
+                                 ui-disable-choice="q.is_draft === true">
                 <div ng-bind-html="$ctrl.trustAsHtml(q.name | highlight: $select.search)"></div>
               </ui-select-choices>
             </ui-select>

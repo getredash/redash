@@ -13,9 +13,6 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
   this.trustAsHtml = html => $sce.trustAsHtml(html);
 
   this.onQuerySelected = (item) => {
-    if (item.is_draft === true) {
-      toastr.error('Unpublished queries can not be used in alerts.');
-    }
     this.selectedQuery = new Query(item);
     this.selectedQuery.getQueryResultPromise().then((result) => {
       this.queryResult = result;
@@ -52,6 +49,11 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
 
     Query.query({ q: term }, (results) => {
       this.queries = results.results;
+      this.queries.forEach((q) => {
+        if (q.is_draft === true) {
+          q.name += ' (Unpublished)';
+        }
+      });
     });
   };
 
