@@ -98,10 +98,11 @@ function queryEditor(QuerySnippet, $timeout) {
                 if (newSchema === undefined) {
                   return;
                 }
-                const tokensCount = newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
-                // If there are too many tokens we disable live autocomplete,
-                // as it makes typing slower.
-                if (tokensCount > 5000) {
+                const tokensCount =
+                  newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
+                // If there are too many tokens or if it's requested via the UI
+                // we disable live autocomplete, as it makes typing slower.
+                if (tokensCount > 5000 || !$scope.$parent.autoCompleteQuery) {
                   editor.setOption('enableLiveAutocompletion', false);
                 } else {
                   editor.setOption('enableLiveAutocompletion', true);
@@ -111,6 +112,10 @@ function queryEditor(QuerySnippet, $timeout) {
 
             $scope.$parent.$on('angular-resizable.resizing', () => {
               editor.resize();
+            });
+
+            $scope.$parent.$watch('autoCompleteQuery', () => {
+              editor.setOption('enableLiveAutocompletion', $scope.$parent.autoCompleteQuery);
             });
 
             editor.focus();

@@ -80,6 +80,17 @@ function QuerySourceCtrl(
       .catch(error => toastr.error(error));
   };
 
+  $scope.autoCompleteQuery = true;
+  $scope.onOrOff = '';
+  $scope.toggleAutoComplete = () => {
+    $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
+    if (!$scope.autoCompleteQuery) {
+      $scope.onOrOff = 'off';
+    } else {
+      $scope.onOrOff = '';
+    }
+  };
+
   $scope.addNewParameter = () => {
     $uibModal
       .open({
