@@ -10,6 +10,7 @@ try:
     import pandas as pd
     import xlrd
     import numpy as np
+    import ast
     enabled = True
 except ImportError:
     enabled = False
@@ -43,12 +44,15 @@ class Excel(BaseQueryRunner):
         pass
 
     def run_query(self, query, user):
-        values = query.split("|")
-        path = values[0]
-        worksheet_id = 0 if len(values) != 2 else int(values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
+        path = query.split("|")[0]
+        args = {}
+        try:
+            args = ast.literal_eval(query.split("|")[1])
+        except:
+            pass
 
         try:
-            workbook = pd.read_excel(path, sheet_name=worksheet_id)
+            workbook = pd.read_excel(path, **args)
             
             df = workbook.copy()
             data = {'columns': [], 'rows': []}
