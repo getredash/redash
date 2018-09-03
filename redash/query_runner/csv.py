@@ -15,7 +15,7 @@ except ImportError:
     enabled = False
 
 
-class Excel(BaseQueryRunner):
+class CSV(BaseQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
@@ -36,7 +36,7 @@ class Excel(BaseQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(Excel, self).__init__(configuration)
+        super(CSV, self).__init__(configuration)
         self.syntax = "csv"
 
     def test_connection(self):
@@ -84,4 +84,4 @@ class Excel(BaseQueryRunner):
 
         return json_data, error
 
-register(Excel)
+register(CSV)
