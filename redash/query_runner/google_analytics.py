@@ -129,9 +129,10 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 properties = self._get_analytics_service().management().webproperties().list(
                     accountId=account['id']).execute().get('items', [])
                 for property_ in properties:
-                    schema[account['name']]['columns'].append(
-                        u'{0} (ga:{1})'.format(property_['name'], property_['defaultProfileId'])
-                    )
+                    if 'defaultProfileId' in property_ and 'name' in property_:
+                        schema[account['name']]['columns'].append(
+                            u'{0} (ga:{1})'.format(property_['name'], property_['defaultProfileId'])
+                        )
 
         return schema.values()
 
