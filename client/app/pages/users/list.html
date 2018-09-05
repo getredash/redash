@@ -7,17 +7,17 @@
         <users-list-extra></users-list-extra>
 
         <div class="pull-right">
-          <input type="text" class="form-control" placeholder="Search..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-            ng-change="$ctrl.search()" />
+          <input type="text" class="form-control" placeholder="Search..." autofocus ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }"
+            ng-change="$ctrl.update()" />
         </div>
       </div>
 
       <div ng-if="$ctrl.currentUser.isAdmin">
         <ul class="tab-nav">
-          <li ng-class="{'active': $ctrl.currentPage === 'users'}">
+          <li ng-class="{'active': $ctrl.currentPage === 'all'}">
             <a href="users">Active Users</a>
           </li>
-          <li ng-class="{'active': $ctrl.currentPage === 'disabled_users' }">
+          <li ng-class="{'active': $ctrl.currentPage === 'disabled' }">
             <a href="users/disabled">Disabled Users</a>
           </li>
         </ul>
@@ -27,11 +27,11 @@
         <big-message icon="'fa-spinner fa-2x fa-pulse'" message="'Loading...'"></big-message>
       </div>
 
-      <div ng-if="$ctrl.notFound" class="list-content text-center">
+      <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="list-content text-center">
         <big-message message="'Sorry, we couldn\'t find anything.'" icon="'fa-search'"></big-message>
       </div>
 
-      <table class="table table-hover table-border" ng-if="$ctrl.loaded && !$ctrl.notFound">
+      <table class="table table-hover table-border" ng-if="$ctrl.loaded && !$ctrl.showEmptyState">
         <thead>
           <tr>
             <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('name')">

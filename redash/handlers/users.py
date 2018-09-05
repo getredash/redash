@@ -27,6 +27,7 @@ order_map = {
 
 order_results = rpartial(_order_results, '-created_at', order_map)
 
+
 def invite_user(org, inviter, user):
     invite_url = invite_link_for_user(user)
     send_invite_email(inviter, user, invite_url, org)
@@ -49,13 +50,13 @@ class UserListResource(BaseResource):
 
                 if group:
                     user_groups.append({'id': group.id, 'name': group.name})
-            
+
             d['groups'] = user_groups
 
             return d
 
         search_term = request.args.get('q', '')
-        
+
         if request.args.get('disabled', None) is not None:
             users = models.User.all_disabled(self.current_org)
         else:
@@ -64,7 +65,7 @@ class UserListResource(BaseResource):
         if search_term:
             users = models.User.search(users, search_term)
             self.record_event({
-                'action': 'list',
+                'action': 'search',
                 'object_type': 'user',
                 'term': search_term,
             })
@@ -73,7 +74,7 @@ class UserListResource(BaseResource):
                 'action': 'list',
                 'object_type': 'user',
             })
-        
+
         users = order_results(users)
 
         return paginate(users, page, page_size, serialize_user)

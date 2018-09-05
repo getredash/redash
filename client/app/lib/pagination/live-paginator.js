@@ -11,7 +11,7 @@ export default class LivePaginator {
   }
 
   fetchPage(page) {
-    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse, this);
+    this.rowsFetcher(page, this.itemsPerPage, this.orderByField, this.orderByReverse);
   }
 
   setPage(page, pageSize) {
