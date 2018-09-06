@@ -86,6 +86,7 @@ jobs:
             docker-compose run --rm --user root server /app/manage.py ds new "ui-tests" --type "url" --options '{"title": "uitests"}'
             docker-compose run -d -p 5000:5000 --user root server
             docker-compose start postgres
+            docker-compose run --rm --user root server npm run build
       - run:
           name: Run tests
           command: |
