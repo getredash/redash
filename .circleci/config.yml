@@ -89,7 +89,6 @@ jobs:
             docker-compose run --rm --user root server npm install
             docker-compose run --rm --user root server npm run build
       - run:
-      - run:
           name: Run tests
           command: |
             set -x
