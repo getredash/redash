@@ -81,13 +81,13 @@ function QuerySourceCtrl(
   };
 
   $scope.autoCompleteQuery = true;
-  $scope.onOrOff = '';
+  $scope.onOrOff = 'active';
   $scope.toggleAutoComplete = () => {
     $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
     if (!$scope.autoCompleteQuery) {
-      $scope.onOrOff = 'off';
-    } else {
       $scope.onOrOff = '';
+    } else {
+      $scope.onOrOff = 'active';
     }
   };
 
