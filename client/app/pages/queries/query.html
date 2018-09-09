@@ -268,22 +268,29 @@
       <div class="bottom-controller-container">
         <div class="bottom-controller">
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
-          <button class="m-r-5 btn btn-default" ng-click="openAddToDashboardForm(selectedTab)"><span class="fa fa-plus-circle"></span><span class="hidden-xs hidden-s hidden-m"> Add to Dashboard</span></button>
-          <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()"><span class="fa fa-code"></span><span class="hidden-xs hidden-s hidden-m"> Embed</span></button>
-
           <div class="m-r-5 btn-group dropup" uib-dropdown>
-            <button type="button" class="btn btn-default dropup-toggle" ng-disabled="queryExecuting || !queryResult.getData()" aria-haspopup="true"
+            <button type="button" class="btn btn-default dropup-toggle" aria-haspopup="true"
               uib-dropdown-toggle aria-expanded="false">
-              <span class="fa fa-download"></span><span class="hidden-xs hidden-s hidden-m"> Download Dataset </span><span class="caret"></span>
+              <span class="fa fa-ellipsis-v"></span>
             </button>
-            <ul class="dropdown-menu" ng-class="{'pull-right': !query.isNew()}" uib-dropdown-menu>
+            <ul class="dropdown-menu" uib-dropdown-menu>
               <li>
-                <a query-result-link target="_self">
+                <a query-result-link target="_self" ng-click="openAddToDashboardForm(selectedTab)">
+                  <span class="fa fa-plus-circle"></span> Add to Dashboard
+                </a>
+              </li>
+              <li>
+                <a ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()">
+                  <span class="fa fa-code"></span> Embed
+                </a>
+              </li>
+              <li>
+                <a query-result-link target="_self" ng-disabled="queryExecuting || !queryResult.getData()">
                   <span class="fa fa-file-o"></span> Download as CSV File
                 </a>
               </li>
               <li>
-                <a query-result-link file-type="xlsx" target="_self">
+                <a query-result-link file-type="xlsx" target="_self" ng-disabled="queryExecuting || !queryResult.getData()">
                   <span class="fa fa-file-excel-o"></span> Download as Excel File
                 </a>
               </li>
