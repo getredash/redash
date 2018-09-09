@@ -46,7 +46,7 @@
         </span>
 
         <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
-          <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+          <button class="btn btn-default dropdown-toggle btn-query-more" uib-dropdown-toggle>
             <span class="zmdi zmdi-more"></span>
           </button>
           <ul class="dropdown-menu pull-right" uib-dropdown-menu>
@@ -268,7 +268,7 @@
       <div class="bottom-controller-container">
         <div class="bottom-controller">
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit">Edit Visualization</button>
-          <button class="m-r-5 btn btn-default" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()">
+          <button class="m-r-5 btn btn-default btn-embed-visualisation" ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()">
             <i class="zmdi zmdi-code"></i> Embed</button>
 
           <div class="m-r-5 btn-group dropup" uib-dropdown>
@@ -308,7 +308,7 @@
           </span>
 
           <div>
-            <span class="query-metadata__property">
+            <span class="query-metadata__property query-metadata__property--footer-refresh-time">
               <span class="hidden-xs">Updated </span>
               <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
             </span>
