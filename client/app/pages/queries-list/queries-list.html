@@ -97,8 +97,9 @@
               <td class="table-main-title">
                 <a href="queries/{{query.id}}">{{query.name}}</a>
                 <br>
-                <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
-                <tags-control item="query"></tags-control>
+                <span class="maxwidth300">
+                  <span class="label label-default" ng-if="query.is_draft">Unpublished</span> <tags-control item="query"></tags-control>
+                </span>
               </td>
               <td class="p-r-0">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}" />
