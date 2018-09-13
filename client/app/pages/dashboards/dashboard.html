@@ -7,7 +7,7 @@
       </h3>
       <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
       <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-      <tags-control item="$ctrl.dashboard" can-edit="$ctrl.isDashboardOwner"
+      <tags-control class="hidden-xs" item="$ctrl.dashboard" can-edit="$ctrl.isDashboardOwner"
         get-available-tags="$ctrl.loadTags" on-edit="$ctrl.saveTags()"></tags-control>
     </div>
     <div class="col-xs-4 col-sm-5 col-lg-5 text-right dashboard__control p-r-0">
@@ -36,7 +36,7 @@
                     class="btn btn-sm" ng-click="$ctrl.refreshDashboard()">
               <i class="zmdi zmdi-refresh"></i> {{$ctrl.refreshRate === null ? 'Refresh' : $ctrl.refreshRate.name}}
             </button>
-            <button type="button" class="btn btn-refresh-dropdown" uib-dropdown-toggle
+            <button type="button" class="btn hidden-xs" uib-dropdown-toggle
                     ng-class="{'btn-default btn-sm': $ctrl.refreshRate === null,'btn-primary btn-sm':$ctrl.refreshRate !== null}">
               <span class="caret"></span>
               <span class="sr-only">Split button!</span>
@@ -50,15 +50,15 @@
               </li>
             </ul>
           </div>
-          <button type="button" class="btn btn-sm btn-fullscreen" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()" ng-if="!$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
+          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.isFullscreen, 'btn-primary': $ctrl.isFullscreen}" tooltip="Enable/Disable Fullscreen display" ng-click="$ctrl.toggleFullscreen()" ng-if="!$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
             <span class="zmdi zmdi-fullscreen"></span>
           </button>
-          <button type="button" class="btn btn-sm btn-share" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
+          <button type="button" class="btn btn-sm hidden-xs" ng-class="{'btn-default': !$ctrl.dashboard.publicAccessEnabled, 'btn-primary': $ctrl.dashboard.publicAccessEnabled}" tooltip="Enable/Disable Share URL" ng-click="$ctrl.openShareForm()" ng-if="($ctrl.dashboard.canEdit() || $ctrl.dashboard.publicAccessEnabled) && !$ctrl.dashboard.is_draft && !$ctrl.layoutEditing">
             <span class="zmdi zmdi-share"></span>
           </button>
       </span>
 
-      <div class="btn-group hidden-print btn-more" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing">
+      <div class="btn-group hidden-print hidden-xs" role="group" ng-show="$ctrl.dashboard.canEdit()" uib-dropdown ng-if="!$ctrl.dashboard.is_archived && !$ctrl.layoutEditing">
         <button class="btn btn-default btn-sm dropdown-toggle" uib-dropdown-toggle>
           <span class="zmdi zmdi-more"></span>
         </button>
