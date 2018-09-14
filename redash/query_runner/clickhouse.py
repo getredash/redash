@@ -1,9 +1,11 @@
-import json
 import logging
-from redash.query_runner import *
-from redash.utils import JSONEncoder
-import requests
 import re
+
+import requests
+
+from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
+
 logger = logging.getLogger(__name__)
 
 
@@ -47,7 +49,7 @@ class ClickHouse(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['database'], row['table'])
@@ -107,7 +109,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return json_data, error
         try:
             q = self._clickhouse_query(query)
-            data = json.dumps(q, cls=JSONEncoder)
+            data = json_dumps(q)
             error = None
         except Exception as e:
             data = None

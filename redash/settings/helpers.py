@@ -1,5 +1,5 @@
-import json
 import os
+import simplejson
 
 
 def fix_assets_path(path):
@@ -20,7 +20,7 @@ def set_from_string(s):
 
 
 def parse_boolean(str):
-    return json.loads(str.lower())
+    return simplejson.loads(str.lower())
 
 
 def int_or_none(value):

@@ -1,17 +1,17 @@
 import cStringIO
 import csv
 import codecs
-import decimal
 import datetime
-import json
+import decimal
+import hashlib
+import os
 import random
 import re
-import hashlib
-import pytz
-import pystache
-import os
-import simplejson
+import uuid
 
+import pystache
+import pytz
+import simplejson
 from funcy import distinct, select_values
 from six import string_types
 from sqlalchemy.orm.query import Query
@@ -75,6 +75,10 @@ class JSONEncoderMixin:
         # Some SQLAlchemy collections are lazy.
         if isinstance(o, Query):
             return True, list(o)
+
+        if isinstance(o, uuid.UUID):
+            return True, str(o)
+
         if isinstance(o, decimal.Decimal):
             return True, float(o)
 
@@ -87,8 +91,8 @@ class JSONEncoderMixin:
         return False, None  # default processing
 
 
-class JSONEncoder(JSONEncoderMixin, json.JSONEncoder):
-    """Adapter for `json.dumps`."""
+class JSONEncoder(JSONEncoderMixin, simplejson.JSONEncoder):
+    """Adapter for `simplejson.dumps`."""
 
     def default(self, o):
         processed, result = self.process_default(o)
@@ -97,18 +101,17 @@ class JSONEncoder(JSONEncoderMixin, json.JSONEncoder):
         return result
 
 
-class SimpleJSONEncoder(JSONEncoderMixin, simplejson.JSONEncoder):
-    """Adapter for `simplejson.dumps`."""
-
-    def default(self, o):
-        processed, result = self.process_default(o)
-        if not processed:
-            result = super(SimpleJSONEncoder, self).default(o)
-        return result
+def json_loads(data, *args, **kwargs):
+    """A custom JSON loading function which passes all parameters to the
+    simplejson.loads function."""
+    return simplejson.loads(data, *args, **kwargs)
 
 
-def json_dumps(data):
-    return json.dumps(data, cls=JSONEncoder)
+def json_dumps(data, *args, **kwargs):
+    """A custom JSON dumping function which passes all parameters to the
+    simplejson.dumps function."""
+    kwargs.setdefault('cls', JSONEncoder)
+    return simplejson.dumps(data, *args, **kwargs)
 
 
 def build_url(request, host, path):

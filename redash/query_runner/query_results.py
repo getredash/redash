@@ -1,4 +1,3 @@
-import json
 import logging
 import numbers
 import re
@@ -12,7 +11,7 @@ from redash.permissions import has_access, not_view_only
 from redash.query_runner import (TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT,
                                  TYPE_INTEGER, TYPE_STRING, BaseQueryRunner,
                                  register)
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -73,13 +72,12 @@ def get_query_results(user, query_id, bring_from_cache):
                 results = query.latest_query_data.data
             else:
                 raise Exception("No cached result available for query {}.".format(query.id))
-
-        else: 
+        else:
             results, error = query.data_source.query_runner.run_query(query.query_text, user)
             if error:
                 raise Exception("Failed loading results for query id {}.".format(query.id))
 
-        return json.loads(results)
+        return json_loads(results)
 
 
 def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[]):
@@ -170,7 +168,7 @@ class Results(BaseQueryRunner):
 
                 data = {'columns': columns, 'rows': rows}
                 error = None
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json_dumps(data)
             else:
                 error = 'Query completed but it returned no data.'
                 json_data = None

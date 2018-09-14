@@ -3,19 +3,20 @@ This will eventually replace all the `to_dict` methods of the different model
 classes we have. This will ensure cleaner code and better
 separation of concerns.
 """
-
-import json
 from funcy import project
+
 from flask_login import current_user
+
 from redash import models
 from redash.permissions import has_access, view_only
+from redash.utils import json_loads
 
 
 def public_widget(widget):
     res = {
         'id': widget.id,
         'width': widget.width,
-        'options': json.loads(widget.options),
+        'options': json_loads(widget.options),
         'text': widget.text,
         'updated_at': widget.updated_at,
         'created_at': widget.created_at
@@ -27,7 +28,7 @@ def public_widget(widget):
             'type': widget.visualization.type,
             'name': widget.visualization.name,
             'description': widget.visualization.description,
-            'options': json.loads(widget.visualization.options),
+            'options': json_loads(widget.visualization.options),
             'updated_at': widget.visualization.updated_at,
             'created_at': widget.visualization.created_at,
             'query': {
@@ -65,7 +66,7 @@ class QuerySerializer(Serializer):
     def __init__(self, object_or_list, **kwargs):
         self.object_or_list = object_or_list
         self.options = kwargs
-    
+
     def serialize(self):
         if isinstance(self.object_or_list, models.Query):
             result = serialize_query(self.object_or_list, **self.options)
@@ -77,7 +78,7 @@ class QuerySerializer(Serializer):
                 favorite_ids = models.Favorite.are_favorites(current_user.id, self.object_or_list)
                 for query in result:
                     query['is_favorite'] = query['id'] in favorite_ids
-  
+
         return result
 
 
@@ -132,7 +133,7 @@ def serialize_visualization(object, with_query=True):
         'type': object.type,
         'name': object.name,
         'description': object.description,
-        'options': json.loads(object.options),
+        'options': json_loads(object.options),
         'updated_at': object.updated_at,
         'created_at': object.created_at
     }
@@ -147,7 +148,7 @@ def serialize_widget(object):
     d = {
         'id': object.id,
         'width': object.width,
-        'options': json.loads(object.options),
+        'options': json_loads(object.options),
         'dashboard_id': object.dashboard_id,
         'text': object.text,
         'updated_at': object.updated_at,
@@ -181,8 +182,9 @@ def serialize_alert(alert, full=True):
 
     return d
 
+
 def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
-    layout = json.loads(obj.layout)
+    layout = json_loads(obj.layout)
 
     widgets = []
 
