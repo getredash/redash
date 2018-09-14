@@ -68,37 +68,21 @@ def generate_token(length):
     return ''.join(rand.choice(chars) for x in range(length))
 
 
-class JSONEncoderMixin:
-    """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
-
-    def process_default(self, o):
-        # Some SQLAlchemy collections are lazy.
-        if isinstance(o, Query):
-            return True, list(o)
-
-        if isinstance(o, uuid.UUID):
-            return True, str(o)
-
-        if isinstance(o, decimal.Decimal):
-            return True, float(o)
-
-        if isinstance(o, (datetime.date, datetime.time)):
-            return True, o.isoformat()
-
-        if isinstance(o, datetime.timedelta):
-            return True, str(o)
-
-        return False, None  # default processing
-
-
-class JSONEncoder(JSONEncoderMixin, simplejson.JSONEncoder):
+class JSONEncoder(simplejson.JSONEncoder):
     """Adapter for `simplejson.dumps`."""
 
     def default(self, o):
-        processed, result = self.process_default(o)
-        if not processed:
-            result = super(JSONEncoder, self).default(o)
-        return result
+        # Some SQLAlchemy collections are lazy.
+        if isinstance(o, Query):
+            return list(o)
+        elif isinstance(o, decimal.Decimal):
+            return float(o)
+        elif isinstance(o, (datetime.timedelta, uuid.UUID)):
+            return str(o)
+        elif isinstance(o, (datetime.date, datetime.time)):
+            return o.isoformat()
+        else:
+            return super(JSONEncoder, self).default(o)
 
 
 def json_loads(data, *args, **kwargs):
