@@ -1,7 +1,7 @@
 import os
 from funcy import distinct, remove
 
-from .helpers import parse_db_url, fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
+from .helpers import fix_assets_path, array_from_string, parse_boolean, int_or_none, set_from_string
 
 
 def all_settings():

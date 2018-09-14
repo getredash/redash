@@ -1,4 +1,3 @@
-import six
 import cStringIO
 import csv
 import datetime
@@ -8,22 +7,25 @@ import itertools
 import json
 import logging
 import time
+from functools import reduce
 
+import six
 import xlsxwriter
 from flask import current_app as app, url_for
 from flask_login import AnonymousUserMixin, UserMixin
 from flask_sqlalchemy import SQLAlchemy, BaseQuery
 from passlib.apps import custom_app_context as pwd_context
+
 from redash import settings, redis_connection, utils
 from redash.destinations import (get_configuration_schema_for_destination_type,
                                  get_destination)
 from redash.metrics import database  # noqa: F401
-from redash.permissions import has_access, view_only
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
 from redash.utils import generate_token, json_dumps
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
+
 from sqlalchemy import distinct, or_, and_, UniqueConstraint
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.event import listens_for
@@ -34,7 +36,6 @@ from sqlalchemy.orm import backref, contains_eager, joinedload, object_session
 from sqlalchemy.orm.exc import NoResultFound  # noqa: F401
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm.attributes import flag_modified
-from functools import reduce
 from sqlalchemy import func
 from sqlalchemy_searchable import SearchQueryMixin, make_searchable, vectorizer
 from sqlalchemy_utils import generic_relationship, EmailType
@@ -92,6 +93,7 @@ class ScheduledQueriesExecutions(object):
             timestamp = utils.dt_from_timestamp(timestamp)
 
         return timestamp
+
 
 scheduled_queries_executions = ScheduledQueriesExecutions()
 
@@ -763,7 +765,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
                 db.func.timezone('utc', QueryResult.retrieved_at) +
                 datetime.timedelta(seconds=max_age) >=
                 db.func.timezone('utc', db.func.now())
-                ).order_by(QueryResult.retrieved_at.desc())
+            ).order_by(QueryResult.retrieved_at.desc())
 
         return q.first()
 

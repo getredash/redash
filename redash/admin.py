@@ -3,7 +3,6 @@ from flask_admin import Admin
 from flask_admin.base import MenuLink
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.sqla.form import AdminModelConverter
-from flask_admin.form.widgets import DateTimePickerWidget
 from wtforms import fields
 from wtforms.widgets import TextInput
 
