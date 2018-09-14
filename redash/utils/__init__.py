@@ -102,7 +102,7 @@ class SimpleJSONEncoder(JSONEncoderMixin, simplejson.JSONEncoder):
     def default(self, o):
         processed, result = self.process_default(o)
         if not processed:
-            super(SimpleJSONEncoder, self).default(o)
+            result = super(SimpleJSONEncoder, self).default(o)
         return result
 
 
