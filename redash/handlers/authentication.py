@@ -1,4 +1,3 @@
-import hashlib
 import logging
 
 from flask import abort, flash, redirect, render_template, request, url_for
