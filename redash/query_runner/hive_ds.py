@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import base64
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
@@ -114,6 +115,8 @@ class Hive(BaseSQLQueryRunner):
 
         connection = None
         try:
+            host = self.configuration['host']
+
             if self.configuration.get('use_http', False):
                 # default to https
                 scheme = self.configuration.get('http_scheme', 'https')
@@ -128,7 +131,6 @@ class Hive(BaseSQLQueryRunner):
                 if port:
                     port = ':' + port
 
-                # build uri
                 http_uri = "{}://{}{}{}".format(scheme, host, port, path)
 
                 # create transport
@@ -142,11 +144,11 @@ class Hive(BaseSQLQueryRunner):
                     transport.setCustomHeaders({'Authorization': 'Basic ' + auth})
 
                 # create connection
-                connection = hive.connect(thrift_transport=transport, **self.configuration.to_dict())
+                connection = hive.connect(thrift_transport=transport)
             else:
                 connection = hive.connect(
-                    host=self.configuration['host'],
-                    port=self.configiration.get('port', None),
+                    host=host,
+                    port=self.configuration.get('port', None),
                     database=self.configuration.get('database', 'default'),
                     username=self.configuration.get('username', None),
                 )
