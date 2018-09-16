@@ -70,6 +70,7 @@ class ContextTask(TaskBase):
         with current_app.app_context():
             return TaskBase.__call__(self, *args, **kwargs)
 
+
 celery.Task = ContextTask
 
 
