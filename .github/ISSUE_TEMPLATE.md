@@ -11,6 +11,9 @@
 **Got an idea for a new feature?** Check if it isn't on the roadmap already: http://bit.ly/redash-roadmap and start a new discussion in the features category: https://discuss.redash.io/c/feature-requests 🌟.
 
 Found a bug? Please fill out the sections below... thank you 👍
+
+Found a security vulnerability? Please email security@redash.io to report any security vulnerabilities. We will acknowledge receipt of your vulnerability and strive to send you regular updates about our progress. If you're curious about the status of your disclosure please feel free to email us again. If you want to encrypt your disclosure email, you can use this PGP key.
+
 -->
 
 ### Issue Summary
