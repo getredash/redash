@@ -291,10 +291,20 @@ class DashboardShareResource(BaseResource):
             'object_type': 'dashboard',
         })
 
+
 class DashboardTagsResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
         """
         Lists all accessible dashboards.
         """
-        return {t[0]: t[1] for t in models.Dashboard.all_tags(self.current_org, self.current_user)}
+        tags = models.Dashboard.all_tags(self.current_org, self.current_user)
+        return {
+            'tags': [
+                {
+                    'name': name,
+                    'count': count,
+                }
+                for name, count in tags
+            ]
+        }
