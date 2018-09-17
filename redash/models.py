@@ -650,6 +650,11 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return schema
 
+    def get_schema_browser(self, refresh=False):
+        query_runner = self.query_runner
+        schema_browser = query_runner.get_schema_browser()
+        return schema_browser
+
     def _pause_key(self):
         return 'ds:{}:pause'.format(self.id)
 

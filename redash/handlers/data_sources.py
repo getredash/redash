@@ -135,6 +135,7 @@ class DataSourceSchemaResource(BaseResource):
 
         try:
             response['schema'] = data_source.get_schema(refresh)
+            response['schemabrowser'] = data_source.get_schema_browser(refresh)
         except NotSupported:
             response['error'] = {
                 'code': 1,

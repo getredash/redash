@@ -75,6 +75,9 @@ function QueryViewCtrl(
       } else {
         toastr.error('Schema refresh failed. Please try again later.');
       }
+      if (data.schemabrowser) {
+        $scope.schemabrowser = data.schemabrowser;
+      }
     });
   }
 

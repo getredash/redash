@@ -30,6 +30,23 @@ PRESTO_TYPES_MAPPING = {
     "date": TYPE_DATE,
 }
 
+def format_schema(results):
+    """
+    This function formats the schema, table, and columns of Athena and Presto
+    for display in the UI schema browser.
+    """
+    schema = {}
+    for row in results['rows']:
+        table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
+        if table_name not in schema:
+            schema[table_name] = {'name': table_name, 'columns': []}
+        schema[table_name]['columns'].append({
+            'column_name': row['column_name'],
+            'extra_info': row['extra_info'],
+            'column_type': row['column_type']
+        })
+    return schema
+
 
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
@@ -67,9 +84,8 @@ class Presto(BaseQueryRunner):
         return "presto"
 
     def get_schema(self, get_stats=False):
-        schema = {}
         query = """
-        SELECT table_schema, table_name, column_name
+        SELECT table_schema, table_name, column_name, data_type as column_type, extra_info
         FROM information_schema.columns
         WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
         """
@@ -79,17 +95,12 @@ class Presto(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
-
-        for row in results['rows']:
-            table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
-
-            if table_name not in schema:
-                schema[table_name] = {'name': table_name, 'columns': []}
-
-            schema[table_name]['columns'].append(row['column_name'])
+        schema = format_schema(json.loads(results))
 
         return schema.values()
+
+    def get_schema_browser(self):
+        return 'presto'
 
     def run_query(self, query, user):
         connection = presto.connect(

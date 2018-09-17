@@ -121,6 +121,10 @@ class BaseQueryRunner(object):
             'configuration_schema': cls.configuration_schema()
         }
 
+    @classmethod
+    def get_schema_browser(cls):
+        return 'default'
+
 
 class BaseSQLQueryRunner(BaseQueryRunner):
 

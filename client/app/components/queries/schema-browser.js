@@ -32,6 +32,7 @@ function SchemaBrowserCtrl($rootScope, $scope) {
 const SchemaBrowser = {
   bindings: {
     schema: '<',
+    schemabrowser: '<',
     onRefresh: '&',
   },
   controller: SchemaBrowserCtrl,
