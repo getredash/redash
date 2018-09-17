@@ -1,5 +1,8 @@
-import logging
 import json
+import logging
+import numbers
+
+from dateutil import parser
 
 from redash import settings
 
@@ -173,3 +176,25 @@ def get_configuration_schema_for_query_runner_type(query_runner_type):
 def import_query_runners(query_runner_imports):
     for runner_import in query_runner_imports:
         __import__(runner_import)
+
+
+def guess_type(value):
+    if value == '' or value is None:
+        return TYPE_STRING
+
+    if isinstance(value, numbers.Integral):
+        return TYPE_INTEGER
+
+    if isinstance(value, float):
+        return TYPE_FLOAT
+
+    if unicode(value).lower() in ('true', 'false'):
+        return TYPE_BOOLEAN
+
+    try:
+        parser.parse(value)
+        return TYPE_DATETIME
+    except (ValueError, OverflowError):
+        pass
+
+    return TYPE_STRING
