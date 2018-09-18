@@ -108,7 +108,7 @@ LOG_STDOUT = parse_boolean(os.environ.get('REDASH_LOG_STDOUT', 'false'))
 LOG_PREFIX = os.environ.get('REDASH_LOG_PREFIX', '')
 LOG_FORMAT = os.environ.get('REDASH_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(name)s] %(message)s')
 CELERYD_LOG_FORMAT = os.environ.get('REDASH_CELERYD_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] %(message)s')
-CELERYD_TASK_LOG_FORMAT = os.environ.get('REDASH_CELERYD_TASK_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] task_name=%(task_name)s taks_id=%(task_id)s %(message)s')
+CELERYD_TASK_LOG_FORMAT = os.environ.get('REDASH_CELERYD_TASK_LOG_FORMAT', LOG_PREFIX + '[%(asctime)s][PID:%(process)d][%(levelname)s][%(processName)s] task_name=%(task_name)s task_id=%(task_id)s %(message)s')
 
 # Mail settings:
 MAIL_SERVER = os.environ.get('REDASH_MAIL_SERVER', 'localhost')
