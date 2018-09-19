@@ -1,10 +1,18 @@
-import { debounce, each, values } from 'lodash';
+import { debounce, each, extend, values, map, fromPairs, includes } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import highlight from '@/lib/highlight';
+import { ParameterValueInput } from '../ParameterValueInput.jsx';
 
-class addWidgetDialog extends React.Component {
+class AddWidgetDialog extends React.Component {
+  static MappingType = {
+    DashboardAddNew: 'dashboard-add-new',
+    DashboardMapToExisting: 'dashboard-map-to-existing',
+    WidgetLevel: 'widget-level',
+    StaticValue: 'static-value',
+  };
+
   static propTypes = {
     dashboard: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     close: PropTypes.func,
@@ -26,6 +34,7 @@ class addWidgetDialog extends React.Component {
       recentQueries: [],
       searchedQueries: [],
       selectedVis: null,
+      parameterMappings: [],
     };
 
     // Don't show draft (unpublished) queries
@@ -49,13 +58,29 @@ class addWidgetDialog extends React.Component {
     this.setState({
       selectedQuery: null,
       selectedVis: null,
+      parameterMappings: [],
     });
 
     if (queryId) {
       const Query = this.props.Query; // eslint-disable-line react/prop-types
       Query.get({ id: queryId }, (query) => {
         if (query) {
-          this.setState({ selectedQuery: query });
+          const MappingType = AddWidgetDialog.MappingType;
+          const existingParamNames = map(
+            this.props.dashboard.getParametersDefs(),
+            param => param.name,
+          );
+          this.setState({
+            selectedQuery: query,
+            parameterMappings: map(query.getParametersDefs(), param => ({
+              name: param.name,
+              type: includes(existingParamNames, param.name)
+                ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew,
+              mapTo: param.name,
+              value: param.normalizedValue,
+              param,
+            })),
+          });
           if (query.visualizations.length) {
             this.setState({ selectedVis: query.visualizations[0] });
           }
@@ -105,6 +130,35 @@ class addWidgetDialog extends React.Component {
       options: {
         isHidden: false,
         position: {},
+        parameterMappings: fromPairs(map( // convert to map
+          this.state.parameterMappings,
+          (mapping) => {
+            const result = extend({}, mapping);
+            switch (mapping.type) {
+              case AddWidgetDialog.MappingType.DashboardAddNew:
+                result.type = Widget.MappingType.DashboardLevel;
+                result.value = null;
+                break;
+              case AddWidgetDialog.MappingType.DashboardMapToExisting:
+                result.type = Widget.MappingType.DashboardLevel;
+                result.value = null;
+                break;
+              case AddWidgetDialog.MappingType.StaticValue:
+                result.type = Widget.MappingType.StaticValue;
+                result.param = mapping.param.clone();
+                result.param.setValue(result.value);
+                result.value = result.param.value;
+                break;
+              case AddWidgetDialog.MappingType.WidgetLevel:
+                result.type = Widget.MappingType.WidgetLevel;
+                result.value = null;
+                break;
+              // no default
+            }
+            delete result.param;
+            return [result.name, result];
+          },
+        )),
       },
       visualization: this.state.selectedVis,
       text: '',
@@ -128,6 +182,85 @@ class addWidgetDialog extends React.Component {
       });
   }
 
+  updateParamMapping(mapping, updates) {
+    extend(mapping, updates);
+    this.forceUpdate();
+  }
+
+  renderMapping(mapping, existingParamNames, isFirst) {
+    const MappingType = AddWidgetDialog.MappingType;
+    const alreadyExists = includes(existingParamNames, mapping.mapTo);
+    return (
+      <div key={mapping.name} className={'row' + (isFirst ? '' : ' m-t-15')}>
+        <div className="col-xs-5">
+          <div className="form-control-static">{'{{ ' + mapping.name + ' }}'}</div>
+        </div>
+        <div className="col-xs-7">
+          <div>
+            <select
+              className="form-control"
+              value={mapping.type}
+              onChange={event => this.updateParamMapping(mapping, { type: event.target.value })}
+            >
+              <option value={MappingType.DashboardAddNew}>Add the parameter to the dashboard</option>
+              {
+                (existingParamNames.length > 0) &&
+                <option value={MappingType.DashboardMapToExisting}>Map to existing parameter</option>
+              }
+              <option value={MappingType.StaticValue}>Use static value for the parameter</option>
+              <option value={MappingType.WidgetLevel}>Keep the parameter at the widget level</option>
+            </select>
+          </div>
+          {
+            (mapping.type === MappingType.DashboardAddNew) &&
+            <div className={'m-t-10' + (alreadyExists ? ' has-error' : '')}>
+              <input
+                type="text"
+                className="form-control"
+                value={mapping.mapTo}
+                onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
+              />
+              { alreadyExists &&
+                <div className="help-block">
+                  Dashboard parameter with this name already exists
+                </div>
+              }
+            </div>
+          }
+          {
+            (mapping.type === MappingType.DashboardMapToExisting) &&
+            <div className="m-t-10">
+              <select
+                className="form-control"
+                value={mapping.mapTo}
+                onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
+                disabled={existingParamNames.length === 0}
+              >
+                {map(existingParamNames, name => (
+                  <option value={name} key={name}>{ name }</option>
+                ))}
+              </select>
+            </div>
+          }
+          {
+            (mapping.type === MappingType.StaticValue) &&
+            <div className="m-t-10">
+              <ParameterValueInput
+                type={mapping.param.type}
+                value={mapping.value}
+                enumOptions={mapping.param.enumOptions}
+                queryId={mapping.param.queryId}
+                onSelect={value => this.updateParamMapping(mapping, { value })}
+                clientConfig={this.props.clientConfig} // eslint-disable-line react/prop-types
+                Query={this.props.Query} // eslint-disable-line react/prop-types
+              />
+            </div>
+          }
+        </div>
+      </div>
+    );
+  }
+
   render() {
     let visualizationGroups = {};
     if (this.state.selectedQuery) {
@@ -137,6 +270,11 @@ class addWidgetDialog extends React.Component {
       });
     }
     visualizationGroups = values(visualizationGroups);
+
+    const existingParamNames = map(
+      this.props.dashboard.getParametersDefs(),
+      param => param.name,
+    );
 
     return (
       <div>
@@ -225,6 +363,7 @@ class addWidgetDialog extends React.Component {
                           className="list-group-item"
                           key={query.id}
                           onClick={() => this.selectQuery(query.id)}
+                          // eslint-disable-next-line react/no-danger
                           dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
                         />
                       ))}
@@ -253,6 +392,15 @@ class addWidgetDialog extends React.Component {
                   ))}
                 </select>
               </div>
+            </div>
+          }
+
+          {
+            (this.state.parameterMappings.length > 0) &&
+            <div>
+              <label>Parameters</label>
+              {this.state.parameterMappings.map((mapping, index) =>
+                this.renderMapping(mapping, existingParamNames, index === 0))}
             </div>
           }
         </div>
@@ -295,6 +443,6 @@ export default function init(ngModule) {
       dismiss: '&',
     },
   });
-  ngModule.component('addWidgetDialogImpl', react2angular(addWidgetDialog, null, [
-    'toastr', 'Widget', 'Query']));
+  ngModule.component('addWidgetDialogImpl', react2angular(AddWidgetDialog, null, [
+    'toastr', 'Widget', 'Query', 'clientConfig']));
 }

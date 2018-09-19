@@ -104,7 +104,7 @@ class AddTextboxDialog extends React.Component {
           >
             <strong>Preview:</strong>
             <p
-              dangerouslySetInnerHTML={{ __html: this.state.preview }}
+              dangerouslySetInnerHTML={{ __html: this.state.preview }} // eslint-disable-line react/no-danger
               className="word-wrap-break"
             />
           </div>

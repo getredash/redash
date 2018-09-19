@@ -100,23 +100,7 @@ function DashboardCtrl(
   };
 
   this.extractGlobalParameters = () => {
-    let globalParams = {};
-    this.dashboard.widgets.forEach((widget) => {
-      if (widget.getQuery()) {
-        widget
-          .getQuery()
-          .getParametersDefs()
-          .filter(p => p.global)
-          .forEach((param) => {
-            const defaults = {};
-            defaults[param.name] = param.clone();
-            defaults[param.name].locals = [];
-            globalParams = _.defaults(globalParams, defaults);
-            globalParams[param.name].locals.push(param);
-          });
-      }
-    });
-    this.globalParameters = _.values(globalParams);
+    this.globalParameters = this.dashboard.getParametersDefs();
   };
 
   this.onGlobalParametersChange = () => {

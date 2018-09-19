@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import { RangePicker } from 'antd/lib/date-picker';
 
-function DateTimeRangeInput({
+export function DateTimeRangeInput({
   value,
   withSeconds,
   onSelect,

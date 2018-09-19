@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { each, pick, extend, isObject, truncate } from 'lodash';
+import { each, pick, extend, isObject, truncate, keys, difference, filter } from 'lodash';
 
 function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
   widget.width = 1; // Backward compatibility, user on back-end
@@ -63,6 +63,12 @@ function calculatePositionOptions(Visualization, dashboardGridOptions, widget) {
 
 function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
   class Widget {
+    static MappingType = {
+      DashboardLevel: 'dashboard-level',
+      WidgetLevel: 'widget-level',
+      StaticValue: 'static-value',
+    };
+
     constructor(data) {
       // Copy properties
       each(data, (v, k) => {
@@ -158,6 +164,56 @@ function WidgetFactory($http, Query, Visualization, dashboardGridOptions) {
     delete() {
       const url = `api/widgets/${this.id}`;
       return $http.delete(url);
+    }
+
+    getParametersDefs() {
+      const mappings = this.getParameterMappings();
+      const params = this.getQuery().getParametersDefs();
+
+      each(params, (param) => {
+        param.mappingType = mappings[param.name].type;
+        if (mappings[param.name].type === Widget.MappingType.StaticValue) {
+          param.setValue(mappings[param.name].value);
+        }
+      });
+
+      const localTypes = [
+        Widget.MappingType.WidgetLevel,
+        Widget.MappingType.StaticValue,
+      ];
+      return filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0);
+    }
+
+    getParameterMappings() {
+      if (!isObject(this.options.parameterMappings)) {
+        this.options.parameterMappings = {};
+      }
+
+      const existingParams = {};
+      each(this.getQuery().getParametersDefs(), (param) => {
+        existingParams[param.name] = true;
+        if (!isObject(this.options.parameterMappings[param.name])) {
+          // "migration" for old dashboards: parameters with `global` flag
+          // should be mapped to a dashboard-level parameter with the same name
+          this.options.parameterMappings[param.name] = {
+            name: param.name,
+            type: param.global ? Widget.MappingType.DashboardLevel : Widget.MappingType.WidgetLevel,
+            mapTo: param.name, // map to param with the same name
+            value: null, // for StaticValue
+          };
+        }
+      });
+
+      // Remove mappings for parameters that do not exists anymore
+      const removedParams = difference(
+        keys(this.options.parameterMappings),
+        keys(existingParams),
+      );
+      each(removedParams, (name) => {
+        delete this.options.parameterMappings[name];
+      });
+
+      return this.options.parameterMappings;
     }
   }
 

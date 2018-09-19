@@ -53,7 +53,7 @@ class Parameter {
     this.name = parameter.name;
     this.type = parameter.type;
     this.useCurrentDateTime = parameter.useCurrentDateTime;
-    this.global = parameter.global;
+    this.global = parameter.global; // backward compatibility in Widget service
     this.enumOptions = parameter.enumOptions;
     this.queryId = parameter.queryId;
 

@@ -1,3 +1,4 @@
+import { filter } from 'lodash';
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
@@ -51,7 +52,7 @@ const EditTextBoxComponent = {
   },
 };
 
-function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser) {
+function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser, Widget) {
   this.canViewQuery = currentUser.hasPermission('view_query');
 
   this.editTextBox = () => {
@@ -77,10 +78,10 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
   this.localParametersDefs = () => {
     if (!this.localParameters) {
-      this.localParameters = this.widget
-        .getQuery()
-        .getParametersDefs()
-        .filter(p => !p.global);
+      this.localParameters = filter(
+        this.widget.getParametersDefs(),
+        param => param.mappingType !== Widget.MappingType.StaticValue,
+      );
     }
     return this.localParameters;
   };
