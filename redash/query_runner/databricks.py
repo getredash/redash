@@ -15,4 +15,8 @@ class DataBricks(Hive):
     def type(cls):
         return "databricks"
 
+    @classmethod
+    def enabled(cls):
+        return enabled
+
 register(DataBricks)
