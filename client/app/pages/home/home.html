@@ -20,7 +20,9 @@
           <div class="list-group">
             <a ng-href="dashboard/{{dashboard.slug}}" class="list-group-item" ng-repeat="dashboard in $ctrl.favoriteDashboards"
               ng-if="dashboard.is_favorite">
-              <i class="fa fa-star"></i>
+              <span class="btn-favourite">
+                <i class="fa fa-star" aria-hidden="true"></i>
+              </span>
               {{dashboard.name}}
               <span class="label label-default" ng-if="dashboard.is_draft">Unpublished</span>
             </a>
@@ -37,7 +39,9 @@
           </p>
           <div class="list-group">
             <a ng-href="queries/{{query.id}}" class="list-group-item" ng-repeat="query in $ctrl.favoriteQueries" ng-if="query.is_favorite">
-              <i class="fa fa-star"></i>
+              <span class="btn-favourite">
+                <i class="fa fa-star" aria-hidden="true"></i>
+              </span>
               {{query.name}}
               <span class="label label-default" ng-if="query.is_draft">Unpublished</span>
             </a>
