@@ -69,7 +69,7 @@ class QuerySerializer(Serializer):
     def serialize(self):
         if isinstance(self.object_or_list, models.Query):
             result = serialize_query(self.object_or_list, **self.options)
-            if self.options.get('with_favorite_state', True):
+            if self.options.get('with_favorite_state', True) and not current_user.is_api_user():
                 result['is_favorite'] = models.Favorite.is_favorite(current_user.id, self.object_or_list)
         else:
             result = [serialize_query(query, **self.options) for query in self.object_or_list]
