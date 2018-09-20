@@ -1,5 +1,5 @@
 import numberFormat from 'underscore.string/numberFormat';
-import { isNumber, chain } from 'lodash';
+import { isNumber } from 'lodash';
 
 import counterTemplate from './counter.html';
 import counterEditorTemplate from './counter-editor.html';
@@ -23,33 +23,15 @@ function CounterRenderer($timeout) {
     link($scope, $element) {
       $scope.fontSize = '1em';
 
-      const rootNode = $element[0].querySelector('counter');
+      $scope.scale = 1;
+      const root = $element[0].querySelector('counter');
+      const container = $element[0].querySelector('counter > div');
       $scope.handleResize = () => {
-        const rootMeasures = {
-          height: Math.floor(rootNode.offsetHeight),
-          fontSize: parseFloat(window.getComputedStyle(rootNode).fontSize),
-        };
-        const rulers = rootNode.querySelectorAll('.ruler');
-        const rulerMeasures = chain(rulers)
-          .map(ruler => ({
-            height: ruler.offsetHeight,
-            fontSize: parseFloat(window.getComputedStyle(ruler).fontSize),
-          }))
-          .reduce((result, value) => ({
-            height: result.height + value.height,
-            fontSize: result.fontSize + value.fontSize,
-          }))
-          .value();
-
-        /* eslint-disable function-paren-newline */
-        const fontSize = Math.floor(
-          rootMeasures.height /
-            rulerMeasures.height *
-            rulerMeasures.fontSize /
-            (rulerMeasures.fontSize / rootMeasures.fontSize),
+        const scale = Math.min(
+          root.offsetWidth / container.offsetWidth,
+          root.offsetHeight / container.offsetHeight,
         );
-        /* eslint-enable function-paren-newline */
-        $scope.fontSize = fontSize + 'px';
+        $scope.scale = Math.floor(scale * 100) / 100; // keep only two decimal places
       };
 
       const refreshData = () => {
