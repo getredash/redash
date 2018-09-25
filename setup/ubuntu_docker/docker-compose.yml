@@ -1,11 +1,12 @@
 version: '2'
 x-redash-service: &redash-service
-    image: redash/redash:${TAG}
-    depends_on:
-      - postgres
-      - redis
-    env_file: /opt/redash/env
-    restart: always
+  image: redash/redash:5.0.0.b4754
+  2image: redash/redash:5.0.0.b4754
+  depends_on:
+    - postgres
+    - redis
+  env_file: /opt/redash/env
+  restart: always
 services:
   server:
     <<: *redash-service
