@@ -1,1 +1,1 @@
-Bootstrap scripts for docker on Ubuntu 16.04 
+Bootstrap scripts for Redash with Docker on Ubuntu 18.04.
