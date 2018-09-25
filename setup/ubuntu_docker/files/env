@@ -1,7 +1,3 @@
 PYTHONUNBUFFERED=0
 REDASH_LOG_LEVEL="INFO"
-REDASH_REDIS_URL=redis://localhost:6379/0
-REDASH_DATABASE_URL="postgresql://postgres@postgres/postgres"
-REDASH_WEB_WORKERS=4
-QUEUES="queries,scheduled_queries,celery"
-WORKERS_COUNT=2
+REDASH_REDIS_URL=redis://redis:6379/0
