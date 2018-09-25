@@ -1,5 +1,5 @@
 version: '2'
-redash-service: &redash-service
+x-redash-service: &redash-service
     image: redash/redash:${TAG}
     depends_on:
       - postgres
