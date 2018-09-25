@@ -25,6 +25,7 @@ types_map = {
     ibm_db_dbi.STRING: TYPE_STRING
 }
 
+
 class DB2(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
 
