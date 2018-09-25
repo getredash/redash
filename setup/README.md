@@ -1,4 +1,4 @@
-# Setup scripts for Redash with Docker on Ubuntu 18.04.
+# Setup script for Redash with Docker on Ubuntu 18.04.
 
 This is a reference setup for Redash on a single Ubuntu 18.04 server, which uses Docker and Docker Compose for deployment and management.
 
