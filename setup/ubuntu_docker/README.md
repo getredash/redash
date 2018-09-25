@@ -1,1 +1,0 @@
-Bootstrap scripts for Redash with Docker on Ubuntu 18.04.
