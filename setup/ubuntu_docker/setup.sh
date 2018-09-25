@@ -3,7 +3,6 @@
 set -eu
 
 REDASH_BASE_PATH=/opt/redash
-REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
 
 install_docker(){
     # Install Docker
@@ -30,7 +29,9 @@ create_directories() {
     if [[ ! -e $REDASH_BASE_PATH/postgres-data ]]; then
         mkdir $REDASH_BASE_PATH/postgres-data
     fi
-       
+}
+
+create_config() {
     if [[ -e $REDASH_BASE_PATH/env ]]; then
         rm $REDASH_BASE_PATH/env
         touch $REDASH_BASE_PATH/env
@@ -53,6 +54,7 @@ setup_compose() {
     LATEST_VERSION=`curl -s "https://version.redash.io/api/releases?channel=$REQUESTED_CHANNEL"  | json_pp  | grep "docker_image" | head -n 1 | awk 'BEGIN{FS=":"}{print $3}' | awk 'BEGIN{FS="\""}{print $1}'`
 
     cd $REDASH_BASE_PATH
+    REDASH_BRANCH="${REDASH_BRANCH:-master}" # Default branch/version to master if not specified in REDASH_BRANCH env var
     wget https://raw.githubusercontent.com/getredash/redash/${REDASH_BRANCH}/setup/ubuntu_docker/docker-compose.yml
     sed -ri "s/image: redash\/redash:([A-Za-z0-9.-]*)/image: redash\/redash:$LATEST_VERSION/" docker-compose.yml
     echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
@@ -62,7 +64,7 @@ setup_compose() {
     docker-compose up -d
 }
 
-verify_root
 install_docker
 create_directories
+create_config
 setup_compose
