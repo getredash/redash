@@ -105,7 +105,8 @@ class DB2(BaseSQLQueryRunner):
         return schema.values()
 
     def _get_connection(self):
-        self.connection_string = "DATABASE={};HOSTNAME={};PORT={};PROTOCOL=TCPIP;UID={};PWD={};".format(self.configuration["dbname"], self.configuration["host"], self.configuration["port"],self.configuration["user"],self.configuration["password"])
+        self.connection_string = "DATABASE={};HOSTNAME={};PORT={};PROTOCOL=TCPIP;UID={};PWD={};".format(
+            self.configuration["dbname"], self.configuration["host"], self.configuration["port"], self.configuration["user"], self.configuration["password"])
         connection = ibm_db_dbi.connect(self.connection_string, "", "")
 
         return connection
