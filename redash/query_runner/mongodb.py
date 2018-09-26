@@ -92,7 +92,7 @@ def parse_results(results):
         for key in row:
             if isinstance(row[key], dict):
                 for inner_key in row[key]:
-                    column_name = '{}.{}'.format(key, inner_key)
+                    column_name = u'{}.{}'.format(key, inner_key)
                     if _get_column_by_name(columns, column_name) is None:
                         columns.append({
                             "name": column_name,

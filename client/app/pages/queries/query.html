@@ -27,7 +27,7 @@
         <span class="label label-default" ng-if="query.is_draft && !query.is_archived">Unpublished</span>
         <span class="label label-warning" ng-if="query.is_archived" uib-popover="This query is archived and can't be used in dashboards, and won't appear in search results."
           popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
-        <tags-control item="query" can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags()"></tags-control>
+        <tags-control class="hidden-xs" item="query" can-edit="isQueryOwner" get-available-tags="loadTags" on-edit="saveTags()"></tags-control>
       </div>
 
       <div class="col-sm-4 col-xs-5 p-0 source-control text-right">
@@ -46,7 +46,7 @@
         </span>
 
         <div ng-if="query.id != undefined" class="btn-group" role="group" uib-dropdown>
-          <button class="btn btn-default dropdown-toggle" uib-dropdown-toggle>
+          <button class="btn btn-default dropdown-toggle hidden-xs" uib-dropdown-toggle>
             <span class="zmdi zmdi-more"></span>
           </button>
           <ul class="dropdown-menu pull-right" uib-dropdown-menu>
@@ -242,7 +242,7 @@
                   <ul class="tab-nav">
                     <rd-tab ng-if="!query.visualizations.length" tab-id="table" name="Table" base-path="query.getUrl(sourceMode)"></rd-tab>
                     <rd-tab tab-id="{{vis.id}}" name="{{vis.name}}" base-path="query.getUrl(sourceMode)" ng-repeat="vis in query.visualizations | orderBy:'id'">
-                      <span class="remove" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
+                      <span class="remove hidden-xs" ng-click="deleteVisualization($event, vis)" ng-if="canEdit && !($first && (vis.type === 'TABLE'))">
                         <i class="zmdi zmdi-close"></i>
                       </span>
                     </rd-tab>
@@ -267,7 +267,9 @@
       </div>
       <div class="bottom-controller-container">
         <div class="bottom-controller">
+
           <button class="m-r-5 btn btn-default btn-edit-visualisation" ng-click="openVisualizationEditor(selectedTab)" ng-if="!query.isNew() && canEdit"><span class="fa fa-edit"></span><span class="hidden-xs hidden-s hidden-m"> Edit Visualization</span></button>
+
           <div class="m-r-5 btn-group dropup" uib-dropdown>
             <button type="button" class="btn btn-default dropup-toggle" aria-haspopup="true"
               uib-dropdown-toggle aria-expanded="false">
@@ -281,7 +283,7 @@
               </li>
               <li>
                 <a ng-click="showEmbedDialog(query, selectedTab)" ng-if="!query.isNew()">
-                  <span class="fa fa-code"></span> Embed
+                  <span class="zmdi zmdi-code"></span> Embed
                 </a>
               </li>
               <li>
@@ -313,7 +315,7 @@
           </span>
 
           <div>
-            <span class="query-metadata__property">
+            <span class="query-metadata__property hidden-xs">
               <span class="hidden-xs">Updated </span>
               <rd-time-ago value="queryResult.query_result.retrieved_at"></rd-time-ago>
             </span>

@@ -1,8 +1,6 @@
-import sys
 import logging
 import json
 
-from collections import OrderedDict
 from redash import settings
 
 logger = logging.getLogger(__name__)
