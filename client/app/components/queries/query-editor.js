@@ -26,6 +26,7 @@ function queryEditor(QuerySnippet, $timeout) {
       query: '=',
       schema: '=',
       syntax: '=',
+      autoCompleteQuery: '=',
     },
     template: '<div ui-ace="editorOptions" ng-model="query.query"></div>',
     link: {
@@ -98,10 +99,11 @@ function queryEditor(QuerySnippet, $timeout) {
                 if (newSchema === undefined) {
                   return;
                 }
-                const tokensCount = newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
-                // If there are too many tokens we disable live autocomplete,
-                // as it makes typing slower.
-                if (tokensCount > 5000) {
+                const tokensCount =
+                  newSchema.reduce((totalLength, table) => totalLength + table.columns.length, 0);
+                // If there are too many tokens or if it's requested via the UI
+                // we disable live autocomplete, as it makes typing slower.
+                if (tokensCount > 5000 || !$scope.$parent.autoCompleteQuery) {
                   editor.setOption('enableLiveAutocompletion', false);
                 } else {
                   editor.setOption('enableLiveAutocompletion', true);
@@ -111,6 +113,10 @@ function queryEditor(QuerySnippet, $timeout) {
 
             $scope.$parent.$on('angular-resizable.resizing', () => {
               editor.resize();
+            });
+
+            $scope.$watch('autoCompleteQuery', () => {
+              editor.setOption('enableLiveAutocompletion', $scope.autoCompleteQuery);
             });
 
             editor.focus();
