@@ -78,7 +78,6 @@ def get_query_results(user, query_id, bring_from_cache):
             if error:
                 raise Exception("Failed loading results for query id {}.".format(query.id))
 
-       
         return json.loads(results)
 
 
@@ -87,7 +86,7 @@ def create_tables_from_query_ids(user, connection, query_ids, cached_query_ids=[
         results = get_query_results(user, query_id, True)
         table_name = 'cached_query_{query_id}'.format(query_id=query_id)
         create_table(connection, table_name, results)
-        
+
     for query_id in set(query_ids):
         results = get_query_results(user, query_id, False)
         table_name = 'query_{query_id}'.format(query_id=query_id)
