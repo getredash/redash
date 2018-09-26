@@ -1,11 +1,11 @@
-from itertools import chain
-
 from flask import request, url_for
-from funcy import distinct, project, take
+from funcy import project, rpartial
 
 from flask_restful import abort
-from redash import models, serializers, settings
-from redash.handlers.base import BaseResource, get_object_or_404, paginate, filter_by_tags
+from redash import models, serializers
+from redash.handlers.base import (BaseResource, get_object_or_404, paginate,
+                                  filter_by_tags,
+                                  order_results as _order_results)
 from redash.serializers import serialize_dashboard
 from redash.permissions import (can_modify, require_admin_or_owner,
                                 require_object_modify_permission,
@@ -13,24 +13,61 @@ from redash.permissions import (can_modify, require_admin_or_owner,
 from sqlalchemy.orm.exc import StaleDataError
 
 
+# Ordering map for relationships
+order_map = {
+    'name': 'lowercase_name',
+    '-name': '-lowercase_name',
+    'created_at': 'created_at',
+    '-created_at': '-created_at',
+}
+
+order_results = rpartial(_order_results, '-created_at', order_map)
+
+
 class DashboardListResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
         """
         Lists all accessible dashboards.
+
+        :qparam number page_size: Number of queries to return per page
+        :qparam number page: Page number to retrieve
+        :qparam number order: Name of column to order by
+        :qparam number q: Full text search term
+
+        Responds with an array of :ref:`dashboard <dashboard-response-label>`
+        objects.
         """
         search_term = request.args.get('q')
 
         if search_term:
-            results = models.Dashboard.search(self.current_org, self.current_user.group_ids, self.current_user.id, search_term)
+            results = models.Dashboard.search(
+                self.current_org,
+                self.current_user.group_ids,
+                self.current_user.id,
+                search_term,
+            )
         else:
-            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+            results = models.Dashboard.all(
+                self.current_org,
+                self.current_user.group_ids,
+                self.current_user.id,
+            )
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
+        # order results according to passed order parameter
+        ordered_results = order_results(results)
+
         page = request.args.get('page', 1, type=int)
         page_size = request.args.get('page_size', 25, type=int)
-        response = paginate(results, page, page_size, serialize_dashboard)
+
+        response = paginate(
+            ordered_results,
+            page=page,
+            page_size=page_size,
+            serializer=serialize_dashboard,
+        )
 
         return response
 
@@ -126,7 +163,7 @@ class DashboardResource(BaseResource):
 
         require_object_modify_permission(dashboard, self.current_user)
 
-        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags', 
+        updates = project(dashboard_properties, ('name', 'layout', 'version', 'tags',
                                                  'is_draft', 'dashboard_filters_enabled'))
 
         # SQLAlchemy handles the case where a concurrent transaction beats us

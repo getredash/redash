@@ -283,7 +283,7 @@ def refresh_queries():
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 if query.options and len(query.options.get('parameters', [])) > 0:
-                    query_params = {p['name']: p['value']
+                    query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
                     query_text = pystache.render(query.query_text, query_params)
                 else:

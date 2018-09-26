@@ -4,7 +4,7 @@
   <div class="row">
     <div class="col-md-3 list-control-t">
       <div class="m-b-5">
-        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
+        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           autofocus/>
       </div>
 
@@ -31,7 +31,7 @@
     </div>
 
     <div ng-if="$ctrl.loaded && $ctrl.showEmptyState" class="col-md-9 list-content">
-      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0)">
+      <div ng-if="($ctrl.currentPage == 'all') && ($ctrl.searchText.length == 0 || $ctrl.searchText === undefined)">
         <empty-state icon="zmdi zmdi-view-quilt" description="See the big picture" show-dashboard-step="true" illustration="dashboard"
           help-link="http://help.redash.io/category/22-dashboards"></empty-state>
       </div>
@@ -50,9 +50,15 @@
           <thead>
             <tr>
               <th style="width: 33px"></th>
-              <th>Name</th>
+              <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('name')">
+                Name
+                <sort-icon column="'name'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
+              </th>
               <th></th>
-              <th>Created At</th>
+              <th class="sortable-column" ng-click="$ctrl.paginator.orderBy('created_at')">
+                Created At
+                <sort-icon column="'created_at'" sort-column="$ctrl.paginator.orderByField" reverse="$ctrl.paginator.orderByReverse"></sort-icon>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -82,7 +88,7 @@
 
     <div class="col-md-3 list-control-r-b">
       <div class="m-b-5">
-        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText"
+        <input type='text' class='form-control' placeholder="Search Dashboards..." ng-change="$ctrl.update()" ng-model="$ctrl.searchText" ng-model-options="{ allowInvalid: true, debounce: 200 }"
           autofocus/>
       </div>
 

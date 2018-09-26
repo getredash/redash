@@ -7,8 +7,8 @@ from flask.cli import AppGroup
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
-from redash.query_runner import query_runners
-from redash.query_runner import get_configuration_schema_for_query_runner_type
+from redash.query_runner import (get_configuration_schema_for_query_runner_type,
+                                 query_runners)
 from redash.utils.configuration import ConfigurationContainer
 
 manager = AppGroup(help="Data sources management commands.")

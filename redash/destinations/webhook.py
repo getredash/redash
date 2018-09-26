@@ -4,6 +4,7 @@ from requests.auth import HTTPBasicAuth
 
 from redash.destinations import *
 from redash.utils import json_dumps
+from redash.serializers import serialize_alert
 
 
 class Webhook(BaseDestination):
@@ -34,7 +35,7 @@ class Webhook(BaseDestination):
         try:
             data = {
                 'event': 'alert_state_change',
-                'alert': alert.to_dict(full=False),
+                'alert': serialize_alert(alert, full=False),
                 'url_base': host 
             }
             headers = {'Content-Type': 'application/json'}
