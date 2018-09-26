@@ -26,6 +26,7 @@ function queryEditor(QuerySnippet, $timeout) {
       query: '=',
       schema: '=',
       syntax: '=',
+      autoCompleteQuery: '=',
     },
     template: '<div ui-ace="editorOptions" ng-model="query.query"></div>',
     link: {
@@ -114,8 +115,8 @@ function queryEditor(QuerySnippet, $timeout) {
               editor.resize();
             });
 
-            $scope.$parent.$watch('autoCompleteQuery', () => {
-              editor.setOption('enableLiveAutocompletion', $scope.$parent.autoCompleteQuery);
+            $scope.$watch('autoCompleteQuery', () => {
+              editor.setOption('enableLiveAutocompletion', $scope.autoCompleteQuery);
             });
 
             editor.focus();

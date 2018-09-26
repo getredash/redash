@@ -81,14 +81,8 @@ function QuerySourceCtrl(
   };
 
   $scope.autoCompleteQuery = true;
-  $scope.onOrOff = 'active';
   $scope.toggleAutoComplete = () => {
     $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
-    if (!$scope.autoCompleteQuery) {
-      $scope.onOrOff = '';
-    } else {
-      $scope.onOrOff = 'active';
-    }
   };
 
   $scope.addNewParameter = () => {
