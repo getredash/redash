@@ -76,5 +76,10 @@ class WidgetResource(BaseResource):
         """
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
         require_object_modify_permission(widget.dashboard, self.current_user)
+        self.record_event({
+            'action': 'delete',
+            'object_id': widget_id,
+            'object_type': 'widget',
+        })
         models.db.session.delete(widget)
         models.db.session.commit()

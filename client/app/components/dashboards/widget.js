@@ -66,8 +66,6 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
       return;
     }
 
-    Events.record('delete', 'widget', this.widget.id);
-
     this.widget.delete().then(() => {
       if (this.deleted) {
         this.deleted({});
