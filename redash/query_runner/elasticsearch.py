@@ -373,9 +373,6 @@ class Kibana(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except Exception as e:
-            logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 
@@ -441,9 +438,6 @@ class ElasticSearch(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except Exception as e:
-            logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 
