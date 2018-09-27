@@ -83,7 +83,7 @@ REMOTE_USER_HEADER = os.environ.get("REDASH_REMOTE_USER_HEADER", "X-Forwarded-Re
 LDAP_LOGIN_ENABLED = parse_boolean(os.environ.get('REDASH_LDAP_LOGIN_ENABLED', 'false'))
 # Bind LDAP using SSL. Default is False
 LDAP_SSL = parse_boolean(os.environ.get('REDASH_LDAP_USE_SSL', 'false'))
-# Choose authentication method(SIMPLE or ANONYMOUS). Default is SIMPLE
+# Choose authentication method(SIMPLE, ANONYMOUS or NTLM). Default is SIMPLE
 LDAP_AUTH_METHOD = os.environ.get('REDASH_LDAP_AUTH_METHOD', 'SIMPLE')
 # The LDAP directory address (ex. ldap://10.0.10.1:389)
 LDAP_HOST_URL = os.environ.get('REDASH_LDAP_URL', None)
