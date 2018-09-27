@@ -115,11 +115,11 @@ workflows:
              branches:
                only:
                  - master
-                 - release/.*
+                 - /release\/.*/
       - build-docker-image:
            requires:
              - unit-tests
            filters:
              branches:
                only:
-                 - release/.*
+                 - /release\/.*/
