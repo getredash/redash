@@ -26,10 +26,9 @@ class DataSourceResource(BaseResource):
     def get(self, data_source_id):
         data_source = models.DataSource.get_by_id_and_org(data_source_id, self.current_org)
         ds = data_source.to_dict(all=True)
-        page = 'admin/data_source' + str(ds.get('id'))
         self.record_event({
             'action': 'view',
-            'object_id': ds.get('id'),
+            'object_id': data_source_id,
             'object_type': 'datasource',
         })
         return ds
