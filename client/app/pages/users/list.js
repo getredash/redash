@@ -1,88 +1,30 @@
-import { isString } from 'lodash';
+import { extend } from 'lodash';
+import ListCtrl from '@/lib/list-ctrl';
 import settingsMenu from '@/lib/settings-menu';
-import { LivePaginator } from '@/lib/pagination';
 import template from './list.html';
 
-function UsersCtrl($location, currentUser, Policy, User) {
-  this.currentUser = currentUser;
-  if ($location.path() === '/users/disabled') {
-    this.currentPage = 'disabled_users';
-  } else {
-    this.currentPage = 'users';
+class UsersListCtrl extends ListCtrl {
+  constructor($scope, $location, currentUser, Policy, User) {
+    super($scope, $location, currentUser);
+    this.policy = Policy;
+    this.enableUser = user => User.enableUser(user).then(this.update);
+    this.disableUser = user => User.disableUser(user).then(this.update);
   }
-  this.policy = Policy;
-  this.term = $location.search().q;
 
-  const fetcher = (requestedPage, itemsPerPage, orderByField, orderByReverse, paginator) => {
-    $location.search('page', requestedPage);
-
-    const setSearchOrClear = (name, value) => {
-      if (value) {
-        $location.search(name, value);
-      } else {
-        $location.search(name, undefined);
-      }
-    };
-
-    if (orderByReverse && !orderByField.startsWith('-')) {
-      orderByField = '-' + orderByField;
-    }
-    setSearchOrClear('order', orderByField);
-
-    const request = Object.assign({}, this.defaultOptions, {
-      page: requestedPage,
-      page_size: itemsPerPage,
-      order: orderByField,
-    });
-
-    if (isString(this.term) && this.term !== '') {
-      request.q = this.term;
-    }
-
-    if (this.term === '') {
-      this.term = null;
-    }
-
-    if (this.currentPage === 'disabled_users') {
+  getRequest(requestedPage, itemsPerPage, orderByField) {
+    const request = super.getRequest(requestedPage, itemsPerPage, orderByField);
+    if (this.currentPage === 'disabled') {
       request.disabled = true;
     }
+    return request;
+  }
 
-    $location.search('q', this.term);
-
-    this.loaded = false;
-    this.notFound = false;
-
-    return User.query(request).$promise.then((data) => {
-      this.loaded = true;
-      const rows = data.results;
-
-      if (this.term !== null && data.count === 0) {
-        this.notFound = true;
-      }
-
-      paginator.updateRows(rows, data.count);
-    });
-  };
-
-  const page = parseInt($location.search().page || 1, 10);
-  this.paginator = new LivePaginator(fetcher, { page });
-
-  this.update = () => {
-    this.paginator.setPage(page);
-  };
-
-  this.search = () => {
-    $location.search('page', 1);
-    this.paginator.setPage(1);
-  };
-
-  this.enableUser = (user) => {
-    User.enableUser(user).then(this.update);
-  };
-
-  this.disableUser = (user) => {
-    User.disableUser(user).then(this.update);
-  };
+  processResponse(data) {
+    super.processResponse(data);
+    const rows = data.results;
+    this.paginator.updateRows(rows, data.count);
+    this.showEmptyState = data.count === 0;
+  }
 }
 
 export default function init(ngModule) {
@@ -95,20 +37,43 @@ export default function init(ngModule) {
   });
 
   ngModule.component('usersListPage', {
-    controller: UsersCtrl,
+    controller: UsersListCtrl,
     template,
   });
 
+  const route = {
+    template: '<users-list-page></users-list-page>',
+    reloadOnSearch: false,
+  };
+
   return {
-    '/users': {
-      template: '<users-list-page></users-list-page>',
-      title: 'Users',
-      reloadOnSearch: false,
-    },
-    '/users/disabled': {
-      template: '<users-list-page></users-list-page>',
-      title: 'Users',
-      reloadOnSearch: false,
-    },
+    '/users': extend(
+      {
+        title: 'Users',
+        resolve: {
+          currentPage: () => 'all',
+          resource(User) {
+            'ngInject';
+
+            return User.query.bind(User);
+          },
+        },
+      },
+      route,
+    ),
+    '/users/disabled': extend(
+      {
+        resolve: {
+          currentPage: () => 'disabled',
+          resource(User) {
+            'ngInject';
+
+            return User.query.bind(User);
+          },
+        },
+        title: 'Disabled Users',
+      },
+      route,
+    ),
   };
 }
