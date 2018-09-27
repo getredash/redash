@@ -411,6 +411,11 @@ export function prepareLayout(element, seriesList, options, data) {
     height: Math.floor(element.offsetHeight),
     autosize: true,
     showlegend: has(options, 'legend') ? options.legend.enabled : true,
+    legend: {
+      orientation: 'v',
+      x: 1,
+      y: 1,
+    },
   };
 
   if (options.globalSeriesType === 'pie') {
@@ -614,10 +619,15 @@ export function updateData(seriesList, options) {
   updateSeriesText(seriesList, options);
 }
 
-export function calculateMargins(element) {
+export function calculateMargins(element, layout) {
   const axisSpacing = 20;
 
-  const result = {};
+  const result = {
+    l: axisSpacing,
+    r: axisSpacing,
+    t: axisSpacing,
+    b: axisSpacing,
+  };
 
   const edges = { l: '.ytick', r: '.y2tick', b: '.xtick' };
   const dimensions = { l: 'width', r: 'width', b: 'height' };
@@ -631,6 +641,16 @@ export function calculateMargins(element) {
       })) + axisSpacing;
     }
   });
+
+  if (layout.showlegend) {
+    if (layout.legend.orientation === 'h') {
+      const legend = element.querySelector('.legend');
+      if (legend) {
+        const bounds = legend.getBoundingClientRect();
+        result.b += bounds.height;
+      }
+    }
+  }
 
   return result;
 }
@@ -651,6 +671,28 @@ export function updateDimensions(layout, element, margins) {
     layout.width = element.offsetWidth;
     layout.height = element.offsetHeight;
     changed = true;
+  }
+
+  if (layout.showlegend) {
+    const legend = element.querySelector('.legend');
+    if (legend) {
+      const transformName = find([
+        'transform',
+        'webkitTransform',
+        'mozTransform',
+        'msTransform',
+        'oTransform',
+      ], prop => has(legend.style, prop));
+
+      // If trying to place legend below the chart, it overlaps x-axis labels,
+      // so add some extra space and put legend right above the bottom side of chart
+      if (layout.legend.orientation === 'h') {
+        const bounds = legend.getBoundingClientRect();
+        legend.style[transformName] = 'translate(0, ' + (height - bounds.height) + 'px)';
+      } else {
+        legend.style[transformName] = null;
+      }
+    }
   }
 
   return changed;
