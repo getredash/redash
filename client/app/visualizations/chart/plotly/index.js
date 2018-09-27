@@ -35,8 +35,28 @@ const PlotlyChart = () => ({
     let data = [];
 
     const updateChartDimensions = () => {
-      if (updateDimensions(layout, plotlyElement, calculateMargins(plotlyElement))) {
+      const prevLegendOrientation = layout.legend.orientation;
+      const width = plotlyElement.offsetWidth;
+      if (width <= 600) {
+        layout.legend = {
+          orientation: 'h',
+          x: 0,
+          y: 0,
+        };
+      } else {
+        layout.legend = {
+          orientation: 'v',
+          x: 1,
+          y: 1,
+        };
+      }
+      if (
+        updateDimensions(layout, plotlyElement, calculateMargins(plotlyElement, layout)) ||
+        (prevLegendOrientation !== layout.legend.orientation)
+      ) {
+        const legend = layout.legend; // Plotly will delete `legend.layout` in `relayout` (wtf?)
         Plotly.relayout(plotlyElement, layout);
+        layout.legend = legend;
       }
     };
 
@@ -59,7 +79,9 @@ const PlotlyChart = () => ({
         // We need to catch only changes of traces visibility to update stacking
         if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
           updateData(data, scope.options);
+          const legend = layout.legend; // Plotly will delete `legend.layout` in `relayout` (wtf?)
           Plotly.relayout(plotlyElement, layout);
+          layout.legend = legend;
         }
       });
 
