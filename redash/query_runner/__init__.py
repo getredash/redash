@@ -223,10 +223,6 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
             # Catch all other requests exceptions and return the error.
             logger.exception(exc)
             error = str(exc)
-        except Exception as exc:
-            # Catch any other exceptions, log it and reraise it.
-            logger.exception(exc)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         # Return response and error.
         return response, error

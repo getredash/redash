@@ -306,8 +306,6 @@ class BigQuery(BaseQueryRunner):
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
-        except Exception:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 
