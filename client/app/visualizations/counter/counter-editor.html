@@ -7,7 +7,7 @@
       <a ng-click="changeTab('format')">Format</a>
     </li>
   </ul>
-  <div ng-show="currentTab == 'general'">
+  <div ng-show="currentTab == 'general'" class="m-t-10 m-b-10">
     <div class="form-group">
       <label class="col-lg-6">Counter Value Column Name</label>
       <div class="col-lg-6">
@@ -36,13 +36,15 @@
     </div>
     <div class="form-group">
       <div class="col-lg-6">
-        <input type="checkbox" ng-model="visualization.options.countRow">
-        <i class="input-helper"></i> Count Rows
+        <label>
+          <input type="checkbox" ng-model="visualization.options.countRow">
+          Count Rows
+        </label>
       </div>
     </div>
   </div>
 
-  <div ng-show="currentTab == 'format'">
+  <div ng-show="currentTab == 'format'" class="m-t-10 m-b-10">
     <div class="form-group">
       <label class="col-lg-6">Formatting Decimal Place</label>
       <div class="col-lg-6">
