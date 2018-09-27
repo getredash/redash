@@ -4,11 +4,10 @@
   <div class="row">
     <div class="col-md-3 list-control-t">
       <div class="m-b-10">
-        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-          ng-change="$ctrl.update()">
+        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }" ng-change="$ctrl.update()">
       </div>
 
-      <div class='list-group m-b-10 tags-list tiled'>
+      <div class="list-group m-b-10 tags-list tiled">
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Queries
         </a>
@@ -116,13 +115,14 @@
 
     <div class="col-md-3 list-control-r-b">
       <div class="m-b-10">
-        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.term" ng-model-options="{ allowInvalid: true, debounce: 200 }"
-          ng-change="$ctrl.update()">
+        <input type="text" class="form-control" placeholder="Search Queries..." autofocus ng-model="$ctrl.searchTerm" ng-model-options="{ allowInvalid: true, debounce: 200 }" ng-change="$ctrl.update()" />
       </div>
-      <div class='list-group m-b-10 tags-list tiled'>
+
+      <div class="list-group m-b-10 tags-list tiled">
         <a href="queries" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'all'}">
           All Queries
         </a>
+
         <a href="queries/favorites" class="list-group-item" ng-class="{active: $ctrl.currentPage == 'favorites'}">
           <span class="btn-favourite">
             <i class="fa fa-star" aria-hidden="true"></i>
@@ -134,9 +134,11 @@
           /> My Queries
         </a>
       </div>
+
       <div ng-if="$ctrl.currentPage != 'my'" class="m-b-10">
         <tags-list tags-url="api/queries/tags" on-tags-update="$ctrl.onTagsUpdate"></tags-list>
       </div>
+
       <div class="m-b-5">
         <select ng-change="$ctrl.update()" ng-model="$ctrl.pageSize" class="form-control"
           ng-options="value as $ctrl.pageSizeLabel(value) for value in $ctrl.pageSizeOptions"></select>
