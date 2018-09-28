@@ -275,7 +275,8 @@ function DashboardCtrl(
 
   this.loadTags = () => getTags('api/dashboards/tags');
 
-  this.saveName = () => {
+  this.saveName = (name) => {
+    this.dashboard.name = name;
     Dashboard.save(
       { slug: this.dashboard.id, version: this.dashboard.version, name: this.dashboard.name },
       (dashboard) => {
