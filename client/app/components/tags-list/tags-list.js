@@ -3,7 +3,9 @@ import template from './tags-list.html';
 
 class TagsList {
   constructor() {
+    // An array of objects that with the name and count of the tagged items
     this.allTags = [];
+    // A set of tag names
     this.selectedTags = new Set();
     getTags(this.tagsUrl).then((tags) => {
       this.allTags = tags;
