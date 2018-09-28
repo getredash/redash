@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default class EditInPlaceText extends React.Component {
+export default class EditInPlace extends React.Component {
   static propTypes = {
     ignoreBlanks: PropTypes.bool,
     isEditable: PropTypes.bool,
