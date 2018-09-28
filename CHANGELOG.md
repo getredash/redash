@@ -1,5 +1,16 @@
 # Change Log
 
+## v5.0.1 - 2018-09-27
+
+### Added
+
+* Added support for JWT authentication (for services like Cloudflare Access or Google IAP).
+
+### Changed
+
+* Upgraded Celery version to 3.1.26 to make upgrade to Celery 4 easier.
+
+
 ## v5.0.0 - 2018-09-21
 
 Final release for V5. Most of the changes were already in the beta release of V5, but this includes several fixes along
