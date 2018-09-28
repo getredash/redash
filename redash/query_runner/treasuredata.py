@@ -102,7 +102,7 @@ class TreasureData(BaseQueryRunner):
         cursor = connection.cursor()
         try:
             cursor.execute(query)
-            columns_tuples = [(row[0], cursor.show_job()['hive_result_schema'][i][1]) for i,row in enumerate(cursor.description)]
+            columns_tuples = [(i[0], TD_TYPES_MAPPING.get(i[1], None)) for i in cursor.show_job()['hive_result_schema']]
             columns = self.fetch_columns(columns_tuples)
 
             if cursor.rowcount == 0:
