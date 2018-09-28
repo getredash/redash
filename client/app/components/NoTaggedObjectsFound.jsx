@@ -8,8 +8,8 @@ function NoTaggedObjectsFound({ objectType, tags }) {
     <BigMessage icon="fa-tags">
       No {objectType} found tagged with
       {Array.from(tags).map(tag => (
-        <span className="label label-tag" key={tag}>
-          {tag}
+        <span className="label label-tag" key={tag.name}>
+          {tag.name}
         </span>
       ))}.
     </BigMessage>
