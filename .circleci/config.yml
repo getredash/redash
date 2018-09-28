@@ -97,12 +97,12 @@ jobs:
           path: report.html
 workflows:
   version: 2
-  integration_tests:
-    jobs:
-      - integration-tests:
-          filters:
-             branches:
-               only: master
+  # integration_tests:
+  #  jobs:
+  #    - integration-tests:
+  #        filters:
+  #           branches:
+  #             only: master
   build:
     jobs:
       - unit-tests
