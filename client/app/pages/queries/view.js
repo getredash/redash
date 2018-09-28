@@ -255,14 +255,15 @@ function QueryViewCtrl(
     $scope.saveQuery(undefined, { is_draft: $scope.query.is_draft });
   };
 
-  $scope.saveDescription = () => {
+  $scope.saveDescription = (desc) => {
+    $scope.query.description = desc;
     Events.record('edit_description', 'query', $scope.query.id);
     $scope.saveQuery(undefined, { description: $scope.query.description });
   };
 
-  $scope.saveName = () => {
+  $scope.saveName = (name) => {
+    $scope.query.name = name;
     Events.record('edit_name', 'query', $scope.query.id);
-
     if ($scope.query.is_draft && clientConfig.autoPublishNamedQueries && $scope.query.name !== 'New Query') {
       $scope.query.is_draft = false;
     }

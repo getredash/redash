@@ -3,7 +3,7 @@
     <div class="page-title col-xs-8 col-sm-7 col-lg-7 p-l-0">
       <favorites-control item="$ctrl.dashboard"></favorites-control>
       <h3>
-        <edit-in-place editable="$ctrl.layoutEditing" done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name"></edit-in-place>
+        <edit-in-place class="edit-in-place" editable="$ctrl.layoutEditing" on-done="$ctrl.saveName" ignore-blanks="true" value="$ctrl.dashboard.name" editor="'input'"></edit-in-place>
       </h3>
       <span class="label label-default" ng-if="$ctrl.dashboard.is_draft && !$ctrl.dashboard.is_archived">Unpublished</span>
       <span class="label label-warning" ng-if="$ctrl.dashboard.is_archived" uib-popover="This dashboard is archived and and won't appear in the dashboards list or search results." popover-placement="right" popover-trigger="'mouseenter'">Archived</span>
