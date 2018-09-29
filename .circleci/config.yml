@@ -10,14 +10,6 @@ jobs:
       - setup_remote_docker
       - checkout
       - run:
-          name: Run Flake8 Tests
-          command: |
-            pip install flake8
-            # stop the build if there are Python syntax errors or undefined names
-            flake8 . --count --select=E901,E999,F821,F822,F823 --show-source --statistics
-            # exit-zero treats all errors as warnings.  The GitHub editor is 127 chars wide      
-            flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-      - run:
           name: Build Docker Images
           command: |
             set -x
@@ -28,7 +20,9 @@ jobs:
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: Run Tests
-          command: docker-compose run --name tests redash tests --junitxml=junit.xml tests/
+          command: |
+            .circleci/flake8_tests
+            docker-compose run --name tests redash tests --junitxml=junit.xml tests/
       - run:
           name: Copy Test Results
           command: |
