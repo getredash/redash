@@ -1,5 +1,6 @@
 import base64
-from .hive_ds import Hive
+from redash.query_runner import register
+from redash.query_runner.hive_ds import Hive
 
 try:
     from pyhive import hive
