@@ -24,7 +24,7 @@ pytz==2016.7
 PyYAML==3.12
 redis==2.10.5
 requests==2.11.1
-six==1.10.0
+six==1.11.0
 SQLAlchemy==1.2.7
 SQLAlchemy-Searchable==0.10.6
 SQLAlchemy-Utils>=0.29.0

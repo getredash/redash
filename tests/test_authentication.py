@@ -3,6 +3,7 @@ import time
 
 from flask import request
 from mock import patch
+from six.moves import reload_module
 from sqlalchemy.orm.exc import NoResultFound
 from tests import BaseTestCase
 
@@ -212,11 +213,11 @@ class TestRemoteUserAuth(BaseTestCase):
         variables = self.DEFAULT_SETTING_OVERRIDES.copy()
         variables.update(overrides or {})
         with patch.dict(os.environ, variables):
-            reload(settings)
+            reload_module(settings)
 
         # Queue a cleanup routine that reloads the settings without overrides
         # once the test ends
-        self.addCleanup(lambda: reload(settings))
+        self.addCleanup(lambda: reload_module(settings))
 
     def assert_correct_user_attributes(self, user, email='test@example.com', name='test@example.com', groups=None, org=None):
         """Helper to assert that the user attributes are correct."""

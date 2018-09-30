@@ -3,6 +3,7 @@ import json
 import jsonschema
 from jsonschema import ValidationError
 
+from six import string_types
 from redash import query_runner
 from redash.models import DataSource
 
@@ -13,7 +14,7 @@ def validate_configuration(query_runner_type, configuration_json):
         return False
 
     try:
-        if isinstance(configuration_json, basestring):
+        if isinstance(configuration_json, string_types):
             configuration = json.loads(configuration_json)
         else:
             configuration = configuration_json

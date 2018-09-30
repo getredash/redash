@@ -4,6 +4,7 @@ import json
 
 import click
 from flask.cli import AppGroup
+from six import text_type
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
@@ -102,7 +103,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
     if options is None:
         types = {
-            'string': unicode,
+            'string': text_type,
             'number': int,
             'boolean': bool
         }

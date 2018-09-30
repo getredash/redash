@@ -146,7 +146,7 @@ class PostgreSQL(BaseSQLQueryRunner):
                                       port=self.configuration.get('port'),
                                       dbname=self.configuration.get('dbname'),
                                       sslmode=self.configuration.get('sslmode'),
-                                      async=True)
+                                      async_=True)
 
         return connection
 
@@ -201,7 +201,7 @@ class Redshift(PostgreSQL):
                                       dbname=self.configuration.get('dbname'),
                                       sslmode=self.configuration.get('sslmode', 'prefer'),
                                       sslrootcert=sslrootcert_path,
-                                      async=True)
+                                      async_=True)
 
         return connection
 

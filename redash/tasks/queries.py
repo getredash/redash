@@ -9,6 +9,7 @@ import redis
 from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from celery.result import AsyncResult
 from celery.utils.log import get_task_logger
+from six import text_type
 from redash import models, redis_connection, settings, statsd_client, utils
 from redash.query_runner import InterruptException
 from redash.utils import gen_query_hash
@@ -454,7 +455,7 @@ class QueryExecutor(object):
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
         except Exception as e:
-            error = unicode(e)
+            error = text_type(e)
             data = None
             logging.warning('Unexpected error while running query:', exc_info=1)
 

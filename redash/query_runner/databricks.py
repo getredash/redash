@@ -1,5 +1,6 @@
 import base64
 from .hive_ds import Hive
+from redash.query_runner import register
 
 try:
     from pyhive import hive
@@ -18,5 +19,6 @@ class DataBricks(Hive):
     @classmethod
     def enabled(cls):
         return enabled
+
 
 register(DataBricks)

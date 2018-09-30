@@ -9,7 +9,7 @@ import logging
 import time
 from functools import reduce
 
-import six
+from six import string_types, text_type
 import xlsxwriter
 from flask import current_app as app, url_for
 from flask_login import AnonymousUserMixin, UserMixin
@@ -269,7 +269,7 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
 class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key, org, groups, name=None):
         self.object = None
-        if isinstance(api_key, basestring):
+        if isinstance(api_key, string_types):
             self.id = api_key
             self.name = name
         else:
@@ -411,7 +411,7 @@ class Group(db.Model, BelongsToOrgMixin):
         return list(result)
 
     def __unicode__(self):
-        return unicode(self.id)
+        return text_type(self.id)
 
 
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
@@ -1101,7 +1101,7 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         return func.lower(cls.name)
 
     def __unicode__(self):
-        return unicode(self.id)
+        return text_type(self.id)
 
     def __repr__(self):
         return '<Query %s: "%s">' % (self.id, self.name or 'untitled')
@@ -1148,7 +1148,7 @@ class Favorite(TimestampMixin, db.Model):
         if not objects:
             return []
 
-        object_type = six.text_type(objects[0].__class__.__name__)
+        object_type = text_type(objects[0].__class__.__name__)
         return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type == object_type, cls.user_id == user))
 
 
