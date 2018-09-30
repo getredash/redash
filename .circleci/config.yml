@@ -1,5 +1,21 @@
 version: 2.0
 jobs:
+  flake8-tests-on-python:
+    docker:
+      image: circleci/python:3.7.0
+    steps:
+      - checkout
+      - run:
+          name: Run Flake8 Tests on Python 3.7.0
+          command: .circleci/flake8_tests
+  flake8-tests-on-legacy-python:
+    docker:
+      image: circleci/python:2.7.15
+    steps:
+      - checkout
+      - run:
+          name: Run Flake8 Tests on Python 2.7.15
+          command: .circleci/flake8_tests
   unit-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
@@ -20,9 +36,7 @@ jobs:
           command: docker-compose run --rm postgres psql -h postgres -U postgres -c "create database tests;"
       - run:
           name: Run Tests
-          command: |
-            .circleci/flake8_tests
-            docker-compose run --name tests redash tests --junitxml=junit.xml tests/
+          command: docker-compose run --name tests redash tests --junitxml=junit.xml tests/
       - run:
           name: Copy Test Results
           command: |
@@ -107,6 +121,8 @@ workflows:
   #             only: master
   build:
     jobs:
+      - flake8-tests-on-python
+      - flake8-tests-on-legacy-python
       - unit-tests
       - build-tarball:
            requires:
