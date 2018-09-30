@@ -7,7 +7,7 @@ jobs:
       - checkout
       - run:
           name: Run Flake8 Tests on Python 3.7.0
-          command: .circleci/flake8_tests
+          command: bash .circleci/flake8_tests
   flake8-tests-on-legacy-python:
     docker:
       - image: circleci/python:2.7.15
@@ -15,7 +15,7 @@ jobs:
       - checkout
       - run:
           name: Run Flake8 Tests on Python 2.7.15
-          command: .circleci/flake8_tests
+          command: bash .circleci/flake8_tests
   unit-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
