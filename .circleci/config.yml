@@ -123,7 +123,7 @@ workflows:
   #             only: master
   build:
     jobs:
-      - flake8-tests-on-python
+      # - flake8-tests-on-python
       - flake8-tests-on-legacy-python
       - unit-tests
       - build-tarball:
