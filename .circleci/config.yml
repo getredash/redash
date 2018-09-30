@@ -2,7 +2,7 @@ version: 2.0
 jobs:
   flake8-tests-on-python:
     docker:
-      image: circleci/python:3.7.0
+      - image: circleci/python:3.7.0
     steps:
       - checkout
       - run:
@@ -10,7 +10,7 @@ jobs:
           command: .circleci/flake8_tests
   flake8-tests-on-legacy-python:
     docker:
-      image: circleci/python:2.7.15
+      - image: circleci/python:2.7.15
     steps:
       - checkout
       - run:
