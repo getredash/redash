@@ -32,6 +32,8 @@ class QueriesListCtrl extends ListCtrl {
         this.emptyType = 'favorites';
       } else if (this.currentPage === 'my') {
         this.emptyType = 'my';
+      } else if (this.currentPage === 'archive') {
+        this.emptyType = 'archive';
       } else {
         this.emptyType = 'default';
       }
@@ -89,6 +91,20 @@ export default function init(ngModule) {
             'ngInject';
 
             return Query.favorites.bind(Query);
+          },
+        },
+      },
+      route,
+    ),
+    '/queries/archive': extend(
+      {
+        title: 'Archived Queries',
+        resolve: {
+          currentPage: () => 'archive',
+          resource: (Query) => {
+            'ngInject';
+
+            return Query.archive.bind(Query);
           },
         },
       },

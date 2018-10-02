@@ -181,7 +181,7 @@ body {
     cursor: pointer;
   }
 
-  .btn-favourite {
+  .btn-favourite, .btn-archive {
     font-size: 15px;
   }
 }
@@ -194,7 +194,7 @@ body {
   }
 }
 
-.btn-favourite {
+.btn-favourite, .btn-archive {
   color: #d4d4d4;
   transition: all .25s ease-in-out;
 
@@ -207,7 +207,20 @@ body {
   }
 }
 
-.page-header--new .btn-favourite {
+.btn-archive {
+  color: #d4d4d4;
+  transition: all .25s ease-in-out;
+
+  &:hover, &:focus {
+    color: @gray-light;
+  }
+
+  .fa-archive {
+    color: @gray-light;
+  }
+}
+
+.page-header--new .btn-favourite, .page-header--new .btn-archive {
   font-size: 19px;
 }
 
@@ -243,7 +256,7 @@ body {
   }
 }
 
-.navbar li a .btn-favourite .fa {
+.navbar li a .btn-favourite .fa, .navbar li a .btn-archive .fa {
   font-size: 100%;
 }
 

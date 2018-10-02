@@ -335,6 +335,11 @@ function QueryResource(
         isArray: true,
         url: 'api/queries/recent',
       },
+      archive: {
+        method: 'get',
+        isArray: false,
+        url: 'api/queries/archive',
+      },
       query: {
         isArray: false,
       },
