@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { react2angular } from 'react2angular';
 
-export default class EditInPlace extends React.Component {
+export class EditInPlace extends React.Component {
   static propTypes = {
     ignoreBlanks: PropTypes.bool,
     isEditable: PropTypes.bool,
@@ -82,4 +83,8 @@ export default class EditInPlace extends React.Component {
     }
     return this.renderNormal();
   }
+}
+
+export default function init(ngModule) {
+  ngModule.component('editInPlace', react2angular(EditInPlace));
 }
