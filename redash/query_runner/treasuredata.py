@@ -35,31 +35,32 @@ TD_TYPES_MAPPING = {
 
 class TreasureData(BaseQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'endpoint': {
+            'type': 'string'
+        },
+        'apikey': {
+            'type': 'string'
+        },
+        'type': {
+            'type': 'string'
+        },
+        'db': {
+            'type': 'string',
+            'title': 'Database Name'
+        },
+        'get_schema': {
+            'type': 'boolean',
+            'title': 'Auto Schema Retrieval',
+            'default': False
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'endpoint': {
-                    'type': 'string'
-                },
-                'apikey': {
-                    'type': 'string'
-                },
-                'type': {
-                    'type': 'string'
-                },
-                'db': {
-                    'type': 'string',
-                    'title': 'Database Name'
-                },
-                'get_schema': {
-                    'type': 'boolean',
-                    'title': 'Auto Schema Retrieval',
-                    'default': False
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['apikey','db']
         }
 

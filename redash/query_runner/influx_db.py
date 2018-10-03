@@ -49,16 +49,17 @@ def _transform_result(results):
 
 class InfluxDB(BaseQueryRunner):
     noop_query = "show measurements limit 1"
+    configuration_properties = {
+        'url': {
+            'type': 'string'
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string'
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['url']
         }
 

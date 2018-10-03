@@ -44,19 +44,21 @@ class Python(BaseQueryRunner):
         'tuple', 'set', 'list', 'dict', 'bool',
     )
 
+    configuration_properties = {
+        'allowedImportModules': {
+            'type': 'string',
+            'title': 'Modules to import prior to running the script'
+        },
+        'additionalModulesPaths': {
+            'type': 'string'
+        }
+    }
+
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'allowedImportModules': {
-                    'type': 'string',
-                    'title': 'Modules to import prior to running the script'
-                },
-                'additionalModulesPaths': {
-                    'type': 'string'
-                }
-            },
+            'properties': cls.configuration_properties,
         }
 
     @classmethod

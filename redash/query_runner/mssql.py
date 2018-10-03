@@ -27,41 +27,42 @@ types_map = {
 
 class SqlServer(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        "user": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "server": {
+            "type": "string",
+            "default": "127.0.0.1"
+        },
+        "port": {
+            "type": "number",
+            "default": 1433
+        },
+        "tds_version": {
+            "type": "string",
+            "default": "7.0",
+            "title": "TDS Version"
+        },
+        "charset": {
+            "type": "string",
+            "default": "UTF-8",
+            "title": "Character Set"
+        },
+        "db": {
+            "type": "string",
+            "title": "Database Name"
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "server": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 1433
-                },
-                "tds_version": {
-                    "type": "string",
-                    "default": "7.0",
-                    "title": "TDS Version"
-                },
-                "charset": {
-                    "type": "string",
-                    "default": "UTF-8",
-                    "title": "Character Set"
-                },
-                "db": {
-                    "type": "string",
-                    "title": "Database Name"
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["db"],
             "secret": ["password"]
         }

@@ -29,6 +29,17 @@ def run_script(script, shell):
 
 
 class Script(BaseQueryRunner):
+    configuration_properties = {
+        'path': {
+            'type': 'string',
+            'title': 'Scripts path'
+        },
+        'shell': {
+            'type': 'boolean',
+            'title': 'Execute command through the shell'
+        }
+    }
+
     @classmethod
     def annotate_query(cls):
         return False
@@ -41,16 +52,7 @@ class Script(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'path': {
-                    'type': 'string',
-                    'title': 'Scripts path'
-                },
-                'shell': {
-                    'type': 'boolean',
-                    'title': 'Execute command through the shell'
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['path']
         }
 

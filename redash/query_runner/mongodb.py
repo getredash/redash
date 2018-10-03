@@ -117,24 +117,25 @@ def parse_results(results):
 
 
 class MongoDB(BaseQueryRunner):
+    configuration_properties = {
+        'connectionString': {
+            'type': 'string',
+            'title': 'Connection String'
+        },
+        'dbName': {
+            'type': 'string',
+            'title': "Database Name"
+        },
+        'replicaSetName': {
+            'type': 'string',
+            'title': 'Replica Set Name'
+        },
+    }
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'connectionString': {
-                    'type': 'string',
-                    'title': 'Connection String'
-                },
-                'dbName': {
-                    'type': 'string',
-                    'title': "Database Name"
-                },
-                'replicaSetName': {
-                    'type': 'string',
-                    'title': 'Replica Set Name'
-                },
-            },
+            'properties': cls.configuration_properties,
             'required': ['connectionString', 'dbName']
         }
 

@@ -46,36 +46,37 @@ def _wait(conn, timeout=None):
 
 class PostgreSQL(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        "user": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "host": {
+            "type": "string",
+            "default": "127.0.0.1"
+        },
+        "port": {
+            "type": "number",
+            "default": 5432
+        },
+        "dbname": {
+            "type": "string",
+            "title": "Database Name"
+        },
+        "sslmode": {
+           "type": "string",
+           "title": "SSL Mode",
+           "default": "prefer"
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string",
-                    "default": "127.0.0.1"
-                },
-                "port": {
-                    "type": "number",
-                    "default": 5432
-                },
-                "dbname": {
-                    "type": "string",
-                    "title": "Database Name"
-                },
-                "sslmode": {
-                   "type": "string",
-                   "title": "SSL Mode",
-                   "default": "prefer"
-                }
-            },
+            "properties": cls.configuration_properties,
             "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname"],
             "secret": ["password"]
@@ -186,6 +187,30 @@ class PostgreSQL(BaseSQLQueryRunner):
 
 
 class Redshift(PostgreSQL):
+    configuration_properties = {
+        "user": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "host": {
+            "type": "string"
+        },
+        "port": {
+            "type": "number"
+        },
+        "dbname": {
+            "type": "string",
+            "title": "Database Name"
+        },
+        "sslmode": {
+           "type": "string",
+           "title": "SSL Mode",
+           "default": "prefer"
+        }
+    }
+
     @classmethod
     def type(cls):
         return "redshift"
@@ -209,29 +234,7 @@ class Redshift(PostgreSQL):
 
         return {
             "type": "object",
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                },
-                "dbname": {
-                    "type": "string",
-                    "title": "Database Name"
-                },
-                "sslmode": {
-                   "type": "string",
-                   "title": "SSL Mode",
-                   "default": "prefer"
-                }
-            },
+            "properties": cls.configuration_properties,
             "order": ['host', 'port', 'user', 'password'],
             "required": ["dbname", "user", "password", "host", "port"],
             "secret": ["password"]

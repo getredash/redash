@@ -34,38 +34,39 @@ types_map = {
 
 class Impala(BaseSQLQueryRunner):
     noop_query = "show schemas"
+    configuration_properties = {
+        "host": {
+            "type": "string"
+        },
+        "port": {
+            "type": "number"
+        },
+        "protocol": {
+            "type": "string",
+            "title": "Please specify beeswax or hiveserver2"
+        },
+        "database": {
+            "type": "string"
+        },
+        "use_ldap": {
+            "type": "boolean"
+        },
+        "ldap_user": {
+            "type": "string"
+        },
+        "ldap_password": {
+            "type": "string"
+        },
+        "timeout": {
+            "type": "number"
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "host": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                },
-                "protocol": {
-                    "type": "string",
-                    "title": "Please specify beeswax or hiveserver2"
-                },
-                "database": {
-                    "type": "string"
-                },
-                "use_ldap": {
-                    "type": "boolean"
-                },
-                "ldap_user": {
-                    "type": "string"
-                },
-                "ldap_password": {
-                    "type": "string"
-                },
-                "timeout": {
-                    "type": "number"
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["host"],
             "secret": ["ldap_password"]
         }

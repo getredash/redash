@@ -31,6 +31,24 @@ logger = logging.getLogger(__name__)
 
 class Oracle(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM dual"
+    configuration_properties = {
+        "user": {
+            "type": "string"
+        },
+        "password": {
+            "type": "string"
+        },
+        "host": {
+            "type": "string"
+        },
+        "port": {
+            "type": "number"
+        },
+        "servicename": {
+            "type": "string",
+            "title": "DSN Service Name"
+        }
+    }
 
     @classmethod
     def get_col_type(cls, col_type, scale):
@@ -47,24 +65,7 @@ class Oracle(BaseSQLQueryRunner):
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "user": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "host": {
-                    "type": "string"
-                },
-                "port": {
-                    "type": "number"
-                },
-                "servicename": {
-                    "type": "string",
-                    "title": "DSN Service Name"
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["servicename", "user", "password", "host", "port"],
             "secret": ["password"]
         }

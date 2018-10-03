@@ -51,6 +51,7 @@ class NotSupported(Exception):
 
 class BaseQueryRunner(object):
     noop_query = None
+    configuration_properties = None
 
     def __init__(self, configuration):
         self.syntax = 'sql'
@@ -75,6 +76,12 @@ class BaseQueryRunner(object):
     @classmethod
     def configuration_schema(cls):
         return {}
+
+    @classmethod
+    def add_configuration_property(cls, property, value):
+        if cls.configuration_properties is None:
+            raise NotImplementedError()
+        cls.configuration_properties[property] = value
 
     def test_connection(self):
         if self.noop_query is None:
@@ -149,25 +156,26 @@ class BaseHTTPQueryRunner(BaseQueryRunner):
     url_title = 'URL base path'
     username_title = 'HTTP Basic Auth Username'
     password_title = 'HTTP Basic Auth Password'
+    configuration_properties = {
+        'url': {
+            'type': 'string',
+            'title': url_title,
+        },
+        'username': {
+            'type': 'string',
+            'title': username_title,
+        },
+        'password': {
+            'type': 'string',
+            'title': password_title,
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         schema = {
             'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': cls.url_title,
-                },
-                'username': {
-                    'type': 'string',
-                    'title': cls.username_title,
-                },
-                'password': {
-                    'type': 'string',
-                    'title': cls.password_title,
-                },
-            },
+            'properties': cls.configuration_properties,
             'required': ['url'],
             'secret': ['password']
         }

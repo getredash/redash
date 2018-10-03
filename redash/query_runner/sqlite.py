@@ -12,17 +12,18 @@ logger = logging.getLogger(__name__)
 
 class Sqlite(BaseSQLQueryRunner):
     noop_query = "pragma quick_check"
+    configuration_properties = {
+        "dbpath": {
+            "type": "string",
+            "title": "Database Path"
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "dbpath": {
-                    "type": "string",
-                    "title": "Database Path"
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["dbpath"],
         }
 

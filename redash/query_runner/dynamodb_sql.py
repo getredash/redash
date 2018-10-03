@@ -32,22 +32,23 @@ types_map = {
 
 
 class DynamoDBSQL(BaseSQLQueryRunner):
+    configuration_properties = {
+        "region": {
+            "type": "string",
+            "default": "us-east-1"
+        },
+        "access_key": {
+            "type": "string",
+        },
+        "secret_key": {
+            "type": "string",
+        }
+    }
     @classmethod
     def configuration_schema(cls):
         return {
             "type": "object",
-            "properties": {
-                "region": {
-                    "type": "string",
-                    "default": "us-east-1"
-                },
-                "access_key": {
-                    "type": "string",
-                },
-                "secret_key": {
-                    "type": "string",
-                }
-            },
+            "properties": cls.configuration_properties,
             "required": ["access_key", "secret_key"],
             "secret": ["secret_key"]
         }

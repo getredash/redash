@@ -28,6 +28,27 @@ types_map = {
 
 class Mysql(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'host': {
+            'type': 'string',
+            'default': '127.0.0.1'
+        },
+        'user': {
+            'type': 'string'
+        },
+        'passwd': {
+            'type': 'string',
+            'title': 'Password'
+        },
+        'db': {
+            'type': 'string',
+            'title': 'Database name'
+        },
+        'port': {
+            'type': 'number',
+            'default': 3306,
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
@@ -35,27 +56,7 @@ class Mysql(BaseSQLQueryRunner):
 
         schema = {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string',
-                    'default': '127.0.0.1'
-                },
-                'user': {
-                    'type': 'string'
-                },
-                'passwd': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'db': {
-                    'type': 'string',
-                    'title': 'Database name'
-                },
-                'port': {
-                    'type': 'number',
-                    'default': 3306,
-                }
-            },
+            'properties': cls.configuration_properties,
             "order": ['host', 'port', 'user', 'passwd', 'db'],
             'required': ['db'],
             'secret': ['passwd']

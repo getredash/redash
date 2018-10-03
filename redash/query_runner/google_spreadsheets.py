@@ -147,6 +147,12 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+    configuration_properties = {
+        'jsonKeyFile': {
+            "type": "string",
+            'title': 'JSON Key File'
+        }
+    }
 
     @classmethod
     def annotate_query(cls):
@@ -164,12 +170,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'jsonKeyFile': {
-                    "type": "string",
-                    'title': 'JSON Key File'
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['jsonKeyFile'],
             'secret': ['jsonKeyFile']
         }

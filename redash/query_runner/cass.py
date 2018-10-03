@@ -23,6 +23,37 @@ class CassandraJSONEncoder(JSONEncoder):
 
 class Cassandra(BaseQueryRunner):
     noop_query = "SELECT dateof(now()) FROM system.local"
+    configuration_properties = {
+        'host': {
+            'type': 'string',
+        },
+        'port': {
+            'type': 'number',
+            'default': 9042,
+        },
+        'keyspace': {
+            'type': 'string',
+            'title': 'Keyspace name'
+        },
+        'username': {
+            'type': 'string',
+            'title': 'Username'
+        },
+        'password': {
+            'type': 'string',
+            'title': 'Password'
+        },
+        'protocol': {
+            'type': 'number',
+            'title': 'Protocol Version',
+            'default': 3
+        },
+        'timeout': {
+            'type': 'number',
+            'title': 'Timeout',
+            'default': 10
+        }
+    }
 
     @classmethod
     def enabled(cls):
@@ -32,37 +63,7 @@ class Cassandra(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string',
-                },
-                'port': {
-                    'type': 'number',
-                    'default': 9042,
-                },
-                'keyspace': {
-                    'type': 'string',
-                    'title': 'Keyspace name'
-                },
-                'username': {
-                    'type': 'string',
-                    'title': 'Username'
-                },
-                'password': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'protocol': {
-                    'type': 'number',
-                    'title': 'Protocol Version',
-                    'default': 3
-                },
-                'timeout': {
-                    'type': 'number',
-                    'title': 'Timeout',
-                    'default': 10
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['keyspace', 'host']
         }
 

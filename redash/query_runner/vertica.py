@@ -29,34 +29,35 @@ types_map = {
 
 class Vertica(BaseSQLQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'host': {
+            'type': 'string'
+        },
+        'user': {
+            'type': 'string'
+        },
+        'password': {
+            'type': 'string',
+            'title': 'Password'
+        },
+        'database': {
+            'type': 'string',
+            'title': 'Database name'
+        },
+        "port": {
+            "type": "number"
+        },
+        "read_timeout": {
+            "type": "number",
+            "title": "Read Timeout"
+        },
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string'
-                },
-                'user': {
-                    'type': 'string'
-                },
-                'password': {
-                    'type': 'string',
-                    'title': 'Password'
-                },
-                'database': {
-                    'type': 'string',
-                    'title': 'Database name'
-                },
-                "port": {
-                    "type": "number"
-                },
-                "read_timeout": {
-                    "type": "number",
-                    "title": "Read Timeout"
-                },
-            },
+            'properties': cls.configuration_properties,
             'required': ['database'],
             'secret': ['password']
         }

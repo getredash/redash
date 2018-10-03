@@ -31,28 +31,29 @@ PRESTO_TYPES_MAPPING = {
 
 class Presto(BaseQueryRunner):
     noop_query = 'SHOW TABLES'
+    configuration_properties = {
+        'host': {
+            'type': 'string'
+        },
+        'port': {
+            'type': 'number'
+        },
+        'schema': {
+            'type': 'string'
+        },
+        'catalog': {
+            'type': 'string'
+        },
+        'username': {
+            'type': 'string'
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'host': {
-                    'type': 'string'
-                },
-                'port': {
-                    'type': 'number'
-                },
-                'schema': {
-                    'type': 'string'
-                },
-                'catalog': {
-                    'type': 'string'
-                },
-                'username': {
-                    'type': 'string'
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['host']
         }
 

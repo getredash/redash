@@ -11,6 +11,18 @@ class RequiresAuthQueryRunner(BaseHTTPQueryRunner):
 
 class TestBaseHTTPQueryRunner(TestCase):
 
+    def test_add_configuration_property(self):
+        config_properties = BaseHTTPQueryRunner.configuration_properties
+        self.assertEqual(3, len(config_properties))
+        self.assertIn('url', config_properties)
+        self.assertIn('username', config_properties)
+        self.assertIn('password', config_properties)
+
+        BaseHTTPQueryRunner.add_configuration_property(
+            "new_property", "some value")
+        self.assertEqual(4, len(config_properties))
+        self.assertIn('new_property', config_properties)
+
     def test_requires_authentication_default(self):
         self.assertFalse(BaseHTTPQueryRunner.requires_authentication)
         schema = BaseHTTPQueryRunner.configuration_schema()

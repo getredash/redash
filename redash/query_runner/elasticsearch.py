@@ -45,25 +45,26 @@ PYTHON_TYPES_MAPPING = {
 
 class BaseElasticSearch(BaseQueryRunner):
     DEBUG_ENABLED = False
+    configuration_properties = {
+        'server': {
+            'type': 'string',
+            'title': 'Base URL'
+        },
+        'basic_auth_user': {
+            'type': 'string',
+            'title': 'Basic Auth User'
+        },
+        'basic_auth_password': {
+            'type': 'string',
+            'title': 'Basic Auth Password'
+        }
+    }
 
     @classmethod
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'server': {
-                    'type': 'string',
-                    'title': 'Base URL'
-                },
-                'basic_auth_user': {
-                    'type': 'string',
-                    'title': 'Basic Auth User'
-                },
-                'basic_auth_password': {
-                    'type': 'string',
-                    'title': 'Basic Auth Password'
-                }
-            },
+            'properties': cls.configuration_properties,
             "secret": ["basic_auth_password"],
             "required": ["server"]
         }

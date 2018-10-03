@@ -82,6 +82,40 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
 
 class BigQuery(BaseQueryRunner):
     noop_query = "SELECT 1"
+    configuration_properties = {
+        'projectId': {
+            'type': 'string',
+            'title': 'Project ID'
+        },
+        'jsonKeyFile': {
+            "type": "string",
+            'title': 'JSON Key File'
+        },
+        'totalMBytesProcessedLimit': {
+            "type": "number",
+            'title': 'Scanned Data Limit (MB)'
+        },
+        'userDefinedFunctionResourceUri': {
+            "type": "string",
+            'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
+        },
+        'useStandardSql': {
+            "type": "boolean",
+            'title': "Use Standard SQL (Beta)",
+        },
+        'location': {
+            "type": "string",
+            "title": "Processing Location",
+        },
+        'loadSchema': {
+            "type": "boolean",
+            "title": "Load Schema"
+        },
+        'maximumBillingTier': {
+            "type": "number",
+            "title": "Maximum Billing Tier"
+        }
+    }
 
     @classmethod
     def enabled(cls):
@@ -91,40 +125,7 @@ class BigQuery(BaseQueryRunner):
     def configuration_schema(cls):
         return {
             'type': 'object',
-            'properties': {
-                'projectId': {
-                    'type': 'string',
-                    'title': 'Project ID'
-                },
-                'jsonKeyFile': {
-                    "type": "string",
-                    'title': 'JSON Key File'
-                },
-                'totalMBytesProcessedLimit': {
-                    "type": "number",
-                    'title': 'Scanned Data Limit (MB)'
-                },
-                'userDefinedFunctionResourceUri': {
-                    "type": "string",
-                    'title': 'UDF Source URIs (i.e. gs://bucket/date_utils.js, gs://bucket/string_utils.js )'
-                },
-                'useStandardSql': {
-                    "type": "boolean",
-                    'title': "Use Standard SQL (Beta)",
-                },
-                'location': {
-                    "type": "string",
-                    "title": "Processing Location",
-                },
-                'loadSchema': {
-                    "type": "boolean",
-                    "title": "Load Schema"
-                },
-                'maximumBillingTier': {
-                    "type": "number",
-                    "title": "Maximum Billing Tier"
-                }
-            },
+            'properties': cls.configuration_properties,
             'required': ['jsonKeyFile', 'projectId'],
             "order": ['projectId', 'jsonKeyFile', 'loadSchema', 'useStandardSql', 'location', 'totalMBytesProcessedLimit', 'maximumBillingTier', 'userDefinedFunctionResourceUri'],
             'secret': ['jsonKeyFile']
