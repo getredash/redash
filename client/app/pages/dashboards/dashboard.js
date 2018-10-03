@@ -23,6 +23,7 @@ function getWidgetsWithChangedPositions(widgets) {
 }
 
 function DashboardCtrl(
+  $scope,
   $routeParams,
   $location,
   $timeout,
@@ -178,6 +179,7 @@ function DashboardCtrl(
       { slug: $routeParams.dashboardSlug },
       (dashboard) => {
         this.dashboard = dashboard;
+        $scope.dashboard = dashboard;
         this.isDashboardOwner = currentUser.id === dashboard.user.id || currentUser.hasPermission('admin');
         Events.record('view', 'dashboard', dashboard.id);
         renderDashboard(dashboard, force);
@@ -247,6 +249,11 @@ function DashboardCtrl(
         aclUrl: { url: `api/dashboards/${this.dashboard.id}/acl` },
       },
     });
+  };
+
+  this.downloadPdf = () => {
+    Events.record('donwloadPdf', 'dashboard', this.dashboard.id);
+    this.dashboard.$downloadPdf();
   };
 
   this.editLayout = (enableEditing, applyChanges) => {

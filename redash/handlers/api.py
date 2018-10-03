@@ -23,7 +23,7 @@ from redash.handlers.settings import OrganizationSettings
 from redash.handlers.favorites import QueryFavoriteListResource, QueryFavoriteResource, DashboardFavoriteListResource, DashboardFavoriteResource
 from redash.handlers.queries import QueryTagsResource
 from redash.handlers.dashboards import DashboardTagsResource
-
+from redash.handlers.pdf import DashboardPdfDownload
 
 class ApiExt(Api):
     def add_org_resource(self, resource, *urls, **kwargs):
@@ -69,10 +69,10 @@ api.add_org_resource(GroupDataSourceResource, '/api/groups/<group_id>/data_sourc
 
 api.add_org_resource(EventsResource, '/api/events', endpoint='events')
 
-api.add_org_resource(QueryFavoriteListResource, '/api/queries/favorites', endpoint='query_fovorites')
-api.add_org_resource(QueryFavoriteResource, '/api/queries/<query_id>/favorite', endpoint='query_fovorite')
-api.add_org_resource(DashboardFavoriteListResource, '/api/dashboards/favorites', endpoint='dashboard_fovorites')
-api.add_org_resource(DashboardFavoriteResource, '/api/dashboards/<object_id>/favorite', endpoint='dashboard_fovorite')
+api.add_org_resource(QueryFavoriteListResource, '/api/queries/favorites', endpoint='query_favorites')
+api.add_org_resource(QueryFavoriteResource, '/api/queries/<query_id>/favorite', endpoint='query_favorite')
+api.add_org_resource(DashboardFavoriteListResource, '/api/dashboards/favorites', endpoint='dashboard_favorites')
+api.add_org_resource(DashboardFavoriteResource, '/api/dashboards/<object_id>/favorite', endpoint='dashboard_favorite')
 
 api.add_org_resource(QueryTagsResource, '/api/queries/tags', endpoint='query_tags')
 api.add_org_resource(DashboardTagsResource, '/api/dashboards/tags', endpoint='dashboard_tags')
@@ -117,3 +117,5 @@ api.add_org_resource(QuerySnippetResource, '/api/query_snippets/<snippet_id>', e
 api.add_org_resource(QuerySnippetListResource, '/api/query_snippets', endpoint='query_snippets')
 
 api.add_org_resource(OrganizationSettings, '/api/settings/organization', endpoint='organization_settings')
+
+api.add_org_resource(DashboardPdfDownload, '/api/dashboards/<dashboard_slug>/pdf', endpoint='dashboard_pdf_download')

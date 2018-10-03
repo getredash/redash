@@ -95,6 +95,12 @@ function Dashboard($resource, $http, currentUser, Widget, dashboardGridOptions) 
         url: 'api/dashboards/:slug/favorite',
         transformRequest: [() => ''], // body not needed
       },
+      downloadPdf: {
+        method: 'get',
+        isArray: false,
+        url: 'api/dashboards/:slug/pdf',
+        transformRequest: [() => ''], // body not needed
+      },
     },
   );
 
