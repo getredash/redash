@@ -28,6 +28,7 @@ const config = {
     publicPath: "/static/"
   },
   resolve: {
+    extensions: ['.js', '.jsx'],
     alias: {
       "@": appPath
     }
