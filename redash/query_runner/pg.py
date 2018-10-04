@@ -270,8 +270,6 @@ class Redshift(PostgreSQL):
 
 
 class CockroachDB(PostgreSQL):
-    def __init__(self, configuration):
-        super(CockroachDB, self).__init__(configuration)
 
     @classmethod
     def type(cls):

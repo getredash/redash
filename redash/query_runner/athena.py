@@ -1,10 +1,11 @@
 import json
 import logging
 import os
+import simplejson
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
-from redash.utils import JSONEncoder
+from redash.utils import SimpleJSONEncoder
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
@@ -114,9 +115,6 @@ class Athena(BaseQueryRunner):
     def type(cls):
         return "athena"
 
-    def __init__(self, configuration):
-        super(Athena, self).__init__(configuration)
-
     def __get_schema_from_glue(self):
         client = boto3.client(
                 'glue',
@@ -197,7 +195,7 @@ class Athena(BaseQueryRunner):
                     'athena_query_id': athena_query_id
                 }
             }
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = simplejson.dumps(data, ignore_nan=True, cls=SimpleJSONEncoder)
             error = None
         except KeyboardInterrupt:
             if cursor.query_id:

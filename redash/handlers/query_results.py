@@ -104,7 +104,10 @@ class QueryResultListResource(BaseResource):
 
         :qparam string query: The query text to execute
         :qparam number query_id: The query object to update with the result (optional)
-        :qparam number max_age: If query results less than `max_age` seconds old are available, return them, otherwise execute the query; if omitted, always execute
+        :qparam number max_age: If query results less than `max_age` seconds old are available,
+                                return them, otherwise execute the query; if omitted or -1, returns
+                                any cached result, or executes if not available. Set to zero to
+                                always execute.
         :qparam number data_source_id: ID of data source to query
         """
         params = request.get_json(force=True)
@@ -121,7 +124,6 @@ class QueryResultListResource(BaseResource):
 
         self.record_event({
             'action': 'execute_query',
-            'timestamp': int(time.time()),
             'object_id': data_source.id,
             'object_type': 'data_source',
             'query': query
@@ -191,10 +193,10 @@ class QueryResultResource(BaseResource):
 
             if query_result is None and query is not None:
                 if settings.ALLOW_PARAMETERS_IN_EMBEDS and parameter_values:
-                    query_result = run_query_sync(query.data_source, parameter_values, query.to_dict()['query'], max_age=max_age)
+                    query_result = run_query_sync(query.data_source, parameter_values, query.query_text, max_age=max_age)
                 elif query.latest_query_data_id is not None:
                     query_result = get_object_or_404(models.QueryResult.get_by_id_and_org, query.latest_query_data_id, self.current_org)
-                
+
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
                     abort(404, message='No cached result found for this query.')
@@ -207,7 +209,6 @@ class QueryResultResource(BaseResource):
                     'user_id': None,
                     'org_id': self.current_org.id,
                     'action': 'api_get',
-                    'timestamp': int(time.time()),
                     'api_key': self.current_user.name,
                     'file_type': filetype,
                     'user_agent': request.user_agent.string,

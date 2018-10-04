@@ -90,9 +90,6 @@ class SqlServer(BaseSQLQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration):
-        super(SqlServer, self).__init__(configuration)
-
     def _get_tables(self, schema):
         query = """
         SELECT table_schema, table_name, column_name
@@ -173,8 +170,6 @@ class SqlServer(BaseSQLQueryRunner):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if connection:
                 connection.close()

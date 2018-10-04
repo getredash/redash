@@ -116,7 +116,6 @@ class BigQuery(BaseQueryRunner):
                 'location': {
                     "type": "string",
                     "title": "Processing Location",
-                    "default": "US",
                 },
                 'loadSchema': {
                     "type": "boolean",
@@ -136,9 +135,6 @@ class BigQuery(BaseQueryRunner):
     def annotate_query(cls):
         return False
 
-    def __init__(self, configuration):
-        super(BigQuery, self).__init__(configuration)
-
     def _get_bigquery_service(self):
         scope = [
             "https://www.googleapis.com/auth/bigquery",
@@ -157,14 +153,16 @@ class BigQuery(BaseQueryRunner):
         return self.configuration["projectId"]
 
     def _get_location(self):
-        return self.configuration.get("location", "US")
+        return self.configuration.get("location")
 
     def _get_total_bytes_processed(self, jobs, query):
         job_data = {
             "query": query,
             "dryRun": True,
-            'location': self._get_location()
         }
+
+        if self._get_location():
+            job_data['location'] = self._get_location()
 
         if self.configuration.get('useStandardSql', False):
             job_data['useLegacySql'] = False
@@ -181,9 +179,11 @@ class BigQuery(BaseQueryRunner):
                 }
             }
         }
-        job_data['jobReference'] = {
+
+        if self._get_location():
+            job_data['jobReference'] = {
                 'location': self._get_location()
-        }
+            }
 
         if self.configuration.get('useStandardSql', False):
             job_data['configuration']['query']['useLegacySql'] = False
@@ -210,10 +210,17 @@ class BigQuery(BaseQueryRunner):
                 rows.append(transform_row(row, query_reply["schema"]["fields"]))
 
             current_row += len(query_reply['rows'])
-            query_reply = jobs.getQueryResults(projectId=project_id,
-                                               location=self._get_location(),
-                                               jobId=query_reply['jobReference']['jobId'],
-                                               startIndex=current_row).execute()
+
+            query_result_request = {
+                'projectId': project_id,
+                'jobId': query_reply['jobReference']['jobId'],
+                'startIndex': current_row
+            }
+
+            if self._get_location():
+                query_result_request['location'] = self._get_location()
+
+            query_reply = jobs.getQueryResults(**query_result_request).execute()
 
         columns = [{'name': f["name"],
                     'friendly_name': f["name"],
@@ -299,8 +306,6 @@ class BigQuery(BaseQueryRunner):
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
-        except Exception:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 

@@ -133,8 +133,8 @@ export function inferCountryCodeType(data, countryCodeField) {
       iso_a3: 0,
       iso_n3: 0,
     })
-    .pairs()
-    .max(item => item[1])
+    .toPairs()
+    .reduce((memo, item) => (item[1] > memo[1] ? item : memo))
     .value();
 
   return (result[1] / data.length) >= 0.9 ? result[0] : null;

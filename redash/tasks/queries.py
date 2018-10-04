@@ -283,7 +283,7 @@ def refresh_queries():
                 logging.info("Skipping refresh of %s because datasource - %s is paused (%s).", query.id, query.data_source.name, query.data_source.pause_reason)
             else:
                 if query.options and len(query.options.get('parameters', [])) > 0:
-                    query_params = {p['name']: p['value']
+                    query_params = {p['name']: p.get('value')
                                     for p in query.options['parameters']}
                     query_text = pystache.render(query.query_text, query_params)
                 else:
@@ -427,11 +427,17 @@ class QueryExecutor(object):
         self.query_hash = gen_query_hash(self.query)
         self.scheduled_query = scheduled_query
         # Load existing tracker or create a new one if the job was created before code update:
-        self.tracker = QueryTaskTracker.get_by_task_id(task.request.id) or QueryTaskTracker.create(task.request.id,
-                                                                                                   'created',
-                                                                                                   self.query_hash,
-                                                                                                   self.data_source_id,
-                                                                                                   False, metadata)
+        self.tracker = (
+            QueryTaskTracker.get_by_task_id(task.request.id) or
+            QueryTaskTracker.create(
+                task.request.id,
+                'created',
+                self.query_hash,
+                self.data_source_id,
+                False,
+                metadata
+            )
+        )
         if self.tracker.scheduled:
             models.scheduled_queries_executions.update(self.tracker.query_id)
 
@@ -466,6 +472,8 @@ class QueryExecutor(object):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
                 self.scheduled_query.schedule_failures += 1
                 models.db.session.add(self.scheduled_query)
+            models.db.session.commit()
+            raise result
         else:
             if (self.scheduled_query and self.scheduled_query.schedule_failures > 0):
                 self.scheduled_query = models.db.session.merge(self.scheduled_query, load=False)
@@ -482,8 +490,8 @@ class QueryExecutor(object):
             self._log_progress('finished')
 
             result = query_result.id
-        models.db.session.commit()
-        return result
+            models.db.session.commit()
+            return result
 
     def _annotate_query(self, query_runner):
         if query_runner.annotate_query():

@@ -10,6 +10,7 @@ import hashlib
 import pytz
 import pystache
 import os
+import simplejson
 
 from funcy import distinct, select_values
 from sqlalchemy.orm.query import Query
@@ -66,23 +67,43 @@ def generate_token(length):
     return ''.join(rand.choice(chars) for x in range(length))
 
 
-class JSONEncoder(json.JSONEncoder):
+class JSONEncoderMixin:
     """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
 
-    def default(self, o):
+    def process_default(self, o):
         # Some SQLAlchemy collections are lazy.
         if isinstance(o, Query):
-            return list(o)
+            return True, list(o)
         if isinstance(o, decimal.Decimal):
-            return float(o)
+            return True, float(o)
 
         if isinstance(o, (datetime.date, datetime.time)):
-            return o.isoformat()
+            return True, o.isoformat()
 
         if isinstance(o, datetime.timedelta):
-            return str(o)
+            return True, str(o)
 
-        super(JSONEncoder, self).default(o)
+        return False, None  # default processing
+
+
+class JSONEncoder(JSONEncoderMixin, json.JSONEncoder):
+    """Adapter for `json.dumps`."""
+
+    def default(self, o):
+        processed, result = self.process_default(o)
+        if not processed:
+            result = super(JSONEncoder, self).default(o)
+        return result
+
+
+class SimpleJSONEncoder(JSONEncoderMixin, simplejson.JSONEncoder):
+    """Adapter for `simplejson.dumps`."""
+
+    def default(self, o):
+        processed, result = self.process_default(o)
+        if not processed:
+            result = super(SimpleJSONEncoder, self).default(o)
+        return result
 
 
 def json_dumps(data):

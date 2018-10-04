@@ -286,8 +286,6 @@ class BaseElasticSearch(BaseQueryRunner):
 
 
 class Kibana(BaseElasticSearch):
-    def __init__(self, configuration):
-        super(Kibana, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -375,17 +373,11 @@ class Kibana(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except Exception as e:
-            logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 
 
 class ElasticSearch(BaseElasticSearch):
-
-    def __init__(self, configuration):
-        super(ElasticSearch, self).__init__(configuration)
 
     @classmethod
     def enabled(cls):
@@ -446,9 +438,6 @@ class ElasticSearch(BaseElasticSearch):
             logger.exception(e)
             error = "Connection refused"
             json_data = None
-        except Exception as e:
-            logger.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 

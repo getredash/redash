@@ -1,23 +1,20 @@
 import template from './home.html';
 
-function HomeCtrl($scope, $uibModal, currentUser, Events, Dashboard, Query) {
+function HomeCtrl(Events, Dashboard, Query) {
   Events.record('view', 'page', 'personal_homepage');
+
+  this.noDashboards = false;
+  this.noQueries = false;
+
 
   Dashboard.favorites().$promise.then((data) => {
     this.favoriteDashboards = data.results;
+    this.noDashboards = data.results.length === 0;
   });
   Query.favorites().$promise.then((data) => {
     this.favoriteQueries = data.results;
+    this.noQueries = data.results.length === 0;
   });
-
-  this.newDashboard = () => {
-    $uibModal.open({
-      component: 'editDashboardDialog',
-      resolve: {
-        dashboard: () => ({ name: null, layout: null }),
-      },
-    });
-  };
 }
 
 export default function init(ngModule) {

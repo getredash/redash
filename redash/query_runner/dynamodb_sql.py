@@ -69,9 +69,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
     def name(cls):
         return "DynamoDB (with DQL)"
 
-    def __init__(self, configuration):
-        super(DynamoDBSQL, self).__init__(configuration)
-
     def _connect(self):
         engine = FragmentEngine()
         config = self.configuration.to_dict()
@@ -135,8 +132,6 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 engine.connection.cancel()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 

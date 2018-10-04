@@ -8,7 +8,6 @@ The following is a set of guidelines for contributing to Redash. These are guide
 
 - [Feature Roadmap](https://trello.com/b/b2LUHU7A/redash-roadmap)
 - [Feature Requests](https://discuss.redash.io/c/feature-requests)
-- [Gitter Chat](https://gitter.im/getredash/redash) or [Slack](https://slack.redash.io)
 - [Documentation](https://redash.io/help/)
 - [Blog](http://blog.redash.io/)
 - [Twitter](https://twitter.com/getredash)

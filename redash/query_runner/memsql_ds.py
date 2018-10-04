@@ -75,9 +75,6 @@ class MemSQL(BaseSQLQueryRunner):
     def enabled(cls):
         return enabled
 
-    def __init__(self, configuration):
-        super(MemSQL, self).__init__(configuration)
-
     def _get_tables(self, schema):
         schemas_query = "show schemas"
 
@@ -140,9 +137,6 @@ class MemSQL(BaseSQLQueryRunner):
             cursor.close()
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            logging.exception(e)
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if cursor:
                 cursor.close()

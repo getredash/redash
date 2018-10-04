@@ -1,8 +1,6 @@
 import logging
 import json
 
-from redash import settings
-
 logger = logging.getLogger(__name__)
 
 __all__ = [

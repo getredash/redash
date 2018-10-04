@@ -21,13 +21,9 @@
           </ul>
         </div>
         <div class="th-title">
-          <p class="hidden-print">
-            <span ng-hide="$ctrl.canViewQuery">{{$ctrl.widget.getQuery().name}}</span>
-            <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization" ng-show="$ctrl.canViewQuery"></query-link>
-          </p>
-          <p class="visible-print">
-            <span>{{$ctrl.widget.getQuery().name}}</span>
-            <visualization-name visualization="$ctrl.widget.visualization"/>
+          <p>
+            <query-link query="$ctrl.widget.getQuery()" visualization="$ctrl.widget.visualization"
+              readonly="!$ctrl.canViewQuery"></query-link>
           </p>
           <div class="text-muted query--description" ng-bind-html="$ctrl.widget.getQuery().description | markdown"></div>
         </div>

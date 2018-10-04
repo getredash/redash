@@ -1,7 +1,7 @@
 import os
-import logging
 import datetime
 import json
+import logging
 from unittest import TestCase
 from contextlib import contextmanager
 

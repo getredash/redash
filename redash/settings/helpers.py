@@ -1,24 +1,5 @@
 import json
 import os
-import urlparse
-import urllib
-
-
-def parse_db_url(url):
-    url_parts = urlparse.urlparse(url)
-    connection = {'threadlocals': True}
-
-    if url_parts.hostname and not url_parts.path:
-        connection['name'] = url_parts.hostname
-    else:
-        connection['name'] = url_parts.path[1:]
-        connection['host'] = url_parts.hostname
-        connection['port'] = url_parts.port
-        connection['user'] = url_parts.username
-        # Passwords might be quoted with special characters
-        connection['password'] = url_parts.password and urllib.unquote(url_parts.password)
-
-    return connection
 
 
 def fix_assets_path(path):

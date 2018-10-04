@@ -56,7 +56,7 @@ class Vertica(BaseSQLQueryRunner):
                 "read_timeout": {
                     "type": "number",
                     "title": "Read Timeout"
-                },                                
+                },
             },
             'required': ['database'],
             'secret': ['password']
@@ -70,9 +70,6 @@ class Vertica(BaseSQLQueryRunner):
             return False
 
         return True
-
-    def __init__(self, configuration):
-        super(Vertica, self).__init__(configuration)
 
     def _get_tables(self, schema):
         query = """
@@ -141,8 +138,6 @@ class Vertica(BaseSQLQueryRunner):
         except KeyboardInterrupt:
             error = "Query cancelled by user."
             json_data = None
-        except Exception as e:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
         finally:
             if connection:
                 connection.close()
