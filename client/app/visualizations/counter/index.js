@@ -42,8 +42,8 @@ function CounterRenderer($timeout) {
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
           const counterLabel = $scope.visualization.options.counterLabel;
-          
-          if (counterLabel){
+
+          if (counterLabel) {
             $scope.counterLabel = counterLabel;
           }
 
