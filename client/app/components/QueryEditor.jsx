@@ -195,12 +195,12 @@ class QueryEditor extends React.Component {
                 <button type="button" className="btn btn-default m-r-5" onClick={this.props.addNewParameter}>&#123;&#123;&nbsp;&#125;&#125;</button>
               </Tooltip>
               <Tooltip placement="top" title="Format Query">
-                <button type="button" className="btn btn-default" onClick={this.formatQuery}>
+                <button type="button" className="btn btn-default m-r-5" onClick={this.formatQuery}>
                   <span className="zmdi zmdi-format-indent-increase" />
                 </button>
               </Tooltip>
               <Tooltip placement="top" title="Autocomplete">
-                <button className={'btn btn-default' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
+                <button type="button" className={'btn btn-default' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
                   <span className="fa fa-magic" />
                 </button>
               </Tooltip>
