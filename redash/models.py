@@ -605,7 +605,7 @@ class DataSource(BelongsToOrgMixin, db.Model):
         return d
 
     def __str__(self):
-        return self.name
+        return text_type(self.name)
 
     @classmethod
     def create_with_group(cls, *args, **kwargs):
@@ -1586,7 +1586,7 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
         return d
 
     def __str__(self):
-        return self.name
+        return text_type(self.name)
 
     @property
     def destination(self):
