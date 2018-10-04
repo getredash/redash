@@ -60,7 +60,8 @@ def verify_profile(org, profile):
 @blueprint.route('/<org_slug>/oauth/google', endpoint="authorize_org")
 def org_login(org_slug):
     session['org_slug'] = current_org.slug
-    return redirect(url_for(".authorize", next=request.args.get('next', None)))
+    relogin = request.args.get('relogin', '0')
+    return redirect(url_for(".authorize", next=request.args.get('next', None), relogin=relogin))
 
 
 @blueprint.route('/oauth/google', endpoint="authorize")
@@ -107,7 +108,7 @@ def authorized():
 
     if not verify_profile(org, profile):
         logger.warning("User tried to login with unauthorized domain name: %s (org: %s)", profile['email'], org)
-        return redirect(url_for('redash.login', relogin='1', org_slug=org.slug))
+        return redirect(url_for('org_login', relogin='1', org_slug=org.slug))
 
     picture_url = "%s?sz=40" % profile['picture']
     user = create_and_login_user(org, profile['name'], profile['email'], picture_url)
