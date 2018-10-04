@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 import Tooltip from 'antd/lib/tooltip';
-import 'antd/lib/tooltip/style';
 import { react2angular } from 'react2angular';
 
 import AceEditor from 'react-ace';
