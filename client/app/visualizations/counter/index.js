@@ -45,6 +45,8 @@ function CounterRenderer($timeout) {
 
           if (counterLabel) {
             $scope.counterLabel = counterLabel;
+          } else {
+            $scope.counterLabel = $scope.visualization.name;
           }
 
           if ($scope.visualization.options.countRow) {
