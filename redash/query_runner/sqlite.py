@@ -3,6 +3,8 @@ import logging
 import sqlite3
 import sys
 
+from six import reraise
+
 from redash.query_runner import BaseSQLQueryRunner
 from redash.query_runner import register
 
@@ -87,7 +89,7 @@ class Sqlite(BaseSQLQueryRunner):
             err_class = sys.exc_info()[1].__class__
             err_args = [arg.decode('utf-8') for arg in sys.exc_info()[1].args]
             unicode_err = err_class(*err_args)
-            raise unicode_err, None, sys.exc_info()[2]
+            reraise(unicode_err, None, sys.exc_info()[2])
         finally:
             connection.close()
         return json_data, error
