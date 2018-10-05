@@ -13,6 +13,7 @@ import os
 import simplejson
 
 from funcy import distinct, select_values
+from six import string_types
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
@@ -134,7 +135,7 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def _encode_utf8(self, val):
-        if isinstance(val, (unicode, str)):
+        if isinstance(val, string_types):
             return val.encode(WRITER_ENCODING, WRITER_ERRORS)
 
         return val

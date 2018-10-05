@@ -1,5 +1,18 @@
 version: 2.0
+
+flake8-steps: &steps
+  - checkout
+  - run: sudo pip install flake8
+  - run: ./flake8_tests.sh
 jobs:
+  flake8-tests-on-python:
+    docker:
+      - image: circleci/python:3.7.0
+    steps: *steps
+  flake8-tests-on-legacy-python:
+    docker:
+      - image: circleci/python:2.7.15
+    steps: *steps
   unit-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
@@ -105,6 +118,8 @@ workflows:
   #             only: master
   build:
     jobs:
+      - flake8-tests-on-python
+      - flake8-tests-on-legacy-python
       - unit-tests
       - build-tarball:
            requires:

@@ -5,6 +5,7 @@ import re
 import sqlite3
 
 from dateutil import parser
+from six import text_type
 
 from redash import models
 from redash.permissions import has_access, not_view_only
@@ -30,7 +31,7 @@ def _guess_type(value):
     if isinstance(value, float):
         return TYPE_FLOAT
 
-    if unicode(value).lower() in ('true', 'false'):
+    if text_type(value).lower() in ('true', 'false'):
         return TYPE_BOOLEAN
 
     try:

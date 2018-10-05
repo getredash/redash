@@ -5,6 +5,7 @@ Revises: 6b5be7e0a0ef
 Create Date: 2018-01-31 15:20:30.396533
 
 """
+from __future__ import print_function
 import json
 from alembic import op
 import sqlalchemy as sa
@@ -22,25 +23,25 @@ depends_on = None
 def upgrade():
     # Update widgets position data:
     column_size = 3
-    print "Updating dashboards position data:"
+    print("Updating dashboards position data:")
     for dashboard in Dashboard.query:
-        print "  Updating dashboard: {}".format(dashboard.id)
+        print("  Updating dashboard: {}".format(dashboard.id))
         layout = json.loads(dashboard.layout)
 
-        print "    Building widgets map:"
+        print("    Building widgets map:")
         widgets = {}
         for w in dashboard.widgets:
-            print "    Widget: {}".format(w.id)
+            print("    Widget: {}".format(w.id))
             widgets[w.id] = w
 
-        print "    Iterating over layout:"
+        print("    Iterating over layout:")
         for row_index, row in enumerate(layout):
-            print "      Row: {} - {}".format(row_index, row)
+            print("      Row: {} - {}".format(row_index, row))
             if row is None:
                 continue
 
             for column_index, widget_id in enumerate(row):
-                print "      Column: {} - {}".format(column_index, widget_id)
+                print("      Column: {} - {}".format(column_index, widget_id))
                 widget = widgets.get(widget_id)
 
                 if widget is None:
