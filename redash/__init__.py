@@ -102,7 +102,7 @@ def create_app():
     from redash.handlers.webpack import configure_webpack
     from redash.handlers import chrome_logger
     from redash.models import db, users
-    from redash.metrics.request import provision_app
+    from redash.metrics import request as request_metrics
     from redash.utils import sentry
 
     sentry.init()
@@ -123,7 +123,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = settings.SQLALCHEMY_DATABASE_URI
     app.config.update(settings.all_settings())
 
-    provision_app(app)
+    request_metrics.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
     mail.init_app(app)
@@ -131,7 +131,7 @@ def create_app():
     limiter.init_app(app)
     handlers.init_app(app)
     configure_webpack(app)
-    extensions.init_extensions(app)
+    extensions.init_app(app)
     chrome_logger.init_app(app)
     users.init_app(app)
 
