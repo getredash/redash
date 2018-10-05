@@ -39,7 +39,6 @@ class Pagerduty(BaseDestination):
 
         incident_key = self.KEY_STRING.format(user_name=user.name, user_email=user.email, query_id=query.id, query_name=query.lowercase_name)
         data = {
-            # 'routing_key': 'ed394d4fdf8f4f349a9b52dd818d0a9a',
             'routing_key': options.get('integration_key'),
             'incident_key': incident_key,
             'dedup_key': incident_key,
@@ -52,19 +51,14 @@ class Pagerduty(BaseDestination):
 
         if new_state == "triggered":
             data['event_action'] = 'trigger'
-#            text = "####" + alert.name + " just triggered"
         else:
             data['event_action'] = 'resolve'
-#            text = "####" + alert.name + " went back to normal"
-
 
         try:
 
             ev = pypd.EventV2.create(data=data)
             logging.warning(ev)
 
-           # if resp.status_code != 200:
-           #     logging.error("Pagerduty webhook send ERROR. status_code => {status}".format(status=resp.status_code))
         except Exception:
             logging.exception("Pagerduty trigger failed!")
 
