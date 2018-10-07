@@ -12,6 +12,7 @@ from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
 from redash.version_check import get_latest_version
 from sqlalchemy.orm.exc import NoResultFound
+from urlparse import urlsplit, urlunsplit
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +97,19 @@ def forgot_password(org_slug=None):
     return render_template("forgot.html", submitted=submitted)
 
 
+def get_next_path(org_slug):
+    index_url = url_for('redash.index', org_slug=org_slug)
+    unsafe_next_path = request.args.get('next', index_url)
+
+    # Preventing open redirection attacks
+    parts = list(urlsplit(unsafe_next_path))
+    parts[0] = ''  # clear scheme
+    parts[1] = ''  # clear netloc
+    safe_next_path = urlunsplit(parts)
+
+    return safe_next_path
+
+
 @routes.route(org_scoped_rule('/login'), methods=['GET', 'POST'])
 @limiter.limit(settings.THROTTLE_LOGIN_PATTERN)
 def login(org_slug=None):
@@ -106,8 +120,7 @@ def login(org_slug=None):
     elif current_org == None:
         return redirect('/')
 
-    index_url = url_for("redash.index", org_slug=org_slug)
-    next_path = request.args.get('next', index_url)
+    next_path = get_next_path(org_slug)
     if current_user.is_authenticated:
         return redirect(next_path)
 
