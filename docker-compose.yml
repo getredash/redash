@@ -1,6 +1,6 @@
 # This configuration file is for **development** setup. For production, refer to
 # docker-compose.production.yml.
-version: '2'
+version: '3'
 services:
   server:
     build: .
@@ -20,7 +20,7 @@ services:
   worker:
     build: .
     command: scheduler
-    volumes_from:
+    volumes:
       - server
     depends_on:
       - server
@@ -32,12 +32,14 @@ services:
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
   redis:
-    image: redis:3.0-alpine
+    image: redis:alpine
     restart: unless-stopped
   postgres:
-    image: postgres:9.5.6-alpine
+    image: postgres:9.6-alpine
     # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
     # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
     # tests.
     command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
     restart: unless-stopped
+volumes:
+  server:
