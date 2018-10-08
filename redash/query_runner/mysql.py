@@ -103,7 +103,7 @@ class Mysql(BaseSQLQueryRunner):
                col.table_name,
                col.column_name
         FROM `information_schema`.`columns` col
-        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
+        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys');
         """
 
         results, error = self.run_query(query, None)
