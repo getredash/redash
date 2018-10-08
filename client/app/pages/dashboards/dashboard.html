@@ -63,7 +63,7 @@
           <span class="zmdi zmdi-more"></span>
         </button>
         <ul class="dropdown-menu pull-right" uib-dropdown-menu>
-          <li><a target="_self" ng-click="$ctrl.dashboard.downloadPdf()"  ng-href="/api/dashboards/{{dashboard.id}}/pdf" download>Download as PDF</a></li>
+          <li><a target="_self" ng-click="$ctrl.dashboard.downloadPdf()"  ng-href="/api/dashboards/{{ $ctrl.dashboard.id }}/pdf" download>Download as PDF</a></li>
           <li ng-if="!$ctrl.dashboard.is_archived" ng-class="{hidden: $ctrl.isGridDisabled}"><a ng-click="$ctrl.editLayout(true)">Edit</a></li>
           <li ng-if="$ctrl.showPermissionsControl"><a ng-click="$ctrl.showManagePermissionsModal()">Manage Permissions</a></li>
           <li ng-if="!$ctrl.dashboard.is_draft"><a ng-click="$ctrl.togglePublished()">Unpublish</a></li>
