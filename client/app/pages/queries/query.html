@@ -258,7 +258,7 @@
             </button>
             <ul class="dropdown-menu" uib-dropdown-menu>
               <li>
-                <a target="_self" ng-click="openAddToDashboardForm(selectedTab)" ng-if="!query.is_draft && !query.is_archived">
+                <a target="_self" ng-click="openAddToDashboardForm(selectedTab)" ng-if="!query.isNew() && (!query.is_draft || !query.is_archived)">
                   <span class="fa fa-plus-circle"></span> Add to Dashboard
                 </a>
               </li>
