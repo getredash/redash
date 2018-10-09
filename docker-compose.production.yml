@@ -4,7 +4,7 @@
 # Some other recommendations:
 # 1. To persist Postgres data, assign it a volume host location.
 # 2. Split the worker service to adhoc workers and scheduled queries workers.
-version: '2'
+version: '3'
 services:
   server:
     image: redash/redash:latest
