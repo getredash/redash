@@ -5,7 +5,7 @@ function queryResultLink() {
     restrict: 'A',
     link(scope, element, attrs) {
       const fileType = attrs.fileType ? attrs.fileType : 'csv';
-      scope.$watch('queryResult && queryResult.getData()', (data) => {
+      scope.$watch('queryResult && queryResult.getData() && query.name', (data) => {
         if (!data) {
           return;
         }
