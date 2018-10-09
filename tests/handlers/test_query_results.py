@@ -1,6 +1,7 @@
-import json
 from tests import BaseTestCase
+
 from redash.models import db
+from redash.utils import json_dumps
 
 
 class TestQueryResultsCacheHeaders(BaseTestCase):
@@ -162,7 +163,17 @@ class TestQueryResultExcelResponse(BaseTestCase):
 
     def test_renders_excel_file_when_rows_have_missing_columns(self):
         query = self.factory.create_query()
-        query_result = self.factory.create_query_result(data=json.dumps({'rows': [{'test': 1}, {'test': 2, 'test2': 3}], 'columns': [{'name': 'test'}, {'name': 'test2'}]}))
+        data = {
+            'rows': [
+                {'test': 1},
+                {'test': 2, 'test2': 3},
+            ],
+            'columns': [
+                {'name': 'test'},
+                {'name': 'test2'},
+            ],
+        }
+        query_result = self.factory.create_query_result(data=json_dumps(data))
 
         rv = self.make_request('get', '/api/queries/{}/results/{}.xlsx'.format(query.id, query_result.id), is_json=False)
         self.assertEquals(rv.status_code, 200)

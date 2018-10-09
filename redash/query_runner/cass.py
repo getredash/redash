@@ -1,9 +1,7 @@
-import json
 import logging
-import uuid
 
 from redash.query_runner import BaseQueryRunner, register
-from redash.utils import JSONEncoder
+from redash.utils import JSONEncoder, json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +16,6 @@ except ImportError:
 
 class CassandraJSONEncoder(JSONEncoder):
     def default(self, o):
-        if isinstance(o, uuid.UUID):
-            return str(o)
         if isinstance(o, sortedset):
             return list(o)
         return super(CassandraJSONEncoder, self).default(o)
@@ -79,7 +75,7 @@ class Cassandra(BaseQueryRunner):
         select release_version from system.local;
         """
         results, error = self.run_query(query, None)
-        results = json.loads(results)
+        results = json_loads(results)
         release_version = results['rows'][0]['release_version']
 
         query = """
@@ -96,7 +92,7 @@ class Cassandra(BaseQueryRunner):
                 """.format(self.configuration['keyspace'])
 
         results, error = self.run_query(query, None)
-        results = json.loads(results)
+        results = json_loads(results)
 
         schema = {}
         for row in results['rows']:
@@ -135,7 +131,7 @@ class Cassandra(BaseQueryRunner):
             rows = [dict(zip(column_names, row)) for row in result]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=CassandraJSONEncoder)
+            json_data = json_dumps(data, cls=CassandraJSONEncoder)
 
             error = None
         except KeyboardInterrupt:

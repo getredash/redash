@@ -1,4 +1,3 @@
-import json
 from flask_admin import Admin
 from flask_admin.base import MenuLink
 from flask_admin.contrib.sqla import ModelView
@@ -8,6 +7,7 @@ from wtforms.widgets import TextInput
 
 from redash import models
 from redash.permissions import require_super_admin
+from redash.utils import json_loads
 
 
 class ArrayListField(fields.Field):
@@ -30,7 +30,7 @@ class JSONTextAreaField(fields.TextAreaField):
     def process_formdata(self, valuelist):
         if valuelist:
             try:
-                json.loads(valuelist[0])
+                json_loads(valuelist[0])
             except ValueError:
                 raise ValueError(self.gettext(u'Invalid JSON'))
             self.data = valuelist[0]
