@@ -1,7 +1,5 @@
-import json
-
-from redash.utils import JSONEncoder
 from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
 
 import logging
 logger = logging.getLogger(__name__)
@@ -79,7 +77,7 @@ class Presto(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             table_name = '{}.{}'.format(row['table_schema'], row['table_name'])
@@ -108,7 +106,7 @@ class Presto(BaseQueryRunner):
             columns = self.fetch_columns(column_tuples)
             rows = [dict(zip(([c['name'] for c in columns]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except DatabaseError as db:
             json_data = None

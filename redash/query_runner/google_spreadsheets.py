@@ -1,4 +1,3 @@
-import json
 import logging
 from base64 import b64decode
 
@@ -7,7 +6,7 @@ from requests import Session
 from xlsxwriter.utility import xl_col_to_name
 
 from redash.query_runner import *
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ except ImportError:
 
 def _load_key(filename):
     with open(filename, "rb") as f:
-        return json.loads(f.read())
+        return json_loads(f.read())
 
 
 def _get_columns_and_column_names(row):
@@ -179,7 +178,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'https://spreadsheets.google.com/feeds',
         ]
 
-        key = json.loads(b64decode(self.configuration['jsonKeyFile']))
+        key = json_loads(b64decode(self.configuration['jsonKeyFile']))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
 
         timeout_session = HTTPSession()

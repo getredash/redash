@@ -1,10 +1,12 @@
-import json
-import yaml
 import logging
-from redash.query_runner import *
-from redash.utils import JSONEncoder
-import requests
+import yaml
 from urlparse import parse_qs, urlparse
+
+import requests
+
+from redash.query_runner import *
+from redash.utils import json_dumps
+
 logger = logging.getLogger(__name__)
 
 COLUMN_TYPES = {
@@ -140,7 +142,7 @@ class YandexMetrica(BaseSQLQueryRunner):
             return data, error
 
         try:
-            data = json.dumps(parse_ym_response(self._send_query(**params)), cls=JSONEncoder)
+            data = json_dumps(parse_ym_response(self._send_query(**params)))
             error = None
         except Exception as e:
             logging.exception(e)

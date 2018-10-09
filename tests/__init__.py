@@ -1,6 +1,5 @@
 import os
 import datetime
-import json
 import logging
 from unittest import TestCase
 from contextlib import contextmanager
@@ -17,7 +16,7 @@ os.environ['REDASH_MULTI_ORG'] = "true"
 from redash import create_app
 from redash import redis_connection
 from redash.models import db
-from redash.utils import json_dumps
+from redash.utils import json_dumps, json_loads
 from tests.factories import Factory, user_factory
 
 
@@ -94,7 +93,7 @@ class BaseTestCase(TestCase):
         )
 
         if response.data and is_json:
-            response.json = json.loads(response.data)
+            response.json = json_loads(response.data)
 
         return response
 
@@ -112,7 +111,8 @@ class BaseTestCase(TestCase):
 
     def assertResponseEqual(self, expected, actual):
         for k, v in expected.iteritems():
-            if isinstance(v, datetime.datetime) or isinstance(actual[k], datetime.datetime):
+            if isinstance(v, datetime.datetime) or isinstance(actual[k],
+                    datetime.datetime):
                 continue
 
             if isinstance(v, list):

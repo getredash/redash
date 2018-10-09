@@ -1,16 +1,19 @@
 import logging
-import json
 import time
 
 import pystache
 from flask import make_response, request
 from flask_login import current_user
 from flask_restful import abort
-from redash import models, settings, utils
+from redash import models, settings
 from redash.tasks import QueryTask, record_event
 from redash.permissions import require_permission, not_view_only, has_access, require_access, view_only
 from redash.handlers.base import BaseResource, get_object_or_404
-from redash.utils import collect_query_parameters, collect_parameters_from_request, gen_query_hash
+from redash.utils import (collect_query_parameters,
+                          collect_parameters_from_request,
+                          gen_query_hash,
+                          json_dumps,
+                          utcnow)
 from redash.tasks.queries import enqueue_query
 
 
@@ -56,7 +59,7 @@ def run_query_sync(data_source, parameter_values, query_text, max_age=0):
         run_time = time.time() - started_at
         query_result, updated_query_ids = models.QueryResult.store_result(data_source.org_id, data_source,
                                                                               query_hash, query_text, data,
-                                                                              run_time, utils.utcnow())
+                                                                              run_time, utcnow())
 
         models.db.session.commit()
         return query_result
@@ -243,7 +246,7 @@ class QueryResultResource(BaseResource):
             abort(404, message='No cached result found for this query.')
 
     def make_json_response(self, query_result):
-        data = json.dumps({'query_result': query_result.to_dict()}, cls=utils.JSONEncoder)
+        data = json_dumps({'query_result': query_result.to_dict()})
         headers = {'Content-Type': "application/json"}
         return make_response(data, 200, headers)
 
