@@ -49,8 +49,11 @@ class Pagerduty(BaseDestination):
             }
         }
 
-        if new_state == "triggered":
+        if new_state == 'triggered':
             data['event_action'] = 'trigger'
+        elif new_state == "unknown":
+            logging.info('Unknown state, doing nothing')
+            return
         else:
             data['event_action'] = 'resolve'
 
