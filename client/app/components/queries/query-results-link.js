@@ -24,7 +24,7 @@ function queryResultLink() {
           element.attr('href', url);
           element.attr(
             'download',
-            `${scope.query.name.replace(' ', '_') +
+            `${scope.query.name.replace(/ /g, '_') +
               moment(scope.queryResult.getUpdatedAt()).format('_YYYY_MM_DD')}.${fileType}`,
           );
         }
