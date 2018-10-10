@@ -27,6 +27,7 @@ jobs:
           command: |
             set -x
             docker-compose build --build-arg skip_ds_deps=true
+            docker-compose up -d
             sleep 10
       - run:
           name: Create Test Database
