@@ -10,9 +10,8 @@ import {
   ColorPalette,
   prepareData,
   prepareLayout,
-  calculateMargins,
-  updateDimensions,
   updateData,
+  updateLayout,
   normalizeValue,
 } from './utils';
 
@@ -34,32 +33,6 @@ const PlotlyChart = () => ({
     let layout = {};
     let data = [];
 
-    const updateChartDimensions = () => {
-      const prevLegendOrientation = layout.legend.orientation;
-      const width = plotlyElement.offsetWidth;
-      if (width <= 600) {
-        layout.legend = {
-          orientation: 'h',
-          x: 0,
-          y: 0,
-        };
-      } else {
-        layout.legend = {
-          orientation: 'v',
-          x: 1,
-          y: 1,
-        };
-      }
-      if (
-        updateDimensions(layout, plotlyElement, calculateMargins(plotlyElement, layout)) ||
-        (prevLegendOrientation !== layout.legend.orientation)
-      ) {
-        const legend = layout.legend; // Plotly will delete `legend.layout` in `relayout` (wtf?)
-        Plotly.relayout(plotlyElement, layout);
-        layout.legend = legend;
-      }
-    };
-
     function update() {
       if (['normal', 'percent'].indexOf(scope.options.series.stacking) >= 0) {
         // Backward compatibility
@@ -79,13 +52,9 @@ const PlotlyChart = () => ({
         // We need to catch only changes of traces visibility to update stacking
         if (isArray(updates) && isObject(updates[0]) && updates[0].visible) {
           updateData(data, scope.options);
-          const legend = layout.legend; // Plotly will delete `legend.layout` in `relayout` (wtf?)
           Plotly.relayout(plotlyElement, layout);
-          layout.legend = legend;
         }
       });
-
-      plotlyElement.on('plotly_afterplot', updateChartDimensions);
     }
     update();
 
@@ -100,7 +69,9 @@ const PlotlyChart = () => ({
       }
     }, true);
 
-    scope.handleResize = debounce(updateChartDimensions, 50);
+    scope.handleResize = debounce(() => {
+      updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+    }, 50);
   },
 });
 
