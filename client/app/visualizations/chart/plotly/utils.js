@@ -4,6 +4,7 @@ import {
 } from 'lodash';
 import moment from 'moment';
 import d3 from 'd3';
+import plotlyCleanNumber from 'plotly.js/src/lib/clean_number';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 
 // The following colors will be used if you pick "Automatic" color.
@@ -35,6 +36,10 @@ export const ColorPalette = Object.assign({}, BaseColors, {
 });
 
 const ColorPaletteArray = values(BaseColors);
+
+function cleanNumber(value) {
+  return isUndefined(value) ? value : (plotlyCleanNumber(value) || 0.0);
+}
 
 function defaultFormatSeriesText(item) {
   let result = item['@@y'];
@@ -243,12 +248,12 @@ function preparePieData(seriesList, options) {
 
     const sourceData = new Map();
     const seriesTotal = reduce(serie.data, (result, row) => {
-      const y = normalizeValue(row.y);
+      const y = cleanNumber(row.y);
       return result + Math.abs(y);
     }, 0);
     each(serie.data, (row) => {
       const x = normalizeValue(row.x);
-      const y = normalizeValue(row.y);
+      const y = cleanNumber(row.y);
       sourceData.set(x, {
         x,
         y,
@@ -312,15 +317,19 @@ function prepareChartData(seriesList, options) {
     // Sort by x - `Map` preserves order of items
     const data = sortX ? sortBy(series.data, d => normalizeValue(d.x)) : series.data;
 
+    // For bubble charts `y` may be any (similar to `x`) - numeric is only bubble size;
+    // for other types `y` is always number
+    const cleanYValue = seriesOptions.type === 'bubble' ? normalizeValue : cleanNumber;
+
     const sourceData = new Map();
     const xValues = [];
     const yValues = [];
     const yErrorValues = [];
     each(data, (row) => {
-      const x = normalizeValue(row.x);
-      const y = normalizeValue(row.y);
-      const yError = normalizeValue(row.yError);
-      const size = normalizeValue(row.size);
+      const x = normalizeValue(row.x); // number/datetime/category
+      const y = cleanYValue(row.y); // depends on series type!
+      const yError = cleanNumber(row.yError); // always number
+      const size = cleanNumber(row.size); // always number
       sourceData.set(x, {
         x,
         y,
@@ -496,6 +505,9 @@ export function prepareLayout(element, seriesList, options, data) {
 
 function updateSeriesText(seriesList, options) {
   each(seriesList, (series) => {
+    const seriesOptions = options.seriesOptions[series.name] ||
+      { type: options.globalSeriesType };
+
     series.text = [];
     series.hover = [];
     const xValues = (options.globalSeriesType === 'pie') ? series.labels : series.x;
@@ -506,7 +518,7 @@ function updateSeriesText(seriesList, options) {
       };
       const item = series.sourceData.get(x);
       if (item) {
-        text['@@y'] = series.formatNumber(item.y);
+        text['@@y'] = seriesOptions.type === 'bubble' ? item.y : series.formatNumber(item.y);
         if (item.yError !== undefined) {
           text['@@yError'] = series.formatNumber(item.yError);
         }
