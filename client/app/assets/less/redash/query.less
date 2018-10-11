@@ -95,10 +95,6 @@ edit-in-place p.editable:hover {
   margin-bottom: 10px;
 }
 
-.source-control {
-
-}
-
 .ace_editor.ace_autocomplete .ace_completion-highlight {
   text-shadow: none !important;
   background: #ffff005e;
@@ -231,11 +227,8 @@ edit-in-place p.editable:hover {
 }
 
 .page-header--query {
-  display: flex;
-  align-items: center;
-
-  h3 {
-    display: inline-block;
+  .page-title {
+    display: block;
   }
 }
 
@@ -530,6 +523,14 @@ nav .rg-bottom {
 // Smaller screens
 
 @media (max-width: 880px) {
+  .btn-publish {
+    display: none;
+  }
+
+  .tab-nav .tab-new-vis {
+    display: none;
+  }
+
   .query-fullscreen {
     flex-direction: column;
     overflow: hidden;
@@ -546,7 +547,7 @@ nav .rg-bottom {
       border-bottom: 1px solid #efefef;
       min-height: 0 !important;
       flex-shrink: 0;
-      padding: 5px 15px;
+      padding: 10px 15px;
       display: flex;
       flex-wrap: nowrap;
       justify-content: space-between;
@@ -602,14 +603,6 @@ nav .rg-bottom {
 
   a.navbar-brand {
     display: none;
-  }
-
-  .page-header--query {
-    padding-left: 0 !important;
-
-    h3 {
-      line-height: 1.25;
-    }
   }
 
   .datasource-small {
