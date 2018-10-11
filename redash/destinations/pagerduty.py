@@ -1,13 +1,22 @@
-import pypd
 import logging
-
 from redash.destinations import *
 
+enabled = True
 
-class Pagerduty(BaseDestination):
+try:
+    import pypd
+except ImportError:
+    enabled = False
 
-    KEY_STRING = '{user_name}_{user_email}_{query_id}_{query_name}'
-    DESCRIPTION_STR = 'redash_{query_id}_{query_name}'
+
+class PagerDuty(BaseDestination):
+
+    KEY_STRING = '{alert_id}_{query_id}'
+    DESCRIPTION_STR = 'Alert - Redash Query #{query_id}: {query_name}'
+
+    @classmethod
+    def enabled(cls):
+        return enabled
 
     @classmethod
     def configuration_schema(cls):
@@ -16,7 +25,7 @@ class Pagerduty(BaseDestination):
             'properties': {
                 'integration_key': {
                     'type': 'string',
-                    'title': 'Pagerduty Service Integration Key'
+                    'title': 'PagerDuty Service Integration Key'
                 },
                 'description': {
                     'type': 'string',
@@ -32,12 +41,12 @@ class Pagerduty(BaseDestination):
 
     def notify(self, alert, query, user, new_state, app, host, options):
 
-        default_desc = self.DESCRIPTION_STR.format(query_id=query.id, query_name=query.lowercase_name)
+        default_desc = self.DESCRIPTION_STR.format(query_id=query.id, query_name=query.name)
 
         if options.get('description'):
             default_desc = options.get('description')
 
-        incident_key = self.KEY_STRING.format(user_name=user.name, user_email=user.email, query_id=query.id, query_name=query.lowercase_name)
+        incident_key = self.KEY_STRING.format(alert_id=alert.id, query_id=query.id)
         data = {
             'routing_key': options.get('integration_key'),
             'incident_key': incident_key,
@@ -63,7 +72,7 @@ class Pagerduty(BaseDestination):
             logging.warning(ev)
 
         except Exception:
-            logging.exception("Pagerduty trigger failed!")
+            logging.exception("PagerDuty trigger failed!")
 
 
-register(Pagerduty)
+register(PagerDuty)
