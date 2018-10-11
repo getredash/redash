@@ -18,7 +18,7 @@ install_docker(){
 
     # Allow current user to run Docker commands
     sudo usermod -aG docker $USER
-#    newgrp docker
+    newgrp docker
 }
 
 create_directories() {
@@ -61,11 +61,8 @@ setup_compose() {
     echo "export COMPOSE_PROJECT_NAME=redash" >> ~/.profile
     echo "export COMPOSE_FILE=/opt/redash/docker-compose.yml" >> ~/.profile
     source ~/.profile
-    newgrp docker << END
-       echo This dockerized shit is running as group \$(id -gn)
-       docker-compose run --rm server create_db
-       docker-compose up -d
-    END
+    docker-compose run --rm server create_db
+    docker-compose up -d
 }
 
 install_docker
