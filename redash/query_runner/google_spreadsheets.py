@@ -1,3 +1,4 @@
+import json
 import logging
 from base64 import b64decode
 
@@ -6,7 +7,7 @@ from requests import Session
 from xlsxwriter.utility import xl_col_to_name
 
 from redash.query_runner import *
-from redash.utils import json_dumps, json_loads
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ except ImportError:
 
 def _load_key(filename):
     with open(filename, "rb") as f:
-        return json_loads(f.read())
+        return json.loads(f.read())
 
 
 def _get_columns_and_column_names(row):
@@ -147,6 +148,7 @@ class TimeoutSession(Session):
 
 
 class GoogleSpreadsheet(BaseQueryRunner):
+
     @classmethod
     def annotate_query(cls):
         return False
@@ -178,7 +180,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             'https://spreadsheets.google.com/feeds',
         ]
 
-        key = json_loads(b64decode(self.configuration['jsonKeyFile']))
+        key = json.loads(b64decode(self.configuration['jsonKeyFile']))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
 
         timeout_session = HTTPSession()
@@ -190,13 +192,22 @@ class GoogleSpreadsheet(BaseQueryRunner):
     def test_connection(self):
         self._get_spreadsheet_service()
 
+    def is_url_key(self, key):
+        if key.startswith('https://'):
+            return True
+        return False
+
     def run_query(self, query, user):
         logger.debug("Spreadsheet is about to execute query: %s", query)
         key, worksheet_num = parse_query(query)
 
         try:
             spreadsheet_service = self._get_spreadsheet_service()
-            spreadsheet = spreadsheet_service.open_by_key(key)
+
+            if self.is_url_key(key):
+                spreadsheet = spreadsheet_service.open_by_url(key)
+            else:
+                spreadsheet = spreadsheet_service.open_by_key(key)
 
             data = parse_spreadsheet(spreadsheet, worksheet_num)
 
