@@ -246,6 +246,8 @@ def create_and_login_user(org, name, email, picture=None):
 
 
 def get_next_path(unsafe_next_path):
+    if not unsafe_next_path:
+        return ''
 
     # Preventing open redirection attacks
     parts = list(urlsplit(unsafe_next_path))
