@@ -67,15 +67,8 @@ const config = {
     splitChunks: {
       chunks: (chunk) => {
         return chunk.name != "server";
-      },
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: "vendor",
-          chunks: "all"
-        }
       }
-    }   
+    }
   },
   module: {
     rules: [
