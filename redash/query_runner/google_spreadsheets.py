@@ -8,6 +8,8 @@ from xlsxwriter.utility import xl_col_to_name
 from redash.query_runner import *
 from redash.utils import json_dumps, json_loads
 
+import json
+
 logger = logging.getLogger(__name__)
 
 try:
@@ -100,14 +102,16 @@ HEADER_INDEX = 0
 
 class WorksheetNotFoundError(Exception):
     def __init__(self, worksheet_num, worksheet_count):
-        message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(worksheet_num, worksheet_count)
+        message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(
+            worksheet_num, worksheet_count)
         super(WorksheetNotFoundError, self).__init__(message)
 
 
 def parse_query(query):
     values = query.split("|")
     key = values[0]  # key of the spreadsheet
-    worksheet_num = 0 if len(values) != 2 else int(values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
+    worksheet_num = 0 if len(values) != 2 else int(
+        values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
 
     return key, worksheet_num
 
@@ -211,7 +215,12 @@ class GoogleSpreadsheet(BaseQueryRunner):
             data = parse_spreadsheet(spreadsheet, worksheet_num)
 
             return json_dumps(data), None
-        except gspread.SpreadsheetNotFound:
+        except gspread.SpreadsheetNotFound as e:
+            if json.loads(e.response.text)["error"]["status"] == "PERMISSION_DENIED":
+                raise Exception(
+                    f"Looks like you don't have the permission to access this file,"
+                    f"probably you might need to share your file with this service account {gClient.auth._service_account_email}"
+                )
             return None, "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
 
 
