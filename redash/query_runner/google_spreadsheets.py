@@ -215,9 +215,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             return json_dumps(data), None
         except gspread.SpreadsheetNotFound as e:
             if json.loads(e.response.text)["error"]["status"] == "PERMISSION_DENIED":
-                raise Exception(
-                    f"Looks like you don't have the permission to access this file, probably you might need to share your file with this service account {spreadsheet_service.auth._service_account_email}"
-                )
+                raise Exception(f"Looks like you don't have the permission to access this file, probably you might need to share your file with this service account {spreadsheet_service.auth._service_account_email}")
             return None, "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
 
 
