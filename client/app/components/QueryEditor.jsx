@@ -210,14 +210,14 @@ class QueryEditor extends React.Component {
               {this.props.canEdit ?
                 <Tooltip placement="top" title={modKey + ' + S'}>
                   <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
-                    <span className="fa fa-floppy-o" />
+                    <span className="fa fa-floppy-o" />&nbsp;
                     <span className="hidden-xs">Save</span>
                     {this.props.isDirty ? '*' : null}
                   </button>
                 </Tooltip> : null }
               <Tooltip placement="top" title={modKey + ' + Enter'}>
                 <button type="button" className="btn btn-primary m-l-5" disabled={this.props.queryExecuting || !this.props.canExecuteQuery()} onClick={this.props.executeQuery}>
-                  <span className="zmdi zmdi-play" />
+                  <span className="zmdi zmdi-play" />&nbsp;
                   <span className="hidden-xs">Execute</span>
                 </button>
               </Tooltip>
