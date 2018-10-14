@@ -732,6 +732,13 @@ page-header, .page-header--new {
   margin-top: 2px;
 }
 
+.tags-list {
+  .badge-light {
+    background: fade(@redash-gray, 10%);
+    color: fade(@redash-gray, 75%);
+  }
+}
+
 .dropdown-menu--profile {
   li {
     width: 200px;
@@ -857,6 +864,16 @@ text.slicetext {
     .navbar-right {
       margin-bottom: 0;
     }
+  }
+}
+
+@media (min-width: 768px) and (max-width: 850px) {
+  .menu-search {
+    width: 175px;
+  }
+
+  a.navbar-brand {
+    display: none !important;
   }
 }
 
