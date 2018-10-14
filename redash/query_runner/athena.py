@@ -1,11 +1,9 @@
-import json
 import logging
 import os
-import simplejson
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
-from redash.utils import SimpleJSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 ANNOTATE_QUERY = parse_boolean(os.environ.get('ATHENA_ANNOTATE_QUERY', 'true'))
@@ -132,7 +130,7 @@ class Athena(BaseQueryRunner):
                 if table_name not in schema:
                     column = [columns['Name'] for columns in table['StorageDescriptor']['Columns']]
                     schema[table_name] = {'name': table_name, 'columns': column}
-                    for partition in table['PartitionKeys']:
+                    for partition in table.get('PartitionKeys', []):
                         schema[table_name]['columns'].append(partition['Name'])
 
         return schema.values()
@@ -152,7 +150,7 @@ class Athena(BaseQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
         for row in results['rows']:
             table_name = '{0}.{1}'.format(row['table_schema'], row['table_name'])
             if table_name not in schema:
@@ -195,7 +193,7 @@ class Athena(BaseQueryRunner):
                     'athena_query_id': athena_query_id
                 }
             }
-            json_data = simplejson.dumps(data, ignore_nan=True, cls=SimpleJSONEncoder)
+            json_data = json_dumps(data, ignore_nan=True)
             error = None
         except KeyboardInterrupt:
             if cursor.query_id:

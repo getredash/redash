@@ -1,8 +1,8 @@
-import json
 import logging
 import requests
 
 from redash.destinations import *
+from redash.utils import json_dumps
 
 
 class Mattermost(BaseDestination):
@@ -46,7 +46,7 @@ class Mattermost(BaseDestination):
         if options.get('channel'): payload['channel'] = options.get('channel')
 
         try:
-            resp = requests.post(options.get('url'), data=json.dumps(payload))
+            resp = requests.post(options.get('url'), data=json_dumps(payload))
             logging.warning(resp.text)
 
             if resp.status_code != 200:

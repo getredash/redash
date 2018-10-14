@@ -1,8 +1,7 @@
-import json
 import logging
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +112,7 @@ class TreasureData(BaseQueryRunner):
             else:
                 rows = [dict(zip(([c[0] for c in columns_data]), r)) for i, r in enumerate(cursor.fetchall())]
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except errors.InternalError as e:
             json_data = None

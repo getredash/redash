@@ -1,4 +1,5 @@
 #!/bin/env python
+from __future__ import print_function
 import sys
 import re
 import subprocess
@@ -32,4 +33,4 @@ if __name__ == '__main__':
     changes = get_change_log(previous_sha)
 
     for change in changes:
-        print change
+        print(change)

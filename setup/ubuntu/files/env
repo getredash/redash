@@ -1,3 +1,0 @@
-export REDASH_LOG_LEVEL="INFO"
-export REDASH_REDIS_URL=redis://localhost:6379/0
-export REDASH_DATABASE_URL="postgresql:///redash"

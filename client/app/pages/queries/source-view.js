@@ -53,6 +53,10 @@ function QuerySourceCtrl(
 
   $scope.canForkQuery = () => currentUser.hasPermission('edit_query') && !$scope.dataSource.view_only;
 
+  $scope.updateQuery = (newQueryText) => {
+    $scope.query.query = newQueryText;
+  };
+
   // @override
   $scope.saveQuery = (options, data) => {
     const savePromise = saveQuery(options, data);
@@ -74,10 +78,13 @@ function QuerySourceCtrl(
 
   $scope.formatQuery = () => {
     Query.format($scope.dataSource.syntax, $scope.query.query)
-      .then((query) => {
-        $scope.query.query = query;
-      })
+      .then($scope.updateQuery)
       .catch(error => toastr.error(error));
+  };
+
+  $scope.autoCompleteQuery = true;
+  $scope.toggleAutoComplete = () => {
+    $scope.autoCompleteQuery = !$scope.autoCompleteQuery;
   };
 
   $scope.addNewParameter = () => {
@@ -101,6 +108,9 @@ function QuerySourceCtrl(
         $rootScope.$broadcast('query-editor.command', 'focus');
       });
   };
+
+  $scope.listenForEditorCommand = f => $scope.$on('query-editor.command', f);
+  $scope.listenForResize = f => $scope.$parent.$on('angular-resizable.resizing', f);
 
   $scope.$watch('query.query', (newQueryText) => {
     $scope.isDirty = newQueryText !== queryText;

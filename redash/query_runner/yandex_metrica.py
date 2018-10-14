@@ -1,10 +1,12 @@
-import json
-import yaml
 import logging
-from redash.query_runner import *
-from redash.utils import JSONEncoder
-import requests
+import yaml
 from urlparse import parse_qs, urlparse
+
+import requests
+
+from redash.query_runner import *
+from redash.utils import json_dumps
+
 logger = logging.getLogger(__name__)
 
 COLUMN_TYPES = {
@@ -59,18 +61,19 @@ def parse_ym_response(response):
     return {'columns': columns, 'rows': rows}
 
 
-class YandexMetrika(BaseSQLQueryRunner):
+class YandexMetrica(BaseSQLQueryRunner):
     @classmethod
     def annotate_query(cls):
         return False
 
     @classmethod
     def type(cls):
+        # This is written with a "k" for backward-compatibility. See #2874.
         return "yandex_metrika"
 
     @classmethod
     def name(cls):
-        return "Yandex Metrika"
+        return "Yandex Metrica"
 
     @classmethod
     def configuration_schema(cls):
@@ -86,9 +89,9 @@ class YandexMetrika(BaseSQLQueryRunner):
         }
 
     def __init__(self, configuration):
-        super(YandexMetrika, self).__init__(configuration)
+        super(YandexMetrica, self).__init__(configuration)
         self.syntax = 'yaml'
-        self.host = 'https://api-metrika.yandex.ru'
+        self.host = 'https://api-metrica.yandex.com'
         self.list_path = 'counters'
 
     def _get_tables(self, schema):
@@ -118,7 +121,7 @@ class YandexMetrika(BaseSQLQueryRunner):
         return r.json()
 
     def run_query(self, query, user):
-        logger.debug("Metrika is about to execute query: %s", query)
+        logger.debug("Metrica is about to execute query: %s", query)
         data = None
         query = query.strip()
         if query == "":
@@ -139,7 +142,7 @@ class YandexMetrika(BaseSQLQueryRunner):
             return data, error
 
         try:
-            data = json.dumps(parse_ym_response(self._send_query(**params)), cls=JSONEncoder)
+            data = json_dumps(parse_ym_response(self._send_query(**params)))
             error = None
         except Exception as e:
             logging.exception(e)
@@ -147,20 +150,21 @@ class YandexMetrika(BaseSQLQueryRunner):
         return data, error
 
 
-class YandexAppMetrika(YandexMetrika):
+class YandexAppMetrica(YandexMetrica):
     @classmethod
     def type(cls):
+        # This is written with a "k" for backward-compatibility. See #2874.
         return "yandex_appmetrika"
 
     @classmethod
     def name(cls):
-        return "Yandex AppMetrika"
+        return "Yandex AppMetrica"
 
     def __init__(self, configuration):
-        super(YandexAppMetrika, self).__init__(configuration)
-        self.host = 'https://api.appmetrica.yandex.ru'
+        super(YandexAppMetrica, self).__init__(configuration)
+        self.host = 'https://api.appmetrica.yandex.com'
         self.list_path = 'applications'
 
 
-register(YandexMetrika)
-register(YandexAppMetrika)
+register(YandexMetrica)
+register(YandexAppMetrica)

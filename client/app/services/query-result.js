@@ -1,6 +1,6 @@
 import debug from 'debug';
 import moment from 'moment';
-import { sortBy, uniq, values, some, each, isArray, isNumber, isString, includes, forOwn } from 'lodash';
+import { sortBy, uniqBy, values, some, each, isArray, isNumber, isString, includes, forOwn } from 'lodash';
 
 const logger = debug('redash:services:QueryResult');
 const filterTypes = ['filter', 'multi-filter', 'multiFilter'];
@@ -420,7 +420,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
       });
 
       filters.forEach((filter) => {
-        filter.values = uniq(filter.values, (v) => {
+        filter.values = uniqBy(filter.values, (v) => {
           if (moment.isMoment(v)) {
             return v.unix();
           }

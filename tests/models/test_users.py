@@ -32,21 +32,21 @@ class TestUserFindByEmail(BaseTestCase):
         self.assertIn(user2, users)
 
     def test_finds_users_case_insensitive(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
-        users = User.find_by_email('test@EXAMPLE.com')
+        users = User.find_by_email(u'test@EXAMPLE.com')
         self.assertIn(user, users)
 
 
 class TestUserGetByEmailAndOrg(BaseTestCase):
     def test_get_user_by_email_and_org(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
         found_user = User.get_by_email_and_org(user.email, user.org)
         self.assertEqual(user, found_user)
 
     def test_get_user_by_email_and_org_case_insensitive(self):
-        user = self.factory.create_user(email='test@example.com')
+        user = self.factory.create_user(email=u'test@example.com')
 
         found_user = User.get_by_email_and_org("TEST@example.com", user.org)
         self.assertEqual(user, found_user)

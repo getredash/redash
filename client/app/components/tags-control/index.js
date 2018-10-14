@@ -44,7 +44,7 @@ export default function init(ngModule) {
           promise = this.getAvailableTags();
         }
         promise.then((availableTags) => {
-          availableTags = map(isArray(availableTags) ? availableTags : [], trim);
+          availableTags = map(isArray(availableTags) ? availableTags : [], tag => trim(tag.name));
           $uibModal
             .open({
               component: 'tagsEditorModal',

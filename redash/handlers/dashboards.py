@@ -69,6 +69,18 @@ class DashboardListResource(BaseResource):
             serializer=serialize_dashboard,
         )
 
+        if search_term:
+            self.record_event({
+                'action': 'search',
+                'object_type': 'dashboard',
+                'term': search_term,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'dashboard',
+            })
+
         return response
 
     @require_permission('create_dashboard')
@@ -137,6 +149,12 @@ class DashboardResource(BaseResource):
 
         response['can_edit'] = can_modify(dashboard, self.current_user)
 
+        self.record_event({
+            'action': 'view',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return response
 
     @require_permission('edit_dashboard')
@@ -176,6 +194,13 @@ class DashboardResource(BaseResource):
             abort(409)
 
         result = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
+
+        self.record_event({
+            'action': 'edit',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return result
 
     @require_permission('edit_dashboard')
@@ -193,6 +218,13 @@ class DashboardResource(BaseResource):
         models.db.session.add(dashboard)
         d = serialize_dashboard(dashboard, with_widgets=True, user=self.current_user)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'archive',
+            'object_id': dashboard.id,
+            'object_type': 'dashboard',
+        })
+
         return d
 
 
@@ -259,10 +291,20 @@ class DashboardShareResource(BaseResource):
             'object_type': 'dashboard',
         })
 
+
 class DashboardTagsResource(BaseResource):
     @require_permission('list_dashboards')
     def get(self):
         """
         Lists all accessible dashboards.
         """
-        return {t[0]: t[1] for t in models.Dashboard.all_tags(self.current_org, self.current_user)}
+        tags = models.Dashboard.all_tags(self.current_org, self.current_user)
+        return {
+            'tags': [
+                {
+                    'name': name,
+                    'count': count,
+                }
+                for name, count in tags
+            ]
+        }

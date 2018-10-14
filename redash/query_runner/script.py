@@ -82,8 +82,6 @@ class Script(BaseQueryRunner):
             return None, str(e)
         except KeyboardInterrupt:
             return None, "Query cancelled by user."
-        except Exception:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
 
 register(Script)

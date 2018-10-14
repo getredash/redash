@@ -3,13 +3,20 @@ import debug from 'debug';
 import template from './show.html';
 
 const logger = debug('redash:http');
+const deleteConfirm = { class: 'btn-warning', title: 'Delete' };
+function logAndToastrError(deleteObject, httpResponse, toastr) {
+  logger('Failed to delete ' + deleteObject + ': ', httpResponse.status, httpResponse.statusText, httpResponse.data);
+  toastr.error('Failed to delete ' + deleteObject + '.');
+}
+function toastrSuccessAndPath(deleteObject, deletePath, toastr, $location) {
+  toastr.success(deleteObject + ' deleted successfully.');
+  $location.path('/' + deletePath + '/');
+}
 
 function DataSourceCtrl(
   $scope, $route, $routeParams, $http, $location, toastr,
-  currentUser, AlertDialog, Events, DataSource,
+  currentUser, AlertDialog, DataSource,
 ) {
-  Events.record('view', 'page', 'admin/data_source');
-
   $scope.dataSource = $route.current.locals.dataSource;
   $scope.dataSourceId = $routeParams.dataSourceId;
   $scope.types = $route.current.locals.types;
@@ -45,27 +52,20 @@ function DataSourceCtrl(
 
   function deleteDataSource(callback) {
     const doDelete = () => {
-      Events.record('delete', 'datasource', $scope.dataSource.id);
-
       $scope.dataSource.$delete(() => {
-        toastr.success('Data source deleted successfully.');
-        $location.path('/data_sources/');
+        toastrSuccessAndPath('Data source', 'data_sources', toastr, $location);
       }, (httpResponse) => {
-        logger('Failed to delete data source: ', httpResponse.status, httpResponse.statusText, httpResponse.data);
-        toastr.error('Failed to delete data source.');
+        logAndToastrError('data source', httpResponse, toastr);
       });
     };
 
-    const title = 'Delete Data source';
-    const message = `Are you sure you want to delete the "${$scope.dataSource.name}" data source?`;
-    const confirm = { class: 'btn-warning', title: 'Delete' };
+    const deleteTitle = 'Delete Data source';
+    const deleteMessage = `Are you sure you want to delete the "${$scope.dataSource.name}" data source?`;
 
-    AlertDialog.open(title, message, confirm).then(doDelete, callback);
+    AlertDialog.open(deleteTitle, deleteMessage, deleteConfirm).then(doDelete, callback);
   }
 
   function testConnection(callback) {
-    Events.record('test', 'datasource', $scope.dataSource.id);
-
     DataSource.test({ id: $scope.dataSource.id }, (httpResponse) => {
       if (httpResponse.ok) {
         toastr.success('Success');

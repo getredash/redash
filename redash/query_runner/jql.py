@@ -1,10 +1,8 @@
-import json
-import requests
 import re
-
 from collections import OrderedDict
 
 from redash.query_runner import *
+from redash.utils import json_dumps, json_loads
 
 
 # TODO: make this more general and move into __init__.py
@@ -24,7 +22,7 @@ class ResultSet(object):
             self.columns[column] = {'name': column, 'type': column_type, 'friendly_name': column}
 
     def to_json(self):
-        return json.dumps({'rows': self.rows, 'columns': self.columns.values()})
+        return json_dumps({'rows': self.rows, 'columns': self.columns.values()})
 
 
 def parse_issue(issue, field_mapping):
@@ -40,7 +38,7 @@ def parse_issue(issue, field_mapping):
                 # if field mapping with dict member mappings defined get value of each member
                 for member_name in member_names:
                     if member_name in v:
-                        result[field_mapping.get_dict_output_field_name(k,member_name)] = v[member_name]
+                        result[field_mapping.get_dict_output_field_name(k, member_name)] = v[member_name]
 
             else:
                 # these special mapping rules are kept for backwards compatibility
@@ -65,7 +63,7 @@ def parse_issue(issue, field_mapping):
                             if member_name in listItem:
                                 listValues.append(listItem[member_name])
                     if len(listValues) > 0:
-                        result[field_mapping.get_dict_output_field_name(k,member_name)] = ','.join(listValues)
+                        result[field_mapping.get_dict_output_field_name(k, member_name)] = ','.join(listValues)
 
             else:
                 # otherwise support list values only for non-dict items
@@ -137,28 +135,13 @@ class FieldMapping:
         return None
 
 
-class JiraJQL(BaseQueryRunner):
+class JiraJQL(BaseHTTPQueryRunner):
     noop_query = '{"queryType": "count"}'
-
-    @classmethod
-    def configuration_schema(cls):
-        return {
-            'type': 'object',
-            'properties': {
-                'url': {
-                    'type': 'string',
-                    'title': 'JIRA URL'
-                },
-                'username': {
-                    'type': 'string',
-                },
-                'password': {
-                    'type': 'string'
-                }
-            },
-            'required': ['url', 'username', 'password'],
-            'secret': ['password']
-        }
+    response_error = "JIRA returned unexpected status code"
+    requires_authentication = True
+    url_title = 'JIRA URL'
+    username_title = 'Username'
+    password_title = 'Password'
 
     @classmethod
     def name(cls):
@@ -176,7 +159,7 @@ class JiraJQL(BaseQueryRunner):
         jql_url = '{}/rest/api/2/search'.format(self.configuration["url"])
 
         try:
-            query = json.loads(query)
+            query = json_loads(query)
             query_type = query.pop('queryType', 'select')
             field_mapping = FieldMapping(query.pop('fieldMapping', {}))
 
@@ -186,13 +169,9 @@ class JiraJQL(BaseQueryRunner):
             else:
                 query['maxResults'] = query.get('maxResults', 1000)
 
-            response = requests.get(jql_url, params=query, auth=(self.configuration.get('username'), self.configuration.get('password')))
-
-            if response.status_code == 401 or response.status_code == 403:
-                return None, "Authentication error. Please check username/password."
-
-            if response.status_code != 200:
-                return None, "JIRA returned unexpected status code ({})".format(response.status_code)
+            response, error = self.get_response(jql_url, params=query)
+            if error is not None:
+                return None, error
 
             data = response.json()
 
@@ -206,4 +185,3 @@ class JiraJQL(BaseQueryRunner):
             return None, "Query cancelled by user."
 
 register(JiraJQL)
-

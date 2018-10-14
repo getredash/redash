@@ -69,6 +69,12 @@ class QuerySearchResource(BaseResource):
 
         include_drafts = request.args.get('include_drafts') is not None
 
+        self.record_event({
+            'action': 'search',
+            'object_type': 'query',
+            'term': term,
+        })
+
         # this redirects to the new query list API that is aware of search
         new_location = url_for(
             'queries',
@@ -197,6 +203,18 @@ class QueryListResource(BaseResource):
             with_last_modified_by=False
         )
 
+        if search_term:
+            self.record_event({
+                'action': 'search',
+                'object_type': 'query',
+                'term': search_term,
+            })
+        else:
+            self.record_event({
+                'action': 'list',
+                'object_type': 'query',
+            })
+
         return response
 
 
@@ -293,6 +311,13 @@ class QueryResource(BaseResource):
 
         result = QuerySerializer(q, with_visualizations=True).serialize()
         result['can_edit'] = can_modify(q, self.current_user)
+
+        self.record_event({
+            'action': 'view',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
@@ -322,6 +347,13 @@ class QueryForkResource(BaseResource):
         require_access(query.data_source.groups, self.current_user, not_view_only)
         forked_query = query.fork(self.current_user)
         models.db.session.commit()
+
+        self.record_event({
+            'action': 'fork',
+            'object_id': query_id,
+            'object_type': 'query',
+        })
+
         return QuerySerializer(forked_query, with_visualizations=True).serialize()
 
 
@@ -350,4 +382,16 @@ class QueryRefreshResource(BaseResource):
 
 class QueryTagsResource(BaseResource):
     def get(self):
-        return {t[0]: t[1] for t in models.Query.all_tags(self.current_user, True)}
+        """
+        Returns all query tags including those for drafts.
+        """
+        tags = models.Query.all_tags(self.current_user, include_drafts=True)
+        return {
+            'tags': [
+                {
+                    'name': name,
+                    'count': count,
+                }
+                for name, count in tags
+            ]
+        }
