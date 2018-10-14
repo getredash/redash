@@ -217,7 +217,7 @@ class GoogleSpreadsheet(BaseQueryRunner):
             if json.loads(e.response.text)["error"]["status"] == "PERMISSION_DENIED":
                 raise Exception(
                     f"Looks like you don't have the permission to access this file,"
-                    f"probably you might need to share your file with this service account {gClient.auth._service_account_email}"
+                    f"probably you might need to share your file with this service account {spreadsheet_service.auth._service_account_email}"
                 )
             return None, "Spreadsheet ({}) not found. Make sure you used correct id.".format(key)
 
