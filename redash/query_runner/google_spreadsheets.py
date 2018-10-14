@@ -213,7 +213,8 @@ class GoogleSpreadsheet(BaseQueryRunner):
             return json_dumps(data), None
         except gspread.SpreadsheetNotFound:
             service_account = json_loads(b64decode(self.configuration['jsonKeyFile']))["client_email"]
-            return None, "Spreadsheet ({0}) not found. Make sure you used correct id. The service account email is: {1}".format(key, service_account)
+            return None, "Spreadsheet ({0}) not found. Make sure you used correct id. The service account email is:\
+                         {1}".format(key, service_account)
 
 
 register(GoogleSpreadsheet)
