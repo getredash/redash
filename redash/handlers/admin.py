@@ -1,12 +1,12 @@
 from flask import request
-from flask_login import login_required
+from flask_login import login_required, current_user
 
 from redash import models, redis_connection
+from redash.authentication import current_org
 from redash.handlers import routes
-from redash.handlers.base import json_response
+from redash.handlers.base import json_response, record_event
 from redash.permissions import require_super_admin
 from redash.serializers import QuerySerializer
-from redash.tasks import record_event
 from redash.tasks.queries import QueryTaskTracker
 from redash.utils import json_loads
 
@@ -26,7 +26,7 @@ def outdated_queries():
     else:
         outdated_queries = []
 
-    record_event({
+    record_event(current_org, current_user._get_current_object(), {
         'action': 'list',
         'object_type': 'outdated_queries',
     })
@@ -42,7 +42,7 @@ def outdated_queries():
 @require_super_admin
 @login_required
 def queries_tasks():
-    record_event({
+    record_event(current_org, current_user._get_current_object(), {
         'action': 'list',
         'object_id': 'admin/tasks',
         'object_type': 'celery_tasks'
