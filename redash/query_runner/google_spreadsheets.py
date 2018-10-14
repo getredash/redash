@@ -102,16 +102,14 @@ HEADER_INDEX = 0
 
 class WorksheetNotFoundError(Exception):
     def __init__(self, worksheet_num, worksheet_count):
-        message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(
-            worksheet_num, worksheet_count)
+        message = "Worksheet number {} not found. Spreadsheet has {} worksheets. Note that the worksheet count is zero based.".format(worksheet_num, worksheet_count)
         super(WorksheetNotFoundError, self).__init__(message)
 
 
 def parse_query(query):
     values = query.split("|")
     key = values[0]  # key of the spreadsheet
-    worksheet_num = 0 if len(values) != 2 else int(
-        values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
+    worksheet_num = 0 if len(values) != 2 else int(values[1])  # if spreadsheet contains more than one worksheet - this is the number of it
 
     return key, worksheet_num
 
