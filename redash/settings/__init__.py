@@ -200,6 +200,7 @@ default_destinations = [
     'redash.destinations.hipchat',
     'redash.destinations.mattermost',
     'redash.destinations.chatwork',
+    'redash.destinations.pagerduty',
 ]
 
 enabled_destinations = array_from_string(os.environ.get("REDASH_ENABLED_DESTINATIONS", ",".join(default_destinations)))
