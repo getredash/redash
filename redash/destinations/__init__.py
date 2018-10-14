@@ -16,10 +16,6 @@ class BaseDestination(object):
         self.configuration = configuration
 
     @classmethod
-    def test(cls):
-        pass
-
-    @classmethod
     def name(cls):
         return cls.__name__
 
