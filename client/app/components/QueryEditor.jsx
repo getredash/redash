@@ -71,13 +71,13 @@ class QueryEditor extends React.Component {
     listenForResize: PropTypes.func.isRequired,
     listenForEditorCommand: PropTypes.func.isRequired,
 
-  }
+  };
 
   static defaultProps = {
     schema: null,
     dataSource: {},
     dataSources: [],
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -163,6 +163,8 @@ class QueryEditor extends React.Component {
     // eslint-disable-next-line react/prop-types
     const modKey = this.props.KeyboardShortcuts.modKey;
 
+    const isExecuteDisabled = this.props.queryExecuting || !this.props.canExecuteQuery();
+
     return (
       <section style={{ height: '100%' }}>
         <div className="container p-15 m-b-10" style={{ height: '100%' }}>
@@ -200,7 +202,7 @@ class QueryEditor extends React.Component {
                 </button>
               </Tooltip>
               <Tooltip placement="top" title="Autocomplete">
-                <button type="button" className={'btn btn-default' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
+                <button type="button" className={'btn btn-default m-r-5' + (this.state.autocompleteQuery ? ' active' : '')} onClick={() => this.setState({ autocompleteQuery: !this.state.autocompleteQuery })} >
                   <span className="fa fa-magic" />
                 </button>
               </Tooltip>
@@ -210,15 +212,27 @@ class QueryEditor extends React.Component {
               {this.props.canEdit ?
                 <Tooltip placement="top" title={modKey + ' + S'}>
                   <button className="btn btn-default m-l-5" onClick={this.props.saveQuery} title="Save">
-                    <span className="fa fa-floppy-o" />&nbsp;
-                    <span className="hidden-xs">Save</span>
+                    <span className="fa fa-floppy-o" />
+                    <span className="hidden-xs m-l-5">Save</span>
                     {this.props.isDirty ? '*' : null}
                   </button>
                 </Tooltip> : null }
               <Tooltip placement="top" title={modKey + ' + Enter'}>
-                <button type="button" className="btn btn-primary m-l-5" disabled={this.props.queryExecuting || !this.props.canExecuteQuery()} onClick={this.props.executeQuery}>
-                  <span className="zmdi zmdi-play" />&nbsp;
-                  <span className="hidden-xs">Execute</span>
+                {/*
+                  Tooltip wraps disabled buttons with `<span>` and moves all styles
+                  and classes to that `<span>`. There is a piece of CSS that fixes
+                  button appearance, but also wwe need to add `disabled` class to
+                  disabled buttons so it will be assigned to wrapper and make it
+                  looking properly
+                */}
+                <button
+                  type="button"
+                  className={'btn btn-primary m-l-5' + (isExecuteDisabled ? ' disabled' : '')}
+                  disabled={isExecuteDisabled}
+                  onClick={this.props.executeQuery}
+                >
+                  <span className="zmdi zmdi-play" />
+                  <span className="hidden-xs m-l-5">Execute</span>
                 </button>
               </Tooltip>
             </div>
