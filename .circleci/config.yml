@@ -50,6 +50,7 @@ jobs:
       - image: circleci/node:8
     steps:
       - checkout
+      - run: sudo apt install python-pip
       - run: npm install
       - run: npm run bundle
       - run: npm run build
