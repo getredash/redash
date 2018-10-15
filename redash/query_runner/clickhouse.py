@@ -71,7 +71,7 @@ class ClickHouse(BaseSQLQueryRunner):
             self.configuration['url'],
             data=data.encode("utf-8"),
             stream=stream,
-            timeout=self.configuration['timeout'],
+            timeout=self.configuration.get('timeout', 30),
             params={
                 'user': self.configuration['user'],
                 'password':  self.configuration['password'],
