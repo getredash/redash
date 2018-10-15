@@ -6,6 +6,7 @@
   "scripts": {
     "start": "webpack-dev-server",
     "dev": "REDASH_BACKEND=https://dev.redashapp.com npm start",
+    "bundle": "bin/bundle-extensions",
     "build": "rm -rf ./client/dist/ && NODE_ENV=production webpack",
     "watch": "webpack --watch --progress --colors -d",
     "analyze": "rm -rf ./client/dist/ && BUNDLE_ANALYZER=on webpack",

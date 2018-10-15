@@ -245,5 +245,5 @@ def list(organization=None):
         if i > 0:
             print("-" * 20)
 
-        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(
-            user.id, user.name.encode('utf-8'), user.email, user.org.name))
+        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
+            user.id, user.name.encode('utf-8'), user.email, user.org.name, not(user.is_disabled)))

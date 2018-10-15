@@ -12,6 +12,6 @@
     <value ng-if="isNumber">{{stringPrefix}}{{counterValue | number}}{{stringSuffix}}</value>
     <value ng-if="!isNumber">{{stringPrefix}}{{counterValue}}{{stringSuffix}}</value>
     <counter-target ng-if="targetValue" title="({{targetValue | number}})">({{targetValue | number}})</counter-target>
-    <counter-name>{{visualization.name}}</counter-name>
+    <counter-name>{{counterLabel}}</counter-name>
   </div>
 </counter>
