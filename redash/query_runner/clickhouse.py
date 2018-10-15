@@ -31,6 +31,11 @@ class ClickHouse(BaseSQLQueryRunner):
                 "dbname": {
                     "type": "string",
                     "title": "Database Name"
+                },
+                "timeout": {
+                    "type": "number",
+                    "title": "Request Timeout",
+                    "default": 30
                 }
             },
             "required": ["dbname"],
@@ -66,7 +71,7 @@ class ClickHouse(BaseSQLQueryRunner):
             self.configuration['url'],
             data=data.encode("utf-8"),
             stream=stream,
-            timeout=5,
+            timeout=self.configuration.get('timeout', 30),
             params={
                 'user': self.configuration['user'],
                 'password':  self.configuration['password'],
