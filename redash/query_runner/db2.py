@@ -1,30 +1,34 @@
 import os
 import json
 import logging
-import select
-
-import ibm_db_dbi
 
 from redash.query_runner import *
 from redash.utils import JSONEncoder
 
 logger = logging.getLogger(__name__)
 
-types_map = {
-    ibm_db_dbi.NUMBER: TYPE_INTEGER,
-    ibm_db_dbi.BIGINT: TYPE_INTEGER,
-    ibm_db_dbi.ROWID: TYPE_INTEGER,
-    ibm_db_dbi.FLOAT: TYPE_FLOAT,
-    ibm_db_dbi.DECIMAL: TYPE_FLOAT,
-    ibm_db_dbi.DATE: TYPE_DATE,
-    ibm_db_dbi.TIME: TYPE_DATETIME,
-    ibm_db_dbi.DATETIME: TYPE_DATETIME,
-    ibm_db_dbi.BINARY: TYPE_STRING,
-    ibm_db_dbi.XML: TYPE_STRING,
-    ibm_db_dbi.TEXT: TYPE_STRING,
-    ibm_db_dbi.STRING: TYPE_STRING
-}
+try:
+    import select
+    import ibm_db_dbi
 
+    types_map = {
+        ibm_db_dbi.NUMBER: TYPE_INTEGER,
+        ibm_db_dbi.BIGINT: TYPE_INTEGER,
+        ibm_db_dbi.ROWID: TYPE_INTEGER,
+        ibm_db_dbi.FLOAT: TYPE_FLOAT,
+        ibm_db_dbi.DECIMAL: TYPE_FLOAT,
+        ibm_db_dbi.DATE: TYPE_DATE,
+        ibm_db_dbi.TIME: TYPE_DATETIME,
+        ibm_db_dbi.DATETIME: TYPE_DATETIME,
+        ibm_db_dbi.BINARY: TYPE_STRING,
+        ibm_db_dbi.XML: TYPE_STRING,
+        ibm_db_dbi.TEXT: TYPE_STRING,
+        ibm_db_dbi.STRING: TYPE_STRING
+    }
+
+    enabled = True
+except ImportError:
+    enabled = False
 
 class DB2(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
@@ -80,7 +84,7 @@ class DB2(BaseSQLQueryRunner):
         results = json.loads(results)
 
         for row in results['rows']:
-            if row['TABLE_SCHEMA'] != 'public':
+            if row['TABLE_SCHEMA'] != u'public':
                 table_name = '{}.{}'.format(row['TABLE_SCHEMA'], row['TABLE_NAME'])
             else:
                 table_name = row['TABLE_NAME']
