@@ -180,7 +180,8 @@ class QueryOutdatedQueriesTest(BaseTestCase):
         Execution failures recorded for a query result in exponential backoff
         for scheduling future execution.
         """
-        query = self.factory.create_query(schedule="60", schedule_failures=4)
+        query = self.factory.create_query(schedule="60")
+        query.schedule_failures = 4
         retrieved_at = utcnow() - datetime.timedelta(minutes=16)
         query_result = self.factory.create_query_result(
             retrieved_at=retrieved_at, query_text=query.query_text,
