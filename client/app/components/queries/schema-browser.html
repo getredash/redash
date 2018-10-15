@@ -9,7 +9,9 @@
 
     <button class="btn btn-default"
           title="Toggle Versioned Tables"
-          ng-click="$ctrl.flipToggleVersionedTables($ctrl.versionToggle)">
+          ng-click="$ctrl.flipToggleVersionedTables($ctrl.versionToggle, $ctrl.tabletogglestring)"
+          ng-if="$ctrl.tabletogglestring && $ctrl.tabletogglestring != ''"
+          >
     <span class="fa " ng-class="{'fa-toggle-on': $ctrl.versionToggle == true, 'fa-toggle-off': !$ctrl.versionToggle}">
       <input type="checkbox" id="versioned-tables-toggle" ng-model="$ctrl.versionToggle" hidden/>
     </span>

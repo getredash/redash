@@ -46,6 +46,12 @@ class DynamoDBSQL(BaseSQLQueryRunner):
                 },
                 "secret_key": {
                     "type": "string",
+                },
+                "toggle_table_string": {
+                    "type": "string",
+                    "title": "Toggle Table String",
+                    "default": "_v",
+                    "info": "This string will be used to toggle visibility of tables in the schema browser when editing a query in order to remove non-useful tables from sight."
                 }
             },
             "required": ["access_key", "secret_key"],
