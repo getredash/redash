@@ -2,11 +2,11 @@ import { isNull, isUndefined } from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
-import { DateInput } from './DateInput.jsx';
-import { DateRangeInput } from './DateRangeInput.jsx';
-import { DateTimeInput } from './DateTimeInput.jsx';
-import { DateTimeRangeInput } from './DateTimeRangeInput.jsx';
-import { QueryBasedParameterInput } from './QueryBasedParameterInput.jsx';
+import { DateInput } from './DateInput';
+import { DateRangeInput } from './DateRangeInput';
+import { DateTimeInput } from './DateTimeInput';
+import { DateTimeRangeInput } from './DateTimeRangeInput';
+import { QueryBasedParameterInput } from './QueryBasedParameterInput';
 
 export function ParameterValueInput({
   type,

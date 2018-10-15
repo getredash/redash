@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import highlight from '@/lib/highlight';
-import { ParameterValueInput } from '../ParameterValueInput.jsx';
+import { ParameterValueInput } from '@/components/ParameterValueInput';
 
 class AddWidgetDialog extends React.Component {
   static MappingType = {

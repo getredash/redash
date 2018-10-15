@@ -4,7 +4,6 @@ import editTextBoxTemplate from './edit-text-box.html';
 import widgetDialogTemplate from './widget-dialog.html';
 import './widget.less';
 import './widget-dialog.less';
-import './add-widget-dialog.less';
 
 const WidgetDialog = {
   template: widgetDialogTemplate,
