@@ -30,6 +30,7 @@ try:
 except ImportError:
     enabled = False
 
+
 class DB2(BaseSQLQueryRunner):
     noop_query = "SELECT 1 FROM SYSIBM.SYSDUMMY1"
 
