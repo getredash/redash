@@ -89,7 +89,7 @@ class ClickHouse(BaseSQLQueryRunner):
             return TYPE_STRING
 
     def _clickhouse_query(self, query):
-        query += ' FORMAT JSON'
+        query += '\nFORMAT JSON'
         result = self._send_query(query)
         columns = [{'name': r['name'], 'friendly_name': r['name'],
                     'type': self._define_column_type(r['type'])} for r in result['meta']]
