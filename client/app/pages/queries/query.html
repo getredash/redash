@@ -88,7 +88,7 @@
       </div>
       <div ng-if="!sourceMode" style="flex-grow: 1;">&nbsp;</div>
 
-      <div class="query-metadata query-metadata--description">
+      <div class="query-metadata query-metadata--description" ng-if="!query.isNew()">
         <edit-in-place editable="canEdit" on-done="saveDescription" editor="'textarea'" placeholder="'Add description'" ignore-blanks='false'
           value="query.description" markdown="true">
         </edit-in-place>
