@@ -520,7 +520,7 @@ export function prepareData(seriesList, options) {
   return prepareChartData(seriesList, options);
 }
 
-export function prepareLayout(element, seriesList, options, data) {
+export function prepareLayout(seriesList, options, data) {
   const {
     cellsInRow, cellWidth, cellHeight, xPadding, hasY2,
   } = calculateDimensions(seriesList, options);
@@ -533,8 +533,8 @@ export function prepareLayout(element, seriesList, options, data) {
       t: 25,
       pad: 4,
     },
-    width: Math.floor(element.offsetWidth),
-    height: Math.floor(element.offsetHeight),
+    // width: Math.floor(element.offsetWidth),
+    // height: Math.floor(element.offsetHeight),
     autosize: true,
     showlegend: has(options, 'legend') ? options.legend.enabled : true,
   };

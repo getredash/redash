@@ -33,6 +33,8 @@ module.exports = {
     "react/forbid-prop-types": "warn",
     "react/prop-types": "warn",
     "jsx-a11y/anchor-is-valid": "off",
+    "jsx-a11y/label-has-for": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
     "max-len": ['error', 120, 2, {
       ignoreUrls: true,
       ignoreComments: false,
