@@ -250,4 +250,4 @@ def list(organization=None):
 
         groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
         group_names = [group.name for group in groups]
-        print("Groups: {}".format(", ".join(group_names)))
+        print("Group: {}".format(", ".join(group_names)))
