@@ -40,6 +40,10 @@ class Presto(BaseQueryRunner):
                 'host': {
                     'type': 'string'
                 },
+                'protocol': {
+                    'type': 'string',
+                    'default': 'http'
+                },
                 'port': {
                     'type': 'number'
                 },
@@ -51,8 +55,9 @@ class Presto(BaseQueryRunner):
                 },
                 'username': {
                     'type': 'string'
-                }
+                },
             },
+            'order': ['host', 'protocol', 'port', 'username', 'schema', 'catalog'],
             'required': ['host']
         }
 
@@ -93,6 +98,7 @@ class Presto(BaseQueryRunner):
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
+                protocol=self.configuration.get('protocol', 'http'),
                 username=self.configuration.get('username', 'redash'),
                 catalog=self.configuration.get('catalog', 'hive'),
                 schema=self.configuration.get('schema', 'default'))
