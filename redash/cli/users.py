@@ -248,9 +248,6 @@ def list(organization=None):
         print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
             user.id, user.name.encode('utf-8'), user.email, user.org.name, not(user.is_disabled)))
 
-        for group_id in user.group_ids:
-            try:
-                group = models.Group.query.get(group_id)
-                print("Group: {}".format(group.name))
-            except AttributeError:
-                pass
+        groups = models.Group.query.filter(models.Group.id.in_(user.group_ids)).all()
+        group_names = [group.name for group in groups]
+        print("Groups: {}".format(", ".join(group_names)))
