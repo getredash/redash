@@ -392,6 +392,7 @@ class UserCommandTests(BaseTestCase):
         Email: foobar@example.com
         Organization: Default
         Active: True
+        Group: Default
         """
         self.assertMultiLineEqual(result.output,
                                   textwrap.dedent(output).lstrip())
