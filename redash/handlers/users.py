@@ -23,6 +23,8 @@ order_map = {
     '-created_at': '-created_at',
     'groups': 'group_ids',
     '-groups': '-group_ids',
+    'last_active_at': 'last_active_at',
+    '-last_active_at': '-last_active_at',
 }
 
 order_results = partial(
