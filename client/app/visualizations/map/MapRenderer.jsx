@@ -130,7 +130,7 @@ export default class MapRenderer extends React.Component {
 
           <TileLayer
             url={this.props.options.mapTileUrl || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}
-            attribution={'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}
+            attribution={'&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'}
           />
           <LayersControl>
             {markerLayers}

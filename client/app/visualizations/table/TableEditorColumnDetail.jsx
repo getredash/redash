@@ -84,7 +84,7 @@ export default function TableEditorColumnDetail({ updateColumn, column }) {
   );
   const datetimePopover = (
     <React.Fragment>
-      Format <a href="http://momentjs.com/docs/#/displaying/format/" rel="noopener noreferrer" target="_blank">specs.</a>
+      Format <a href="https://momentjs.com/docs/#/displaying/format/" rel="noopener noreferrer" target="_blank">specs.</a>
     </React.Fragment>
   );
 

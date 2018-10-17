@@ -520,7 +520,7 @@ export default class ChartEditor extends React.Component {
             <label htmlFor="chart-editor-datetime-format">
               Date/Time Values Format
               <PopoverHelp>
-                Format <a href="http://momentjs.com/docs/#/displaying/format/" target="_blank">specs.</a>
+                Format <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank">specs.</a>
               </PopoverHelp>
             </label>
             <input className="form-control" value={opts.dateTimeFormat} onChange={this.updateDateTimeFormat} id="chart-editor-datetime-format" />
