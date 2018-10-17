@@ -4,7 +4,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 
 from flask_login import current_user, login_required, login_user, logout_user
 from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url
+from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (BadSignature, SignatureExpired,
                                            send_password_reset_email,
                                            validate_token)
@@ -106,8 +106,9 @@ def login(org_slug=None):
     elif current_org == None:
         return redirect('/')
 
-    index_url = url_for("redash.index", org_slug=org_slug)
-    next_path = request.args.get('next', index_url)
+    index_url = url_for('redash.index', org_slug=org_slug)
+    unsafe_next_path = request.args.get('next', index_url)
+    next_path = get_next_path(unsafe_next_path)
     if current_user.is_authenticated:
         return redirect(next_path)
 

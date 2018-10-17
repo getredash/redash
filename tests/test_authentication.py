@@ -184,6 +184,34 @@ class TestGetLoginUrl(BaseTestCase):
         with self.app.test_request_context('/{}_notexists/'.format(self.factory.org.slug)):
             self.assertEqual(get_login_url(next=None), '/')
 
+
+class TestRedirectToUrlAfterLoggingIn(BaseTestCase):
+    def setUp(self):
+        super(TestRedirectToUrlAfterLoggingIn, self).setUp()
+        self.user = self.factory.user
+        self.password = 'test1234'
+
+    def test_no_next_param(self):
+        response = self.post_request('/login', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/{}/'.format(self.user.org.slug))
+
+    def test_simple_path_in_next_param(self):
+        response = self.post_request('/login?next=queries', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/queries')
+
+    def test_starts_scheme_url_in_next_param(self):
+        response = self.post_request('/login?next=https://redash.io', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/')
+
+    def test_without_scheme_url_in_next_param(self):
+        response = self.post_request('/login?next=//redash.io', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/')
+
+    def test_without_scheme_with_path_url_in_next_param(self):
+        response = self.post_request('/login?next=//localhost/queries', data={'email': self.user.email, 'password': self.password}, org=self.factory.org)
+        self.assertEqual(response.location, 'http://localhost/queries')
+
+
 class TestRemoteUserAuth(BaseTestCase):
     DEFAULT_SETTING_OVERRIDES = {
         'REDASH_REMOTE_USER_LOGIN_ENABLED': 'true'

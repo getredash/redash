@@ -4,7 +4,7 @@ from flask import redirect, url_for, Blueprint, flash, request, session
 from flask_oauthlib.client import OAuth
 
 from redash import models, settings
-from redash.authentication import create_and_login_user, logout_and_redirect_to_index
+from redash.authentication import create_and_login_user, logout_and_redirect_to_index, get_next_path
 from redash.authentication.org_resolving import current_org
 
 logger = logging.getLogger('google_oauth')
@@ -102,6 +102,7 @@ def authorized():
     if user is None:
         return logout_and_redirect_to_index()
 
-    next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
+    unsafe_next_path = request.args.get('state') or url_for("redash.index", org_slug=org.slug)
+    next_path = get_next_path(unsafe_next_path)
 
     return redirect(next_path)
