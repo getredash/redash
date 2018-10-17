@@ -12,7 +12,13 @@
   </div>
 
   <div class="col-md-12 query__vis">
-    <visualization-renderer visualization="$ctrl.visualization" query-result="$ctrl.queryResult" class="t-body">
+    <visualization-renderer
+      visualization="$ctrl.visualization"
+      set-filters="$ctrl.setFilters"
+      filters="$ctrl.queryResult.getFilters()"
+      data="{ rows: $ctrl.queryResult.getData(), columns: $ctrl.queryResult.getColumns() }"
+      update-options="$ctrl.updateOptions"
+      class="t-body">
     </visualization-renderer>
   </div>
 

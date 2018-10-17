@@ -354,6 +354,18 @@ function QueryViewCtrl(
     });
   };
 
+  $scope.setFilters = (f) => { $scope.query.filters = f; };
+  // gotta cache these functions to pacify angular
+  const visualizationUpdaters = [];
+  $scope.visualizationUpdater = (i) => {
+    if (!visualizationUpdaters[i]) {
+      visualizationUpdaters[i] = (v) => { $scope.query.visualizations[i] = v; };
+    }
+    return visualizationUpdaters[i];
+  };
+
+  $scope.empty = [];
+
   $scope.$watch('query.name', () => {
     Title.set($scope.query.name);
   });

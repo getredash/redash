@@ -1,4 +1,4 @@
-import { find } from 'lodash';
+import { findIndex } from 'lodash';
 import logoUrl from '@/assets/images/redash_icon_small.png';
 import template from './visualization-embed.html';
 
@@ -16,9 +16,22 @@ const VisualizationEmbed = {
     this.apiKey = $routeParams.api_key;
     this.logoUrl = logoUrl;
     this.query = new Query(this.data[0]);
+    const visIndex = findIndex(
+      this.query.visualizations,
+      visualization => visualization.id === visualizationId,
+    );
     this.queryResult = new QueryResult(this.data[1]);
-    this.visualization =
-      find(this.query.visualizations, visualization => visualization.id === visualizationId);
+    this.visualization = this.query.visualizations[visIndex];
+    this.updateVisualization = (o) => {
+      this.query.visualizations[visIndex] = {
+        ...this.visualization,
+        options: {
+          ...this.visualization.options,
+          ...o,
+        },
+      };
+    };
+    this.setFilters = (f) => { this.query.filters = f; };
   },
 };
 

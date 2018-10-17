@@ -1,50 +1,36 @@
 import { map } from 'lodash';
 import { copy } from 'angular';
 import template from './edit-visualization-dialog.html';
+import visualizationRegistry from './registry';
 
-const EditVisualizationDialog = {
+export default {
   template,
   bindings: {
     resolve: '<',
     close: '&',
     dismiss: '&',
   },
-  controller($window, currentUser, Events, Visualization, toastr) {
+  controller($window, currentUser, Events, Visualization, toastr, $scope) {
     'ngInject';
 
     this.query = this.resolve.query;
     this.queryResult = this.resolve.queryResult;
+    this.data = { rows: this.queryResult.getData(), columns: this.queryResult.getColumns() };
     this.originalVisualization = this.resolve.visualization;
     this.onNewSuccess = this.resolve.onNewSuccess;
     this.visualization = copy(this.originalVisualization);
-    this.visTypes = Visualization.visualizationTypes;
-
-    // Don't allow to change type after creating visualization
-    this.canChangeType = !(this.visualization && this.visualization.id);
-
+    this.setFilters = (f) => { this.query.filters = f; };
+    this.updateVisualization = v => $scope.$apply(() => { this.$dirty = true; this.visualization = v; });
+    this.$dirty = false;
     this.newVisualization = () => ({
-      type: Visualization.defaultVisualization.type,
-      name: Visualization.defaultVisualization.name,
+      type: 'CHART',
+      name: visualizationRegistry.CHART.name,
       description: '',
-      options: Visualization.defaultVisualization.defaultOptions,
+      options: visualizationRegistry.CHART.defaultOptions,
     });
     if (!this.visualization) {
       this.visualization = this.newVisualization();
     }
-
-    this.typeChanged = (oldType) => {
-      const type = this.visualization.type;
-      // if not edited by user, set name to match type
-      // todo: this is wrong, because he might have edited it before.
-      if (type && oldType !== type && this.visualization && !this.visForm.name.$dirty) {
-        this.visualization.name = Visualization.visualizations[this.visualization.type].name;
-      }
-
-      // Bring default options
-      if (type && oldType !== type && this.visualization) {
-        this.visualization.options = Visualization.visualizations[this.visualization.type].defaultOptions;
-      }
-    };
 
     this.submit = () => {
       if (this.visualization.id) {
@@ -80,7 +66,7 @@ const EditVisualizationDialog = {
     };
 
     this.closeDialog = () => {
-      if (this.visForm.$dirty) {
+      if (this.$dirty) {
         if ($window.confirm('Are you sure you want to close the editor without saving?')) {
           this.close();
         }
@@ -90,9 +76,3 @@ const EditVisualizationDialog = {
     };
   },
 };
-
-export default function init(ngModule) {
-  ngModule.component('editVisualizationDialog', EditVisualizationDialog);
-}
-
-init.init = true;

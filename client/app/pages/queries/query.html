@@ -244,7 +244,13 @@
                   </div>
 
                   <div ng-if="selectedTab == vis.id" ng-repeat="vis in query.visualizations" class="query__vis m-t-15 scrollbox">
-                    <visualization-renderer visualization="vis" query-result="queryResult"></visualization-renderer>
+                    <visualization-renderer
+                      visualization="vis"
+                      update-options="visualizationUpdater($index)"
+                      data="{ rows: queryResult.getData(), columns: queryResult.getColumns() || empty }"
+                      filters="queryResult.getFilters() || empty"
+                      set-filters="setFilters">
+                    </visualization-renderer>
                   </div>
                 </div>
               </div>
