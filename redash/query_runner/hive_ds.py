@@ -1,10 +1,9 @@
-import json
 import logging
 import sys
 import base64
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -167,7 +166,7 @@ class Hive(BaseSQLQueryRunner):
             rows = [dict(zip(column_names, row)) for row in cursor]
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
         except KeyboardInterrupt:
             connection.cancel()

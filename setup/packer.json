@@ -41,6 +41,15 @@
     {
       "type": "shell",
       "inline": "sudo rm /home/ubuntu/.ssh/authorized_keys || true"
+    },
+    {
+      "type": "file",
+      "source": "generate_key.sh",
+      "destination": "/tmp/rc.local"
+    },
+    {
+      "type": "shell",
+      "inline": ["sudo mv /tmp/rc.local /etc/rc.local", "sudo chown root /etc/rc.local", "sudo chmod 755 /etc/rc.local"]
     }
   ],
   "post-processors": [

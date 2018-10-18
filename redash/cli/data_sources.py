@@ -1,14 +1,15 @@
 from __future__ import print_function
 from sys import exit
-import json
 
 import click
 from flask.cli import AppGroup
+from six import text_type
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import models
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  query_runners)
+from redash.utils import json_loads
 from redash.utils.configuration import ConfigurationContainer
 
 manager = AppGroup(help="Data sources management commands.")
@@ -102,7 +103,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
     if options is None:
         types = {
-            'string': unicode,
+            'string': text_type,
             'number': int,
             'boolean': bool
         }
@@ -128,7 +129,7 @@ def new(name=None, type=None, options=None, organization='default'):
 
         options = ConfigurationContainer(options_obj, schema)
     else:
-        options = ConfigurationContainer(json.loads(options), schema)
+        options = ConfigurationContainer(json_loads(options), schema)
 
     if not options.is_valid():
         print("Error: invalid configuration.")
@@ -197,7 +198,7 @@ def edit(name, new_name=None, options=None, type=None, organization='default'):
         if options is not None:
             schema = get_configuration_schema_for_query_runner_type(
                 data_source.type)
-            options = json.loads(options)
+            options = json_loads(options)
             data_source.options.set_schema(schema)
             data_source.options.update(options)
 

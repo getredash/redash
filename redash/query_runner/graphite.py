@@ -1,9 +1,10 @@
-import json
 import datetime
-import requests
 import logging
+
+import requests
+
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ def _transform_result(response):
             rows.append({'Time::x': timestamp, 'name::series': series['target'], 'value::y': values[0]})
 
     data = {'columns': columns, 'rows': rows}
-    return json.dumps(data, cls=JSONEncoder)
+    return json_dumps(data)
 
 
 class Graphite(BaseQueryRunner):

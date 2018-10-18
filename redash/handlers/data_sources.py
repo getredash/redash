@@ -3,6 +3,7 @@ import logging
 from flask import make_response, request
 from flask_restful import abort
 from funcy import project
+from six import text_type
 from sqlalchemy.exc import IntegrityError
 
 from redash import models
@@ -213,6 +214,6 @@ class DataSourceTestResource(BaseResource):
         try:
             data_source.query_runner.test_connection()
         except Exception as e:
-            return {"message": unicode(e), "ok": False}
+            return {"message": text_type(e), "ok": False}
         else:
             return {"message": "success", "ok": True}

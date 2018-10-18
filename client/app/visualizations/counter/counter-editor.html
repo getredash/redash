@@ -8,6 +8,12 @@
     </li>
   </ul>
   <div ng-show="currentTab == 'general'" class="m-t-10 m-b-10">
+      <div class="form-group">
+          <label class="col-lg-6">Counter Label</label>
+          <div class="col-lg-6">
+            <input type="text" ng-model="visualization.options.counterLabel" placeholder="{{visualization.name}}" class="form-control" ng-trim="false">
+          </div>
+        </div>
     <div class="form-group">
       <label class="col-lg-6">Counter Value Column Name</label>
       <div class="col-lg-6">

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import json
 import logging
 from base64 import b64decode
 from datetime import datetime
 from urlparse import parse_qs, urlparse
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -115,7 +114,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
 
     def _get_analytics_service(self):
         scope = ['https://www.googleapis.com/auth/analytics.readonly']
-        key = json.loads(b64decode(self.configuration['jsonKeyFile']))
+        key = json_loads(b64decode(self.configuration['jsonKeyFile']))
         creds = ServiceAccountCredentials.from_json_keyfile_dict(key, scope)
         return build('analytics', 'v3', http=creds.authorize(httplib2.Http()))
 
@@ -147,7 +146,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
     def run_query(self, query, user):
         logger.debug("Analytics is about to execute query: %s", query)
         try:
-            params = json.loads(query)
+            params = json_loads(query)
         except:
             params = parse_qs(urlparse(query).query, keep_blank_values=True)
             for key in params.keys():
@@ -171,7 +170,7 @@ class GoogleAnalytics(BaseSQLQueryRunner):
                 response = api.get(**params).execute()
                 data = parse_ga_response(response)
                 error = None
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json_dumps(data)
             except HttpError as e:
                 # Make sure we return a more readable error to the end user
                 error = e._get_reason()

@@ -24,13 +24,11 @@ pytz==2016.7
 PyYAML==3.12
 redis==2.10.5
 requests==2.11.1
-six==1.10.0
+six==1.11.0
 SQLAlchemy==1.2.7
 SQLAlchemy-Searchable==0.10.6
 SQLAlchemy-Utils>=0.29.0
 sqlparse==0.2.4
-wsgiref==0.1.2
-honcho==0.5.0
 statsd==2.1.2
 gunicorn==19.7.1
 celery==4.2.1

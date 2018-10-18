@@ -41,6 +41,13 @@ function CounterRenderer($timeout) {
           const targetRowNumber = getRowNumber($scope.visualization.options.targetRowNumber, queryData.length);
           const counterColName = $scope.visualization.options.counterColName;
           const targetColName = $scope.visualization.options.targetColName;
+          const counterLabel = $scope.visualization.options.counterLabel;
+
+          if (counterLabel) {
+            $scope.counterLabel = counterLabel;
+          } else {
+            $scope.counterLabel = $scope.visualization.name;
+          }
 
           if ($scope.visualization.options.countRow) {
             $scope.counterValue = queryData.length;

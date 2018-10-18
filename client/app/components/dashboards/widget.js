@@ -1,7 +1,21 @@
 import template from './widget.html';
 import editTextBoxTemplate from './edit-text-box.html';
+import widgetDialogTemplate from './widget-dialog.html';
 import './widget.less';
+import './widget-dialog.less';
 import './add-widget-dialog.less';
+
+const WidgetDialog = {
+  template: widgetDialogTemplate,
+  bindings: {
+    resolve: '<',
+    close: '&',
+    dismiss: '&',
+  },
+  controller() {
+    this.widget = this.resolve.widget;
+  },
+};
 
 const EditTextBoxComponent = {
   template: editTextBoxTemplate,
@@ -48,6 +62,16 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
       resolve: {
         widget: this.widget,
       },
+    });
+  };
+
+  this.expandVisualization = () => {
+    $uibModal.open({
+      component: 'widgetDialog',
+      resolve: {
+        widget: this.widget,
+      },
+      size: 'lg',
     });
   };
 
@@ -99,6 +123,7 @@ function DashboardWidgetCtrl($location, $uibModal, $window, Events, currentUser)
 
 export default function init(ngModule) {
   ngModule.component('editTextBox', EditTextBoxComponent);
+  ngModule.component('widgetDialog', WidgetDialog);
   ngModule.component('dashboardWidget', {
     template,
     controller: DashboardWidgetCtrl,
