@@ -1,6 +1,6 @@
 import datetime
-import json
 from unittest import TestCase
+
 from redash.query_runner.prometheus import get_instant_rows, get_range_rows
 
 

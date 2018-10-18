@@ -1,10 +1,9 @@
-import json
 import logging
 import os
 
 from redash.query_runner import *
 from redash.settings import parse_boolean
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 from redash.query_runner import InterruptException
 
 try:
@@ -105,7 +104,7 @@ class Mysql(BaseSQLQueryRunner):
                col.table_name,
                col.column_name
         FROM `information_schema`.`columns` col
-        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql');
+        WHERE col.table_schema NOT IN ('information_schema', 'performance_schema', 'mysql', 'sys');
         """
 
         results, error = self.run_query(query, None)
@@ -113,7 +112,7 @@ class Mysql(BaseSQLQueryRunner):
         if error is not None:
             raise Exception("Failed getting schema.")
 
-        results = json.loads(results)
+        results = json_loads(results)
 
         for row in results['rows']:
             if row['table_schema'] != self.configuration['db']:
@@ -156,7 +155,7 @@ class Mysql(BaseSQLQueryRunner):
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
-                json_data = json.dumps(data, cls=JSONEncoder)
+                json_data = json_dumps(data)
                 error = None
             else:
                 json_data = None

@@ -1,12 +1,12 @@
-import json
-
 from flask import request
+
 from redash import models
 from redash.handlers.base import BaseResource
 from redash.serializers import serialize_widget
 from redash.permissions import (require_access,
                                 require_object_modify_permission,
                                 require_permission, view_only)
+from redash.utils import json_dumps
 
 
 class WidgetListResource(BaseResource):
@@ -27,7 +27,7 @@ class WidgetListResource(BaseResource):
         dashboard = models.Dashboard.get_by_id_and_org(widget_properties.pop('dashboard_id'), self.current_org)
         require_object_modify_permission(dashboard, self.current_user)
 
-        widget_properties['options'] = json.dumps(widget_properties['options'])
+        widget_properties['options'] = json_dumps(widget_properties['options'])
         widget_properties.pop('id', None)
         widget_properties['dashboard'] = dashboard
 
@@ -63,7 +63,7 @@ class WidgetResource(BaseResource):
         require_object_modify_permission(widget.dashboard, self.current_user)
         widget_properties = request.get_json(force=True)
         widget.text = widget_properties['text']
-        widget.options = json.dumps(widget_properties['options'])
+        widget.options = json_dumps(widget_properties['options'])
         models.db.session.commit()
         return serialize_widget(widget)
 

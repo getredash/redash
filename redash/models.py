@@ -4,12 +4,11 @@ import datetime
 import functools
 import hashlib
 import itertools
-import json
 import logging
 import time
 from functools import reduce
 
-import six
+from six import python_2_unicode_compatible, string_types, text_type
 import xlsxwriter
 from flask import current_app as app, url_for
 from flask_login import AnonymousUserMixin, UserMixin
@@ -22,7 +21,7 @@ from redash.destinations import (get_configuration_schema_for_destination_type,
 from redash.metrics import database  # noqa: F401
 from redash.query_runner import (get_configuration_schema_for_query_runner_type,
                                  get_query_runner)
-from redash.utils import generate_token, json_dumps
+from redash.utils import generate_token, json_dumps, json_loads
 from redash.utils.configuration import ConfigurationContainer
 from redash.settings.organization import settings as org_settings
 
@@ -141,7 +140,7 @@ class PseudoJSON(TypeDecorator):
     def process_result_value(self, value, dialect):
         if not value:
             return value
-        return json.loads(value)
+        return json_loads(value)
 
 
 class MutableDict(Mutable, dict):
@@ -269,7 +268,7 @@ class AnonymousUser(AnonymousUserMixin, PermissionsCheckMixin):
 class ApiUser(UserMixin, PermissionsCheckMixin):
     def __init__(self, api_key, org, groups, name=None):
         self.object = None
-        if isinstance(api_key, basestring):
+        if isinstance(api_key, string_types):
             self.id = api_key
             self.name = name
         else:
@@ -293,6 +292,7 @@ class ApiUser(UserMixin, PermissionsCheckMixin):
         return False
 
 
+@python_2_unicode_compatible
 class Organization(TimestampMixin, db.Model):
     SETTING_GOOGLE_APPS_DOMAINS = 'google_apps_domains'
     SETTING_IS_PUBLIC = "is_public"
@@ -310,7 +310,7 @@ class Organization(TimestampMixin, db.Model):
     def __repr__(self):
         return u"<Organization: {}, {}>".format(self.id, self.name)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s (%s)' % (self.name, self.id)
 
     @classmethod
@@ -367,6 +367,7 @@ class Organization(TimestampMixin, db.Model):
         return self.users.filter(User.email == email).count() == 1
 
 
+@python_2_unicode_compatible
 class Group(db.Model, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = ['create_dashboard', 'create_query', 'edit_dashboard', 'edit_query',
                            'view_query', 'view_source', 'execute_query', 'list_users', 'schedule_query',
@@ -410,10 +411,11 @@ class Group(db.Model, BelongsToOrgMixin):
         result = cls.query.filter(cls.org == org, cls.name.in_(group_names))
         return list(result)
 
-    def __unicode__(self):
-        return unicode(self.id)
+    def __str__(self):
+        return text_type(self.id)
 
 
+@python_2_unicode_compatible
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
@@ -525,7 +527,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def find_by_email(cls, email):
         return cls.query.filter(cls.email == email)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s (%s)' % (self.name, self.email)
 
     def hash_password(self, password):
@@ -555,6 +557,7 @@ class Configuration(TypeDecorator):
         return ConfigurationContainer.from_json(value)
 
 
+@python_2_unicode_compatible
 class DataSource(BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
@@ -600,8 +603,8 @@ class DataSource(BelongsToOrgMixin, db.Model):
 
         return d
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return text_type(self.name)
 
     @classmethod
     def create_with_group(cls, *args, **kwargs):
@@ -644,9 +647,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
             query_runner = self.query_runner
             schema = sorted(query_runner.get_schema(get_stats=refresh), key=lambda t: t['name'])
 
-            redis_connection.set(key, json.dumps(schema))
+            redis_connection.set(key, json_dumps(schema))
         else:
-            schema = json.loads(cache)
+            schema = json_loads(cache)
 
         return schema
 
@@ -714,6 +717,7 @@ class DataSourceGroup(db.Model):
     __tablename__ = "data_source_groups"
 
 
+@python_2_unicode_compatible
 class QueryResult(db.Model, BelongsToOrgMixin):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey('organizations.id'))
@@ -733,7 +737,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
             'id': self.id,
             'query_hash': self.query_hash,
             'query': self.query_text,
-            'data': json.loads(self.data),
+            'data': json_loads(self.data),
             'data_source_id': self.data_source_id,
             'runtime': self.runtime,
             'retrieved_at': self.retrieved_at
@@ -792,7 +796,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
 
         return query_result, query_ids
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%d | %s | %s" % (self.id, self.query_hash, self.retrieved_at)
 
     @property
@@ -802,7 +806,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def make_csv_content(self):
         s = cStringIO.StringIO()
 
-        query_data = json.loads(self.data)
+        query_data = json_loads(self.data)
         writer = csv.DictWriter(s, extrasaction="ignore", fieldnames=[col['name'] for col in query_data['columns']])
         writer.writer = utils.UnicodeWriter(s)
         writer.writeheader()
@@ -814,7 +818,7 @@ class QueryResult(db.Model, BelongsToOrgMixin):
     def make_excel_content(self):
         s = cStringIO.StringIO()
 
-        query_data = json.loads(self.data)
+        query_data = json_loads(self.data)
         book = xlsxwriter.Workbook(s, {'constant_memory': True})
         sheet = book.add_worksheet("result")
 
@@ -857,6 +861,7 @@ def should_schedule_next(previous_iteration, now, schedule, failures):
     return now > next_iteration
 
 
+@python_2_unicode_compatible
 class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer, default=1)
@@ -1100,8 +1105,8 @@ class Query(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
-    def __unicode__(self):
-        return unicode(self.id)
+    def __str__(self):
+        return text_type(self.id)
 
     def __repr__(self):
         return '<Query %s: "%s">' % (self.id, self.name or 'untitled')
@@ -1148,7 +1153,7 @@ class Favorite(TimestampMixin, db.Model):
         if not objects:
             return []
 
-        object_type = six.text_type(objects[0].__class__.__name__)
+        object_type = text_type(objects[0].__class__.__name__)
         return map(lambda fav: fav.object_id, cls.query.filter(cls.object_id.in_(map(lambda o: o.id, objects)), cls.object_type == object_type, cls.user_id == user))
 
 
@@ -1291,7 +1296,7 @@ class Alert(TimestampMixin, db.Model):
         return db.session.query(Alert).join(Query).filter(Alert.id == id, Query.org == org).one()
 
     def evaluate(self):
-        data = json.loads(self.query_rel.latest_query_data.data)
+        data = json_loads(self.query_rel.latest_query_data.data)
         if data['rows']:
             value = data['rows'][0][self.options['column']]
             op = self.options['op']
@@ -1326,6 +1331,7 @@ def generate_slug(ctx):
     return slug
 
 
+@python_2_unicode_compatible
 class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     version = Column(db.Integer)
@@ -1417,10 +1423,11 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s=%s" % (self.id, self.name)
 
 
+@python_2_unicode_compatible
 class Visualization(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     type = Column(db.String(100))
@@ -1439,7 +1446,7 @@ class Visualization(TimestampMixin, db.Model):
             cls.id == visualization_id,
             Query.org == org).one()
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s %s" % (self.id, self.type)
 
     def copy(self):
@@ -1451,6 +1458,7 @@ class Visualization(TimestampMixin, db.Model):
         }
 
 
+@python_2_unicode_compatible
 class Widget(TimestampMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     visualization_id = Column(db.Integer, db.ForeignKey('visualizations.id'), nullable=True)
@@ -1462,7 +1470,7 @@ class Widget(TimestampMixin, db.Model):
 
     __tablename__ = 'widgets'
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s" % self.id
 
     @classmethod
@@ -1470,6 +1478,7 @@ class Widget(TimestampMixin, db.Model):
         return db.session.query(cls).join(Dashboard).filter(cls.id == widget_id, Dashboard.org == org).one()
 
 
+@python_2_unicode_compatible
 class Event(db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -1484,7 +1493,7 @@ class Event(db.Model):
 
     __tablename__ = 'events'
 
-    def __unicode__(self):
+    def __str__(self):
         return u"%s,%s,%s,%s" % (self.user_id, self.action, self.object_type, self.object_id)
 
     def to_dict(self):
@@ -1544,6 +1553,7 @@ class ApiKey(TimestampMixin, GFKBase, db.Model):
         return k
 
 
+@python_2_unicode_compatible
 class NotificationDestination(BelongsToOrgMixin, db.Model):
     id = Column(db.Integer, primary_key=True)
     org_id = Column(db.Integer, db.ForeignKey("organizations.id"))
@@ -1574,8 +1584,8 @@ class NotificationDestination(BelongsToOrgMixin, db.Model):
 
         return d
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return text_type(self.name)
 
     @property
     def destination(self):
@@ -1665,6 +1675,7 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
         }
 
         return d
+
 
 _gfk_types = {'queries': Query, 'dashboards': Dashboard}
 

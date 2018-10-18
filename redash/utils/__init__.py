@@ -1,18 +1,19 @@
 import cStringIO
 import csv
 import codecs
-import decimal
 import datetime
-import json
+import decimal
+import hashlib
+import os
 import random
 import re
-import hashlib
-import pytz
-import pystache
-import os
-import simplejson
+import uuid
 
+import pystache
+import pytz
+import simplejson
 from funcy import distinct, select_values
+from six import string_types
 from sqlalchemy.orm.query import Query
 
 from .human_time import parse_human_time
@@ -67,47 +68,34 @@ def generate_token(length):
     return ''.join(rand.choice(chars) for x in range(length))
 
 
-class JSONEncoderMixin:
-    """Custom JSON encoding class, to handle Decimal and datetime.date instances."""
-
-    def process_default(self, o):
-        # Some SQLAlchemy collections are lazy.
-        if isinstance(o, Query):
-            return True, list(o)
-        if isinstance(o, decimal.Decimal):
-            return True, float(o)
-
-        if isinstance(o, (datetime.date, datetime.time)):
-            return True, o.isoformat()
-
-        if isinstance(o, datetime.timedelta):
-            return True, str(o)
-
-        return False, None  # default processing
-
-
-class JSONEncoder(JSONEncoderMixin, json.JSONEncoder):
-    """Adapter for `json.dumps`."""
-
-    def default(self, o):
-        processed, result = self.process_default(o)
-        if not processed:
-            result = super(JSONEncoder, self).default(o)
-        return result
-
-
-class SimpleJSONEncoder(JSONEncoderMixin, simplejson.JSONEncoder):
+class JSONEncoder(simplejson.JSONEncoder):
     """Adapter for `simplejson.dumps`."""
 
     def default(self, o):
-        processed, result = self.process_default(o)
-        if not processed:
-            result = super(SimpleJSONEncoder, self).default(o)
-        return result
+        # Some SQLAlchemy collections are lazy.
+        if isinstance(o, Query):
+            return list(o)
+        elif isinstance(o, decimal.Decimal):
+            return float(o)
+        elif isinstance(o, (datetime.timedelta, uuid.UUID)):
+            return str(o)
+        elif isinstance(o, (datetime.date, datetime.time)):
+            return o.isoformat()
+        else:
+            return super(JSONEncoder, self).default(o)
 
 
-def json_dumps(data):
-    return json.dumps(data, cls=JSONEncoder)
+def json_loads(data, *args, **kwargs):
+    """A custom JSON loading function which passes all parameters to the
+    simplejson.loads function."""
+    return simplejson.loads(data, *args, **kwargs)
+
+
+def json_dumps(data, *args, **kwargs):
+    """A custom JSON dumping function which passes all parameters to the
+    simplejson.dumps function."""
+    kwargs.setdefault('cls', JSONEncoder)
+    return simplejson.dumps(data, *args, **kwargs)
 
 
 def build_url(request, host, path):
@@ -134,7 +122,7 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def _encode_utf8(self, val):
-        if isinstance(val, (unicode, str)):
+        if isinstance(val, string_types):
             return val.encode(WRITER_ENCODING, WRITER_ERRORS)
 
         return val
