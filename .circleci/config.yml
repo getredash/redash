@@ -45,6 +45,15 @@ jobs:
           path: /tmp/test-results
       - store_artifacts:
           path: coverage.xml
+  frontend-unit-tests:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: sudo apt install python-pip
+      - run: npm install
+      - run: npm run bundle
+      - run: npm test
   build-tarball:
     docker:
       - image: circleci/node:8
@@ -125,6 +134,7 @@ workflows:
       - flake8-tests-on-python
       - flake8-tests-on-legacy-python
       - unit-tests
+      - frontend-unit-tests
       - build-tarball:
            requires:
              - unit-tests
