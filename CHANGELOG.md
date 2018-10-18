@@ -1,5 +1,12 @@
 # Change Log
 
+## v5.0.2 - 2018-10-18
+
+### Security
+
+* Fix: prevent Open Redirect vulnerability.
+
+
 ## v5.0.1 - 2018-09-27
 
 ### Added
