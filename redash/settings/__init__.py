@@ -165,6 +165,7 @@ default_query_runners = [
     'redash.query_runner.influx_db',
     'redash.query_runner.elasticsearch',
     'redash.query_runner.presto',
+    'redash.query_runner.databricks',
     'redash.query_runner.hive_ds',
     'redash.query_runner.impala_ds',
     'redash.query_runner.vertica',
