@@ -58,7 +58,7 @@ class Slack(BaseDestination):
         else:
             text = alert.name + " went back to normal"
             color = "#27ae60"
-
+        
         payload = {'attachments': [{'text': text, 'color': color, 'fields': fields}]}
 
         if options.get('username'): payload['username'] = options.get('username')
@@ -67,7 +67,7 @@ class Slack(BaseDestination):
         if options.get('channel'): payload['channel'] = options.get('channel')
 
         try:
-            resp = requests.post(options.get('url'), data=json_dumps(payload))
+            resp = requests.post(options.get('url'), data=json_dumps(payload), timeout=5.0)
             logging.warning(resp.text)
             if resp.status_code != 200:
                 logging.error("Slack send ERROR. status_code => {status}".format(status=resp.status_code))
