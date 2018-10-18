@@ -53,7 +53,9 @@ const config = {
       filename: "multi_org.html",
       excludeChunks: ["server"]
     }),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: "[name].[chunkhash].css"
+    }),
     new ManifestPlugin({
       fileName: "asset-manifest.json"
     }),
