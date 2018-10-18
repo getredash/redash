@@ -57,7 +57,8 @@ const config = {
       filename: "[name].[chunkhash].css"
     }),
     new ManifestPlugin({
-      fileName: "asset-manifest.json"
+      fileName: "asset-manifest.json",
+      publicPath: "",
     }),
     new CopyWebpackPlugin([
       { from: "client/app/assets/robots.txt" },
