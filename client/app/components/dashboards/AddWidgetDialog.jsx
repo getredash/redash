@@ -3,16 +3,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { react2angular } from 'react2angular';
 import highlight from '@/lib/highlight';
-import { ParameterValueInput } from '@/components/ParameterValueInput';
+import { MappingType, ParameterMappingListInput } from '@/components/ParameterMappingInput';
 
 class AddWidgetDialog extends React.Component {
-  static MappingType = {
-    DashboardAddNew: 'dashboard-add-new',
-    DashboardMapToExisting: 'dashboard-map-to-existing',
-    WidgetLevel: 'widget-level',
-    StaticValue: 'static-value',
-  };
-
   static propTypes = {
     dashboard: PropTypes.object, // eslint-disable-line react/forbid-prop-types
     close: PropTypes.func,
@@ -65,7 +58,6 @@ class AddWidgetDialog extends React.Component {
       const Query = this.props.Query; // eslint-disable-line react/prop-types
       Query.get({ id: queryId }, (query) => {
         if (query) {
-          const MappingType = AddWidgetDialog.MappingType;
           const existingParamNames = map(
             this.props.dashboard.getParametersDefs(),
             param => param.name,
@@ -135,21 +127,21 @@ class AddWidgetDialog extends React.Component {
           (mapping) => {
             const result = extend({}, mapping);
             switch (mapping.type) {
-              case AddWidgetDialog.MappingType.DashboardAddNew:
+              case MappingType.DashboardAddNew:
                 result.type = Widget.MappingType.DashboardLevel;
                 result.value = null;
                 break;
-              case AddWidgetDialog.MappingType.DashboardMapToExisting:
+              case MappingType.DashboardMapToExisting:
                 result.type = Widget.MappingType.DashboardLevel;
                 result.value = null;
                 break;
-              case AddWidgetDialog.MappingType.StaticValue:
+              case MappingType.StaticValue:
                 result.type = Widget.MappingType.StaticValue;
                 result.param = mapping.param.clone();
                 result.param.setValue(result.value);
                 result.value = result.param.value;
                 break;
-              case AddWidgetDialog.MappingType.WidgetLevel:
+              case MappingType.WidgetLevel:
                 result.type = Widget.MappingType.WidgetLevel;
                 result.value = null;
                 break;
@@ -182,86 +174,99 @@ class AddWidgetDialog extends React.Component {
       });
   }
 
-  updateParamMapping(mapping, updates) {
-    extend(mapping, updates);
-    this.forceUpdate();
+  updateParamMappings(parameterMappings) {
+    this.setState({ parameterMappings });
   }
 
-  renderMapping(mapping, existingParamNames, isFirst) {
-    const MappingType = AddWidgetDialog.MappingType;
-    const alreadyExists = includes(existingParamNames, mapping.mapTo);
+  renderQueryInput() {
     return (
-      <div key={mapping.name} className={'row' + (isFirst ? '' : ' m-t-15')}>
-        <div className="col-xs-5">
-          <div className="form-control-static">{'{{ ' + mapping.name + ' }}'}</div>
-        </div>
-        <div className="col-xs-7">
-          <div>
-            <select
-              className="form-control"
-              value={mapping.type}
-              onChange={event => this.updateParamMapping(mapping, { type: event.target.value })}
+      <div className="form-group">
+        {!this.state.selectedQuery && <input
+          type="text"
+          placeholder="Search a query by name"
+          className="form-control"
+          value={this.state.searchTerm}
+          onChange={this.onSearchTermChanged}
+        />}
+        {
+          this.state.selectedQuery &&
+          <div className="p-relative">
+            <input type="text" className="form-control bg-white" value={this.state.selectedQuery.name} readOnly />
+            <a
+              href="javascript:void(0)"
+              onClick={() => this.selectQuery(null)}
+              className="d-flex align-items-center justify-content-center"
+              style={{
+                position: 'absolute',
+                right: '1px',
+                top: '1px',
+                bottom: '1px',
+                width: '30px',
+                background: '#fff',
+                borderRadius: '3px',
+              }}
             >
-              <option value={MappingType.DashboardAddNew}>Add the parameter to the dashboard</option>
-              {
-                (existingParamNames.length > 0) &&
-                <option value={MappingType.DashboardMapToExisting}>Map to existing parameter</option>
-              }
-              <option value={MappingType.StaticValue}>Use static value for the parameter</option>
-              <option value={MappingType.WidgetLevel}>Keep the parameter at the widget level</option>
-            </select>
+              <i className="text-muted fa fa-times" />
+            </a>
           </div>
-          {
-            (mapping.type === MappingType.DashboardAddNew) &&
-            <div className={'m-t-10' + (alreadyExists ? ' has-error' : '')}>
-              <input
-                type="text"
-                className="form-control"
-                value={mapping.mapTo}
-                onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
-              />
-              { alreadyExists &&
-                <div className="help-block">
-                  Dashboard parameter with this name already exists
-                </div>
-              }
-            </div>
-          }
-          {
-            (mapping.type === MappingType.DashboardMapToExisting) &&
-            <div className="m-t-10">
-              <select
-                className="form-control"
-                value={mapping.mapTo}
-                onChange={event => this.updateParamMapping(mapping, { mapTo: event.target.value })}
-                disabled={existingParamNames.length === 0}
-              >
-                {map(existingParamNames, name => (
-                  <option value={name} key={name}>{ name }</option>
-                ))}
-              </select>
-            </div>
-          }
-          {
-            (mapping.type === MappingType.StaticValue) &&
-            <div className="m-t-10">
-              <ParameterValueInput
-                type={mapping.param.type}
-                value={mapping.value}
-                enumOptions={mapping.param.enumOptions}
-                queryId={mapping.param.queryId}
-                onSelect={value => this.updateParamMapping(mapping, { value })}
-                clientConfig={this.props.clientConfig} // eslint-disable-line react/prop-types
-                Query={this.props.Query} // eslint-disable-line react/prop-types
-              />
-            </div>
-          }
-        </div>
+        }
       </div>
     );
   }
 
-  render() {
+  renderSearchQueryResults() {
+    return (
+      <div className="scrollbox" style={{ maxHeight: '50vh' }}>
+        {
+          (this.state.searchTerm === '') &&
+          <div>
+            {
+              this.state.recentQueries.length > 0 &&
+              <div className="list-group">
+                {this.state.recentQueries.map(query => (
+                  <a
+                    href="javascript:void(0)"
+                    className="list-group-item"
+                    key={query.id}
+                    onClick={() => this.selectQuery(query.id)}
+                  >
+                    {query.name}
+                  </a>
+                ))}
+              </div>
+            }
+          </div>
+        }
+
+        {
+          (this.state.searchTerm !== '') &&
+          <div>
+            {
+              (this.state.searchedQueries.length === 0) &&
+              <div className="text-muted">No results matching search term.</div>
+            }
+            {
+              (this.state.searchedQueries.length > 0) &&
+              <div className="list-group">
+                {this.state.searchedQueries.map(query => (
+                  <a
+                    href="javascript:void(0)"
+                    className="list-group-item"
+                    key={query.id}
+                    onClick={() => this.selectQuery(query.id)}
+                    // eslint-disable-next-line react/no-danger
+                    dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
+                  />
+                ))}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    );
+  }
+
+  renderVisualizationInput() {
     let visualizationGroups = {};
     if (this.state.selectedQuery) {
       each(this.state.selectedQuery.visualizations, (vis) => {
@@ -270,6 +275,30 @@ class AddWidgetDialog extends React.Component {
       });
     }
     visualizationGroups = values(visualizationGroups);
+    return (
+      <div>
+        <div className="form-group">
+          <label>Choose Visualization</label>
+          <select
+            className="form-control"
+            onChange={event => this.selectVisualization(this.state.selectedQuery, event.target.value)}
+          >
+            {visualizationGroups.map(visualizations => (
+              <optgroup label={visualizations[0].type} key={visualizations[0].type}>
+                {visualizations.map(visualization => (
+                  <option value={visualization.id} key={visualization.id}>{visualization.name}</option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    const clientConfig = this.props.clientConfig; // eslint-disable-line react/prop-types
+    const Query = this.props.Query; // eslint-disable-line react/prop-types
 
     const existingParamNames = map(
       this.props.dashboard.getParametersDefs(),
@@ -291,117 +320,19 @@ class AddWidgetDialog extends React.Component {
           <h4 className="modal-title">Add Widget</h4>
         </div>
         <div className="modal-body">
-          <div className="form-group">
-            {!this.state.selectedQuery && <input
-              type="text"
-              placeholder="Search a query by name"
-              className="form-control"
-              value={this.state.searchTerm}
-              onChange={this.onSearchTermChanged}
-            />}
-            {
-              this.state.selectedQuery &&
-              <div className="p-relative">
-                <input type="text" className="form-control bg-white" value={this.state.selectedQuery.name} readOnly />
-                <a
-                  href="javascript:void(0)"
-                  onClick={() => this.selectQuery(null)}
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    position: 'absolute',
-                    right: '1px',
-                    top: '1px',
-                    bottom: '1px',
-                    width: '30px',
-                    background: '#fff',
-                    borderRadius: '3px',
-                  }}
-                >
-                  <i className="text-muted fa fa-times" />
-                </a>
-              </div>
-            }
-          </div>
-
-          {
-            !this.state.selectedQuery &&
-            <div className="scrollbox" style={{ maxHeight: '50vh' }}>
-              {
-                (this.state.searchTerm === '') &&
-                <div>
-                  {
-                    this.state.recentQueries.length > 0 &&
-                    <div className="list-group">
-                      {this.state.recentQueries.map(query => (
-                        <a
-                          href="javascript:void(0)"
-                          className="list-group-item"
-                          key={query.id}
-                          onClick={() => this.selectQuery(query.id)}
-                        >
-                          {query.name}
-                        </a>
-                      ))}
-                    </div>
-                  }
-                </div>
-              }
-
-              {
-                (this.state.searchTerm !== '') &&
-                <div>
-                  {
-                    (this.state.searchedQueries.length === 0) &&
-                    <div className="text-muted">No results matching search term.</div>
-                  }
-                  {
-                    (this.state.searchedQueries.length > 0) &&
-                    <div className="list-group">
-                      {this.state.searchedQueries.map(query => (
-                        <a
-                          href="javascript:void(0)"
-                          className="list-group-item"
-                          key={query.id}
-                          onClick={() => this.selectQuery(query.id)}
-                          // eslint-disable-next-line react/no-danger
-                          dangerouslySetInnerHTML={{ __html: highlight(query.name, this.state.searchTerm) }}
-                        />
-                      ))}
-                    </div>
-                  }
-                </div>
-              }
-            </div>
-          }
-
-          {
-            this.state.selectedQuery &&
-            <div>
-              <div className="form-group">
-                <label>Choose Visualization</label>
-                <select
-                  className="form-control"
-                  onChange={event => this.selectVisualization(this.state.selectedQuery, event.target.value)}
-                >
-                  {visualizationGroups.map(visualizations => (
-                    <optgroup label={visualizations[0].type} key={visualizations[0].type}>
-                      {visualizations.map(visualization => (
-                        <option value={visualization.id} key={visualization.id}>{visualization.name}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-            </div>
-          }
+          {this.renderQueryInput()}
+          {!this.state.selectedQuery && this.renderSearchQueryResults()}
+          {this.state.selectedQuery && this.renderVisualizationInput()}
 
           {
             (this.state.parameterMappings.length > 0) &&
-            <div>
-              <label>Parameters</label>
-              {this.state.parameterMappings.map((mapping, index) =>
-                this.renderMapping(mapping, existingParamNames, index === 0))}
-            </div>
+            <ParameterMappingListInput
+              mappings={this.state.parameterMappings}
+              existingParamNames={existingParamNames}
+              onChange={mappings => this.updateParamMappings(mappings)}
+              clientConfig={clientConfig}
+              Query={Query}
+            />
           }
         </div>
 

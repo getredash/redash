@@ -27,9 +27,9 @@ class AddTextboxDialog extends React.Component {
 
     const updatePreview = debounce(() => {
       this.setState({
-        preview: markdown.toHTML('' + this.state.text),
+        preview: markdown.toHTML(this.state.text),
       });
-    }, 200);
+    }, 100);
 
     this.onTextChanged = (event) => {
       this.setState({ text: event.target.value });

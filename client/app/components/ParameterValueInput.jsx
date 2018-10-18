@@ -8,118 +8,175 @@ import { DateTimeInput } from './DateTimeInput';
 import { DateTimeRangeInput } from './DateTimeRangeInput';
 import { QueryBasedParameterInput } from './QueryBasedParameterInput';
 
-export function ParameterValueInput({
-  type,
-  value,
-  onSelect,
-  enumOptions,
-  queryId,
-  clientConfig, // eslint-disable-line react/prop-types
-  Query, // eslint-disable-line react/prop-types
-}) {
-  enumOptions = enumOptions.split('\n');
+export class ParameterValueInput extends React.Component {
+  static propTypes = {
+    type: PropTypes.string,
+    value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
+    enumOptions: PropTypes.string,
+    queryId: PropTypes.number,
+    onSelect: PropTypes.func,
+  };
 
-  return (
-    <span>
-      {
-        (type === 'datetime-with-seconds') &&
-        <DateTimeInput
-          value={value}
-          onSelect={onSelect}
-          withSeconds
-          clientConfig={clientConfig}
-        />
-      }
-      {
-        (type === 'datetime-local') &&
-        <DateTimeInput
-          value={value}
-          onSelect={onSelect}
-          clientConfig={clientConfig}
-        />
-      }
-      {
-        (type === 'date') &&
-        <DateInput
-          value={value}
-          onSelect={onSelect}
-          clientConfig={clientConfig}
-        />
-      }
-      {
-        (type === 'datetime-range-with-seconds') &&
-        <DateTimeRangeInput
-          value={value}
-          onSelect={onSelect}
-          withSeconds
-          clientConfig={clientConfig}
-        />
-      }
-      {
-        (type === 'datetime-range') &&
-        <DateTimeRangeInput
-          value={value}
-          onSelect={onSelect}
-          clientConfig={clientConfig}
-        />
-      }
-      {
-        (type === 'date-range') &&
-        <DateRangeInput
-          value={value}
-          onSelect={onSelect}
-          clientConfig={clientConfig}
-        />
-      }
-      {
-        (type === 'enum') &&
-        <select
-          className="form-control"
-          value={isNull(value) || isUndefined(value) ? '' : value}
-          onChange={event => onSelect(event.target.value)}
-        >
-          {enumOptions.map(option => (
-            <option value={option} key={option}>{ option }</option>
-          ))}
-        </select>
-      }
-      {
-        (type === 'query') &&
-        <QueryBasedParameterInput
-          value={value}
-          queryId={queryId}
-          onSelect={onSelect}
-          Query={Query}
-        />
-      }
-      {
-        ((type === 'text') || (type === 'number')) &&
-        <input
-          type={type}
-          className="form-control"
-          value={isNull(value) || isUndefined(value) ? '' : value}
-          onChange={event => onSelect(event.target.value)}
-        />
-      }
-    </span>
-  );
+  static defaultProps = {
+    type: 'text',
+    value: null,
+    enumOptions: '',
+    queryId: null,
+    onSelect: () => {},
+  };
+
+  renderDateTimeWithSecondsInput() {
+    const {
+      value,
+      onSelect,
+      clientConfig, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <DateTimeInput
+        value={value}
+        onSelect={onSelect}
+        withSeconds
+        clientConfig={clientConfig}
+      />
+    );
+  }
+
+  renderDateTimeInput() {
+    const {
+      value,
+      onSelect,
+      clientConfig, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <DateTimeInput
+        value={value}
+        onSelect={onSelect}
+        clientConfig={clientConfig}
+      />
+    );
+  }
+
+  renderDateInput() {
+    const {
+      value,
+      onSelect,
+      clientConfig, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <DateInput
+        value={value}
+        onSelect={onSelect}
+        clientConfig={clientConfig}
+      />
+    );
+  }
+
+  renderDateTimeRangeWithSecondsInput() {
+    const {
+      value,
+      onSelect,
+      clientConfig, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <DateTimeRangeInput
+        value={value}
+        onSelect={onSelect}
+        withSeconds
+        clientConfig={clientConfig}
+      />
+    );
+  }
+
+  renderDateTimeRangeInput() {
+    const {
+      value,
+      onSelect,
+      clientConfig, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <DateTimeRangeInput
+        value={value}
+        onSelect={onSelect}
+        clientConfig={clientConfig}
+      />
+    );
+  }
+
+  renderDateRangeInput() {
+    const {
+      value,
+      onSelect,
+      clientConfig, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <DateRangeInput
+        value={value}
+        onSelect={onSelect}
+        clientConfig={clientConfig}
+      />
+    );
+  }
+
+  renderEnumInput() {
+    const { value, onSelect, enumOptions } = this.props;
+    const enumOptionsArray = enumOptions.split('\n');
+    return (
+      <select
+        className="form-control"
+        value={isNull(value) || isUndefined(value) ? '' : value}
+        onChange={event => onSelect(event.target.value)}
+      >
+        {enumOptionsArray.map(option => (
+          <option value={option} key={option}>{ option }</option>
+        ))}
+      </select>
+    );
+  }
+
+  renderQueryBasedInput() {
+    const {
+      value,
+      onSelect,
+      queryId,
+      Query, // eslint-disable-line react/prop-types
+    } = this.props;
+    return (
+      <QueryBasedParameterInput
+        value={value}
+        queryId={queryId}
+        onSelect={onSelect}
+        Query={Query}
+      />
+    );
+  }
+
+  renderTextInput() {
+    const { value, onSelect, type } = this.props;
+    return (
+      <input
+        type={type}
+        className="form-control"
+        value={isNull(value) || isUndefined(value) ? '' : value}
+        onChange={event => onSelect(event.target.value)}
+      />
+    );
+  }
+
+  render() {
+    const { type } = this.props;
+    switch (type) {
+      case 'datetime-with-seconds': return this.renderDateTimeWithSecondsInput();
+      case 'datetime-local': return this.renderDateTimeInput();
+      case 'date': return this.renderDateInput();
+      case 'datetime-range-with-seconds': return this.renderDateTimeRangeWithSecondsInput();
+      case 'datetime-range': return this.renderDateTimeRangeInput();
+      case 'date-range': return this.renderDateRangeInput();
+      case 'enum': return this.renderEnumInput();
+      case 'query': return this.renderQueryBasedInput();
+      default: return this.renderTextInput();
+    }
+  }
 }
-
-ParameterValueInput.propTypes = {
-  type: PropTypes.string,
-  value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
-  enumOptions: PropTypes.string,
-  queryId: PropTypes.number,
-  onSelect: PropTypes.func,
-};
-
-ParameterValueInput.defaultProps = {
-  type: 'text',
-  value: null,
-  enumOptions: '',
-  queryId: null,
-  onSelect: () => {},
-};
 
 export default function init(ngModule) {
   ngModule.component('parameterValueInput', {
