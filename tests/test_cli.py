@@ -284,7 +284,7 @@ class UserCommandTests(BaseTestCase):
             input="password1\npassword1\n")
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == u"foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
         self.assertEqual(u.group_ids, [u.org.default_group.id])
@@ -296,7 +296,7 @@ class UserCommandTests(BaseTestCase):
                       '--password', 'password1', '--admin'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == u"foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertTrue(u.verify_password('password1'))
         self.assertEqual(u.group_ids, [u.org.default_group.id,
@@ -308,7 +308,7 @@ class UserCommandTests(BaseTestCase):
             manager, ['users', 'create', 'foobar@example.com', 'Fred Foobar', '--google'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == u"foobar@example.com").first()
         self.assertEqual(u.name, "Fred Foobar")
         self.assertIsNone(u.password_hash)
         self.assertEqual(u.group_ids, [u.org.default_group.id])
@@ -324,7 +324,7 @@ class UserCommandTests(BaseTestCase):
         self.assertIn('Failed', result.output)
 
     def test_delete(self):
-        self.factory.create_user(email='foobar@example.com')
+        self.factory.create_user(email=u'foobar@example.com')
         ucount = User.query.count()
         runner = CliRunner()
         result = runner.invoke(manager, ['users', 'delete', 'foobar@example.com'])
@@ -342,12 +342,12 @@ class UserCommandTests(BaseTestCase):
         self.assertEqual(User.query.count(), ucount)
 
     def test_password(self):
-        self.factory.create_user(email='foobar@example.com')
+        self.factory.create_user(email=u'foobar@example.com')
         runner = CliRunner()
         result = runner.invoke(manager, ['users', 'password', u'foobar@example.com', 'xyzzy'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
-        u = User.query.filter(User.email == "foobar@example.com").first()
+        u = User.query.filter(User.email == u"foobar@example.com").first()
         self.assertTrue(u.verify_password('xyzzy'))
 
     def test_password_bad(self):
@@ -380,7 +380,7 @@ class UserCommandTests(BaseTestCase):
 
     def test_list(self):
         self.factory.create_user(name='Fred Foobar',
-                                 email='foobar@example.com',
+                                 email=u'foobar@example.com',
                                  org=self.factory.org)
         runner = CliRunner()
         result = runner.invoke(manager, ['users', 'list'])
@@ -391,17 +391,18 @@ class UserCommandTests(BaseTestCase):
         Name: Fred Foobar
         Email: foobar@example.com
         Organization: Default
+        Active: True
         """
         self.assertMultiLineEqual(result.output,
                                   textwrap.dedent(output).lstrip())
 
     def test_grant_admin(self):
         u = self.factory.create_user(name='Fred Foobar',
-                                     email='foobar@example.com',
+                                     email=u'foobar@example.com',
                                      org=self.factory.org,
                                      group_ids=[self.factory.default_group.id])
         runner = CliRunner()
-        result = runner.invoke(manager, ['users', 'grant_admin', 'foobar@example.com'])
+        result = runner.invoke(manager, ['users', 'grant_admin', u'foobar@example.com'])
         self.assertFalse(result.exception)
         self.assertEqual(result.exit_code, 0)
         db.session.add(u)

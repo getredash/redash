@@ -11,9 +11,8 @@ import {
   ColorPalette,
   prepareData,
   prepareLayout,
-  calculateMargins,
-  updateDimensions,
   updateData,
+  updateLayout,
   normalizeValue,
 } from './utils';
 
@@ -34,12 +33,6 @@ const PlotlyChart = () => ({
     const plotlyOptions = { showLink: false, displaylogo: false };
     let layout = {};
     let data = [];
-
-    const updateChartDimensions = () => {
-      if (updateDimensions(layout, plotlyElement, calculateMargins(plotlyElement))) {
-        Plotly.relayout(plotlyElement, layout);
-      }
-    };
 
     function update() {
       if (['normal', 'percent'].indexOf(scope.options.series.stacking) >= 0) {
@@ -63,8 +56,6 @@ const PlotlyChart = () => ({
           Plotly.relayout(plotlyElement, layout);
         }
       });
-
-      plotlyElement.on('plotly_afterplot', updateChartDimensions);
     }
     update();
 
@@ -79,7 +70,9 @@ const PlotlyChart = () => ({
       }
     }, true);
 
-    scope.handleResize = debounce(updateChartDimensions, 50);
+    scope.handleResize = debounce(() => {
+      updateLayout(plotlyElement, layout, (e, u) => Plotly.relayout(e, u));
+    }, 50);
   },
 });
 

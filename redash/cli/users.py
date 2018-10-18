@@ -3,6 +3,7 @@ from sys import exit
 
 from click import BOOL, argument, option, prompt
 from flask.cli import AppGroup
+from six import string_types
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
 
@@ -13,7 +14,7 @@ manager = AppGroup(help="Users management commands.")
 
 
 def build_groups(org, groups, is_admin):
-    if isinstance(groups, basestring):
+    if isinstance(groups, string_types):
         groups = groups.split(',')
         groups.remove('')  # in case it was empty string
         groups = [int(g) for g in groups]
@@ -244,5 +245,5 @@ def list(organization=None):
         if i > 0:
             print("-" * 20)
 
-        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}".format(
-            user.id, user.name.encode('utf-8'), user.email, user.org.name))
+        print("Id: {}\nName: {}\nEmail: {}\nOrganization: {}\nActive: {}".format(
+            user.id, user.name.encode('utf-8'), user.email, user.org.name, not(user.is_disabled)))

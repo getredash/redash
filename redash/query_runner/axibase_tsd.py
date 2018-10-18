@@ -1,12 +1,11 @@
 from io import StringIO
-import json
 import logging
 import sys
 import uuid
 import csv
 
 from redash.query_runner import *
-from redash.utils import JSONEncoder
+from redash.utils import json_dumps, json_loads
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +58,7 @@ def generate_rows_and_columns(csv_response):
 
     meta_with_padding = meta + '=' * (4 - len(meta) % 4)
     meta_decoded = meta_with_padding.decode('base64')
-    meta_json = json.loads(meta_decoded)
+    meta_json = json_loads(meta_decoded)
     meta_columns = meta_json['tableSchema']['columns']
 
     reader = csv.reader(data.splitlines())
@@ -162,7 +161,7 @@ class AxibaseTSD(BaseQueryRunner):
             columns, rows = generate_rows_and_columns(data)
 
             data = {'columns': columns, 'rows': rows}
-            json_data = json.dumps(data, cls=JSONEncoder)
+            json_data = json_dumps(data)
             error = None
 
         except SQLException as e:
@@ -172,8 +171,6 @@ class AxibaseTSD(BaseQueryRunner):
             sql.cancel_query(query_id)
             error = "Query cancelled by user."
             json_data = None
-        except Exception:
-            raise sys.exc_info()[1], None, sys.exc_info()[2]
 
         return json_data, error
 

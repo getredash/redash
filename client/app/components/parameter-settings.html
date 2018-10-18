@@ -11,8 +11,7 @@
         <label>Keyword</label>
         <input type="text" class="form-control" ng-model="$ctrl.parameter.name" autofocus ng-change="$ctrl.updateTitle()">
         <div class="help-block" ng-if="!$ctrl.parameterAlreadyExists($ctrl.parameter.name)">
-          This is what will be added to your query editor
-          <span ng-if="$ctrl.parameter.name != ''">: \{\{&nbsp;{{ $ctrl.parameter.name }}&nbsp;\}\}</span>
+          This is what will be added to your query editor<span ng-if="$ctrl.parameter.name != ''">: \{\{&nbsp;{{ $ctrl.parameter.name }}&nbsp;\}\}</span>
         </div>
         <div class="help-block" ng-if="$ctrl.parameterAlreadyExists($ctrl.parameter.name)">
           Parameter with this name already exists.

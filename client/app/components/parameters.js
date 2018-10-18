@@ -136,7 +136,7 @@ function ParametersDirective($location, $uibModal) {
           if (scope.changed) {
             scope.changed({});
           }
-          const params = {};
+          const params = extend({}, $location.search());
           scope.parameters.forEach((param) => {
             extend(params, param.toUrlParams());
           });
