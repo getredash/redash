@@ -10,7 +10,7 @@ except ImportError:
     enabled = False
 
 
-class DataBricks(Hive):
+class Databricks(Hive):
 
     @classmethod
     def type(cls):
@@ -21,4 +21,4 @@ class DataBricks(Hive):
         return enabled
 
 
-register(DataBricks)
+register(Databricks)
