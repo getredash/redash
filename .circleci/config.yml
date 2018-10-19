@@ -5,15 +5,15 @@ flake8-steps: &steps
   - run: sudo pip install flake8
   - run: ./flake8_tests.sh
 jobs:
-  flake8-tests-on-python:
+  python-flake8-tests:
     docker:
       - image: circleci/python:3.7.0
     steps: *steps
-  flake8-tests-on-legacy-python:
+  legacy-python-flake8-tests:
     docker:
       - image: circleci/python:2.7.15
     steps: *steps
-  unit-tests:
+  backend-unit-tests:
     environment:
       COMPOSE_FILE: .circleci/docker-compose.circle.yml
       COMPOSE_PROJECT_NAME: redash
@@ -45,6 +45,15 @@ jobs:
           path: /tmp/test-results
       - store_artifacts:
           path: coverage.xml
+  frontend-unit-tests:
+    docker:
+      - image: circleci/node:8
+    steps:
+      - checkout
+      - run: sudo apt install python-pip
+      - run: npm install
+      - run: npm run bundle
+      - run: npm test
   build-tarball:
     docker:
       - image: circleci/node:8
@@ -122,12 +131,13 @@ workflows:
   #             only: master
   build:
     jobs:
-      - flake8-tests-on-python
-      - flake8-tests-on-legacy-python
-      - unit-tests
+      - python-flake8-tests
+      - legacy-python-flake8-tests
+      - backend-unit-tests
+      - frontend-unit-tests
       - build-tarball:
            requires:
-             - unit-tests
+             - backend-unit-tests
            filters:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
@@ -137,7 +147,7 @@ workflows:
                  - /release\/.*/
       - build-docker-image:
            requires:
-             - unit-tests
+             - backend-unit-tests
            filters:
              branches:
                only:

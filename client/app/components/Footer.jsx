@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import { react2angular } from 'react2angular';
 
-function Footer({ clientConfig, currentUser }) {
+export function Footer({ clientConfig, currentUser }) {
   const version = clientConfig.version;
   const newVersionAvailable = clientConfig.newVersionAvailable && currentUser.isAdmin;
 
