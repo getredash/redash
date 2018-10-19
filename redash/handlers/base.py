@@ -130,20 +130,26 @@ def filter_by_tags(result_set, column):
     if request.args.getlist('tags'):
         tags = request.args.getlist('tags')
         result_set = result_set.filter(cast(column, postgresql.ARRAY(db.Text)).contains(tags))
-
     return result_set
 
 
-def order_results(results, default_order, orders_whitelist):
+def order_results(results, default_order, allowed_orders, fallback=True):
     """
     Orders the given results with the sort order as requested in the
     "order" request query parameter or the given default order.
     """
     # See if a particular order has been requested
-    order = request.args.get('order', '').strip() or default_order
+    requested_order = request.args.get('order', '').strip()
+
+    # and if not (and no fallback is wanted) return results as is
+    if not requested_order and not fallback:
+        return results
+
     # and if it matches a long-form for related fields, falling
     # back to the default order
-    selected_order = orders_whitelist.get(order, default_order)
+    selected_order = allowed_orders.get(requested_order, None)
+    if selected_order is None and fallback:
+        selected_order = default_order
     # The query may already have an ORDER BY statement attached
     # so we clear it here and apply the selected order
     return sort_query(results.order_by(None), selected_order)

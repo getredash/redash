@@ -1,8 +1,9 @@
+import pytest
 import sqlite3
 from unittest import TestCase
 
 from redash.query_runner import TYPE_BOOLEAN, TYPE_DATETIME, TYPE_FLOAT, TYPE_INTEGER, TYPE_STRING
-from redash.query_runner.query_results import (PermissionError, _guess_type, _load_query, create_table,
+from redash.query_runner.query_results import (CreateTableError, PermissionError, _guess_type, _load_query, create_table,
                                                extract_query_ids)
 from tests import BaseTestCase
 
@@ -58,6 +59,17 @@ class TestCreateTable(TestCase):
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
 
+    def test_creates_table_with_dashes_in_column_name(self):
+        connection = sqlite3.connect(':memory:')
+        results = {
+            'columns': [{'name': 'two-words'}, {'name': 'test2'}],
+            'rows': [{'two-words': 1, 'test2': 2}]
+        }
+        table_name = 'query_123'
+        create_table(connection, table_name, results)
+        connection.execute('SELECT 1 FROM query_123')
+        connection.execute('SELECT "two-words" FROM query_123')
+
     def test_creates_table_with_non_ascii_in_column_name(self):
         connection = sqlite3.connect(':memory:')
         results = {'columns': [{'name': u'\xe4'}, {'name': 'test2'}], 'rows': [
@@ -65,6 +77,13 @@ class TestCreateTable(TestCase):
         table_name = 'query_123'
         create_table(connection, table_name, results)
         connection.execute('SELECT 1 FROM query_123')
+
+    def test_shows_meaningful_error_on_failure_to_create_table(self):
+        connection = sqlite3.connect(':memory:')
+        results = {'columns': [], 'rows': []}
+        table_name = 'query_123'
+        with pytest.raises(CreateTableError):
+            create_table(connection, table_name, results)
 
     def test_loads_results(self):
         connection = sqlite3.connect(':memory:')
