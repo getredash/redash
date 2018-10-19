@@ -228,13 +228,13 @@ class GroupCommandTests(BaseTestCase):
         Name: default
         Type: builtin
         Organization: default
-        Users: Fred Foobar
+        Users: 
         --------------------
         Id: 3
         Name: test
         Type: regular
         Organization: default
-        Users: 
+        Users: Fred Foobar
         """
         self.assertMultiLineEqual(result.output,
                                   textwrap.dedent(output).lstrip())
