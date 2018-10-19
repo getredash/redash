@@ -6,10 +6,11 @@
   "scripts": {
     "start": "webpack-dev-server",
     "bundle": "bin/bundle-extensions",
-    "build": "rm -rf ./client/dist/ && NODE_ENV=production webpack",
+    "clean": "rm -rf ./client/dist/",
+    "build": "npm run clean && NODE_ENV=production webpack",
     "watch": "webpack --watch --progress --colors -d",
-    "analyze": "rm -rf ./client/dist/ && BUNDLE_ANALYZER=on webpack",
-    "analyze:build": "rm -rf ./client/dist/ && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
+    "analyze": "npm run clean && BUNDLE_ANALYZER=on webpack",
+    "analyze:build": "npm run clean && NODE_ENV=production BUNDLE_ANALYZER=on webpack",
     "test": "jest",
     "test:watch": "jest --watch"
   },
