@@ -131,13 +131,13 @@ workflows:
   #             only: master
   build:
     jobs:
-      - flake8-tests-on-python
-      - flake8-tests-on-legacy-python
-      - unit-tests
+      - python-flake8-tests
+      - legacy-python-flake8-tests
+      - backend-unit-tests
       - frontend-unit-tests
       - build-tarball:
            requires:
-             - unit-tests
+             - backend-unit-tests
            filters:
              tags:
                only: /v[0-9]+(\.[0-9\-a-z]+)*/
@@ -147,7 +147,7 @@ workflows:
                  - /release\/.*/
       - build-docker-image:
            requires:
-             - unit-tests
+             - backend-unit-tests
            filters:
              branches:
                only:
