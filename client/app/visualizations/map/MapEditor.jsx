@@ -3,6 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { concat, difference, map, uniq, zipObject } from 'lodash';
 import Select from 'react-select';
+
+import { QueryData } from '@/components/proptypes';
 import MapRenderer from './MapRenderer';
 
 const mapTiles = [
@@ -58,9 +60,9 @@ const mapTiles = [
 
 export default class MapEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: MapRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
   constructor(props) {
     super(props);
@@ -73,11 +75,6 @@ export default class MapEditor extends React.Component {
     this.setState({ currentTab: event.target.dataset.tabname });
   }
 
-  updateOptions = changes => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: { ...this.props.visualization.options, ...changes },
-  })
-
   updateClassify = ({ value }) => {
     let groupNames;
     if (value === 'none') {
@@ -87,23 +84,23 @@ export default class MapEditor extends React.Component {
     }
     const options = map(
       groupNames,
-      g => ((this.props.visualization.options.groups && this.props.visualization.options.groups[g]) ||
+      g => ((this.props.options.groups && this.props.options.groups[g]) ||
             { color: MapRenderer.colorScale(g) }),
     );
     const groups = zipObject(groupNames, options);
-    this.updateOptions({ groups, classify: value });
+    this.props.updateOptions({ groups, classify: value });
   }
 
-  updateLatColName = ({ value }) => this.updateOptions({ latColName: value })
-  updateLonColName = ({ value }) => this.updateOptions({ lonColName: value })
-  updateColor = (name, color) => this.updateOptions({ groups: { ...this.options.groups, name: color } })
-  updateClusterMarkers = e => this.updateOptions({ clusterMarkers: e.target.checked })
-  updateMapTileUrl = e => this.updateOptions({ mapTileUrl: e.target.value })
+  updateLatColName = ({ value }) => this.props.updateOptions({ latColName: value })
+  updateLonColName = ({ value }) => this.props.updateOptions({ lonColName: value })
+  updateColor = (name, color) => this.props.updateOptions({ groups: { ...this.options.groups, name: { color } } })
+  updateClusterMarkers = e => this.props.updateOptions({ clusterMarkers: e.target.checked })
+  updateMapTileUrl = e => this.props.updateOptions({ mapTileUrl: e.target.value })
 
 
   render() {
     const columnNames = this.props.data.columns.map(c => c.name);
-    const opts = this.props.visualization.options;
+    const opts = this.props.options;
     const columnOptions = without => concat(
       [{ value: '', label: '' }],
       map(difference(columnNames, without), c => ({ label: c, value: c })),

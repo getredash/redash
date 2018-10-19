@@ -1,7 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import d3 from 'd3';
 import { compact, filter, find, groupBy, has, identity, keys, map, sortBy } from 'lodash';
+
+import { QueryData } from '@/components/proptypes';
 
 const exitNode = '<<<Exit>>>';
 const colors = d3.scale.category10();
@@ -351,10 +352,13 @@ function drawSunburst(rows, element) {
 }
 
 export default class SunburstRenderer extends React.Component {
+  static DEFAULT_OPTIONS = Object.freeze({
+    defaultRows: 7,
+  });
+
   static propTypes = {
-    data: PropTypes.object.isRequired,
+    data: QueryData.isRequired,
   }
-  static DEFAULT_OPTIONS = Object.freeze({});
 
   componentDidMount() {
     this.draw();

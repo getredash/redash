@@ -1,16 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
+import { QueryData, Visualization } from '@/components/proptypes';
 import visualizationRegistry from './registry';
 import Filters from './Filters';
 
 
 export default class VisualizationRenderer extends React.Component {
   static propTypes = {
-    visualization: PropTypes.object.isRequired,
+    visualization: Visualization.isRequired,
     setFilters: PropTypes.func.isRequired,
-    filters: PropTypes.array.isRequired,
-    data: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    filters: PropTypes.arrayOf(Filters.Filter).isRequired,
+    data: QueryData.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -37,7 +39,7 @@ export default class VisualizationRenderer extends React.Component {
           name={this.props.visualization.name}
           data={this.props.data}
           clientConfig={this.props.clientConfig}
-          updateOptions={this.updateOptions}
+          updateOptions={this.props.updateOptions}
         />
       </React.Fragment>
     );

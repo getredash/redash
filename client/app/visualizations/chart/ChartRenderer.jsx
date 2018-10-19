@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { compact, each, extend, findKey, includes, fromPairs, get, map, sortBy, values } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
 import PlotlyChart from './PlotlyChart';
 
 function getSeriesNames(mapping, columns) {
@@ -91,39 +92,42 @@ function chartData(mapping, data) {
   return sortBy(values(series), 'name');
 }
 
+
 export default class ChartRenderer extends React.Component {
-  static getSeriesNames = getSeriesNames
+  static Options = PlotlyChart.Options
 
   static DEFAULT_OPTIONS = Object.freeze({
     globalSeriesType: 'column',
     sortX: true,
     legend: { enabled: true },
-    yAxis: [{ type: 'linear' }, { type: 'linear', opposite: true }],
+    yAxis: [{ type: 'linear' }, { type: 'linear' }],
     xAxis: { type: '-', labels: { enabled: true } },
-    error_y: { type: 'data', visible: true },
-    series: { stacking: null, error_y: { type: 'data', visible: true } },
+    series: { stacking: null },
     seriesOptions: {},
     valuesOptions: {},
     columnMapping: {},
-
-    // showDataLabels: false, // depends on chart type
     numberFormat: '0,0[.]00000',
     percentFormat: '0[.]00%',
-    // dateTimeFormat: 'DD/MM/YYYY HH:mm', // will be set from clientConfig
-    textFormat: '', // default: combination of {{ @@yPercent }} ({{ @@y }} ± {{ @@yError }})
-
     defaultColumns: 3,
     defaultRows: 8,
     minColumns: 1,
     minRows: 5,
+    textFormat: '',
   });
 
   static propTypes = {
-    // eslint-disable-next-line react/no-unused-prop-types
-    data: PropTypes.object.isRequired,
-    options: PropTypes.object.isRequired,
+    data: QueryData.isRequired,
+    options: PlotlyChart.Options.isRequired,
     // eslint-disable-next-line react/no-unused-prop-types
     updateOptions: PropTypes.func.isRequired,
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      // eslint-disable-next-line react/no-unused-state
+      data: props.data,
+    };
   }
 
   static getDerivedStateFromProps(newProps, oldState) {
@@ -148,13 +152,7 @@ export default class ChartRenderer extends React.Component {
     return null;
   }
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      // eslint-disable-next-line react/no-unused-state
-      data: props.data,
-    };
-  }
+  static getSeriesNames = getSeriesNames
 
   render() {
     const data = chartData(this.props.options.columnMapping, this.props.data);

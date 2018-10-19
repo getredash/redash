@@ -1,10 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import d3 from 'd3';
 import { extend, filter, identity, includes, keys, map, reduce, sortBy, values } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
 import d3sankey from '@/lib/visualizations/d3sankey';
-
 
 function getConnectedNodes(node) {
   // source link = this node is the source, I need the targets
@@ -219,11 +218,13 @@ function createSankey(element, data) {
 
 
 export default class SankeyRenderer extends React.Component {
-  static propTypes = {
-    data: PropTypes.object.isRequired,
-  }
+  static DEFAULT_OPTIONS = Object.freeze({
+    defaultRows: 7,
+  });
 
-  static DEFAULT_OPTIONS = Object.freeze({});
+  static propTypes = {
+    data: QueryData.isRequired,
+  }
 
   componentDidMount() {
     this.drawSankey();

@@ -8,6 +8,7 @@ import Popover from 'antd/lib/popover';
 import 'antd/lib/popover/style';
 import { capitalize, compact, each, filter, findKey, fromPairs, has, includes, invert, keys, map, some, sortBy, toPairs } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
 import ChartTypePicker from './ChartTypePicker';
 import ChartSeriesEditor from './ChartSeriesEditor';
 import ChartColorEditor from './ChartColorEditor';
@@ -43,11 +44,15 @@ function PopoverHelp(props) {
   );
 }
 
+PopoverHelp.propTypes = { children: PropTypes.arrayOf(PropTypes.node).isRequired };
+
 export default class ChartEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: ChartRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    clientConfig: PropTypes.object.isRequired,
   }
 
 
@@ -67,28 +72,28 @@ export default class ChartEditor extends React.Component {
           c => ({ value: c.name, label: <span>{c.name} <small className="text-muted">{c.type}</small></span> }),
         ));
     }
-    const yAxisColumns = () => this.props.visualization.options.yAxisColumns || [];
+    const yAxisColumns = () => this.props.options.yAxisColumns || [];
     this.xAxisOptions = axisOptions(() => [
       ...yAxisColumns(),
-      this.props.visualization.options.groupby,
+      this.props.options.groupby,
     ]);
     this.yAxisOptions = axisOptions(() => [
-      this.props.visualization.options.xAxisColumn,
-      this.props.visualization.options.groupby,
+      this.props.options.xAxisColumn,
+      this.props.options.groupby,
     ]);
     this.groupbyOptions = axisOptions(() => [
-      this.props.visualization.options.xAxisColumn,
+      this.props.options.xAxisColumn,
       ...yAxisColumns(),
     ]);
     this.sizeColumnOptions = axisOptions(() => [
       ...yAxisColumns(),
-      this.props.visualization.options.groupby,
+      this.props.options.groupby,
     ]);
 
-    const yAxes = props.visualization.options.yAxis;
+    const yAxes = props.options.yAxis;
     this.updateYAxisText = [
-      e => this.updateOptions({ yAxis: [{ ...yAxes[0], text: e.target.value }, yAxes[1]] }),
-      e => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], text: e.target.value }] }),
+      e => this.updateOptions({ yAxis: [{ ...yAxes[0], title: { text: e.target.value } }, yAxes[1]] }),
+      e => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], title: { text: e.target.value } }] }),
     ];
     this.updateYAxisScale = [
       type => this.updateOptions({ yAxis: [{ ...yAxes[0], type: type.value }, yAxes[1]] }),
@@ -104,40 +109,36 @@ export default class ChartEditor extends React.Component {
     ];
   }
 
-  getYAxisColumns = () => compact(map(this.props.visualization.options.columnMapping, (v, k) => v === 'y' && k))
-  getXAxisColumn = () => findKey(this.props.visualization.options.columnMapping, c => c === 'x')
-  getErrorColumn = () => findKey(this.props.visualization.options.columnMapping, c => c === 'yError')
-  getSizeColumn = () => findKey(this.props.visualization.options.columnMapping, c => c === 'size')
-  getGroupby = () => findKey(this.props.visualization.options.columnMapping, c => c === 'groupby')
+  getYAxisColumns = () => compact(map(this.props.options.columnMapping, (v, k) => v === 'y' && k))
+  getXAxisColumn = () => findKey(this.props.options.columnMapping, c => c === 'x')
+  getErrorColumn = () => findKey(this.props.options.columnMapping, c => c === 'yError')
+  getSizeColumn = () => findKey(this.props.options.columnMapping, c => c === 'size')
+  getGroupby = () => findKey(this.props.options.columnMapping, c => c === 'groupby')
 
   // XXX See also GridEditor.updateOptions
-  updateOptions = (newVal) => {
-    const newOptions = {
-      ...this.props.visualization.options,
-      ...newVal,
-    };
+  updateOptions = (newOptions) => {
+    const opts = this.props.options;
     // Cope here with column mapping changes - need to recompute seriesOptions/valuesOptions
-    if (has(newVal, 'columnMapping')) {
-      const seriesNames = ChartRenderer.getSeriesNames(newVal.columnMapping, this.props.data.columns);
+    if (has(newOptions, 'columnMapping')) {
+      const seriesNames = ChartRenderer.getSeriesNames(newOptions.columnMapping, this.props.data.columns);
       // build new seriesOptions to cover new columns in data
-      newOptions.seriesOptions = fromPairs(map(seriesNames, n => [n, newOptions.seriesOptions[n] ||
-                                                                  { type: newOptions.globalSeriesType, yAxis: 0 }]));
-      if (newOptions.globalSeriesType === 'pie') {
+      newOptions.seriesOptions = fromPairs(map(
+        seriesNames,
+        n => [n, opts.seriesOptions[n] || { type: opts.globalSeriesType, yAxis: 0 }],
+      ));
+      if (opts.globalSeriesType === 'pie') {
         const xColumn = findKey(newOptions.columnMapping, v => v === 'x');
         const uniqueValuesNames = new Set(map(this.props.data.rows, xColumn));
-        newOptions.valuesOptions = fromPairs(map(uniqueValuesNames, n => newOptions.valuesOptions[n] || {}));
+        newOptions.valuesOptions = fromPairs(map(uniqueValuesNames, n => opts.valuesOptions[n] || {}));
       }
       // update seriesList, valuesList to reflect new columns
     }
-    return this.props.updateVisualization({
-      ...this.props.visualization,
-      options: newOptions,
-    });
+    return this.props.updateOptions(newOptions);
   }
 
   updateColumn = newRoles => this.updateOptions({
     columnMapping: {
-      ...this.props.visualization.options.columnMapping,
+      ...this.props.options.columnMapping,
       ...(invert(newRoles)),
     },
   })
@@ -147,10 +148,10 @@ export default class ChartEditor extends React.Component {
   }
 
   chartTypeChanged = (selected) => {
-    const sOpts = this.props.visualization.options.seriesOptions;
+    const sOpts = this.props.options.seriesOptions;
     this.updateOptions({
       globalSeriesType: selected.value,
-      showDataLabels: this.props.visualization.options.globalSeriesType === 'pie',
+      showDataLabels: this.props.options.globalSeriesType === 'pie',
       seriesOptions: each({ ...sOpts }, (o) => { o.type = selected.value; }),
     });
   }
@@ -162,14 +163,14 @@ export default class ChartEditor extends React.Component {
 
   toggleShowLegend = e => this.updateOptions({
     legend: {
-      ...this.props.visualization.options.legend,
+      ...this.props.options.legend,
       enabled: e.target.checked,
     },
   })
 
   togglePercentValues = e => this.updateOptions({
     series: {
-      ...this.props.visualization.options.series,
+      ...this.props.options.series,
       percentValues: e.target.checked,
     },
   })
@@ -178,9 +179,9 @@ export default class ChartEditor extends React.Component {
 
   toggleXLabels = e => this.updateOptions({
     xAxis: {
-      ...this.props.visualization.options.xAxis,
+      ...this.props.options.xAxis,
       labels: {
-        ...this.props.visualization.options.xAxis.labels,
+        ...this.props.options.xAxis.labels,
         enabled: e.target.checked,
       },
     },
@@ -189,7 +190,7 @@ export default class ChartEditor extends React.Component {
   updateXAxisLabelLength = xAxisLabelLength => this.updateOptions({ xAxisLabelLength })
   updateXAxis = ({ value: x }) => this.updateColumn({ x })
   updateYAxis = (ys) => {
-    const newColMap = { ...this.props.visualization.options.columnMapping };
+    const newColMap = { ...this.props.options.columnMapping };
     each(ys, ({ value: col }) => { newColMap[col] = 'y'; });
     this.updateOptions({ columnMapping: newColMap });
   }
@@ -197,7 +198,7 @@ export default class ChartEditor extends React.Component {
   updateSizeColumn = ({ value: size }) => this.updateColumn({ size })
   updateErrorColumn = ({ value: yError }) => this.updateColumn({ yError })
   updateStacking = ({ value: stacking }) => this.updateOptions({
-    series: { ...this.props.visualization.options.series, stacking },
+    series: { ...this.props.options.series, stacking },
   })
   updateSeriesList = seriesList => this.updateOptions({ seriesList })
   updateSeriesOptions = seriesOptions => this.updateOptions({ seriesOptions })
@@ -205,15 +206,15 @@ export default class ChartEditor extends React.Component {
   updateCustomCode = customCode => this.updateOptions({ customCode })
   updateXAxisType = type => this.updateOptions({
     xAxis: {
-      ...this.props.visualization.options.xAxis,
+      ...this.props.options.xAxis,
       type: type.value,
     },
   })
   updateXAxisName = e => this.updateOptions({
     xAxis: {
-      ...this.props.visualization.options.xAxis,
+      ...this.props.options.xAxis,
       title: {
-        ...this.props.visualization.options.xAxis.title,
+        ...this.props.options.xAxis.title,
         text: e.target.value,
       },
     },
@@ -223,7 +224,7 @@ export default class ChartEditor extends React.Component {
   updateDateTimeFormat = e => this.updateOptions({ dateTImeFormat: e.target.value })
   updateTextFormat = e => this.updateOptions({ textFormat: e.target.value })
   yAxisPanel = (side, i) => {
-    const yAxis = this.props.visualization.options.yAxis[i];
+    const yAxis = this.props.options.yAxis[i];
     return (
       <div>
         <h4>{side} Y Axis</h4>
@@ -231,6 +232,7 @@ export default class ChartEditor extends React.Component {
           <label className="control-label">Scale</label>
           <Select
             placeholder="Choose Scale..."
+            clearable={false}
             options={[
               { label: 'Auto Detect', value: '-' },
               { label: 'Datetime', value: 'datetime' },
@@ -259,9 +261,9 @@ export default class ChartEditor extends React.Component {
   }
 
   render() {
-    const opts = this.props.visualization.options;
+    const opts = this.props.options;
     const seriesList = (opts.seriesList ||
-                        map(sortBy(toPairs(this.props.visualization.options.seriesOptions), '1.zIndex'), 0));
+                        map(sortBy(toPairs(opts.seriesOptions), '1.zIndex'), 0));
     const valuesList = keys(opts.valuesOptions).sort();
     const pie = opts.globalSeriesType === 'pie';
     const tabs = {
@@ -279,6 +281,7 @@ export default class ChartEditor extends React.Component {
             <label className="control-label">X Column</label>
             <Select
               placeholder="Choose column..."
+              clearable={false}
               value={this.getXAxisColumn()}
               options={this.xAxisOptions()}
               onChange={this.updateXAxis}
@@ -360,7 +363,7 @@ export default class ChartEditor extends React.Component {
               <Select
                 placeholder="Choose stacking..."
                 disabled={!includes(['line', 'area', 'column'], opts.globalSeriesType)}
-                options={[{ value: 'disabled', label: 'Disabled' }, { value: 'stack', label: 'Stack' }]}
+                options={[{ value: null, label: 'Disabled' }, { value: 'stack', label: 'Stack' }]}
                 value={opts.series ? opts.series.stacking : null}
                 onChange={this.updateStacking}
               />
@@ -429,7 +432,7 @@ export default class ChartEditor extends React.Component {
 
           <div className="form-group">
             <label className="control-label">Name</label>
-            <input value={opts.xAxis && opts.xAxis.title && opts.xAxis.title.text} type="text" className="form-control" onChange={this.updateXAxisName} />
+            <input value={(opts.xAxis && opts.xAxis.title && opts.xAxis.title.text) || ''} type="text" className="form-control" onChange={this.updateXAxisName} />
           </div>
 
           <div className="checkbox">
@@ -471,6 +474,7 @@ export default class ChartEditor extends React.Component {
         <ChartSeriesEditor
           seriesOptions={opts.seriesOptions}
           seriesList={seriesList}
+          type={opts.globalSeriesType}
           updateSeriesList={this.updateSeriesList}
           updateSeriesOptions={this.updateSeriesOptions}
           clientConfig={this.props.clientConfig}
@@ -500,7 +504,7 @@ export default class ChartEditor extends React.Component {
             <label htmlFor="chart-editor-number-format">
               Number Values Format
               <PopoverHelp>
-                Format <a href="http://numeraljs.com/" target="_blank">specs.</a>
+                Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
               </PopoverHelp>
             </label>
             <input className="form-control" value={opts.numberFormat} onChange={this.updateNumberFormat} id="chart-editor-number-format" />
@@ -510,7 +514,7 @@ export default class ChartEditor extends React.Component {
             <label htmlFor="chart-editor-percent-format">
               Percent Values Format
               <PopoverHelp>
-                Format <a href="http://numeraljs.com/" target="_blank">specs.</a>
+                Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
               </PopoverHelp>
             </label>
             <input className="form-control" value={opts.percentFormat} onChange={this.updatePercentFormat} id="chart-editor-percent-format" />
@@ -520,7 +524,7 @@ export default class ChartEditor extends React.Component {
             <label htmlFor="chart-editor-datetime-format">
               Date/Time Values Format
               <PopoverHelp>
-                Format <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank">specs.</a>
+                Format <a href="https://momentjs.com/docs/#/displaying/format/" rel="noopener noreferrer" target="_blank">specs.</a>
               </PopoverHelp>
             </label>
             <input className="form-control" value={opts.dateTimeFormat} onChange={this.updateDateTimeFormat} id="chart-editor-datetime-format" />

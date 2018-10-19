@@ -3,14 +3,16 @@ import PropTypes from 'prop-types';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import { map } from 'lodash';
+
 import { ColorPalette } from '@/visualizations/chart/plotly/utils';
+import { SeriesOptions, ValuesOptions } from '@/components/proptypes';
 
 const colors = { Automatic: null, ...ColorPalette };
 
-export default class ChartSeriesEditor extends React.Component {
+export default class ChartColorEditor extends React.Component {
   static propTypes = {
-    list: PropTypes.array.isRequired,
-    options: PropTypes.object.isRequired,
+    list: PropTypes.arrayOf(PropTypes.string).isRequired,
+    options: PropTypes.oneOfType([SeriesOptions, ValuesOptions]).isRequired,
     updateOptions: PropTypes.func.isRequired,
   }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Popover from 'antd/lib/popover';
 import 'antd/lib/popover/style';
+import { ColumnDetail } from '@/components/proptypes';
 
 const FormGroup = props => (
   <div className="form-group">
@@ -266,7 +267,7 @@ export default function TableEditorColumnDetail({ updateColumn, column }) {
       <div className="table-editor-column-header form-group">
         <div className="input-group">
           <span className="input-group-addon"><input type="checkbox" checked={column.visible} onChange={e => updateColumn({ visible: e.target.checked })} /></span>
-          <input className="form-control" defaultValue={column.title} />
+          <input className="form-control" defaultValue={column.title} onChange={e => updateColumn({ title: e.target.value })} />
         </div>
       </div>
       <div className="form-group">
@@ -304,6 +305,6 @@ export default function TableEditorColumnDetail({ updateColumn, column }) {
 }
 
 TableEditorColumnDetail.propTypes = {
-  column: PropTypes.object.isRequired,
+  column: ColumnDetail.isRequired,
   updateColumn: PropTypes.func.isRequired,
 };

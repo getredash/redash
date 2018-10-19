@@ -14,6 +14,8 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 
+import { QueryData } from '@/components/proptypes';
+
 /*
 This is a workaround for an issue with giving Leaflet load the icon on its own.
 */
@@ -25,12 +27,20 @@ L.Icon.Default.mergeOptions({
 
 delete L.Icon.Default.prototype._getIconUrl;
 
+const MapOptions = PropTypes.exact({
+  mapTileUrl: PropTypes.string,
+  latColName: PropTypes.string,
+  lonColName: PropTypes.string,
+  classify: PropTypes.string.isRequired,
+  clusterMarkers: PropTypes.bool.isRequired,
+  groups: PropTypes.objectOf(PropTypes.exact({
+    color: PropTypes.string.isRequired,
+  })),
+});
+
 export default class MapRenderer extends React.Component {
+  static Options = MapOptions
   static colorScale = d3.scale.category10();
-  static propTypes = {
-    data: PropTypes.object.isRequired,
-    options: PropTypes.object.isRequired,
-  }
 
   static DEFAULT_OPTIONS = Object.freeze({
     defaultColumns: 3,
@@ -38,7 +48,12 @@ export default class MapRenderer extends React.Component {
     minColumns: 2,
     classify: 'none',
     clusterMarkers: true,
-  });
+  })
+
+  static propTypes = {
+    data: QueryData.isRequired,
+    options: MapOptions.isRequired,
+  }
 
   createIcon = (color, cluster) => {
     const childCount = cluster.getChildCount();
@@ -113,7 +128,10 @@ export default class MapRenderer extends React.Component {
       }
       return { color: MapRenderer.colorScale(group) };
     });
-    const markerLayers = map(pointGroups, (points, name) => this.makeLayer(points, name, zipObject(groupNames, groupColors)));
+    const markerLayers = map(
+      pointGroups,
+      (points, name) => this.makeLayer(points, name, zipObject(groupNames, groupColors)),
+    );
     return (
       <div className="map-visualization-container">
         <Map

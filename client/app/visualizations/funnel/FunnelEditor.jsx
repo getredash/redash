@@ -1,39 +1,38 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { QueryData } from '@/components/proptypes';
+import FunnelRenderer from './FunnelRenderer';
+
+
 export default class FunnelEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: FunnelRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
 
-  updateOptions = changes => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: { ...this.props.visualization.options, ...changes },
+  updateStepColName = e => this.props.updateOptions({
+    stepCol: { ...this.props.options.stepCol, colName: e.target.value },
   })
-
-  updateStepColName = e => this.updateOptions({
-    stepCol: { ...this.props.visualization.options.stepCol, colName: e.target.value },
+  updateStepColDisplayAs = e => this.props.updateOptions({
+    stepCol: { ...this.props.options.stepCol, displayAs: e.target.value },
   })
-  updateStepColDisplayAs = e => this.updateOptions({
-    stepCol: { ...this.props.visualization.options.stepCol, displayAs: e.target.value },
+  updateValueColName = e => this.props.updateOptions({
+    valueCol: { ...this.props.options.valueCol, colName: e.target.value },
   })
-  updateValueColName = e => this.updateOptions({
-    valueCol: { ...this.props.visualization.options.valueCol, colName: e.target.value },
+  updateValueColDisplayAs = e => this.props.updateOptions({
+    valueCol: { ...this.props.options.valueCol, displayAs: e.target.value },
   })
-  updateValueColDisplayAs = e => this.updateOptions({
-    valueCol: { ...this.props.visualization.options.valueCol, displayAs: e.target.value },
+  updateSortKeyColName = e => this.props.updateOptions({
+    sortKeyCol: { ...this.props.options.sortKey, colName: e.target.value },
   })
-  updateSortKeyColName = e => this.updateOptions({
-    sortKeyCol: { ...this.props.visualization.options.sortKey, colName: e.target.value },
-  })
-  updateAutoSort = e => this.updateOptions({ autoSort: e.target.checked })
+  updateAutoSort = e => this.props.updateOptions({ autoSort: e.target.checked })
 
   render() {
     const columnNames = this.props.data.columns.map(c => c.name);
     columnNames.unshift('');
-    const opts = this.props.visualization.options;
+    const opts = this.props.options;
     return (
       <div className="form-horizontal">
         <div style={{ marginBottom: 20 }}>

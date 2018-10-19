@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { sortBy, isNumber, every, difference, map } from 'lodash';
 import d3 from 'd3';
 
+import { QueryData } from '@/components/proptypes';
 import { ColorPalette, normalizeValue } from '@/visualizations/chart/plotly/utils';
 import './funnel.less';
 
@@ -19,11 +20,23 @@ function normalizePercentage(num) {
   return num.toFixed(2) + '%';
 }
 
+const FunnelOptions = PropTypes.exact({
+  stepCol: PropTypes.exact({
+    colName: PropTypes.string.isRequired,
+    displayAs: PropTypes.string.isRequired,
+  }),
+  valueCol: PropTypes.exact({
+    colName: PropTypes.string.isRequired,
+    displayAs: PropTypes.string.isRequired,
+  }),
+  sortKeyCol: PropTypes.exact({
+    colName: PropTypes.string.isRequired,
+  }),
+  autoSort: PropTypes.bool.isRequired,
+});
+
 export default class FunnelRenderer extends React.Component {
-  static propTypes = {
-    data: PropTypes.object.isRequired,
-    options: PropTypes.object.isRequired,
-  }
+  static Options = FunnelOptions
 
   static DEFAULT_OPTIONS = Object.freeze({
     stepCol: Object.freeze({ colName: '', displayAs: 'Steps' }),
@@ -32,6 +45,11 @@ export default class FunnelRenderer extends React.Component {
     autoSort: true,
     defaultRows: 10,
   })
+
+  static propTypes = {
+    data: QueryData.isRequired,
+    options: FunnelOptions.isRequired,
+  }
 
   componentDidMount() {
     this.drawFunnel();

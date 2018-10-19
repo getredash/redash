@@ -5,6 +5,8 @@ import { each, first, includes, last, map, max, min, sortBy, values } from 'loda
 import 'cornelius/src/cornelius';
 import 'cornelius/src/cornelius.css';
 
+import { QueryData } from '@/components/proptypes';
+
 const momentInterval = {
   weekly: 'weeks',
   daily: 'days',
@@ -117,11 +119,17 @@ function prepareData(rawData, options) {
   return { data, initialDate };
 }
 
+const CohortOptions = PropTypes.exact({
+  dateColumn: PropTypes.string.isRequired,
+  stageColumn: PropTypes.string.isRequired,
+  totalColumn: PropTypes.string.isRequired,
+  valueColumn: PropTypes.string.isRequired,
+  timeInterval: PropTypes.oneOf(Object.keys(momentInterval)).isRequired,
+  mode: PropTypes.oneOf(['simple', 'diagonal']).isRequired,
+});
+
 export default class CohortRenderer extends React.Component {
-  static propTypes = {
-    data: PropTypes.object.isRequired,
-    options: PropTypes.object.isRequired,
-  }
+  static Options = CohortOptions
 
   static DEFAULT_OPTIONS = Object.freeze({
     timeInterval: 'daily',
@@ -133,6 +141,11 @@ export default class CohortRenderer extends React.Component {
     autoHeight: true,
     defaultRows: 8,
   });
+
+  static propTypes = {
+    data: QueryData.isRequired,
+    options: CohortOptions.isRequired,
+  }
 
   componentDidMount() {
     this.drawChart();

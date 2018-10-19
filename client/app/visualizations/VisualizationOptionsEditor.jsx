@@ -29,6 +29,13 @@ export default class VisualizationOptionsEditor extends React.Component {
   })
 
   updateName = e => this.props.updateVisualization({ ...this.props.visualization, name: e.target.value })
+  updateOptions = newOptions => this.props.updateVisualization({
+    ...this.props.visualization,
+    options: {
+      ...this.props.visualization.options,
+      ...newOptions,
+    },
+  })
 
   render() {
     const Editor = visualizationRegistry[this.props.visualization.type].editor;
@@ -58,8 +65,8 @@ export default class VisualizationOptionsEditor extends React.Component {
             />
           </div>
           <Editor
-            visualization={this.props.visualization}
-            updateVisualization={this.props.updateVisualization}
+            options={this.props.visualization.options}
+            updateOptions={this.updateOptions}
             data={this.props.data}
             clientConfig={this.props.clientConfig}
           />
@@ -70,7 +77,7 @@ export default class VisualizationOptionsEditor extends React.Component {
             setFilters={this.props.setFilters}
             data={this.props.data}
             visualization={this.props.visualization}
-            updateVisualization={this.props.updateVisualization}
+            updateOptions={this.updateOptions}
             clientConfig={this.props.clientConfig}
           />
         </div>

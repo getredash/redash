@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { isNumber, map, sum } from 'lodash';
 import numberFormat from 'underscore.string/numberFormat';
 
+import { QueryData } from '@/components/proptypes';
+
 function getRowNumber(index, size) {
   if (index >= 0) {
     return index - 1;
@@ -15,12 +17,19 @@ function getRowNumber(index, size) {
   return size + index;
 }
 
+const CounterOptions = PropTypes.exact({
+  counterColName: PropTypes.string.isRequired,
+  targetColName: PropTypes.string.isRequired,
+  countRow: PropTypes.bool.isRequired,
+  rowNumber: PropTypes.number.isRequired,
+  targetRowNumber: PropTypes.number.isRequired,
+  stringDecimal: PropTypes.number.isRequired,
+  stringDecChar: PropTypes.string.isRequired,
+  stringThouSep: PropTypes.string.isRequired,
+});
+
 export default class CounterRenderer extends React.Component {
-  static propTypes = {
-    data: PropTypes.object.isRequired,
-    options: PropTypes.object.isRequired,
-    name: PropTypes.string.isRequired,
-  }
+  static Options = CounterOptions
 
   static DEFAULT_OPTIONS = {
     counterColName: 'counter',
@@ -35,6 +44,12 @@ export default class CounterRenderer extends React.Component {
     defaultRows: 5,
   };
 
+  static propTypes = {
+    data: QueryData.isRequired,
+    options: CounterOptions.isRequired,
+    name: PropTypes.string.isRequired,
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -44,6 +59,8 @@ export default class CounterRenderer extends React.Component {
   }
 
   componentDidMount() {
+    // Haven't found a better way to do this yet.
+    // eslint-disable-next-line react/no-did-mount-set-state
     this.setState({ rulerHeight: this.calculateHeight(), height: this.rootRef.current.offsetHeight });
   }
 
@@ -51,6 +68,8 @@ export default class CounterRenderer extends React.Component {
     const height = this.rootRef.current.offsetHeight;
     const rulerHeight = this.calculateHeight();
     if (height !== this.state.height || rulerHeight !== this.state.rulerHeight) {
+      // this is OK since it converges.
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ height, rulerHeight });
     }
   }

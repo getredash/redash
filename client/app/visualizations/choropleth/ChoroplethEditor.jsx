@@ -5,6 +5,7 @@ import Popover from 'antd/lib/popover';
 import 'antd/lib/popover/style';
 import { chain, capitalize, each, map, isString } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
 import ColorBox from './ColorBox';
 import ChoroplethRenderer from './ChoroplethRenderer';
 
@@ -70,11 +71,19 @@ const AlignButton = props => (
   </button>
 );
 
+AlignButton.propTypes = {
+  legend: PropTypes.shape({
+    alignText: PropTypes.oneOf(['left', 'right', 'center']).isRequired,
+  }).isRequired,
+  direction: PropTypes.oneOf(['left', 'right', 'center']).isRequired,
+  updateLegend: PropTypes.func.isRequired,
+};
+
 export default class ChoroplethEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: ChoroplethRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -87,66 +96,58 @@ export default class ChoroplethEditor extends React.Component {
     this.setState({ currentTab: event.target.dataset.tabname });
   }
 
-  updateOptions = changes => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: {
-      ...this.props.visualization.options,
-      ...changes,
-    },
-  })
-
-  toggleTooltip = e => this.updateOptions({
+  toggleTooltip = e => this.props.updateOptions({
     tooltip: {
-      ...this.props.visualization.options.tooltip,
+      ...this.props.options.tooltip,
       enabled: e.target.checked,
     },
   })
-  updateTooltipTemplate = e => this.updateOptions({
+  updateTooltipTemplate = e => this.props.updateOptions({
     tooltip: {
-      ...this.props.visualization.options.tooltip,
+      ...this.props.options.tooltip,
       template: e.target.value,
     },
   })
 
-  togglePopup = e => this.updateOptions({
+  togglePopup = e => this.props.updateOptions({
     popup: {
-      ...this.props.visualization.options.popup,
+      ...this.props.options.popup,
       enabled: e.target.checked,
     },
   })
 
-  updatePopupTemplate = e => this.updateOptions({
+  updatePopupTemplate = e => this.props.updateOptions({
     popup: {
-      ...this.props.visualization.options.popup,
+      ...this.props.options.popup,
       template: e.target.value,
     },
   })
 
   toggleLegend = e => this.updateLegend({ visible: e.target.checked })
   updateLegendPosition = e => this.updateLegend({ position: e.target.value })
-  updateLegend = legend => this.updateOptions({
+  updateLegend = legend => this.props.updateOptions({
     legend: {
-      ...this.props.visualization.options.legend,
+      ...this.props.options.legend,
       ...legend,
     },
   })
 
-  updateCountryCodeColumn = e => this.updateOptions({
+  updateCountryCodeColumn = e => this.props.updateOptions({
     countryCodeColumn: e.target.value,
     countryCodeType: inferCountryCodeType(this.props.data.rows, e.target.value) ||
-      this.props.visualization.options.countrycodeType,
+      this.props.options.countrycodeType,
   })
 
-  updateCountryCodeType = e => this.updateOptions({ countryCodeType: e.target.value })
-  updateValueColumn = e => this.updateOptions({ valueColumn: e.target.value })
-  updateValueFormat = e => this.updateOptions({ valueFormat: e.target.value })
-  updateValuePlaceholder = e => this.updateOptions({ noValuePlaceholder: e.target.value })
+  updateCountryCodeType = e => this.props.updateOptions({ countryCodeType: e.target.value })
+  updateValueColumn = e => this.props.updateOptions({ valueColumn: e.target.value })
+  updateValueFormat = e => this.props.updateOptions({ valueFormat: e.target.value })
+  updateValuePlaceholder = e => this.props.updateOptions({ noValuePlaceholder: e.target.value })
 
   render() {
-    const opts = this.props.visualization.options;
+    const opts = this.props.options;
     const formatSpecsPopover = (
       <React.Fragment>
-        Format <a href="http://numeraljs.com/" target="_blank">specs.</a>
+        Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
       </React.Fragment>);
     const templateHintPopover = (
       <React.Fragment>
@@ -330,7 +331,10 @@ export default class ChoroplethEditor extends React.Component {
                 <label>Min color</label>
                 <Select
                   value={opts.colors.min}
-                  options={map(ChoroplethPalette, (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }))}
+                  options={map(
+                    ChoroplethPalette,
+                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
+                  )}
                   onChange={this.updateMinColor}
                 />
               </div>
@@ -341,7 +345,10 @@ export default class ChoroplethEditor extends React.Component {
                 <label>Max color</label>
                 <Select
                   value={opts.colors.max}
-                  options={map(ChoroplethPalette, (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }))}
+                  options={map(
+                    ChoroplethPalette,
+                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
+                  )}
                   onChange={this.updateMaxColor}
                 />
               </div>
@@ -352,7 +359,10 @@ export default class ChoroplethEditor extends React.Component {
                 <label>No value color</label>
                 <Select
                   value={opts.colors.noValue}
-                  options={map(ChoroplethPalette, (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }))}
+                  options={map(
+                    ChoroplethPalette,
+                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
+                  )}
                   onChange={this.updateNoValueColor}
                 />
               </div>
@@ -365,7 +375,10 @@ export default class ChoroplethEditor extends React.Component {
                 <label>Background color</label>
                 <Select
                   value={opts.colors.background}
-                  options={map(ChoroplethPalette, (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }))}
+                  options={map(
+                    ChoroplethPalette,
+                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
+                  )}
                   onChange={this.updateBackgroundColor}
                 />
               </div>
@@ -376,7 +389,10 @@ export default class ChoroplethEditor extends React.Component {
                 <label>Borders color</label>
                 <Select
                   value={opts.colors.borders}
-                  options={map(ChoroplethPalette, (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }))}
+                  options={map(
+                    ChoroplethPalette,
+                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
+                  )}
                   onChange={this.updateBordersColor}
                 />
               </div>

@@ -17,6 +17,7 @@ const Filter = PropTypes.shape({
 const multiPreamble = [{ value: '*', label: 'Select All' }, { value: '-', label: 'Clear' }];
 
 export default class Filters extends React.Component {
+  static Filter = Filter
   static propTypes = {
     onChange: PropTypes.func.isRequired,
     filters: PropTypes.arrayOf(Filter).isRequired,

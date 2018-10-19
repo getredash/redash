@@ -7,6 +7,8 @@ import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
 import box from 'plotly.js/lib/box';
 import { each, isArray, isObject } from 'lodash';
+
+import { SeriesOptions, ValuesOptions } from '@/components/proptypes';
 import { normalizeValue, updateData, prepareData, prepareLayout } from '@/visualizations/chart/plotly/utils';
 
 
@@ -30,17 +32,63 @@ const timeSeriesToPlotlySeries = (ss) => {
   });
   return [x, ys];
 };
+const Point = PropTypes.exact({
+  $raw: PropTypes.object,
+  x: PropTypes.any,
+  y: PropTypes.any,
+  yError: PropTypes.any,
+  unused: PropTypes.any,
+  size: PropTypes.any,
+});
+
+const Series = PropTypes.exact({
+  data: PropTypes.arrayOf(Point).isRequired,
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+});
+
+const PlotlyChartOptions = PropTypes.shape({
+  globalSeriesType: PropTypes.string.isRequired,
+  customCode: PropTypes.string,
+  columnMapping: PropTypes.objectOf(PropTypes.string).isRequired,
+  enableConsoleLogs: PropTypes.bool,
+  legend: PropTypes.exact({
+    enabled: PropTypes.bool.isRequired,
+  }),
+  textFormat: PropTypes.string.isRequired,
+  xAxis: PropTypes.exact({
+    labels: PropTypes.exact({ enabled: PropTypes.bool.isRequired }),
+    title: PropTypes.exact({ text: PropTypes.string.isRequired }),
+    type: PropTypes.string.isRequired,
+  }),
+  yAxis: PropTypes.arrayOf(PropTypes.shape({
+    title: PropTypes.exact({ text: PropTypes.string.isRequired }),
+    type: PropTypes.string.isRequired,
+    rangeMin: PropTypes.number,
+    rangeMax: PropTypes.number,
+  })),
+  sortX: PropTypes.bool.isRequired,
+  series: PropTypes.exact({
+    stacking: PropTypes.string,
+    percentValues: PropTypes.bool,
+    error_y: PropTypes.exact({
+      visible: PropTypes.bool,
+      type: PropTypes.string,
+    }),
+  }),
+  seriesOptions: SeriesOptions,
+  valuesOptions: ValuesOptions,
+  numberFormat: PropTypes.string.isRequired,
+  percentFormat: PropTypes.string.isRequired,
+  showDataLabels: PropTypes.bool.isRequired,
+});
 
 export default class PlotlyChart extends React.Component {
+  static Options = PlotlyChartOptions
   static propTypes = {
-    options: PropTypes.object.isRequired,
-    // eslint-disable-next-line react/no-unused-prop-types
-    series: PropTypes.array.isRequired,
-    customCode: PropTypes.string,
-
+    options: PlotlyChartOptions.isRequired,
+    series: PropTypes.arrayOf(Series).isRequired,
   }
-
-  static defaultProps = { customCode: null };
 
   constructor(props) {
     super(props);

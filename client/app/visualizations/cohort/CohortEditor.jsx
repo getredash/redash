@@ -1,11 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { QueryData } from '@/components/proptypes';
+import CohortRenderer from './CohortRenderer';
+
 export default class CohortEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: CohortRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
   constructor(props) {
     super(props);
@@ -18,17 +21,13 @@ export default class CohortEditor extends React.Component {
     this.setState({ currentTab: event.target.dataset.tabname });
   }
 
-  updateOptions = changes => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: { ...this.props.visualization.options, ...changes },
-  })
 
-  updateDateColumn = e => this.updateOptions({ dateColumn: e.target.value });
-  updateStageColumn = e => this.updateOptions({ stageColumn: e.target.value });
-  updateTotalColumn = e => this.updateOptions({ totalColumn: e.target.value });
-  updateValueColumn = e => this.updateOptions({ valueColumn: e.target.value });
-  updateTimeInterval = e => this.updateOptions({ timeInterval: e.target.value });
-  updateMode = e => this.updateOptions({ mode: e.target.value });
+  updateDateColumn = e => this.props.updateOptions({ dateColumn: e.target.value });
+  updateStageColumn = e => this.props.updateOptions({ stageColumn: e.target.value });
+  updateTotalColumn = e => this.props.updateOptions({ totalColumn: e.target.value });
+  updateValueColumn = e => this.props.updateOptions({ valueColumn: e.target.value });
+  updateTimeInterval = e => this.props.updateOptions({ timeInterval: e.target.value });
+  updateMode = e => this.props.updateOptions({ mode: e.target.value });
 
   render() {
     const columnNames = this.props.data.columns.map(c => c.name);
@@ -40,7 +39,7 @@ export default class CohortEditor extends React.Component {
             <label className="control-label">Date (Bucket)</label>
             <select
               className="form-control"
-              value={this.props.visualization.options.dateColumn}
+              value={this.props.options.dateColumn}
               onChange={this.updateDateColumn}
             >
               {columnNames.map(c => <option key={c} value={c}>{c}</option>)}
@@ -51,7 +50,7 @@ export default class CohortEditor extends React.Component {
             <label className="control-label">Stage</label>
             <select
               className="form-control"
-              value={this.props.visualization.options.stageColumn}
+              value={this.props.options.stageColumn}
               onChange={this.updateStageColumn}
             >
               {columnNames.map(c => <option key={c} value={c}>{c}</option>)}
@@ -62,7 +61,7 @@ export default class CohortEditor extends React.Component {
             <label className="control-label">Bucket Population Size</label>
             <select
               className="form-control"
-              value={this.props.visualization.options.totalColumn}
+              value={this.props.options.totalColumn}
               onChange={this.updateTotalColumn}
             >
               {columnNames.map(c => <option key={c} value={c}>{c}</option>)}
@@ -73,7 +72,7 @@ export default class CohortEditor extends React.Component {
             <label className="control-label">Stage Value</label>
             <select
               className="form-control"
-              value={this.props.visualization.options.valueColumn}
+              value={this.props.options.valueColumn}
               onChange={this.updateValueColumn}
             >
               {columnNames.map(c => <option key={c} value={c}>{c}</option>)}
@@ -87,7 +86,7 @@ export default class CohortEditor extends React.Component {
             <label className="control-label">Time Interval</label>
             <select
               className="form-control"
-              value={this.props.visualization.options.timeInterval}
+              value={this.props.options.timeInterval}
               onChange={this.updateTimeInterval}
             >
               <option value="daily">Daily</option>
@@ -100,7 +99,7 @@ export default class CohortEditor extends React.Component {
             <label className="control-label">Mode</label>
             <select
               className="form-control"
-              value={this.props.visualization.options.mode}
+              value={this.props.options.mode}
               onChange={this.updateMode}
             >
               <option value="diagonal">Fill gaps with zeros</option>

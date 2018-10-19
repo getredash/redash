@@ -359,7 +359,15 @@ function QueryViewCtrl(
   const visualizationUpdaters = [];
   $scope.visualizationUpdater = (i) => {
     if (!visualizationUpdaters[i]) {
-      visualizationUpdaters[i] = (v) => { $scope.query.visualizations[i] = v; };
+      visualizationUpdaters[i] = (o) => {
+        $scope.query.visualizations[i] = {
+          ...$scope.query.visualizations[i],
+          options: {
+            ...$scope.query.visualizations[i].options,
+            ...o,
+          },
+        };
+      };
     }
     return visualizationUpdaters[i];
   };

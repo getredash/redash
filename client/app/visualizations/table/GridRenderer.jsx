@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { extend, filter, fromPairs, includes, map, omit, sortBy } from 'lodash';
+
+import { ColumnDetail, QueryData } from '@/components/proptypes';
 import { createFormatter } from '@/lib/value-format';
 import { getColumnCleanName } from '@/services/query-result';
-
 import DynamicTable from './DynamicTable';
 
 function getColumnContentAlignment(type) {
@@ -114,7 +115,14 @@ function getColumnsToDisplay(columns, options, clientConfig) {
   return sortBy(filter(result, 'visible'), 'order');
 }
 
+const GridOptions = PropTypes.exact({
+  columns: PropTypes.arrayOf(ColumnDetail),
+  itemsPerPage: PropTypes.number,
+});
+
 export default class GridRenderer extends React.Component {
+  static Options = GridOptions
+
   static DEFAULT_OPTIONS = {
     itemsPerPage: 15,
     autoHeight: true,
@@ -125,8 +133,8 @@ export default class GridRenderer extends React.Component {
 
   static propTypes = {
     itemsPerPage: PropTypes.number,
-    options: PropTypes.object,
-    data: PropTypes.object.isRequired,
+    options: GridOptions,
+    data: QueryData.isRequired,
   }
 
   static defaultProps = {

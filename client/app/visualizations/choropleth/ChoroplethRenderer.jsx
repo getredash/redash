@@ -1,16 +1,17 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { each, extend, filter, first, isNumber, isObject, isString, map, uniq, values } from 'lodash';
 import 'leaflet/dist/leaflet.css';
+// eslint-disable-next-line no-unused-vars
 import L from 'leaflet';
 import 'leaflet-fullscreen';
 import 'leaflet-fullscreen/dist/leaflet.fullscreen.css';
 import { Map, GeoJSON } from 'react-leaflet';
 import chroma from 'chroma-js';
-
 import { connect, PromiseState } from 'react-refetch';
-import { ColorPalette } from '@/visualizations/chart/plotly/utils';
 
-import { each, extend, filter, first, isNumber, isObject, isString, map, uniq } from 'lodash';
+import { QueryData } from '@/components/proptypes';
+import { ColorPalette } from '@/visualizations/chart/plotly/utils';
 import { createFormatter, formatSimpleTemplate } from '@/lib/value-format';
 import countriesDataUrl from './countries.geo.json';
 
@@ -88,29 +89,29 @@ function getColorByValue(value, limits, colors, defaultColor) {
 
 function createScale(features, data, options) {
   // Calculate limits
-  const values = uniq(filter(
+  const scaleValues = uniq(filter(
     map(features, feature => getValueForFeature(feature, data, options.countryCodeType)),
     isNumber,
   ));
-  if (values.length === 0) {
+  if (scaleValues.length === 0) {
     return {
       limits: [],
       colors: [],
       legend: [],
     };
   }
-  const steps = Math.min(values.length, options.steps);
+  const steps = Math.min(scaleValues.length, options.steps);
   if (steps === 1) {
     return {
-      limits: values,
+      limits: scaleValues,
       colors: [options.colors.max],
       legend: [{
         color: options.colors.max,
-        limit: first(values),
+        limit: first(scaleValues),
       }],
     };
   }
-  const limits = chroma.limits(values, options.clusteringMode, steps - 1);
+  const limits = chroma.limits(scaleValues, options.clusteringMode, steps - 1);
 
   // Create color buckets
   const colors = chroma.scale([options.colors.min, options.colors.max])
@@ -125,9 +126,45 @@ function createScale(features, data, options) {
   return { limits, colors, legend };
 }
 
+const Color = PropTypes.oneOf(values(ChoroplethPalette));
+const ChoroplethOptions = PropTypes.exact({
+  bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+  viewport: PropTypes.exact({
+    center: PropTypes.arrayOf(PropTypes.number).isRequired,
+    zoom: PropTypes.number.isRequired,
+  }),
+  countryCodeColumn: PropTypes.string.isRequired,
+  countryCodeType: PropTypes.oneOf(['name', 'name_long', 'abbrev', 'iso_a2', 'iso_a3', 'iso_n3']).isRequired,
+  valueColumn: PropTypes.string.isRequired,
+  clusteringMode: PropTypes.oneOf(['q', 'e', 'k']).isRequired,
+  steps: PropTypes.number.isRequired,
+  valueFormat: PropTypes.string.isRequired,
+  noValuePlaceholder: PropTypes.string.isRequired,
+  colors: PropTypes.exact({
+    min: Color.isRequired,
+    max: Color.isRequired,
+    background: Color.isRequired,
+    borders: Color.isRequired,
+    noValue: Color.isRequired,
+  }).isRequired,
+  legend: PropTypes.exact({
+    visible: PropTypes.bool.isRequired,
+    position: PropTypes.oneOf(['top-left', 'top-right', 'bottom-left', 'bottom-right']).isRequired,
+    alignText: PropTypes.oneOf(['left', 'right', 'center']).isRequired,
+  }).isRequired,
+  tooltip: PropTypes.exact({
+    enabled: PropTypes.bool.isRequired,
+    template: PropTypes.string.isRequired,
+  }),
+  popup: PropTypes.exact({
+    enabled: PropTypes.bool.isRequired,
+    template: PropTypes.string.isRequired,
+  }),
+});
 
 class ChoroplethRenderer extends React.Component {
-  static ChoroplethPalette = ChoroplethPalette;
+  static ChoroplethPalette = ChoroplethPalette
+  static Options = ChoroplethOptions
   static DEFAULT_OPTIONS = Object.freeze({
     viewport: { center: [0, 0], zoom: 1 },
     defaultColumns: 3,
@@ -165,8 +202,8 @@ class ChoroplethRenderer extends React.Component {
 
   static propTypes = {
     countriesData: PropTypes.instanceOf(PromiseState).isRequired,
-    data: PropTypes.object.isRequired,
-    options: PropTypes.object.isRequired,
+    data: QueryData.isRequired,
+    options: ChoroplethOptions.isRequired,
     updateOptions: PropTypes.func.isRequired,
   }
 
@@ -250,7 +287,7 @@ class ChoroplethRenderer extends React.Component {
           />
         </Map>
         {opts.legend.visible && (legend.length > 0) ?
-          <div className="leaflet-bar map-custom-control" ng-className="opts.legend.position">
+          <div className={`leaflet-bar map-custom-control ${opts.legend.position}`}>
             {legend.map(item => (
               <div className="d-flex align-items-center">
                 <span

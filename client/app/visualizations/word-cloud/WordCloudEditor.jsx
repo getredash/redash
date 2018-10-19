@@ -2,20 +2,17 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { map } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
+import WordCloudRenderer from './WordCloudRenderer';
+
 export default class WordCloudEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: WordCloudRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
 
-  updateColumn = e => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: {
-      ...this.props.visualization.options,
-      column: e.target.value,
-    },
-  })
+  updateColumn = e => this.props.updateOptions({ column: e.target.value })
 
   render() {
     return (
@@ -23,7 +20,7 @@ export default class WordCloudEditor extends React.Component {
         <div className="form-group">
           <label className="col-lg-6">Word Cloud Column Name</label>
           <div className="col-lg-6">
-            <select value={this.props.visualization.options.column} className="form-control" onChange={this.updateColumn}>
+            <select value={this.props.options.column} className="form-control" onChange={this.updateColumn}>
               <option value="" />
               {map(this.props.data.columns, c => <option key={c.name} value={c.name}>{c.name}</option>)}
             </select>

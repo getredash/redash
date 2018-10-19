@@ -2,6 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { isNumber } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
+import CounterRenderer from './CounterRenderer';
+
 function getRowNumber(index, size) {
   if (index >= 0) {
     return index - 1;
@@ -15,9 +18,9 @@ function getRowNumber(index, size) {
 }
 export default class CounterEditor extends React.Component {
   static propTypes = {
-    data: PropTypes.object.isRequired,
-    visualization: PropTypes.object.isRequired,
-    updateVisualization: PropTypes.func.isRequired,
+    data: QueryData.isRequired,
+    options: CounterRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
   constructor(props) {
     super(props);
@@ -30,30 +33,25 @@ export default class CounterEditor extends React.Component {
     this.setState({ currentTab: event.target.dataset.tabname });
   }
 
-  updateOptions = changes => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: { ...this.props.visualization.options, ...changes },
-  })
-
-  updateCounterColName = e => this.updateOptions({ counterColName: e.target.value })
-  updateRowNumber = e => this.updateOptions({ rowNumber: e.target.value })
-  updateTargetColName = e => this.updateOptions({ targetColName: e.target.value })
-  updateTargetRowNumber = e => this.updateOptions({ targetRowNumber: e.target.value })
-  updateCountRow = e => this.updateOptions({ countRow: e.target.checked })
-  updateStringDecimal = e => this.updateOptions({ stringDecimal: e.target.value })
-  updateStringDecChar = e => this.updateOptions({ stringDecChar: e.target.value })
-  updateStringThouSep = e => this.updateOptions({ stringThouSep: e.target.value })
-  updateStringPrefix = e => this.updateOptions({ stringPrefix: e.target.value })
-  updateStringSuffix = e => this.updateOptions({ stringSuffix: e.target.value })
+  updateCounterColName = e => this.props.updateOptions({ counterColName: e.target.value })
+  updateRowNumber = e => this.props.updateOptions({ rowNumber: e.target.value })
+  updateTargetColName = e => this.props.updateOptions({ targetColName: e.target.value })
+  updateTargetRowNumber = e => this.props.updateOptions({ targetRowNumber: e.target.value })
+  updateCountRow = e => this.props.updateOptions({ countRow: e.target.checked })
+  updateStringDecimal = e => this.props.updateOptions({ stringDecimal: e.target.value })
+  updateStringDecChar = e => this.props.updateOptions({ stringDecChar: e.target.value })
+  updateStringThouSep = e => this.props.updateOptions({ stringThouSep: e.target.value })
+  updateStringPrefix = e => this.props.updateOptions({ stringPrefix: e.target.value })
+  updateStringSuffix = e => this.props.updateOptions({ stringSuffix: e.target.value })
 
   isValueNumber = () => {
     const queryData = this.props.data.rows;
     let counterValue;
     if (queryData) {
-      const rowNumber = getRowNumber(this.props.visualization.options.rowNumber, queryData.length);
-      const counterColName = this.props.visualization.options.counterColName;
+      const rowNumber = getRowNumber(this.props.options.rowNumber, queryData.length);
+      const counterColName = this.props.options.counterColName;
 
-      if (this.props.visualization.options.countRow) {
+      if (this.props.options.countRow) {
         counterValue = queryData.length;
       } else if (counterColName) {
         counterValue = queryData[rowNumber][counterColName];
@@ -63,7 +61,7 @@ export default class CounterEditor extends React.Component {
   }
 
   render() {
-    const opts = this.props.visualization.options;
+    const opts = this.props.options;
     const tabs = {
       general: (
         <div>

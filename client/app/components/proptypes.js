@@ -14,3 +14,53 @@ export const Table = PropTypes.shape({
 });
 
 export const Schema = PropTypes.arrayOf(Table);
+
+export const QueryData = PropTypes.exact({
+  rows: PropTypes.arrayOf(PropTypes.object).isRequired,
+  columns: PropTypes.arrayOf(PropTypes.shape({
+    friendly_name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+  })),
+});
+
+export const SeriesOptions = PropTypes.objectOf(PropTypes.exact({
+  yAxis: PropTypes.number.isRequired,
+  zIndex: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
+  type: PropTypes.string.isRequired,
+  name: PropTypes.string,
+  color: PropTypes.string,
+}));
+
+export const ValuesOptions = PropTypes.objectOf(PropTypes.exact({ color: PropTypes.string.isRequired }));
+
+export const Visualization = PropTypes.shape({
+  name: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  options: PropTypes.object.isRequired,
+});
+
+export const ColumnDetail = PropTypes.exact({
+  alignContent: PropTypes.string.isRequired,
+  allowHTML: PropTypes.bool.isRequired,
+  allowSearch: PropTypes.bool.isRequired,
+  booleanValues: PropTypes.arrayOf(PropTypes.string).isRequired,
+  dateTimeFormat: PropTypes.string,
+  displayAs: PropTypes.string.isRequired,
+  highlightLinks: PropTypes.bool.isRequired,
+  imageHeight: PropTypes.string.isRequired,
+  imageTitleTemplate: PropTypes.string.isRequired,
+  imageUrlTemplate: PropTypes.string.isRequired,
+  imageWidth: PropTypes.string.isRequired,
+  linkOpenInNewTab: PropTypes.bool.isRequired,
+  linkTextTemplate: PropTypes.string.isRequired,
+  linkTitleTemplate: PropTypes.string.isRequired,
+  linkUrlTemplate: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  numberFormat: PropTypes.string,
+  order: PropTypes.number.isRequired,
+  title: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired,
+  visible: PropTypes.bool.isRequired,
+});

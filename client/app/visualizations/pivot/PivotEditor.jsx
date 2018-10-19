@@ -1,17 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import PivotRenderer from './PivotRenderer';
+
 export default class PivotEditor extends React.Component {
   static propTypes = {
-    visualization: PropTypes.object.isRequired,
+    options: PivotRenderer.Options.isRequired,
+    updateOptions: PropTypes.func.isRequired,
   }
 
-  updateOptions = changes => this.props.updateVisualization({
-    ...this.props.visualization,
-    options: { ...this.props.visualization.options, ...changes },
-  })
-
-  updateEnabled = e => this.updateOptions({ controls: { enabled: e.target.checked } })
+  updateEnabled = e => this.props.updateOptions({ controls: { enabled: e.target.checked } })
 
   render() {
     return (
@@ -21,7 +19,7 @@ export default class PivotEditor extends React.Component {
             <label>
               <input
                 type="checkbox"
-                checked={this.props.visualization.options.controls.enabled}
+                checked={this.props.options.controls.enabled}
                 onChange={this.updateEnabled}
               />
               Hide Pivot Controls

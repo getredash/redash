@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import { SortableContainer, SortableElement, SortableHandle, arrayMove } from 'react-sortable-hoc';
 
-import { ColorPalette } from '@/visualizations/chart/plotly/utils';
+import { SeriesOptions } from '@/components/proptypes';
 import ChartTypePicker from './ChartTypePicker';
 
 export default class ChartSeriesEditor extends React.Component {
   static propTypes = {
-    seriesList: PropTypes.array.isRequired,
-    seriesOptions: PropTypes.object.isRequired,
+    seriesList: PropTypes.arrayOf(PropTypes.string).isRequired,
+    seriesOptions: SeriesOptions.isRequired,
     type: PropTypes.string.isRequired,
     updateSeriesList: PropTypes.func.isRequired,
     updateSeriesOptions: PropTypes.func.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
     clientConfig: PropTypes.object.isRequired,
   }
 
@@ -21,13 +21,10 @@ export default class ChartSeriesEditor extends React.Component {
     this.props.updateSeriesList(arrayMove(this.props.seriesList, oldIndex, newIndex));
   };
 
-  updateSeriesOptions = (k, v) => {
-    const seriesOptions = Object.assign(
-      {}, this.props.seriesOptions,
-      { [k]: Object.assign({}, this.props.seriesOptions[k], v) },
-    );
-    this.props.updateSeriesOptions(seriesOptions);
-  }
+  updateSeriesOptions = (k, v) => this.props.updateSeriesOptions({
+    ...this.props.seriesOptions,
+    [k]: Object.assign({}, this.props.seriesOptions[k], v),
+  })
 
   changeYAxis = (e, target, yAxis) => {
     if (e.target.checked) {
@@ -37,16 +34,9 @@ export default class ChartSeriesEditor extends React.Component {
 
   changeName = (value, name) => this.updateSeriesOptions(value, { name });
   changeType = (value, type) => this.updateSeriesOptions(value, { type });
-  changeColor = (value, color) => this.updateSeriesOptions(value, { color });
 
   render() {
     const pie = this.props.type === 'pie';
-    const colors = Object.assign({ Automatic: null }, this.ColorPalette);
-    const colorSelectItem = opt => (<span style={{
-      width: 12, height: 12, backgroundColor: opt.value, display: 'inline-block', marginRight: 5,
-    }}
-    />);
-    const colorOptionItem = opt => <span style={{ textTransform: 'capitalize' }}>{colorSelectItem(opt)}{opt.label}</span>;
     const DragHandle = SortableHandle(({ value }) => <td style={{ width: '1%', cursor: 'move' }}><i className="fa fa-arrows-v" />{ this.props.seriesOptions[value].zIndex + 1 }</td>);
     const SortableItem = SortableElement(({ value }) => (
       <tr>

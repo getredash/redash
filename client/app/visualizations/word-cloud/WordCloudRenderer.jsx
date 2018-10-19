@@ -4,6 +4,8 @@ import d3 from 'd3';
 import cloud from 'd3-cloud';
 import { each } from 'lodash';
 
+import { QueryData } from '@/components/proptypes';
+
 function findWordFrequencies(data, columnName) {
   const wordsHash = {};
 
@@ -21,12 +23,19 @@ function findWordFrequencies(data, columnName) {
   return wordsHash;
 }
 
+const WordCloudOptions = PropTypes.exact({
+  column: PropTypes.string,
+});
 
 export default class WordCloudRenderer extends React.Component {
+  static Options = WordCloudOptions
+  static DEFAULT_OPTIONS = Object.freeze({
+    defaultRows: 8,
+  })
   static propTypes = {
-    data: PropTypes.object.isRequired,
+    data: QueryData.isRequired,
+    options: WordCloudOptions.isRequired,
   }
-  static DEFAULT_OPTIONS = Object.freeze({});
 
   componentDidMount() {
     this.draw();
