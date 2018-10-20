@@ -4,8 +4,8 @@ import settingsMenu from '@/lib/settings-menu';
 import template from './list.html';
 
 class UsersListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, Policy, User) {
-    super($scope, $location, currentUser);
+  constructor($scope, $location, currentUser, clientConfig, Policy, User) {
+    super($scope, $location, currentUser, clientConfig);
     this.policy = Policy;
     this.enableUser = user => User.enableUser(user).then(this.update);
     this.disableUser = user => User.disableUser(user).then(this.update);
