@@ -2,12 +2,12 @@ import { bind } from 'lodash';
 import { LivePaginator } from '@/lib/pagination';
 
 export default class ListCtrl {
-  constructor($scope, $location, currentUser, defaultOrder = '-created_at') {
+  constructor($scope, $location, currentUser, clientConfig, defaultOrder = '-created_at') {
     this.searchTerm = $location.search().q || '';
 
     this.page = parseInt($location.search().page || 1, 10);
     this.pageSize = parseInt($location.search().page_size || 20, 10);
-    this.pageSizeOptions = [5, 10, 20, 50, 100];
+    this.pageSizeOptions = clientConfig.pageSizeOptions;
     this.pageSizeLabel = value => `${value} results`;
 
     this.orderSeparator = '-';
