@@ -7,8 +7,8 @@ import './queries-list.css';
 
 
 class QueriesListCtrl extends ListCtrl {
-  constructor($scope, $location, currentUser, Query) {
-    super($scope, $location, currentUser);
+  constructor($scope, $location, currentUser, clientConfig, Query) {
+    super($scope, $location, currentUser, clientConfig);
     this.Type = Query;
     this.showMyQueries = currentUser.hasPermission('create_query');
   }
