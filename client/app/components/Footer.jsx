@@ -18,12 +18,12 @@ export function Footer({ clientConfig, currentUser }) {
 
   return (
     <div id="footer">
-      <a href="http://redash.io">Redash</a> {version}
+      <a href="https://redash.io">Redash</a> {version}
       {newVersionString}
       &#8226;
       <a href="https://redash.io/help/">Documentation</a>
       &#8226;
-      <a href="http://github.com/getredash/redash">Contribute</a>
+      <a href="https://github.com/getredash/redash">Contribute</a>
     </div>
   );
 }

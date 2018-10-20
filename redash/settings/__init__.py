@@ -212,7 +212,7 @@ DESTINATIONS = distinct(enabled_destinations + additional_destinations)
 
 EVENT_REPORTING_WEBHOOKS = array_from_string(os.environ.get("REDASH_EVENT_REPORTING_WEBHOOKS", ""))
 
-# Support for Sentry (http://getsentry.com/). Just set your Sentry DSN to enable it:
+# Support for Sentry (https://getsentry.com/). Just set your Sentry DSN to enable it:
 SENTRY_DSN = os.environ.get("REDASH_SENTRY_DSN", "")
 
 # Client side toggles:
