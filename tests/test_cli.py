@@ -222,7 +222,7 @@ class GroupCommandTests(BaseTestCase):
         Name: admin
         Type: builtin
         Organization: default
-        Users:
+        Users: 
         --------------------
         Id: 2
         Name: default
@@ -234,7 +234,7 @@ class GroupCommandTests(BaseTestCase):
         Name: test
         Type: regular
         Organization: default
-        Users:
+        Users: 
         """
         self.assertMultiLineEqual(result.output,
                                   textwrap.dedent(output).lstrip())
