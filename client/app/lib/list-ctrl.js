@@ -6,7 +6,7 @@ export default class ListCtrl {
     this.searchTerm = $location.search().q || '';
 
     this.page = parseInt($location.search().page || 1, 10);
-    this.pageSize = parseInt($location.search().page_size || 20, 10);
+    this.pageSize = parseInt($location.search().page_size || clientConfig.pageSize, 10);
     this.pageSizeOptions = clientConfig.pageSizeOptions;
     this.pageSizeLabel = value => `${value} results`;
 
