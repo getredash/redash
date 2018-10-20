@@ -101,3 +101,4 @@ def list(organization=None):
         members = models.Group.members(group.id)
         user_names = [m.name for m in members]
         print("Users: {}".format(", ".join(user_names)))
+
