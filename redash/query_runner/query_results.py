@@ -183,6 +183,11 @@ class Results(BaseQueryRunner):
             connection.cancel()
             error = "Query cancelled by user."
             json_data = None
+        except Exception as error:
+            connection.cancel()
+            if 'no such column' == re.search('no such column', error.message).group():
+                error = "{} Note: If the column names contain colon, dot, or whitespace, they are converted to underscores".format(error.message)
+                json_data = None
         finally:
             connection.close()
         return json_data, error
