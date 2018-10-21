@@ -97,3 +97,7 @@ def list(organization=None):
 
         print("Id: {}\nName: {}\nType: {}\nOrganization: {}".format(
             group.id, group.name, group.type, group.org.slug))
+
+        members = models.Group.members(group.id)
+        user_names = [m.name for m in members]
+        print("Users: {}".format(", ".join(user_names)))
