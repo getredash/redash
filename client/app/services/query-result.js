@@ -283,6 +283,7 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
         const yValues = {};
         let eValue = null;
         let sizeValue = null;
+        let zValue = null;
 
         forOwn(row, (v, definition) => {
           definition = '' + definition;
@@ -320,6 +321,11 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
             sizeValue = value;
           }
 
+          if (type === 'zVal') {
+            point[type] = value;
+            zValue = value;
+          }
+
           if (type === 'multiFilter' || type === 'multi-filter') {
             seriesName = String(value);
           }
@@ -334,6 +340,10 @@ function QueryResultService($resource, $timeout, $q, QueryResultError) {
 
             if (sizeValue !== null) {
               point.size = sizeValue;
+            }
+
+            if (zValue !== null) {
+              point.zVal = zValue;
             }
             addPointToSeries(point, series, ySeriesName);
           });

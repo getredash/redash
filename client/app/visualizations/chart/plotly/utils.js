@@ -1,6 +1,6 @@
 import {
   isArray, isNumber, isString, isUndefined, includes, min, max, has, find,
-  each, values, sortBy, identity, filter, map, extend, reduce, pick,
+  each, values, sortBy, identity, filter, map, extend, reduce, pick, flatten, uniq,
 } from 'lodash';
 import moment from 'moment';
 import d3 from 'd3';
@@ -111,6 +111,15 @@ export function normalizeValue(value, dateTimeFormat = 'YYYY-MM-DD HH:mm:ss') {
     return value.format(dateTimeFormat);
   }
   return value;
+}
+
+function naturalSort($a, $b) {
+  if ($a === $b) {
+    return 0;
+  } else if ($a < $b) {
+    return -1;
+  }
+  return 1;
 }
 
 function calculateAxisRange(seriesList, minValue, maxValue) {
@@ -291,6 +300,109 @@ function preparePieData(seriesList, options) {
   });
 }
 
+function prepareHeatmapData(seriesList, options) {
+  const defaultColorScheme = [
+    [0, '#356aff'],
+    [0.14, '#4a7aff'],
+    [0.28, '#5d87ff'],
+    [0.42, '#7398ff'],
+    [0.56, '#fb8c8c'],
+    [0.71, '#ec6463'],
+    [0.86, '#ec4949'],
+    [1, '#e92827'],
+  ];
+
+  const formatNumber = createFormatter({
+    displayAs: 'number',
+    numberFormat: options.numberFormat,
+  });
+
+  let colorScheme = [];
+
+  if (!options.colorScheme) {
+    colorScheme = defaultColorScheme;
+  } else if (options.colorScheme === 'Custom...') {
+    colorScheme = [[0, options.heatMinColor], [1, options.heatMaxColor]];
+  } else {
+    colorScheme = options.colorScheme;
+  }
+
+  return map(seriesList, (series) => {
+    const plotlySeries = {
+      x: [],
+      y: [],
+      z: [],
+      type: 'heatmap',
+      name: '',
+      colorscale: colorScheme,
+    };
+
+    plotlySeries.x = uniq(map(series.data, 'x'));
+    plotlySeries.y = uniq(map(series.data, 'y'));
+
+    if (options.sortX) {
+      plotlySeries.x.sort(naturalSort);
+    }
+
+    if (options.sortY) {
+      plotlySeries.y.sort(naturalSort);
+    }
+
+    if (options.reverseX) {
+      plotlySeries.x.reverse();
+    }
+
+    if (options.reverseY) {
+      plotlySeries.y.reverse();
+    }
+
+    const zMax = max(map(series.data, 'zVal'));
+
+    // Use text trace instead of default annotation for better performance
+    const dataLabels = {
+      x: [],
+      y: [],
+      mode: 'text',
+      hoverinfo: 'skip',
+      showlegend: false,
+      text: [],
+      textfont: {
+        color: [],
+      },
+    };
+
+    for (let i = 0; i < plotlySeries.y.length; i += 1) {
+      const item = [];
+      for (let j = 0; j < plotlySeries.x.length; j += 1) {
+        const datum = find(
+          series.data,
+          { x: plotlySeries.x[j], y: plotlySeries.y[i] },
+        );
+
+        const zValue = datum ? datum.zVal : 0;
+        item.push(zValue);
+
+        if (isFinite(zMax) && options.showDataLabels) {
+          dataLabels.x.push(plotlySeries.x[j]);
+          dataLabels.y.push(plotlySeries.y[i]);
+          dataLabels.text.push(formatNumber(zValue));
+          if (options.colorScheme && options.colorScheme === 'Custom...') {
+            dataLabels.textfont.color.push('white');
+          } else {
+            dataLabels.textfont.color.push((zValue / zMax) < 0.25 ? 'white' : 'black');
+          }
+        }
+      }
+      plotlySeries.z.push(item);
+    }
+
+    if (isFinite(zMax) && options.showDataLabels) {
+      return [plotlySeries, dataLabels];
+    }
+    return [plotlySeries];
+  });
+}
+
 function prepareChartData(seriesList, options) {
   const sortX = (options.sortX === true) || (options.sortX === undefined);
 
@@ -401,6 +513,9 @@ export function prepareData(seriesList, options) {
   if (options.globalSeriesType === 'pie') {
     return preparePieData(seriesList, options);
   }
+  if (options.globalSeriesType === 'heatmap') {
+    return flatten(prepareHeatmapData(seriesList, options));
+  }
   return prepareChartData(seriesList, options);
 }
 
@@ -455,7 +570,11 @@ export function prepareLayout(element, seriesList, options, data) {
     };
 
     if (options.sortX && result.xaxis.type === 'category') {
-      result.xaxis.categoryorder = 'category ascending';
+      if (options.reverseX) {
+        result.xaxis.categoryorder = 'category descending';
+      } else {
+        result.xaxis.categoryorder = 'category ascending';
+      }
     }
 
     if (!isUndefined(options.xAxis.labels)) {
@@ -595,6 +714,9 @@ export function updateData(seriesList, options) {
   }
   if (options.globalSeriesType === 'pie') {
     updateSeriesText(seriesList, options);
+    return seriesList;
+  }
+  if (options.globalSeriesType === 'heatmap') {
     return seriesList;
   }
 
