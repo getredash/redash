@@ -100,13 +100,13 @@
                   <span class="label label-default-unpublished" ng-if="query.is_draft">Unpublished</span> <tags-control item="query"></tags-control>
                 </span>
               </td>
-              <td class="p-r-0">
+              <td class="p-r-0 text-nowrap">
                 <img ng-src="{{query.user.profile_image_url}}" class="profile__image_thumb" title="Created by {{query.user.name}}" />
               </td>
-              <td>{{query.created_at | dateTime}}</td>
-              <td>{{query.runtime | durationHumanize}}</td>
-              <td>{{query.retrieved_at | dateTime}}</td>
-              <td>{{query.schedule | scheduleHumanize}}</td>
+              <td class="text-nowrap">{{query.created_at | dateTime}}</td>
+              <td class="text-nowrap">{{query.runtime | durationHumanize}}</td>
+              <td class="text-nowrap">{{query.retrieved_at | dateTime}}</td>
+              <td class="text-nowrap">{{query.schedule | scheduleHumanize}}</td>
             </tr>
           </tbody>
         </table>
