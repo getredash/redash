@@ -97,6 +97,7 @@ function ChartEditor(ColorPalette, clientConfig) {
         pie: { name: 'Pie', icon: 'pie-chart' },
         scatter: { name: 'Scatter', icon: 'circle-o' },
         bubble: { name: 'Bubble', icon: 'circle-o' },
+        heatmap: { name: 'Heatmap', icon: 'th' },
         box: { name: 'Box', icon: 'square-o' },
       };
 
@@ -121,7 +122,12 @@ function ChartEditor(ColorPalette, clientConfig) {
         scope.$applyAsync();
       };
 
+      scope.colorScheme = ['Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric',
+        'Greens', 'Greys', 'Hot', 'Jet', 'Picnic', 'Portland',
+        'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd', 'Custom...'];
+
       scope.showSizeColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'bubble');
+      scope.showZColumnPicker = () => some(scope.options.seriesOptions, options => options.type === 'heatmap');
 
       if (scope.options.customCode === undefined) {
         scope.options.customCode = `// Available variables are x, ys, element, and Plotly
@@ -268,6 +274,14 @@ function ChartEditor(ColorPalette, clientConfig) {
         }
       });
 
+      scope.$watch('form.zValColumn', (value, old) => {
+        if (old !== undefined) {
+          unsetColumn(old);
+        }
+        if (value !== undefined) {
+          setColumnRole('zVal', value);
+        }
+      });
 
       scope.$watch('form.groupby', (value, old) => {
         if (old !== undefined) {
@@ -297,6 +311,8 @@ function ChartEditor(ColorPalette, clientConfig) {
             scope.form.errorColumn = key;
           } else if (value === 'size') {
             scope.form.sizeColumn = key;
+          } else if (value === 'zVal') {
+            scope.form.zValColumn = key;
           }
         });
       }
