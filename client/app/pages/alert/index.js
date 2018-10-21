@@ -51,7 +51,7 @@ function AlertCtrl($routeParams, $location, $sce, toastr, currentUser, Query, Ev
       this.queries = results.results;
       this.queries.forEach((q) => {
         if (q.is_draft === true) {
-          q.name += ' (Unpublished)';
+          q.name += ' <span class="label label-default">(Unpublished)</span>';
         }
       });
     });
