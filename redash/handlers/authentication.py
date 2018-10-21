@@ -167,7 +167,7 @@ def date_format_config():
 def client_config():
     if not current_user.is_api_user() and current_user.is_authenticated:
         client_config = {
-            'newVersionAvailable': get_latest_version(),
+            'newVersionAvailable': bool(get_latest_version()),
             'version': __version__
         }
     else:
