@@ -186,7 +186,8 @@ class Results(BaseQueryRunner):
         except Exception as error:
             connection.cancel()
             if 'no such column' == re.search('no such column', error.message).group():
-                error = "{} Note: If the column names contain colon, dot, or whitespace, they are converted to underscores".format(error.message)
+                error = "{} Note: If the column names contain colon, dot, or whitespace, \
+                                     they are converted to underscore".format(error.message)
                 json_data = None
         finally:
             connection.close()
