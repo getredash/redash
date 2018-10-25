@@ -1,11 +1,13 @@
 import tempfile
 import os
+import urlparse
 
 from flask import request, send_file
 from redash import models
 from redash.permissions import require_access, view_only, require_permission
 from redash.serializers import serialize_dashboard
 from redash.handlers.base import BaseResource, get_object_or_404
+from redash import settings
 
 class DashboardPdfDownload(BaseResource):
     def get(self, dashboard_slug=None):
@@ -15,6 +17,7 @@ class DashboardPdfDownload(BaseResource):
             'action': 'download_pdf',
             'object_type': 'dashboard',
         })
+        snap_url = urlparse.urlparse(settings.SNAP_URL)
         print("Download static response for dashboard: " + dashboard_slug)
         dashboard = get_object_or_404(models.Dashboard.get_by_id_and_org, dashboard_slug, self.current_org)
 
