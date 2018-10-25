@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isNumber, map, sum } from 'lodash';
+import { isNumber } from 'lodash';
 import numberFormat from 'underscore.string/numberFormat';
 
 import { QueryData } from '@/components/proptypes';
@@ -53,48 +53,29 @@ export default class CounterRenderer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      height: 0,
-      rulerHeight: 0,
+      scale: null,
     };
   }
 
   componentDidMount() {
-    // Haven't found a better way to do this yet.
-    // eslint-disable-next-line react/no-did-mount-set-state
-    this.setState({ rulerHeight: this.calculateHeight(), height: this.rootRef.current.offsetHeight });
+    if (this.state.scale === null) this.rescale();
   }
 
   componentDidUpdate() {
-    const height = this.rootRef.current.offsetHeight;
-    const rulerHeight = this.calculateHeight();
-    if (height !== this.state.height || rulerHeight !== this.state.rulerHeight) {
-      // this is OK since it converges.
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ height, rulerHeight });
-    }
+    if (this.state.scale === null) this.rescale();
   }
 
-  calculateHeight() {
-    // XXX this grows without limit
-    const rulers = [this.counterRef.current, this.nameRef.current];
-    if (this.targetRef.current) {
-      rulers.push(this.targetRef.current);
-    }
-    return sum(map(rulers, 'offsetHeight'));
+  rescale() {
+    this.setState({
+      scale: Math.floor(Math.min(
+        this.rootRef.current.offsetHeight / this.containerRef.current.offsetHeight,
+        this.rootRef.current.offsetWidth / this.containerRef.current.offsetWidth,
+      ) * 100) / 100,
+    });
   }
 
   rootRef = React.createRef()
-  counterRef = React.createRef()
-  targetRef = React.createRef()
-  nameRef = React.createRef()
-
-  computeFontSize = () => {
-    if (!this.state.rulerHeight) return '1em';
-    const fontSize = parseInt(window.getComputedStyle(this.rootRef.current).fontSize.match(/(\d+)px/)[1], 10);
-    const height = this.rootRef.current.offsetHeight;
-    const rulerHeight = this.calculateHeight();
-    return Math.floor(height / rulerHeight * fontSize);
-  }
+  containerRef = React.createRef()
 
   render() {
     if (!this.props.data) return null;
@@ -125,23 +106,31 @@ export default class CounterRenderer extends React.Component {
       );
       counter = `${opts.stringPrefix || ''}${counterFormatted}${opts.stringSuffix || ''}`;
     }
-
+    const scale = this.state.scale || 1;
     return (
+
       <div className="counter-renderer">
-        <div className={`counter ${trend}`} ref={this.rootRef} style={{ fontSize: this.computeFontSize() }}>
-          <div className="value">
-            <span className="ruler" ref={this.counterRef} title={counter}>
+        <div className={`counter ${trend}`} ref={this.rootRef}>
+          <div
+            ref={this.containerRef}
+            style={{
+              '-o-transform': `scale(${scale})`,
+              '-ms-transform': `scale(${scale})`,
+              '-moz-transform': `scale(${scale})`,
+              '-webkit-transform': `scale(${scale})`,
+              transform: `scale(${scale})`,
+            }}
+          >
+            <div className="value">
               {counter}
-            </span>
-          </div>
-          {targetValueStr ?
-            <div className="counter-target" title={targetValueStr}>
-              <span className="ruler" ref={this.targetRef}>{targetValueStr}</span>
-            </div> : null }
-          <div className="counter-name">
-            <span className="ruler" ref={this.nameRef} title={this.props.name}>
+            </div>
+            {targetValueStr ?
+              <div className="counter-target" title={targetValueStr}>
+                {targetValueStr}
+              </div> : null }
+            <div className="counter-name">
               {this.props.name}
-            </span>
+            </div>
           </div>
         </div>
       </div>);
