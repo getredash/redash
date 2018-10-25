@@ -2,10 +2,13 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 import Popover from 'antd/lib/popover';
 import 'antd/lib/popover/style';
+import Tabs from 'antd/lib/tabs';
+import 'antd/lib/tabs/style';
+
 import { capitalize, compact, each, filter, findKey, fromPairs, has, includes, invert, keys, map, some, sortBy, toPairs } from 'lodash';
 
 import { QueryData } from '@/components/proptypes';
@@ -58,9 +61,6 @@ export default class ChartEditor extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      currentTab: 'general',
-    };
 
     function axisOptions(getColumnsState) {
       return () => (
@@ -69,7 +69,10 @@ export default class ChartEditor extends React.Component {
             props.data.columns,
             c => !includes(map(filter(getColumnsState(), cc => cc !== null), 'value'), c.name),
           ),
-          c => ({ value: c.name, label: <span>{c.name} <small className="text-muted">{c.type}</small></span> }),
+          c => (
+            <Select.Option key={c.name}>
+              <span>{c.name} <small className="text-muted">{c.type}</small></span>
+            </Select.Option>),
         ));
     }
     const yAxisColumns = () => this.props.options.yAxisColumns || [];
@@ -96,8 +99,8 @@ export default class ChartEditor extends React.Component {
       e => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], title: { text: e.target.value } }] }),
     ];
     this.updateYAxisScale = [
-      type => this.updateOptions({ yAxis: [{ ...yAxes[0], type: type.value }, yAxes[1]] }),
-      type => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], type: type.value }] }),
+      type => this.updateOptions({ yAxis: [{ ...yAxes[0], type }, yAxes[1]] }),
+      type => this.updateOptions({ yAxis: [yAxes[0], { ...yAxes[1], type }] }),
     ];
     this.updateYAxisRangeMin = [
       e => this.updateOptions({ yAxis: [{ ...yAxes[0], rangeMin: e.target.value }, yAxes[1]] }),
@@ -115,7 +118,6 @@ export default class ChartEditor extends React.Component {
   getSizeColumn = () => findKey(this.props.options.columnMapping, c => c === 'size')
   getGroupby = () => findKey(this.props.options.columnMapping, c => c === 'groupby')
 
-  // XXX See also GridEditor.updateOptions
   updateOptions = (newOptions) => {
     const opts = this.props.options;
     // Cope here with column mapping changes - need to recompute seriesOptions/valuesOptions
@@ -143,16 +145,12 @@ export default class ChartEditor extends React.Component {
     },
   })
 
-  changeTab = (event) => {
-    this.setState({ currentTab: event.target.dataset.tabname });
-  }
-
   chartTypeChanged = (selected) => {
     const sOpts = this.props.options.seriesOptions;
     this.updateOptions({
-      globalSeriesType: selected.value,
+      globalSeriesType: selected,
       showDataLabels: this.props.options.globalSeriesType === 'pie',
-      seriesOptions: each({ ...sOpts }, (o) => { o.type = selected.value; }),
+      seriesOptions: each({ ...sOpts }, (o) => { o.type = selected; }),
     });
   }
 
@@ -188,16 +186,16 @@ export default class ChartEditor extends React.Component {
   })
 
   updateXAxisLabelLength = xAxisLabelLength => this.updateOptions({ xAxisLabelLength })
-  updateXAxis = ({ value: x }) => this.updateColumn({ x })
+  updateXAxis = x => this.updateColumn({ x })
   updateYAxis = (ys) => {
     const newColMap = { ...this.props.options.columnMapping };
-    each(ys, ({ value: col }) => { newColMap[col] = 'y'; });
+    each(ys, (col) => { newColMap[col] = 'y'; });
     this.updateOptions({ columnMapping: newColMap });
   }
-  updateGroupby = ({ value: groupby }) => this.updateColumn({ groupby })
-  updateSizeColumn = ({ value: size }) => this.updateColumn({ size })
-  updateErrorColumn = ({ value: yError }) => this.updateColumn({ yError })
-  updateStacking = ({ value: stacking }) => this.updateOptions({
+  updateGroupby = groupby => this.updateColumn({ groupby })
+  updateSizeColumn = size => this.updateColumn({ size })
+  updateErrorColumn = yError => this.updateColumn({ yError })
+  updateStacking = stacking => this.updateOptions({
     series: { ...this.props.options.series, stacking },
   })
   updateSeriesList = seriesList => this.updateOptions({ seriesList })
@@ -207,7 +205,7 @@ export default class ChartEditor extends React.Component {
   updateXAxisType = type => this.updateOptions({
     xAxis: {
       ...this.props.options.xAxis,
-      type: type.value,
+      type,
     },
   })
   updateXAxisName = e => this.updateOptions({
@@ -232,17 +230,15 @@ export default class ChartEditor extends React.Component {
           <label className="control-label">Scale</label>
           <Select
             placeholder="Choose Scale..."
-            clearable={false}
-            options={[
-              { label: 'Auto Detect', value: '-' },
-              { label: 'Datetime', value: 'datetime' },
-              { label: 'Linear', value: 'linear' },
-              { label: 'Logarithmic', value: 'logarithmic' },
-              { label: 'Category', value: 'category' },
-            ]}
-            value={yAxis.type}
             onChange={this.updateYAxisScale[i]}
-          />
+            value={yAxis.type}
+          >
+            <Select.Option value="-">Auto Detect</Select.Option>
+            <Select.Option value="datetime">Datetime</Select.Option>
+            <Select.Option value="linear">Linear</Select.Option>
+            <Select.Option value="logarithmic">Logarithmic</Select.Option>
+            <Select.Option value="category">Category</Select.Option>
+          </Select>
         </div>
         <div className="form-group">
           <label className="control-label">Name</label>
@@ -266,310 +262,294 @@ export default class ChartEditor extends React.Component {
                         map(sortBy(toPairs(opts.seriesOptions), '1.zIndex'), 0));
     const valuesList = keys(opts.valuesOptions).sort();
     const pie = opts.globalSeriesType === 'pie';
-    const tabs = {
-      general: (
-        <div className="m-t-10 m-b-10">
-          <div className="form-group">
-            <label className="control-label">Chart Type</label>
-            <ChartTypePicker
-              value={opts.globalSeriesType}
-              onChange={this.chartTypeChanged}
-              clientConfig={this.props.clientConfig}
-            />
-          </div>
-          <div className={'form-group' + (!this.getXAxisColumn() ? ' has-error' : '')}>
-            <label className="control-label">X Column</label>
-            <Select
-              placeholder="Choose column..."
-              clearable={false}
-              value={this.getXAxisColumn()}
-              options={this.xAxisOptions()}
-              onChange={this.updateXAxis}
-            />
-          </div>
-
-          <div className={'form-group' + (this.getYAxisColumns().length > 0 ? '' : ' has-error')}>
-            <label className="control-label">Y Columns</label>
-
-            <Select
-              placeholder="Choose columns..."
-              value={this.getYAxisColumns()}
-              options={this.yAxisOptions()}
-              onChange={this.updateYAxis}
-              multi
-            />
-          </div>
-
-          {opts.globalSeriesType !== 'custom' ?
-            <div className="form-group">
-              <label className="control-label">Group by</label>
-              <Select
-                placeholder="Choose column..."
-                value={this.getGroupby()}
-                options={this.groupbyOptions()}
-                onChange={this.updateGroupby}
-              />
-            </div> : ''}
-
-          {some(opts.seriesOptions, { type: 'bubble' }) ?
-            <div className="form-group">
-              <label className="control-label">Bubble size column</label>
-              <Select
-                placeholder="Choose column..."
-                value={this.getSizeColumn()}
-                options={this.sizeColumnOptions()}
-                onChange={this.updateSizeColumn}
-              />
-            </div> : '' }
-
-          {opts.globalSeriesType !== 'custom' ?
-            <div className="form-group">
-              <label className="control-label">Errors column</label>
-              <Select
-                placeholder="Choose column..."
-                value={this.getErrorColumn()}
-                options={this.xAxisOptions()}
-                onChange={this.updateErrorColumn}
-              />
-            </div> : ''}
-
-          {opts.globalSeriesType === 'custom' ?
-            <div className="checkbox">
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={this.toggleShowLegend}
-                  checked={opts.legend.enabled}
-                />
-                <i className="input-helper" /> Show Legend
-              </label>
-            </div> : ''}
-
-          {opts.globalSeriesType === 'box' ?
-            <div className="checkbox">
-              <label>
-                <input
-                  type="checkbox"
-                  onChange={this.toggleShowPoints}
-                  checked={opts.showpoints}
-                />
-                <i className="input-helper" /> Show All Points
-              </label>
-            </div> : ''}
-
-          {opts.globalSeriesType !== 'custom' ?
-            <div className="form-group">
-              <label className="control-label">Stacking</label>
-              <Select
-                placeholder="Choose stacking..."
-                disabled={!includes(['line', 'area', 'column'], opts.globalSeriesType)}
-                options={[{ value: null, label: 'Disabled' }, { value: 'stack', label: 'Stack' }]}
-                value={opts.series ? opts.series.stacking : null}
-                onChange={this.updateStacking}
-              />
-            </div> : '' }
-
-          {includes(['line', 'area', 'column'], opts.globalSeriesType) ?
-            <div className="checkbox">
-              <label className="control-label">
-                <input
-                  type="checkbox"
-                  onChange={this.togglePercentValues}
-                  checked={opts.series.percentValues || false}
-                />
-                Normalize values to percentage
-              </label>
-            </div> : ''}
-
-          {opts.globalSeriesType === 'custom' ?
-            <React.Fragment>
-              <div className="form-group">
-                <label className="control-label">Custom code</label>
-                <textarea
-                  value={opts.customCode || DEFAULT_CUSTOM_CODE}
-                  onChange={this.updateCustomCode}
-                  className="form-control v-resizable"
-                  rows="10"
-                />
-              </div>
-              <div className="checkbox">
-                <label>
-                  <input
-                    type="checkbox"
-                    onChange={this.toggleConsoleLogs}
-                    checked={opts.enableConsoleLogs || false}
-                  />
-                  <i className="input-helper" /> Show errors in the console
-                </label>
-              </div>
-              <div className="checkbox">
-                <label>
-                  <input
-                    type="checkbox"
-                    onChange={this.toggleAutoRedraw}
-                    checked={opts.autoRedraw || false}
-                  />
-                  <i className="input-helper" /> Auto update graph
-                </label>
-              </div>
-            </React.Fragment> : ''}
-        </div>
-      ),
-      xAxis: (
-        <div className="m-t-10 m-b-10">
-          <div className="form-group">
-            <label className="control-label">Scale</label>
-            <Select
-              placeholder="Choose scale..."
-              value={opts.xAxis && opts.xAxis.type}
-              options={map(
-                ['datetime', 'linear', 'logarithmic', 'category'],
-                value => ({ label: capitalize(value), value }),
-              )}
-              onChange={this.updateXAxisType}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="control-label">Name</label>
-            <input value={(opts.xAxis && opts.xAxis.title && opts.xAxis.title.text) || ''} type="text" className="form-control" onChange={this.updateXAxisName} />
-          </div>
-
-          <div className="checkbox">
-            <label>
-              <input
-                type="checkbox"
-                onChange={this.toggleSortX}
-                checked={opts.sortX}
-              />
-              <i className="input-helper" /> Sort Values
-            </label>
-          </div>
-
-          <div className="checkbox">
-            <label>
-              <input
-                type="checkbox"
-                onChange={this.toggleXLabels}
-                checked={opts.xAxis.labels.enabled}
-              />
-              <i className="input-helper" /> Show Labels
-            </label>
-          </div>
-
-          <div className="form-group">
-            <label className="control-label">Label Length</label>
-            <input name="x-axis-label-length" type="number" className="form-control" value={opts.xAxisLabelLength} onChange={this.updateXAxisLabelLength} />
-            <span className="info">How many characters should X Axis Labels be truncated at in the legend?</span>
-          </div>
-        </div>
-      ),
-      yAxis: (
-        <div className="m-t-10 m-b-10">
-          {this.yAxisPanel('Left', 0)}
-          {this.yAxisPanel('Right', 1)}
-        </div>
-      ),
-      series: (
-        <ChartSeriesEditor
-          seriesOptions={opts.seriesOptions}
-          seriesList={seriesList}
-          type={opts.globalSeriesType}
-          updateSeriesList={this.updateSeriesList}
-          updateSeriesOptions={this.updateSeriesOptions}
-          clientConfig={this.props.clientConfig}
-        />
-      ),
-      colors: (
-        <ChartColorEditor
-          list={pie ? valuesList : seriesList}
-          options={pie ? opts.valuesOptions : opts.seriesOptions}
-          updateOptions={pie ? this.updateValuesOptions : this.updateSeriesOptions}
-        />
-      ),
-      dataLabels: (
-        <div className="m-t-10 m-b-10">
-          {includes(['line', 'area', 'column', 'scatter', 'pie'], opts.globalSeriesType) ?
-            <div className="checkbox">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={opts.showDataLabels || false}
-                  onChange={this.toggleDataLabels}
-                /> Show data labels
-              </label>
-            </div> : null }
-
-          <div className="form-group">
-            <label htmlFor="chart-editor-number-format">
-              Number Values Format
-              <PopoverHelp>
-                Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
-              </PopoverHelp>
-            </label>
-            <input className="form-control" value={opts.numberFormat} onChange={this.updateNumberFormat} id="chart-editor-number-format" />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="chart-editor-percent-format">
-              Percent Values Format
-              <PopoverHelp>
-                Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
-              </PopoverHelp>
-            </label>
-            <input className="form-control" value={opts.percentFormat} onChange={this.updatePercentFormat} id="chart-editor-percent-format" />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="chart-editor-datetime-format">
-              Date/Time Values Format
-              <PopoverHelp>
-                Format <a href="https://momentjs.com/docs/#/displaying/format/" rel="noopener noreferrer" target="_blank">specs.</a>
-              </PopoverHelp>
-            </label>
-            <input className="form-control" value={opts.dateTimeFormat} onChange={this.updateDateTimeFormat} id="chart-editor-datetime-format" />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="chart-editor-text">
-              Data Labels
-              <Popover content={templateHint} trigger="click" placement="topLeft">
-                <i className="m-l-5 fa fa-question-circle" />
-              </Popover>
-            </label>
-            <input className="form-control" value={opts.textFormat} onChange={this.updateTextFormat} id="chart-editor-text" placeholder="(auto)" />
-          </div>
-        </div>
-      ),
-    };
-    // XXX 'ng-click' retained here merely because of existing CSS
     return (
       <div>
-        <ul className="tab-nav">
-          <li className={this.state.currentTab === 'general' ? 'active' : ''}>
-            <a data-tabname="general" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>General</a>
-          </li>
-          {opts.globalSeriesType !== 'custom' ?
-            <React.Fragment>
-              <li className={this.state.currentTab === 'xAxis' ? 'active' : ''}>
-                <a data-tabname="xAxis" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>X Axis</a>
-              </li>
-              <li className={this.state.currentTab === 'yAxis' ? 'active' : ''}>
-                <a data-tabname="yAxis" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Y Axis</a>
-              </li>
-              <li className={this.state.currentTab === 'series' ? 'active' : ''}>
-                <a data-tabname="series" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Series</a>
-              </li>
-              <li className={this.state.currentTab === 'colors' ? 'active' : ''}>
-                <a data-tabname="colors" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Colors</a>
-              </li>
-              <li className={this.state.currentTab === 'dataLabels' ? 'active' : ''}>
-                <a data-tabname="dataLabels" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Data Labels</a>
-              </li>
+        <Tabs defaultActiveKey="general" animated={false} tabBarGutter={0}>
+          <Tabs.TabPane key="general" tab="General">
+            <div className="m-t-10 m-b-10">
+              <div className="form-group">
+                <label className="control-label">Chart Type</label>
+                <ChartTypePicker
+                  value={opts.globalSeriesType}
+                  onChange={this.chartTypeChanged}
+                  clientConfig={this.props.clientConfig}
+                />
+              </div>
+              <div className={'form-group' + (!this.getXAxisColumn() ? ' has-error' : '')}>
+                <label className="control-label">X Column</label>
+                <Select
+                  placeholder="Choose column..."
+                  value={this.getXAxisColumn()}
+                  onChange={this.updateXAxis}
+                >
+                  {this.xAxisOptions()}
+                </Select>
+              </div>
 
-            </React.Fragment> : ''}
-        </ul>
-        {tabs[this.state.currentTab]}
+              <div className={'form-group' + (this.getYAxisColumns().length > 0 ? '' : ' has-error')}>
+                <label className="control-label">Y Columns</label>
+
+                <Select
+                  placeholder="Choose columns..."
+                  value={this.getYAxisColumns()}
+                  onChange={this.updateYAxis}
+                  mode="multiple"
+                >
+                  {this.yAxisOptions()}
+                </Select>
+              </div>
+
+              {opts.globalSeriesType !== 'custom' ?
+                <div className="form-group">
+                  <label className="control-label">Group by</label>
+                  <Select
+                    placeholder="Choose column..."
+                    value={this.getGroupby()}
+                    onChange={this.updateGroupby}
+                  >
+                    {this.groupbyOptions()}
+                  </Select>
+                </div> : ''}
+
+              {some(opts.seriesOptions, { type: 'bubble' }) ?
+                <div className="form-group">
+                  <label className="control-label">Bubble size column</label>
+                  <Select
+                    placeholder="Choose column..."
+                    value={this.getSizeColumn()}
+                    onChange={this.updateSizeColumn}
+                  >
+                    {this.sizeColumnOptions()}
+                  </Select>
+                </div> : '' }
+
+              {opts.globalSeriesType !== 'custom' ?
+                <div className="form-group">
+                  <label className="control-label">Errors column</label>
+                  <Select
+                    placeholder="Choose column..."
+                    value={this.getErrorColumn()}
+                    onChange={this.updateErrorColumn}
+                  >
+                    {this.xAxisOptions()}
+                  </Select>
+                </div> : ''}
+
+              {opts.globalSeriesType === 'custom' ?
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleShowLegend}
+                      checked={opts.legend.enabled}
+                    />
+                    <i className="input-helper" /> Show Legend
+                  </label>
+                </div> : ''}
+
+              {opts.globalSeriesType === 'box' ?
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleShowPoints}
+                      checked={opts.showpoints}
+                    />
+                    <i className="input-helper" /> Show All Points
+                  </label>
+                </div> : ''}
+
+              {opts.globalSeriesType !== 'custom' ?
+                <div className="form-group">
+                  <label className="control-label">Stacking</label>
+                  <Select
+                    placeholder="Choose stacking..."
+                    disabled={!includes(['line', 'area', 'column'], opts.globalSeriesType)}
+                    value={opts.series ? opts.series.stacking : null}
+                    onChange={this.updateStacking}
+                  >
+                    <Select.Option value={null}>Disabled</Select.Option>
+                    <Select.Option value="stack">Stack</Select.Option>
+                  </Select>
+                </div> : '' }
+
+              {includes(['line', 'area', 'column'], opts.globalSeriesType) ?
+                <div className="checkbox">
+                  <label className="control-label">
+                    <input
+                      type="checkbox"
+                      onChange={this.togglePercentValues}
+                      checked={opts.series.percentValues || false}
+                    />
+                    Normalize values to percentage
+                  </label>
+                </div> : ''}
+
+              {opts.globalSeriesType === 'custom' ?
+                <React.Fragment>
+                  <div className="form-group">
+                    <label className="control-label">Custom code</label>
+                    <textarea
+                      value={opts.customCode || DEFAULT_CUSTOM_CODE}
+                      onChange={this.updateCustomCode}
+                      className="form-control v-resizable"
+                      rows="10"
+                    />
+                  </div>
+                  <div className="checkbox">
+                    <label>
+                      <input
+                        type="checkbox"
+                        onChange={this.toggleConsoleLogs}
+                        checked={opts.enableConsoleLogs || false}
+                      />
+                      <i className="input-helper" /> Show errors in the console
+                    </label>
+                  </div>
+                  <div className="checkbox">
+                    <label>
+                      <input
+                        type="checkbox"
+                        onChange={this.toggleAutoRedraw}
+                        checked={opts.autoRedraw || false}
+                      />
+                      <i className="input-helper" /> Auto update graph
+                    </label>
+                  </div>
+                </React.Fragment> : null}
+            </div>
+          </Tabs.TabPane>
+          {opts.globalSeriesType !== 'custom' ?
+            <Tabs.TabPane key="xAxis" tab="X Axis">
+              <div className="m-t-10 m-b-10">
+                <div className="form-group">
+                  <label className="control-label">Scale</label>
+                  <Select
+                    placeholder="Choose scale..."
+                    value={opts.xAxis && opts.xAxis.type}
+                    onChange={this.updateXAxisType}
+                  >
+                    {map(['datetime', 'linear', 'logarithmic', 'category'], value =>
+                      <Select.Option key={value}>{capitalize(value)}</Select.Option>)}
+                  </Select>
+                </div>
+
+                <div className="form-group">
+                  <label className="control-label">Name</label>
+                  <input value={(opts.xAxis && opts.xAxis.title && opts.xAxis.title.text) || ''} type="text" className="form-control" onChange={this.updateXAxisName} />
+                </div>
+
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleSortX}
+                      checked={opts.sortX}
+                    />
+                    <i className="input-helper" /> Sort Values
+                  </label>
+                </div>
+
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleXLabels}
+                      checked={opts.xAxis.labels.enabled}
+                    />
+                    <i className="input-helper" /> Show Labels
+                  </label>
+                </div>
+
+                <div className="form-group">
+                  <label className="control-label">Label Length</label>
+                  <input name="x-axis-label-length" type="number" className="form-control" value={opts.xAxisLabelLength} onChange={this.updateXAxisLabelLength} />
+                  <span className="info">How many characters should X Axis Labels be truncated at in the legend?</span>
+                </div>
+              </div>
+            </Tabs.TabPane> : null }
+          {opts.globalSeriesType !== 'custom' ?
+            <Tabs.TabPane key="yAxis" tab="Y Axis">
+              <div className="m-t-10 m-b-10">
+                {this.yAxisPanel('Left', 0)}
+                {this.yAxisPanel('Right', 1)}
+              </div>
+            </Tabs.TabPane> : null }
+          {opts.globalSeriesType !== 'custom' ?
+            <Tabs.TabPane key="series" tab="Series">
+              <ChartSeriesEditor
+                seriesOptions={opts.seriesOptions}
+                seriesList={seriesList}
+                type={opts.globalSeriesType}
+                updateSeriesList={this.updateSeriesList}
+                updateSeriesOptions={this.updateSeriesOptions}
+                clientConfig={this.props.clientConfig}
+              />
+            </Tabs.TabPane> : null }
+          {opts.globalSeriesType !== 'custom' ?
+            <Tabs.TabPane key="colors" tab="Colors">
+              <ChartColorEditor
+                list={pie ? valuesList : seriesList}
+                options={pie ? opts.valuesOptions : opts.seriesOptions}
+                updateOptions={pie ? this.updateValuesOptions : this.updateSeriesOptions}
+              />
+            </Tabs.TabPane> : null }
+          {opts.globalSeriesType !== 'custom' ?
+            <Tabs.TabPane key="dataLabels" tab="Data Labels">
+              <div className="m-t-10 m-b-10">
+                {includes(['line', 'area', 'column', 'scatter', 'pie'], opts.globalSeriesType) ?
+                  <div className="checkbox">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={opts.showDataLabels || false}
+                        onChange={this.toggleDataLabels}
+                      /> Show data labels
+                    </label>
+                  </div> : null }
+
+                <div className="form-group">
+                  <label htmlFor="chart-editor-number-format">
+                    Number Values Format
+                    <PopoverHelp>
+                      Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
+                    </PopoverHelp>
+                  </label>
+                  <input className="form-control" value={opts.numberFormat} onChange={this.updateNumberFormat} id="chart-editor-number-format" />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="chart-editor-percent-format">
+                    Percent Values Format
+                    <PopoverHelp>
+                      Format <a href="http://numeraljs.com/" rel="noopener noreferrer" target="_blank">specs.</a>
+                    </PopoverHelp>
+                  </label>
+                  <input className="form-control" value={opts.percentFormat} onChange={this.updatePercentFormat} id="chart-editor-percent-format" />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="chart-editor-datetime-format">
+                    Date/Time Values Format
+                    <PopoverHelp>
+                      Format <a href="https://momentjs.com/docs/#/displaying/format/" rel="noopener noreferrer" target="_blank">specs.</a>
+                    </PopoverHelp>
+                  </label>
+                  <input className="form-control" value={opts.dateTimeFormat} onChange={this.updateDateTimeFormat} id="chart-editor-datetime-format" />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="chart-editor-text">
+                    Data Labels
+                    <Popover content={templateHint} trigger="click" placement="topLeft">
+                      <i className="m-l-5 fa fa-question-circle" />
+                    </Popover>
+                  </label>
+                  <input className="form-control" value={opts.textFormat} onChange={this.updateTextFormat} id="chart-editor-text" placeholder="(auto)" />
+                </div>
+              </div>
+            </Tabs.TabPane> : null}
+        </Tabs>
       </div>
     );
   }

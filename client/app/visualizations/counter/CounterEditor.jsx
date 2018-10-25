@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { isNumber } from 'lodash';
+import Tabs from 'antd/lib/tabs';
+import 'antd/lib/tabs/style';
 
 import { QueryData } from '@/components/proptypes';
 import CounterRenderer from './CounterRenderer';
@@ -21,16 +23,6 @@ export default class CounterEditor extends React.Component {
     data: QueryData.isRequired,
     options: CounterRenderer.Options.isRequired,
     updateOptions: PropTypes.func.isRequired,
-  }
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentTab: 'general',
-    };
-  }
-
-  changeTab = (event) => {
-    this.setState({ currentTab: event.target.dataset.tabname });
   }
 
   updateCounterColName = e => this.props.updateOptions({ counterColName: e.target.value })
@@ -62,9 +54,9 @@ export default class CounterEditor extends React.Component {
 
   render() {
     const opts = this.props.options;
-    const tabs = {
-      general: (
-        <div>
+    return (
+      <Tabs defaultActiveKey="general" animated={false} tabBarGutter={0}>
+        <Tabs.TabPane key="general" tab="General">
           <div className="form-group">
             <label className="col-lg-6">Counter Value Column Name</label>
             <div className="col-lg-6">
@@ -112,9 +104,8 @@ export default class CounterEditor extends React.Component {
               <i className="input-helper" /> Count Rows
             </div>
           </div>
-        </div>),
-      format: (
-        <div ng-show="currentTab == 'format'">
+        </Tabs.TabPane>
+        <Tabs.TabPane key="format" tab="Format">
           <div className="form-group">
             <label className="col-lg-6">Formatting Decimal Place</label>
             <div className="col-lg-6">
@@ -175,20 +166,8 @@ export default class CounterEditor extends React.Component {
               />
             </div>
           </div>
-        </div>),
-    };
-    return (
-      <div>
-        <ul className="tab-nav">
-          <li className={this.state.currentTab === 'general' ? 'active' : ''}>
-            <a data-tabname="general" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>General</a>
-          </li>
-          <li className={this.state.currentTab === 'format' ? 'active' : ''}>
-            <a data-tabname="format" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Format</a>
-          </li>
-        </ul>
-        {tabs[this.state.currentTab]}
-      </div>
+        </Tabs.TabPane>
+      </Tabs>
     );
   }
 }

@@ -23,7 +23,7 @@ function findWordFrequencies(data, columnName) {
   return wordsHash;
 }
 
-const WordCloudOptions = PropTypes.exact({
+const WordCloudOptions = PropTypes.shape({
   column: PropTypes.string,
 });
 

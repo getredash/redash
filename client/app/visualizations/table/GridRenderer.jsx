@@ -115,7 +115,7 @@ function getColumnsToDisplay(columns, options, clientConfig) {
   return sortBy(filter(result, 'visible'), 'order');
 }
 
-const GridOptions = PropTypes.exact({
+const GridOptions = PropTypes.shape({
   columns: PropTypes.arrayOf(ColumnDetail),
   itemsPerPage: PropTypes.number,
 });

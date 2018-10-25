@@ -1,12 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 import Popover from 'antd/lib/popover';
 import 'antd/lib/popover/style';
+import Tabs from 'antd/lib/tabs';
+import 'antd/lib/tabs/style';
 import { chain, capitalize, each, map, isString } from 'lodash';
 
 import { QueryData } from '@/components/proptypes';
-import ColorBox from './ColorBox';
 import ChoroplethRenderer from './ChoroplethRenderer';
 
 const ChoroplethPalette = ChoroplethRenderer.ChoroplethPalette;
@@ -79,21 +81,41 @@ AlignButton.propTypes = {
   updateLegend: PropTypes.func.isRequired,
 };
 
+const ColorSelect = props => (
+  <Select
+    value={props.value}
+    onChange={props.onChange}
+  >
+    {map(
+      ChoroplethPalette,
+      (v, k) => (
+        <Select.Option key={v}>
+          <span>
+            <span style={{
+              width: 12,
+              height: 12,
+              backgroundColor: v,
+              display: 'inline-block',
+              marginRight: 5,
+            }}
+            />
+            {capitalize(k)}
+          </span>
+        </Select.Option>),
+    )}
+  </Select>
+);
+
+ColorSelect.propTypes = {
+  value: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
 export default class ChoroplethEditor extends React.Component {
   static propTypes = {
     data: QueryData.isRequired,
     options: ChoroplethRenderer.Options.isRequired,
     updateOptions: PropTypes.func.isRequired,
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentTab: 'general',
-    };
-  }
-  changeTab = (event) => {
-    this.setState({ currentTab: event.target.dataset.tabname });
   }
 
   toggleTooltip = e => this.props.updateOptions({
@@ -142,6 +164,15 @@ export default class ChoroplethEditor extends React.Component {
   updateValueColumn = e => this.props.updateOptions({ valueColumn: e.target.value })
   updateValueFormat = e => this.props.updateOptions({ valueFormat: e.target.value })
   updateValuePlaceholder = e => this.props.updateOptions({ noValuePlaceholder: e.target.value })
+  updateSteps = e => this.props.updateOptions({ steps: e.target.value })
+  updateClusteringMode = e => this.props.updateOptions({ clusteringMode: e.target.value })
+  updateMinColor = min => this.props.updateOptions({ colors: { ...this.props.options.colors, min } })
+  updateMaxColor = max => this.props.updateOptions({ colors: { ...this.props.options.colors, max } })
+  updateNoValueColor = noValue => this.props.updateOptions({ colors: { ...this.props.options.colors, noValue } })
+  updateBackgroundColor = background => this.props.updateOptions({
+    colors: { ...this.props.options.colors, background },
+  })
+  updateBordersColor = borders => this.props.updateOptions({ colors: { ...this.props.options.colors, borders } })
 
   render() {
     const opts = this.props.options;
@@ -162,10 +193,9 @@ export default class ChoroplethEditor extends React.Component {
         <div><code>{'{{ @@iso_n3 }}'}</code> three-digit ISO country code.</div>
         <div className="p-t-5">This syntax is applicable to tooltip and popup templates.</div>
       </React.Fragment>);
-
-    const tabs = {
-      general: (
-        <div className="m-t-10 m-b-10">
+    return (
+      <Tabs defaultActiveKey="general" animated={false} tabBarGutter={0}>
+        <Tabs.TabPane key="general" tab="General">
           <div className="row">
             <div className="col-xs-6">
               <div className="form-group">
@@ -293,10 +323,8 @@ export default class ChoroplethEditor extends React.Component {
               </label>
             </Popover>
           </div>
-        </div>
-      ),
-      colors: (
-        <div className="m-t-10 m-b-10">
+        </Tabs.TabPane>
+        <Tabs.TabPane key="colors" tab="Colors">
           <div className="row">
             <div className="col-xs-6">
               <div className="form-group">
@@ -329,42 +357,21 @@ export default class ChoroplethEditor extends React.Component {
             <div className="col-xs-6">
               <div className="form-group">
                 <label>Min color</label>
-                <Select
-                  value={opts.colors.min}
-                  options={map(
-                    ChoroplethPalette,
-                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
-                  )}
-                  onChange={this.updateMinColor}
-                />
+                <ColorSelect value={opts.colors.min} onChange={this.updateMinColor} />
               </div>
             </div>
 
             <div className="col-xs-6">
               <div className="form-group">
                 <label>Max color</label>
-                <Select
-                  value={opts.colors.max}
-                  options={map(
-                    ChoroplethPalette,
-                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
-                  )}
-                  onChange={this.updateMaxColor}
-                />
+                <ColorSelect value={opts.colors.max} onChange={this.updateMaxColor} />
               </div>
             </div>
 
             <div className="col-xs-6">
               <div className="form-group">
                 <label>No value color</label>
-                <Select
-                  value={opts.colors.noValue}
-                  options={map(
-                    ChoroplethPalette,
-                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
-                  )}
-                  onChange={this.updateNoValueColor}
-                />
+                <ColorSelect value={opts.colors.noValue} onChange={this.updateNoValueColor} />
               </div>
             </div>
           </div>
@@ -373,35 +380,19 @@ export default class ChoroplethEditor extends React.Component {
             <div className="col-xs-6">
               <div className="form-group">
                 <label>Background color</label>
-                <Select
-                  value={opts.colors.background}
-                  options={map(
-                    ChoroplethPalette,
-                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
-                  )}
-                  onChange={this.updateBackgroundColor}
-                />
+                <ColorSelect value={opts.colors.background} onChange={this.updateBackgroundColor} />
               </div>
             </div>
 
             <div className="col-xs-6">
               <div className="form-group">
                 <label>Borders color</label>
-                <Select
-                  value={opts.colors.borders}
-                  options={map(
-                    ChoroplethPalette,
-                    (v, k) => ({ label: <span><ColorBox color={v} />{capitalize(k)}</span>, value: v }),
-                  )}
-                  onChange={this.updateBordersColor}
-                />
+                <ColorSelect value={opts.colors.borders} onChange={this.updateBordersColor} />
               </div>
             </div>
           </div>
-        </div>
-      ),
-      bounds: (
-        <div className="m-t-10 m-b-10">
+        </Tabs.TabPane>
+        <Tabs.TabPane key="bounds" tab="Bounds">
           <div className="form-group">
             <label>North-East latitude and longitude</label>
             <div className="row">
@@ -409,7 +400,7 @@ export default class ChoroplethEditor extends React.Component {
                 <input
                   className="form-control"
                   type="text"
-                  value={opts.bounds[1][0]}
+                  value={opts.bounds ? opts.bounds[1][0] : ''}
                   onChange={this.updateNorthBounds}
                 />
               </div>
@@ -417,7 +408,7 @@ export default class ChoroplethEditor extends React.Component {
                 <input
                   className="form-control"
                   type="text"
-                  value={opts.bounds[1][1]}
+                  value={opts.bounds ? opts.bounds[1][1] : ''}
                   onChange={this.updateEastBounds}
                 />
               </div>
@@ -431,7 +422,7 @@ export default class ChoroplethEditor extends React.Component {
                 <input
                   className="form-control"
                   type="text"
-                  value={opts.bounds[0][0]}
+                  value={opts.bounds ? opts.bounds[0][0] : ''}
                   onChange={this.updateSouthBounds}
                 />
               </div>
@@ -439,30 +430,14 @@ export default class ChoroplethEditor extends React.Component {
                 <input
                   className="form-control"
                   type="text"
-                  value={opts.bounds[0][1]}
+                  value={opts.bounds ? opts.bounds[0][1] : ''}
                   onChange={this.updateWestBounds}
                 />
               </div>
             </div>
           </div>
-        </div>
-      ),
-    };
-    return (
-      <div>
-        <ul className="tab-nav">
-          <li className={this.state.currentTab === 'general' ? 'active' : ''}>
-            <a data-tabname="general" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>General</a>
-          </li>
-          <li className={this.state.currentTab === 'colors' ? 'active' : ''}>
-            <a data-tabname="colors" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Colors</a>
-          </li>
-          <li className={this.state.currentTab === 'bounds' ? 'active' : ''}>
-            <a data-tabname="bounds" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Bounds</a>
-          </li>
-        </ul>
-        {tabs[this.state.currentTab]}
-      </div>
+        </Tabs.TabPane>
+      </Tabs>
     );
   }
 }

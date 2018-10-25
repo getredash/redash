@@ -119,7 +119,7 @@ function prepareData(rawData, options) {
   return { data, initialDate };
 }
 
-const CohortOptions = PropTypes.exact({
+const CohortOptions = PropTypes.shape({
   dateColumn: PropTypes.string.isRequired,
   stageColumn: PropTypes.string.isRequired,
   totalColumn: PropTypes.string.isRequired,

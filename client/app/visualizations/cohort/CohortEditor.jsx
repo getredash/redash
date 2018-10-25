@@ -1,5 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Tabs from 'antd/lib/tabs';
+import 'antd/lib/tabs/style';
 
 import { QueryData } from '@/components/proptypes';
 import CohortRenderer from './CohortRenderer';
@@ -10,17 +12,6 @@ export default class CohortEditor extends React.Component {
     options: CohortRenderer.Options.isRequired,
     updateOptions: PropTypes.func.isRequired,
   }
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentTab: 'columns',
-    };
-  }
-
-  changeTab = (event) => {
-    this.setState({ currentTab: event.target.dataset.tabname });
-  }
-
 
   updateDateColumn = e => this.props.updateOptions({ dateColumn: e.target.value });
   updateStageColumn = e => this.props.updateOptions({ stageColumn: e.target.value });
@@ -32,9 +23,9 @@ export default class CohortEditor extends React.Component {
   render() {
     const columnNames = this.props.data.columns.map(c => c.name);
     columnNames.unshift('');
-    const tabs = {
-      columns: (
-        <div className="m-t-10 m-b-10">
+    return (
+      <Tabs defaultActiveKey="columns" animated={false} tabBarGutter={0}>
+        <Tabs.TabPane key="columns" tab="Columns">
           <div className="form-group">
             <label className="control-label">Date (Bucket)</label>
             <select
@@ -78,10 +69,8 @@ export default class CohortEditor extends React.Component {
               {columnNames.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
-        </div>
-      ),
-      options: (
-        <div className="m-t-10 m-b-10">
+        </Tabs.TabPane>
+        <Tabs.TabPane key="options" tab="Options">
           <div className="form-group">
             <label className="control-label">Time Interval</label>
             <select
@@ -106,21 +95,8 @@ export default class CohortEditor extends React.Component {
               <option value="simple">Show data as is</option>
             </select>
           </div>
-        </div>
-      ),
-    };
-    return (
-      <div>
-        <ul className="tab-nav">
-          <li className={this.state.currentTab === 'columns' ? 'active' : ''}>
-            <a data-tabname="columns" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Columns</a>
-          </li>
-          <li className={this.state.currentTab === 'options' ? 'active' : ''}>
-            <a data-tabname="options" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Options</a>
-          </li>
-        </ul>
-        {tabs[this.state.currentTab]}
-      </div>
+        </Tabs.TabPane>
+      </Tabs>
     );
   }
 }

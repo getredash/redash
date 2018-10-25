@@ -127,7 +127,7 @@ function createScale(features, data, options) {
 }
 
 const Color = PropTypes.oneOf(values(ChoroplethPalette));
-const ChoroplethOptions = PropTypes.exact({
+const ChoroplethOptions = PropTypes.shape({
   bounds: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
   viewport: PropTypes.exact({
     center: PropTypes.arrayOf(PropTypes.number).isRequired,

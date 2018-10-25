@@ -20,7 +20,7 @@ function normalizePercentage(num) {
   return num.toFixed(2) + '%';
 }
 
-const FunnelOptions = PropTypes.exact({
+const FunnelOptions = PropTypes.shape({
   stepCol: PropTypes.exact({
     colName: PropTypes.string.isRequired,
     displayAs: PropTypes.string.isRequired,

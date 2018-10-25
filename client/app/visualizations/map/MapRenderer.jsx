@@ -27,7 +27,7 @@ L.Icon.Default.mergeOptions({
 
 delete L.Icon.Default.prototype._getIconUrl;
 
-const MapOptions = PropTypes.exact({
+const MapOptions = PropTypes.shape({
   mapTileUrl: PropTypes.string,
   latColName: PropTypes.string,
   lonColName: PropTypes.string,

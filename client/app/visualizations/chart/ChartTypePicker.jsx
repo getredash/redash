@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 
 const chartTypes = [
   { value: 'line', label: 'Line', icon: 'line-chart' },
@@ -29,17 +29,19 @@ export default class ChartTypePicker extends React.Component {
   }
 
   typeItem = (opt, i) => <div><i className={'fa fa-' + opt.icon} /> {opt.label}</div>;
-
   render() {
     return (
       <Select
         value={this.props.value}
-        valueRenderer={this.typeItem}
-        clearable={false}
-        options={this.chartTypes}
-        optionRenderer={this.typeItem}
         onChange={this.props.onChange}
-      />
+      >
+        {this.chartTypes.map(c => (
+          <Select.Option key={c.value}>
+            <div>
+              <i className={`fa fa-${c.icon}`} /> {c.label}
+            </div>
+          </Select.Option>))}
+      </Select>
     );
   }
 }

@@ -1,8 +1,10 @@
 import React from 'react';
-
 import PropTypes from 'prop-types';
-import { concat, difference, map, uniq, zipObject } from 'lodash';
-import Select from 'react-select';
+import { difference, map, uniq, zipObject } from 'lodash';
+import Tabs from 'antd/lib/tabs';
+import 'antd/lib/tabs/style';
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 
 import { QueryData } from '@/components/proptypes';
 import MapRenderer from './MapRenderer';
@@ -64,18 +66,8 @@ export default class MapEditor extends React.Component {
     options: MapRenderer.Options.isRequired,
     updateOptions: PropTypes.func.isRequired,
   }
-  constructor(props) {
-    super(props);
-    this.state = {
-      currentTab: 'general',
-    };
-  }
 
-  changeTab = (event) => {
-    this.setState({ currentTab: event.target.dataset.tabname });
-  }
-
-  updateClassify = ({ value }) => {
+  updateClassify = (value) => {
     let groupNames;
     if (value === 'none') {
       groupNames = ['All'];
@@ -91,8 +83,8 @@ export default class MapEditor extends React.Component {
     this.props.updateOptions({ groups, classify: value });
   }
 
-  updateLatColName = ({ value }) => this.props.updateOptions({ latColName: value })
-  updateLonColName = ({ value }) => this.props.updateOptions({ lonColName: value })
+  updateLatColName = value => this.props.updateOptions({ latColName: value })
+  updateLonColName = value => this.props.updateOptions({ lonColName: value })
   updateColor = (name, color) => this.props.updateOptions({ groups: { ...this.options.groups, name: { color } } })
   updateClusterMarkers = e => this.props.updateOptions({ clusterMarkers: e.target.checked })
   updateMapTileUrl = e => this.props.updateOptions({ mapTileUrl: e.target.value })
@@ -101,56 +93,52 @@ export default class MapEditor extends React.Component {
   render() {
     const columnNames = this.props.data.columns.map(c => c.name);
     const opts = this.props.options;
-    const columnOptions = without => concat(
-      [{ value: '', label: '' }],
-      map(difference(columnNames, without), c => ({ label: c, value: c })),
+    const columnOptions = without => map(
+      difference(columnNames, without),
+      c => <Select.Option key={c}>{c}</Select.Option>,
     );
     const groups = opts.groups || { All: { color: MapRenderer.colorScale('All') } };
-    const tabs = {
-      general: (
-        <div className="m-t-10 m-b-10">
+    return (
+      <Tabs defaultActiveKey="general" animated={false} tabBarGutter={0}>
+        <Tabs.TabPane key="general" tab="General">
           <div className="form-group">
             <label className="control-label">Latitude Column Name</label>
             <Select
               name="form-control"
-              required
-              clearable={false}
               value={opts.latColName}
               placeholder="Choose column..."
-              options={columnOptions([opts.classify, opts.lonColName])}
               onChange={this.updateLatColName}
-            />
+            >
+              {columnOptions([opts.classify, opts.lonColName])}
+            </Select>
           </div>
 
           <div className="form-group">
             <label className="control-label">Longitude Column Name</label>
             <Select
               name="form-control"
-              required
-              clearable={false}
               value={opts.lonColName}
               placeholder="Choose column..."
-              options={columnOptions([opts.classify, opts.latColName])}
               onChange={this.updateLonColName}
-            />
+            >
+              {columnOptions([opts.classify, opts.latColName])}
+            </Select>
           </div>
 
           <div className="form-group">
             <label className="control-label">Group By</label>
             <Select
               name="form-control"
-              required
-              clearable={false}
               value={opts.classify}
               placeholder="Choose column..."
-              options={concat(columnOptions([opts.lonColName, opts.latColName]), [{ value: 'none', label: 'none' }])}
               onChange={this.updateClassify}
-            />
+            >
+              {columnOptions([opts.lonColName, opts.latColName])}
+              <Select.Option value="none">none</Select.Option>
+            </Select>
           </div>
-        </div>
-      ),
-      groups: (
-        <div className="m-b-10">
+        </Tabs.TabPane>
+        <Tabs.TabPane key="groups" tab="Groups">
           <table className="table table-condensed col-table">
             <thead>
               <th>Name</th>
@@ -171,11 +159,8 @@ export default class MapEditor extends React.Component {
                 </tr>))}
             </tbody>
           </table>
-        </div>
-
-      ),
-      map: (
-        <div className="m-t-10 m-b-10">
+        </Tabs.TabPane>
+        <Tabs.TabPane key="map" tab="Map">
           <div className="checkbox">
             <label>
               <input type="checkbox" checked={opts.clusterMarkers} onChange={this.updateClusterMarkers} />
@@ -189,24 +174,8 @@ export default class MapEditor extends React.Component {
               {mapTiles.map(tile => <option key={tile.url} value={tile.url}>{tile.name}</option>)}
             </select>
           </div>
-        </div>
-      ),
-    };
-    return (
-      <div>
-        <ul className="tab-nav">
-          <li className={this.state.currentTab === 'general' ? 'active' : ''}>
-            <a data-tabname="general" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>General</a>
-          </li>
-          <li className={this.state.currentTab === 'groups' ? 'active' : ''}>
-            <a data-tabname="groups" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Groups</a>
-          </li>
-          <li className={this.state.currentTab === 'map' ? 'active' : ''}>
-            <a data-tabname="map" tabIndex="-1" onKeyPress={this.changeTab} ng-click="true" onClick={this.changeTab}>Map Settings</a>
-          </li>
-        </ul>
-        {tabs[this.state.currentTab]}
-      </div>
+        </Tabs.TabPane>
+      </Tabs>
     );
   }
 }

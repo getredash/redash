@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 import { map } from 'lodash';
 
 import { ColorPalette } from '@/visualizations/chart/plotly/utils';
@@ -26,11 +26,11 @@ export default class ChartColorEditor extends React.Component {
   changeColor = (value, color) => this.updateOptions(value, { color });
 
   render() {
-    const colorSelectItem = opt => (<span style={{
-      width: 12, height: 12, backgroundColor: opt.value, display: 'inline-block', marginRight: 5,
+    const colorSelectItem = v => (<span style={{
+      width: 12, height: 12, backgroundColor: v, display: 'inline-block', marginRight: 5,
     }}
     />);
-    const colorOptionItem = opt => <span style={{ textTransform: 'capitalize' }}>{colorSelectItem(opt)}{opt.label}</span>;
+    const colorOptionItem = (v, k) => <span style={{ textTransform: 'capitalize' }}>{colorSelectItem(v)}{k}</span>;
     return (
       <div className="m-t-10 m-b-10">
         <table className="table table-condensed col-table">
@@ -42,13 +42,12 @@ export default class ChartColorEditor extends React.Component {
                 </td>
                 <td style={{ padding: 3, width: 35 }}>
                   <Select
-                    value={this.props.options[name].color}
-                    valueRenderer={colorSelectItem}
-                    options={map(colors, (v, k) => ({ value: v, label: k }))}
-                    optionRenderer={colorOptionItem}
-                    clearable={false}
-                    onChange={selection => this.changeColor(name, selection.value)}
-                  />
+                    defaultActiveFirstOption
+                    value={this.props.options[name].color || 'Automatic'}
+                    onChange={selection => this.changeColor(name, selection)}
+                  >
+                    {map(colors, (v, k) => <Select.Option key={v}>{colorOptionItem(v, k)}</Select.Option>)}
+                  </Select>
                 </td>
               </tr>
             ))}

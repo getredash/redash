@@ -3,8 +3,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import { isArray } from 'lodash';
-
-import Select from 'react-select';
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 
 const Filter = PropTypes.shape({
   current: PropTypes.array.isRequired,
@@ -39,7 +39,7 @@ export default class Filters extends React.Component {
       }
     }
 
-    return { label: firstValue, value: firstValue, filter };
+    return <Select.Option key={firstValue} value={{ value: firstValue, filter }}>{firstValue}</Select.Option>;
   }
   changeFilters = (change, i) => {
     const f = { ...change.filter };
@@ -66,13 +66,13 @@ export default class Filters extends React.Component {
               <label>{fi.friendlyName}</label>
               <Select
                 id={'filter-' + fi.name}
-                options={(fi.multiple ? multiPreamble : []).concat(fi.values.map(v => this.filterValue(v, fi)))}
                 value={fi.current && (fi.multiple ? fi.current : fi.current[0])}
-                multi={fi.multiple}
-                clearable={false}
+                mode={fi.multiple ? 'multiple' : 'default'}
                 onChange={ch => this.changeFilters(ch, i)}
                 placeholder={`Select value for ${fi.friendlyName}...`}
-              />
+              >
+                {(fi.multiple ? multiPreamble : []).concat(fi.values.map(v => this.filterValue(v, fi)))}
+              </Select>
             </div>
           ))}
         </div>

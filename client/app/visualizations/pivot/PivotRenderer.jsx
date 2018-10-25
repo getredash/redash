@@ -7,7 +7,7 @@ import 'react-pivottable/pivottable.css';
 import { QueryData } from '@/components/proptypes';
 import './pivot.less';
 
-const PivotOptions = PropTypes.exact({
+const PivotOptions = PropTypes.shape({
   controls: PropTypes.exact({
     enabled: PropTypes.bool.isRequired,
   }),

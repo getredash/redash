@@ -17,7 +17,7 @@ function getRowNumber(index, size) {
   return size + index;
 }
 
-const CounterOptions = PropTypes.exact({
+const CounterOptions = PropTypes.shape({
   counterColName: PropTypes.string.isRequired,
   targetColName: PropTypes.string.isRequired,
   countRow: PropTypes.bool.isRequired,

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { capitalize, map } from 'lodash';
-import Select from 'react-select';
-
+import Select from 'antd/lib/select';
+import 'antd/lib/select/style';
 import visualizationRegistry from '@/visualizations/registry';
 import VisualizationRenderer from './VisualizationRenderer';
 
@@ -17,14 +17,14 @@ export default class VisualizationOptionsEditor extends React.Component {
 
   }
 
-  updateType = t => this.props.updateVisualization({
+  updateType = type => this.props.updateVisualization({
     ...this.props.visualization,
-    type: t.value,
+    type,
     name: this.props.visualization.name === visualizationRegistry[this.props.visualization.type].name ?
-      visualizationRegistry[t.value].name :
+      visualizationRegistry[type].name :
       this.props.visualization.name,
-    options: t.value !== this.props.visualization.type ?
-      visualizationRegistry[t.value].defaultOptions :
+    options: type !== this.props.visualization.type ?
+      visualizationRegistry[type].defaultOptions :
       this.props.visualization.options,
   })
 
@@ -47,11 +47,11 @@ export default class VisualizationOptionsEditor extends React.Component {
             <Select
               value={this.props.visualization.type}
               disabled={this.props.visualization && !!this.props.visualization.id}
-              options={map(visualizationRegistry, (v, t) => ({ label: v.name, value: t, vis: v }))}
               onChange={this.updateType}
-              clearable={false}
               className="form-control"
-            />
+            >
+              {map(visualizationRegistry, (v, t) => <Select.Option key={t}>{v.name}</Select.Option>)}
+            </Select>
           </div>
           <div className="form-group">
             <label className="control-label">Visualization Name</label>
