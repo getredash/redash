@@ -143,13 +143,16 @@ class Mysql(BaseSQLQueryRunner):
             cursor.execute(query)
 
             data = cursor.fetchall()
+            desc = cursor.description
 
             while cursor.nextset():
-                data = cursor.fetchall()
+                if cursor.description != None:
+                    data = cursor.fetchall()
+                    desc = cursor.description
 
             # TODO - very similar to pg.py
-            if cursor.description is not None:
-                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in cursor.description])
+            if desc is not None:
+                columns = self.fetch_columns([(i[0], types_map.get(i[1], None)) for i in desc])
                 rows = [dict(zip((c['name'] for c in columns), row)) for row in data]
 
                 data = {'columns': columns, 'rows': rows}
