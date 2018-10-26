@@ -8,7 +8,7 @@ import renderJsonView from '@/components/dynamic-table/json-cell/json-view-inter
 import { formatSimpleTemplate } from '@/lib/value-format';
 
 function validateItemsPerPage(value) {
-  const defaultValue = 10;
+  const defaultValue = 25;
   value = parseInt(value, 10) || defaultValue;
   return value > 0 ? value : defaultValue;
 }

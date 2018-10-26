@@ -10,7 +10,7 @@ import './table-editor.less';
 import TableEditorColumns from './TableEditorColumns';
 import GridRenderer from './GridRenderer';
 
-const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25];
+const ALLOWED_ITEM_PER_PAGE = [5, 10, 15, 20, 25, 50, 100, 150, 200, 250];
 
 
 function getColumnContentAlignment(type) {

@@ -124,7 +124,7 @@ export default class GridRenderer extends React.Component {
   static Options = GridOptions
 
   static DEFAULT_OPTIONS = {
-    itemsPerPage: 15,
+    itemsPerPage: 25,
     autoHeight: true,
     defaultRows: 14,
     defaultColumns: 3,
