@@ -449,10 +449,20 @@ page-header, .page-header--new {
   background: fade(@redash-gray, 85%);
 }
 
+.label-default-unpublished {
+  background: fade(@redash-gray, 85%);
+  display: inline-block;
+  overflow: hidden;
+}
+
 .label-tag {
   background: fade(@redash-gray, 10%);
   color: fade(@redash-gray, 75%);
   margin-right: 3px;
+  display: inline-block;
+  margin-top: 2px;
+  max-width: 24ch;
+  .text-overflow();
 }
 
 .tab-nav > li > a {
@@ -733,6 +743,7 @@ page-header, .page-header--new {
 }
 
 .tags-list {
+
   .badge-light {
     background: fade(@redash-gray, 10%);
     color: fade(@redash-gray, 75%);
