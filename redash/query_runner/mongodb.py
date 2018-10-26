@@ -153,7 +153,8 @@ class MongoDB(BaseQueryRunner):
 
         self.db_name = self.configuration["dbName"]
 
-        self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration["replicaSetName"] else False
+        self.is_replica_set = True if "replicaSetName" in self.configuration and self.configuration[
+            "replicaSetName"] else False
 
     def _get_db(self):
         if self.is_replica_set:
@@ -171,8 +172,8 @@ class MongoDB(BaseQueryRunner):
 
     def _merge_property_names(self, columns, document):
         for property in document:
-              if property not in columns:
-                  columns.append(property)
+            if property not in columns:
+                columns.append(property)
 
     def _get_collection_fields(self, db, collection_name):
         # Since MongoDB is a document based database and each document doesn't have
@@ -194,8 +195,10 @@ class MongoDB(BaseQueryRunner):
             last_document = d
 
         columns = []
-        if first_document: self._merge_property_names(columns, first_document)
-        if last_document: self._merge_property_names(columns, last_document)
+        if first_document:
+            self._merge_property_names(columns, first_document)
+        if last_document:
+            self._merge_property_names(columns, last_document)
 
         return columns
 
@@ -205,12 +208,13 @@ class MongoDB(BaseQueryRunner):
         for collection_name in db.collection_names():
             if collection_name.startswith('system.'):
                 continue
+            if 'viewOn' in db[collection_name].options():
+                continue
             columns = self._get_collection_fields(db, collection_name)
             schema[collection_name] = {
                 "name": collection_name, "columns": sorted(columns)}
 
         return schema.values()
-
 
     def run_query(self, query, user):
         db = self._get_db()
@@ -292,12 +296,12 @@ class MongoDB(BaseQueryRunner):
 
         if "count" in query_data:
             columns.append({
-                "name" : "count",
-                "friendly_name" : "count",
-                "type" : TYPE_INTEGER
+                "name": "count",
+                "friendly_name": "count",
+                "type": TYPE_INTEGER
             })
 
-            rows.append({ "count" : cursor })
+            rows.append({"count": cursor})
         else:
             rows, columns = parse_results(cursor)
 
@@ -318,5 +322,6 @@ class MongoDB(BaseQueryRunner):
         json_data = json_dumps(data, cls=MongoDBJSONEncoder)
 
         return json_data, error
+
 
 register(MongoDB)
