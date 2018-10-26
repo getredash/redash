@@ -43,16 +43,18 @@ from sqlalchemy_utils import generic_relationship, EmailType
 from sqlalchemy_utils.types import TSVectorType
 
 
-class SQLAlchemyExt(SQLAlchemy):
+class RedashSQLAlchemy(SQLAlchemy):
+    def apply_driver_hacks(self, app, info, options):
+        options.update(json_serializer=json_dumps)
+        super(RedashSQLAlchemy, self).apply_driver_hacks(app, info, options)
+
     def apply_pool_defaults(self, app, options):
+        super(RedashSQLAlchemy, self).apply_pool_defaults(app, options)
         if settings.SQLALCHEMY_DISABLE_POOL:
-            from sqlalchemy.pool import NullPool
             options['poolclass'] = NullPool
-        else:
-            return super(SQLAlchemyExt, self).apply_pool_defaults(app, options)
 
 
-db = SQLAlchemyExt(session_options={
+db = RedashSQLAlchemy(session_options={
     'expire_on_commit': False
 })
 # Make sure the SQLAlchemy mappers are all properly configured first.

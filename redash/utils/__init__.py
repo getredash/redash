@@ -81,10 +81,25 @@ class JSONEncoder(simplejson.JSONEncoder):
             return float(o)
         elif isinstance(o, (datetime.timedelta, uuid.UUID)):
             return str(o)
-        elif isinstance(o, (datetime.date, datetime.time)):
+        # See "Date Time String Format" in the ECMA-262 specification.
+        if isinstance(o, datetime.datetime):
+            r = o.isoformat()
+            if o.microsecond:
+                r = r[:23] + r[26:]
+            if r.endswith('+00:00'):
+                r = r[:-6] + 'Z'
+            return r
+        elif isinstance(o, datetime.date):
             return o.isoformat()
         elif isinstance(o, buffer):
             return binascii.hexlify(o)
+        elif isinstance(o, datetime.time):
+            if o.utcoffset() is not None:
+                raise ValueError("JSON can't represent timezone-aware times.")
+            r = o.isoformat()
+            if o.microsecond:
+                r = r[:12]
+            return r
         else:
             return super(JSONEncoder, self).default(o)
 
