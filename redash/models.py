@@ -516,16 +516,20 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
                                       Group.query.filter(Group.id.in_(self.group_ids))]))
 
     @classmethod
+    def get_by_org(cls, org):
+        return cls.query.filter(cls.org == org)
+
+    @classmethod
     def get_by_email_and_org(cls, email, org):
-        return cls.query.filter(cls.email == email, cls.org == org).one()
+        return cls.get_by_org(org).filter(cls.email == email).one()
 
     @classmethod
     def get_by_api_key_and_org(cls, api_key, org):
-        return cls.query.filter(cls.api_key == api_key, cls.org == org).one()
+        return cls.get_by_org(org).filter(cls.api_key == api_key).one()
 
     @classmethod
     def all(cls, org):
-        return cls.query.filter(cls.org == org).filter(cls.disabled_at == None)
+        return cls.get_by_org(org).filter(cls.disabled_at.is_(None))
 
     @classmethod
     def search(cls, base_query, term):
@@ -536,11 +540,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 
     @classmethod
     def all_disabled(cls, org):
-        return cls.query.filter(cls.org == org).filter(cls.disabled_at != None)
-
-    @classmethod
-    def all_not_disabled(cls, org):
-        return cls.all(org).filter(cls.disabled_at == None)
+        return cls.get_by_org(org).filter(cls.disabled_at.isnot(None))
 
     @classmethod
     def find_by_email(cls, email):
