@@ -39,16 +39,6 @@ save_production_images() {
     done
 }
 
-save_specific_images() {
-    $DOCKER save -o .cache/images/redis.tar redis:3.0-alpine
-    $DOCKER save -o .cache/images/postgres.tar postgres:9.5.6-alpine
-    $DOCKER save -o .cache/images/redash_base.tar redash/base:latest
-    $DOCKER save -o .cache/images/redash_server.tar redash_server:latest
-    $DOCKER save -o .cache/images/redash_worker.tar redash_worker:latest
-    $DOCKER save -o .cache/images/redash_redash.tar redash/redash:latest
-    $DOCKER save -o .cache/images/redash_nginx.tar redash/nginx:latest
-}
-
 convert_docker_compose_files() {
     # Install kompose if its not installed
     if ! hash kompose ; then
@@ -67,11 +57,9 @@ bundle_folder() {
 }
 
 
-
 build_client
 download_pip_modules
 build_and_run_images
 save_production_images
-save_specific_images
 convert_docker_compose_files
 bundle_git_folder
