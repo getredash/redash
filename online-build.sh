@@ -16,7 +16,7 @@ download_pip_modules() {
 }
 
 build_and_run_images() {
-    #$DOCKER build --compress --squash . -f DockerfileBase -t redash/base
+    $DOCKER build --compress --squash . -f DockerfileBase -t redash/base
     $DOCKER build --compress --squash . -f DockerfileOffline -t redash/redash:latest -t redash_server:latest -t redash_worker:latest # TODO: Change to offline build
     $DOCKER_COMPOSE -f docker-compose.production.yml -d up
     $DOCKER_COMPOSE run --rm server create_db
