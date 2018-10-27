@@ -18,14 +18,14 @@ download_pip_modules() {
 build_and_run_images() {
     $DOCKER build --compress --squash . -f DockerfileBase -t redash/base
     $DOCKER build --compress --squash . -f DockerfileOffline -t redash/redash:latest -t redash_server:latest -t redash_worker:latest # TODO: Change to offline build
-    $DOCKER_COMPOSE -f docker-compose.production.yml -d up
+    $DOCKER_COMPOSE -f docker-compose.production.yml up -d
     $DOCKER_COMPOSE run --rm server create_db
     $DOCKER_COMPOSE run --rm postgres psql -h postgres -U postgres -c "create database tests"
 } 
 
 save_production_images() {
     # Collect Image names
-    images=('redash_worker:latest' 'redash_server:latest')
+    images=()
     for img in $(cat docker-compose.production.yml | awk '{if ($1 == "image:") print $2;}'); do
         images+=($img)
     done
@@ -48,12 +48,12 @@ convert_docker_compose_files() {
     fi
     # Convert docker-compose yaml
     mkdir -p .cache/kubernetes
-    kompose convert -f docker-compose.production.yml -o .cache/kubernetes
+    kompose convert --provider openshift -f docker-compose.production.yml -o .cache/kubernetes
 }
 
 bundle_folder() {
     git bundle create .git/bundle --all
-    tar -cvf ../redash.tar .
+    tar -cvf ../redash.tar ../redash
 }
 
 
@@ -62,4 +62,4 @@ download_pip_modules
 build_and_run_images
 save_production_images
 convert_docker_compose_files
-bundle_git_folder
+bundle_folder
