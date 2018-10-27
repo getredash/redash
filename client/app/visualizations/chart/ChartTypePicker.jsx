@@ -10,6 +10,7 @@ const chartTypes = [
   { value: 'pie', label: 'Pie', icon: 'pie-chart' },
   { value: 'scatter', label: 'Scatter', icon: 'circle-o' },
   { value: 'bubble', label: 'Bubble', icon: 'circle-o' },
+  { value: 'heatmap', label: 'Heatmap', icon: 'th' },
   { value: 'box', label: 'Box', icon: 'square-o' },
 ];
 

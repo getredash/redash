@@ -6,13 +6,14 @@ import bar from 'plotly.js/lib/bar';
 import pie from 'plotly.js/lib/pie';
 import histogram from 'plotly.js/lib/histogram';
 import box from 'plotly.js/lib/box';
+import heatmap from 'plotly.js/lib/heatmap';
 import { each, isArray, isObject } from 'lodash';
 
 import { SeriesOptions, ValuesOptions } from '@/components/proptypes';
 import { normalizeValue, updateData, prepareData, prepareLayout } from '@/visualizations/chart/plotly/utils';
 
 
-Plotly.register([bar, pie, histogram, box]);
+Plotly.register([bar, pie, histogram, box, heatmap]);
 Plotly.setPlotConfig({
   modeBarButtonsToRemove: ['sendDataToCloud'],
 });
@@ -39,6 +40,7 @@ const Point = PropTypes.exact({
   yError: PropTypes.any,
   unused: PropTypes.any,
   size: PropTypes.any,
+  zValue: PropTypes.any,
 });
 
 const Series = PropTypes.exact({

@@ -15,6 +15,7 @@ import { QueryData } from '@/components/proptypes';
 import ChartTypePicker from './ChartTypePicker';
 import ChartSeriesEditor from './ChartSeriesEditor';
 import ChartColorEditor from './ChartColorEditor';
+import ColorSelect from './ColorSelect';
 import ChartRenderer from './ChartRenderer';
 
 const DEFAULT_CUSTOM_CODE = `// Available variables are x, ys, element, and Plotly
@@ -48,6 +49,10 @@ function PopoverHelp(props) {
 }
 
 PopoverHelp.propTypes = { children: PropTypes.arrayOf(PropTypes.node).isRequired };
+
+const colorSchemes = ['Blackbody', 'Bluered', 'Blues', 'Earth', 'Electric',
+  'Greens', 'Greys', 'Hot', 'Jet', 'Picnic', 'Portland',
+  'Rainbow', 'RdBu', 'Reds', 'Viridis', 'YlGnBu', 'YlOrRd', 'Custom...'];
 
 export default class ChartEditor extends React.Component {
   static propTypes = {
@@ -117,6 +122,7 @@ export default class ChartEditor extends React.Component {
   getErrorColumn = () => findKey(this.props.options.columnMapping, c => c === 'yError')
   getSizeColumn = () => findKey(this.props.options.columnMapping, c => c === 'size')
   getGroupby = () => findKey(this.props.options.columnMapping, c => c === 'groupby')
+  getZValue = () => findKey(this.props.options.columnMapping, c => c === 'zVal')
 
   updateOptions = (newOptions) => {
     const opts = this.props.options;
@@ -174,6 +180,9 @@ export default class ChartEditor extends React.Component {
   })
 
   toggleSortX = e => this.updateOptions({ sortX: e.target.checked })
+  toggleReverseX = e => this.updateOptions({ reverseX: e.target.checked })
+  toggleSortY = e => this.updateOptions({ sortY: e.target.checked })
+  toggleReverseY = e => this.updateOptions({ reverseY: e.target.checked })
 
   toggleXLabels = e => this.updateOptions({
     xAxis: {
@@ -195,6 +204,7 @@ export default class ChartEditor extends React.Component {
   updateGroupby = groupby => this.updateColumn({ groupby })
   updateSizeColumn = size => this.updateColumn({ size })
   updateErrorColumn = yError => this.updateColumn({ yError })
+  updateZValue = zVal => this.updateColumn({ zVal })
   updateStacking = stacking => this.updateOptions({
     series: { ...this.props.options.series, stacking },
   })
@@ -221,6 +231,7 @@ export default class ChartEditor extends React.Component {
   updatePercentFormat = e => this.updateOptions({ percentFormat: e.target.value })
   updateDateTimeFormat = e => this.updateOptions({ dateTImeFormat: e.target.value })
   updateTextFormat = e => this.updateOptions({ textFormat: e.target.value })
+  updateColorScheme = colorScheme => this.updateOptions({ colorScheme })
   yAxisPanel = (side, i) => {
     const yAxis = this.props.options.yAxis[i];
     return (
@@ -299,13 +310,14 @@ export default class ChartEditor extends React.Component {
                 </Select>
               </div>
 
-              {opts.globalSeriesType !== 'custom' ?
+              {!includes(['custom', 'heatmap'], opts.globalSeriesType) ?
                 <div className="form-group">
                   <label className="control-label">Group by</label>
                   <Select
                     placeholder="Choose column..."
                     value={this.getGroupby()}
                     onChange={this.updateGroupby}
+                    allowClear
                   >
                     {this.groupbyOptions()}
                   </Select>
@@ -318,24 +330,37 @@ export default class ChartEditor extends React.Component {
                     placeholder="Choose column..."
                     value={this.getSizeColumn()}
                     onChange={this.updateSizeColumn}
+                    allowClear
                   >
                     {this.sizeColumnOptions()}
                   </Select>
-                </div> : '' }
-
-              {opts.globalSeriesType !== 'custom' ?
+                </div> : null }
+              {some(opts.seriesOptions, { type: 'heatmap' }) ?
+                <div className="form-group">
+                  <label className="control-label">Color Column</label>
+                  <Select
+                    placeholder="Choose column..."
+                    value={this.getZValue()}
+                    onChange={this.updateZValue}
+                    allowClear
+                  >
+                    {this.sizeColumnOptions()}
+                  </Select>
+                </div> : null }
+              {!includes(['custom', 'heatmap'], opts.globalSeriesType) ?
                 <div className="form-group">
                   <label className="control-label">Errors column</label>
                   <Select
                     placeholder="Choose column..."
                     value={this.getErrorColumn()}
                     onChange={this.updateErrorColumn}
+                    allowClear
                   >
                     {this.xAxisOptions()}
                   </Select>
-                </div> : ''}
+                </div> : null}
 
-              {opts.globalSeriesType === 'custom' ?
+              {!includes(['custom', 'heatmap'], opts.globalSeriesType) ?
                 <div className="checkbox">
                   <label>
                     <input
@@ -359,7 +384,7 @@ export default class ChartEditor extends React.Component {
                   </label>
                 </div> : ''}
 
-              {opts.globalSeriesType !== 'custom' ?
+              {!includes(['custom', 'heatmap'], opts.globalSeriesType) ?
                 <div className="form-group">
                   <label className="control-label">Stacking</label>
                   <Select
@@ -449,7 +474,16 @@ export default class ChartEditor extends React.Component {
                     <i className="input-helper" /> Sort Values
                   </label>
                 </div>
-
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleReverseX}
+                      checked={opts.reverseX}
+                    />
+                    <i className="input-helper" /> Reverse Order
+                  </label>
+                </div>
                 <div className="checkbox">
                   <label>
                     <input
@@ -473,6 +507,27 @@ export default class ChartEditor extends React.Component {
               <div className="m-t-10 m-b-10">
                 {this.yAxisPanel('Left', 0)}
                 {this.yAxisPanel('Right', 1)}
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleSortY}
+                      checked={opts.sortY}
+                    />
+                    <i className="input-helper" /> Sort Values
+                  </label>
+                </div>
+                <div className="checkbox">
+                  <label>
+                    <input
+                      type="checkbox"
+                      onChange={this.toggleReverseY}
+                      checked={opts.reverseY}
+                    />
+                    <i className="input-helper" /> Reverse Order
+                  </label>
+                </div>
+
               </div>
             </Tabs.TabPane> : null }
           {opts.globalSeriesType !== 'custom' ?
@@ -486,7 +541,43 @@ export default class ChartEditor extends React.Component {
                 clientConfig={this.props.clientConfig}
               />
             </Tabs.TabPane> : null }
-          {opts.globalSeriesType !== 'custom' ?
+          {opts.globalSeriesType === 'heatmap' ?
+            <Tabs.TabPane key="colors" tab="Colors">
+              <div className="form-group">
+                <label className="control-label">Color Scheme</label>
+                <Select
+                  value={opts.colorScheme}
+                  placeholder="Choose color scheme..."
+                  onChange={this.updateColorScheme}
+                  allowClear
+                >
+                  {map(colorSchemes, c => <Select.Option key={c}>{c}</Select.Option>)}
+                </Select>
+              </div>
+              <div className="row">
+                <div className="col-xs-6">
+                  {opts.colorScheme === 'Custom...' ?
+                    <div className="form-group">
+                      <label className="control-label">Min Color</label>
+                      <ColorSelect
+                        value={opts.heatMinColor}
+                        onChange={this.updateHeatMinColor}
+                      />
+                    </div> : null }
+                </div>
+                <div className="col-xs-6">
+                  {opts.colorScheme === 'Custom...' ?
+                    <div className="form-group">
+                      <label className="control-label">Max Color</label>
+                      <ColorSelect
+                        value={opts.heatMaxColor}
+                        onChange={this.updateHeatMaxColor}
+                      />
+                    </div> : null }
+                </div>
+              </div>
+            </Tabs.TabPane> : null }
+          {!includes(['custom', 'heatmap'], opts.globalSeriesType) ?
             <Tabs.TabPane key="colors" tab="Colors">
               <ChartColorEditor
                 list={pie ? valuesList : seriesList}

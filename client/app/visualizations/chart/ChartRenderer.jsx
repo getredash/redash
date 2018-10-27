@@ -31,6 +31,7 @@ function chartData(mapping, data) {
     const yValues = {};
     let eValue = null;
     let sizeValue = null;
+    let zValue = null;
 
     each(row, (v, definition) => {
       definition = '' + definition;
@@ -68,6 +69,11 @@ function chartData(mapping, data) {
         sizeValue = value;
       }
 
+      if (type === 'zVal') {
+        point[type] = value;
+        zValue = value;
+      }
+
       if (type === 'multiFilter' || type === 'multi-filter') {
         seriesName = String(value);
       }
@@ -82,6 +88,9 @@ function chartData(mapping, data) {
 
         if (sizeValue !== null) {
           point.size = sizeValue;
+        }
+        if (zValue !== null) {
+          point.zVal = zValue;
         }
         addPointToSeries(point, series, ySeriesName);
       });
