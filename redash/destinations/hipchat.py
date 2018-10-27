@@ -46,7 +46,7 @@ class HipChat(BaseDestination):
                 'color': colors.get(new_state, 'green')
             }
             headers = {'Content-Type': 'application/json'}
-            response = requests.post(options['url'], data=json_dumps(data), headers=headers)
+            response = requests.post(options['url'], data=json_dumps(data), headers=headers, timeout=5.0)
 
             if response.status_code != 204:
                 logging.error('Bad status code received from HipChat: %d', response.status_code)

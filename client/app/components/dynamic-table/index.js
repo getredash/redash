@@ -48,7 +48,7 @@ function sortRows(rows, orderBy) {
 }
 
 function validateItemsPerPage(value, defaultValue) {
-  defaultValue = defaultValue || 10;
+  defaultValue = defaultValue || 25;
   value = parseInt(value, 10) || defaultValue;
   return value > 0 ? value : defaultValue;
 }
