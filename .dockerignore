@@ -1,6 +1,5 @@
 client/.tmp/
-client/dist/
-node_modules/
+.cache/images/
 .tmp/
 .venv/
 .git/

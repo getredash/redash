@@ -1,0 +1,9 @@
+FROM redash/base:latest
+
+COPY . ./
+RUN pip install --no-index --find-links=".cache/pip" -r requirements.txt -r requirements_dev.txt -r requirements_all_ds.txt
+RUN chown -R redash /app
+USER redash
+
+ENTRYPOINT ["/app/bin/docker-entrypoint"]
+CMD ["server"]
