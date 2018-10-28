@@ -93,6 +93,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^0.28.7",
+    "cypress": "^3.1.0",
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-airbnb-base": "^12.0.1",
